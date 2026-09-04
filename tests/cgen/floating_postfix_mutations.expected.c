@@ -78,20 +78,20 @@ bool __sn__FloatingPostfixValues_mutateSelf(__sn__FloatingPostfixValues *__sn__s
     return (((__sn__before_increment == 6.0) && (__sn__before_decrement == 7.0)) && (__sn__self->__sn__precise == 6.0));}
 
 int main() {
-    float __sn__single = 1.5;
+    float __sn__single = 1.5f;
     float __sn__single_before_increment = __sn__single++;
     float __sn__single_before_decrement = __sn__single--;
-    printf("%s\n", ((((__sn__single_before_increment == 1.5) && (__sn__single_before_decrement == 2.5)) && (__sn__single == 1.5))) ? "true" : "false");
+    printf("%s\n", ((((__sn__single_before_increment == 1.5f) && (__sn__single_before_decrement == 2.5f)) && (__sn__single == 1.5f))) ? "true" : "false");
     
     double __sn__precise = 3.25;
     double __sn__precise_before_increment = __sn__precise++;
     double __sn__precise_before_decrement = __sn__precise--;
     printf("%s\n", ((((__sn__precise_before_increment == 3.25) && (__sn__precise_before_decrement == 4.25)) && (__sn__precise == 3.25))) ? "true" : "false");
     
-    __sn__FloatingPostfixValues __sn__fields = (__sn__FloatingPostfixValues){ .__sn__single = 2.0, .__sn__precise = 6.0 };
+    __sn__FloatingPostfixValues __sn__fields = (__sn__FloatingPostfixValues){ .__sn__single = 2.0f, .__sn__precise = 6.0 };
     float __sn__field_single_before = __sn__fields.__sn__single++;
     double __sn__field_precise_before = __sn__fields.__sn__precise--;
-    printf("%s\n", (((((__sn__field_single_before == 2.0) && (__sn__fields.__sn__single == 3.0)) && (__sn__field_precise_before == 6.0)) && (__sn__fields.__sn__precise == 5.0))) ? "true" : "false");
+    printf("%s\n", (((((__sn__field_single_before == 2.0f) && (__sn__fields.__sn__single == 3.0f)) && (__sn__field_precise_before == 6.0)) && (__sn__fields.__sn__precise == 5.0))) ? "true" : "false");
     
     __sn__fields.__sn__precise++;
     
@@ -102,7 +102,7 @@ int main() {
             __al__->elem_tag = SN_TAG_DOUBLE;
     
     
-            sn_array_push(__al__, &(float){ 4.0 });
+            sn_array_push(__al__, &(float){ 4.0f });
             __al__;
         });
     {
@@ -113,7 +113,7 @@ int main() {
             float __sn__value = __sn__value__source;
             {
                 float __sn__before = __sn__value++;
-                printf("%s\n", ((((__sn__before == 4.0) && (__sn__value == 5.0)) && ((((float *)__sn__singles->data)[({ long long __ai__ = 0LL; __ai__ < 0 ? __ai__ + __sn__singles->len : __ai__; })]) == 4.0))) ? "true" : "false");
+                printf("%s\n", ((((__sn__before == 4.0f) && (__sn__value == 5.0f)) && ((((float *)__sn__singles->data)[({ long long __ai__ = 0LL; __ai__ < 0 ? __ai__ + __sn__singles->len : __ai__; })]) == 4.0f))) ? "true" : "false");
                 
             }
         }
@@ -139,13 +139,13 @@ int main() {
             }
         }
     }
-    float __sn____sn_place = 10.0;
+    float __sn____sn_place = 10.0f;
     float __sn__place_before = __sn____sn_place++;
     double __sn____sn_previous = 12.0;
     double __sn__previous_before = __sn____sn_previous--;
-    float __sn____sn_next = 14.0;
+    float __sn____sn_next = 14.0f;
     float __sn__next_before = __sn____sn_next++;
-    printf("%s\n", (((((((__sn__place_before == 10.0) && (__sn____sn_place == 11.0)) && (__sn__previous_before == 12.0)) && (__sn____sn_previous == 11.0)) && (__sn__next_before == 14.0)) && (__sn____sn_next == 15.0))) ? "true" : "false");
+    printf("%s\n", (((((((__sn__place_before == 10.0f) && (__sn____sn_place == 11.0f)) && (__sn__previous_before == 12.0)) && (__sn____sn_previous == 11.0)) && (__sn__next_before == 14.0f)) && (__sn____sn_next == 15.0f))) ? "true" : "false");
     
     fflush(stdout);
     return 0;

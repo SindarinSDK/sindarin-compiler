@@ -1,0 +1,75 @@
+{
+  "module": {
+    "filename": "tests\/mgen\/float_literal_suffix.sn",
+    "has_main": true,
+    "main_returns": false,
+    "has_main_args": false,
+    "has_forward_decls": false
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [],
+  "globals": [],
+  "functions": [
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "void"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/float_literal_suffix.sn",
+      "params": [],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "single",
+          "type": {
+            "kind": "float"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "float"
+            },
+            "kind": "literal",
+            "value_kind": "double",
+            "value": 16777217.0
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "precise",
+          "type": {
+            "kind": "double"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "double"
+            },
+            "kind": "literal",
+            "value_kind": "double",
+            "value": 16777217.0
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": [],
+  "fn_wrappers": []
+}
