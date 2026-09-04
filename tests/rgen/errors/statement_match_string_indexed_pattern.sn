@@ -1,0 +1,4 @@
+fn main(): void =>
+  var patterns: str[] = {"one"}
+  match "one" =>
+    patterns[0] => println("matched")

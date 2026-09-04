@@ -1,0 +1,11 @@
+struct Item =>
+  text: str
+
+fn makeItem(): Item =>
+  var item: Item = { text: "one" }
+  return item
+
+fn main(): void =>
+  var result: int = match "one" =>
+    makeItem().text => 1
+    else => 0

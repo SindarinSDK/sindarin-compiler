@@ -1,0 +1,8 @@
+struct Patterns =>
+  static fn value(): str =>
+    return "one"
+
+fn main(): void =>
+  var result: int = match "one" =>
+    Patterns.value() => 1
+    else => 0

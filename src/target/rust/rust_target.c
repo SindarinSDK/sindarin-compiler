@@ -2350,10 +2350,35 @@ static char *rust_string_match_constant_pattern_value(json_object *pattern)
 static bool rust_prepare_string_match_pattern(json_object *pattern)
 {
     char *value = rust_string_match_constant_pattern_value(pattern);
-    if (!value) return false;
-    json_object_object_add(pattern, "rust_string_pattern_value",
-                           json_object_new_string(value));
-    free(value);
+    if (value)
+    {
+        json_object_object_add(pattern, "rust_string_pattern_value",
+                               json_object_new_string(value));
+        free(value);
+        return true;
+    }
+
+    /* Dynamic string patterns are deliberately limited to stable borrowed
+     * places.  Requiring a variable root excludes temporaries, calls, static
+     * access, indexing, and every computed form while permitting arbitrarily
+     * deep field access through locals, parameters, and self. */
+    json_object *type = NULL;
+    if (!json_object_is_type(pattern, json_type_object) ||
+        !json_object_object_get_ex(pattern, "type", &type) ||
+        !json_string_property_equals(type, "kind", "string"))
+        return false;
+
+    json_object *root = pattern;
+    while (json_string_property_equals(root, "kind", "member"))
+    {
+        if (!json_object_object_get_ex(root, "object", &root) ||
+            !json_object_is_type(root, json_type_object))
+            return false;
+    }
+    if (!json_string_property_equals(root, "kind", "variable")) return false;
+
+    json_object_object_add(pattern, "rust_string_pattern_borrowed",
+                           json_object_new_boolean(true));
     return true;
 }
 
@@ -2564,7 +2589,7 @@ static bool rust_validate_statement_match(json_object *expr)
                 if (subject_is_string &&
                     !rust_prepare_string_match_pattern(pattern))
                     return rust_report_match_error(
-                        "supports string statement match only with string literal or literal-only concatenation patterns");
+                        "supports string statement match only with string literal, literal-only concatenation, or stable borrowed variable/member patterns");
             }
         }
 
@@ -2665,7 +2690,7 @@ static bool rust_validate_value_match(json_object *expr)
                 if (subject_is_string &&
                     !rust_prepare_string_match_pattern(pattern))
                     return rust_report_match_error(
-                        "supports string value match only with string literal or literal-only concatenation patterns");
+                        "supports string value match only with string literal, literal-only concatenation, or stable borrowed variable/member patterns");
             }
         }
     }
@@ -3733,6 +3758,10 @@ static void rust_mark_instance_method_clones(json_object *node)
         return;
     }
     if (!json_object_is_type(node, json_type_object)) return;
+
+    /* Borrowed match patterns are rendered only behind as_str(); neither the
+     * pattern nor a variable-rooted owner chain must be cloned or moved. */
+    if (json_boolean_property(node, "rust_string_pattern_borrowed")) return;
 
     const char *kind = json_string_property(node, "kind");
     if (kind && strcmp(kind, "variable") == 0 &&

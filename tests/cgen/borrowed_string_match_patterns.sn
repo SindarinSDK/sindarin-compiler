@@ -1,0 +1,10 @@
+struct Item =>
+  text: str
+
+fn main(): void =>
+  var pattern: str = "same"
+  var item: Item = { text: "same" }
+  var result: int = match "same" =>
+    "miss", item.text, pattern => 1
+    else => 0
+  println(result)

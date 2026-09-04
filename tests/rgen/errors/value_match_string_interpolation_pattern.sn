@@ -1,0 +1,5 @@
+fn main(): void =>
+  var part: str = "one"
+  var result: int = match "one" =>
+    $"{part}" => 1
+    else => 0
