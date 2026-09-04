@@ -2,7 +2,7 @@
 {{#each arms}}        {{#if is_else}}_{{else}}{{#each patterns}}{{#if @index}} | {{/if}}{{> expr this}}{{/each}}{{/if}} => {
 {{#each body.statements}}            ({{> expr expr}} as i64){{/each}}
         },
-{{/each}}    {{rbrace}}{{else}}match ({{> expr subject}} as i64) {
+{{/each}}    {{rbrace}}{{else}}match ({{> expr subject}}{{#unless (eq subject.type.kind "bool")}} as i64{{/unless}}) {
 {{#each arms}}        {{#if is_else}}_{{else}}{{#each patterns}}{{#if @index}} | {{/if}}{{> expr this}}{{/each}}{{/if}} => {
 {{#each body.statements}}            {{> stmt this}}{{nl}}{{/each}}        },
 {{/each}}{{#unless rust_has_else}}        _ => {},

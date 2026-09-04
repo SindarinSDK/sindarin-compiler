@@ -1,0 +1,49 @@
+fn observeSubject(calls: int as ref, order: int as ref, value: bool): bool =>
+  calls++
+  order = order * 10 + 1
+  return value
+
+fn main(): void =>
+  var subject_calls: int = 0
+  var order: int = 0
+  var first: int = 0
+  match observeSubject(subject_calls, order, true) =>
+    true =>
+      order = order * 10 + 2
+      first = 10
+    true =>
+      order = order * 10 + 3
+      first = 20
+    else => first = 30
+
+  var true_hit: bool = false
+  match true =>
+    true => true_hit = true
+    false => true_hit = false
+
+  var false_hit: bool = false
+  match false =>
+    true => false_hit = false
+    false => false_hit = true
+
+  var fallback: int = 0
+  match false =>
+    true => fallback = 1
+    else => fallback = 7
+
+  var unchanged: int = 11
+  match false =>
+    true => unchanged = 99
+
+  var alternatives: int = 0
+  match false =>
+    true, false => alternatives = 1
+    else => alternatives = 2
+
+  var nested: int = 0
+  match true =>
+    true =>
+      match false =>
+        false => nested = 5
+
+  println($"{subject_calls},{order},{first},{true_hit},{false_hit},{fallback},{unchanged},{alternatives},{nested}")

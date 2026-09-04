@@ -1,0 +1,1272 @@
+{
+  "module": {
+    "filename": "tests\/mgen\/bool_statement_match.sn",
+    "has_main": true,
+    "main_returns": false,
+    "has_main_args": false,
+    "has_forward_decls": true
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [],
+  "globals": [],
+  "functions": [
+    {
+      "name": "observeSubject",
+      "return_type": {
+        "kind": "bool"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/bool_statement_match.sn",
+      "params": [
+        {
+          "name": "calls",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "as_ref",
+          "sync_mod": "none"
+        },
+        {
+          "name": "order",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "as_ref",
+          "sync_mod": "none"
+        },
+        {
+          "name": "value",
+          "type": {
+            "kind": "bool"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none"
+        }
+      ],
+      "body": [
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "increment",
+            "mutation_op": "add",
+            "mutation_place": "variable",
+            "mutation_storage": "parameter",
+            "mutation_sync": false,
+            "mutation_arithmetic_mode": "checked",
+            "mutation_rhs_first": true,
+            "operand": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "variable",
+              "name": "calls",
+              "is_captured": true,
+              "is_parameter": true,
+              "parameter_mem_qual": "as_ref"
+            }
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "assign",
+            "target": "order",
+            "value": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "binary",
+              "op": "add",
+              "left": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "binary",
+                "op": "multiply",
+                "left": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "variable",
+                  "name": "order",
+                  "is_captured": true
+                },
+                "right": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 10
+                },
+                "arithmetic_mode": "checked"
+              },
+              "right": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "literal",
+                "value_kind": "int",
+                "value": 1
+              },
+              "arithmetic_mode": "checked"
+            },
+            "is_captured": true,
+            "assign_cleanup": "none"
+          }
+        },
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "bool"
+            },
+            "kind": "variable",
+            "name": "value"
+          }
+        }
+      ]
+    },
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "void"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/bool_statement_match.sn",
+      "params": [],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "subject_calls",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "order",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "first",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "match",
+            "subject": {
+              "type": {
+                "kind": "bool"
+              },
+              "kind": "call",
+              "callee": {
+                "type": {
+                  "kind": "function",
+                  "return_type": {
+                    "kind": "bool"
+                  },
+                  "param_types": [
+                    {
+                      "kind": "int"
+                    },
+                    {
+                      "kind": "int"
+                    },
+                    {
+                      "kind": "bool"
+                    }
+                  ],
+                  "param_mem_quals": [
+                    "as_ref",
+                    "as_ref",
+                    "default"
+                  ],
+                  "is_variadic": false,
+                  "is_native": false,
+                  "has_arena_param": false
+                },
+                "kind": "variable",
+                "name": "observeSubject"
+              },
+              "args": [
+                {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "variable",
+                  "name": "subject_calls",
+                  "is_ref_arg": true
+                },
+                {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "variable",
+                  "name": "order",
+                  "is_ref_arg": true
+                },
+                {
+                  "type": {
+                    "kind": "bool"
+                  },
+                  "kind": "literal",
+                  "value_kind": "bool",
+                  "value": true
+                }
+              ],
+              "is_tail_call": false,
+              "is_closure_call": false,
+              "is_fn_field_call": false
+            },
+            "arms": [
+              {
+                "is_else": false,
+                "patterns": [
+                  {
+                    "type": {
+                      "kind": "bool"
+                    },
+                    "kind": "literal",
+                    "value_kind": "bool",
+                    "value": true
+                  }
+                ],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "assign",
+                        "target": "order",
+                        "value": {
+                          "type": {
+                            "kind": "int"
+                          },
+                          "kind": "binary",
+                          "op": "add",
+                          "left": {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "binary",
+                            "op": "multiply",
+                            "left": {
+                              "type": {
+                                "kind": "int"
+                              },
+                              "kind": "variable",
+                              "name": "order"
+                            },
+                            "right": {
+                              "type": {
+                                "kind": "int"
+                              },
+                              "kind": "literal",
+                              "value_kind": "int",
+                              "value": 10
+                            },
+                            "arithmetic_mode": "checked"
+                          },
+                          "right": {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "literal",
+                            "value_kind": "int",
+                            "value": 2
+                          },
+                          "arithmetic_mode": "checked"
+                        },
+                        "assign_cleanup": "none"
+                      }
+                    },
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "assign",
+                        "target": "first",
+                        "value": {
+                          "type": {
+                            "kind": "int"
+                          },
+                          "kind": "literal",
+                          "value_kind": "int",
+                          "value": 10
+                        },
+                        "assign_cleanup": "none"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "is_else": false,
+                "patterns": [
+                  {
+                    "type": {
+                      "kind": "bool"
+                    },
+                    "kind": "literal",
+                    "value_kind": "bool",
+                    "value": true
+                  }
+                ],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "assign",
+                        "target": "order",
+                        "value": {
+                          "type": {
+                            "kind": "int"
+                          },
+                          "kind": "binary",
+                          "op": "add",
+                          "left": {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "binary",
+                            "op": "multiply",
+                            "left": {
+                              "type": {
+                                "kind": "int"
+                              },
+                              "kind": "variable",
+                              "name": "order"
+                            },
+                            "right": {
+                              "type": {
+                                "kind": "int"
+                              },
+                              "kind": "literal",
+                              "value_kind": "int",
+                              "value": 10
+                            },
+                            "arithmetic_mode": "checked"
+                          },
+                          "right": {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "literal",
+                            "value_kind": "int",
+                            "value": 3
+                          },
+                          "arithmetic_mode": "checked"
+                        },
+                        "assign_cleanup": "none"
+                      }
+                    },
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "assign",
+                        "target": "first",
+                        "value": {
+                          "type": {
+                            "kind": "int"
+                          },
+                          "kind": "literal",
+                          "value_kind": "int",
+                          "value": 20
+                        },
+                        "assign_cleanup": "none"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "is_else": true,
+                "patterns": [],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "assign",
+                        "target": "first",
+                        "value": {
+                          "type": {
+                            "kind": "int"
+                          },
+                          "kind": "literal",
+                          "value_kind": "int",
+                          "value": 30
+                        },
+                        "assign_cleanup": "none"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "true_hit",
+          "type": {
+            "kind": "bool"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "bool"
+            },
+            "kind": "literal",
+            "value_kind": "bool",
+            "value": false
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "match",
+            "subject": {
+              "type": {
+                "kind": "bool"
+              },
+              "kind": "literal",
+              "value_kind": "bool",
+              "value": true
+            },
+            "arms": [
+              {
+                "is_else": false,
+                "patterns": [
+                  {
+                    "type": {
+                      "kind": "bool"
+                    },
+                    "kind": "literal",
+                    "value_kind": "bool",
+                    "value": true
+                  }
+                ],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "bool"
+                        },
+                        "kind": "assign",
+                        "target": "true_hit",
+                        "value": {
+                          "type": {
+                            "kind": "bool"
+                          },
+                          "kind": "literal",
+                          "value_kind": "bool",
+                          "value": true
+                        },
+                        "assign_cleanup": "none"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "is_else": false,
+                "patterns": [
+                  {
+                    "type": {
+                      "kind": "bool"
+                    },
+                    "kind": "literal",
+                    "value_kind": "bool",
+                    "value": false
+                  }
+                ],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "bool"
+                        },
+                        "kind": "assign",
+                        "target": "true_hit",
+                        "value": {
+                          "type": {
+                            "kind": "bool"
+                          },
+                          "kind": "literal",
+                          "value_kind": "bool",
+                          "value": false
+                        },
+                        "assign_cleanup": "none"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "false_hit",
+          "type": {
+            "kind": "bool"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "bool"
+            },
+            "kind": "literal",
+            "value_kind": "bool",
+            "value": false
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "match",
+            "subject": {
+              "type": {
+                "kind": "bool"
+              },
+              "kind": "literal",
+              "value_kind": "bool",
+              "value": false
+            },
+            "arms": [
+              {
+                "is_else": false,
+                "patterns": [
+                  {
+                    "type": {
+                      "kind": "bool"
+                    },
+                    "kind": "literal",
+                    "value_kind": "bool",
+                    "value": true
+                  }
+                ],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "bool"
+                        },
+                        "kind": "assign",
+                        "target": "false_hit",
+                        "value": {
+                          "type": {
+                            "kind": "bool"
+                          },
+                          "kind": "literal",
+                          "value_kind": "bool",
+                          "value": false
+                        },
+                        "assign_cleanup": "none"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "is_else": false,
+                "patterns": [
+                  {
+                    "type": {
+                      "kind": "bool"
+                    },
+                    "kind": "literal",
+                    "value_kind": "bool",
+                    "value": false
+                  }
+                ],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "bool"
+                        },
+                        "kind": "assign",
+                        "target": "false_hit",
+                        "value": {
+                          "type": {
+                            "kind": "bool"
+                          },
+                          "kind": "literal",
+                          "value_kind": "bool",
+                          "value": true
+                        },
+                        "assign_cleanup": "none"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "fallback",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "match",
+            "subject": {
+              "type": {
+                "kind": "bool"
+              },
+              "kind": "literal",
+              "value_kind": "bool",
+              "value": false
+            },
+            "arms": [
+              {
+                "is_else": false,
+                "patterns": [
+                  {
+                    "type": {
+                      "kind": "bool"
+                    },
+                    "kind": "literal",
+                    "value_kind": "bool",
+                    "value": true
+                  }
+                ],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "assign",
+                        "target": "fallback",
+                        "value": {
+                          "type": {
+                            "kind": "int"
+                          },
+                          "kind": "literal",
+                          "value_kind": "int",
+                          "value": 1
+                        },
+                        "assign_cleanup": "none"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "is_else": true,
+                "patterns": [],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "assign",
+                        "target": "fallback",
+                        "value": {
+                          "type": {
+                            "kind": "int"
+                          },
+                          "kind": "literal",
+                          "value_kind": "int",
+                          "value": 7
+                        },
+                        "assign_cleanup": "none"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "unchanged",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 11
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "match",
+            "subject": {
+              "type": {
+                "kind": "bool"
+              },
+              "kind": "literal",
+              "value_kind": "bool",
+              "value": false
+            },
+            "arms": [
+              {
+                "is_else": false,
+                "patterns": [
+                  {
+                    "type": {
+                      "kind": "bool"
+                    },
+                    "kind": "literal",
+                    "value_kind": "bool",
+                    "value": true
+                  }
+                ],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "assign",
+                        "target": "unchanged",
+                        "value": {
+                          "type": {
+                            "kind": "int"
+                          },
+                          "kind": "literal",
+                          "value_kind": "int",
+                          "value": 99
+                        },
+                        "assign_cleanup": "none"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "alternatives",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "match",
+            "subject": {
+              "type": {
+                "kind": "bool"
+              },
+              "kind": "literal",
+              "value_kind": "bool",
+              "value": false
+            },
+            "arms": [
+              {
+                "is_else": false,
+                "patterns": [
+                  {
+                    "type": {
+                      "kind": "bool"
+                    },
+                    "kind": "literal",
+                    "value_kind": "bool",
+                    "value": true
+                  },
+                  {
+                    "type": {
+                      "kind": "bool"
+                    },
+                    "kind": "literal",
+                    "value_kind": "bool",
+                    "value": false
+                  }
+                ],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "assign",
+                        "target": "alternatives",
+                        "value": {
+                          "type": {
+                            "kind": "int"
+                          },
+                          "kind": "literal",
+                          "value_kind": "int",
+                          "value": 1
+                        },
+                        "assign_cleanup": "none"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "is_else": true,
+                "patterns": [],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "assign",
+                        "target": "alternatives",
+                        "value": {
+                          "type": {
+                            "kind": "int"
+                          },
+                          "kind": "literal",
+                          "value_kind": "int",
+                          "value": 2
+                        },
+                        "assign_cleanup": "none"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "nested",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "match",
+            "subject": {
+              "type": {
+                "kind": "bool"
+              },
+              "kind": "literal",
+              "value_kind": "bool",
+              "value": true
+            },
+            "arms": [
+              {
+                "is_else": false,
+                "patterns": [
+                  {
+                    "type": {
+                      "kind": "bool"
+                    },
+                    "kind": "literal",
+                    "value_kind": "bool",
+                    "value": true
+                  }
+                ],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "void"
+                        },
+                        "kind": "match",
+                        "subject": {
+                          "type": {
+                            "kind": "bool"
+                          },
+                          "kind": "literal",
+                          "value_kind": "bool",
+                          "value": false
+                        },
+                        "arms": [
+                          {
+                            "is_else": false,
+                            "patterns": [
+                              {
+                                "type": {
+                                  "kind": "bool"
+                                },
+                                "kind": "literal",
+                                "value_kind": "bool",
+                                "value": false
+                              }
+                            ],
+                            "body": {
+                              "kind": "block",
+                              "statements": [
+                                {
+                                  "kind": "expr",
+                                  "expr": {
+                                    "type": {
+                                      "kind": "int"
+                                    },
+                                    "kind": "assign",
+                                    "target": "nested",
+                                    "value": {
+                                      "type": {
+                                        "kind": "int"
+                                      },
+                                      "kind": "literal",
+                                      "value_kind": "int",
+                                      "value": 5
+                                    },
+                                    "assign_cleanup": "none"
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "string"
+                },
+                "kind": "interpolated_string",
+                "parts": [
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "variable",
+                      "name": "subject_calls"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": ","
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "variable",
+                      "name": "order"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": ","
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "variable",
+                      "name": "first"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": ","
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "bool"
+                      },
+                      "kind": "variable",
+                      "name": "true_hit"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": ","
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "bool"
+                      },
+                      "kind": "variable",
+                      "name": "false_hit"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": ","
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "variable",
+                      "name": "fallback"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": ","
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "variable",
+                      "name": "unchanged"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": ","
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "variable",
+                      "name": "alternatives"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": ","
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "variable",
+                      "name": "nested"
+                    }
+                  }
+                ],
+                "part_count": 17
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": [],
+  "fn_wrappers": []
+}
