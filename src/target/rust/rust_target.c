@@ -340,9 +340,64 @@ static bool rust_validate_structs(json_object *model)
 
 static json_object *rust_validation_model;
 static bool rust_validation_reported_error;
+static ArithmeticMode rust_validation_arithmetic_mode;
+
+typedef struct RustIteratorBindingScope
+{
+    const char *name;
+    struct RustIteratorBindingScope *parent;
+} RustIteratorBindingScope;
+
+static RustIteratorBindingScope *rust_iterator_binding_scope;
 
 static bool rust_validate_expr(json_object *expr);
 static bool rust_validate_value_match(json_object *expr);
+static bool rust_integer_type(const char *kind);
+static bool rust_float_type(const char *kind);
+
+/* Iterator-protocol bindings are represented as parameters by the shared
+ * model, even though the Rust template creates a fresh mutable value from each
+ * next() result.  Mark only a direct mutation of an active binding here so the
+ * Rust validator can distinguish it from a genuine by-value parameter without
+ * changing the shared model.  The scope chain preserves outer bindings across
+ * nested loops and naturally gives repeated binding names innermost scope. */
+static bool rust_mark_iterator_binding_mutation(json_object *mutation,
+                                                json_object *target)
+{
+    const char *name = json_string_property(target, "name");
+    if (!name ||
+        !json_string_property_equals(mutation, "mutation_storage", "parameter") ||
+        !json_string_property_equals(mutation, "mutation_place", "variable") ||
+        !json_string_property_equals(target, "kind", "variable") ||
+        !json_boolean_property(target, "is_parameter") ||
+        !json_string_property_equals(target, "parameter_mem_qual", "default"))
+        return false;
+
+    for (RustIteratorBindingScope *scope = rust_iterator_binding_scope;
+         scope; scope = scope->parent)
+    {
+        if (strcmp(scope->name, name) == 0)
+        {
+            json_object_object_add(mutation, "rust_iterator_binding_mutation",
+                                   json_object_new_boolean(true));
+            /* The shared storage classification also selects unchecked mode
+             * for parameter mutations.  This binding is a fresh Rust local,
+             * so restore the ordinary checked-local mode for integral
+             * compound and postfix operations before existing validation and
+             * lowering inspect it. */
+            json_object *type = NULL;
+            const char *type_kind = NULL;
+            if (rust_validation_arithmetic_mode == ARITH_CHECKED &&
+                json_object_object_get_ex(target, "type", &type) &&
+                (type_kind = json_string_property(type, "kind")) &&
+                rust_integer_type(type_kind))
+                json_object_object_add(mutation, "mutation_arithmetic_mode",
+                                       json_object_new_string("checked"));
+            return true;
+        }
+    }
+    return false;
+}
 
 static bool rust_report_match_error(const char *message)
 {
@@ -1219,6 +1274,8 @@ static bool rust_validate_expr(json_object *expr)
                     "Error: Rust target currently supports numeric compound assignment only between same-type integral operands\n");
             return false;
         }
+        bool iterator_binding_mutation =
+            rust_mark_iterator_binding_mutation(expr, target);
         if (strcmp(target_kind, "string") == 0)
         {
             if (json_boolean_property(expr, "mutation_sync"))
@@ -1244,7 +1301,8 @@ static bool rust_validate_expr(json_object *expr)
             return false;
         }
         if (json_string_property_equals(expr, "mutation_storage", "parameter") &&
-            !json_string_property_equals(target, "parameter_mem_qual", "as_ref"))
+            !json_string_property_equals(target, "parameter_mem_qual", "as_ref") &&
+            !iterator_binding_mutation)
         {
             fprintf(stderr,
                     "Error: Rust target does not support compound assignment of by-value parameters\n");
@@ -1279,7 +1337,8 @@ static bool rust_validate_expr(json_object *expr)
                 return false;
             }
             if (!json_string_property_equals(expr, "mutation_storage", "local") &&
-                !rust_floating_ref_parameter(expr, target))
+                !rust_floating_ref_parameter(expr, target) &&
+                !iterator_binding_mutation)
             {
                 fprintf(stderr,
                         "Error: Rust target supports floating-point compound assignment only for stable mutable locals and direct fields\n");
@@ -1294,7 +1353,7 @@ static bool rust_validate_expr(json_object *expr)
             strcmp(target_kind, value_kind) != 0 ||
             !json_string_property_equals(expr, "mutation_arithmetic_mode", "checked") ||
             (!json_string_property_equals(expr, "mutation_storage", "local") &&
-             !checked_ref_parameter))
+             !checked_ref_parameter && !iterator_binding_mutation))
         {
             fprintf(stderr,
                     "Error: Rust target currently supports numeric compound assignment only between same-type integral operands\n");
@@ -1313,7 +1372,7 @@ static bool rust_validate_expr(json_object *expr)
         return json_object_object_get_ex(expr, "operand", &child) && rust_validate_expr(child);
     if (strcmp(kind, "increment") == 0 || strcmp(kind, "decrement") == 0)
     {
-        const char *operand_kind = NULL;
+        const char *operand_kind = NULL, *operand_type_kind = NULL;
         json_object *operand_type = NULL;
         if (!json_object_object_get_ex(expr, "operand", &child) ||
             !(operand_kind = json_string_property(child, "kind")) ||
@@ -1333,9 +1392,21 @@ static bool rust_validate_expr(json_object *expr)
             return false;
         }
         bool operand_floating = rust_floating_type(operand_type);
+        bool iterator_binding_mutation =
+            rust_mark_iterator_binding_mutation(expr, child);
+        operand_type_kind = json_string_property(operand_type, "kind");
+        if (iterator_binding_mutation &&
+            !rust_integer_type(operand_type_kind) &&
+            !rust_float_type(operand_type_kind))
+        {
+            fprintf(stderr,
+                    "Error: Rust target supports iterator-protocol increment/decrement only for int, long, int32, byte, uint32, uint, float, or double bindings\n");
+            return false;
+        }
         if (json_string_property_equals(expr, "mutation_storage", "parameter"))
         {
-            if (!json_string_property_equals(child, "parameter_mem_qual", "as_ref"))
+            if (!json_string_property_equals(child, "parameter_mem_qual", "as_ref") &&
+                !iterator_binding_mutation)
             {
                 fprintf(stderr,
                         "Error: Rust target does not support increment/decrement of by-value parameters\n");
@@ -1351,7 +1422,8 @@ static bool rust_validate_expr(json_object *expr)
         if (operand_floating)
         {
             if (!json_string_property_equals(expr, "mutation_storage", "local") &&
-                !rust_floating_ref_parameter(expr, child))
+                !rust_floating_ref_parameter(expr, child) &&
+                !iterator_binding_mutation)
             {
                 fprintf(stderr,
                         "Error: Rust target supports floating-point increment/decrement only for stable mutable locals and direct fields\n");
@@ -1360,9 +1432,18 @@ static bool rust_validate_expr(json_object *expr)
             return rust_validate_expr(child);
         }
         if (!json_string_property_equals(expr, "mutation_arithmetic_mode", "checked"))
+        {
+            if (iterator_binding_mutation)
+            {
+                fprintf(stderr,
+                        "Error: Rust target supports integer iterator-protocol increment/decrement only with checked arithmetic\n");
+                return false;
+            }
             return rust_validate_expr(child);
+        }
         if (!json_string_property_equals(expr, "mutation_storage", "local") &&
-            !rust_checked_scalar_ref_parameter(expr, child))
+            !rust_checked_scalar_ref_parameter(expr, child) &&
+            !iterator_binding_mutation)
         {
             fprintf(stderr,
                     "Error: Rust target supports checked increment/decrement only for local variables and direct fields\n");
@@ -2003,7 +2084,20 @@ static bool rust_validate_for_each_iter(json_object *stmt)
         return false;
     }
 
-    return rust_validate_expr(iterable) && rust_validate_block(body);
+    if (!rust_validate_expr(iterable)) return false;
+
+    const char *iterator_name = json_string_property(stmt, "iterator_name");
+    if (!iterator_name)
+    {
+        fprintf(stderr,
+                "Error: Rust target encountered malformed iterator-protocol foreach model\n");
+        return false;
+    }
+    RustIteratorBindingScope scope = {iterator_name, rust_iterator_binding_scope};
+    rust_iterator_binding_scope = &scope;
+    bool body_valid = rust_validate_block(body);
+    rust_iterator_binding_scope = scope.parent;
+    return body_valid;
 }
 
 static bool rust_validate_stmt(json_object *stmt)
@@ -2493,13 +2587,16 @@ static bool rust_validate_model_impl(json_object *model)
     return true;
 }
 
-static bool rust_validate_model(json_object *model)
+static bool rust_validate_model(json_object *model, ArithmeticMode arithmetic_mode)
 {
     rust_validation_model = model;
     rust_validation_reported_error = false;
+    rust_validation_arithmetic_mode = arithmetic_mode;
+    rust_iterator_binding_scope = NULL;
     bool valid = rust_validate_model_impl(model);
     rust_validation_model = NULL;
     rust_validation_reported_error = false;
+    rust_iterator_binding_scope = NULL;
     return valid;
 }
 
@@ -3328,7 +3425,7 @@ static bool rust_emit(CompilerOptions *options, Module *module,
                                           &options->symbol_table,
                                           options->arithmetic_mode);
     if (!model) return false;
-    if (!rust_validate_model(model))
+    if (!rust_validate_model(model, options->arithmetic_mode))
     {
         json_object_put(model);
         return false;

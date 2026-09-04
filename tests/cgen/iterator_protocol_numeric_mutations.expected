@@ -1,0 +1,22 @@
+int 108 110 110 111
+int 218 220 220 221
+long 17 17 16
+long 17 17 16
+int32 12 12 13
+int32 12 12 13
+byte 10 10 9
+byte 10 10 9
+uint32 4 4 5
+uint32 4 4 5
+uint 13 13 12
+uint 13 13 12
+float true true true true
+float true true true true
+double true true true true
+double true true true true
+nested inner 5 6
+nested outer 102 102 101
+nested inner 5 6
+nested outer 212 212 211
+state 1 2 2 8 0 0 20 20
+helpers 41 42 43 44 45

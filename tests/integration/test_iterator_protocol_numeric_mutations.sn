@@ -1,0 +1,239 @@
+struct IntSequence =>
+  value: int
+  remaining: int
+  has_next_calls: int
+  next_calls: int
+
+  fn iter(): IntSequence =>
+    return self
+
+  fn hasNext(): bool =>
+    self.has_next_calls += 1
+    return self.next_calls < self.remaining
+
+  fn next(): int =>
+    var result: int = self.has_next_calls * 100 + self.next_calls * 10 + self.value
+    self.next_calls += 1
+    return result
+
+struct LongSequence =>
+  value: long
+  remaining: int
+
+  fn iter(): LongSequence =>
+    return self
+
+  fn hasNext(): bool =>
+    return self.remaining > 0
+
+  fn next(): long =>
+    self.remaining -= 1
+    return self.value
+
+struct Int32Sequence =>
+  value: int32
+  remaining: int
+
+  fn iter(): Int32Sequence =>
+    return self
+
+  fn hasNext(): bool =>
+    return self.remaining > 0
+
+  fn next(): int32 =>
+    self.remaining -= 1
+    return self.value
+
+struct ByteSequence =>
+  value: byte
+  remaining: int
+
+  fn iter(): ByteSequence =>
+    return self
+
+  fn hasNext(): bool =>
+    return self.remaining > 0
+
+  fn next(): byte =>
+    self.remaining -= 1
+    return self.value
+
+struct Uint32Sequence =>
+  value: uint32
+  remaining: int
+
+  fn iter(): Uint32Sequence =>
+    return self
+
+  fn hasNext(): bool =>
+    return self.remaining > 0
+
+  fn next(): uint32 =>
+    self.remaining -= 1
+    return self.value
+
+struct UintSequence =>
+  value: uint
+  remaining: int
+
+  fn iter(): UintSequence =>
+    return self
+
+  fn hasNext(): bool =>
+    return self.remaining > 0
+
+  fn next(): uint =>
+    self.remaining -= 1
+    return self.value
+
+struct FloatSequence =>
+  value: float
+  remaining: int
+
+  fn iter(): FloatSequence =>
+    return self
+
+  fn hasNext(): bool =>
+    return self.remaining > 0
+
+  fn next(): float =>
+    self.remaining -= 1
+    return self.value
+
+struct DoubleSequence =>
+  value: double
+  remaining: int
+
+  fn iter(): DoubleSequence =>
+    return self
+
+  fn hasNext(): bool =>
+    return self.remaining > 0
+
+  fn next(): double =>
+    self.remaining -= 1
+    return self.value
+
+fn rhsInt(calls: int as ref): int =>
+  calls += 1
+  return 2
+
+fn rhsFloat(calls: int as ref): float =>
+  calls += 1
+  return 2.0f
+
+fn selectInt(calls: int as ref): int =>
+  calls += 1
+  return 0
+
+fn main(): void =>
+  var __sn_rhs: int = 41
+  var __sn_place: int = 42
+  var __sn_next: int = 43
+  var __sn_previous: int = 44
+  var __sn_iter_0: int = 45
+  var iterable_calls: int = 0
+  var int_rhs_calls: int = 0
+  var float_rhs_calls: int = 0
+
+  var int_sources: IntSequence[] = { IntSequence {
+    value: 8,
+    remaining: 2,
+    has_next_calls: 0,
+    next_calls: 0
+  } }
+  for value in int_sources[selectInt(iterable_calls)] =>
+    var original: int = value
+    var compound: int = value += rhsInt(int_rhs_calls)
+    var postfix: int = value++
+    println($"int {original} {compound} {postfix} {value}")
+    if original == 108 =>
+      continue
+
+  var longs: LongSequence = {
+    value: 20l,
+    remaining: 2
+  }
+  for value in longs =>
+    var compound: long = value -= 3l
+    var postfix: long = value--
+    println($"long {compound} {postfix} {value}")
+
+  var int32s: Int32Sequence = {
+    value: 6i32,
+    remaining: 2
+  }
+  for value in int32s =>
+    var compound: int32 = value *= 2i32
+    var postfix: int32 = value++
+    println($"int32 {compound} {postfix} {value}")
+
+  var bytes: ByteSequence = {
+    value: 20b,
+    remaining: 2
+  }
+  for value in bytes =>
+    var compound: byte = value /= 2b
+    var postfix: byte = value--
+    println($"byte {compound} {postfix} {value}")
+
+  var uint32s: Uint32Sequence = {
+    value: 10u32,
+    remaining: 2
+  }
+  for value in uint32s =>
+    var compound: uint32 = value %= 6u32
+    var postfix: uint32 = value++
+    println($"uint32 {compound} {postfix} {value}")
+
+  var uints: UintSequence = {
+    value: 10u,
+    remaining: 2
+  }
+  for value in uints =>
+    var compound: uint = value += 3u
+    var postfix: uint = value--
+    println($"uint {compound} {postfix} {value}")
+
+  var floats: FloatSequence = {
+    value: 4.0f,
+    remaining: 2
+  }
+  for value in floats =>
+    var added: float = value += rhsFloat(float_rhs_calls)
+    var subtracted: float = value -= 1.0f
+    var postfix: float = value++
+    println($"float {added == 6.0f} {subtracted == 5.0f} {postfix == 5.0f} {value == 6.0f}")
+
+  var doubles: DoubleSequence = {
+    value: 8.0,
+    remaining: 2
+  }
+  for value in doubles =>
+    var multiplied: double = value *= 0.5
+    var divided: double = value /= 2.0
+    var postfix: double = value--
+    println($"double {multiplied == 4.0} {divided == 2.0} {postfix == 2.0} {value == 1.0}")
+
+  var nested_outer: IntSequence = {
+    value: 1,
+    remaining: 2,
+    has_next_calls: 0,
+    next_calls: 0
+  }
+  var nested_inner: ByteSequence = {
+    value: 5b,
+    remaining: 2
+  }
+  for value in nested_outer =>
+    var outer_compound: int = value += 1
+    for value in nested_inner =>
+      var inner_postfix: byte = value++
+      println($"nested inner {inner_postfix} {value}")
+      break
+    var outer_postfix: int = value--
+    println($"nested outer {outer_compound} {outer_postfix} {value}")
+    continue
+
+  println($"state {iterable_calls} {int_rhs_calls} {float_rhs_calls} {int_sources[0].value} {int_sources[0].has_next_calls} {int_sources[0].next_calls} {longs.value} {bytes.value}")
+  println($"helpers {__sn_rhs} {__sn_place} {__sn_next} {__sn_previous} {__sn_iter_0}")
