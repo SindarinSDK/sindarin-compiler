@@ -1,0 +1,5 @@
+fn main(): void =>
+  var result: str = match true =>
+    true => "yes"
+    else => "no"
+  println(result)

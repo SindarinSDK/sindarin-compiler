@@ -1,5 +1,6 @@
 fn main(): void =>
+  var pattern: bool = true
   var result: bool = match true =>
-    true => true
+    pattern => true
     else => false
-  println($"{result}")
+  println(result)

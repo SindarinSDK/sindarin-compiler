@@ -1,0 +1,8 @@
+fn main(): void =>
+  var effects: int = 0
+  var result: bool = match true =>
+    true =>
+      effects++
+      true
+    else => false
+  println(result)
