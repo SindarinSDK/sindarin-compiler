@@ -1,0 +1,4 @@
+fn main(): void =>
+  var pattern: bool = true
+  match true =>
+    pattern => println("matched")

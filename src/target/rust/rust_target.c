@@ -1605,6 +1605,18 @@ static bool rust_int_match_literal_pattern(json_object *pattern)
            json_object_is_type(value, json_type_int);
 }
 
+static bool rust_bool_match_literal_pattern(json_object *pattern)
+{
+    json_object *type = NULL, *value = NULL;
+    return json_object_is_type(pattern, json_type_object) &&
+           json_object_object_get_ex(pattern, "type", &type) &&
+           json_string_property_equals(type, "kind", "bool") &&
+           json_string_property_equals(pattern, "kind", "literal") &&
+           json_string_property_equals(pattern, "value_kind", "bool") &&
+           json_object_object_get_ex(pattern, "value", &value) &&
+           json_object_is_type(value, json_type_boolean);
+}
+
 static bool rust_validate_statement_match(json_object *expr)
 {
     json_object *subject = NULL, *subject_type = NULL, *arms = NULL;
@@ -1617,10 +1629,12 @@ static bool rust_validate_statement_match(json_object *expr)
     {
         return rust_report_match_error("encountered malformed statement match model");
     }
-    if (!json_string_property_equals(subject_type, "kind", "int"))
+    bool subject_is_int = json_string_property_equals(subject_type, "kind", "int");
+    bool subject_is_bool = json_string_property_equals(subject_type, "kind", "bool");
+    if (!subject_is_int && !subject_is_bool)
     {
         return rust_report_match_error(
-            "supports statement match only with int subjects");
+            "supports statement match only with int or bool subjects");
     }
     if (!rust_validate_expr(subject)) return false;
 
@@ -1663,10 +1677,13 @@ static bool rust_validate_statement_match(json_object *expr)
             has_pattern_arm = true;
             for (size_t p = 0; p < pattern_count; p++)
             {
-                if (!rust_int_match_literal_pattern(
-                        json_object_array_get_idx(patterns, p)))
+                json_object *pattern = json_object_array_get_idx(patterns, p);
+                if (subject_is_int && !rust_int_match_literal_pattern(pattern))
                     return rust_report_match_error(
                         "supports statement match only with integer literal patterns");
+                if (subject_is_bool && !rust_bool_match_literal_pattern(pattern))
+                    return rust_report_match_error(
+                        "supports statement match only with boolean literal patterns");
             }
         }
 
