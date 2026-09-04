@@ -1,0 +1,4 @@
+fn main(): void =>
+  var values: float[] = {1.0f}
+  var needle: double = 1.0
+  var found: bool = values.contains(needle)

@@ -487,7 +487,7 @@ static bool rust_unsigned_integer_type(const char *kind)
 static bool rust_array_search_type_supported(const char *kind)
 {
     return rust_integer_type(kind) ||
-           (kind && strcmp(kind, "double") == 0) ||
+           (kind && (strcmp(kind, "float") == 0 || strcmp(kind, "double") == 0)) ||
            (kind && (strcmp(kind, "bool") == 0 || strcmp(kind, "char") == 0 ||
                      strcmp(kind, "string") == 0));
 }
@@ -1414,8 +1414,8 @@ static bool rust_validate_expr(json_object *expr)
                 }
                 if ((strcmp(method, "contains") == 0 || strcmp(method, "indexOf") == 0))
                 {
-                    json_object *element_type = NULL;
-                    const char *element_kind = NULL;
+                    json_object *element_type = NULL, *arg = NULL, *arg_type = NULL;
+                    const char *element_kind = NULL, *arg_kind = NULL;
                     if (!json_object_object_get_ex(object_type, "element_type", &element_type) ||
                         !(element_kind = json_string_property(element_type, "kind")) ||
                         !rust_array_search_type_supported(element_kind))
@@ -1423,6 +1423,19 @@ static bool rust_validate_expr(json_object *expr)
                         fprintf(stderr,
                                 "Error: Rust target does not support array method '%s' for %s elements yet\n",
                                 method, element_kind ? element_kind : "<unknown>");
+                        return false;
+                    }
+                    if (strcmp(element_kind, "float") == 0 &&
+                        (!json_object_object_get_ex(expr, "args", &args) ||
+                         json_object_array_length(args) != 1 ||
+                         !(arg = json_object_array_get_idx(args, 0)) ||
+                         !json_object_object_get_ex(arg, "type", &arg_type) ||
+                         !(arg_kind = json_string_property(arg_type, "kind")) ||
+                         strcmp(arg_kind, "float") != 0))
+                    {
+                        fprintf(stderr,
+                                "Error: Rust target requires array method '%s' on float[] to receive an exact float argument; got %s\n",
+                                method, arg_kind ? arg_kind : "<unknown>");
                         return false;
                     }
                 }
@@ -2604,11 +2617,12 @@ static void rust_lower_array_searches(json_object *node)
     const char *method = json_string_property(callee, "member_name");
     const char *element_kind = json_string_property(element_type, "kind");
     if (!method || (strcmp(method, "contains") != 0 && strcmp(method, "indexOf") != 0) ||
-        !element_kind || strcmp(element_kind, "double") != 0) return;
+        !element_kind || (strcmp(element_kind, "float") != 0 &&
+                          strcmp(element_kind, "double") != 0)) return;
 
     json_object_object_add(node, "rust_float_array_search", json_object_new_boolean(true));
     json_object_object_add(node, "rust_float_array_search_type",
-                           json_object_new_string("f64"));
+                           json_object_new_string(strcmp(element_kind, "float") == 0 ? "f32" : "f64"));
 }
 
 static bool rust_owned_value_type(json_object *node)

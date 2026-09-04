@@ -1,0 +1,7 @@
+struct Point =>
+  x: int
+
+fn main(): void =>
+  var needle: Point = { x: 1 }
+  var values: Point[] = {needle}
+  var index: int = values.indexOf(needle)

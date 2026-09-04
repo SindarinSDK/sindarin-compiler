@@ -1,0 +1,191 @@
+{
+  "module": {
+    "filename": "tests\/mgen\/float_array_search.sn",
+    "has_main": true,
+    "main_returns": false,
+    "has_main_args": false,
+    "has_forward_decls": false
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [],
+  "globals": [],
+  "functions": [
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "void"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/float_array_search.sn",
+      "params": [],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "values",
+          "type": {
+            "kind": "array",
+            "name": "arr",
+            "element_type": {
+              "kind": "float"
+            }
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "arr",
+          "initializer": {
+            "type": {
+              "kind": "array",
+              "name": "arr",
+              "element_type": {
+                "kind": "float"
+              }
+            },
+            "kind": "array_literal",
+            "elements": [
+              {
+                "type": {
+                  "kind": "float"
+                },
+                "kind": "literal",
+                "value_kind": "double",
+                "value": 1.25
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "found",
+          "type": {
+            "kind": "bool"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "bool"
+            },
+            "kind": "call",
+            "callee": {
+              "type": {
+                "kind": "function",
+                "return_type": {
+                  "kind": "bool"
+                },
+                "param_types": [
+                  {
+                    "kind": "float"
+                  }
+                ],
+                "is_variadic": false,
+                "is_native": false,
+                "has_arena_param": false
+              },
+              "kind": "member",
+              "object": {
+                "type": {
+                  "kind": "array",
+                  "name": "arr",
+                  "element_type": {
+                    "kind": "float"
+                  }
+                },
+                "kind": "variable",
+                "name": "values"
+              },
+              "member_name": "contains"
+            },
+            "args": [
+              {
+                "type": {
+                  "kind": "float"
+                },
+                "kind": "literal",
+                "value_kind": "double",
+                "value": 1.25
+              }
+            ],
+            "is_tail_call": false,
+            "is_closure_call": false,
+            "is_fn_field_call": false
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "index",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "call",
+            "callee": {
+              "type": {
+                "kind": "function",
+                "return_type": {
+                  "kind": "int"
+                },
+                "param_types": [
+                  {
+                    "kind": "float"
+                  }
+                ],
+                "is_variadic": false,
+                "is_native": false,
+                "has_arena_param": false
+              },
+              "kind": "member",
+              "object": {
+                "type": {
+                  "kind": "array",
+                  "name": "arr",
+                  "element_type": {
+                    "kind": "float"
+                  }
+                },
+                "kind": "variable",
+                "name": "values"
+              },
+              "member_name": "indexOf"
+            },
+            "args": [
+              {
+                "type": {
+                  "kind": "float"
+                },
+                "kind": "literal",
+                "value_kind": "double",
+                "value": 1.25
+              }
+            ],
+            "is_tail_call": false,
+            "is_closure_call": false,
+            "is_fn_field_call": false
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": [],
+  "fn_wrappers": []
+}

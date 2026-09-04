@@ -1,0 +1,33 @@
+fn observeReceiver(calls: int as ref): float[] =>
+  calls++
+  return {0.0f, 1.5f, 1.5f}
+
+fn observeNeedle(calls: int as ref, value: float): float =>
+  calls++
+  return value
+
+fn main(): void =>
+  var positive_zero: float = 0.0f
+  var negative_zero: float = -0.0f
+  var nan: float = positive_zero / positive_zero
+  var copied_nan: float = nan
+  var values: float[] = {positive_zero, 1.5f, 1.5f, nan}
+  var empty: float[] = {}
+
+  println(values.contains(1.5f))
+  println(values.contains(9.5f))
+  println(values.indexOf(1.5f))
+  println(values.indexOf(9.5f))
+  println(empty.contains(1.5f))
+  println(empty.indexOf(1.5f))
+  println(values.contains(negative_zero))
+  println(values.indexOf(negative_zero))
+  println(values.contains(copied_nan))
+  println(values.indexOf(copied_nan))
+
+  var receiver_calls: int = 0
+  var needle_calls: int = 0
+  println(observeReceiver(receiver_calls).contains(observeNeedle(needle_calls, 1.5f)))
+  println($"{receiver_calls},{needle_calls}")
+  println(observeReceiver(receiver_calls).indexOf(observeNeedle(needle_calls, 1.5f)))
+  println($"{receiver_calls},{needle_calls}")

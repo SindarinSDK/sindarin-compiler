@@ -1,0 +1,4 @@
+fn main(): void =>
+  var values: float[] = {1.25f}
+  var found: bool = values.contains(1.25f)
+  var index: int = values.indexOf(1.25f)
