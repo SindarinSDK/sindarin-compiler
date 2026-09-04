@@ -1,0 +1,6 @@
+fn assign(value: int, untouched: int): int =>
+  var result: int = value = value + 1
+  return result + value + untouched
+
+fn main(): void =>
+  println(assign(1, 2))

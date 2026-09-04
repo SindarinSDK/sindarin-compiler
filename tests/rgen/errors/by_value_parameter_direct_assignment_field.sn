@@ -1,0 +1,10 @@
+struct Point =>
+  x: int
+
+fn assign(value: Point): int =>
+  value.x = 2
+  return value.x
+
+fn main(): void =>
+  var point: Point = { x: 1 }
+  println(assign(point))

@@ -1,0 +1,6 @@
+fn assign(value: int[]): int[] =>
+  return value = {2}
+
+fn main(): void =>
+  var source: int[] = {1}
+  println(assign(source)[0])

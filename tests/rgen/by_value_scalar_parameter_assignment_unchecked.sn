@@ -1,0 +1,93 @@
+fn observeInt(calls: int as ref, value: int): int =>
+  calls = calls + 1
+  return value
+
+fn assignBool(value: bool, untouched: bool): bool =>
+  value = !value
+  return value && untouched
+
+fn assignInt(value: int, calls: int as ref, untouched: int): int =>
+  value = observeInt(calls, value + 2)
+  return value + untouched
+
+fn assignLong(value: long, untouched: long): long =>
+  var assigned: long = value = value + 3l
+  return assigned + value + untouched
+
+fn helperNames(__sn_rhs: int, __sn_place: int, __sn_next: int): int =>
+  var assigned: int = __sn_rhs = __sn_rhs + __sn_place
+  if true =>
+    var __sn_next: int = 4
+    __sn_next = 5
+  return assigned + __sn_rhs + __sn_next
+
+fn statementOrder(value: int, delta: int): int =>
+  if true =>
+    var readBefore: int = value + delta
+    value = value + 1
+    var value: int = readBefore
+    value = value + 10
+  return value
+
+struct ScalarAssignments =>
+  marker: int = 0
+
+  static fn assignInt32(value: int32, untouched: int32): int32 =>
+    value = value + 4i32
+    return value + untouched
+
+  static fn assignByte(value: byte, untouched: byte): byte =>
+    var assigned: byte = value = value + 5b
+    return assigned + value + untouched
+
+  static fn assignUint32(value: uint32, untouched: uint32): uint32 =>
+    return value = value + untouched
+
+  fn assignUint(value: uint, untouched: uint): uint =>
+    value = value + 7u
+    return value + untouched + self.marker.toUint()
+
+  fn assignFloat(value: float, untouched: float): float =>
+    var assigned: float = value = value + 1.5f
+    return assigned + value + untouched
+
+  fn assignDouble(value: double, untouched: double): double =>
+    return value = value + untouched
+
+fn main(): void =>
+  var boolCaller: bool = false
+  var intCaller: int = 10
+  var longCaller: long = 20l
+  var int32Caller: int32 = 30i32
+  var byteCaller: byte = 40b
+  var uint32Caller: uint32 = 50u32
+  var uintCaller: uint = 60u
+  var floatCaller: float = 2.0f
+  var doubleCaller: double = 3.0
+  var calls: int = 0
+  var ops: ScalarAssignments = { marker: 1 }
+
+  var boolResult: bool = assignBool(boolCaller, true)
+  var intResult: int = assignInt(intCaller, calls, 1)
+  var longResult: long = assignLong(longCaller, 1l)
+  var int32Result: int32 = ScalarAssignments.assignInt32(int32Caller, 1i32)
+  var byteResult: byte = ScalarAssignments.assignByte(byteCaller, 1b)
+  var uint32Result: uint32 = ScalarAssignments.assignUint32(uint32Caller, 2u32)
+  var uintResult: uint = ops.assignUint(uintCaller, 2u)
+  var floatResult: float = ops.assignFloat(floatCaller, 0.5f)
+  var doubleResult: double = ops.assignDouble(doubleCaller, 0.25)
+  var helperResult: int = helperNames(1, 2, 3)
+  var orderCaller: int = 4
+  var orderResult: int = statementOrder(orderCaller, 2)
+
+  println(boolResult && !boolCaller)
+  println($"{intResult}/{intCaller}/{calls}")
+  println($"{longResult}/{longCaller}")
+  println($"{int32Result}/{int32Caller}")
+  println($"{byteResult}/{byteCaller}")
+  println($"{uint32Result}/{uint32Caller}")
+  println($"{uintResult}/{uintCaller}")
+  println(floatResult == 7.5f && floatCaller == 2.0f)
+  println(doubleResult == 3.25 && doubleCaller == 3.0)
+  println(helperResult)
+  println($"{orderResult}/{orderCaller}")
