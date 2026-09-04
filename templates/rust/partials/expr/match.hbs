@@ -1,11 +1,28 @@
-{{#if rust_floating_match}}{{#if rust_value_match}}{
-    let __sn_match_subject: {{rust_type subject.type}} = {{> expr subject}};
-{{#each arms}}    {{#if is_else}}else{{else}}{{#if @first}}if{{else}}else if{{/if}} ({{#each patterns}}{{#if @index}} || {{/if}}__sn_match_subject == {{> expr this}}{{/each}}){{/if}} {
+{{#if rust_string_match}}{{#if rust_value_match}}{
+{{#if (eq subject.kind "array_access")}}{{> expr_match_array_receiver subject.array rust_match_array_name=rust_match_array_name rust_match_index_name=rust_match_index_name}}    let {{rust_ident rust_match_index_name}} = __sn_index({{rust_ident rust_match_array_name}}.len(), {{> expr subject.index}});
+    let {{rust_ident rust_match_subject_name}}: String = {{rust_ident rust_match_array_name}}[{{rust_ident rust_match_index_name}}].clone();
+{{else}}
+    let {{rust_ident rust_match_subject_name}}: String = {{> expr subject}};
+{{/if}}
+{{#each arms}}    {{#if is_else}}else{{else}}{{#if @first}}if{{else}}else if{{/if}} ({{#each patterns}}{{#if @index}} || {{/if}}{{rust_ident ../../../rust_match_subject_name}}.as_str() == {{rust_string_literal rust_string_pattern_value}}{{/each}}){{/if}} {
 {{#each body.statements}}        ({{> expr expr}}{{#unless (eq ../../type.kind "bool")}} as {{rust_type ../../type}}{{/unless}}){{/each}}
     }
 {{/each}}{{rbrace}}{{else}}{
-    let __sn_match_subject: {{rust_type subject.type}} = {{> expr subject}};
-{{#each arms}}    {{#if is_else}}else{{else}}{{#if @first}}if{{else}}else if{{/if}} ({{#each patterns}}{{#if @index}} || {{/if}}__sn_match_subject == {{> expr this}}{{/each}}){{/if}} {
+{{#if (eq subject.kind "array_access")}}{{> expr_match_array_receiver subject.array rust_match_array_name=rust_match_array_name rust_match_index_name=rust_match_index_name}}    let {{rust_ident rust_match_index_name}} = __sn_index({{rust_ident rust_match_array_name}}.len(), {{> expr subject.index}});
+    let {{rust_ident rust_match_subject_name}}: String = {{rust_ident rust_match_array_name}}[{{rust_ident rust_match_index_name}}].clone();
+{{else}}
+    let {{rust_ident rust_match_subject_name}}: String = {{> expr subject}};
+{{/if}}
+{{#each arms}}    {{#if is_else}}else{{else}}{{#if @first}}if{{else}}else if{{/if}} ({{#each patterns}}{{#if @index}} || {{/if}}{{rust_ident ../../../rust_match_subject_name}}.as_str() == {{rust_string_literal rust_string_pattern_value}}{{/each}}){{/if}} {
+{{#each body.statements}}        {{> stmt this}}{{nl}}{{/each}}    }
+{{/each}}{{rbrace}}{{/if}}{{else}}{{#if rust_floating_match}}{{#if rust_value_match}}{
+    let {{rust_ident rust_match_subject_name}}: {{rust_type subject.type}} = {{> expr subject}};
+{{#each arms}}    {{#if is_else}}else{{else}}{{#if @first}}if{{else}}else if{{/if}} ({{#each patterns}}{{#if @index}} || {{/if}}{{rust_ident ../../../rust_match_subject_name}} == {{> expr this}}{{/each}}){{/if}} {
+{{#each body.statements}}        ({{> expr expr}}{{#unless (eq ../../type.kind "bool")}} as {{rust_type ../../type}}{{/unless}}){{/each}}
+    }
+{{/each}}{{rbrace}}{{else}}{
+    let {{rust_ident rust_match_subject_name}}: {{rust_type subject.type}} = {{> expr subject}};
+{{#each arms}}    {{#if is_else}}else{{else}}{{#if @first}}if{{else}}else if{{/if}} ({{#each patterns}}{{#if @index}} || {{/if}}{{rust_ident ../../../rust_match_subject_name}} == {{> expr this}}{{/each}}){{/if}} {
 {{#each body.statements}}        {{> stmt this}}{{nl}}{{/each}}    }
 {{/each}}{{rbrace}}{{/if}}{{else}}{{#if rust_value_match}}match ({{> expr subject}}{{#unless (eq subject.type.kind "bool")}} as {{rust_type subject.type}}{{/unless}}) {
 {{#each arms}}        {{#if is_else}}_{{else}}{{#each patterns}}{{#if @index}} | {{/if}}{{> expr this}}{{/each}}{{/if}} => {
@@ -15,4 +32,4 @@
 {{#each arms}}        {{#if is_else}}_{{else}}{{#each patterns}}{{#if @index}} | {{/if}}{{> expr this}}{{/each}}{{/if}} => {
 {{#each body.statements}}            {{> stmt this}}{{nl}}{{/each}}        },
 {{/each}}{{#unless rust_has_else}}        _ => {},
-{{/unless}}    {{rbrace}}{{/if}}{{/if~}}
+{{/unless}}    {{rbrace}}{{/if}}{{/if}}{{/if~}}

@@ -1,0 +1,23 @@
+fn main(): void =>
+  var directStatement: int = 0
+  match "alphabet" =>
+    "al" + ("pha" + "bet") => directStatement = 1
+
+  var nestedStatement: int = 0
+  match 1 =>
+    1 =>
+      match "nested" =>
+        ("ne" + "st") + "ed" => nestedStatement = 2
+
+  var directValue: int = match "value" =>
+    "va" + ("lu" + "e") => 3
+    else => 0
+
+  var nestedValue: int = match 1 =>
+    1 =>
+      match "inside" =>
+        ("in" + "si") + "de" => 4
+        else => 0
+    else => 0
+
+  println(directStatement == 1 && nestedStatement == 2 && directValue == 3 && nestedValue == 4)

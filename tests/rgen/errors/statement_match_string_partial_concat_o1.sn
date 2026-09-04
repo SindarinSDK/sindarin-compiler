@@ -1,0 +1,4 @@
+fn main(): void =>
+  var suffix: str = "bet"
+  match "alphabet" =>
+    "al" + (("pha" + "") + suffix) => println("matched")
