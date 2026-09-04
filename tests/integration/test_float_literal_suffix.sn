@@ -1,0 +1,10 @@
+fn main(): void =>
+  var values: float[] = {16777217.0f, 1.5f}
+
+  println(16777217.0f == 16777216.0f)
+  println(values.contains(16777217.0f))
+  println(values.indexOf(16777217.0f))
+  println(values[0] == 16777216.0f && values[1] == 1.5f)
+
+  var precise: double = 16777217.0
+  println(precise == 16777217.0)

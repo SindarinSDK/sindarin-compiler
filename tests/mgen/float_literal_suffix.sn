@@ -1,0 +1,3 @@
+fn main(): void =>
+  var single: float = 16777217.0f
+  var precise: double = 16777217.0

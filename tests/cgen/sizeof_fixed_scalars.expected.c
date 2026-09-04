@@ -39,7 +39,7 @@ int main() {
     long long __sn__type_float = sizeof(float);
     long long __sn__type_double = sizeof(double);
     long long __sn__integer = 9LL;
-    float __sn__single = 1.5;
+    float __sn__single = 1.5f;
     long long __sn__counter = 0LL;
     long long __sn__expression_sizes = sn_add_long(sn_add_long(sizeof(long long), sizeof(float)), sizeof(char));
     long long __sn__arithmetic = sn_add_long(sizeof(long long), sn_mul_long(sizeof(float), sizeof(unsigned char)));
