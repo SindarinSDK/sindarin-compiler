@@ -1,0 +1,7 @@
+fn mutate(value: float): float =>
+  if true =>
+    var value: float = value += 1.0f
+  return value
+
+fn main(): void =>
+  println(mutate(1.0f))

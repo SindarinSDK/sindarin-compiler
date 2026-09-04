@@ -1,0 +1,5 @@
+fn increment(value: char): char =>
+  return value++
+
+fn main(): void =>
+  println(increment('a'))

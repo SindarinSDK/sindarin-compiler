@@ -1,0 +1,5 @@
+fn append(value: str): str =>
+  return value += "!"
+
+fn main(): void =>
+  println(append("source"))

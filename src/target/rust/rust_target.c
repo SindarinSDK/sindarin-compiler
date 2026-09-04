@@ -282,6 +282,9 @@ static bool rust_rhs_mutates_or_forwards_parameter(json_object *node,
     }
     if (!json_object_is_type(node, json_type_object)) return false;
 
+    /* A lambda has its own bindings and is rejected separately as a closure. */
+    if (json_string_property_equals(node, "kind", "lambda")) return false;
+
     const char *kind = json_string_property(node, "kind");
     if (kind && strcmp(kind, "variable") == 0 &&
         json_boolean_property(node, "is_ref_arg") &&
@@ -348,9 +351,9 @@ static json_object *rust_assignment_place_root(json_object *place)
     return NULL;
 }
 
-static bool rust_prepare_parameter_assignments_in_node(json_object *node,
-                                                       json_object *params,
-                                                       RustLocalBindingScope *scope)
+static bool rust_prepare_parameter_mutations_in_node(json_object *node,
+                                                     json_object *params,
+                                                     RustLocalBindingScope *scope)
 {
     if (!node) return true;
     if (json_object_is_type(node, json_type_array))
@@ -363,7 +366,7 @@ static bool rust_prepare_parameter_assignments_in_node(json_object *node,
         for (size_t i = 0; i < count; i++)
         {
             json_object *element = json_object_array_get_idx(node, i);
-            if (!rust_prepare_parameter_assignments_in_node(
+            if (!rust_prepare_parameter_mutations_in_node(
                     element, params, current))
             {
                 free(bindings);
@@ -380,6 +383,11 @@ static bool rust_prepare_parameter_assignments_in_node(json_object *node,
         return true;
     }
     if (!json_object_is_type(node, json_type_object)) return true;
+
+    /* A lambda owns a distinct parameter/local scope. Rust rejects closures
+     * before lowering, so do not apply the enclosing callable's by-value
+     * parameter table while preparing its nested body. */
+    if (json_string_property_equals(node, "kind", "lambda")) return true;
 
     if (json_string_property_equals(node, "kind", "var_decl"))
     {
@@ -473,64 +481,145 @@ static bool rust_prepare_parameter_assignments_in_node(json_object *node,
         }
     }
 
+    if (json_string_property_equals(node, "kind", "compound_assign"))
+    {
+        json_object *target = NULL, *value = NULL, *param = NULL;
+        const char *target_name = NULL;
+        if (json_object_object_get_ex(node, "target", &target) &&
+            json_string_property_equals(target, "kind", "variable") &&
+            json_string_property_equals(node, "mutation_storage", "parameter") &&
+            json_string_property_equals(node, "mutation_place", "variable") &&
+            (target_name = json_string_property(target, "name")) &&
+            !rust_name_is_shadowed(scope, target_name) &&
+            (param = rust_find_parameter(params, target_name)) &&
+            json_string_property_equals(param, "mem_qual", "default"))
+        {
+            json_object *param_type = NULL, *value_type = NULL;
+            const char *param_kind = NULL, *value_kind = NULL;
+            const char *op = json_string_property(node, "op");
+            if (json_object_object_get_ex(param, "type", &param_type) &&
+                (param_kind = json_string_property(param_type, "kind")) &&
+                (strcmp(param_kind, "float") == 0 ||
+                 strcmp(param_kind, "double") == 0))
+            {
+                if (!op || (strcmp(op, "add") != 0 &&
+                            strcmp(op, "subtract") != 0 &&
+                            strcmp(op, "multiply") != 0 &&
+                            strcmp(op, "divide") != 0))
+                {
+                    fprintf(stderr,
+                            "Error: Rust target supports floating-point compound assignment only for +=, -=, *=, and /=\n");
+                    return false;
+                }
+                if (!json_object_object_get_ex(node, "value", &value) ||
+                    !json_object_object_get_ex(value, "type", &value_type) ||
+                    !(value_kind = json_string_property(value_type, "kind")) ||
+                    strcmp(param_kind, value_kind) != 0)
+                {
+                    fprintf(stderr,
+                            "Error: Rust target currently supports floating-point compound assignment only between same-type float or double operands\n");
+                    return false;
+                }
+                if (rust_rhs_mutates_or_forwards_parameter(value, target_name))
+                {
+                    fprintf(stderr,
+                            "Error: Rust target does not support floating-point compound assignment of by-value parameter '%s' when its RHS mutates or forwards the same parameter as ref\n",
+                            target_name);
+                    return false;
+                }
+                json_object_object_add(param, "rust_by_value_mutated",
+                                       json_object_new_boolean(true));
+                json_object_object_add(
+                    node, "rust_by_value_floating_parameter_mutation",
+                    json_object_new_boolean(true));
+            }
+        }
+    }
+
+    if (json_string_property_equals(node, "kind", "increment") ||
+        json_string_property_equals(node, "kind", "decrement"))
+    {
+        json_object *operand = NULL, *param = NULL, *param_type = NULL;
+        const char *operand_name = NULL, *param_kind = NULL;
+        if (json_object_object_get_ex(node, "operand", &operand) &&
+            json_string_property_equals(operand, "kind", "variable") &&
+            json_string_property_equals(node, "mutation_storage", "parameter") &&
+            json_string_property_equals(node, "mutation_place", "variable") &&
+            (operand_name = json_string_property(operand, "name")) &&
+            !rust_name_is_shadowed(scope, operand_name) &&
+            (param = rust_find_parameter(params, operand_name)) &&
+            json_string_property_equals(param, "mem_qual", "default") &&
+            json_object_object_get_ex(param, "type", &param_type) &&
+            (param_kind = json_string_property(param_type, "kind")) &&
+            (strcmp(param_kind, "float") == 0 ||
+             strcmp(param_kind, "double") == 0))
+        {
+            json_object_object_add(param, "rust_by_value_mutated",
+                                   json_object_new_boolean(true));
+            json_object_object_add(
+                node, "rust_by_value_floating_parameter_mutation",
+                json_object_new_boolean(true));
+        }
+    }
+
     if (json_string_property_equals(node, "kind", "for_each") ||
         json_string_property_equals(node, "kind", "for_each_iter"))
     {
         json_object *iterable = NULL, *body = NULL;
         if (json_object_object_get_ex(node, "iterable", &iterable) &&
-            !rust_prepare_parameter_assignments_in_node(iterable, params, scope))
+            !rust_prepare_parameter_mutations_in_node(iterable, params, scope))
             return false;
         const char *binding_name = json_string_property(node, "iterator_name");
         RustLocalBindingScope binding = {binding_name, scope};
         return !json_object_object_get_ex(node, "body", &body) ||
-            rust_prepare_parameter_assignments_in_node(
+            rust_prepare_parameter_mutations_in_node(
                 body, params, binding_name ? &binding : scope);
     }
     if (json_string_property_equals(node, "kind", "for"))
     {
         json_object *init = NULL, *condition = NULL, *increment = NULL, *body = NULL;
         if (!json_object_object_get_ex(node, "init", &init) ||
-            !rust_prepare_parameter_assignments_in_node(init, params, scope))
+            !rust_prepare_parameter_mutations_in_node(init, params, scope))
             return false;
         const char *binding_name = json_string_property(init, "name");
         RustLocalBindingScope binding = {binding_name, scope};
         RustLocalBindingScope *loop_scope = binding_name ? &binding : scope;
         if (json_object_object_get_ex(node, "condition", &condition) &&
-            !rust_prepare_parameter_assignments_in_node(
+            !rust_prepare_parameter_mutations_in_node(
                 condition, params, loop_scope)) return false;
         if (json_object_object_get_ex(node, "body", &body) &&
-            !rust_prepare_parameter_assignments_in_node(
+            !rust_prepare_parameter_mutations_in_node(
                 body, params, loop_scope)) return false;
         return !json_object_object_get_ex(node, "increment", &increment) ||
-            rust_prepare_parameter_assignments_in_node(
+            rust_prepare_parameter_mutations_in_node(
                 increment, params, loop_scope);
     }
 
     json_object_object_foreach(node, key, value)
     {
         (void)key;
-        if (!rust_prepare_parameter_assignments_in_node(value, params, scope))
+        if (!rust_prepare_parameter_mutations_in_node(value, params, scope))
             return false;
     }
     return true;
 }
 
-static bool rust_prepare_callable_parameter_assignments(json_object *callable)
+static bool rust_prepare_callable_parameter_mutations(json_object *callable)
 {
     json_object *params = NULL, *body = NULL;
     if (!json_object_object_get_ex(callable, "params", &params) ||
         !json_object_object_get_ex(callable, "body", &body)) return true;
-    return rust_prepare_parameter_assignments_in_node(body, params, NULL);
+    return rust_prepare_parameter_mutations_in_node(body, params, NULL);
 }
 
-static bool rust_prepare_by_value_scalar_parameter_assignments(json_object *model)
+static bool rust_prepare_by_value_scalar_parameter_mutations(json_object *model)
 {
     json_object *functions = NULL;
     if (json_object_object_get_ex(model, "functions", &functions))
     {
         size_t count = json_object_array_length(functions);
         for (size_t i = 0; i < count; i++)
-            if (!rust_prepare_callable_parameter_assignments(
+            if (!rust_prepare_callable_parameter_mutations(
                     json_object_array_get_idx(functions, i))) return false;
     }
 
@@ -544,7 +633,7 @@ static bool rust_prepare_by_value_scalar_parameter_assignments(json_object *mode
         if (!json_object_object_get_ex(structure, "methods", &methods)) continue;
         size_t method_count = json_object_array_length(methods);
         for (size_t m = 0; m < method_count; m++)
-            if (!rust_prepare_callable_parameter_assignments(
+            if (!rust_prepare_callable_parameter_mutations(
                     json_object_array_get_idx(methods, m))) return false;
     }
     return true;
@@ -1593,20 +1682,22 @@ static bool rust_validate_expr(json_object *expr)
                         "Error: Rust target currently supports += only for string variables and string values\n");
                 return false;
             }
+            if (json_string_property_equals(
+                    expr, "mutation_storage", "parameter") &&
+                !json_string_property_equals(
+                    target, "parameter_mem_qual", "as_ref") &&
+                !iterator_binding_mutation)
+            {
+                fprintf(stderr,
+                        "Error: Rust target does not support compound assignment of by-value parameters\n");
+                return false;
+            }
             return rust_validate_expr(target) && rust_validate_expr(value);
         }
         if (json_boolean_property(expr, "mutation_sync"))
         {
             fprintf(stderr,
                     "Error: Rust target does not support compound assignment for sync variables\n");
-            return false;
-        }
-        if (json_string_property_equals(expr, "mutation_storage", "parameter") &&
-            !json_string_property_equals(target, "parameter_mem_qual", "as_ref") &&
-            !iterator_binding_mutation)
-        {
-            fprintf(stderr,
-                    "Error: Rust target does not support compound assignment of by-value parameters\n");
             return false;
         }
         bool target_floating = rust_floating_type(target_type);
@@ -1637,8 +1728,22 @@ static bool rust_validate_expr(json_object *expr)
                         "Error: Rust target supports floating-point compound assignment only for variables and direct fields\n");
                 return false;
             }
+            if (json_string_property_equals(
+                    expr, "mutation_storage", "parameter") &&
+                !json_string_property_equals(
+                    target, "parameter_mem_qual", "as_ref") &&
+                !json_boolean_property(
+                    expr, "rust_by_value_floating_parameter_mutation") &&
+                !iterator_binding_mutation)
+            {
+                fprintf(stderr,
+                        "Error: Rust target does not support compound assignment of by-value parameters\n");
+                return false;
+            }
             if (!json_string_property_equals(expr, "mutation_storage", "local") &&
                 !rust_floating_ref_parameter(expr, target) &&
+                !json_boolean_property(
+                    expr, "rust_by_value_floating_parameter_mutation") &&
                 !iterator_binding_mutation)
             {
                 fprintf(stderr,
@@ -1646,6 +1751,14 @@ static bool rust_validate_expr(json_object *expr)
                 return false;
             }
             return rust_validate_expr(target) && rust_validate_expr(value);
+        }
+        if (json_string_property_equals(expr, "mutation_storage", "parameter") &&
+            !json_string_property_equals(target, "parameter_mem_qual", "as_ref") &&
+            !iterator_binding_mutation)
+        {
+            fprintf(stderr,
+                    "Error: Rust target does not support compound assignment of by-value parameters\n");
+            return false;
         }
         bool checked_ref_parameter = rust_checked_scalar_ref_parameter(expr, target);
         if ((strcmp(target_kind, "int") != 0 && strcmp(target_kind, "long") != 0 &&
@@ -1707,6 +1820,8 @@ static bool rust_validate_expr(json_object *expr)
         if (json_string_property_equals(expr, "mutation_storage", "parameter"))
         {
             if (!json_string_property_equals(child, "parameter_mem_qual", "as_ref") &&
+                !json_boolean_property(
+                    expr, "rust_by_value_floating_parameter_mutation") &&
                 !iterator_binding_mutation)
             {
                 fprintf(stderr,
@@ -1724,6 +1839,8 @@ static bool rust_validate_expr(json_object *expr)
         {
             if (!json_string_property_equals(expr, "mutation_storage", "local") &&
                 !rust_floating_ref_parameter(expr, child) &&
+                !json_boolean_property(
+                    expr, "rust_by_value_floating_parameter_mutation") &&
                 !iterator_binding_mutation)
             {
                 fprintf(stderr,
@@ -3803,7 +3920,7 @@ static bool rust_emit(CompilerOptions *options, Module *module,
                                           &options->symbol_table,
                                           options->arithmetic_mode);
     if (!model) return false;
-    if (!rust_prepare_by_value_scalar_parameter_assignments(model))
+    if (!rust_prepare_by_value_scalar_parameter_mutations(model))
     {
         json_object_put(model);
         return false;

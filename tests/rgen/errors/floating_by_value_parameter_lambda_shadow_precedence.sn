@@ -1,0 +1,8 @@
+fn outer(value: float): float =>
+  if true =>
+    var value: fn(float): float = fn(value: float): float =>
+      return value %= 2.0f
+  return value
+
+fn main(): void =>
+  println(outer(1.0f))

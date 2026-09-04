@@ -1,0 +1,7 @@
+fn mutate(value: double): double =>
+  if true =>
+    var value: double = value++
+  return value
+
+fn main(): void =>
+  println(mutate(1.0))

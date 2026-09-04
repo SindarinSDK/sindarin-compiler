@@ -1,0 +1,5 @@
+fn mutate(value: double): double =>
+  return value *= (value += 2.0)
+
+fn main(): void =>
+  println(mutate(1.0))
