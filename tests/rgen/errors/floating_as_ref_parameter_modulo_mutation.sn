@@ -1,0 +1,6 @@
+fn modulo(value: double as ref): void =>
+  value %= 2.0
+
+fn main(): void =>
+  var value: double = 5.0
+  modulo(value)

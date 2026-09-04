@@ -1,0 +1,186 @@
+struct FloatBox =>
+  value: float
+
+struct DoubleBox =>
+  value: double
+
+struct Values =>
+  single: float
+  precise: double
+  singleBox: FloatBox
+  preciseBox: DoubleBox
+
+struct SideEffects =>
+  static fn floatRhs(calls: int as ref, result: float): float =>
+    calls++
+    return result
+
+  static fn doubleRhs(calls: int as ref, result: double): double =>
+    calls++
+    return result
+
+struct MutationOps =>
+  static fn staticFloat(__sn_next: float as ref, calls: int as ref): bool =>
+    var beforeCalls: int = calls
+    var ok: bool = true
+    var afterAdd: float = __sn_next += SideEffects.floatRhs(calls, 4.0f)
+    ok = afterAdd == 12.0f && __sn_next == 12.0f && calls == beforeCalls + 1 && ok
+    var afterSubtract: float = __sn_next -= SideEffects.floatRhs(calls, 2.0f)
+    ok = afterSubtract == 10.0f && __sn_next == 10.0f && calls == beforeCalls + 2 && ok
+    var afterMultiply: float = __sn_next *= SideEffects.floatRhs(calls, 3.0f)
+    ok = afterMultiply == 30.0f && __sn_next == 30.0f && calls == beforeCalls + 3 && ok
+    var afterDivide: float = __sn_next /= SideEffects.floatRhs(calls, 5.0f)
+    ok = afterDivide == 6.0f && __sn_next == 6.0f && calls == beforeCalls + 4 && ok
+    var beforeIncrement: float = __sn_next++
+    ok = beforeIncrement == 6.0f && __sn_next == 7.0f && ok
+    var beforeDecrement: float = __sn_next--
+    ok = beforeDecrement == 7.0f && __sn_next == 6.0f && ok
+    return ok
+
+  static fn staticDouble(__sn_previous: double as ref, calls: int as ref): bool =>
+    var beforeCalls: int = calls
+    var ok: bool = true
+    var afterAdd: double = __sn_previous += SideEffects.doubleRhs(calls, 8.0)
+    ok = afterAdd == 24.0 && __sn_previous == 24.0 && calls == beforeCalls + 1 && ok
+    var afterSubtract: double = __sn_previous -= SideEffects.doubleRhs(calls, 4.0)
+    ok = afterSubtract == 20.0 && __sn_previous == 20.0 && calls == beforeCalls + 2 && ok
+    var afterMultiply: double = __sn_previous *= SideEffects.doubleRhs(calls, 2.0)
+    ok = afterMultiply == 40.0 && __sn_previous == 40.0 && calls == beforeCalls + 3 && ok
+    var afterDivide: double = __sn_previous /= SideEffects.doubleRhs(calls, 5.0)
+    ok = afterDivide == 8.0 && __sn_previous == 8.0 && calls == beforeCalls + 4 && ok
+    var beforeIncrement: double = __sn_previous++
+    ok = beforeIncrement == 8.0 && __sn_previous == 9.0 && ok
+    var beforeDecrement: double = __sn_previous--
+    ok = beforeDecrement == 9.0 && __sn_previous == 8.0 && ok
+    return ok
+
+  fn instanceFloat(value: float as ref, calls: int as ref): bool =>
+    var beforeCalls: int = calls
+    var ok: bool = true
+    var afterAdd: float = value += SideEffects.floatRhs(calls, 4.0f)
+    ok = afterAdd == 12.0f && value == 12.0f && calls == beforeCalls + 1 && ok
+    var afterSubtract: float = value -= SideEffects.floatRhs(calls, 2.0f)
+    ok = afterSubtract == 10.0f && value == 10.0f && calls == beforeCalls + 2 && ok
+    var afterMultiply: float = value *= SideEffects.floatRhs(calls, 3.0f)
+    ok = afterMultiply == 30.0f && value == 30.0f && calls == beforeCalls + 3 && ok
+    var afterDivide: float = value /= SideEffects.floatRhs(calls, 5.0f)
+    ok = afterDivide == 6.0f && value == 6.0f && calls == beforeCalls + 4 && ok
+    var beforeIncrement: float = value++
+    ok = beforeIncrement == 6.0f && value == 7.0f && ok
+    var beforeDecrement: float = value--
+    ok = beforeDecrement == 7.0f && value == 6.0f && ok
+    return ok
+
+  fn instanceDouble(value: double as ref, calls: int as ref): bool =>
+    var beforeCalls: int = calls
+    var ok: bool = true
+    var afterAdd: double = value += SideEffects.doubleRhs(calls, 8.0)
+    ok = afterAdd == 24.0 && value == 24.0 && calls == beforeCalls + 1 && ok
+    var afterSubtract: double = value -= SideEffects.doubleRhs(calls, 4.0)
+    ok = afterSubtract == 20.0 && value == 20.0 && calls == beforeCalls + 2 && ok
+    var afterMultiply: double = value *= SideEffects.doubleRhs(calls, 2.0)
+    ok = afterMultiply == 40.0 && value == 40.0 && calls == beforeCalls + 3 && ok
+    var afterDivide: double = value /= SideEffects.doubleRhs(calls, 5.0)
+    ok = afterDivide == 8.0 && value == 8.0 && calls == beforeCalls + 4 && ok
+    var beforeIncrement: double = value++
+    ok = beforeIncrement == 8.0 && value == 9.0 && ok
+    var beforeDecrement: double = value--
+    ok = beforeDecrement == 9.0 && value == 8.0 && ok
+    return ok
+
+  static fn forwardStaticFloat(value: float as ref, calls: int as ref): bool =>
+    return MutationOps.staticFloat(value, calls)
+
+  static fn forwardStaticDouble(value: double as ref, calls: int as ref): bool =>
+    return MutationOps.staticDouble(value, calls)
+
+  fn forwardInstanceFloat(value: float as ref, calls: int as ref): bool =>
+    return self.instanceFloat(value, calls)
+
+  fn forwardInstanceDouble(value: double as ref, calls: int as ref): bool =>
+    return self.instanceDouble(value, calls)
+
+fn freeFloat(__sn_place: float as ref, calls: int as ref): bool =>
+  var beforeCalls: int = calls
+  var ok: bool = true
+  var afterAdd: float = __sn_place += SideEffects.floatRhs(calls, 4.0f)
+  ok = afterAdd == 12.0f && __sn_place == 12.0f && calls == beforeCalls + 1 && ok
+  var afterSubtract: float = __sn_place -= SideEffects.floatRhs(calls, 2.0f)
+  ok = afterSubtract == 10.0f && __sn_place == 10.0f && calls == beforeCalls + 2 && ok
+  var afterMultiply: float = __sn_place *= SideEffects.floatRhs(calls, 3.0f)
+  ok = afterMultiply == 30.0f && __sn_place == 30.0f && calls == beforeCalls + 3 && ok
+  var afterDivide: float = __sn_place /= SideEffects.floatRhs(calls, 5.0f)
+  ok = afterDivide == 6.0f && __sn_place == 6.0f && calls == beforeCalls + 4 && ok
+  var beforeIncrement: float = __sn_place++
+  ok = beforeIncrement == 6.0f && __sn_place == 7.0f && ok
+  var beforeDecrement: float = __sn_place--
+  ok = beforeDecrement == 7.0f && __sn_place == 6.0f && ok
+  return ok
+
+fn freeDouble(__sn_rhs: double as ref, calls: int as ref): bool =>
+  var beforeCalls: int = calls
+  var ok: bool = true
+  var afterAdd: double = __sn_rhs += SideEffects.doubleRhs(calls, 8.0)
+  ok = afterAdd == 24.0 && __sn_rhs == 24.0 && calls == beforeCalls + 1 && ok
+  var afterSubtract: double = __sn_rhs -= SideEffects.doubleRhs(calls, 4.0)
+  ok = afterSubtract == 20.0 && __sn_rhs == 20.0 && calls == beforeCalls + 2 && ok
+  var afterMultiply: double = __sn_rhs *= SideEffects.doubleRhs(calls, 2.0)
+  ok = afterMultiply == 40.0 && __sn_rhs == 40.0 && calls == beforeCalls + 3 && ok
+  var afterDivide: double = __sn_rhs /= SideEffects.doubleRhs(calls, 5.0)
+  ok = afterDivide == 8.0 && __sn_rhs == 8.0 && calls == beforeCalls + 4 && ok
+  var beforeIncrement: double = __sn_rhs++
+  ok = beforeIncrement == 8.0 && __sn_rhs == 9.0 && ok
+  var beforeDecrement: double = __sn_rhs--
+  ok = beforeDecrement == 9.0 && __sn_rhs == 8.0 && ok
+  return ok
+
+fn forwardFreeFloat(value: float as ref, calls: int as ref): bool =>
+  return freeFloat(value, calls)
+
+fn forwardFreeDouble(value: double as ref, calls: int as ref): bool =>
+  return freeDouble(value, calls)
+
+fn freshValues(): Values =>
+  return Values {
+    single: 8.0f,
+    precise: 16.0,
+    singleBox: FloatBox { value: 8.0f },
+    preciseBox: DoubleBox { value: 16.0 }
+  }
+
+fn main(): void =>
+  var calls: int = 0
+  var freeSingle: float = 8.0f
+  var direct: Values = freshValues()
+  var staticPrecise: double = 16.0
+  var instanceSingle: float = 8.0f
+  var ops: MutationOps = {}
+
+  var freeFloatOk: bool = freeFloat(freeSingle, calls)
+  println(freeFloatOk && freeSingle == 6.0f && calls == 4)
+  var freeDoubleOk: bool = freeDouble(direct.precise, calls)
+  println(freeDoubleOk && direct.precise == 8.0 && calls == 8)
+  var staticFloatOk: bool = MutationOps.staticFloat(direct.singleBox.value, calls)
+  println(staticFloatOk && direct.singleBox.value == 6.0f && calls == 12)
+  var staticDoubleOk: bool = MutationOps.staticDouble(staticPrecise, calls)
+  println(staticDoubleOk && staticPrecise == 8.0 && calls == 16)
+  var instanceFloatOk: bool = ops.instanceFloat(instanceSingle, calls)
+  println(instanceFloatOk && instanceSingle == 6.0f && calls == 20)
+  var instanceDoubleOk: bool = ops.instanceDouble(direct.preciseBox.value, calls)
+  println(instanceDoubleOk && direct.preciseBox.value == 8.0 && calls == 24)
+
+  var forwarded: Values = freshValues()
+  var forwardedFloat: float = 8.0f
+  var forwardedDouble: double = 16.0
+  var forwardFreeFloatOk: bool = forwardFreeFloat(forwarded.single, calls)
+  println(forwardFreeFloatOk && forwarded.single == 6.0f && calls == 28)
+  var forwardFreeDoubleOk: bool = forwardFreeDouble(forwardedDouble, calls)
+  println(forwardFreeDoubleOk && forwardedDouble == 8.0 && calls == 32)
+  var forwardStaticFloatOk: bool = MutationOps.forwardStaticFloat(forwardedFloat, calls)
+  println(forwardStaticFloatOk && forwardedFloat == 6.0f && calls == 36)
+  var forwardStaticDoubleOk: bool = MutationOps.forwardStaticDouble(forwarded.preciseBox.value, calls)
+  println(forwardStaticDoubleOk && forwarded.preciseBox.value == 8.0 && calls == 40)
+  var forwardInstanceFloatOk: bool = ops.forwardInstanceFloat(forwarded.singleBox.value, calls)
+  println(forwardInstanceFloatOk && forwarded.singleBox.value == 6.0f && calls == 44)
+  var forwardInstanceDoubleOk: bool = ops.forwardInstanceDouble(forwarded.precise, calls)
+  println(forwardInstanceDoubleOk && forwarded.precise == 8.0 && calls == 48)
