@@ -1,8 +1,10 @@
-fn main(): void =>
-  var effects: int = 0
-  var result: float = match 1.0f =>
+fn choose(): float =>
+  return match 1.0f =>
     1.0f =>
-      effects++
+      return 9.0f
       2.0f
     else => 3.0f
+
+fn main(): void =>
+  var result: float = choose()
   println(result)

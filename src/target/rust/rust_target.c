@@ -2609,7 +2609,6 @@ static bool rust_validate_value_match(json_object *expr)
         !subject_is_string)
         return rust_report_match_error(
             "supports value match only with bool, integral, float, double, or string subjects");
-    if (!rust_validate_expr(subject)) return false;
 
     size_t else_count = 0;
     size_t ordinary_count = 0;
@@ -2692,23 +2691,24 @@ static bool rust_validate_value_match(json_object *expr)
         json_object *arm = json_object_array_get_idx(arms, i);
         json_object *body = NULL, *body_statements = NULL;
         if (!json_object_object_get_ex(arm, "body", &body) ||
-            !json_object_object_get_ex(body, "statements", &body_statements) ||
-            json_object_array_length(body_statements) != 1)
-        {
-            if (strcmp(result_kind, "string") == 0)
-                return rust_report_match_error(
-                    "requires each value match arm body to contain exactly one str expression");
-            if (strcmp(result_kind, "int") == 0)
-                return rust_report_match_error(
-                    "requires each value match arm body to contain exactly one int expression");
-            if (strcmp(result_kind, "bool") == 0)
-                return rust_report_match_error(
-                    "requires each value match arm body to contain exactly one bool expression");
+            !json_object_object_get_ex(body, "statements", &body_statements))
+            return rust_report_match_error("encountered malformed value match model");
+
+        size_t statement_count = json_object_array_length(body_statements);
+        if (statement_count == 0)
             return rust_report_match_error(
-                "requires each value match arm body to contain exactly one expression of the exact resolved result type");
+                "requires each value match arm body to be nonempty");
+
+        for (size_t s = 0; s + 1 < statement_count; s++)
+        {
+            json_object *prefix = json_object_array_get_idx(body_statements, s);
+            if (!json_string_property_equals(prefix, "kind", "expr"))
+                return rust_report_match_error(
+                    "requires every value match arm prefix to be an expression statement");
         }
 
-        json_object *statement = json_object_array_get_idx(body_statements, 0);
+        json_object *statement =
+            json_object_array_get_idx(body_statements, statement_count - 1);
         json_object *arm_expr = NULL, *arm_type = NULL;
         if (!json_string_property_equals(statement, "kind", "expr") ||
             !json_object_object_get_ex(statement, "expr", &arm_expr) ||
@@ -2718,15 +2718,15 @@ static bool rust_validate_value_match(json_object *expr)
         {
             if (strcmp(result_kind, "string") == 0)
                 return rust_report_match_error(
-                    "requires each value match arm body to contain exactly one str expression");
+                    "requires each value match arm body to end with an exact str result expression");
             if (strcmp(result_kind, "int") == 0)
                 return rust_report_match_error(
-                    "requires each value match arm body to contain exactly one int expression");
+                    "requires each value match arm body to end with an exact int result expression");
             if (strcmp(result_kind, "bool") == 0)
                 return rust_report_match_error(
-                    "requires each value match arm body to contain exactly one bool expression");
+                    "requires each value match arm body to end with an exact bool result expression");
             return rust_report_match_error(
-                "requires each value match arm body to contain exactly one expression of the exact resolved result type");
+                "requires each value match arm body to end with an expression of the exact resolved result type");
         }
         if (strcmp(result_kind, "string") == 0)
         {
@@ -2758,6 +2758,31 @@ static bool rust_validate_value_match(json_object *expr)
                 return rust_report_match_error(
                     "does not support mutating calls as str value-match results");
         }
+    }
+
+    /* Do not recurse into any executable child until the complete match
+     * topology, result family, and every arm's prefix/tail shape are known to
+     * be admissible. This keeps structural diagnostics ahead of failures in
+     * earlier prefixes while retaining source evaluation order afterwards. */
+    if (!rust_validate_expr(subject)) return false;
+    for (size_t i = 0; i < arm_count; i++)
+    {
+        json_object *arm = json_object_array_get_idx(arms, i);
+        json_object *body = NULL, *body_statements = NULL;
+        if (!json_object_object_get_ex(arm, "body", &body) ||
+            !json_object_object_get_ex(body, "statements", &body_statements))
+            return rust_report_match_error("encountered malformed value match model");
+
+        size_t statement_count = json_object_array_length(body_statements);
+        for (size_t s = 0; s + 1 < statement_count; s++)
+            if (!rust_validate_stmt(
+                    json_object_array_get_idx(body_statements, s))) return false;
+
+        json_object *statement =
+            json_object_array_get_idx(body_statements, statement_count - 1);
+        json_object *arm_expr = NULL;
+        if (!json_object_object_get_ex(statement, "expr", &arm_expr))
+            return rust_report_match_error("encountered malformed value match model");
         if (!rust_validate_expr(arm_expr)) return false;
     }
 
@@ -3513,9 +3538,11 @@ static void rust_lower_strings(json_object *node)
                 json_object *body = NULL, *statements = NULL;
                 if (!json_object_object_get_ex(arm, "body", &body) ||
                     !json_object_object_get_ex(body, "statements", &statements) ||
-                    json_object_array_length(statements) != 1)
+                    json_object_array_length(statements) == 0)
                     continue;
-                json_object *statement = json_object_array_get_idx(statements, 0);
+                size_t statement_count = json_object_array_length(statements);
+                json_object *statement =
+                    json_object_array_get_idx(statements, statement_count - 1);
                 json_object *result = NULL;
                 if (!json_object_object_get_ex(statement, "expr", &result))
                     continue;
