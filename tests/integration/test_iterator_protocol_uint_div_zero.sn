@@ -1,0 +1,24 @@
+struct UintIterator =>
+  value: uint
+  remaining: int
+
+  fn iter(): UintIterator =>
+    return self
+
+  fn hasNext(): bool =>
+    return self.remaining > 0
+
+  fn next(): uint =>
+    self.remaining -= 1
+    return self.value
+
+fn main(): void =>
+  var source: UintIterator = {
+    value: 1u,
+    remaining: 1
+  }
+  var zero: uint = 0u
+  for value in source =>
+    value /= zero
+    var checked: uint = 1u
+    checked /= zero

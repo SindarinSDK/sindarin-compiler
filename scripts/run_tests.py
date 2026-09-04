@@ -1552,8 +1552,9 @@ class TestRunner:
         has_expected = os.path.isfile(expected_file)
         expects_panic = os.path.isfile(panic_file)
 
-        # For non-explore tests, require .expected file
-        if not has_expected and test_type not in ('explore',):
+        # A panic sidecar can assert only genuine nonzero termination; compare
+        # output as well whenever an .expected sidecar is present.
+        if not has_expected and not expects_panic and test_type not in ('explore',):
             return ('skip', 'no .expected', None)
 
         optimization_args, optimization_error = self._optimization_args(test_file)
@@ -1579,18 +1580,21 @@ class TestRunner:
             [exe_file], run_timeout, env=self.env, merge_stderr=True
         )
 
-
-        # Check for expected panic
+        if timeout_marker == 'TIMEOUT':
+            return ('fail', 'timeout', output.split('\n')[:20] if output else None)
         if expects_panic:
+            # A nonempty marker is the wrapper's launch/runner exception detail.
+            # A child killed by a POSIX signal can also return -1, with no marker.
+            if timeout_marker:
+                details = [f'run error: {timeout_marker}']
+                if output:
+                    details += output.split('\n')[:20]
+                return ('fail', 'run error', details)
             if exit_code == 0:
                 return ('fail', 'expected panic', None)
-        else:
-            if exit_code != 0:
-                if timeout_marker == 'TIMEOUT':
-                    return ('fail', 'timeout', output.split('\n')[:20] if output else None)
-                else:
-                    details = output.split('\n')[:20] if output else None
-                    return ('fail', f'exit code: {exit_code}', details)
+        elif exit_code != 0:
+            details = output.split('\n')[:20] if output else None
+            return ('fail', f'exit code: {exit_code}', details)
 
         # Compare output if expected file exists
         if has_expected:

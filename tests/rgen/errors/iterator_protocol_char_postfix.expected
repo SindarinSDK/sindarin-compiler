@@ -1,0 +1,1 @@
+Error: Rust target supports iterator-protocol increment/decrement only for int, long, int32, byte, uint32, uint, float, or double bindings
