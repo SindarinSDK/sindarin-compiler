@@ -1,0 +1,47 @@
+fn observeSubject(calls: int as ref, order: int as ref, value: bool): bool =>
+  calls++
+  order = order * 10 + 1
+  return value
+
+fn observeResult(calls: int as ref, order: int as ref, marker: int, value: bool): bool =>
+  calls++
+  order = order * 10 + marker
+  return value
+
+fn accept(value: bool): bool => return value
+
+fn choose(value: bool, subject_calls: int as ref, result_calls: int as ref, order: int as ref): bool =>
+  return match observeSubject(subject_calls, order, value) =>
+    true => observeResult(result_calls, order, 2, true)
+    false => observeResult(result_calls, order, 3, false)
+    else => observeResult(result_calls, order, 4, true)
+
+fn main(): void =>
+  var __sn_match_result: bool = true
+  var subject_calls: int = 0
+  var result_calls: int = 0
+  var order: int = 0
+
+  var first: bool = match observeSubject(subject_calls, order, true) =>
+    true, false => observeResult(result_calls, order, 2, true)
+    true => observeResult(result_calls, order, 3, false)
+    else => observeResult(result_calls, order, 4, false)
+
+  var fallback: bool = match observeSubject(subject_calls, order, false) =>
+    true => observeResult(result_calls, order, 5, false)
+    else => observeResult(result_calls, order, 6, true)
+
+  var returned: bool = choose(false, subject_calls, result_calls, order)
+
+  var argument: bool = match true =>
+    true => accept(observeResult(result_calls, order, 7, false))
+    else => accept(observeResult(result_calls, order, 8, true))
+
+  var nested: bool = match true =>
+    true =>
+      match false =>
+        true => observeResult(result_calls, order, 9, false)
+        else => observeResult(result_calls, order, 4, true)
+    else => observeResult(result_calls, order, 5, false)
+
+  println($"{__sn_match_result},{subject_calls},{result_calls},{order},{first},{fallback},{returned},{argument},{nested}")

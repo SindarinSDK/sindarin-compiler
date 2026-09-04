@@ -1713,9 +1713,11 @@ static bool rust_validate_value_match(json_object *expr)
         json_object_array_length(arms) == 0)
         return rust_report_match_error("encountered malformed value match model");
 
-    if (!json_string_property_equals(subject_type, "kind", "int"))
+    bool subject_is_int = json_string_property_equals(subject_type, "kind", "int");
+    bool subject_is_bool = json_string_property_equals(subject_type, "kind", "bool");
+    if (!subject_is_int && !subject_is_bool)
         return rust_report_match_error(
-            "supports value match only with int subjects");
+            "supports value match only with int or bool subjects");
     if (!rust_validate_expr(subject)) return false;
 
     size_t else_count = 0;
@@ -1752,10 +1754,13 @@ static bool rust_validate_value_match(json_object *expr)
                 return rust_report_match_error("encountered malformed value match model");
             for (size_t p = 0; p < pattern_count; p++)
             {
-                if (!rust_int_match_literal_pattern(
-                        json_object_array_get_idx(patterns, p)))
+                json_object *pattern = json_object_array_get_idx(patterns, p);
+                if (subject_is_int && !rust_int_match_literal_pattern(pattern))
                     return rust_report_match_error(
                         "supports value match only with integer literal patterns");
+                if (subject_is_bool && !rust_bool_match_literal_pattern(pattern))
+                    return rust_report_match_error(
+                        "supports value match only with boolean literal patterns");
             }
         }
     }
@@ -1768,8 +1773,10 @@ static bool rust_validate_value_match(json_object *expr)
                                "is_else"))
         return rust_report_match_error(
             "requires value match to contain exactly one final else arm");
-    if (!json_string_property_equals(result_type, "kind", "int"))
+    if (subject_is_int && !json_string_property_equals(result_type, "kind", "int"))
         return rust_report_match_error("supports value match only with int results");
+    if (subject_is_bool && !json_string_property_equals(result_type, "kind", "bool"))
+        return rust_report_match_error("supports bool value match only with bool results");
 
     for (size_t i = 0; i < arm_count; i++)
     {
@@ -1779,7 +1786,9 @@ static bool rust_validate_value_match(json_object *expr)
             !json_object_object_get_ex(body, "statements", &body_statements) ||
             json_object_array_length(body_statements) != 1)
             return rust_report_match_error(
-                "requires each value match arm body to contain exactly one int expression");
+                subject_is_int
+                    ? "requires each value match arm body to contain exactly one int expression"
+                    : "requires each value match arm body to contain exactly one bool expression");
 
         json_object *statement = json_object_array_get_idx(body_statements, 0);
         json_object *arm_expr = NULL, *arm_type = NULL;
@@ -1787,9 +1796,12 @@ static bool rust_validate_value_match(json_object *expr)
             !json_object_object_get_ex(statement, "expr", &arm_expr) ||
             !json_object_is_type(arm_expr, json_type_object) ||
             !json_object_object_get_ex(arm_expr, "type", &arm_type) ||
-            !json_string_property_equals(arm_type, "kind", "int"))
+            (subject_is_int && !json_string_property_equals(arm_type, "kind", "int")) ||
+            (subject_is_bool && !json_string_property_equals(arm_type, "kind", "bool")))
             return rust_report_match_error(
-                "requires each value match arm body to contain exactly one int expression");
+                subject_is_int
+                    ? "requires each value match arm body to contain exactly one int expression"
+                    : "requires each value match arm body to contain exactly one bool expression");
         if (!rust_validate_expr(arm_expr)) return false;
     }
 
