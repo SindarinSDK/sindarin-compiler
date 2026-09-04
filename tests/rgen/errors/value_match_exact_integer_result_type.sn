@@ -1,0 +1,5 @@
+fn main(): void =>
+  var result: int32 = match 1 =>
+    1 => 10i32
+    else => 20
+  println(result)

@@ -1,5 +1,5 @@
 fn main(): void =>
-  var result: int = match true =>
-    true => 1
+  var result: int = match 1 =>
+    -1u => 1
     else => 0
   println(result)

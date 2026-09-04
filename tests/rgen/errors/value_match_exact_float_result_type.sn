@@ -1,0 +1,5 @@
+fn main(): void =>
+  var result: float = match 1 =>
+    1 => 1.0f
+    else => 2.0
+  println(result)

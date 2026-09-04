@@ -1,0 +1,138 @@
+fn observeLong(calls: int as ref, order: int as ref, value: long): long =>
+  calls++
+  order = order * 10 + 1
+  return value
+
+fn observeUint(calls: int as ref, value: uint): uint =>
+  calls++
+  return value
+
+fn observeFloat(calls: int as ref, order: int as ref, marker: int, value: float): float =>
+  calls++
+  order = order * 10 + marker
+  return value
+
+fn observeDouble(calls: int as ref, order: int as ref, marker: int, value: double): double =>
+  calls++
+  order = order * 10 + marker
+  return value
+
+fn main(): void =>
+  var __sn_match_subject: int = 41
+  var __sn_match_result: int = 42
+  var subject_calls: int = 0
+  var result_calls: int = 0
+  var order: int = 0
+  var selected: int = 0
+
+  match observeLong(subject_calls, order, 2l) =>
+    1, 2l, 2i32, 2u32, 2u =>
+      selected = 10
+      order = order * 10 + 2
+    2l =>
+      selected = 20
+      order = order * 10 + 8
+    else =>
+      selected = 30
+      order = order * 10 + 9
+
+  var int32_selected: int = 0
+  var int32_value: int32 = -7i32
+  match int32_value =>
+    -6, -7l, -7i32 => int32_selected = 1
+    else => int32_selected = 2
+
+  var uint32_selected: int = 0
+  var uint32_value: uint32 = 4u32
+  match uint32_value =>
+    1, 2l, 3i32, 4u32, 5u => uint32_selected = 1
+    else => uint32_selected = 2
+
+  var uint_selected: int = 0
+  var uint_value: uint = 5u
+  match uint_value =>
+    1, 2l, 3i32, 4u32, 5u => uint_selected = 1
+    else => uint_selected = 2
+
+  var byte_selected: int = 0
+  var byte_value: byte = 255b
+  match byte_value =>
+    1b, 255 => byte_selected = 1
+    else => byte_selected = 2
+
+  var no_match: int = 7
+  match 9b =>
+    8b => no_match = 99
+
+  var boundary_hits: int = 0
+  match - 9223372036854775807l =>
+    -9223372036854775807l => boundary_hits++
+  match 9223372036854775807l =>
+    9223372036854775807u => boundary_hits++
+  var int32_min: int32 = -2147483647i32
+  int32_min -= 1i32
+  match int32_min =>
+    -2147483648 => boundary_hits++
+  match 2147483647i32 =>
+    2147483647i32 => boundary_hits++
+  match 0u32 =>
+    0 => boundary_hits++
+  match 4294967295u32 =>
+    4294967295u => boundary_hits++
+  match 0u =>
+    0i32 => boundary_hits++
+  match 9223372036854775807u =>
+    9223372036854775807l => boundary_hits++
+  match 0b =>
+    0 => boundary_hits++
+  match 255b =>
+    255b => boundary_hits++
+
+  var nested_statement: int = 0
+  match 1u32 =>
+    1i32 =>
+      match 2b =>
+        2 => nested_statement = 12
+
+  var bool_result: bool = match 1l =>
+    1u32 => true
+    else => false
+  var int_result: int = match - 2i32 =>
+    -2l => 20
+    else => 0
+  var long_result: long = match 4294967295u32 =>
+    4294967295l => -30l
+    else => 0l
+  var int32_result: int32 = match 3u =>
+    3i32 => -40i32
+    else => 0i32
+  var uint32_result: uint32 = match 4b =>
+    4 => 50u32
+    else => 0u32
+  var uint_result: uint = match 5l =>
+    5u => 60u
+    else => 0u
+  var byte_result: byte = match 6i32 =>
+    6u32 => 70b
+    else => 0b
+  var bool_subject_int_result: int = match true =>
+    true => 80
+    else => 0
+  var int_subject_bool_result: bool = match 1 =>
+    1 => true
+    else => false
+  var float_result: float = match 7u32 =>
+    7l => observeFloat(result_calls, order, 3, 6.25f)
+    else => observeFloat(result_calls, order, 8, 0.0f)
+  var double_result: double = match observeUint(subject_calls, 8u) =>
+    8i32 => observeDouble(result_calls, order, 4, 7.5)
+    else => observeDouble(result_calls, order, 9, 0.0)
+
+  var nested_value: long = match 1b =>
+    1 =>
+      match 2u32 =>
+        2i32 => 77l
+        else => 0l
+    else => -1l
+
+  println($"{__sn_match_subject},{__sn_match_result},{subject_calls},{result_calls},{order},{selected},{int32_selected},{uint32_selected},{uint_selected},{byte_selected},{no_match},{boundary_hits},{nested_statement},{bool_result},{int_result},{long_result},{int32_result},{uint32_result},{uint_result},{byte_result},{bool_subject_int_result},{int_subject_bool_result},{float_result == 6.25f},{double_result == 7.5},{nested_value}")

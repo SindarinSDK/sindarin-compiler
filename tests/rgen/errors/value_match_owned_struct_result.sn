@@ -1,0 +1,8 @@
+struct Payload =>
+  text: str
+
+fn main(): void =>
+  var result: Payload = match 1 =>
+    1 => Payload { text: "one" }
+    else => Payload { text: "two" }
+  println(result.text)

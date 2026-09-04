@@ -1,1 +1,1 @@
-Error: Rust target supports value match only with int or bool subjects
+Error: Rust target supports value match only with bool or integral subjects

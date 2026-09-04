@@ -1,0 +1,4 @@
+fn main(): void =>
+  var value: byte = 1b
+  match value =>
+    256 => println("wrapped")

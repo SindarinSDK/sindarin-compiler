@@ -1,0 +1,5 @@
+fn main(): void =>
+  var result: int[] = match 1 =>
+    1 => {1}
+    else => {2}
+  println(result.length)

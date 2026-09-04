@@ -1,0 +1,4 @@
+fn main(): void =>
+  var value: uint = 1u
+  match value =>
+    -1 => println("negative")
