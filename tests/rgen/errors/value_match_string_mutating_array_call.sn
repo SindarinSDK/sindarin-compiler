@@ -1,5 +1,6 @@
 fn main(): void =>
+  var values: str[] = {"yes", "no"}
   var result: str = match "one" =>
-    "one" => "yes"
+    "one" => values.pop()
     else => "no"
   println(result)

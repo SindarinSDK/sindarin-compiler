@@ -1,0 +1,1 @@
+Error: Rust target requires indexed str value-match results to use a stable local/member receiver and stable indices

@@ -1,0 +1,3 @@
+fn main(): void =>
+  var value: str = $"invalid: \xAF"
+  println(value)

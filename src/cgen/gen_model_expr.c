@@ -6,48 +6,76 @@
 #include <stdlib.h>
 #include <string.h>
 
+static int c_escape_is_ascii_hex(unsigned char byte)
+{
+    return (byte >= '0' && byte <= '9') ||
+        (byte >= 'a' && byte <= 'f') || (byte >= 'A' && byte <= 'F');
+}
+
 /* Re-escape a string value for C output.
  * The lexer already interprets escape sequences (\n → 0x0A), but the C
- * templates need the two-character escape form so that the generated C
+ * templates need C escape forms so that the generated C
  * string literals are valid.  Returns an arena-allocated string. */
 static const char *c_escape_string(Arena *arena, const char *src)
 {
     if (!src) return "";
     /* First pass: compute output length */
     size_t len = 0;
+    int after_hex_escape = 0;
     for (const char *p = src; *p; p++) {
         switch (*p) {
             case '\n': case '\t': case '\r': case '\\': case '"':
             case '\a': case '\b': case '\f': case '\v':
-                len += 2; break;
-            default:
-                if ((unsigned char)*p < 0x20) len += 4; /* \xHH */
-                else len += 1;
+                len += 2;
+                after_hex_escape = 0;
                 break;
+            default:
+            {
+                unsigned char byte = (unsigned char)*p;
+                int is_ascii_hex = c_escape_is_ascii_hex(byte);
+                if (byte < 0x20 || (after_hex_escape && is_ascii_hex))
+                {
+                    len += 4; /* \xHH */
+                    after_hex_escape = 1;
+                }
+                else
+                {
+                    len += 1;
+                    after_hex_escape = 0;
+                }
+                break;
+            }
         }
     }
     char *buf = arena_alloc(arena, len + 1);
     char *dst = buf;
+    after_hex_escape = 0;
     for (const char *p = src; *p; p++) {
         switch (*p) {
-            case '\n': *dst++ = '\\'; *dst++ = 'n';  break;
-            case '\t': *dst++ = '\\'; *dst++ = 't';  break;
-            case '\r': *dst++ = '\\'; *dst++ = 'r';  break;
-            case '\\': *dst++ = '\\'; *dst++ = '\\'; break;
-            case '"':  *dst++ = '\\'; *dst++ = '"';  break;
-            case '\a': *dst++ = '\\'; *dst++ = 'a';  break;
-            case '\b': *dst++ = '\\'; *dst++ = 'b';  break;
-            case '\f': *dst++ = '\\'; *dst++ = 'f';  break;
-            case '\v': *dst++ = '\\'; *dst++ = 'v';  break;
+            case '\n': *dst++ = '\\'; *dst++ = 'n';  after_hex_escape = 0; break;
+            case '\t': *dst++ = '\\'; *dst++ = 't';  after_hex_escape = 0; break;
+            case '\r': *dst++ = '\\'; *dst++ = 'r';  after_hex_escape = 0; break;
+            case '\\': *dst++ = '\\'; *dst++ = '\\'; after_hex_escape = 0; break;
+            case '"':  *dst++ = '\\'; *dst++ = '"';  after_hex_escape = 0; break;
+            case '\a': *dst++ = '\\'; *dst++ = 'a';  after_hex_escape = 0; break;
+            case '\b': *dst++ = '\\'; *dst++ = 'b';  after_hex_escape = 0; break;
+            case '\f': *dst++ = '\\'; *dst++ = 'f';  after_hex_escape = 0; break;
+            case '\v': *dst++ = '\\'; *dst++ = 'v';  after_hex_escape = 0; break;
             default:
-                if ((unsigned char)*p < 0x20) {
+            {
+                unsigned char byte = (unsigned char)*p;
+                int is_ascii_hex = c_escape_is_ascii_hex(byte);
+                if (byte < 0x20 || (after_hex_escape && is_ascii_hex)) {
                     *dst++ = '\\'; *dst++ = 'x';
-                    *dst++ = "0123456789abcdef"[((unsigned char)*p >> 4) & 0xf];
-                    *dst++ = "0123456789abcdef"[(unsigned char)*p & 0xf];
+                    *dst++ = "0123456789abcdef"[(byte >> 4) & 0xf];
+                    *dst++ = "0123456789abcdef"[byte & 0xf];
+                    after_hex_escape = 1;
                 } else {
                     *dst++ = *p;
+                    after_hex_escape = 0;
                 }
                 break;
+            }
         }
     }
     *dst = '\0';

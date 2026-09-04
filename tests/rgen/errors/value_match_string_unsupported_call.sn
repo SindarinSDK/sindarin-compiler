@@ -1,5 +1,6 @@
 fn main(): void =>
+  var value: str = " padded "
   var result: str = match 1 =>
-    1 => "one"
+    1 => value.append("suffix")
     else => "other"
   println(result)

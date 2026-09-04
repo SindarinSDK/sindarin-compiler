@@ -1,0 +1,6 @@
+fn main(): void =>
+  var value: str = "before"
+  var result: str = match 1 =>
+    1 => value = "after"
+    else => "other"
+  println(result)

@@ -1,0 +1,233 @@
+{
+  "module": {
+    "filename": "tests\/mgen\/string_utf8_literals.sn",
+    "has_main": true,
+    "main_returns": true,
+    "has_main_args": false,
+    "has_forward_decls": false
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [],
+  "globals": [],
+  "functions": [
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "int"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/string_utf8_literals.sn",
+      "params": [],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "greedy",
+          "type": {
+            "kind": "string"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "str",
+          "initializer": {
+            "type": {
+              "kind": "string"
+            },
+            "kind": "literal",
+            "value_kind": "string",
+            "value": "X\\x1f\\x41\\x62\\x30\\x39Y"
+          },
+          "source_is_borrow": true
+        },
+        {
+          "kind": "var_decl",
+          "name": "boundaries",
+          "type": {
+            "kind": "string"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "str",
+          "initializer": {
+            "type": {
+              "kind": "string"
+            },
+            "kind": "literal",
+            "value_kind": "string",
+            "value": "߿ࠀ퟿￿𐀀􏿿"
+          },
+          "source_is_borrow": true
+        },
+        {
+          "kind": "var_decl",
+          "name": "controls",
+          "type": {
+            "kind": "string"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "str",
+          "initializer": {
+            "type": {
+              "kind": "string"
+            },
+            "kind": "literal",
+            "value_kind": "string",
+            "value": "\\n\\t\\r\\\"\\\\"
+          },
+          "source_is_borrow": true
+        },
+        {
+          "kind": "var_decl",
+          "name": "unicode",
+          "type": {
+            "kind": "string"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "str",
+          "initializer": {
+            "type": {
+              "kind": "string"
+            },
+            "kind": "literal",
+            "value_kind": "string",
+            "value": "é世界🙂"
+          },
+          "source_is_borrow": true
+        },
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "match",
+            "subject": {
+              "type": {
+                "kind": "string"
+              },
+              "kind": "variable",
+              "name": "greedy"
+            },
+            "arms": [
+              {
+                "is_else": false,
+                "patterns": [
+                  {
+                    "type": {
+                      "kind": "string"
+                    },
+                    "kind": "literal",
+                    "value_kind": "string",
+                    "value": "X\\x1f\\x41\\x62\\x30\\x39Y"
+                  }
+                ],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "literal",
+                        "value_kind": "int",
+                        "value": 0
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "is_else": true,
+                "patterns": [],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "binary",
+                        "op": "add",
+                        "left": {
+                          "type": {
+                            "kind": "int"
+                          },
+                          "kind": "binary",
+                          "op": "add",
+                          "left": {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "builtin_length",
+                            "object": {
+                              "type": {
+                                "kind": "string"
+                              },
+                              "kind": "variable",
+                              "name": "boundaries"
+                            }
+                          },
+                          "right": {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "builtin_length",
+                            "object": {
+                              "type": {
+                                "kind": "string"
+                              },
+                              "kind": "variable",
+                              "name": "controls"
+                            }
+                          },
+                          "arithmetic_mode": "checked"
+                        },
+                        "right": {
+                          "type": {
+                            "kind": "int"
+                          },
+                          "kind": "builtin_length",
+                          "object": {
+                            "type": {
+                              "kind": "string"
+                            },
+                            "kind": "variable",
+                            "name": "unicode"
+                          }
+                        },
+                        "arithmetic_mode": "checked"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": [],
+  "fn_wrappers": []
+}

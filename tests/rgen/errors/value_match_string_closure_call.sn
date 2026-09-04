@@ -1,0 +1,6 @@
+fn main(): void =>
+  var choose: fn(str): str = fn(value: str): str => value
+  var result: str = match 1 =>
+    1 => choose("one")
+    else => "other"
+  println(result)

@@ -744,6 +744,7 @@ static bool rust_validate_expr(json_object *expr);
 static bool rust_validate_value_match(json_object *expr);
 static bool rust_integer_type(const char *kind);
 static bool rust_float_type(const char *kind);
+static bool rust_is_mutating_array_call(json_object *node);
 
 /* Iterator-protocol bindings are represented as parameters by the shared
  * model, even though the Rust template creates a fresh mutable value from each
@@ -2356,6 +2357,73 @@ static bool rust_prepare_string_match_pattern(json_object *pattern)
     return true;
 }
 
+/* Keep result-form string calls inside the established read-only call
+ * envelope. Mutating array methods may themselves return a string element;
+ * mutating struct methods carry the target-local receiver analysis completed
+ * before method bodies are validated. */
+static bool rust_string_match_result_call_is_mutating(json_object *expr)
+{
+    if (rust_is_mutating_array_call(expr)) return true;
+    if (!json_string_property_equals(expr, "kind", "call")) return false;
+
+    json_object *callee = NULL, *object = NULL, *object_type = NULL;
+    if (!json_object_object_get_ex(expr, "callee", &callee) ||
+        !json_string_property_equals(callee, "kind", "member") ||
+        !json_object_object_get_ex(callee, "object", &object) ||
+        !json_object_object_get_ex(object, "type", &object_type)) return false;
+
+    if (json_string_property_equals(object_type, "kind", "pointer"))
+    {
+        json_object *base_type = NULL;
+        if (!json_object_object_get_ex(object_type, "base_type", &base_type))
+            return false;
+        object_type = base_type;
+    }
+    if (!json_string_property_equals(object_type, "kind", "struct")) return false;
+
+    json_object *structure = rust_find_struct(
+        rust_validation_model, json_string_property(object_type, "name"));
+    json_object *methods = NULL;
+    const char *called_name = json_string_property(callee, "member_name");
+    if (!structure || !called_name ||
+        !json_object_object_get_ex(structure, "methods", &methods)) return false;
+    size_t method_count = json_object_array_length(methods);
+    for (size_t i = 0; i < method_count; i++)
+    {
+        json_object *method = json_object_array_get_idx(methods, i);
+        if (json_string_property_equals(method, "name", called_name))
+            return json_boolean_property(method, "rust_mutating");
+    }
+    return false;
+}
+
+/* Generic array access currently renders its receiver more than once in both
+ * production backends. Admit only recursively stable places/indices here;
+ * stabilizing effectful result receivers belongs to the shared expression
+ * family and is intentionally outside this target-local slice. */
+static bool rust_string_match_result_access_is_stable(json_object *expr)
+{
+    const char *kind = json_string_property(expr, "kind");
+    if (!kind) return false;
+    if (strcmp(kind, "literal") == 0 || strcmp(kind, "variable") == 0)
+        return true;
+    if (strcmp(kind, "member") == 0)
+    {
+        json_object *object = NULL;
+        return json_object_object_get_ex(expr, "object", &object) &&
+               rust_string_match_result_access_is_stable(object);
+    }
+    if (strcmp(kind, "array_access") == 0)
+    {
+        json_object *array = NULL, *index = NULL;
+        return json_object_object_get_ex(expr, "array", &array) &&
+               json_object_object_get_ex(expr, "index", &index) &&
+               rust_string_match_result_access_is_stable(array) &&
+               rust_string_match_result_access_is_stable(index);
+    }
+    return false;
+}
+
 typedef enum
 {
     RUST_FLOAT_MATCH_PATTERN_OK,
@@ -2614,9 +2682,10 @@ static bool rust_validate_value_match(json_object *expr)
     const char *result_kind = json_string_property(result_type, "kind");
     if (!result_kind ||
         (!rust_match_integral_type(result_kind) &&
-         !rust_float_type(result_kind) && strcmp(result_kind, "bool") != 0))
+         !rust_float_type(result_kind) && strcmp(result_kind, "bool") != 0 &&
+         strcmp(result_kind, "string") != 0))
         return rust_report_match_error(
-            "supports value match results only for heap-free scalar bool, int, long, int32, uint32, uint, byte, float, or double");
+            "supports value match results only for exact str or heap-free scalar bool, int, long, int32, uint32, uint, byte, float, or double");
 
     for (size_t i = 0; i < arm_count; i++)
     {
@@ -2626,6 +2695,9 @@ static bool rust_validate_value_match(json_object *expr)
             !json_object_object_get_ex(body, "statements", &body_statements) ||
             json_object_array_length(body_statements) != 1)
         {
+            if (strcmp(result_kind, "string") == 0)
+                return rust_report_match_error(
+                    "requires each value match arm body to contain exactly one str expression");
             if (strcmp(result_kind, "int") == 0)
                 return rust_report_match_error(
                     "requires each value match arm body to contain exactly one int expression");
@@ -2644,6 +2716,9 @@ static bool rust_validate_value_match(json_object *expr)
             !json_object_object_get_ex(arm_expr, "type", &arm_type) ||
             !json_string_property_equals(arm_type, "kind", result_kind))
         {
+            if (strcmp(result_kind, "string") == 0)
+                return rust_report_match_error(
+                    "requires each value match arm body to contain exactly one str expression");
             if (strcmp(result_kind, "int") == 0)
                 return rust_report_match_error(
                     "requires each value match arm body to contain exactly one int expression");
@@ -2652,6 +2727,36 @@ static bool rust_validate_value_match(json_object *expr)
                     "requires each value match arm body to contain exactly one bool expression");
             return rust_report_match_error(
                 "requires each value match arm body to contain exactly one expression of the exact resolved result type");
+        }
+        if (strcmp(result_kind, "string") == 0)
+        {
+            const char *arm_kind = json_string_property(arm_expr, "kind");
+            bool supported = arm_kind &&
+                (strcmp(arm_kind, "literal") == 0 ||
+                 strcmp(arm_kind, "variable") == 0 ||
+                 strcmp(arm_kind, "member") == 0 ||
+                 strcmp(arm_kind, "array_access") == 0 ||
+                 strcmp(arm_kind, "binary") == 0 ||
+                 strcmp(arm_kind, "str_concat_multi") == 0 ||
+                 strcmp(arm_kind, "interpolated_string") == 0 ||
+                 strcmp(arm_kind, "call") == 0 ||
+                 strcmp(arm_kind, "static_call") == 0 ||
+                 strcmp(arm_kind, "match") == 0);
+            if (!supported)
+                return rust_report_match_error(
+                    "supports str value-match results only for literals, borrowed variables, members, indexed elements, concatenation, interpolation, supported non-mutating calls, or nested str-result matches");
+
+            if (strcmp(arm_kind, "array_access") == 0 &&
+                !rust_string_match_result_access_is_stable(arm_expr))
+                return rust_report_match_error(
+                    "requires indexed str value-match results to use a stable local/member receiver and stable indices");
+
+            /* Array mutation methods can return an element and therefore have
+             * exact str type for str[]. Their effect/value ordering remains a
+             * separate semantic family, not an implicit part of this slice. */
+            if (rust_string_match_result_call_is_mutating(arm_expr))
+                return rust_report_match_error(
+                    "does not support mutating calls as str value-match results");
         }
         if (!rust_validate_expr(arm_expr)) return false;
     }
@@ -3387,6 +3492,43 @@ static void rust_lower_strings(json_object *node)
 
     const char *kind = json_string_property(node, "kind");
     if (!kind) return;
+
+    /* Result ownership is independent of the match subject family. A str
+     * result is itself owned, so direct reads through live owners need one
+     * clone whether the subject is bool, numeric, or str. Literals already
+     * allocate a String, while concat/interpolation/calls/nested matches
+     * already produce owned values. */
+    if (strcmp(kind, "match") == 0 &&
+        json_boolean_property(node, "rust_value_match"))
+    {
+        json_object *type = NULL, *arms = NULL;
+        if (json_object_object_get_ex(node, "type", &type) &&
+            json_string_property_equals(type, "kind", "string") &&
+            json_object_object_get_ex(node, "arms", &arms))
+        {
+            size_t arm_count = json_object_array_length(arms);
+            for (size_t i = 0; i < arm_count; i++)
+            {
+                json_object *arm = json_object_array_get_idx(arms, i);
+                json_object *body = NULL, *statements = NULL;
+                if (!json_object_object_get_ex(arm, "body", &body) ||
+                    !json_object_object_get_ex(body, "statements", &statements) ||
+                    json_object_array_length(statements) != 1)
+                    continue;
+                json_object *statement = json_object_array_get_idx(statements, 0);
+                json_object *result = NULL;
+                if (!json_object_object_get_ex(statement, "expr", &result))
+                    continue;
+                const char *result_kind = json_string_property(result, "kind");
+                if (result_kind &&
+                    (strcmp(result_kind, "variable") == 0 ||
+                     strcmp(result_kind, "member") == 0 ||
+                     strcmp(result_kind, "array_access") == 0))
+                    json_object_object_add(result, "rust_needs_clone",
+                                           json_object_new_boolean(true));
+            }
+        }
+    }
     if (strcmp(kind, "match") == 0 &&
         json_boolean_property(node, "rust_string_match"))
     {
@@ -3400,6 +3542,7 @@ static void rust_lower_strings(json_object *node)
                 json_object_object_add(subject, "rust_needs_clone",
                                        json_object_new_boolean(true));
         }
+
         return;
     }
     if (strcmp(kind, "binary") == 0)

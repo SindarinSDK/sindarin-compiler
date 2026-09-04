@@ -1,0 +1,11 @@
+fn main(): int =>
+  var direct: str = "X\x1FAY"
+  var directBytes: byte[] = direct.toBytes()
+  var longGreedy: str = "X\x1FAb09Y"
+  var longBytes: byte[] = longGreedy.toBytes()
+  var lower: str = "x\x1fay"
+  var lowerBytes: byte[] = lower.toBytes()
+  var ok: bool = directBytes.length == 4 && directBytes[0] == 88b && directBytes[1] == 31b && directBytes[2] == 65b && directBytes[3] == 89b && longBytes.length == 7 && longBytes[0] == 88b && longBytes[1] == 31b && longBytes[2] == 65b && longBytes[3] == 98b && longBytes[4] == 48b && longBytes[5] == 57b && longBytes[6] == 89b && lowerBytes.length == 4 && lowerBytes[1] == 31b && lowerBytes[2] == 97b
+  return match ok =>
+    true => 0
+    else => 1

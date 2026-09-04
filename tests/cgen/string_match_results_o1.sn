@@ -1,0 +1,29 @@
+fn ownedResult(value: str): str => return $"<{value}>"
+
+fn main(): int =>
+  var source: str = "borrowed\n\tquote:\" slash:\\"
+  var rows: str[] = "indexed\n\tquote:\" slash:\\".split("never-present")
+  var direct: str = match true =>
+    true => "direct\n\tquote:\" slash:\\"
+    else => "wrong"
+  var borrowed: str = match 1 =>
+    1 => source
+    else => "wrong"
+  var indexed: str = match false =>
+    true => "wrong"
+    else => rows[0]
+  var concatenated: str = match 2 =>
+    2 => "owned-" + source
+    else => "wrong"
+  var called: str = match 3 =>
+    3 => ownedResult("called")
+    else => "wrong"
+  var nested: str = match 4 =>
+    4 => match "inner" =>
+      "inner" => "nested\n\tquote:\" slash:\\"
+      else => "wrong-inner"
+    else => "wrong-outer"
+  var ok: bool = direct == "direct\n\tquote:\" slash:\\" && borrowed == "borrowed\n\tquote:\" slash:\\" && indexed == "indexed\n\tquote:\" slash:\\" && concatenated == "owned-borrowed\n\tquote:\" slash:\\" && called == "<called>" && nested == "nested\n\tquote:\" slash:\\"
+  return match ok =>
+    true => 0
+    else => 1

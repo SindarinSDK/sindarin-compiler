@@ -1,0 +1,10 @@
+fn makeRows(calls: int as ref): str[][] =>
+  calls++
+  return {{"value"}}
+
+fn main(): void =>
+  var calls: int = 0
+  var result: str = match 1 =>
+    1 => makeRows(calls)[0][0]
+    else => "other"
+  println(result)

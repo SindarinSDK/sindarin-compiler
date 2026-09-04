@@ -1,0 +1,37 @@
+fn main(): int =>
+  var direct: str = "X\x1FAY"
+  var directBytes: byte[] = direct.toBytes()
+  var longGreedy: str = "X\x1FAb09Y"
+  var longBytes: byte[] = longGreedy.toBytes()
+  var lower: str = "x\x1fay"
+  var lowerBytes: byte[] = lower.toBytes()
+  var boundaries: str = "\xC2\x80\xDF\xBF\xE0\xA0\x80\xED\x9F\xBF\xEE\x80\x80\xEF\xBF\xBF\xF0\x90\x80\x80\xF4\x8F\xBF\xBF"
+  var boundaryBytes: byte[] = boundaries.toBytes()
+  var controls: str = "\n\t\r\"\\"
+  var controlBytes: byte[] = controls.toBytes()
+  var unicode: str = "é世界🙂"
+  var unicodeBytes: byte[] = unicode.toBytes()
+  var ascii: str = "ASCII"
+  var accent: str = "é"
+  var world: str = "世界"
+  var emoji: str = "🙂"
+  var decomposed: str = "é"
+  var source: str = "X\x1FAb09Y"
+  var rows: str[] = "X\x1FAb09Y".split("never-present")
+  var borrowed: str = match 1 =>
+    1 => source
+    else => "wrong"
+  var indexed: str = match 2 =>
+    2 => rows[0]
+    else => "wrong"
+  var nested: str = match true =>
+    true => match "X\x1FAY" =>
+      "X\x1FAY" => "X\x1FAb09Y"
+      else => "wrong-inner"
+    else => "wrong-outer"
+  var concatenated: str = "X\x1F" + "Ab09Y"
+  var interpolated: str = $"X\x1FAb09Y"
+  var ok: bool = directBytes.length == 4 && directBytes[0] == 88b && directBytes[1] == 31b && directBytes[2] == 65b && directBytes[3] == 89b && longBytes.length == 7 && longBytes[0] == 88b && longBytes[1] == 31b && longBytes[2] == 65b && longBytes[3] == 98b && longBytes[4] == 48b && longBytes[5] == 57b && longBytes[6] == 89b && lowerBytes.length == 4 && lowerBytes[1] == 31b && lowerBytes[2] == 97b && boundaryBytes.length == 24 && boundaryBytes[0] == 194b && boundaryBytes[1] == 128b && boundaryBytes[20] == 244b && boundaryBytes[21] == 143b && boundaryBytes[22] == 191b && boundaryBytes[23] == 191b && controlBytes.length == 5 && controlBytes[0] == 10b && controlBytes[1] == 9b && controlBytes[2] == 13b && controlBytes[3] == 34b && controlBytes[4] == 92b && unicodeBytes.length == 12 && unicodeBytes[0] == 195b && unicodeBytes[11] == 130b && ascii.length == 5 && accent.length == 2 && world.length == 6 && emoji.length == 4 && decomposed.length == 3 && borrowed == longGreedy && indexed == longGreedy && nested == longGreedy && concatenated == longGreedy && interpolated == longGreedy
+  return match ok =>
+    true => 0
+    else => 1

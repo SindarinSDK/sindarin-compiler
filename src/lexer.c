@@ -522,7 +522,7 @@ skip_indent_processing:
         {
             lexer_advance(lexer);
             Token token = lexer_scan_string(lexer, 1);
-            token.type = TOKEN_INTERPOL_STRING;
+            if (token.type != TOKEN_ERROR) token.type = TOKEN_INTERPOL_STRING;
             DEBUG_VERBOSE("Line %d: Emitting INTERPOL_STRING", lexer->line);
             return token;
         }
