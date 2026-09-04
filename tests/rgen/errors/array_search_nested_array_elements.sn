@@ -1,0 +1,4 @@
+fn main(): void =>
+  var needle: int[] = {1}
+  var values: int[][] = {needle}
+  var found: bool = values.contains(needle)

@@ -1,0 +1,1 @@
+Error: Rust target requires array method 'contains' on float[] to receive an exact float argument; got double
