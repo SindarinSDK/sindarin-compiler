@@ -255,6 +255,18 @@ static bool rust_floating_type(json_object *type)
         json_string_property_equals(type, "kind", "double");
 }
 
+static bool rust_floating_ref_parameter(json_object *mutation,
+                                        json_object *parameter)
+{
+    json_object *type = NULL;
+    return json_string_property_equals(mutation, "mutation_storage", "parameter") &&
+        json_string_property_equals(mutation, "mutation_place", "variable") &&
+        json_string_property_equals(parameter, "kind", "variable") &&
+        json_string_property_equals(parameter, "parameter_mem_qual", "as_ref") &&
+        json_object_object_get_ex(parameter, "type", &type) &&
+        rust_floating_type(type);
+}
+
 static bool rust_checked_scalar_ref_parameter(json_object *mutation,
                                                json_object *parameter)
 {
@@ -1238,14 +1250,6 @@ static bool rust_validate_expr(json_object *expr)
                     "Error: Rust target does not support compound assignment of by-value parameters\n");
             return false;
         }
-        if (json_string_property_equals(expr, "mutation_storage", "parameter") &&
-            json_string_property_equals(target, "parameter_mem_qual", "as_ref") &&
-            rust_floating_type(target_type))
-        {
-            fprintf(stderr,
-                    "Error: Rust target does not support compound assignment of floating-point as ref parameters\n");
-            return false;
-        }
         bool target_floating = rust_floating_type(target_type);
         bool value_floating = rust_floating_type(value_type);
         if (target_floating || value_floating)
@@ -1274,7 +1278,8 @@ static bool rust_validate_expr(json_object *expr)
                         "Error: Rust target supports floating-point compound assignment only for variables and direct fields\n");
                 return false;
             }
-            if (!json_string_property_equals(expr, "mutation_storage", "local"))
+            if (!json_string_property_equals(expr, "mutation_storage", "local") &&
+                !rust_floating_ref_parameter(expr, target))
             {
                 fprintf(stderr,
                         "Error: Rust target supports floating-point compound assignment only for stable mutable locals and direct fields\n");
@@ -1336,12 +1341,6 @@ static bool rust_validate_expr(json_object *expr)
                         "Error: Rust target does not support increment/decrement of by-value parameters\n");
                 return false;
             }
-            if (operand_floating)
-            {
-                fprintf(stderr,
-                        "Error: Rust target does not support increment/decrement of floating-point as ref parameters\n");
-                return false;
-            }
         }
         if (json_boolean_property(expr, "mutation_sync"))
         {
@@ -1351,7 +1350,8 @@ static bool rust_validate_expr(json_object *expr)
         }
         if (operand_floating)
         {
-            if (!json_string_property_equals(expr, "mutation_storage", "local"))
+            if (!json_string_property_equals(expr, "mutation_storage", "local") &&
+                !rust_floating_ref_parameter(expr, child))
             {
                 fprintf(stderr,
                         "Error: Rust target supports floating-point increment/decrement only for stable mutable locals and direct fields\n");

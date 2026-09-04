@@ -1,6 +1,0 @@
-fn increment(value: double as ref): void =>
-  value++
-
-fn main(): void =>
-  var value: double = 1.0
-  increment(value)
