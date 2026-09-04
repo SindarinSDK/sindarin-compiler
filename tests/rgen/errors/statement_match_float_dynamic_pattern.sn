@@ -1,0 +1,4 @@
+fn main(): void =>
+  var pattern: float = 1.0f
+  match 1.0f =>
+    pattern => println("dynamic")

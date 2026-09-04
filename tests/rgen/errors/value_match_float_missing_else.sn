@@ -1,0 +1,4 @@
+fn main(): void =>
+  var result = match 1.0f =>
+    1.0f => 10
+  println(result)

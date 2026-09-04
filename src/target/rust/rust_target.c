@@ -1826,6 +1826,61 @@ static bool rust_bool_match_literal_pattern(json_object *pattern)
            json_object_is_type(value, json_type_boolean);
 }
 
+typedef enum
+{
+    RUST_FLOAT_MATCH_PATTERN_OK,
+    RUST_FLOAT_MATCH_PATTERN_NOT_LITERAL,
+    RUST_FLOAT_MATCH_PATTERN_WRONG_TYPE
+} RustFloatMatchPatternStatus;
+
+static RustFloatMatchPatternStatus rust_float_match_literal_pattern(
+    json_object *pattern, const char *subject_kind)
+{
+    json_object *pattern_type = NULL;
+    const char *pattern_kind = NULL;
+    if (!json_object_is_type(pattern, json_type_object) ||
+        !json_object_object_get_ex(pattern, "type", &pattern_type) ||
+        !(pattern_kind = json_string_property(pattern_type, "kind")) ||
+        !rust_float_type(pattern_kind))
+        return RUST_FLOAT_MATCH_PATTERN_NOT_LITERAL;
+    if (strcmp(pattern_kind, subject_kind) != 0)
+        return RUST_FLOAT_MATCH_PATTERN_WRONG_TYPE;
+
+    json_object *literal = pattern;
+    if (json_string_property_equals(pattern, "kind", "unary"))
+    {
+        json_object *operand_type = NULL;
+        if (!json_string_property_equals(pattern, "op", "negate") ||
+            !json_object_object_get_ex(pattern, "operand", &literal) ||
+            !json_object_is_type(literal, json_type_object) ||
+            !json_object_object_get_ex(literal, "type", &operand_type) ||
+            !json_string_property_equals(operand_type, "kind", subject_kind))
+            return RUST_FLOAT_MATCH_PATTERN_NOT_LITERAL;
+    }
+
+    json_object *value = NULL;
+    if (!json_string_property_equals(literal, "kind", "literal") ||
+        !json_string_property_equals(literal, "value_kind", "double") ||
+        !json_object_object_get_ex(literal, "value", &value) ||
+        !json_object_is_type(value, json_type_double))
+        return RUST_FLOAT_MATCH_PATTERN_NOT_LITERAL;
+    return RUST_FLOAT_MATCH_PATTERN_OK;
+}
+
+static bool rust_report_float_match_pattern_error(
+    RustFloatMatchPatternStatus status, bool is_value_match)
+{
+    if (status == RUST_FLOAT_MATCH_PATTERN_WRONG_TYPE)
+        return rust_report_match_error(
+            is_value_match
+                ? "requires floating literal patterns in value match to have the exact subject type"
+                : "requires floating literal patterns in statement match to have the exact subject type");
+    return rust_report_match_error(
+        is_value_match
+            ? "supports floating value match only with floating literal patterns"
+            : "supports floating statement match only with floating literal patterns");
+}
+
 static bool rust_validate_statement_match(json_object *expr)
 {
     json_object *subject = NULL, *subject_type = NULL, *arms = NULL;
@@ -1841,10 +1896,11 @@ static bool rust_validate_statement_match(json_object *expr)
     const char *subject_kind = json_string_property(subject_type, "kind");
     bool subject_is_integral = rust_match_integral_type(subject_kind);
     bool subject_is_bool = json_string_property_equals(subject_type, "kind", "bool");
-    if (!subject_is_integral && !subject_is_bool)
+    bool subject_is_float = rust_float_type(subject_kind);
+    if (!subject_is_integral && !subject_is_bool && !subject_is_float)
     {
         return rust_report_match_error(
-            "supports statement match only with bool or integral subjects");
+            "supports statement match only with bool, integral, float, or double subjects");
     }
     if (!rust_validate_expr(subject)) return false;
 
@@ -1898,6 +1954,13 @@ static bool rust_validate_statement_match(json_object *expr)
                 if (subject_is_bool && !rust_bool_match_literal_pattern(pattern))
                     return rust_report_match_error(
                         "supports statement match only with boolean literal patterns");
+                if (subject_is_float)
+                {
+                    RustFloatMatchPatternStatus status =
+                        rust_float_match_literal_pattern(pattern, subject_kind);
+                    if (status != RUST_FLOAT_MATCH_PATTERN_OK)
+                        return rust_report_float_match_pattern_error(status, false);
+                }
             }
         }
 
@@ -1911,6 +1974,9 @@ static bool rust_validate_statement_match(json_object *expr)
     }
 
     json_object_object_add(expr, "rust_has_else", json_object_new_boolean(has_else));
+    if (subject_is_float)
+        json_object_object_add(expr, "rust_floating_match",
+                               json_object_new_boolean(true));
     return true;
 }
 
@@ -1930,9 +1996,10 @@ static bool rust_validate_value_match(json_object *expr)
     const char *subject_kind = json_string_property(subject_type, "kind");
     bool subject_is_integral = rust_match_integral_type(subject_kind);
     bool subject_is_bool = json_string_property_equals(subject_type, "kind", "bool");
-    if (!subject_is_integral && !subject_is_bool)
+    bool subject_is_float = rust_float_type(subject_kind);
+    if (!subject_is_integral && !subject_is_bool && !subject_is_float)
         return rust_report_match_error(
-            "supports value match only with bool or integral subjects");
+            "supports value match only with bool, integral, float, or double subjects");
     if (!rust_validate_expr(subject)) return false;
 
     size_t else_count = 0;
@@ -1980,6 +2047,13 @@ static bool rust_validate_value_match(json_object *expr)
                 if (subject_is_bool && !rust_bool_match_literal_pattern(pattern))
                     return rust_report_match_error(
                         "supports value match only with boolean literal patterns");
+                if (subject_is_float)
+                {
+                    RustFloatMatchPatternStatus status =
+                        rust_float_match_literal_pattern(pattern, subject_kind);
+                    if (status != RUST_FLOAT_MATCH_PATTERN_OK)
+                        return rust_report_float_match_pattern_error(status, true);
+                }
             }
         }
     }
@@ -2038,6 +2112,9 @@ static bool rust_validate_value_match(json_object *expr)
     }
 
     json_object_object_add(expr, "rust_value_match", json_object_new_boolean(true));
+    if (subject_is_float)
+        json_object_object_add(expr, "rust_floating_match",
+                               json_object_new_boolean(true));
     return true;
 }
 

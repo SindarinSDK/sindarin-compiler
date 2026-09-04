@@ -1,0 +1,6 @@
+fn main(): void =>
+  var value: float = 1.0f
+  var result: int = match value =>
+    1.0 => 10
+    else => 20
+  println(result)

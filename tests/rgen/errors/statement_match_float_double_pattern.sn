@@ -1,0 +1,4 @@
+fn main(): void =>
+  var value: float = 1.0f
+  match value =>
+    1.0 => println("mixed")

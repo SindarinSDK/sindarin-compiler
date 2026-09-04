@@ -1,0 +1,1 @@
+Error: Rust target supports value match results only for heap-free scalar bool, int, long, int32, uint32, uint, byte, float, or double
