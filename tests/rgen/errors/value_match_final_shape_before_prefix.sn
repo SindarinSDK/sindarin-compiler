@@ -1,0 +1,8 @@
+fn main(): void =>
+  var value: str = "prefix"
+  var result: int32 = match 1 =>
+    1 =>
+      value.append("suffix")
+      10i32
+    else => 20
+  println(result)

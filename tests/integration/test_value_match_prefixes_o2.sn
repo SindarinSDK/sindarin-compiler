@@ -1,0 +1,169 @@
+fn markInt(calls: int as ref, order: int as ref, marker: int, value: int): int =>
+  calls++
+  order = order * 10 + marker
+  return value
+
+fn markBool(calls: int as ref, order: int as ref, marker: int, value: bool): bool =>
+  calls++
+  order = order * 10 + marker
+  return value
+
+fn markDouble(calls: int as ref, order: int as ref, marker: int, value: double): double =>
+  calls++
+  order = order * 10 + marker
+  return value
+
+fn markString(calls: int as ref, order: int as ref, marker: int, value: str): str =>
+  calls++
+  order = order * 10 + marker
+  return value
+
+fn acceptInt(value: int): int => return value
+
+struct Prefixes =>
+  marker: int = 0
+
+  static fn staticMark(calls: int as ref, order: int as ref, marker: int): int =>
+    return markInt(calls, order, marker, 0)
+
+  fn instanceMark(calls: int as ref, order: int as ref, marker: int): int =>
+    return markInt(calls, order, marker, self.marker)
+
+  static fn chooseBool(value: bool, calls: int as ref, order: int as ref): bool =>
+    return match value =>
+      true =>
+        calls++
+        order = order * 10 + 1
+        markInt(calls, order, 2, 0)
+        markBool(calls, order, 3, true)
+      false =>
+        markInt(calls, order, 4, 0)
+        false
+      else =>
+        markInt(calls, order, 5, 0)
+        false
+
+  fn chooseDouble(value: double, calls: int as ref, order: int as ref): double =>
+    return match value =>
+      1.5 =>
+        markInt(calls, order, 4, 0)
+        markDouble(calls, order, 5, 2.5)
+      else =>
+        markInt(calls, order, 6, 0)
+        3.5
+
+fn chooseInt(value: int, calls: int as ref, order: int as ref): int =>
+  var prefixes: Prefixes = { marker: 0 }
+  return match markInt(calls, order, 1, value) =>
+    1 =>
+      markInt(calls, order, 7, 0)
+      10
+    2 =>
+      markInt(calls, order, 2, 0)
+      Prefixes.staticMark(calls, order, 3)
+      prefixes.instanceMark(calls, order, 4)
+      match true =>
+        true => markInt(calls, order, 5, 0)
+        else => markInt(calls, order, 9, 0)
+      markInt(calls, order, 6, 20)
+    2 =>
+      markInt(calls, order, 7, 0)
+      markInt(calls, order, 8, 30)
+    else =>
+      markInt(calls, order, 9, 0)
+      40
+
+fn scalarFamilies(calls: int as ref): bool =>
+  var order: int = 0
+  var longResult: long = match 1b =>
+    1b =>
+      markInt(calls, order, 1, 0)
+      2L
+    else => 0L
+  var int32Result: int32 = match 2u =>
+    2u =>
+      markInt(calls, order, 2, 0)
+      3i32
+    else => 0i32
+  var uint32Result: uint32 = match 3i32 =>
+    3i32 =>
+      markInt(calls, order, 3, 0)
+      4u32
+    else => 0u32
+  var uintResult: uint = match 4u32 =>
+    4u32 =>
+      markInt(calls, order, 4, 0)
+      5u
+    else => 0u
+  var byteResult: byte = match 5L =>
+    5L =>
+      markInt(calls, order, 5, 0)
+      6b
+    else => 0b
+  var floatResult: float = match 6.0f =>
+    6.0f =>
+      markInt(calls, order, 6, 0)
+      7.0f
+    else => 0.0f
+  return longResult == 2L && int32Result == 3i32 && uint32Result == 4u32 && uintResult == 5u && byteResult == 6b && floatResult == 7.0f && order == 123456
+
+fn main(): void =>
+  var calls: int = 0
+  var order: int = 0
+  var selected: int = chooseInt(2, calls, order)
+  println($"{selected}|{calls}|{order}")
+
+  calls = 0
+  order = 0
+  var boolResult: bool = Prefixes.chooseBool(true, calls, order)
+  println($"{boolResult}|{calls}|{order}")
+
+  calls = 0
+  order = 0
+  var prefixes: Prefixes = { marker: 0 }
+  var doubleResult: double = prefixes.chooseDouble(1.5, calls, order)
+  println($"{doubleResult}|{calls}|{order}")
+
+  calls = 0
+  order = 0
+  var borrowed: str = "borrowed"
+  var borrowedResult: str = match markString(calls, order, 1, "key") =>
+    "key" =>
+      markString(calls, order, 2, "discard-owned")
+      match 1 =>
+        1 => markInt(calls, order, 3, 0)
+        else => markInt(calls, order, 9, 0)
+      borrowed
+    "key" =>
+      markString(calls, order, 8, "duplicate")
+      "wrong"
+    else =>
+      markString(calls, order, 9, "else")
+      "wrong"
+  println($"{borrowedResult}|{borrowed}|{calls}|{order}")
+
+  calls = 0
+  order = 0
+  var ownedResult: str = match "owned" =>
+    "owned" =>
+      markString(calls, order, 5, "discard-owned")
+      markString(calls, order, 6, "owned-final")
+    else => borrowed
+  println($"{ownedResult}|{borrowed}|{calls}|{order}")
+
+  calls = 0
+  order = 0
+  var argumentResult: int = acceptInt(70)
+  var nestedResult: int = match false =>
+    true => 0
+    else =>
+      markInt(calls, order, 8, 0)
+      match 1 =>
+        1 =>
+          markInt(calls, order, 9, 0)
+          90
+        else => 0
+  println($"{argumentResult}|{nestedResult}|{calls}|{order}")
+
+  calls = 0
+  println($"{scalarFamilies(calls)}|{calls}")

@@ -1,0 +1,11 @@
+fn main(): void =>
+  var value: str = "prefix"
+  var needle: int[] = {1}
+  var values: int[][] = {needle}
+  var result: int = match 1 =>
+    1 =>
+      value.append("suffix")
+      values.contains(needle)
+      10
+    else => 20
+  println(result)

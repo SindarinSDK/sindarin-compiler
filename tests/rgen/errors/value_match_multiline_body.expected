@@ -1,1 +1,1 @@
-Error: Rust target requires each value match arm body to contain exactly one int expression
+Error: Rust target requires every value match arm prefix to be an expression statement

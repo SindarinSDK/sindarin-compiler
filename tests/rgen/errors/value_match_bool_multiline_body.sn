@@ -2,7 +2,8 @@ fn main(): void =>
   var effects: int = 0
   var result: bool = match true =>
     true =>
-      effects++
+      if effects == 0 =>
+        effects++
       true
     else => false
   println(result)
