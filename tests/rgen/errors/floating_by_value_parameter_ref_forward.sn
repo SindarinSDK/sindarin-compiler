@@ -1,0 +1,9 @@
+fn touch(value: double as ref): double =>
+  value = value + 1.0
+  return value
+
+fn mutate(value: double): double =>
+  return value += touch(value)
+
+fn main(): void =>
+  println(mutate(1.0))

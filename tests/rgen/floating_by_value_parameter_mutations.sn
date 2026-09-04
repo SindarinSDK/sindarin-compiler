@@ -1,0 +1,130 @@
+struct Effects =>
+  static fn floatRhs(calls: int as ref, value: float): float =>
+    calls++
+    return value
+
+  static fn doubleRhs(calls: int as ref, value: double): double =>
+    calls++
+    return value
+
+struct FloatingOps =>
+  marker: int = 0
+
+  static fn staticFloat(value: float, calls: int as ref, untouched: float): bool =>
+    var beforeCalls: int = calls
+    var added: float = value += Effects.floatRhs(calls, value / 2.0f)
+    var subtracted: float = value -= Effects.floatRhs(calls, value / 6.0f)
+    var multiplied: float = value *= Effects.floatRhs(calls, value - 7.0f)
+    var divided: float = value /= Effects.floatRhs(calls, value / 6.0f)
+    var beforeIncrement: float = value++
+    var beforeDecrement: float = value--
+    return added == 12.0f && subtracted == 10.0f && multiplied == 30.0f && divided == 6.0f && beforeIncrement == 6.0f && beforeDecrement == 7.0f && value == 6.0f && calls == beforeCalls + 4 && untouched == 99.0f
+
+  static fn staticDouble(value: double, calls: int as ref, untouched: double): bool =>
+    var beforeCalls: int = calls
+    var added: double = value += Effects.doubleRhs(calls, value / 2.0)
+    var subtracted: double = value -= Effects.doubleRhs(calls, value / 6.0)
+    var multiplied: double = value *= Effects.doubleRhs(calls, value / 10.0)
+    var divided: double = value /= Effects.doubleRhs(calls, value / 8.0)
+    var beforeIncrement: double = value++
+    var beforeDecrement: double = value--
+    return added == 24.0 && subtracted == 20.0 && multiplied == 40.0 && divided == 8.0 && beforeIncrement == 8.0 && beforeDecrement == 9.0 && value == 8.0 && calls == beforeCalls + 4 && untouched == 99.0
+
+  fn instanceFloat(value: float, calls: int as ref, untouched: float): bool =>
+    var beforeCalls: int = calls
+    var added: float = value += Effects.floatRhs(calls, value / 2.0f)
+    var subtracted: float = value -= Effects.floatRhs(calls, value / 6.0f)
+    var multiplied: float = value *= Effects.floatRhs(calls, value - 7.0f)
+    var divided: float = value /= Effects.floatRhs(calls, value / 6.0f)
+    var beforeIncrement: float = value++
+    var beforeDecrement: float = value--
+    return self.marker == 1 && added == 12.0f && subtracted == 10.0f && multiplied == 30.0f && divided == 6.0f && beforeIncrement == 6.0f && beforeDecrement == 7.0f && value == 6.0f && calls == beforeCalls + 4 && untouched == 99.0f
+
+  fn instanceDouble(value: double, calls: int as ref, untouched: double): bool =>
+    var beforeCalls: int = calls
+    var added: double = value += Effects.doubleRhs(calls, value / 2.0)
+    var subtracted: double = value -= Effects.doubleRhs(calls, value / 6.0)
+    var multiplied: double = value *= Effects.doubleRhs(calls, value / 10.0)
+    var divided: double = value /= Effects.doubleRhs(calls, value / 8.0)
+    var beforeIncrement: double = value++
+    var beforeDecrement: double = value--
+    return self.marker == 1 && added == 24.0 && subtracted == 20.0 && multiplied == 40.0 && divided == 8.0 && beforeIncrement == 8.0 && beforeDecrement == 9.0 && value == 8.0 && calls == beforeCalls + 4 && untouched == 99.0
+
+fn freeFloat(value: float, calls: int as ref, untouched: float): bool =>
+  var beforeCalls: int = calls
+  var added: float = value += Effects.floatRhs(calls, value / 2.0f)
+  var subtracted: float = value -= Effects.floatRhs(calls, value / 6.0f)
+  var multiplied: float = value *= Effects.floatRhs(calls, value - 7.0f)
+  var divided: float = value /= Effects.floatRhs(calls, value / 6.0f)
+  var beforeIncrement: float = value++
+  var beforeDecrement: float = value--
+  return added == 12.0f && subtracted == 10.0f && multiplied == 30.0f && divided == 6.0f && beforeIncrement == 6.0f && beforeDecrement == 7.0f && value == 6.0f && calls == beforeCalls + 4 && untouched == 99.0f
+
+fn freeDouble(value: double, calls: int as ref, untouched: double): bool =>
+  var beforeCalls: int = calls
+  var added: double = value += Effects.doubleRhs(calls, value / 2.0)
+  var subtracted: double = value -= Effects.doubleRhs(calls, value / 6.0)
+  var multiplied: double = value *= Effects.doubleRhs(calls, value / 10.0)
+  var divided: double = value /= Effects.doubleRhs(calls, value / 8.0)
+  var beforeIncrement: double = value++
+  var beforeDecrement: double = value--
+  return added == 24.0 && subtracted == 20.0 && multiplied == 40.0 && divided == 8.0 && beforeIncrement == 8.0 && beforeDecrement == 9.0 && value == 8.0 && calls == beforeCalls + 4 && untouched == 99.0
+
+fn floatSpecial(positive: float, zero: float, negativeZero: float): bool =>
+  var infinity: float = positive /= 0.0f
+  var nan: float = zero /= zero
+  var signed: float = negativeZero *= 1.0f
+  return infinity > 0.0f && nan != nan && signed == 0.0f && 1.0f / signed < 0.0f
+
+fn doubleSpecial(positive: double, zero: double, negativeZero: double): bool =>
+  var infinity: double = positive /= 0.0
+  var nan: double = zero /= zero
+  var signed: double = negativeZero *= 1.0
+  return infinity > 0.0 && nan != nan && signed == 0.0 && 1.0 / signed < 0.0
+
+fn helperNames(__sn_rhs: float, __sn_place: float, __sn_next: float, __sn_previous: float, untouched: float): bool =>
+  var added: float = __sn_rhs += __sn_rhs
+  var incremented: float = __sn_place++
+  var multiplied: float = __sn_next *= 2.0f
+  var decremented: float = __sn_previous--
+  return added == 4.0f && __sn_rhs == 4.0f && incremented == 3.0f && __sn_place == 4.0f && multiplied == 8.0f && __sn_next == 8.0f && decremented == 5.0f && __sn_previous == 4.0f && untouched == 6.0f
+
+fn shadowOrder(value: double): double =>
+  if true =>
+    value += 1.0
+    var beforeShadow: double = value
+    var value: double = beforeShadow
+    value++
+  return value
+
+fn main(): void =>
+  var calls: int = 0
+  var freeFloatCaller: float = 8.0f
+  var freeDoubleCaller: double = 16.0
+  var staticFloatCaller: float = 8.0f
+  var staticDoubleCaller: double = 16.0
+  var instanceFloatCaller: float = 8.0f
+  var instanceDoubleCaller: double = 16.0
+  var specialFloatOne: float = 1.0f
+  var specialFloatZero: float = 0.0f
+  var specialFloatNegativeZero: float = -0.0f
+  var specialDoubleOne: double = 1.0
+  var specialDoubleZero: double = 0.0
+  var specialDoubleNegativeZero: double = -0.0
+  var orderCaller: double = 4.0
+  var ops: FloatingOps = { marker: 1 }
+
+  println(freeFloat(freeFloatCaller, calls, 99.0f))
+  println(freeDouble(freeDoubleCaller, calls, 99.0))
+  println(FloatingOps.staticFloat(staticFloatCaller, calls, 99.0f))
+  println(FloatingOps.staticDouble(staticDoubleCaller, calls, 99.0))
+  println(ops.instanceFloat(instanceFloatCaller, calls, 99.0f))
+  println(ops.instanceDouble(instanceDoubleCaller, calls, 99.0))
+  println(calls == 24)
+  println(freeFloatCaller == 8.0f && freeDoubleCaller == 16.0 && staticFloatCaller == 8.0f && staticDoubleCaller == 16.0 && instanceFloatCaller == 8.0f && instanceDoubleCaller == 16.0)
+  println(floatSpecial(specialFloatOne, specialFloatZero, specialFloatNegativeZero))
+  println(doubleSpecial(specialDoubleOne, specialDoubleZero, specialDoubleNegativeZero))
+  println(specialFloatOne == 1.0f && specialFloatZero == 0.0f && 1.0f / specialFloatNegativeZero < 0.0f)
+  println(specialDoubleOne == 1.0 && specialDoubleZero == 0.0 && 1.0 / specialDoubleNegativeZero < 0.0)
+  println(helperNames(2.0f, 3.0f, 4.0f, 5.0f, 6.0f))
+  println(shadowOrder(orderCaller) == 5.0 && orderCaller == 4.0)

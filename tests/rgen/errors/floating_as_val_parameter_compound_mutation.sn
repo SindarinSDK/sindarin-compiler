@@ -1,4 +1,4 @@
-fn mutate(value: float): void =>
+fn mutate(value: float as val): void =>
   value += 1.0f
 
 fn main(): void =>

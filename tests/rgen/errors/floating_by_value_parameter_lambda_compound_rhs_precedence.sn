@@ -1,0 +1,10 @@
+fn consume(callback: fn(float): float): float =>
+  return callback(2.0f)
+
+fn outer(value: float): float =>
+  return value += consume(fn(value: float): float =>
+    return value++
+  )
+
+fn main(): void =>
+  println(outer(1.0f))

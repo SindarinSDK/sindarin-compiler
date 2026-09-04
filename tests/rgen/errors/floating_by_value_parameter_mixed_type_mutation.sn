@@ -1,0 +1,5 @@
+fn addDouble(value: float): float =>
+  return value += value++ + 2.0
+
+fn main(): void =>
+  println(addDouble(1.0f))

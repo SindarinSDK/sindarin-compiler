@@ -1,0 +1,5 @@
+fn modulo(value: double): double =>
+  return value %= value++
+
+fn main(): void =>
+  println(modulo(5.0))
