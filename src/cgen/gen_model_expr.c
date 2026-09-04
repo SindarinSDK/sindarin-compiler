@@ -1,6 +1,9 @@
 #include "cgen/gen_model.h"
 #include "cgen/ownership.h"
+#include "debug.h"
 #include "symbol_table/symbol_table_core.h"
+#include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 
 /* Re-escape a string value for C output.
@@ -78,6 +81,34 @@ static void mc_add(ModelCaptures *mc, Arena *arena, const char *name, Type *type
     mc->names[mc->count] = arena_strdup(arena, name);
     mc->types[mc->count] = type;
     mc->count++;
+}
+
+typedef struct {
+    Expr **items;
+    size_t count;
+    size_t capacity;
+} StringConcatExprStack;
+
+static void string_concat_stack_push(StringConcatExprStack *stack, Arena *arena,
+    Expr *expr)
+{
+    if (stack->count == stack->capacity) {
+        if (stack->capacity > SIZE_MAX / 2) {
+            DEBUG_ERROR("String concatenation model stack capacity overflow");
+            exit(1);
+        }
+        size_t new_capacity = stack->capacity == 0 ? 8 : stack->capacity * 2;
+        if (new_capacity > SIZE_MAX / sizeof(Expr *)) {
+            DEBUG_ERROR("String concatenation model stack allocation overflow");
+            exit(1);
+        }
+        Expr **new_items = arena_alloc(arena, new_capacity * sizeof(Expr *));
+        if (stack->items)
+            memcpy(new_items, stack->items, stack->count * sizeof(Expr *));
+        stack->items = new_items;
+        stack->capacity = new_capacity;
+    }
+    stack->items[stack->count++] = expr;
 }
 
 /* Hoist borrow-tmp args out of inline statement expressions.
@@ -1340,34 +1371,29 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
             if (expr->as.binary.operator == TOKEN_PLUS &&
                 expr->expr_type && expr->expr_type->kind == TYPE_STRING)
             {
-                /* Collect all parts of the chain */
-                #define MAX_CONCAT_PARTS 32
-                Expr *parts[MAX_CONCAT_PARTS];
-                int part_count = 0;
-
-                /* Flatten left-associative chain: ((a + b) + c) → [a, b, c] */
-                Expr *stack[MAX_CONCAT_PARTS];
-                int stack_top = 0;
-                stack[stack_top++] = expr;
-                while (stack_top > 0)
+                /* Flatten the complete tree in source order.  The stack grows
+                 * with the expression, so deeply associated chains cannot be
+                 * silently truncated. */
+                StringConcatExprStack stack = {0};
+                StringConcatExprStack parts = {0};
+                string_concat_stack_push(&stack, arena, expr);
+                while (stack.count > 0)
                 {
-                    Expr *e = stack[--stack_top];
+                    Expr *e = stack.items[--stack.count];
                     if (e->type == EXPR_BINARY && e->as.binary.operator == TOKEN_PLUS &&
                         e->expr_type && e->expr_type->kind == TYPE_STRING)
                     {
                         /* Push right first so left is processed first */
-                        if (stack_top < MAX_CONCAT_PARTS - 1)
-                            stack[stack_top++] = e->as.binary.right;
-                        if (stack_top < MAX_CONCAT_PARTS - 1)
-                            stack[stack_top++] = e->as.binary.left;
+                        string_concat_stack_push(&stack, arena, e->as.binary.right);
+                        string_concat_stack_push(&stack, arena, e->as.binary.left);
                     }
                     else
                     {
-                        if (part_count < MAX_CONCAT_PARTS)
-                            parts[part_count++] = e;
+                        string_concat_stack_push(&parts, arena, e);
                     }
                 }
-                #undef MAX_CONCAT_PARTS
+
+                size_t part_count = parts.count;
 
                 if (part_count > 2)
                 {
@@ -1375,19 +1401,19 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     json_object_object_add(obj, "kind",
                         json_object_new_string("str_concat_multi"));
                     json_object *parts_arr = json_object_new_array();
-                    for (int pi = 0; pi < part_count; pi++)
+                    for (size_t pi = 0; pi < part_count; pi++)
                     {
-                        json_object *part = gen_model_expr(arena, parts[pi],
+                        json_object *part = gen_model_expr(arena, parts.items[pi],
                             symbol_table, arithmetic_mode);
                         /* Check if this part is a temp string allocation that needs cleanup */
-                        if (is_heap_producing_string_expr(parts[pi]))
+                        if (is_heap_producing_string_expr(parts.items[pi]))
                             json_object_object_add(part, "is_str_temp",
                                 json_object_new_boolean(true));
                         json_object_array_add(parts_arr, part);
                     }
                     json_object_object_add(obj, "parts", parts_arr);
                     json_object_object_add(obj, "part_count",
-                        json_object_new_int(part_count));
+                        json_object_new_int64((int64_t)part_count));
                     break;
                 }
                 /* Fall through for 2-part concat — check for temp operands */

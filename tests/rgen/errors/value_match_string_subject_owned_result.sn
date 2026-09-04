@@ -1,5 +1,5 @@
 fn main(): void =>
-  var result: str = match true =>
-    true => "yes"
+  var result: str = match "one" =>
+    "one" => "yes"
     else => "no"
   println(result)

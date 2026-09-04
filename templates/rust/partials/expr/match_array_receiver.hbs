@@ -1,0 +1,4 @@
+{{#if (eq kind "array_access")}}{{> expr_match_array_receiver array rust_match_array_name=rust_match_array_name rust_match_index_name=rust_match_index_name}}    let {{rust_ident rust_match_index_name}} = __sn_index({{rust_ident rust_match_array_name}}.len(), {{> expr index}});
+    let {{rust_ident rust_match_array_name}} = &({{rust_ident rust_match_array_name}}[{{rust_ident rust_match_index_name}}]);
+{{else}}    let {{rust_ident rust_match_array_name}} = &({{> expr this}});
+{{/if~}}

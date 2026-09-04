@@ -1,0 +1,127 @@
+struct Matcher =>
+  text: str
+
+  fn instanceValue(): int =>
+    var result: int = match self.text =>
+      "north" => 10
+      "north" => 20
+      else => 0
+    return result
+
+  static fn staticValue(value: str): bool =>
+    return match value =>
+      "" => false
+      "héllo", "hello" => true
+      else => false
+
+fn makeSubject(calls: int as ref): str =>
+  calls++
+  return "to" + "ken"
+
+fn makeLabels(calls: int as ref): str[] =>
+  calls++
+  return {"indexed"}
+
+fn makeRows(calls: int as ref): str[][] =>
+  calls++
+  return {{"nested"}}
+
+fn selectedValue(calls: int as ref, value: int): int =>
+  calls++
+  return value
+
+fn parameterValue(value: str): int =>
+  var result: int = match value =>
+    "token" => 7
+    else => 0
+  return result
+
+fn main(): void =>
+  var subject: str = "token"
+  var statementCalls: int = 0
+  match subject =>
+    "miss" => statementCalls = 100
+    "token", "token" => statementCalls++
+    else => statementCalls = 200
+  println(statementCalls == 1 && subject == "token")
+
+  var subjectCalls: int = 0
+  var armCalls: int = 0
+  var chosen: int = match makeSubject(subjectCalls) =>
+    "miss" => selectedValue(armCalls, 1)
+    "token" => selectedValue(armCalls, 7)
+    "token" => selectedValue(armCalls, 9)
+    else => selectedValue(armCalls, 0)
+  println(chosen == 7 && subjectCalls == 1 && armCalls == 1)
+
+  var noElseCalls: int = 0
+  match "absent" =>
+    "present" => noElseCalls++
+  println(noElseCalls == 0)
+
+  var literalResult: bool = match "" =>
+    "" => true
+    else => false
+  println(literalResult)
+
+  var nested: bool = match "outer" =>
+    "outer" => match subject =>
+      "token" => true
+      else => false
+    else => false
+  println(nested)
+
+  var __sn_match_subject: str = "source-subject"
+  var __sn_match_array: int = 0
+  var __sn_match_index: int = 41
+  var __sn_match_subject_0: str = "candidate-subject"
+  var __sn_match_array_0: int = 7
+  var __sn_match_index_0: int = 8
+  var hygieneCalls: int = 0
+  var hygieneRows: str[][] = {{"nested"}}
+  match makeRows(hygieneCalls)[0][0] =>
+    "nested" =>
+      __sn_match_subject = __sn_match_subject
+      __sn_match_array = __sn_match_index + 1
+      __sn_match_subject_0 = __sn_match_subject_0
+      __sn_match_array_0 = __sn_match_index_0 + 1
+      match hygieneRows[0][0] =>
+        "nested" =>
+          __sn_match_index = __sn_match_array - 1
+          __sn_match_index_0 = __sn_match_array_0 - 1
+      match 1.0f =>
+        1.0f => __sn_match_subject = __sn_match_subject
+  println($"{__sn_match_subject},{__sn_match_array},{__sn_match_index}")
+  println(hygieneCalls == 1 && __sn_match_subject_0 == "candidate-subject" && __sn_match_array_0 == 9 && __sn_match_index_0 == 8)
+
+  var labels: str[] = {"indexed"}
+  var indexed: bool = match labels[0] =>
+    "indexed" => true
+    else => false
+  println(indexed && labels[0] == "indexed" && __sn_match_array == 42 && __sn_match_index == 41)
+
+  var indexedReceiverCalls: int = 0
+  var indexedReceiverResult: int = match makeLabels(indexedReceiverCalls)[0] =>
+    "indexed" => 1
+    else => 0
+  println(indexedReceiverResult)
+  println(indexedReceiverCalls)
+
+  var nestedReceiverCalls: int = 0
+  var nestedReceiverResult: int = match makeRows(nestedReceiverCalls)[0][0] =>
+    "nested" => 1
+    else => 0
+  println(nestedReceiverResult)
+  println(nestedReceiverCalls)
+
+  var concatenated: int = match "con" + "tent" =>
+    "content" => 1
+    else => 0
+  println(concatenated == 1)
+
+  var matcher: Matcher = { text: "north" }
+  println(matcher.instanceValue() == 10 && matcher.text == "north")
+
+  var greeting: str = "héllo"
+  println(Matcher.staticValue(greeting) && greeting == "héllo")
+  println(parameterValue(subject) == 7 && subject == "token")

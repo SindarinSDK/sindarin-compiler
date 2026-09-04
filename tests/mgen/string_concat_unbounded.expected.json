@@ -1,0 +1,3408 @@
+{
+  "module": {
+    "filename": "tests\/mgen\/string_concat_unbounded.sn",
+    "has_main": true,
+    "main_returns": false,
+    "has_main_args": false,
+    "has_forward_decls": false
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [],
+  "globals": [],
+  "functions": [
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "void"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/string_concat_unbounded.sn",
+      "params": [],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "left33",
+          "type": {
+            "kind": "bool"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "bool"
+            },
+            "kind": "match",
+            "subject": {
+              "type": {
+                "kind": "string"
+              },
+              "kind": "literal",
+              "value_kind": "string",
+              "value": "L33:start|quote:\\\"|slash:\\\\|line:\\n|tab:\\t|utf8:héllo-世界-🙂|L33:p006|L33:p007|L33:p008|L33:p009|L33:p010|L33:p011|L33:p012|L33:p013|L33:p014|L33:p015|L33:p016|L33:p017|L33:p018|L33:p019|L33:p020|L33:p021|L33:p022|L33:p023|L33:p024|L33:p025|L33:p026|L33:p027|L33:p028|L33:p029|L33:p030|L33:p031|L33:boundary32|"
+            },
+            "arms": [
+              {
+                "is_else": false,
+                "patterns": [
+                  {
+                    "type": {
+                      "kind": "string"
+                    },
+                    "kind": "str_concat_multi",
+                    "parts": [
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L33:start|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "quote:\\\"|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "slash:\\\\|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "line:\\n|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "tab:\\t|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "utf8:héllo-世界-🙂|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L33:p006|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L33:p007|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L33:p008|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L33:p009|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L33:p010|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L33:p011|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L33:p012|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L33:p013|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L33:p014|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L33:p015|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L33:p016|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L33:p017|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L33:p018|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L33:p019|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L33:p020|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L33:p021|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L33:p022|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L33:p023|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L33:p024|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L33:p025|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L33:p026|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L33:p027|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L33:p028|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L33:p029|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L33:p030|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L33:p031|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L33:boundary32|"
+                      }
+                    ],
+                    "part_count": 33
+                  }
+                ],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "bool"
+                        },
+                        "kind": "literal",
+                        "value_kind": "bool",
+                        "value": true
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "is_else": true,
+                "patterns": [],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "bool"
+                        },
+                        "kind": "literal",
+                        "value_kind": "bool",
+                        "value": false
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "right33",
+          "type": {
+            "kind": "bool"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "bool"
+            },
+            "kind": "match",
+            "subject": {
+              "type": {
+                "kind": "string"
+              },
+              "kind": "literal",
+              "value_kind": "string",
+              "value": "R33:start|quote:\\\"|slash:\\\\|line:\\n|tab:\\t|utf8:héllo-世界-🙂|R33:p006|R33:p007|R33:p008|R33:p009|R33:p010|R33:p011|R33:p012|R33:p013|R33:p014|R33:p015|R33:p016|R33:p017|R33:p018|R33:p019|R33:p020|R33:p021|R33:p022|R33:p023|R33:p024|R33:p025|R33:p026|R33:p027|R33:p028|R33:p029|R33:p030|R33:p031|R33:boundary32|"
+            },
+            "arms": [
+              {
+                "is_else": false,
+                "patterns": [
+                  {
+                    "type": {
+                      "kind": "string"
+                    },
+                    "kind": "str_concat_multi",
+                    "parts": [
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R33:start|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "quote:\\\"|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "slash:\\\\|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "line:\\n|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "tab:\\t|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "utf8:héllo-世界-🙂|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R33:p006|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R33:p007|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R33:p008|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R33:p009|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R33:p010|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R33:p011|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R33:p012|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R33:p013|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R33:p014|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R33:p015|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R33:p016|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R33:p017|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R33:p018|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R33:p019|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R33:p020|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R33:p021|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R33:p022|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R33:p023|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R33:p024|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R33:p025|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R33:p026|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R33:p027|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R33:p028|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R33:p029|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R33:p030|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R33:p031|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R33:boundary32|"
+                      }
+                    ],
+                    "part_count": 33
+                  }
+                ],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "bool"
+                        },
+                        "kind": "literal",
+                        "value_kind": "bool",
+                        "value": true
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "is_else": true,
+                "patterns": [],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "bool"
+                        },
+                        "kind": "literal",
+                        "value_kind": "bool",
+                        "value": false
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "left40",
+          "type": {
+            "kind": "bool"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "bool"
+            },
+            "kind": "match",
+            "subject": {
+              "type": {
+                "kind": "string"
+              },
+              "kind": "literal",
+              "value_kind": "string",
+              "value": "L40:start|quote:\\\"|slash:\\\\|line:\\n|tab:\\t|utf8:héllo-世界-🙂|L40:p006|L40:p007|L40:p008|L40:p009|L40:p010|L40:p011|L40:p012|L40:p013|L40:p014|L40:p015|L40:p016|L40:p017|L40:p018|L40:p019|L40:p020|L40:p021|L40:p022|L40:p023|L40:p024|L40:p025|L40:p026|L40:p027|L40:p028|L40:p029|L40:p030|L40:p031|L40:boundary32|L40:p033|L40:p034|L40:p035|L40:p036|L40:p037|L40:p038|L40:boundary39|"
+            },
+            "arms": [
+              {
+                "is_else": false,
+                "patterns": [
+                  {
+                    "type": {
+                      "kind": "string"
+                    },
+                    "kind": "str_concat_multi",
+                    "parts": [
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L40:start|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "quote:\\\"|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "slash:\\\\|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "line:\\n|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "tab:\\t|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "utf8:héllo-世界-🙂|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L40:p006|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L40:p007|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L40:p008|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L40:p009|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L40:p010|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L40:p011|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L40:p012|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L40:p013|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L40:p014|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L40:p015|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L40:p016|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L40:p017|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L40:p018|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L40:p019|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L40:p020|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L40:p021|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L40:p022|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L40:p023|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L40:p024|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L40:p025|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L40:p026|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L40:p027|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L40:p028|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L40:p029|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L40:p030|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L40:p031|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L40:boundary32|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L40:p033|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L40:p034|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L40:p035|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L40:p036|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L40:p037|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L40:p038|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L40:boundary39|"
+                      }
+                    ],
+                    "part_count": 40
+                  }
+                ],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "bool"
+                        },
+                        "kind": "literal",
+                        "value_kind": "bool",
+                        "value": true
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "is_else": true,
+                "patterns": [],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "bool"
+                        },
+                        "kind": "literal",
+                        "value_kind": "bool",
+                        "value": false
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "right40",
+          "type": {
+            "kind": "bool"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "bool"
+            },
+            "kind": "match",
+            "subject": {
+              "type": {
+                "kind": "string"
+              },
+              "kind": "literal",
+              "value_kind": "string",
+              "value": "R40:start|quote:\\\"|slash:\\\\|line:\\n|tab:\\t|utf8:héllo-世界-🙂|R40:p006|R40:p007|R40:p008|R40:p009|R40:p010|R40:p011|R40:p012|R40:p013|R40:p014|R40:p015|R40:p016|R40:p017|R40:p018|R40:p019|R40:p020|R40:p021|R40:p022|R40:p023|R40:p024|R40:p025|R40:p026|R40:p027|R40:p028|R40:p029|R40:p030|R40:p031|R40:boundary32|R40:p033|R40:p034|R40:p035|R40:p036|R40:p037|R40:p038|R40:boundary39|"
+            },
+            "arms": [
+              {
+                "is_else": false,
+                "patterns": [
+                  {
+                    "type": {
+                      "kind": "string"
+                    },
+                    "kind": "str_concat_multi",
+                    "parts": [
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R40:start|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "quote:\\\"|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "slash:\\\\|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "line:\\n|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "tab:\\t|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "utf8:héllo-世界-🙂|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R40:p006|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R40:p007|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R40:p008|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R40:p009|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R40:p010|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R40:p011|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R40:p012|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R40:p013|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R40:p014|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R40:p015|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R40:p016|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R40:p017|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R40:p018|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R40:p019|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R40:p020|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R40:p021|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R40:p022|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R40:p023|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R40:p024|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R40:p025|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R40:p026|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R40:p027|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R40:p028|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R40:p029|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R40:p030|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R40:p031|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R40:boundary32|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R40:p033|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R40:p034|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R40:p035|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R40:p036|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R40:p037|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R40:p038|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R40:boundary39|"
+                      }
+                    ],
+                    "part_count": 40
+                  }
+                ],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "bool"
+                        },
+                        "kind": "literal",
+                        "value_kind": "bool",
+                        "value": true
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "is_else": true,
+                "patterns": [],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "bool"
+                        },
+                        "kind": "literal",
+                        "value_kind": "bool",
+                        "value": false
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "left96",
+          "type": {
+            "kind": "bool"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "bool"
+            },
+            "kind": "match",
+            "subject": {
+              "type": {
+                "kind": "string"
+              },
+              "kind": "literal",
+              "value_kind": "string",
+              "value": "L96:start|quote:\\\"|slash:\\\\|line:\\n|tab:\\t|utf8:héllo-世界-🙂|L96:p006|L96:p007|L96:p008|L96:p009|L96:p010|L96:p011|L96:p012|L96:p013|L96:p014|L96:p015|L96:p016|L96:p017|L96:p018|L96:p019|L96:p020|L96:p021|L96:p022|L96:p023|L96:p024|L96:p025|L96:p026|L96:p027|L96:p028|L96:p029|L96:p030|L96:p031|L96:boundary32|L96:p033|L96:p034|L96:p035|L96:p036|L96:p037|L96:p038|L96:boundary39|L96:p040|L96:p041|L96:p042|L96:p043|L96:p044|L96:p045|L96:p046|L96:p047|L96:p048|L96:p049|L96:p050|L96:p051|L96:p052|L96:p053|L96:p054|L96:p055|L96:p056|L96:p057|L96:p058|L96:p059|L96:p060|L96:p061|L96:p062|L96:p063|L96:p064|L96:p065|L96:p066|L96:p067|L96:p068|L96:p069|L96:p070|L96:p071|L96:p072|L96:p073|L96:p074|L96:p075|L96:p076|L96:p077|L96:p078|L96:p079|L96:p080|L96:p081|L96:p082|L96:p083|L96:p084|L96:p085|L96:p086|L96:p087|L96:p088|L96:p089|L96:p090|L96:p091|L96:p092|L96:p093|L96:p094|L96:last95|"
+            },
+            "arms": [
+              {
+                "is_else": false,
+                "patterns": [
+                  {
+                    "type": {
+                      "kind": "string"
+                    },
+                    "kind": "str_concat_multi",
+                    "parts": [
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:start|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "quote:\\\"|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "slash:\\\\|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "line:\\n|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "tab:\\t|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "utf8:héllo-世界-🙂|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p006|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p007|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p008|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p009|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p010|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p011|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p012|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p013|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p014|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p015|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p016|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p017|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p018|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p019|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p020|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p021|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p022|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p023|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p024|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p025|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p026|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p027|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p028|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p029|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p030|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p031|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:boundary32|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p033|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p034|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p035|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p036|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p037|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p038|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:boundary39|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p040|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p041|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p042|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p043|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p044|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p045|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p046|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p047|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p048|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p049|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p050|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p051|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p052|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p053|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p054|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p055|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p056|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p057|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p058|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p059|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p060|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p061|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p062|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p063|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p064|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p065|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p066|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p067|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p068|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p069|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p070|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p071|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p072|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p073|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p074|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p075|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p076|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p077|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p078|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p079|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p080|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p081|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p082|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p083|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p084|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p085|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p086|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p087|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p088|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p089|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p090|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p091|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p092|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p093|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:p094|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "L96:last95|"
+                      }
+                    ],
+                    "part_count": 96
+                  }
+                ],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "bool"
+                        },
+                        "kind": "literal",
+                        "value_kind": "bool",
+                        "value": true
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "is_else": true,
+                "patterns": [],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "bool"
+                        },
+                        "kind": "literal",
+                        "value_kind": "bool",
+                        "value": false
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "right96",
+          "type": {
+            "kind": "bool"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "bool"
+            },
+            "kind": "match",
+            "subject": {
+              "type": {
+                "kind": "string"
+              },
+              "kind": "literal",
+              "value_kind": "string",
+              "value": "R96:start|quote:\\\"|slash:\\\\|line:\\n|tab:\\t|utf8:héllo-世界-🙂|R96:p006|R96:p007|R96:p008|R96:p009|R96:p010|R96:p011|R96:p012|R96:p013|R96:p014|R96:p015|R96:p016|R96:p017|R96:p018|R96:p019|R96:p020|R96:p021|R96:p022|R96:p023|R96:p024|R96:p025|R96:p026|R96:p027|R96:p028|R96:p029|R96:p030|R96:p031|R96:boundary32|R96:p033|R96:p034|R96:p035|R96:p036|R96:p037|R96:p038|R96:boundary39|R96:p040|R96:p041|R96:p042|R96:p043|R96:p044|R96:p045|R96:p046|R96:p047|R96:p048|R96:p049|R96:p050|R96:p051|R96:p052|R96:p053|R96:p054|R96:p055|R96:p056|R96:p057|R96:p058|R96:p059|R96:p060|R96:p061|R96:p062|R96:p063|R96:p064|R96:p065|R96:p066|R96:p067|R96:p068|R96:p069|R96:p070|R96:p071|R96:p072|R96:p073|R96:p074|R96:p075|R96:p076|R96:p077|R96:p078|R96:p079|R96:p080|R96:p081|R96:p082|R96:p083|R96:p084|R96:p085|R96:p086|R96:p087|R96:p088|R96:p089|R96:p090|R96:p091|R96:p092|R96:p093|R96:p094|R96:last95|"
+            },
+            "arms": [
+              {
+                "is_else": false,
+                "patterns": [
+                  {
+                    "type": {
+                      "kind": "string"
+                    },
+                    "kind": "str_concat_multi",
+                    "parts": [
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:start|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "quote:\\\"|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "slash:\\\\|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "line:\\n|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "tab:\\t|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "utf8:héllo-世界-🙂|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p006|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p007|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p008|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p009|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p010|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p011|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p012|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p013|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p014|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p015|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p016|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p017|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p018|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p019|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p020|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p021|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p022|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p023|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p024|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p025|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p026|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p027|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p028|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p029|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p030|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p031|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:boundary32|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p033|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p034|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p035|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p036|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p037|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p038|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:boundary39|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p040|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p041|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p042|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p043|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p044|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p045|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p046|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p047|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p048|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p049|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p050|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p051|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p052|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p053|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p054|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p055|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p056|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p057|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p058|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p059|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p060|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p061|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p062|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p063|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p064|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p065|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p066|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p067|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p068|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p069|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p070|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p071|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p072|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p073|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p074|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p075|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p076|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p077|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p078|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p079|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p080|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p081|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p082|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p083|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p084|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p085|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p086|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p087|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p088|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p089|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p090|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p091|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p092|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p093|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:p094|"
+                      },
+                      {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "literal",
+                        "value_kind": "string",
+                        "value": "R96:last95|"
+                      }
+                    ],
+                    "part_count": 96
+                  }
+                ],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "bool"
+                        },
+                        "kind": "literal",
+                        "value_kind": "bool",
+                        "value": true
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "is_else": true,
+                "patterns": [],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "bool"
+                        },
+                        "kind": "literal",
+                        "value_kind": "bool",
+                        "value": false
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "bool"
+                },
+                "kind": "variable",
+                "name": "left33"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "bool"
+                },
+                "kind": "variable",
+                "name": "right33"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "bool"
+                },
+                "kind": "variable",
+                "name": "left40"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "bool"
+                },
+                "kind": "variable",
+                "name": "right40"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "bool"
+                },
+                "kind": "variable",
+                "name": "left96"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "bool"
+                },
+                "kind": "variable",
+                "name": "right96"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "bool"
+                },
+                "kind": "binary",
+                "op": "and",
+                "left": {
+                  "type": {
+                    "kind": "bool"
+                  },
+                  "kind": "binary",
+                  "op": "and",
+                  "left": {
+                    "type": {
+                      "kind": "bool"
+                    },
+                    "kind": "binary",
+                    "op": "and",
+                    "left": {
+                      "type": {
+                        "kind": "bool"
+                      },
+                      "kind": "binary",
+                      "op": "and",
+                      "left": {
+                        "type": {
+                          "kind": "bool"
+                        },
+                        "kind": "binary",
+                        "op": "and",
+                        "left": {
+                          "type": {
+                            "kind": "bool"
+                          },
+                          "kind": "variable",
+                          "name": "left33"
+                        },
+                        "right": {
+                          "type": {
+                            "kind": "bool"
+                          },
+                          "kind": "variable",
+                          "name": "right33"
+                        },
+                        "arithmetic_mode": "checked"
+                      },
+                      "right": {
+                        "type": {
+                          "kind": "bool"
+                        },
+                        "kind": "variable",
+                        "name": "left40"
+                      },
+                      "arithmetic_mode": "checked"
+                    },
+                    "right": {
+                      "type": {
+                        "kind": "bool"
+                      },
+                      "kind": "variable",
+                      "name": "right40"
+                    },
+                    "arithmetic_mode": "checked"
+                  },
+                  "right": {
+                    "type": {
+                      "kind": "bool"
+                    },
+                    "kind": "variable",
+                    "name": "left96"
+                  },
+                  "arithmetic_mode": "checked"
+                },
+                "right": {
+                  "type": {
+                    "kind": "bool"
+                  },
+                  "kind": "variable",
+                  "name": "right96"
+                },
+                "arithmetic_mode": "checked"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": [],
+  "fn_wrappers": []
+}

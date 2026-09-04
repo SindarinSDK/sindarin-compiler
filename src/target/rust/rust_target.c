@@ -2244,6 +2244,118 @@ static bool rust_bool_match_literal_pattern(json_object *pattern)
            json_object_is_type(value, json_type_boolean);
 }
 
+/* The shared optimizer folds recursively literal-only string concatenations
+ * from -O1 onward.  Recognize that same bounded constant form here and attach
+ * its content to the pattern, so Rust admission and rendering do not depend
+ * on whether folding ran.  All other string expressions remain excluded. */
+static char *rust_string_match_constant_pattern_value(json_object *pattern)
+{
+    json_object *type = NULL, *value = NULL;
+    if (!json_object_is_type(pattern, json_type_object) ||
+        !json_object_object_get_ex(pattern, "type", &type) ||
+        !json_string_property_equals(type, "kind", "string"))
+        return NULL;
+
+    if (json_string_property_equals(pattern, "kind", "literal"))
+    {
+        if (!json_string_property_equals(pattern, "value_kind", "string") ||
+            !json_object_object_get_ex(pattern, "value", &value) ||
+            !json_object_is_type(value, json_type_string))
+            return NULL;
+        const char *text = json_object_get_string(value);
+        return text ? strdup(text) : NULL;
+    }
+
+    if (json_string_property_equals(pattern, "kind", "str_concat_multi"))
+    {
+        json_object *parts = NULL;
+        if (!json_object_object_get_ex(pattern, "parts", &parts) ||
+            !json_object_is_type(parts, json_type_array) ||
+            json_object_array_length(parts) == 0)
+            return NULL;
+
+        char *combined = strdup("");
+        if (!combined) return NULL;
+        size_t combined_len = 0;
+        size_t part_count = json_object_array_length(parts);
+        for (size_t i = 0; i < part_count; i++)
+        {
+            char *part = rust_string_match_constant_pattern_value(
+                json_object_array_get_idx(parts, i));
+            if (!part)
+            {
+                free(combined);
+                return NULL;
+            }
+            size_t part_len = strlen(part);
+            if (part_len == (size_t)-1 ||
+                combined_len > (size_t)-1 - part_len - 1)
+            {
+                free(part);
+                free(combined);
+                return NULL;
+            }
+            char *grown = realloc(combined, combined_len + part_len + 1);
+            if (!grown)
+            {
+                free(part);
+                free(combined);
+                return NULL;
+            }
+            combined = grown;
+            memcpy(combined + combined_len, part, part_len + 1);
+            combined_len += part_len;
+            free(part);
+        }
+        return combined;
+    }
+
+    json_object *left = NULL, *right = NULL;
+    if (!json_string_property_equals(pattern, "kind", "binary") ||
+        !json_string_property_equals(pattern, "op", "add") ||
+        !json_object_object_get_ex(pattern, "left", &left) ||
+        !json_object_object_get_ex(pattern, "right", &right))
+        return NULL;
+
+    char *left_value = rust_string_match_constant_pattern_value(left);
+    char *right_value = rust_string_match_constant_pattern_value(right);
+    if (!left_value || !right_value)
+    {
+        free(left_value);
+        free(right_value);
+        return NULL;
+    }
+
+    size_t left_len = strlen(left_value);
+    size_t right_len = strlen(right_value);
+    if (right_len == (size_t)-1 ||
+        left_len > (size_t)-1 - right_len - 1)
+    {
+        free(left_value);
+        free(right_value);
+        return NULL;
+    }
+    char *combined = malloc(left_len + right_len + 1);
+    if (combined)
+    {
+        memcpy(combined, left_value, left_len);
+        memcpy(combined + left_len, right_value, right_len + 1);
+    }
+    free(left_value);
+    free(right_value);
+    return combined;
+}
+
+static bool rust_prepare_string_match_pattern(json_object *pattern)
+{
+    char *value = rust_string_match_constant_pattern_value(pattern);
+    if (!value) return false;
+    json_object_object_add(pattern, "rust_string_pattern_value",
+                           json_object_new_string(value));
+    free(value);
+    return true;
+}
+
 typedef enum
 {
     RUST_FLOAT_MATCH_PATTERN_OK,
@@ -2315,10 +2427,12 @@ static bool rust_validate_statement_match(json_object *expr)
     bool subject_is_integral = rust_match_integral_type(subject_kind);
     bool subject_is_bool = json_string_property_equals(subject_type, "kind", "bool");
     bool subject_is_float = rust_float_type(subject_kind);
-    if (!subject_is_integral && !subject_is_bool && !subject_is_float)
+    bool subject_is_string = json_string_property_equals(subject_type, "kind", "string");
+    if (!subject_is_integral && !subject_is_bool && !subject_is_float &&
+        !subject_is_string)
     {
         return rust_report_match_error(
-            "supports statement match only with bool, integral, float, or double subjects");
+            "supports statement match only with bool, integral, float, double, or string subjects");
     }
     if (!rust_validate_expr(subject)) return false;
 
@@ -2379,6 +2493,10 @@ static bool rust_validate_statement_match(json_object *expr)
                     if (status != RUST_FLOAT_MATCH_PATTERN_OK)
                         return rust_report_float_match_pattern_error(status, false);
                 }
+                if (subject_is_string &&
+                    !rust_prepare_string_match_pattern(pattern))
+                    return rust_report_match_error(
+                        "supports string statement match only with string literal or literal-only concatenation patterns");
             }
         }
 
@@ -2394,6 +2512,9 @@ static bool rust_validate_statement_match(json_object *expr)
     json_object_object_add(expr, "rust_has_else", json_object_new_boolean(has_else));
     if (subject_is_float)
         json_object_object_add(expr, "rust_floating_match",
+                               json_object_new_boolean(true));
+    if (subject_is_string)
+        json_object_object_add(expr, "rust_string_match",
                                json_object_new_boolean(true));
     return true;
 }
@@ -2415,9 +2536,11 @@ static bool rust_validate_value_match(json_object *expr)
     bool subject_is_integral = rust_match_integral_type(subject_kind);
     bool subject_is_bool = json_string_property_equals(subject_type, "kind", "bool");
     bool subject_is_float = rust_float_type(subject_kind);
-    if (!subject_is_integral && !subject_is_bool && !subject_is_float)
+    bool subject_is_string = json_string_property_equals(subject_type, "kind", "string");
+    if (!subject_is_integral && !subject_is_bool && !subject_is_float &&
+        !subject_is_string)
         return rust_report_match_error(
-            "supports value match only with bool, integral, float, or double subjects");
+            "supports value match only with bool, integral, float, double, or string subjects");
     if (!rust_validate_expr(subject)) return false;
 
     size_t else_count = 0;
@@ -2472,6 +2595,10 @@ static bool rust_validate_value_match(json_object *expr)
                     if (status != RUST_FLOAT_MATCH_PATTERN_OK)
                         return rust_report_float_match_pattern_error(status, true);
                 }
+                if (subject_is_string &&
+                    !rust_prepare_string_match_pattern(pattern))
+                    return rust_report_match_error(
+                        "supports string value match only with string literal or literal-only concatenation patterns");
             }
         }
     }
@@ -2532,6 +2659,9 @@ static bool rust_validate_value_match(json_object *expr)
     json_object_object_add(expr, "rust_value_match", json_object_new_boolean(true));
     if (subject_is_float)
         json_object_object_add(expr, "rust_floating_match",
+                               json_object_new_boolean(true));
+    if (subject_is_string)
+        json_object_object_add(expr, "rust_string_match",
                                json_object_new_boolean(true));
     return true;
 }
@@ -3257,6 +3387,21 @@ static void rust_lower_strings(json_object *node)
 
     const char *kind = json_string_property(node, "kind");
     if (!kind) return;
+    if (strcmp(kind, "match") == 0 &&
+        json_boolean_property(node, "rust_string_match"))
+    {
+        json_object *subject = NULL;
+        if (json_object_object_get_ex(node, "subject", &subject))
+        {
+            const char *subject_kind = json_string_property(subject, "kind");
+            if (subject_kind &&
+                (strcmp(subject_kind, "variable") == 0 ||
+                 strcmp(subject_kind, "member") == 0))
+                json_object_object_add(subject, "rust_needs_clone",
+                                       json_object_new_boolean(true));
+        }
+        return;
+    }
     if (strcmp(kind, "binary") == 0)
     {
         json_object *type = NULL;
@@ -3912,6 +4057,67 @@ static bool rust_lower_iterator_temp_names(json_object *model, json_object *node
     return true;
 }
 
+/* Lowered match templates introduce locals that remain in scope while arm
+ * bodies render.  Assign every such match its own spellings, absent from
+ * the complete model, so source declarations and references cannot be
+ * captured by those generated bindings.  The schema-independent string scan
+ * also sees names already assigned to nested matches. */
+static bool rust_lower_match_temp_names(json_object *model, json_object *node,
+                                        size_t *next_id)
+{
+    if (!node) return true;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            if (!rust_lower_match_temp_names(
+                    model, json_object_array_get_idx(node, i), next_id))
+                return false;
+        return true;
+    }
+    if (!json_object_is_type(node, json_type_object)) return true;
+
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        if (!rust_lower_match_temp_names(model, value, next_id)) return false;
+    }
+
+    if (!json_string_property_equals(node, "kind", "match") ||
+        (!json_boolean_property(node, "rust_string_match") &&
+         !json_boolean_property(node, "rust_floating_match")))
+        return true;
+
+    char subject_name[80], array_name[80], index_name[80];
+    do
+    {
+        if (*next_id == (size_t)-1) return false;
+        size_t id = *next_id;
+        (*next_id)++;
+        int subject_written = snprintf(subject_name, sizeof(subject_name),
+                                       "__sn_match_subject_%zu", id);
+        int array_written = snprintf(array_name, sizeof(array_name),
+                                     "__sn_match_array_%zu", id);
+        int index_written = snprintf(index_name, sizeof(index_name),
+                                     "__sn_match_index_%zu", id);
+        if (subject_written < 0 || (size_t)subject_written >= sizeof(subject_name) ||
+            array_written < 0 || (size_t)array_written >= sizeof(array_name) ||
+            index_written < 0 || (size_t)index_written >= sizeof(index_name))
+            return false;
+    }
+    while (rust_model_contains_string(model, subject_name) ||
+           rust_model_contains_string(model, array_name) ||
+           rust_model_contains_string(model, index_name));
+
+    json_object_object_add(node, "rust_match_subject_name",
+                           json_object_new_string(subject_name));
+    json_object_object_add(node, "rust_match_array_name",
+                           json_object_new_string(array_name));
+    json_object_object_add(node, "rust_match_index_name",
+                           json_object_new_string(index_name));
+    return true;
+}
+
 static bool rust_emit(CompilerOptions *options, Module *module,
                       TargetEmitMode mode, GeneratedFileSet *result)
 {
@@ -3939,6 +4145,13 @@ static bool rust_emit(CompilerOptions *options, Module *module,
     rust_lower_interpolation_formats(model);
     rust_lower_for_continues(model);
     rust_lower_scalar_ref_parameters(model);
+    size_t match_temp_id = 0;
+    if (!rust_lower_match_temp_names(model, model, &match_temp_id))
+    {
+        fprintf(stderr, "Error: Rust target could not assign hygienic match temporary names\n");
+        json_object_put(model);
+        return false;
+    }
     size_t iterator_temp_id = 0;
     if (!rust_lower_iterator_temp_names(model, model, &iterator_temp_id))
     {
