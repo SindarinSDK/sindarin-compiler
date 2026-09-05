@@ -1,0 +1,1 @@
+C and Rust must preserve initialization-before-main and mixed-output order.

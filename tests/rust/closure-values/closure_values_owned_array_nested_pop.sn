@@ -1,0 +1,8 @@
+fn main(): void =>
+  var rows: int[][] = {{1, 2, 3}}
+  var action: fn(): int = fn(): int =>
+    var removed: int = rows[0].pop()
+    return removed * 10 + rows[0].length
+  println(action())
+  println(action())
+  println(rows[0].length)

@@ -1,0 +1,52 @@
+struct Item =>
+  value: int
+  operator < (other: Item as ref): bool =>
+    other.value = other.value + 1
+    return self.value < other.value
+
+struct Bucket =>
+  items: Item[]
+
+fn makeReceiver(item: Item, trace: int as ref, digit: int): Item =>
+  trace = trace * 10 + digit
+  return Item { value: item.value + 1 }
+fn makeItems(calls: int as ref, trace: int as ref, digit: int): Item[] =>
+  calls++
+  trace = trace * 10 + digit
+  return { Item { value: 1 } }
+fn makeBucket(calls: int as ref, trace: int as ref, digit: int): Bucket =>
+  calls++
+  trace = trace * 10 + digit
+  return Bucket { items: { Item { value: 1 } } }
+fn makeBuckets(calls: int as ref, trace: int as ref, digit: int): Bucket[] =>
+  calls++
+  trace = trace * 10 + digit
+  return { Bucket { items: { Item { value: 1 } } } }
+fn index(calls: int as ref, trace: int as ref, digit: int): int =>
+  calls++
+  trace = trace * 10 + digit
+  return 0
+
+fn main(): void =>
+  var seed: Item = { value: 1 }
+  var producerCalls: int = 0
+  var indexCalls: int = 0
+  var trace: int = 0
+  println(makeItems(producerCalls, trace, 2)[index(indexCalls, trace, 3)] > makeReceiver(seed, trace, 1))
+  println(producerCalls)
+  println(indexCalls)
+  println(trace)
+  producerCalls = 0
+  indexCalls = 0
+  trace = 0
+  println(makeBucket(producerCalls, trace, 2).items[index(indexCalls, trace, 3)] > makeReceiver(seed, trace, 1))
+  println(producerCalls)
+  println(indexCalls)
+  println(trace)
+  producerCalls = 0
+  indexCalls = 0
+  trace = 0
+  println(makeBuckets(producerCalls, trace, 2)[index(indexCalls, trace, 3)].items[index(indexCalls, trace, 4)] > makeReceiver(seed, trace, 1))
+  println(producerCalls)
+  println(indexCalls)
+  println(trace)

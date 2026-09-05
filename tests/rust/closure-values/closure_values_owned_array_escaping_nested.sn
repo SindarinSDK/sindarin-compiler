@@ -1,0 +1,13 @@
+fn makeAppender(seed: int): fn(int): int =>
+  var values: int[] = {seed}
+  var outer: fn(): fn(int): int = fn(): fn(int): int =>
+    var inner: fn(int): int = fn(value: int): int =>
+      values.push(value)
+      return values.length * 100 + values[0] + values[values.length - 1]
+    return inner
+  return outer()
+
+fn main(): void =>
+  var append: fn(int): int = makeAppender(1)
+  println(append(2))
+  println(append(3))

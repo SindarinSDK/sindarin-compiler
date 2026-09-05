@@ -1,0 +1,13 @@
+fn initialValue(): int =>
+  return 40
+
+var helperSeed: int = initialValue()
+
+fn __rust_native_initialize(): int =>
+  return 2
+
+native fn throughNative(): int =>
+  return __rust_native_initialize() + helperSeed
+
+fn main(): void =>
+  println(throughNative())

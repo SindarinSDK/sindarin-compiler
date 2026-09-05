@@ -1,0 +1,6 @@
+native fn unsupported(value: int): int =>
+  var callback = fn(inner: int): int => inner + 1
+  return callback(value)
+
+fn main(): void =>
+  println(unsupported(1))

@@ -1,0 +1,8 @@
+fn main(): void =>
+  var rows: int[][] = {{1}}
+  var action: fn(): int = fn(): int =>
+    rows[0].push(2)
+    return rows[0].length * 10 + rows[0][1]
+  println(action())
+  println(action())
+  println(rows[0].length)

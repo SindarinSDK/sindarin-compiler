@@ -1,0 +1,15 @@
+fn choose(): int =>
+  println("index")
+  return 0
+
+fn value(): int =>
+  println("value")
+  return 2
+
+fn main(): void =>
+  var rows: int[][] = {{1}}
+  var action: fn(): int = fn(): int =>
+    rows[choose()].push(value())
+    return rows[0].length * 10 + rows[0][1]
+  println(action())
+  println(action())

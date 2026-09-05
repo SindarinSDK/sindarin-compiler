@@ -1,0 +1,9 @@
+fn main(): void =>
+  var rows: int[][] = {{10}}
+  var action: fn(int): int = fn(depth: int): int =>
+    if depth > 0 => action(depth - 1)
+    rows[0].push(depth)
+    return rows[0].length
+  println(action(1))
+  println(action(0))
+  println(rows[0].length)

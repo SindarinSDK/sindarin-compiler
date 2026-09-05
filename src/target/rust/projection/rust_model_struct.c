@@ -178,6 +178,12 @@ json_object *rust_gen_model_struct(Arena *arena, StructDeclStmt *decl, SymbolTab
         json_object_object_add(method, "modifier", json_object_new_string(rust_gen_model_func_mod_str(m->modifier)));
         json_object_object_add(method, "is_static", json_object_new_boolean(m->is_static));
         json_object_object_add(method, "is_native", json_object_new_boolean(m->is_native));
+        /* Rust resolved-call validation needs to distinguish overload methods
+         * from ordinary methods when projecting borrow qualifiers. This fact
+         * belongs only to the Rust model; tagged/shared C output is unchanged. */
+        if (m->is_operator)
+            json_object_object_add(method, "is_operator",
+                json_object_new_boolean(true));
         json_object_object_add(method, "has_arena_param", json_object_new_boolean(m->has_arena_param));
 
         /* Flag compiler-generated serializable methods (encode/decode) so templates can skip forward decls */

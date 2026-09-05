@@ -1,0 +1,15 @@
+struct Bag =>
+  values: int[]
+
+fn nextIndex(calls: int as ref): int =>
+  calls++
+  return 0
+
+fn observe(values: int[]): int =>
+  return values.length
+
+fn main(): void =>
+  var bags: Bag[] = {}
+  bags.push(Bag { values: {1} })
+  var calls: int = 0
+  println(observe(bags[nextIndex(calls)].values))
