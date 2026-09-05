@@ -3,14 +3,14 @@
 fn main() {
     println!("{}", -(1 as i64));
     println!("{}", !(1 as i64));
-    let mut negated: u32 = { let __sn_byte_operand: u32 = 1; __sn_byte_operand.wrapping_neg() };
-    let mut inverted: u32 = { let __sn_byte_operand: u32 = 1; !__sn_byte_operand };
+    let mut negated: u32 = (-(1 as i64) as u32);
+    let mut inverted: u32 = (!(1 as i64) as u32);
     println!("{}", negated);
     println!("{}", inverted);
     println!("{}", (-(1 as i64) as i64));
     println!("{}", (!(1 as i64) as i64));
-    let mut wide_negated: u64 = { let __sn_byte_operand: u64 = 1; __sn_byte_operand.wrapping_neg() };
-    let mut wide_inverted: u64 = { let __sn_byte_operand: u64 = 1; !__sn_byte_operand };
+    let mut wide_negated: u64 = (-(1 as i64) as u64);
+    let mut wide_inverted: u64 = (!(1 as i64) as u64);
     println!("{}", (wide_negated as i64));
     println!("{}", (wide_inverted as i64));
 }

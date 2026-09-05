@@ -46,13 +46,57 @@ static void rust_mark_promoted_child(json_object *child, bool observed)
         json_object_new_boolean(true));
 }
 
-static void rust_mark_unsigned_literal_unary_observed(json_object *child)
+static void rust_mark_unsigned_literal_unary_narrowed(json_object *child)
 {
     if (!child ||
         !json_boolean_property(child, "rust_unsigned_literal_unary"))
         return;
-    json_object_object_add(child, "rust_unsigned_literal_unary_observed",
+    json_object_object_add(child, "rust_unsigned_literal_unary_narrowed",
                            json_object_new_boolean(true));
+}
+
+static void rust_mark_unsigned_literal_args_narrowed(json_object *args)
+{
+    if (!args || !json_object_is_type(args, json_type_array)) return;
+    for (size_t i = 0; i < json_object_array_length(args); i++)
+        rust_mark_unsigned_literal_unary_narrowed(
+            json_object_array_get_idx(args, i));
+}
+
+static void rust_mark_unsigned_literal_fields_narrowed(json_object *fields)
+{
+    if (!fields || !json_object_is_type(fields, json_type_array)) return;
+    for (size_t i = 0; i < json_object_array_length(fields); i++)
+    {
+        json_object *field = json_object_array_get_idx(fields, i);
+        json_object *value = NULL;
+        if (json_object_object_get_ex(field, "value", &value))
+            rust_mark_unsigned_literal_unary_narrowed(value);
+    }
+}
+
+static bool rust_unsigned_literal_unary(json_object *expr)
+{
+    return expr &&
+           json_boolean_property(expr, "rust_unsigned_literal_unary");
+}
+
+static const char *rust_unsigned_literal_comparison_type(json_object *left,
+                                                          json_object *right)
+{
+    json_object *other = rust_unsigned_literal_unary(left) ? right : left;
+    const char *promoted_kind = rust_wrapping_expr_type(
+        rust_unsigned_literal_unary(left) ? left : right);
+    const char *other_kind = json_string_property(other, "kind");
+
+    /* uint32_t converts to signed long long beside the tagged LL literal.
+     * uint64 storage has the higher unsigned rank, while two source literals
+     * remain signed LL expressions until a storage boundary. */
+    if (promoted_kind && strcmp(promoted_kind, "uint") == 0 && other_kind &&
+        strcmp(other_kind, "literal") != 0 &&
+        !rust_unsigned_literal_unary(other))
+        return "u64";
+    return "i64";
 }
 
 static bool rust_wrapping_compound_op(json_object *node, const char *op)
@@ -132,6 +176,16 @@ static void rust_lower_byte_arithmetic(json_object *node)
     bool checked_int32 = type_kind && strcmp(type_kind, "int32") == 0 &&
         json_string_property_equals(node, "arithmetic_mode", "checked");
 
+    if (strcmp(kind, "binary") == 0 && op &&
+        !rust_byte_comparison_op(op))
+    {
+        json_object *left = NULL, *right = NULL;
+        json_object_object_get_ex(node, "left", &left);
+        json_object_object_get_ex(node, "right", &right);
+        rust_mark_unsigned_literal_unary_narrowed(left);
+        rust_mark_unsigned_literal_unary_narrowed(right);
+    }
+
     if (strcmp(kind, "binary") == 0 && byte_type &&
         rust_byte_promoted_binary(node, op))
     {
@@ -176,7 +230,8 @@ static void rust_lower_byte_arithmetic(json_object *node)
         operand_kind = json_string_property(operand, "kind");
         json_object_object_add(
             node,
-            operand_kind && strcmp(operand_kind, "literal") == 0
+            (operand_kind && strcmp(operand_kind, "literal") == 0) ||
+                    rust_unsigned_literal_unary(operand)
                 ? "rust_unsigned_literal_unary"
                 : "rust_wrapping_unary",
             json_object_new_boolean(true));
@@ -190,11 +245,7 @@ static void rust_lower_byte_arithmetic(json_object *node)
         if (json_object_object_get_ex(node, "args", &args) &&
             json_object_is_type(args, json_type_array))
             for (size_t i = 0; i < json_object_array_length(args); i++)
-            {
                 rust_mark_promoted_child(json_object_array_get_idx(args, i), true);
-                rust_mark_unsigned_literal_unary_observed(
-                    json_object_array_get_idx(args, i));
-            }
         return;
     }
 
@@ -211,7 +262,58 @@ static void rust_lower_byte_arithmetic(json_object *node)
             json_object_object_add(node, "rust_byte_promoted_comparison",
                                    json_object_new_boolean(true));
         }
+        if (rust_unsigned_literal_unary(left) ||
+            rust_unsigned_literal_unary(right))
+        {
+            json_object_object_add(node,
+                                   "rust_unsigned_literal_comparison",
+                                   json_object_new_boolean(true));
+            json_object_object_add(
+                node, "rust_unsigned_literal_comparison_type",
+                json_object_new_string(
+                    rust_unsigned_literal_comparison_type(left, right)));
+        }
         return;
+    }
+
+    if (strcmp(kind, "var_decl") == 0 || strcmp(kind, "return") == 0 ||
+        strcmp(kind, "assign") == 0 || strcmp(kind, "member_assign") == 0 ||
+        strcmp(kind, "index_assign") == 0)
+    {
+        json_object *value = NULL;
+        if (!json_object_object_get_ex(node, "initializer", &value))
+            json_object_object_get_ex(node, "value", &value);
+        rust_mark_unsigned_literal_unary_narrowed(value);
+    }
+
+    if (strcmp(kind, "call") == 0 || strcmp(kind, "static_call") == 0 ||
+        strcmp(kind, "method_call") == 0 ||
+        strcmp(kind, "borrow_inferred_call") == 0)
+    {
+        json_object *args = NULL;
+        if (json_object_object_get_ex(node, "args", &args))
+            rust_mark_unsigned_literal_args_narrowed(args);
+    }
+
+    if (strcmp(kind, "array_literal") == 0)
+    {
+        json_object *elements = NULL;
+        if (json_object_object_get_ex(node, "elements", &elements))
+            rust_mark_unsigned_literal_args_narrowed(elements);
+    }
+
+    if (strcmp(kind, "struct_literal") == 0)
+    {
+        json_object *fields = NULL;
+        if (json_object_object_get_ex(node, "fields", &fields))
+            rust_mark_unsigned_literal_fields_narrowed(fields);
+    }
+
+    if (strcmp(kind, "lambda") == 0)
+    {
+        json_object *body = NULL;
+        if (json_object_object_get_ex(node, "body", &body))
+            rust_mark_unsigned_literal_unary_narrowed(body);
     }
 
     json_object *place = NULL;

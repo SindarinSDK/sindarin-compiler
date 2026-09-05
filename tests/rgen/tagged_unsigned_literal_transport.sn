@@ -1,0 +1,27 @@
+struct Box =>
+  value: uint32
+
+fn carry(value: uint32): uint32 =>
+  return value
+
+fn produce(): uint32 =>
+  return - 1u32
+
+fn main(): void =>
+  var stored: uint32 = -1u32
+  var values: uint32[] = {-1u32}
+  var box: Box = { value: -1u32 }
+  var nested: uint32 = -~1u32
+  stored = -2u32
+  values[0] = -2u32
+  box.value = -2u32
+  println(stored)
+  println(values[0])
+  println(box.value)
+  println(nested)
+  println(carry(-1u32))
+  println(produce())
+  println(stored == -1u32)
+  println(carry(-1u32) == -1u32)
+  print(-1u32)
+  println("")

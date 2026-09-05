@@ -1,0 +1,5 @@
+fn main(): void =>
+  println((-1u32) == 4294967295u32)
+  println($"{-1u32}")
+  println(-~1u32)
+  println((-~1u32) == 2u32)

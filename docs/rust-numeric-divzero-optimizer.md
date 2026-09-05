@@ -14,12 +14,13 @@ the unused division is removed. Their Rust snapshots now describe the actual
 optimized program and their expected behavior is successful execution with no
 output.
 
-Rust-private lowering also distinguishes unary `-` and `~` applied directly to
-tagged unsigned literals when the expression is observed by `print` or
-`println`. The tag emits these literal operands as signed `long long` values,
-so direct observation preserves the promoted signed result. Storage and other
-typed contexts still narrow to `uint32` or `uint`, preserving wrapping variable
-semantics. No signed checked-arithmetic route is changed.
+Rust-private lowering also distinguishes unary `-` and `~` chains rooted at
+tagged unsigned literals. The tag emits these literal operands as signed `long
+long` values, so comparison, interpolation, and direct print observation retain
+the promoted signed expression. Assignment, declaration, array element, struct
+field, parameter, and return boundaries apply one conversion to `uint32` or
+`uint`, preserving fixed-width storage and transport semantics. No signed
+checked-arithmetic route is changed.
 
 ## Tagged division boundary
 
@@ -67,6 +68,27 @@ Rust checked O0/O1/O2 results for both sources are
 pairs, with raw stdout and stderr equal to the fresh tag captures. No output,
 diagnostic, path, ANSI, or newline normalization was applied.
 
-Remaining literal-expression work includes other observation contexts not
-covered by these measured failures. C-rejected and undefined probes remain
-outside parity claims.
+The review-blocking observation source is committed as
+`tagged_uint32_literal_observation_contexts.sn`. It covers the original
+`(-1u32) == 4294967295u32` and interpolation forms plus a nested unary chain.
+`tagged_unsigned_literal_transport.sn` separately covers declarations, direct
+assignments, normal-array elements, value-struct fields, parameters, returns,
+and comparison after transport. Their SHA-256 values are respectively
+`c48507a32be4cc61d395aa5f6746b0487aa20b8d7787ccb07a16affb679d1540` and
+`0f79e98527c078bac4994f5181a9fb3a10d3efd62363c9a2f1ea3f5ca02e8e17`.
+
+The required fresh tagged smoke is
+`/tmp/sindarin-s2-u32-final2-smoke-KhTNt4`. Exact tagged C captures are in
+`/tmp/sindarin-s2-u32-final2-tag-TuesOz`, and exact Rust captures are in
+`/tmp/sindarin-s2-u32-final2-rust-b2ogyT`. Each feature directory contains 18
+successful compile/run/expected comparisons: two unchanged committed sources,
+default/checked/unchecked, and O0/O1/O2. Every child status and executable
+existence check was asserted. Captured stdout was compared byte for byte to the
+committed expectation; stderr was retained separately, with no output, path,
+ANSI, or newline normalization. The 18 direct tag/Rust stdout comparisons are
+recorded in
+`/tmp/sindarin-s2-u32-final2-rust-b2ogyT/tag-rust-comparisons.tsv`.
+
+Unchecked compound binary expressions retain their separately measured
+optimizer boundary. C-rejected and undefined probes remain outside parity
+claims.
