@@ -1,0 +1,7 @@
+struct __SnClosure =>
+  value: int
+fn main(): void =>
+  var item: __SnClosure = { value: 7 }
+  var copy: __SnClosure = item
+  copy.value = 9
+  print($"{item.value}:{copy.value}\n")

@@ -1,0 +1,3 @@
+fn main(): void =>
+  var action: fn(): int
+  println(action())

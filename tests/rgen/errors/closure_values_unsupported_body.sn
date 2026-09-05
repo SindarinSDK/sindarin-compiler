@@ -1,0 +1,4 @@
+fn main(): void =>
+  var action: fn(): uint = fn(): uint =>
+    return 1u.toInt()
+  println(action())

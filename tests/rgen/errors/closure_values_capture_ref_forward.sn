@@ -1,0 +1,7 @@
+fn change(value: int as ref): void =>
+  value = 7
+fn main(): void =>
+  var value: int = 1
+  var action: fn(): void = fn(): void =>
+    change(value)
+  action()

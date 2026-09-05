@@ -1,0 +1,16 @@
+fn same(n: int): int => n + 1
+fn identicalBody(n: int): int => n + 1
+fn different(n: int): int => n + 2
+fn main(): void =>
+  print($"{same == same}:{same != same}:{same == different}:{same != different}:{same == identicalBody}\n")
+  var first: fn(int): int = fn(n: int): int => n
+  first = same
+  var copied: fn(int): int = fn(n: int): int => n
+  copied = first
+  var second: fn(int): int = fn(n: int): int => n
+  second = same
+  print($"{first == copied}:{first != copied}:{first == second}:{same == first}\n")
+  var identity: fn(int): int = fn(n: int): int => n
+  var copiedLambda: fn(int): int = fn(n: int): int => n
+  copiedLambda = identity
+  print($"{identity == copiedLambda}:{identity == first}\n")

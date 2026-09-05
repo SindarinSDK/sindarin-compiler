@@ -855,6 +855,8 @@ static bool rust_heap_free_named_struct_type(json_object *type)
 
 static bool rust_array_copy_type_supported(json_object *type)
 {
+    if (json_string_property_equals(type, "kind", "function"))
+        return rust_closure_type_supported(type);
     const char *kind = json_string_property(type, "kind");
     if (kind && strcmp(kind, "struct") == 0)
         return rust_heap_free_named_struct_type(type);
@@ -1346,6 +1348,9 @@ static bool rust_validate_expr(json_object *expr)
                     "Error: Rust target encountered an invalid copyOf() operand\n");
             return false;
         }
+
+        if (strcmp(operand_kind, "function") == 0)
+            return rust_closure_type_supported(operand_type) && rust_validate_expr(operand);
 
         if (strcmp(operand_kind, "struct") == 0 &&
             json_string_property_equals(operand_type, "name", "TypeInfo"))
@@ -2625,7 +2630,7 @@ static bool rust_validate_model_impl(json_object *model,
 {
     const char *unsupported = NULL;
     if (!array_is_empty(model, "globals")) unsupported = "global variables";
-    else if (!rust_validate_closures(model)) unsupported = "closures";
+    else if (!rust_validate_closures(model)) return false;
     else if (!array_is_empty(model, "threads")) unsupported = "threads";
     else if (!array_is_empty(model, "type_decls")) unsupported = "type declarations";
 

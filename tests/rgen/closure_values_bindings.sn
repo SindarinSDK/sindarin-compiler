@@ -1,0 +1,27 @@
+fn factory(value: int): fn(): int =>
+  var result: fn(): int = fn(): int => value
+  if true =>
+    var value: int = 70
+    var inner: fn(): int = fn(): int => value
+    print($"{inner()}\n")
+  return result
+fn main(): void =>
+  var value: int = 3
+  var before: fn(): int = fn(): int => value
+  if true =>
+    var value: int = 9
+    var inside: fn(): int = fn(): int => value
+    value = 90
+    print($"{inside()}:{before()}\n")
+  var after: fn(): int = fn(): int => value
+  print($"{after()}\n")
+  var made: fn(): int = factory(11)
+  print($"{made()}\n")
+  for value in {1, 2, 3} =>
+    var loop: fn(): int = fn(): int => value
+    value = 99
+    print($"{loop()}\n")
+  var __sn_functions: int = 8
+  var __sn_function_index: int = 0
+  var callbacks: (fn(): int)[] = {fn(): int => __sn_functions}
+  print($"{callbacks[__sn_function_index]()}\n")

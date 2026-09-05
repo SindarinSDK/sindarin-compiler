@@ -1,0 +1,11 @@
+fn factory(offset: int): fn(int): int =>
+  print("factory\n")
+  return fn(n: int): int => offset + n
+fn argument(): int =>
+  print("argument\n")
+  return 2
+fn main(): void =>
+  var produced: fn(int): int = factory(10)
+  println(produced(argument()))
+  var immediate: fn(int): int = fn(n: int): int => n + 1
+  println(immediate(argument()))

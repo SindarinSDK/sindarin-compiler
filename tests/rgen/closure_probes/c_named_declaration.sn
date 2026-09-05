@@ -1,0 +1,4 @@
+fn increment(x: int): int => x + 1
+fn main(): void =>
+  var action: fn(int): int = increment
+  println(action(1))
