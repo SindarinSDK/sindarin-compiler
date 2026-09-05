@@ -804,10 +804,11 @@ static bool rust_assign_array_text_names(json_object *model)
     return true;
 }
 
-/* Assign one collision-safe temporary to every indexed projection in a stable
- * array-join receiver. The join-place prelude normalizes these indexes from
- * owner to leaf before evaluating the separator; the final receiver then uses
- * only the saved indexes, so no owner borrow spans a mutating separator call. */
+/* Assign collision-safe raw and normalized temporaries to every indexed
+ * projection in a stable array-join receiver.  Raw index expressions execute
+ * in receiver order before the separator.  Normalization is deliberately
+ * separate: the template performs it after the separator, against the owners
+ * as they exist after any separator-side mutation. */
 static bool rust_assign_array_join_place_index_names(
     json_object *model, json_object *place, size_t *next_id)
 {
@@ -824,19 +825,30 @@ static bool rust_assign_array_join_place_index_names(
         !rust_assign_array_join_place_index_names(model, parent, next_id))
         return false;
 
-    char candidate[80];
+    char index_candidate[80];
+    char raw_candidate[80];
     do
     {
         if (*next_id == (size_t)-1) return false;
-        int written = snprintf(candidate, sizeof(candidate),
-                               "__sn_join_index_%zu", *next_id);
+        size_t id = *next_id;
         (*next_id)++;
-        if (written < 0 || (size_t)written >= sizeof(candidate)) return false;
+        int index_written = snprintf(index_candidate, sizeof(index_candidate),
+                                     "__sn_join_index_%zu", id);
+        int raw_written = snprintf(raw_candidate, sizeof(raw_candidate),
+                                   "__sn_join_raw_index_%zu", id);
+        if (index_written < 0 ||
+            (size_t)index_written >= sizeof(index_candidate) ||
+            raw_written < 0 ||
+            (size_t)raw_written >= sizeof(raw_candidate))
+            return false;
     }
-    while (rust_model_contains_string(model, candidate));
+    while (rust_model_contains_string(model, index_candidate) ||
+           rust_model_contains_string(model, raw_candidate));
 
     json_object_object_add(place, "rust_array_join_index_name",
-                           json_object_new_string(candidate));
+                           json_object_new_string(index_candidate));
+    json_object_object_add(place, "rust_array_join_raw_index_name",
+                           json_object_new_string(raw_candidate));
     return true;
 }
 
