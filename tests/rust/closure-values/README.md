@@ -11,3 +11,6 @@ identity, mutable value snapshots, and shared mutable owned strings. The error
 case preserves the Rust diagnostic for floating-point `%=`. Plain `.expected`
 files are runtime output oracles; `.expected.rs` files are exact Rust emission
 oracles. This directory is not part of the C/default test runner.
+
+Expression-bodied `void` closures discard their body value. The mutation-tail
+case covers both compound assignment and postfix increment of a captured cell.

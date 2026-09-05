@@ -1,0 +1,7 @@
+fn main(): void =>
+  var count: int = 0
+  var add: fn(): void = fn(): void => count += 1
+  var increment: fn(): void = fn(): void => count++
+  add()
+  increment()
+  println(count)
