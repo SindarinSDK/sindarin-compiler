@@ -179,7 +179,7 @@ test-cgen: build
 	@$(PYTHON) scripts/run_tests.py cgen --verbose
 
 test-rgen: build
-	@$(PYTHON) scripts/run_tests.py rgen --verbose
+	@$(PYTHON) scripts/run_rust_tests.py rgen --verbose
 
 test-mgen: build
 	@$(PYTHON) scripts/run_tests.py mgen --verbose
@@ -197,7 +197,7 @@ test-explore-errors: build
 	@$(PYTHON) scripts/run_tests.py explore-errors --verbose
 
 test-rust-toolchain: build
-	@$(PYTHON) scripts/run_tests.py rust-toolchain --verbose
+	@$(PYTHON) scripts/run_rust_tests.py rust-toolchain --verbose
 
 #------------------------------------------------------------------------------
 # install - Install to ~/.sn/ (global user installation)

@@ -15,9 +15,9 @@ bool rust_ownership_is_lifted_member(const Expr *src)
         rust_gen_model_type_has_heap_fields(object_type);
 }
 
-OwnershipKind rust_ownership_kind(const Expr *src)
+RustOwnershipKind rust_ownership_kind(const Expr *src)
 {
-    if (!src) return OWNERSHIP_OWNED;
+    if (!src) return RUST_OWNERSHIP_OWNED;
 
     switch (src->type)
     {
@@ -37,14 +37,14 @@ OwnershipKind rust_ownership_kind(const Expr *src)
         case EXPR_MATCH:
         case EXPR_BINARY:
         case EXPR_UNARY:
-            return OWNERSHIP_OWNED;
+            return RUST_OWNERSHIP_OWNED;
 
         /* BORROW — expression reads through a live owner that remains live. */
         case EXPR_VARIABLE:
         case EXPR_MEMBER_ACCESS:
         case EXPR_ARRAY_ACCESS:
         case EXPR_ADDRESS_OF:
-            return OWNERSHIP_BORROW;
+            return RUST_OWNERSHIP_BORROW;
 
         case EXPR_MEMBER:
             /* A normal member read borrows from its live object.  A member of
@@ -52,14 +52,14 @@ OwnershipKind rust_ownership_kind(const Expr *src)
              * lowering auto-cleans the lifted struct temporary and applies a
              * keeper op to the selected field, producing a fresh owner. */
             return rust_ownership_is_lifted_member(src)
-                ? OWNERSHIP_OWNED : OWNERSHIP_BORROW;
+                ? RUST_OWNERSHIP_OWNED : RUST_OWNERSHIP_BORROW;
 
         /* valueOf either produces a fresh owned value (deep-copy for as-ref
          * structs, strdup for *char, fresh array for pointer-slice) or is a
          * no-op pass-through. In every case the destination must not emit a
          * further acquire — classify OWNED. */
         case EXPR_VALUE_OF:
-            return OWNERSHIP_OWNED;
+            return RUST_OWNERSHIP_OWNED;
 
         case EXPR_THREAD_SYNC:
             /* Handle-based sync (`handle!` where handle is a variable) aliases
@@ -69,16 +69,16 @@ OwnershipKind rust_ownership_kind(const Expr *src)
              * returns a unique owned value — no acquire needed. */
             if (src->as.thread_sync.handle &&
                 src->as.thread_sync.handle->type == EXPR_VARIABLE)
-                return OWNERSHIP_BORROW;
-            return OWNERSHIP_OWNED;
+                return RUST_OWNERSHIP_BORROW;
+            return RUST_OWNERSHIP_OWNED;
 
         case EXPR_LITERAL:
             /* nil literals produce a NULL pointer; there is nothing to acquire.
              * Classify as OWNED so acquire-emission sites skip strdup(NULL) /
              * sn_array_copy(NULL) / __sn__T_retain(NULL). */
             if (src->as.literal.type && src->as.literal.type->kind == TYPE_NIL)
-                return OWNERSHIP_OWNED;
-            return OWNERSHIP_BORROW;
+                return RUST_OWNERSHIP_OWNED;
+            return RUST_OWNERSHIP_BORROW;
 
         /* Side-effecting forms rarely appear as acquire-context sources; classify
          * conservatively as BORROW so callers emit an acquire if the destination
@@ -94,23 +94,23 @@ OwnershipKind rust_ownership_kind(const Expr *src)
         case EXPR_THREAD_DETACH:
         case EXPR_SYNC_LIST:
         case EXPR_SIZEOF:
-            return OWNERSHIP_BORROW;
+            return RUST_OWNERSHIP_BORROW;
 
         /* typeOf lowers to sn_typeinfo_create(...) — a call that returns a
          * fresh val-struct with heap fields. Must classify as OWNED so the
          * acquire site does not attempt to deep-copy an rvalue. */
         case EXPR_TYPEOF:
-            return OWNERSHIP_OWNED;
+            return RUST_OWNERSHIP_OWNED;
     }
-    return OWNERSHIP_BORROW;
+    return RUST_OWNERSHIP_BORROW;
 }
 
-const char *rust_ownership_kind_str(OwnershipKind k)
+const char *rust_ownership_kind_str(RustOwnershipKind k)
 {
     switch (k)
     {
-        case OWNERSHIP_BORROW: return "borrow";
-        case OWNERSHIP_OWNED:  return "owned";
+        case RUST_OWNERSHIP_BORROW: return "borrow";
+        case RUST_OWNERSHIP_OWNED:  return "owned";
     }
     return "borrow";
 }

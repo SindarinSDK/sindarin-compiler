@@ -1,0 +1,12 @@
+Compiler: /home/gavin/code/sindarin/sindarin-restore-tagged-c/bin/sn
+Platform: Linux
+Parallel: 20 workers
+
+Code Generation Tests
+============================================================
+  Running 1 tests with 20 workers...
+                                                            
+------------------------------------------------------------
+Results: 1 passed, 0 failed, 0 skipped  (84ms)
+
+All tests passed!  (total: 84ms)

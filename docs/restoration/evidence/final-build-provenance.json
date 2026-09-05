@@ -1,0 +1,16 @@
+{
+  "verified_source_commit": "fb70198ec60ba1e9cb03cd16429087f6b7df1606",
+  "build": "cmake --build build -j 8 (Release; incremental build verified at this commit)",
+  "unit_execution": {
+    "command": "TMPDIR=/tmp/sn-restore-tagged-c-evidence/checkpoint-unit/tmp timeout 60 /home/gavin/code/sindarin/sindarin-restore-tagged-c/bin/tests",
+    "passed": 1608,
+    "failed": 0,
+    "exit": 0,
+    "log": "/tmp/sn-restore-tagged-c-evidence/final-unit.log"
+  },
+  "binaries": {
+    "/home/gavin/code/sindarin/sindarin-restore-tagged-c/bin/sn": "4c985c78efb43bd3d6aac572197849eeab9180a266d6c8bcecf0fa2b3db9caee",
+    "/home/gavin/code/sindarin/sindarin-restore-tagged-c/bin/tests": "6fc4ab24e0ec7bb6126e56900da90b6f3bcbddcdeee9f1ab4fa8b697c32e277c"
+  },
+  "full_baseline_scope": "Full tagged suites and O0 1691-source differential remain attributed to checkpoint 48975cbe. Subsequent changes have source identity and affected focused verification; no repeated or all-mode baseline is claimed."
+}
