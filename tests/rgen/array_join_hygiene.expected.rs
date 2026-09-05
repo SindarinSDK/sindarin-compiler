@@ -110,7 +110,7 @@ fn __sn_array_to_string_0<T: __SnArrayText_0>(array: &[T]) -> String {
     result
 }
 
-fn __sn_array_join_0<T: __SnArrayText_0>(array: &[T], separator: &str) -> String {
+fn __sn_array_join_1<T: __SnArrayText_0>(array: &[T], separator: &str) -> String {
     let mut result = String::new();
     for (index, value) in array.iter().enumerate() {
         if index != 0 { result.push_str(separator); }
@@ -120,29 +120,21 @@ fn __sn_array_join_0<T: __SnArrayText_0>(array: &[T], separator: &str) -> String
 }
 
 
-#[derive(Clone, Debug, PartialEq)]
-struct Playlist {
-    names: Vec<String>,
-    replacement: String,
+fn __sn_array_join() -> i64 {
+    return 11;
 }
 
-impl Playlist {
-    fn replace(&mut self, index: i64, value: String) {
-        { let __sn_array_index = __sn_index(((self).names).len(), index); ((self).names)[__sn_array_index] = value.clone(); };
-    }
-    fn replaceWithStored(&mut self, index: i64) {
-        { let __sn_array_index = __sn_index(((self).names).len(), index); ((self).names)[__sn_array_index] = (self).replacement.clone(); };
-    }
-    fn replaceLast(&mut self, value: String) {
-        (self).replace((-1), value.clone());
-    }
+fn __sn_array_join_0() -> i64 {
+    return 21;
 }
 
 fn main() {
-    let mut playlist: Playlist = Playlist { names: vec!["one".to_string(), "two".to_string(), "three".to_string()], replacement: "stored".to_string() };
-    let mut first: String = "first".to_string();
-    (playlist).replace(0, first.clone());
-    (playlist).replaceWithStored(1);
-    (playlist).replaceLast("last".to_string());
-    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("names="); __sn_interpolated.push_str(&__sn_array_to_string_0(&((playlist).names))); __sn_interpolated.push_str("; replacement="); __sn_interpolated.push_str(&format!("{}", (playlist).replacement)); __sn_interpolated.push_str("; source="); __sn_interpolated.push_str(&format!("{}", first)); __sn_interpolated });
+    let mut __sn_array: Vec<i64> = vec![1, 2, 3];
+    let mut __sn_array_0: Vec<i64> = vec![4];
+    let mut __sn_separator: String = "-".to_string();
+    let mut __sn_separator_0: String = ",".to_string();
+    println!("{}", { let __sn_array_1 = &(__sn_array); let __sn_separator_1 = &(__sn_separator); __sn_array_join_1(__sn_array_1.as_slice(), __sn_separator_1.as_str()) });
+    println!("{}", { let __sn_array_1 = &(__sn_array_0); let __sn_separator_1 = &(__sn_separator_0); __sn_array_join_1(__sn_array_1.as_slice(), __sn_separator_1.as_str()) });
+    println!("{}", __sn_array_join());
+    println!("{}", __sn_array_join_0());
 }
