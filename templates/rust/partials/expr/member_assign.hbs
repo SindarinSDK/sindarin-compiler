@@ -1,1 +1,1 @@
-(({{> expr object}}).{{rust_ident field_name}} = {{> expr value}}{{rust_clone_suffix value source_is_borrow}})
+{{#if rust_place_value_name}}{ let {{rust_ident rust_place_value_name}} = {{> expr value}}{{rust_clone_suffix value source_is_borrow}}; {{#each rust_place_index_bindings}}let {{rust_ident rust_place_raw_index_name}} = {{> expr index}}; {{/each}}(({{> expr object}}).{{rust_ident field_name}} = {{rust_ident rust_place_value_name}}); }{{else}}(({{> expr object}}).{{rust_ident field_name}} = {{> expr value}}{{rust_clone_suffix value source_is_borrow}}){{/if~}}

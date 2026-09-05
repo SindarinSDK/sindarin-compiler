@@ -671,6 +671,143 @@ static bool rust_model_contains_string(json_object *node, const char *wanted)
     return false;
 }
 
+/* Member assignment evaluates its value before its destination place.  When
+ * that place contains an indexed projection, rendering the projection twice
+ * (once for len() and once for indexing) both duplicates work and asks Rust
+ * for overlapping immutable/mutable borrows.  Record each raw index in
+ * root-to-leaf order, then let the place renderer normalize it while holding
+ * one short mutable borrow of that projection's owner. */
+static bool rust_collect_member_place_indices(json_object *model,
+                                              json_object *place,
+                                              json_object *bindings,
+                                              size_t *next_id)
+{
+    if (!place || !json_object_is_type(place, json_type_object)) return true;
+
+    const char *kind = json_string_property(place, "kind");
+    if (!kind) return true;
+
+    if (strcmp(kind, "member") == 0 || strcmp(kind, "member_access") == 0)
+    {
+        json_object *object = NULL;
+        if (json_object_object_get_ex(place, "object", &object))
+            return rust_collect_member_place_indices(model, object, bindings,
+                                                     next_id);
+        return true;
+    }
+
+    if (strcmp(kind, "array_access") != 0) return true;
+
+    json_object *array = NULL, *index = NULL;
+    if (!json_object_object_get_ex(place, "array", &array) ||
+        !json_object_object_get_ex(place, "index", &index))
+        return false;
+    if (!rust_collect_member_place_indices(model, array, bindings, next_id))
+        return false;
+
+    char raw_name[80], owner_name[80], index_name[80];
+    do
+    {
+        if (*next_id == (size_t)-1) return false;
+        size_t id = *next_id;
+        (*next_id)++;
+        int raw_written = snprintf(raw_name, sizeof(raw_name),
+                                   "__sn_place_raw_index_%zu", id);
+        int owner_written = snprintf(owner_name, sizeof(owner_name),
+                                     "__sn_place_owner_%zu", id);
+        int index_written = snprintf(index_name, sizeof(index_name),
+                                     "__sn_place_index_%zu", id);
+        if (raw_written < 0 || (size_t)raw_written >= sizeof(raw_name) ||
+            owner_written < 0 || (size_t)owner_written >= sizeof(owner_name) ||
+            index_written < 0 || (size_t)index_written >= sizeof(index_name))
+            return false;
+    }
+    while (rust_model_contains_string(model, raw_name) ||
+           rust_model_contains_string(model, owner_name) ||
+           rust_model_contains_string(model, index_name));
+
+    json_object_object_add(place, "rust_place_raw_index_name",
+                           json_object_new_string(raw_name));
+    json_object_object_add(place, "rust_place_owner_name",
+                           json_object_new_string(owner_name));
+    json_object_object_add(place, "rust_place_index_name",
+                           json_object_new_string(index_name));
+
+    json_object *binding = json_object_new_object();
+    if (!binding) return false;
+    json_object_object_add(binding, "rust_place_raw_index_name",
+                           json_object_new_string(raw_name));
+    json_object_object_add(binding, "index", json_object_get(index));
+    json_object_array_add(bindings, binding);
+    return true;
+}
+
+static bool rust_lower_member_assignment_places(json_object *model,
+                                                json_object *node,
+                                                size_t *next_id)
+{
+    if (!node) return true;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            if (!rust_lower_member_assignment_places(
+                    model, json_object_array_get_idx(node, i), next_id))
+                return false;
+        return true;
+    }
+    if (!json_object_is_type(node, json_type_object)) return true;
+
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        if (!rust_lower_member_assignment_places(model, value, next_id))
+            return false;
+    }
+
+    if (!json_string_property_equals(node, "kind", "member_assign")) return true;
+    json_object *object = NULL;
+    if (!json_object_object_get_ex(node, "object", &object)) return false;
+
+    json_object *bindings = json_object_new_array();
+    if (!bindings) return false;
+    if (!rust_collect_member_place_indices(model, object, bindings, next_id))
+    {
+        json_object_put(bindings);
+        return false;
+    }
+    if (json_object_array_length(bindings) == 0)
+    {
+        json_object_put(bindings);
+        return true;
+    }
+
+    char value_name[80];
+    do
+    {
+        if (*next_id == (size_t)-1)
+        {
+            json_object_put(bindings);
+            return false;
+        }
+        size_t id = *next_id;
+        (*next_id)++;
+        int written = snprintf(value_name, sizeof(value_name),
+                               "__sn_place_value_%zu", id);
+        if (written < 0 || (size_t)written >= sizeof(value_name))
+        {
+            json_object_put(bindings);
+            return false;
+        }
+    }
+    while (rust_model_contains_string(model, value_name));
+
+    json_object_object_add(node, "rust_place_value_name",
+                           json_object_new_string(value_name));
+    json_object_object_add(node, "rust_place_index_bindings", bindings);
+    return true;
+}
+
 static bool rust_lower_iterator_temp_names(json_object *model, json_object *node,
                                            size_t *next_id)
 {

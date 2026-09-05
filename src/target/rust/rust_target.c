@@ -193,6 +193,13 @@ static bool rust_emit(CompilerOptions *options, Module *module,
     rust_lower_interpolation_formats(model);
     rust_lower_for_continues(model);
     rust_lower_scalar_ref_parameters(model);
+    size_t place_temp_id = 0;
+    if (!rust_lower_member_assignment_places(model, model, &place_temp_id))
+    {
+        fprintf(stderr, "Error: Rust target could not lower indexed assignment place\n");
+        json_object_put(model);
+        return false;
+    }
     size_t match_temp_id = 0;
     if (!rust_lower_match_temp_names(model, model, &match_temp_id))
     {
