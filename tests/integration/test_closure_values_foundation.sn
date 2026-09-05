@@ -15,7 +15,10 @@ fn factory(offset: int): fn(int): int =>
 fn owned(): fn(): str =>
   var text: str = "snapshot"
   var values: int[] = {7, 8}
-  var payload: Payload = {text: "owned", values: values}
+  var payload: Payload = {
+    text: "owned",
+    values: values
+  }
   var callback: fn(int): int = factory(30)
   return fn(): str => $"{text}:{values[0]}:{payload.text}:{callback(2)}"
 
@@ -33,7 +36,7 @@ fn main(): void =>
   var sibling: fn(int): int = fn(x: int): int => outer - x
   outer = 50
   print($"{first(1)}:{sibling(1)}:{outer}\n")
-  var h: Holder = {action: factory(10)}
+  var h: Holder = { action: factory(10) }
   var copied: Holder = h
   h.action = factory(100)
   print($"{copied.action(2)}:{h.action(2)}\n")

@@ -3,4 +3,4 @@ fn index(): int =>
   return 0
 fn main(): void =>
   var actions: (fn(): int)[] = {fn(): int => 7}
-  println(actions[index()]())
+  println(actions[index()] ())

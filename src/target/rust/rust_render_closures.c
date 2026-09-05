@@ -5,7 +5,11 @@ static char *rust_closure_type(json_object *type)
     json_object *params = NULL, *ret = NULL;
     json_object_object_get_ex(type, "param_types", &params);
     json_object_object_get_ex(type, "return_type", &ret);
-    char *result = strdup("__SnClosure<dyn Fn(");
+    const char *name = json_string_property(type, "rust_closure_handle_name");
+    if (!name) name = "__SnClosure";
+    char *result = malloc(strlen(name) + sizeof("<dyn Fn("));
+    if (!result) return NULL;
+    sprintf(result, "%s<dyn Fn(", name);
     size_t length = strlen(result);
     for (size_t i = 0; i < json_object_array_length(params); i++)
     {

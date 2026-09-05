@@ -1,6 +1,6 @@
 struct State as ref =>
   value: int
 fn main(): void =>
-  var state: State = {value: 1}
+  var state: State = { value: 1 }
   var action: fn(): int = fn(): int => state.value
   println(action())

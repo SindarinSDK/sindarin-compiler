@@ -1,0 +1,26 @@
+fn action(x: int): int => x + 1
+fn parameter(action: fn(int): int): int => action(2)
+fn main(): void =>
+  println(action(1))
+  if true =>
+    var action: fn(int): int = fn(x: int): int => x + 10
+    println(action(1))
+    println(parameter(action))
+    if true =>
+      var action: fn(int): int = fn(x: int): int => x + 20
+      println(action(1))
+    println(action(1))
+  println(action(1))
+  var values: (fn(int): int)[] = {fn(x: int): int => x + 30}
+  for action in values =>
+    println(action(1))
+  println(action(1))
+  if true =>
+    var action: fn(int): int = fn(x: int): int => x + 40
+    var result: int = match 1 =>
+      1 => action(1)
+      else => action(2)
+    println(result)
+  println(action(1))
+  var action: fn(int): int = fn(x: int): int => x + 50
+  println(action(1))

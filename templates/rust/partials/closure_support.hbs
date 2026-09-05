@@ -1,14 +1,14 @@
 {{#if rust_has_closures}}
-struct __SnClosure<F: ?Sized>(std::rc::Rc<F>);
-impl<F: ?Sized> Clone for __SnClosure<F> {
+struct {{rust_ident rust_closure_handle_name}}<F: ?Sized>(std::rc::Rc<F>);
+impl<F: ?Sized> Clone for {{rust_ident rust_closure_handle_name}}<F> {
     fn clone(&self) -> Self { Self(self.0.clone()) }
 }
-impl<F: ?Sized> std::fmt::Debug for __SnClosure<F> {
+impl<F: ?Sized> std::fmt::Debug for {{rust_ident rust_closure_handle_name}}<F> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str("<function>")
     }
 }
-impl<F: ?Sized> PartialEq for __SnClosure<F> {
+impl<F: ?Sized> PartialEq for {{rust_ident rust_closure_handle_name}}<F> {
     fn eq(&self, other: &Self) -> bool { std::rc::Rc::ptr_eq(&self.0, &other.0) }
 }
 {{/if~}}

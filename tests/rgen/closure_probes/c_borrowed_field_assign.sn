@@ -2,6 +2,6 @@ struct Holder =>
   action: fn(): int
 fn main(): void =>
   var first: fn(): int = fn(): int => 7
-  var holder: Holder = {action: fn(): int => 1}
+  var holder: Holder = { action: fn(): int => 1 }
   holder.action = first
   println(holder.action())

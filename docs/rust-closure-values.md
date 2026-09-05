@@ -4,7 +4,9 @@ This branch delivers an immutable callable foundation, not full closure parity.
 The original implementation base was PR114 head
 `bc9c648ab55714c4648ac6de6ac059a62f7a127c`. Before final gates it was rebased
 onto the exact PR114 merge, `8e142cea3dd901e2974f4d1109329c0366d96770`.
-The parent branch and shared parity ledger were not edited.
+The format correction subsequently rebased PR117 onto PR116 merge
+`f0564920ddd276ea2ee3f352c644bca1064b7561`, bringing in the synchronized
+closure-array test. The parent branches and shared parity ledger were not edited.
 
 ## Implemented envelope
 
@@ -36,8 +38,11 @@ needed. A manual Clone implementation clones the Rc identity, never the captured
 environment. The closure owns each scalar/owned snapshot; String/Vec/value-struct
 Clone copies their values, while function Clone retains the same callable.
 Derived struct Debug/PartialEq requirements are satisfied by handle Debug and
-pointer-identity equality. The generated support type name `__SnClosure` is
-reserved; constructor references are module-qualified to avoid local shadowing.
+pointer-identity equality. The default support name is `__SnClosure`; lowering chooses a suffixed name
+absent from every model string when that spelling collides. No user function or
+struct name is reserved, including in modules that emit no closure support.
+Every nested function type and constructor uses the chosen name; constructor
+references are also module-qualified.
 
 Explicit capture-list tuple initialization copies every snapshot before the
 `move` Fn is created. A target-local lexical walk gives parameters, declarations,
@@ -170,21 +175,22 @@ in for reproducibility:
 python3 tests/rgen/closure_values_compare.py
 python3 scripts/run_tests.py rgen --filter closure_values --verbose
 python3 scripts/run_tests.py rgen-errors --filter closure_values --verbose
-python3 scripts/run_tests.py integration --filter test_closure_values --verbose
+python3 scripts/run_tests.py integration --filter closure_values --verbose
 make test-rgen
 make build && make test
+bin/sn --format --check
 ```
 
-The comparison covers 11 sources at O0/O1/O2: nine run as Rust, explicit C and
-default C; the two original C-defect families run as Rust only. That is **87
-compiled executions** (54 C/default-C and 33 Rust), plus **45 ordered rejection
-checks** over 15 negatives, each requiring no emitted Rust artifact. Four shared
+The corrected comparison covers 20 sources at O0/O1/O2: sixteen run as Rust,
+explicit C and default C; four C-defect families run as Rust only. That is **156
+compiled executions** (96 C/default-C and 60 Rust), plus **57 ordered rejection
+checks** over 19 negatives, each requiring no emitted Rust artifact. Eleven shared
 source/output pairs additionally run in the sanitizer-enabled C integration
 harness. No unrelated golden is regenerated, and no failure is disabled.
 
-Final focused harness results: Rust positives **11/11**, Rust negatives **15/15**,
-C integration with sanitizers **4/4**. Final `make test-rgen`: **242/242**.
-The subsequent literal `make build && make test` passed on its first run:
+Initial foundation focused results were Rust positives **11/11**, Rust negatives
+**15/15**, and sanitized C **4/4**, with `make test-rgen` **242/242**.
+The initial subsequent literal `make build && make test` passed on its first run:
 
 | Suite | Passed |
 |---|---:|
@@ -200,12 +206,108 @@ The subsequent literal `make build && make test` passed on its first run:
 | Rust toolchain/lifecycle | 7 |
 | Total | **3935** |
 
-All final suites had **zero failures and zero skips**. `git diff --check` and the
+All initial final suites had **zero failures and zero skips**. `git diff --check` and the
 protected-file diff checks passed. The 231 pre-existing Rust positive snapshots
 remain unchanged. Initial development failures and C sanitizer discoveries are
 not counted as successful gates. Independent feature review and cross-platform
 CI remain integration obligations; these results are from Spark2 only.
 
-The repository pre-commit hook invokes an installed `sn --format`, with no test
-checks. This commit bypasses that formatting-only hook to preserve the exact
-verified fixture bytes and the unchanged C-source copies after final gates.
+The initial foundation commit bypassed the pre-commit formatter. That was an
+error: CI requires `bin/sn --format --check`, and Ubuntu/macOS CI identified 13
+new sources needing formatting. The correction applies the required formatter
+and retains the normal pre-commit hook. Changes are struct-literal whitespace/
+layout and spacing before indexed callable invocation. All nine raw C probes
+emit byte-identical C compared with the original archived files, preserving
+their semantics and the generated-source line references above. Existing Rust
+snapshots and expected outputs are retained; the correction reruns focused
+comparisons, Rust generation, the full suite, and the final format check.
+
+The formatting correction requires no golden regeneration: all existing Rust
+snapshots still match. Its final gates run on the PR116 merge base above with
+the normal 20-worker harnesses, sequentially, including the format check.
+
+## Independent review corrections
+
+The source review identified an unconditional `__SnClosure` reservation,
+computed/shadowed callees misclassified by the shared flags, and bare named
+function equality allocating two different wrappers. All are corrected in the
+closure-owned production files. Four helper-name fixtures compile/run plain
+functions and structs with no closure support, plus actual closure programs
+colliding with the base helper name and its first two suffix candidates.
+
+The lexical call-site walk now decides variable callees from its active binding
+scope before setting `rust_direct_callee` and the target-local `rust_closure_call`
+marker. Computed function-typed callees also receive the indirect marker; the
+closure validator consumes that same decision. Ordinary member methods remain
+with the call author. Tests cover local, parameter, nested-block, normal-array
+loop, and match-arm references to shadowing function bindings, including scope
+exit restoration. Match-arm declaration prefixes and function-valued match
+results retain their existing precise rejections; the latter is pinned by
+`value_match_function_result` and cannot reach callable emission unchecked.
+
+Bare comparisons of two resolved named free functions compare symbol identity
+without allocating wrappers. This is deliberately not global interning. The
+O0/O1/O2 C/Rust identity matrix proves `same == same`, `same != different`,
+distinct names with identical bodies, separate assignments from the same named
+function (unequal boxes), copied handles (equal boxes), mixed bare-name/box
+comparison, and copied lambda identity.
+
+Two additional exact failing C sources are preserved as
+`closure_probes/c_computed_calls.sn` and `c_shadow_calls.sn`. Their standalone
+C is archived in `/tmp/rust-closure-c-probes/`. The former emits `__sn__(...)`
+at lines 54/56 for returned-function and immediately invoked lambda calls.
+The latter emits direct `__sn__action(...)` calls on a `void *` parameter at
+line 41 and on shadowing locals/loop bindings at lines 55/68/71/100/120/122/139.
+Both fail C compilation. The Rust originals are runtime fixtures but are not
+counted as C passes. `closure_values_computed_calls_parity` supplies the
+separate passing C/Rust source with explicit intermediate callable locals.
+
+The original nine probe outputs are byte-identical C after formatting, and
+no pre-existing Rust golden required regeneration for these corrections.
+
+Callable relational ordering (`<`, `<=`, `>`, `>=`) is explicitly rejected with
+`Rust target does not support ordered function-value comparisons yet`. Four
+negative fixtures cover all operators with bare symbols and boxed handles at
+O0/O1/O2. Equality support does not imply an address-based ordering contract;
+portable ordering semantics remain unresolved required parity work.
+
+`closure_values_self_field` additionally compiles and runs a method invoking
+`self.action`, including a copied struct whose original function field is
+replaced. The foundation fixture already covers ordinary caller array cloning,
+and the identity matrix explicitly verifies copied handles.
+
+## Corrected final gates (Spark2, 2026-09-05)
+
+On base `f0564920ddd276ea2ee3f352c644bca1064b7561`, the final focused
+commands above passed: 20 Rust runtime fixtures, 19 rejection fixtures,
+11 sanitized default-C integration fixtures, and the comparison script's
+156 compiled executions plus 57 ordered rejections. `make test-rgen` passed
+251/251. The subsequent literal `make build && make test` passed:
+
+| Suite | Passed |
+|---|---:|
+| Unit | 1634 |
+| C generation | 154 |
+| Rust generation | 251 |
+| Rust generation errors | 183 |
+| Shared model generation | 108 |
+| Default-C integration | 1307 |
+| Integration errors | 76 |
+| Exploratory | 224 |
+| Exploratory errors | 11 |
+| Rust toolchain/lifecycle | 7 |
+| Total | **3955** |
+
+Every suite had zero failures and zero skips, using default 20 workers and
+sequential harness invocations. The final `bin/sn --format --check`,
+`git diff --check`, and protected call-file diff checks passed. No existing
+Rust golden changed; only the new review-regression goldens were generated.
+The normal `.githooks/pre-commit` formatter remains enabled.
+
+Mutable-worker handoff: the original foundation boundary was
+`1dd17f181ec0ee056caf06c62a30829756911082`. Its rebased equivalent before these
+corrections is `c6669920fd6f242543a04cd843157e4ca2413c2c`; stack only the mutable
+worker's own changes onto the final correction commit reported with PR117.
+Shared mutable captures, recursive self/reentrancy, remaining owned/borrowed
+capture families, foreign callbacks and threads remain required later slices.
+This PR continues to claim only the documented immutable callable foundation.

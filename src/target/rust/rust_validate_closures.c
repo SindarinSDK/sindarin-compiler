@@ -235,6 +235,12 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
         json_string_property_equals(rust_closure_property(node, "type"), "kind", "function") &&
         !json_boolean_property(node, "rust_closure_discarded"))
         return rust_closure_error("consumed function field or index assignment results");
+    if (kind && strcmp(kind, "binary") == 0 &&
+        (json_string_property_equals(node, "op", "lt") || json_string_property_equals(node, "op", "lte") ||
+         json_string_property_equals(node, "op", "gt") || json_string_property_equals(node, "op", "gte")) &&
+        (json_string_property_equals(rust_closure_property(rust_closure_property(node, "left"), "type"), "kind", "function") ||
+         json_string_property_equals(rust_closure_property(rust_closure_property(node, "right"), "type"), "kind", "function")))
+        return rust_closure_error("ordered function-value comparisons");
     if (kind && strcmp(kind, "lambda") == 0) return rust_closure_walk_lambda(scope, node);
     json_object *edge_value = rust_closure_property(node, "value");
     json_object *expected = rust_closure_property(node, "type");
@@ -344,9 +350,21 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
                 !rust_closure_same_type(wanted, rust_closure_property(arg, "type")))
                 return rust_closure_error("incompatible function-value signatures");
         }
-        if (!json_boolean_property(node, "is_closure_call") &&
-            !json_boolean_property(node, "is_fn_field_call"))
-            json_object_object_add(callee, "rust_direct_callee", json_object_new_boolean(true));
+        /* The shared flags can miss both computed callees and lexical
+         * bindings shadowing a module function. Resolve variable identity
+         * before classifying; leave ordinary member methods with their owner. */
+        bool indirect = false;
+        if (json_string_property_equals(rust_closure_property(callee, "type"), "kind", "function"))
+        {
+            if (json_string_property_equals(callee, "kind", "variable"))
+                indirect = rust_closure_lookup(scope, json_string_property(callee, "name")) != NULL;
+            else if (json_string_property_equals(callee, "kind", "member"))
+                indirect = json_boolean_property(node, "is_fn_field_call") ||
+                           json_boolean_property(node, "is_closure_call");
+            else indirect = true;
+        }
+        json_object_object_add(node, "rust_closure_call", json_object_new_boolean(indirect));
+        json_object_object_add(callee, "rust_direct_callee", json_object_new_boolean(!indirect));
         if (json_string_property_equals(callee, "kind", "member") &&
             !json_boolean_property(node, "is_fn_field_call"))
         {
@@ -384,6 +402,21 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
                       strcmp(key, "else_body") == 0 || strcmp(key, "statements") == 0;
         if (!(scoped ? rust_closure_walk_scope(scope, value) : rust_closure_walk(scope, value))) return false;
     }
+    if (kind && strcmp(kind, "binary") == 0 &&
+        (json_string_property_equals(node, "op", "eq") || json_string_property_equals(node, "op", "neq")))
+    {
+        json_object *left = rust_closure_property(node, "left");
+        json_object *right = rust_closure_property(node, "right");
+        if (json_boolean_property(left, "rust_named_function_value") &&
+            json_boolean_property(right, "rust_named_function_value"))
+        {
+            /* C compares bare function symbols, not newly allocated wrapper
+             * boxes. Do not intern conversions: distinct boxes stay distinct. */
+            bool equal = json_string_property_equals(left, "name", json_string_property(right, "name"));
+            if (json_string_property_equals(node, "op", "neq")) equal = !equal;
+            json_object_object_add(node, "rust_named_function_comparison", json_object_new_boolean(equal));
+        }
+    }
     return true;
 }
 
@@ -394,8 +427,6 @@ static bool rust_validate_closures(json_object *model)
     for (size_t i = 0; i < rust_closure_length(functions); i++)
     {
         json_object *fn = json_object_array_get_idx(functions, i);
-        if (json_string_property_equals(fn, "name", "__SnClosure"))
-            return rust_closure_error("the reserved closure support name '__SnClosure'");
         scope.return_type = rust_closure_property(fn, "return_type");
         json_object *params = rust_closure_property(fn, "params");
         bool ok = true;
@@ -433,8 +464,6 @@ static bool rust_validate_closures(json_object *model)
             json_object_put(self);
             if (!ok) return false;
         }
-        if (json_string_property_equals(st, "name", "__SnClosure"))
-            return rust_closure_error("the reserved closure support type name '__SnClosure'");
     }
     return true;
 }
@@ -468,8 +497,7 @@ static bool rust_validate_function_value(json_object *expr)
 
 static RustValidationResult rust_validate_closure_call(json_object *expr)
 {
-    if (!json_boolean_property(expr, "is_closure_call") &&
-        !json_boolean_property(expr, "is_fn_field_call")) return RUST_VALIDATION_UNHANDLED;
+    if (!json_boolean_property(expr, "rust_closure_call")) return RUST_VALIDATION_UNHANDLED;
     json_object *callee = rust_closure_property(expr, "callee");
     json_object *type = rust_closure_property(callee, "type");
     if (!rust_closure_type_supported(type))

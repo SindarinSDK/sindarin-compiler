@@ -11,7 +11,7 @@ fn main(): void =>
   var returned: fn(int): int = identity(alias)
   named = fn(x: int): int => x + 100
   print($"{alias(1)}:{returned(2)}:{named(3)}\n")
-  var holder: Holder = {action: alias}
+  var holder: Holder = { action: alias }
   holder.action = returned
   print($"{holder.action(4)}:{alias(5)}:{returned(6)}\n")
   var actions: (fn(int): int)[] = {fn(x: int): int => x}

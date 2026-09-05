@@ -11,7 +11,8 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
 SOURCES = ROOT / "tests/rgen"
-RUST_ONLY = {"closure_values_direct_ownership", "closure_values_order"}
+RUST_ONLY = {"closure_values_direct_ownership", "closure_values_order",
+             "closure_values_computed_calls", "closure_values_shadow_calls"}
 
 
 def checked(command):
