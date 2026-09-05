@@ -1,3 +1,14 @@
 #![allow(dead_code, unused_mut, unused_variables, unused_parens)]
 
-{{#if rust_uses_arrays}}{{> array_support}}{{nl}}{{nl}}{{/if}}{{#if rust_uses_string_helpers}}{{> string_support}}{{nl}}{{nl}}{{/if}}{{#if rust_uses_string_format_helpers}}{{> string_format_support}}{{nl}}{{nl}}{{/if}}{{#if rust_uses_reflection}}{{> reflection_support}}{{nl}}{{nl}}{{/if}}{{> closure_support this}}{{#each structs}}{{> struct this}}{{nl}}{{/each}}{{#if structs}}{{nl}}{{/if}}{{#each functions}}{{#if rust_native_bridge}}{{> native_function this}}{{else}}{{#unless is_native}}{{> function this}}{{/unless}}{{/if}}{{#unless @last}}{{nl}}{{/unless}}{{/each}}
+{{#if rust_native_initializer}}extern "C" {
+    #[link_name = "__sn____rust_native_initialize"]
+    fn __sn_native_initialize_extern();
+}
+
+fn __sn_native_initialize_once() {
+    static INIT: std::sync::Once = std::sync::Once::new();
+    INIT.call_once(|| unsafe { __sn_native_initialize_extern() });
+}
+
+{{/if}}
+{{#if rust_uses_arrays}}{{> array_support}}{{nl}}{{nl}}{{/if}}{{#if rust_uses_checked_arithmetic}}{{> checked_arithmetic_support~}}{{nl}}{{/if}}{{#if rust_uses_string_helpers}}{{> string_support}}{{nl}}{{nl}}{{/if}}{{#if rust_uses_string_format_helpers}}{{> string_format_support}}{{nl}}{{nl}}{{/if}}{{#if rust_uses_reflection}}{{> reflection_support}}{{nl}}{{nl}}{{/if}}{{> closure_support this}}{{#each structs}}{{> struct this}}{{nl}}{{/each}}{{#if structs}}{{nl}}{{/if}}{{#each functions}}{{#if rust_native_bridge}}{{> native_function this}}{{else}}{{#unless is_native}}{{> function this}}{{/unless}}{{/if}}{{#unless @last}}{{nl}}{{/unless}}{{/each~}}

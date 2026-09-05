@@ -4,5 +4,6 @@ extern "C" {
 }
 
 fn {{rust_ident rust_callable_name}}({{#each params}}{{#if @index}}, {{/if}}{{rust_ident name}}: {{rust_type type}}{{/each}}){{#unless (eq return_type.kind "void")}} -> {{rust_type return_type}}{{/unless}} {
-    unsafe { {{rust_native_extern_name}}({{#each params}}{{#if @index}}, {{/if}}{{rust_ident name}}{{/each}}) }
+    {{#if rust_native_initializer}}__sn_native_initialize_once();
+    {{/if}}unsafe { {{rust_native_extern_name}}({{#each params}}{{#if @index}}, {{/if}}{{rust_ident name}}{{/each}}) }
 }{{nl}}

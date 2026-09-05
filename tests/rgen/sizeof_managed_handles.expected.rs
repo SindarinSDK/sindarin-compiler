@@ -23,18 +23,46 @@ fn __sn_array_size(size: i64) -> usize {
     size as usize
 }
 
+fn __sn_runtime_error_0(message: &'static str) -> ! {
+    eprintln!("{}", message);
+    std::process::exit(1);
+}
+
+fn __sn_checked_0<T>(value: Option<T>, message: &'static str) -> T {
+    match value {
+        Some(value) => value,
+        None => __sn_runtime_error_0(message),
+    }
+}
+
+fn __sn_checked_div_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked_0(value, if divisor_is_zero {
+        "panic: Division by zero"
+    } else {
+        "Runtime error: integer overflow in division"
+    })
+}
+
+fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked_0(value, if divisor_is_zero {
+        "panic: Modulo by zero"
+    } else {
+        "Runtime error: integer overflow in modulo"
+    })
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 struct Point {
     x: i64,
 }
 
 fn observe_text(counter: &mut i64) -> String {
-    { let __sn_rhs = 1; let __sn_place = &mut (*(counter)); let __sn_next = (*__sn_place).checked_add(__sn_rhs).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_next };
+    { let __sn_rhs = 1; let __sn_place = &mut (*(counter)); let __sn_next = __sn_checked_0((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };
     return "called".to_string();
 }
 
 fn observe_values(counter: &mut i64) -> Vec<i64> {
-    { let __sn_rhs = 1; let __sn_place = &mut (*(counter)); let __sn_next = (*__sn_place).checked_add(__sn_rhs).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_next };
+    { let __sn_rhs = 1; let __sn_place = &mut (*(counter)); let __sn_next = __sn_checked_0((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };
     return vec![1, 2];
 }
 
@@ -48,6 +76,6 @@ fn main() {
     let mut rows: Vec<Vec<i64>> = vec![vec![1, 2]];
     let mut points: Vec<Point> = vec![Point { x: 1 }];
     let mut counter: i64 = 0;
-    let mut expression_sizes: i64 = (((((8i64).checked_add(8i64).expect("checked arithmetic failed")).checked_add(8i64).expect("checked arithmetic failed")).checked_add(8i64).expect("checked arithmetic failed")).checked_add(8i64).expect("checked arithmetic failed")).checked_add(8i64).expect("checked arithmetic failed");
+    let mut expression_sizes: i64 = __sn_checked_0((__sn_checked_0((__sn_checked_0((__sn_checked_0((__sn_checked_0((8i64).checked_add(8i64), "Runtime error: integer overflow in addition")).checked_add(8i64), "Runtime error: integer overflow in addition")).checked_add(8i64), "Runtime error: integer overflow in addition")).checked_add(8i64), "Runtime error: integer overflow in addition")).checked_add(8i64), "Runtime error: integer overflow in addition");
     println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", ((((type_string == 8) && (type_array == 8)) && (type_nested_array == 8)) && (type_struct_array == 8)))); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", (expression_sizes == 48))); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", (counter == 0))); __sn_interpolated });
 }
