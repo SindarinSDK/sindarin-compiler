@@ -1,0 +1,12 @@
+Compiler: /home/gavin/code/sindarin/sindarin-restore-tagged-c/bin/sn
+Platform: Linux
+Parallel: 20 workers
+
+Rust Generation Tests
+============================================================
+  Running 20 tests with 20 workers...
+                                                            
+------------------------------------------------------------
+Results: 20 passed, 0 failed, 0 skipped  (429ms)
+
+All tests passed!  (total: 429ms)

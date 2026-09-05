@@ -15,9 +15,9 @@ static const char *field_cleanup_action(Type *type)
         case TYPE_FUNCTION: return "release_closure";  /* refcounted closure box */
         case TYPE_STRUCT:
         {
-            TypeCategory cat = rust_gen_model_type_category(type);
-            if (cat == TYPE_CAT_REFCOUNTED) return "release";
-            if (cat == TYPE_CAT_COMPOSITE) return "cleanup_val";
+            RustTypeCategory cat = rust_gen_model_type_category(type);
+            if (cat == RUST_TYPE_CAT_REFCOUNTED) return "release";
+            if (cat == RUST_TYPE_CAT_COMPOSITE) return "cleanup_val";
             return "none";
         }
         default:

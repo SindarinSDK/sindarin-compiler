@@ -193,7 +193,6 @@ set(SN_BACKEND_SOURCES
     src/gcc_backend_config.c
     src/gcc_backend_pkgconfig.c
     src/target/target.c
-    src/target/c/c_target.c
     src/target/rust/rust_target.c
     src/target/rust/rust_render.c
     src/target/rust/projection/rust_model.c

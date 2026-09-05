@@ -1,0 +1,4129 @@
+{
+  "fixture_commit": "7af0d19232eac05951b73a92c92c221c65ed04e1",
+  "source_count": 725,
+  "cases": [
+    {
+      "path": "tests/cgen/bool_statement_match.sn",
+      "suite": "cgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag C/model golden shape or metadata"
+    },
+    {
+      "path": "tests/cgen/borrowed_string_match_patterns.sn",
+      "suite": "cgen",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/cgen/by_value_scalar_parameter_assignment.sn",
+      "suite": "cgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag C/model golden shape or metadata"
+    },
+    {
+      "path": "tests/cgen/captured_ref_parameter_mutation.sn",
+      "suite": "cgen",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/cgen/checked_ref_parameter_byte_mutations.sn",
+      "suite": "cgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/cgen/checked_ref_parameter_int32_mutations.sn",
+      "suite": "cgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/cgen/checked_ref_parameter_mutations.sn",
+      "suite": "cgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/cgen/checked_ref_parameter_uint32_mutations.sn",
+      "suite": "cgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/cgen/checked_ref_parameter_uint_mutations.sn",
+      "suite": "cgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/cgen/expr_byte_checked.sn",
+      "suite": "cgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/cgen/expr_checked_numeric_mutations.sn",
+      "suite": "cgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/cgen/expr_int32_checked.sn",
+      "suite": "cgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/cgen/expr_int_long_checked.sn",
+      "suite": "cgen",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/cgen/expr_typeof_metadata.sn",
+      "suite": "cgen",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/cgen/expr_uint32_checked.sn",
+      "suite": "cgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/cgen/expr_uint_checked.sn",
+      "suite": "cgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/cgen/float_array_search.sn",
+      "suite": "cgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag C/model golden shape or metadata"
+    },
+    {
+      "path": "tests/cgen/float_literal_suffix.sn",
+      "suite": "cgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag C/model golden shape or metadata"
+    },
+    {
+      "path": "tests/cgen/floating_by_value_parameter_mutations.sn",
+      "suite": "cgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/cgen/floating_match_family.sn",
+      "suite": "cgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag C/model golden shape or metadata"
+    },
+    {
+      "path": "tests/cgen/floating_postfix_mutations.sn",
+      "suite": "cgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/cgen/floating_ref_parameter_mutations.sn",
+      "suite": "cgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/cgen/foreach_checked_mutations.sn",
+      "suite": "cgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/cgen/foreach_string_compound_assignment.sn",
+      "suite": "cgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/cgen/function_return_argument_struct_store.sn",
+      "suite": "cgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag C/model golden shape or metadata"
+    },
+    {
+      "path": "tests/cgen/int_statement_match.sn",
+      "suite": "cgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag C/model golden shape or metadata"
+    },
+    {
+      "path": "tests/cgen/int_value_match.sn",
+      "suite": "cgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag C/model golden shape or metadata"
+    },
+    {
+      "path": "tests/cgen/integral_match_family.sn",
+      "suite": "cgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag C/model golden shape or metadata"
+    },
+    {
+      "path": "tests/cgen/iterator_protocol_numeric_mutations.sn",
+      "suite": "cgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/cgen/iterator_protocol_scalar.sn",
+      "suite": "cgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag C/model golden shape or metadata"
+    },
+    {
+      "path": "tests/cgen/nested_as_ref_parameter_mutation.sn",
+      "suite": "cgen",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/cgen/optimizer_checked_dce_safe_unused.sn",
+      "suite": "cgen",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/cgen/optimizer_unchecked_dce_unused.sn",
+      "suite": "cgen",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/cgen/primitive_integer_conversions.sn",
+      "suite": "cgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag C/model golden shape or metadata"
+    },
+    {
+      "path": "tests/cgen/sizeof_fixed_scalars.sn",
+      "suite": "cgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag C/model golden shape or metadata"
+    },
+    {
+      "path": "tests/cgen/sizeof_managed_handles.sn",
+      "suite": "cgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag C/model golden shape or metadata"
+    },
+    {
+      "path": "tests/cgen/stmt_for_each_function_array_bindings.sn",
+      "suite": "cgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag C/model golden shape or metadata"
+    },
+    {
+      "path": "tests/cgen/stmt_for_each_owned_bindings.sn",
+      "suite": "cgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag C/model golden shape or metadata"
+    },
+    {
+      "path": "tests/cgen/string_concat_unbounded.sn",
+      "suite": "cgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag C/model golden shape or metadata"
+    },
+    {
+      "path": "tests/cgen/string_match_family.sn",
+      "suite": "cgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag C/model golden shape or metadata"
+    },
+    {
+      "path": "tests/cgen/string_match_results.sn",
+      "suite": "cgen",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/cgen/string_match_results_o1.sn",
+      "suite": "cgen",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/cgen/string_match_results_o2.sn",
+      "suite": "cgen",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/cgen/string_utf8_bytes_o0.sn",
+      "suite": "cgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag UTF-8 admission/escaping"
+    },
+    {
+      "path": "tests/cgen/string_utf8_bytes_o1.sn",
+      "suite": "cgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag UTF-8 admission/escaping"
+    },
+    {
+      "path": "tests/cgen/string_utf8_bytes_o2.sn",
+      "suite": "cgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag UTF-8 admission/escaping"
+    },
+    {
+      "path": "tests/cgen/value_match_bool_subject.sn",
+      "suite": "cgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag C/model golden shape or metadata"
+    },
+    {
+      "path": "tests/integration/errors/test_as_ref_array_element_argument.sn",
+      "suite": "integration-errors",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/errors/test_compound_assign_non_lvalue.sn",
+      "suite": "integration-errors",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/errors/test_foreach_binding_mutation_type_mismatch.sn",
+      "suite": "integration-errors",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/errors/test_foreach_function_array_binding_type_mismatch.sn",
+      "suite": "integration-errors",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/errors/test_foreach_owned_binding_type_mismatch.sn",
+      "suite": "integration-errors",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/errors/test_foreach_string_invalid_compound.sn",
+      "suite": "integration-errors",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/errors/test_increment_non_lvalue.sn",
+      "suite": "integration-errors",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/errors/test_instance_as_ref_method_computed_argument.sn",
+      "suite": "integration-errors",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag scalar method/field as-ref checking"
+    },
+    {
+      "path": "tests/integration/errors/test_invalid_utf8_concat.sn",
+      "suite": "integration-errors",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag UTF-8 admission/escaping"
+    },
+    {
+      "path": "tests/integration/errors/test_invalid_utf8_interpolation.sn",
+      "suite": "integration-errors",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag UTF-8 admission/escaping"
+    },
+    {
+      "path": "tests/integration/errors/test_invalid_utf8_literal.sn",
+      "suite": "integration-errors",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag UTF-8 admission/escaping"
+    },
+    {
+      "path": "tests/integration/errors/test_invalid_utf8_pattern.sn",
+      "suite": "integration-errors",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag UTF-8 admission/escaping"
+    },
+    {
+      "path": "tests/integration/errors/test_invalid_utf8_result.sn",
+      "suite": "integration-errors",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag UTF-8 admission/escaping"
+    },
+    {
+      "path": "tests/integration/errors/test_match_pattern_type_mismatch.sn",
+      "suite": "integration-errors",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/errors/test_native_source_compile_failure.sn",
+      "suite": "integration-errors",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/errors/test_sizeof_missing_paren.sn",
+      "suite": "integration-errors",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/errors/test_static_as_ref_method_literal_argument.sn",
+      "suite": "integration-errors",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag scalar method/field as-ref checking"
+    },
+    {
+      "path": "tests/integration/errors/test_static_as_ref_method_temporary_field_argument.sn",
+      "suite": "integration-errors",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag scalar method/field as-ref checking"
+    },
+    {
+      "path": "tests/integration/errors/test_typeof_missing_paren.sn",
+      "suite": "integration-errors",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/imports/native_source_collision/left/module.sn",
+      "classification": "supporting fixture or toolchain source; retained, not an independent conformance case"
+    },
+    {
+      "path": "tests/integration/imports/native_source_collision/right/module.sn",
+      "classification": "supporting fixture or toolchain source; retained, not an independent conformance case"
+    },
+    {
+      "path": "tests/integration/imports/native_source_identity/left/module.sn",
+      "classification": "supporting fixture or toolchain source; retained, not an independent conformance case"
+    },
+    {
+      "path": "tests/integration/imports/native_source_identity/right/module.sn",
+      "classification": "supporting fixture or toolchain source; retained, not an independent conformance case"
+    },
+    {
+      "path": "tests/integration/imports/rust_pure/direct_value.sn",
+      "classification": "supporting fixture or toolchain source; retained, not an independent conformance case"
+    },
+    {
+      "path": "tests/integration/imports/rust_pure/geometry.sn",
+      "classification": "supporting fixture or toolchain source; retained, not an independent conformance case"
+    },
+    {
+      "path": "tests/integration/imports/rust_pure/left.sn",
+      "classification": "supporting fixture or toolchain source; retained, not an independent conformance case"
+    },
+    {
+      "path": "tests/integration/imports/rust_pure/right.sn",
+      "classification": "supporting fixture or toolchain source; retained, not an independent conformance case"
+    },
+    {
+      "path": "tests/integration/imports/self_package/value.sn",
+      "classification": "supporting fixture or toolchain source; retained, not an independent conformance case"
+    },
+    {
+      "path": "tests/integration/test_as_ref_method_field_arguments.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag scalar method/field as-ref checking"
+    },
+    {
+      "path": "tests/integration/test_as_ref_method_parameter_forwarding.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag scalar method/field as-ref checking"
+    },
+    {
+      "path": "tests/integration/test_bool_statement_match.sn",
+      "suite": "integration",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/test_borrowed_string_match_patterns.sn",
+      "suite": "integration",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/test_byte_checked_add_overflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_byte_checked_boundaries.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_byte_checked_div_zero.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_byte_checked_mod_zero.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_byte_checked_mul_overflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_byte_checked_sub_underflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_byte_decrement_underflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_byte_field_increment_overflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_byte_increment_overflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_captured_ref_parameter_mutation.sn",
+      "suite": "integration",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/test_checked_numeric_mutations.sn",
+      "suite": "integration",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_byte_add_overflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_byte_decrement_underflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_byte_div_zero.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_byte_increment_overflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_byte_mul_overflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_byte_mutations.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_byte_rem_zero.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_byte_sub_underflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_int32_add_overflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_int32_decrement_underflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_int32_div_min_neg_one.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_int32_div_zero.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_int32_increment_overflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_int32_mul_overflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_int32_mutations.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_int32_rem_min_neg_one.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_int32_rem_zero.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_int32_sub_underflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_int_add_overflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_int_decrement_underflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_int_div_min_neg_one.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_int_div_zero.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_int_increment_overflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_int_mul_overflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_int_rem_min_neg_one.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_int_rem_zero.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_int_sub_underflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_long_add_overflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_long_decrement_underflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_long_div_min_neg_one.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_long_div_zero.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_long_increment_overflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_long_mul_overflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_long_rem_min_neg_one.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_long_rem_zero.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_long_sub_underflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_mutations.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_uint32_add_overflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_uint32_decrement_underflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_uint32_div_zero.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_uint32_increment_overflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_uint32_mul_overflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_uint32_mutations.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_uint32_rem_zero.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_uint32_sub_underflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_uint_add_overflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_uint_decrement_underflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_uint_div_zero.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_uint_increment_overflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_uint_mul_overflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_uint_mutations.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_uint_rem_zero.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_checked_ref_parameter_uint_sub_underflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_closure_values_bindings.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag callable/foreach/temporary ownership or evaluation"
+    },
+    {
+      "path": "tests/integration/test_closure_values_computed_calls_parity.sn",
+      "suite": "integration",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/test_closure_values_foundation.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag callable/foreach/temporary ownership or evaluation"
+    },
+    {
+      "path": "tests/integration/test_closure_values_helper_function.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag callable/foreach/temporary ownership or evaluation"
+    },
+    {
+      "path": "tests/integration/test_closure_values_helper_plain_function.sn",
+      "suite": "integration",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/test_closure_values_helper_plain_struct.sn",
+      "suite": "integration",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/test_closure_values_helper_struct.sn",
+      "suite": "integration",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/test_closure_values_named_identity.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag callable/foreach/temporary ownership or evaluation"
+    },
+    {
+      "path": "tests/integration/test_closure_values_order_parity.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag callable/foreach/temporary ownership or evaluation"
+    },
+    {
+      "path": "tests/integration/test_closure_values_scalars.sn",
+      "suite": "integration",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/test_closure_values_self_field.sn",
+      "suite": "integration",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/test_float_array_search.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag C float literal typing"
+    },
+    {
+      "path": "tests/integration/test_float_literal_suffix.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag C float literal typing"
+    },
+    {
+      "path": "tests/integration/test_floating_by_value_parameter_mutations.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_floating_match_family.sn",
+      "suite": "integration",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/test_floating_postfix_mutations.sn",
+      "suite": "integration",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/test_floating_ref_parameter_mutations.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_foreach_binding_mutation.sn",
+      "suite": "integration",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/test_foreach_byte_add_overflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_foreach_byte_div_zero.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_foreach_checked_mutations.sn",
+      "suite": "integration",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/test_foreach_function_array_bindings.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag callable/foreach/temporary ownership or evaluation"
+    },
+    {
+      "path": "tests/integration/test_foreach_iterable_reassign.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag callable/foreach/temporary ownership or evaluation"
+    },
+    {
+      "path": "tests/integration/test_foreach_lifted_member_iterable.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag callable/foreach/temporary ownership or evaluation"
+    },
+    {
+      "path": "tests/integration/test_foreach_nested_owned_struct_reassign.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag callable/foreach/temporary ownership or evaluation"
+    },
+    {
+      "path": "tests/integration/test_foreach_owned_bindings.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag callable/foreach/temporary ownership or evaluation"
+    },
+    {
+      "path": "tests/integration/test_foreach_return_nested_array.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag callable/foreach/temporary ownership or evaluation"
+    },
+    {
+      "path": "tests/integration/test_foreach_string_compound_assignment.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_function_return_argument_struct_store.sn",
+      "suite": "integration",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/test_generic_monomorphization_basic.sn",
+      "suite": "integration",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/test_import_pure_alias_function_collision.sn",
+      "suite": "integration",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/test_import_pure_alias_value_struct.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag package/namespace resolution"
+    },
+    {
+      "path": "tests/integration/test_import_pure_direct_value_struct.sn",
+      "suite": "integration",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/test_import_self_package.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag package/namespace resolution"
+    },
+    {
+      "path": "tests/integration/test_int32_checked_add_overflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_int32_checked_boundaries.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_int32_checked_div_min_neg_one.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_int32_checked_div_zero.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_int32_checked_mod_min_neg_one.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_int32_checked_mod_zero.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_int32_checked_mul_overflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_int32_checked_sub_underflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_int32_compound_mul_overflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_int_checked_overflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_int_checked_underflow.sn",
+      "suite": "integration",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/test_int_compound_add_overflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_int_compound_div_zero.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_int_long_checked_boundaries.sn",
+      "suite": "integration",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/test_int_statement_match.sn",
+      "suite": "integration",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/test_int_value_match.sn",
+      "suite": "integration",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/test_integral_match_family.sn",
+      "suite": "integration",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/test_iterator_protocol_byte_postfix_overflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_iterator_protocol_numeric_mutations.sn",
+      "suite": "integration",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/test_iterator_protocol_scalar.sn",
+      "suite": "integration",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/test_iterator_protocol_uint_div_zero.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_long_checked_div_min_neg_one.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_long_checked_div_zero.sn",
+      "suite": "integration",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/test_long_checked_mod_min_neg_one.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_long_checked_mod_zero.sn",
+      "suite": "integration",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/test_long_checked_mul_overflow.sn",
+      "suite": "integration",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/test_long_compound_div_min_neg_one.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_native_source_basename_collision.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag sidecar source identity/object naming"
+    },
+    {
+      "path": "tests/integration/test_native_source_canonical_identity.sn",
+      "suite": "integration",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/test_primitive_integer_conversions.sn",
+      "suite": "integration",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/test_sizeof_fixed_scalars.sn",
+      "suite": "integration",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/test_sizeof_managed_handles.sn",
+      "suite": "integration",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/test_string_clone_move_ownership.sn",
+      "suite": "integration",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/test_string_concat_unbounded_o0.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag unbounded string concatenation lowering"
+    },
+    {
+      "path": "tests/integration/test_string_concat_unbounded_o1.sn",
+      "suite": "integration",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/test_string_concat_unbounded_o2.sn",
+      "suite": "integration",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/test_string_match_family.sn",
+      "suite": "integration",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/test_string_match_results.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag callable/foreach/temporary ownership or evaluation"
+    },
+    {
+      "path": "tests/integration/test_string_match_results_o1.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag callable/foreach/temporary ownership or evaluation"
+    },
+    {
+      "path": "tests/integration/test_string_match_results_o2.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag callable/foreach/temporary ownership or evaluation"
+    },
+    {
+      "path": "tests/integration/test_string_utf8_bytes_o0.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag UTF-8 admission/escaping"
+    },
+    {
+      "path": "tests/integration/test_string_utf8_bytes_o1.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag UTF-8 admission/escaping"
+    },
+    {
+      "path": "tests/integration/test_string_utf8_bytes_o2.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag UTF-8 admission/escaping"
+    },
+    {
+      "path": "tests/integration/test_string_utf8_length_o0.sn",
+      "suite": "integration",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/test_string_utf8_length_o1.sn",
+      "suite": "integration",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/test_string_utf8_length_o2.sn",
+      "suite": "integration",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/test_sync_local_mutations.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_typeof_metadata_parity.sn",
+      "suite": "integration",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/test_uint32_checked_add_overflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_uint32_checked_boundaries.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_uint32_checked_div_zero.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_uint32_checked_mod_zero.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_uint32_checked_mul_overflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_uint32_checked_sub_underflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_uint32_compound_mod_zero.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_uint_checked_add_overflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_uint_checked_boundaries.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_uint_checked_div_zero.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_uint_checked_mod_zero.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_uint_checked_mul_overflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_uint_checked_sub_underflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_uint_compound_sub_underflow.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/integration/test_value_match_bool_subject.sn",
+      "suite": "integration",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/integration/test_value_match_prefixes_o0.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag callable/foreach/temporary ownership or evaluation"
+    },
+    {
+      "path": "tests/integration/test_value_match_prefixes_o1.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag callable/foreach/temporary ownership or evaluation"
+    },
+    {
+      "path": "tests/integration/test_value_match_prefixes_o2.sn",
+      "suite": "integration",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag callable/foreach/temporary ownership or evaluation"
+    },
+    {
+      "path": "tests/mgen/bool_statement_match.sn",
+      "suite": "mgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag C/model golden shape or metadata"
+    },
+    {
+      "path": "tests/mgen/borrowed_string_match_patterns.sn",
+      "suite": "mgen",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/mgen/by_value_scalar_parameter_assignment.sn",
+      "suite": "mgen",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/mgen/captured_ref_parameter_mutation.sn",
+      "suite": "mgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag C/model golden shape or metadata"
+    },
+    {
+      "path": "tests/mgen/checked_ref_parameter_byte_mutations.sn",
+      "suite": "mgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/mgen/checked_ref_parameter_int32_mutations.sn",
+      "suite": "mgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/mgen/checked_ref_parameter_mutations.sn",
+      "suite": "mgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/mgen/checked_ref_parameter_uint32_mutations.sn",
+      "suite": "mgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/mgen/checked_ref_parameter_uint_mutations.sn",
+      "suite": "mgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/mgen/expr_sync_local_mutations.sn",
+      "suite": "mgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/mgen/expr_typeof_metadata.sn",
+      "suite": "mgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag C/model golden shape or metadata"
+    },
+    {
+      "path": "tests/mgen/float_array_search.sn",
+      "suite": "mgen",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/mgen/float_literal_suffix.sn",
+      "suite": "mgen",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/mgen/floating_by_value_parameter_mutations.sn",
+      "suite": "mgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/mgen/floating_match_family.sn",
+      "suite": "mgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag C/model golden shape or metadata"
+    },
+    {
+      "path": "tests/mgen/floating_ref_parameter_mutations.sn",
+      "suite": "mgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/mgen/foreach_checked_mutations.sn",
+      "suite": "mgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/mgen/foreach_string_compound_assignment.sn",
+      "suite": "mgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/mgen/generic_monomorphization_basic.sn",
+      "suite": "mgen",
+      "tag_result": "pass",
+      "correction_result": "pass",
+      "classification": "compatible regression: tag and correction both pass"
+    },
+    {
+      "path": "tests/mgen/integral_match_family.sn",
+      "suite": "mgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag C/model golden shape or metadata"
+    },
+    {
+      "path": "tests/mgen/iterator_protocol_numeric_mutations.sn",
+      "suite": "mgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag arithmetic/mutation/optimizer contract"
+    },
+    {
+      "path": "tests/mgen/iterator_protocol_scalar.sn",
+      "suite": "mgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag C/model golden shape or metadata"
+    },
+    {
+      "path": "tests/mgen/sizeof_fixed_scalars.sn",
+      "suite": "mgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag C/model golden shape or metadata"
+    },
+    {
+      "path": "tests/mgen/sizeof_managed_handles.sn",
+      "suite": "mgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag C/model golden shape or metadata"
+    },
+    {
+      "path": "tests/mgen/stmt_for_each_function_array_bindings.sn",
+      "suite": "mgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag C/model golden shape or metadata"
+    },
+    {
+      "path": "tests/mgen/string_concat_unbounded.sn",
+      "suite": "mgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag C/model golden shape or metadata"
+    },
+    {
+      "path": "tests/mgen/string_match_family.sn",
+      "suite": "mgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag C/model golden shape or metadata"
+    },
+    {
+      "path": "tests/mgen/string_utf8_literals.sn",
+      "suite": "mgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag UTF-8 admission/escaping"
+    },
+    {
+      "path": "tests/mgen/value_match_bool_subject.sn",
+      "suite": "mgen",
+      "tag_result": "fail",
+      "correction_result": "fail",
+      "classification": "post-tag C/model golden shape or metadata"
+    },
+    {
+      "path": "tests/rgen/array_concat.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/array_iteration.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/array_literal_flattening.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/array_search_methods.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/array_slicing.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/array_values.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/as_ref_method_field_arguments.sn",
+      "suite": "rgen",
+      "classification": "post-tag source admission expectation"
+    },
+    {
+      "path": "tests/rgen/as_ref_method_parameter_forwarding.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/as_ref_parameter_mutations.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/as_ref_struct_parameter.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/as_val_struct_parameter.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/basic_functions.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/bool_array_copy_of.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/bool_as_ref_parameter.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/bool_statement_match.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/borrowed_string_match_patterns.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/by_value_scalar_parameter_assignment.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/by_value_scalar_parameter_assignment_unchecked.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/byte_checked_add_overflow.sn",
+      "suite": "rgen",
+      "classification": "post-tag checked-arithmetic dead-code elimination expectation"
+    },
+    {
+      "path": "tests/rgen/byte_checked_boundaries.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/byte_checked_div_zero.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/byte_checked_mod_zero.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/byte_checked_mul_overflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/byte_checked_sub_underflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/byte_decrement_underflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/byte_field_increment_overflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/byte_increment_overflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/c_style_for_continue.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/char_array_copy_of.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/character_formatting.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_numeric_mutations.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_byte_add_overflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_byte_decrement_underflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_byte_div_zero.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_byte_increment_overflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_byte_mul_overflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_byte_mutations.sn",
+      "suite": "rgen",
+      "classification": "post-tag source admission expectation"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_byte_rem_zero.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_byte_sub_underflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_int32_add_overflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_int32_decrement_underflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_int32_div_min_neg_one.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_int32_div_zero.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_int32_increment_overflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_int32_mul_overflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_int32_mutations.sn",
+      "suite": "rgen",
+      "classification": "post-tag source admission expectation"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_int32_rem_min_neg_one.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_int32_rem_zero.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_int32_sub_underflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_int_add_overflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_int_decrement_underflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_int_div_min_neg_one.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_int_div_zero.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_int_increment_overflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_int_mul_overflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_int_rem_min_neg_one.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_int_rem_zero.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_int_sub_underflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_long_add_overflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_long_decrement_underflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_long_div_min_neg_one.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_long_div_zero.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_long_increment_overflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_long_mul_overflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_long_rem_min_neg_one.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_long_rem_zero.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_long_sub_underflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_mutations.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_uint32_add_overflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_uint32_decrement_underflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_uint32_div_zero.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_uint32_increment_overflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_uint32_mul_overflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_uint32_mutations.sn",
+      "suite": "rgen",
+      "classification": "post-tag source admission expectation"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_uint32_rem_zero.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_uint32_sub_underflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_uint_add_overflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_uint_decrement_underflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_uint_div_zero.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_uint_increment_overflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_uint_mul_overflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_uint_mutations.sn",
+      "suite": "rgen",
+      "classification": "post-tag source admission expectation"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_uint_rem_zero.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/checked_ref_parameter_uint_sub_underflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/closure_probes/c_borrowed_field.sn",
+      "classification": "supporting Rust import/source fixture; not independently scheduled"
+    },
+    {
+      "path": "tests/rgen/closure_probes/c_borrowed_field_assign.sn",
+      "classification": "supporting Rust import/source fixture; not independently scheduled"
+    },
+    {
+      "path": "tests/rgen/closure_probes/c_borrowed_index_assign.sn",
+      "classification": "supporting Rust import/source fixture; not independently scheduled"
+    },
+    {
+      "path": "tests/rgen/closure_probes/c_computed_calls.sn",
+      "classification": "supporting Rust import/source fixture; not independently scheduled"
+    },
+    {
+      "path": "tests/rgen/closure_probes/c_copy_declaration.sn",
+      "classification": "supporting Rust import/source fixture; not independently scheduled"
+    },
+    {
+      "path": "tests/rgen/closure_probes/c_index_replace_leak.sn",
+      "classification": "supporting Rust import/source fixture; not independently scheduled"
+    },
+    {
+      "path": "tests/rgen/closure_probes/c_index_twice.sn",
+      "classification": "supporting Rust import/source fixture; not independently scheduled"
+    },
+    {
+      "path": "tests/rgen/closure_probes/c_named_declaration.sn",
+      "classification": "supporting Rust import/source fixture; not independently scheduled"
+    },
+    {
+      "path": "tests/rgen/closure_probes/c_parameter_return.sn",
+      "classification": "supporting Rust import/source fixture; not independently scheduled"
+    },
+    {
+      "path": "tests/rgen/closure_probes/c_shadow_calls.sn",
+      "classification": "supporting Rust import/source fixture; not independently scheduled"
+    },
+    {
+      "path": "tests/rgen/closure_probes/c_temporary_field.sn",
+      "classification": "supporting Rust import/source fixture; not independently scheduled"
+    },
+    {
+      "path": "tests/rgen/closure_values_bindings.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/closure_values_computed_calls.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/closure_values_computed_calls_parity.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/closure_values_direct_ownership.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/closure_values_existing_captureless.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/closure_values_existing_no_params.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/closure_values_existing_owned.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/closure_values_foreach.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/closure_values_foundation.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/closure_values_helper_function.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/closure_values_helper_plain_function.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/closure_values_helper_plain_struct.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/closure_values_helper_struct.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/closure_values_match_string.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/closure_values_named_identity.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/closure_values_order.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/closure_values_order_parity.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/closure_values_scalars.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/closure_values_self_field.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/closure_values_shadow_calls.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/double_array_copy_of.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/double_array_search.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/array_search_nested_array_elements.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/array_search_struct_elements.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/as_ref_array_element_argument.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/by_value_parameter_char_postfix_mutation.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/by_value_parameter_compound_mutation.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/by_value_parameter_decrement.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/by_value_parameter_direct_assignment_array.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/by_value_parameter_direct_assignment_char.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/by_value_parameter_direct_assignment_computed.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/by_value_parameter_direct_assignment_field.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/by_value_parameter_direct_assignment_function.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/by_value_parameter_direct_assignment_index.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/by_value_parameter_direct_assignment_mixed_float_double.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/by_value_parameter_direct_assignment_nested_self.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/by_value_parameter_direct_assignment_ref_forward.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/by_value_parameter_direct_assignment_shadow_initializer.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/by_value_parameter_direct_assignment_string.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/by_value_parameter_direct_assignment_struct.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/by_value_parameter_increment.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/by_value_parameter_string_compound_mutation.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/char_as_ref_parameter.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/closure_values_array_method_mutation.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/closure_values_array_mutation.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/closure_values_borrowed_capture.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/closure_values_capture_ref_forward.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/closure_values_mixed_argument.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/closure_values_mixed_signature.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/closure_values_ordering_gt.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/closure_values_ordering_gte.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/closure_values_ordering_lt.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/closure_values_ordering_lte.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/closure_values_owned_mutation.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/closure_values_parameter_mutation.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/closure_values_qualified_signature.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/closure_values_recursive.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/closure_values_ref_struct.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/closure_values_shared_scalar.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/closure_values_snapshot_float_mutation.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/closure_values_uninitialized.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/closure_values_unsupported_body.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/float_array_search_double_needle.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/floating_as_ref_parameter_mixed_type_mutation.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/floating_as_ref_parameter_modulo_mutation.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/floating_as_val_parameter_compound_mutation.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/floating_by_value_parameter_lambda_compound_rhs_precedence.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/floating_by_value_parameter_lambda_shadow_precedence.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/floating_by_value_parameter_mixed_type_mutation.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/floating_by_value_parameter_modulo_mutation.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/floating_by_value_parameter_ref_forward.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/floating_by_value_parameter_self_assignment.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/floating_by_value_parameter_self_compound.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/floating_by_value_parameter_self_postfix.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/floating_by_value_parameter_shadow_compound_initializer.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/floating_by_value_parameter_shadow_postfix_initializer.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/floating_compound_integer_target_double_rhs.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/floating_compound_integer_target_float_rhs.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/floating_compound_mixed_float_double.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/floating_compound_mixed_float_integer.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/floating_compound_modulo.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/floating_compound_nested_field.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/floating_compound_sync_local.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/floating_compound_temporary_field.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/floating_compound_unstable_place.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/floating_nested_as_ref_parameter_postfix.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/floating_postfix_array_index.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/floating_postfix_nested_field.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/floating_postfix_sync_local.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/floating_postfix_temporary_field.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/foreach_binding_mutation_type_mismatch.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/foreach_function_array_binding_type_mismatch.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/foreach_owned_binding_type_mismatch.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/foreach_string_invalid_compound.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/generic_monomorphization_type_decl_boundary.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/heap_owning_as_ref_struct_parameter.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/heap_owning_as_val_struct_parameter.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/heap_owning_instance_as_val_struct_parameter.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/heap_owning_static_as_ref_struct_parameter.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/heap_owning_static_as_val_struct_parameter.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/import_pure_unsupported_global.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/import_pure_unsupported_include.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/import_pure_unsupported_native_struct.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/instance_as_ref_method_computed_argument.sn",
+      "suite": "rgen-errors",
+      "classification": "post-tag shared-language rejection expectation"
+    },
+    {
+      "path": "tests/rgen/errors/instance_as_ref_struct_parameter.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/invalid_utf8_concat.sn",
+      "suite": "rgen-errors",
+      "classification": "post-tag shared-language rejection expectation"
+    },
+    {
+      "path": "tests/rgen/errors/invalid_utf8_interpolation.sn",
+      "suite": "rgen-errors",
+      "classification": "post-tag shared-language rejection expectation"
+    },
+    {
+      "path": "tests/rgen/errors/invalid_utf8_literal.sn",
+      "suite": "rgen-errors",
+      "classification": "post-tag shared-language rejection expectation"
+    },
+    {
+      "path": "tests/rgen/errors/invalid_utf8_pattern.sn",
+      "suite": "rgen-errors",
+      "classification": "post-tag shared-language rejection expectation"
+    },
+    {
+      "path": "tests/rgen/errors/invalid_utf8_result.sn",
+      "suite": "rgen-errors",
+      "classification": "post-tag shared-language rejection expectation"
+    },
+    {
+      "path": "tests/rgen/errors/iterator_protocol_char_postfix.sn",
+      "suite": "rgen-errors",
+      "classification": "restoration regression fixed in private iterator facts"
+    },
+    {
+      "path": "tests/rgen/errors/iterator_protocol_float_modulo_mutation.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/iterator_protocol_genuine_by_value_parameter_mutation.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/iterator_protocol_missing_next.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/iterator_protocol_mixed_float_double_mutation.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/iterator_protocol_owned_iterator.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/iterator_protocol_owned_string_element.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/main_non_int_return.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/main_non_str_param.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/match_pattern_type_mismatch.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/mutating_instance_as_val_struct_parameter.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/nested_as_ref_parameter_compound_mutation.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/nonfloating_nested_by_value_parameter_postfix.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/nonfloating_nested_sync_local_postfix.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/primitive_conversion_double_to_int.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/primitive_conversion_int_to_char.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/primitive_conversion_string_to_int.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/primitive_conversion_uint_to_int.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/reflection_name_conflict_field_info.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/reflection_name_conflict_type_info.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/sizeof_function.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/sizeof_interface.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/sizeof_missing_paren.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/sizeof_nil.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/sizeof_opaque.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/sizeof_pointer.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/sizeof_struct.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/sizeof_void.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/statement_match_array_subject.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/statement_match_bool_dynamic_pattern.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/statement_match_byte_out_of_range_pattern.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/statement_match_char_subject.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/statement_match_double_float_pattern.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/statement_match_dynamic_pattern.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/statement_match_float_double_pattern.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/statement_match_float_dynamic_pattern.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/statement_match_function_subject.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/statement_match_owned_struct_subject.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/statement_match_string_indexed_pattern.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/statement_match_string_partial_concat_o0.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/statement_match_string_partial_concat_o1.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/statement_match_string_partial_concat_o2.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/statement_match_uint32_out_of_range_pattern.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/statement_match_unsigned_subject_negative_pattern.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/statement_match_unsupported_body.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/static_as_ref_method_literal_argument.sn",
+      "suite": "rgen-errors",
+      "classification": "post-tag shared-language rejection expectation"
+    },
+    {
+      "path": "tests/rgen/errors/static_as_ref_method_temporary_field_argument.sn",
+      "suite": "rgen-errors",
+      "classification": "post-tag shared-language rejection expectation"
+    },
+    {
+      "path": "tests/rgen/errors/sync_local_compound_mutation.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/sync_local_decrement_mutation.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/sync_local_increment_mutation.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/typeof_missing_paren.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/typeof_sized_array.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/typeof_void.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/value_match_array_result.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/value_match_bool_dynamic_pattern.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/value_match_bool_multiline_body.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/value_match_break_prefix.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/value_match_char_result.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/value_match_continue_prefix.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/value_match_double_dynamic_pattern.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/value_match_double_float_pattern.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/value_match_duplicate_else.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/value_match_dynamic_pattern.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/value_match_else_only.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/value_match_exact_float_result_type.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/value_match_exact_integer_result_type.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/value_match_final_shape_before_prefix.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/value_match_float_double_pattern.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/value_match_float_missing_else.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/value_match_float_multiline_body.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/value_match_function_result.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/value_match_int32_out_of_range_pattern.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/value_match_missing_else.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/value_match_multiline_body.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/value_match_non_final_else.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/value_match_owned_struct_result.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/value_match_prefix_lexical_order.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/value_match_string_copy_of_result.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/value_match_string_free_call_pattern.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/value_match_string_interpolation_pattern.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/value_match_string_member_call_pattern.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/value_match_string_multiline_body.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/value_match_string_mutating_array_call.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/value_match_string_mutating_assignment.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/value_match_string_mutating_member_call.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/value_match_string_mutation_pattern.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/value_match_string_side_effecting_indexed_result.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/value_match_string_static_call_pattern.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/value_match_string_temporary_member_pattern.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/value_match_string_unsupported_call.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/value_match_uint_model_boundary_pattern.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/value_match_unsigned_literal_negative_pattern.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/value_match_unsupported_expr_prefix.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/value_struct_copy_of_nested_user_copy.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/errors/value_struct_copy_of_user_copy.sn",
+      "suite": "rgen-errors",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/field_info_metadata.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/float_alternate_formatting.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/float_array_copy_of.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/float_array_search.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/floating_as_ref_parameter.sn",
+      "suite": "rgen",
+      "classification": "post-tag source admission expectation"
+    },
+    {
+      "path": "tests/rgen/floating_by_value_parameter_mutations.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/floating_compound_mutations.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/floating_match_family.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/floating_postfix_mutations.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/floating_ref_parameter_mutations.sn",
+      "suite": "rgen",
+      "classification": "post-tag source admission expectation"
+    },
+    {
+      "path": "tests/rgen/foreach_binding_mutation.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/foreach_binding_mutation_nonprimitive.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/foreach_byte_add_overflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/foreach_byte_div_zero.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/foreach_checked_mutations.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/foreach_owned_string_source.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/foreach_string_compound_assignment.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/generic_monomorphization_basic.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/if_else.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/import_fixtures/rust_pure_direct_value.sn",
+      "classification": "supporting Rust import/source fixture; not independently scheduled"
+    },
+    {
+      "path": "tests/rgen/import_fixtures/rust_pure_geometry.sn",
+      "classification": "supporting Rust import/source fixture; not independently scheduled"
+    },
+    {
+      "path": "tests/rgen/import_fixtures/rust_pure_left.sn",
+      "classification": "supporting Rust import/source fixture; not independently scheduled"
+    },
+    {
+      "path": "tests/rgen/import_fixtures/rust_pure_right.sn",
+      "classification": "supporting Rust import/source fixture; not independently scheduled"
+    },
+    {
+      "path": "tests/rgen/import_fixtures/rust_pure_unsupported_global.sn",
+      "classification": "supporting Rust import/source fixture; not independently scheduled"
+    },
+    {
+      "path": "tests/rgen/import_fixtures/rust_pure_unsupported_include.sn",
+      "classification": "supporting Rust import/source fixture; not independently scheduled"
+    },
+    {
+      "path": "tests/rgen/import_fixtures/rust_pure_unsupported_native_struct.sn",
+      "classification": "supporting Rust import/source fixture; not independently scheduled"
+    },
+    {
+      "path": "tests/rgen/import_pure_alias_function_collision.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/import_pure_alias_value_struct.sn",
+      "suite": "rgen",
+      "classification": "post-tag source admission expectation"
+    },
+    {
+      "path": "tests/rgen/import_pure_direct_value_struct.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/instance_function_calls.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/instance_static_calls.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/int32_checked_add_overflow.sn",
+      "suite": "rgen",
+      "classification": "post-tag checked-arithmetic dead-code elimination expectation"
+    },
+    {
+      "path": "tests/rgen/int32_checked_boundaries.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/int32_checked_div_min_neg_one.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/int32_checked_div_zero.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/int32_checked_mod_min_neg_one.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/int32_checked_mod_zero.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/int32_checked_mul_overflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/int32_checked_sub_underflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/int32_compound_mul_overflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/int_as_ref_parameter.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/int_checked_overflow.sn",
+      "suite": "rgen",
+      "classification": "post-tag checked-arithmetic dead-code elimination expectation"
+    },
+    {
+      "path": "tests/rgen/int_checked_underflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/int_compound_add_overflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/int_compound_div_zero.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/int_long_checked_boundaries.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/int_statement_match.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/int_value_match.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/integer_alternate_formatting.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/integer_array_copy_of.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/integral_match_family.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/iterator_protocol_byte_postfix_overflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/iterator_protocol_hygiene.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/iterator_protocol_numeric_mutations.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/iterator_protocol_scalar.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/iterator_protocol_uint_div_zero.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/long_as_ref_parameter.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/long_checked_div_min_neg_one.sn",
+      "suite": "rgen",
+      "classification": "post-tag checked-arithmetic dead-code elimination expectation"
+    },
+    {
+      "path": "tests/rgen/long_checked_div_zero.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/long_checked_mod_min_neg_one.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/long_checked_mod_zero.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/long_checked_mul_overflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/long_compound_div_min_neg_one.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/main_args_count.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/main_args_int_exit.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/main_args_mutate.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/main_args_order.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/main_args_space.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/main_int_exit.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/main_int_fallthrough.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/method_local_compound_mutation.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/method_local_mutation_roots.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/mutating_struct_methods.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/optimizer_unchecked_dce_unused.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/primitive_conversion_uint_to_double.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/primitive_integer_conversions.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/readonly_instance_as_val_struct_parameter.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/readonly_struct_methods.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/return_self.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/scientific_formatting.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/signed_integer_to_double.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/sizeof_fixed_scalars.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/sizeof_managed_handles.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/space_sign_formatting.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/statement_match_nested_string_dynamic_pattern.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/statement_match_nested_string_dynamic_pattern_o1.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/statement_match_nested_string_dynamic_pattern_o2.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/statement_match_string_dynamic_pattern_o0.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/statement_match_string_dynamic_pattern_o1.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/statement_match_string_dynamic_pattern_o2.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/static_as_ref_struct_parameter.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/static_as_val_struct_parameter.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/static_struct_methods.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/string_array_concat.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/string_array_copy_of.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/string_array_join.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/string_clone_move_ownership.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/string_concat_unbounded_o0.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/string_concat_unbounded_o1.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/string_concat_unbounded_o2.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/string_format_specifiers.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/string_interpolation.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/string_match_constant_patterns_o0.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/string_match_constant_patterns_o1.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/string_match_constant_patterns_o2.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/string_match_family.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/string_match_results_o0.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/string_match_results_o1.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/string_match_results_o2.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/string_operations.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/string_precision_formatting.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/string_utf8_bytes_o0.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/string_utf8_bytes_o1.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/string_utf8_bytes_o2.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/string_utf8_length_o0.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/string_utf8_length_o1.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/string_utf8_length_o2.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/struct_array_concat.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/struct_array_copy_of.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/struct_array_index_assignment.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/struct_array_mutation.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/struct_field_compound_mutation.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/struct_field_increment.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/struct_values.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/typeof_metadata.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/uint32_checked_add_overflow.sn",
+      "suite": "rgen",
+      "classification": "post-tag checked-arithmetic dead-code elimination expectation"
+    },
+    {
+      "path": "tests/rgen/uint32_checked_boundaries.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/uint32_checked_div_zero.sn",
+      "suite": "rgen",
+      "classification": "post-tag checked-arithmetic dead-code elimination expectation"
+    },
+    {
+      "path": "tests/rgen/uint32_checked_mod_zero.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/uint32_checked_mul_overflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/uint32_checked_sub_underflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/uint32_compound_mod_zero.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/uint_checked_add_overflow.sn",
+      "suite": "rgen",
+      "classification": "post-tag checked-arithmetic dead-code elimination expectation"
+    },
+    {
+      "path": "tests/rgen/uint_checked_boundaries.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/uint_checked_div_zero.sn",
+      "suite": "rgen",
+      "classification": "post-tag checked-arithmetic dead-code elimination expectation"
+    },
+    {
+      "path": "tests/rgen/uint_checked_mod_zero.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/uint_checked_mul_overflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/uint_checked_sub_underflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/uint_compound_sub_underflow.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/value_match_bool_subject.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/value_match_float_nested_string_dynamic_pattern.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/value_match_nested_string_dynamic_pattern.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/value_match_nested_string_dynamic_pattern_o1.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/value_match_nested_string_dynamic_pattern_o2.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/value_match_prefixes_o0.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/value_match_prefixes_o1.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/value_match_prefixes_o2.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/value_match_string_dynamic_pattern_o0.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/value_match_string_dynamic_pattern_o1.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/value_match_string_dynamic_pattern_o2.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/value_struct_copy_of.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rgen/while_loop.sn",
+      "suite": "rgen",
+      "classification": "preserved passing Rust regression; rejection tests describe current backend gaps, not full parity"
+    },
+    {
+      "path": "tests/rust-toolchain/basic.sn",
+      "classification": "supporting fixture or toolchain source; retained, not an independent conformance case"
+    }
+  ]
+}
