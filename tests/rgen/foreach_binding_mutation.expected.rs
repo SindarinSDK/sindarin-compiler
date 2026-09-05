@@ -23,6 +23,34 @@ fn __sn_array_size(size: i64) -> usize {
     size as usize
 }
 
+fn __sn_runtime_error_0(message: &'static str) -> ! {
+    eprintln!("{}", message);
+    std::process::exit(1);
+}
+
+fn __sn_checked_0<T>(value: Option<T>, message: &'static str) -> T {
+    match value {
+        Some(value) => value,
+        None => __sn_runtime_error_0(message),
+    }
+}
+
+fn __sn_checked_div_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked_0(value, if divisor_is_zero {
+        "panic: Division by zero"
+    } else {
+        "Runtime error: integer overflow in division"
+    })
+}
+
+fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked_0(value, if divisor_is_zero {
+        "panic: Modulo by zero"
+    } else {
+        "Runtime error: integer overflow in modulo"
+    })
+}
+
 fn main() {
     let mut ints: Vec<i64> = vec![1];
     for mut item in (ints).iter().cloned() {
@@ -76,11 +104,11 @@ fn main() {
     }
     let mut range_sum: i64 = 0;
     for mut value in ((2..5).collect::<Vec<i64>>()).iter().cloned() {
-        (value = (value).checked_add(1).expect("checked arithmetic failed"));
+        (value = __sn_checked_0((value).checked_add(1), "Runtime error: integer overflow in addition"));
         if (value == 4) {
         continue;
     }
-        (range_sum = (range_sum).checked_add(value).expect("checked arithmetic failed"));
+        (range_sum = __sn_checked_0((range_sum).checked_add(value), "Runtime error: integer overflow in addition"));
     }
     println!("{}", (range_sum == 8));
 }

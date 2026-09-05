@@ -23,6 +23,34 @@ fn __sn_array_size(size: i64) -> usize {
     size as usize
 }
 
+fn __sn_runtime_error_0(message: &'static str) -> ! {
+    eprintln!("{}", message);
+    std::process::exit(1);
+}
+
+fn __sn_checked_0<T>(value: Option<T>, message: &'static str) -> T {
+    match value {
+        Some(value) => value,
+        None => __sn_runtime_error_0(message),
+    }
+}
+
+fn __sn_checked_div_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked_0(value, if divisor_is_zero {
+        "panic: Division by zero"
+    } else {
+        "Runtime error: integer overflow in division"
+    })
+}
+
+fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked_0(value, if divisor_is_zero {
+        "panic: Modulo by zero"
+    } else {
+        "Runtime error: integer overflow in modulo"
+    })
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 struct IntSequence {
     value: i64,
@@ -36,12 +64,12 @@ impl IntSequence {
         return self.clone();
     }
     fn hasNext(&mut self) -> bool {
-        { let __sn_rhs = 1; let __sn_place = &mut ((self).has_next_calls); let __sn_next = (*__sn_place).checked_add(__sn_rhs).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_next };
+        { let __sn_rhs = 1; let __sn_place = &mut ((self).has_next_calls); let __sn_next = __sn_checked_0((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };
         return ((self).next_calls < (self).remaining);
     }
     fn next(&mut self) -> i64 {
-        let mut result: i64 = ((((self).has_next_calls).checked_mul(100).expect("checked arithmetic failed")).checked_add(((self).next_calls).checked_mul(10).expect("checked arithmetic failed")).expect("checked arithmetic failed")).checked_add((self).value).expect("checked arithmetic failed");
-        { let __sn_rhs = 1; let __sn_place = &mut ((self).next_calls); let __sn_next = (*__sn_place).checked_add(__sn_rhs).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_next };
+        let mut result: i64 = __sn_checked_0((__sn_checked_0((__sn_checked_0(((self).has_next_calls).checked_mul(100), "Runtime error: integer overflow in multiplication")).checked_add(__sn_checked_0(((self).next_calls).checked_mul(10), "Runtime error: integer overflow in multiplication")), "Runtime error: integer overflow in addition")).checked_add((self).value), "Runtime error: integer overflow in addition");
+        { let __sn_rhs = 1; let __sn_place = &mut ((self).next_calls); let __sn_next = __sn_checked_0((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };
         return result;
     }
 }
@@ -59,7 +87,7 @@ impl LongSequence {
         return ((self).remaining > 0);
     }
     fn next(&mut self) -> i64 {
-        { let __sn_rhs = 1; let __sn_place = &mut ((self).remaining); let __sn_next = (*__sn_place).checked_sub(__sn_rhs).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_next };
+        { let __sn_rhs = 1; let __sn_place = &mut ((self).remaining); let __sn_next = __sn_checked_0((*__sn_place).checked_sub(__sn_rhs), "Runtime error: integer overflow in subtraction"); *__sn_place = __sn_next; __sn_next };
         return (self).value;
     }
 }
@@ -77,7 +105,7 @@ impl Int32Sequence {
         return ((self).remaining > 0);
     }
     fn next(&mut self) -> i32 {
-        { let __sn_rhs = 1; let __sn_place = &mut ((self).remaining); let __sn_next = (*__sn_place).checked_sub(__sn_rhs).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_next };
+        { let __sn_rhs = 1; let __sn_place = &mut ((self).remaining); let __sn_next = __sn_checked_0((*__sn_place).checked_sub(__sn_rhs), "Runtime error: integer overflow in subtraction"); *__sn_place = __sn_next; __sn_next };
         return (self).value;
     }
 }
@@ -95,7 +123,7 @@ impl ByteSequence {
         return ((self).remaining > 0);
     }
     fn next(&mut self) -> u8 {
-        { let __sn_rhs = 1; let __sn_place = &mut ((self).remaining); let __sn_next = (*__sn_place).checked_sub(__sn_rhs).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_next };
+        { let __sn_rhs = 1; let __sn_place = &mut ((self).remaining); let __sn_next = __sn_checked_0((*__sn_place).checked_sub(__sn_rhs), "Runtime error: integer overflow in subtraction"); *__sn_place = __sn_next; __sn_next };
         return (self).value;
     }
 }
@@ -113,7 +141,7 @@ impl Uint32Sequence {
         return ((self).remaining > 0);
     }
     fn next(&mut self) -> u32 {
-        { let __sn_rhs = 1; let __sn_place = &mut ((self).remaining); let __sn_next = (*__sn_place).checked_sub(__sn_rhs).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_next };
+        { let __sn_rhs = 1; let __sn_place = &mut ((self).remaining); let __sn_next = __sn_checked_0((*__sn_place).checked_sub(__sn_rhs), "Runtime error: integer overflow in subtraction"); *__sn_place = __sn_next; __sn_next };
         return (self).value;
     }
 }
@@ -131,7 +159,7 @@ impl UintSequence {
         return ((self).remaining > 0);
     }
     fn next(&mut self) -> u64 {
-        { let __sn_rhs = 1; let __sn_place = &mut ((self).remaining); let __sn_next = (*__sn_place).checked_sub(__sn_rhs).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_next };
+        { let __sn_rhs = 1; let __sn_place = &mut ((self).remaining); let __sn_next = __sn_checked_0((*__sn_place).checked_sub(__sn_rhs), "Runtime error: integer overflow in subtraction"); *__sn_place = __sn_next; __sn_next };
         return (self).value;
     }
 }
@@ -149,7 +177,7 @@ impl FloatSequence {
         return ((self).remaining > 0);
     }
     fn next(&mut self) -> f32 {
-        { let __sn_rhs = 1; let __sn_place = &mut ((self).remaining); let __sn_next = (*__sn_place).checked_sub(__sn_rhs).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_next };
+        { let __sn_rhs = 1; let __sn_place = &mut ((self).remaining); let __sn_next = __sn_checked_0((*__sn_place).checked_sub(__sn_rhs), "Runtime error: integer overflow in subtraction"); *__sn_place = __sn_next; __sn_next };
         return (self).value;
     }
 }
@@ -167,23 +195,23 @@ impl DoubleSequence {
         return ((self).remaining > 0);
     }
     fn next(&mut self) -> f64 {
-        { let __sn_rhs = 1; let __sn_place = &mut ((self).remaining); let __sn_next = (*__sn_place).checked_sub(__sn_rhs).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_next };
+        { let __sn_rhs = 1; let __sn_place = &mut ((self).remaining); let __sn_next = __sn_checked_0((*__sn_place).checked_sub(__sn_rhs), "Runtime error: integer overflow in subtraction"); *__sn_place = __sn_next; __sn_next };
         return (self).value;
     }
 }
 
 fn rhsInt(calls: &mut i64) -> i64 {
-    { let __sn_rhs = 1; let __sn_place = &mut (*(calls)); let __sn_next = (*__sn_place).checked_add(__sn_rhs).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_next };
+    { let __sn_rhs = 1; let __sn_place = &mut (*(calls)); let __sn_next = __sn_checked_0((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };
     return 2;
 }
 
 fn rhsFloat(calls: &mut i64) -> f32 {
-    { let __sn_rhs = 1; let __sn_place = &mut (*(calls)); let __sn_next = (*__sn_place).checked_add(__sn_rhs).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_next };
+    { let __sn_rhs = 1; let __sn_place = &mut (*(calls)); let __sn_next = __sn_checked_0((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };
     return 2.0;
 }
 
 fn selectInt(calls: &mut i64) -> i64 {
-    { let __sn_rhs = 1; let __sn_place = &mut (*(calls)); let __sn_next = (*__sn_place).checked_add(__sn_rhs).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_next };
+    { let __sn_rhs = 1; let __sn_place = &mut (*(calls)); let __sn_next = __sn_checked_0((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };
     return 0;
 }
 
@@ -202,8 +230,8 @@ fn main() {
     while __sn_iter_1.hasNext() {
         let mut value = __sn_iter_1.next();
         let mut original: i64 = value;
-        let mut compound: i64 = { let __sn_rhs = rhsInt(&mut (int_rhs_calls)); let __sn_place = &mut (value); let __sn_next = (*__sn_place).checked_add(__sn_rhs).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_next };
-        let mut postfix: i64 = { let __sn_place = &mut (value); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
+        let mut compound: i64 = { let __sn_rhs = rhsInt(&mut (int_rhs_calls)); let __sn_place = &mut (value); let __sn_next = __sn_checked_0((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };
+        let mut postfix: i64 = { let __sn_place = &mut (value); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
         println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("int "); __sn_interpolated.push_str(&format!("{}", original)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", compound)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", postfix)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", value)); __sn_interpolated });
         if (original == 108) {
         continue;
@@ -215,8 +243,8 @@ fn main() {
     let mut __sn_iter_2 = (longs).iter();
     while __sn_iter_2.hasNext() {
         let mut value = __sn_iter_2.next();
-        let mut compound: i64 = { let __sn_rhs = 3; let __sn_place = &mut (value); let __sn_next = (*__sn_place).checked_sub(__sn_rhs).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_next };
-        let mut postfix: i64 = { let __sn_place = &mut (value); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_sub(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
+        let mut compound: i64 = { let __sn_rhs = 3; let __sn_place = &mut (value); let __sn_next = __sn_checked_0((*__sn_place).checked_sub(__sn_rhs), "Runtime error: integer overflow in subtraction"); *__sn_place = __sn_next; __sn_next };
+        let mut postfix: i64 = { let __sn_place = &mut (value); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_sub(1), "Runtime error: integer overflow in subtraction"); *__sn_place = __sn_next; __sn_previous };
         println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("long "); __sn_interpolated.push_str(&format!("{}", compound)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", postfix)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", value)); __sn_interpolated });
     }
 }
@@ -225,8 +253,8 @@ fn main() {
     let mut __sn_iter_3 = (int32s).iter();
     while __sn_iter_3.hasNext() {
         let mut value = __sn_iter_3.next();
-        let mut compound: i32 = { let __sn_rhs = 2; let __sn_place = &mut (value); let __sn_next = (*__sn_place).checked_mul(__sn_rhs).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_next };
-        let mut postfix: i32 = { let __sn_place = &mut (value); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
+        let mut compound: i32 = { let __sn_rhs = 2; let __sn_place = &mut (value); let __sn_next = __sn_checked_0((*__sn_place).checked_mul(__sn_rhs), "Runtime error: integer overflow in multiplication"); *__sn_place = __sn_next; __sn_next };
+        let mut postfix: i32 = { let __sn_place = &mut (value); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
         println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("int32 "); __sn_interpolated.push_str(&format!("{}", compound)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", postfix)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", value)); __sn_interpolated });
     }
 }
@@ -235,8 +263,8 @@ fn main() {
     let mut __sn_iter_4 = (bytes).iter();
     while __sn_iter_4.hasNext() {
         let mut value = __sn_iter_4.next();
-        let mut compound: u8 = { let __sn_rhs = 2; let __sn_place = &mut (value); let __sn_next = (*__sn_place).checked_div(__sn_rhs).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_next };
-        let mut postfix: u8 = { let __sn_place = &mut (value); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_sub(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
+        let mut compound: u8 = { let __sn_rhs = 2; let __sn_place = &mut (value); let __sn_next = __sn_checked_div_0((*__sn_place).checked_div(__sn_rhs), __sn_rhs == 0); *__sn_place = __sn_next; __sn_next };
+        let mut postfix: u8 = { let __sn_place = &mut (value); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_sub(1), "Runtime error: integer overflow in subtraction"); *__sn_place = __sn_next; __sn_previous };
         println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("byte "); __sn_interpolated.push_str(&format!("{}", compound)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", postfix)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", value)); __sn_interpolated });
     }
 }
@@ -245,8 +273,8 @@ fn main() {
     let mut __sn_iter_5 = (uint32s).iter();
     while __sn_iter_5.hasNext() {
         let mut value = __sn_iter_5.next();
-        let mut compound: u32 = { let __sn_rhs = 6; let __sn_place = &mut (value); let __sn_next = (*__sn_place).checked_rem(__sn_rhs).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_next };
-        let mut postfix: u32 = { let __sn_place = &mut (value); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
+        let mut compound: u32 = { let __sn_rhs = 6; let __sn_place = &mut (value); let __sn_next = __sn_checked_mod_0((*__sn_place).checked_rem(__sn_rhs), __sn_rhs == 0); *__sn_place = __sn_next; __sn_next };
+        let mut postfix: u32 = { let __sn_place = &mut (value); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
         println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("uint32 "); __sn_interpolated.push_str(&format!("{}", compound)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", postfix)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", value)); __sn_interpolated });
     }
 }
@@ -255,8 +283,8 @@ fn main() {
     let mut __sn_iter_6 = (uints).iter();
     while __sn_iter_6.hasNext() {
         let mut value = __sn_iter_6.next();
-        let mut compound: u64 = { let __sn_rhs = 3; let __sn_place = &mut (value); let __sn_next = (*__sn_place).checked_add(__sn_rhs).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_next };
-        let mut postfix: u64 = { let __sn_place = &mut (value); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_sub(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
+        let mut compound: u64 = { let __sn_rhs = 3; let __sn_place = &mut (value); let __sn_next = __sn_checked_0((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };
+        let mut postfix: u64 = { let __sn_place = &mut (value); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_sub(1), "Runtime error: integer overflow in subtraction"); *__sn_place = __sn_next; __sn_previous };
         println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("uint "); __sn_interpolated.push_str(&format!("{}", compound)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", postfix)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", value)); __sn_interpolated });
     }
 }
@@ -288,17 +316,17 @@ fn main() {
     let mut __sn_iter_10 = (nested_outer).iter();
     while __sn_iter_10.hasNext() {
         let mut value = __sn_iter_10.next();
-        let mut outer_compound: i64 = { let __sn_rhs = 1; let __sn_place = &mut (value); let __sn_next = (*__sn_place).checked_add(__sn_rhs).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_next };
+        let mut outer_compound: i64 = { let __sn_rhs = 1; let __sn_place = &mut (value); let __sn_next = __sn_checked_0((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };
         {
     let mut __sn_iter_9 = (nested_inner).iter();
     while __sn_iter_9.hasNext() {
         let mut value = __sn_iter_9.next();
-        let mut inner_postfix: u8 = { let __sn_place = &mut (value); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
+        let mut inner_postfix: u8 = { let __sn_place = &mut (value); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
         println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("nested inner "); __sn_interpolated.push_str(&format!("{}", inner_postfix)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", value)); __sn_interpolated });
         break;
     }
 }
-        let mut outer_postfix: i64 = { let __sn_place = &mut (value); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_sub(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
+        let mut outer_postfix: i64 = { let __sn_place = &mut (value); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_sub(1), "Runtime error: integer overflow in subtraction"); *__sn_place = __sn_next; __sn_previous };
         println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("nested outer "); __sn_interpolated.push_str(&format!("{}", outer_compound)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", outer_postfix)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", value)); __sn_interpolated });
         continue;
     }
