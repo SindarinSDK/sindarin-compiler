@@ -1,1 +1,1 @@
-{{#if rust_cell_guard}}(*{{rust_ident name}}){{else}}{{#if rust_cell}}{ let value = {{rust_ident name}}.lock().unwrap_or_else(|e| e.into_inner()).clone(); value }{{else}}{{> expr_closure_read this}}{{/if}}{{/if}}
+{{#if rust_thread_ref_owner}}{{rust_ident name}}.clone(){{else}}{{#if rust_cell_guard}}(*{{rust_ident name}}){{else}}{{#if rust_cell}}{ let value = {{rust_ident name}}.lock().unwrap_or_else(|e| e.into_inner()).clone(); value }{{else}}{{> expr_closure_read this}}{{/if}}{{/if}}{{/if}}
