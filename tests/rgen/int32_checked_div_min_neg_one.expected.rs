@@ -31,7 +31,7 @@ fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
 fn main() {
     let mut min_base: i32 = (-2147483647);
     let mut one: i32 = 1;
-    let mut minimum: i32 = __sn_checked_0((min_base).checked_sub(one), "Runtime error: integer overflow in subtraction");
+    let mut minimum: i32 = { let (__sn_byte_left, __sn_byte_right): (i32, i32) = (min_base, one); __sn_byte_left.wrapping_sub(__sn_byte_right) };
     let mut negative_one: i32 = (-1);
     let mut quotient: i32 = { let __sn_left = minimum; let __sn_right = negative_one; __sn_checked_div_0(__sn_left.checked_div(__sn_right), __sn_right == 0) };
 }

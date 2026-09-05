@@ -1,1 +1,1 @@
-Error: Rust target does not support byte compound assignment of by-value parameter 'value' when its RHS mutates or forwards the same parameter as ref
+Error: Rust target does not support wrapping-integer compound assignment of by-value parameter 'value' when its RHS mutates or forwards the same parameter as ref

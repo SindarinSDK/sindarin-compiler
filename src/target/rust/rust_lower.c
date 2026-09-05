@@ -3,6 +3,20 @@
 #include "rust_lower_closures.c"
 #include "rust_lower_byte.c"
 
+static bool rust_integer_expr_needs_type(json_object *expr)
+{
+    const char *kind = json_string_property(expr, "kind");
+    if (!kind) return false;
+    if (strcmp(kind, "literal") == 0) return true;
+    if (strcmp(kind, "unary") == 0)
+    {
+        json_object *operand = NULL;
+        return json_object_object_get_ex(expr, "operand", &operand) &&
+               rust_integer_expr_needs_type(operand);
+    }
+    return false;
+}
+
 /* Annotate target-neutral binary nodes with the Rust checked-arithmetic method
  * selected by this backend. Templates remain declarative and other targets do
  * not need to understand Rust's checked_* APIs. */
@@ -53,6 +67,11 @@ static void rust_lower_checked_arithmetic(json_object *node)
         json_object_object_add(node, "rust_checked_method", json_object_new_string(method));
         json_object_object_add(node, "rust_checked_operation", json_object_new_string(op));
         json_object_object_add(node, "rust_checked_error_name", json_object_new_string(error_name));
+        json_object *left = NULL;
+        if (json_object_object_get_ex(node, "left", &left) &&
+            rust_integer_expr_needs_type(left))
+            json_object_object_add(node, "rust_checked_needs_type",
+                                   json_object_new_boolean(true));
     }
 }
 

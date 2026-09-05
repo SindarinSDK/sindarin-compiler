@@ -1,101 +1,55 @@
-# Rust tagged byte semantics
+# Rust tagged fixed-width arithmetic semantics
 
 ## Scope
 
-This change restores the `v0.0.83` byte-storage arithmetic contract in the
-Rust backend. The oracle is peeled tag commit
-`79c20bdb8314aff3c778471ceab20bb8f9ca8d62`; the implementation branch starts
-at restoration checkpoint `48975cbe54c034c79c49642227a2e28eb4a8ba7b`.
+This branch restores the `v0.0.83` fixed-width arithmetic contract in the Rust backend. The oracle is peeled tag commit `79c20bdb8314aff3c778471ceab20bb8f9ca8d62`; the branch is composed on restoration and diagnostic main `80c689c2b18b9506c987cfc639ad60ac501756ca`.
 
-Rust now uses target-local byte lowering for:
+Rust-private lowering now covers:
 
-- binary `+`, `-`, `*`, `&`, `|`, `^`, `<<`, and `>>`;
-- unary `-` and `~`;
-- byte compound assignment, including explicit unchecked `/` and `%`;
-- postfix `++` and `--` on supported locals, direct fields, iterator bindings,
-  `as ref` parameters, and prepared by-value parameters.
+- byte checked `+`, `-`, and `*` as wrapping byte helpers;
+- C-style byte promotion for unchecked binary arithmetic, bitwise operations, shifts, unary `-`, and unary `~`, with one narrowing conversion at the outer byte storage boundary;
+- direct byte observation and comparisons without premature narrowing;
+- wrapping `int32` checked `+`, `-`, and `*`;
+- wrapping `uint32` and `uint` binary arithmetic, unary operations, compound mutation, and postfix mutation;
+- stable local unchecked signed compound mutation for tagged-supported, non-overflowing programs;
+- explicit integer types where a checked Rust method would otherwise fail with E0689 on a literal receiver.
 
-Add, subtract, multiply, negate, increment, and decrement use Rust wrapping
-operations. Shifts promote the byte to `u32`, perform the shift, and narrow to
-`u8`, matching defined C promotion followed by byte storage. Binary operands
-are evaluated once from left to right. Compound assignment evaluates its RHS
-before borrowing the stable place, and postfix mutation borrows its place once.
-Tuple-pattern temporaries keep compiler bindings out of scope while source
-operands and places are evaluated, including when source names match the
-generated spellings.
+The same target-local templates preserve left-to-right, once-only binary operand evaluation. Compound operations evaluate the RHS once before taking one short-lived mutable place borrow. Postfix operations evaluate and borrow the place once. Signed `int` and `long` retain the merged checked diagnostic helpers and messages.
 
-Signed `int` and `long` keep checked overflow behavior. This commit does not
-change C generation, the shared model, or frontend type checking.
+Direct tagged printing represents bytes as uppercase hexadecimal and `uint` through its signed 64-bit bit pattern. This matters for the unchanged `uint_checked_mul_overflow.sn` value probe: the peeled tag prints the wrapped value as `-4`, and Rust now prints the same bytes.
 
-## Tagged oracle evidence
+No C generator, shared model, frontend, or tagged oracle source is changed.
 
-The committed comparison sources are:
+## Tagged differential evidence
 
-- `tests/rgen/tagged_byte_wrapping.sn`, SHA-256
-  `7fd22d6bf17760bf5b6ca4f5d929c33c1ba559376868cc4e188b074dba1ef9c1`;
-- `tests/rgen/tagged_byte_by_value_mutation.sn`, SHA-256
-  `08069f2d3b34fbc746a69d1564b041c21cd0892d53f53835e0a4cc7e54e28b85`.
+The final matrix is `/tmp/sn-s2-byte-work/differential-fixed-width-80c-20260905/results.tsv`. It contains 34 C/Rust pairs and 68 successful compilations and executions:
 
-Each unchanged source was compiled with the peeled tag C compiler and the
-restoration-checkpoint Rust compiler for all 18 combinations of two fixtures,
-three arithmetic selections (`default`, `--checked`, `--unchecked`), and three
-optimizer selections (`-O0`, `-O1`, `-O2`). All 36 compilations and executions
-returned zero. Corresponding C and Rust stdout and stderr were compared as raw
-bytes with `cmp`; all 18 pairs matched. No diagnostic, path, ANSI, newline, or
-numeric-output normalization was applied. The by-value matrix is under
-`/tmp/sn-s2-byte-work/differential-20260905b`; the final wrapping matrix is
-under `/tmp/sn-s2-byte-work/differential-20260905c`.
+- `tagged_byte_promotions_checked.sn`: default, checked, and unchecked, each at O0/O1/O2 (9 pairs);
+- `tagged_byte_promotions_unchecked.sn`: unchecked at O0/O1/O2 plus default O2 (4 pairs);
+- `tagged_wrapping_integer_values.sn`: checked at O0/O1/O2 (3 pairs);
+- `tagged_unsigned_wrapping_unchecked.sn`: default, checked, and unchecked, each at O0/O1/O2 (9 pairs);
+- the value-printing `uint_checked_mul_overflow.sn`: default, checked, and unchecked, each at O0/O1/O2 (9 pairs).
 
-The earlier broad oracle probe is preserved at
-`/tmp/sn-s2-byte-work/oracle/tagged_byte_core.sn` with results under
-`/tmp/sn-s2-byte-work/oracle/results-20260905b`. It records the tagged C
-temporary-expression behavior as well as stored byte behavior.
+Every source was unchanged between the peeled tag C compiler and this Rust compiler. Every compile and execution returned zero. Runtime stdout and stderr were compared with raw `cmp`; all 34 pairs matched. No diagnostic, path, ANSI, newline, or numeric-output normalization was applied.
 
-## Deliberately separate evidence
+Twelve representative members of the measured E0689 group were compiled and run through both current C and Rust at O0. All 24 compilations and executions returned zero, all 12 raw stdout/stderr pairs matched, and no Rust stream contained E0689. Results are in `/tmp/sn-s2-byte-work/numeric-inference-representative-80c/results.tsv`.
 
-The tagged checked C templates call nonexistent `sn_div_byte` and
-`sn_mod_byte` helpers for binary byte division and remainder. The exact
-checked-division source and compiler streams are preserved under
-`/tmp/sn-s2-byte-work/oracle/tagged_byte_checked_div.sn` and
-`/tmp/sn-s2-byte-work/oracle/results-20260905b`. Those failing forms are not
-counted as tagged-valid parity evidence. Rust checked division and remainder
-remain on the diagnostic branch's logical checked-helper path.
+The earlier byte-only matrices remain at `/tmp/sn-s2-byte-work/differential-20260905b` and `/tmp/sn-s2-byte-work/differential-20260905c`. They contain 18 raw pairs each for the two original byte fixtures across three arithmetic selections and O0/O1/O2.
 
-A compound assignment nested directly in a comparison exposes the tagged C
-template's missing grouping. The minimal source is
-`/tmp/sn-s2-byte-work/oracle/tagged_byte_compound_context_raw.sn` (SHA-256
-`b8bf3c3f4b32bd06ea91c54af0399335b87eb0d67d54d552e5e2920a0457efa9`).
-Its generated C, streams, and statuses are under
-`/tmp/sn-s2-byte-work/oracle/raw-compound-context`; generated C SHA-256 is
-`4fa2dad56cfae99783bade251fc88e2ae81332debbe48f58d32b18dc76403146`.
-The comparison fixture therefore sequences compound results into byte
-variables before comparing them. The raw form remains evidence for separate C
-work and is not claimed as C/Rust parity.
+## Separate oracle evidence
 
-Tagged unchecked byte arithmetic and all tagged byte unary expressions use C
-integer-promotion temporaries until a byte storage boundary. For example, the
-preserved core probe prints `0x100` for unchecked `255b + 1b` and
-`0xFFFFFFFF` for direct `-1b`, while storing either expression in a byte
-narrows it. This Rust slice implements the byte-typed/storage result used by
-assignments, returns, arguments, fields, and arrays. Exact observation of the
-promoted temporary in a context such as direct printing would require
-context-sensitive narrowing at every byte consumption boundary; it remains
-explicit required parity work and is not covered by the byte-equality claim
-above.
+Tagged checked binary byte division and remainder call nonexistent `sn_div_byte` and `sn_mod_byte` helpers. The exact rejected source and streams remain under `/tmp/sn-s2-byte-work/oracle/tagged_byte_checked_div.sn` and `/tmp/sn-s2-byte-work/oracle/results-20260905b`. These forms are not counted as tagged-valid parity.
 
-Shift counts from 0 through 31 are the defined C oracle range. Counts at least
-32 and division or remainder by zero are excluded from valid tagged behavior
-evidence.
+A compound assignment nested directly in a comparison exposes the tagged C template's missing grouping. The exact source is `/tmp/sn-s2-byte-work/oracle/tagged_byte_compound_context_raw.sn` (SHA-256 `b8bf3c3f4b32bd06ea91c54af0399335b87eb0d67d54d552e5e2920a0457efa9`). Its generated C and streams are under `/tmp/sn-s2-byte-work/oracle/raw-compound-context`; generated C SHA-256 is `4fa2dad56cfae99783bade251fc88e2ae81332debbe48f58d32b18dc76403146`. The committed comparison fixture sequences the result before comparing it.
 
-## Composition boundary and follow-ups
+The tag emits suffixed `uint32` and `uint` literals as signed `long long` C literals. The direct literal-unary probe therefore prints `-1`, while unary mutation of a typed unsigned variable follows the fixed-width unsigned rule. The exact probe and generated C are preserved at `/tmp/sn-s2-byte-work/oracle/numeric-values-20260905/tagged_wrapping_literal_unary.sn` and `tagged_wrapping_literal_unary.generated.c`, with SHA-256 `33be63935f3fbb936b1400ce700acb8a92c40d3c0f30a3cbfd5f9de4e6a8e03b` and `9ba9ae3f6d649e05ddb932a703ed9d9425264ce9334387c733e2300765afd9f1`. Exact literal-expression lowering remains separate work and is not counted by the unsigned-variable claim.
 
-The diagnostic branch owns checked-helper names and messages. This branch does
-not name or emit those helpers. Its composition patch adds byte routing around
-the existing Rust `binary`, `unary`, `compound_assign`, `increment`, and
-`decrement` partials; the operation bodies live in new byte-only partials and
-type selection lives in `rust_lower_byte.c`.
+Shift counts from 0 through 31 are the defined byte C-oracle range. Larger counts and division or remainder by zero are excluded from valid tagged behavior evidence.
 
-The tag also wraps `int32`, `uint32`, and `uint` helper arithmetic. Their Rust
-restoration remains a required numeric slice because it needs type-width and
-promotion-specific templates rather than reusing the byte-only `u8` lowering.
-Signed 64-bit checked behavior must remain unchanged when that slice composes.
+## Composition and remaining work
+
+The merged diagnostic helper contract remains authoritative. Numeric routing occurs before checked helper rendering only for operations whose tag contract wraps; signed checked operations continue through the collision-free `__sn_checked` family. The literal-receiver type annotation changes only checked expressions whose Rust receiver otherwise has no inherent integer type.
+
+The array text branch `a6a1cfb1c0e3fd16d4bfe8c023881023f1d39892` is required to execute the unchanged `test_arr_sum_pairs.sn`, `test_fn_collatz_seq.sn`, and `test_fn_powers_of_two.sn` sources. On this branch their former numeric rejection advances to the independent array-join boundary. An isolated combined validation records their final behavior without changing those sources.
+
+Remaining numeric parity includes the preserved signed-literal C emission nuance, undefined signed C overflow forms outside the valid oracle envelope, and other numeric types not listed in this scope.
