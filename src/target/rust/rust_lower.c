@@ -123,6 +123,23 @@ static bool rust_model_uses_checked_arithmetic(json_object *node)
     return false;
 }
 
+static bool rust_assign_checked_helper_names(json_object *model)
+{
+    const char *bases[] = { "__sn_checked", "__sn_checked_div", "__sn_checked_mod",
+                            "__sn_runtime_error" };
+    const char *keys[] = { "rust_checked_name", "rust_checked_div_name",
+                           "rust_checked_mod_name", "rust_runtime_error_name" };
+    for (size_t i = 0; i < 4; i++) {
+        char name[96]; size_t suffix = 0;
+        do { if (suffix == (size_t)-1) return false;
+             int n = snprintf(name, sizeof(name), "%s_%zu", bases[i], suffix++);
+             if (n < 0 || (size_t)n >= sizeof(name)) return false;
+        } while (rust_model_contains_string(model, name));
+        json_object_object_add(model, keys[i], json_object_new_string(name));
+    }
+    return true;
+}
+
 /* Floating compound assignment and postfix mutation use the same shared
  * stable-place annotations as checked integer mutation, but ordinary Rust
  * f32/f64 arithmetic. */
