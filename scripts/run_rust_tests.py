@@ -333,6 +333,7 @@ TEST_CONFIGS = {
 # byte-for-byte for corpus identity; their promoted success coverage lives in
 # tests/rust/closure-values and is exercised by this runner below.
 PROMOTED_CLOSURE_NEGATIVES = {
+    'closure_values_array_method_mutation',
     'closure_values_owned_mutation',
     'closure_values_recursive',
     'closure_values_shared_scalar',

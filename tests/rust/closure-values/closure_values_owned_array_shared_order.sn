@@ -1,0 +1,15 @@
+fn invoke(callback: fn(): int): int => callback()
+
+fn main(): void =>
+  var values: int[] = {7}
+  var calls: int = 0
+  var observe: fn(): int = fn(): int =>
+    calls += 1
+    return values.length * 10 + calls
+  var replace: fn(fn(): int): int = fn(callback: fn(): int): int =>
+    values = {invoke(callback), invoke(callback)}
+    return values[0] * 100 + values[1]
+  println(replace(observe))
+  println(values[0])
+  println(values[1])
+  println(calls)
