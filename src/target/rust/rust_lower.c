@@ -129,12 +129,19 @@ static bool rust_assign_checked_helper_names(json_object *model)
                             "__sn_runtime_error" };
     const char *keys[] = { "rust_checked_name", "rust_checked_div_name",
                            "rust_checked_mod_name", "rust_runtime_error_name" };
-    for (size_t i = 0; i < 4; i++) {
-        char name[96]; size_t suffix = 0;
-        do { if (suffix == (size_t)-1) return false;
-             int n = snprintf(name, sizeof(name), "%s_%zu", bases[i], suffix++);
-             if (n < 0 || (size_t)n >= sizeof(name)) return false;
-        } while (rust_model_contains_string(model, name));
+
+    for (size_t i = 0; i < 4; i++)
+    {
+        char name[96];
+        size_t suffix = 0;
+        while (true)
+        {
+            int written = snprintf(name, sizeof(name), "%s_%zu", bases[i], suffix);
+            if (written < 0 || (size_t)written >= sizeof(name)) return false;
+            if (!rust_model_contains_string(model, name)) break;
+            if (suffix == (size_t)-1) return false;
+            suffix++;
+        }
         json_object_object_add(model, keys[i], json_object_new_string(name));
     }
     return true;
