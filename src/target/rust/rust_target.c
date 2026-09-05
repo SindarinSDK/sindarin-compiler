@@ -147,6 +147,7 @@ static bool rust_check_toolchain(const CompilerOptions *options)
 #include "rust_concurrency.c"
 #include "rust_thread_arrays.c"
 #include "rust_thread_refs.c"
+#include "rust_thread_receivers.c"
 
 static bool rust_emit(CompilerOptions *options, Module *module,
                       TargetEmitMode mode, GeneratedFileSet *result)
@@ -171,6 +172,7 @@ static bool rust_emit(CompilerOptions *options, Module *module,
     }
     result->target_data = native_plan;
     result->free_target_data = rust_native_plan_free;
+    rust_prepare_thread_receivers(model);
     if (!rust_prepare_by_value_scalar_parameter_mutations(model))
     {
         json_object_put(model);
@@ -223,6 +225,7 @@ static bool rust_emit(CompilerOptions *options, Module *module,
 
     rust_lower_concurrency(model);
     rust_lower_thread_arrays(model);
+    rust_lower_thread_receivers(model);
 
     char template_dir[1024];
     snprintf(template_dir, sizeof(template_dir), "%s/templates/rust", options->compiler_dir);

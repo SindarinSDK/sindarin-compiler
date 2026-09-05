@@ -291,7 +291,8 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
         root_name = json_string_property(root, "name");
         json_object *param = rust_name_is_shadowed(scope, root_name)
             ? NULL : rust_find_parameter(params, root_name);
-        if (param && json_string_property_equals(param, "mem_qual", "default"))
+        if (param && json_string_property_equals(param, "mem_qual", "default") &&
+            !json_boolean_property(param, "rust_thread_aggregate_param"))
         {
             fprintf(stderr,
                     "Error: Rust target does not support direct assignment through %s targets rooted in by-value parameter '%s'\n",
@@ -561,7 +562,8 @@ static bool rust_validate_structs(json_object *model)
         if (json_boolean_property(structure, "is_native") ||
             json_boolean_property(structure, "is_packed") ||
             json_boolean_property(structure, "is_serializable") ||
-            (mem_mode && strcmp(mem_mode, "val") != 0))
+            (mem_mode && strcmp(mem_mode, "val") != 0 &&
+             !json_boolean_property(structure, "rust_thread_reference_identity")))
         {
             fprintf(stderr,
                     "Error: Rust target currently supports only plain value struct '%s'\n",
@@ -2793,6 +2795,7 @@ static bool rust_validate_model_impl(json_object *model,
                     bool has_param_type =
                         json_object_object_get_ex(param, "type", &param_type);
                     bool mem_qual_supported =
+                        json_boolean_property(param, "rust_thread_aggregate_param") ||
                         !mem_qual || strcmp(mem_qual, "default") == 0 ||
                         (has_param_type && strcmp(mem_qual, "as_ref") == 0 &&
                          (rust_heap_free_named_struct_type(param_type) ||

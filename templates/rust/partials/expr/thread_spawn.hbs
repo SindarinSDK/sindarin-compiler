@@ -1,1 +1,1 @@
-{ {{#each rust_spawn_bindings}}let {{rust_ident name}} = ({{> expr value}}).clone(); {{/each}}{{rust_ident rust_join_type}}::spawn(move || {{> expr call}}) }
+{ {{#each rust_spawn_bindings}}let {{rust_ident name}} = ({{> expr value}}){{#unless value.rust_thread_aggregate_share}}.{{#if rust_receiver_share}}{{rust_ident @root.rust_thread_share_method}}{{else}}clone{{/if}}(){{/unless}}; {{/each}}{{rust_ident rust_join_type}}::spawn(move || {{> expr call}}) }

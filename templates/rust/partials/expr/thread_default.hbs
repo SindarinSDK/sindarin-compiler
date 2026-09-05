@@ -1,1 +1,1 @@
-{{#if (eq type.kind "struct")}}{{rust_ident type.name}} { {{#each fields}}{{rust_ident name}}: {{> expr value}}, {{/each}} }{{else}}{{rust_default type}}{{/if}}
+{{#if (eq type.kind "struct")}}{{rust_ident type.name}} { {{#each fields}}{{rust_ident name}}: {{#if ../rust_thread_fields}}{{rust_ident @root.rust_thread_field_type}}::new({{> expr value}}){{else}}{{> expr value}}{{/if}}, {{/each}} }{{else}}{{rust_default type}}{{/if}}

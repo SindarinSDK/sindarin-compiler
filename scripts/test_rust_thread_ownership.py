@@ -28,6 +28,7 @@ def capture(command, cwd, env, output, limit):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--receivers', action='store_true', help='Run bounded receiver/aggregate cases')
     parser.add_argument('--filter', help='Run feature filenames containing this text (smoke always runs)')
     parser.add_argument('--inventory', action='store_true', help='After smoke, record Rust-only catalog outcomes; no parity comparison')
     args = parser.parse_args()
@@ -53,6 +54,9 @@ def main():
     print('TAGGED_CONTROL_PASS', flush=True)
     sources = [tag/p for p in ['tests/integration/test_lambda_closure_thread_spawn.sn', 'tests/exploratory/test_limitation_fn_param.sn', 'tests/exploratory/test_limitation_lambda_param.sn', 'tests/exploratory/test_thread_with_lambda.sn', 'tests/integration/test_thread_array_spawn_loop.sn', 'tests/integration/test_thread_array_struct.sn', 'tests/integration/test_thread_panic_propagate.sn', 'tests/integration/test_thread_as_ref_spawn.sn', 'tests/integration/test_using_dispose.sn']]
     sources += sorted((repo/'tests/rust-thread-ownership').glob('*.sn'))
+    if args.receivers:
+        sources = [tag/'tests/integration/test_thread_spawn_self_method.sn', tag/'tests/integration/test_thread_struct_param.sn', tag/'tests/integration/test_pass_self_to_function.sn']
+        sources += sorted((repo/'tests/rust-thread-receivers').glob('*.sn'))
     if args.inventory:
         catalog = json.loads(Path('/tmp/sindarin-tagged-rust-corpus-evidence/failure-backlog.json').read_text())
         sources = [tag/p for p in sorted({p for group in catalog if 'threads yet' in group['diagnostic'] or 'global variables yet' in group['diagnostic'] for p in group['fixtures']})]
