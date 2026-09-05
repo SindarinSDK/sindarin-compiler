@@ -21,10 +21,6 @@ void cc_backend_load_config(const char *compiler_dir);
 /* Initialize backend configuration from environment variables */
 void cc_backend_init_config(CCBackendConfig *config);
 
-/* Return the configured full replacement for an @link library, including an
- * explicitly empty replacement, or NULL when the default -l form applies. */
-const char *cc_backend_get_link_library_options(const char *library);
-
 /* Check if the C compiler is available on the system */
 bool gcc_check_available(const CCBackendConfig *config, bool verbose);
 

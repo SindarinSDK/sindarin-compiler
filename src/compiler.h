@@ -45,6 +45,9 @@ typedef struct
     int log_level;
     ArithmeticMode arithmetic_mode;  /* Checked or unchecked arithmetic */
     int optimization_level;          /* Optimization level (0, 1, or 2) */
+    int emit_c;                      /* --emit-c: Output generated C code, don't compile */
+    int emit_model;                  /* --emit-model: Output JSON model, don't generate C */
+    int keep_c;                      /* --keep-c: Keep generated C files after compilation */
     TargetKind target;                /* --target: Source-language backend (default: C) */
     OutputKind output_kind;           /* Executable, generated source, or JSON model */
     int keep_generated;               /* Keep generated target files after compilation */

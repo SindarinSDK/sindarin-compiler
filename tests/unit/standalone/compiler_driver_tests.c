@@ -243,8 +243,7 @@ static void test_emit_c_flag(void)
 
     int result = compiler_parse_args(argc, argv, &options);
     assert(result == 1);
-    assert(options.target == TARGET_C);
-    assert(options.output_kind == OUTPUT_SOURCE);
+    assert(options.emit_c == 1);
 
     arena_free(&options.arena);
 }
@@ -262,7 +261,7 @@ static void test_keep_c_flag(void)
 
     int result = compiler_parse_args(argc, argv, &options);
     assert(result == 1);
-    assert(options.keep_generated == 1);
+    assert(options.keep_c == 1);
 
     arena_free(&options.arena);
 }
@@ -447,284 +446,9 @@ static void test_emit_c_output_path(void)
     int result = compiler_parse_args(argc, argv, &options);
     assert(result == 1);
     /* In emit-c mode, output should be .c file */
-    assert(options.target == TARGET_C);
-    assert(options.output_kind == OUTPUT_SOURCE);
     assert(options.output_file != NULL);
     assert(strcmp(options.output_file, "myfile.c") == 0);
     assert(options.executable_file == NULL);
-
-    arena_free(&options.arena);
-}
-
-static void test_emit_rust_output_path(void)
-{
-    CompilerOptions options;
-    memset(&options, 0, sizeof(options));
-    const char *args[] = {"sn", "myfile.sn", "--target", "rust", "--emit-source"};
-    int argc;
-    char **argv;
-    make_args(&argc, &argv, args, 5);
-
-    arena_init(&options.arena, 1024);
-
-    int result = compiler_parse_args(argc, argv, &options);
-    assert(result == 1);
-    assert(options.target == TARGET_RUST);
-    assert(options.output_kind == OUTPUT_SOURCE);
-    assert(options.output_file != NULL);
-    assert(strcmp(options.output_file, "myfile.rs") == 0);
-    assert(options.executable_file == NULL);
-
-    arena_free(&options.arena);
-}
-
-/* ============================================================================
- * Target Selection Tests
- * ============================================================================ */
-
-static void test_target_default_is_c(void)
-{
-    /* No target flags: the compiler must keep C as the default target.
-       Exercise the real compiler_init path, which is where the default
-       is actually assigned (src/compiler.c:31). */
-    CompilerOptions options;
-    memset(&options, 0, sizeof(options));
-    /* Poison only fields compiler_init must explicitly reset. */
-    options.debug_build = 1;
-    options.profile_build = 1;
-    const char *args[] = {"sn", "test.sn"};
-    int argc;
-    char **argv;
-    make_args(&argc, &argv, args, 2);
-
-    compiler_init(&options, argc, argv);
-    assert(options.target == TARGET_C);
-    assert(options.output_kind == OUTPUT_EXECUTABLE);
-    assert(options.debug_build == 0);
-    assert(options.profile_build == 0);
-
-    compiler_cleanup(&options);
-}
-
-static void test_target_c_explicit(void)
-{
-    CompilerOptions options;
-    memset(&options, 0, sizeof(options));
-    const char *args[] = {"sn", "test.sn", "--target", "c"};
-    int argc;
-    char **argv;
-    make_args(&argc, &argv, args, 4);
-
-    arena_init(&options.arena, 1024);
-
-    int result = compiler_parse_args(argc, argv, &options);
-    assert(result == 1);
-    assert(options.target == TARGET_C);
-
-    arena_free(&options.arena);
-}
-
-static void test_target_rust_flag(void)
-{
-    CompilerOptions options;
-    memset(&options, 0, sizeof(options));
-    const char *args[] = {"sn", "test.sn", "--target", "rust"};
-    int argc;
-    char **argv;
-    make_args(&argc, &argv, args, 4);
-
-    arena_init(&options.arena, 1024);
-
-    int result = compiler_parse_args(argc, argv, &options);
-    assert(result == 1);
-    assert(options.target == TARGET_RUST);
-
-    arena_free(&options.arena);
-}
-
-static void test_target_rs_alias(void)
-{
-    CompilerOptions options;
-    memset(&options, 0, sizeof(options));
-    const char *args[] = {"sn", "test.sn", "--target", "rs"};
-    int argc;
-    char **argv;
-    make_args(&argc, &argv, args, 4);
-
-    arena_init(&options.arena, 1024);
-
-    int result = compiler_parse_args(argc, argv, &options);
-    assert(result == 1);
-    assert(options.target == TARGET_RUST);
-
-    arena_free(&options.arena);
-}
-
-static void test_target_duplicate_same_value(void)
-{
-    /* Repeating --target with the same value is not a conflict. */
-    CompilerOptions options;
-    memset(&options, 0, sizeof(options));
-    const char *args[] = {"sn", "test.sn", "--target", "c", "--target", "c"};
-    int argc;
-    char **argv;
-    make_args(&argc, &argv, args, 6);
-
-    arena_init(&options.arena, 1024);
-
-    int result = compiler_parse_args(argc, argv, &options);
-    assert(result == 1);
-    assert(options.target == TARGET_C);
-
-    arena_free(&options.arena);
-}
-
-static void test_target_unknown_rejected(void)
-{
-    CompilerOptions options;
-    memset(&options, 0, sizeof(options));
-    const char *args[] = {"sn", "test.sn", "--target", "go"};
-    int argc;
-    char **argv;
-    make_args(&argc, &argv, args, 4);
-
-    arena_init(&options.arena, 1024);
-
-    int result = compiler_parse_args(argc, argv, &options);
-    /* Unknown target names must be rejected ("Unknown target 'go' (expected c or rust)") */
-    assert(result == 0);
-
-    arena_free(&options.arena);
-}
-
-static void test_target_missing_value_rejected(void)
-{
-    CompilerOptions options;
-    memset(&options, 0, sizeof(options));
-    const char *args[] = {"sn", "test.sn", "--target"};
-    int argc;
-    char **argv;
-    make_args(&argc, &argv, args, 3);
-
-    arena_init(&options.arena, 1024);
-
-    int result = compiler_parse_args(argc, argv, &options);
-    /* "--target requires c or rust" */
-    assert(result == 0);
-
-    arena_free(&options.arena);
-}
-
-static void test_target_conflicting_flags(void)
-{
-    CompilerOptions options;
-    memset(&options, 0, sizeof(options));
-    const char *args[] = {"sn", "test.sn", "--target", "c", "--target", "rust"};
-    int argc;
-    char **argv;
-    make_args(&argc, &argv, args, 6);
-
-    arena_init(&options.arena, 1024);
-
-    int result = compiler_parse_args(argc, argv, &options);
-    /* "conflicting compilation targets requested" */
-    assert(result == 0);
-
-    arena_free(&options.arena);
-}
-
-static void test_emit_rust_shorthand(void)
-{
-    CompilerOptions options;
-    memset(&options, 0, sizeof(options));
-    const char *args[] = {"sn", "test.sn", "--emit-rust"};
-    int argc;
-    char **argv;
-    make_args(&argc, &argv, args, 3);
-
-    arena_init(&options.arena, 1024);
-
-    int result = compiler_parse_args(argc, argv, &options);
-    assert(result == 1);
-    assert(options.target == TARGET_RUST);
-    assert(options.output_kind == OUTPUT_SOURCE);
-    assert(options.output_file != NULL);
-    assert(strcmp(options.output_file, "test.rs") == 0);
-    assert(options.executable_file == NULL);
-
-    arena_free(&options.arena);
-}
-
-static void test_emit_rust_shorthand_output_path(void)
-{
-    CompilerOptions options;
-    memset(&options, 0, sizeof(options));
-    const char *args[] = {"sn", "myfile.sn", "--emit-rust"};
-    int argc;
-    char **argv;
-    make_args(&argc, &argv, args, 3);
-
-    arena_init(&options.arena, 1024);
-
-    int result = compiler_parse_args(argc, argv, &options);
-    assert(result == 1);
-    assert(options.output_file != NULL);
-    assert(strcmp(options.output_file, "myfile.rs") == 0);
-    assert(options.executable_file == NULL);
-
-    arena_free(&options.arena);
-}
-
-static void test_emit_rust_conflicts_with_target_c(void)
-{
-    CompilerOptions options;
-    memset(&options, 0, sizeof(options));
-    const char *args[] = {"sn", "test.sn", "--target", "c", "--emit-rust"};
-    int argc;
-    char **argv;
-    make_args(&argc, &argv, args, 5);
-
-    arena_init(&options.arena, 1024);
-
-    int result = compiler_parse_args(argc, argv, &options);
-    /* "--emit-rust conflicts with --target c" */
-    assert(result == 0);
-
-    arena_free(&options.arena);
-}
-
-static void test_emit_c_conflicts_with_target_rust(void)
-{
-    CompilerOptions options;
-    memset(&options, 0, sizeof(options));
-    const char *args[] = {"sn", "test.sn", "--target", "rust", "--emit-c"};
-    int argc;
-    char **argv;
-    make_args(&argc, &argv, args, 5);
-
-    arena_init(&options.arena, 1024);
-
-    int result = compiler_parse_args(argc, argv, &options);
-    /* "--emit-c conflicts with --target rust" */
-    assert(result == 0);
-
-    arena_free(&options.arena);
-}
-
-static void test_emit_c_and_emit_rust_conflict(void)
-{
-    CompilerOptions options;
-    memset(&options, 0, sizeof(options));
-    const char *args[] = {"sn", "test.sn", "--emit-c", "--emit-rust"};
-    int argc;
-    char **argv;
-    make_args(&argc, &argv, args, 4);
-
-    arena_init(&options.arena, 1024);
-
-    int result = compiler_parse_args(argc, argv, &options);
-    /* Second emit shorthand sets a different target than the first */
-    assert(result == 0);
 
     arena_free(&options.arena);
 }
@@ -805,7 +529,7 @@ static void test_multiple_flags_combined(void)
     assert(result == 1);
     assert(options.verbose == 1);
     assert(options.debug_build == 1);
-    assert(options.keep_generated == 1);
+    assert(options.keep_c == 1);
     assert(options.optimization_level == OPT_LEVEL_BASIC);
 
     arena_free(&options.arena);
@@ -943,7 +667,7 @@ static void test_many_flags(void)
     assert(result == 1);
     assert(options.verbose == 1);
     assert(options.debug_build == 1);
-    assert(options.keep_generated == 1);
+    assert(options.keep_c == 1);
     assert(options.optimization_level == OPT_LEVEL_FULL);
     assert(options.arithmetic_mode == ARITH_UNCHECKED);
     assert(options.log_level == DEBUG_LEVEL_WARNING);
@@ -989,22 +713,6 @@ void test_compiler_driver_main(void)
     TEST_RUN("default_output_path", test_default_output_path);
     TEST_RUN("default_output_file_unused", test_default_output_file_unused);
     TEST_RUN("emit_c_output_path", test_emit_c_output_path);
-    TEST_RUN("emit_rust_output_path", test_emit_rust_output_path);
-
-    TEST_SECTION("Compiler Driver - Target Selection");
-    TEST_RUN("target_default_c", test_target_default_is_c);
-    TEST_RUN("target_c_explicit", test_target_c_explicit);
-    TEST_RUN("target_rust_flag", test_target_rust_flag);
-    TEST_RUN("target_rs_alias", test_target_rs_alias);
-    TEST_RUN("target_duplicate_same_value", test_target_duplicate_same_value);
-    TEST_RUN("target_unknown_rejected", test_target_unknown_rejected);
-    TEST_RUN("target_missing_value_rejected", test_target_missing_value_rejected);
-    TEST_RUN("target_conflicting_flags", test_target_conflicting_flags);
-    TEST_RUN("emit_rust_shorthand", test_emit_rust_shorthand);
-    TEST_RUN("emit_rust_shorthand_output_path", test_emit_rust_shorthand_output_path);
-    TEST_RUN("emit_rust_conflicts_with_target_c", test_emit_rust_conflicts_with_target_c);
-    TEST_RUN("emit_c_conflicts_with_target_rust", test_emit_c_conflicts_with_target_rust);
-    TEST_RUN("emit_c_and_emit_rust_conflict", test_emit_c_and_emit_rust_conflict);
 
     TEST_SECTION("Compiler Driver - Error Handling");
     TEST_RUN("no_source_file_error", test_no_source_file_error);

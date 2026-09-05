@@ -28,18 +28,12 @@ int main() {
         });
     long long __sn__sum = 0LL;
     {
-        sn_auto_arr SnArray *__arr_0__ = sn_array_copy(__sn__arr);
+        SnArray *__arr_0__ = __sn__arr;
         long long __len_0__ = __arr_0__->len;
         for (long long __idx_0__ = 0; __idx_0__ < __len_0__; __idx_0__++) {
-            long long __sn__item__source = ((long long *)__arr_0__->data)[__idx_0__];
-            long long __sn__item = __sn__item__source;
+            long long __sn__item = ((long long *)__arr_0__->data)[__idx_0__];
             {
-                ({
-                    long long *__sn_place__ = &(__sn__sum);
-                    long long __sn_rhs__ = __sn__item;
-                    *__sn_place__ = sn_add_long(*__sn_place__, __sn_rhs__);
-                    *__sn_place__;
-                });
+                __sn__sum = __sn__sum + __sn__item;
                 
             }
         }

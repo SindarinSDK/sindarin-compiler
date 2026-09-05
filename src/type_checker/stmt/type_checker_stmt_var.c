@@ -118,24 +118,16 @@ void type_check_var_decl(Stmt *stmt, SymbolTable *table, Type *return_type)
         decl_type->as.struct_type.field_count == 0 &&
         decl_type->as.struct_type.name != NULL)
     {
-        Type *resolved_type = resolve_struct_forward_reference(decl_type, table);
-        if (resolved_type == decl_type)
+        Token name_tok;
+        name_tok.start    = decl_type->as.struct_type.name;
+        name_tok.length   = (int)strlen(decl_type->as.struct_type.name);
+        name_tok.type     = TOKEN_IDENTIFIER;
+        name_tok.line     = 0;
+        name_tok.filename = NULL;
+        Symbol *tsym = symbol_table_lookup_type(table, name_tok);
+        if (tsym != NULL && tsym->type != NULL)
         {
-            Token name_tok;
-            name_tok.start    = decl_type->as.struct_type.name;
-            name_tok.length   = (int)strlen(decl_type->as.struct_type.name);
-            name_tok.type     = TOKEN_IDENTIFIER;
-            name_tok.line     = 0;
-            name_tok.filename = NULL;
-            Symbol *type_sym = symbol_table_lookup_type(table, name_tok);
-            if (type_sym != NULL && type_sym->type != NULL)
-            {
-                resolved_type = type_sym->type;
-            }
-        }
-        if (resolved_type != decl_type)
-        {
-            decl_type = resolved_type;
+            decl_type = tsym->type;
             stmt->as.var_decl.resolved_type = decl_type;
         }
     }

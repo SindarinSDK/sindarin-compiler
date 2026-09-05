@@ -113,7 +113,7 @@ fn show_byte_conversions(): void =>
   print("\nLarge results:\n")
   var big1: byte = 200
   var big2: byte = 200
-  var bigSum: int = big1.toInt() + big2.toInt()
+  var bigSum: int = big1 + big2
   print($"  200 + 200 = {bigSum} (exceeds 255, int handles it)\n")
 
   print("\n")

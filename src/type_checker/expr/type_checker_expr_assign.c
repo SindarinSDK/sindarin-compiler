@@ -305,14 +305,5 @@ Type *type_check_increment_decrement(Expr *expr, SymbolTable *table)
         type_error(expr->token, "Increment/decrement on non-numeric type");
         return NULL;
     }
-    if (expr->as.operand->type != EXPR_VARIABLE &&
-        expr->as.operand->type != EXPR_ARRAY_ACCESS &&
-        expr->as.operand->type != EXPR_MEMBER &&
-        expr->as.operand->type != EXPR_MEMBER_ACCESS)
-    {
-        type_error(expr->token,
-                   "Increment/decrement target must be a variable, array element, or struct field");
-        return NULL;
-    }
     return operand_type;
 }

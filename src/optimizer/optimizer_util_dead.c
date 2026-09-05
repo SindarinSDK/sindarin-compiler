@@ -6,105 +6,6 @@
  * ============================================================================
  */
 
-static bool is_checked_integer_arithmetic(Optimizer *opt, Expr *expr)
-{
-    if (!opt->checked_arithmetic || expr->expr_type == NULL) return false;
-
-    switch (expr->as.binary.operator)
-    {
-    case TOKEN_PLUS:
-    case TOKEN_MINUS:
-    case TOKEN_STAR:
-    case TOKEN_SLASH:
-    case TOKEN_MODULO:
-        break;
-    default:
-        return false;
-    }
-
-    switch (expr->expr_type->kind)
-    {
-    case TYPE_INT:
-    case TYPE_INT32:
-    case TYPE_UINT:
-    case TYPE_UINT32:
-    case TYPE_LONG:
-    case TYPE_BYTE:
-        return true;
-    default:
-        return false;
-    }
-}
-
-static bool expr_has_side_effects_or_may_trap(Optimizer *opt, Expr *expr)
-{
-    if (expr == NULL) return false;
-
-    switch (expr->type)
-    {
-    case EXPR_LITERAL:
-    case EXPR_VARIABLE:
-        return false;
-
-    case EXPR_BINARY:
-        /* User-defined operators are calls, independent of arithmetic mode. */
-        if (expr->as.binary.operator_method != NULL) return true;
-        if (expr->expr_type == NULL) return true;
-        if (is_checked_integer_arithmetic(opt, expr)) return true;
-        return expr_has_side_effects_or_may_trap(opt, expr->as.binary.left) ||
-               expr_has_side_effects_or_may_trap(opt, expr->as.binary.right);
-
-    case EXPR_UNARY:
-        return expr_has_side_effects_or_may_trap(opt, expr->as.unary.operand);
-
-    case EXPR_CALL:
-    case EXPR_INCREMENT:
-    case EXPR_DECREMENT:
-    case EXPR_ASSIGN:
-    case EXPR_INDEX_ASSIGN:
-    case EXPR_THREAD_SPAWN:
-    case EXPR_THREAD_SYNC:
-    case EXPR_THREAD_DETACH:
-    case EXPR_STATIC_CALL:
-    case EXPR_METHOD_CALL:
-    case EXPR_MEMBER_ASSIGN:
-    case EXPR_COMPOUND_ASSIGN:
-        return true;
-
-    /* These expressions allocate, access bounds-sensitive storage, dereference,
-       copy ownership, or otherwise have backend-observable behavior. */
-    case EXPR_ARRAY:
-    case EXPR_ARRAY_ACCESS:
-    case EXPR_ARRAY_SLICE:
-    case EXPR_RANGE:
-    case EXPR_SPREAD:
-    case EXPR_INTERPOLATED:
-    case EXPR_LAMBDA:
-    case EXPR_SIZED_ARRAY_ALLOC:
-    case EXPR_SYNC_LIST:
-    case EXPR_VALUE_OF:
-    case EXPR_COPY_OF:
-    case EXPR_STRUCT_LITERAL:
-    case EXPR_SIZEOF:
-    case EXPR_TYPEOF:
-    case EXPR_MATCH:
-        return true;
-
-    case EXPR_MEMBER:
-        return expr_has_side_effects_or_may_trap(opt, expr->as.member.object);
-
-    case EXPR_MEMBER_ACCESS:
-        return expr_has_side_effects_or_may_trap(opt, expr->as.member_access.object);
-
-    case EXPR_ADDRESS_OF:
-        return expr_has_side_effects_or_may_trap(opt, expr->as.address_of.operand);
-
-    default:
-        /* New expression kinds must be classified before DCE can erase them. */
-        return true;
-    }
-}
-
 int remove_unused_variables(Optimizer *opt, Stmt **stmts, int *count)
 {
     if (stmts == NULL || *count <= 0) return 0;
@@ -136,7 +37,27 @@ int remove_unused_variables(Optimizer *opt, Stmt **stmts, int *count)
                    1. It has no initializer, OR
                    2. The initializer has no side effects */
                 Expr *init = stmt->as.var_decl.initializer;
-                bool has_side_effects = expr_has_side_effects_or_may_trap(opt, init);
+                bool has_side_effects = false;
+
+                if (init != NULL)
+                {
+                    /* Conservative: assume function calls and thread operations have side effects */
+                    switch (init->type)
+                    {
+                    case EXPR_CALL:
+                    case EXPR_INCREMENT:
+                    case EXPR_DECREMENT:
+                    case EXPR_ASSIGN:
+                    case EXPR_INDEX_ASSIGN:
+                    case EXPR_THREAD_SPAWN:
+                    case EXPR_THREAD_SYNC:
+                    case EXPR_THREAD_DETACH:
+                        has_side_effects = true;
+                        break;
+                    default:
+                        has_side_effects = false;
+                    }
+                }
 
                 if (!has_side_effects)
                 {

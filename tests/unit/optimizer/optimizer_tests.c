@@ -57,8 +57,6 @@ void run_optimizer_tests(void)
     /* Full optimization pass tests */
     TEST_RUN("optimizer_dead_code_elimination_function", test_optimizer_dead_code_elimination_function);
     TEST_RUN("optimizer_noop_simplification", test_optimizer_noop_simplification);
-    TEST_RUN("unused_checked_arithmetic_is_not_removed", test_unused_checked_arithmetic_is_not_removed);
-    TEST_RUN("nested_observable_effects_are_not_removed", test_nested_observable_effects_are_not_removed);
 
     /* Tail call optimization tests */
     TEST_RUN("tail_call_detection_simple", test_tail_call_detection_simple);

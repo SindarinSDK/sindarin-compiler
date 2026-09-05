@@ -23,8 +23,6 @@
 /* Initialize optimizer with arena for allocations */
 typedef struct {
     Arena *arena;
-    /* Checked arithmetic can terminate, so its binary operations are not dead. */
-    bool checked_arithmetic;
     int statements_removed;
     int variables_removed;
     int noops_removed;
@@ -33,9 +31,6 @@ typedef struct {
 } Optimizer;
 
 void optimizer_init(Optimizer *opt, Arena *arena);
-
-/* Set whether arithmetic expressions can terminate on overflow or invalid input. */
-void optimizer_set_checked_arithmetic(Optimizer *opt, bool checked_arithmetic);
 
 /* Run dead code elimination on a module */
 void optimizer_dead_code_elimination(Optimizer *opt, Module *module);

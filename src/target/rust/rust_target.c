@@ -1,6 +1,6 @@
 #include "target/target.h"
 #include "target/rust/rust_render.h"
-#include "cgen/gen_model.h"
+#include "target/rust/projection/rust_model.h"
 #include "debug.h"
 #include <ctype.h>
 #include <limits.h>
@@ -148,7 +148,7 @@ static bool rust_emit(CompilerOptions *options, Module *module,
                       TargetEmitMode mode, GeneratedFileSet *result)
 {
     (void)mode;
-    json_object *model = gen_model_build(&options->arena, module,
+    json_object *model = rust_gen_model_build(&options->arena, module,
                                           &options->symbol_table,
                                           options->arithmetic_mode);
     if (!model) return false;
