@@ -1617,7 +1617,12 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                             "rust_array_join_stable_place",
                             json_object_new_boolean(true));
                     }
-                    if (expr->as.call.callee->as.member.resolved_method &&
+                    /* A zero-argument source method used as a join separator
+                     * may mutate the same indexed owner.  Stabilize only its
+                     * place selection here; resolved calls with arguments use
+                     * the general resolved-call lowering. */
+                    if (expr->as.call.arg_count == 0 &&
+                        expr->as.call.callee->as.member.resolved_method &&
                         rust_array_join_receiver_is_stable_place(receiver) &&
                         rust_stable_place_contains_array_access(receiver))
                     {

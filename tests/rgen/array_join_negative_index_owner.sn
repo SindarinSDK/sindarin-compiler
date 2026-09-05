@@ -1,0 +1,14 @@
+struct Bag =>
+  values: int[] = {}
+
+struct Holder =>
+  bags: Bag[] = {}
+
+  fn appendSeparator(): str =>
+    self.bags.push(Bag { values: {3, 4} })
+    return "-"
+
+fn main(): void =>
+  var holder: Holder = { bags: { Bag { values: {1} }, Bag { values: {2} } } }
+  println(holder.bags[-1].values.join(holder.appendSeparator()))
+  println(holder.bags.length)
