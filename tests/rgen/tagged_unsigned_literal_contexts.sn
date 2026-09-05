@@ -1,0 +1,13 @@
+fn main(): void =>
+  println(-1u32)
+  println(~1u32)
+  var negated: uint32 = -1u32
+  var inverted: uint32 = ~1u32
+  println(negated)
+  println(inverted)
+  println(-1u)
+  println(~1u)
+  var wide_negated: uint = -1u
+  var wide_inverted: uint = ~1u
+  println(wide_negated)
+  println(wide_inverted)
