@@ -1,0 +1,18 @@
+struct Counter =>
+  value: int
+
+fn main(): void =>
+  var state: Counter = { value: 10 }
+  var depth: int = 0
+  var action: fn(fn(): int): int = fn(callback: fn(): int): int =>
+    var result: int = callback()
+    state.value = result + state.value
+    return state.value
+  var alias: fn(fn(): int): int = action
+  var callback: fn(): int = fn(): int =>
+    depth += 1
+    if depth == 1 =>
+      return alias(fn(): int => 1)
+    return 2
+  println(action(callback))
+  println(state.value)

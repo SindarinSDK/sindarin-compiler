@@ -17,6 +17,15 @@ Owned array cases preserve the tagged distinction between independent mutable
 index assignment remains in the tagged rejection corpus because its unchanged
 C control does not produce an executable.
 
+Owned struct cases cover immutable visibility and lexical shadowing, independent
+per-invocation mutation snapshots shared by callable aliases, whole-value
+reassignment, ordered reentrant callbacks, transitive nested captures, and an
+escaping read-only struct with owned string and array fields. Mutable plain
+value structs use an invocation-local clone; the O2 boundary case verifies
+native-width unsigned wrapping and postfix sequencing in that clone. Mutable
+heap-owning structs and nested mutable struct places remain explicit Rust
+target gaps.
+
 Nested array receiver cases keep the cell on the captured outer array, evaluate
 the receiver index and pushed value once, and release each mutable borrow before
 the closure can be called again. Captured `pop` uses the same callable-owned
