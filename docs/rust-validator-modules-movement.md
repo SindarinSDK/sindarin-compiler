@@ -1,6 +1,6 @@
 # Rust validator extraction movement inventory
 
-Base: `7249e7c1c3ff57c7f8f72abc488cb79754a0404a` (PR #113 pending). This inventory records the behavior-preserving extraction, not feature completion.
+Original movement-comparison base: `7249e7c1c3ff57c7f8f72abc488cb79754a0404a`. PR #113 landed at `3f6d23c0d609a63865ea58f98e81f1951dba816b`; this extraction is now rebased onto that exact `origin/main`. The complete `src` and `templates` trees are byte-identical to pre-rebase extraction head `72cc6e81c6af013b265edeb81b4eac1d4b24b035`, verified by `git diff --exit-code` over those paths. This inventory records the behavior-preserving extraction, not feature completion.
 
 The comparison enumerated every original static function definition by name and compared its complete signature/body bytes against the new private fragments. All 101 original functions remain: 96 bodies compare byte-for-byte. Inlining the new hook calls reconstructs the remaining five original bodies byte-for-byte. Original declarations, scope structs, enums, static validation state and comments move with their owning fragment; include order preserves helper availability. No linked/public symbol is introduced.
 
