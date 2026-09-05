@@ -355,6 +355,14 @@ TEST_CONFIGS = {
     'rust-closure-values-errors': TestConfig(
         'tests/rust/closure-values/errors', '*.sn', True,
         'Rust Closure Value Error Tests'),
+    'rust-concurrency': TestConfig(
+        'tests/rust-concurrency', '*.sn', False, 'Rust Concurrency Tests'),
+    'rust-concurrency-promoted': TestConfig(
+        'tests/rgen/concurrency-promoted', '*.sn', False,
+        'Promoted Rust Concurrency Tests'),
+    'rust-concurrency-errors': TestConfig(
+        'tests/rust-concurrency/errors', '*.sn', True,
+        'Rust Concurrency Error Tests'),
 }
 
 # These tagged files record the Rust backend's former rejection.  Keep them
@@ -534,13 +542,15 @@ class TestRunner:
 
             if stage_error:
                 status, reason, details = ('fail', 'raw fixture staging error', [stage_error])
-            elif test_type in ('rgen', 'rust-closure-values'):
+            elif test_type in ('rgen', 'rust-closure-values', 'rust-concurrency',
+                               'rust-concurrency-promoted'):
                 expected_file = os.path.splitext(test_file)[0] + '.expected.rs'
                 rs_file = exe_file + '.rs'
                 status, reason, details = self._run_rgen_test_internal(
                     source_file, expected_file, rs_file, exe_file
                 )
-            elif test_type in ('rgen-errors', 'rust-closure-values-errors'):
+            elif test_type in ('rgen-errors', 'rust-closure-values-errors',
+                               'rust-concurrency-errors'):
                 expected_file = os.path.splitext(test_file)[0] + '.expected'
                 rs_file = exe_file + '.rs'
                 status, reason, details = self._run_rgen_error_test_internal(
@@ -1625,7 +1635,9 @@ def main():
                         choices=['rgen', 'rgen-errors', 'rust-native-tagged',
                                  'rust-native-extra', 'rust-native-origin',
                                  'rust-native-errors', 'rust-closure-values',
-                                 'rust-closure-values-errors', 'rust-toolchain', 'all'],
+                                 'rust-closure-values-errors', 'rust-concurrency',
+                                 'rust-concurrency-promoted', 'rust-concurrency-errors',
+                                 'rust-toolchain', 'all'],
                        help='Type of tests to run')
     parser.add_argument('--compiler', '-c', help='Path to compiler executable')
     parser.add_argument('--timeout', type=int, default=60,

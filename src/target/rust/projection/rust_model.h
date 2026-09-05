@@ -197,6 +197,8 @@ typedef struct {
     MemoryQualifier param_mem_qualifier;
     bool declared_as_sized_array;
     bool is_parameter;
+    bool is_global;
+    bool known;
 } RustVariableFacts;
 RustVariableFacts rust_variable_facts(const Expr *expr);
 void rust_variable_facts_reset(void);
