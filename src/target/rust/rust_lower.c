@@ -1,3 +1,8 @@
+/* Shared indexed-place lowering is defined below, after the model-wide name
+ * scan, but call lowering also uses it for mutable default-array arguments. */
+static bool rust_collect_place_indices(json_object *model, json_object *place,
+                                       json_object *bindings, size_t *next_id);
+
 /* Included after validation; uses the same private type/model helpers. */
 #include "rust_lower_calls.c"
 #include "rust_lower_closures.c"
@@ -972,10 +977,10 @@ static bool rust_assign_array_join_index_names(
  * for overlapping immutable/mutable borrows.  Record each raw index in
  * root-to-leaf order, then let the place renderer normalize it while holding
  * one short mutable borrow of that projection's owner. */
-static bool rust_collect_member_place_indices(json_object *model,
-                                              json_object *place,
-                                              json_object *bindings,
-                                              size_t *next_id)
+static bool rust_collect_place_indices(json_object *model,
+                                       json_object *place,
+                                       json_object *bindings,
+                                       size_t *next_id)
 {
     if (!place || !json_object_is_type(place, json_type_object)) return true;
 
@@ -986,8 +991,7 @@ static bool rust_collect_member_place_indices(json_object *model,
     {
         json_object *object = NULL;
         if (json_object_object_get_ex(place, "object", &object))
-            return rust_collect_member_place_indices(model, object, bindings,
-                                                     next_id);
+            return rust_collect_place_indices(model, object, bindings, next_id);
         return true;
     }
 
@@ -997,7 +1001,7 @@ static bool rust_collect_member_place_indices(json_object *model,
     if (!json_object_object_get_ex(place, "array", &array) ||
         !json_object_object_get_ex(place, "index", &index))
         return false;
-    if (!rust_collect_member_place_indices(model, array, bindings, next_id))
+    if (!rust_collect_place_indices(model, array, bindings, next_id))
         return false;
 
     char raw_name[80], owner_name[80], index_name[80];
@@ -1066,7 +1070,7 @@ static bool rust_lower_member_assignment_places(json_object *model,
 
     json_object *bindings = json_object_new_array();
     if (!bindings) return false;
-    if (!rust_collect_member_place_indices(model, object, bindings, next_id))
+    if (!rust_collect_place_indices(model, object, bindings, next_id))
     {
         json_object_put(bindings);
         return false;
