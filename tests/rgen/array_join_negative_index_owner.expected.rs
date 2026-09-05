@@ -129,31 +129,20 @@ fn __sn_array_join_0<T: __SnArrayText_0>(array: &[T], separator: &str) -> String
 struct Bag {
     values: Vec<i64>,
 }
+#[derive(Clone, Debug, PartialEq)]
+struct Holder {
+    bags: Vec<Bag>,
+}
 
-impl Bag {
-    fn add(&mut self, value: i64) {
-        ((self).values).push(value);
-    }
-    fn addPair(&mut self, first: i64, second: i64) {
-        (self).add(first);
-        (self).add(second);
-    }
-    fn reverse(&mut self) {
-        ((self).values).reverse();
-    }
-    fn removeMiddle(&mut self) {
-        { let __sn_array_index = __sn_index(((self).values).len(), 1); ((self).values).remove(__sn_array_index) };
-    }
-    fn size(&self) -> i64 {
-        return ((self).values.clone()).len() as i64;
+impl Holder {
+    fn appendSeparator(&mut self) -> String {
+        ((self).bags).push(Bag { values: vec![3, 4] });
+        return "-".to_string();
     }
 }
 
 fn main() {
-    let mut bag: Bag = Bag { values: vec![] };
-    (bag).add(1);
-    (bag).addPair(2, 3);
-    (bag).reverse();
-    (bag).removeMiddle();
-    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("values="); __sn_interpolated.push_str(&__sn_array_to_string_0(&((bag).values))); __sn_interpolated.push_str("; size="); __sn_interpolated.push_str(&format!("{}", (bag).size())); __sn_interpolated });
+    let mut holder: Holder = Holder { bags: vec![Bag { values: vec![1] }, Bag { values: vec![2] }] };
+    println!("{}", { let __sn_join_raw_index_0 = (-1); let __sn_separator_0 = &((holder).appendSeparator()); let __sn_join_index_0 = __sn_index(((holder).bags).len(), __sn_join_raw_index_0); __sn_array_join_0(((((holder).bags)[__sn_join_index_0]).values).as_slice(), __sn_separator_0.as_str()) });
+    println!("{}", ((holder).bags).len() as i64);
 }
