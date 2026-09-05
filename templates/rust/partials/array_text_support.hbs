@@ -13,7 +13,12 @@ macro_rules! {{rust_ident rust_array_integer_macro_name}} {
     )+};
 }
 
-{{rust_ident rust_array_integer_macro_name}}!(i64, i32, u64, u32);
+{{rust_ident rust_array_integer_macro_name}}!(i64, i32, u32);
+
+impl {{rust_ident rust_array_text_trait_name}} for u64 {
+    fn {{rust_ident rust_array_text_method_name}}(&self) -> String { (*self as i64).to_string() }
+    fn {{rust_ident rust_array_join_text_method_name}}(&self) -> String { (*self as i64).to_string() }
+}
 
 impl {{rust_ident rust_array_text_trait_name}} for u8 {
     fn {{rust_ident rust_array_text_method_name}}(&self) -> String { format!("0x{:02X}", self) }

@@ -22,7 +22,8 @@ static bool rust_array_text_element_supported(json_object *type)
                rust_array_text_element_supported(element_type);
     }
     return strcmp(kind, "int") == 0 || strcmp(kind, "long") == 0 ||
-           strcmp(kind, "double") == 0 || strcmp(kind, "bool") == 0 ||
+           strcmp(kind, "uint") == 0 || strcmp(kind, "double") == 0 ||
+           strcmp(kind, "bool") == 0 ||
            strcmp(kind, "char") == 0 || strcmp(kind, "byte") == 0 ||
            strcmp(kind, "string") == 0;
 }

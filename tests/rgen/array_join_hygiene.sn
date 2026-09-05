@@ -10,3 +10,7 @@ fn main(): void =>
   println(__sn_array_0.join(__sn_separator_0))
   println(__sn_array_join())
   println(__sn_array_join_0())
+  var negative: int = -1
+  var unsigned: uint[] = {0u, 42u, 9223372036854775807u, negative.toUint()}
+  println(unsigned.join(","))
+  println(unsigned)
