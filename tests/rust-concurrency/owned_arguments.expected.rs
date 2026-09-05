@@ -21,6 +21,22 @@ impl<T> Drop for __sn_concurrency0_Join<T> {
     }
 }
 
+// Arc owns capture identity. Reads clone under the lock and release it before
+// evaluating the next source operand; mutable operations borrow the same cell.
+struct __sn_concurrency0_Capture<T>(std::sync::Mutex<T>, std::sync::Mutex<()>);
+impl<T> __sn_concurrency0_Capture<T> {
+    fn new(value: T) -> Self { Self(std::sync::Mutex::new(value), std::sync::Mutex::new(())) }
+    fn lock(&self) -> std::sync::LockResult<std::sync::MutexGuard<'_, T>> { self.0.lock() }
+    fn guard(&self) -> std::sync::MutexGuard<'_, ()> { self.1.lock().unwrap_or_else(|e| e.into_inner()) }
+    fn borrow_mut(&self) -> std::sync::MutexGuard<'_, T> { self.0.lock().unwrap_or_else(|e| e.into_inner()) }
+    fn set(&self, value: T) { *self.borrow_mut() = value; }
+    fn replace(&self, value: T) -> T { std::mem::replace(&mut *self.borrow_mut(), value) }
+}
+impl<T: Clone> __sn_concurrency0_Capture<T> {
+    fn borrow(&self) -> T { self.borrow_mut().clone() }
+    fn get(&self) -> T { self.borrow() }
+}
+
 fn __sn_index(length: usize, index: i64) -> usize {
     let resolved = if index < 0 { length as i64 + index } else { index };
     if resolved < 0 || resolved >= length as i64 {

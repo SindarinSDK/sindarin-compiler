@@ -24,10 +24,13 @@ static char *rust_closure_type(json_object *type)
         free(part);
     }
     char *part = rust_type(ret);
-    char *grown = realloc(result, length + strlen(part) + 7);
+    json_object *thread_ownership = NULL;
+    const char *bounds = json_object_object_get_ex(type, "rust_thread_ownership", &thread_ownership) &&
+        json_object_get_boolean(thread_ownership) ? " + Send + Sync" : "";
+    char *grown = realloc(result, length + strlen(part) + strlen(bounds) + 7);
     if (!grown) { free(part); free(result); return NULL; }
     result = grown;
-    sprintf(result + length, ") -> %s>", part);
+    sprintf(result + length, ") -> %s%s>", part, bounds);
     free(part);
     return result;
 }
