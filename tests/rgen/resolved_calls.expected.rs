@@ -23,6 +23,34 @@ fn __sn_array_size(size: i64) -> usize {
     size as usize
 }
 
+fn __sn_runtime_error_0(message: &'static str) -> ! {
+    eprintln!("{}", message);
+    std::process::exit(1);
+}
+
+fn __sn_checked_0<T>(value: Option<T>, message: &'static str) -> T {
+    match value {
+        Some(value) => value,
+        None => __sn_runtime_error_0(message),
+    }
+}
+
+fn __sn_checked_div_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked_0(value, if divisor_is_zero {
+        "panic: Division by zero"
+    } else {
+        "Runtime error: integer overflow in division"
+    })
+}
+
+fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked_0(value, if divisor_is_zero {
+        "panic: Modulo by zero"
+    } else {
+        "Runtime error: integer overflow in modulo"
+    })
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 struct Point {
     value: i64,
@@ -88,28 +116,28 @@ impl CallValues {
 }
 
 fn markedPoint(calls: &mut i64, order: &mut i64, marker: i64, value: i64) -> Point {
-    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
-    (*(order) = ((*(order)).checked_mul(10).expect("checked arithmetic failed")).checked_add(marker).expect("checked arithmetic failed"));
+    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
+    (*(order) = __sn_checked_0((__sn_checked_0((*(order)).checked_mul(10), "Runtime error: integer overflow in multiplication")).checked_add(marker), "Runtime error: integer overflow in addition"));
     return Point { value: value };
 }
 
 fn markedOwnedPoint(calls: &mut i64, order: &mut i64, marker: i64, value: i64) -> OwnedPoint {
-    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
-    (*(order) = ((*(order)).checked_mul(10).expect("checked arithmetic failed")).checked_add(marker).expect("checked arithmetic failed"));
+    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
+    (*(order) = __sn_checked_0((__sn_checked_0((*(order)).checked_mul(10), "Runtime error: integer overflow in multiplication")).checked_add(marker), "Runtime error: integer overflow in addition"));
     return OwnedPoint { label: { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("value-"); __sn_interpolated.push_str(&format!("{}", value)); __sn_interpolated }, values: vec![value] };
 }
 
 fn markedPoints(calls: &mut i64, order: &mut i64, marker: i64, value: i64) -> Vec<Point> {
-    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
-    (*(order) = ((*(order)).checked_mul(10).expect("checked arithmetic failed")).checked_add(marker).expect("checked arithmetic failed"));
+    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
+    (*(order) = __sn_checked_0((__sn_checked_0((*(order)).checked_mul(10), "Runtime error: integer overflow in multiplication")).checked_add(marker), "Runtime error: integer overflow in addition"));
     let mut points: Vec<Point> = vec![];
     (points).push(Point { value: value });
     return points;
 }
 
 fn markedIndex(calls: &mut i64, order: &mut i64, marker: i64, value: i64) -> i64 {
-    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
-    (*(order) = ((*(order)).checked_mul(10).expect("checked arithmetic failed")).checked_add(marker).expect("checked arithmetic failed"));
+    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
+    (*(order) = __sn_checked_0((__sn_checked_0((*(order)).checked_mul(10), "Runtime error: integer overflow in multiplication")).checked_add(marker), "Runtime error: integer overflow in addition"));
     return value;
 }
 
@@ -168,7 +196,7 @@ fn main() {
     let mut staticNumbers: Vec<i64> = CallValues::makeNumbers();
     let mut instanceNumbers: Vec<i64> = (callValues).makeNumbersAgain();
     println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", initialized)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", argument)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", returned)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", memberReceiver)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", indexedReceiver)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", explicitNe)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", derivedGe)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", derivedLe)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", matched)); __sn_interpolated });
-    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", directOrder)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", swappedOrder)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", ownedEqual)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", ownedSwapped)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", nestedReceiver)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", negativeNestedReceiver)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", calls)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", order)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", (__sn_resolved_arg_0).checked_add(__sn_resolved_receiver_0).expect("checked arithmetic failed"))); __sn_interpolated });
+    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", directOrder)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", swappedOrder)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", ownedEqual)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", ownedSwapped)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", nestedReceiver)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", negativeNestedReceiver)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", calls)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", order)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", __sn_checked_0((__sn_resolved_arg_0).checked_add(__sn_resolved_receiver_0), "Runtime error: integer overflow in addition"))); __sn_interpolated });
     println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", (ownedLeft).label)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", ((ownedLeft).values).len() as i64)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", ((ownedSame).values).len() as i64)); __sn_interpolated });
     println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", staticMatch)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", staticLabel)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", instanceLabel)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", sourceLabel)); __sn_interpolated });
     println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", (staticNumbers).len() as i64)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", (instanceNumbers).len() as i64)); __sn_interpolated });

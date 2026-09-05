@@ -1,0 +1,9 @@
+fn bump(value: byte as ref): byte =>
+  value++
+  return value
+
+fn mutate(value: byte): byte =>
+  return value += bump(value)
+
+fn main(): void =>
+  println(mutate(1b))

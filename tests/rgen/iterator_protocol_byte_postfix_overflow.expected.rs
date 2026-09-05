@@ -53,8 +53,8 @@ fn main() {
     let mut __sn_iter_0 = (source).iter();
     while __sn_iter_0.hasNext() {
         let mut value = __sn_iter_0.next();
-        let mut previous: u8 = { let __sn_place = &mut (value); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
-        { let __sn_place = &mut (previous); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
+        let mut previous: u8 = { let __sn_byte_place = &mut (value); let __sn_byte_previous = *__sn_byte_place; *__sn_byte_place = __sn_byte_previous.wrapping_add(1); __sn_byte_previous };
+        { let __sn_byte_place = &mut (previous); let __sn_byte_previous = *__sn_byte_place; *__sn_byte_place = __sn_byte_previous.wrapping_add(1); __sn_byte_previous };
     }
 }
 }

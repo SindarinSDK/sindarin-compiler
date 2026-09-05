@@ -29,12 +29,12 @@ fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
 }
 
 fn fail(value: &mut u64) {
-    { let __sn_place = &mut (*(value)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
+    { let __sn_byte_place = &mut (*(value)); let __sn_byte_previous = *__sn_byte_place; *__sn_byte_place = __sn_byte_previous.wrapping_add(1); __sn_byte_previous };
 }
 
 fn main() {
     let mut half: u64 = 9223372036854775807;
-    let mut max_minus_one: u64 = __sn_checked_0((half).checked_mul(2), "Runtime error: integer overflow in multiplication");
-    let mut max: u64 = __sn_checked_0((max_minus_one).checked_add(1), "Runtime error: integer overflow in addition");
+    let mut max_minus_one: u64 = { let (__sn_byte_left, __sn_byte_right): (u64, u64) = (half, 2); __sn_byte_left.wrapping_mul(__sn_byte_right) };
+    let mut max: u64 = { let (__sn_byte_left, __sn_byte_right): (u64, u64) = (max_minus_one, 1); __sn_byte_left.wrapping_add(__sn_byte_right) };
     fail(&mut (max));
 }

@@ -30,7 +30,7 @@ fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
 
 fn fail(value: &mut u8) {
     let mut one: u8 = 1;
-    { let __sn_rhs = one; let __sn_place = &mut (*(value)); let __sn_next = __sn_checked_0((*__sn_place).checked_sub(__sn_rhs), "Runtime error: integer overflow in subtraction"); *__sn_place = __sn_next; __sn_next };
+    { let (__sn_byte_rhs, __sn_byte_place): (u8, &mut u8) = (one, &mut (*(value))); let __sn_byte_next = (*__sn_byte_place).wrapping_sub(__sn_byte_rhs); *__sn_byte_place = __sn_byte_next; __sn_byte_next };
 }
 
 fn main() {
