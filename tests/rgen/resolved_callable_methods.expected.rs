@@ -1,5 +1,33 @@
 #![allow(dead_code, unused_mut, unused_variables, unused_parens)]
 
+fn __sn_runtime_error_0(message: &'static str) -> ! {
+    eprintln!("{}", message);
+    std::process::exit(1);
+}
+
+fn __sn_checked_0<T>(value: Option<T>, message: &'static str) -> T {
+    match value {
+        Some(value) => value,
+        None => __sn_runtime_error_0(message),
+    }
+}
+
+fn __sn_checked_div_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked_0(value, if divisor_is_zero {
+        "panic: Division by zero"
+    } else {
+        "Runtime error: integer overflow in division"
+    })
+}
+
+fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked_0(value, if divisor_is_zero {
+        "panic: Modulo by zero"
+    } else {
+        "Runtime error: integer overflow in modulo"
+    })
+}
+
 struct __SnClosure<F: ?Sized>(std::rc::Rc<F>);
 impl<F: ?Sized> Clone for __SnClosure<F> {
     fn clone(&self) -> Self { Self(self.0.clone()) }
@@ -25,30 +53,30 @@ impl Dispatcher {
         return (left.clone() == right.clone());
     }
     fn make(offset: i64) -> __SnClosure<dyn Fn(i64) -> i64> {
-        return { let (offset, ) = (offset.clone(), ); self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |value: i64| -> i64 { (offset.clone()).checked_add(value).expect("checked arithmetic failed")})) }
+        return { let (offset, ) = (offset.clone(), ); self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |value: i64| -> i64 { __sn_checked_0((offset.clone()).checked_add(value), "Runtime error: integer overflow in addition")})) }
 ;
     }
     fn composeStatic(callback: __SnClosure<dyn Fn(i64) -> i64>, offset: i64) -> __SnClosure<dyn Fn(i64) -> i64> {
-        return { let (callback, offset, ) = (callback.clone(), offset.clone(), ); self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |value: i64| -> i64 { (((callback.clone()).0)(value.clone())).checked_add(offset.clone()).expect("checked arithmetic failed")})) }
+        return { let (callback, offset, ) = (callback.clone(), offset.clone(), ); self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |value: i64| -> i64 { __sn_checked_0((((callback.clone()).0)(value.clone())).checked_add(offset.clone()), "Runtime error: integer overflow in addition")})) }
 ;
     }
     fn run(&self, callback: __SnClosure<dyn Fn(i64) -> i64>, value: i64) -> i64 {
-        return (((callback.clone()).0)(value.clone())).checked_add((self).bias).expect("checked arithmetic failed");
+        return __sn_checked_0((((callback.clone()).0)(value.clone())).checked_add((self).bias), "Runtime error: integer overflow in addition");
     }
     fn compose(&self, callback: __SnClosure<dyn Fn(i64) -> i64>) -> __SnClosure<dyn Fn(i64) -> i64> {
         let mut bias: i64 = (self).bias;
-        return { let (callback, bias, ) = (callback.clone(), bias.clone(), ); self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |value: i64| -> i64 { (((callback.clone()).0)(value.clone())).checked_add(bias.clone()).expect("checked arithmetic failed")})) }
+        return { let (callback, bias, ) = (callback.clone(), bias.clone(), ); self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |value: i64| -> i64 { __sn_checked_0((((callback.clone()).0)(value.clone())).checked_add(bias.clone()), "Runtime error: integer overflow in addition")})) }
 ;
     }
 }
 
 fn markedValue(order: &mut i64, marker: i64, value: i64) -> i64 {
-    (*(order) = ((*(order)).checked_mul(10).expect("checked arithmetic failed")).checked_add(marker).expect("checked arithmetic failed"));
+    (*(order) = __sn_checked_0((__sn_checked_0((*(order)).checked_mul(10), "Runtime error: integer overflow in multiplication")).checked_add(marker), "Runtime error: integer overflow in addition"));
     return value;
 }
 
 fn makeDispatcher(order: &mut i64, marker: i64, callback: __SnClosure<dyn Fn(i64) -> i64>) -> Dispatcher {
-    (*(order) = ((*(order)).checked_mul(10).expect("checked arithmetic failed")).checked_add(marker).expect("checked arithmetic failed"));
+    (*(order) = __sn_checked_0((__sn_checked_0((*(order)).checked_mul(10), "Runtime error: integer overflow in multiplication")).checked_add(marker), "Runtime error: integer overflow in addition"));
     ((callback.clone()).0)(marker.clone());
     return Dispatcher { bias: marker };
 }
@@ -59,7 +87,7 @@ fn returnComposed(dispatcher: Dispatcher, callback: __SnClosure<dyn Fn(i64) -> i
 
 fn main() {
     let mut order: i64 = 0;
-    let mut source: __SnClosure<dyn Fn(i64) -> i64> = { self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |value: i64| -> i64 { (value).checked_add(1).expect("checked arithmetic failed")})) }
+    let mut source: __SnClosure<dyn Fn(i64) -> i64> = { self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |value: i64| -> i64 { __sn_checked_0((value).checked_add(1), "Runtime error: integer overflow in addition")})) }
 ;
     let mut dispatcher: Dispatcher = Dispatcher { bias: 10 };
     let mut staticApplied: i64 = Dispatcher::apply(source.clone(), 2);
