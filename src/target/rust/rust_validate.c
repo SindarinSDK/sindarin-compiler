@@ -1159,6 +1159,31 @@ static bool rust_validate_expr(json_object *expr)
     json_object *child = NULL;
     if (!kind) return false;
 
+    if (strcmp(kind, "compound_assign") == 0) {
+        json_object *place = NULL, *value = NULL;
+        if (json_object_object_get_ex(expr, "target", &place) && json_boolean_property(place, "rust_cell"))
+            return json_object_object_get_ex(expr, "value", &value) &&
+                rust_validate_expr(place) && rust_validate_expr(value);
+    }
+    if (strcmp(kind, "increment") == 0 || strcmp(kind, "decrement") == 0) {
+        json_object *place = NULL;
+        if (json_object_object_get_ex(expr, "operand", &place) && json_boolean_property(place, "rust_cell"))
+            return rust_validate_expr(place);
+    }
+    if (strcmp(kind, "thread_spawn") == 0) {
+        if (!json_object_object_get_ex(expr, "call", &child)) return false;
+        json_object *args = NULL;
+        json_object_object_get_ex(child, "args", &args);
+        for (size_t i = 0; args && i < json_object_array_length(args); i++)
+            json_object_object_add(json_object_array_get_idx(args, i),
+                "rust_thread_captured_argument", json_object_new_boolean(true));
+        return rust_validate_expr(child);
+    }
+    if (strcmp(kind, "thread_sync") == 0 || strcmp(kind, "thread_detach") == 0)
+        return json_object_object_get_ex(expr, "handle", &child) && rust_validate_expr(child);
+    if (strcmp(kind, "sync_list") == 0)
+        return json_object_object_get_ex(expr, "elements", &child) && rust_validate_expr_array(child);
+
     if (json_boolean_property(expr, "rust_shared_cell") &&
         !json_boolean_property(expr, "rust_shared_owned_cell") &&
         (strcmp(kind, "compound_assign") == 0 || strcmp(kind, "increment") == 0 ||
@@ -2625,6 +2650,11 @@ static bool rust_validate_stmt(json_object *stmt)
     const char *kind = json_object_get_string(kind_obj);
     json_object *child = NULL;
     if (!kind) return false;
+    if (strcmp(kind, "lock") == 0) {
+        json_object *body = NULL;
+        return json_object_object_get_ex(stmt, "lock_expr", &child) && rust_validate_expr(child) &&
+            json_object_object_get_ex(stmt, "body", &body) && rust_validate_block(body);
+    }
     if (strcmp(kind, "break") == 0 || strcmp(kind, "continue") == 0) return true;
     if (strcmp(kind, "return") == 0)
         return !json_object_object_get_ex(stmt, "value", &child) || rust_validate_expr(child);
@@ -2690,9 +2720,7 @@ static bool rust_validate_model_impl(json_object *model,
                                      const RustNativePlan *native_plan)
 {
     const char *unsupported = NULL;
-    if (!array_is_empty(model, "globals")) unsupported = "global variables";
-    else if (!rust_validate_closures(model)) return false;
-    else if (!array_is_empty(model, "threads")) unsupported = "threads";
+    if (!rust_validate_closures(model)) return false;
     else if (!array_is_empty(model, "type_decls")) unsupported = "type declarations";
 
     json_object *pragmas = NULL;
@@ -2724,6 +2752,19 @@ static bool rust_validate_model_impl(json_object *model,
 
     if (!rust_validate_structs(model) ||
         !rust_validate_struct_methods(model)) return false;
+
+    json_object *globals = NULL;
+    if (json_object_object_get_ex(model, "globals", &globals)) {
+        for (size_t i = 0; i < json_object_array_length(globals); i++) {
+            json_object *global = json_object_array_get_idx(globals, i), *type = NULL, *initializer = NULL;
+            if (!json_object_object_get_ex(global, "type", &type) || !rust_type_supported(type) ||
+                (json_object_object_get_ex(global, "initializer", &initializer) &&
+                 !rust_validate_expr(initializer))) {
+                fprintf(stderr, "Error: Rust target does not support this global initializer yet\n");
+                return false;
+            }
+        }
+    }
 
     json_object *functions = NULL;
     if (json_object_object_get_ex(model, "functions", &functions))

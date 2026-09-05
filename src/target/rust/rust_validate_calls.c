@@ -65,6 +65,9 @@ static bool rust_shared_default_array_argument(json_object *arg)
     return json_object_is_type(arg, json_type_object) &&
         json_object_object_get_ex(arg, "type", &type) &&
         json_string_property_equals(type, "kind", "array") &&
+        /* Spawn arguments use the existing caller-side capture lowering;
+         * they are not ordinary default-array call-site borrows. */
+        !json_boolean_property(arg, "rust_thread_captured_argument") &&
         !rust_owned_default_array_temporary(arg) &&
         !json_boolean_property(arg, "is_ref_arg") &&
         !json_boolean_property(arg, "is_borrow_tmp") &&

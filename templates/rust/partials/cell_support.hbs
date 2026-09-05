@@ -1,0 +1,9 @@
+struct {{rust_ident rust_cell_type}}<T> {
+    value: std::sync::Mutex<T>,
+    gate: std::sync::Mutex<()>,
+}
+impl<T> {{rust_ident rust_cell_type}}<T> {
+    fn new(value: T) -> Self { Self { value: std::sync::Mutex::new(value), gate: std::sync::Mutex::new(()) } }
+    fn lock(&self) -> std::sync::LockResult<std::sync::MutexGuard<'_, T>> { self.value.lock() }
+    fn guard(&self) -> std::sync::MutexGuard<'_, ()> { self.gate.lock().unwrap_or_else(|e| e.into_inner()) }
+}

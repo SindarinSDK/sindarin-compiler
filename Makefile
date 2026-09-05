@@ -12,7 +12,7 @@
 #------------------------------------------------------------------------------
 .PHONY: all build rebuild run clean test help
 .PHONY: test-unit test-cgen test-rgen test-mgen test-integration test-integration-errors
-.PHONY: test-explore test-explore-errors test-rust-closures test-rust-native-tagged test-rust-native-extra test-rust-native-origin test-rust-native-errors test-rust-toolchain
+.PHONY: test-explore test-explore-errors test-rust-closures test-rust-concurrency test-rust-native-tagged test-rust-native-extra test-rust-native-origin test-rust-native-errors test-rust-toolchain
 .PHONY: configure install package setup hooks
 
 #------------------------------------------------------------------------------
@@ -212,6 +212,11 @@ test-rust-closures: build
 	@$(PYTHON) scripts/run_rust_tests.py rust-closure-values --verbose
 	@$(PYTHON) scripts/run_rust_tests.py rust-closure-values-errors --verbose
 
+test-rust-concurrency: build
+	@$(PYTHON) scripts/run_rust_tests.py rust-concurrency --verbose
+	@$(PYTHON) scripts/run_rust_tests.py rust-concurrency-promoted --verbose
+	@$(PYTHON) scripts/run_rust_tests.py rust-concurrency-errors --verbose
+
 test-rust-toolchain: build
 	@$(PYTHON) scripts/run_rust_tests.py rust-toolchain --verbose
 
@@ -331,6 +336,7 @@ help:
 	@echo "  make test-explore           Run exploratory tests"
 	@echo "  make test-explore-errors    Run exploratory error tests"
 	@echo "  make test-rust-closures     Run promoted Rust closure-value tests"
+	@echo "  make test-rust-concurrency  Run Rust concurrency and promoted concurrency tests"
 	@echo "  make test-rust-toolchain    Run Rust toolchain and shared artifact lifecycle tests"
 	@echo ""
 	@echo "Distribution Targets:"

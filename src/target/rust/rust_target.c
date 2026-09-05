@@ -144,6 +144,7 @@ static bool rust_check_toolchain(const CompilerOptions *options)
 /* Private fragments share this translation unit and retain static ownership. */
 #include "rust_validate.c"
 #include "rust_lower.c"
+#include "rust_concurrency.c"
 
 static bool rust_emit(CompilerOptions *options, Module *module,
                       TargetEmitMode mode, GeneratedFileSet *result)
@@ -217,6 +218,8 @@ static bool rust_emit(CompilerOptions *options, Module *module,
     if (rust_model_uses_string_format_helpers(model))
         json_object_object_add(model, "rust_uses_string_format_helpers",
                                json_object_new_boolean(true));
+
+    rust_lower_concurrency(model);
 
     char template_dir[1024];
     snprintf(template_dir, sizeof(template_dir), "%s/templates/rust", options->compiler_dir);

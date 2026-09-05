@@ -656,6 +656,16 @@ static bool mutation_target_is_sync(Expr *target)
     return base && rust_variable_facts(base).sync_modifier == SYNC_ATOMIC;
 }
 
+/* The tagged postfix renderer uses the live model-generation symbol lookup
+ * for its returned value. Keep that convention separate from storage facts:
+ * local scopes may already have been popped, while globals remain visible. */
+static bool rust_tagged_sync_postfix(Expr *operand, SymbolTable *symbol_table)
+{
+    if (!operand || operand->type != EXPR_VARIABLE || !symbol_table) return false;
+    Symbol *sym = symbol_table_lookup_symbol(symbol_table, operand->as.variable.name);
+    return sym && sym->sync_mod == SYNC_ATOMIC;
+}
+
 static const char *mutation_sync_variable_name(Expr *target)
 {
     Expr *base = mutation_base_variable(target);
@@ -1104,6 +1114,15 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
             if (vname)
                 json_object_object_add(obj, "name", json_object_new_string(vname));
 
+            if ((rust_variable_facts(expr).is_global ||
+                 (!rust_variable_facts(expr).known &&
+                  expr->as.variable.declaration_scope_depth <= 1)) &&
+                expr->expr_type && expr->expr_type->kind != TYPE_FUNCTION) {
+                json_object_object_add(obj, "rust_cell", json_object_new_boolean(true));
+                json_object_object_add(obj, "rust_global", json_object_new_boolean(true));
+            }
+            if (rust_variable_facts(expr).sync_modifier == SYNC_ATOMIC)
+                json_object_object_add(obj, "rust_cell", json_object_new_boolean(true));
             /* Retrieve the name we stored (may be prefixed) */
             json_object *name_obj = NULL;
             json_object_object_get_ex(obj, "name", &name_obj);
@@ -1144,6 +1163,11 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
 
         case EXPR_ASSIGN:
         {
+            if (rust_variable_facts(expr).is_global)
+                json_object_object_add(obj, "rust_global", json_object_new_boolean(true));
+            if (rust_variable_facts(expr).is_global ||
+                rust_variable_facts(expr).sync_modifier == SYNC_ATOMIC)
+                json_object_object_add(obj, "rust_cell_target", json_object_new_boolean(true));
             json_object_object_add(obj, "kind", json_object_new_string("assign"));
             const char *aname = expr->as.assign.name.start;
             /* Prefix module-level variable assignments in namespaced imports.
@@ -3233,6 +3257,8 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
         case EXPR_INCREMENT:
         {
             json_object_object_add(obj, "kind", json_object_new_string("increment"));
+            json_object_object_add(obj, "rust_tagged_sync_postfix",
+                json_object_new_boolean(rust_tagged_sync_postfix(expr->as.operand, symbol_table)));
             json_object_object_add(obj, "mutation_op", json_object_new_string("add"));
             json_object_object_add(obj, "mutation_place",
                 json_object_new_string(mutation_place_kind(expr->as.operand)));
@@ -3272,6 +3298,8 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
         case EXPR_DECREMENT:
         {
             json_object_object_add(obj, "kind", json_object_new_string("decrement"));
+            json_object_object_add(obj, "rust_tagged_sync_postfix",
+                json_object_new_boolean(rust_tagged_sync_postfix(expr->as.operand, symbol_table)));
             json_object_object_add(obj, "mutation_op", json_object_new_string("subtract"));
             json_object_object_add(obj, "mutation_place",
                 json_object_new_string(mutation_place_kind(expr->as.operand)));
