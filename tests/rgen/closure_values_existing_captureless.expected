@@ -1,0 +1,29 @@
+Test pure lambdas (no capture):
+
+Test 1 - Arithmetic lambda:
+  add(10, 5) = 15
+  multiply(10, 5) = 50
+  subtract(10, 5) = 5
+
+Test 2 - Conditional lambda:
+  max(10, 20) = 20
+  min(10, 20) = 10
+
+Test 3 - Boolean lambda:
+  is_even(4) = true
+  is_even(7) = false
+  is_positive(5) = true
+  is_positive(-3) = false
+
+Test 4 - String lambda:
+  Hello, World!
+  Hello, Sn!
+
+Test 5 - Double lambda:
+  half(10.0) = 5.00000
+  square(5.0) = 25.00000
+
+Test 6 - Lambda composition:
+  double(increment(5)) = 12
+
+All pure lambda tests passed!

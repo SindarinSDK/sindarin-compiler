@@ -1,0 +1,19 @@
+struct Holder =>
+  action: fn(int): int
+
+// These declaration/parameter-return edges expose missing wrapping/retain in
+// current C. Rust ownership is covered here; docs track the required C repair.
+fn increment(x: int): int => x + 1
+fn identity(action: fn(int): int): fn(int): int => action
+fn main(): void =>
+  var named: fn(int): int = increment
+  var alias: fn(int): int = named
+  var returned: fn(int): int = identity(alias)
+  named = fn(x: int): int => x + 100
+  print($"{alias(1)}:{returned(2)}:{named(3)}\n")
+  var holder: Holder = {action: alias}
+  holder.action = returned
+  print($"{holder.action(4)}:{alias(5)}:{returned(6)}\n")
+  var actions: (fn(int): int)[] = {fn(x: int): int => x}
+  actions[0] = returned
+  print($"{actions[0](7)}:{returned(8)}\n")

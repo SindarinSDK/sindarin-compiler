@@ -1,0 +1,7 @@
+struct Holder =>
+  action: fn(): int
+fn factory(): Holder =>
+  var result: Holder = {action: fn(): int => 7}
+  return result
+fn main(): void =>
+  println(factory().action())

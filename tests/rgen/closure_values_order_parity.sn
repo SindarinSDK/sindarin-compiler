@@ -1,0 +1,32 @@
+struct Holder =>
+  action: fn(int, int): int
+
+fn combine(a: int, b: int): int => a * 10 + b
+fn argument(value: int): int =>
+  print($"arg{value}\n")
+  return value
+fn arraySource(): (fn(int, int): int)[] =>
+  print("array\n")
+  var callbacks: (fn(int, int): int)[] = {combine}
+  return callbacks
+fn fieldSource(): Holder =>
+  print("field\n")
+  var holder: Holder = {action: fn(a: int, b: int): int => combine(a, b)}
+  return holder
+fn index(): int =>
+  print("index\n")
+  return 0
+fn recursive(n: int): int =>
+  if n < 2 =>
+    return 1
+  return n * recursive(n - 1)
+fn main(): void =>
+  var selected: int = index()
+  print($"{arraySource()[selected](argument(1), argument(2))}\n")
+  var holder: Holder = fieldSource()
+  print($"{holder.action(argument(3), argument(4))}\n")
+  var factorial: fn(int): int = fn(x: int): int => x
+  factorial = recursive
+  var copy: fn(int): int = fn(x: int): int => x
+  copy = factorial
+  print($"{copy(5)}:{factorial(4)}\n")

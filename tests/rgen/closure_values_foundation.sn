@@ -1,0 +1,60 @@
+struct Holder =>
+  action: fn(int): int
+
+struct Payload =>
+  text: str
+  values: int[]
+
+fn plusOne(x: int): int => x + 1
+fn apply(action: fn(int): int, x: int): int => action(x)
+fn identity(action: fn(int): int): fn(int): int =>
+  return fn(x: int): int => action(x)
+fn factory(offset: int): fn(int): int =>
+  return fn(x: int): int => x + offset
+
+fn owned(): fn(): str =>
+  var text: str = "snapshot"
+  var values: int[] = {7, 8}
+  var payload: Payload = {text: "owned", values: values}
+  var callback: fn(int): int = factory(30)
+  return fn(): str => $"{text}:{values[0]}:{payload.text}:{callback(2)}"
+
+fn main(): void =>
+  var add: fn(int, int): int = fn(a: int, b: int): int => a + b
+  print($"{add(2, 3)}\n")
+  var named: fn(int): int = fn(x: int): int => x
+  named = plusOne
+  var alias: fn(int): int = identity(named)
+  print($"{apply(alias, 4)}:{named(5)}\n")
+  named = factory(100)
+  print($"{alias(5)}:{named(5)}\n")
+  var outer: int = 10
+  var first: fn(int): int = fn(x: int): int => outer + x
+  var sibling: fn(int): int = fn(x: int): int => outer - x
+  outer = 50
+  print($"{first(1)}:{sibling(1)}:{outer}\n")
+  var h: Holder = {action: factory(10)}
+  var copied: Holder = h
+  h.action = factory(100)
+  print($"{copied.action(2)}:{h.action(2)}\n")
+  var callbacks: (fn(int): int)[] = {plusOne, first, factory(20)}
+  var arrays: (fn(int): int)[] = callbacks
+  callbacks = {factory(100)}
+  for action in arrays =>
+    print($"{action(3)}\n")
+    action = plusOne
+    print($"{action(4)}\n")
+  print($"{callbacks[0](1)}:{arrays[0](1)}\n")
+  var build: fn(int): fn(int): fn(int): int = fn(a: int): fn(int): fn(int): int =>
+    return fn(b: int): fn(int): int =>
+      return fn(c: int): int => outer + a + b + c
+  outer = 99
+  var middle: fn(int): fn(int): int = build(1)
+  var inner: fn(int): int = middle(2)
+  print($"{inner(3)}\n")
+  var other: fn(int): int = factory(200)
+  print($"{other(1)}:{first(1)}\n")
+  var producer: fn(): str = owned()
+  var producerCopy: fn(): str = fn(): str => "unused"
+  producerCopy = producer
+  print($"{producer()}:{producerCopy()}\n")

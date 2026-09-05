@@ -1,0 +1,38 @@
+fn main(): void =>
+  var i: int = 10
+  var l: long = 11l
+  var i32: int32 = 12i32
+  var b: byte = 13b
+  var u32: uint32 = 14u32
+  var u: uint = 15u
+  var f: float = 1.5f
+  var d: double = 2.5
+  var yes: bool = true
+  var letter: char = 'Q'
+  var fi: fn(int): int = fn(x: int): int => i + x
+  var fl: fn(long): long = fn(x: long): long => l + x
+  var fi32: fn(int32): int32 = fn(x: int32): int32 => i32 + x
+  var fb: fn(byte): byte = fn(x: byte): byte => b + x
+  var fu32: fn(uint32): uint32 = fn(x: uint32): uint32 => u32 + x
+  var fu: fn(uint): uint = fn(x: uint): uint => u + x
+  var ff: fn(float): float = fn(x: float): float => f + x
+  var fd: fn(double): double = fn(x: double): double => d + x
+  var fy: fn(bool): bool = fn(x: bool): bool => yes && x
+  var fc: fn(char): char = fn(x: char): char => letter
+  i = 100
+  l = 100l
+  i32 = 100i32
+  b = 100b
+  u32 = 100u32
+  u = 100u
+  f = 100.0f
+  d = 100.0
+  yes = false
+  letter = 'Z'
+  print($"{fi(1)}:{fl(1l)}:{fi32(1i32)}:{fb(1b)}:{fu32(1u32)}:{fu(1u)}\n")
+  print($"{ff(0.5f)}:{fd(0.5)}:{fy(true)}:{fc('X')}\n")
+  var many: fn(int, long, int32, byte, uint32, uint, float, double, bool, char): bool = fn(a: int, z: long, c: int32, e: byte, g: uint32, h: uint, j: float, k: double, m: bool, n: char): bool => a == 1 && z == 2l && c == 3i32 && e == 4b && g == 5u32 && h == 6u && j == 7.0f && k == 8.0 && m && n == 'N'
+  print($"{many(1, 2l, 3i32, 4b, 5u32, 6u, 7.0f, 8.0, true, 'N')}\n")
+  var empty: fn(): void = fn(): void =>
+    print("void\n")
+  empty()

@@ -1,35 +1,505 @@
-/* Included by rust_validate.c. Keep the model-wide gate before threads,
- * declarations, structs and callable validation. No closure representation is
- * selected here; all hooks preserve the old gates/fallbacks exactly. */
-static bool rust_validate_closures(json_object *model)
+/* Private closure validation. The first family deliberately admits only owned
+ * immutable snapshots. Mutable places, recursive self and borrowed captures
+ * remain explicit parity work; none may fall through to implicit Rust capture. */
+static json_object *rust_closure_property(json_object *node, const char *key)
 {
-    return array_is_empty(model, "lambdas");
+    json_object *value = NULL;
+    if (node) json_object_object_get_ex(node, key, &value);
+    return value;
+}
+
+static size_t rust_closure_length(json_object *array)
+{
+    return array && json_object_is_type(array, json_type_array)
+        ? json_object_array_length(array) : 0;
+}
+
+static bool rust_closure_error(const char *reason)
+{
+    fprintf(stderr, "Error: Rust target does not support %s yet\n", reason);
+    rust_validation_reported_error = true;
+    return false;
+}
+
+static bool rust_closure_owned_type(json_object *type)
+{
+    if (!rust_type_supported(type)) return false;
+    if (json_string_property_equals(type, "kind", "struct"))
+        return rust_auto_copy_plain_value_struct_type(type, NULL);
+    if (json_string_property_equals(type, "kind", "array"))
+        return rust_closure_owned_type(rust_closure_property(type, "element_type"));
+    return !json_string_property_equals(type, "kind", "void");
 }
 
 static bool rust_closure_type_supported(json_object *type)
 {
-    (void)type;
+    if (!json_string_property_equals(type, "kind", "function")) return false;
+    if (json_boolean_property(type, "is_native") ||
+        json_boolean_property(type, "is_variadic") ||
+        json_boolean_property(type, "has_arena_param")) return false;
+    json_object *quals = rust_closure_property(type, "param_mem_quals");
+    for (size_t i = 0; i < rust_closure_length(quals); i++)
+        if (strcmp(json_object_get_string(json_object_array_get_idx(quals, i)), "default") != 0)
+            return false;
+    json_object *params = rust_closure_property(type, "param_types");
+    if (!params) return false;
+    for (size_t i = 0; i < rust_closure_length(params); i++)
+    {
+        json_object *param = json_object_array_get_idx(params, i);
+        if (!rust_closure_owned_type(param)) return false;
+        if (json_string_property_equals(param, "kind", "struct") &&
+            !rust_heap_free_named_struct_type(param)) return false;
+    }
+    json_object *ret = rust_closure_property(type, "return_type");
+    return json_string_property_equals(ret, "kind", "void") || rust_closure_owned_type(ret);
+}
+
+/* Exact recursive shape matters even where the shared checker permits a
+ * float/double substitution. Metadata such as pass_by_ptr is not a type. */
+static bool rust_closure_same_type(json_object *a, json_object *b)
+{
+    const char *ak = json_string_property(a, "kind");
+    const char *bk = json_string_property(b, "kind");
+    if (!ak || !bk || strcmp(ak, bk) != 0) return false;
+    if (strcmp(ak, "struct") == 0)
+        return json_string_property_equals(a, "name", json_string_property(b, "name"));
+    if (strcmp(ak, "array") == 0)
+        return rust_closure_same_type(rust_closure_property(a, "element_type"),
+                                      rust_closure_property(b, "element_type"));
+    if (strcmp(ak, "function") != 0) return true;
+    if (!rust_closure_type_supported(a) || !rust_closure_type_supported(b)) return false;
+    json_object *ap = rust_closure_property(a, "param_types");
+    json_object *bp = rust_closure_property(b, "param_types");
+    if (rust_closure_length(ap) != rust_closure_length(bp)) return false;
+    for (size_t i = 0; i < rust_closure_length(ap); i++)
+        if (!rust_closure_same_type(json_object_array_get_idx(ap, i),
+                                   json_object_array_get_idx(bp, i))) return false;
+    return rust_closure_same_type(rust_closure_property(a, "return_type"),
+                                 rust_closure_property(b, "return_type"));
+}
+
+/* Binding identity is independent of source spelling and of C's name-based
+ * promotion flags. Scope copies keep shadowing and nested captures explicit. */
+typedef struct RustClosureBinding {
+    const char *name;
+    json_object *declaration;
+    int id;
+    int lambda_depth;
+    bool capture;
+    struct RustClosureBinding *next;
+} RustClosureBinding;
+
+typedef struct {
+    RustClosureBinding *bindings;
+    int next_id;
+    int lambda_depth;
+    json_object *model;
+    json_object *return_type;
+} RustClosureScope;
+
+static RustClosureBinding *rust_closure_lookup(RustClosureScope *scope, const char *name)
+{
+    for (RustClosureBinding *b = scope->bindings; b; b = b->next)
+        if (name && strcmp(name, b->name) == 0) return b;
+    return NULL;
+}
+
+static void rust_closure_pop(RustClosureScope *scope, RustClosureBinding *saved)
+{
+    while (scope->bindings != saved)
+    {
+        RustClosureBinding *b = scope->bindings;
+        scope->bindings = b->next;
+        free(b);
+    }
+}
+
+static bool rust_closure_bind(RustClosureScope *scope, json_object *node,
+                              const char *name, int id, bool capture)
+{
+    if (!name) return false;
+    RustClosureBinding *b = malloc(sizeof(*b));
+    if (!b) return false;
+    *b = (RustClosureBinding){name, node, id < 0 ? scope->next_id++ : id,
+                             scope->lambda_depth, capture, scope->bindings};
+    scope->bindings = b;
+    json_object_object_add(node, "rust_binding_id", json_object_new_int(b->id));
+    return true;
+}
+
+static bool rust_closure_named_function(RustClosureScope *scope, const char *name)
+{
+    json_object *functions = rust_closure_property(scope->model, "functions");
+    for (size_t i = 0; i < rust_closure_length(functions); i++)
+        if (json_string_property_equals(json_object_array_get_idx(functions, i), "name", name))
+            return true;
     return false;
+}
+
+static bool rust_closure_walk(RustClosureScope *scope, json_object *node);
+
+static bool rust_closure_walk_scope(RustClosureScope *scope, json_object *node)
+{
+    RustClosureBinding *saved = scope->bindings;
+    bool ok = rust_closure_walk(scope, node);
+    rust_closure_pop(scope, saved);
+    return ok;
+}
+
+static bool rust_closure_walk_lambda(RustClosureScope *scope, json_object *node)
+{
+    if (!rust_closure_type_supported(rust_closure_property(node, "type")) ||
+        json_boolean_property(node, "is_native"))
+        return rust_closure_error("this closure signature (native, qualified, variadic or unsupported owned type)");
+    json_object *caps = rust_closure_property(node, "captures");
+    /* Resolve every source before installing capture aliases, so sibling
+     * slots cannot accidentally resolve against an alias installed earlier. */
+    for (size_t i = 0; i < rust_closure_length(caps); i++)
+    {
+        json_object *cap = json_object_array_get_idx(caps, i);
+        if (json_boolean_property(cap, "is_self"))
+            return rust_closure_error("recursive closure self captures");
+        if (json_boolean_property(cap, "is_ref"))
+            return rust_closure_error("shared mutable closure captures");
+        RustClosureBinding *b = rust_closure_lookup(scope, json_string_property(cap, "name"));
+        if (!b) return rust_closure_error("unresolved or recursive closure captures");
+        if (b->lambda_depth != scope->lambda_depth)
+            return rust_closure_error("missing transitive closure captures");
+        if (json_string_property_equals(b->declaration, "mem_qual", "as_ref") ||
+            json_boolean_property(b->declaration, "is_captured"))
+            return rust_closure_error("borrowed or promoted closure captures");
+        if (!rust_closure_owned_type(rust_closure_property(cap, "type")))
+            return rust_closure_error("this closure capture type");
+        json_object_object_add(cap, "rust_binding_id", json_object_new_int(b->id));
+        json_object_object_add(cap, "rust_capture_mode", json_object_new_string("value"));
+    }
+    RustClosureBinding *saved = scope->bindings;
+    scope->lambda_depth++;
+    json_object *saved_return = scope->return_type;
+    scope->return_type = rust_closure_property(node, "return_type");
+    bool ok = true;
+    for (size_t i = 0; ok && i < rust_closure_length(caps); i++)
+    {
+        json_object *cap = json_object_array_get_idx(caps, i);
+        ok = rust_closure_bind(scope, cap, json_string_property(cap, "name"),
+            json_object_get_int(rust_closure_property(cap, "rust_binding_id")), true);
+    }
+    json_object *params = rust_closure_property(node, "params");
+    for (size_t i = 0; ok && i < rust_closure_length(params); i++)
+    {
+        json_object *p = json_object_array_get_idx(params, i);
+        if (!json_string_property_equals(p, "mem_qual", "default"))
+            ok = rust_closure_error("qualified closure parameters");
+        else ok = rust_closure_bind(scope, p, json_string_property(p, "name"), -1, false);
+    }
+    json_object *body_value = rust_closure_property(node, "body");
+    if (ok && body_value && json_string_property_equals(scope->return_type, "kind", "function") &&
+        !rust_closure_same_type(scope->return_type, rust_closure_property(body_value, "type")))
+        ok = rust_closure_error("incompatible function-value signatures");
+    if (ok) ok = rust_closure_walk(scope, rust_closure_property(node, "body")) &&
+                 rust_closure_walk(scope, rust_closure_property(node, "body_stmts"));
+    rust_closure_pop(scope, saved);
+    scope->lambda_depth--;
+    scope->return_type = saved_return;
+    return ok;
+}
+
+static RustClosureBinding *rust_closure_place(RustClosureScope *scope, json_object *node)
+{
+    if (json_string_property_equals(node, "kind", "variable"))
+        return rust_closure_lookup(scope, json_string_property(node, "name"));
+    if (json_string_property_equals(node, "kind", "member"))
+        return rust_closure_place(scope, rust_closure_property(node, "object"));
+    if (json_string_property_equals(node, "kind", "array_access"))
+        return rust_closure_place(scope, rust_closure_property(node, "array"));
+    return NULL;
+}
+
+static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
+{
+    if (!node) return true;
+    if (json_object_is_type(node, json_type_array))
+    {
+        for (size_t i = 0; i < rust_closure_length(node); i++)
+            if (!rust_closure_walk(scope, json_object_array_get_idx(node, i))) return false;
+        return true;
+    }
+    if (!json_object_is_type(node, json_type_object)) return true;
+    const char *kind = json_string_property(node, "kind");
+    if (kind && strcmp(kind, "expr") == 0)
+    {
+        json_object *discarded = rust_closure_property(node, "expr");
+        if (discarded) json_object_object_add(discarded, "rust_closure_discarded", json_object_new_boolean(true));
+    }
+    if (kind && (strcmp(kind, "member_assign") == 0 || strcmp(kind, "index_assign") == 0) &&
+        json_string_property_equals(rust_closure_property(node, "type"), "kind", "function") &&
+        !json_boolean_property(node, "rust_closure_discarded"))
+        return rust_closure_error("consumed function field or index assignment results");
+    if (kind && strcmp(kind, "lambda") == 0) return rust_closure_walk_lambda(scope, node);
+    json_object *edge_value = rust_closure_property(node, "value");
+    json_object *expected = rust_closure_property(node, "type");
+    if (kind && strcmp(kind, "var_decl") == 0) edge_value = rust_closure_property(node, "initializer");
+    if (kind && strcmp(kind, "return") == 0) expected = scope->return_type;
+    if (edge_value && json_string_property_equals(expected, "kind", "function") &&
+        !rust_closure_same_type(expected, rust_closure_property(edge_value, "type")))
+        return rust_closure_error("incompatible function-value signatures");
+    if (kind && strcmp(kind, "struct_literal") == 0)
+    {
+        json_object *structure = rust_find_struct(scope->model, json_string_property(node, "struct_name"));
+        json_object *decls = rust_closure_property(structure, "fields");
+        json_object *fields = rust_closure_property(node, "fields");
+        for (size_t i = 0; i < rust_closure_length(fields); i++)
+        {
+            json_object *field = json_object_array_get_idx(fields, i);
+            for (size_t d = 0; d < rust_closure_length(decls); d++)
+            {
+                json_object *decl = json_object_array_get_idx(decls, d);
+                json_object *wanted = rust_closure_property(decl, "type");
+                if (json_string_property_equals(decl, "name", json_string_property(field, "name")) &&
+                    json_string_property_equals(wanted, "kind", "function") &&
+                    !rust_closure_same_type(wanted, rust_closure_property(rust_closure_property(field, "value"), "type")))
+                    return rust_closure_error("incompatible function-value signatures");
+            }
+        }
+    }
+    if (kind && strcmp(kind, "array_literal") == 0)
+    {
+        json_object *element_type = rust_closure_property(expected, "element_type");
+        json_object *elements = rust_closure_property(node, "elements");
+        if (json_string_property_equals(element_type, "kind", "function"))
+            for (size_t i = 0; i < rust_closure_length(elements); i++)
+            {
+                json_object *element = json_object_array_get_idx(elements, i);
+                if (!json_string_property_equals(element, "kind", "spread") &&
+                    !rust_closure_same_type(element_type, rust_closure_property(element, "type")))
+                    return rust_closure_error("incompatible function-value signatures");
+            }
+    }
+    if (kind && strcmp(kind, "sized_array") == 0 &&
+        json_string_property_equals(rust_closure_property(node, "element_type"), "kind", "function"))
+        return rust_closure_error("sized arrays of function values");
+    if (kind && strcmp(kind, "var_decl") == 0)
+    {
+        if (!rust_closure_walk(scope, rust_closure_property(node, "initializer"))) return false;
+        if (json_string_property_equals(rust_closure_property(node, "type"), "kind", "function") &&
+            !rust_closure_property(node, "initializer"))
+            return rust_closure_error("uninitialized function values");
+        return rust_closure_bind(scope, node, json_string_property(node, "name"), -1, false);
+    }
+    if (kind && strcmp(kind, "variable") == 0)
+    {
+        const char *name = json_string_property(node, "name");
+        RustClosureBinding *b = rust_closure_lookup(scope, name);
+        if (b)
+        {
+            if (b->lambda_depth != scope->lambda_depth)
+                return rust_closure_error("missing transitive closure captures");
+            json_object_object_add(node, "rust_binding_id", json_object_new_int(b->id));
+            if (b->capture)
+                json_object_object_add(node, "rust_needs_clone", json_object_new_boolean(true));
+            if (b->capture && json_boolean_property(node, "is_ref_arg"))
+                return rust_closure_error("mutable access to snapshot closure captures");
+        }
+        else if (!json_boolean_property(node, "rust_direct_callee") && name &&
+                 json_string_property_equals(rust_closure_property(node, "type"), "kind", "function"))
+        {
+            if (!rust_closure_named_function(scope, name) || strcmp(name, "main") == 0 ||
+                !rust_closure_type_supported(rust_closure_property(node, "type")))
+                return rust_closure_error("this named function value");
+            json_object_object_add(node, "rust_named_function_value", json_object_new_boolean(true));
+        }
+        return true;
+    }
+    RustClosureBinding *place = NULL;
+    if (kind && strcmp(kind, "assign") == 0)
+        place = rust_closure_lookup(scope, json_string_property(node, "target"));
+    else if (kind && strcmp(kind, "compound_assign") == 0)
+        place = rust_closure_place(scope, rust_closure_property(node, "target"));
+    else if (kind && (strcmp(kind, "increment") == 0 || strcmp(kind, "decrement") == 0))
+        place = rust_closure_place(scope, rust_closure_property(node, "operand"));
+    else if (kind && strcmp(kind, "member_assign") == 0)
+        place = rust_closure_place(scope, rust_closure_property(node, "object"));
+    else if (kind && strcmp(kind, "index_assign") == 0)
+        place = rust_closure_place(scope, rust_closure_property(node, "array"));
+    if (place && scope->lambda_depth > 0 && !json_string_property(place->declaration, "kind") && !place->capture)
+        return rust_closure_error("mutation of closure parameters");
+    if (json_boolean_property(node, "is_ref_arg"))
+    {
+        RustClosureBinding *borrowed = rust_closure_place(scope, node);
+        if (borrowed && borrowed->capture)
+            return rust_closure_error("mutable access to snapshot closure captures");
+    }
+    if (place && (place->capture || place->lambda_depth < scope->lambda_depth))
+        return rust_closure_error("mutable access to snapshot closure captures");
+    if (kind && strcmp(kind, "call") == 0)
+    {
+        json_object *callee = rust_closure_property(node, "callee");
+        json_object *args = rust_closure_property(node, "args");
+        json_object *params = rust_closure_property(rust_closure_property(callee, "type"), "param_types");
+        for (size_t i = 0; i < rust_closure_length(args) && i < rust_closure_length(params); i++)
+        {
+            json_object *wanted = json_object_array_get_idx(params, i);
+            json_object *arg = json_object_array_get_idx(args, i);
+            if (json_string_property_equals(wanted, "kind", "function") &&
+                !rust_closure_same_type(wanted, rust_closure_property(arg, "type")))
+                return rust_closure_error("incompatible function-value signatures");
+        }
+        if (!json_boolean_property(node, "is_closure_call") &&
+            !json_boolean_property(node, "is_fn_field_call"))
+            json_object_object_add(callee, "rust_direct_callee", json_object_new_boolean(true));
+        if (json_string_property_equals(callee, "kind", "member") &&
+            !json_boolean_property(node, "is_fn_field_call"))
+        {
+            RustClosureBinding *b = rust_closure_place(scope, rust_closure_property(callee, "object"));
+            if (b && b->capture)
+                return rust_closure_error("method calls on snapshot closure captures");
+            if (b && scope->lambda_depth > 0 && !json_string_property(b->declaration, "kind"))
+                return rust_closure_error("method calls on closure parameters");
+        }
+    }
+    if (kind && (strcmp(kind, "for_each") == 0 || strcmp(kind, "for_each_iter") == 0))
+    {
+        if (!rust_closure_walk(scope, rust_closure_property(node, "iterable"))) return false;
+        RustClosureBinding *saved = scope->bindings;
+        bool ok = rust_closure_bind(scope, node, json_string_property(node, "iterator_name"), -1, false) &&
+                  rust_closure_walk_scope(scope, rust_closure_property(node, "body"));
+        rust_closure_pop(scope, saved);
+        return ok;
+    }
+    if (kind && strcmp(kind, "for") == 0)
+    {
+        RustClosureBinding *saved = scope->bindings;
+        bool ok = rust_closure_walk(scope, rust_closure_property(node, "init")) &&
+                  rust_closure_walk(scope, rust_closure_property(node, "condition")) &&
+                  rust_closure_walk(scope, rust_closure_property(node, "increment")) &&
+                  rust_closure_walk_scope(scope, rust_closure_property(node, "body"));
+        rust_closure_pop(scope, saved);
+        return ok;
+    }
+    json_object_object_foreach(node, key, value)
+    {
+        if (strcmp(key, "type") == 0 || strcmp(key, "return_type") == 0 ||
+            strcmp(key, "target_type") == 0 || strncmp(key, "rust_", 5) == 0) continue;
+        bool scoped = strcmp(key, "body") == 0 || strcmp(key, "then_body") == 0 ||
+                      strcmp(key, "else_body") == 0 || strcmp(key, "statements") == 0;
+        if (!(scoped ? rust_closure_walk_scope(scope, value) : rust_closure_walk(scope, value))) return false;
+    }
+    return true;
+}
+
+static bool rust_validate_closures(json_object *model)
+{
+    RustClosureScope scope = {.model = model};
+    json_object *functions = rust_closure_property(model, "functions");
+    for (size_t i = 0; i < rust_closure_length(functions); i++)
+    {
+        json_object *fn = json_object_array_get_idx(functions, i);
+        if (json_string_property_equals(fn, "name", "__SnClosure"))
+            return rust_closure_error("the reserved closure support name '__SnClosure'");
+        scope.return_type = rust_closure_property(fn, "return_type");
+        json_object *params = rust_closure_property(fn, "params");
+        bool ok = true;
+        for (size_t p = 0; ok && p < rust_closure_length(params); p++)
+        {
+            json_object *param = json_object_array_get_idx(params, p);
+            ok = rust_closure_bind(&scope, param, json_string_property(param, "name"), -1, false);
+        }
+        if (ok) ok = rust_closure_walk(&scope, rust_closure_property(fn, "body"));
+        rust_closure_pop(&scope, NULL);
+        if (!ok) return false;
+    }
+    /* Method capture lifetimes need their own receiver contract. Keep that
+     * boundary explicit until the function foundation is integrated. */
+    json_object *structs = rust_closure_property(model, "structs");
+    for (size_t s = 0; s < rust_closure_length(structs); s++)
+    {
+        json_object *st = json_object_array_get_idx(structs, s);
+        json_object *methods = rust_closure_property(st, "methods");
+        for (size_t m = 0; m < rust_closure_length(methods); m++)
+        {
+            json_object *method = json_object_array_get_idx(methods, m);
+            scope.return_type = rust_closure_property(method, "return_type");
+            json_object *params = rust_closure_property(method, "params");
+            json_object *self = json_object_new_object();
+            json_object_object_add(self, "mem_qual", json_object_new_string("as_ref"));
+            bool ok = rust_closure_bind(&scope, self, "self", -1, false);
+            for (size_t p = 0; ok && p < rust_closure_length(params); p++)
+            {
+                json_object *param = json_object_array_get_idx(params, p);
+                ok = rust_closure_bind(&scope, param, json_string_property(param, "name"), -1, false);
+            }
+            if (ok) ok = rust_closure_walk(&scope, rust_closure_property(method, "body"));
+            rust_closure_pop(&scope, NULL);
+            json_object_put(self);
+            if (!ok) return false;
+        }
+        if (json_string_property_equals(st, "name", "__SnClosure"))
+            return rust_closure_error("the reserved closure support type name '__SnClosure'");
+    }
+    return true;
 }
 
 static bool rust_validate_lambda(json_object *expr)
 {
-    (void)expr;
-    return false;
+    if (!rust_closure_type_supported(rust_closure_property(expr, "type")))
+        return rust_closure_error("this closure signature (native, qualified, variadic or unsupported owned type)");
+    json_object *caps = rust_closure_property(expr, "captures");
+    for (size_t i = 0; i < rust_closure_length(caps); i++)
+        if (!json_string_property_equals(json_object_array_get_idx(caps, i), "rust_capture_mode", "value"))
+            return rust_closure_error("closures in this callable context");
+    json_object *body = rust_closure_property(expr, "body");
+    if (body)
+    {
+        if (!rust_validate_expr(body)) return false;
+        const char *kind = json_string_property(body, "kind");
+        if (kind && (strcmp(kind, "variable") == 0 || strcmp(kind, "member") == 0 ||
+                     strcmp(kind, "array_access") == 0))
+            json_object_object_add(expr, "rust_clone_body", json_object_new_boolean(true));
+        return true;
+    }
+    return rust_validate_statements(rust_closure_property(expr, "body_stmts"));
 }
 
-/* Variable expressions were accepted without inspecting their function type.
- * Storage/signature validation and the model-wide lambda gate still apply. */
 static bool rust_validate_function_value(json_object *expr)
 {
     (void)expr;
     return true;
 }
 
-/* Called before ordinary callee/argument validation. UNHANDLED means continue
- * the existing call path, including its diagnostics and child order. */
 static RustValidationResult rust_validate_closure_call(json_object *expr)
 {
-    (void)expr;
-    return RUST_VALIDATION_UNHANDLED;
+    if (!json_boolean_property(expr, "is_closure_call") &&
+        !json_boolean_property(expr, "is_fn_field_call")) return RUST_VALIDATION_UNHANDLED;
+    json_object *callee = rust_closure_property(expr, "callee");
+    json_object *type = rust_closure_property(callee, "type");
+    if (!rust_closure_type_supported(type))
+    {
+        rust_closure_error("this closure call signature");
+        return RUST_VALIDATION_UNSUPPORTED;
+    }
+    if (!rust_validate_expr(callee)) return RUST_VALIDATION_UNSUPPORTED;
+    json_object *args = rust_closure_property(expr, "args");
+    json_object *params = rust_closure_property(type, "param_types");
+    if (rust_closure_length(args) != rust_closure_length(params))
+        return RUST_VALIDATION_UNSUPPORTED;
+    for (size_t i = 0; i < rust_closure_length(args); i++)
+    {
+        json_object *arg = json_object_array_get_idx(args, i);
+        json_object *actual = rust_closure_property(arg, "type");
+        json_object *wanted = json_object_array_get_idx(params, i);
+        /* The shared checker equates float and double, but Rust Fn does not. */
+        if (!rust_closure_same_type(actual, wanted) ||
+            json_boolean_property(arg, "is_ref_arg"))
+        {
+            rust_closure_error("mixed-type or reference closure arguments");
+            return RUST_VALIDATION_UNSUPPORTED;
+        }
+        if (!rust_validate_expr(arg)) return RUST_VALIDATION_UNSUPPORTED;
+        const char *kind = json_string_property(arg, "kind");
+        if (kind && (strcmp(kind, "variable") == 0 || strcmp(kind, "member") == 0 ||
+                     strcmp(kind, "array_access") == 0))
+            json_object_object_add(arg, "rust_closure_arg_clone", json_object_new_boolean(true));
+    }
+    json_object_object_add(expr, "rust_closure_call", json_object_new_boolean(true));
+    return RUST_VALIDATION_SUPPORTED;
 }

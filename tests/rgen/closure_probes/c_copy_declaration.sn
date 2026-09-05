@@ -1,0 +1,5 @@
+fn main(): void =>
+  var first: fn(): int = fn(): int => 7
+  var second: fn(): int = first
+  first = fn(): int => 9
+  println(second())

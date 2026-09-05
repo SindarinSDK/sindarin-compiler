@@ -1,0 +1,4 @@
+fn main(): void =>
+  var action = fn(value: int as ref): int => value
+  var value: int = 1
+  println(action(value))

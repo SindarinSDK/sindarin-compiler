@@ -1,0 +1,6 @@
+fn index(): int =>
+  println("index")
+  return 0
+fn main(): void =>
+  var actions: (fn(): int)[] = {fn(): int => 7}
+  println(actions[index()]())

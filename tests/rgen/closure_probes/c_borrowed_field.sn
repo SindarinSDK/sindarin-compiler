@@ -1,0 +1,6 @@
+struct Holder =>
+  action: fn(): int
+fn main(): void =>
+  var first: fn(): int = fn(): int => 7
+  var holder: Holder = {action: first}
+  println(holder.action())
