@@ -38,7 +38,12 @@ macro_rules! __sn_integer_array_text_0 {
     )+};
 }
 
-__sn_integer_array_text_0!(i64, i32, u64, u32);
+__sn_integer_array_text_0!(i64, i32, u32);
+
+impl __SnArrayText_0 for u64 {
+    fn __sn_array_text_0(&self) -> String { (*self as i64).to_string() }
+    fn __sn_join_text_0(&self) -> String { (*self as i64).to_string() }
+}
 
 impl __SnArrayText_0 for u8 {
     fn __sn_array_text_0(&self) -> String { format!("0x{:02X}", self) }
@@ -137,4 +142,8 @@ fn main() {
     println!("{}", { let __sn_array_1 = &(__sn_array_0); let __sn_separator_1 = &(__sn_separator_0); __sn_array_join_1(__sn_array_1.as_slice(), __sn_separator_1.as_str()) });
     println!("{}", __sn_array_join());
     println!("{}", __sn_array_join_0());
+    let mut negative: i64 = (-1);
+    let mut unsigned: Vec<u64> = vec![0, 42, 9223372036854775807, (negative as u64)];
+    println!("{}", { let __sn_array_1 = &(unsigned); let __sn_separator_1 = &(",".to_string()); __sn_array_join_1(__sn_array_1.as_slice(), __sn_separator_1.as_str()) });
+    println!("{}", __sn_array_to_string_0(&(unsigned)));
 }
