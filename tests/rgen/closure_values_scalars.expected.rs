@@ -1,5 +1,33 @@
 #![allow(dead_code, unused_mut, unused_variables, unused_parens)]
 
+fn __sn_runtime_error_0(message: &'static str) -> ! {
+    eprintln!("{}", message);
+    std::process::exit(1);
+}
+
+fn __sn_checked_0<T>(value: Option<T>, message: &'static str) -> T {
+    match value {
+        Some(value) => value,
+        None => __sn_runtime_error_0(message),
+    }
+}
+
+fn __sn_checked_div_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked_0(value, if divisor_is_zero {
+        "panic: Division by zero"
+    } else {
+        "Runtime error: integer overflow in division"
+    })
+}
+
+fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked_0(value, if divisor_is_zero {
+        "panic: Modulo by zero"
+    } else {
+        "Runtime error: integer overflow in modulo"
+    })
+}
+
 struct __SnClosure<F: ?Sized>(std::rc::Rc<F>);
 impl<F: ?Sized> Clone for __SnClosure<F> {
     fn clone(&self) -> Self { Self(self.0.clone()) }
@@ -23,17 +51,17 @@ fn main() {
     let mut d: f64 = 2.5;
     let mut yes: bool = true;
     let mut letter: char = '\u{51}';
-    let mut fi: __SnClosure<dyn Fn(i64) -> i64> = { let (i, ) = (i.clone(), ); self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |x: i64| -> i64 { (i.clone()).checked_add(x).expect("checked arithmetic failed")})) }
+    let mut fi: __SnClosure<dyn Fn(i64) -> i64> = { let (i, ) = (i.clone(), ); self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |x: i64| -> i64 { __sn_checked_0((i.clone()).checked_add(x), "Runtime error: integer overflow in addition")})) }
 ;
-    let mut fl: __SnClosure<dyn Fn(i64) -> i64> = { let (l, ) = (l.clone(), ); self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |x: i64| -> i64 { (l.clone()).checked_add(x).expect("checked arithmetic failed")})) }
+    let mut fl: __SnClosure<dyn Fn(i64) -> i64> = { let (l, ) = (l.clone(), ); self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |x: i64| -> i64 { __sn_checked_0((l.clone()).checked_add(x), "Runtime error: integer overflow in addition")})) }
 ;
-    let mut fi32: __SnClosure<dyn Fn(i32) -> i32> = { let (i32, ) = (i32.clone(), ); self::__SnClosure::<dyn Fn(i32) -> i32>(std::rc::Rc::new(move |x: i32| -> i32 { (i32.clone()).checked_add(x).expect("checked arithmetic failed")})) }
+    let mut fi32: __SnClosure<dyn Fn(i32) -> i32> = { let (i32, ) = (i32.clone(), ); self::__SnClosure::<dyn Fn(i32) -> i32>(std::rc::Rc::new(move |x: i32| -> i32 { __sn_checked_0((i32.clone()).checked_add(x), "Runtime error: integer overflow in addition")})) }
 ;
-    let mut fb: __SnClosure<dyn Fn(u8) -> u8> = { let (b, ) = (b.clone(), ); self::__SnClosure::<dyn Fn(u8) -> u8>(std::rc::Rc::new(move |x: u8| -> u8 { (b.clone()).checked_add(x).expect("checked arithmetic failed")})) }
+    let mut fb: __SnClosure<dyn Fn(u8) -> u8> = { let (b, ) = (b.clone(), ); self::__SnClosure::<dyn Fn(u8) -> u8>(std::rc::Rc::new(move |x: u8| -> u8 { __sn_checked_0((b.clone()).checked_add(x), "Runtime error: integer overflow in addition")})) }
 ;
-    let mut fu32: __SnClosure<dyn Fn(u32) -> u32> = { let (u32, ) = (u32.clone(), ); self::__SnClosure::<dyn Fn(u32) -> u32>(std::rc::Rc::new(move |x: u32| -> u32 { (u32.clone()).checked_add(x).expect("checked arithmetic failed")})) }
+    let mut fu32: __SnClosure<dyn Fn(u32) -> u32> = { let (u32, ) = (u32.clone(), ); self::__SnClosure::<dyn Fn(u32) -> u32>(std::rc::Rc::new(move |x: u32| -> u32 { __sn_checked_0((u32.clone()).checked_add(x), "Runtime error: integer overflow in addition")})) }
 ;
-    let mut fu: __SnClosure<dyn Fn(u64) -> u64> = { let (u, ) = (u.clone(), ); self::__SnClosure::<dyn Fn(u64) -> u64>(std::rc::Rc::new(move |x: u64| -> u64 { (u.clone()).checked_add(x).expect("checked arithmetic failed")})) }
+    let mut fu: __SnClosure<dyn Fn(u64) -> u64> = { let (u, ) = (u.clone(), ); self::__SnClosure::<dyn Fn(u64) -> u64>(std::rc::Rc::new(move |x: u64| -> u64 { __sn_checked_0((u.clone()).checked_add(x), "Runtime error: integer overflow in addition")})) }
 ;
     let mut ff: __SnClosure<dyn Fn(f32) -> f32> = { let (f, ) = (f.clone(), ); self::__SnClosure::<dyn Fn(f32) -> f32>(std::rc::Rc::new(move |x: f32| -> f32 { (f.clone() + x)})) }
 ;

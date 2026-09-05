@@ -1,7 +1,35 @@
 #![allow(dead_code, unused_mut, unused_variables, unused_parens)]
 
+fn __sn_runtime_error_0(message: &'static str) -> ! {
+    eprintln!("{}", message);
+    std::process::exit(1);
+}
+
+fn __sn_checked_0<T>(value: Option<T>, message: &'static str) -> T {
+    match value {
+        Some(value) => value,
+        None => __sn_runtime_error_0(message),
+    }
+}
+
+fn __sn_checked_div_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked_0(value, if divisor_is_zero {
+        "panic: Division by zero"
+    } else {
+        "Runtime error: integer overflow in division"
+    })
+}
+
+fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked_0(value, if divisor_is_zero {
+        "panic: Modulo by zero"
+    } else {
+        "Runtime error: integer overflow in modulo"
+    })
+}
+
 fn nextSubject(calls: &mut i64) -> i64 {
-    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
+    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
     return 2;
 }
 
@@ -13,15 +41,15 @@ fn main() {
     match (nextSubject(&mut (subject_calls)) as i64) {
         1 | 2 => {
             (selected = 10);
-            { let __sn_place = &mut (effects); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
+            { let __sn_place = &mut (effects); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
         },
         2 | 3 => {
             (selected = 20);
-            { let __sn_rhs = 100; let __sn_place = &mut (effects); let __sn_next = (*__sn_place).checked_add(__sn_rhs).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_next };
+            { let __sn_rhs = 100; let __sn_place = &mut (effects); let __sn_next = __sn_checked_0((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };
         },
         _ => {
             (selected = 30);
-            { let __sn_rhs = 1000; let __sn_place = &mut (effects); let __sn_next = (*__sn_place).checked_add(__sn_rhs).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_next };
+            { let __sn_rhs = 1000; let __sn_place = &mut (effects); let __sn_next = __sn_checked_0((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };
         },
     };
     let mut fallback: i64 = 0;
@@ -52,7 +80,7 @@ fn main() {
     let mut parser_extremes: i64 = 0;
     match ((-9223372036854775807) as i64) {
         (-9223372036854775807) | 9223372036854775807 => {
-            { let __sn_rhs = 1; let __sn_place = &mut (parser_extremes); let __sn_next = (*__sn_place).checked_add(__sn_rhs).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_next };
+            { let __sn_rhs = 1; let __sn_place = &mut (parser_extremes); let __sn_next = __sn_checked_0((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };
         },
         _ => {
             (parser_extremes = 100);
@@ -60,7 +88,7 @@ fn main() {
     };
     match (9223372036854775807 as i64) {
         (-9223372036854775807) | 9223372036854775807 => {
-            { let __sn_rhs = 10; let __sn_place = &mut (parser_extremes); let __sn_next = (*__sn_place).checked_add(__sn_rhs).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_next };
+            { let __sn_rhs = 10; let __sn_place = &mut (parser_extremes); let __sn_next = __sn_checked_0((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };
         },
         _ => {
             (parser_extremes = 200);

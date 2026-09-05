@@ -786,12 +786,16 @@ static bool rust_validate_closure_cell_mutation(json_object *expr)
         return rust_closure_error("this shared scalar mutation");
     const char *op = compound ? json_string_property(expr, "op") :
         (json_string_property_equals(expr, "kind", "increment") ? "add" : "subtract");
-    const char *method = NULL;
-    if (op && strcmp(op, "add") == 0) method = "checked_add";
-    else if (op && strcmp(op, "subtract") == 0) method = "checked_sub";
-    else if (op && strcmp(op, "multiply") == 0) method = "checked_mul";
-    else if (op && strcmp(op, "divide") == 0) method = "checked_div";
-    else if (op && strcmp(op, "modulo") == 0 && !rust_float_type(kind)) method = "checked_rem";
+    const char *method = NULL, *error_name = NULL;
+    if (op && strcmp(op, "add") == 0) { method = "checked_add"; error_name = "addition"; }
+    else if (op && strcmp(op, "subtract") == 0) { method = "checked_sub"; error_name = "subtraction"; }
+    else if (op && strcmp(op, "multiply") == 0) { method = "checked_mul"; error_name = "multiplication"; }
+    else if (op && strcmp(op, "divide") == 0) { method = "checked_div"; error_name = "division"; }
+    else if (op && strcmp(op, "modulo") == 0 && !rust_float_type(kind))
+    {
+        method = "checked_rem";
+        error_name = "modulo";
+    }
     if (!method) return rust_closure_error("this shared scalar mutation operator");
     /* C's unchecked unsigned capture updates wrap at the scalar width. */
     if (strcmp(kind, "byte") == 0 || strcmp(kind, "uint32") == 0 || strcmp(kind, "uint") == 0)
@@ -804,6 +808,14 @@ static bool rust_validate_closure_cell_mutation(json_object *expr)
         json_object_object_add(expr, "rust_cell_wrapping", json_object_new_boolean(true));
     }
     json_object_object_add(expr, "rust_cell_method", json_object_new_string(method));
+    if (!rust_float_type(kind) &&
+        rust_validation_arithmetic_mode == ARITH_CHECKED &&
+        !json_boolean_property(expr, "rust_cell_wrapping"))
+    {
+        json_object_object_add(expr, "rust_checked_method", json_object_new_string(method));
+        json_object_object_add(expr, "rust_checked_operation", json_object_new_string(op));
+        json_object_object_add(expr, "rust_checked_error_name", json_object_new_string(error_name));
+    }
     if (compound)
     {
         json_object *value = rust_closure_property(expr, "value");
@@ -850,12 +862,12 @@ static bool rust_validate_closure_snapshot_mutation(json_object *expr)
             json_string_property_equals(expr, "mutation_arithmetic_mode", "checked");
         const char *op = compound ? json_string_property(expr, "op") :
             (json_string_property_equals(expr, "kind", "increment") ? "add" : "subtract");
-        const char *method = NULL;
-        if (op && strcmp(op, "add") == 0) method = "checked_add";
-        else if (op && strcmp(op, "subtract") == 0) method = "checked_sub";
-        else if (op && strcmp(op, "multiply") == 0) method = "checked_mul";
-        else if (op && strcmp(op, "divide") == 0) method = "checked_div";
-        else if (op && strcmp(op, "modulo") == 0) method = "checked_rem";
+        const char *method = NULL, *error_name = NULL;
+        if (op && strcmp(op, "add") == 0) { method = "checked_add"; error_name = "addition"; }
+        else if (op && strcmp(op, "subtract") == 0) { method = "checked_sub"; error_name = "subtraction"; }
+        else if (op && strcmp(op, "multiply") == 0) { method = "checked_mul"; error_name = "multiplication"; }
+        else if (op && strcmp(op, "divide") == 0) { method = "checked_div"; error_name = "division"; }
+        else if (op && strcmp(op, "modulo") == 0) { method = "checked_rem"; error_name = "modulo"; }
         if (!method) return rust_closure_error("this mutable scalar snapshot operator");
         if (!checked && (strcmp(kind, "uint32") == 0 || strcmp(kind, "uint") == 0))
         {
@@ -868,6 +880,11 @@ static bool rust_validate_closure_snapshot_mutation(json_object *expr)
                                    json_object_new_boolean(true));
         }
         json_object_object_add(expr, "rust_checked_method", json_object_new_string(method));
+        if (checked)
+        {
+            json_object_object_add(expr, "rust_checked_operation", json_object_new_string(op));
+            json_object_object_add(expr, "rust_checked_error_name", json_object_new_string(error_name));
+        }
     }
     return rust_validate_expr(place);
 }
