@@ -1,0 +1,6 @@
+fn main(): void =>
+  var action: fn(int): int = fn(n: int): int =>
+    if n < 1 =>
+      return 1
+    return action(n - 1)
+  println(action(3))

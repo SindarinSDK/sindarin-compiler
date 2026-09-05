@@ -1,0 +1,43 @@
+fn main(): void =>
+  var add32: uint32 = 4294967295u32
+  var sub32: uint32 = 0u32
+  var mul32: uint32 = 2147483648u32
+  var div32: uint32 = 4294967295u32
+  var mod32: uint32 = 4294967295u32
+  var inc32: uint32 = 4294967295u32
+  var dec32: uint32 = 0u32
+  var max: uint = ~0u
+  var high: uint = max / 2u + 1u
+  var add: uint = max
+  var sub: uint = 0u
+  var mul: uint = high
+  var div: uint = max
+  var mod: uint = max
+  var inc: uint = max
+  var dec: uint = 0u
+  var boundaries: fn(): bool = fn(): bool =>
+    add32 += 1u32
+    sub32 -= 1u32
+    mul32 *= 2u32
+    div32 /= 2u32
+    mod32 %= 2u32
+    var inc32Before: uint32 = inc32++
+    var dec32Before: uint32 = dec32--
+    add += 1u
+    sub -= 1u
+    mul *= 2u
+    div /= 2u
+    mod %= 2u
+    var incBefore: uint = inc++
+    var decBefore: uint = dec--
+    var result: bool = add32 == 0u32 && sub32 == 4294967295u32
+    result = result && mul32 == 0u32 && div32 == 2147483647u32 && mod32 == 1u32
+    result = result && inc32Before == 4294967295u32 && inc32 == 0u32
+    result = result && dec32Before == 0u32 && dec32 == 4294967295u32
+    result = result && add == 0u && sub == max
+    result = result && mul == 0u && div == max / 2u && mod == 1u
+    result = result && incBefore == max && inc == 0u
+    result = result && decBefore == 0u && dec == max
+    return result
+  println(boundaries())
+  println(boundaries())
