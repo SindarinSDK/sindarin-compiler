@@ -349,6 +349,13 @@ static void prescan_stmt(Arena *arena, Stmt *stmt, SymbolTable *table, int lambd
         } else {
             symbol_table_add_symbol(table, stmt->as.for_each_stmt.var_name, NULL);
         }
+        /* The tagged iterator-protocol binding is parameter-like; the Rust
+         * validator uses this fact to distinguish it from a shadowing local.
+         * Ordinary array iteration uses Rust's private owned-local projection. */
+        if (stmt->as.for_each_stmt.iterator_type) {
+            Symbol *binding = symbol_table_lookup_symbol(table, stmt->as.for_each_stmt.var_name);
+            if (binding) binding->kind = SYMBOL_PARAM;
+        }
         prescan_stmt(arena, stmt->as.for_each_stmt.body, table, lambda_scope_depth);
         symbol_table_pop_scope(table);
         break;

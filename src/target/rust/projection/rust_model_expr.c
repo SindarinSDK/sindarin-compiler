@@ -876,7 +876,7 @@ static int maybe_emit_fn_ref_wrapper(Arena *arena, Expr *arg_expr,
             if (fn_type->as.function.param_mem_quals)
                 pmq_val = fn_type->as.function.param_mem_quals[p];
             if ((pmq_val == MEM_DEFAULT || pmq_val == MEM_AS_REF) && ptype &&
-                rust_gen_model_type_category(ptype) == TYPE_CAT_COMPOSITE)
+                rust_gen_model_type_category(ptype) == RUST_TYPE_CAT_COMPOSITE)
             {
                 json_object_object_add(pt, "is_borrow",
                     json_object_new_boolean(true));
@@ -1269,7 +1269,7 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                  * off assign_cleanup. */
                 if (!assign_rhs_is_lifted_member &&
                     !assign_needs_closure_wrap &&
-                    rust_ownership_kind(expr->as.assign.value) == OWNERSHIP_BORROW &&
+                    rust_ownership_kind(expr->as.assign.value) == RUST_OWNERSHIP_BORROW &&
                     (strcmp(assign_cleanup, "free_str") == 0 ||
                      strcmp(assign_cleanup, "release_ref") == 0 ||
                      strcmp(assign_cleanup, "cleanup_val") == 0 ||
@@ -1845,7 +1845,7 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                                 member_arr_push = true;
                             else if (et->kind == TYPE_STRUCT &&
                                      !et->as.struct_type.pass_self_by_ref &&
-                                     rust_gen_model_type_category(et) == TYPE_CAT_COMPOSITE)
+                                     rust_gen_model_type_category(et) == RUST_TYPE_CAT_COMPOSITE)
                             {
                                 member_struct_push = true;
                                 member_struct_push_name = et->as.struct_type.name;
@@ -1966,7 +1966,7 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                             bool param_is_default = true;
                             if (pmq && i < pmq_count && pmq[i] != MEM_DEFAULT)
                                 param_is_default = false;
-                            if (arg_type && rust_gen_model_type_category(arg_type) == TYPE_CAT_COMPOSITE)
+                            if (arg_type && rust_gen_model_type_category(arg_type) == RUST_TYPE_CAT_COMPOSITE)
                             {
                                 bool is_lvalue = (arg_expr->type == EXPR_VARIABLE ||
                                                   arg_expr->type == EXPR_MEMBER ||
@@ -2029,7 +2029,7 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                     if (member_str_push && i == 0)
                     {
                         Expr *arg_expr = expr->as.call.arguments[0];
-                        if (rust_ownership_kind(arg_expr) == OWNERSHIP_BORROW)
+                        if (rust_ownership_kind(arg_expr) == RUST_OWNERSHIP_BORROW)
                         {
                             json_object_object_add(arg, "source_is_borrow",
                                 json_object_new_boolean(true));
@@ -2045,7 +2045,7 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                     if (member_arr_push && i == 0)
                     {
                         Expr *arg_expr = expr->as.call.arguments[0];
-                        if (rust_ownership_kind(arg_expr) == OWNERSHIP_BORROW)
+                        if (rust_ownership_kind(arg_expr) == RUST_OWNERSHIP_BORROW)
                         {
                             json_object_object_add(arg, "source_is_borrow",
                                 json_object_new_boolean(true));
@@ -2062,7 +2062,7 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                     if (member_struct_push && i == 0)
                     {
                         Expr *arg_expr = expr->as.call.arguments[0];
-                        if (rust_ownership_kind(arg_expr) == OWNERSHIP_BORROW)
+                        if (rust_ownership_kind(arg_expr) == RUST_OWNERSHIP_BORROW)
                         {
                             json_object_object_add(arg, "copy_struct_name",
                                 json_object_new_string(member_struct_push_name));
@@ -2080,8 +2080,8 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                     if (member_ref_push && i == 0)
                     {
                         Expr *arg_expr = expr->as.call.arguments[0];
-                        OwnershipKind k = rust_ownership_kind(arg_expr);
-                        if (k == OWNERSHIP_BORROW)
+                        RustOwnershipKind k = rust_ownership_kind(arg_expr);
+                        if (k == RUST_OWNERSHIP_BORROW)
                         {
                             json_object_object_add(arg, "retain_type_name",
                                 json_object_new_string(member_ref_push_name));
@@ -2105,7 +2105,7 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                             json_object_object_get_ex(arg, "is_fn_ref_arg", &fn_ref_obj) &&
                             json_object_get_boolean(fn_ref_obj);
                         if (!is_named_fn_wrapper &&
-                            rust_ownership_kind(arg_expr) == OWNERSHIP_BORROW)
+                            rust_ownership_kind(arg_expr) == RUST_OWNERSHIP_BORROW)
                         {
                             json_object *retained = model_closure_retain(arg);
                             json_object_put(arg);
@@ -2349,7 +2349,7 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                             bool method_param_default = true;
                             if (m && i < m->param_count && m->params[i].mem_qualifier != MEM_DEFAULT)
                                 method_param_default = false;
-                            if (arg_type && rust_gen_model_type_category(arg_type) == TYPE_CAT_COMPOSITE &&
+                            if (arg_type && rust_gen_model_type_category(arg_type) == RUST_TYPE_CAT_COMPOSITE &&
                                 m && !m->is_native && method_param_default)
                             {
                                 bool is_lvalue = (arg_expr->type == EXPR_VARIABLE ||
@@ -2437,7 +2437,7 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                             bool static_param_default = true;
                             if (m && i < m->param_count && m->params[i].mem_qualifier != MEM_DEFAULT)
                                 static_param_default = false;
-                            if (arg_type && rust_gen_model_type_category(arg_type) == TYPE_CAT_COMPOSITE &&
+                            if (arg_type && rust_gen_model_type_category(arg_type) == RUST_TYPE_CAT_COMPOSITE &&
                                 m && !m->is_native && static_param_default)
                             {
                                 bool is_lvalue = (arg_expr->type == EXPR_VARIABLE ||
@@ -2507,7 +2507,7 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                  * acquire call. */
                 Expr *ae = expr->as.array.elements[i];
                 if (ae && ae->expr_type &&
-                    rust_ownership_kind(ae) == OWNERSHIP_BORROW)
+                    rust_ownership_kind(ae) == RUST_OWNERSHIP_BORROW)
                 {
                     Type *et = ae->expr_type;
                     if (et->kind == TYPE_STRING || et->kind == TYPE_ARRAY)
@@ -2517,7 +2517,7 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                     }
                     else if (et->kind == TYPE_STRUCT &&
                              !et->as.struct_type.pass_self_by_ref &&
-                             rust_gen_model_type_category(et) == TYPE_CAT_COMPOSITE)
+                             rust_gen_model_type_category(et) == RUST_TYPE_CAT_COMPOSITE)
                     {
                         json_object_object_add(elem, "source_is_borrow",
                             json_object_new_boolean(true));
@@ -2534,7 +2534,7 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                  * to avoid invalid compound literal wrapping of the return value */
                 if (ae && ae->expr_type && ae->expr_type->kind == TYPE_STRUCT &&
                     !ae->expr_type->as.struct_type.pass_self_by_ref &&
-                    rust_gen_model_type_category(ae->expr_type) == TYPE_CAT_COMPOSITE &&
+                    rust_gen_model_type_category(ae->expr_type) == RUST_TYPE_CAT_COMPOSITE &&
                     (ae->type == EXPR_CALL || ae->type == EXPR_STATIC_CALL))
                 {
                     json_object_object_add(elem, "needs_struct_tmp", json_object_new_boolean(true));
@@ -2547,8 +2547,8 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                 if (ae && ae->expr_type && ae->expr_type->kind == TYPE_STRUCT &&
                     ae->expr_type->as.struct_type.pass_self_by_ref)
                 {
-                    OwnershipKind k = rust_ownership_kind(ae);
-                    if (k == OWNERSHIP_BORROW)
+                    RustOwnershipKind k = rust_ownership_kind(ae);
+                    if (k == RUST_OWNERSHIP_BORROW)
                     {
                         json_object_object_add(elem, "source_is_borrow",
                             json_object_new_boolean(true));
@@ -2576,7 +2576,7 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                         json_object_object_add(elem, "fn_wrapper_id",
                             json_object_new_int(wrap_id));
                     }
-                    else if (rust_ownership_kind(ae) == OWNERSHIP_BORROW)
+                    else if (rust_ownership_kind(ae) == RUST_OWNERSHIP_BORROW)
                     {
                         json_object *retained = model_closure_retain(elem);
                         json_object_put(elem);
@@ -2626,7 +2626,7 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                         else
                         {
                             /* as val: check if composite (has heap fields) */
-                            if (rust_gen_model_type_category(et) == TYPE_CAT_COMPOSITE)
+                            if (rust_gen_model_type_category(et) == RUST_TYPE_CAT_COMPOSITE)
                             {
                                 char buf_r[256], buf_c[256];
                                 snprintf(buf_r, sizeof(buf_r),
@@ -2704,7 +2704,7 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                 {
                     case TYPE_STRING:
                         elem_cleanup = "free_str";
-                        if (rust_ownership_kind(expr->as.index_assign.value) == OWNERSHIP_BORROW)
+                        if (rust_ownership_kind(expr->as.index_assign.value) == RUST_OWNERSHIP_BORROW)
                             json_object_object_add(obj, "source_is_borrow",
                                 json_object_new_boolean(true));
                         break;
@@ -2712,7 +2712,7 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                     {
                         /* Composite val-type structs need old element cleanup + deep copy or ownership transfer */
                         if (!etype->as.struct_type.pass_self_by_ref &&
-                            rust_gen_model_type_category(etype) == TYPE_CAT_COMPOSITE)
+                            rust_gen_model_type_category(etype) == RUST_TYPE_CAT_COMPOSITE)
                         {
                             elem_cleanup = "struct_composite";
                             json_object_object_add(obj, "elem_struct_name",
@@ -2983,7 +2983,7 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                      strcmp(field_cleanup, "release_ref") == 0 ||
                      strcmp(field_cleanup, "cleanup_val") == 0 ||
                      strcmp(field_cleanup, "cleanup_arr") == 0) &&
-                    rust_ownership_kind(expr->as.member_assign.value) == OWNERSHIP_BORROW)
+                    rust_ownership_kind(expr->as.member_assign.value) == RUST_OWNERSHIP_BORROW)
                 {
                     json_object_object_add(obj, "source_is_borrow",
                         json_object_new_boolean(true));
@@ -3035,11 +3035,11 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                  * release, transferring the existing +1 into the field. */
                 if (fv && fv->expr_type && !fv_is_lifted_member)
                 {
-                    OwnershipKind k = rust_ownership_kind(fv);
+                    RustOwnershipKind k = rust_ownership_kind(fv);
                     Type *ft = fv->expr_type;
                     if (ft->kind == TYPE_STRUCT && ft->as.struct_type.pass_self_by_ref)
                     {
-                        if (k == OWNERSHIP_BORROW)
+                        if (k == RUST_OWNERSHIP_BORROW)
                         {
                             json_object_object_add(f, "retain_type_name",
                                 json_object_new_string(ft->as.struct_type.name));
@@ -3053,9 +3053,9 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                         }
                     }
                     else if (ft->kind == TYPE_STRUCT &&
-                             rust_gen_model_type_category(ft) == TYPE_CAT_COMPOSITE)
+                             rust_gen_model_type_category(ft) == RUST_TYPE_CAT_COMPOSITE)
                     {
-                        if (k == OWNERSHIP_BORROW)
+                        if (k == RUST_OWNERSHIP_BORROW)
                         {
                             json_object_object_add(f, "copy_type_name",
                                 json_object_new_string(ft->as.struct_type.name));
@@ -3065,7 +3065,7 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                     }
                     else if (ft->kind == TYPE_STRING || ft->kind == TYPE_ARRAY)
                     {
-                        if (k == OWNERSHIP_BORROW)
+                        if (k == RUST_OWNERSHIP_BORROW)
                         {
                             json_object_object_add(f, "source_is_borrow",
                                 json_object_new_boolean(true));
@@ -3116,8 +3116,8 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                                 }
                                 else if (expected_et->kind == TYPE_STRUCT)
                                 {
-                                    TypeCategory et_cat = rust_gen_model_type_category(expected_et);
-                                    if (et_cat == TYPE_CAT_REFCOUNTED || et_cat == TYPE_CAT_COMPOSITE)
+                                    RustTypeCategory et_cat = rust_gen_model_type_category(expected_et);
+                                    if (et_cat == RUST_TYPE_CAT_REFCOUNTED || et_cat == RUST_TYPE_CAT_COMPOSITE)
                                     {
                                         char buf_r[256], buf_c[256];
                                         if (expected_et->as.struct_type.pass_self_by_ref)
@@ -3837,7 +3837,7 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                             MemoryQualifier mq = (param_mem_quals && i < param_count)
                                 ? param_mem_quals[i] : MEM_DEFAULT;
                             if (mq == MEM_DEFAULT && !callee_native &&
-                                arg_type && rust_gen_model_type_category(arg_type) == TYPE_CAT_COMPOSITE)
+                                arg_type && rust_gen_model_type_category(arg_type) == RUST_TYPE_CAT_COMPOSITE)
                             {
                                 json_object_object_add(arg, "is_borrow",
                                     json_object_new_boolean(true));
@@ -3905,7 +3905,7 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                 json_object_new_boolean(expr->expr_type->kind == TYPE_VOID));
             /* Struct results with heap fields need cleanup before overwrite */
             if (expr->expr_type->kind == TYPE_STRUCT &&
-                rust_gen_model_type_category(expr->expr_type) == TYPE_CAT_COMPOSITE)
+                rust_gen_model_type_category(expr->expr_type) == RUST_TYPE_CAT_COMPOSITE)
             {
                 json_object_object_add(obj, "needs_val_cleanup",
                     json_object_new_boolean(true));

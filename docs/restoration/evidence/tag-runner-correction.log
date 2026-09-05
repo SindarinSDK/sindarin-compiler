@@ -1,0 +1,53 @@
+Compiler: /home/gavin/code/sindarin/sindarin-restore-tagged-c/bin/sn
+Platform: Linux
+Parallel: 20 workers
+
+Unit Tests
+============================================================
+Results: [0;32m1608 passed[0m, [0;31m0 failed[0m  (total: 17.20ms)
+------------------------------------------------------------
+Unit tests passed  (19ms)
+
+Code Generation Tests
+============================================================
+  Running 107 tests with 20 workers...
+                                                            
+------------------------------------------------------------
+Results: 107 passed, 0 failed, 0 skipped  (521ms)
+
+Model Generation Tests
+============================================================
+  Running 79 tests with 20 workers...
+                                                            
+------------------------------------------------------------
+Results: 79 passed, 0 failed, 0 skipped  (53ms)
+
+Integration Tests
+============================================================
+  Running 1141 tests with 20 workers...
+                                                            
+------------------------------------------------------------
+Results: 1141 passed, 0 failed, 0 skipped  (5.50s)
+
+Integration Error Tests
+============================================================
+  Running 58 tests with 20 workers...
+                                                            
+------------------------------------------------------------
+Results: 58 passed, 0 failed, 0 skipped  (28ms)
+
+Exploratory Tests
+============================================================
+  Running 224 tests with 20 workers...
+                                                            
+------------------------------------------------------------
+Results: 224 passed, 0 failed, 0 skipped  (12.79s)
+
+Exploratory Error Tests
+============================================================
+  Running 11 tests with 20 workers...
+                                                            
+------------------------------------------------------------
+Results: 11 passed, 0 failed, 0 skipped  (8ms)
+
+All tests passed!  (total: 18.91s)

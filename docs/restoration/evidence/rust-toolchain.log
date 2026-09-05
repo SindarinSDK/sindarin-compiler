@@ -1,0 +1,17 @@
+Compiler: /home/gavin/code/sindarin/sindarin-restore-tagged-c/bin/sn
+Platform: Linux
+Parallel: 20 workers
+
+Rust Toolchain and Artifact Lifecycle Tests
+============================================================
+  subprocess_utf8_boundary                      PASS  (25ms)
+  rustc_invocation_records                      PASS  (22ms)
+  missing_rustc                                 PASS  (2ms)
+  failing_rustc                                 PASS  (2ms)
+  failing_rustc_build                           PASS  (11ms)
+  rust_generated_artifact_lifecycle             PASS  (12ms)
+
+------------------------------------------------------------
+Results: 6 passed, 0 failed  (76ms)
+
+All tests passed!  (total: 76ms)

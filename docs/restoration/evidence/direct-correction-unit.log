@@ -1,0 +1,4471 @@
+Running tests with debug level: 1
+
+[1mArena[0m
+------------------------------------------------------------
+  arena_init                                         [0;32mPASS[0m  (0.04ms)
+  arena_alloc_small                                  [0;32mPASS[0m  (0.00ms)
+  arena_alloc_large                                  [0;32mPASS[0m  (0.00ms)
+  arena_alloc_larger_than_double                     [0;32mPASS[0m  (0.00ms)
+  arena_alloc_zero                                   [0;32mPASS[0m  (0.00ms)
+  arena_strdup                                       [0;32mPASS[0m  (0.04ms)
+  arena_strndup                                      [0;32mPASS[0m  (0.00ms)
+  arena_free                                         [0;32mPASS[0m  (0.04ms)
+
+[1mArena Edge Cases[0m
+------------------------------------------------------------
+  arena_init_very_small                              [0;32mPASS[0m  (0.00ms)
+  arena_init_various_sizes                           [0;32mPASS[0m  (0.05ms)
+  arena_multiple_init_free_cycles                    [0;32mPASS[0m  (0.00ms)
+  arena_edge_alloc_zero                              [0;32mPASS[0m  (0.00ms)
+  arena_alloc_one_byte                               [0;32mPASS[0m  (0.00ms)
+  arena_alloc_exact_block_size                       [0;32mPASS[0m  (0.00ms)
+  arena_alloc_boundary_sizes                         [0;32mPASS[0m  (0.00ms)
+  arena_alloc_many_small                             [0;32mPASS[0m  (0.00ms)
+  arena_alloc_alternating_sizes                      [0;32mPASS[0m  (0.00ms)
+  arena_strdup_empty                                 [0;32mPASS[0m  (0.00ms)
+  arena_strdup_single_char                           [0;32mPASS[0m  (0.06ms)
+  arena_strdup_long_string                           [0;32mPASS[0m  (0.00ms)
+  arena_strdup_many                                  [0;32mPASS[0m  (0.01ms)
+  arena_strdup_special_chars                         [0;32mPASS[0m  (0.00ms)
+  arena_reuse_after_free                             [0;32mPASS[0m  (0.00ms)
+  arena_reinit_different_sizes                       [0;32mPASS[0m  (0.00ms)
+  arena_alignment_16_byte                            [0;32mPASS[0m  (0.00ms)
+  arena_strdup_alignment                             [0;32mPASS[0m  (0.00ms)
+  arena_block_doubling                               [0;32mPASS[0m  (0.00ms)
+  arena_large_allocation_growth                      [0;32mPASS[0m  (0.00ms)
+  arena_sequential_allocations_contiguous            [0;32mPASS[0m  (0.00ms)
+  arena_no_overlap                                   [0;32mPASS[0m  (0.00ms)
+  arena_used_tracking                                [0;32mPASS[0m  (0.00ms)
+  arena_used_after_many_allocs                       [0;32mPASS[0m  (0.00ms)
+  arena_many_allocations                             [0;32mPASS[0m  (0.01ms)
+  arena_mixed_strings_and_data                       [0;32mPASS[0m  (0.01ms)
+
+[1mCompiler Driver - Optimization Levels[0m
+------------------------------------------------------------
+  opt_level_default                                  [0;32mPASS[0m  (0.00ms)
+  opt_level_O0                                       [0;32mPASS[0m  (0.04ms)
+  opt_level_O1                                       [0;32mPASS[0m  (0.00ms)
+  opt_level_O2                                       [0;32mPASS[0m  (0.00ms)
+
+[1mCompiler Driver - Arithmetic Mode[0m
+------------------------------------------------------------
+  arith_default_checked                              [0;32mPASS[0m  (0.00ms)
+  arith_unchecked_flag                               [0;32mPASS[0m  (0.00ms)
+  arith_checked_flag                                 [0;32mPASS[0m  (0.00ms)
+  arith_O2_explicit_defaults_unchecked               [0;32mPASS[0m  (0.00ms)
+  arith_O2_with_checked_override                     [0;32mPASS[0m  (0.00ms)
+
+[1mCompiler Driver - Output Options[0m
+------------------------------------------------------------
+  output_file_flag                                   [0;32mPASS[0m  (0.00ms)
+  emit_c_flag                                        [0;32mPASS[0m  (0.04ms)
+  keep_c_flag                                        [0;32mPASS[0m  (0.00ms)
+
+[1mCompiler Driver - Debug Options[0m
+------------------------------------------------------------
+  verbose_flag                                       [0;32mPASS[0m  (0.00ms)
+  debug_flag                                         [0;32mPASS[0m  (0.00ms)
+  log_level_flag                                     [0;32mPASS[0m  (0.04ms)
+  log_level_verbose                                  [0;32mPASS[0m  (0.04ms)
+
+[1mCompiler Driver - Source File[0m
+------------------------------------------------------------
+  source_file_parsed                                 [0;32mPASS[0m  (0.00ms)
+  source_file_path                                   [0;32mPASS[0m  (0.00ms)
+
+[1mCompiler Driver - Output Path Derivation[0m
+------------------------------------------------------------
+  default_output_path                                [0;32mPASS[0m  (0.00ms)
+  default_output_file_unused                         [0;32mPASS[0m  (0.00ms)
+  emit_c_output_path                                 [0;32mPASS[0m  (0.00ms)
+
+[1mCompiler Driver - Error Handling[0m
+------------------------------------------------------------
+  no_source_file_error                               Error: No source file specified
+[0;32mPASS[0m  (0.00ms)
+  unknown_option_error                               [ERROR] /home/gavin/code/sindarin/sindarin-restore-tagged-c/src/compiler.c:312: Unknown option: --unknown-option
+[0;32mPASS[0m  (0.00ms)
+  invalid_log_level_error                            Invalid log level: 99 (must be 0-4)
+[0;32mPASS[0m  (0.00ms)
+
+[1mCompiler Driver - Multiple Flags[0m
+------------------------------------------------------------
+  multiple_flags_combined                            [0;32mPASS[0m  (0.00ms)
+  flags_order_independence                           [0;32mPASS[0m  (0.00ms)
+
+[1mCompiler Driver - Legacy Flags[0m
+------------------------------------------------------------
+  no_opt_legacy_flag_rejected                        [ERROR] /home/gavin/code/sindarin/sindarin-restore-tagged-c/src/compiler.c:312: Unknown option: --no-opt
+[0;32mPASS[0m  (0.00ms)
+
+[1mCompiler Driver - Edge Cases[0m
+------------------------------------------------------------
+  source_file_without_extension                      [0;32mPASS[0m  (0.00ms)
+  output_with_path                                   [0;32mPASS[0m  (0.00ms)
+
+[1mCompiler Driver - Stress Tests[0m
+------------------------------------------------------------
+  repeated_parsing                                   [0;32mPASS[0m  (0.01ms)
+  many_flags                                         [0;32mPASS[0m  (0.00ms)
+
+[1mDiagnostic - Initialization[0m
+------------------------------------------------------------
+  init_basic                                         [0;32mPASS[0m  (0.00ms)
+  init_null_source                                   [0;32mPASS[0m  (0.00ms)
+  init_empty_source                                  [0;32mPASS[0m  (0.00ms)
+  init_null_filename                                 [0;32mPASS[0m  (0.00ms)
+  init_multiline_source                              [0;32mPASS[0m  (0.00ms)
+
+[1mDiagnostic - Reset[0m
+------------------------------------------------------------
+  reset_clears_errors                                
+[1;31merror[0m: test error 1
+
+
+[1;31merror[0m: test error 2
+
+[0;32mPASS[0m  (0.01ms)
+  reset_clears_warnings                              
+[1;33mwarning[0m: test warning
+  [1;34m-->[0m test.sn:1:1
+      var x = 1
+      [1;33m^[0m
+
+[0;32mPASS[0m  (0.06ms)
+  reset_multiple_times                               [0;32mPASS[0m  (0.00ms)
+
+[1mDiagnostic - Error Count[0m
+------------------------------------------------------------
+  error_count_increments                             
+[1;31merror[0m: error 1
+
+
+[1;31merror[0m: error 2
+
+
+[1;31merror[0m: error 3
+
+[0;32mPASS[0m  (0.01ms)
+  had_error_false_initially                          [0;32mPASS[0m  (0.00ms)
+  had_error_true_after_error                         
+[1;31merror[0m: an error
+
+[0;32mPASS[0m  (0.00ms)
+  had_error_stays_true                               
+[1;31merror[0m: error
+
+[0;32mPASS[0m  (0.00ms)
+
+[1mDiagnostic - Warning Count[0m
+------------------------------------------------------------
+  warning_count_increments                           
+[1;33mwarning[0m: warning 1
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 2
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+[0;32mPASS[0m  (0.02ms)
+  warnings_dont_affect_error_count                   
+[1;33mwarning[0m: warning
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+[0;32mPASS[0m  (0.01ms)
+
+[1mDiagnostic - Location[0m
+------------------------------------------------------------
+  loc_from_token_basic                               [0;32mPASS[0m  (0.00ms)
+  loc_from_token_null                                [0;32mPASS[0m  (0.00ms)
+  loc_column_computed                                [0;32mPASS[0m  (0.00ms)
+  loc_column_start_of_line                           [0;32mPASS[0m  (0.00ms)
+  loc_multiline_source                               [0;32mPASS[0m  (0.00ms)
+
+[1mDiagnostic - Verbose Mode[0m
+------------------------------------------------------------
+  set_verbose_on                                     [0;32mPASS[0m  (0.00ms)
+  set_verbose_off                                    [0;32mPASS[0m  (0.00ms)
+  set_verbose_toggle                                 [0;32mPASS[0m  (0.00ms)
+
+[1mDiagnostic - Error Reporting[0m
+------------------------------------------------------------
+  error_simple                                       
+[1;31merror[0m: simple error message
+
+[0;32mPASS[0m  (0.00ms)
+  error_simple_with_format                           
+[1;31merror[0m: error: undefined variable at line 10
+
+[0;32mPASS[0m  (0.00ms)
+  error_at_token                                     
+[1;31merror[0m: undefined identifier
+  [1;34m-->[0m test.sn:1:9
+      var x = undefined
+              [1;31m^^^^^^^^^[0m
+
+[0;32mPASS[0m  (0.02ms)
+  error_at_null_token                                
+[1;31merror[0m: error with null token
+
+[0;32mPASS[0m  (0.00ms)
+  error_with_suggestion                              
+[1;31merror[0m: unknown function 'pritn' (did you mean 'print'?)
+  [1;34m-->[0m test.sn:1:9
+      var x = pritn()
+              [1;31m^^^^^[0m
+
+[0;32mPASS[0m  (0.02ms)
+  error_with_null_suggestion                         
+[1;31merror[0m: unknown identifier
+  [1;34m-->[0m test.sn:1:9
+      var x = unknown
+              [1;31m^^^^^^^[0m
+
+[0;32mPASS[0m  (0.01ms)
+
+[1mDiagnostic - Warning Reporting[0m
+------------------------------------------------------------
+  warning_at_token                                   
+[1;33mwarning[0m: unused variable 'x'
+  [1;34m-->[0m test.sn:1:5
+      var x = 42
+          [1;33m^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  warning_at_null_token                              
+[1;33mwarning[0m: warning with null token
+
+[0;32mPASS[0m  (0.00ms)
+
+[1mDiagnostic - Note Reporting[0m
+------------------------------------------------------------
+  note_at_token                                      
+[1;36mnote[0m: function defined here
+  [1;34m-->[0m test.sn:1:4
+      fn foo() {}
+         [1;36m^^^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  note_at_null_token                                 
+[1;36mnote[0m: note with null token
+
+[0;32mPASS[0m  (0.00ms)
+
+[1mDiagnostic - diagnostic_error()[0m
+------------------------------------------------------------
+  error_with_location                                
+[1;31merror[0m: unexpected token
+  [1;34m-->[0m test.sn:1:5
+      var x = 42
+          [1;31m^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  error_null_filename                                
+[1;31merror[0m: error without filename
+
+[0;32mPASS[0m  (0.00ms)
+  error_zero_line                                    
+[1;31merror[0m: error at unknown location
+  [1;34m-->[0m test.sn
+
+[0;32mPASS[0m  (0.00ms)
+  error_large_line                                   
+[1;31merror[0m: error at large line number
+  [1;34m-->[0m test.sn:9999:1
+
+[0;32mPASS[0m  (0.01ms)
+
+[1mDiagnostic - diagnostic_report()[0m
+------------------------------------------------------------
+  report_error_level                                 
+[1;31merror[0m: error message
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  report_warning_level                               
+[1;33mwarning[0m: warning message
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  report_note_level                                  
+[1;36mnote[0m: note message
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;36m^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  report_invalid_level                               
+[1;31merror[0m: invalid level
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^[0m
+
+[0;32mPASS[0m  (0.01ms)
+
+[1mDiagnostic - Phase Reporting[0m
+------------------------------------------------------------
+  phase_parsing                                        Parsing... [1;36mdone[0m
+[0;32mPASS[0m  (0.00ms)
+  phase_type_check                                     Type checking... [1;36mdone[0m
+[0;32mPASS[0m  (0.00ms)
+  phase_code_gen                                       Code generation... [1;36mdone[0m
+[0;32mPASS[0m  (0.00ms)
+  phase_linking                                        Linking... [1;36mdone[0m
+[0;32mPASS[0m  (0.00ms)
+  phase_failed                                         Parsing... [1;31mfailed[0m
+
+[0;32mPASS[0m  (0.00ms)
+  phase_with_timing                                    Parsing... [1;36mdone[0m (0.50s)
+[0;32mPASS[0m  (0.00ms)
+
+[1mDiagnostic - Compile Status[0m
+------------------------------------------------------------
+  compile_start                                      [1mCompiling[0m test.sn...
+[0;32mPASS[0m  (0.00ms)
+  compile_success                                    [1;36mDone[0m: output.exe (12.1 KB)
+[0;32mPASS[0m  (0.00ms)
+  compile_success_large_file                         [1;36mDone[0m: output.exe (10.0 MB)
+[0;32mPASS[0m  (0.00ms)
+  compile_success_small_file                         [1;36mDone[0m: output.exe (100 bytes)
+[0;32mPASS[0m  (0.00ms)
+  compile_success_verbose                            
+[1;36mDone[0m: output.exe (100.0 KB) in 0.50s
+[0;32mPASS[0m  (0.00ms)
+  compile_failed                                     [1;31mCompilation failed[0m
+[0;32mPASS[0m  (0.00ms)
+  compile_failed_with_errors                         
+[1;31merror[0m: error 1
+
+
+[1;31merror[0m: error 2
+
+[1;31mCompilation failed[0m: 2 errors
+[0;32mPASS[0m  (0.00ms)
+
+[1mDiagnostic - Edge Cases[0m
+------------------------------------------------------------
+  many_errors                                        
+[1;31merror[0m: error 0
+
+
+[1;31merror[0m: error 1
+
+
+[1;31merror[0m: error 2
+
+
+[1;31merror[0m: error 3
+
+
+[1;31merror[0m: error 4
+
+
+[1;31merror[0m: error 5
+
+
+[1;31merror[0m: error 6
+
+
+[1;31merror[0m: error 7
+
+
+[1;31merror[0m: error 8
+
+
+[1;31merror[0m: error 9
+
+
+[1;31merror[0m: error 10
+
+
+[1;31merror[0m: error 11
+
+
+[1;31merror[0m: error 12
+
+
+[1;31merror[0m: error 13
+
+
+[1;31merror[0m: error 14
+
+
+[1;31merror[0m: error 15
+
+
+[1;31merror[0m: error 16
+
+
+[1;31merror[0m: error 17
+
+
+[1;31merror[0m: error 18
+
+
+[1;31merror[0m: error 19
+
+
+[1;31merror[0m: error 20
+
+
+[1;31merror[0m: error 21
+
+
+[1;31merror[0m: error 22
+
+
+[1;31merror[0m: error 23
+
+
+[1;31merror[0m: error 24
+
+
+[1;31merror[0m: error 25
+
+
+[1;31merror[0m: error 26
+
+
+[1;31merror[0m: error 27
+
+
+[1;31merror[0m: error 28
+
+
+[1;31merror[0m: error 29
+
+
+[1;31merror[0m: error 30
+
+
+[1;31merror[0m: error 31
+
+
+[1;31merror[0m: error 32
+
+
+[1;31merror[0m: error 33
+
+
+[1;31merror[0m: error 34
+
+
+[1;31merror[0m: error 35
+
+
+[1;31merror[0m: error 36
+
+
+[1;31merror[0m: error 37
+
+
+[1;31merror[0m: error 38
+
+
+[1;31merror[0m: error 39
+
+
+[1;31merror[0m: error 40
+
+
+[1;31merror[0m: error 41
+
+
+[1;31merror[0m: error 42
+
+
+[1;31merror[0m: error 43
+
+
+[1;31merror[0m: error 44
+
+
+[1;31merror[0m: error 45
+
+
+[1;31merror[0m: error 46
+
+
+[1;31merror[0m: error 47
+
+
+[1;31merror[0m: error 48
+
+
+[1;31merror[0m: error 49
+
+
+[1;31merror[0m: error 50
+
+
+[1;31merror[0m: error 51
+
+
+[1;31merror[0m: error 52
+
+
+[1;31merror[0m: error 53
+
+
+[1;31merror[0m: error 54
+
+
+[1;31merror[0m: error 55
+
+
+[1;31merror[0m: error 56
+
+
+[1;31merror[0m: error 57
+
+
+[1;31merror[0m: error 58
+
+
+[1;31merror[0m: error 59
+
+
+[1;31merror[0m: error 60
+
+
+[1;31merror[0m: error 61
+
+
+[1;31merror[0m: error 62
+
+
+[1;31merror[0m: error 63
+
+
+[1;31merror[0m: error 64
+
+
+[1;31merror[0m: error 65
+
+
+[1;31merror[0m: error 66
+
+
+[1;31merror[0m: error 67
+
+
+[1;31merror[0m: error 68
+
+
+[1;31merror[0m: error 69
+
+
+[1;31merror[0m: error 70
+
+
+[1;31merror[0m: error 71
+
+
+[1;31merror[0m: error 72
+
+
+[1;31merror[0m: error 73
+
+
+[1;31merror[0m: error 74
+
+
+[1;31merror[0m: error 75
+
+
+[1;31merror[0m: error 76
+
+
+[1;31merror[0m: error 77
+
+
+[1;31merror[0m: error 78
+
+
+[1;31merror[0m: error 79
+
+
+[1;31merror[0m: error 80
+
+
+[1;31merror[0m: error 81
+
+
+[1;31merror[0m: error 82
+
+
+[1;31merror[0m: error 83
+
+
+[1;31merror[0m: error 84
+
+
+[1;31merror[0m: error 85
+
+
+[1;31merror[0m: error 86
+
+
+[1;31merror[0m: error 87
+
+
+[1;31merror[0m: error 88
+
+
+[1;31merror[0m: error 89
+
+
+[1;31merror[0m: error 90
+
+
+[1;31merror[0m: error 91
+
+
+[1;31merror[0m: error 92
+
+
+[1;31merror[0m: error 93
+
+
+[1;31merror[0m: error 94
+
+
+[1;31merror[0m: error 95
+
+
+[1;31merror[0m: error 96
+
+
+[1;31merror[0m: error 97
+
+
+[1;31merror[0m: error 98
+
+
+[1;31merror[0m: error 99
+
+[0;32mPASS[0m  (0.17ms)
+  many_warnings                                      
+[1;33mwarning[0m: warning 0
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 1
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 2
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 3
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 4
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 5
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 6
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 7
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 8
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 9
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 10
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 11
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 12
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 13
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 14
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 15
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 16
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 17
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 18
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 19
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 20
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 21
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 22
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 23
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 24
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 25
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 26
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 27
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 28
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 29
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 30
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 31
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 32
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 33
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 34
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 35
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 36
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 37
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 38
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 39
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 40
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 41
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 42
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 43
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 44
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 45
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 46
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 47
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 48
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 49
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 50
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 51
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 52
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 53
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 54
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 55
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 56
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 57
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 58
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 59
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 60
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 61
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 62
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 63
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 64
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 65
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 66
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 67
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 68
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 69
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 70
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 71
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 72
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 73
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 74
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 75
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 76
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 77
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 78
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 79
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 80
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 81
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 82
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 83
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 84
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 85
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 86
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 87
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 88
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 89
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 90
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 91
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 92
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 93
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 94
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 95
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 96
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 97
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 98
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;33mwarning[0m: warning 99
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+[0;32mPASS[0m  (0.82ms)
+  mixed_errors_and_warnings                          
+[1;31merror[0m: error 0
+
+
+[1;33mwarning[0m: warning 0
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 1
+
+
+[1;33mwarning[0m: warning 1
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 2
+
+
+[1;33mwarning[0m: warning 2
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 3
+
+
+[1;33mwarning[0m: warning 3
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 4
+
+
+[1;33mwarning[0m: warning 4
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 5
+
+
+[1;33mwarning[0m: warning 5
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 6
+
+
+[1;33mwarning[0m: warning 6
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 7
+
+
+[1;33mwarning[0m: warning 7
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 8
+
+
+[1;33mwarning[0m: warning 8
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 9
+
+
+[1;33mwarning[0m: warning 9
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 10
+
+
+[1;33mwarning[0m: warning 10
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 11
+
+
+[1;33mwarning[0m: warning 11
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 12
+
+
+[1;33mwarning[0m: warning 12
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 13
+
+
+[1;33mwarning[0m: warning 13
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 14
+
+
+[1;33mwarning[0m: warning 14
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 15
+
+
+[1;33mwarning[0m: warning 15
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 16
+
+
+[1;33mwarning[0m: warning 16
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 17
+
+
+[1;33mwarning[0m: warning 17
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 18
+
+
+[1;33mwarning[0m: warning 18
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 19
+
+
+[1;33mwarning[0m: warning 19
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 20
+
+
+[1;33mwarning[0m: warning 20
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 21
+
+
+[1;33mwarning[0m: warning 21
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 22
+
+
+[1;33mwarning[0m: warning 22
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 23
+
+
+[1;33mwarning[0m: warning 23
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 24
+
+
+[1;33mwarning[0m: warning 24
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 25
+
+
+[1;33mwarning[0m: warning 25
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 26
+
+
+[1;33mwarning[0m: warning 26
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 27
+
+
+[1;33mwarning[0m: warning 27
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 28
+
+
+[1;33mwarning[0m: warning 28
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 29
+
+
+[1;33mwarning[0m: warning 29
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 30
+
+
+[1;33mwarning[0m: warning 30
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 31
+
+
+[1;33mwarning[0m: warning 31
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 32
+
+
+[1;33mwarning[0m: warning 32
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 33
+
+
+[1;33mwarning[0m: warning 33
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 34
+
+
+[1;33mwarning[0m: warning 34
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 35
+
+
+[1;33mwarning[0m: warning 35
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 36
+
+
+[1;33mwarning[0m: warning 36
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 37
+
+
+[1;33mwarning[0m: warning 37
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 38
+
+
+[1;33mwarning[0m: warning 38
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 39
+
+
+[1;33mwarning[0m: warning 39
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 40
+
+
+[1;33mwarning[0m: warning 40
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 41
+
+
+[1;33mwarning[0m: warning 41
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 42
+
+
+[1;33mwarning[0m: warning 42
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 43
+
+
+[1;33mwarning[0m: warning 43
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 44
+
+
+[1;33mwarning[0m: warning 44
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 45
+
+
+[1;33mwarning[0m: warning 45
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 46
+
+
+[1;33mwarning[0m: warning 46
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 47
+
+
+[1;33mwarning[0m: warning 47
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 48
+
+
+[1;33mwarning[0m: warning 48
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+
+[1;31merror[0m: error 49
+
+
+[1;33mwarning[0m: warning 49
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^[0m
+
+[0;32mPASS[0m  (0.50ms)
+  long_error_message                                 
+[1;31merror[0m: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+[0;32mPASS[0m  (0.00ms)
+  special_chars_in_message                           
+[1;31merror[0m: error with special chars: <>"'&%
+
+[0;32mPASS[0m  (0.00ms)
+
+[1mDiagnostic - Reinit[0m
+------------------------------------------------------------
+  reinit_clears_counts                               
+[1;31merror[0m: error
+
+[0;32mPASS[0m  (0.00ms)
+  reinit_with_different_source                       [0;32mPASS[0m  (0.00ms)
+
+[1mDiagnostic - Stress Tests[0m
+------------------------------------------------------------
+  repeated_init                                      [0;32mPASS[0m  (0.00ms)
+  repeated_reset                                     
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+
+[1;31merror[0m: error
+
+[0;32mPASS[0m  (0.18ms)
+
+[1mOwnership classifier[0m
+------------------------------------------------------------
+  owned_call_forms                                   [0;32mPASS[0m  (0.00ms)
+  owned_constructors                                 [0;32mPASS[0m  (0.00ms)
+  owned_thread_forms                                 [0;32mPASS[0m  (0.00ms)
+  owned_operators                                    [0;32mPASS[0m  (0.00ms)
+  owned_nil_literal                                  [0;32mPASS[0m  (0.00ms)
+  borrow_reads                                       [0;32mPASS[0m  (0.00ms)
+  owned_transforms                                   [0;32mPASS[0m  (0.00ms)
+  borrow_literals                                    [0;32mPASS[0m  (0.00ms)
+  borrow_thread_sync_from_handle                     [0;32mPASS[0m  (0.00ms)
+  null_source_is_safe                                [0;32mPASS[0m  (0.00ms)
+  kind_str_roundtrip                                 [0;32mPASS[0m  (0.00ms)
+  regression_queue_drain_take_owned                  [0;32mPASS[0m  (0.00ms)
+  regression_literal_push_owned                      [0;32mPASS[0m  (0.00ms)
+  regression_lvalue_push_borrow                      [0;32mPASS[0m  (0.00ms)
+  regression_return_from_container                   [0;32mPASS[0m  (0.00ms)
+
+[1mModular Model Ownership[0m
+------------------------------------------------------------
+  gen_model_split_native_externs                     [0;32mPASS[0m  (0.26ms)
+
+[1mAST Type Tests[0m
+------------------------------------------------------------
+  ast_create_primitive_type                          [0;32mPASS[0m  (0.05ms)
+  ast_create_array_type                              [0;32mPASS[0m  (0.00ms)
+  ast_create_function_type                           [ERROR] /home/gavin/code/sindarin/sindarin-restore-tagged-c/src/ast/ast_type.c:332: Cannot create function type: param_types is NULL but param_count > 0
+[0;32mPASS[0m  (0.00ms)
+  ast_clone_type                                     [0;32mPASS[0m  (0.00ms)
+  ast_type_equals                                    [0;32mPASS[0m  (0.00ms)
+  ast_type_to_string                                 [0;32mPASS[0m  (0.00ms)
+
+[1mAST Expression Tests[0m
+------------------------------------------------------------
+  ast_create_binary_expr                             [0;32mPASS[0m  (0.00ms)
+  ast_create_unary_expr                              [0;32mPASS[0m  (0.00ms)
+  ast_create_literal_expr                            [0;32mPASS[0m  (0.00ms)
+  ast_create_variable_expr                           [0;32mPASS[0m  (0.00ms)
+  ast_create_assign_expr                             [0;32mPASS[0m  (0.00ms)
+  ast_create_call_expr                               [0;32mPASS[0m  (0.00ms)
+  ast_create_array_expr                              [0;32mPASS[0m  (0.00ms)
+  ast_create_array_access_expr                       [0;32mPASS[0m  (0.04ms)
+  ast_create_increment_expr                          [0;32mPASS[0m  (0.00ms)
+  ast_create_decrement_expr                          [0;32mPASS[0m  (0.00ms)
+  ast_create_interpolated_expr                       [0;32mPASS[0m  (0.00ms)
+  ast_create_member_expr                             [0;32mPASS[0m  (0.00ms)
+  ast_create_comparison_expr                         [ERROR] /home/gavin/code/sindarin/sindarin-restore-tagged-c/src/ast/ast_expr_basic.c:8: Cannot create comparison with NULL expressions
+[ERROR] /home/gavin/code/sindarin/sindarin-restore-tagged-c/src/ast/ast_expr_basic.c:8: Cannot create comparison with NULL expressions
+[0;32mPASS[0m  (0.01ms)
+  ast_create_array_slice_expr                        [0;32mPASS[0m  (0.00ms)
+  ast_create_member_access_expr                      [ERROR] /home/gavin/code/sindarin/sindarin-restore-tagged-c/src/ast/ast_expr_struct.c:73: Cannot create member access with NULL object
+[0;32mPASS[0m  (0.00ms)
+
+[1mAST Statement Tests[0m
+------------------------------------------------------------
+  ast_create_expr_stmt                               [0;32mPASS[0m  (0.00ms)
+  ast_create_var_decl_stmt                           [0;32mPASS[0m  (0.00ms)
+  ast_create_function_stmt                           [0;32mPASS[0m  (0.00ms)
+  ast_create_return_stmt                             [0;32mPASS[0m  (0.00ms)
+  ast_create_block_stmt                              [0;32mPASS[0m  (0.00ms)
+  ast_create_if_stmt                                 [0;32mPASS[0m  (0.00ms)
+  ast_create_while_stmt                              [0;32mPASS[0m  (0.00ms)
+  ast_create_for_stmt                                [0;32mPASS[0m  (0.00ms)
+  ast_create_import_stmt                             [0;32mPASS[0m  (0.00ms)
+
+[1mAST Utility Tests[0m
+------------------------------------------------------------
+  ast_init_module                                    [0;32mPASS[0m  (0.00ms)
+  ast_module_add_statement                           [0;32mPASS[0m  (0.00ms)
+  ast_clone_token                                    [0;32mPASS[0m  (0.00ms)
+  ast_print                                          [0;32mPASS[0m  (0.00ms)
+
+[1mAST - Primitive Types[0m
+------------------------------------------------------------
+  primitive_type_int                                 [0;32mPASS[0m  (0.00ms)
+  primitive_type_long                                [0;32mPASS[0m  (0.00ms)
+  primitive_type_double                              [0;32mPASS[0m  (0.00ms)
+  primitive_type_bool                                [0;32mPASS[0m  (0.00ms)
+  primitive_type_char                                [0;32mPASS[0m  (0.00ms)
+  primitive_type_byte                                [0;32mPASS[0m  (0.00ms)
+  primitive_type_string                              [0;32mPASS[0m  (0.00ms)
+  primitive_type_void                                [0;32mPASS[0m  (0.00ms)
+
+[1mAST - Composite Types[0m
+------------------------------------------------------------
+  array_type_int                                     [0;32mPASS[0m  (0.00ms)
+  array_type_string                                  [0;32mPASS[0m  (0.00ms)
+  pointer_type_int                                   [0;32mPASS[0m  (0.00ms)
+  pointer_type_char                                  [0;32mPASS[0m  (0.00ms)
+  opaque_type                                        [0;32mPASS[0m  (0.00ms)
+  nested_array_type                                  [0;32mPASS[0m  (0.00ms)
+  pointer_to_pointer                                 [0;32mPASS[0m  (0.00ms)
+
+[1mAST - Literal Expressions[0m
+------------------------------------------------------------
+  literal_int_zero                                   [0;32mPASS[0m  (0.00ms)
+  literal_int_negative                               [0;32mPASS[0m  (0.00ms)
+  literal_double_zero                                [0;32mPASS[0m  (0.00ms)
+  literal_double_pi                                  [0;32mPASS[0m  (0.00ms)
+  literal_bool_true                                  [0;32mPASS[0m  (0.00ms)
+  literal_bool_false                                 [0;32mPASS[0m  (0.00ms)
+  literal_string_empty                               [0;32mPASS[0m  (0.00ms)
+  literal_string_hello                               [0;32mPASS[0m  (0.00ms)
+  literal_char_a                                     [0;32mPASS[0m  (0.00ms)
+  literal_char_newline                               [0;32mPASS[0m  (0.00ms)
+  literal_byte_zero                                  [0;32mPASS[0m  (0.00ms)
+  literal_byte_max                                   [0;32mPASS[0m  (0.00ms)
+
+[1mAST - Binary Expressions[0m
+------------------------------------------------------------
+  binary_add                                         [0;32mPASS[0m  (0.00ms)
+  binary_sub                                         [0;32mPASS[0m  (0.00ms)
+  binary_mul                                         [0;32mPASS[0m  (0.00ms)
+  binary_div                                         [0;32mPASS[0m  (0.00ms)
+  binary_mod                                         [0;32mPASS[0m  (0.00ms)
+  binary_eq                                          [0;32mPASS[0m  (0.00ms)
+  binary_neq                                         [0;32mPASS[0m  (0.00ms)
+  binary_less                                        [0;32mPASS[0m  (0.00ms)
+  binary_less_eq                                     [0;32mPASS[0m  (0.00ms)
+  binary_greater                                     [0;32mPASS[0m  (0.00ms)
+  binary_greater_eq                                  [0;32mPASS[0m  (0.00ms)
+
+[1mAST - Unary Expressions[0m
+------------------------------------------------------------
+  unary_negate                                       [0;32mPASS[0m  (0.00ms)
+  unary_not                                          [0;32mPASS[0m  (0.00ms)
+
+[1mAST - Variable Expressions[0m
+------------------------------------------------------------
+  variable_simple                                    [0;32mPASS[0m  (0.00ms)
+  variable_underscore                                [0;32mPASS[0m  (0.00ms)
+  variable_long_name                                 [0;32mPASS[0m  (0.00ms)
+
+[1mAST - Statements[0m
+------------------------------------------------------------
+  expr_stmt                                          [0;32mPASS[0m  (0.00ms)
+  return_stmt_with_value                             [0;32mPASS[0m  (0.00ms)
+  return_stmt_void                                   [0;32mPASS[0m  (0.00ms)
+  block_stmt_empty                                   [0;32mPASS[0m  (0.00ms)
+  block_stmt_with_stmts                              [0;32mPASS[0m  (0.00ms)
+  var_decl_no_init                                   [0;32mPASS[0m  (0.00ms)
+  var_decl_with_init                                 [0;32mPASS[0m  (0.00ms)
+
+[1mAST - Module[0m
+------------------------------------------------------------
+  module_init                                        [0;32mPASS[0m  (0.00ms)
+  module_add_single_stmt                             [0;32mPASS[0m  (0.00ms)
+  module_add_multiple_stmts                          [0;32mPASS[0m  (0.00ms)
+
+[1mAST Stress Tests[0m
+------------------------------------------------------------
+  ast_create_many_primitives                         [0;32mPASS[0m  (0.00ms)
+  ast_create_all_primitive_types                     [0;32mPASS[0m  (0.00ms)
+  ast_create_nested_arrays                           [0;32mPASS[0m  (0.00ms)
+  ast_create_many_pointers                           [0;32mPASS[0m  (0.00ms)
+  ast_create_array_of_arrays                         [0;32mPASS[0m  (0.00ms)
+  ast_create_many_literals                           [0;32mPASS[0m  (0.00ms)
+  ast_create_many_variables                          [0;32mPASS[0m  (0.01ms)
+  ast_create_binary_chain                            [0;32mPASS[0m  (0.00ms)
+  ast_create_unary_chain                             [0;32mPASS[0m  (0.00ms)
+  ast_create_all_binary_ops                          [0;32mPASS[0m  (0.00ms)
+  ast_create_call_exprs                              [0;32mPASS[0m  (0.01ms)
+  ast_create_array_access_exprs                      [0;32mPASS[0m  (0.00ms)
+  ast_create_member_exprs                            [0;32mPASS[0m  (0.01ms)
+  ast_create_assign_exprs                            [0;32mPASS[0m  (0.00ms)
+  ast_create_comparison_exprs                        [0;32mPASS[0m  (0.00ms)
+  ast_create_many_var_decls                          [0;32mPASS[0m  (0.01ms)
+  ast_create_many_expr_stmts                         [0;32mPASS[0m  (0.00ms)
+  ast_create_return_stmts                            [0;32mPASS[0m  (0.00ms)
+  ast_create_if_stmts                                [0;32mPASS[0m  (0.00ms)
+  ast_create_while_stmts                             [0;32mPASS[0m  (0.00ms)
+  ast_create_block_stmts                             [0;32mPASS[0m  (0.01ms)
+  ast_create_for_stmts                               [0;32mPASS[0m  (0.00ms)
+  ast_module_many_stmts                              [0;32mPASS[0m  (0.01ms)
+  ast_module_mixed_stmts                             [0;32mPASS[0m  (0.00ms)
+  ast_many_arenas                                    [0;32mPASS[0m  (0.03ms)
+  ast_large_expressions                              [0;32mPASS[0m  (0.12ms)
+  ast_type_compare_primitives                        [0;32mPASS[0m  (0.00ms)
+  ast_type_compare_arrays                            [0;32mPASS[0m  (0.00ms)
+  ast_type_compare_pointers                          [0;32mPASS[0m  (0.00ms)
+  ast_type_compare_function_types                    [0;32mPASS[0m  (0.00ms)
+  ast_expr_kinds                                     [0;32mPASS[0m  (0.00ms)
+  ast_stmt_kinds                                     [0;32mPASS[0m  (0.00ms)
+
+[1mAST Types - Primitive Type Creation[0m
+------------------------------------------------------------
+  create_type_int                                    [0;32mPASS[0m  (0.00ms)
+  create_type_int32                                  [0;32mPASS[0m  (0.00ms)
+  create_type_uint                                   [0;32mPASS[0m  (0.00ms)
+  create_type_uint32                                 [0;32mPASS[0m  (0.00ms)
+  create_type_long                                   [0;32mPASS[0m  (0.00ms)
+  create_type_double                                 [0;32mPASS[0m  (0.00ms)
+  create_type_float                                  [0;32mPASS[0m  (0.00ms)
+  create_type_char                                   [0;32mPASS[0m  (0.00ms)
+  create_type_string                                 [0;32mPASS[0m  (0.00ms)
+  create_type_bool                                   [0;32mPASS[0m  (0.00ms)
+  create_type_byte                                   [0;32mPASS[0m  (0.00ms)
+  create_type_void                                   [0;32mPASS[0m  (0.00ms)
+  create_type_nil                                    [0;32mPASS[0m  (0.00ms)
+
+[1mAST Types - Array Types[0m
+------------------------------------------------------------
+  create_array_type_int                              [0;32mPASS[0m  (0.00ms)
+  create_array_type_string                           [0;32mPASS[0m  (0.00ms)
+  create_nested_array_type                           [0;32mPASS[0m  (0.00ms)
+  create_array_type_bool                             [0;32mPASS[0m  (0.00ms)
+  create_array_type_double                           [0;32mPASS[0m  (0.00ms)
+
+[1mAST Types - Function Types[0m
+------------------------------------------------------------
+  create_function_type_no_params                     [0;32mPASS[0m  (0.00ms)
+  create_function_type_one_param                     [0;32mPASS[0m  (0.00ms)
+  create_function_type_multiple_params               [0;32mPASS[0m  (0.00ms)
+  create_function_type_returning_array               [0;32mPASS[0m  (0.00ms)
+
+[1mAST Types - Pointer Types[0m
+------------------------------------------------------------
+  create_pointer_type_int                            [0;32mPASS[0m  (0.00ms)
+  create_pointer_type_void                           [0;32mPASS[0m  (0.00ms)
+  create_double_pointer_type                         [0;32mPASS[0m  (0.00ms)
+
+[1mAST Types - Opaque Types[0m
+------------------------------------------------------------
+  create_opaque_type                                 [0;32mPASS[0m  (0.00ms)
+  create_opaque_type_different_name                  [0;32mPASS[0m  (0.00ms)
+
+[1mAST Types - Type Comparison[0m
+------------------------------------------------------------
+  types_equal_same_int                               [0;32mPASS[0m  (0.00ms)
+  types_equal_different_primitives                   [0;32mPASS[0m  (0.00ms)
+  types_equal_same_array                             [0;32mPASS[0m  (0.00ms)
+  types_equal_different_array_elements               [0;32mPASS[0m  (0.00ms)
+  types_equal_null_first                             [0;32mPASS[0m  (0.00ms)
+  types_equal_null_second                            [0;32mPASS[0m  (0.00ms)
+  types_equal_both_null                              [0;32mPASS[0m  (0.00ms)
+  types_equal_functions_same                         [0;32mPASS[0m  (0.00ms)
+  types_equal_functions_different_returns            [0;32mPASS[0m  (0.00ms)
+
+[1mAST Types - Type Cloning[0m
+------------------------------------------------------------
+  clone_type_int                                     [0;32mPASS[0m  (0.00ms)
+  clone_type_array                                   [0;32mPASS[0m  (0.00ms)
+  clone_type_function                                [0;32mPASS[0m  (0.00ms)
+  clone_type_null                                    [0;32mPASS[0m  (0.00ms)
+
+[1mGCC Backend - Configuration[0m
+------------------------------------------------------------
+  config_init_defaults                               [0;32mPASS[0m  (0.08ms)
+  config_default_compiler                            [0;32mPASS[0m  (0.00ms)
+  config_debug_flags                                 [0;32mPASS[0m  (0.00ms)
+  config_release_flags                               [0;32mPASS[0m  (0.00ms)
+  config_ldflags_empty                               [0;32mPASS[0m  (0.00ms)
+  config_ldlibs_not_null                             [0;32mPASS[0m  (0.00ms)
+  config_cflags_not_null                             [0;32mPASS[0m  (0.00ms)
+  config_std_c11                                     [0;32mPASS[0m  (0.00ms)
+  config_after_load                                  [0;32mPASS[0m  (0.03ms)
+  config_init_multiple_times                         [0;32mPASS[0m  (0.00ms)
+  config_values_stable                               [0;32mPASS[0m  (0.00ms)
+  config_consistent_across_calls                     [0;32mPASS[0m  (0.00ms)
+  configs_are_independent                            [0;32mPASS[0m  (0.00ms)
+  config_fields_all_set                              [0;32mPASS[0m  (0.00ms)
+
+[1mGCC Backend - Compiler Detection[0m
+------------------------------------------------------------
+  detect_gcc_compiler                                [0;32mPASS[0m  (0.00ms)
+  check_available_returns_bool                       [0;32mPASS[0m  (1.85ms)
+
+[1mGCC Backend - SDK Resolution[0m
+------------------------------------------------------------
+  get_compiler_dir_not_null                          [0;32mPASS[0m  (0.02ms)
+  get_compiler_dir_with_argv0                        [0;32mPASS[0m  (0.00ms)
+  get_compiler_dir_absolute_path                     [0;32mPASS[0m  (0.00ms)
+  sdk_cache_reset                                    [0;32mPASS[0m  (0.00ms)
+  resolve_sdk_import_nonexistent                     [0;32mPASS[0m  (0.01ms)
+  resolve_sdk_import_strips_prefix                   [0;32mPASS[0m  (0.00ms)
+  resolve_sdk_import_with_backslash                  [0;32mPASS[0m  (0.00ms)
+  sdk_multiple_resolves                              [0;32mPASS[0m  (0.00ms)
+  sdk_resolve_after_reset                            [0;32mPASS[0m  (0.00ms)
+  sdk_resolve_empty_module                           [0;32mPASS[0m  (0.00ms)
+  sdk_resolve_with_extension                         [0;32mPASS[0m  (0.00ms)
+
+[1mGCC Backend - Path Handling[0m
+------------------------------------------------------------
+  compiler_dir_ends_without_separator                [0;32mPASS[0m  (0.00ms)
+  compiler_dir_handles_dot                           [0;32mPASS[0m  (0.00ms)
+  compiler_dir_handles_basename                      [0;32mPASS[0m  (0.00ms)
+  compiler_dir_empty_string                          [0;32mPASS[0m  (0.00ms)
+  compiler_dir_long_path                             [0;32mPASS[0m  (0.00ms)
+  compiler_dir_special_chars                         [0;32mPASS[0m  (0.00ms)
+
+[1mGCC Backend - Pragma Validation[0m
+------------------------------------------------------------
+
+[1mGCC Backend - Config Load[0m
+------------------------------------------------------------
+  load_config_no_crash                               [0;32mPASS[0m  (0.00ms)
+  load_config_current_dir                            [0;32mPASS[0m  (0.00ms)
+
+[1mGCC Backend - Backend-Specific[0m
+------------------------------------------------------------
+  debug_has_symbol_flag                              [0;32mPASS[0m  (0.00ms)
+  release_has_optimization                           [0;32mPASS[0m  (0.00ms)
+
+[1mGCC Backend - Unix Specific[0m
+------------------------------------------------------------
+  unix_pthread_support                               [0;32mPASS[0m  (0.00ms)
+
+[1mGCC Backend - Stress Tests[0m
+------------------------------------------------------------
+  repeated_config_init                               [0;32mPASS[0m  (0.17ms)
+  repeated_sdk_resolve                               [0;32mPASS[0m  (0.13ms)
+  repeated_compiler_dir                              [0;32mPASS[0m  (0.12ms)
+
+[1mLexer Array Tests[0m
+------------------------------------------------------------
+  lexer_array_empty                                  [0;32mPASS[0m  (0.00ms)
+  lexer_array_single_element                         [0;32mPASS[0m  (0.00ms)
+  lexer_array_multi_element                          [0;32mPASS[0m  (0.00ms)
+  lexer_inline_array_expression                      [0;32mPASS[0m  (0.00ms)
+  lexer_array_assignment                             [0;32mPASS[0m  (0.00ms)
+  lexer_array_method_calls                           [0;32mPASS[0m  (0.00ms)
+  lexer_unmatched_brace_error                        [0;32mPASS[0m  (0.00ms)
+  lexer_array_with_indentation                       [0;32mPASS[0m  (0.00ms)
+  lexer_array_at_line_start                          [0;32mPASS[0m  (0.00ms)
+  lexer_range_operator                               [0;32mPASS[0m  (0.00ms)
+  lexer_array_slice_full                             [0;32mPASS[0m  (0.00ms)
+  lexer_array_slice_from_start                       [0;32mPASS[0m  (0.00ms)
+  lexer_array_slice_to_end                           [0;32mPASS[0m  (0.00ms)
+  lexer_array_slice_full_copy                        [0;32mPASS[0m  (0.00ms)
+  lexer_dot_vs_range                                 [0;32mPASS[0m  (0.00ms)
+
+[1mLexer Literal Tests[0m
+------------------------------------------------------------
+  lexer_empty_source                                 [0;32mPASS[0m  (0.00ms)
+  lexer_only_whitespace                              [0;32mPASS[0m  (0.00ms)
+  lexer_single_identifier                            [0;32mPASS[0m  (0.00ms)
+  lexer_keywords                                     [0;32mPASS[0m  (0.00ms)
+  lexer_interop_type_keywords                        [0;32mPASS[0m  (0.00ms)
+  lexer_opaque_type_keywords                         [0;32mPASS[0m  (0.00ms)
+  lexer_native_keyword                               [0;32mPASS[0m  (0.00ms)
+  lexer_bool_literals                                [0;32mPASS[0m  (0.00ms)
+  lexer_int_literal                                  [0;32mPASS[0m  (0.00ms)
+  lexer_long_literal                                 [0;32mPASS[0m  (0.00ms)
+  lexer_double_literal_decimal                       [0;32mPASS[0m  (0.00ms)
+  lexer_double_literal_with_d                        [0;32mPASS[0m  (0.00ms)
+  lexer_string_literal                               [0;32mPASS[0m  (0.00ms)
+  lexer_string_with_escapes                          [0;32mPASS[0m  (0.00ms)
+  lexer_unterminated_string                          [0;32mPASS[0m  (0.00ms)
+  lexer_interpolated_string                          [0;32mPASS[0m  (0.00ms)
+  lexer_interpol_brace_identifier_regress            [0;32mPASS[0m  (0.00ms)
+  lexer_interpol_brace_quoted_arg_regress            [0;32mPASS[0m  (0.00ms)
+  lexer_char_literal                                 [0;32mPASS[0m  (0.00ms)
+  lexer_char_escape                                  [0;32mPASS[0m  (0.00ms)
+  lexer_unterminated_char                            [0;32mPASS[0m  (0.00ms)
+  lexer_pragma_include                               [0;32mPASS[0m  (0.00ms)
+  lexer_pragma_link                                  [0;32mPASS[0m  (0.00ms)
+  lexer_val_ref_keywords                             [0;32mPASS[0m  (0.00ms)
+  lexer_ampersand_operator                           [0;32mPASS[0m  (0.00ms)
+  lexer_pointer_type_syntax                          [0;32mPASS[0m  (0.00ms)
+  lexer_spread_operator                              [0;32mPASS[0m  (0.00ms)
+  lexer_struct_keyword                               [0;32mPASS[0m  (0.00ms)
+  lexer_struct_in_context                            [0;32mPASS[0m  (0.00ms)
+  lexer_native_struct_sequence                       [0;32mPASS[0m  (0.00ms)
+  lexer_str_vs_struct_disambiguation                 [0;32mPASS[0m  (0.00ms)
+
+[1mLexer Operator Tests[0m
+------------------------------------------------------------
+  lexer_operators_single                             [0;32mPASS[0m  (0.00ms)
+  lexer_operators_compound                           [0;32mPASS[0m  (0.00ms)
+  lexer_operators_logical                            [0;32mPASS[0m  (0.00ms)
+  lexer_brackets_parens_braces                       [0;32mPASS[0m  (0.00ms)
+  lexer_punctuation                                  [0;32mPASS[0m  (0.00ms)
+
+[1mLexer Indentation Tests[0m
+------------------------------------------------------------
+  lexer_comments                                     [0;32mPASS[0m  (0.00ms)
+  lexer_indentation_basic                            [0;32mPASS[0m  (0.00ms)
+  lexer_indentation_nested                           [0;32mPASS[0m  (0.00ms)
+  lexer_indentation_error_inconsistent               [0;32mPASS[0m  (0.00ms)
+  lexer_multiple_newlines                            [0;32mPASS[0m  (0.00ms)
+  lexer_line_with_only_comment                       [0;32mPASS[0m  (0.00ms)
+  lexer_unexpected_character                         [0;32mPASS[0m  (0.00ms)
+  lexer_mixed_tokens                                 [0;32mPASS[0m  (0.00ms)
+  lexer_tabs_as_indent                               [0;32mPASS[0m  (0.00ms)
+
+[1mLexer Memory Keywords Tests[0m
+------------------------------------------------------------
+  lexer_keyword_as                                   [0;32mPASS[0m  (0.00ms)
+  lexer_keyword_val                                  [0;32mPASS[0m  (0.00ms)
+  lexer_keyword_ref                                  [0;32mPASS[0m  (0.00ms)
+  lexer_memory_keywords_combined                     [0;32mPASS[0m  (0.00ms)
+  lexer_as_val_syntax                                [0;32mPASS[0m  (0.00ms)
+  lexer_as_ref_syntax                                [0;32mPASS[0m  (0.00ms)
+  lexer_shared_private_are_identifiers               [0;32mPASS[0m  (0.00ms)
+  lexer_val_var_distinction                          [0;32mPASS[0m  (0.00ms)
+  lexer_ref_return_distinction                       [0;32mPASS[0m  (0.00ms)
+  lexer_str_distinction                              [0;32mPASS[0m  (0.00ms)
+  lexer_import_as_namespace_syntax                   [0;32mPASS[0m  (0.00ms)
+  lexer_as_identifier_prefix                         [0;32mPASS[0m  (0.00ms)
+
+[1mLexer - Empty Input[0m
+------------------------------------------------------------
+  empty_string                                       [0;32mPASS[0m  (0.05ms)
+  whitespace_only                                    [0;32mPASS[0m  (0.00ms)
+  newlines_only                                      [0;32mPASS[0m  (0.00ms)
+
+[1mLexer - Number Literals[0m
+------------------------------------------------------------
+  int_zero                                           [0;32mPASS[0m  (0.00ms)
+  int_max                                            [0;32mPASS[0m  (0.00ms)
+  double_zero                                        [0;32mPASS[0m  (0.00ms)
+  double_small                                       [0;32mPASS[0m  (0.00ms)
+  double_large                                       [0;32mPASS[0m  (0.00ms)
+  multiple_numbers                                   [0;32mPASS[0m  (0.00ms)
+
+[1mLexer - String Literals[0m
+------------------------------------------------------------
+  string_empty                                       [0;32mPASS[0m  (0.00ms)
+  string_simple                                      [0;32mPASS[0m  (0.00ms)
+  string_with_spaces                                 [0;32mPASS[0m  (0.00ms)
+  string_escape_n                                    [0;32mPASS[0m  (0.00ms)
+  string_escape_t                                    [0;32mPASS[0m  (0.00ms)
+  string_escape_backslash                            [0;32mPASS[0m  (0.00ms)
+  string_escape_quote                                [0;32mPASS[0m  (0.00ms)
+  string_brace_open                                  [0;32mPASS[0m  (0.00ms)
+  string_brace_close                                 [0;32mPASS[0m  (0.00ms)
+  string_brace_contents                              [0;32mPASS[0m  (0.00ms)
+  string_brace_open_close_sequence                   [0;32mPASS[0m  (0.00ms)
+  string_brace_with_ident                            [0;32mPASS[0m  (0.00ms)
+  string_escaped_quote_solo                          [0;32mPASS[0m  (0.00ms)
+
+[1mLexer - Char Literals[0m
+------------------------------------------------------------
+  char_simple                                        [0;32mPASS[0m  (0.00ms)
+  char_digit                                         [0;32mPASS[0m  (0.00ms)
+  char_escape_n                                      [0;32mPASS[0m  (0.00ms)
+  char_escape_t                                      [0;32mPASS[0m  (0.00ms)
+
+[1mLexer - Identifiers[0m
+------------------------------------------------------------
+  identifier_simple                                  [0;32mPASS[0m  (0.00ms)
+  identifier_with_underscore                         [0;32mPASS[0m  (0.00ms)
+  identifier_with_numbers                            [0;32mPASS[0m  (0.00ms)
+  identifier_underscore_prefix                       [0;32mPASS[0m  (0.00ms)
+  identifier_single_char                             [0;32mPASS[0m  (0.00ms)
+
+[1mLexer - Keywords[0m
+------------------------------------------------------------
+  keyword_var                                        [0;32mPASS[0m  (0.00ms)
+  keyword_fn                                         [0;32mPASS[0m  (0.00ms)
+  keyword_if                                         [0;32mPASS[0m  (0.00ms)
+  keyword_else                                       [0;32mPASS[0m  (0.00ms)
+  keyword_while                                      [0;32mPASS[0m  (0.00ms)
+  keyword_for                                        [0;32mPASS[0m  (0.00ms)
+  keyword_return                                     [0;32mPASS[0m  (0.00ms)
+  keyword_break                                      [0;32mPASS[0m  (0.00ms)
+  keyword_continue                                   [0;32mPASS[0m  (0.00ms)
+  keyword_true                                       [0;32mPASS[0m  (0.00ms)
+  keyword_false                                      [0;32mPASS[0m  (0.00ms)
+  keyword_nil                                        [0;32mPASS[0m  (0.00ms)
+  keyword_match                                      [0;32mPASS[0m  (0.00ms)
+  keyword_native                                     [0;32mPASS[0m  (0.00ms)
+  keyword_import                                     [0;32mPASS[0m  (0.00ms)
+
+[1mLexer - Operators[0m
+------------------------------------------------------------
+  op_plus                                            [0;32mPASS[0m  (0.00ms)
+  op_minus                                           [0;32mPASS[0m  (0.00ms)
+  op_star                                            [0;32mPASS[0m  (0.00ms)
+  op_slash                                           [0;32mPASS[0m  (0.00ms)
+  op_percent                                         [0;32mPASS[0m  (0.00ms)
+  op_eq                                              [0;32mPASS[0m  (0.00ms)
+  op_eq_eq                                           [0;32mPASS[0m  (0.00ms)
+  op_not_eq                                          [0;32mPASS[0m  (0.00ms)
+  op_less                                            [0;32mPASS[0m  (0.00ms)
+  op_less_eq                                         [0;32mPASS[0m  (0.00ms)
+  op_greater                                         [0;32mPASS[0m  (0.00ms)
+  op_greater_eq                                      [0;32mPASS[0m  (0.00ms)
+  op_plus_eq                                         [0;32mPASS[0m  (0.00ms)
+  op_minus_eq                                        [0;32mPASS[0m  (0.00ms)
+  op_star_eq                                         [0;32mPASS[0m  (0.00ms)
+  op_slash_eq                                        [0;32mPASS[0m  (0.00ms)
+
+[1mLexer - Punctuation[0m
+------------------------------------------------------------
+  punc_lparen                                        [0;32mPASS[0m  (0.00ms)
+  punc_rparen                                        [0;32mPASS[0m  (0.00ms)
+  punc_lbracket                                      [0;32mPASS[0m  (0.00ms)
+  punc_rbracket                                      [0;32mPASS[0m  (0.00ms)
+  punc_comma                                         [0;32mPASS[0m  (0.00ms)
+  punc_dot                                           [0;32mPASS[0m  (0.00ms)
+  punc_colon                                         [0;32mPASS[0m  (0.00ms)
+  arrow                                              [0;32mPASS[0m  (0.00ms)
+  range                                              [0;32mPASS[0m  (0.00ms)
+
+[1mLexer - Comments[0m
+------------------------------------------------------------
+  comment_skip                                       [0;32mPASS[0m  (0.00ms)
+  comment_at_eof                                     [0;32mPASS[0m  (0.00ms)
+
+[1mLexer - Token Sequences[0m
+------------------------------------------------------------
+  var_decl_sequence                                  [0;32mPASS[0m  (0.00ms)
+  function_header_sequence                           [0;32mPASS[0m  (0.00ms)
+  expression_sequence                                [0;32mPASS[0m  (0.00ms)
+
+[1mLexer - Type Keywords[0m
+------------------------------------------------------------
+  type_int                                           [0;32mPASS[0m  (0.00ms)
+  type_long                                          [0;32mPASS[0m  (0.00ms)
+  type_double                                        [0;32mPASS[0m  (0.00ms)
+  type_str                                           [0;32mPASS[0m  (0.00ms)
+  type_char                                          [0;32mPASS[0m  (0.00ms)
+  type_bool                                          [0;32mPASS[0m  (0.00ms)
+  type_void                                          [0;32mPASS[0m  (0.00ms)
+  type_byte                                          [0;32mPASS[0m  (0.00ms)
+
+[1mLexer Additional[0m
+------------------------------------------------------------
+  lexer_zero_variations                              [0;32mPASS[0m  (0.00ms)
+  lexer_hex_literals_case                            [0;32mPASS[0m  (0.00ms)
+  lexer_binary_literals                              [0;32mPASS[0m  (0.00ms)
+  lexer_double_variations                            [0;32mPASS[0m  (0.00ms)
+  lexer_number_boundaries                            [0;32mPASS[0m  (0.00ms)
+  lexer_string_escapes                               [0;32mPASS[0m  (0.00ms)
+  lexer_empty_string                                 [0;32mPASS[0m  (0.00ms)
+  lexer_single_char_string                           [0;32mPASS[0m  (0.00ms)
+  lexer_string_with_spaces                           [0;32mPASS[0m  (0.00ms)
+  lexer_char_escapes                                 [0;32mPASS[0m  (0.00ms)
+  lexer_char_simple                                  [0;32mPASS[0m  (0.00ms)
+  lexer_identifier_underscore                        [0;32mPASS[0m  (0.00ms)
+  lexer_identifier_with_numbers                      [0;32mPASS[0m  (0.00ms)
+  lexer_keyword_like_identifiers                     [0;32mPASS[0m  (0.00ms)
+  lexer_compound_operators                           [0;32mPASS[0m  (0.00ms)
+  lexer_assignment_operators                         [0;32mPASS[0m  (0.00ms)
+  lexer_arrow_operators                              [0;32mPASS[0m  (0.00ms)
+  lexer_single_line_comment                          [0;32mPASS[0m  (0.00ms)
+  lexer_block_comment_syntax_is_tokens               [0;32mPASS[0m  (0.00ms)
+  lexer_nested_comment_content                       [0;32mPASS[0m  (0.00ms)
+  lexer_multiple_spaces                              [0;32mPASS[0m  (0.00ms)
+  lexer_tabs_and_newlines                            [0;32mPASS[0m  (0.00ms)
+  lexer_line_tracking                                [0;32mPASS[0m  (0.00ms)
+  lexer_no_space_between_tokens                      [0;32mPASS[0m  (0.00ms)
+  lexer_parentheses_sequence                         [0;32mPASS[0m  (0.00ms)
+  lexer_bracket_types                                [0;32mPASS[0m  (0.00ms)
+
+[1mLexer Keywords[0m
+------------------------------------------------------------
+  keyword_if                                         [0;32mPASS[0m  (0.00ms)
+  keyword_else                                       [0;32mPASS[0m  (0.00ms)
+  keyword_for                                        [0;32mPASS[0m  (0.00ms)
+  keyword_while                                      [0;32mPASS[0m  (0.00ms)
+  keyword_return                                     [0;32mPASS[0m  (0.00ms)
+  keyword_fn                                         [0;32mPASS[0m  (0.00ms)
+  keyword_var                                        [0;32mPASS[0m  (0.00ms)
+  keyword_nil                                        [0;32mPASS[0m  (0.00ms)
+  keyword_match                                      [0;32mPASS[0m  (0.00ms)
+  keyword_break                                      [0;32mPASS[0m  (0.00ms)
+  keyword_continue                                   [0;32mPASS[0m  (0.00ms)
+  keyword_in                                         [0;32mPASS[0m  (0.00ms)
+  keyword_as                                         [0;32mPASS[0m  (0.00ms)
+  keyword_val                                        [0;32mPASS[0m  (0.00ms)
+  keyword_ref                                        [0;32mPASS[0m  (0.00ms)
+  keyword_native                                     [0;32mPASS[0m  (0.00ms)
+  keyword_struct                                     [0;32mPASS[0m  (0.00ms)
+  keyword_import                                     [0;32mPASS[0m  (0.00ms)
+  keyword_static                                     [0;32mPASS[0m  (0.00ms)
+  is_is_identifier                                   [0;32mPASS[0m  (0.00ms)
+  keyword_sizeof                                     [0;32mPASS[0m  (0.00ms)
+  keyword_shared_is_identifier                       [0;32mPASS[0m  (0.00ms)
+  keyword_private_is_identifier                      [0;32mPASS[0m  (0.00ms)
+  keyword_sync                                       [0;32mPASS[0m  (0.00ms)
+  keyword_lock                                       [0;32mPASS[0m  (0.00ms)
+  type_int                                           [0;32mPASS[0m  (0.00ms)
+  type_long                                          [0;32mPASS[0m  (0.00ms)
+  type_double                                        [0;32mPASS[0m  (0.00ms)
+  type_str                                           [0;32mPASS[0m  (0.00ms)
+  type_bool                                          [0;32mPASS[0m  (0.00ms)
+  type_char                                          [0;32mPASS[0m  (0.00ms)
+  type_byte                                          [0;32mPASS[0m  (0.00ms)
+  type_void                                          [0;32mPASS[0m  (0.00ms)
+  any_is_identifier                                  [0;32mPASS[0m  (0.00ms)
+  type_float                                         [0;32mPASS[0m  (0.00ms)
+  keyword_with_space_after                           [0;32mPASS[0m  (0.00ms)
+  keyword_before_paren                               [0;32mPASS[0m  (0.00ms)
+  keyword_sequence                                   [0;32mPASS[0m  (0.00ms)
+  keyword_after_number                               [0;32mPASS[0m  (0.00ms)
+  keyword_type_sequence                              [0;32mPASS[0m  (0.00ms)
+  fn_declaration_sequence                            [0;32mPASS[0m  (0.00ms)
+  for_loop_sequence                                  [0;32mPASS[0m  (0.00ms)
+  return_value_sequence                              [0;32mPASS[0m  (0.00ms)
+  match_expr_sequence                                [0;32mPASS[0m  (0.00ms)
+  struct_def_sequence                                [0;32mPASS[0m  (0.00ms)
+  native_fn_sequence                                 [0;32mPASS[0m  (0.00ms)
+  as_val_sequence                                    [0;32mPASS[0m  (0.00ms)
+  as_ref_sequence                                    [0;32mPASS[0m  (0.00ms)
+  break_continue_sequence                            [0;32mPASS[0m  (0.00ms)
+  any_identifier_sequence                            [0;32mPASS[0m  (0.00ms)
+  array_type_sequence                                [0;32mPASS[0m  (0.00ms)
+  nil_check_sequence                                 [0;32mPASS[0m  (0.00ms)
+  is_identifier_sequence                             [0;32mPASS[0m  (0.00ms)
+  sizeof_sequence                                    [0;32mPASS[0m  (0.00ms)
+
+[1mLexer Stress - Large Inputs[0m
+------------------------------------------------------------
+  lexer_many_tokens                                  [0;32mPASS[0m  (0.00ms)
+  lexer_many_numbers                                 [0;32mPASS[0m  (0.00ms)
+  lexer_many_operators                               [0;32mPASS[0m  (0.00ms)
+  lexer_long_identifier                              [0;32mPASS[0m  (0.00ms)
+  lexer_long_string                                  [0;32mPASS[0m  (0.00ms)
+  lexer_large_number                                 [0;32mPASS[0m  (0.00ms)
+
+[1mLexer Stress - Token Sequences[0m
+------------------------------------------------------------
+  lexer_function_declaration                         [0;32mPASS[0m  (0.00ms)
+  lexer_var_declaration                              [0;32mPASS[0m  (0.00ms)
+  lexer_if_statement                                 [0;32mPASS[0m  (0.00ms)
+  lexer_for_loop                                     [0;32mPASS[0m  (0.00ms)
+  lexer_while_loop                                   [0;32mPASS[0m  (0.00ms)
+  lexer_match_expression                             [0;32mPASS[0m  (0.00ms)
+  lexer_array_literal                                [0;32mPASS[0m  (0.00ms)
+  lexer_struct_literal                               [0;32mPASS[0m  (0.00ms)
+
+[1mLexer Stress - Numeric Literals[0m
+------------------------------------------------------------
+  lexer_zero                                         [0;32mPASS[0m  (0.00ms)
+  lexer_negative_number                              [0;32mPASS[0m  (0.00ms)
+  lexer_decimal_number                               [0;32mPASS[0m  (0.00ms)
+  lexer_scientific_notation                          [0;32mPASS[0m  (0.00ms)
+
+[1mLexer Stress - String Literals[0m
+------------------------------------------------------------
+  lexer_empty_string                                 [0;32mPASS[0m  (0.00ms)
+  lexer_escaped_newline_string                       [0;32mPASS[0m  (0.00ms)
+  lexer_escaped_tab_string                           [0;32mPASS[0m  (0.00ms)
+  lexer_escaped_quote_string                         [0;32mPASS[0m  (0.00ms)
+  lexer_interpolated_string                          [0;32mPASS[0m  (0.00ms)
+
+[1mLexer Stress - Character Literals[0m
+------------------------------------------------------------
+  lexer_char_letter                                  [0;32mPASS[0m  (0.00ms)
+  lexer_char_digit                                   [0;32mPASS[0m  (0.00ms)
+  lexer_char_newline                                 [0;32mPASS[0m  (0.00ms)
+  lexer_char_tab                                     [0;32mPASS[0m  (0.00ms)
+
+[1mLexer Stress - Comments[0m
+------------------------------------------------------------
+  lexer_line_comment                                 [0;32mPASS[0m  (0.00ms)
+  lexer_multiple_comments                            [0;32mPASS[0m  (0.00ms)
+
+[1mLexer Stress - Operators[0m
+------------------------------------------------------------
+  lexer_comparison_operators                         [0;32mPASS[0m  (0.00ms)
+  lexer_arithmetic_operators                         [0;32mPASS[0m  (0.00ms)
+  lexer_assignment_operators                         [0;32mPASS[0m  (0.00ms)
+  lexer_increment_decrement                          [0;32mPASS[0m  (0.00ms)
+  lexer_range_operator                               [0;32mPASS[0m  (0.00ms)
+
+[1mLexer Stress - Keywords[0m
+------------------------------------------------------------
+  lexer_all_type_keywords                            [0;32mPASS[0m  (0.00ms)
+  lexer_control_keywords                             [0;32mPASS[0m  (0.00ms)
+
+[1mParser Basic Core Tests[0m
+------------------------------------------------------------
+  empty_program_parsing                              [0;32mPASS[0m  (0.09ms)
+  var_decl_parsing                                   [0;32mPASS[0m  (0.01ms)
+  function_no_params_parsing                         [0;32mPASS[0m  (0.01ms)
+  if_statement_parsing                               [0;32mPASS[0m  (0.01ms)
+
+[1mParser Basic Types Tests[0m
+------------------------------------------------------------
+  interop_type_var_decl_parsing                      [0;32mPASS[0m  (0.01ms)
+  interop_type_function_parsing                      [0;32mPASS[0m  (0.01ms)
+  pointer_type_var_decl_parsing                      [0;32mPASS[0m  (0.01ms)
+  pointer_type_function_parsing                      [0;32mPASS[0m  (0.01ms)
+
+[1mParser Basic Native Tests[0m
+------------------------------------------------------------
+  native_function_without_body_parsing               [0;32mPASS[0m  (0.00ms)
+  native_function_with_body_parsing                  [0;32mPASS[0m  (0.00ms)
+  native_function_with_pointer_types_parsing         [0;32mPASS[0m  (0.00ms)
+  regular_function_not_native_parsing                [0;32mPASS[0m  (0.00ms)
+  value_of_with_call_parsing                         [0;32mPASS[0m  (0.00ms)
+  value_of_with_array_access_parsing                 [0;32mPASS[0m  (0.00ms)
+  value_of_with_variable_parsing                     [0;32mPASS[0m  (0.00ms)
+  value_of_precedence_parsing                        [0;32mPASS[0m  (0.01ms)
+
+[1mParser Basic Slice Tests[0m
+------------------------------------------------------------
+  pointer_slice_basic_parsing                        [0;32mPASS[0m  (0.00ms)
+  pointer_slice_with_call_parsing                    [0;32mPASS[0m  (0.00ms)
+  pointer_slice_with_value_of_parsing                [0;32mPASS[0m  (0.00ms)
+  pointer_slice_from_start_parsing                   [0;32mPASS[0m  (0.00ms)
+  inline_pointer_call_slice_value_of_parsing         [0;32mPASS[0m  (0.00ms)
+
+[1mParser Basic Callback Tests[0m
+------------------------------------------------------------
+  variadic_native_function_parsing                   [0;32mPASS[0m  (0.01ms)
+  native_callback_type_alias_parsing                 [0;32mPASS[0m  (0.01ms)
+  native_lambda_with_pointer_params_parsing          [0;32mPASS[0m  (0.01ms)
+
+[1mParser Basic Misc Tests[0m
+------------------------------------------------------------
+  opaque_type_decl_parsing                           [0;32mPASS[0m  (0.00ms)
+  opaque_type_in_function_param                      [0;32mPASS[0m  (0.00ms)
+  pragma_include_parsing                             [0;32mPASS[0m  (0.00ms)
+  pragma_link_parsing                                [0;32mPASS[0m  (0.00ms)
+  multiple_pragmas_parsing                           [0;32mPASS[0m  (0.00ms)
+  as_ref_parameter_parsing                           [0;32mPASS[0m  (0.00ms)
+  variadic_with_multiple_fixed_params_parsing        [0;32mPASS[0m  (0.00ms)
+
+[1mParser Control Flow Tests[0m
+------------------------------------------------------------
+  while_loop_parsing                                 [0;32mPASS[0m  (0.00ms)
+  for_loop_parsing                                   [0;32mPASS[0m  (0.01ms)
+  interpolated_string_parsing                        [0;32mPASS[0m  (0.01ms)
+  interpolated_string_with_postfix_decrement_parsing [0;32mPASS[0m  (0.01ms)
+  interpolated_string_with_postfix_increment_parsing [0;32mPASS[0m  (0.01ms)
+  interpolated_string_with_unary_negate_parsing      [0;32mPASS[0m  (0.00ms)
+  literal_types_parsing                              [0;32mPASS[0m  (0.01ms)
+  recursive_function_parsing                         [0;32mPASS[0m  (0.01ms)
+  interpolated_string_with_string_literal_in_braces  [0;32mPASS[0m  (0.01ms)
+  interpolated_string_with_func_call_string_arg      [0;32mPASS[0m  (0.01ms)
+  interpolated_string_with_newline_escape_in_braces  [0;32mPASS[0m  (0.01ms)
+  interpolated_string_with_tab_escape_in_braces      [0;32mPASS[0m  (0.01ms)
+  interpolated_string_with_backslash_escape_in_braces [0;32mPASS[0m  (0.01ms)
+  interpolated_string_with_carriage_return_escape_in_braces [0;32mPASS[0m  (0.01ms)
+  interpolated_string_with_empty_string_in_braces    [0;32mPASS[0m  (0.01ms)
+  interpolated_string_with_nested_parens             [0;32mPASS[0m  (0.01ms)
+  interpolated_string_with_multiple_string_literals  [0;32mPASS[0m  (0.01ms)
+  interpolated_string_with_string_method_on_literal  [0;32mPASS[0m  (0.01ms)
+  interpolated_string_with_complex_escape_sequence   [0;32mPASS[0m  (0.01ms)
+  interpolated_string_with_braces_escape             [0;32mPASS[0m  (0.00ms)
+  nested_interpolated_string_basic                   [0;32mPASS[0m  (0.01ms)
+  nested_interpolated_string_with_expression         [0;32mPASS[0m  (0.01ms)
+  nested_interpolated_string_double_nested           [0;32mPASS[0m  (0.02ms)
+  nested_interpolated_string_with_func_call          [0;32mPASS[0m  (0.01ms)
+  nested_interpolated_string_adjacent                [0;32mPASS[0m  (0.01ms)
+  interpolated_string_with_format_specifier          [0;32mPASS[0m  (0.00ms)
+  interpolated_string_with_format_specifier_float    [0;32mPASS[0m  (0.01ms)
+  interpolated_string_with_format_specifier_and_expr [0;32mPASS[0m  (0.01ms)
+  format_specifier_not_detected_in_nested            [0;32mPASS[0m  (0.01ms)
+
+[1mParser Program Tests[0m
+------------------------------------------------------------
+  full_program_parsing                               [0;32mPASS[0m  (0.13ms)
+  simple_program_parsing                             [0;32mPASS[0m  (0.01ms)
+
+[1mParser Array Tests[0m
+------------------------------------------------------------
+  array_declaration_parsing                          [0;32mPASS[0m  (0.00ms)
+  array_literal_parsing                              [0;32mPASS[0m  (0.00ms)
+  array_member_access_parsing                        [0;32mPASS[0m  (0.01ms)
+  array_method_call_push_parsing                     [0;32mPASS[0m  (0.01ms)
+  array_method_call_clear_parsing                    [0;32mPASS[0m  (0.00ms)
+  array_method_call_concat_parsing                   [0;32mPASS[0m  (0.01ms)
+  array_method_call_pop_parsing                      [0;32mPASS[0m  (0.00ms)
+  array_print_and_interpolated_parsing               [0;32mPASS[0m  (0.01ms)
+  array_print_and_interpolated_no_trailing           [0;32mPASS[0m  (0.01ms)
+  array_function_params_and_return_parsing           [0;32mPASS[0m  (0.01ms)
+  array_access_parsing                               [0;32mPASS[0m  (0.00ms)
+  array_element_assignment_parsing                   [0;32mPASS[0m  (0.01ms)
+  array_slice_full_parsing                           [0;32mPASS[0m  (0.01ms)
+  array_slice_from_start_parsing                     [0;32mPASS[0m  (0.00ms)
+  array_slice_to_end_parsing                         [0;32mPASS[0m  (0.01ms)
+  array_slice_full_copy_parsing                      [0;32mPASS[0m  (0.00ms)
+
+[1mParser Memory Management Tests[0m
+------------------------------------------------------------
+  var_decl_as_val_parsing                            [0;32mPASS[0m  (0.00ms)
+  var_decl_as_ref_parsing                            [0;32mPASS[0m  (0.00ms)
+  var_decl_default_qualifier_parsing                 [0;32mPASS[0m  (0.00ms)
+  function_param_as_val_parsing                      [0;32mPASS[0m  (0.00ms)
+  function_default_modifier_parsing                  [0;32mPASS[0m  (0.00ms)
+  function_static_toplevel_error                     
+[1;31merror[0m: 'static' at module level can only be used with 'var' or 'sync var'. Did you mean 'static var' or 'static sync var'? (got 'fn')
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^^[0m
+
+
+[1;31merror[0m: Expected expression (got '')
+  [1;34m-->[0m test.sn:2:1
+
+[0;32mPASS[0m  (0.02ms)
+  while_loop_parsing                                 [0;32mPASS[0m  (0.00ms)
+  for_each_loop_parsing                              [0;32mPASS[0m  (0.01ms)
+  cstyle_for_loop_parsing                            [0;32mPASS[0m  (0.01ms)
+  import_without_namespace_parsing                   [0;32mPASS[0m  (0.00ms)
+  import_with_namespace_parsing                      [0;32mPASS[0m  (0.00ms)
+  import_with_underscore_namespace_parsing           [0;32mPASS[0m  (0.00ms)
+  multiple_imports_mixed_parsing                     [0;32mPASS[0m  (0.00ms)
+  import_keyword_as_namespace_error                  
+[1;31merror[0m: Cannot use reserved keyword 'for' as namespace name (got 'for')
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^^^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  import_missing_namespace_after_as_error            
+[1;31merror[0m: Expected namespace identifier after 'as' (got '
+')
+  [1;34m-->[0m test.sn:2:1
+
+[0;32mPASS[0m  (0.01ms)
+
+[1mParser Lambda Tests[0m
+------------------------------------------------------------
+  single_line_lambda_parsing                         [0;32mPASS[0m  (0.00ms)
+  multi_line_lambda_parsing                          [0;32mPASS[0m  (0.01ms)
+  multi_line_lambda_with_loop_parsing                [0;32mPASS[0m  (0.01ms)
+  parenthesized_function_type_array                  [0;32mPASS[0m  (0.00ms)
+  function_returning_array_vs_array_of_functions     [0;32mPASS[0m  (0.01ms)
+
+[1mParser Static Method Tests[0m
+------------------------------------------------------------
+  static_call_no_args_parsing                        [0;32mPASS[0m  (0.00ms)
+  static_call_one_arg_parsing                        [0;32mPASS[0m  (0.00ms)
+  static_call_multiple_args_parsing                  [0;32mPASS[0m  (0.00ms)
+  static_call_in_var_decl_parsing                    [0;32mPASS[0m  (0.00ms)
+  static_call_bytes_from_hex_parsing                 [0;32mPASS[0m  (0.00ms)
+  static_call_directory_list_parsing                 [0;32mPASS[0m  (0.00ms)
+  static_call_vs_instance_call_parsing               [0;32mPASS[0m  (0.00ms)
+
+[1mParser Namespace Tests[0m
+------------------------------------------------------------
+  parse_import_basic                                 [0;32mPASS[0m  (0.00ms)
+  parse_import_as_namespace                          [0;32mPASS[0m  (0.00ms)
+  parse_namespace_with_numbers                       [0;32mPASS[0m  (0.00ms)
+  parse_namespace_underscore_start                   [0;32mPASS[0m  (0.00ms)
+  parse_namespace_single_letter                      [0;32mPASS[0m  (0.00ms)
+  parse_namespace_long_name                          [0;32mPASS[0m  (0.00ms)
+  parse_multiple_namespace_styles                    [0;32mPASS[0m  (0.00ms)
+  parse_invalid_namespace_keyword_var                
+[1;31merror[0m: Cannot use reserved keyword 'var' as namespace name (got 'var')
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^^^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  parse_invalid_namespace_keyword_fn                 
+[1;31merror[0m: Cannot use reserved keyword 'fn' as namespace name (got 'fn')
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  parse_invalid_namespace_keyword_return             
+[1;31merror[0m: Cannot use reserved keyword 'return' as namespace name (got 'return')
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^^^^^^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  parse_invalid_namespace_keyword_import             
+[1;31merror[0m: Cannot use reserved keyword 'import' as namespace name (got 'import')
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^^^^^^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  parse_invalid_namespace_keyword_str                
+[1;31merror[0m: Cannot use reserved keyword 'str' as namespace name (got 'str')
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^^^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  parse_invalid_namespace_keyword_int                
+[1;31merror[0m: Cannot use reserved keyword 'int' as namespace name (got 'int')
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^^^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  parse_invalid_missing_namespace                    
+[1;31merror[0m: Expected namespace identifier after 'as' (got '
+')
+  [1;34m-->[0m test.sn:2:1
+
+[0;32mPASS[0m  (0.01ms)
+  parse_invalid_namespace_starts_with_number         
+[1;31merror[0m: Expected namespace identifier after 'as' (got '123')
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^^^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  parse_import_ast_token_info                        [0;32mPASS[0m  (0.00ms)
+  parse_import_followed_by_code                      [0;32mPASS[0m  (0.00ms)
+
+[1mParser Struct Declaration Tests[0m
+------------------------------------------------------------
+  struct_decl_empty_parsing                          [0;32mPASS[0m  (0.00ms)
+  native_struct_decl_empty_parsing                   [0;32mPASS[0m  (0.00ms)
+  struct_decl_name_only                              [0;32mPASS[0m  (0.00ms)
+  multiple_struct_decls                              [0;32mPASS[0m  (0.00ms)
+  struct_with_two_fields                             [0;32mPASS[0m  (0.00ms)
+  struct_with_three_fields                           [0;32mPASS[0m  (0.00ms)
+  struct_with_various_types                          [0;32mPASS[0m  (0.00ms)
+  native_struct_with_fields                          [0;32mPASS[0m  (0.00ms)
+  struct_field_with_default_int                      [0;32mPASS[0m  (0.00ms)
+  struct_field_with_default_bool                     [0;32mPASS[0m  (0.00ms)
+  struct_field_with_default_string                   [0;32mPASS[0m  (0.00ms)
+  struct_mixed_defaults_and_no_defaults              [0;32mPASS[0m  (0.00ms)
+  struct_field_with_default_double                   [0;32mPASS[0m  (0.00ms)
+  struct_with_nested_struct_field                    [0;32mPASS[0m  (0.00ms)
+  struct_with_mixed_primitive_and_struct_fields      [0;32mPASS[0m  (0.00ms)
+  struct_error_duplicate_field_names                 
+[1;31merror[0m: Duplicate field name 'x' in struct 'Point' (got 'x')
+  [1;34m-->[0m test.sn:4:1
+
+[0;32mPASS[0m  (0.01ms)
+  struct_error_pointer_in_non_native                 
+[1;31merror[0m: Pointer field 'ptr' not allowed in struct 'Data'. Use 'native struct' for structs with pointer fields:
+    native struct Data =>
+        ptr: *... (got 'ptr')
+  [1;34m-->[0m test.sn:2:1
+
+[0;32mPASS[0m  (0.01ms)
+  native_struct_allows_pointer_fields                [0;32mPASS[0m  (0.00ms)
+  struct_error_missing_arrow                         
+[1;31merror[0m: Expected '=>' after struct name or 'as ref'/'as val' (got '
+')
+  [1;34m-->[0m test.sn:2:1
+
+[0;32mPASS[0m  (0.01ms)
+  struct_error_missing_field_type                    
+[1;31merror[0m: Expected type (got '
+')
+  [1;34m-->[0m test.sn:3:1
+
+[0;32mPASS[0m  (0.01ms)
+
+[1mParser Struct Literal Tests[0m
+------------------------------------------------------------
+  struct_literal_empty                               [0;32mPASS[0m  (0.00ms)
+  struct_literal_with_fields                         [0;32mPASS[0m  (0.00ms)
+  struct_literal_partial_init                        [0;32mPASS[0m  (0.00ms)
+
+[1mParser Field Access Tests[0m
+------------------------------------------------------------
+  field_access_simple                                [0;32mPASS[0m  (0.01ms)
+  field_access_nested                                [0;32mPASS[0m  (0.01ms)
+  field_assignment                                   [0;32mPASS[0m  (0.00ms)
+  field_assignment_nested                            [0;32mPASS[0m  (0.01ms)
+  struct_literal_missing_colon                       
+[1;31merror[0m: Expected ':' after field name (got '1.0')
+  [1;34m-->[0m test.sn:4:1
+
+[0;32mPASS[0m  (0.01ms)
+  struct_literal_invalid_field_name                  
+[1;31merror[0m: Expected field name in struct literal (got '123')
+  [1;34m-->[0m test.sn:4:1
+
+[0;32mPASS[0m  (0.01ms)
+
+[1mParser - Expression Precedence[0m
+------------------------------------------------------------
+  precedence_mul_over_add                            [0;32mPASS[0m  (0.00ms)
+  precedence_parens_override                         [0;32mPASS[0m  (0.00ms)
+  precedence_comparison_lower                        [0;32mPASS[0m  (0.00ms)
+  precedence_and_lower_than_comparison               [0;32mPASS[0m  (0.00ms)
+  precedence_or_lower_than_and                       [0;32mPASS[0m  (0.00ms)
+  unary_precedence                                   [0;32mPASS[0m  (0.00ms)
+  double_negation                                    [0;32mPASS[0m  (0.00ms)
+  not_and_comparison                                 [0;32mPASS[0m  (0.00ms)
+
+[1mParser - Literals[0m
+------------------------------------------------------------
+  int_literal_zero                                   [0;32mPASS[0m  (0.00ms)
+  int_literal_negative                               [0;32mPASS[0m  (0.00ms)
+  double_literal                                     [0;32mPASS[0m  (0.00ms)
+  bool_true                                          [0;32mPASS[0m  (0.00ms)
+  bool_false                                         [0;32mPASS[0m  (0.00ms)
+  char_literal                                       [0;32mPASS[0m  (0.00ms)
+  string_empty                                       [0;32mPASS[0m  (0.00ms)
+  string_with_escapes                                [0;32mPASS[0m  (0.00ms)
+
+[1mParser - Statements[0m
+------------------------------------------------------------
+  multiple_var_decls                                 [0;32mPASS[0m  (0.00ms)
+  nested_if                                          [0;32mPASS[0m  (0.00ms)
+  if_elif_else                                       [0;32mPASS[0m  (0.01ms)
+  while_loop                                         [0;32mPASS[0m  (0.00ms)
+  for_range                                          [0;32mPASS[0m  (0.00ms)
+  return_value                                       [0;32mPASS[0m  (0.00ms)
+  return_void                                        [0;32mPASS[0m  (0.00ms)
+  break_statement                                    [0;32mPASS[0m  (0.00ms)
+  continue_statement                                 [0;32mPASS[0m  (0.00ms)
+
+[1mParser - Function Declarations[0m
+------------------------------------------------------------
+  function_one_param                                 [0;32mPASS[0m  (0.00ms)
+  function_multiple_params                           [0;32mPASS[0m  (0.00ms)
+  function_void_return                               [0;32mPASS[0m  (0.00ms)
+  function_string_return                             [0;32mPASS[0m  (0.00ms)
+  function_bool_return                               [0;32mPASS[0m  (0.00ms)
+  function_multiple_statements                       [0;32mPASS[0m  (0.00ms)
+
+[1mParser - Call Expressions[0m
+------------------------------------------------------------
+  call_no_args                                       [0;32mPASS[0m  (0.00ms)
+  call_one_arg                                       [0;32mPASS[0m  (0.00ms)
+  call_multiple_args                                 [0;32mPASS[0m  (0.00ms)
+  call_expression_args                               [0;32mPASS[0m  (0.00ms)
+  nested_calls                                       [0;32mPASS[0m  (0.00ms)
+
+[1mParser - Types[0m
+------------------------------------------------------------
+  array_type                                         [0;32mPASS[0m  (0.00ms)
+  pointer_type                                       [0;32mPASS[0m  (0.00ms)
+  pointer_with_nil_initializer                       [0;32mPASS[0m  (0.00ms)
+  long_type                                          [0;32mPASS[0m  (0.00ms)
+  byte_type                                          [0;32mPASS[0m  (0.00ms)
+
+[1mParser - Complex Expressions[0m
+------------------------------------------------------------
+  chained_method_calls                               [0;32mPASS[0m  (0.00ms)
+  array_indexing                                     [0;32mPASS[0m  (0.00ms)
+  compound_assignment                                [0;32mPASS[0m  (0.00ms)
+
+[1mParser Literal Expressions[0m
+------------------------------------------------------------
+  parser_int_literal                                 [0;32mPASS[0m  (0.00ms)
+  parser_negative_int_literal                        [0;32mPASS[0m  (0.00ms)
+  parser_long_literal                                [0;32mPASS[0m  (0.00ms)
+  parser_double_literal                              [0;32mPASS[0m  (0.00ms)
+  parser_string_literal                              [0;32mPASS[0m  (0.00ms)
+  parser_bool_true_literal                           [0;32mPASS[0m  (0.00ms)
+  parser_bool_false_literal                          [0;32mPASS[0m  (0.00ms)
+  parser_char_literal                                [0;32mPASS[0m  (0.00ms)
+  parser_byte_literal                                [0;32mPASS[0m  (0.00ms)
+  parser_nil_literal                                 [0;32mPASS[0m  (0.00ms)
+
+[1mParser Binary Expressions[0m
+------------------------------------------------------------
+  parser_binary_add                                  [0;32mPASS[0m  (0.00ms)
+  parser_binary_subtract                             [0;32mPASS[0m  (0.00ms)
+  parser_binary_multiply                             [0;32mPASS[0m  (0.00ms)
+  parser_binary_divide                               [0;32mPASS[0m  (0.00ms)
+  parser_binary_modulo                               [0;32mPASS[0m  (0.00ms)
+  parser_binary_equal                                [0;32mPASS[0m  (0.00ms)
+  parser_binary_not_equal                            [0;32mPASS[0m  (0.00ms)
+  parser_binary_less                                 [0;32mPASS[0m  (0.00ms)
+  parser_binary_greater                              [0;32mPASS[0m  (0.00ms)
+  parser_binary_less_equal                           [0;32mPASS[0m  (0.00ms)
+  parser_binary_greater_equal                        [0;32mPASS[0m  (0.00ms)
+  parser_binary_and                                  [0;32mPASS[0m  (0.00ms)
+  parser_binary_or                                   [0;32mPASS[0m  (0.00ms)
+
+[1mParser Unary Expressions[0m
+------------------------------------------------------------
+  parser_unary_minus                                 [0;32mPASS[0m  (0.00ms)
+  parser_unary_not                                   [0;32mPASS[0m  (0.00ms)
+  parser_double_negation                             [0;32mPASS[0m  (0.00ms)
+
+[1mParser Precedence[0m
+------------------------------------------------------------
+  parser_precedence_mul_over_add                     [0;32mPASS[0m  (0.00ms)
+  parser_precedence_div_over_sub                     [0;32mPASS[0m  (0.00ms)
+  parser_precedence_comparison_over_logical          [0;32mPASS[0m  (0.00ms)
+  parser_left_associativity_add                      [0;32mPASS[0m  (0.00ms)
+  parser_parentheses_override                        [0;32mPASS[0m  (0.00ms)
+
+[1mParser Call Expressions[0m
+------------------------------------------------------------
+  parser_call_no_args                                [0;32mPASS[0m  (0.00ms)
+  parser_call_one_arg                                [0;32mPASS[0m  (0.00ms)
+  parser_call_multiple_args                          [0;32mPASS[0m  (0.00ms)
+  parser_call_expression_args                        [0;32mPASS[0m  (0.00ms)
+  parser_nested_calls                                [0;32mPASS[0m  (0.00ms)
+
+[1mParser Array Expressions[0m
+------------------------------------------------------------
+  parser_array_empty                                 [0;32mPASS[0m  (0.00ms)
+  parser_array_single_element                        [0;32mPASS[0m  (0.00ms)
+  parser_array_multiple_elements                     [0;32mPASS[0m  (0.00ms)
+  parser_array_access                                [0;32mPASS[0m  (0.00ms)
+  parser_array_nested_access                         [0;32mPASS[0m  (0.00ms)
+
+[1mParser Assignment Expressions[0m
+------------------------------------------------------------
+  parser_assign_simple                               [0;32mPASS[0m  (0.00ms)
+  parser_assign_expression                           [0;32mPASS[0m  (0.00ms)
+  parser_array_assign                                [0;32mPASS[0m  (0.00ms)
+
+[1mParser Complex Expressions[0m
+------------------------------------------------------------
+  parser_complex_arithmetic                          [0;32mPASS[0m  (0.00ms)
+  parser_complex_logical                             [0;32mPASS[0m  (0.00ms)
+  parser_mixed_expression                            [0;32mPASS[0m  (0.00ms)
+
+[1mParser Increment/Decrement[0m
+------------------------------------------------------------
+  parser_increment                                   [0;32mPASS[0m  (0.00ms)
+  parser_decrement                                   [0;32mPASS[0m  (0.00ms)
+
+[1mParser Member Access[0m
+------------------------------------------------------------
+  parser_member_access                               [0;32mPASS[0m  (0.00ms)
+  parser_chained_member_access                       [0;32mPASS[0m  (0.00ms)
+  parser_method_call                                 [0;32mPASS[0m  (0.00ms)
+
+[1mParser - Binary Arithmetic Operators[0m
+------------------------------------------------------------
+  op_plus                                            [0;32mPASS[0m  (0.00ms)
+  op_minus                                           [0;32mPASS[0m  (0.00ms)
+  op_multiply                                        [0;32mPASS[0m  (0.00ms)
+  op_divide                                          [0;32mPASS[0m  (0.00ms)
+  op_modulo                                          [0;32mPASS[0m  (0.00ms)
+
+[1mParser - Binary Comparison Operators[0m
+------------------------------------------------------------
+  op_equal_equal                                     [0;32mPASS[0m  (0.00ms)
+  op_not_equal                                       [0;32mPASS[0m  (0.00ms)
+  op_less                                            [0;32mPASS[0m  (0.00ms)
+  op_less_equal                                      [0;32mPASS[0m  (0.00ms)
+  op_greater                                         [0;32mPASS[0m  (0.00ms)
+  op_greater_equal                                   [0;32mPASS[0m  (0.00ms)
+
+[1mParser - Binary Logical Operators[0m
+------------------------------------------------------------
+  op_and                                             [0;32mPASS[0m  (0.00ms)
+  op_or                                              [0;32mPASS[0m  (0.00ms)
+
+[1mParser - Unary Operators[0m
+------------------------------------------------------------
+  op_negate                                          [0;32mPASS[0m  (0.00ms)
+  op_not                                             [0;32mPASS[0m  (0.00ms)
+
+[1mParser - Assignment Operators[0m
+------------------------------------------------------------
+  assign_plus_equal                                  [0;32mPASS[0m  (0.00ms)
+  assign_minus_equal                                 [0;32mPASS[0m  (0.00ms)
+  assign_star_equal                                  [0;32mPASS[0m  (0.00ms)
+  assign_slash_equal                                 [0;32mPASS[0m  (0.00ms)
+  assign_percent_equal                               [0;32mPASS[0m  (0.00ms)
+
+[1mParser - Chained Operators[0m
+------------------------------------------------------------
+  chained_add                                        [0;32mPASS[0m  (0.00ms)
+  chained_mul                                        [0;32mPASS[0m  (0.00ms)
+  mixed_operators                                    [0;32mPASS[0m  (0.00ms)
+  chained_comparison                                 [0;32mPASS[0m  (0.00ms)
+  chained_logical                                    [0;32mPASS[0m  (0.00ms)
+
+[1mSymbol Table Core[0m
+------------------------------------------------------------
+  symbol_table_init_null_arena                       [ERROR] /home/gavin/code/sindarin/sindarin-restore-tagged-c/src/symbol_table/symbol_table_core.c:245: NULL arena in symbol_table_init
+[0;32mPASS[0m  (0.00ms)
+  symbol_table_init_basic                            [0;32mPASS[0m  (0.00ms)
+  symbol_table_cleanup_empty                         [0;32mPASS[0m  (0.00ms)
+  symbol_table_push_scope_single                     [0;32mPASS[0m  (0.00ms)
+  symbol_table_push_scope_nested                     [0;32mPASS[0m  (0.00ms)
+  symbol_table_push_scope_expand                     [0;32mPASS[0m  (0.00ms)
+  symbol_table_pop_scope_beyond_global               [0;32mPASS[0m  (0.00ms)
+  symbol_table_pop_scope_offset_propagation          [0;32mPASS[0m  (0.00ms)
+  symbol_table_begin_function_scope                  [0;32mPASS[0m  (0.00ms)
+  symbol_table_add_symbol_local_basic                [0;32mPASS[0m  (0.00ms)
+  symbol_table_add_symbol_param                      [0;32mPASS[0m  (0.00ms)
+  symbol_table_add_symbol_global                     [0;32mPASS[0m  (0.00ms)
+  symbol_table_add_symbol_no_scope                   [ERROR] /home/gavin/code/sindarin/sindarin-restore-tagged-c/src/symbol_table/symbol_table_core.c:406: No active scope when adding symbol
+[0;32mPASS[0m  (0.00ms)
+  symbol_table_lookup_current_basic                  [0;32mPASS[0m  (0.00ms)
+  symbol_table_lookup_enclosing                      [0;32mPASS[0m  (0.00ms)
+  symbol_table_lookup_shadowing                      [0;32mPASS[0m  (0.00ms)
+  symbol_table_lookup_token_variations               [0;32mPASS[0m  (0.00ms)
+  symbol_table_lookup_nulls                          [0;32mPASS[0m  (0.00ms)
+  symbol_table_get_symbol_offset                     [ERROR] /home/gavin/code/sindarin/sindarin-restore-tagged-c/src/symbol_table/symbol_table_core.c:680: Symbol not found in get_symbol_offset: 'bad_offset'
+[0;32mPASS[0m  (0.00ms)
+  symbol_table_offsets_alignment                     [0;32mPASS[0m  (0.00ms)
+  symbol_table_add_symbol_retains_type               [0;32mPASS[0m  (0.00ms)
+  symbol_table_add_symbol_arena_exhaust              [0;32mPASS[0m  (0.00ms)
+  symbol_table_add_many_symbols                      [0;32mPASS[0m  (0.07ms)
+  symbol_table_add_symbol_token_dup                  [0;32mPASS[0m  (0.00ms)
+  symbol_table_add_complex_types                     [0;32mPASS[0m  (0.00ms)
+  symbol_table_print                                 [0;32mPASS[0m  (0.00ms)
+  symbol_table_scope_depth_init                      [0;32mPASS[0m  (0.00ms)
+  symbol_table_scope_depth_push                      [0;32mPASS[0m  (0.00ms)
+  symbol_table_scope_depth_function                  [0;32mPASS[0m  (0.00ms)
+  symbol_table_scope_depth_bounds                    [0;32mPASS[0m  (0.00ms)
+  symbol_table_scope_depth_null                      [0;32mPASS[0m  (0.00ms)
+  symbol_table_scope_depth_deep                      [0;32mPASS[0m  (0.00ms)
+  symbol_declaration_scope_depth_basic               [0;32mPASS[0m  (0.00ms)
+  symbol_declaration_scope_depth_lookup_persistence  [0;32mPASS[0m  (0.00ms)
+  symbol_declaration_scope_depth_comparison          [0;32mPASS[0m  (0.00ms)
+  symbol_declaration_scope_depth_function_scope      [0;32mPASS[0m  (0.00ms)
+  symbol_declaration_scope_depth_deep_nesting        [0;32mPASS[0m  (0.00ms)
+
+[1mSymbol Table Thread State[0m
+------------------------------------------------------------
+  thread_state_initial_normal                        [0;32mPASS[0m  (0.00ms)
+  thread_state_mark_pending                          [0;32mPASS[0m  (0.00ms)
+  thread_state_mark_synchronized                     [0;32mPASS[0m  (0.00ms)
+  thread_state_is_pending_query                      [0;32mPASS[0m  (0.00ms)
+  thread_state_invalid_transitions                   [ERROR] /home/gavin/code/sindarin/sindarin-restore-tagged-c/src/symbol_table/symbol_table_thread.c:82: Cannot mark NULL symbol as pending
+[ERROR] /home/gavin/code/sindarin/sindarin-restore-tagged-c/src/symbol_table/symbol_table_thread.c:100: Cannot mark NULL symbol as synchronized
+[0;32mPASS[0m  (0.00ms)
+  thread_state_is_synchronized_query                 [0;32mPASS[0m  (0.00ms)
+
+[1mSymbol Table Namespace[0m
+------------------------------------------------------------
+  namespace_add_namespace                            [0;32mPASS[0m  (0.00ms)
+  namespace_add_symbol_to_namespace                  [0;32mPASS[0m  (0.00ms)
+  namespace_lookup_in_namespace                      [0;32mPASS[0m  (0.00ms)
+  namespace_is_namespace                             [0;32mPASS[0m  (0.00ms)
+  namespace_add_symbol_to_nonexistent                [ERROR] /home/gavin/code/sindarin/sindarin-restore-tagged-c/src/symbol_table/symbol_table_namespace_basic.c:116: Namespace 'badns' not found
+[0;32mPASS[0m  (0.00ms)
+  namespace_duplicate_names                          [ERROR] /home/gavin/code/sindarin/sindarin-restore-tagged-c/src/symbol_table/symbol_table_namespace_basic.c:29: Namespace 'dupns' already exists in global scope
+[0;32mPASS[0m  (0.00ms)
+  namespace_regular_lookup_unaffected                [0;32mPASS[0m  (0.00ms)
+
+[1mSymbol Table Edge Cases[0m
+------------------------------------------------------------
+  edge_single_char_name                              [0;32mPASS[0m  (0.00ms)
+  edge_long_name                                     [0;32mPASS[0m  (0.00ms)
+  edge_underscore_only_name                          [0;32mPASS[0m  (0.00ms)
+  edge_double_underscore_name                        [0;32mPASS[0m  (0.00ms)
+  edge_numeric_suffix_name                           [0;32mPASS[0m  (0.00ms)
+  edge_similar_prefixes                              [0;32mPASS[0m  (0.00ms)
+  edge_all_primitive_types_size                      [0;32mPASS[0m  (0.00ms)
+  edge_void_type_symbol                              [0;32mPASS[0m  (0.00ms)
+  edge_array_of_arrays_type                          [0;32mPASS[0m  (0.00ms)
+  edge_function_type_with_many_params                [0;32mPASS[0m  (0.00ms)
+  edge_pointer_type                                  [0;32mPASS[0m  (0.00ms)
+  edge_deeply_nested_scopes                          [0;32mPASS[0m  (0.01ms)
+  edge_multiple_function_scopes                      [0;32mPASS[0m  (0.00ms)
+  edge_function_scope_with_nested_blocks             [0;32mPASS[0m  (0.00ms)
+  edge_multi_level_shadowing                         [0;32mPASS[0m  (0.00ms)
+  edge_shadowing_in_sibling_scopes                   [0;32mPASS[0m  (0.00ms)
+  edge_no_shadow_different_names                     [0;32mPASS[0m  (0.00ms)
+  edge_all_symbol_kinds                              [0;32mPASS[0m  (0.00ms)
+  edge_mixed_params_and_locals                       [0;32mPASS[0m  (0.00ms)
+  edge_offset_after_many_variables                   [0;32mPASS[0m  (0.02ms)
+  edge_offset_propagation_complex                    [0;32mPASS[0m  (0.00ms)
+  edge_param_offset_sequence                         [0;32mPASS[0m  (0.00ms)
+  edge_lookup_case_sensitive                         [0;32mPASS[0m  (0.00ms)
+  edge_lookup_partial_match_fails                    [0;32mPASS[0m  (0.00ms)
+  edge_lookup_empty_table                            [ERROR] /home/gavin/code/sindarin/sindarin-restore-tagged-c/src/symbol_table/symbol_table_core.c:680: Symbol not found in get_symbol_offset: 'anything'
+[0;32mPASS[0m  (0.00ms)
+  edge_lookup_after_removal                          [0;32mPASS[0m  (0.00ms)
+  edge_multiple_namespaces                           [0;32mPASS[0m  (0.00ms)
+  edge_namespace_and_regular_same_name               [0;32mPASS[0m  (0.00ms)
+  edge_empty_namespace                               [0;32mPASS[0m  (0.00ms)
+  edge_thread_state_multiple_symbols                 [0;32mPASS[0m  (0.00ms)
+  edge_many_symbols_same_scope                       [0;32mPASS[0m  (0.51ms)
+  edge_scope_capacity_expansion                      [0;32mPASS[0m  (0.00ms)
+  edge_symbol_type_update                            [0;32mPASS[0m  (0.00ms)
+  edge_type_pointer_retained                         [0;32mPASS[0m  (0.00ms)
+  edge_zero_length_token                             [0;32mPASS[0m  (0.00ms)
+  edge_scope_depth_consistency                       [0;32mPASS[0m  (0.00ms)
+  edge_current_lookup_vs_full_lookup                 [0;32mPASS[0m  (0.00ms)
+  edge_function_scope_offset_reset                   [0;32mPASS[0m  (0.00ms)
+  edge_print_empty_scope                             [0;32mPASS[0m  (0.00ms)
+  edge_print_with_namespaces                         [0;32mPASS[0m  (0.00ms)
+
+[1mSymbol Table Stress - Many Symbols[0m
+------------------------------------------------------------
+  stress_many_symbols                                [0;32mPASS[0m  (0.04ms)
+  stress_deep_nesting                                [0;32mPASS[0m  (0.00ms)
+  stress_scope_shadowing                             [0;32mPASS[0m  (0.00ms)
+  stress_multiple_types                              [0;32mPASS[0m  (0.00ms)
+
+[1mSymbol Table Stress - Lookups[0m
+------------------------------------------------------------
+  stress_lookup_not_found                            [0;32mPASS[0m  (0.00ms)
+  stress_lookup_current_only                         [0;32mPASS[0m  (0.00ms)
+  stress_lookup_enclosing                            [0;32mPASS[0m  (0.00ms)
+
+[1mSymbol Table Stress - Symbol Kinds[0m
+------------------------------------------------------------
+  stress_global_symbol                               [0;32mPASS[0m  (0.00ms)
+  stress_local_symbol                                [0;32mPASS[0m  (0.00ms)
+  stress_param_symbol                                [0;32mPASS[0m  (0.00ms)
+  stress_type_alias                                  [0;32mPASS[0m  (0.00ms)
+
+[1mSymbol Table Stress - Memory Qualifiers[0m
+------------------------------------------------------------
+  stress_mem_as_val                                  [0;32mPASS[0m  (0.00ms)
+  stress_mem_as_ref                                  [0;32mPASS[0m  (0.00ms)
+  stress_mem_default                                 [0;32mPASS[0m  (0.00ms)
+
+[1mSymbol Table Stress - Operations[0m
+------------------------------------------------------------
+  stress_rapid_push_pop                              [0;32mPASS[0m  (0.01ms)
+  stress_many_arenas                                 [0;32mPASS[0m  (0.00ms)
+  stress_mixed_operations                            [0;32mPASS[0m  (0.00ms)
+  stress_interleaved_kinds                           [0;32mPASS[0m  (0.00ms)
+  stress_loop_context                                [0;32mPASS[0m  (0.00ms)
+  stress_function_scope                              [0;32mPASS[0m  (0.00ms)
+
+[1mToken[0m
+------------------------------------------------------------
+  token_init_array_literal                           [0;32mPASS[0m  (0.00ms)
+  token_init_int_literal                             [0;32mPASS[0m  (0.00ms)
+  token_init_non_literal                             [0;32mPASS[0m  (0.00ms)
+  token_init_zero_length                             [0;32mPASS[0m  (0.00ms)
+  token_set_array_literal_null                       [0;32mPASS[0m  (0.00ms)
+  token_set_array_literal_empty                      [0;32mPASS[0m  (0.00ms)
+  token_set_array_literal_single                     [0;32mPASS[0m  (0.00ms)
+  token_set_array_literal_multi                      [0;32mPASS[0m  (0.00ms)
+  token_set_int_literal                              [0;32mPASS[0m  (0.00ms)
+  token_set_long_literal                             [0;32mPASS[0m  (0.00ms)
+  token_set_double_literal                           [0;32mPASS[0m  (0.00ms)
+  token_set_char_literal                             [0;32mPASS[0m  (0.00ms)
+  token_set_string_literal                           [0;32mPASS[0m  (0.00ms)
+  token_set_interpol_string                          [0;32mPASS[0m  (0.00ms)
+  token_set_bool_literal_true                        [0;32mPASS[0m  (0.00ms)
+  token_set_bool_literal_false                       [0;32mPASS[0m  (0.00ms)
+  token_type_to_string_array                         [0;32mPASS[0m  (0.00ms)
+  token_type_to_string_all_literals                  [0;32mPASS[0m  (0.00ms)
+  token_type_to_string_keywords                      [0;32mPASS[0m  (0.00ms)
+  token_type_to_string_operators                     [0;32mPASS[0m  (0.00ms)
+  token_type_to_string_special                       [0;32mPASS[0m  (0.00ms)
+  token_type_to_string_invalid                       [ERROR] /home/gavin/code/sindarin/sindarin-restore-tagged-c/src/token.c:52: Invalid SnTokenType: -1
+[ERROR] /home/gavin/code/sindarin/sindarin-restore-tagged-c/src/token.c:52: Invalid SnTokenType: 999
+[0;32mPASS[0m  (0.00ms)
+  token_print_array_integration                      [0;32mPASS[0m  (0.00ms)
+  token_init_invalid_type                            [ERROR] /home/gavin/code/sindarin/sindarin-restore-tagged-c/src/token.c:52: Invalid SnTokenType: 999
+[0;32mPASS[0m  (0.00ms)
+
+[1mToken Extended Tests[0m
+------------------------------------------------------------
+  token_type_string_literals                         [0;32mPASS[0m  (0.00ms)
+  token_type_string_keywords                         [0;32mPASS[0m  (0.00ms)
+  token_type_string_operators                        [0;32mPASS[0m  (0.00ms)
+  token_type_string_comparison                       [0;32mPASS[0m  (0.00ms)
+  token_type_string_punctuation                      [0;32mPASS[0m  (0.00ms)
+  token_type_string_special                          [0;32mPASS[0m  (0.00ms)
+  token_type_string_types                            [0;32mPASS[0m  (0.00ms)
+  token_init_basic                                   [0;32mPASS[0m  (0.00ms)
+  token_init_identifier                              [0;32mPASS[0m  (0.00ms)
+  token_init_string_literal                          [0;32mPASS[0m  (0.00ms)
+  token_init_operator                                [0;32mPASS[0m  (0.00ms)
+  token_init_long_lexeme                             [0;32mPASS[0m  (0.00ms)
+  token_int_literal_value                            [0;32mPASS[0m  (0.00ms)
+  token_int_literal_zero                             [0;32mPASS[0m  (0.00ms)
+  token_int_literal_negative                         [0;32mPASS[0m  (0.00ms)
+  token_int_literal_max                              [0;32mPASS[0m  (0.00ms)
+  token_int_literal_large                            [0;32mPASS[0m  (0.00ms)
+  token_double_literal_value                         [0;32mPASS[0m  (0.00ms)
+  token_double_literal_zero                          [0;32mPASS[0m  (0.00ms)
+  token_double_literal_negative                      [0;32mPASS[0m  (0.00ms)
+  token_double_literal_small                         [0;32mPASS[0m  (0.00ms)
+  token_double_literal_large                         [0;32mPASS[0m  (0.00ms)
+  token_string_literal_value                         [0;32mPASS[0m  (0.00ms)
+  token_string_literal_empty                         [0;32mPASS[0m  (0.00ms)
+  token_string_literal_with_space                    [0;32mPASS[0m  (0.00ms)
+  token_char_literal_value                           [0;32mPASS[0m  (0.00ms)
+  token_char_literal_digit                           [0;32mPASS[0m  (0.00ms)
+  token_char_literal_newline                         [0;32mPASS[0m  (0.00ms)
+  token_char_literal_tab                             [0;32mPASS[0m  (0.00ms)
+  token_bool_literal_true                            [0;32mPASS[0m  (0.00ms)
+  token_bool_literal_false                           [0;32mPASS[0m  (0.00ms)
+  token_type_arithmetic_ops                          [0;32mPASS[0m  (0.00ms)
+  token_type_comparison_ops                          [0;32mPASS[0m  (0.00ms)
+  token_type_logical_ops                             [0;32mPASS[0m  (0.00ms)
+  token_type_assignment_ops                          [0;32mPASS[0m  (0.00ms)
+  token_type_bitwise_ops                             [0;32mPASS[0m  (0.00ms)
+  token_type_brackets                                [0;32mPASS[0m  (0.00ms)
+  token_type_type_keywords                           [0;32mPASS[0m  (0.00ms)
+  token_type_control_flow                            [0;32mPASS[0m  (0.00ms)
+  token_type_declarations                            [0;32mPASS[0m  (0.00ms)
+  token_type_memory_keywords                         [0;32mPASS[0m  (0.00ms)
+  token_location_line_one                            [0;32mPASS[0m  (0.00ms)
+  token_location_line_large                          [0;32mPASS[0m  (0.00ms)
+  token_location_filename                            [0;32mPASS[0m  (0.00ms)
+  token_location_different_files                     [0;32mPASS[0m  (0.00ms)
+  token_copy_basic                                   [0;32mPASS[0m  (0.00ms)
+  token_copy_with_literal                            [0;32mPASS[0m  (0.00ms)
+  token_array_store                                  [0;32mPASS[0m  (0.00ms)
+  token_array_iterate                                [0;32mPASS[0m  (0.00ms)
+  token_empty_start                                  [0;32mPASS[0m  (0.00ms)
+  token_long_literal_type                            [0;32mPASS[0m  (0.00ms)
+  token_byte_literal_type                            [0;32mPASS[0m  (0.00ms)
+  token_interpol_string_type                         [0;32mPASS[0m  (0.00ms)
+  token_pragma_types                                 [0;32mPASS[0m  (0.00ms)
+  token_error_type                                   [0;32mPASS[0m  (0.00ms)
+  token_comment_type                                 [0;32mPASS[0m  (0.00ms)
+
+[1mType Checker Arrays[0m
+------------------------------------------------------------
+  array_decl_no_init                                 [0;32mPASS[0m  (0.00ms)
+  array_decl_with_init_matching                      [0;32mPASS[0m  (0.00ms)
+  array_decl_with_init_mismatch                      
+[1;31merror[0m: Initializer type does not match variable type
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^^^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  array_literal_empty                                [0;32mPASS[0m  (0.00ms)
+  array_access_valid                                 [0;32mPASS[0m  (0.00ms)
+  array_access_non_array                             
+[1;31merror[0m: Cannot access non-array
+  [1;34m-->[0m test.sn:2:1
+
+[0;32mPASS[0m  (0.01ms)
+  array_access_invalid_index                         
+[1;31merror[0m: Array index must be numeric type
+  [1;34m-->[0m test.sn:2:1
+
+[0;32mPASS[0m  (0.01ms)
+  array_assignment_matching                          [0;32mPASS[0m  (0.00ms)
+  array_assignment_mismatch                          
+[1;31merror[0m: Type mismatch in assignment
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^^^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  nested_array                                       [0;32mPASS[0m  (0.00ms)
+  array_slice_full                                   [0;32mPASS[0m  (0.00ms)
+  array_slice_from_start                             [0;32mPASS[0m  (0.00ms)
+  array_slice_to_end                                 [0;32mPASS[0m  (0.00ms)
+  array_slice_non_array                              
+[1;31merror[0m: Cannot slice non-array, non-pointer type
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  sized_array_alloc_basic                            [0;32mPASS[0m  (0.00ms)
+  sized_array_alloc_with_default                     [0;32mPASS[0m  (0.00ms)
+  sized_array_alloc_mismatch_default                 
+[1;31merror[0m: Default value type does not match array element type
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^^^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  sized_array_alloc_runtime_size                     [0;32mPASS[0m  (0.00ms)
+  sized_array_alloc_invalid_size                     
+[1;31merror[0m: Array size must be an integer type
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^^^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  sized_array_alloc_long_size                        [0;32mPASS[0m  (0.00ms)
+
+[1mType Checker Members[0m
+------------------------------------------------------------
+  array_member_length                                [0;32mPASS[0m  (0.00ms)
+  array_member_invalid                               
+[1;31merror[0m: Type 'array' has no member 'invalid'
+
+[0;32mPASS[0m  (0.01ms)
+  array_member_push                                  [0;32mPASS[0m  (0.00ms)
+  array_member_pop                                   [0;32mPASS[0m  (0.00ms)
+  array_member_clear                                 [0;32mPASS[0m  (0.00ms)
+  array_member_concat                                [0;32mPASS[0m  (0.00ms)
+  array_printable                                    [0;32mPASS[0m  (0.00ms)
+  string_member_append                               [0;32mPASS[0m  (0.00ms)
+
+[1mType Checker Functions[0m
+------------------------------------------------------------
+  function_return_array                              [0;32mPASS[0m  (0.00ms)
+  var_decl_function_call_array                       [0;32mPASS[0m  (0.06ms)
+
+[1mType Checker Memory[0m
+------------------------------------------------------------
+  var_as_ref_primitive                               [0;32mPASS[0m  (0.00ms)
+  var_as_ref_array_allowed                           
+[1;33mwarning[0m: 'as ref' on string/array type has no effect (already heap-allocated)
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;33m^^^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  var_as_val_array                                   [0;32mPASS[0m  (0.00ms)
+  param_as_ref_error                                 
+[1;31merror[0m: 'as ref' only applies to primitive or struct parameters
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  param_as_ref_primitive                             [0;32mPASS[0m  (0.00ms)
+  param_as_val                                       [0;32mPASS[0m  (0.00ms)
+  null_stmt_handling                                 [0;32mPASS[0m  (0.00ms)
+  function_with_null_param_type                      
+[1;31merror[0m: Parameter type is missing
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  memory_context_scope_depth_init                    [0;32mPASS[0m  (0.00ms)
+  memory_context_scope_depth_enter_exit              [0;32mPASS[0m  (0.00ms)
+  memory_context_scope_depth_bounds                  [0;32mPASS[0m  (0.00ms)
+  memory_context_scope_depth_null                    [0;32mPASS[0m  (0.00ms)
+  memory_context_scope_depth_nested_deep             [0;32mPASS[0m  (0.00ms)
+  memory_context_scope_with_private                  [0;32mPASS[0m  (0.00ms)
+  escape_detect_inner_to_outer_assignment            [0;32mPASS[0m  (0.00ms)
+  escape_same_scope_no_escape                        [0;32mPASS[0m  (0.00ms)
+  escape_outer_to_inner_no_escape                    [0;32mPASS[0m  (0.00ms)
+  escape_detect_nested_blocks                        [0;32mPASS[0m  (0.00ms)
+  escape_return_local_variable                       [0;32mPASS[0m  (0.00ms)
+  escape_return_parameter_no_escape                  [0;32mPASS[0m  (0.00ms)
+  escape_return_global_no_escape                     [0;32mPASS[0m  (0.00ms)
+  escape_return_literal_no_escape                    [0;32mPASS[0m  (0.00ms)
+  escape_struct_assign_in_if_block                   [0;32mPASS[0m  (0.00ms)
+  escape_struct_assign_in_while_loop                 [0;32mPASS[0m  (0.00ms)
+  escape_struct_assign_in_for_loop                   [0;32mPASS[0m  (0.00ms)
+
+[1mType Checker Promotion[0m
+------------------------------------------------------------
+  int_double_addition                                [0;32mPASS[0m  (0.00ms)
+  int_double_subtraction                             [0;32mPASS[0m  (0.00ms)
+  int_int_no_promotion                               [0;32mPASS[0m  (0.00ms)
+  int_double_comparison                              [0;32mPASS[0m  (0.00ms)
+  double_int_equality                                [0;32mPASS[0m  (0.00ms)
+  int_double_greater                                 [0;32mPASS[0m  (0.00ms)
+  int32_var_decl                                     [0;32mPASS[0m  (0.00ms)
+  uint_var_decl                                      [0;32mPASS[0m  (0.00ms)
+  uint32_var_decl                                    [0;32mPASS[0m  (0.00ms)
+  float_var_decl                                     [0;32mPASS[0m  (0.00ms)
+  int32_addition                                     [0;32mPASS[0m  (0.00ms)
+  float_double_promotion                             [0;32mPASS[0m  (0.00ms)
+  interop_type_mismatch                              
+[1;31merror[0m: Invalid types for + operator
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  pointer_nil_assignment                             [0;32mPASS[0m  (0.00ms)
+  double_pointer                                     [0;32mPASS[0m  (0.00ms)
+  pointer_type_equality                              [0;32mPASS[0m  (0.00ms)
+
+[1mType Checker Errors[0m
+------------------------------------------------------------
+  levenshtein_distance_identical                     [0;32mPASS[0m  (0.00ms)
+  levenshtein_distance_one_char_diff                 [0;32mPASS[0m  (0.00ms)
+  levenshtein_distance_insertion                     [0;32mPASS[0m  (0.00ms)
+  levenshtein_distance_deletion                      [0;32mPASS[0m  (0.00ms)
+  levenshtein_distance_empty                         [0;32mPASS[0m  (0.00ms)
+  levenshtein_distance_completely_different          [0;32mPASS[0m  (0.00ms)
+  levenshtein_distance_edge_cases                    [0;32mPASS[0m  (0.00ms)
+  find_similar_symbol_basic                          [0;32mPASS[0m  (0.01ms)
+  find_similar_symbol_no_match                       [0;32mPASS[0m  (0.00ms)
+  find_similar_symbol_typo_patterns                  [0;32mPASS[0m  (0.00ms)
+  find_similar_symbol_case_sensitivity               [0;32mPASS[0m  (0.00ms)
+  find_similar_symbol_too_different                  [0;32mPASS[0m  (0.00ms)
+  find_similar_symbol_empty_table                    [0;32mPASS[0m  (0.00ms)
+  find_similar_symbol_exact_match                    [0;32mPASS[0m  (0.00ms)
+  find_similar_method_array                          [0;32mPASS[0m  (0.00ms)
+  find_similar_method_string                         [0;32mPASS[0m  (0.00ms)
+  find_similar_method_no_match                       [0;32mPASS[0m  (0.00ms)
+  find_similar_method_array_typos                    [0;32mPASS[0m  (0.00ms)
+  find_similar_method_string_typos                   [0;32mPASS[0m  (0.00ms)
+  find_similar_method_null_type                      [0;32mPASS[0m  (0.00ms)
+
+[1mThread Spawn Type Checker[0m
+------------------------------------------------------------
+  spawn_non_call_error                               
+[1;31merror[0m: Thread spawn requires function call
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  spawn_non_function_error                           
+[1;31merror[0m: Thread spawn requires function call
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  void_spawn_assignment_error                        
+[1;31merror[0m: Cannot assign void thread spawn to variable
+  [1;34m-->[0m test.sn:2:1
+
+[0;32mPASS[0m  (0.01ms)
+  valid_spawn_returns_correct_type                   [0;32mPASS[0m  (0.00ms)
+  pending_state_marked_on_spawn_assignment           [0;32mPASS[0m  (0.00ms)
+  spawn_type_mismatch_error                          
+[1;31merror[0m: Thread spawn return type does not match variable type
+  [1;34m-->[0m test.sn:2:1
+
+[0;32mPASS[0m  (0.01ms)
+
+[1mThread Sync Type Checker[0m
+------------------------------------------------------------
+  sync_non_variable_error                            
+[1;31merror[0m: Sync requires thread handle variable
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  sync_unknown_variable_error                        
+[1;31merror[0m: Cannot sync unknown variable
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  sync_non_pending_variable_allowed                  [0;32mPASS[0m  (0.00ms)
+  valid_sync_returns_correct_type                    [0;32mPASS[0m  (0.00ms)
+  sync_state_transition                              [0;32mPASS[0m  (0.00ms)
+  array_sync_validates_array_handle                  [0;32mPASS[0m  (0.00ms)
+  array_sync_non_array_error                         
+[1;31merror[0m: Multi-sync requires [var1, var2, ...]! syntax
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  array_sync_non_variable_element_error              
+[1;31merror[0m: Sync list elements must be thread handle variables
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  array_sync_non_pending_element_error               
+[1;31merror[0m: Sync list element is not a thread variable
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  array_sync_returns_void                            [0;32mPASS[0m  (0.00ms)
+  array_sync_mixed_states                            [0;32mPASS[0m  (0.00ms)
+
+[1mThread Access Type Checker[0m
+------------------------------------------------------------
+  pending_variable_access_error                      
+[1;31merror[0m: Cannot access pending thread variable 'pendingResult' before synchronization (use pendingResult! to sync)
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^^^^^^^^^^^^^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  synchronized_variable_access_allowed               [0;32mPASS[0m  (0.00ms)
+  normal_variable_access_allowed                     [0;32mPASS[0m  (0.00ms)
+  array_sync_all_elements_accessible                 [0;32mPASS[0m  (0.00ms)
+  pending_variable_reassign_error                    
+[1;31merror[0m: Cannot reassign pending thread variable 'pendingResult' (use pendingResult! to sync first)
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^^^^^^^^^^^^^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  synchronized_variable_reassign_allowed             [0;32mPASS[0m  (0.00ms)
+  normal_variable_reassign_allowed                   [0;32mPASS[0m  (0.00ms)
+  normal_variable_increment_allowed                  [0;32mPASS[0m  (0.00ms)
+  normal_variable_decrement_allowed                  [0;32mPASS[0m  (0.00ms)
+  default_function_array_return_allowed              [0;32mPASS[0m  (0.00ms)
+
+[1mType Checker Namespaces[0m
+------------------------------------------------------------
+  namespace_import_creates_namespace                 [0;32mPASS[0m  (0.00ms)
+  namespace_rejects_keywords                         [0;32mPASS[0m  (0.00ms)
+  namespace_no_variable_conflict                     [0;32mPASS[0m  (0.00ms)
+  namespace_as_variable_detected                     [0;32mPASS[0m  (0.00ms)
+  undefined_namespace_detected                       [0;32mPASS[0m  (0.00ms)
+  same_module_both_import_styles                     [0;32mPASS[0m  (0.00ms)
+  namespace_symbol_not_found                         [0;32mPASS[0m  (0.00ms)
+  get_module_symbols_empty                           [0;32mPASS[0m  (0.00ms)
+  get_module_symbols_null                            [0;32mPASS[0m  (0.00ms)
+
+[1mNative Context[0m
+------------------------------------------------------------
+  native_context_default_inactive                    [0;32mPASS[0m  (0.00ms)
+  native_context_enter                               [0;32mPASS[0m  (0.00ms)
+  native_context_exit                                [0;32mPASS[0m  (0.00ms)
+  native_context_nesting                             [0;32mPASS[0m  (0.00ms)
+  native_context_excessive_exit                      [0;32mPASS[0m  (0.00ms)
+  native_context_multiple_cycles                     [0;32mPASS[0m  (0.00ms)
+
+[1mNative Types[0m
+------------------------------------------------------------
+  opaque_type_declaration                            [0;32mPASS[0m  (0.00ms)
+  opaque_pointer_in_native_function                  [0;32mPASS[0m  (0.00ms)
+  opaque_dereference_rejected                        
+[1;31merror[0m: Cannot dereference pointer to opaque type
+  [1;34m-->[0m test.sn:4:1
+
+[0;32mPASS[0m  (0.01ms)
+  opaque_type_c_compatible                           [0;32mPASS[0m  (0.00ms)
+  int32_type_in_native_function                      [0;32mPASS[0m  (0.00ms)
+  uint_type_in_native_function                       [0;32mPASS[0m  (0.00ms)
+  uint32_type_in_native_function                     [0;32mPASS[0m  (0.00ms)
+  float_type_in_native_function                      [0;32mPASS[0m  (0.00ms)
+  interop_types_c_compatible                         [0;32mPASS[0m  (0.00ms)
+  pointer_to_interop_type                            [0;32mPASS[0m  (0.00ms)
+
+[1mNative Callback[0m
+------------------------------------------------------------
+  variadic_function_accepts_extra_args               [0;32mPASS[0m  (0.00ms)
+  variadic_function_rejects_too_few_args             
+[1;31merror[0m: Function 'printf' requires at least 1 argument(s), got 0
+  [1;34m-->[0m test.sn:3:1
+
+[0;32mPASS[0m  (0.01ms)
+  native_callback_type_alias_c_compatible            [0;32mPASS[0m  (0.00ms)
+  native_callback_type_alias_array_param_fails       
+[1;31merror[0m: Native callback parameter type must be C-compatible (primitives, pointers, or opaque types)
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^^^^^^^^^^^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  native_callback_type_alias_array_return_fails      
+[1;31merror[0m: Native callback return type must be C-compatible (primitives, pointers, or opaque types)
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^^^^^^^^^^^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  native_callback_as_function_param                  [0;32mPASS[0m  (0.00ms)
+  native_lambda_capture_rejected                     
+[1;31merror[0m: Native lambda cannot capture variable 'counter' - use void* userdata pattern instead
+  [1;34m-->[0m test.sn:4:1
+
+[0;32mPASS[0m  (0.01ms)
+  native_lambda_params_only_succeeds                 [0;32mPASS[0m  (0.00ms)
+  native_lambda_param_count_mismatch                 
+[1;31merror[0m: Native lambda parameter count does not match callback type
+  [1;34m-->[0m test.sn:3:1
+
+[0;32mPASS[0m  (0.01ms)
+  native_lambda_matching_signature                   [0;32mPASS[0m  (0.00ms)
+
+[1mNative Slice[0m
+------------------------------------------------------------
+  pointer_slice_byte_to_byte_array                   [0;32mPASS[0m  (0.00ms)
+  pointer_slice_int_to_int_array                     [0;32mPASS[0m  (0.00ms)
+  slice_non_array_non_pointer_fails                  
+[1;31merror[0m: Cannot slice non-array, non-pointer type
+  [1;34m-->[0m test.sn:2:1
+
+[0;32mPASS[0m  (0.01ms)
+  array_slice_still_works                            [0;32mPASS[0m  (0.00ms)
+  value_of_context_tracking                          [0;32mPASS[0m  (0.00ms)
+  pointer_slice_with_as_val_in_regular_fn            [0;32mPASS[0m  (0.00ms)
+  pointer_slice_without_as_val_in_regular_fn_fails   
+[1;31merror[0m: Pointer slice in non-native function requires valueOf() (e.g., valueOf(ptr[0..len]))
+  [1;34m-->[0m test.sn:2:1
+
+[0;32mPASS[0m  (0.01ms)
+  as_val_on_array_type_is_noop                       [0;32mPASS[0m  (0.00ms)
+  get_buffer_slice_as_val_type_inference             [0;32mPASS[0m  (0.00ms)
+  slice_invalid_type_error                           
+[1;31merror[0m: Cannot slice non-array, non-pointer type
+  [1;34m-->[0m test.sn:2:1
+
+
+[1;31merror[0m: Invalid operand in valueOf() expression
+  [1;34m-->[0m test.sn:2:1
+
+[0;32mPASS[0m  (0.01ms)
+  int_pointer_slice_as_val_type_inference            [0;32mPASS[0m  (0.00ms)
+  pointer_slice_with_step_fails                      
+[1;31merror[0m: Pointer slicing does not support step parameter (ptr[start..end:step] invalid)
+  [1;34m-->[0m test.sn:2:1
+
+
+[1;31merror[0m: Invalid operand in valueOf() expression
+  [1;34m-->[0m test.sn:2:1
+
+[0;32mPASS[0m  (0.01ms)
+
+[1mNative Pointer[0m
+------------------------------------------------------------
+  pointer_var_rejected_in_regular_function           
+[1;31merror[0m: Pointer variables can only be declared in native functions
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  pointer_var_accepted_in_native_function            [0;32mPASS[0m  (0.00ms)
+  pointer_arithmetic_rejected                        
+[1;31merror[0m: Pointer arithmetic is not allowed
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^[0m
+
+
+[1;31merror[0m: Pointer arithmetic is not allowed
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^[0m
+
+
+[1;31merror[0m: Pointer arithmetic is not allowed
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^[0m
+
+
+[1;31merror[0m: Pointer arithmetic is not allowed
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^[0m
+
+
+[1;31merror[0m: Pointer arithmetic is not allowed
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^[0m
+
+[0;32mPASS[0m  (0.05ms)
+  pointer_nil_comparison_allowed                     [0;32mPASS[0m  (0.00ms)
+  pointer_pointer_comparison_allowed                 [0;32mPASS[0m  (0.00ms)
+  inline_pointer_passing_allowed                     [0;32mPASS[0m  (0.00ms)
+  inline_nil_passing_allowed                         [0;32mPASS[0m  (0.00ms)
+  as_val_unwraps_pointer_int                         [0;32mPASS[0m  (0.00ms)
+  as_val_unwraps_pointer_double                      [0;32mPASS[0m  (0.00ms)
+  as_val_unwraps_pointer_float                       [0;32mPASS[0m  (0.00ms)
+  as_val_rejects_non_pointer                         
+[1;31merror[0m: valueOf() requires a pointer or array type operand
+  [1;34m-->[0m test.sn:2:1
+
+[0;32mPASS[0m  (0.01ms)
+  as_val_char_pointer_to_str                         [0;32mPASS[0m  (0.00ms)
+  as_val_int_pointer_no_cstr_flag                    [0;32mPASS[0m  (0.00ms)
+  pointer_return_without_as_val_fails_in_regular_fn  
+[1;31merror[0m: Pointer types not allowed in non-native functions, use 'as val'
+  [1;34m-->[0m test.sn:5:1
+
+
+[1;31merror[0m: Initializer type does not match variable type
+  [1;34m-->[0m test.sn:5:1
+
+[0;32mPASS[0m  (0.01ms)
+  pointer_return_with_as_val_succeeds_in_regular_fn  [0;32mPASS[0m  (0.00ms)
+  native_fn_can_store_pointer_return                 [0;32mPASS[0m  (0.00ms)
+  as_ref_primitive_param_in_native_fn                [0;32mPASS[0m  (0.00ms)
+  as_ref_array_param_rejected                        
+[1;31merror[0m: 'as ref' only applies to primitive or struct parameters
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^^^^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  as_ref_param_call_with_vars                        [0;32mPASS[0m  (0.00ms)
+  ptr_struct_member_rejected_in_regular_fn           
+[1;31merror[0m: Pointer variables can only be declared in native functions
+  [1;34m-->[0m test.sn:3:1
+
+
+[1;31merror[0m: Pointer to struct member access requires native function context. Declare the function with 'native fn' to access '*Point' fields
+  [1;34m-->[0m test.sn:3:1
+
+[0;32mPASS[0m  (0.02ms)
+  ptr_struct_member_accepted_in_native_fn            [0;32mPASS[0m  (0.00ms)
+
+[1mStruct Type Checker - Basic[0m
+------------------------------------------------------------
+  struct_primitive_fields                            [0;32mPASS[0m  (0.00ms)
+  struct_all_primitive_types                         [0;32mPASS[0m  (0.00ms)
+  struct_nested_struct_type                          [0;32mPASS[0m  (0.00ms)
+  struct_array_field                                 [0;32mPASS[0m  (0.00ms)
+  struct_default_value_valid                         [0;32mPASS[0m  (0.00ms)
+  struct_default_value_type_mismatch                 
+[1;31merror[0m: Default value type does not match field 'value' type
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^^^^^^^^^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  native_struct_pointer_field                        [0;32mPASS[0m  (0.00ms)
+  non_native_struct_pointer_field_error              
+[1;31merror[0m: Pointer field 'data' not allowed in struct 'BadBuffer'. Use 'native struct' for structs with pointer fields:
+    native struct BadBuffer =>
+        data: *...
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^^^^^^^^^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  struct_empty                                       [0;32mPASS[0m  (0.00ms)
+  struct_opaque_field                                [0;32mPASS[0m  (0.00ms)
+  struct_null_field_type_error                       
+[1;31merror[0m: Field 'bad_field' has no type
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^^^^^^^^^[0m
+
+[0;32mPASS[0m  (0.01ms)
+
+[1mStruct Type Checker - Circular Dependencies[0m
+------------------------------------------------------------
+  struct_direct_circular_dependency                  
+[1;31merror[0m: Circular dependency detected in struct 'Node': Node -> Node
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^^^^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  struct_indirect_circular_dependency                
+[1;31merror[0m: Circular dependency detected in struct 'StructA': StructA -> StructB -> StructA
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^^^^^^^[0m
+
+
+[1;31merror[0m: Circular dependency detected in struct 'StructB': StructB -> StructA -> StructB
+  [1;34m-->[0m test.sn:2:1
+
+[0;32mPASS[0m  (0.02ms)
+  struct_multi_level_circular_chain                  
+[1;31merror[0m: Circular dependency detected in struct 'LevelA': LevelA -> LevelB -> LevelC -> LevelA
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^^^^^^[0m
+
+
+[1;31merror[0m: Circular dependency detected in struct 'LevelB': LevelB -> LevelC -> LevelA -> LevelB
+  [1;34m-->[0m test.sn:2:1
+
+
+[1;31merror[0m: Circular dependency detected in struct 'LevelC': LevelC -> LevelA -> LevelB -> LevelC
+  [1;34m-->[0m test.sn:3:1
+
+[0;32mPASS[0m  (0.02ms)
+  struct_pointer_breaks_cycle                        [0;32mPASS[0m  (0.00ms)
+  struct_array_of_self_circular                      
+[1;31merror[0m: Circular dependency detected in struct 'TreeNode': TreeNode -> TreeNode
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^^^^^^^^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  circular_dependency_detection_direct               [0;32mPASS[0m  (0.00ms)
+
+[1mStruct Type Checker - Native Context[0m
+------------------------------------------------------------
+  native_struct_in_native_fn_context                 [0;32mPASS[0m  (0.00ms)
+  native_struct_in_regular_fn_error                  
+[1;31merror[0m: Native struct 'Buffer' can only be used in native function context. Declare the function with 'native fn':
+    native fn example(): void =>
+        var x: Buffer = Buffer { ... }
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^^^^^^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  regular_struct_in_regular_fn                       [0;32mPASS[0m  (0.00ms)
+
+[1mStruct Type Checker - Layout[0m
+------------------------------------------------------------
+  struct_layout_all_8byte_fields                     [0;32mPASS[0m  (0.00ms)
+  struct_layout_byte_int_padding                     [0;32mPASS[0m  (0.00ms)
+  struct_layout_trailing_padding                     [0;32mPASS[0m  (0.00ms)
+  struct_layout_4byte_fields                         [0;32mPASS[0m  (0.00ms)
+  struct_layout_mixed_alignment                      [0;32mPASS[0m  (0.00ms)
+  struct_layout_all_1byte_fields                     [0;32mPASS[0m  (0.00ms)
+  struct_layout_empty                                [0;32mPASS[0m  (0.00ms)
+  struct_layout_nested                               [0;32mPASS[0m  (0.00ms)
+
+[1mStruct Type Checker - Packed Layout[0m
+------------------------------------------------------------
+  struct_layout_packed_mixed                         [0;32mPASS[0m  (0.00ms)
+  struct_layout_packed_binary_header                 [0;32mPASS[0m  (0.00ms)
+  struct_layout_packed_vs_unpacked                   [0;32mPASS[0m  (0.00ms)
+
+[1mStruct Type Checker - Symbol Table[0m
+------------------------------------------------------------
+  struct_symbol_table_registration                   [0;32mPASS[0m  (0.00ms)
+  struct_symbol_table_metadata                       [0;32mPASS[0m  (0.00ms)
+  struct_symbol_table_native_metadata                [0;32mPASS[0m  (0.00ms)
+  struct_symbol_table_size_alignment                 [0;32mPASS[0m  (0.00ms)
+  struct_symbol_table_lookup_for_later_use           [0;32mPASS[0m  (0.00ms)
+  struct_symbol_table_lookup_not_found               [0;32mPASS[0m  (0.00ms)
+
+[1mStruct Type Checker - Struct Literals[0m
+------------------------------------------------------------
+  struct_literal_all_fields_initialized              [0;32mPASS[0m  (0.00ms)
+  struct_literal_partial_initialization              [0;32mPASS[0m  (0.00ms)
+  struct_literal_empty_initialization                [0;32mPASS[0m  (0.00ms)
+  struct_literal_field_init_helper_edge_cases        [0;32mPASS[0m  (0.00ms)
+  struct_literal_field_init_invalid_index            [0;32mPASS[0m  (0.06ms)
+
+[1mStruct Type Checker - Default Values[0m
+------------------------------------------------------------
+  struct_default_value_applied                       [0;32mPASS[0m  (0.00ms)
+  struct_multiple_defaults_applied                   [0;32mPASS[0m  (0.00ms)
+  struct_explicit_overrides_default                  [0;32mPASS[0m  (0.00ms)
+
+[1mStruct Type Checker - Required Fields[0m
+------------------------------------------------------------
+  struct_missing_required_fields_error               
+[1;31merror[0m: Missing 2 required fields in struct literal 'Point': 'x', 'y'
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^^^^^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  struct_missing_one_required_field_error            
+[1;31merror[0m: Missing required field 'y' in struct literal 'Point'
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^^^^^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  struct_all_required_fields_provided                [0;32mPASS[0m  (0.00ms)
+  struct_optional_fields_not_required                [0;32mPASS[0m  (0.00ms)
+
+[1mStruct Type Checker - Nested Structs[0m
+------------------------------------------------------------
+  nested_struct_all_fields_provided                  [0;32mPASS[0m  (0.00ms)
+  nested_struct_inner_missing_required               
+[1;31merror[0m: Missing required field 'y' in struct literal 'Point'
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^^^^^[0m
+
+[0;32mPASS[0m  (0.01ms)
+  nested_struct_inner_defaults_applied               [0;32mPASS[0m  (0.00ms)
+  nested_struct_three_levels                         [0;32mPASS[0m  (0.00ms)
+  nested_struct_three_levels_missing_required        
+[1;31merror[0m: Missing required field 'val' in struct literal 'Inner'
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^^^^^[0m
+
+[0;32mPASS[0m  (0.01ms)
+
+[1mStruct Type Checker - Member Access[0m
+------------------------------------------------------------
+  member_access_scope_depth_propagation              [0;32mPASS[0m  (0.00ms)
+  member_access_nested_scope_depth                   [0;32mPASS[0m  (0.00ms)
+  member_access_chain_scope_depth                    [0;32mPASS[0m  (0.00ms)
+  member_access_chain_three_levels                   [0;32mPASS[0m  (0.00ms)
+
+[1mStruct Type Checker - Field Assignment[0m
+------------------------------------------------------------
+  field_assign_escape_detection                      [0;32mPASS[0m  (0.00ms)
+  field_assign_same_scope_no_escape                  [0;32mPASS[0m  (0.00ms)
+  field_assign_chain_escape_detection                [0;32mPASS[0m  (0.00ms)
+  field_assign_deep_chain_all_nodes_escaped          [0;32mPASS[0m  (0.00ms)
+  field_assign_uses_base_scope                       [0;32mPASS[0m  (0.00ms)
+
+[1mStruct Type Checker - Utility Functions[0m
+------------------------------------------------------------
+  struct_type_equals_matching_names                  [0;32mPASS[0m  (0.00ms)
+  struct_type_equals_different_names                 [0;32mPASS[0m  (0.00ms)
+  struct_type_equals_null_names                      [0;32mPASS[0m  (0.00ms)
+  struct_type_equals_null_types                      [0;32mPASS[0m  (0.00ms)
+  struct_type_equals_self                            [0;32mPASS[0m  (0.00ms)
+  struct_get_field_exists                            [0;32mPASS[0m  (0.00ms)
+  struct_get_field_not_found                         [0;32mPASS[0m  (0.00ms)
+  struct_get_field_null_inputs                       [0;32mPASS[0m  (0.00ms)
+  struct_get_field_index                             [0;32mPASS[0m  (0.00ms)
+  struct_get_type_size                               [0;32mPASS[0m  (0.00ms)
+  struct_get_type_size_empty                         [0;32mPASS[0m  (0.00ms)
+  get_type_size_primitives                           [0;32mPASS[0m  (0.00ms)
+  get_type_alignment_primitives                      [0;32mPASS[0m  (0.00ms)
+  get_type_alignment_struct                          [0;32mPASS[0m  (0.00ms)
+
+[1mStruct Type Checker - Miscellaneous[0m
+------------------------------------------------------------
+  struct_layout_large                                [0;32mPASS[0m  (0.00ms)
+  struct_layout_large_mixed                          [0;32mPASS[0m  (0.00ms)
+  struct_layout_single_int                           [0;32mPASS[0m  (0.00ms)
+  struct_layout_single_byte                          [0;32mPASS[0m  (0.00ms)
+  struct_layout_single_nested                        [0;32mPASS[0m  (0.00ms)
+  struct_clone_type                                  [0;32mPASS[0m  (0.00ms)
+  struct_clone_native                                [0;32mPASS[0m  (0.00ms)
+  struct_clone_null                                  [0;32mPASS[0m  (0.00ms)
+  struct_type_to_string                              [0;32mPASS[0m  (0.00ms)
+  struct_type_to_string_anonymous                    [0;32mPASS[0m  (0.00ms)
+  ast_type_is_struct                                 [0;32mPASS[0m  (0.00ms)
+  struct_layout_deeply_nested                        [0;32mPASS[0m  (0.00ms)
+  struct_layout_null                                 [0;32mPASS[0m  (0.00ms)
+
+[1mType Checker Edge Cases[0m
+------------------------------------------------------------
+  type_equality_same_primitives                      [0;32mPASS[0m  (0.00ms)
+  type_equality_different_primitives                 [0;32mPASS[0m  (0.00ms)
+  type_equality_arrays_same_element                  [0;32mPASS[0m  (0.00ms)
+  type_equality_arrays_different_element             [0;32mPASS[0m  (0.00ms)
+  type_equality_nested_arrays                        [0;32mPASS[0m  (0.00ms)
+  type_equality_function_types                       [0;32mPASS[0m  (0.00ms)
+  type_equality_function_different_params            [0;32mPASS[0m  (0.00ms)
+  type_equality_with_null                            [0;32mPASS[0m  (0.00ms)
+  promotion_int_to_double                            [0;32mPASS[0m  (0.00ms)
+  promotion_double_to_int_fails                      [0;32mPASS[0m  (0.00ms)
+  promotion_byte_to_int_fails                        [0;32mPASS[0m  (0.00ms)
+  promotion_char_to_int_fails                        [0;32mPASS[0m  (0.00ms)
+  promotion_same_type_fails                          [0;32mPASS[0m  (0.00ms)
+  promotion_string_to_int_fails                      [0;32mPASS[0m  (0.00ms)
+  promotion_bool_to_int_fails                        [0;32mPASS[0m  (0.00ms)
+  literal_int_type                                   [0;32mPASS[0m  (0.00ms)
+  literal_bool_type                                  [0;32mPASS[0m  (0.00ms)
+  literal_string_type                                [0;32mPASS[0m  (0.00ms)
+  literal_char_type                                  [0;32mPASS[0m  (0.00ms)
+  binary_logical_and                                 [0;32mPASS[0m  (0.00ms)
+  binary_logical_or                                  [0;32mPASS[0m  (0.00ms)
+  binary_comparison_lt                               [0;32mPASS[0m  (0.00ms)
+  binary_modulo                                      [0;32mPASS[0m  (0.00ms)
+  unary_not_bool                                     [0;32mPASS[0m  (0.00ms)
+  unary_negate_int                                   [0;32mPASS[0m  (0.00ms)
+  unary_negate_double                                [0;32mPASS[0m  (0.00ms)
+  var_decl_no_initializer                            [0;32mPASS[0m  (0.00ms)
+  var_decl_mismatch_type_error                       
+[1;31merror[0m: Initializer type does not match variable type
+  [1;34m-->[0m test.sn:1:1
+      source
+      [1;31m^[0m
+
+[0;32mPASS[0m  (0.02ms)
+  type_size_int                                      [0;32mPASS[0m  (0.00ms)
+  type_size_bool                                     [0;32mPASS[0m  (0.00ms)
+  type_size_char                                     [0;32mPASS[0m  (0.00ms)
+  type_size_double                                   [0;32mPASS[0m  (0.00ms)
+  type_size_string                                   [0;32mPASS[0m  (0.00ms)
+  type_size_array                                    [0;32mPASS[0m  (0.00ms)
+  type_size_pointer                                  [0;32mPASS[0m  (0.00ms)
+  type_size_void                                     [0;32mPASS[0m  (0.00ms)
+  type_size_byte                                     [0;32mPASS[0m  (0.00ms)
+  type_size_long                                     [0;32mPASS[0m  (0.00ms)
+  return_type_match                                  [0;32mPASS[0m  (0.00ms)
+  return_void                                        [0;32mPASS[0m  (0.00ms)
+  assignment_same_type                               [0;32mPASS[0m  (0.00ms)
+
+[1mType Checker - is_numeric_type[0m
+------------------------------------------------------------
+  is_numeric_type_int                                [0;32mPASS[0m  (0.00ms)
+  is_numeric_type_long                               [0;32mPASS[0m  (0.00ms)
+  is_numeric_type_double                             [0;32mPASS[0m  (0.00ms)
+  is_numeric_type_float                              [0;32mPASS[0m  (0.00ms)
+  is_numeric_type_byte                               [0;32mPASS[0m  (0.00ms)
+  is_numeric_type_string_false                       [0;32mPASS[0m  (0.00ms)
+  is_numeric_type_bool_false                         [0;32mPASS[0m  (0.00ms)
+  is_numeric_type_void_false                         [0;32mPASS[0m  (0.00ms)
+  is_numeric_type_char                               [0;32mPASS[0m  (0.00ms)
+
+[1mType Checker - is_comparison_operator[0m
+------------------------------------------------------------
+  is_comparison_less                                 [0;32mPASS[0m  (0.00ms)
+  is_comparison_greater                              [0;32mPASS[0m  (0.00ms)
+  is_comparison_less_equal                           [0;32mPASS[0m  (0.00ms)
+  is_comparison_greater_equal                        [0;32mPASS[0m  (0.00ms)
+  is_comparison_equal                                [0;32mPASS[0m  (0.00ms)
+  is_comparison_not_equal                            [0;32mPASS[0m  (0.00ms)
+  is_comparison_plus_false                           [0;32mPASS[0m  (0.00ms)
+  is_comparison_minus_false                          [0;32mPASS[0m  (0.00ms)
+  is_comparison_and_false                            [0;32mPASS[0m  (0.00ms)
+
+[1mType Checker - is_arithmetic_operator[0m
+------------------------------------------------------------
+  is_arithmetic_plus_false                           [0;32mPASS[0m  (0.00ms)
+  is_arithmetic_minus                                [0;32mPASS[0m  (0.00ms)
+  is_arithmetic_star                                 [0;32mPASS[0m  (0.00ms)
+  is_arithmetic_slash                                [0;32mPASS[0m  (0.00ms)
+  is_arithmetic_modulo                               [0;32mPASS[0m  (0.00ms)
+  is_arithmetic_less_false                           [0;32mPASS[0m  (0.00ms)
+  is_arithmetic_and_false                            [0;32mPASS[0m  (0.00ms)
+
+[1mType Checker - can_promote_numeric[0m
+------------------------------------------------------------
+  promote_int_to_double                              [0;32mPASS[0m  (0.00ms)
+  promote_int_to_long                                [0;32mPASS[0m  (0.00ms)
+  promote_byte_to_int_false                          [0;32mPASS[0m  (0.00ms)
+  promote_float_to_double                            [0;32mPASS[0m  (0.00ms)
+  promote_same_type_false                            [0;32mPASS[0m  (0.00ms)
+
+[1mType Checker - get_promoted_type[0m
+------------------------------------------------------------
+  get_promoted_int_double                            [0;32mPASS[0m  (0.00ms)
+  get_promoted_double_int                            [0;32mPASS[0m  (0.00ms)
+  get_promoted_int_int                               [0;32mPASS[0m  (0.00ms)
+  get_promoted_long_int                              [0;32mPASS[0m  (0.00ms)
+
+[1mType Checker - is_primitive_type[0m
+------------------------------------------------------------
+  is_primitive_int                                   [0;32mPASS[0m  (0.00ms)
+  is_primitive_string_false                          [0;32mPASS[0m  (0.00ms)
+  is_primitive_bool                                  [0;32mPASS[0m  (0.00ms)
+  is_primitive_array_false                           [0;32mPASS[0m  (0.00ms)
+  is_primitive_pointer_false                         [0;32mPASS[0m  (0.00ms)
+
+[1mType Checker - is_reference_type[0m
+------------------------------------------------------------
+  is_reference_array                                 [0;32mPASS[0m  (0.00ms)
+  is_reference_string                                [0;32mPASS[0m  (0.00ms)
+  is_reference_int_false                             [0;32mPASS[0m  (0.00ms)
+  is_reference_bool_false                            [0;32mPASS[0m  (0.00ms)
+
+[1mType Checker - is_printable_type[0m
+------------------------------------------------------------
+  is_printable_int                                   [0;32mPASS[0m  (0.00ms)
+  is_printable_string                                [0;32mPASS[0m  (0.00ms)
+  is_printable_double                                [0;32mPASS[0m  (0.00ms)
+  is_printable_bool                                  [0;32mPASS[0m  (0.00ms)
+  is_printable_void_false                            [0;32mPASS[0m  (0.00ms)
+
+[1mType Checker - is_variadic_compatible_type[0m
+------------------------------------------------------------
+  is_variadic_compatible_int                         [0;32mPASS[0m  (0.00ms)
+  is_variadic_compatible_double                      [0;32mPASS[0m  (0.00ms)
+  is_variadic_compatible_string                      [0;32mPASS[0m  (0.00ms)
+  is_variadic_compatible_bool                        [0;32mPASS[0m  (0.00ms)
+  is_variadic_compatible_char                        [0;32mPASS[0m  (0.00ms)
+  is_variadic_compatible_byte                        [0;32mPASS[0m  (0.00ms)
+  is_variadic_compatible_long                        [0;32mPASS[0m  (0.00ms)
+  is_variadic_compatible_void                        [0;32mPASS[0m  (0.00ms)
+
+[1mType Checker - is_c_compatible_type[0m
+------------------------------------------------------------
+  is_c_compatible_int                                [0;32mPASS[0m  (0.00ms)
+  is_c_compatible_double                             [0;32mPASS[0m  (0.00ms)
+  is_c_compatible_bool                               [0;32mPASS[0m  (0.00ms)
+  is_c_compatible_char                               [0;32mPASS[0m  (0.00ms)
+  is_c_compatible_byte                               [0;32mPASS[0m  (0.00ms)
+  is_c_compatible_long                               [0;32mPASS[0m  (0.00ms)
+  is_c_compatible_void                               [0;32mPASS[0m  (0.00ms)
+  is_c_compatible_string                             [0;32mPASS[0m  (0.00ms)
+  is_c_compatible_array                              [0;32mPASS[0m  (0.00ms)
+
+[1mType Checker - can_escape_private[0m
+------------------------------------------------------------
+  can_escape_private_int                             [0;32mPASS[0m  (0.00ms)
+  can_escape_private_double                          [0;32mPASS[0m  (0.00ms)
+  can_escape_private_bool                            [0;32mPASS[0m  (0.00ms)
+  can_escape_private_char                            [0;32mPASS[0m  (0.00ms)
+  can_escape_private_void                            [0;32mPASS[0m  (0.00ms)
+  can_escape_private_string                          [0;32mPASS[0m  (0.00ms)
+  can_escape_private_array                           [0;32mPASS[0m  (0.00ms)
+
+[1mType Checker - is_numeric_type edge cases[0m
+------------------------------------------------------------
+  is_numeric_type_int32                              [0;32mPASS[0m  (0.00ms)
+  is_numeric_type_uint                               [0;32mPASS[0m  (0.00ms)
+  is_numeric_type_uint32                             [0;32mPASS[0m  (0.00ms)
+  is_numeric_type_float                              [0;32mPASS[0m  (0.00ms)
+
+[1mType Checker - is_primitive_type edge cases[0m
+------------------------------------------------------------
+  is_primitive_type_int32                            [0;32mPASS[0m  (0.00ms)
+  is_primitive_type_uint                             [0;32mPASS[0m  (0.00ms)
+  is_primitive_type_uint32                           [0;32mPASS[0m  (0.00ms)
+  is_primitive_type_float                            [0;32mPASS[0m  (0.00ms)
+  is_primitive_type_array                            [0;32mPASS[0m  (0.00ms)
+  is_primitive_type_function                         [0;32mPASS[0m  (0.00ms)
+
+[1mType Checker - is_reference_type[0m
+------------------------------------------------------------
+  is_reference_type_string                           [0;32mPASS[0m  (0.00ms)
+  is_reference_type_array                            [0;32mPASS[0m  (0.00ms)
+  is_reference_type_int                              [0;32mPASS[0m  (0.00ms)
+  is_reference_type_double                           [0;32mPASS[0m  (0.00ms)
+  is_reference_type_bool                             [0;32mPASS[0m  (0.00ms)
+
+[1mType Checker - is_printable_type edge cases[0m
+------------------------------------------------------------
+  is_printable_type_void                             [0;32mPASS[0m  (0.00ms)
+  is_printable_type_long                             [0;32mPASS[0m  (0.00ms)
+  is_printable_type_byte                             [0;32mPASS[0m  (0.00ms)
+  is_printable_type_function                         [0;32mPASS[0m  (0.00ms)
+
+[1mType Checker - is_comparison_operator[0m
+------------------------------------------------------------
+  is_comparison_operator_equal                       [0;32mPASS[0m  (0.00ms)
+  is_comparison_operator_not_equal                   [0;32mPASS[0m  (0.00ms)
+  is_comparison_operator_less                        [0;32mPASS[0m  (0.00ms)
+  is_comparison_operator_less_equal                  [0;32mPASS[0m  (0.00ms)
+  is_comparison_operator_greater                     [0;32mPASS[0m  (0.00ms)
+  is_comparison_operator_greater_equal               [0;32mPASS[0m  (0.00ms)
+  is_comparison_operator_plus_false                  [0;32mPASS[0m  (0.00ms)
+  is_comparison_operator_minus_false                 [0;32mPASS[0m  (0.00ms)
+  is_comparison_operator_and_false                   [0;32mPASS[0m  (0.00ms)
+  is_comparison_operator_or_false                    [0;32mPASS[0m  (0.00ms)
+
+[1mType Checker - is_arithmetic_operator[0m
+------------------------------------------------------------
+  is_arithmetic_operator_plus_false                  [0;32mPASS[0m  (0.00ms)
+  is_arithmetic_operator_minus                       [0;32mPASS[0m  (0.00ms)
+  is_arithmetic_operator_star                        [0;32mPASS[0m  (0.00ms)
+  is_arithmetic_operator_slash                       [0;32mPASS[0m  (0.00ms)
+  is_arithmetic_operator_modulo                      [0;32mPASS[0m  (0.00ms)
+  is_arithmetic_operator_equal_false                 [0;32mPASS[0m  (0.00ms)
+  is_arithmetic_operator_less_false                  [0;32mPASS[0m  (0.00ms)
+  is_arithmetic_operator_and_false                   [0;32mPASS[0m  (0.00ms)
+
+[1mOptimizer - Constant Folding[0m
+------------------------------------------------------------
+  const_fold_add_positives                           [0;32mPASS[0m  (0.00ms)
+  const_fold_add_negatives                           [0;32mPASS[0m  (0.00ms)
+  const_fold_sub_positive                            [0;32mPASS[0m  (0.00ms)
+  const_fold_mul_zero                                [0;32mPASS[0m  (0.00ms)
+  const_fold_mul_one                                 [0;32mPASS[0m  (0.00ms)
+  const_fold_div_by_one                              [0;32mPASS[0m  (0.00ms)
+
+[1mOptimizer - Noop Detection[0m
+------------------------------------------------------------
+  noop_zero_plus_var                                 [0;32mPASS[0m  (0.00ms)
+  noop_var_plus_zero                                 [0;32mPASS[0m  (0.00ms)
+  noop_var_minus_zero                                [0;32mPASS[0m  (0.00ms)
+  noop_one_times_var                                 [0;32mPASS[0m  (0.00ms)
+  noop_var_times_one                                 [0;32mPASS[0m  (0.00ms)
+  noop_var_div_one                                   [0;32mPASS[0m  (0.00ms)
+  noop_not_not_var                                   [0;32mPASS[0m  (0.00ms)
+  noop_neg_neg_var                                   [0;32mPASS[0m  (0.00ms)
+
+[1mOptimizer - Not A Noop[0m
+------------------------------------------------------------
+  not_noop_add_nonzero                               [0;32mPASS[0m  (0.00ms)
+  not_noop_sub_nonzero                               [0;32mPASS[0m  (0.00ms)
+  not_noop_mul_nonone                                [0;32mPASS[0m  (0.00ms)
+  not_noop_div_nonone                                [0;32mPASS[0m  (0.00ms)
+  not_noop_single_negation                           [0;32mPASS[0m  (0.00ms)
+  not_noop_single_not                                [0;32mPASS[0m  (0.00ms)
+
+[1mOptimizer - Terminator Detection[0m
+------------------------------------------------------------
+  terminator_return_value                            [0;32mPASS[0m  (0.00ms)
+  terminator_return_void                             [0;32mPASS[0m  (0.00ms)
+  terminator_break                                   [0;32mPASS[0m  (0.00ms)
+  terminator_continue                                [0;32mPASS[0m  (0.00ms)
+  not_terminator_expr                                [0;32mPASS[0m  (0.00ms)
+  not_terminator_var_decl                            [0;32mPASS[0m  (0.00ms)
+
+[1mOptimizer - Variable Usage[0m
+------------------------------------------------------------
+  used_vars_literal                                  [0;32mPASS[0m  (0.00ms)
+  used_vars_single_var                               [0;32mPASS[0m  (0.00ms)
+  used_vars_two_vars                                 [0;32mPASS[0m  (0.00ms)
+  used_vars_nested_expr                              [0;32mPASS[0m  (0.00ms)
+  used_vars_unary_expr                               [0;32mPASS[0m  (0.00ms)
+  is_var_used_empty                                  [0;32mPASS[0m  (0.00ms)
+  is_var_used_not_found                              [0;32mPASS[0m  (0.00ms)
+
+[1mOptimizer - Unreachable Code[0m
+------------------------------------------------------------
+  unreachable_single_return                          [0;32mPASS[0m  (0.00ms)
+  unreachable_two_returns                            [0;32mPASS[0m  (0.00ms)
+  unreachable_many_after_return                      [0;32mPASS[0m  (0.00ms)
+  unreachable_break_in_middle                        [0;32mPASS[0m  (0.00ms)
+  unreachable_no_terminator                          [0;32mPASS[0m  (0.00ms)
+
+[1mOptimizer - Stats[0m
+------------------------------------------------------------
+  optimizer_init_stats                               [0;32mPASS[0m  (0.00ms)
+
+[1mOptimizer Stress - Init[0m
+------------------------------------------------------------
+  optimizer_init_basic                               [0;32mPASS[0m  (0.00ms)
+  optimizer_multiple_init                            [0;32mPASS[0m  (0.00ms)
+
+[1mOptimizer Stress - Terminators[0m
+------------------------------------------------------------
+  optimizer_terminator_if_stmt                       [0;32mPASS[0m  (0.00ms)
+  optimizer_terminator_while_stmt                    [0;32mPASS[0m  (0.00ms)
+  optimizer_terminator_for_stmt                      [0;32mPASS[0m  (0.00ms)
+  optimizer_terminator_block_stmt                    [0;32mPASS[0m  (0.00ms)
+  optimizer_terminator_function_stmt                 [0;32mPASS[0m  (0.00ms)
+
+[1mOptimizer Stress - Noop Detection[0m
+------------------------------------------------------------
+  optimizer_noop_div_by_one                          [0;32mPASS[0m  (0.00ms)
+  optimizer_noop_mod_by_one                          [0;32mPASS[0m  (0.00ms)
+  optimizer_noop_not_noop_add                        [0;32mPASS[0m  (0.00ms)
+  optimizer_noop_not_noop_mul                        [0;32mPASS[0m  (0.00ms)
+  optimizer_noop_mul_by_zero                         [0;32mPASS[0m  (0.00ms)
+
+[1mOptimizer Stress - Variable Collection[0m
+------------------------------------------------------------
+  optimizer_collect_vars_literal                     [0;32mPASS[0m  (0.00ms)
+  optimizer_collect_vars_single                      [0;32mPASS[0m  (0.00ms)
+  optimizer_collect_vars_binary                      [0;32mPASS[0m  (0.00ms)
+  optimizer_collect_vars_unary                       [0;32mPASS[0m  (0.00ms)
+  optimizer_collect_vars_nested                      [0;32mPASS[0m  (0.00ms)
+
+[1mOptimizer Stress - Variable Used Check[0m
+------------------------------------------------------------
+  optimizer_var_used_empty_list                      [0;32mPASS[0m  (0.00ms)
+  optimizer_var_used_single_match                    [0;32mPASS[0m  (0.00ms)
+  optimizer_var_used_single_no_match                 [0;32mPASS[0m  (0.00ms)
+  optimizer_var_used_multiple_match                  [0;32mPASS[0m  (0.00ms)
+  optimizer_var_used_multiple_no_match               [0;32mPASS[0m  (0.00ms)
+
+[1mOptimizer Stress - Remove Unreachable[0m
+------------------------------------------------------------
+  optimizer_remove_unreachable_empty                 [0;32mPASS[0m  (0.00ms)
+  optimizer_remove_unreachable_no_terminator         [0;32mPASS[0m  (0.00ms)
+  optimizer_remove_unreachable_after_return          [0;32mPASS[0m  (0.00ms)
+  optimizer_remove_unreachable_after_break           [0;32mPASS[0m  (0.00ms)
+
+[1mOptimizer Stress - Tail Recursion[0m
+------------------------------------------------------------
+  optimizer_tail_recursive_simple                    [0;32mPASS[0m  (0.00ms)
+  optimizer_tail_recursive_not_call                  [0;32mPASS[0m  (0.00ms)
+  optimizer_tail_recursive_different_name            [0;32mPASS[0m  (0.00ms)
+
+[1mOptimizer Tests[0m
+------------------------------------------------------------
+  stmt_is_terminator_return                          [0;32mPASS[0m  (0.00ms)
+  stmt_is_terminator_break_continue                  [0;32mPASS[0m  (0.00ms)
+  stmt_is_terminator_non_terminator                  [0;32mPASS[0m  (0.00ms)
+  expr_is_noop_add_zero                              [0;32mPASS[0m  (0.00ms)
+  expr_is_noop_sub_zero                              [0;32mPASS[0m  (0.00ms)
+  expr_is_noop_mul_one                               [0;32mPASS[0m  (0.00ms)
+  expr_is_noop_div_one                               [0;32mPASS[0m  (0.00ms)
+  expr_is_noop_double_negation                       [0;32mPASS[0m  (0.00ms)
+  expr_is_noop_not_noop                              [0;32mPASS[0m  (0.00ms)
+  remove_unreachable_after_return                    [0;32mPASS[0m  (0.00ms)
+  remove_unreachable_after_break                     [0;32mPASS[0m  (0.00ms)
+  no_unreachable_statements                          [0;32mPASS[0m  (0.00ms)
+  collect_used_variables                             [0;32mPASS[0m  (0.00ms)
+  is_variable_used                                   [0;32mPASS[0m  (0.00ms)
+  optimizer_dead_code_elimination_function           [0;32mPASS[0m  (0.00ms)
+  optimizer_noop_simplification                      [0;32mPASS[0m  (0.00ms)
+  tail_call_detection_simple                         [0;32mPASS[0m  (0.00ms)
+  tail_call_detection_not_tail                       [0;32mPASS[0m  (0.00ms)
+  function_has_tail_recursion                        [0;32mPASS[0m  (0.00ms)
+  tail_call_marking                                  [0;32mPASS[0m  (0.00ms)
+  string_literal_merge_adjacent                      [0;32mPASS[0m  (0.00ms)
+  string_literal_merge_with_variable                 [0;32mPASS[0m  (0.00ms)
+  string_literal_concat_fold                         [0;32mPASS[0m  (0.00ms)
+  string_no_merge_different_types                    [0;32mPASS[0m  (0.00ms)
+
+[1mPackage Manager[0m
+------------------------------------------------------------
+  parse_url_ref_with_tag                             [0;32mPASS[0m  (0.00ms)
+  parse_url_ref_with_branch                          [0;32mPASS[0m  (0.00ms)
+  parse_url_ref_no_ref                               [0;32mPASS[0m  (0.00ms)
+  parse_url_ref_ssh_with_tag                         [0;32mPASS[0m  (0.00ms)
+  parse_url_ref_ssh_no_ref                           [0;32mPASS[0m  (0.00ms)
+  extract_name_https                                 [0;32mPASS[0m  (0.00ms)
+  extract_name_ssh                                   [0;32mPASS[0m  (0.00ms)
+  extract_name_no_git_extension                      [0;32mPASS[0m  (0.00ms)
+  extract_name_nested_path                           [0;32mPASS[0m  (0.00ms)
+  yaml_write_and_parse                               [0;32mPASS[0m  (0.35ms)
+  yaml_write_with_dependencies                       [0;32mPASS[0m  (0.07ms)
+  yaml_add_dependency                                [0;32mPASS[0m  (0.66ms)
+  yaml_update_dependency                             [0;32mPASS[0m  (0.40ms)
+
+------------------------------------------------------------
+Results: [0;32m1608 passed[0m, [0;31m0 failed[0m  (total: 12.39ms)
+All tests passed!

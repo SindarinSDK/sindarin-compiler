@@ -1,0 +1,47 @@
+{
+  "compiler_commit": "48975cbe54c034c79c49642227a2e28eb4a8ba7b",
+  "fixture_commit": "79c20bdb8314aff3c778471ceab20bb8f9ca8d62",
+  "fixture_tree": "d5e1f280bb5c014ae4a6505c29626a40d699486b",
+  "tag_runner_blob": "952f04d7733ec7849aca28af421f1bfe0835a1dd",
+  "unit_binary_selection": "Tag runner uses cwd/bin/tests independently of --compiler. Corrected fixture copy hash checked; direct corrected unit binary also executed.",
+  "binaries": {
+    "correction_compiler": {
+      "path": "/home/gavin/code/sindarin/sindarin-restore-tagged-c/bin/sn",
+      "sha256": "d8c9dcbe63fb05c40f4f46034a2cb69d476eeeb9ab555045b0b403076f2f4b51"
+    },
+    "correction_unit": {
+      "path": "/home/gavin/code/sindarin/sindarin-restore-tagged-c/bin/tests",
+      "sha256": "fecd3874436f7076baea3ebb28a143432555055e7ee38536d3d2210744475932"
+    },
+    "baseline_compiler": {
+      "path": "/home/gavin/code/sindarin/sindarin-restore-tagged-c-baseline/bin/sn",
+      "sha256": "2f4f7715bb6e6bf78a0e899947f6585db52b44a2baaffd11e7cb45cc0e259ed2"
+    },
+    "baseline_unit": {
+      "path": "/home/gavin/code/sindarin/sindarin-restore-tagged-c-baseline/bin/tests",
+      "sha256": "462a032afdf687b136c4e1dea0afa3f13f25981790f7171537b6bcae9156731b"
+    },
+    "tagged_fixture_unit_copy": {
+      "path": "/tmp/sn-restore-tagged-c-evidence/tagged-corrected/fixtures/bin/tests",
+      "sha256": "fecd3874436f7076baea3ebb28a143432555055e7ee38536d3d2210744475932"
+    }
+  },
+  "dependencies": {
+    "sindarin-pkg-test": {
+      "commit": "659489b8d929f231c958232ef0244c2f9727e66d",
+      "tree_sha256": "d1dda5e991ec08c192423372ed83be237fe30284834215f8963d19830cff5edc",
+      "file_count": 11
+    },
+    "sindarin-pkg-libs": {
+      "commit": "793df6f63d07146d19dffa8f6c172a1f56660b4a",
+      "tree_sha256": "3a6dfe1c66ed2e1bf92c4c169c439deee5bda0bfd782c241e32e66a01919f5ac",
+      "file_count": 657
+    },
+    "sindarin-pkg-sdk": {
+      "commit": "9f9880835edc952cfca21ce2d708b2f20598d1cf",
+      "tree_sha256": "19eda3b4c4712e3ceafc8a6f94863ccfda61405568da449f86754943bc036181",
+      "file_count": 155
+    }
+  },
+  "environment": {}
+}
