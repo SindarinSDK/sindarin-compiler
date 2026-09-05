@@ -53,23 +53,36 @@ fn main() {
     let mut bump: __SnClosure<dyn Fn() -> i64> = { let (count, ) = (count.clone(), ); self::__SnClosure::<dyn Fn() -> i64>(std::rc::Rc::new(move || -> i64 { { let (__sn_rhs, __sn_cell) = (2, &count); let __sn_previous = __sn_cell.get(); let __sn_next = __sn_checked_0(__sn_previous.checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); __sn_cell.set(__sn_next); __sn_next };return count.get();})) }
 ;
     { let (__sn_value, __sn_cell) = (5, &count); __sn_cell.set(__sn_value); __sn_value };
-    println!("{}", ((read.clone()).0)());
-    println!("{}", ((bump.clone()).0)());
-    println!("{}", count.get());
-    println!("{}", { let __sn_cell = &count; let __sn_previous = __sn_cell.get(); let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); __sn_cell.set(__sn_next); __sn_previous });
-    println!("{}", ((read.clone()).0)());
+    println!("{}", ((read.clone()).0)())
+;
+    println!("{}", ((bump.clone()).0)())
+;
+    println!("{}", count.get())
+;
+    println!("{}", { let __sn_cell = &count; let __sn_previous = __sn_cell.get(); let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); __sn_cell.set(__sn_next); __sn_previous })
+;
+    println!("{}", ((read.clone()).0)())
+;
     { let (__sn_rhs, __sn_cell) = (3, &count); let __sn_previous = __sn_cell.get(); let __sn_next = __sn_checked_0(__sn_previous.checked_sub(__sn_rhs), "Runtime error: integer overflow in subtraction"); __sn_cell.set(__sn_next); __sn_next };
-    println!("{}", ((read.clone()).0)());
+    println!("{}", ((read.clone()).0)())
+;
     if true {
         let count: std::rc::Rc<std::cell::Cell<i64>> = std::rc::Rc::new(std::cell::Cell::new(20));
         let mut inner: __SnClosure<dyn Fn() -> i64> = { let (count, ) = (count.clone(), ); self::__SnClosure::<dyn Fn() -> i64>(std::rc::Rc::new(move || -> i64 { { let __sn_cell = &count; let __sn_previous = __sn_cell.get(); let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); __sn_cell.set(__sn_next); __sn_previous };return count.get();})) }
 ;
-        println!("{}", ((inner.clone()).0)());
+        println!("{}", ((inner.clone()).0)())
+;
     }
-    println!("{}", ((read.clone()).0)());
-    let mut first: __SnClosure<dyn Fn() -> i64> = makeCounter();
-    let mut second: __SnClosure<dyn Fn() -> i64> = makeCounter();
-    println!("{}", ((first.clone()).0)());
-    println!("{}", ((first.clone()).0)());
-    println!("{}", ((second.clone()).0)());
+    println!("{}", ((read.clone()).0)())
+;
+    let mut first: __SnClosure<dyn Fn() -> i64> = makeCounter()
+;
+    let mut second: __SnClosure<dyn Fn() -> i64> = makeCounter()
+;
+    println!("{}", ((first.clone()).0)())
+;
+    println!("{}", ((first.clone()).0)())
+;
+    println!("{}", ((second.clone()).0)())
+;
 }

@@ -47,9 +47,13 @@ fn main() {
 ;
     let mut first: __SnClosure<dyn Fn() -> i64> = ((factory.clone()).0)();
     let mut second: __SnClosure<dyn Fn() -> i64> = ((factory.clone()).0)();
-    println!("{}", ((first.clone()).0)());
-    println!("{}", ((second.clone()).0)());
+    println!("{}", ((first.clone()).0)())
+;
+    println!("{}", ((second.clone()).0)())
+;
     { let (__sn_value, __sn_cell) = (9, &count); __sn_cell.set(__sn_value); __sn_value };
-    println!("{}", ((first.clone()).0)());
-    println!("{}", count.get());
+    println!("{}", ((first.clone()).0)())
+;
+    println!("{}", count.get())
+;
 }

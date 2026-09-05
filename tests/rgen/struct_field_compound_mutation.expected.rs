@@ -41,5 +41,7 @@ impl Counter {
 
 fn main() {
     let mut counter: Counter = Counter { value: 4 };
-    println!("{}", (counter).addOne());
+    println!("{}", (counter).addOne()
+)
+;
 }

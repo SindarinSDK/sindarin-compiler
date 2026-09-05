@@ -55,13 +55,17 @@ fn invoke(action: __SnClosure<dyn Fn(i64) -> i64>, n: i64) -> i64 {
 fn main() {
     let count: std::rc::Rc<std::cell::Cell<i64>> = std::rc::Rc::new(std::cell::Cell::new(0));
     let mut action: __SnClosure<dyn Fn(i64) -> i64> = { let (count, ) = (count.clone(), ); self::__SnClosure::<dyn Fn(i64) -> i64>::recursive(move |action| std::rc::Rc::new(move |n: i64| -> i64 { { let __sn_cell = &count; let __sn_previous = __sn_cell.get(); let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); __sn_cell.set(__sn_next); __sn_previous };if (n > 0) {
-        { let (__sn_rhs, __sn_cell) = (invoke(self::__SnClosure(action.get().expect("recursive identity initialized").upgrade().expect("recursive callable alive")), __sn_checked_0((n).checked_sub(1), "Runtime error: integer overflow in subtraction")), &count); let __sn_previous = __sn_cell.get(); let __sn_next = __sn_checked_0(__sn_previous.checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); __sn_cell.set(__sn_next); __sn_next };
+        { let (__sn_rhs, __sn_cell) = (invoke(self::__SnClosure(action.get().expect("recursive identity initialized").upgrade().expect("recursive callable alive")), __sn_checked_0((n).checked_sub(1), "Runtime error: integer overflow in subtraction"))
+, &count); let __sn_previous = __sn_cell.get(); let __sn_next = __sn_checked_0(__sn_previous.checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); __sn_cell.set(__sn_next); __sn_next };
     }return count.get();})) }
 ;
     let mut alias: __SnClosure<dyn Fn(i64) -> i64> = action.clone();
     { action = { self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |n: i64| -> i64 { 99})) }
 ; action.clone() };
-    println!("{}", ((alias.clone()).0)(2));
-    println!("{}", count.get());
-    println!("{}", ((action.clone()).0)(0));
+    println!("{}", ((alias.clone()).0)(2))
+;
+    println!("{}", count.get())
+;
+    println!("{}", ((action.clone()).0)(0))
+;
 }

@@ -35,10 +35,12 @@ fn main() {
         { let __sn_place = &mut (current); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
         (total = __sn_checked_0((total).checked_add(current), "Runtime error: integer overflow in addition"));
     }
-    println!("{}", total);
+    println!("{}", total)
+;
     let mut zero_iterations: i64 = 0;
     while (zero_iterations < 0) {
         (zero_iterations = 99);
     }
-    println!("{}", zero_iterations);
+    println!("{}", zero_iterations)
+;
 }

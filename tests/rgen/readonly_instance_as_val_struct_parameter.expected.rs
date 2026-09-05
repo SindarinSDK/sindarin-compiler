@@ -44,9 +44,16 @@ impl Point {
 fn main() {
     let mut point: Point = Point { x: 1 };
     let mut other: Point = Point { x: 2 };
-    println!("{}", (point).offset(other));
-    println!("{}", (other).x);
-    println!("{}", (point).x);
-    println!("{}", (point).offset(point));
-    println!("{}", (point).x);
+    println!("{}", (point).offset(other)
+)
+;
+    println!("{}", (other).x)
+;
+    println!("{}", (point).x)
+;
+    println!("{}", (point).offset(point)
+)
+;
+    println!("{}", (point).x)
+;
 }

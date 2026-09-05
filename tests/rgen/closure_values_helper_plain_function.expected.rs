@@ -5,5 +5,7 @@ fn __SnClosure() -> i64 {
 }
 
 fn main() {
-    println!("{}", __SnClosure());
+    println!("{}", __SnClosure()
+)
+;
 }

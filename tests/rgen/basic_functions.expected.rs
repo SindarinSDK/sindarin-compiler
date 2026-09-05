@@ -33,6 +33,8 @@ fn add(a: i64, b: i64) -> i64 {
 }
 
 fn main() {
-    let mut result: i64 = add(20, 22);
-    println!("{}", result);
+    let mut result: i64 = add(20, 22)
+;
+    println!("{}", result)
+;
 }

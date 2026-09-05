@@ -69,16 +69,21 @@ impl Counter {
         ((pair).value = 4);
         let mut values: Vec<i64> = vec![1, 2];
         { let __sn_array_index = __sn_index((values).len(), 0); (values)[__sn_array_index] = 3; };
-        (values).push(4);
+        (values).push(4)
+
+;
         return __sn_checked_0((__sn_checked_0((__sn_checked_0((number).checked_add((pair).value), "Runtime error: integer overflow in addition")).checked_add((values)[__sn_index((values).len(), 0)]), "Runtime error: integer overflow in addition")).checked_add((values).len() as i64), "Runtime error: integer overflow in addition");
     }
 }
 
 fn r#use(counter: Counter) -> i64 {
-    return (counter).localMutations();
+    return (counter).localMutations()
+;
 }
 
 fn main() {
     let mut counter: Counter = Counter { value: 0 };
-    println!("{}", r#use(counter));
+    println!("{}", r#use(counter)
+)
+;
 }

@@ -48,15 +48,22 @@ fn forwardStatic(value: &mut i64) -> i64 {
 
 fn forwardInstance(value: &mut i64) -> i64 {
     let mut ops: RefOps = RefOps {  };
-    (ops).instanceBump(&mut *(value));
+    (ops).instanceBump(&mut *(value))
+;
     return *(value);
 }
 
 fn main() {
     let mut staticValue: i64 = 1;
     let mut instanceValue: i64 = 1;
-    println!("{}", forwardStatic(&mut (staticValue)));
-    println!("{}", staticValue);
-    println!("{}", forwardInstance(&mut (instanceValue)));
-    println!("{}", instanceValue);
+    println!("{}", forwardStatic(&mut (staticValue))
+)
+;
+    println!("{}", staticValue)
+;
+    println!("{}", forwardInstance(&mut (instanceValue))
+)
+;
+    println!("{}", instanceValue)
+;
 }
