@@ -49,5 +49,5 @@ fn main() {
     let mut names: Vec<String> = vec!["alpha".to_string(), "beta".to_string(), "gamma".to_string()];
     let mut selected: Vec<String> = { let __sn_array = &(names); let __sn_length = __sn_array.len() as i64; let mut __sn_start: i64 = 1; let mut __sn_end: i64 = __sn_length; if __sn_start < 0 { __sn_start += __sn_length; } if __sn_end < 0 { __sn_end += __sn_length; } if __sn_start < 0 { __sn_start = 0; } if __sn_end > __sn_length { __sn_end = __sn_length; } if __sn_start >= __sn_end { Vec::new() } else { __sn_array[__sn_start as usize..__sn_end as usize].to_vec() } };
     { let __sn_array_index = __sn_index((names).len(), 1); (names)[__sn_array_index] = "changed".to_string(); };
-    println!("{}", { let __sn_array_0 = &(selected); let __sn_separator_0 = &(",".to_string()); __sn_array_0.join(__sn_separator_0.as_str()) });
+    println!("{}", { let __sn_separator_0 = &(",".to_string()); (selected).join(__sn_separator_0.as_str()) });
 }
