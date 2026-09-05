@@ -1,0 +1,18 @@
+fn __sn_checked(value: int): int => value + 1
+
+fn __sn_checked_0(value: int): int => value + 2
+
+fn __sn_checked_div_0(value: int): int => value + 3
+
+fn __sn_checked_mod_0(value: int): int => value + 4
+
+fn __sn_runtime_error_0(value: int): int => value + 5
+
+fn main(): void =>
+  var result: int = __sn_checked(1)
+  result += __sn_checked_0(1)
+  result += __sn_checked_div_0(1)
+  result += __sn_checked_mod_0(1)
+  result += __sn_runtime_error_0(1)
+  print(result)
+  print("\n")

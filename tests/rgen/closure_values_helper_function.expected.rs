@@ -1,5 +1,33 @@
 #![allow(dead_code, unused_mut, unused_variables, unused_parens)]
 
+fn __sn_runtime_error_0(message: &'static str) -> ! {
+    eprintln!("{}", message);
+    std::process::exit(1);
+}
+
+fn __sn_checked_0<T>(value: Option<T>, message: &'static str) -> T {
+    match value {
+        Some(value) => value,
+        None => __sn_runtime_error_0(message),
+    }
+}
+
+fn __sn_checked_div_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked_0(value, if divisor_is_zero {
+        "panic: Division by zero"
+    } else {
+        "Runtime error: integer overflow in division"
+    })
+}
+
+fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked_0(value, if divisor_is_zero {
+        "panic: Modulo by zero"
+    } else {
+        "Runtime error: integer overflow in modulo"
+    })
+}
+
 struct __SnClosure_2<F: ?Sized>(std::rc::Rc<F>);
 impl<F: ?Sized> Clone for __SnClosure_2<F> {
     fn clone(&self) -> Self { Self(self.0.clone()) }
@@ -13,7 +41,7 @@ impl<F: ?Sized> PartialEq for __SnClosure_2<F> {
     fn eq(&self, other: &Self) -> bool { std::rc::Rc::ptr_eq(&self.0, &other.0) }
 }
 fn __SnClosure(value: i64) -> i64 {
-    return (value).checked_add(1).expect("checked arithmetic failed");
+    return __sn_checked_0((value).checked_add(1), "Runtime error: integer overflow in addition");
 }
 
 fn __SnClosure_0() -> i64 {

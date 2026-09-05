@@ -23,6 +23,34 @@ fn __sn_array_size(size: i64) -> usize {
     size as usize
 }
 
+fn __sn_runtime_error_0(message: &'static str) -> ! {
+    eprintln!("{}", message);
+    std::process::exit(1);
+}
+
+fn __sn_checked_0<T>(value: Option<T>, message: &'static str) -> T {
+    match value {
+        Some(value) => value,
+        None => __sn_runtime_error_0(message),
+    }
+}
+
+fn __sn_checked_div_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked_0(value, if divisor_is_zero {
+        "panic: Division by zero"
+    } else {
+        "Runtime error: integer overflow in division"
+    })
+}
+
+fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked_0(value, if divisor_is_zero {
+        "panic: Modulo by zero"
+    } else {
+        "Runtime error: integer overflow in modulo"
+    })
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 struct TraceIter {
     current: i64,
@@ -33,13 +61,13 @@ struct TraceIter {
 
 impl TraceIter {
     fn hasNext(&mut self) -> bool {
-        ((self).has_next_calls = ((self).has_next_calls).checked_add(1).expect("checked arithmetic failed"));
+        ((self).has_next_calls = __sn_checked_0(((self).has_next_calls).checked_add(1), "Runtime error: integer overflow in addition"));
         return ((self).next_calls < (self).remaining);
     }
     fn next(&mut self) -> i64 {
-        let mut value: i64 = ((((self).has_next_calls).checked_mul(100).expect("checked arithmetic failed")).checked_add(((self).next_calls).checked_mul(10).expect("checked arithmetic failed")).expect("checked arithmetic failed")).checked_add((self).current).expect("checked arithmetic failed");
-        ((self).current = ((self).current).checked_add(1).expect("checked arithmetic failed"));
-        ((self).next_calls = ((self).next_calls).checked_add(1).expect("checked arithmetic failed"));
+        let mut value: i64 = __sn_checked_0((__sn_checked_0((__sn_checked_0(((self).has_next_calls).checked_mul(100), "Runtime error: integer overflow in multiplication")).checked_add(__sn_checked_0(((self).next_calls).checked_mul(10), "Runtime error: integer overflow in multiplication")), "Runtime error: integer overflow in addition")).checked_add((self).current), "Runtime error: integer overflow in addition");
+        ((self).current = __sn_checked_0(((self).current).checked_add(1), "Runtime error: integer overflow in addition"));
+        ((self).next_calls = __sn_checked_0(((self).next_calls).checked_add(1), "Runtime error: integer overflow in addition"));
         return value;
     }
 }
@@ -56,7 +84,7 @@ impl TraceSource {
 }
 
 fn selectSource(calls: &mut i64) -> i64 {
-    (*(calls) = (*(calls)).checked_add(1).expect("checked arithmetic failed"));
+    (*(calls) = __sn_checked_0((*(calls)).checked_add(1), "Runtime error: integer overflow in addition"));
     return 0;
 }
 
@@ -74,7 +102,7 @@ fn main() {
         if (produced == 218) {
         continue;
     }
-        (sum = (sum).checked_add(produced).expect("checked arithmetic failed"));
+        (sum = __sn_checked_0((sum).checked_add(produced), "Runtime error: integer overflow in addition"));
     }
 }
     println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("natural evaluations="); __sn_interpolated.push_str(&format!("{}", evaluations)); __sn_interpolated.push_str(" sum="); __sn_interpolated.push_str(&format!("{}", sum)); __sn_interpolated });
@@ -103,7 +131,7 @@ fn main() {
     }
     }
 }
-            { let __sn_place = &mut (outer); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
+            { let __sn_place = &mut (outer); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
         }
     }
     println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("nested outer="); __sn_interpolated.push_str(&format!("{}", outer)); __sn_interpolated.push_str(" evaluations="); __sn_interpolated.push_str(&format!("{}", evaluations)); __sn_interpolated });
