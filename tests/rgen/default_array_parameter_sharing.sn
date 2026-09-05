@@ -1,0 +1,28 @@
+struct Mutator =>
+  marker: int
+
+  fn append(values: int[]): int =>
+    values.push(self.marker)
+    return values.length
+
+  static fn appendStatic(values: int[], marker: int): void =>
+    values.push(marker)
+
+fn forward(values: int[]): void =>
+  Mutator.appendStatic(values, 7)
+
+fn makeValues(calls: int as ref): int[] =>
+  calls++
+  return {8}
+
+fn main(): void =>
+  var values: int[] = {1}
+  var mutator: Mutator = { marker: 5 }
+  println(mutator.append(values))
+  forward(values)
+  println(values.length)
+  println(values[1])
+  println(values[2])
+  var calls: int = 0
+  Mutator.appendStatic(makeValues(calls), 9)
+  println(calls)

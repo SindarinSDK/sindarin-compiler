@@ -490,6 +490,71 @@ static void rust_lower_resolved_receiver_prefixes(json_object *model,
                                json_object_new_boolean(true));
 }
 
+/* Find an indexed owner along a default-array argument's place chain.  Its
+ * index must be evaluated before Rust forms the mutable borrow; rendering the
+ * ordinary array-access expression directly asks rustc to overlap the outer
+ * mutable borrow with the length read used by bounds normalization. */
+static json_object *rust_default_array_index_place(json_object *place)
+{
+    if (!json_object_is_type(place, json_type_object)) return NULL;
+    if (json_string_property_equals(place, "kind", "array_access"))
+        return place;
+    if (json_string_property_equals(place, "kind", "member"))
+    {
+        json_object *object = NULL;
+        if (json_object_object_get_ex(place, "object", &object))
+            return rust_default_array_index_place(object);
+    }
+    return NULL;
+}
+
+static void rust_lower_default_array_ref_indices(json_object *model,
+                                                 json_object *node,
+                                                 size_t *next_id)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            rust_lower_default_array_ref_indices(
+                model, json_object_array_get_idx(node, i), next_id);
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
+
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        rust_lower_default_array_ref_indices(model, value, next_id);
+    }
+
+    if (!json_boolean_property(node, "rust_default_array_ref_arg")) return;
+    json_object *access = rust_default_array_index_place(node);
+    json_object *array = NULL, *index = NULL;
+    if (!access ||
+        !json_object_object_get_ex(access, "array", &array) ||
+        !json_object_object_get_ex(access, "index", &index)) return;
+
+    char index_name[80];
+    do
+    {
+        size_t id = (*next_id)++;
+        snprintf(index_name, sizeof(index_name),
+                 "__sn_array_arg_index_%zu", id);
+    }
+    while (rust_call_model_contains_string(model, index_name));
+
+    json_object_object_add(node, "rust_default_array_index_name",
+                           json_object_new_string(index_name));
+    json_object_object_add(node, "rust_default_array_index_array",
+                           json_object_get(array));
+    json_object_object_add(node, "rust_default_array_index",
+                           json_object_get(index));
+    json_object_object_add(access, "rust_resolved_index_name",
+                           json_object_new_string(index_name));
+}
+
 static void rust_lower_instance_method_clones(json_object *model)
 {
     json_object *structs = NULL;
@@ -518,4 +583,6 @@ static void rust_lower_calls(json_object *model)
     rust_lower_instance_method_clones(model);
     size_t resolved_call_id = 0;
     rust_lower_resolved_receiver_prefixes(model, model, &resolved_call_id);
+    size_t array_arg_id = 0;
+    rust_lower_default_array_ref_indices(model, model, &array_arg_id);
 }
