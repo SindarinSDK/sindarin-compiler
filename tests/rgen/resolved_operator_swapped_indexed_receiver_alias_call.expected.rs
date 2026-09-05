@@ -42,6 +42,6 @@ fn makeFrom(item: Item) -> Item {
 fn main() {
     let mut items: Vec<Item> = vec![];
     (items).push(Item { value: 1 });
-    println!("{}", (makeFrom((items)[__sn_index((items).len(), 0)])).op_lt({ let __sn_resolved_index_0 = __sn_index((items).len(), 0); &mut (items)[__sn_resolved_index_0] }));
+    println!("{}", { let __sn_resolved_receiver_3 = & (makeFrom((items)[__sn_index((items).len(), 0)])); let __sn_resolved_array_0 = &mut (items); let __sn_resolved_index_1 = __sn_index((__sn_resolved_array_0).len(), 0); let __sn_resolved_arg_2 = &mut (__sn_resolved_array_0)[__sn_resolved_index_1];(__sn_resolved_receiver_3).op_lt(__sn_resolved_arg_2) });
     println!("{}", ((items)[__sn_index((items).len(), 0)]).value);
 }
