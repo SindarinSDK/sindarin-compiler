@@ -326,6 +326,10 @@ static char *helper_rust_print_prefix(json_object **params, int param_count,
     const char *kind = param_count > 0 ? json_kind(params[0]) : NULL;
     if (kind && strcmp(kind, "string") == 0) return strdup("__sn_print_string(&(");
     if (kind && strcmp(kind, "char") == 0) return strdup("__sn_print_char(");
+    if (kind && (strcmp(kind, "double") == 0 || strcmp(kind, "float") == 0))
+        return strdup("print!(\"{:.5}\", ");
+    if (kind && strcmp(kind, "byte") == 0) return strdup("print!(\"0x{:02X}\", (");
+    if (kind && strcmp(kind, "uint") == 0) return strdup("print!(\"{}\", (");
     return strdup("print!(\"{}\", ");
 }
 
@@ -334,7 +338,10 @@ static char *helper_rust_print_suffix(json_object **params, int param_count,
 {
     (void)options;
     const char *kind = param_count > 0 ? json_kind(params[0]) : NULL;
-    return strdup(kind && strcmp(kind, "string") == 0 ? "))" : ")");
+    if (kind && strcmp(kind, "string") == 0) return strdup("))");
+    if (kind && strcmp(kind, "byte") == 0) return strdup(" as u32))");
+    if (kind && strcmp(kind, "uint") == 0) return strdup(" as i64))");
+    return strdup(")");
 }
 
 static char *helper_rust_println_prefix(json_object **params, int param_count,
@@ -344,6 +351,10 @@ static char *helper_rust_println_prefix(json_object **params, int param_count,
     const char *kind = param_count > 0 ? json_kind(params[0]) : NULL;
     if (kind && strcmp(kind, "string") == 0) return strdup("__sn_println_string(&(");
     if (kind && strcmp(kind, "char") == 0) return strdup("__sn_println_char(");
+    if (kind && (strcmp(kind, "double") == 0 || strcmp(kind, "float") == 0))
+        return strdup("println!(\"{:.5}\", ");
+    if (kind && strcmp(kind, "byte") == 0) return strdup("println!(\"0x{:02X}\", (");
+    if (kind && strcmp(kind, "uint") == 0) return strdup("println!(\"{}\", (");
     return strdup("println!(\"{}\", ");
 }
 

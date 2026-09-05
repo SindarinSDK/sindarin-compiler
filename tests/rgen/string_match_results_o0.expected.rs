@@ -445,7 +445,7 @@ fn main() {
 };
     let mut joined: SnString = match (3 as i64) {
         3 => {
-            ({ let __sn_join_index_0 = __sn_index(((r#box).rows).len(), 0); let __sn_separator_0 = &(SnString::from_slice(&[0x2b])); __sn_string_join((((r#box).rows)[__sn_join_index_0]).as_slice(), __sn_separator_0) })
+            ({ let __sn_join_raw_index_0 = 0; let __sn_separator_0 = &(SnString::from_slice(&[0x2b])); let __sn_join_index_0 = __sn_index(((r#box).rows).len(), __sn_join_raw_index_0); __sn_string_join((((r#box).rows)[__sn_join_index_0]).as_slice(), __sn_separator_0) })
         },
         _ => {
             (fallbackResult.clone())
