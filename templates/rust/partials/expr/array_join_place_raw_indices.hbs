@@ -1,0 +1,1 @@
+{{#if (eq kind "member")}}{{> expr_array_join_place_raw_indices object}}{{else}}{{#if (eq kind "array_access")}}{{> expr_array_join_place_raw_indices array}}let {{rust_ident rust_array_join_raw_index_name}} = {{> expr index}}; {{/if}}{{/if~}}{{~!-- trim partial EOF --~}}
