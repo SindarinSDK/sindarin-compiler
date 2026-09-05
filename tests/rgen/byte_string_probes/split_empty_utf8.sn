@@ -1,0 +1,27 @@
+fn show(value: str): void => print(value)
+
+fn showArray(values: str[]): void =>
+  show(values[0])
+  print("|")
+  show(values[1])
+
+fn main(): void =>
+  var fragments: str[] = "é".split("")
+  print($"direct=<{fragments[0]}|{fragments[1]}>\n")
+  var joined: str = fragments.join("")
+  print("joined=<")
+  print(joined)
+  print(">\n")
+  print($"counts={fragments.length}/{fragments[0].length}/{fragments[1].length}/{joined.length}\n")
+  print("indexed=<")
+  print(fragments[0].charAt(0))
+  print("|")
+  print(fragments[1].charAt(0))
+  print(">\n")
+  print("function=<")
+  show(fragments[0])
+  show(fragments[1])
+  print(">\n")
+  print("array=<")
+  showArray(fragments)
+  print(">\n")

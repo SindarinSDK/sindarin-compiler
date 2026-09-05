@@ -179,6 +179,7 @@ static bool rust_emit(CompilerOptions *options, Module *module,
         return false;
     }
     rust_lower_closures(model);
+    rust_lower_byte_arithmetic(model);
     rust_lower_checked_arithmetic(model);
     rust_lower_checked_mutations(model);
     if (rust_model_uses_checked_arithmetic(model))
@@ -190,6 +191,12 @@ static bool rust_emit(CompilerOptions *options, Module *module,
     rust_lower_floating_mutations(model);
     rust_lower_strings(model);
     rust_lower_calls(model);
+    if (!rust_lower_string_method_helper_names(model))
+    {
+        fprintf(stderr, "Error: Rust target could not assign hygienic string helper names\n");
+        json_object_put(model);
+        return false;
+    }
     rust_lower_interpolation_formats(model);
     rust_lower_for_continues(model);
     rust_lower_scalar_ref_parameters(model);
@@ -207,12 +214,34 @@ static bool rust_emit(CompilerOptions *options, Module *module,
         json_object_put(model);
         return false;
     }
+    if (!rust_assign_array_text_names(model))
+    {
+        fprintf(stderr, "Error: Rust target could not assign hygienic array text helper names\n");
+        json_object_put(model);
+        return false;
+    }
+    size_t array_join_index_id = 0;
+    size_t array_join_owner_id = 0;
+    if (!rust_assign_array_join_index_names(
+            model, model, &array_join_index_id, &array_join_owner_id))
+    {
+        fprintf(stderr, "Error: Rust target could not assign hygienic array join index names\n");
+        json_object_put(model);
+        return false;
+    }
     if (rust_model_uses_arrays(model))
         json_object_object_add(model, "rust_uses_arrays", json_object_new_boolean(true));
+    bool uses_array_text = rust_model_uses_array_text(model);
+    if (uses_array_text)
+        json_object_object_add(model, "rust_uses_array_text", json_object_new_boolean(true));
     if (rust_model_uses_reflection(model))
         json_object_object_add(model, "rust_uses_reflection", json_object_new_boolean(true));
+    if (uses_array_text || rust_model_uses_byte_strings(model))
+        json_object_object_add(model, "rust_uses_byte_strings", json_object_new_boolean(true));
     if (rust_model_uses_string_helpers(model))
         json_object_object_add(model, "rust_uses_string_helpers", json_object_new_boolean(true));
+    if (rust_model_uses_split_helpers(model))
+        json_object_object_add(model, "rust_uses_string_split_helpers", json_object_new_boolean(true));
     if (rust_model_uses_string_format_helpers(model))
         json_object_object_add(model, "rust_uses_string_format_helpers",
                                json_object_new_boolean(true));

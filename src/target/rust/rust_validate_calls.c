@@ -8,7 +8,24 @@ static bool rust_array_method_supported(const char *name)
            strcmp(name, "reverse") == 0 || strcmp(name, "clear") == 0 ||
            strcmp(name, "clone") == 0 || strcmp(name, "contains") == 0 ||
            strcmp(name, "indexOf") == 0 || strcmp(name, "concat") == 0 ||
-           strcmp(name, "join") == 0;
+           strcmp(name, "join") == 0 || strcmp(name, "toString") == 0;
+}
+
+static bool rust_array_text_element_supported(json_object *type)
+{
+    const char *kind = json_string_property(type, "kind");
+    if (!kind) return false;
+    if (strcmp(kind, "array") == 0)
+    {
+        json_object *element_type = NULL;
+        return json_object_object_get_ex(type, "element_type", &element_type) &&
+               rust_array_text_element_supported(element_type);
+    }
+    return strcmp(kind, "int") == 0 || strcmp(kind, "long") == 0 ||
+           strcmp(kind, "uint") == 0 || strcmp(kind, "double") == 0 ||
+           strcmp(kind, "bool") == 0 ||
+           strcmp(kind, "char") == 0 || strcmp(kind, "byte") == 0 ||
+           strcmp(kind, "string") == 0;
 }
 
 static bool rust_string_method_supported(const char *name)
@@ -18,7 +35,10 @@ static bool rust_string_method_supported(const char *name)
            strcmp(name, "endsWith") == 0 || strcmp(name, "trim") == 0 ||
            strcmp(name, "toUpper") == 0 || strcmp(name, "toLower") == 0 ||
            strcmp(name, "substring") == 0 || strcmp(name, "replace") == 0 ||
-           strcmp(name, "charAt") == 0 || strcmp(name, "indexOf") == 0;
+           strcmp(name, "charAt") == 0 || strcmp(name, "indexOf") == 0 ||
+           strcmp(name, "split") == 0 || strcmp(name, "splitLines") == 0 ||
+           strcmp(name, "splitWhitespace") == 0 || strcmp(name, "isBlank") == 0 ||
+           strcmp(name, "toBytes") == 0 || strcmp(name, "append") == 0;
 }
 
 static bool rust_call_stable_place(json_object *expr)
@@ -72,7 +92,7 @@ static bool rust_shared_default_array_argument(json_object *arg)
         !json_boolean_property(arg, "source_is_borrow");
 }
 
-static bool rust_reject_shared_default_array_arguments(json_object *args)
+static bool rust_validate_shared_default_array_arguments(json_object *args)
 {
     if (!json_object_is_type(args, json_type_array)) return true;
     size_t count = json_object_array_length(args);
@@ -80,12 +100,46 @@ static bool rust_reject_shared_default_array_arguments(json_object *args)
     {
         if (!rust_shared_default_array_argument(
                 json_object_array_get_idx(args, i))) continue;
-        rust_validation_reported_error = true;
-        fprintf(stderr,
-                "Error: Rust target does not support shared default-array arguments from non-owning expressions yet\n");
-        return false;
+        if (!json_boolean_property(
+                json_object_array_get_idx(args, i),
+                "rust_default_array_ref_arg"))
+        {
+            rust_validation_reported_error = true;
+            fprintf(stderr,
+                    "Error: Rust target encountered a shared default-array argument without Rust borrow projection\n");
+            return false;
+        }
     }
     return true;
+}
+
+/* Conservative place-prefix comparison for an instance receiver and a
+ * default-array argument. Rust cannot form simultaneous exclusive borrows for
+ * `bag.method(bag.values)`, and the tagged call may mutate through either
+ * handle. Keep that genuine alias case as a targeted boundary instead of
+ * allowing it to escape as a rustc diagnostic. */
+static bool rust_call_place_has_prefix(json_object *place,
+                                       json_object *prefix)
+{
+    if (!json_object_is_type(place, json_type_object) ||
+        !json_object_is_type(prefix, json_type_object)) return false;
+    if (json_string_property_equals(place, "kind", "variable") &&
+        json_string_property_equals(prefix, "kind", "variable"))
+    {
+        const char *place_name = json_string_property(place, "name");
+        const char *prefix_name = json_string_property(prefix, "name");
+        return place_name && prefix_name &&
+            strcmp(place_name, prefix_name) == 0;
+    }
+
+    json_object *parent = NULL;
+    if (json_string_property_equals(place, "kind", "member") &&
+        json_object_object_get_ex(place, "object", &parent))
+        return rust_call_place_has_prefix(parent, prefix);
+    if (json_string_property_equals(place, "kind", "array_access") &&
+        json_object_object_get_ex(place, "array", &parent))
+        return rust_call_place_has_prefix(parent, prefix);
+    return false;
 }
 
 static bool rust_primitive_conversion_member(const char *type_kind, const char *name)
@@ -125,7 +179,10 @@ static bool rust_primitive_integer_conversion_supported(const char *type_kind,
             (strcmp(name, "toInt") == 0 || strcmp(name, "toDouble") == 0)) ||
            (strcmp(type_kind, "uint") == 0 && strcmp(name, "toDouble") == 0) ||
            (strcmp(type_kind, "byte") == 0 && strcmp(name, "toInt") == 0) ||
-           (strcmp(type_kind, "bool") == 0 && strcmp(name, "toInt") == 0);
+           (strcmp(type_kind, "bool") == 0 && strcmp(name, "toInt") == 0) ||
+           (strcmp(type_kind, "string") == 0 &&
+            (strcmp(name, "toInt") == 0 || strcmp(name, "toLong") == 0 ||
+             strcmp(name, "toDouble") == 0));
 }
 
 static bool rust_array_search_type_supported(const char *kind)
@@ -428,7 +485,7 @@ static bool rust_validate_static_call(json_object *expr)
     json_object *args = NULL;
     json_object_object_get_ex(expr, "args", &args);
     return rust_validate_expr_array(args) &&
-        rust_reject_shared_default_array_arguments(args);
+        rust_validate_shared_default_array_arguments(args);
 }
 
 static bool rust_validate_call(json_object *expr)
@@ -521,10 +578,24 @@ static bool rust_validate_call(json_object *expr)
                 const char *element_kind = NULL;
                 if (!json_object_object_get_ex(object_type, "element_type", &element_type) ||
                     !(element_kind = json_string_property(element_type, "kind")) ||
-                    strcmp(element_kind, "string") != 0)
+                    !rust_array_text_element_supported(element_type))
                 {
                     fprintf(stderr,
                             "Error: Rust target does not support array method 'join' for %s elements yet\n",
+                            element_kind ? element_kind : "<unknown>");
+                    return false;
+                }
+            }
+            if (strcmp(method, "toString") == 0)
+            {
+                json_object *element_type = NULL;
+                const char *element_kind = NULL;
+                if (!json_object_object_get_ex(object_type, "element_type", &element_type) ||
+                    !(element_kind = json_string_property(element_type, "kind")) ||
+                    strcmp(element_kind, "byte") != 0)
+                {
+                    fprintf(stderr,
+                            "Error: Rust target does not support array method 'toString' for %s elements yet\n",
                             element_kind ? element_kind : "<unknown>");
                     return false;
                 }
@@ -559,6 +630,28 @@ static bool rust_validate_call(json_object *expr)
     json_object_object_get_ex(expr, "args", &args);
     if (!rust_validate_expr_array(args)) return false;
 
+    if (strcmp(callee_kind_name, "member") == 0)
+    {
+        json_object *receiver = NULL;
+        if (json_object_object_get_ex(callee, "object", &receiver))
+        {
+            size_t count = json_object_array_length(args);
+            for (size_t i = 0; i < count; i++)
+            {
+                json_object *arg = json_object_array_get_idx(args, i);
+                if (json_boolean_property(arg,
+                                          "rust_default_array_ref_arg") &&
+                    rust_call_place_has_prefix(arg, receiver))
+                {
+                    rust_validation_reported_error = true;
+                    fprintf(stderr,
+                            "Error: Rust target does not support an instance receiver aliasing a mutable default-array argument yet\n");
+                    return false;
+                }
+            }
+        }
+    }
+
     bool is_user_callable = strcmp(callee_kind_name, "variable") == 0;
     if (!is_user_callable && strcmp(callee_kind_name, "member") == 0)
     {
@@ -574,7 +667,7 @@ static bool rust_validate_call(json_object *expr)
         }
     }
     return !is_user_callable ||
-        rust_reject_shared_default_array_arguments(args);
+        rust_validate_shared_default_array_arguments(args);
 }
 
 static bool rust_report_resolved_call_error(const char *message)
@@ -863,7 +956,7 @@ static bool rust_validate_method_call(json_object *expr)
             return false;
         }
     }
-    if (!rust_reject_shared_default_array_arguments(args)) return false;
+    if (!rust_validate_shared_default_array_arguments(args)) return false;
 
     if (!is_static)
     {

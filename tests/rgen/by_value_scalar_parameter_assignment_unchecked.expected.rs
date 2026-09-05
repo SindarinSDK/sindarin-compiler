@@ -11,15 +11,15 @@ impl ScalarAssignments {
         return (value + untouched);
     }
     fn assignByte(mut value: u8, untouched: u8) -> u8 {
-        let mut assigned: u8 = { value = (value + 5); value };
-        return ((assigned + value) + untouched);
+        let mut assigned: u8 = { value = { let (__sn_byte_left, __sn_byte_right): (i32, i32) = (value as i32, 5 as i32); __sn_byte_left + __sn_byte_right } as u8; value };
+        return { let (__sn_byte_left, __sn_byte_right): (i32, i32) = ({ let (__sn_byte_left, __sn_byte_right): (i32, i32) = (assigned as i32, value as i32); __sn_byte_left + __sn_byte_right } as i32, untouched as i32); __sn_byte_left + __sn_byte_right } as u8;
     }
     fn assignUint32(mut value: u32, untouched: u32) -> u32 {
-        return { value = (value + untouched); value };
+        return { value = { let (__sn_byte_left, __sn_byte_right): (u32, u32) = (value, untouched); __sn_byte_left.wrapping_add(__sn_byte_right) }; value };
     }
     fn assignUint(&self, mut value: u64, untouched: u64) -> u64 {
-        { value = (value + 7); value };
-        return ((value + untouched) + ((self).marker as u64));
+        { value = { let (__sn_byte_left, __sn_byte_right): (u64, u64) = (value, 7); __sn_byte_left.wrapping_add(__sn_byte_right) }; value };
+        return { let (__sn_byte_left, __sn_byte_right): (u64, u64) = ({ let (__sn_byte_left, __sn_byte_right): (u64, u64) = (value, untouched); __sn_byte_left.wrapping_add(__sn_byte_right) }, ((self).marker as u64)); __sn_byte_left.wrapping_add(__sn_byte_right) };
     }
     fn assignFloat(&self, mut value: f32, untouched: f32) -> f32 {
         let mut assigned: f32 = { value = (value + 1.5); value };

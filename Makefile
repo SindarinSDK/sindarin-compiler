@@ -11,7 +11,7 @@
 # Phony targets
 #------------------------------------------------------------------------------
 .PHONY: all build rebuild run clean test help
-.PHONY: test-unit test-cgen test-rgen test-mgen test-integration test-integration-errors
+.PHONY: test-unit test-cgen test-rgen test-rgen-byte-strings test-mgen test-integration test-integration-errors
 .PHONY: test-explore test-explore-errors test-rust-closures test-rust-native-tagged test-rust-native-extra test-rust-native-origin test-rust-native-errors test-rust-toolchain
 .PHONY: configure install package setup hooks
 
@@ -180,6 +180,10 @@ test-cgen: build
 
 test-rgen: build
 	@$(PYTHON) scripts/run_rust_tests.py rgen --verbose
+	@$(PYTHON) tests/rgen/byte_string_compare.py
+
+test-rgen-byte-strings: build
+	@$(PYTHON) tests/rgen/byte_string_compare.py
 
 test-mgen: build
 	@$(PYTHON) scripts/run_tests.py mgen --verbose
@@ -321,6 +325,7 @@ help:
 	@echo "  make test-unit              Run unit tests only"
 	@echo "  make test-cgen              Run code generation tests (compare generated C)"
 	@echo "  make test-rgen              Run Rust generation tests"
+	@echo "  make test-rgen-byte-strings Run exact raw-byte C/Rust string comparisons"
 	@echo "  make test-rust-native-tagged Run C/Rust parity on unchanged tag-79c20b fixtures"
 	@echo "  make test-rust-native-extra Run post-tag Rust-native extra coverage"
 	@echo "  make test-rust-native-origin Run imported native origin tests"
