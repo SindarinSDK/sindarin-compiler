@@ -1430,29 +1430,49 @@ class TestRunner:
         """Compile and execute a post-tag Rust-native fixture with its oracle."""
         if not os.path.isfile(expected_file):
             return ('skip', 'no .expected', None)
-        exit_code, stdout, stderr, decode_error = run_with_timeout(
-            [self.compiler, test_file, '--target', 'rust', '-o', exe_file,
-             '-l', '1', '--no-install'], self.compile_timeout, env=self.env)
-        if decode_error:
-            return ('fail', 'subprocess output decode error',
-                    [decode_error, format_subprocess_failure(stdout, stderr)])
-        if exit_code != 0:
-            return ('fail', 'Rust compile error', stderr.split('\n')[:50] if stderr else None)
-        exit_code, output, timeout_marker, decode_error = run_with_timeout(
-            [exe_file], self.run_timeout, env=self.env, merge_stderr=True)
-        if decode_error:
-            return ('fail', 'Rust run output decode error', [decode_error, output])
-        if timeout_marker == 'TIMEOUT':
-            return ('fail', 'Rust run timeout', output.split('\n')[:20] if output else None)
-        if exit_code != 0:
-            return ('fail', f'Rust run exit code: {exit_code}',
-                    output.split('\n')[:20] if output else None)
         with open(expected_file, 'r', encoding='utf-8') as expected:
             wanted = expected.read().replace('\r\n', '\n').replace('\r', '\n')
-        actual = output.replace('\r\n', '\n').replace('\r', '\n')
-        if actual != wanted:
-            return ('fail', 'output mismatch',
-                    [f'expected: {wanted!r}', f'got:      {actual!r}'])
+        base = os.path.splitext(test_file)[0]
+        expected_exit = 0
+        exit_file = base + '.exit-code'
+        if os.path.isfile(exit_file):
+            try:
+                with open(exit_file, 'r', encoding='utf-8') as expected:
+                    expected_exit = int(expected.read().strip())
+            except (OSError, ValueError) as error:
+                return ('fail', 'invalid .exit-code', [str(error)])
+        targets = ('c', 'rust') if os.path.isfile(base + '.c-parity') else ('rust',)
+        outputs = {}
+        for target in targets:
+            target_exe = f'{exe_file}.{target}{get_exe_extension()}'
+            exit_code, stdout, stderr, decode_error = run_with_timeout(
+                [self.compiler, test_file, '--target', target, '-o', target_exe,
+                 '-l', '1', '--no-install'], self.compile_timeout, env=self.env)
+            if decode_error:
+                return ('fail', f'{target} subprocess output decode error',
+                        [decode_error, format_subprocess_failure(stdout, stderr)])
+            if exit_code != 0:
+                return ('fail', f'{target} compile error',
+                        stderr.split('\n')[:50] if stderr else None)
+            exit_code, output, timeout_marker, decode_error = run_with_timeout(
+                [target_exe], self.run_timeout, env=self.env, merge_stderr=True)
+            if decode_error:
+                return ('fail', f'{target} run output decode error',
+                        [decode_error, output])
+            if timeout_marker == 'TIMEOUT':
+                return ('fail', f'{target} run timeout',
+                        output.split('\n')[:20] if output else None)
+            if exit_code != expected_exit:
+                return ('fail', f'{target} run exit code: {exit_code}',
+                        [f'expected: {expected_exit}',
+                         *(output.split('\n')[:20] if output else [])])
+            outputs[target] = output.replace('\r\n', '\n').replace('\r', '\n')
+            if outputs[target] != wanted:
+                return ('fail', f'{target} output mismatch',
+                        [f'expected: {wanted!r}', f'got:      {outputs[target]!r}'])
+        if len(outputs) == 2 and outputs['c'] != outputs['rust']:
+            return ('fail', 'C/Rust output mismatch',
+                    [f"C:    {outputs['c']!r}", f"Rust: {outputs['rust']!r}"])
         return ('pass', '', None)
 
     def _run_rust_native_error_test_internal(
