@@ -606,6 +606,8 @@ class TestRunner:
         fake_rustc_src = os.path.abspath(os.path.join('bin', f'sn_fake_rustc{exe_ext}'))
         test_file = os.path.abspath('tests/rust-toolchain/basic.sn')
         native_test_file = os.path.abspath('tests/rust-native/scalar_bridge.sn')
+        native_debug_test_file = os.path.abspath(
+            'tests/integration/test_native_with_body.sn')
 
         if not os.path.isfile(fake_rustc_src):
             print(f"{Colors.RED}FAIL{Colors.NC}: fake rustc fixture not found: {fake_rustc_src}")
@@ -615,6 +617,10 @@ class TestRunner:
             return False, time.perf_counter() - suite_start
         if not os.path.isfile(native_test_file):
             print(f"{Colors.RED}FAIL{Colors.NC}: native fixture not found: {native_test_file}")
+            return False, time.perf_counter() - suite_start
+        if not os.path.isfile(native_debug_test_file):
+            print(f"{Colors.RED}FAIL{Colors.NC}: tagged native fixture not found: "
+                  f"{native_debug_test_file}")
             return False, time.perf_counter() - suite_start
 
         # Case 0: pin locale-independent strict UTF-8 subprocess decoding and
@@ -640,6 +646,7 @@ class TestRunner:
             {'name': 'pure_rust_has_no_c_dependency', 'kind': 'pure_no_c'},
             {'name': 'native_emit_requires_bundle', 'kind': 'native_emit'},
             {'name': 'native_c_link_driver_contract', 'kind': 'native_link'},
+            {'name': 'native_debug_sanitizer_link', 'kind': 'native_debug'},
             {'name': 'native_compile_and_link_failures', 'kind': 'native_failures'},
             {'name': 'missing_rustc', 'kind': 'missing'},
             {'name': 'failing_rustc', 'kind': 'failing'},
@@ -849,6 +856,9 @@ class TestRunner:
                                     details.append(f'expected one final C-driver link, got {len(links)}')
                                 else:
                                     argv = links[0]
+                                    if '-nodefaultlibs' in argv:
+                                        details.append(
+                                            'rustc suppressed configured C-driver default libraries')
                                     required_prefix = ['-O1', '-DSN_MODE_LINK_MARKER', '-w',
                                                        '-Werror=implicit-function-declaration',
                                                        '-std=c11', '-D_GNU_SOURCE',
@@ -881,6 +891,45 @@ class TestRunner:
                     results.append({'name': case['name'],
                                     'status': 'pass' if not details else 'fail',
                                     'reason': '' if not details else 'native C-link-driver assertions unmet',
+                                    'details': details or None,
+                                    'elapsed': time.perf_counter() - case_start})
+
+                elif case['kind'] == 'native_debug':
+                    details = []
+                    native_debug_output = os.path.join(
+                        temp_dir, f'native_debug_output{exe_ext}')
+                    exit_code, stdout, stderr, decode_error = run_with_timeout(
+                        [self.compiler, native_debug_test_file, '--target', 'rust',
+                         '-g', '-o', native_debug_output, '-l', '3', '--no-install'],
+                        max(self.compile_timeout, 120) if is_windows()
+                        else self.compile_timeout,
+                        env=env)
+                    if decode_error:
+                        details.append(f'subprocess output decode error: {decode_error}')
+                    elif exit_code != 0:
+                        details.append('tagged native debug compile failed:\n' +
+                                       format_subprocess_failure(stdout, stderr))
+                    else:
+                        exit_code, output, timeout_marker, decode_error = run_with_timeout(
+                            [native_debug_output], self.run_timeout, env=env,
+                            merge_stderr=True)
+                        if decode_error:
+                            details.append(f'native debug run decode error: {decode_error}')
+                        elif timeout_marker == 'TIMEOUT':
+                            details.append('native debug executable timed out')
+                        elif exit_code != 0:
+                            details.append(f'native debug executable exited {exit_code}: '
+                                           f'{output!r}')
+                        else:
+                            expected_path = os.path.splitext(native_debug_test_file)[0] + '.expected'
+                            expected = Path(expected_path).read_text(encoding='utf-8')
+                            normalized = output.replace('\r\n', '\n').replace('\r', '\n')
+                            if normalized != expected:
+                                details.append(f'native debug output is {normalized!r}, '
+                                               f'expected {expected!r}')
+                    results.append({'name': case['name'],
+                                    'status': 'pass' if not details else 'fail',
+                                    'reason': '' if not details else 'native debug assertions unmet',
                                     'details': details or None,
                                     'elapsed': time.perf_counter() - case_start})
 

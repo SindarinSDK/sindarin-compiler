@@ -179,6 +179,64 @@ static void replace_with_empty_array(json_object *object, const char *key)
     json_object_object_add(object, key, json_object_new_array());
 }
 
+static bool function_matches_callable(json_object *function,
+                                      const char *callable_name)
+{
+    if (!function || !callable_name) return false;
+    const char *name = native_string(function, "name");
+    const char *source_name = native_string(function, "source_callable_name");
+    return (name && strcmp(name, callable_name) == 0) ||
+           (source_name && strcmp(source_name, callable_name) == 0);
+}
+
+static void mark_function_dependencies(json_object *node,
+                                       json_object *functions,
+                                       bool *selected,
+                                       size_t function_count,
+                                       bool *changed)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            mark_function_dependencies(json_object_array_get_idx(node, i),
+                                       functions, selected, function_count,
+                                       changed);
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
+
+    const char *kind = native_string(node, "kind");
+    if (kind && strcmp(kind, "call") == 0)
+    {
+        json_object *callee = NULL;
+        if (json_object_object_get_ex(node, "callee", &callee) &&
+            callee && native_string(callee, "kind") &&
+            strcmp(native_string(callee, "kind"), "variable") == 0)
+        {
+            const char *callable_name = native_string(callee, "name");
+            for (size_t i = 0; callable_name && i < function_count; i++)
+            {
+                json_object *function = json_object_array_get_idx(functions, i);
+                if (!selected[i] && function_matches_callable(function, callable_name))
+                {
+                    selected[i] = true;
+                    *changed = true;
+                    break;
+                }
+            }
+        }
+    }
+
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        mark_function_dependencies(value, functions, selected, function_count,
+                                   changed);
+    }
+}
+
 static bool project_native_model(json_object *model)
 {
     json_object *functions = NULL;
@@ -187,12 +245,41 @@ static bool project_native_model(json_object *model)
     if (json_object_object_get_ex(model, "functions", &functions))
     {
         size_t count = json_object_array_length(functions);
+        bool *selected = count ? calloc(count, sizeof(*selected)) : NULL;
+        if (count && !selected)
+        {
+            json_object_put(native_functions);
+            return false;
+        }
         for (size_t i = 0; i < count; i++)
         {
             json_object *function = json_object_array_get_idx(functions, i);
             if (native_bool(function, "is_native"))
-                json_object_array_add(native_functions, json_object_get(function));
+                selected[i] = true;
         }
+
+        bool changed;
+        do
+        {
+            changed = false;
+            for (size_t i = 0; i < count; i++)
+            {
+                if (!selected[i]) continue;
+                json_object *function = json_object_array_get_idx(functions, i);
+                json_object *body = NULL;
+                if (json_object_object_get_ex(function, "body", &body))
+                    mark_function_dependencies(body, functions, selected,
+                                               count, &changed);
+            }
+        } while (changed);
+
+        for (size_t i = 0; i < count; i++)
+        {
+            if (selected[i])
+                json_object_array_add(native_functions, json_object_get(
+                    json_object_array_get_idx(functions, i)));
+        }
+        free(selected);
     }
     json_object_object_del(model, "functions");
     json_object_object_add(model, "functions", native_functions);

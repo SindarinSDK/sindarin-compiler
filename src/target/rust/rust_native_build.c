@@ -296,7 +296,7 @@ bool rust_native_build(const CompilerOptions *options, const char *build_dir,
     char *quoted_output = shell_quote(options->executable_file);
     NativeBuffer command = {0};
     bool ok = quoted_rustc && quoted_proxy && quoted_source && quoted_output &&
-        buffer_appendf(&command, "%s --edition=2021 %s %s -C linker=%s",
+        buffer_appendf(&command, "%s --edition=2021 %s %s -C default-linker-libraries=yes -C linker=%s",
                        quoted_rustc, profile_flags, rustflags, quoted_proxy);
     for (int i = 0; ok && i < sidecar.object_file_count; i++)
         ok = append_link_arg(&command, sidecar.object_files[i]);
