@@ -827,15 +827,26 @@ static bool is_named_fn_str_call(Expr *expr, SymbolTable *symbol_table)
  * (for example, self.values.join(self.addSeparator())).  Delaying the borrow
  * also makes the join observe that mutation, as the tagged backend does.
  *
- * Do not classify indexed or computed receivers here.  Their base/index
- * evaluation can have side effects and therefore still needs the ordinary
- * receiver-first temporary below. */
+ * Indexed projections are stable when their array owner is stable. Their
+ * index expressions are lowered into hygienic receiver-before-separator
+ * temporaries later, so each index is evaluated exactly once without keeping
+ * a borrow of the owner alive. */
 static bool rust_array_join_receiver_is_stable_place(Expr *expr)
 {
     if (!expr) return false;
     if (expr->type == EXPR_VARIABLE) return true;
+    /* A computed root inside a projection chain is captured into an owned
+     * hygienic temporary by Rust lowering. */
+    if (expr->type == EXPR_MEMBER || expr->type == EXPR_ARRAY_ACCESS) return true;
+    return false;
+}
+
+static bool rust_stable_place_contains_array_access(Expr *expr)
+{
+    if (!expr) return false;
+    if (expr->type == EXPR_ARRAY_ACCESS) return true;
     if (expr->type == EXPR_MEMBER)
-        return rust_array_join_receiver_is_stable_place(expr->as.member.object);
+        return rust_stable_place_contains_array_access(expr->as.member.object);
     return false;
 }
 
@@ -1604,6 +1615,14 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                     {
                         json_object_object_add(obj,
                             "rust_array_join_stable_place",
+                            json_object_new_boolean(true));
+                    }
+                    if (expr->as.call.callee->as.member.resolved_method &&
+                        rust_array_join_receiver_is_stable_place(receiver) &&
+                        rust_stable_place_contains_array_access(receiver))
+                    {
+                        json_object_object_add(obj,
+                            "rust_indexed_method_stable_place",
                             json_object_new_boolean(true));
                     }
                 }
