@@ -70,6 +70,13 @@ static json_object *rust_concurrency_bind_args(json_object *call, const char *pr
         rust_concurrency_string(read, "name", name);
         json_object_object_del(read, "rust_cell");
         json_object_object_del(read, "rust_global");
+        if (json_boolean_property(arg, "rust_thread_default_array_arg")) {
+            /* Own the staged array across spawn; borrow that owned value only
+             * inside the worker to satisfy the ordinary function signature. */
+            json_object_object_add(binding, "rust_mutable_binding", json_object_new_boolean(true));
+            json_object_object_add(read, "is_ref_arg", json_object_new_boolean(true));
+            json_object_object_del(read, "rust_thread_default_array_arg");
+        }
         json_object_array_put_idx(args, i, read);
     }
     return bindings;

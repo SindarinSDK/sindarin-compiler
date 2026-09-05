@@ -23,15 +23,12 @@ fn __sn_array_size(size: i64) -> usize {
     size as usize
 }
 
-fn observe(values: &mut Vec<i64>) -> i64 {
-    return (values).len() as i64;
-}
-
-fn makeValues() -> Vec<i64> {
-    return vec![4, 5];
+fn assign(value: &mut Vec<i64>) -> i64 {
+    { let __sn_array_index = __sn_index((value).len(), 0); (value)[__sn_array_index] = 2; };
+    return (value)[__sn_index((value).len(), 0)];
 }
 
 fn main() {
-    println!("{}", observe(&mut (vec![1, 2, 3])));
-    println!("{}", observe(&mut (makeValues())));
+    let mut values: Vec<i64> = vec![1];
+    println!("{}", assign(&mut (values)));
 }

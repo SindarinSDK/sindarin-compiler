@@ -152,7 +152,21 @@ const char *rust_gen_model_var_cleanup_kind(Type *type, bool suppress_local)
 
 void rust_gen_model_emit_param_cleanup(json_object *param_obj, Parameter *param, bool callee_is_native)
 {
-    if (!param->type || param->type->kind != TYPE_STRUCT) return;
+    if (!param->type) return;
+
+    /* A default array parameter is a borrowed SnArray handle in the tagged C
+     * ABI: element/method mutations are visible through every live alias, but
+     * the callee does not own or release the handle.  Keep that language fact
+     * out of the shared model and project it as a Rust mutable borrow. */
+    if (param->type->kind == TYPE_ARRAY)
+    {
+        if (param->mem_qualifier == MEM_DEFAULT && !callee_is_native)
+            json_object_object_add(param_obj, "rust_default_array_ref",
+                                   json_object_new_boolean(true));
+        return;
+    }
+
+    if (param->type->kind != TYPE_STRUCT) return;
 
     /* 'as ref' on an already-refcounted struct is redundant — refcounted
      * structs are always passed by pointer. The call-site in
