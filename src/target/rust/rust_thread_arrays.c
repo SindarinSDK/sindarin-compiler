@@ -26,6 +26,38 @@ static void rust_thread_array_collect(json_object *node, json_object *names)
     }
 }
 
+/* Copies retain the same pending join slots, including intermediate aliases. */
+static void rust_thread_array_aliases(json_object *node, json_object *names)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array)) {
+        for (size_t i = 0; i < json_object_array_length(node); i++)
+            rust_thread_array_aliases(json_object_array_get_idx(node, i), names);
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
+    json_object *source = NULL, *found = NULL, *source_type = NULL;
+    const char *target = NULL;
+    if (json_string_property_equals(node, "kind", "var_decl")) {
+        target = json_string_property(node, "name");
+        json_object_object_get_ex(node, "initializer", &source);
+    } else if (json_string_property_equals(node, "kind", "assign")) {
+        target = json_string_property(node, "target");
+        json_object_object_get_ex(node, "value", &source);
+    }
+    const char *name = json_string_property_equals(source, "kind", "variable") ?
+        json_string_property(source, "name") : NULL;
+    if (source) json_object_object_get_ex(source, "type", &source_type);
+    if (target && name && json_string_property_equals(source_type, "kind", "array") && (json_object_object_get_ex(names, name, &found) ||
+                          json_object_object_get_ex(names, target, &found))) {
+        json_object_object_add(names, target, json_object_new_boolean(true));
+        json_object_object_add(names, name, json_object_new_boolean(true));
+    }
+    json_object_object_foreach(node, key, value) {
+        (void)key; rust_thread_array_aliases(value, names);
+    }
+}
+
 static void rust_thread_array_annotate(json_object *node, json_object *names,
                                        const char *prefix, json_object *model)
 {
@@ -67,6 +99,15 @@ static void rust_thread_array_annotate(json_object *node, json_object *names,
     rust_concurrency_string(node, "rust_thread_array_handle", companion);
     rust_concurrency_string(node, "rust_thread_array_name", name);
     rust_concurrency_string(node, "rust_thread_array_type", support);
+    json_object *source = NULL;
+    if (strcmp(kind, "var_decl") == 0) json_object_object_get_ex(node, "initializer", &source);
+    if (strcmp(kind, "assign") == 0) json_object_object_get_ex(node, "value", &source);
+    const char *source_name = json_string_property_equals(source, "kind", "variable") ?
+        json_string_property(source, "name") : NULL;
+    if (source_name && json_object_object_get_ex(names, source_name, &found)) {
+        snprintf(companion, sizeof(companion), "%sarray_%s", prefix, source_name);
+        rust_concurrency_string(node, "rust_thread_array_source", companion);
+    }
     if (type && json_object_object_get_ex(type, "element_type", &element)) {
         json_object_object_add(node, "rust_thread_array_element", json_object_get(element));
         json_object_object_add(node, "rust_thread_array_default", rust_concurrency_default(element, model));
@@ -83,11 +124,18 @@ static void rust_lower_thread_arrays(json_object *model)
 {
     json_object *names = json_object_new_object();
     rust_thread_array_collect(model, names);
+    size_t previous;
+    do {
+        previous = json_object_object_length(names);
+        rust_thread_array_aliases(model, names);
+    } while (previous != json_object_object_length(names));
     if (json_object_object_length(names)) {
         const char *prefix = json_string_property(model, "rust_concurrency_prefix");
         rust_thread_array_annotate(model, names, prefix, model);
         char support[192]; snprintf(support, sizeof(support), "%sArrayJoins", prefix);
         rust_concurrency_string(model, "rust_thread_array_type", support);
+        snprintf(support, sizeof(support), "%sArrayPending", prefix);
+        rust_concurrency_string(model, "rust_thread_array_pending_type", support);
         json_object_object_add(model, "rust_uses_thread_arrays", json_object_new_boolean(true));
         json_object_object_add(model, "rust_uses_threads", json_object_new_boolean(true));
     }

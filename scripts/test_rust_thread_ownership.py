@@ -28,13 +28,14 @@ def capture(command, cwd, env, output, limit):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--filter', help='Run feature filenames containing this text (smoke always runs)')
     parser.add_argument('--inventory', action='store_true', help='After smoke, record Rust-only catalog outcomes; no parity comparison')
     args = parser.parse_args()
     out = args.output.resolve(); out.mkdir(parents=True, exist_ok=False)
     repo = Path(__file__).resolve().parent.parent
     ref = json.loads(Path('/tmp/sindarin-tagged-control-reference.json').read_text())
     tag = Path(ref['cwd']); compiler = ref['compiler']['path']
-    (out/'provenance.json').write_text(json.dumps({'reference': '/tmp/sindarin-tagged-control-reference.json', 'tag_peeled': ref['tag_peeled'], 'tag_compiler_verified_sha256': ref['compiler']['sha256'], 'rust_compiler_sha256': hashlib.sha256((repo/'bin/sn').read_bytes()).hexdigest(), 'mode': '-O0', 'inventory_only': args.inventory}, indent=2)+'\n')
+    (out/'provenance.json').write_text(json.dumps({'reference': '/tmp/sindarin-tagged-control-reference.json', 'tag_peeled': ref['tag_peeled'], 'tag_compiler_verified_sha256': ref['compiler']['sha256'], 'rust_compiler_sha256': hashlib.sha256((repo/'bin/sn').read_bytes()).hexdigest(), 'mode': '-O0', 'inventory_only': args.inventory, 'filter': args.filter}, indent=2)+'\n')
     smoke = out/'smoke'; (smoke/'tmp').mkdir(parents=True)
     clean = {'HOME': '/home/gavin', 'PATH': '/usr/bin:/bin', 'TMPDIR': str(smoke/'tmp')}
     executable = smoke/'program'
@@ -53,6 +54,9 @@ def main():
         catalog = json.loads(Path('/tmp/sindarin-tagged-rust-corpus-evidence/failure-backlog.json').read_text())
         sources = [tag/p for p in sorted({p for group in catalog if 'threads yet' in group['diagnostic'] or 'global variables yet' in group['diagnostic'] for p in group['fixtures']})]
     results = []
+    if args.filter:
+        sources = [source for source in sources if args.filter in source.name]
+        if not sources: raise SystemExit("No matching feature cases")
     for i, source in enumerate(sources):
         row = {'source': str(source), 'sha256': hashlib.sha256(source.read_bytes()).hexdigest()}
         backends = [('rust', str(repo/'bin/sn'), repo)] if args.inventory else [('tag', compiler, tag), ('rust', str(repo/'bin/sn'), repo)]

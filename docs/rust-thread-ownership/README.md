@@ -40,12 +40,15 @@ Promotion uses lexical variable declarations. Aggregate/global places and other
 unimplemented reference signatures remain required backend work and are rejected
 rather than copied. Local synchronized storage retains its separate lock gate.
 
-Handle arrays have ordinary value storage and a private optional-join vector.
+Handle arrays have ordinary value storage and a private vector of shared pending-join slots.
 Push, indexed sync (including index normalization), whole-array sync, empty arrays
 and reassignment preserve the tagged fixture behavior. Struct results use the
 existing zero-value projection. Dropping discarded array handles detaches rather
-than introducing an implicit join. Transfer/aliasing and arbitrary mutations of
-pending handle arrays are not established by this slice and remain required.
+than introducing an implicit join. Local declaration/assignment aliases share pending join identity, including
+intermediate aliases and resetting the original before synchronizing the copy.
+The join-slot mutex is released before waiting. Function/closure transfer,
+repeated synchronization through different aliases, and arbitrary mutations of
+pending handle arrays remain required, unestablished cases.
 
 A thread-only explicit operand type resolves Rust's ambiguous literal receiver
 for checked operations. The integrated signed diagnostic helpers are retained
@@ -115,3 +118,15 @@ worker can deadlock, and copying a receiver loses alias-visible writes. This
 branch does not duplicate the struct-capture implementation. The remaining native,
 assert/diagnostic and char/numeric cases belong to the corresponding coordinated
 lanes. Full tagged-language concurrency parity remains required.
+
+## Pending-array alias follow-up
+
+The fresh `array-alias-before` probe established a concrete gap: tagged C
+returned 42 through an array copy while Rust returned its zero placeholder.
+`array-alias-final` now records five raw O0 differential matches: two unchanged
+tagged array fixtures, the existing shared-capture array probe, and two new
+copy/assignment/reset probes. The mandatory fresh smoke passed first. This is
+a focused extension; the earlier 18-case and suite evidence retains its own
+compiler identity and is not relabeled as a full rerun. Exact fresh provenance
+and results are in `array-alias-verification.json`. The Rust leg again used a
+nonexistent C compiler. No C source, fixture, harness or oracle was changed.

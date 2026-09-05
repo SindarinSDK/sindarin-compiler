@@ -1,0 +1,103 @@
+{
+  "reference": "/tmp/sindarin-tagged-control-reference.json",
+  "tag_peeled": "79c20bdb8314aff3c778471ceab20bb8f9ca8d62",
+  "tag_compiler_verified_sha256": "b8c32932c385d9ae6692dff82bacb20c94eddef5379410efb5a26bdbae9f7789",
+  "rust_compiler_sha256": "25bd5b95a72c59905fd90ca3ce4e0534fafdcbdfb2eae5fb4932df0acc5ec865",
+  "mode": "-O0",
+  "inventory_only": false,
+  "filter": "array",
+  "results": [
+    {
+      "source": "/home/gavin/code/sindarin/review-rust-diagnostic-tag79c20b/tests/integration/test_thread_array_spawn_loop.sn",
+      "sha256": "8d4071254cb0091d4728e7e650867da4193a2b35877bc1ff5452c1039049307a",
+      "tag": {
+        "compile": 0,
+        "executable": true,
+        "run": 0
+      },
+      "rust": {
+        "compile": 0,
+        "executable": true,
+        "run": 0
+      },
+      "expected_exit": 0,
+      "equal": true,
+      "tag_fixture_stdout_oracle": true
+    },
+    {
+      "source": "/home/gavin/code/sindarin/review-rust-diagnostic-tag79c20b/tests/integration/test_thread_array_struct.sn",
+      "sha256": "7c2e4598ce83ced8cf91681d9587c602cfc02f338af6889115841c3adb528b6f",
+      "tag": {
+        "compile": 0,
+        "executable": true,
+        "run": 0
+      },
+      "rust": {
+        "compile": 0,
+        "executable": true,
+        "run": 0
+      },
+      "expected_exit": 0,
+      "equal": true,
+      "tag_fixture_stdout_oracle": true
+    },
+    {
+      "source": "/home/gavin/code/sindarin/sindarin-rust-thread-ownership/tests/rust-thread-ownership/handle_array_alias.sn",
+      "sha256": "6fdae34305762362ddd26804ddfaf2ddc467e7d4187bc2208e6360d6f0135d63",
+      "tag": {
+        "compile": 0,
+        "executable": true,
+        "run": 0
+      },
+      "rust": {
+        "compile": 0,
+        "executable": true,
+        "run": 0
+      },
+      "expected_exit": 0,
+      "equal": true
+    },
+    {
+      "source": "/home/gavin/code/sindarin/sindarin-rust-thread-ownership/tests/rust-thread-ownership/handle_array_assignment.sn",
+      "sha256": "b8a3d74aa7da115c82e3ab83f96dc3fdcac8ef76fa2c4d824f508bf6d2ff335c",
+      "tag": {
+        "compile": 0,
+        "executable": true,
+        "run": 0
+      },
+      "rust": {
+        "compile": 0,
+        "executable": true,
+        "run": 0
+      },
+      "expected_exit": 0,
+      "equal": true
+    },
+    {
+      "source": "/home/gavin/code/sindarin/sindarin-rust-thread-ownership/tests/rust-thread-ownership/shared_array.sn",
+      "sha256": "d484947f8035db3f6cb94edcb8cf0cc14c1b7c6b0675bbcfe3dfc2b8357ea2b1",
+      "tag": {
+        "compile": 0,
+        "executable": true,
+        "run": 0
+      },
+      "rust": {
+        "compile": 0,
+        "executable": true,
+        "run": 0
+      },
+      "expected_exit": 0,
+      "equal": true
+    }
+  ],
+  "raw_evidence": "/tmp/sindarin-rust-thread-ownership-evidence/array-alias-final",
+  "build_log": "/tmp/sindarin-rust-thread-ownership-evidence/array-alias-final-build.log",
+  "rgen_log": "/tmp/sindarin-rust-thread-ownership-evidence/array-alias-rgen.log",
+  "parent_commit": "4447abfb212ef61506ab69d854999bc0a97e466c",
+  "all_staged_rust_templates_equal_source": true,
+  "rgen": {
+    "passed": 237,
+    "failed": 16,
+    "scope": "Same known failures as prior accepted suite; raw log retained"
+  }
+}
