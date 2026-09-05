@@ -35,17 +35,11 @@ struct CallValues =>
   static fn makeLabel(): str =>
     return $"source"
 
-  static fn countNumbers(values: int[]): int =>
-    return values.length
-
   static fn makeNumbers(): int[] =>
     return {1, 2}
 
   fn joinLabel(value: str): str =>
     return $"{self.label}:{value}"
-
-  fn countNumbersAgain(values: int[]): int =>
-    return values.length
 
   fn makeNumbersAgain(): int[] =>
     return {3, 4}
@@ -62,6 +56,18 @@ fn markedOwnedPoint(calls: int as ref, order: int as ref, marker: int, value: in
     label: $"value-{value}",
     values: {value}
   }
+
+fn markedPoints(calls: int as ref, order: int as ref, marker: int, value: int): Point[] =>
+  calls++
+  order = order * 10 + marker
+  var points: Point[] = {}
+  points.push(Point { value: value })
+  return points
+
+fn markedIndex(calls: int as ref, order: int as ref, marker: int, value: int): int =>
+  calls++
+  order = order * 10 + marker
+  return value
 
 fn acceptBool(value: bool): bool => return value
 
@@ -106,21 +112,20 @@ fn main(): void =>
   var ownedSame: OwnedPoint = ownedLeft
   var ownedEqual: bool = ownedLeft == ownedSame
   var ownedSwapped: bool = markedOwnedPoint(calls, order, 5, 5) > markedOwnedPoint(calls, order, 6, 6)
+  var nestedReceiver: bool = markedPoint(calls, order, 7, 7) > markedPoints(calls, order, 8, 8)[markedIndex(calls, order, 9, 0)]
+  var negativeNestedReceiver: bool = markedPoint(calls, order, 1, 9) > markedPoints(calls, order, 2, 10)[markedIndex(calls, order, 3, -1)]
   ownedSame.values.push(7)
 
   var sourceLabel: str = "source"
-  var sourceNumbers: int[] = {1, 2}
   var callValues: CallValues = { label: "prefix" }
   var staticMatch: bool = CallValues.labelMatches(sourceLabel)
   var staticLabel: str = CallValues.makeLabel()
   var instanceLabel: str = callValues.joinLabel(sourceLabel)
-  var staticCount: int = CallValues.countNumbers(sourceNumbers)
-  var instanceCount: int = callValues.countNumbersAgain(sourceNumbers)
   var staticNumbers: int[] = CallValues.makeNumbers()
   var instanceNumbers: int[] = callValues.makeNumbersAgain()
 
   println($"{initialized}|{argument}|{returned}|{memberReceiver}|{indexedReceiver}|{explicitNe}|{derivedGe}|{derivedLe}|{matched}")
-  println($"{directOrder}|{swappedOrder}|{ownedEqual}|{ownedSwapped}|{calls}|{order}|{__sn_resolved_arg_0 + __sn_resolved_receiver_0}")
+  println($"{directOrder}|{swappedOrder}|{ownedEqual}|{ownedSwapped}|{nestedReceiver}|{negativeNestedReceiver}|{calls}|{order}|{__sn_resolved_arg_0 + __sn_resolved_receiver_0}")
   println($"{ownedLeft.label}|{ownedLeft.values.length}|{ownedSame.values.length}")
   println($"{staticMatch}|{staticLabel}|{instanceLabel}|{sourceLabel}")
-  println($"{sourceNumbers.length}|{staticCount}|{instanceCount}|{staticNumbers.length}|{instanceNumbers.length}")
+  println($"{staticNumbers.length}|{instanceNumbers.length}")

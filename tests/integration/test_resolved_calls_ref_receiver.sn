@@ -1,0 +1,19 @@
+struct Item as ref =>
+  value: int
+
+  operator < (other: Item): bool =>
+    return self.value < other.value
+
+fn makeItem(calls: int as ref, value: int): Item =>
+  calls++
+  return Item { value: value }
+
+fn main(): void =>
+  var calls: int = 0
+  var low: Item = { value: 1 }
+  var high: Item = { value: 2 }
+  println(low < high)
+  println(low > high)
+  println(low <= high)
+  println(low > makeItem(calls, 2))
+  println(calls)

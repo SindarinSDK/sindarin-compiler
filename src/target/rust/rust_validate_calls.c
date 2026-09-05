@@ -21,6 +21,60 @@ static bool rust_string_method_supported(const char *name)
            strcmp(name, "charAt") == 0 || strcmp(name, "indexOf") == 0;
 }
 
+static bool rust_call_stable_place(json_object *expr)
+{
+    const char *kind = json_string_property(expr, "kind");
+    if (!kind) return false;
+    if (strcmp(kind, "variable") == 0) return true;
+    if (strcmp(kind, "member") == 0)
+    {
+        json_object *object = NULL;
+        return json_object_object_get_ex(expr, "object", &object) &&
+            rust_call_stable_place(object);
+    }
+    if (strcmp(kind, "array_access") == 0)
+    {
+        json_object *array = NULL, *index = NULL;
+        const char *index_kind = NULL;
+        return json_object_object_get_ex(expr, "array", &array) &&
+            json_object_object_get_ex(expr, "index", &index) &&
+            rust_call_stable_place(array) &&
+            (index_kind = json_string_property(index, "kind")) &&
+            (strcmp(index_kind, "literal") == 0 ||
+             rust_call_stable_place(index));
+    }
+    return false;
+}
+
+static bool rust_shared_default_array_argument(json_object *arg)
+{
+    json_object *type = NULL;
+    return json_object_is_type(arg, json_type_object) &&
+        json_object_object_get_ex(arg, "type", &type) &&
+        json_string_property_equals(type, "kind", "array") &&
+        rust_call_stable_place(arg) &&
+        !json_boolean_property(arg, "is_ref_arg") &&
+        !json_boolean_property(arg, "is_borrow_tmp") &&
+        !json_boolean_property(arg, "is_copy_arg") &&
+        !json_boolean_property(arg, "source_is_borrow");
+}
+
+static bool rust_reject_shared_default_array_arguments(json_object *args)
+{
+    if (!json_object_is_type(args, json_type_array)) return true;
+    size_t count = json_object_array_length(args);
+    for (size_t i = 0; i < count; i++)
+    {
+        if (!rust_shared_default_array_argument(
+                json_object_array_get_idx(args, i))) continue;
+        rust_validation_reported_error = true;
+        fprintf(stderr,
+                "Error: Rust target does not support shared default-array arguments from stable places yet\n");
+        return false;
+    }
+    return true;
+}
+
 static bool rust_primitive_conversion_member(const char *type_kind, const char *name)
 {
     if (!type_kind || !name) return false;
@@ -360,7 +414,8 @@ static bool rust_validate_static_call(json_object *expr)
 {
     json_object *args = NULL;
     json_object_object_get_ex(expr, "args", &args);
-    return rust_validate_expr_array(args);
+    return rust_validate_expr_array(args) &&
+        rust_reject_shared_default_array_arguments(args);
 }
 
 static bool rust_validate_call(json_object *expr)
@@ -489,7 +544,24 @@ static bool rust_validate_call(json_object *expr)
     }
     else if (strcmp(callee_kind_name, "variable") != 0) return false;
     json_object_object_get_ex(expr, "args", &args);
-    return rust_validate_expr_array(args);
+    if (!rust_validate_expr_array(args)) return false;
+
+    bool is_user_callable = strcmp(callee_kind_name, "variable") == 0;
+    if (!is_user_callable && strcmp(callee_kind_name, "member") == 0)
+    {
+        json_object *object = NULL, *object_type = NULL, *base_type = NULL;
+        if (json_object_object_get_ex(callee, "object", &object) &&
+            json_object_object_get_ex(object, "type", &object_type))
+        {
+            is_user_callable =
+                json_string_property_equals(object_type, "kind", "struct") ||
+                (json_string_property_equals(object_type, "kind", "pointer") &&
+                 json_object_object_get_ex(object_type, "base_type", &base_type) &&
+                 json_string_property_equals(base_type, "kind", "struct"));
+        }
+    }
+    return !is_user_callable ||
+        rust_reject_shared_default_array_arguments(args);
 }
 
 static bool rust_report_resolved_call_error(const char *message)
@@ -567,27 +639,35 @@ static bool rust_resolved_value_type_supported(json_object *type)
     return rust_type_supported(type);
 }
 
-static bool rust_resolved_stable_place(json_object *expr)
+static bool rust_resolved_places_alias(json_object *left, json_object *right)
 {
-    const char *kind = json_string_property(expr, "kind");
-    if (!kind) return false;
-    if (strcmp(kind, "variable") == 0) return true;
-    if (strcmp(kind, "member") == 0)
+    const char *left_kind = json_string_property(left, "kind");
+    const char *right_kind = json_string_property(right, "kind");
+    if (!left_kind || !right_kind || strcmp(left_kind, right_kind) != 0)
+        return false;
+    if (strcmp(left_kind, "variable") == 0)
     {
-        json_object *object = NULL;
-        return json_object_object_get_ex(expr, "object", &object) &&
-            rust_resolved_stable_place(object);
+        const char *left_name = json_string_property(left, "name");
+        const char *right_name = json_string_property(right, "name");
+        return left_name && right_name && strcmp(left_name, right_name) == 0;
     }
-    if (strcmp(kind, "array_access") == 0)
+    if (strcmp(left_kind, "member") == 0)
     {
-        json_object *array = NULL, *index = NULL;
-        const char *index_kind = NULL;
-        return json_object_object_get_ex(expr, "array", &array) &&
-            json_object_object_get_ex(expr, "index", &index) &&
-            rust_resolved_stable_place(array) &&
-            (index_kind = json_string_property(index, "kind")) &&
-            (strcmp(index_kind, "literal") == 0 ||
-             rust_resolved_stable_place(index));
+        json_object *left_object = NULL, *right_object = NULL;
+        const char *left_member = json_string_property(left, "member_name");
+        const char *right_member = json_string_property(right, "member_name");
+        return left_member && right_member &&
+            strcmp(left_member, right_member) == 0 &&
+            json_object_object_get_ex(left, "object", &left_object) &&
+            json_object_object_get_ex(right, "object", &right_object) &&
+            rust_resolved_places_alias(left_object, right_object);
+    }
+    if (strcmp(left_kind, "array_access") == 0)
+    {
+        json_object *left_array = NULL, *right_array = NULL;
+        return json_object_object_get_ex(left, "array", &left_array) &&
+            json_object_object_get_ex(right, "array", &right_array) &&
+            rust_resolved_places_alias(left_array, right_array);
     }
     return false;
 }
@@ -653,6 +733,10 @@ static bool rust_validate_method_call(json_object *expr)
         json_object_array_length(args) != json_object_array_length(params))
         return rust_report_resolved_call_error(
             "encountered incomplete or inconsistent resolved method_call metadata");
+
+    if (json_boolean_property(method, "rust_mutating"))
+        json_object_object_add(expr, "rust_receiver_mutating",
+                               json_object_new_boolean(true));
 
     if (json_boolean_property(expr, "source_arg_before_object") &&
         (is_static || json_object_array_length(args) != 1))
@@ -733,7 +817,7 @@ static bool rust_validate_method_call(json_object *expr)
             return rust_report_resolved_call_error(
                 "encountered inconsistent resolved method_call borrow metadata");
         if (passes_by_ref && !json_boolean_property(arg, "is_borrow_tmp") &&
-            !rust_resolved_stable_place(arg))
+            !rust_call_stable_place(arg))
             return rust_report_resolved_call_error(
                 "requires resolved as-ref method arguments to be stable mutable places");
 
@@ -772,6 +856,22 @@ static bool rust_validate_method_call(json_object *expr)
             return rust_report_resolved_call_error(
                 "encountered an unsupported resolved method_call receiver expression");
         return false;
+    }
+
+    if (!rust_reject_shared_default_array_arguments(args)) return false;
+
+    if (!is_static)
+    {
+        for (size_t i = 0; i < arg_count; i++)
+        {
+            json_object *arg = json_object_array_get_idx(args, i);
+            json_object *param = json_object_array_get_idx(params, i);
+            if (json_string_property_equals(param, "mem_qual", "as_ref") &&
+                json_boolean_property(arg, "is_ref_arg") &&
+                rust_resolved_places_alias(object, arg))
+                return rust_report_resolved_call_error(
+                    "does not support aliased mutable resolved method_call operands yet");
+        }
     }
     return true;
 }

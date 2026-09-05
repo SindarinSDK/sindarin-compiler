@@ -27,13 +27,20 @@ checker has no representation-supported resolved unary-operator declarations
 and no arithmetic operator-overload declarations, so there is no additional
 unary or arithmetic resolved-call form for this target to render.
 
-Owned string and array arguments to ordinary direct, static, and instance
-calls are cloned when a stable source place must remain independently owned.
-Composite value-struct method arguments use the model's `is_ref_arg` or
-`is_borrow_tmp` decision. A borrow temporary is held for the whole call and is
-rendered as a mutable reference, matching the generated method signature.
-Resolved by-value string, array, and value-struct arguments similarly clone a
-stable place instead of moving it.
+Owned string arguments to ordinary direct, static, and instance calls are
+cloned when a stable source place must remain independently owned. Composite
+value-struct method arguments use the model's `is_ref_arg` or `is_borrow_tmp`
+decision. A borrow temporary is held for the whole call and is rendered as a
+mutable reference, matching the generated method signature. Resolved by-value
+string and value-struct arguments similarly clone a stable place instead of
+moving it.
+
+Default array parameters use shared pointer identity in C, while the current
+Rust representation is an owned `Vec`. Cloning hides mutations and moving a
+stable source place destroys its continued ownership. Calls from stable array
+places are therefore rejected precisely until arrays have a shared Rust
+representation; owned array temporaries remain supported when no source alias
+survives the call.
 
 ## Evaluation and lifetime contract
 
@@ -43,9 +50,10 @@ resolved as `b.op_lt(a)`, while the language still requires `a` before `b`.
 The model therefore records `source_arg_before_object`; both C and Rust hold
 the source-left argument before evaluating the resolved receiver. A second
 model bit distinguishes a stable receiver place from an owned receiver
-temporary. This preserves mutation targeting and gives owned temporaries the
-correct cleanup/drop scope. Generated Rust local names are allocated against
-all strings in the model to avoid capture by source identifiers.
+temporary. Nested receiver producers are stabilized inside that ordered call
+scope, after the source-left argument, so they run once and retain their normal
+cleanup/drop lifetime. Generated Rust local names are allocated against all
+strings in the model to avoid capture by source identifiers.
 
 The same ordering applies to target validation diagnostics: swapped-call
 children are validated argument-first, while normal instance calls remain
@@ -78,6 +86,13 @@ Native and pointer receivers, reference structs, packed structs, and
 closure-typed arguments/results remain separate representation work. These are
 targeted diagnostics, not fallback lowering paths. Closure validation,
 lowering, rendering, and support remain owned by the closure feature branch.
+
+Rust also rejects a resolved method receiver and mutable borrowed operand when
+their stable place paths are identical or are elements of the same array.
+Sindarin/C permits the operand to alias and observe mutation, but Rust cannot
+form the required overlapping references safely. Full parity requires a
+shared/interior-mutability value-struct representation; unsafe aliasing or a
+defensive clone would change the language contract.
 
 ## Regression evidence
 

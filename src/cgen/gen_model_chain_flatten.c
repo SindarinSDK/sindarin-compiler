@@ -567,12 +567,60 @@ static void flatten_expr(json_object *expr, json_object *inserts)
         if (json_object_object_get_ex(expr, "source_arg_before_object", &source_order))
             source_arg_before_object = json_object_get_boolean(source_order);
 
-        /* Swapped resolved comparisons retain their original left-to-right
-         * order in the model.  Leave the receiver inline for the method-call
-         * partial to evaluate after the source-first argument; lifting it to
-         * a preceding statement here would discard that ordering fact. */
-        if (!source_arg_before_object &&
+        if (source_arg_before_object &&
             json_object_object_get_ex(expr, "object", &object))
+        {
+            /* Keep receiver stabilization inside the ordered expression. The
+             * source-first argument is lifted before the containing statement,
+             * then these declarations evaluate the receiver exactly once. */
+            json_object *receiver_prefix = json_object_new_array();
+            flatten_expr(object, receiver_prefix);
+
+            if (needs_temp_extraction(object))
+            {
+                char tmp_name[64];
+                snprintf(tmp_name, sizeof(tmp_name), "__chain_tmp_%d",
+                         g_chain_tmp_count++);
+
+                json_object *obj_type = NULL;
+                json_object_object_get_ex(object, "type", &obj_type);
+
+                json_object *var_decl = json_object_new_object();
+                json_object_object_add(var_decl, "kind",
+                                       json_object_new_string("var_decl"));
+                json_object_object_add(var_decl, "name",
+                                       json_object_new_string(tmp_name));
+                if (obj_type)
+                    json_object_object_add(var_decl, "type",
+                                           json_object_get(obj_type));
+                json_object_object_add(var_decl, "initializer",
+                                       json_object_get(object));
+                annotate_chain_temp(var_decl, obj_type);
+                json_object_array_add(receiver_prefix, var_decl);
+
+                json_object *var_ref = json_object_new_object();
+                json_object_object_add(var_ref, "kind",
+                                       json_object_new_string("variable"));
+                json_object_object_add(var_ref, "name",
+                                       json_object_new_string(tmp_name));
+                if (obj_type)
+                    json_object_object_add(var_ref, "type",
+                                           json_object_get(obj_type));
+                json_object_object_del(expr, "object");
+                json_object_object_add(expr, "object", var_ref);
+                json_object_object_add(expr, "source_receiver_is_place",
+                                       json_object_new_boolean(true));
+                json_object_object_del(expr,
+                                       "source_receiver_needs_cleanup");
+            }
+
+            if (json_object_array_length(receiver_prefix) > 0)
+                json_object_object_add(expr, "source_receiver_prefix",
+                                       receiver_prefix);
+            else
+                json_object_put(receiver_prefix);
+        }
+        else if (json_object_object_get_ex(expr, "object", &object))
         {
             flatten_expr(object, inserts);
 

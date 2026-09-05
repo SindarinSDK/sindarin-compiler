@@ -1034,54 +1034,6 @@
           ]
         },
         {
-          "name": "countNumbers",
-          "return_type": {
-            "kind": "int"
-          },
-          "modifier": "default",
-          "is_static": true,
-          "is_native": false,
-          "has_arena_param": false,
-          "is_serializable_method": false,
-          "has_c_alias": false,
-          "params": [
-            {
-              "name": "values",
-              "type": {
-                "kind": "array",
-                "name": "arr",
-                "element_type": {
-                  "kind": "int"
-                }
-              },
-              "mem_qual": "default",
-              "sync_mod": "none"
-            }
-          ],
-          "body": [
-            {
-              "kind": "return",
-              "value": {
-                "type": {
-                  "kind": "int"
-                },
-                "kind": "builtin_length",
-                "object": {
-                  "type": {
-                    "kind": "array",
-                    "name": "arr",
-                    "element_type": {
-                      "kind": "int"
-                    }
-                  },
-                  "kind": "variable",
-                  "name": "values"
-                }
-              }
-            }
-          ]
-        },
-        {
           "name": "makeNumbers",
           "return_type": {
             "kind": "array",
@@ -1213,54 +1165,6 @@
                   }
                 ],
                 "part_count": 3
-              }
-            }
-          ]
-        },
-        {
-          "name": "countNumbersAgain",
-          "return_type": {
-            "kind": "int"
-          },
-          "modifier": "default",
-          "is_static": false,
-          "is_native": false,
-          "has_arena_param": false,
-          "is_serializable_method": false,
-          "has_c_alias": false,
-          "params": [
-            {
-              "name": "values",
-              "type": {
-                "kind": "array",
-                "name": "arr",
-                "element_type": {
-                  "kind": "int"
-                }
-              },
-              "mem_qual": "default",
-              "sync_mod": "none"
-            }
-          ],
-          "body": [
-            {
-              "kind": "return",
-              "value": {
-                "type": {
-                  "kind": "int"
-                },
-                "kind": "builtin_length",
-                "object": {
-                  "type": {
-                    "kind": "array",
-                    "name": "arr",
-                    "element_type": {
-                      "kind": "int"
-                    }
-                  },
-                  "kind": "variable",
-                  "name": "values"
-                }
               }
             }
           ]
@@ -1729,6 +1633,505 @@
                 }
               }
             ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "markedPoints",
+      "return_type": {
+        "kind": "array",
+        "name": "arr",
+        "element_type": {
+          "kind": "struct",
+          "name": "Point",
+          "is_native": false,
+          "is_packed": false,
+          "pass_self_by_ref": false,
+          "size": 16,
+          "alignment": 8,
+          "fields": [
+            {
+              "name": "value",
+              "type": {
+                "kind": "int"
+              },
+              "offset": 8
+            }
+          ]
+        }
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/resolved_calls.sn",
+      "params": [
+        {
+          "name": "calls",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "as_ref",
+          "sync_mod": "none"
+        },
+        {
+          "name": "order",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "as_ref",
+          "sync_mod": "none"
+        },
+        {
+          "name": "marker",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none"
+        },
+        {
+          "name": "value",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none"
+        }
+      ],
+      "body": [
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "increment",
+            "mutation_op": "add",
+            "mutation_place": "variable",
+            "mutation_storage": "parameter",
+            "mutation_sync": false,
+            "mutation_arithmetic_mode": "checked",
+            "mutation_rhs_first": true,
+            "operand": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "variable",
+              "name": "calls",
+              "is_captured": true,
+              "is_parameter": true,
+              "parameter_mem_qual": "as_ref"
+            }
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "assign",
+            "target": "order",
+            "value": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "binary",
+              "op": "add",
+              "left": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "binary",
+                "op": "multiply",
+                "left": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "variable",
+                  "name": "order",
+                  "is_captured": true
+                },
+                "right": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 10
+                },
+                "arithmetic_mode": "checked"
+              },
+              "right": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "variable",
+                "name": "marker"
+              },
+              "arithmetic_mode": "checked"
+            },
+            "is_captured": true,
+            "assign_cleanup": "none"
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "points",
+          "type": {
+            "kind": "array",
+            "name": "arr",
+            "element_type": {
+              "kind": "struct",
+              "name": "Point",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 16,
+              "alignment": 8,
+              "fields": [
+                {
+                  "name": "value",
+                  "type": {
+                    "kind": "int"
+                  },
+                  "offset": 8
+                }
+              ]
+            }
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "arr",
+          "initializer": {
+            "type": {
+              "kind": "array",
+              "name": "arr",
+              "element_type": {
+                "kind": "struct",
+                "name": "Point",
+                "is_native": false,
+                "is_packed": false,
+                "pass_self_by_ref": false,
+                "size": 16,
+                "alignment": 8,
+                "fields": [
+                  {
+                    "name": "value",
+                    "type": {
+                      "kind": "int"
+                    },
+                    "offset": 8
+                  }
+                ]
+              }
+            },
+            "kind": "array_literal",
+            "elements": []
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "call",
+            "callee": {
+              "type": {
+                "kind": "function",
+                "return_type": {
+                  "kind": "void"
+                },
+                "param_types": [
+                  {
+                    "kind": "struct",
+                    "name": "Point",
+                    "is_native": false,
+                    "is_packed": false,
+                    "pass_self_by_ref": false,
+                    "size": 16,
+                    "alignment": 8,
+                    "fields": [
+                      {
+                        "name": "value",
+                        "type": {
+                          "kind": "int"
+                        },
+                        "offset": 8
+                      }
+                    ]
+                  }
+                ],
+                "is_variadic": false,
+                "is_native": false,
+                "has_arena_param": false
+              },
+              "kind": "member",
+              "object": {
+                "type": {
+                  "kind": "array",
+                  "name": "arr",
+                  "element_type": {
+                    "kind": "struct",
+                    "name": "Point",
+                    "is_native": false,
+                    "is_packed": false,
+                    "pass_self_by_ref": false,
+                    "size": 16,
+                    "alignment": 8,
+                    "fields": [
+                      {
+                        "name": "value",
+                        "type": {
+                          "kind": "int"
+                        },
+                        "offset": 8
+                      }
+                    ]
+                  }
+                },
+                "kind": "variable",
+                "name": "points"
+              },
+              "member_name": "push"
+            },
+            "args": [
+              {
+                "type": {
+                  "kind": "struct",
+                  "name": "Point",
+                  "is_native": false,
+                  "is_packed": false,
+                  "pass_self_by_ref": false,
+                  "size": 16,
+                  "alignment": 8,
+                  "fields": [
+                    {
+                      "name": "value",
+                      "type": {
+                        "kind": "int"
+                      },
+                      "offset": 8
+                    }
+                  ]
+                },
+                "kind": "struct_literal",
+                "struct_name": "Point",
+                "fields": [
+                  {
+                    "name": "value",
+                    "value": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "variable",
+                      "name": "value"
+                    }
+                  }
+                ]
+              }
+            ],
+            "is_tail_call": false,
+            "is_closure_call": false,
+            "is_fn_field_call": false
+          }
+        },
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "array",
+              "name": "arr",
+              "element_type": {
+                "kind": "struct",
+                "name": "Point",
+                "is_native": false,
+                "is_packed": false,
+                "pass_self_by_ref": false,
+                "size": 16,
+                "alignment": 8,
+                "fields": [
+                  {
+                    "name": "value",
+                    "type": {
+                      "kind": "int"
+                    },
+                    "offset": 8
+                  }
+                ]
+              }
+            },
+            "kind": "variable",
+            "name": "points",
+            "escape_info": {
+              "escapes_scope": true,
+              "needs_heap": false
+            }
+          },
+          "is_ownership_transfer": true,
+          "transfer_kind": "null_ptr",
+          "transfer_var": "points",
+          "transfer_type": {
+            "kind": "array",
+            "name": "arr",
+            "element_type": {
+              "kind": "struct",
+              "name": "Point",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 16,
+              "alignment": 8,
+              "fields": [
+                {
+                  "name": "value",
+                  "type": {
+                    "kind": "int"
+                  },
+                  "offset": 8
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "markedIndex",
+      "return_type": {
+        "kind": "int"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/resolved_calls.sn",
+      "params": [
+        {
+          "name": "calls",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "as_ref",
+          "sync_mod": "none"
+        },
+        {
+          "name": "order",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "as_ref",
+          "sync_mod": "none"
+        },
+        {
+          "name": "marker",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none"
+        },
+        {
+          "name": "value",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none"
+        }
+      ],
+      "body": [
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "increment",
+            "mutation_op": "add",
+            "mutation_place": "variable",
+            "mutation_storage": "parameter",
+            "mutation_sync": false,
+            "mutation_arithmetic_mode": "checked",
+            "mutation_rhs_first": true,
+            "operand": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "variable",
+              "name": "calls",
+              "is_captured": true,
+              "is_parameter": true,
+              "parameter_mem_qual": "as_ref"
+            }
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "assign",
+            "target": "order",
+            "value": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "binary",
+              "op": "add",
+              "left": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "binary",
+                "op": "multiply",
+                "left": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "variable",
+                  "name": "order",
+                  "is_captured": true
+                },
+                "right": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 10
+                },
+                "arithmetic_mode": "checked"
+              },
+              "right": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "variable",
+                "name": "marker"
+              },
+              "arithmetic_mode": "checked"
+            },
+            "is_captured": true,
+            "assign_cleanup": "none"
+          }
+        },
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "variable",
+            "name": "value"
           }
         }
       ]
@@ -4862,6 +5265,731 @@
           }
         },
         {
+          "kind": "var_decl",
+          "name": "nestedReceiver",
+          "type": {
+            "kind": "bool"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "bool"
+            },
+            "kind": "method_call",
+            "object": {
+              "type": {
+                "kind": "struct",
+                "name": "Point",
+                "is_native": false,
+                "is_packed": false,
+                "pass_self_by_ref": false,
+                "size": 16,
+                "alignment": 8,
+                "fields": [
+                  {
+                    "name": "value",
+                    "type": {
+                      "kind": "int"
+                    },
+                    "offset": 8
+                  }
+                ]
+              },
+              "kind": "array_access",
+              "array": {
+                "type": {
+                  "kind": "array",
+                  "name": "arr",
+                  "element_type": {
+                    "kind": "struct",
+                    "name": "Point",
+                    "is_native": false,
+                    "is_packed": false,
+                    "pass_self_by_ref": false,
+                    "size": 16,
+                    "alignment": 8,
+                    "fields": [
+                      {
+                        "name": "value",
+                        "type": {
+                          "kind": "int"
+                        },
+                        "offset": 8
+                      }
+                    ]
+                  }
+                },
+                "kind": "call",
+                "callee": {
+                  "type": {
+                    "kind": "function",
+                    "return_type": {
+                      "kind": "array",
+                      "name": "arr",
+                      "element_type": {
+                        "kind": "struct",
+                        "name": "Point",
+                        "is_native": false,
+                        "is_packed": false,
+                        "pass_self_by_ref": false,
+                        "size": 16,
+                        "alignment": 8,
+                        "fields": [
+                          {
+                            "name": "value",
+                            "type": {
+                              "kind": "int"
+                            },
+                            "offset": 8
+                          }
+                        ]
+                      }
+                    },
+                    "param_types": [
+                      {
+                        "kind": "int"
+                      },
+                      {
+                        "kind": "int"
+                      },
+                      {
+                        "kind": "int"
+                      },
+                      {
+                        "kind": "int"
+                      }
+                    ],
+                    "param_mem_quals": [
+                      "as_ref",
+                      "as_ref",
+                      "default",
+                      "default"
+                    ],
+                    "is_variadic": false,
+                    "is_native": false,
+                    "has_arena_param": false
+                  },
+                  "kind": "variable",
+                  "name": "markedPoints"
+                },
+                "args": [
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "variable",
+                    "name": "calls",
+                    "is_ref_arg": true
+                  },
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "variable",
+                    "name": "order",
+                    "is_ref_arg": true
+                  },
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "literal",
+                    "value_kind": "int",
+                    "value": 8
+                  },
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "literal",
+                    "value_kind": "int",
+                    "value": 8
+                  }
+                ],
+                "is_tail_call": false,
+                "is_closure_call": false,
+                "is_fn_field_call": false
+              },
+              "index": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "call",
+                "callee": {
+                  "type": {
+                    "kind": "function",
+                    "return_type": {
+                      "kind": "int"
+                    },
+                    "param_types": [
+                      {
+                        "kind": "int"
+                      },
+                      {
+                        "kind": "int"
+                      },
+                      {
+                        "kind": "int"
+                      },
+                      {
+                        "kind": "int"
+                      }
+                    ],
+                    "param_mem_quals": [
+                      "as_ref",
+                      "as_ref",
+                      "default",
+                      "default"
+                    ],
+                    "is_variadic": false,
+                    "is_native": false,
+                    "has_arena_param": false
+                  },
+                  "kind": "variable",
+                  "name": "markedIndex"
+                },
+                "args": [
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "variable",
+                    "name": "calls",
+                    "is_ref_arg": true
+                  },
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "variable",
+                    "name": "order",
+                    "is_ref_arg": true
+                  },
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "literal",
+                    "value_kind": "int",
+                    "value": 9
+                  },
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "literal",
+                    "value_kind": "int",
+                    "value": 0
+                  }
+                ],
+                "is_tail_call": false,
+                "is_closure_call": false,
+                "is_fn_field_call": false
+              }
+            },
+            "method_name": "op_lt",
+            "is_static": false,
+            "source_arg_before_object": true,
+            "source_receiver_is_place": true,
+            "struct_type": {
+              "kind": "struct",
+              "name": "Point",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 16,
+              "alignment": 8,
+              "fields": [
+                {
+                  "name": "value",
+                  "type": {
+                    "kind": "int"
+                  },
+                  "offset": 8
+                }
+              ]
+            },
+            "args": [
+              {
+                "type": {
+                  "kind": "struct",
+                  "name": "Point",
+                  "is_native": false,
+                  "is_packed": false,
+                  "pass_self_by_ref": false,
+                  "size": 16,
+                  "alignment": 8,
+                  "fields": [
+                    {
+                      "name": "value",
+                      "type": {
+                        "kind": "int"
+                      },
+                      "offset": 8
+                    }
+                  ]
+                },
+                "kind": "call",
+                "callee": {
+                  "type": {
+                    "kind": "function",
+                    "return_type": {
+                      "kind": "struct",
+                      "name": "Point",
+                      "is_native": false,
+                      "is_packed": false,
+                      "pass_self_by_ref": false,
+                      "size": 16,
+                      "alignment": 8,
+                      "fields": [
+                        {
+                          "name": "value",
+                          "type": {
+                            "kind": "int"
+                          },
+                          "offset": 8
+                        }
+                      ]
+                    },
+                    "param_types": [
+                      {
+                        "kind": "int"
+                      },
+                      {
+                        "kind": "int"
+                      },
+                      {
+                        "kind": "int"
+                      },
+                      {
+                        "kind": "int"
+                      }
+                    ],
+                    "param_mem_quals": [
+                      "as_ref",
+                      "as_ref",
+                      "default",
+                      "default"
+                    ],
+                    "is_variadic": false,
+                    "is_native": false,
+                    "has_arena_param": false
+                  },
+                  "kind": "variable",
+                  "name": "markedPoint"
+                },
+                "args": [
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "variable",
+                    "name": "calls",
+                    "is_ref_arg": true
+                  },
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "variable",
+                    "name": "order",
+                    "is_ref_arg": true
+                  },
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "literal",
+                    "value_kind": "int",
+                    "value": 7
+                  },
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "literal",
+                    "value_kind": "int",
+                    "value": 7
+                  }
+                ],
+                "is_tail_call": false,
+                "is_closure_call": false,
+                "is_fn_field_call": false
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "negativeNestedReceiver",
+          "type": {
+            "kind": "bool"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "bool"
+            },
+            "kind": "method_call",
+            "object": {
+              "type": {
+                "kind": "struct",
+                "name": "Point",
+                "is_native": false,
+                "is_packed": false,
+                "pass_self_by_ref": false,
+                "size": 16,
+                "alignment": 8,
+                "fields": [
+                  {
+                    "name": "value",
+                    "type": {
+                      "kind": "int"
+                    },
+                    "offset": 8
+                  }
+                ]
+              },
+              "kind": "array_access",
+              "array": {
+                "type": {
+                  "kind": "array",
+                  "name": "arr",
+                  "element_type": {
+                    "kind": "struct",
+                    "name": "Point",
+                    "is_native": false,
+                    "is_packed": false,
+                    "pass_self_by_ref": false,
+                    "size": 16,
+                    "alignment": 8,
+                    "fields": [
+                      {
+                        "name": "value",
+                        "type": {
+                          "kind": "int"
+                        },
+                        "offset": 8
+                      }
+                    ]
+                  }
+                },
+                "kind": "call",
+                "callee": {
+                  "type": {
+                    "kind": "function",
+                    "return_type": {
+                      "kind": "array",
+                      "name": "arr",
+                      "element_type": {
+                        "kind": "struct",
+                        "name": "Point",
+                        "is_native": false,
+                        "is_packed": false,
+                        "pass_self_by_ref": false,
+                        "size": 16,
+                        "alignment": 8,
+                        "fields": [
+                          {
+                            "name": "value",
+                            "type": {
+                              "kind": "int"
+                            },
+                            "offset": 8
+                          }
+                        ]
+                      }
+                    },
+                    "param_types": [
+                      {
+                        "kind": "int"
+                      },
+                      {
+                        "kind": "int"
+                      },
+                      {
+                        "kind": "int"
+                      },
+                      {
+                        "kind": "int"
+                      }
+                    ],
+                    "param_mem_quals": [
+                      "as_ref",
+                      "as_ref",
+                      "default",
+                      "default"
+                    ],
+                    "is_variadic": false,
+                    "is_native": false,
+                    "has_arena_param": false
+                  },
+                  "kind": "variable",
+                  "name": "markedPoints"
+                },
+                "args": [
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "variable",
+                    "name": "calls",
+                    "is_ref_arg": true
+                  },
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "variable",
+                    "name": "order",
+                    "is_ref_arg": true
+                  },
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "literal",
+                    "value_kind": "int",
+                    "value": 2
+                  },
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "literal",
+                    "value_kind": "int",
+                    "value": 10
+                  }
+                ],
+                "is_tail_call": false,
+                "is_closure_call": false,
+                "is_fn_field_call": false
+              },
+              "index": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "call",
+                "callee": {
+                  "type": {
+                    "kind": "function",
+                    "return_type": {
+                      "kind": "int"
+                    },
+                    "param_types": [
+                      {
+                        "kind": "int"
+                      },
+                      {
+                        "kind": "int"
+                      },
+                      {
+                        "kind": "int"
+                      },
+                      {
+                        "kind": "int"
+                      }
+                    ],
+                    "param_mem_quals": [
+                      "as_ref",
+                      "as_ref",
+                      "default",
+                      "default"
+                    ],
+                    "is_variadic": false,
+                    "is_native": false,
+                    "has_arena_param": false
+                  },
+                  "kind": "variable",
+                  "name": "markedIndex"
+                },
+                "args": [
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "variable",
+                    "name": "calls",
+                    "is_ref_arg": true
+                  },
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "variable",
+                    "name": "order",
+                    "is_ref_arg": true
+                  },
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "literal",
+                    "value_kind": "int",
+                    "value": 3
+                  },
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "unary",
+                    "op": "negate",
+                    "operand": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "literal",
+                      "value_kind": "int",
+                      "value": 1
+                    }
+                  }
+                ],
+                "is_tail_call": false,
+                "is_closure_call": false,
+                "is_fn_field_call": false
+              }
+            },
+            "method_name": "op_lt",
+            "is_static": false,
+            "source_arg_before_object": true,
+            "source_receiver_is_place": true,
+            "struct_type": {
+              "kind": "struct",
+              "name": "Point",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 16,
+              "alignment": 8,
+              "fields": [
+                {
+                  "name": "value",
+                  "type": {
+                    "kind": "int"
+                  },
+                  "offset": 8
+                }
+              ]
+            },
+            "args": [
+              {
+                "type": {
+                  "kind": "struct",
+                  "name": "Point",
+                  "is_native": false,
+                  "is_packed": false,
+                  "pass_self_by_ref": false,
+                  "size": 16,
+                  "alignment": 8,
+                  "fields": [
+                    {
+                      "name": "value",
+                      "type": {
+                        "kind": "int"
+                      },
+                      "offset": 8
+                    }
+                  ]
+                },
+                "kind": "call",
+                "callee": {
+                  "type": {
+                    "kind": "function",
+                    "return_type": {
+                      "kind": "struct",
+                      "name": "Point",
+                      "is_native": false,
+                      "is_packed": false,
+                      "pass_self_by_ref": false,
+                      "size": 16,
+                      "alignment": 8,
+                      "fields": [
+                        {
+                          "name": "value",
+                          "type": {
+                            "kind": "int"
+                          },
+                          "offset": 8
+                        }
+                      ]
+                    },
+                    "param_types": [
+                      {
+                        "kind": "int"
+                      },
+                      {
+                        "kind": "int"
+                      },
+                      {
+                        "kind": "int"
+                      },
+                      {
+                        "kind": "int"
+                      }
+                    ],
+                    "param_mem_quals": [
+                      "as_ref",
+                      "as_ref",
+                      "default",
+                      "default"
+                    ],
+                    "is_variadic": false,
+                    "is_native": false,
+                    "has_arena_param": false
+                  },
+                  "kind": "variable",
+                  "name": "markedPoint"
+                },
+                "args": [
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "variable",
+                    "name": "calls",
+                    "is_ref_arg": true
+                  },
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "variable",
+                    "name": "order",
+                    "is_ref_arg": true
+                  },
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "literal",
+                    "value_kind": "int",
+                    "value": 1
+                  },
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "literal",
+                    "value_kind": "int",
+                    "value": 9
+                  }
+                ],
+                "is_tail_call": false,
+                "is_closure_call": false,
+                "is_fn_field_call": false
+              }
+            ]
+          }
+        },
+        {
           "kind": "expr",
           "expr": {
             "type": {
@@ -4965,50 +6093,6 @@
             "value": "source"
           },
           "source_is_borrow": true
-        },
-        {
-          "kind": "var_decl",
-          "name": "sourceNumbers",
-          "type": {
-            "kind": "array",
-            "name": "arr",
-            "element_type": {
-              "kind": "int"
-            }
-          },
-          "mem_qual": "default",
-          "sync_mod": "none",
-          "is_static": false,
-          "needs_cleanup": true,
-          "cleanup_kind": "arr",
-          "initializer": {
-            "type": {
-              "kind": "array",
-              "name": "arr",
-              "element_type": {
-                "kind": "int"
-              }
-            },
-            "kind": "array_literal",
-            "elements": [
-              {
-                "type": {
-                  "kind": "int"
-                },
-                "kind": "literal",
-                "value_kind": "int",
-                "value": 1
-              },
-              {
-                "type": {
-                  "kind": "int"
-                },
-                "kind": "literal",
-                "value_kind": "int",
-                "value": 2
-              }
-            ]
-          }
         },
         {
           "kind": "var_decl",
@@ -5188,119 +6272,6 @@
                 },
                 "kind": "variable",
                 "name": "sourceLabel"
-              }
-            ],
-            "is_tail_call": false,
-            "is_closure_call": false,
-            "is_fn_field_call": false
-          }
-        },
-        {
-          "kind": "var_decl",
-          "name": "staticCount",
-          "type": {
-            "kind": "int"
-          },
-          "mem_qual": "default",
-          "sync_mod": "none",
-          "is_static": false,
-          "needs_cleanup": false,
-          "cleanup_kind": "none",
-          "initializer": {
-            "type": {
-              "kind": "int"
-            },
-            "kind": "static_call",
-            "type_name": "CallValues",
-            "method_name": "countNumbers",
-            "args": [
-              {
-                "type": {
-                  "kind": "array",
-                  "name": "arr",
-                  "element_type": {
-                    "kind": "int"
-                  }
-                },
-                "kind": "variable",
-                "name": "sourceNumbers"
-              }
-            ]
-          }
-        },
-        {
-          "kind": "var_decl",
-          "name": "instanceCount",
-          "type": {
-            "kind": "int"
-          },
-          "mem_qual": "default",
-          "sync_mod": "none",
-          "is_static": false,
-          "needs_cleanup": false,
-          "cleanup_kind": "none",
-          "initializer": {
-            "type": {
-              "kind": "int"
-            },
-            "kind": "call",
-            "callee": {
-              "type": {
-                "kind": "function",
-                "return_type": {
-                  "kind": "int"
-                },
-                "param_types": [
-                  {
-                    "kind": "array",
-                    "name": "arr",
-                    "element_type": {
-                      "kind": "int"
-                    }
-                  }
-                ],
-                "is_variadic": false,
-                "is_native": false,
-                "has_arena_param": false
-              },
-              "kind": "member",
-              "object": {
-                "type": {
-                  "kind": "struct",
-                  "name": "CallValues",
-                  "is_native": false,
-                  "is_packed": false,
-                  "pass_self_by_ref": false,
-                  "size": 16,
-                  "alignment": 8,
-                  "fields": [
-                    {
-                      "name": "label",
-                      "type": {
-                        "kind": "string"
-                      },
-                      "offset": 8
-                    }
-                  ]
-                },
-                "kind": "variable",
-                "name": "callValues"
-              },
-              "member_name": "countNumbersAgain",
-              "has_c_alias": true,
-              "c_alias": "__sn__CallValues_countNumbersAgain"
-            },
-            "args": [
-              {
-                "type": {
-                  "kind": "array",
-                  "name": "arr",
-                  "element_type": {
-                    "kind": "int"
-                  }
-                },
-                "kind": "variable",
-                "name": "sourceNumbers"
               }
             ],
             "is_tail_call": false,
@@ -5625,6 +6596,34 @@
                     "kind": "expr",
                     "expr": {
                       "type": {
+                        "kind": "bool"
+                      },
+                      "kind": "variable",
+                      "name": "nestedReceiver"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": "|"
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "bool"
+                      },
+                      "kind": "variable",
+                      "name": "negativeNestedReceiver"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": "|"
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
                         "kind": "int"
                       },
                       "kind": "variable",
@@ -5675,7 +6674,7 @@
                     }
                   }
                 ],
-                "part_count": 13
+                "part_count": 17
               }
             ]
           }
@@ -5959,58 +6958,6 @@
                           }
                         },
                         "kind": "variable",
-                        "name": "sourceNumbers"
-                      }
-                    }
-                  },
-                  {
-                    "kind": "text",
-                    "value": "|"
-                  },
-                  {
-                    "kind": "expr",
-                    "expr": {
-                      "type": {
-                        "kind": "int"
-                      },
-                      "kind": "variable",
-                      "name": "staticCount"
-                    }
-                  },
-                  {
-                    "kind": "text",
-                    "value": "|"
-                  },
-                  {
-                    "kind": "expr",
-                    "expr": {
-                      "type": {
-                        "kind": "int"
-                      },
-                      "kind": "variable",
-                      "name": "instanceCount"
-                    }
-                  },
-                  {
-                    "kind": "text",
-                    "value": "|"
-                  },
-                  {
-                    "kind": "expr",
-                    "expr": {
-                      "type": {
-                        "kind": "int"
-                      },
-                      "kind": "builtin_length",
-                      "object": {
-                        "type": {
-                          "kind": "array",
-                          "name": "arr",
-                          "element_type": {
-                            "kind": "int"
-                          }
-                        },
-                        "kind": "variable",
                         "name": "staticNumbers"
                       }
                     }
@@ -6040,7 +6987,7 @@
                     }
                   }
                 ],
-                "part_count": 9
+                "part_count": 3
               }
             ]
           }

@@ -264,6 +264,8 @@ static inline char *__sn__CallValues_to_string(const __sn__CallValues *p) {
 
 __sn__Point __sn__markedPoint(long long *, long long *, long long, long long);
 __sn__OwnedPoint __sn__markedOwnedPoint(long long *, long long *, long long, long long);
+SnArray * __sn__markedPoints(long long *, long long *, long long, long long);
+long long __sn__markedIndex(long long *, long long *, long long, long long);
 bool __sn__acceptBool(bool);
 bool __sn__returnedComparison(__sn__Point, __sn__Point);
 bool __sn__Point_op_eq(__sn__Point *, __sn__Point);
@@ -273,10 +275,8 @@ bool __sn__OwnedPoint_op_eq(__sn__OwnedPoint *, __sn__OwnedPoint *);
 bool __sn__OwnedPoint_op_lt(__sn__OwnedPoint *, __sn__OwnedPoint *);
 bool __sn__CallValues_labelMatches(char *);
 char * __sn__CallValues_makeLabel();
-long long __sn__CallValues_countNumbers(SnArray *);
 SnArray * __sn__CallValues_makeNumbers();
 char * __sn__CallValues_joinLabel(__sn__CallValues *, char *);
-long long __sn__CallValues_countNumbersAgain(__sn__CallValues *, SnArray *);
 SnArray * __sn__CallValues_makeNumbersAgain(__sn__CallValues *);
 typedef struct __Closure__ {
     void *fn;
@@ -329,6 +329,52 @@ __sn__OwnedPoint __sn__markedOwnedPoint(long long *__sn__calls, long long *__sn_
          }) };}
 
 
+SnArray * __sn__markedPoints(long long *__sn__calls, long long *__sn__order, long long __sn__marker, long long __sn__value) {
+
+    ({
+        long long *__sn_place__ = &((*__sn__calls));
+        long long __sn_previous__ = *__sn_place__;
+        *__sn_place__ = sn_add_long(__sn_previous__, 1);
+        __sn_previous__;
+    });
+    
+
+    (*__sn__order = sn_add_long(sn_mul_long((*__sn__order), 10LL), __sn__marker));
+    
+
+    sn_auto_arr SnArray * __sn__points = ({
+            SnArray *__al__ = sn_array_new(sizeof(__sn__Point), 0);
+            __al__->elem_tag = SN_TAG_STRUCT;
+    
+            __al__;
+        });
+
+    __sn__arr_push(&__sn__points, (__sn__Point){ .__sn__value = __sn__value });
+    
+
+    {
+        SnArray * __ret__ = __sn__points;
+        __sn__points = NULL;
+        return __ret__;
+    }}
+
+
+long long __sn__markedIndex(long long *__sn__calls, long long *__sn__order, long long __sn__marker, long long __sn__value) {
+
+    ({
+        long long *__sn_place__ = &((*__sn__calls));
+        long long __sn_previous__ = *__sn_place__;
+        *__sn_place__ = sn_add_long(__sn_previous__, 1);
+        __sn_previous__;
+    });
+    
+
+    (*__sn__order = sn_add_long(sn_mul_long((*__sn__order), 10LL), __sn__marker));
+    
+
+    return __sn__value;}
+
+
 bool __sn__acceptBool(bool __sn__value) {
 
     return __sn__value;}
@@ -374,10 +420,6 @@ char * __sn__CallValues_makeLabel() {
              sn_str_concat_multi(1, __is_p0__);
          });}
 
-long long __sn__CallValues_countNumbers(SnArray * __sn__values) {
-
-    return sn_array_length(__sn__values);}
-
 SnArray * __sn__CallValues_makeNumbers() {
 
     return ({
@@ -399,10 +441,6 @@ char * __sn__CallValues_joinLabel(__sn__CallValues *__sn__self, char * __sn__val
              sn_auto_str char *__is_p2__ = sn_strdup(__sn__value);
              sn_str_concat_multi(3, __is_p0__, __is_p1__, __is_p2__);
          });}
-
-long long __sn__CallValues_countNumbersAgain(__sn__CallValues *__sn__self, SnArray * __sn__values) {
-
-    return sn_array_length(__sn__values);}
 
 SnArray * __sn__CallValues_makeNumbersAgain(__sn__CallValues *__sn__self) {
 
@@ -461,7 +499,8 @@ int main() {
     long long __sn____sn_resolved_receiver_0 = 2LL;
     sn_auto_Point __sn__Point __sn____chain_tmp_1 = __sn__markedPoint(&__sn__calls, &__sn__order, 1LL, 1LL);
     bool __sn__directOrder = __sn__Point_op_lt(&__sn____chain_tmp_1, __sn__markedPoint(&__sn__calls, &__sn__order, 2LL, 2LL));
-    bool __sn__swappedOrder = ({ __sn__Point __sn_resolved_source_arg__ = __sn__markedPoint(&__sn__calls, &__sn__order, 3LL, 3LL); __sn__Point __sn_resolved_source_receiver__ = __sn__markedPoint(&__sn__calls, &__sn__order, 4LL, 4LL); __sn__Point_op_lt(&__sn_resolved_source_receiver__, __sn_resolved_source_arg__); });
+    bool __sn__swappedOrder = ({ __sn__Point __sn_resolved_source_arg__ = __sn__markedPoint(&__sn__calls, &__sn__order, 3LL, 3LL); sn_auto_Point __sn__Point __sn____chain_tmp_2 = __sn__markedPoint(&__sn__calls, &__sn__order, 4LL, 4LL);
+    __sn__Point *__sn_resolved_source_receiver__ = &__sn____chain_tmp_2; __sn__Point_op_lt(__sn_resolved_source_receiver__, __sn_resolved_source_arg__); });
     sn_auto_OwnedPoint __sn__OwnedPoint __sn__ownedLeft = (__sn__OwnedPoint){ .__sn__label = strdup("owned"), .__sn__values = ({
             SnArray *__al__ = sn_array_new(sizeof(long long), 2);
             __al__->elem_tag = SN_TAG_INT;
@@ -474,26 +513,19 @@ int main() {
         }) };
     sn_auto_OwnedPoint __sn__OwnedPoint __sn__ownedSame = __sn__OwnedPoint_copy(&__sn__ownedLeft);
     bool __sn__ownedEqual = __sn__OwnedPoint_op_eq(&__sn__ownedLeft, &__sn__ownedSame);
-    bool __sn__ownedSwapped = ({ sn_auto_OwnedPoint __sn__OwnedPoint __sn_resolved_source_arg__ = __sn__markedOwnedPoint(&__sn__calls, &__sn__order, 5LL, 5LL); sn_auto_OwnedPoint __sn__OwnedPoint __sn_resolved_source_receiver__ = __sn__markedOwnedPoint(&__sn__calls, &__sn__order, 6LL, 6LL); __sn__OwnedPoint_op_lt(&__sn_resolved_source_receiver__, &__sn_resolved_source_arg__); });
+    bool __sn__ownedSwapped = ({ sn_auto_OwnedPoint __sn__OwnedPoint __sn_resolved_source_arg__ = __sn__markedOwnedPoint(&__sn__calls, &__sn__order, 5LL, 5LL); sn_auto_OwnedPoint __sn__OwnedPoint __sn____chain_tmp_3 = __sn__markedOwnedPoint(&__sn__calls, &__sn__order, 6LL, 6LL);
+    __sn__OwnedPoint *__sn_resolved_source_receiver__ = &__sn____chain_tmp_3; __sn__OwnedPoint_op_lt(__sn_resolved_source_receiver__, &__sn_resolved_source_arg__); });
+    bool __sn__nestedReceiver = ({ __sn__Point __sn_resolved_source_arg__ = __sn__markedPoint(&__sn__calls, &__sn__order, 7LL, 7LL); sn_auto_arr SnArray * __sn____chain_tmp_4 = __sn__markedPoints(&__sn__calls, &__sn__order, 8LL, 8LL);
+    __sn__Point *__sn_resolved_source_receiver__ = &(((__sn__Point *)__sn____chain_tmp_4->data)[({ long long __ai__ = __sn__markedIndex(&__sn__calls, &__sn__order, 9LL, 0LL); __ai__ < 0 ? __ai__ + __sn____chain_tmp_4->len : __ai__; })]); __sn__Point_op_lt(__sn_resolved_source_receiver__, __sn_resolved_source_arg__); });
+    bool __sn__negativeNestedReceiver = ({ __sn__Point __sn_resolved_source_arg__ = __sn__markedPoint(&__sn__calls, &__sn__order, 1LL, 9LL); sn_auto_arr SnArray * __sn____chain_tmp_5 = __sn__markedPoints(&__sn__calls, &__sn__order, 2LL, 10LL);
+    __sn__Point *__sn_resolved_source_receiver__ = &(((__sn__Point *)__sn____chain_tmp_5->data)[({ long long __ai__ = __sn__markedIndex(&__sn__calls, &__sn__order, 3LL, (-1LL)); __ai__ < 0 ? __ai__ + __sn____chain_tmp_5->len : __ai__; })]); __sn__Point_op_lt(__sn_resolved_source_receiver__, __sn_resolved_source_arg__); });
     __sn__arr_push(&__sn__ownedSame.__sn__values, 7LL);
     
     sn_auto_str char * __sn__sourceLabel = strdup("source");
-    sn_auto_arr SnArray * __sn__sourceNumbers = ({
-            SnArray *__al__ = sn_array_new(sizeof(long long), 2);
-            __al__->elem_tag = SN_TAG_INT;
-    
-    
-            sn_array_push(__al__, &(long long){ 1LL });
-    
-            sn_array_push(__al__, &(long long){ 2LL });
-            __al__;
-        });
     sn_auto_CallValues __sn__CallValues __sn__callValues = (__sn__CallValues){ .__sn__label = strdup("prefix") };
     bool __sn__staticMatch = __sn__CallValues_labelMatches(__sn__sourceLabel);
     sn_auto_str char * __sn__staticLabel = __sn__CallValues_makeLabel();
     sn_auto_str char * __sn__instanceLabel = __sn__CallValues_joinLabel(&__sn__callValues, __sn__sourceLabel);
-    long long __sn__staticCount = __sn__CallValues_countNumbers(__sn__sourceNumbers);
-    long long __sn__instanceCount = __sn__CallValues_countNumbersAgain(&__sn__callValues, __sn__sourceNumbers);
     sn_auto_arr SnArray * __sn__staticNumbers = __sn__CallValues_makeNumbers();
     sn_auto_arr SnArray * __sn__instanceNumbers = __sn__CallValues_makeNumbersAgain(&__sn__callValues);
     { sn_auto_str char *__ps__ = ({
@@ -526,12 +558,16 @@ int main() {
             sn_auto_str char *__is_p5__ = sn_strdup("|");
             sn_auto_str char *__is_p6__ = sn_strdup((__sn__ownedSwapped) ? "true" : "false");
             sn_auto_str char *__is_p7__ = sn_strdup("|");
-            sn_auto_str char *__is_p8__ = sn_str_fmt("%lld", (long long)(__sn__calls));
+            sn_auto_str char *__is_p8__ = sn_strdup((__sn__nestedReceiver) ? "true" : "false");
             sn_auto_str char *__is_p9__ = sn_strdup("|");
-            sn_auto_str char *__is_p10__ = sn_str_fmt("%lld", (long long)(__sn__order));
+            sn_auto_str char *__is_p10__ = sn_strdup((__sn__negativeNestedReceiver) ? "true" : "false");
             sn_auto_str char *__is_p11__ = sn_strdup("|");
-            sn_auto_str char *__is_p12__ = sn_str_fmt("%lld", (long long)(sn_add_long(__sn____sn_resolved_arg_0, __sn____sn_resolved_receiver_0)));
-            sn_str_concat_multi(13, __is_p0__, __is_p1__, __is_p2__, __is_p3__, __is_p4__, __is_p5__, __is_p6__, __is_p7__, __is_p8__, __is_p9__, __is_p10__, __is_p11__, __is_p12__);
+            sn_auto_str char *__is_p12__ = sn_str_fmt("%lld", (long long)(__sn__calls));
+            sn_auto_str char *__is_p13__ = sn_strdup("|");
+            sn_auto_str char *__is_p14__ = sn_str_fmt("%lld", (long long)(__sn__order));
+            sn_auto_str char *__is_p15__ = sn_strdup("|");
+            sn_auto_str char *__is_p16__ = sn_str_fmt("%lld", (long long)(sn_add_long(__sn____sn_resolved_arg_0, __sn____sn_resolved_receiver_0)));
+            sn_str_concat_multi(17, __is_p0__, __is_p1__, __is_p2__, __is_p3__, __is_p4__, __is_p5__, __is_p6__, __is_p7__, __is_p8__, __is_p9__, __is_p10__, __is_p11__, __is_p12__, __is_p13__, __is_p14__, __is_p15__, __is_p16__);
         }); sn_println(__ps__); };
     
     { sn_auto_str char *__ps__ = ({
@@ -555,16 +591,10 @@ int main() {
         }); sn_println(__ps__); };
     
     { sn_auto_str char *__ps__ = ({
-            sn_auto_str char *__is_p0__ = sn_str_fmt("%lld", (long long)(sn_array_length(__sn__sourceNumbers)));
+            sn_auto_str char *__is_p0__ = sn_str_fmt("%lld", (long long)(sn_array_length(__sn__staticNumbers)));
             sn_auto_str char *__is_p1__ = sn_strdup("|");
-            sn_auto_str char *__is_p2__ = sn_str_fmt("%lld", (long long)(__sn__staticCount));
-            sn_auto_str char *__is_p3__ = sn_strdup("|");
-            sn_auto_str char *__is_p4__ = sn_str_fmt("%lld", (long long)(__sn__instanceCount));
-            sn_auto_str char *__is_p5__ = sn_strdup("|");
-            sn_auto_str char *__is_p6__ = sn_str_fmt("%lld", (long long)(sn_array_length(__sn__staticNumbers)));
-            sn_auto_str char *__is_p7__ = sn_strdup("|");
-            sn_auto_str char *__is_p8__ = sn_str_fmt("%lld", (long long)(sn_array_length(__sn__instanceNumbers)));
-            sn_str_concat_multi(9, __is_p0__, __is_p1__, __is_p2__, __is_p3__, __is_p4__, __is_p5__, __is_p6__, __is_p7__, __is_p8__);
+            sn_auto_str char *__is_p2__ = sn_str_fmt("%lld", (long long)(sn_array_length(__sn__instanceNumbers)));
+            sn_str_concat_multi(3, __is_p0__, __is_p1__, __is_p2__);
         }); sn_println(__ps__); };
     
     fflush(stdout);
