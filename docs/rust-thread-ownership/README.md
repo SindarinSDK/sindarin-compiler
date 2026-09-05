@@ -130,3 +130,26 @@ a focused extension; the earlier 18-case and suite evidence retains its own
 compiler identity and is not relabeled as a full rerun. Exact fresh provenance
 and results are in `array-alias-verification.json`. The Rust leg again used a
 nonexistent C compiler. No C source, fixture, harness or oracle was changed.
+
+## Foundation/main restack and evidence repair
+
+The composition includes corrected foundation
+`6b39ef6d8f992f9ae63e29d7a7711176687e18f3` and main
+`3ed3eacd30e6a17ad5895a15718138a22f1dace3`. Native routing, nested-array
+closure operations, thread-owned capture representation, and mutex behavior are
+composed privately. The earlier records above remain historical; the replaced
+`array-alias-verification.json` is authoritative for the two exact alias sources.
+It supersedes the obsolete source/compiler hashes, which are preserved off-branch
+at `/tmp/sn-ownership-restack-evidence/superseded-array-alias-verification.json`.
+
+The harness accepts canonical `repository.worktree` and the recorded Spark1 v1
+`cwd` layout, records the reference file hash/layout, and refuses a feature source
+whose bytes differ from its committed Git blob. Fresh smoke plus the two exact
+alias probes passed at O0. Their hashes are
+`c7b0599ad195436f5098dc8ecfeee92df287234e1ae6cf53ca8ecfd3a2e6412f` and
+`f8144324760527680a2fc395e977c20f6e7ce710184794b7a9d222a1ece805c0`.
+Three affected scalar-reference probes also have fresh raw O0 matches. No broad
+corpus was rerun. `restack-verification.json` records those results and Rust gate
+counts (8+7+1 concurrency, 29+1 closures). Five Rust-only generation goldens now
+include the existing capture helper and typed operands; source/runtime oracles
+are unchanged. All unestablished ownership boundaries above remain required work.

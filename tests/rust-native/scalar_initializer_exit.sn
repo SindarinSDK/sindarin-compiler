@@ -1,0 +1,15 @@
+fn initialValue(): int =>
+  exit(7)
+  return 40
+
+var helperSeed: int = initialValue()
+
+fn helper(value: int): int =>
+  return value + helperSeed
+
+native fn throughNative(value: int): int =>
+  return helper(value)
+
+fn main(): void =>
+  println("body-observed-before-first-native-call")
+  println(throughNative(2))

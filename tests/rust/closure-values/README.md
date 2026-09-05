@@ -16,3 +16,11 @@ Owned array cases preserve the tagged distinction between independent mutable
 `array_copy` snapshots and `is_ref` array reassignment slots. Direct captured
 index assignment remains in the tagged rejection corpus because its unchanged
 C control does not produce an executable.
+
+Nested array receiver cases keep the cell on the captured outer array, evaluate
+the receiver index and pushed value once, and release each mutable borrow before
+the closure can be called again. Captured `pop` uses the same callable-owned
+storage for direct and nested receivers.
+
+Expression-bodied `void` closures discard their body value. The mutation-tail
+case covers both compound assignment and postfix increment of a captured cell.

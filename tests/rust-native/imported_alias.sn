@@ -1,0 +1,4 @@
+import "imported_alias/module" as scalar
+
+fn main(): void =>
+  println(scalar.triple(14))

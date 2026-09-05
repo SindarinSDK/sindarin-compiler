@@ -2,48 +2,19 @@
   "reference": "/tmp/sindarin-tagged-control-reference.json",
   "tag_peeled": "79c20bdb8314aff3c778471ceab20bb8f9ca8d62",
   "tag_compiler_verified_sha256": "b8c32932c385d9ae6692dff82bacb20c94eddef5379410efb5a26bdbae9f7789",
-  "rust_compiler_sha256": "25bd5b95a72c59905fd90ca3ce4e0534fafdcbdfb2eae5fb4932df0acc5ec865",
+  "rust_compiler_sha256": "5ef3212567ffc5a7441941659b87a42f60dc454fbe9ee24eadaed5ab270cc765",
   "mode": "-O0",
   "inventory_only": false,
-  "filter": "array",
+  "filter": "handle_array",
+  "control_worktree": "/home/gavin/code/sindarin/review-rust-diagnostic-tag79c20b",
+  "reference_schema": "sindarin-tagged-control-reference/v1",
+  "reference_sha256": "8dec424d359c4537de4a0d3414d1c32d7081aac42a2e6b223e40c68f3460bd47",
   "results": [
     {
-      "source": "/home/gavin/code/sindarin/review-rust-diagnostic-tag79c20b/tests/integration/test_thread_array_spawn_loop.sn",
-      "sha256": "8d4071254cb0091d4728e7e650867da4193a2b35877bc1ff5452c1039049307a",
-      "tag": {
-        "compile": 0,
-        "executable": true,
-        "run": 0
-      },
-      "rust": {
-        "compile": 0,
-        "executable": true,
-        "run": 0
-      },
-      "expected_exit": 0,
-      "equal": true,
-      "tag_fixture_stdout_oracle": true
-    },
-    {
-      "source": "/home/gavin/code/sindarin/review-rust-diagnostic-tag79c20b/tests/integration/test_thread_array_struct.sn",
-      "sha256": "7c2e4598ce83ced8cf91681d9587c602cfc02f338af6889115841c3adb528b6f",
-      "tag": {
-        "compile": 0,
-        "executable": true,
-        "run": 0
-      },
-      "rust": {
-        "compile": 0,
-        "executable": true,
-        "run": 0
-      },
-      "expected_exit": 0,
-      "equal": true,
-      "tag_fixture_stdout_oracle": true
-    },
-    {
-      "source": "/home/gavin/code/sindarin/sindarin-rust-thread-ownership/tests/rust-thread-ownership/handle_array_alias.sn",
-      "sha256": "6fdae34305762362ddd26804ddfaf2ddc467e7d4187bc2208e6360d6f0135d63",
+      "source": "/home/gavin/code/sindarin/sindarin-rust-thread-ownership-restack/tests/rust-thread-ownership/handle_array_alias.sn",
+      "sha256": "c7b0599ad195436f5098dc8ecfeee92df287234e1ae6cf53ca8ecfd3a2e6412f",
+      "fixture_commit": "824195cdb54e8ab91386427996aa5a02fc47917a",
+      "git_blob": "b5c6fd29317410587c2061f10f88fbb03a5fc600",
       "tag": {
         "compile": 0,
         "executable": true,
@@ -58,24 +29,10 @@
       "equal": true
     },
     {
-      "source": "/home/gavin/code/sindarin/sindarin-rust-thread-ownership/tests/rust-thread-ownership/handle_array_assignment.sn",
-      "sha256": "b8a3d74aa7da115c82e3ab83f96dc3fdcac8ef76fa2c4d824f508bf6d2ff335c",
-      "tag": {
-        "compile": 0,
-        "executable": true,
-        "run": 0
-      },
-      "rust": {
-        "compile": 0,
-        "executable": true,
-        "run": 0
-      },
-      "expected_exit": 0,
-      "equal": true
-    },
-    {
-      "source": "/home/gavin/code/sindarin/sindarin-rust-thread-ownership/tests/rust-thread-ownership/shared_array.sn",
-      "sha256": "d484947f8035db3f6cb94edcb8cf0cc14c1b7c6b0675bbcfe3dfc2b8357ea2b1",
+      "source": "/home/gavin/code/sindarin/sindarin-rust-thread-ownership-restack/tests/rust-thread-ownership/handle_array_assignment.sn",
+      "sha256": "f8144324760527680a2fc395e977c20f6e7ce710184794b7a9d222a1ece805c0",
+      "fixture_commit": "824195cdb54e8ab91386427996aa5a02fc47917a",
+      "git_blob": "401228895face4849a08e957935216a115da06d9",
       "tag": {
         "compile": 0,
         "executable": true,
@@ -90,14 +47,12 @@
       "equal": true
     }
   ],
-  "raw_evidence": "/tmp/sindarin-rust-thread-ownership-evidence/array-alias-final",
-  "build_log": "/tmp/sindarin-rust-thread-ownership-evidence/array-alias-final-build.log",
-  "rgen_log": "/tmp/sindarin-rust-thread-ownership-evidence/array-alias-rgen.log",
-  "parent_commit": "4447abfb212ef61506ab69d854999bc0a97e466c",
-  "all_staged_rust_templates_equal_source": true,
-  "rgen": {
-    "passed": 237,
-    "failed": 16,
-    "scope": "Same known failures as prior accepted suite; raw log retained"
-  }
+  "raw_evidence": "/tmp/sn-ownership-restack-evidence/aliases",
+  "build_log": "/tmp/sn-ownership-restack-build.log",
+  "compiler_build_parents": [
+    "824195cdb54e8ab91386427996aa5a02fc47917a",
+    "6b39ef6d8f992f9ae63e29d7a7711176687e18f3"
+  ],
+  "compiler_source_delta_sha256": "b6e83ce4ebba45b3c757d1fea98ed583ff6fc45313500cef2f9f46d7f23bd056",
+  "scope": "Two exact committed array alias probes, O0 only; smoke separate. Supersedes obsolete manifest hashes."
 }

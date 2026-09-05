@@ -1,0 +1,1 @@
+Cannot reassign pending thread variable 'result' (use result! to sync first)

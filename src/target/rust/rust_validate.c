@@ -1145,12 +1145,20 @@ static bool rust_validate_expr(json_object *expr)
         if (json_object_object_get_ex(expr, "operand", &place) && json_boolean_property(place, "rust_cell"))
             return rust_validate_expr(place);
     }
-    if (strcmp(kind, "thread_spawn") == 0)
-        return json_object_object_get_ex(expr, "call", &child) && rust_validate_expr(child);
+    if (strcmp(kind, "thread_spawn") == 0) {
+        if (!json_object_object_get_ex(expr, "call", &child)) return false;
+        json_object *args = NULL;
+        json_object_object_get_ex(child, "args", &args);
+        for (size_t i = 0; args && i < json_object_array_length(args); i++)
+            json_object_object_add(json_object_array_get_idx(args, i),
+                "rust_thread_captured_argument", json_object_new_boolean(true));
+        return rust_validate_expr(child);
+    }
     if (strcmp(kind, "thread_sync") == 0 || strcmp(kind, "thread_detach") == 0)
         return json_object_object_get_ex(expr, "handle", &child) && rust_validate_expr(child);
     if (strcmp(kind, "sync_list") == 0)
         return json_object_object_get_ex(expr, "elements", &child) && rust_validate_expr_array(child);
+
     if (json_boolean_property(expr, "rust_shared_cell") &&
         !json_boolean_property(expr, "rust_shared_owned_cell") &&
         (strcmp(kind, "compound_assign") == 0 || strcmp(kind, "increment") == 0 ||
@@ -2662,7 +2670,8 @@ static bool rust_validate_stmt(json_object *stmt)
 /* A method needs &mut self only when its mutation place is rooted in self.
  * Local values (including their fields, indices, and arrays) must not turn an
  * otherwise read-only instance method into a mutable receiver method. */
-static bool rust_validate_model_impl(json_object *model)
+static bool rust_validate_model_impl(json_object *model,
+                                     const RustNativePlan *native_plan)
 {
     const char *unsupported = NULL;
     if (!rust_validate_closures(model)) return false;
@@ -2679,7 +2688,8 @@ static bool rust_validate_model_impl(json_object *model)
             if (json_object_object_get_ex(pragma, "pragma_type", &kind))
             {
                 const char *value = json_object_get_string(kind);
-                if (value && (strcmp(value, "source") == 0 || strcmp(value, "include") == 0))
+                if (!rust_native_plan_has_work(native_plan) && value &&
+                    (strcmp(value, "source") == 0 || strcmp(value, "include") == 0))
                 {
                     unsupported = "native C source/include pragmas";
                     break;
@@ -2721,8 +2731,9 @@ static bool rust_validate_model_impl(json_object *model)
             json_object *is_native = NULL;
             const char *name = json_object_object_get_ex(function, "name", &name_obj)
                 ? json_object_get_string(name_obj) : "<anonymous>";
-            if ((json_object_object_get_ex(function, "is_native", &is_native) &&
-                 json_object_get_boolean(is_native)) ||
+            bool native = json_object_object_get_ex(function, "is_native", &is_native) &&
+                          json_object_get_boolean(is_native);
+            if ((native && !rust_native_validate_declaration(native_plan, function)) ||
                 !json_object_object_get_ex(function, "return_type", &return_type) ||
                 !rust_type_supported(return_type))
             {
@@ -2796,6 +2807,7 @@ static bool rust_validate_model_impl(json_object *model)
                     }
                 }
             }
+            if (native) continue;
             json_object_object_get_ex(function, "body", &body);
             if (!rust_validate_statements(body))
             {
@@ -2808,13 +2820,14 @@ static bool rust_validate_model_impl(json_object *model)
     return true;
 }
 
-static bool rust_validate_model(json_object *model, ArithmeticMode arithmetic_mode)
+static bool rust_validate_model(json_object *model, ArithmeticMode arithmetic_mode,
+                                const RustNativePlan *native_plan)
 {
     rust_validation_model = model;
     rust_validation_reported_error = false;
     rust_validation_arithmetic_mode = arithmetic_mode;
     rust_iterator_binding_scope = NULL;
-    bool valid = rust_validate_model_impl(model);
+    bool valid = rust_validate_model_impl(model, native_plan);
     rust_validation_model = NULL;
     rust_validation_reported_error = false;
     rust_iterator_binding_scope = NULL;
