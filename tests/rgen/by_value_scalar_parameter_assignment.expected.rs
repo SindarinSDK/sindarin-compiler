@@ -35,27 +35,27 @@ struct ScalarAssignments {
 
 impl ScalarAssignments {
     fn assignInt32(mut value: i32, untouched: i32) -> i32 {
-        { value = __sn_checked(value.checked_add(4), "Runtime error: integer overflow in addition")
+        { value = __sn_checked((value).checked_add(4), "Runtime error: integer overflow in addition")
 ; value };
-        return __sn_checked(value.checked_add(untouched), "Runtime error: integer overflow in addition")
+        return __sn_checked((value).checked_add(untouched), "Runtime error: integer overflow in addition")
 ;
     }
     fn assignByte(mut value: u8, untouched: u8) -> u8 {
-        let mut assigned: u8 = { value = __sn_checked(value.checked_add(5), "Runtime error: integer overflow in addition")
+        let mut assigned: u8 = { value = __sn_checked((value).checked_add(5), "Runtime error: integer overflow in addition")
 ; value };
-        return __sn_checked(__sn_checked(assigned.checked_add(value), "Runtime error: integer overflow in addition")
- .checked_add(untouched), "Runtime error: integer overflow in addition")
+        return __sn_checked((__sn_checked((assigned).checked_add(value), "Runtime error: integer overflow in addition")
+ ).checked_add(untouched), "Runtime error: integer overflow in addition")
 ;
     }
     fn assignUint32(mut value: u32, untouched: u32) -> u32 {
-        return { value = __sn_checked(value.checked_add(untouched), "Runtime error: integer overflow in addition")
+        return { value = __sn_checked((value).checked_add(untouched), "Runtime error: integer overflow in addition")
  ; value };
     }
     fn assignUint(&self, mut value: u64, untouched: u64) -> u64 {
-        { value = __sn_checked(value.checked_add(7), "Runtime error: integer overflow in addition")
+        { value = __sn_checked((value).checked_add(7), "Runtime error: integer overflow in addition")
 ; value };
-        return __sn_checked(__sn_checked(value.checked_add(untouched), "Runtime error: integer overflow in addition")
- .checked_add(((self).marker as u64)), "Runtime error: integer overflow in addition")
+        return __sn_checked((__sn_checked((value).checked_add(untouched), "Runtime error: integer overflow in addition")
+ ).checked_add(((self).marker as u64)), "Runtime error: integer overflow in addition")
 ;
     }
     fn assignFloat(&self, mut value: f32, untouched: f32) -> f32 {
@@ -72,7 +72,7 @@ impl ScalarAssignments {
 }
 
 fn observeInt(calls: &mut i64, value: i64) -> i64 {
-    (*(calls) = __sn_checked(*(calls).checked_add(1), "Runtime error: integer overflow in addition")
+    (*(calls) = __sn_checked((*(calls)).checked_add(1), "Runtime error: integer overflow in addition")
 );
     return value;
 }
@@ -84,40 +84,40 @@ fn assignBool(mut value: bool, untouched: bool) -> bool {
 }
 
 fn assignInt(mut value: i64, calls: &mut i64, untouched: i64) -> i64 {
-    { value = observeInt(&mut *(calls), __sn_checked(value.checked_add(2), "Runtime error: integer overflow in addition")
+    { value = observeInt(&mut *(calls), __sn_checked((value).checked_add(2), "Runtime error: integer overflow in addition")
 ); value };
-    return __sn_checked(value.checked_add(untouched), "Runtime error: integer overflow in addition")
+    return __sn_checked((value).checked_add(untouched), "Runtime error: integer overflow in addition")
 ;
 }
 
 fn assignLong(mut value: i64, untouched: i64) -> i64 {
-    let mut assigned: i64 = { value = __sn_checked(value.checked_add(3), "Runtime error: integer overflow in addition")
+    let mut assigned: i64 = { value = __sn_checked((value).checked_add(3), "Runtime error: integer overflow in addition")
 ; value };
-    return __sn_checked(__sn_checked(assigned.checked_add(value), "Runtime error: integer overflow in addition")
- .checked_add(untouched), "Runtime error: integer overflow in addition")
+    return __sn_checked((__sn_checked((assigned).checked_add(value), "Runtime error: integer overflow in addition")
+ ).checked_add(untouched), "Runtime error: integer overflow in addition")
 ;
 }
 
 fn helperNames(mut __sn_rhs: i64, __sn_place: i64, __sn_next: i64) -> i64 {
-    let mut assigned: i64 = { __sn_rhs = __sn_checked(__sn_rhs.checked_add(__sn_place), "Runtime error: integer overflow in addition")
+    let mut assigned: i64 = { __sn_rhs = __sn_checked((__sn_rhs).checked_add(__sn_place), "Runtime error: integer overflow in addition")
 ; __sn_rhs };
     if true {
         let mut __sn_next: i64 = 4;
         (__sn_next = 5);
     }
-    return __sn_checked(__sn_checked(assigned.checked_add(__sn_rhs), "Runtime error: integer overflow in addition")
- .checked_add(__sn_next), "Runtime error: integer overflow in addition")
+    return __sn_checked((__sn_checked((assigned).checked_add(__sn_rhs), "Runtime error: integer overflow in addition")
+ ).checked_add(__sn_next), "Runtime error: integer overflow in addition")
 ;
 }
 
 fn statementOrder(mut value: i64, delta: i64) -> i64 {
     if true {
-        let mut readBefore: i64 = __sn_checked(value.checked_add(delta), "Runtime error: integer overflow in addition")
+        let mut readBefore: i64 = __sn_checked((value).checked_add(delta), "Runtime error: integer overflow in addition")
 ;
-        { value = __sn_checked(value.checked_add(1), "Runtime error: integer overflow in addition")
+        { value = __sn_checked((value).checked_add(1), "Runtime error: integer overflow in addition")
 ; value };
         let mut value: i64 = readBefore;
-        (value = __sn_checked(value.checked_add(10), "Runtime error: integer overflow in addition")
+        (value = __sn_checked((value).checked_add(10), "Runtime error: integer overflow in addition")
 );
     }
     return value;

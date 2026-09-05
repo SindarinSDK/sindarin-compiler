@@ -31,9 +31,9 @@ fn __sn_checked_mod<T>(value: Option<T>, divisor_is_zero: bool) -> T {
 fn main() {
     let mut min_base: i64 = (-9223372036854775807);
     let mut one: i64 = 1;
-    let mut min: i64 = __sn_checked(min_base.checked_sub(one), "Runtime error: integer overflow in subtraction")
+    let mut min: i64 = __sn_checked((min_base).checked_sub(one), "Runtime error: integer overflow in subtraction")
 ;
-    let mut underflow: i64 = __sn_checked(min.checked_sub(one), "Runtime error: integer overflow in subtraction")
+    let mut underflow: i64 = __sn_checked((min).checked_sub(one), "Runtime error: integer overflow in subtraction")
 ;
 }
 

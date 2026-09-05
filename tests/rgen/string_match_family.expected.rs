@@ -105,15 +105,15 @@ fn makeRows(calls: &mut i64) -> Vec<Vec<String>> {
 }
 
 fn recordIndex(trace: &mut i64, marker: i64) -> i64 {
-    (*(trace) = __sn_checked(__sn_checked(*(trace).checked_mul(10), "Runtime error: integer overflow in multiplication")
-.checked_add(marker), "Runtime error: integer overflow in addition")
+    (*(trace) = __sn_checked((__sn_checked((*(trace)).checked_mul(10), "Runtime error: integer overflow in multiplication")
+).checked_add(marker), "Runtime error: integer overflow in addition")
 );
     return (-1);
 }
 
 fn makeCube(trace: &mut i64) -> Vec<Vec<Vec<String>>> {
-    (*(trace) = __sn_checked(__sn_checked(*(trace).checked_mul(10), "Runtime error: integer overflow in multiplication")
-.checked_add(1), "Runtime error: integer overflow in addition")
+    (*(trace) = __sn_checked((__sn_checked((*(trace)).checked_mul(10), "Runtime error: integer overflow in multiplication")
+).checked_add(1), "Runtime error: integer overflow in addition")
 );
     return vec![vec![vec!["deep".to_string()]]];
 }
@@ -231,10 +231,10 @@ fn main() {
     let __sn_match_subject_12: String = __sn_match_array_12[__sn_match_index_12].clone();
     if (__sn_match_subject_12.as_str() == "nested") {
         (__sn_match_subject = __sn_match_subject.clone());
-        (__sn_match_array = __sn_checked(__sn_match_index.checked_add(1), "Runtime error: integer overflow in addition")
+        (__sn_match_array = __sn_checked((__sn_match_index).checked_add(1), "Runtime error: integer overflow in addition")
 );
         (__sn_match_subject_0 = __sn_match_subject_0.clone());
-        (__sn_match_array_0 = __sn_checked(__sn_match_index_0.checked_add(1), "Runtime error: integer overflow in addition")
+        (__sn_match_array_0 = __sn_checked((__sn_match_index_0).checked_add(1), "Runtime error: integer overflow in addition")
 );
         {
     let __sn_match_array_10 = &(hygieneRows);
@@ -243,9 +243,9 @@ fn main() {
     let __sn_match_index_10 = __sn_index(__sn_match_array_10.len(), 0);
     let __sn_match_subject_10: String = __sn_match_array_10[__sn_match_index_10].clone();
     if (__sn_match_subject_10.as_str() == "nested") {
-        (__sn_match_index = __sn_checked(__sn_match_array.checked_sub(1), "Runtime error: integer overflow in subtraction")
+        (__sn_match_index = __sn_checked((__sn_match_array).checked_sub(1), "Runtime error: integer overflow in subtraction")
 );
-        (__sn_match_index_0 = __sn_checked(__sn_match_array_0.checked_sub(1), "Runtime error: integer overflow in subtraction")
+        (__sn_match_index_0 = __sn_checked((__sn_match_array_0).checked_sub(1), "Runtime error: integer overflow in subtraction")
 );
     }
 };

@@ -69,10 +69,10 @@ impl IntSequence {
 ;
     }
     fn next(&mut self) -> i64 {
-        let mut result: i64 = __sn_checked(__sn_checked(__sn_checked((self).has_next_calls.checked_mul(100), "Runtime error: integer overflow in multiplication")
-.checked_add(__sn_checked((self).next_calls.checked_mul(10), "Runtime error: integer overflow in multiplication")
+        let mut result: i64 = __sn_checked((__sn_checked((__sn_checked(((self).has_next_calls).checked_mul(100), "Runtime error: integer overflow in multiplication")
+).checked_add(__sn_checked(((self).next_calls).checked_mul(10), "Runtime error: integer overflow in multiplication")
 ), "Runtime error: integer overflow in addition")
-.checked_add((self).value), "Runtime error: integer overflow in addition")
+).checked_add((self).value), "Runtime error: integer overflow in addition")
 ;
         { let __sn_rhs = 1; let __sn_place = &mut ((self).next_calls); let __sn_next = __sn_checked((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };
         return result;

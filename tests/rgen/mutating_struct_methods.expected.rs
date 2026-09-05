@@ -36,7 +36,7 @@ struct Counter {
 
 impl Counter {
     fn increment(&mut self) {
-        ((self).value = __sn_checked((self).value.checked_add(1), "Runtime error: integer overflow in addition")
+        ((self).value = __sn_checked(((self).value).checked_add(1), "Runtime error: integer overflow in addition")
 );
     }
     fn rename(&mut self, label: String) {

@@ -44,8 +44,8 @@ impl Prefixes {
         return match (value) {
          true => {
              { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
-             (*(order) = __sn_checked(__sn_checked(*(order).checked_mul(10), "Runtime error: integer overflow in multiplication")
- .checked_add(1), "Runtime error: integer overflow in addition")
+             (*(order) = __sn_checked((__sn_checked((*(order)).checked_mul(10), "Runtime error: integer overflow in multiplication")
+ ).checked_add(1), "Runtime error: integer overflow in addition")
  );
              markInt(&mut *(calls), &mut *(order), 2, 0);
              (markBool(&mut *(calls), &mut *(order), 3, true))
@@ -77,32 +77,32 @@ impl Prefixes {
 
 fn markInt(calls: &mut i64, order: &mut i64, marker: i64, value: i64) -> i64 {
     { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
-    (*(order) = __sn_checked(__sn_checked(*(order).checked_mul(10), "Runtime error: integer overflow in multiplication")
-.checked_add(marker), "Runtime error: integer overflow in addition")
+    (*(order) = __sn_checked((__sn_checked((*(order)).checked_mul(10), "Runtime error: integer overflow in multiplication")
+).checked_add(marker), "Runtime error: integer overflow in addition")
 );
     return value;
 }
 
 fn markBool(calls: &mut i64, order: &mut i64, marker: i64, value: bool) -> bool {
     { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
-    (*(order) = __sn_checked(__sn_checked(*(order).checked_mul(10), "Runtime error: integer overflow in multiplication")
-.checked_add(marker), "Runtime error: integer overflow in addition")
+    (*(order) = __sn_checked((__sn_checked((*(order)).checked_mul(10), "Runtime error: integer overflow in multiplication")
+).checked_add(marker), "Runtime error: integer overflow in addition")
 );
     return value;
 }
 
 fn markDouble(calls: &mut i64, order: &mut i64, marker: i64, value: f64) -> f64 {
     { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
-    (*(order) = __sn_checked(__sn_checked(*(order).checked_mul(10), "Runtime error: integer overflow in multiplication")
-.checked_add(marker), "Runtime error: integer overflow in addition")
+    (*(order) = __sn_checked((__sn_checked((*(order)).checked_mul(10), "Runtime error: integer overflow in multiplication")
+).checked_add(marker), "Runtime error: integer overflow in addition")
 );
     return value;
 }
 
 fn markString(calls: &mut i64, order: &mut i64, marker: i64, value: String) -> String {
     { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
-    (*(order) = __sn_checked(__sn_checked(*(order).checked_mul(10), "Runtime error: integer overflow in multiplication")
-.checked_add(marker), "Runtime error: integer overflow in addition")
+    (*(order) = __sn_checked((__sn_checked((*(order)).checked_mul(10), "Runtime error: integer overflow in multiplication")
+).checked_add(marker), "Runtime error: integer overflow in addition")
 );
     return value;
 }

@@ -66,7 +66,7 @@ impl<F: ?Sized> PartialEq for __SnClosure<F> {
 fn main() {
     std::process::exit((|| -> i64 {
         let mut offset: i64 = 40;
-        let mut captured: __SnClosure<dyn Fn(i64) -> i64> = { let (offset, ) = (offset.clone(), ); self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |value: i64| -> i64 { __sn_checked(value.checked_add(offset.clone()), "Runtime error: integer overflow in addition")
+        let mut captured: __SnClosure<dyn Fn(i64) -> i64> = { let (offset, ) = (offset.clone(), ); self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |value: i64| -> i64 { __sn_checked((value).checked_add(offset.clone()), "Runtime error: integer overflow in addition")
 })) }
 ;
         let mut callbacks: Vec<__SnClosure<dyn Fn(i64) -> i64>> = vec![(captured.clone()).clone()];

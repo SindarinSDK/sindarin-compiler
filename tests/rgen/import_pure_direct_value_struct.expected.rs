@@ -35,7 +35,7 @@ struct Pair {
 }
 
 fn sum(a: i64, b: i64) -> i64 {
-    return __sn_checked(a.checked_add(b), "Runtime error: integer overflow in addition")
+    return __sn_checked((a).checked_add(b), "Runtime error: integer overflow in addition")
 ;
 }
 

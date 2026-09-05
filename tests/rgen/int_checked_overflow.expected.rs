@@ -31,7 +31,7 @@ fn __sn_checked_mod<T>(value: Option<T>, divisor_is_zero: bool) -> T {
 fn main() {
     let mut max: i64 = 9223372036854775807;
     let mut one: i64 = 1;
-    let mut overflow: i64 = __sn_checked(max.checked_add(one), "Runtime error: integer overflow in addition")
+    let mut overflow: i64 = __sn_checked((max).checked_add(one), "Runtime error: integer overflow in addition")
 ;
 }
 

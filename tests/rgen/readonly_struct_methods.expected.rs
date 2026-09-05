@@ -39,7 +39,7 @@ impl Metric {
         return (self).value;
     }
     fn doubled(&self) -> i64 {
-        return __sn_checked((self).getValue().checked_mul(2), "Runtime error: integer overflow in multiplication")
+        return __sn_checked(((self).getValue()).checked_mul(2), "Runtime error: integer overflow in multiplication")
 ;
     }
     fn getName(&self) -> String {

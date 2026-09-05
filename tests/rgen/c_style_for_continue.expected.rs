@@ -40,7 +40,7 @@ fn main() {
  {
         { { let __sn_place = &mut (i); let __sn_previous = *__sn_place; let __sn_next = __sn_checked(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous }; continue; }
     }
-            (odd_total = __sn_checked(odd_total.checked_add(i), "Runtime error: integer overflow in addition")
+            (odd_total = __sn_checked((odd_total).checked_add(i), "Runtime error: integer overflow in addition")
 );
             { let __sn_place = &mut (i); let __sn_previous = *__sn_place; let __sn_next = __sn_checked(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
         }
@@ -60,7 +60,7 @@ fn main() {
  {
         continue;
     }
-        (nested_total = __sn_checked(nested_total.checked_add(outer), "Runtime error: integer overflow in addition")
+        (nested_total = __sn_checked((nested_total).checked_add(outer), "Runtime error: integer overflow in addition")
 );
     }
             { let __sn_place = &mut (outer); let __sn_previous = *__sn_place; let __sn_next = __sn_checked(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };

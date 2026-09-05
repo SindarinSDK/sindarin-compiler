@@ -61,20 +61,20 @@ struct TraceIter {
 
 impl TraceIter {
     fn hasNext(&mut self) -> bool {
-        ((self).has_next_calls = __sn_checked((self).has_next_calls.checked_add(1), "Runtime error: integer overflow in addition")
+        ((self).has_next_calls = __sn_checked(((self).has_next_calls).checked_add(1), "Runtime error: integer overflow in addition")
 );
         return ((self).next_calls < (self).remaining)
 ;
     }
     fn next(&mut self) -> i64 {
-        let mut value: i64 = __sn_checked(__sn_checked(__sn_checked((self).has_next_calls.checked_mul(100), "Runtime error: integer overflow in multiplication")
-.checked_add(__sn_checked((self).next_calls.checked_mul(10), "Runtime error: integer overflow in multiplication")
+        let mut value: i64 = __sn_checked((__sn_checked((__sn_checked(((self).has_next_calls).checked_mul(100), "Runtime error: integer overflow in multiplication")
+).checked_add(__sn_checked(((self).next_calls).checked_mul(10), "Runtime error: integer overflow in multiplication")
 ), "Runtime error: integer overflow in addition")
-.checked_add((self).current), "Runtime error: integer overflow in addition")
+).checked_add((self).current), "Runtime error: integer overflow in addition")
 ;
-        ((self).current = __sn_checked((self).current.checked_add(1), "Runtime error: integer overflow in addition")
+        ((self).current = __sn_checked(((self).current).checked_add(1), "Runtime error: integer overflow in addition")
 );
-        ((self).next_calls = __sn_checked((self).next_calls.checked_add(1), "Runtime error: integer overflow in addition")
+        ((self).next_calls = __sn_checked(((self).next_calls).checked_add(1), "Runtime error: integer overflow in addition")
 );
         return value;
     }
@@ -92,7 +92,7 @@ impl TraceSource {
 }
 
 fn selectSource(calls: &mut i64) -> i64 {
-    (*(calls) = __sn_checked(*(calls).checked_add(1), "Runtime error: integer overflow in addition")
+    (*(calls) = __sn_checked((*(calls)).checked_add(1), "Runtime error: integer overflow in addition")
 );
     return 0;
 }
@@ -112,7 +112,7 @@ fn main() {
  {
         continue;
     }
-        (sum = __sn_checked(sum.checked_add(produced), "Runtime error: integer overflow in addition")
+        (sum = __sn_checked((sum).checked_add(produced), "Runtime error: integer overflow in addition")
 );
     }
 }

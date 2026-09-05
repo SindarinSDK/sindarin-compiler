@@ -134,13 +134,13 @@ fn main() {
     }
     let mut range_sum: i64 = 0;
     for mut value in ((2..5).collect::<Vec<i64>>()).iter().cloned() {
-        (value = __sn_checked(value.checked_add(1), "Runtime error: integer overflow in addition")
+        (value = __sn_checked((value).checked_add(1), "Runtime error: integer overflow in addition")
 );
         if (value == 4)
  {
         continue;
     }
-        (range_sum = __sn_checked(range_sum.checked_add(value), "Runtime error: integer overflow in addition")
+        (range_sum = __sn_checked((range_sum).checked_add(value), "Runtime error: integer overflow in addition")
 );
     }
     println!("{}", (range_sum == 8)

@@ -34,7 +34,7 @@ struct Point {
 }
 
 fn increment(point: &mut Point) {
-    ((point).x = __sn_checked((point).x.checked_add(1), "Runtime error: integer overflow in addition")
+    ((point).x = __sn_checked(((point).x).checked_add(1), "Runtime error: integer overflow in addition")
 );
 }
 

@@ -53,11 +53,11 @@ impl Holder {
 
 fn main() {
     let mut offset: i64 = 10;
-    let mut holder: Holder = Holder { action: { let (offset, ) = (offset.clone(), ); self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |value: i64| -> i64 { __sn_checked(value.checked_add(offset.clone()), "Runtime error: integer overflow in addition")
+    let mut holder: Holder = Holder { action: { let (offset, ) = (offset.clone(), ); self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |value: i64| -> i64 { __sn_checked((value).checked_add(offset.clone()), "Runtime error: integer overflow in addition")
 })) }
  };
     let mut copied: Holder = holder.clone();
-    ((holder).action = { self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |value: i64| -> i64 { __sn_checked(value.checked_add(100), "Runtime error: integer overflow in addition")
+    ((holder).action = { self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |value: i64| -> i64 { __sn_checked((value).checked_add(100), "Runtime error: integer overflow in addition")
 })) }
 );
     print!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", (holder).apply(1))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (copied).apply(2))); __sn_interpolated.push_str("\n"); __sn_interpolated });

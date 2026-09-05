@@ -30,8 +30,8 @@ fn __sn_checked_mod<T>(value: Option<T>, divisor_is_zero: bool) -> T {
 
 fn observeSubject(calls: &mut i64, order: &mut i64, value: bool) -> bool {
     { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
-    (*(order) = __sn_checked(__sn_checked(*(order).checked_mul(10), "Runtime error: integer overflow in multiplication")
-.checked_add(1), "Runtime error: integer overflow in addition")
+    (*(order) = __sn_checked((__sn_checked((*(order)).checked_mul(10), "Runtime error: integer overflow in multiplication")
+).checked_add(1), "Runtime error: integer overflow in addition")
 );
     return value;
 }
@@ -42,14 +42,14 @@ fn main() {
     let mut first: i64 = 0;
     match (observeSubject(&mut (subject_calls), &mut (order), true)) {
         true => {
-            (order = __sn_checked(__sn_checked(order.checked_mul(10), "Runtime error: integer overflow in multiplication")
-.checked_add(2), "Runtime error: integer overflow in addition")
+            (order = __sn_checked((__sn_checked((order).checked_mul(10), "Runtime error: integer overflow in multiplication")
+).checked_add(2), "Runtime error: integer overflow in addition")
 );
             (first = 10);
         },
         true => {
-            (order = __sn_checked(__sn_checked(order.checked_mul(10), "Runtime error: integer overflow in multiplication")
-.checked_add(3), "Runtime error: integer overflow in addition")
+            (order = __sn_checked((__sn_checked((order).checked_mul(10), "Runtime error: integer overflow in multiplication")
+).checked_add(3), "Runtime error: integer overflow in addition")
 );
             (first = 20);
         },

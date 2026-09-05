@@ -31,7 +31,7 @@ fn __sn_checked_mod<T>(value: Option<T>, divisor_is_zero: bool) -> T {
 fn main() {
     let mut left: u32 = 65536;
     let mut right: u32 = 65536;
-    let mut overflow: u32 = __sn_checked(left.checked_mul(right), "Runtime error: integer overflow in multiplication")
+    let mut overflow: u32 = __sn_checked((left).checked_mul(right), "Runtime error: integer overflow in multiplication")
 ;
 }
 

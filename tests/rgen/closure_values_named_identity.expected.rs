@@ -41,17 +41,17 @@ impl<F: ?Sized> PartialEq for __SnClosure<F> {
     fn eq(&self, other: &Self) -> bool { std::rc::Rc::ptr_eq(&self.0, &other.0) }
 }
 fn same(n: i64) -> i64 {
-    return __sn_checked(n.checked_add(1), "Runtime error: integer overflow in addition")
+    return __sn_checked((n).checked_add(1), "Runtime error: integer overflow in addition")
 ;
 }
 
 fn identicalBody(n: i64) -> i64 {
-    return __sn_checked(n.checked_add(1), "Runtime error: integer overflow in addition")
+    return __sn_checked((n).checked_add(1), "Runtime error: integer overflow in addition")
 ;
 }
 
 fn different(n: i64) -> i64 {
-    return __sn_checked(n.checked_add(2), "Runtime error: integer overflow in addition")
+    return __sn_checked((n).checked_add(2), "Runtime error: integer overflow in addition")
 ;
 }
 

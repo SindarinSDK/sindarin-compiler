@@ -58,7 +58,7 @@ fn main() {
 
         while (i < 5)
  {
-            (total = __sn_checked(total.checked_add(i), "Runtime error: integer overflow in addition")
+            (total = __sn_checked((total).checked_add(i), "Runtime error: integer overflow in addition")
 );
             { let __sn_place = &mut (i); let __sn_previous = *__sn_place; let __sn_next = __sn_checked(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
         }
@@ -66,7 +66,7 @@ fn main() {
     println!("{}", total);
     let mut values: Vec<i64> = vec![2, 4, 6];
     for mut value in (values).iter().cloned() {
-        (total = __sn_checked(total.checked_add(value), "Runtime error: integer overflow in addition")
+        (total = __sn_checked((total).checked_add(value), "Runtime error: integer overflow in addition")
 );
     }
     println!("{}", total);
@@ -85,7 +85,7 @@ fn main() {
     println!("{}", (range_values)[__sn_index((range_values).len(), (-1))]);
     let mut range_total: i64 = 0;
     for mut value in ((1..5).collect::<Vec<i64>>()).iter().cloned() {
-        (range_total = __sn_checked(range_total.checked_add(value), "Runtime error: integer overflow in addition")
+        (range_total = __sn_checked((range_total).checked_add(value), "Runtime error: integer overflow in addition")
 );
     }
     println!("{}", range_total);

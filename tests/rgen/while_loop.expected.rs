@@ -34,7 +34,7 @@ fn main() {
     while (current < 4)
  {
         { let __sn_place = &mut (current); let __sn_previous = *__sn_place; let __sn_next = __sn_checked(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
-        (total = __sn_checked(total.checked_add(current), "Runtime error: integer overflow in addition")
+        (total = __sn_checked((total).checked_add(current), "Runtime error: integer overflow in addition")
 );
     }
     println!("{}", total);

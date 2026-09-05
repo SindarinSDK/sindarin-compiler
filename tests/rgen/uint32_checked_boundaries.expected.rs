@@ -32,13 +32,13 @@ fn main() {
     let mut max: u32 = 4294967295;
     let mut one: u32 = 1;
     let mut add_base: u32 = 4294967294;
-    let mut sum: u32 = __sn_checked(add_base.checked_add(one), "Runtime error: integer overflow in addition")
+    let mut sum: u32 = __sn_checked((add_base).checked_add(one), "Runtime error: integer overflow in addition")
 ;
-    let mut difference: u32 = __sn_checked(one.checked_sub(one), "Runtime error: integer overflow in subtraction")
+    let mut difference: u32 = __sn_checked((one).checked_sub(one), "Runtime error: integer overflow in subtraction")
 ;
     let mut mul_left: u32 = 65535;
     let mut mul_right: u32 = 65537;
-    let mut product: u32 = __sn_checked(mul_left.checked_mul(mul_right), "Runtime error: integer overflow in multiplication")
+    let mut product: u32 = __sn_checked((mul_left).checked_mul(mul_right), "Runtime error: integer overflow in multiplication")
 ;
     let mut quotient: u32 = { let __sn_left = max; let __sn_right = one; __sn_checked_div(__sn_left.checked_div(__sn_right), __sn_right == 0) }
 ;

@@ -69,7 +69,7 @@ struct Holder {
 }
 
 fn increment(x: i64) -> i64 {
-    return __sn_checked(x.checked_add(1), "Runtime error: integer overflow in addition")
+    return __sn_checked((x).checked_add(1), "Runtime error: integer overflow in addition")
 ;
 }
 
@@ -81,7 +81,7 @@ fn main() {
     let mut named: __SnClosure<dyn Fn(i64) -> i64> = self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(increment));
     let mut alias: __SnClosure<dyn Fn(i64) -> i64> = named.clone();
     let mut returned: __SnClosure<dyn Fn(i64) -> i64> = identity(alias.clone());
-    { named = { self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |x: i64| -> i64 { __sn_checked(x.checked_add(100), "Runtime error: integer overflow in addition")
+    { named = { self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |x: i64| -> i64 { __sn_checked((x).checked_add(100), "Runtime error: integer overflow in addition")
 })) }
 ; named.clone() };
     print!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", ((alias.clone()).0)(1))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", ((returned.clone()).0)(2))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", ((named.clone()).0)(3))); __sn_interpolated.push_str("\n"); __sn_interpolated });

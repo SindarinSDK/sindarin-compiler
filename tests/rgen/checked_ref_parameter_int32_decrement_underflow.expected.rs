@@ -35,7 +35,7 @@ fn fail(value: &mut i32) {
 fn main() {
     let mut min_base: i32 = (-2147483647);
     let mut one: i32 = 1;
-    let mut value: i32 = __sn_checked(min_base.checked_sub(one), "Runtime error: integer overflow in subtraction")
+    let mut value: i32 = __sn_checked((min_base).checked_sub(one), "Runtime error: integer overflow in subtraction")
 ;
     fail(&mut (value));
 }

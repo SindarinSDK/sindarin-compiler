@@ -29,7 +29,7 @@ fn __sn_checked_mod<T>(value: Option<T>, divisor_is_zero: bool) -> T {
 }
 
 fn increment(value: &mut i64) {
-    (*(value) = __sn_checked(*(value).checked_add(1), "Runtime error: integer overflow in addition")
+    (*(value) = __sn_checked((*(value)).checked_add(1), "Runtime error: integer overflow in addition")
 );
 }
 

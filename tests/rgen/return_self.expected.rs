@@ -39,7 +39,7 @@ impl Point {
         return self.clone();
     }
     fn shiftX(&mut self, amount: i64) -> Point {
-        ((self).x = __sn_checked((self).x.checked_add(amount), "Runtime error: integer overflow in addition")
+        ((self).x = __sn_checked(((self).x).checked_add(amount), "Runtime error: integer overflow in addition")
 );
         return self.clone();
     }

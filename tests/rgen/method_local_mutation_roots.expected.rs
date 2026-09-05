@@ -70,9 +70,9 @@ impl Counter {
         let mut values: Vec<i64> = vec![1, 2];
         { let __sn_array_index = __sn_index((values).len(), 0); (values)[__sn_array_index] = 3; };
         (values).push(4);
-        return __sn_checked(__sn_checked(__sn_checked(number.checked_add((pair).value), "Runtime error: integer overflow in addition")
- .checked_add((values)[__sn_index((values).len(), 0)]), "Runtime error: integer overflow in addition")
- .checked_add((values).len() as i64), "Runtime error: integer overflow in addition")
+        return __sn_checked((__sn_checked((__sn_checked((number).checked_add((pair).value), "Runtime error: integer overflow in addition")
+ ).checked_add((values)[__sn_index((values).len(), 0)]), "Runtime error: integer overflow in addition")
+ ).checked_add((values).len() as i64), "Runtime error: integer overflow in addition")
 ;
     }
 }

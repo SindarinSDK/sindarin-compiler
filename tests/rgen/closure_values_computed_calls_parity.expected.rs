@@ -42,7 +42,7 @@ impl<F: ?Sized> PartialEq for __SnClosure<F> {
 }
 fn factory(offset: i64) -> __SnClosure<dyn Fn(i64) -> i64> {
     print!("{}", "factory\n".to_string());
-    return { let (offset, ) = (offset.clone(), ); self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |n: i64| -> i64 { __sn_checked(offset.clone().checked_add(n), "Runtime error: integer overflow in addition")
+    return { let (offset, ) = (offset.clone(), ); self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |n: i64| -> i64 { __sn_checked((offset.clone()).checked_add(n), "Runtime error: integer overflow in addition")
  })) }
 ;
 }
@@ -55,7 +55,7 @@ fn argument() -> i64 {
 fn main() {
     let mut produced: __SnClosure<dyn Fn(i64) -> i64> = factory(10);
     println!("{}", ((produced.clone()).0)(argument()));
-    let mut immediate: __SnClosure<dyn Fn(i64) -> i64> = { self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |n: i64| -> i64 { __sn_checked(n.checked_add(1), "Runtime error: integer overflow in addition")
+    let mut immediate: __SnClosure<dyn Fn(i64) -> i64> = { self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |n: i64| -> i64 { __sn_checked((n).checked_add(1), "Runtime error: integer overflow in addition")
 })) }
 ;
     println!("{}", ((immediate.clone()).0)(argument()));

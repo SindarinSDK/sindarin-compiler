@@ -47,10 +47,10 @@ fn main() {
     let mut integer: i64 = 9;
     let mut single: f32 = 1.5;
     let mut counter: i64 = 0;
-    let mut expression_sizes: i64 = __sn_checked(__sn_checked(8i64.checked_add(4i64), "Runtime error: integer overflow in addition")
-.checked_add(1i64), "Runtime error: integer overflow in addition")
+    let mut expression_sizes: i64 = __sn_checked((__sn_checked((8i64).checked_add(4i64), "Runtime error: integer overflow in addition")
+).checked_add(1i64), "Runtime error: integer overflow in addition")
 ;
-    let mut arithmetic: i64 = __sn_checked(8i64.checked_add(__sn_checked(4i64.checked_mul(1i64), "Runtime error: integer overflow in multiplication")
+    let mut arithmetic: i64 = __sn_checked((8i64).checked_add(__sn_checked((4i64).checked_mul(1i64), "Runtime error: integer overflow in multiplication")
 ), "Runtime error: integer overflow in addition")
 ;
     let mut comparison: bool = (1i64 < 8i64)

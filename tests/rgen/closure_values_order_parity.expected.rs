@@ -69,8 +69,8 @@ struct Holder {
 }
 
 fn combine(a: i64, b: i64) -> i64 {
-    return __sn_checked(__sn_checked(a.checked_mul(10), "Runtime error: integer overflow in multiplication")
- .checked_add(b), "Runtime error: integer overflow in addition")
+    return __sn_checked((__sn_checked((a).checked_mul(10), "Runtime error: integer overflow in multiplication")
+ ).checked_add(b), "Runtime error: integer overflow in addition")
 ;
 }
 
@@ -102,7 +102,7 @@ fn recursive(n: i64) -> i64 {
  {
         return 1;
     }
-    return __sn_checked(n.checked_mul(recursive(__sn_checked(n.checked_sub(1), "Runtime error: integer overflow in subtraction")
+    return __sn_checked((n).checked_mul(recursive(__sn_checked((n).checked_sub(1), "Runtime error: integer overflow in subtraction")
  )), "Runtime error: integer overflow in multiplication")
 ;
 }

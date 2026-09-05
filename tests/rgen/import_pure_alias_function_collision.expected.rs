@@ -37,7 +37,7 @@ fn right__score() -> i64 {
 }
 
 fn main() {
-    println!("{}", __sn_checked(left__score().checked_add(right__score()), "Runtime error: integer overflow in addition")
+    println!("{}", __sn_checked((left__score()).checked_add(right__score()), "Runtime error: integer overflow in addition")
 );
 }
 

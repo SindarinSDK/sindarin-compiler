@@ -76,11 +76,11 @@ fn main() {
     let mut rows: Vec<Vec<i64>> = vec![vec![1, 2]];
     let mut points: Vec<Point> = vec![Point { x: 1 }];
     let mut counter: i64 = 0;
-    let mut expression_sizes: i64 = __sn_checked(__sn_checked(__sn_checked(__sn_checked(__sn_checked(8i64.checked_add(8i64), "Runtime error: integer overflow in addition")
-.checked_add(8i64), "Runtime error: integer overflow in addition")
-.checked_add(8i64), "Runtime error: integer overflow in addition")
-.checked_add(8i64), "Runtime error: integer overflow in addition")
-.checked_add(8i64), "Runtime error: integer overflow in addition")
+    let mut expression_sizes: i64 = __sn_checked((__sn_checked((__sn_checked((__sn_checked((__sn_checked((8i64).checked_add(8i64), "Runtime error: integer overflow in addition")
+).checked_add(8i64), "Runtime error: integer overflow in addition")
+).checked_add(8i64), "Runtime error: integer overflow in addition")
+).checked_add(8i64), "Runtime error: integer overflow in addition")
+).checked_add(8i64), "Runtime error: integer overflow in addition")
 ;
     println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", ((((type_string == 8)
  && (type_array == 8)

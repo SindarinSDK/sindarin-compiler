@@ -41,13 +41,13 @@ impl RefOps {
         let mut rem: i64 = { let __sn_rhs = 3; let __sn_place = &mut (*(value)); let __sn_next = __sn_checked_mod((*__sn_place).checked_rem(__sn_rhs), __sn_rhs == 0); *__sn_place = __sn_next; __sn_next };
         let mut old_inc: i64 = { let __sn_place = &mut (*(value)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
         let mut old_dec: i64 = { let __sn_place = &mut (*(value)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked(__sn_previous.checked_sub(1), "Runtime error: integer overflow in subtraction"); *__sn_place = __sn_next; __sn_previous };
-        return __sn_checked(__sn_checked(__sn_checked(__sn_checked(__sn_checked(__sn_checked(__sn_checked(add.checked_add(sub), "Runtime error: integer overflow in addition")
- .checked_add(mul), "Runtime error: integer overflow in addition")
- .checked_add(div), "Runtime error: integer overflow in addition")
- .checked_add(rem), "Runtime error: integer overflow in addition")
- .checked_add(old_inc), "Runtime error: integer overflow in addition")
- .checked_add(old_dec), "Runtime error: integer overflow in addition")
- .checked_add(*(value)), "Runtime error: integer overflow in addition")
+        return __sn_checked((__sn_checked((__sn_checked((__sn_checked((__sn_checked((__sn_checked((__sn_checked((add).checked_add(sub), "Runtime error: integer overflow in addition")
+ ).checked_add(mul), "Runtime error: integer overflow in addition")
+ ).checked_add(div), "Runtime error: integer overflow in addition")
+ ).checked_add(rem), "Runtime error: integer overflow in addition")
+ ).checked_add(old_inc), "Runtime error: integer overflow in addition")
+ ).checked_add(old_dec), "Runtime error: integer overflow in addition")
+ ).checked_add(*(value)), "Runtime error: integer overflow in addition")
 ;
     }
     fn intPostfix(&self, value: &mut i64) -> i64 {
@@ -76,13 +76,13 @@ fn intOps(value: &mut i64) -> i64 {
     let mut rem: i64 = { let __sn_rhs = 3; let __sn_place = &mut (*(value)); let __sn_next = __sn_checked_mod((*__sn_place).checked_rem(__sn_rhs), __sn_rhs == 0); *__sn_place = __sn_next; __sn_next };
     let mut old_inc: i64 = { let __sn_place = &mut (*(value)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
     let mut old_dec: i64 = { let __sn_place = &mut (*(value)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked(__sn_previous.checked_sub(1), "Runtime error: integer overflow in subtraction"); *__sn_place = __sn_next; __sn_previous };
-    return __sn_checked(__sn_checked(__sn_checked(__sn_checked(__sn_checked(__sn_checked(__sn_checked(add.checked_add(sub), "Runtime error: integer overflow in addition")
- .checked_add(mul), "Runtime error: integer overflow in addition")
- .checked_add(div), "Runtime error: integer overflow in addition")
- .checked_add(rem), "Runtime error: integer overflow in addition")
- .checked_add(old_inc), "Runtime error: integer overflow in addition")
- .checked_add(old_dec), "Runtime error: integer overflow in addition")
- .checked_add(*(value)), "Runtime error: integer overflow in addition")
+    return __sn_checked((__sn_checked((__sn_checked((__sn_checked((__sn_checked((__sn_checked((__sn_checked((add).checked_add(sub), "Runtime error: integer overflow in addition")
+ ).checked_add(mul), "Runtime error: integer overflow in addition")
+ ).checked_add(div), "Runtime error: integer overflow in addition")
+ ).checked_add(rem), "Runtime error: integer overflow in addition")
+ ).checked_add(old_inc), "Runtime error: integer overflow in addition")
+ ).checked_add(old_dec), "Runtime error: integer overflow in addition")
+ ).checked_add(*(value)), "Runtime error: integer overflow in addition")
 ;
 }
 

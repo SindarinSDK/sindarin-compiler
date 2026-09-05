@@ -31,14 +31,14 @@ fn __sn_checked_mod<T>(value: Option<T>, divisor_is_zero: bool) -> T {
 fn main() {
     let mut add_base: i32 = 2147483646;
     let mut one: i32 = 1;
-    let mut sum: i32 = __sn_checked(add_base.checked_add(one), "Runtime error: integer overflow in addition")
+    let mut sum: i32 = __sn_checked((add_base).checked_add(one), "Runtime error: integer overflow in addition")
 ;
     let mut min_base: i32 = (-2147483647);
-    let mut minimum: i32 = __sn_checked(min_base.checked_sub(one), "Runtime error: integer overflow in subtraction")
+    let mut minimum: i32 = __sn_checked((min_base).checked_sub(one), "Runtime error: integer overflow in subtraction")
 ;
     let mut mul_base: i32 = (-1073741824);
     let mut two: i32 = 2;
-    let mut product: i32 = __sn_checked(mul_base.checked_mul(two), "Runtime error: integer overflow in multiplication")
+    let mut product: i32 = __sn_checked((mul_base).checked_mul(two), "Runtime error: integer overflow in multiplication")
 ;
     let mut quotient: i32 = { let __sn_left = minimum; let __sn_right = one; __sn_checked_div(__sn_left.checked_div(__sn_right), __sn_right == 0) }
 ;

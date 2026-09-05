@@ -35,7 +35,7 @@ struct Point {
 
 impl Point {
     fn offset(&self, mut other: Point) -> i64 {
-        let mut replacement: Point = Point { x: __sn_checked((other).x.checked_add((self).x), "Runtime error: integer overflow in addition")
+        let mut replacement: Point = Point { x: __sn_checked(((other).x).checked_add((self).x), "Runtime error: integer overflow in addition")
  };
         (other = replacement);
         return (other).x;

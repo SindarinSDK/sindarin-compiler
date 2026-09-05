@@ -41,7 +41,7 @@ impl HygieneIter {
     }
     fn next(&mut self) -> i64 {
         let mut value: i64 = (self).current;
-        ((self).current = __sn_checked((self).current.checked_add(1), "Runtime error: integer overflow in addition")
+        ((self).current = __sn_checked(((self).current).checked_add(1), "Runtime error: integer overflow in addition")
 );
         return value;
     }
@@ -58,7 +58,7 @@ impl HygieneSource {
 }
 
 fn selectSource(calls: &mut i64) -> HygieneSource {
-    (*(calls) = __sn_checked(*(calls).checked_add(1), "Runtime error: integer overflow in addition")
+    (*(calls) = __sn_checked((*(calls)).checked_add(1), "Runtime error: integer overflow in addition")
 );
     return HygieneSource { limit: 2 };
 }

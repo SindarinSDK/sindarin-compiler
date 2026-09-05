@@ -44,13 +44,13 @@ fn main() {
     std::process::exit((|| -> i64 {
         print!("{}", "Test pure lambdas (no capture):\n\n".to_string());
         print!("{}", "Test 1 - Arithmetic lambda:\n".to_string());
-        let mut add: __SnClosure<dyn Fn(i64, i64) -> i64> = { self::__SnClosure::<dyn Fn(i64, i64) -> i64>(std::rc::Rc::new(move |a: i64, b: i64| -> i64 { __sn_checked(a.checked_add(b), "Runtime error: integer overflow in addition")
+        let mut add: __SnClosure<dyn Fn(i64, i64) -> i64> = { self::__SnClosure::<dyn Fn(i64, i64) -> i64>(std::rc::Rc::new(move |a: i64, b: i64| -> i64 { __sn_checked((a).checked_add(b), "Runtime error: integer overflow in addition")
 })) }
 ;
-        let mut multiply: __SnClosure<dyn Fn(i64, i64) -> i64> = { self::__SnClosure::<dyn Fn(i64, i64) -> i64>(std::rc::Rc::new(move |a: i64, b: i64| -> i64 { __sn_checked(a.checked_mul(b), "Runtime error: integer overflow in multiplication")
+        let mut multiply: __SnClosure<dyn Fn(i64, i64) -> i64> = { self::__SnClosure::<dyn Fn(i64, i64) -> i64>(std::rc::Rc::new(move |a: i64, b: i64| -> i64 { __sn_checked((a).checked_mul(b), "Runtime error: integer overflow in multiplication")
 })) }
 ;
-        let mut subtract: __SnClosure<dyn Fn(i64, i64) -> i64> = { self::__SnClosure::<dyn Fn(i64, i64) -> i64>(std::rc::Rc::new(move |a: i64, b: i64| -> i64 { __sn_checked(a.checked_sub(b), "Runtime error: integer overflow in subtraction")
+        let mut subtract: __SnClosure<dyn Fn(i64, i64) -> i64> = { self::__SnClosure::<dyn Fn(i64, i64) -> i64>(std::rc::Rc::new(move |a: i64, b: i64| -> i64 { __sn_checked((a).checked_sub(b), "Runtime error: integer overflow in subtraction")
 })) }
 ;
         print!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("  add(10, 5) = "); __sn_interpolated.push_str(&format!("{}", ((add.clone()).0)(10, 5))); __sn_interpolated.push_str("\n"); __sn_interpolated });
@@ -100,10 +100,10 @@ fn main() {
         print!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("  half(10.0) = "); __sn_interpolated.push_str(&format!("{:.5}", ((half.clone()).0)(10.0))); __sn_interpolated.push_str("\n"); __sn_interpolated });
         print!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("  square(5.0) = "); __sn_interpolated.push_str(&format!("{:.5}", ((square.clone()).0)(5.0))); __sn_interpolated.push_str("\n"); __sn_interpolated });
         print!("{}", "\nTest 6 - Lambda composition:\n".to_string());
-        let mut double_val: __SnClosure<dyn Fn(i64) -> i64> = { self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |x: i64| -> i64 { __sn_checked(x.checked_mul(2), "Runtime error: integer overflow in multiplication")
+        let mut double_val: __SnClosure<dyn Fn(i64) -> i64> = { self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |x: i64| -> i64 { __sn_checked((x).checked_mul(2), "Runtime error: integer overflow in multiplication")
 })) }
 ;
-        let mut increment: __SnClosure<dyn Fn(i64) -> i64> = { self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |x: i64| -> i64 { __sn_checked(x.checked_add(1), "Runtime error: integer overflow in addition")
+        let mut increment: __SnClosure<dyn Fn(i64) -> i64> = { self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |x: i64| -> i64 { __sn_checked((x).checked_add(1), "Runtime error: integer overflow in addition")
 })) }
 ;
         let mut composed: i64 = ((double_val.clone()).0)(((increment.clone()).0)(5));
