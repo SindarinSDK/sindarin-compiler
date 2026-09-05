@@ -1,0 +1,10 @@
+struct Record =>
+  value: int
+fn update(record: Record): Record =>
+  return Record { value: record.value + 7 }
+fn main(): void =>
+  var record: Record = { value: 5 }
+  var pending: Record = & update(record)
+  var result: Record = pending !
+  println(result.value)
+  println(record.value)

@@ -1,0 +1,16 @@
+struct Record =>
+  name: str
+  value: int
+fn update(record: Record): int =>
+  record.value = record.value + 7
+  record.name = "updated"
+  return record.value
+fn main(): void =>
+  var record: Record = {
+    name: "original",
+    value: 5
+  }
+  var result: int = & update(record)
+  println(result !)
+  println(record.value)
+  println(record.name)
