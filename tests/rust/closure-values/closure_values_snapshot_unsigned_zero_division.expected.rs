@@ -45,7 +45,9 @@ fn main() {
     let mut divisor32: u32 = 0;
     let mut numerator: u64 = 1;
     let mut divisor: u64 = 0;
-    let mut divide: __SnClosure<dyn Fn() -> ()> = { let (numerator32, divisor32, numerator, divisor, ) = (numerator32.clone(), divisor32.clone(), numerator.clone(), divisor.clone(), ); self::__SnClosure::<dyn Fn() -> ()>(std::rc::Rc::new(move || -> () { let mut numerator32 = numerator32; let mut numerator = numerator; { let __sn_rhs = divisor32.clone(); let __sn_place = &mut (numerator32); let __sn_next = __sn_checked_div_0((*__sn_place).checked_div(__sn_rhs), __sn_rhs == 0); *__sn_place = __sn_next; __sn_next };println!("{}", numerator32.clone());{ let __sn_rhs = divisor.clone(); let __sn_place = &mut (numerator); let __sn_next = __sn_checked_div_0((*__sn_place).checked_div(__sn_rhs), __sn_rhs == 0); *__sn_place = __sn_next; __sn_next };println!("{}", numerator.clone());})) }
+    let mut divide: __SnClosure<dyn Fn() -> ()> = { let (numerator32, divisor32, numerator, divisor, ) = (numerator32.clone(), divisor32.clone(), numerator.clone(), divisor.clone(), ); self::__SnClosure::<dyn Fn() -> ()>(std::rc::Rc::new(move || -> () { let mut numerator32 = numerator32; let mut numerator = numerator; { let __sn_rhs = divisor32.clone(); let __sn_place = &mut (numerator32); let __sn_next = __sn_checked_div_0((*__sn_place).checked_div(__sn_rhs), __sn_rhs == 0); *__sn_place = __sn_next; __sn_next };println!("{}", numerator32.clone())
+;{ let __sn_rhs = divisor.clone(); let __sn_place = &mut (numerator); let __sn_next = __sn_checked_div_0((*__sn_place).checked_div(__sn_rhs), __sn_rhs == 0); *__sn_place = __sn_next; __sn_next };println!("{}", numerator.clone())
+;})) }
 ;
     ((divide.clone()).0)();
 }

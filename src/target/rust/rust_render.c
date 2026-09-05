@@ -301,6 +301,34 @@ static char *helper_rust_clone_suffix(json_object **params, int param_count,
     return strdup("");
 }
 
+static char *helper_rust_print_prefix(json_object **params, int param_count,
+                                      hbs_options_t *options)
+{
+    (void)options;
+    const char *kind = param_count > 0 ? json_kind(params[0]) : NULL;
+    if (kind && strcmp(kind, "string") == 0) return strdup("__sn_print_string(&(");
+    if (kind && strcmp(kind, "char") == 0) return strdup("__sn_print_char(");
+    return strdup("print!(\"{}\", ");
+}
+
+static char *helper_rust_print_suffix(json_object **params, int param_count,
+                                      hbs_options_t *options)
+{
+    (void)options;
+    const char *kind = param_count > 0 ? json_kind(params[0]) : NULL;
+    return strdup(kind && strcmp(kind, "string") == 0 ? "))" : ")");
+}
+
+static char *helper_rust_println_prefix(json_object **params, int param_count,
+                                        hbs_options_t *options)
+{
+    (void)options;
+    const char *kind = param_count > 0 ? json_kind(params[0]) : NULL;
+    if (kind && strcmp(kind, "string") == 0) return strdup("__sn_println_string(&(");
+    if (kind && strcmp(kind, "char") == 0) return strdup("__sn_println_char(");
+    return strdup("println!(\"{}\", ");
+}
+
 static char *helper_newline(json_object **params, int param_count, hbs_options_t *options)
 {
     (void)params;
@@ -328,6 +356,9 @@ static void register_rust_helpers(hbs_env_t *env)
     hbs_register_helper(env, "rust_default", helper_rust_default);
     hbs_register_helper(env, "rust_unary", helper_rust_unary);
     hbs_register_helper(env, "rust_clone_suffix", helper_rust_clone_suffix);
+    hbs_register_helper(env, "rust_print_prefix", helper_rust_print_prefix);
+    hbs_register_helper(env, "rust_print_suffix", helper_rust_print_suffix);
+    hbs_register_helper(env, "rust_println_prefix", helper_rust_println_prefix);
     hbs_register_helper(env, "nl", helper_newline);
     hbs_register_helper(env, "rbrace", helper_right_brace);
 }

@@ -528,6 +528,42 @@ static bool rust_model_uses_string_helpers(json_object *node)
     return false;
 }
 
+static bool rust_model_uses_byte_strings(json_object *node)
+{
+    if (!node) return false;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            if (rust_model_uses_byte_strings(json_object_array_get_idx(node, i))) return true;
+        return false;
+    }
+    if (!json_object_is_type(node, json_type_object)) return false;
+    if (json_string_property_equals(node, "kind", "string")) return true;
+    if (json_string_property_equals(node, "kind", "builtin_print") ||
+        json_string_property_equals(node, "kind", "builtin_println"))
+    {
+        json_object *args = NULL;
+        if (json_object_object_get_ex(node, "args", &args))
+        {
+            size_t count = json_object_array_length(args);
+            for (size_t i = 0; i < count; i++)
+            {
+                json_object *arg = json_object_array_get_idx(args, i);
+                json_object *type = NULL;
+                if (json_object_object_get_ex(arg, "type", &type) &&
+                    json_string_property_equals(type, "kind", "char")) return true;
+            }
+        }
+    }
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        if (rust_model_uses_byte_strings(value)) return true;
+    }
+    return false;
+}
+
 static bool rust_model_uses_split_helpers(json_object *node)
 {
     if (!node) return false;

@@ -40,6 +40,9 @@ fn increment(mut point: Point) -> i64 {
 
 fn main() {
     let mut point: Point = Point { x: 1 };
-    println!("{}", increment(point));
-    println!("{}", (point).x);
+    println!("{}", increment(point)
+)
+;
+    println!("{}", (point).x)
+;
 }
