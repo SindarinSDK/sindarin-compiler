@@ -50,6 +50,7 @@ static bool native_scalar_kind(const char *kind, bool allow_void)
         strcmp(kind, "int") == 0 || strcmp(kind, "long") == 0 ||
         strcmp(kind, "int32") == 0 || strcmp(kind, "uint") == 0 ||
         strcmp(kind, "uint32") == 0 || strcmp(kind, "byte") == 0 ||
+        strcmp(kind, "bool") == 0 || strcmp(kind, "char") == 0 ||
         strcmp(kind, "float") == 0 || strcmp(kind, "double") == 0;
 }
 
@@ -130,7 +131,7 @@ static bool validate_native_function(json_object *function)
     {
         const char *kind = native_string(return_type, "kind");
         fprintf(stderr,
-                "Error: Rust target native function '%s' has unsupported result type '%s'; the native scalar bridge supports void, int, long, int32, uint, uint32, byte, float, and double\n",
+                "Error: Rust target native function '%s' has unsupported result type '%s'; the native scalar bridge supports void, bool, char, int, long, int32, uint, uint32, byte, float, and double\n",
                 name ? name : "<anonymous>", kind ? kind : "unknown");
         return false;
     }

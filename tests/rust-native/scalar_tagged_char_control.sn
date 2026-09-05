@@ -1,0 +1,5 @@
+# Source-equivalent extraction of the tagged test_match_native char declaration.
+native fn native_identity_char(c: char): char => c
+
+fn main(): void =>
+  println(native_identity_char('Z') == 'Z')

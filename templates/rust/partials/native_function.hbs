@@ -1,9 +1,9 @@
 extern "C" {
     #[link_name = {{rust_string_literal c_link_symbol}}]
-    fn {{rust_native_extern_name}}({{#each params}}{{#if @index}}, {{/if}}_: {{rust_type type}}{{/each}}){{#unless (eq return_type.kind "void")}} -> {{rust_type return_type}}{{/unless}};
+    fn {{rust_native_extern_name}}({{#each params}}{{#if @index}}, {{/if}}_: {{#if (eq type.kind "char")}}std::ffi::c_char{{else}}{{rust_type type}}{{/if}}{{/each}}){{#unless (eq return_type.kind "void")}} -> {{#if (eq return_type.kind "char")}}std::ffi::c_char{{else}}{{rust_type return_type}}{{/if}}{{/unless}};
 }
 
 fn {{rust_ident rust_callable_name}}({{#each params}}{{#if @index}}, {{/if}}{{rust_ident name}}: {{rust_type type}}{{/each}}){{#unless (eq return_type.kind "void")}} -> {{rust_type return_type}}{{/unless}} {
     {{#if rust_native_initializer}}__sn_native_initialize_once();
-    {{/if}}unsafe { {{rust_native_extern_name}}({{#each params}}{{#if @index}}, {{/if}}{{rust_ident name}}{{/each}}) }
+    {{/if}}unsafe { {{#if (eq return_type.kind "char")}}char::from_u32(({{/if}}{{rust_native_extern_name}}({{#each params}}{{#if @index}}, {{/if}}{{#if (eq type.kind "char")}}({{rust_ident name}} as u32 as u8) as std::ffi::c_char{{else}}{{rust_ident name}}{{/if}}{{/each}}){{#if (eq return_type.kind "char")}} as u8) as u32).expect("C char result is always an 8-bit Sindarin char"){{/if}} }
 }{{nl}}
