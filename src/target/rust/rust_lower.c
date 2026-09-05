@@ -849,6 +849,48 @@ static bool rust_allocate_helper_name(json_object *model, const char *base,
     return false;
 }
 
+/* Assertions bind their operands before branching so each source expression is
+ * evaluated exactly once and in source order.  Those bindings live in the same
+ * lexical namespace as source locals, so assign every assertion collision-free
+ * names against the complete Rust model. */
+static bool rust_lower_assert_temp_names(json_object *model, json_object *node)
+{
+    if (!node) return true;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            if (!rust_lower_assert_temp_names(
+                    model, json_object_array_get_idx(node, i))) return false;
+        return true;
+    }
+    if (!json_object_is_type(node, json_type_object)) return true;
+
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        if (!rust_lower_assert_temp_names(model, value)) return false;
+    }
+
+    if (!json_string_property_equals(node, "kind", "builtin_assert")) return true;
+
+    const char *bases[] = {
+        "__sn_assert_condition", "__sn_assert_message", "__sn_assert_stderr"
+    };
+    const char *keys[] = {
+        "rust_assert_condition_name", "rust_assert_message_name",
+        "rust_assert_stderr_name"
+    };
+    for (size_t i = 0; i < 3; i++)
+    {
+        char name[96];
+        if (!rust_allocate_helper_name(model, bases[i], name, sizeof(name)))
+            return false;
+        json_object_object_add(node, keys[i], json_object_new_string(name));
+    }
+    return true;
+}
+
 static void rust_copy_string_helper_names(json_object *node, const char *split,
                                           const char *split_limit,
                                           const char *split_lines,

@@ -1,0 +1,6 @@
+fn main(): void =>
+  var __sn_assert_condition: bool = true
+  var __sn_assert_message: str = "message"
+  var __sn_assert_stderr: str = "stderr"
+  assert(__sn_assert_condition, __sn_assert_message)
+  println(__sn_assert_stderr)
