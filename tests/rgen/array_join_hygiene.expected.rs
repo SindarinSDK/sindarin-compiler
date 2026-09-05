@@ -125,6 +125,21 @@ fn __sn_array_join_1<T: __SnArrayText_0>(array: &[T], separator: &str) -> String
 }
 
 
+#[derive(Clone, Debug, PartialEq)]
+struct JoinBag {
+    values: Vec<i64>,
+}
+
+impl JoinBag {
+    fn mutateSeparator(&mut self) -> String {
+        ((self).values).push(3);
+        return "-".to_string();
+    }
+    fn render(&mut self) -> String {
+        return { let __sn_separator_1 = &((self).mutateSeparator()); __sn_array_join_1(((self).values).as_slice(), __sn_separator_1.as_str()) };
+    }
+}
+
 fn __sn_array_join() -> i64 {
     return 11;
 }
@@ -138,12 +153,19 @@ fn main() {
     let mut __sn_array_0: Vec<i64> = vec![4];
     let mut __sn_separator: String = "-".to_string();
     let mut __sn_separator_0: String = ",".to_string();
-    println!("{}", { let __sn_array_1 = &(__sn_array); let __sn_separator_1 = &(__sn_separator); __sn_array_join_1(__sn_array_1.as_slice(), __sn_separator_1.as_str()) });
-    println!("{}", { let __sn_array_1 = &(__sn_array_0); let __sn_separator_1 = &(__sn_separator_0); __sn_array_join_1(__sn_array_1.as_slice(), __sn_separator_1.as_str()) });
+    println!("{}", { let __sn_separator_1 = &(__sn_separator); __sn_array_join_1((__sn_array).as_slice(), __sn_separator_1.as_str()) });
+    println!("{}", { let __sn_separator_1 = &(__sn_separator_0); __sn_array_join_1((__sn_array_0).as_slice(), __sn_separator_1.as_str()) });
     println!("{}", __sn_array_join());
     println!("{}", __sn_array_join_0());
     let mut negative: i64 = (-1);
     let mut unsigned: Vec<u64> = vec![0, 42, 9223372036854775807, (negative as u64)];
-    println!("{}", { let __sn_array_1 = &(unsigned); let __sn_separator_1 = &(",".to_string()); __sn_array_join_1(__sn_array_1.as_slice(), __sn_separator_1.as_str()) });
+    println!("{}", { let __sn_separator_1 = &(",".to_string()); __sn_array_join_1((unsigned).as_slice(), __sn_separator_1.as_str()) });
     println!("{}", __sn_array_to_string_0(&(unsigned)));
+    let mut bag: JoinBag = JoinBag { values: vec![1, 2] };
+    println!("{}", (bag).render());
+    println!("{}", __sn_array_to_string_0(&((bag).values)));
+    let mut bytes: Vec<u8> = vec![65, 0, 66, 255];
+    let mut byteText: String = { let __sn_array_1 = &(bytes); String::from_utf8_lossy(__sn_array_1.split(|value| *value == 0).next().unwrap_or(&[])).into_owned() };
+    println!("{}", byteText);
+    println!("{}", (byteText).len() as i64);
 }

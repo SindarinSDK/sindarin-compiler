@@ -821,6 +821,24 @@ static bool is_named_fn_str_call(Expr *expr, SymbolTable *symbol_table)
     return (sym && sym->is_function);
 }
 
+/* A variable/member chain is a stable Rust place: selecting it has no
+ * observable work of its own.  Array join must evaluate its separator before
+ * borrowing such a place because the separator may mutate the same owner
+ * (for example, self.values.join(self.addSeparator())).  Delaying the borrow
+ * also makes the join observe that mutation, as the tagged backend does.
+ *
+ * Do not classify indexed or computed receivers here.  Their base/index
+ * evaluation can have side effects and therefore still needs the ordinary
+ * receiver-first temporary below. */
+static bool rust_array_join_receiver_is_stable_place(Expr *expr)
+{
+    if (!expr) return false;
+    if (expr->type == EXPR_VARIABLE) return true;
+    if (expr->type == EXPR_MEMBER)
+        return rust_array_join_receiver_is_stable_place(expr->as.member.object);
+    return false;
+}
+
 /* Wrap a bare top-level function reference into a __Closure__ at the call/
  * assignment site. fn_type must be the destination's TYPE_FUNCTION (the
  * parameter type, the field type, or the assignment target's type).
@@ -1573,6 +1591,22 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
             else
             {
                 json_object_object_add(obj, "kind", json_object_new_string("call"));
+
+                if (expr->as.call.callee->type == EXPR_MEMBER)
+                {
+                    Expr *receiver = expr->as.call.callee->as.member.object;
+                    Token member = expr->as.call.callee->as.member.member_name;
+                    if (receiver && receiver->expr_type &&
+                        receiver->expr_type->kind == TYPE_ARRAY &&
+                        member.length == 4 &&
+                        strncmp(member.start, "join", 4) == 0 &&
+                        rust_array_join_receiver_is_stable_place(receiver))
+                    {
+                        json_object_object_add(obj,
+                            "rust_array_join_stable_place",
+                            json_object_new_boolean(true));
+                    }
+                }
 
                 /* Detect namespace function calls: callee is EXPR_MEMBER where
                  * the root object is an EXPR_VARIABLE with no expr_type (namespace, not a value).
