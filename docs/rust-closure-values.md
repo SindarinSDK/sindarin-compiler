@@ -393,3 +393,57 @@ protected-file checks passed after the documentation and checkpoint commit.
 Mutable owned captures and borrowed/as-ref captures remain
 the immediate subsequent slices; this work does not depend on repairing the
 separately preserved C callable ownership failures.
+
+## Mutable snapshot arithmetic review correction
+
+Snapshot mutation now follows both the selected Rust validation arithmetic mode
+and the model's per-expression `mutation_arithmetic_mode`. Checked O0/O1 output
+continues to use `checked_*` methods and preserves the existing arithmetic-failure
+behavior. Unchecked `uint32` and `uint` snapshots, including the default O2
+model, use Rust wrapping methods for `+`, `-`, `*`, `/`, `%`, postfix increment,
+and postfix decrement. An explicit `--checked` or `--unchecked` override takes
+precedence at every optimization level. Each invocation still reconstructs its
+private snapshot from the captured value, so a second call repeats the same
+boundary result rather than observing the first call's mutation.
+
+The unsigned boundary fixture exercises discarded compound results as well as
+observable postfix results for both widths. Its O0/O1/O2 matrix contains nine
+unchecked C/Rust/default executions and nine corresponding checked failures
+across those targets. Two additional Rust fixtures verify
+checked division and remainder by zero for both widths at O0/O1/O2. The exact C
+sources are retained separately as
+`closure_probes/c_snapshot_unsigned_zero_division.sn` and
+`closure_probes/c_snapshot_unsigned_zero_modulo.sn`: their generated C contains
+native division or remainder by a captured zero. The observed executables exited
+0 without output under optimization, which is undefined C behavior and therefore
+is not recorded as a parity pass or used as a Rust oracle.
+
+Floating snapshot compound assignment now validates the operator before
+rendering. `+=`, `-=`, `*=`, and `/=` retain their existing behavior; `%=` is
+rejected at O0/O1/O2 with the established Rust-target floating-compound
+diagnostic and no emitted artifact. The corresponding C source also fails C
+code generation separately, so it is not treated as a differential success.
+
+After this correction the focused comparison passes 240 compiled executions,
+15 expected checked failures, and 51 exact ordered rejections with no emitted
+Rust artifact. The isolated focused harnesses pass 32/32 Rust generation,
+17/17 Rust generation errors, and 17/17 integration tests. Each harness uses a
+private `TMPDIR`; direct harness invocations retain `--no-cleanup` so concurrent
+worktrees cannot delete one another's temporary files.
+
+The production-change gates pass `make test-rgen` at 263/263 and the subsequent
+`make build && make test` at 3,971/3,971 with zero failures and zero skips:
+
+| Suite | Passed |
+|---|---:|
+| Unit | 1634 |
+| C generation | 154 |
+| Rust generation | 263 |
+| Rust generation errors | 181 |
+| Shared model generation | 108 |
+| Default-C integration | 1313 |
+| Integration errors | 76 |
+| Exploratory | 224 |
+| Exploratory errors | 11 |
+| Rust toolchain/lifecycle | 7 |
+| Total | **3971** |

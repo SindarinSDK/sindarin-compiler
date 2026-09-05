@@ -605,12 +605,26 @@ static bool rust_validate_closure_snapshot_mutation(json_object *expr)
     if (compound)
     {
         json_object *value = rust_closure_property(expr, "value");
-        if (!rust_closure_same_type(type, rust_closure_property(value, "type")) ||
-            !rust_validate_expr(value))
+        if (!rust_closure_same_type(type, rust_closure_property(value, "type")))
             return rust_closure_error("mixed-type mutable scalar snapshot operation");
+        if (rust_float_type(kind))
+        {
+            const char *op = json_string_property(expr, "op");
+            if (!op || (strcmp(op, "add") != 0 && strcmp(op, "subtract") != 0 &&
+                        strcmp(op, "multiply") != 0 && strcmp(op, "divide") != 0))
+            {
+                fprintf(stderr,
+                        "Error: Rust target supports floating-point compound assignment only for +=, -=, *=, and /=\n");
+                rust_validation_reported_error = true;
+                return false;
+            }
+        }
+        if (!rust_validate_expr(value)) return false;
     }
     if (rust_integer_type(kind))
     {
+        bool checked = rust_validation_arithmetic_mode == ARITH_CHECKED &&
+            json_string_property_equals(expr, "mutation_arithmetic_mode", "checked");
         const char *op = compound ? json_string_property(expr, "op") :
             (json_string_property_equals(expr, "kind", "increment") ? "add" : "subtract");
         const char *method = NULL;
@@ -620,6 +634,16 @@ static bool rust_validate_closure_snapshot_mutation(json_object *expr)
         else if (op && strcmp(op, "divide") == 0) method = "checked_div";
         else if (op && strcmp(op, "modulo") == 0) method = "checked_rem";
         if (!method) return rust_closure_error("this mutable scalar snapshot operator");
+        if (!checked && (strcmp(kind, "uint32") == 0 || strcmp(kind, "uint") == 0))
+        {
+            if (strcmp(method, "checked_add") == 0) method = "wrapping_add";
+            else if (strcmp(method, "checked_sub") == 0) method = "wrapping_sub";
+            else if (strcmp(method, "checked_mul") == 0) method = "wrapping_mul";
+            else if (strcmp(method, "checked_div") == 0) method = "wrapping_div";
+            else method = "wrapping_rem";
+            json_object_object_add(expr, "rust_snapshot_wrapping",
+                                   json_object_new_boolean(true));
+        }
         json_object_object_add(expr, "rust_checked_method", json_object_new_string(method));
     }
     return rust_validate_expr(place);
