@@ -14,4 +14,13 @@
     long long __ai__ = {{> expr index}}; if (__ai__ < 0) __ai__ += {{> expr array}}->len;
     sn_cleanup_array(&((SnArray **){{> expr array}}->data)[__ai__]);
     ((SnArray **){{> expr array}}->data)[__ai__] = {{#if needs_deep_copy}}sn_array_copy({{> expr value}}){{else}}{{> expr value}}{{/if}};
-}){{else}}(({{c_type type}} *){{> expr array}}->data)[({ long long __ai__ = {{> expr index}}; __ai__ < 0 ? __ai__ + {{> expr array}}->len : __ai__; })] = {{> expr value}}{{/if}}{{/if}}{{/if}}{{/if}}
+}){{else}}{{#if (eq elem_cleanup "free_closure")}}({
+    SnArray *__ia_array__ = {{> expr array}};
+    long long __ai__ = {{> expr index}}; if (__ai__ < 0) __ai__ += __ia_array__->len;
+    void *__new_cl__ = {{#if needs_closure_wrap}}({ __Closure__ *__cl__ = malloc(sizeof(__Closure__)); __cl__->fn = (void *)__fn_wrap_{{fn_wrapper_id}}__; __cl__->size = sizeof(__Closure__); __cl__->__cleanup__ = NULL; __cl__->__rc__ = 1; __cl__; }){{else}}{{#if source_is_borrow}}sn_closure_retain({{> expr value}}){{else}}{{> expr value}}{{/if}}{{/if}};
+    void **__slot__ = &((void **)__ia_array__->data)[__ai__];
+    void *__old_cl__ = *__slot__;
+    *__slot__ = __new_cl__;
+    sn_closure_release(&__old_cl__);
+    *__slot__;
+}){{else}}(({{c_type type}} *){{> expr array}}->data)[({ long long __ai__ = {{> expr index}}; __ai__ < 0 ? __ai__ + {{> expr array}}->len : __ai__; })] = {{> expr value}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}

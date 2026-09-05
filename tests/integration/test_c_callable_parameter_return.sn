@@ -1,0 +1,6 @@
+fn identity(action: fn(): int): fn(): int => action
+fn main(): void =>
+  var first: fn(): int = fn(): int => 7
+  var second: fn(): int = identity(first)
+  first = fn(): int => 9
+  println(second())

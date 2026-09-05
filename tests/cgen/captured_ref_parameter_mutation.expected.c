@@ -48,7 +48,7 @@ void __sn__incrementCaptured(long long *__sn__value) {
         __cl__;
     });
 
-    ((void (*)(void *))((__Closure__ *)__sn__increment)->fn)(__sn__increment);
+    ({ sn_auto_fn void *__callee__ = sn_closure_retain(__sn__increment); ((void (*)(void *))((__Closure__ *)__callee__)->fn)(__callee__); });
     
 }
 

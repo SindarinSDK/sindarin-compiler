@@ -175,6 +175,10 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
 json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                             ArithmeticMode arithmetic_mode);
 
+/* Box a bare named function so it can cross a function-value ownership edge. */
+int gen_model_emit_fn_ref_wrapper(Arena *arena, Expr *value,
+                                  Type *fn_type, SymbolTable *symbol_table);
+
 /* Function emission */
 json_object *gen_model_function(Arena *arena, FunctionStmt *func, SymbolTable *symbol_table,
                                 ArithmeticMode arithmetic_mode);

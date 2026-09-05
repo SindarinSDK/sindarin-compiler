@@ -1,0 +1,20 @@
+struct Holder =>
+  action: fn(): int
+
+fn make(value: int): fn(): int => fn(): int => value
+
+fn main(): void =>
+  var first: fn(): int = make(7)
+  var alias: fn(): int = first
+  first = first
+  first = make(8)
+  println(alias())
+
+  var holder: Holder = { action: alias }
+  holder.action = holder.action
+  println(holder.action())
+
+  var actions: (fn(): int)[] = {alias}
+  actions[0] = actions[0]
+  actions[0] = make(9)
+  println(actions[0] ())

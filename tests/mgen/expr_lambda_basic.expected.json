@@ -180,7 +180,8 @@
                   ],
                   "is_tail_call": false,
                   "is_closure_call": true,
-                  "is_fn_field_call": false
+                  "is_fn_field_call": false,
+                  "callee_is_borrow": true
                 },
                 "right": {
                   "type": {

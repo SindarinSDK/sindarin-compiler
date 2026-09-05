@@ -1,0 +1,15 @@
+fn invoke(action: fn(int): int, n: int): int =>
+  return action(n)
+
+fn main(): void =>
+  var count: int = 0
+  var action: fn(int): int = fn(n: int): int =>
+    count++
+    if n > 0 =>
+      count += invoke(action, n - 1)
+    return count
+  var alias: fn(int): int = action
+  action = fn(n: int): int => 99
+  println(alias(2))
+  println(count)
+  println(action(0))

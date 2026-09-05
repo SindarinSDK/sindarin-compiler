@@ -1,0 +1,34 @@
+struct Holder =>
+  action: fn(): int
+
+fn increment(value: int): int => value + 1
+
+fn identity(action: fn(): int): fn(): int => action
+
+fn index(): int =>
+  println("index")
+  return 0
+
+fn factory(): Holder =>
+  var result: Holder = { action: fn(): int => 7 }
+  return result
+
+fn main(): void =>
+  var named: fn(int): int = increment
+  println(named(1))
+
+  var first: fn(): int = fn(): int => 3
+  var copied: fn(): int = identity(first)
+  first = first
+  first = fn(): int => 4
+  println(copied())
+
+  var holder: Holder = { action: copied }
+  holder.action = holder.action
+  println(holder.action())
+
+  var actions: (fn(): int)[] = {copied}
+  actions[0] = actions[0]
+  actions[0] = fn(): int => 5
+  println(actions[index()] ())
+  println(factory().action())

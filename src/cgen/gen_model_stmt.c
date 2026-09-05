@@ -191,6 +191,20 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
             {
                 json_object *init_expr = gen_model_expr(arena, stmt->as.var_decl.initializer, symbol_table, arithmetic_mode);
                 json_object_object_add(obj, "initializer", init_expr);
+                bool init_needs_closure_wrap = false;
+                if (vtype && vtype->kind == TYPE_FUNCTION)
+                {
+                    int wrap_id = gen_model_emit_fn_ref_wrapper(arena,
+                        stmt->as.var_decl.initializer, vtype, symbol_table);
+                    if (wrap_id >= 0)
+                    {
+                        init_needs_closure_wrap = true;
+                        json_object_object_add(obj, "needs_closure_wrap",
+                            json_object_new_boolean(true));
+                        json_object_object_add(obj, "fn_wrapper_id",
+                            json_object_new_int(wrap_id));
+                    }
+                }
                 /* Mark typeOf initializers as assigned so the template skips
                  * self-cleaning (the variable's sn_auto_TypeInfo handles it). */
                 if (stmt->as.var_decl.initializer->type == EXPR_TYPEOF)
@@ -228,10 +242,12 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                 bool want_acquire =
                     (vtype && vtype->kind == TYPE_STRING) ||
                     (vtype && vtype->kind == TYPE_ARRAY) ||
+                    (vtype && vtype->kind == TYPE_FUNCTION) ||
                     gen_model_type_category(vtype) == TYPE_CAT_COMPOSITE ||
                     gen_model_type_category(vtype) == TYPE_CAT_REFCOUNTED;
                 if (want_acquire &&
                     !init_is_lifted_member &&
+                    !init_needs_closure_wrap &&
                     ownership_kind(stmt->as.var_decl.initializer) == OWNERSHIP_BORROW)
                 {
                     json_object_object_add(obj, "source_is_borrow",
@@ -434,8 +450,8 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                             }
                         }
                     }
-                    /* When returning a function parameter (not a local variable) of an
-                     * owned type (str, array), the parameter is BORROWED — the callee
+                    /* When returning a parameter (not a local variable) of an
+                     * owned type, the parameter is BORROWED — the callee
                      * must not transfer ownership.  Return an independent copy instead.
                      * This arises in generic passthrough functions like identity<str>
                      * where the body is literally "return x" with x being the str param.
@@ -471,17 +487,16 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                                  * return edge to produce a fresh +1 credit (strdup for str,
                                  * __sn__T_retain for ref-struct). source_is_borrow drives the
                                  * acquire selection in return.hbs, keyed on value.type.kind /
-                                 * pass_self_by_ref. Array/function params fall through to
-                                 * plain return — the caller retains ownership and the return
-                                 * is simply a copy of the pointer. */
+                                 * pass_self_by_ref. Callable returns retain the closure box;
+                                 * arrays preserve their historical borrowed pointer return. */
                                 if (rt->kind == TYPE_STRING ||
+                                    rt->kind == TYPE_FUNCTION ||
                                     (rt->kind == TYPE_STRUCT && rt->as.struct_type.pass_self_by_ref))
                                 {
                                     json_object_object_add(obj, "source_is_borrow",
                                                            json_object_new_boolean(true));
                                 }
-                                /* For arrays/functions: just return directly — the callee doesn't
-                                 * own the param's array; the caller retains ownership. */
+                                /* Arrays retain their historical borrowed-return behavior. */
                                 break;
                             }
                         }
@@ -610,7 +625,8 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                         }
                     }
                     if (source_has_cleanup &&
-                        (rt->kind == TYPE_ARRAY || rt->kind == TYPE_STRING))
+                        (rt->kind == TYPE_ARRAY || rt->kind == TYPE_STRING ||
+                         rt->kind == TYPE_FUNCTION))
                     {
                         json_object_object_add(obj, "source_is_borrow",
                             json_object_new_boolean(true));
@@ -652,6 +668,13 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                 else if (rv->expr_type && rv->expr_type->kind == TYPE_STRING &&
                          (rv->type == EXPR_LITERAL || rv->type == EXPR_MEMBER ||
                           rv->type == EXPR_ARRAY_ACCESS))
+                {
+                    json_object_object_add(obj, "source_is_borrow",
+                        json_object_new_boolean(true));
+                }
+                else if (rv->expr_type && rv->expr_type->kind == TYPE_FUNCTION &&
+                         (rv->type == EXPR_ARRAY_ACCESS ||
+                          rv->type == EXPR_MEMBER_ACCESS))
                 {
                     json_object_object_add(obj, "source_is_borrow",
                         json_object_new_boolean(true));

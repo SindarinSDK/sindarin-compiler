@@ -150,7 +150,7 @@ static void string_concat_stack_push(StringConcatExprStack *stack, Arena *arena,
  * lifting, an array literal at a call site is built inside a bare
  * statement-expression with no cleanup attribute, leaking the SnArray
  * and (for ref-bearing element types) every retained element. */
-static void hoist_borrow_temps(json_object *call_obj, json_object *args, Expr *call_expr)
+static void hoist_borrow_temps(json_object *call_obj, json_object *args)
 {
     bool has_any = false;
     bool has_fn_ref = false;
@@ -175,53 +175,20 @@ static void hoist_borrow_temps(json_object *call_obj, json_object *args, Expr *c
                 json_object_new_string(var_name));
             has_any = true;
         }
-        /* Also detect lambda expressions used as call args — these
-         * malloc a __Closure__ that needs to be freed after the call.
-         *
-         * CAVEAT: if the callee returns a struct, the closure may be
-         * stored in a struct field (ownership transfer).  In that case,
-         * sn_auto_fn would free the closure while the struct still
-         * references it.  Only hoist when the callee returns a
-         * non-struct type (it only borrows the closure). */
+        /* Lambda and named-function arguments allocate closure boxes. The
+         * callee borrows them; an owning destination such as a returned
+         * struct field retains independently, so the argument temporary is
+         * always cleaned after the call. */
         json_object *kind_obj = NULL;
         bool is_lambda = false;
         if (json_object_object_get_ex(arg, "kind", &kind_obj))
             is_lambda = strcmp(json_object_get_string(kind_obj), "lambda") == 0;
 
-        bool callee_may_store = false;
-        if (call_expr && call_expr->type == EXPR_CALL &&
-            call_expr->as.call.callee && call_expr->as.call.callee->expr_type &&
-            call_expr->as.call.callee->expr_type->kind == TYPE_FUNCTION)
-        {
-            Type *ret = call_expr->as.call.callee->expr_type->as.function.return_type;
-            if (ret && ret->kind == TYPE_STRUCT)
-                callee_may_store = true;
-        }
-        /* Preserve the same transfer exception for a fresh closure returned
-         * by a call. The chain flattener may lift this argument later; marking
-         * it consumed prevents that temporary from claiming a second cleanup
-         * while the returned struct field owns the original +1 credit. */
-        bool is_returned_closure = false;
-        json_object *arg_type_obj = NULL, *arg_type_kind_obj = NULL;
-        if (kind_obj &&
-            (strcmp(json_object_get_string(kind_obj), "call") == 0 ||
-             strcmp(json_object_get_string(kind_obj), "method_call") == 0 ||
-             strcmp(json_object_get_string(kind_obj), "static_call") == 0) &&
-            json_object_object_get_ex(arg, "type", &arg_type_obj) &&
-            json_object_object_get_ex(arg_type_obj, "kind", &arg_type_kind_obj) &&
-            strcmp(json_object_get_string(arg_type_kind_obj), "function") == 0)
-        {
-            is_returned_closure = true;
-        }
-        if (callee_may_store && is_returned_closure)
-            json_object_object_add(arg, "consumes_source",
-                json_object_new_boolean(true));
-
         json_object *consumes_obj = NULL;
         bool consumes_source =
             json_object_object_get_ex(arg, "consumes_source", &consumes_obj) &&
             json_object_get_boolean(consumes_obj);
-        if ((is_fn || is_lambda) && !callee_may_store && !consumes_source)
+        if ((is_fn || is_lambda) && !consumes_source)
         {
             char var_name[64];
             snprintf(var_name, sizeof(var_name), "__fn_tmp_%d__", i);
@@ -831,15 +798,13 @@ static bool is_named_fn_str_call(Expr *expr, SymbolTable *symbol_table)
  * Callers attach the returned id and a context-appropriate boolean flag to
  * their own JSON output:
  *   - call/static-call argument:  "is_fn_ref_arg" + "fn_wrapper_id"
- *   - struct-literal field:       "needs_closure_wrap" + "fn_wrapper_id"
- *   - member-assign value:        "needs_closure_wrap" + "fn_wrapper_id"
+ *   - declaration/assignment:     "needs_closure_wrap" + "fn_wrapper_id"
+ *   - struct field/array slot:    "needs_closure_wrap" + "fn_wrapper_id"
  *
- * The four sites used to inline this logic; consolidating prevents a fourth
- * site (EXPR_STATIC_CALL — see crash on Box.make(produce) when Box stores
- * a fn-typed field that later goes through __sn__Box_copy) from drifting
- * out of sync with the rest. */
-static int maybe_emit_fn_ref_wrapper(Arena *arena, Expr *arg_expr,
-                                     Type *fn_type, SymbolTable *symbol_table)
+ * Keeping the wrapper construction metadata behind one helper prevents the
+ * ownership edges from drifting on native/borrow-qualified signatures. */
+int gen_model_emit_fn_ref_wrapper(Arena *arena, Expr *arg_expr,
+                                  Type *fn_type, SymbolTable *symbol_table)
 {
     if (!fn_type || fn_type->kind != TYPE_FUNCTION) return -1;
     if (!arg_expr || arg_expr->type != EXPR_VARIABLE) return -1;
@@ -1205,7 +1170,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                  * pointer before replacing/releasing the old binding. */
                 if (atype->kind == TYPE_FUNCTION)
                 {
-                    int wrap_id = maybe_emit_fn_ref_wrapper(
+                    int wrap_id = gen_model_emit_fn_ref_wrapper(
                         arena, expr->as.assign.value, atype, symbol_table);
                     if (wrap_id >= 0)
                     {
@@ -1543,7 +1508,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     json_object_array_add(args,
                         gen_model_expr(arena, expr->as.call.arguments[i], symbol_table, arithmetic_mode));
                 }
-                hoist_borrow_temps(obj, args, expr);
+                hoist_borrow_temps(obj, args);
                 json_object_object_add(obj, "args", args);
 
                 /* assert(cond, message): if the message arg is a heap-producing
@@ -2003,7 +1968,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                      * Wrap into __Closure__ for uniform calling convention. */
                     if (callee_param_types && i < callee_param_count)
                     {
-                        int wrap_id = maybe_emit_fn_ref_wrapper(arena,
+                        int wrap_id = gen_model_emit_fn_ref_wrapper(arena,
                             expr->as.call.arguments[i], callee_param_types[i],
                             symbol_table);
                         if (wrap_id >= 0)
@@ -2140,7 +2105,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     json_object_array_add(swapped, val);
                     args = swapped;
                 }
-                hoist_borrow_temps(obj, args, expr);
+                hoist_borrow_temps(obj, args);
                 json_object_object_add(obj, "args", args);
                 json_object_object_add(obj, "is_tail_call",
                     json_object_new_boolean(expr->as.call.is_tail_call));
@@ -2209,6 +2174,12 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     json_object_new_boolean(is_closure));
                 json_object_object_add(obj, "is_fn_field_call",
                     json_object_new_boolean(is_fn_field_call));
+                if (is_closure || is_fn_field_call)
+                {
+                    json_object_object_add(obj, "callee_is_borrow",
+                        json_object_new_boolean(
+                            ownership_kind(expr->as.call.callee) == OWNERSHIP_BORROW));
+                }
 
                 /* Borrow-inference wrapping for native fn calls returning a
                  * ref-struct that aliases at least one ref-struct argument.
@@ -2470,7 +2441,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                      * code dereferences the field as __Closure__. */
                     if (m && i < m->param_count && m->params[i].type)
                     {
-                        int wrap_id = maybe_emit_fn_ref_wrapper(arena,
+                        int wrap_id = gen_model_emit_fn_ref_wrapper(arena,
                             expr->as.static_call.arguments[i],
                             m->params[i].type, symbol_table);
                         if (wrap_id >= 0)
@@ -2484,7 +2455,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     json_object_array_add(args, arg);
                 }
             }
-            hoist_borrow_temps(obj, args, expr);
+            hoist_borrow_temps(obj, args);
             json_object_object_add(obj, "args", args);
             break;
         }
@@ -2561,7 +2532,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                  * function-returning calls transfer their existing +1 credit. */
                 if (ae && ae->expr_type && ae->expr_type->kind == TYPE_FUNCTION)
                 {
-                    int wrap_id = maybe_emit_fn_ref_wrapper(arena, ae,
+                    int wrap_id = gen_model_emit_fn_ref_wrapper(arena, ae,
                         ae->expr_type, symbol_table);
                     if (wrap_id >= 0)
                     {
@@ -2743,6 +2714,26 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                             json_object_new_boolean(needs_deep_copy));
                         break;
                     }
+                    case TYPE_FUNCTION:
+                    {
+                        elem_cleanup = "free_closure";
+                        int wrap_id = gen_model_emit_fn_ref_wrapper(arena,
+                            expr->as.index_assign.value, etype, symbol_table);
+                        if (wrap_id >= 0)
+                        {
+                            json_object_object_add(obj, "needs_closure_wrap",
+                                json_object_new_boolean(true));
+                            json_object_object_add(obj, "fn_wrapper_id",
+                                json_object_new_int(wrap_id));
+                        }
+                        else if (ownership_kind(expr->as.index_assign.value) ==
+                                 OWNERSHIP_BORROW)
+                        {
+                            json_object_object_add(obj, "source_is_borrow",
+                                json_object_new_boolean(true));
+                        }
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -2858,6 +2849,8 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                             keeper = "strdup";
                         else if (ft->kind == TYPE_ARRAY)
                             keeper = "arr_copy";
+                        else if (ft->kind == TYPE_FUNCTION)
+                            keeper = "closure_retain";
                         else if (ft->kind == TYPE_STRUCT &&
                                  ft->as.struct_type.pass_self_by_ref)
                         {
@@ -2917,6 +2910,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
             {
                 Type *ftype = expr->expr_type;
                 const char *field_cleanup = "none";
+                bool field_needs_closure_wrap = false;
 
                 switch (ftype->kind)
                 {
@@ -2953,10 +2947,11 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     case TYPE_FUNCTION:
                         field_cleanup = "free_closure";
                         {
-                            int wrap_id = maybe_emit_fn_ref_wrapper(arena,
+                            int wrap_id = gen_model_emit_fn_ref_wrapper(arena,
                                 expr->as.member_assign.value, ftype, symbol_table);
                             if (wrap_id >= 0)
                             {
+                                field_needs_closure_wrap = true;
                                 json_object_object_add(obj, "needs_closure_wrap",
                                     json_object_new_boolean(true));
                                 json_object_object_add(obj, "fn_wrapper_id",
@@ -2973,10 +2968,12 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                  * live owner and the field's cleanup_kind requires a fresh +1
                  * credit. Template selects strdup / retain / val-copy / arr-copy
                  * off field_cleanup. */
-                if ((strcmp(field_cleanup, "free_str") == 0 ||
+                if (!field_needs_closure_wrap &&
+                    (strcmp(field_cleanup, "free_str") == 0 ||
                      strcmp(field_cleanup, "release_ref") == 0 ||
                      strcmp(field_cleanup, "cleanup_val") == 0 ||
-                     strcmp(field_cleanup, "cleanup_arr") == 0) &&
+                     strcmp(field_cleanup, "cleanup_arr") == 0 ||
+                     strcmp(field_cleanup, "free_closure") == 0) &&
                     ownership_kind(expr->as.member_assign.value) == OWNERSHIP_BORROW)
                 {
                     json_object_object_add(obj, "source_is_borrow",
@@ -3057,7 +3054,8 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                                 json_object_new_boolean(true));
                         }
                     }
-                    else if (ft->kind == TYPE_STRING || ft->kind == TYPE_ARRAY)
+                    else if (ft->kind == TYPE_STRING || ft->kind == TYPE_ARRAY ||
+                             ft->kind == TYPE_FUNCTION)
                     {
                         if (k == OWNERSHIP_BORROW)
                         {
@@ -3143,7 +3141,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                  * Parameters of function type are already closure pointers. */
                 if (fv && fv->expr_type && fv->expr_type->kind == TYPE_FUNCTION)
                 {
-                    int wrap_id = maybe_emit_fn_ref_wrapper(arena, fv,
+                    int wrap_id = gen_model_emit_fn_ref_wrapper(arena, fv,
                         fv->expr_type, symbol_table);
                     if (wrap_id >= 0)
                     {

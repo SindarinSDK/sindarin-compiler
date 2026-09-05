@@ -91,13 +91,13 @@ void * __sn__makeAdder(long long __sn__amount) {
 
 __sn__Holder __sn__store(void * __sn__callback) {
 
-    return (__sn__Holder){ .__sn__callback = __sn__callback };}
+    return (__sn__Holder){ .__sn__callback = sn_closure_retain(__sn__callback) };}
 
 
 int main() {
-    void * __sn____chain_tmp_0 = __sn__makeAdder(40LL);
+    sn_auto_fn void * __sn____chain_tmp_0 = __sn__makeAdder(40LL);
     sn_auto_Holder __sn__Holder __sn__holder = __sn__store(__sn____chain_tmp_0);
-    printf("%lld", (long long)(((long long (*)(void *, long long))((__Closure__ *)(__sn__holder.__sn__callback))->fn)(__sn__holder.__sn__callback, 2LL)));
+    printf("%lld", (long long)(({ sn_auto_fn void *__callee__ = sn_closure_retain(__sn__holder.__sn__callback); ((long long (*)(void *, long long))((__Closure__ *)__callee__)->fn)(__callee__, 2LL); })));
     
     fflush(stdout);
     return 0;

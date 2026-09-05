@@ -45,7 +45,7 @@ int main() {
         __cl__->x = __sn__x;
         __cl__;
     });
-    ((void (*)(void *))((__Closure__ *)__sn__inc)->fn)(__sn__inc);
+    ({ sn_auto_fn void *__callee__ = sn_closure_retain(__sn__inc); ((void (*)(void *))((__Closure__ *)__callee__)->fn)(__callee__); });
     
     sn_assert(((*__sn__x) == 11LL), "expected x to be 11 after inc()");
     

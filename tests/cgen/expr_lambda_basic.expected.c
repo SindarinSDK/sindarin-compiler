@@ -24,7 +24,7 @@ int main() {
         __cl__->__rc__ = 1;
         __cl__;
     });
-    sn_assert((((long long (*)(void *, long long, long long))((__Closure__ *)__sn__add)->fn)(__sn__add, 1LL, 2LL) == 3LL), "expected 1 + 2 to be 3");
+    sn_assert((({ sn_auto_fn void *__callee__ = sn_closure_retain(__sn__add); ((long long (*)(void *, long long, long long))((__Closure__ *)__callee__)->fn)(__callee__, 1LL, 2LL); }) == 3LL), "expected 1 + 2 to be 3");
     
     fflush(stdout);
     return 0;

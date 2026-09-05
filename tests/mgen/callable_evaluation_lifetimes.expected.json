@@ -1,0 +1,1519 @@
+{
+  "module": {
+    "filename": "tests\/mgen\/callable_evaluation_lifetimes.sn",
+    "has_main": true,
+    "main_returns": false,
+    "has_main_args": false,
+    "has_forward_decls": true
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [
+    {
+      "name": "Holder",
+      "is_native": false,
+      "is_packed": false,
+      "pass_self_by_ref": false,
+      "is_serializable": false,
+      "source_file": "tests\/mgen\/callable_evaluation_lifetimes.sn",
+      "mem_mode": "val",
+      "fields": [
+        {
+          "name": "action",
+          "type": {
+            "kind": "function",
+            "return_type": {
+              "kind": "int"
+            },
+            "param_types": [],
+            "is_variadic": false,
+            "is_native": false,
+            "has_arena_param": false
+          },
+          "offset": 8,
+          "cleanup_action": "release_closure",
+          "copy_action": "retain_closure"
+        }
+      ],
+      "has_heap_fields": true,
+      "methods": [],
+      "has_dispose": false
+    }
+  ],
+  "globals": [],
+  "functions": [
+    {
+      "name": "increment",
+      "return_type": {
+        "kind": "int"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/callable_evaluation_lifetimes.sn",
+      "params": [
+        {
+          "name": "value",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none"
+        }
+      ],
+      "body": [
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "binary",
+            "op": "add",
+            "left": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "variable",
+              "name": "value"
+            },
+            "right": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "literal",
+              "value_kind": "int",
+              "value": 1
+            },
+            "arithmetic_mode": "checked"
+          }
+        }
+      ]
+    },
+    {
+      "name": "identity",
+      "return_type": {
+        "kind": "function",
+        "return_type": {
+          "kind": "int"
+        },
+        "param_types": [],
+        "is_variadic": false,
+        "is_native": false,
+        "has_arena_param": false
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/callable_evaluation_lifetimes.sn",
+      "params": [
+        {
+          "name": "action",
+          "type": {
+            "kind": "function",
+            "return_type": {
+              "kind": "int"
+            },
+            "param_types": [],
+            "is_variadic": false,
+            "is_native": false,
+            "has_arena_param": false
+          },
+          "mem_qual": "default",
+          "sync_mod": "none"
+        }
+      ],
+      "body": [
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "function",
+              "return_type": {
+                "kind": "int"
+              },
+              "param_types": [],
+              "is_variadic": false,
+              "is_native": false,
+              "has_arena_param": false
+            },
+            "kind": "variable",
+            "name": "action"
+          },
+          "source_is_borrow": true
+        }
+      ]
+    },
+    {
+      "name": "index",
+      "return_type": {
+        "kind": "int"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/callable_evaluation_lifetimes.sn",
+      "params": [],
+      "body": [
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "string"
+                },
+                "kind": "literal",
+                "value_kind": "string",
+                "value": "index"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "factory",
+      "return_type": {
+        "kind": "struct",
+        "name": "Holder",
+        "is_native": false,
+        "is_packed": false,
+        "pass_self_by_ref": false,
+        "size": 16,
+        "alignment": 8,
+        "fields": [
+          {
+            "name": "action",
+            "type": {
+              "kind": "function",
+              "return_type": {
+                "kind": "int"
+              },
+              "param_types": [],
+              "is_variadic": false,
+              "is_native": false,
+              "has_arena_param": false
+            },
+            "offset": 8
+          }
+        ]
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/callable_evaluation_lifetimes.sn",
+      "params": [],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "result",
+          "type": {
+            "kind": "struct",
+            "name": "Holder",
+            "is_native": false,
+            "is_packed": false,
+            "pass_self_by_ref": false,
+            "size": 16,
+            "alignment": 8,
+            "fields": [
+              {
+                "name": "action",
+                "type": {
+                  "kind": "function",
+                  "return_type": {
+                    "kind": "int"
+                  },
+                  "param_types": [],
+                  "is_variadic": false,
+                  "is_native": false,
+                  "has_arena_param": false
+                },
+                "offset": 8
+              }
+            ]
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "val_cleanup",
+          "initializer": {
+            "type": {
+              "kind": "struct",
+              "name": "Holder",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 16,
+              "alignment": 8,
+              "fields": [
+                {
+                  "name": "action",
+                  "type": {
+                    "kind": "function",
+                    "return_type": {
+                      "kind": "int"
+                    },
+                    "param_types": [],
+                    "is_variadic": false,
+                    "is_native": false,
+                    "has_arena_param": false
+                  },
+                  "offset": 8
+                }
+              ]
+            },
+            "kind": "struct_literal",
+            "struct_name": "Holder",
+            "fields": [
+              {
+                "name": "action",
+                "value": {
+                  "type": {
+                    "kind": "function",
+                    "return_type": {
+                      "kind": "int"
+                    },
+                    "param_types": [],
+                    "is_variadic": false,
+                    "is_native": false,
+                    "has_arena_param": false
+                  },
+                  "kind": "lambda",
+                  "lambda_id": 0,
+                  "return_type": {
+                    "kind": "int"
+                  },
+                  "modifier": "default",
+                  "is_native": false,
+                  "params": [],
+                  "captures": [],
+                  "has_captures": false,
+                  "has_struct_copy_captures": false,
+                  "has_capture_cleanup": false,
+                  "has_ref_captures": false,
+                  "body": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "literal",
+                    "value_kind": "int",
+                    "value": 7
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "struct",
+              "name": "Holder",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 16,
+              "alignment": 8,
+              "fields": [
+                {
+                  "name": "action",
+                  "type": {
+                    "kind": "function",
+                    "return_type": {
+                      "kind": "int"
+                    },
+                    "param_types": [],
+                    "is_variadic": false,
+                    "is_native": false,
+                    "has_arena_param": false
+                  },
+                  "offset": 8
+                }
+              ]
+            },
+            "kind": "variable",
+            "name": "result",
+            "escape_info": {
+              "escapes_scope": true,
+              "needs_heap": false
+            }
+          },
+          "is_ownership_transfer": true,
+          "transfer_kind": "memset",
+          "transfer_var": "result",
+          "transfer_type": {
+            "kind": "struct",
+            "name": "Holder",
+            "is_native": false,
+            "is_packed": false,
+            "pass_self_by_ref": false,
+            "size": 16,
+            "alignment": 8,
+            "fields": [
+              {
+                "name": "action",
+                "type": {
+                  "kind": "function",
+                  "return_type": {
+                    "kind": "int"
+                  },
+                  "param_types": [],
+                  "is_variadic": false,
+                  "is_native": false,
+                  "has_arena_param": false
+                },
+                "offset": 8
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "void"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/callable_evaluation_lifetimes.sn",
+      "params": [],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "named",
+          "type": {
+            "kind": "function",
+            "return_type": {
+              "kind": "int"
+            },
+            "param_types": [
+              {
+                "kind": "int"
+              }
+            ],
+            "is_variadic": false,
+            "is_native": false,
+            "has_arena_param": false
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "fn",
+          "initializer": {
+            "type": {
+              "kind": "function",
+              "return_type": {
+                "kind": "int"
+              },
+              "param_types": [
+                {
+                  "kind": "int"
+                }
+              ],
+              "is_variadic": false,
+              "is_native": false,
+              "has_arena_param": false
+            },
+            "kind": "variable",
+            "name": "increment"
+          },
+          "needs_closure_wrap": true,
+          "fn_wrapper_id": 0
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "call",
+                "callee": {
+                  "type": {
+                    "kind": "function",
+                    "return_type": {
+                      "kind": "int"
+                    },
+                    "param_types": [
+                      {
+                        "kind": "int"
+                      }
+                    ],
+                    "is_variadic": false,
+                    "is_native": false,
+                    "has_arena_param": false
+                  },
+                  "kind": "variable",
+                  "name": "named"
+                },
+                "args": [
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "literal",
+                    "value_kind": "int",
+                    "value": 1
+                  }
+                ],
+                "is_tail_call": false,
+                "is_closure_call": true,
+                "is_fn_field_call": false,
+                "callee_is_borrow": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "first",
+          "type": {
+            "kind": "function",
+            "return_type": {
+              "kind": "int"
+            },
+            "param_types": [],
+            "is_variadic": false,
+            "is_native": false,
+            "has_arena_param": false
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "fn",
+          "initializer": {
+            "type": {
+              "kind": "function",
+              "return_type": {
+                "kind": "int"
+              },
+              "param_types": [],
+              "is_variadic": false,
+              "is_native": false,
+              "has_arena_param": false
+            },
+            "kind": "lambda",
+            "lambda_id": 1,
+            "return_type": {
+              "kind": "int"
+            },
+            "modifier": "default",
+            "is_native": false,
+            "params": [],
+            "captures": [],
+            "has_captures": false,
+            "has_struct_copy_captures": false,
+            "has_capture_cleanup": false,
+            "has_ref_captures": false,
+            "body": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "literal",
+              "value_kind": "int",
+              "value": 3
+            }
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "copied",
+          "type": {
+            "kind": "function",
+            "return_type": {
+              "kind": "int"
+            },
+            "param_types": [],
+            "is_variadic": false,
+            "is_native": false,
+            "has_arena_param": false
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "fn",
+          "initializer": {
+            "type": {
+              "kind": "function",
+              "return_type": {
+                "kind": "int"
+              },
+              "param_types": [],
+              "is_variadic": false,
+              "is_native": false,
+              "has_arena_param": false
+            },
+            "kind": "call",
+            "callee": {
+              "type": {
+                "kind": "function",
+                "return_type": {
+                  "kind": "function",
+                  "return_type": {
+                    "kind": "int"
+                  },
+                  "param_types": [],
+                  "is_variadic": false,
+                  "is_native": false,
+                  "has_arena_param": false
+                },
+                "param_types": [
+                  {
+                    "kind": "function",
+                    "return_type": {
+                      "kind": "int"
+                    },
+                    "param_types": [],
+                    "is_variadic": false,
+                    "is_native": false,
+                    "has_arena_param": false
+                  }
+                ],
+                "is_variadic": false,
+                "is_native": false,
+                "has_arena_param": false
+              },
+              "kind": "variable",
+              "name": "identity"
+            },
+            "args": [
+              {
+                "type": {
+                  "kind": "function",
+                  "return_type": {
+                    "kind": "int"
+                  },
+                  "param_types": [],
+                  "is_variadic": false,
+                  "is_native": false,
+                  "has_arena_param": false
+                },
+                "kind": "variable",
+                "name": "first"
+              }
+            ],
+            "is_tail_call": false,
+            "is_closure_call": false,
+            "is_fn_field_call": false
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "function",
+              "return_type": {
+                "kind": "int"
+              },
+              "param_types": [],
+              "is_variadic": false,
+              "is_native": false,
+              "has_arena_param": false
+            },
+            "kind": "assign",
+            "target": "first",
+            "value": {
+              "type": {
+                "kind": "function",
+                "return_type": {
+                  "kind": "int"
+                },
+                "param_types": [],
+                "is_variadic": false,
+                "is_native": false,
+                "has_arena_param": false
+              },
+              "kind": "variable",
+              "name": "first"
+            },
+            "assign_cleanup": "free_closure",
+            "source_is_borrow": true
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "function",
+              "return_type": {
+                "kind": "int"
+              },
+              "param_types": [],
+              "is_variadic": false,
+              "is_native": false,
+              "has_arena_param": false
+            },
+            "kind": "assign",
+            "target": "first",
+            "value": {
+              "type": {
+                "kind": "function",
+                "return_type": {
+                  "kind": "int"
+                },
+                "param_types": [],
+                "is_variadic": false,
+                "is_native": false,
+                "has_arena_param": false
+              },
+              "kind": "lambda",
+              "lambda_id": 2,
+              "return_type": {
+                "kind": "int"
+              },
+              "modifier": "default",
+              "is_native": false,
+              "params": [],
+              "captures": [],
+              "has_captures": false,
+              "has_struct_copy_captures": false,
+              "has_capture_cleanup": false,
+              "has_ref_captures": false,
+              "body": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "literal",
+                "value_kind": "int",
+                "value": 4
+              }
+            },
+            "assign_cleanup": "free_closure"
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "call",
+                "callee": {
+                  "type": {
+                    "kind": "function",
+                    "return_type": {
+                      "kind": "int"
+                    },
+                    "param_types": [],
+                    "is_variadic": false,
+                    "is_native": false,
+                    "has_arena_param": false
+                  },
+                  "kind": "variable",
+                  "name": "copied"
+                },
+                "args": [],
+                "is_tail_call": false,
+                "is_closure_call": true,
+                "is_fn_field_call": false,
+                "callee_is_borrow": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "holder",
+          "type": {
+            "kind": "struct",
+            "name": "Holder",
+            "is_native": false,
+            "is_packed": false,
+            "pass_self_by_ref": false,
+            "size": 16,
+            "alignment": 8,
+            "fields": [
+              {
+                "name": "action",
+                "type": {
+                  "kind": "function",
+                  "return_type": {
+                    "kind": "int"
+                  },
+                  "param_types": [],
+                  "is_variadic": false,
+                  "is_native": false,
+                  "has_arena_param": false
+                },
+                "offset": 8
+              }
+            ]
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "val_cleanup",
+          "initializer": {
+            "type": {
+              "kind": "struct",
+              "name": "Holder",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 16,
+              "alignment": 8,
+              "fields": [
+                {
+                  "name": "action",
+                  "type": {
+                    "kind": "function",
+                    "return_type": {
+                      "kind": "int"
+                    },
+                    "param_types": [],
+                    "is_variadic": false,
+                    "is_native": false,
+                    "has_arena_param": false
+                  },
+                  "offset": 8
+                }
+              ]
+            },
+            "kind": "struct_literal",
+            "struct_name": "Holder",
+            "fields": [
+              {
+                "name": "action",
+                "value": {
+                  "type": {
+                    "kind": "function",
+                    "return_type": {
+                      "kind": "int"
+                    },
+                    "param_types": [],
+                    "is_variadic": false,
+                    "is_native": false,
+                    "has_arena_param": false
+                  },
+                  "kind": "variable",
+                  "name": "copied"
+                },
+                "source_is_borrow": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "function",
+              "return_type": {
+                "kind": "int"
+              },
+              "param_types": [],
+              "is_variadic": false,
+              "is_native": false,
+              "has_arena_param": false
+            },
+            "kind": "member_assign",
+            "object": {
+              "type": {
+                "kind": "struct",
+                "name": "Holder",
+                "is_native": false,
+                "is_packed": false,
+                "pass_self_by_ref": false,
+                "size": 16,
+                "alignment": 8,
+                "fields": [
+                  {
+                    "name": "action",
+                    "type": {
+                      "kind": "function",
+                      "return_type": {
+                        "kind": "int"
+                      },
+                      "param_types": [],
+                      "is_variadic": false,
+                      "is_native": false,
+                      "has_arena_param": false
+                    },
+                    "offset": 8
+                  }
+                ]
+              },
+              "kind": "variable",
+              "name": "holder"
+            },
+            "field_name": "action",
+            "value": {
+              "type": {
+                "kind": "function",
+                "return_type": {
+                  "kind": "int"
+                },
+                "param_types": [],
+                "is_variadic": false,
+                "is_native": false,
+                "has_arena_param": false
+              },
+              "kind": "member",
+              "object": {
+                "type": {
+                  "kind": "struct",
+                  "name": "Holder",
+                  "is_native": false,
+                  "is_packed": false,
+                  "pass_self_by_ref": false,
+                  "size": 16,
+                  "alignment": 8,
+                  "fields": [
+                    {
+                      "name": "action",
+                      "type": {
+                        "kind": "function",
+                        "return_type": {
+                          "kind": "int"
+                        },
+                        "param_types": [],
+                        "is_variadic": false,
+                        "is_native": false,
+                        "has_arena_param": false
+                      },
+                      "offset": 8
+                    }
+                  ]
+                },
+                "kind": "variable",
+                "name": "holder"
+              },
+              "member_name": "action"
+            },
+            "field_cleanup": "free_closure",
+            "source_is_borrow": true
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "call",
+                "callee": {
+                  "type": {
+                    "kind": "function",
+                    "return_type": {
+                      "kind": "int"
+                    },
+                    "param_types": [],
+                    "is_variadic": false,
+                    "is_native": false,
+                    "has_arena_param": false
+                  },
+                  "kind": "member",
+                  "object": {
+                    "type": {
+                      "kind": "struct",
+                      "name": "Holder",
+                      "is_native": false,
+                      "is_packed": false,
+                      "pass_self_by_ref": false,
+                      "size": 16,
+                      "alignment": 8,
+                      "fields": [
+                        {
+                          "name": "action",
+                          "type": {
+                            "kind": "function",
+                            "return_type": {
+                              "kind": "int"
+                            },
+                            "param_types": [],
+                            "is_variadic": false,
+                            "is_native": false,
+                            "has_arena_param": false
+                          },
+                          "offset": 8
+                        }
+                      ]
+                    },
+                    "kind": "variable",
+                    "name": "holder"
+                  },
+                  "member_name": "action"
+                },
+                "args": [],
+                "is_tail_call": false,
+                "is_closure_call": false,
+                "is_fn_field_call": true,
+                "callee_is_borrow": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "actions",
+          "type": {
+            "kind": "array",
+            "name": "arr",
+            "element_type": {
+              "kind": "function",
+              "return_type": {
+                "kind": "int"
+              },
+              "param_types": [],
+              "is_variadic": false,
+              "is_native": false,
+              "has_arena_param": false
+            }
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "arr",
+          "initializer": {
+            "type": {
+              "kind": "array",
+              "name": "arr",
+              "element_type": {
+                "kind": "function",
+                "return_type": {
+                  "kind": "int"
+                },
+                "param_types": [],
+                "is_variadic": false,
+                "is_native": false,
+                "has_arena_param": false
+              }
+            },
+            "kind": "array_literal",
+            "elements": [
+              {
+                "kind": "copy_of",
+                "operand": {
+                  "type": {
+                    "kind": "function",
+                    "return_type": {
+                      "kind": "int"
+                    },
+                    "param_types": [],
+                    "is_variadic": false,
+                    "is_native": false,
+                    "has_arena_param": false
+                  },
+                  "kind": "variable",
+                  "name": "copied"
+                },
+                "type": {
+                  "kind": "function",
+                  "return_type": {
+                    "kind": "int"
+                  },
+                  "param_types": [],
+                  "is_variadic": false,
+                  "is_native": false,
+                  "has_arena_param": false
+                }
+              }
+            ],
+            "elem_release_fn": "sn_release_closure_elem",
+            "elem_copy_fn": "sn_copy_closure"
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "function",
+              "return_type": {
+                "kind": "int"
+              },
+              "param_types": [],
+              "is_variadic": false,
+              "is_native": false,
+              "has_arena_param": false
+            },
+            "kind": "index_assign",
+            "array": {
+              "type": {
+                "kind": "array",
+                "name": "arr",
+                "element_type": {
+                  "kind": "function",
+                  "return_type": {
+                    "kind": "int"
+                  },
+                  "param_types": [],
+                  "is_variadic": false,
+                  "is_native": false,
+                  "has_arena_param": false
+                }
+              },
+              "kind": "variable",
+              "name": "actions"
+            },
+            "index": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "literal",
+              "value_kind": "int",
+              "value": 0
+            },
+            "value": {
+              "type": {
+                "kind": "function",
+                "return_type": {
+                  "kind": "int"
+                },
+                "param_types": [],
+                "is_variadic": false,
+                "is_native": false,
+                "has_arena_param": false
+              },
+              "kind": "array_access",
+              "array": {
+                "type": {
+                  "kind": "array",
+                  "name": "arr",
+                  "element_type": {
+                    "kind": "function",
+                    "return_type": {
+                      "kind": "int"
+                    },
+                    "param_types": [],
+                    "is_variadic": false,
+                    "is_native": false,
+                    "has_arena_param": false
+                  }
+                },
+                "kind": "variable",
+                "name": "actions"
+              },
+              "index": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "literal",
+                "value_kind": "int",
+                "value": 0
+              }
+            },
+            "source_is_borrow": true,
+            "elem_cleanup": "free_closure"
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "function",
+              "return_type": {
+                "kind": "int"
+              },
+              "param_types": [],
+              "is_variadic": false,
+              "is_native": false,
+              "has_arena_param": false
+            },
+            "kind": "index_assign",
+            "array": {
+              "type": {
+                "kind": "array",
+                "name": "arr",
+                "element_type": {
+                  "kind": "function",
+                  "return_type": {
+                    "kind": "int"
+                  },
+                  "param_types": [],
+                  "is_variadic": false,
+                  "is_native": false,
+                  "has_arena_param": false
+                }
+              },
+              "kind": "variable",
+              "name": "actions"
+            },
+            "index": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "literal",
+              "value_kind": "int",
+              "value": 0
+            },
+            "value": {
+              "type": {
+                "kind": "function",
+                "return_type": {
+                  "kind": "int"
+                },
+                "param_types": [],
+                "is_variadic": false,
+                "is_native": false,
+                "has_arena_param": false
+              },
+              "kind": "lambda",
+              "lambda_id": 3,
+              "return_type": {
+                "kind": "int"
+              },
+              "modifier": "default",
+              "is_native": false,
+              "params": [],
+              "captures": [],
+              "has_captures": false,
+              "has_struct_copy_captures": false,
+              "has_capture_cleanup": false,
+              "has_ref_captures": false,
+              "body": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "literal",
+                "value_kind": "int",
+                "value": 5
+              }
+            },
+            "elem_cleanup": "free_closure"
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "call",
+                "callee": {
+                  "type": {
+                    "kind": "function",
+                    "return_type": {
+                      "kind": "int"
+                    },
+                    "param_types": [],
+                    "is_variadic": false,
+                    "is_native": false,
+                    "has_arena_param": false
+                  },
+                  "kind": "array_access",
+                  "array": {
+                    "type": {
+                      "kind": "array",
+                      "name": "arr",
+                      "element_type": {
+                        "kind": "function",
+                        "return_type": {
+                          "kind": "int"
+                        },
+                        "param_types": [],
+                        "is_variadic": false,
+                        "is_native": false,
+                        "has_arena_param": false
+                      }
+                    },
+                    "kind": "variable",
+                    "name": "actions"
+                  },
+                  "index": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "call",
+                    "callee": {
+                      "type": {
+                        "kind": "function",
+                        "return_type": {
+                          "kind": "int"
+                        },
+                        "param_types": [],
+                        "is_variadic": false,
+                        "is_native": false,
+                        "has_arena_param": false
+                      },
+                      "kind": "variable",
+                      "name": "index"
+                    },
+                    "args": [],
+                    "is_tail_call": false,
+                    "is_closure_call": false,
+                    "is_fn_field_call": false
+                  }
+                },
+                "args": [],
+                "is_tail_call": false,
+                "is_closure_call": true,
+                "is_fn_field_call": false,
+                "callee_is_borrow": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "call",
+                "callee": {
+                  "type": {
+                    "kind": "function",
+                    "return_type": {
+                      "kind": "int"
+                    },
+                    "param_types": [],
+                    "is_variadic": false,
+                    "is_native": false,
+                    "has_arena_param": false
+                  },
+                  "kind": "member",
+                  "object": {
+                    "type": {
+                      "kind": "struct",
+                      "name": "Holder",
+                      "is_native": false,
+                      "is_packed": false,
+                      "pass_self_by_ref": false,
+                      "size": 16,
+                      "alignment": 8,
+                      "fields": [
+                        {
+                          "name": "action",
+                          "type": {
+                            "kind": "function",
+                            "return_type": {
+                              "kind": "int"
+                            },
+                            "param_types": [],
+                            "is_variadic": false,
+                            "is_native": false,
+                            "has_arena_param": false
+                          },
+                          "offset": 8
+                        }
+                      ]
+                    },
+                    "kind": "call",
+                    "callee": {
+                      "type": {
+                        "kind": "function",
+                        "return_type": {
+                          "kind": "struct",
+                          "name": "Holder",
+                          "is_native": false,
+                          "is_packed": false,
+                          "pass_self_by_ref": false,
+                          "size": 16,
+                          "alignment": 8,
+                          "fields": [
+                            {
+                              "name": "action",
+                              "type": {
+                                "kind": "function",
+                                "return_type": {
+                                  "kind": "int"
+                                },
+                                "param_types": [],
+                                "is_variadic": false,
+                                "is_native": false,
+                                "has_arena_param": false
+                              },
+                              "offset": 8
+                            }
+                          ]
+                        },
+                        "param_types": [],
+                        "is_variadic": false,
+                        "is_native": false,
+                        "has_arena_param": false
+                      },
+                      "kind": "variable",
+                      "name": "factory"
+                    },
+                    "args": [],
+                    "is_tail_call": false,
+                    "is_closure_call": false,
+                    "is_fn_field_call": false
+                  },
+                  "member_name": "action",
+                  "needs_struct_tmp_lift": true,
+                  "lift_struct_name": "Holder",
+                  "lift_tmp_var": "__mtmp_0__",
+                  "lift_keeper": "closure_retain"
+                },
+                "args": [],
+                "is_tail_call": false,
+                "is_closure_call": false,
+                "is_fn_field_call": true,
+                "callee_is_borrow": false
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": [],
+  "lambdas": [
+    {
+      "lambda_id": 0,
+      "source_file": "tests\/mgen\/callable_evaluation_lifetimes.sn",
+      "return_type": {
+        "kind": "int"
+      },
+      "params": [],
+      "captures": [],
+      "has_captures": false,
+      "has_struct_copy_captures": false,
+      "has_capture_cleanup": false,
+      "has_ref_captures": false,
+      "body": {
+        "type": {
+          "kind": "int"
+        },
+        "kind": "literal",
+        "value_kind": "int",
+        "value": 7
+      }
+    },
+    {
+      "lambda_id": 1,
+      "source_file": "tests\/mgen\/callable_evaluation_lifetimes.sn",
+      "return_type": {
+        "kind": "int"
+      },
+      "params": [],
+      "captures": [],
+      "has_captures": false,
+      "has_struct_copy_captures": false,
+      "has_capture_cleanup": false,
+      "has_ref_captures": false,
+      "body": {
+        "type": {
+          "kind": "int"
+        },
+        "kind": "literal",
+        "value_kind": "int",
+        "value": 3
+      }
+    },
+    {
+      "lambda_id": 2,
+      "source_file": "tests\/mgen\/callable_evaluation_lifetimes.sn",
+      "return_type": {
+        "kind": "int"
+      },
+      "params": [],
+      "captures": [],
+      "has_captures": false,
+      "has_struct_copy_captures": false,
+      "has_capture_cleanup": false,
+      "has_ref_captures": false,
+      "body": {
+        "type": {
+          "kind": "int"
+        },
+        "kind": "literal",
+        "value_kind": "int",
+        "value": 4
+      }
+    },
+    {
+      "lambda_id": 3,
+      "source_file": "tests\/mgen\/callable_evaluation_lifetimes.sn",
+      "return_type": {
+        "kind": "int"
+      },
+      "params": [],
+      "captures": [],
+      "has_captures": false,
+      "has_struct_copy_captures": false,
+      "has_capture_cleanup": false,
+      "has_ref_captures": false,
+      "body": {
+        "type": {
+          "kind": "int"
+        },
+        "kind": "literal",
+        "value_kind": "int",
+        "value": 5
+      }
+    }
+  ],
+  "threads": [],
+  "fn_wrappers": [
+    {
+      "wrapper_id": 0,
+      "target_name": "increment",
+      "return_type": {
+        "kind": "int"
+      },
+      "param_types": [
+        {
+          "kind": "int"
+        }
+      ],
+      "is_native": false
+    }
+  ]
+}
