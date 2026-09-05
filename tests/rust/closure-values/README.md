@@ -16,3 +16,6 @@ Owned array cases preserve the tagged distinction between independent mutable
 `array_copy` snapshots and `is_ref` array reassignment slots. Direct captured
 index assignment remains in the tagged rejection corpus because its unchanged
 C control does not produce an executable.
+
+Expression-bodied `void` closures discard their body value. The mutation-tail
+case covers both compound assignment and postfix increment of a captured cell.
