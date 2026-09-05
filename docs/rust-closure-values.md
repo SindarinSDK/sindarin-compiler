@@ -447,3 +447,69 @@ The production-change gates pass `make test-rgen` at 263/263 and the subsequent
 | Exploratory errors | 11 |
 | Rust toolchain/lifecycle | 7 |
 | Total | **3971** |
+
+## Owned string capture follow-on
+
+Mutable owned string captures follow the existing C model's value-capture
+classification. Closure construction clones the string value into the callable
+environment. Each invocation clones that immutable environment value into a
+short-lived mutable local, so assignment and `+=` affect only that invocation.
+The outer binding, sibling closures, and later invocations retain their own
+snapshots. Nested closure construction clones the current invocation-local value,
+which preserves transitive capture and escaping-factory behavior without sharing
+a mutable Rust borrow or adding a new source-level ownership rule.
+
+String append evaluates its complete right-hand side before borrowing the local
+destination. The reentrant fixture invokes the same recursive callable through a
+callback during RHS evaluation; every stack frame owns a separate local string.
+Additional fixtures cover reassignment, append, captured string methods, outer
+and sibling observations, binding shadowing, two-level transitive capture,
+independent factories, escaping closures, evaluate-once callbacks, and per-call
+reset at O0/O1/O2. The original `closure_values_owned_mutation.sn` source is
+unchanged and now serves as a Rust runtime fixture.
+
+The C backend, runtime, templates, shared frontend, and existing C expectations
+are unchanged. The unchanged PR119 compiler independently reproduces a C cleanup
+failure for mutable string captures: both reassignment and append print their
+calculated value at O0/O1/O2 and then abort; debug/ASAN reports the lambda freeing
+the captured allocation before closure cleanup frees it again. Byte-identical
+reassignment and minimal append sources are retained under `closure_probes/` and
+are not counted as C parity passes. A separate by-value string parameter mutation
+probe also aborts in the unchanged C backend and remains outside this capture
+slice.
+
+Calling a string method on a closure parameter is a defined C-supported form but
+is still rejected by the Rust target's existing closure-parameter boundary. Its
+O0/O1/O2 C output and exact Rust rejection are pinned in
+`closure_values_owned_string_parameter_method`. Mutable closure parameters are
+also retained as an explicit rejection and raw C probe. Owned arrays, structs,
+function captures, receiver capture, and borrowed/as-ref capture families remain
+required subsequent work.
+
+Fresh-worktree dependency setup used only the existing `~/.sn/bin/sn --install`;
+no setup or host installer ran. The fresh worktree also exposed that PR119's
+unsigned-boundary integration `.opt` file existed locally but was omitted from
+commit `4bed011` because integration fixtures are ignored by default. This branch
+tracks that exact `-O2` metadata so the already-committed boundary source runs in
+its intended unchecked mode; its source and expectation are unchanged.
+
+Focused verification passes 37/37 Rust generation fixtures, 18/18 closure
+rejections, and the unchanged 17/17 integration controls. The O0/O1/O2
+comparison passes 255 compiled executions, 15 expected checked failures, and 54
+exact ordered rejections with no emitted Rust artifact. `make test-rgen` passes
+268/268. The subsequent isolated `make build && make test` passes 3,977/3,977
+with zero failures and zero skips:
+
+| Suite | Passed |
+|---|---:|
+| Unit | 1634 |
+| C generation | 154 |
+| Rust generation | 268 |
+| Rust generation errors | 182 |
+| Shared model generation | 108 |
+| Default-C integration | 1313 |
+| Integration errors | 76 |
+| Exploratory | 224 |
+| Exploratory errors | 11 |
+| Rust toolchain/lifecycle | 7 |
+| Total | **3977** |

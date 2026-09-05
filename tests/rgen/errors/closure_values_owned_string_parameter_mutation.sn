@@ -1,0 +1,5 @@
+fn main(): void =>
+  var update: fn(str): str = fn(value: str): str =>
+    value += "-changed"
+    return value
+  println(update("input"))

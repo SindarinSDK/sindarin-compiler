@@ -1,0 +1,6 @@
+fn main(): void =>
+  var value: str = "one"
+  var action: fn(): str = fn(): str =>
+    value += "-two"
+    return value
+  println(action())

@@ -30,6 +30,11 @@ static bool rust_closure_scalar_type(json_object *type)
         strcmp(kind, "bool") == 0 || strcmp(kind, "char") == 0);
 }
 
+static bool rust_closure_string_type(json_object *type)
+{
+    return json_string_property_equals(type, "kind", "string");
+}
+
 static bool rust_closure_owned_type(json_object *type)
 {
     if (!rust_type_supported(type)) return false;
@@ -201,6 +206,8 @@ static bool rust_closure_walk_lambda(RustClosureScope *scope, json_object *node)
             json_object_object_add(cap, "rust_shared_cell", json_object_new_boolean(true));
         else if (rust_closure_scalar_type(rust_closure_property(cap, "type")))
             json_object_object_add(cap, "rust_scalar_snapshot", json_object_new_boolean(true));
+        else if (rust_closure_string_type(rust_closure_property(cap, "type")))
+            json_object_object_add(cap, "rust_owned_snapshot", json_object_new_boolean(true));
         if (!shared && json_boolean_property(b->declaration, "rust_shared_cell"))
             json_object_object_add(cap, "rust_snapshot_cell_source", json_object_new_boolean(true));
         if (json_string_property_equals(b->declaration, "rust_capture_mode", "self"))
@@ -373,11 +380,16 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
         if (borrowed && borrowed->capture)
             return rust_closure_error("mutable access to snapshot closure captures");
     }
-    if (place && json_boolean_property(place->declaration, "rust_scalar_snapshot"))
+    bool scalar_snapshot = place &&
+        json_boolean_property(place->declaration, "rust_scalar_snapshot");
+    bool owned_snapshot = place &&
+        json_boolean_property(place->declaration, "rust_owned_snapshot");
+    if (scalar_snapshot || owned_snapshot)
     {
         json_object_object_add(place->declaration, "rust_mutable_snapshot", json_object_new_boolean(true));
-        if (kind && (strcmp(kind, "compound_assign") == 0 ||
-                     strcmp(kind, "increment") == 0 || strcmp(kind, "decrement") == 0))
+        if (scalar_snapshot && kind && (strcmp(kind, "compound_assign") == 0 ||
+                                        strcmp(kind, "increment") == 0 ||
+                                        strcmp(kind, "decrement") == 0))
             json_object_object_add(node, "rust_snapshot_mutation", json_object_new_boolean(true));
         json_object *mutation_place = NULL;
         if (kind && strcmp(kind, "compound_assign") == 0)
@@ -395,7 +407,8 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
     }
     if (place && (place->capture || place->lambda_depth < scope->lambda_depth) &&
         !json_boolean_property(place->declaration, "rust_shared_cell") &&
-        !json_boolean_property(place->declaration, "rust_scalar_snapshot"))
+        !json_boolean_property(place->declaration, "rust_scalar_snapshot") &&
+        !json_boolean_property(place->declaration, "rust_owned_snapshot"))
         return rust_closure_error("mutable access to snapshot closure captures");
     if (kind && strcmp(kind, "call") == 0)
     {
@@ -429,9 +442,11 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
             !json_boolean_property(node, "is_fn_field_call"))
         {
             RustClosureBinding *b = rust_closure_place(scope, rust_closure_property(callee, "object"));
-            if (b && b->capture)
+            if (b && b->capture &&
+                !json_boolean_property(b->declaration, "rust_owned_snapshot"))
                 return rust_closure_error("method calls on snapshot closure captures");
-            if (b && scope->lambda_depth > 0 && !json_string_property(b->declaration, "kind"))
+            if (b && !b->capture && scope->lambda_depth > 0 &&
+                !json_string_property(b->declaration, "kind"))
                 return rust_closure_error("method calls on closure parameters");
         }
     }

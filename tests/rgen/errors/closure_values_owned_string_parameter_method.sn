@@ -1,0 +1,3 @@
+fn main(): void =>
+  var upper: fn(str): str = fn(value: str): str => value.toUpper()
+  println(upper("input"))

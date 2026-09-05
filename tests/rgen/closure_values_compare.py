@@ -13,7 +13,11 @@ ROOT = Path(__file__).resolve().parents[2]
 SOURCES = ROOT / "tests/rgen"
 RUST_ONLY = {"closure_values_direct_ownership", "closure_values_order",
              "closure_values_computed_calls", "closure_values_shadow_calls",
-             "closure_values_mutable_alias"}
+             "closure_values_mutable_alias", "closure_values_owned_mutation",
+             "closure_values_owned_string_callback_order",
+             "closure_values_owned_string_reentrant",
+             "closure_values_owned_string_transitive",
+             "closure_values_owned_string_visibility"}
 MODE_SENSITIVE = {"closure_values_snapshot_unsigned_boundaries"}
 EXPECTED_PANICS = {"closure_values_snapshot_unsigned_zero_division",
                    "closure_values_snapshot_unsigned_zero_modulo"}

@@ -1,0 +1,25 @@
+fn main(): void =>
+  var value: str = "seed"
+  var read: fn(): str = fn(): str => value
+  var first: fn(): str = fn(): str =>
+    value = value + "-set"
+    value += "-append"
+    return value.toUpper()
+  var second: fn(): str = fn(): str =>
+    value += "-sibling"
+    return value
+  value = "outer"
+  println(read())
+  println(first())
+  println(first())
+  println(second())
+  println(second())
+  println(value)
+  if true =>
+    var value: str = "shadow"
+    var shadowed: fn(): str = fn(): str =>
+      value += "-local"
+      return value
+    println(shadowed())
+    println(shadowed())
+  println(read())

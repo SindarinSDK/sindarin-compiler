@@ -1,0 +1,18 @@
+fn make(seed: str): fn(): fn(str): str =>
+  var value: str = seed
+  return fn(): fn(str): str =>
+    value += "-middle"
+    return fn(suffix: str): str =>
+      value += suffix
+      return value
+
+fn main(): void =>
+  var factory: fn(): fn(str): str = make("root")
+  var first: fn(str): str = factory()
+  var second: fn(str): str = factory()
+  println(first("-one"))
+  println(first("-two"))
+  println(second("-three"))
+  var other: fn(): fn(str): str = make("other")
+  var third: fn(str): str = other()
+  println(third("-four"))
