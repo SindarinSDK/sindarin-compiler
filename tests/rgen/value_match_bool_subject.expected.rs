@@ -1,46 +1,14 @@
 #![allow(dead_code, unused_mut, unused_variables, unused_parens)]
 
-fn __sn_runtime_error(message: &'static str) -> ! {
-    eprintln!("{}", message);
-    std::process::exit(1);
-}
-
-fn __sn_checked<T>(value: Option<T>, message: &'static str) -> T {
-    match value {
-        Some(value) => value,
-        None => __sn_runtime_error(message),
-    }
-}
-
-fn __sn_checked_div<T>(value: Option<T>, divisor_is_zero: bool) -> T {
-    __sn_checked(value, if divisor_is_zero {
-        "panic: Division by zero"
-    } else {
-        "Runtime error: integer overflow in division"
-    })
-}
-
-fn __sn_checked_mod<T>(value: Option<T>, divisor_is_zero: bool) -> T {
-    __sn_checked(value, if divisor_is_zero {
-        "panic: Modulo by zero"
-    } else {
-        "Runtime error: integer overflow in modulo"
-    })
-}
-
 fn observeSubject(calls: &mut i64, order: &mut i64, value: bool) -> bool {
-    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
-    (*(order) = __sn_checked((__sn_checked((*(order)).checked_mul(10), "Runtime error: integer overflow in multiplication")
-).checked_add(1), "Runtime error: integer overflow in addition")
-);
+    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
+    (*(order) = ((*(order)).checked_mul(10).expect("checked arithmetic failed")).checked_add(1).expect("checked arithmetic failed"));
     return value;
 }
 
 fn observeResult(calls: &mut i64, order: &mut i64, marker: i64, value: bool) -> bool {
-    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
-    (*(order) = __sn_checked((__sn_checked((*(order)).checked_mul(10), "Runtime error: integer overflow in multiplication")
-).checked_add(marker), "Runtime error: integer overflow in addition")
-);
+    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
+    (*(order) = ((*(order)).checked_mul(10).expect("checked arithmetic failed")).checked_add(marker).expect("checked arithmetic failed"));
     return value;
 }
 
@@ -112,4 +80,3 @@ fn main() {
     };
     println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", __sn_match_result)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", subject_calls)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", result_calls)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", order)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", first)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", fallback)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", returned)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", argument)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", nested)); __sn_interpolated });
 }
-

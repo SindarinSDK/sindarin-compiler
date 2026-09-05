@@ -23,49 +23,20 @@ fn __sn_array_size(size: i64) -> usize {
     size as usize
 }
 
-fn __sn_runtime_error(message: &'static str) -> ! {
-    eprintln!("{}", message);
-    std::process::exit(1);
-}
-
-fn __sn_checked<T>(value: Option<T>, message: &'static str) -> T {
-    match value {
-        Some(value) => value,
-        None => __sn_runtime_error(message),
-    }
-}
-
-fn __sn_checked_div<T>(value: Option<T>, divisor_is_zero: bool) -> T {
-    __sn_checked(value, if divisor_is_zero {
-        "panic: Division by zero"
-    } else {
-        "Runtime error: integer overflow in division"
-    })
-}
-
-fn __sn_checked_mod<T>(value: Option<T>, divisor_is_zero: bool) -> T {
-    __sn_checked(value, if divisor_is_zero {
-        "panic: Modulo by zero"
-    } else {
-        "Runtime error: integer overflow in modulo"
-    })
-}
-
 fn observeReceiver(calls: &mut i64) -> Vec<f32> {
-    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
+    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
     return vec![0.0, 1.5, 1.5];
 }
 
 fn observeNeedle(calls: &mut i64, value: f32) -> f32 {
-    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
+    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
     return value;
 }
 
 fn main() {
     let mut positive_zero: f32 = 0.0;
     let mut negative_zero: f32 = (-0.0);
-    let mut nan: f32 = (positive_zero / positive_zero)
-;
+    let mut nan: f32 = (positive_zero / positive_zero);
     let mut copied_nan: f32 = nan;
     let mut values: Vec<f32> = vec![positive_zero, 1.5, 1.5, nan];
     let mut empty: Vec<f32> = vec![];
@@ -86,4 +57,3 @@ fn main() {
     println!("{}", { let __sn_array = &(observeReceiver(&mut (receiver_calls))); let __sn_array_search = (observeNeedle(&mut (needle_calls), 1.5) as f32).to_bits(); __sn_array.iter().position(|__sn_item| __sn_item.to_bits() == __sn_array_search).map(|__sn_index| __sn_index as i64).unwrap_or(-1) });
     println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", receiver_calls)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", needle_calls)); __sn_interpolated });
 }
-

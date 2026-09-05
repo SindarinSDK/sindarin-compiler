@@ -23,34 +23,6 @@ fn __sn_array_size(size: i64) -> usize {
     size as usize
 }
 
-fn __sn_runtime_error(message: &'static str) -> ! {
-    eprintln!("{}", message);
-    std::process::exit(1);
-}
-
-fn __sn_checked<T>(value: Option<T>, message: &'static str) -> T {
-    match value {
-        Some(value) => value,
-        None => __sn_runtime_error(message),
-    }
-}
-
-fn __sn_checked_div<T>(value: Option<T>, divisor_is_zero: bool) -> T {
-    __sn_checked(value, if divisor_is_zero {
-        "panic: Division by zero"
-    } else {
-        "Runtime error: integer overflow in division"
-    })
-}
-
-fn __sn_checked_mod<T>(value: Option<T>, divisor_is_zero: bool) -> T {
-    __sn_checked(value, if divisor_is_zero {
-        "panic: Modulo by zero"
-    } else {
-        "Runtime error: integer overflow in modulo"
-    })
-}
-
 #[derive(Clone, Debug, PartialEq)]
 struct ResultBox {
     label: String,
@@ -59,22 +31,22 @@ struct ResultBox {
 
 impl ResultBox {
     fn memberResult(&self, calls: &mut i64) -> String {
-        { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
+        { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
         return ((self).label).to_ascii_uppercase();
     }
     fn staticResult(calls: &mut i64) -> String {
-        { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
+        { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
         return "static".to_string();
     }
 }
 
 fn selectSubject(calls: &mut i64) -> i64 {
-    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
+    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
     return 2;
 }
 
 fn ownedResult(calls: &mut i64, value: String) -> String {
-    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
+    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
     return { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("<"); __sn_interpolated.push_str(&format!("{}", value)); __sn_interpolated.push_str(">"); __sn_interpolated };
 }
 
@@ -168,8 +140,7 @@ fn main() {
     println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", variableResult)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", (r#box).label)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", ((localRows)[__sn_index((localRows).len(), 1)])[__sn_index(((localRows)[__sn_index((localRows).len(), 1)]).len(), 0)])); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", (((r#box).rows)[__sn_index(((r#box).rows).len(), 0)])[__sn_index((((r#box).rows)[__sn_index(((r#box).rows).len(), 0)]).len(), 1)])); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", (((r#box).rows)[__sn_index(((r#box).rows).len(), 1)])[__sn_index((((r#box).rows)[__sn_index(((r#box).rows).len(), 1)]).len(), 1)])); __sn_interpolated });
     let mut concatenated: String = match (10 as i64) {
         10 => {
-            ({ let mut __sn_string = String::new(); __sn_string.push_str(&("con".to_string())); __sn_string.push_str(&(variableResult)); __sn_string }
-)
+            ({ let mut __sn_string = String::new(); __sn_string.push_str(&("con".to_string())); __sn_string.push_str(&(variableResult)); __sn_string })
         },
         _ => {
             (fallbackResult.clone())
@@ -311,4 +282,3 @@ fn main() {
     print!("{}", escapedNested);
     println!("{}", "]".to_string());
 }
-

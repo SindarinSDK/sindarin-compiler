@@ -23,34 +23,6 @@ fn __sn_array_size(size: i64) -> usize {
     size as usize
 }
 
-fn __sn_runtime_error(message: &'static str) -> ! {
-    eprintln!("{}", message);
-    std::process::exit(1);
-}
-
-fn __sn_checked<T>(value: Option<T>, message: &'static str) -> T {
-    match value {
-        Some(value) => value,
-        None => __sn_runtime_error(message),
-    }
-}
-
-fn __sn_checked_div<T>(value: Option<T>, divisor_is_zero: bool) -> T {
-    __sn_checked(value, if divisor_is_zero {
-        "panic: Division by zero"
-    } else {
-        "Runtime error: integer overflow in division"
-    })
-}
-
-fn __sn_checked_mod<T>(value: Option<T>, divisor_is_zero: bool) -> T {
-    __sn_checked(value, if divisor_is_zero {
-        "panic: Modulo by zero"
-    } else {
-        "Runtime error: integer overflow in modulo"
-    })
-}
-
 struct __SnClosure<F: ?Sized>(std::rc::Rc<F>);
 impl<F: ?Sized> Clone for __SnClosure<F> {
     fn clone(&self) -> Self { Self(self.0.clone()) }
@@ -74,8 +46,7 @@ struct Payload {
 }
 
 fn plusOne(x: i64) -> i64 {
-    return __sn_checked((x).checked_add(1), "Runtime error: integer overflow in addition")
-;
+    return (x).checked_add(1).expect("checked arithmetic failed");
 }
 
 fn apply(action: __SnClosure<dyn Fn(i64) -> i64>, x: i64) -> i64 {
@@ -88,8 +59,7 @@ fn identity(action: __SnClosure<dyn Fn(i64) -> i64>) -> __SnClosure<dyn Fn(i64) 
 }
 
 fn factory(offset: i64) -> __SnClosure<dyn Fn(i64) -> i64> {
-    return { let (offset, ) = (offset.clone(), ); self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |x: i64| -> i64 { __sn_checked((x).checked_add(offset.clone()), "Runtime error: integer overflow in addition")
- })) }
+    return { let (offset, ) = (offset.clone(), ); self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |x: i64| -> i64 { (x).checked_add(offset.clone()).expect("checked arithmetic failed")})) }
 ;
 }
 
@@ -103,8 +73,7 @@ fn owned() -> __SnClosure<dyn Fn() -> String> {
 }
 
 fn main() {
-    let mut add: __SnClosure<dyn Fn(i64, i64) -> i64> = { self::__SnClosure::<dyn Fn(i64, i64) -> i64>(std::rc::Rc::new(move |a: i64, b: i64| -> i64 { __sn_checked((a).checked_add(b), "Runtime error: integer overflow in addition")
-})) }
+    let mut add: __SnClosure<dyn Fn(i64, i64) -> i64> = { self::__SnClosure::<dyn Fn(i64, i64) -> i64>(std::rc::Rc::new(move |a: i64, b: i64| -> i64 { (a).checked_add(b).expect("checked arithmetic failed")})) }
 ;
     print!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", ((add.clone()).0)(2, 3))); __sn_interpolated.push_str("\n"); __sn_interpolated });
     let mut named: __SnClosure<dyn Fn(i64) -> i64> = { self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |x: i64| -> i64 { x.clone()})) }
@@ -115,11 +84,9 @@ fn main() {
     { named = factory(100); named.clone() };
     print!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", ((alias.clone()).0)(5))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", ((named.clone()).0)(5))); __sn_interpolated.push_str("\n"); __sn_interpolated });
     let mut outer: i64 = 10;
-    let mut first: __SnClosure<dyn Fn(i64) -> i64> = { let (outer, ) = (outer.clone(), ); self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |x: i64| -> i64 { __sn_checked((outer.clone()).checked_add(x), "Runtime error: integer overflow in addition")
-})) }
+    let mut first: __SnClosure<dyn Fn(i64) -> i64> = { let (outer, ) = (outer.clone(), ); self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |x: i64| -> i64 { (outer.clone()).checked_add(x).expect("checked arithmetic failed")})) }
 ;
-    let mut sibling: __SnClosure<dyn Fn(i64) -> i64> = { let (outer, ) = (outer.clone(), ); self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |x: i64| -> i64 { __sn_checked((outer.clone()).checked_sub(x), "Runtime error: integer overflow in subtraction")
-})) }
+    let mut sibling: __SnClosure<dyn Fn(i64) -> i64> = { let (outer, ) = (outer.clone(), ); self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |x: i64| -> i64 { (outer.clone()).checked_sub(x).expect("checked arithmetic failed")})) }
 ;
     (outer = 50);
     print!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", ((first.clone()).0)(1))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", ((sibling.clone()).0)(1))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", outer)); __sn_interpolated.push_str("\n"); __sn_interpolated });
@@ -136,10 +103,7 @@ fn main() {
         print!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", ((action.clone()).0)(4))); __sn_interpolated.push_str("\n"); __sn_interpolated });
     }
     print!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", (({ let (__sn_functions, __sn_function_index) = (&(callbacks), 0); __sn_functions[__sn_index(__sn_functions.len(), __sn_function_index)].clone() }).0)(1))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (({ let (__sn_functions, __sn_function_index) = (&(arrays), 0); __sn_functions[__sn_index(__sn_functions.len(), __sn_function_index)].clone() }).0)(1))); __sn_interpolated.push_str("\n"); __sn_interpolated });
-    let mut build: __SnClosure<dyn Fn(i64) -> __SnClosure<dyn Fn(i64) -> __SnClosure<dyn Fn(i64) -> i64>>> = { let (outer, ) = (outer.clone(), ); self::__SnClosure::<dyn Fn(i64) -> __SnClosure<dyn Fn(i64) -> __SnClosure<dyn Fn(i64) -> i64>>>(std::rc::Rc::new(move |a: i64| -> __SnClosure<dyn Fn(i64) -> __SnClosure<dyn Fn(i64) -> i64>> { return { let (outer, a, ) = (outer.clone(), a.clone(), ); self::__SnClosure::<dyn Fn(i64) -> __SnClosure<dyn Fn(i64) -> i64>>(std::rc::Rc::new(move |b: i64| -> __SnClosure<dyn Fn(i64) -> i64> { return { let (outer, a, b, ) = (outer.clone(), a.clone(), b.clone(), ); self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |c: i64| -> i64 { __sn_checked((__sn_checked((__sn_checked((outer.clone()).checked_add(a.clone()), "Runtime error: integer overflow in addition")
-  ).checked_add(b.clone()), "Runtime error: integer overflow in addition")
-  ).checked_add(c), "Runtime error: integer overflow in addition")
-  })) }
+    let mut build: __SnClosure<dyn Fn(i64) -> __SnClosure<dyn Fn(i64) -> __SnClosure<dyn Fn(i64) -> i64>>> = { let (outer, ) = (outer.clone(), ); self::__SnClosure::<dyn Fn(i64) -> __SnClosure<dyn Fn(i64) -> __SnClosure<dyn Fn(i64) -> i64>>>(std::rc::Rc::new(move |a: i64| -> __SnClosure<dyn Fn(i64) -> __SnClosure<dyn Fn(i64) -> i64>> { return { let (outer, a, ) = (outer.clone(), a.clone(), ); self::__SnClosure::<dyn Fn(i64) -> __SnClosure<dyn Fn(i64) -> i64>>(std::rc::Rc::new(move |b: i64| -> __SnClosure<dyn Fn(i64) -> i64> { return { let (outer, a, b, ) = (outer.clone(), a.clone(), b.clone(), ); self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |c: i64| -> i64 { (((outer.clone()).checked_add(a.clone()).expect("checked arithmetic failed")).checked_add(b.clone()).expect("checked arithmetic failed")).checked_add(c).expect("checked arithmetic failed")})) }
  ;})) }
 ;})) }
 ;
@@ -155,4 +119,3 @@ fn main() {
     { producerCopy = producer.clone(); producerCopy.clone() };
     print!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", ((producer.clone()).0)())); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", ((producerCopy.clone()).0)())); __sn_interpolated.push_str("\n"); __sn_interpolated });
 }
-

@@ -23,34 +23,6 @@ fn __sn_array_size(size: i64) -> usize {
     size as usize
 }
 
-fn __sn_runtime_error(message: &'static str) -> ! {
-    eprintln!("{}", message);
-    std::process::exit(1);
-}
-
-fn __sn_checked<T>(value: Option<T>, message: &'static str) -> T {
-    match value {
-        Some(value) => value,
-        None => __sn_runtime_error(message),
-    }
-}
-
-fn __sn_checked_div<T>(value: Option<T>, divisor_is_zero: bool) -> T {
-    __sn_checked(value, if divisor_is_zero {
-        "panic: Division by zero"
-    } else {
-        "Runtime error: integer overflow in division"
-    })
-}
-
-fn __sn_checked_mod<T>(value: Option<T>, divisor_is_zero: bool) -> T {
-    __sn_checked(value, if divisor_is_zero {
-        "panic: Modulo by zero"
-    } else {
-        "Runtime error: integer overflow in modulo"
-    })
-}
-
 #[allow(non_snake_case)]
 #[derive(Clone, Debug, PartialEq)]
 struct FieldInfo {
@@ -82,7 +54,7 @@ struct Record {
 }
 
 fn touch(counter: &mut i64) -> i64 {
-    { let __sn_rhs = 1; let __sn_place = &mut (*(counter)); let __sn_next = __sn_checked((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };
+    { let __sn_rhs = 1; let __sn_place = &mut (*(counter)); let __sn_next = (*__sn_place).checked_add(__sn_rhs).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_next };
     return *(counter);
 }
 
@@ -120,8 +92,7 @@ fn main() {
     let mut number_info: TypeInfo = TypeInfo { name: "array".to_string(), fields: vec![], fieldCount: 0, typeId: 173583654 };
     let mut word_info: TypeInfo = TypeInfo { name: "array".to_string(), fields: vec![], fieldCount: 0, typeId: 173583654 };
     println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", (number_info).name)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (number_info).fieldCount)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (number_info).typeId)); __sn_interpolated });
-    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", (word_info).name)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (word_info).fieldCount)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (word_info).typeId)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", ((number_info).typeId == (word_info).typeId)
-)); __sn_interpolated });
+    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", (word_info).name)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (word_info).fieldCount)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (word_info).typeId)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", ((number_info).typeId == (word_info).typeId))); __sn_interpolated });
     let mut inner: Inner = Inner { code: 9 };
     let mut record: Record = Record { name: "record".to_string(), count: 3, flags: vec![true], inner: inner, ratio: 2.5 };
     let mut info: TypeInfo = TypeInfo { name: "Record".to_string(), fields: vec![FieldInfo { name: "name".to_string(), typeName: "str".to_string(), typeId: 1112265104 }, FieldInfo { name: "count".to_string(), typeName: "int".to_string(), typeId: 367623774 }, FieldInfo { name: "flags".to_string(), typeName: "array".to_string(), typeId: 173583654 }, FieldInfo { name: "inner".to_string(), typeName: "Inner".to_string(), typeId: 2124115655 }, FieldInfo { name: "ratio".to_string(), typeName: "float".to_string(), typeId: 650403205 }], fieldCount: 5, typeId: 524641772 };
@@ -131,10 +102,7 @@ fn main() {
     println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", (((info).fields)[__sn_index(((info).fields).len(), 2)]).name)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (((info).fields)[__sn_index(((info).fields).len(), 2)]).typeName)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (((info).fields)[__sn_index(((info).fields).len(), 2)]).typeId)); __sn_interpolated });
     println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", (((info).fields)[__sn_index(((info).fields).len(), 3)]).name)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (((info).fields)[__sn_index(((info).fields).len(), 3)]).typeName)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (((info).fields)[__sn_index(((info).fields).len(), 3)]).typeId)); __sn_interpolated });
     println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", (((info).fields)[__sn_index(((info).fields).len(), 4)]).name)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (((info).fields)[__sn_index(((info).fields).len(), 4)]).typeName)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (((info).fields)[__sn_index(((info).fields).len(), 4)]).typeId)); __sn_interpolated });
-    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", ((((info).fields)[__sn_index(((info).fields).len(), 3)]).typeId == 2124115655)
-)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (524641772 == (info).typeId)
-)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (524641772 != 367623774)
-)); __sn_interpolated });
+    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", ((((info).fields)[__sn_index(((info).fields).len(), 3)]).typeId == 2124115655))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (524641772 == (info).typeId))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (524641772 != 367623774))); __sn_interpolated });
     let mut assigned: TypeInfo = info.clone();
     ((assigned).fields).clear();
     let mut copied: TypeInfo = (info).clone();
@@ -146,4 +114,3 @@ fn main() {
     let mut unevaluated: TypeInfo = TypeInfo { name: "int".to_string(), fields: vec![], fieldCount: 0, typeId: 367623774 };
     println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", counter)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (unevaluated).name)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", 0)); __sn_interpolated });
 }
-
