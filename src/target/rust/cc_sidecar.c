@@ -27,6 +27,7 @@ static void normalize_path_separators(char *path)
 #endif
 
 #define MAX_SIDECAR_OBJECTS 510
+#define MAX_LINK_OVERRIDES 64
 
 typedef struct {
     char source_path[PATH_MAX];
@@ -43,6 +44,72 @@ typedef struct {
 static bool file_exists(const char *path)
 {
     return access(path, R_OK) == 0;
+}
+
+/* The restored C backend deliberately keeps its per-library table private.
+ * Read the same platform configuration for this Rust-only sidecar so an
+ * @link entry retains the tagged backend's replacement (including empty). */
+static bool rust_sidecar_link_override(const char *sdk_root, const char *library,
+                                       char *value, size_t value_size,
+                                       bool *found)
+{
+    if (!sdk_root || !library || !value || value_size < 1024 || !found)
+        return false;
+    *found = false;
+    value[0] = '\0';
+
+#ifdef _WIN32
+    const char *platform = "windows";
+#elif defined(__APPLE__)
+    const char *platform = "darwin";
+#else
+    const char *platform = "linux";
+#endif
+
+    char path[PATH_MAX];
+    int written = snprintf(path, sizeof(path), "%s" SN_PATH_SEP_STR
+                           "sn.%s.cfg", sdk_root, platform);
+    if (written < 0 || (size_t)written >= sizeof(path)) return false;
+    FILE *file = fopen(path, "r");
+    if (!file) return true;
+
+    size_t wanted_length = strlen(library);
+    int entry_count = 0;
+    char line[2048];
+    while (fgets(line, sizeof(line), file))
+    {
+        const char *start = line;
+        while (*start == ' ' || *start == '\t') start++;
+        const char *equals = strchr(start, '=');
+        if (!equals) continue;
+        size_t key_length = (size_t)(equals - start);
+        if (key_length <= 10 || strncmp(start, "SN_LDLIBS_", 10) != 0 ||
+            key_length - 10 >= 64)
+            continue;
+        if (entry_count++ >= MAX_LINK_OVERRIDES) continue;
+        if (key_length != wanted_length + 10 ||
+            strncmp(start + 10, library, wanted_length) != 0)
+            continue;
+
+        const char *configured = equals + 1;
+        size_t length = strlen(configured);
+        while (length > 0 &&
+               (configured[length - 1] == '\n' || configured[length - 1] == '\r' ||
+                configured[length - 1] == ' ' || configured[length - 1] == '\t'))
+            length--;
+        /* Match the tagged parser: an oversized value occupies an entry but
+         * leaves its zero-initialized flags empty, suppressing the library. */
+        if (length < 1024)
+        {
+            memcpy(value, configured, length);
+            value[length] = '\0';
+        }
+        *found = true;
+        break;
+    }
+    bool ok = !ferror(file);
+    fclose(file);
+    return ok;
 }
 
 static char *copy_string(const char *value)
@@ -92,10 +159,7 @@ void cc_sidecar_build_plan_free(CCSidecarBuildPlan *plan)
     if (!plan) return;
     free(plan->sdk_root);
     free(plan->runtime_archive);
-    free(plan->compiler_command);
-    free(plan->c_standard);
     free(plan->mode_cflags);
-    free(plan->configured_compile_options);
     free_strings(plan->include_paths, plan->include_path_count);
     free_strings(plan->library_search_paths, plan->library_search_path_count);
     free_strings(plan->runtime_search_paths, plan->runtime_search_path_count);
@@ -264,11 +328,6 @@ static bool resolve_environment(const CCBackendConfig *config,
     char filtered_mode_cflags[1024];
 
     plan->backend = detect_backend(config->cc);
-    plan->compiler_command = copy_string(config->cc);
-    plan->c_standard = copy_string(config->std);
-    plan->configured_compile_options = copy_string(config->cflags);
-    if (!plan->compiler_command || !plan->c_standard ||
-        !plan->configured_compile_options) return false;
     plan->sdk_root = copy_string(get_sdk_root(request->compiler_dir));
     if (!plan->sdk_root) return false;
 
@@ -359,8 +418,13 @@ static bool resolve_environment(const CCBackendConfig *config,
         for (int i = 0; i < request->link_library_count; i++)
         {
             const char *lib = request->link_libraries[i];
-            const char *replacement = cc_backend_get_link_library_options(lib);
-            if (replacement)
+            char replacement[1024];
+            bool has_replacement = false;
+            if (!rust_sidecar_link_override(plan->sdk_root, lib, replacement,
+                                            sizeof(replacement),
+                                            &has_replacement))
+                return false;
+            if (has_replacement)
             {
                 if (replacement[0])
                 {

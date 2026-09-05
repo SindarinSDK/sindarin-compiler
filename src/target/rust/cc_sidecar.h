@@ -26,10 +26,7 @@ typedef struct {
     BackendType backend;
     char *sdk_root;
     char *runtime_archive;
-    char *compiler_command;
-    char *c_standard;
     char *mode_cflags;
-    char *configured_compile_options;
 
     char **include_paths;
     int include_path_count;

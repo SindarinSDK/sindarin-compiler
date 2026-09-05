@@ -189,7 +189,6 @@ set(SN_CGEN_SOURCES
 )
 
 set(SN_BACKEND_SOURCES
-    src/cc_sidecar.c
     src/gcc_backend.c
     src/gcc_backend_config.c
     src/gcc_backend_pkgconfig.c
@@ -197,9 +196,17 @@ set(SN_BACKEND_SOURCES
     src/target/c/c_target.c
     src/target/rust/rust_target.c
     src/target/rust/rust_render.c
+    src/target/rust/cc_sidecar.c
     src/target/rust/rust_native_plan.c
     src/target/rust/rust_native_render.c
     src/target/rust/rust_native_build.c
+    src/target/rust/projection/rust_model.c
+    src/target/rust/projection/rust_model_expr.c
+    src/target/rust/projection/rust_model_stmt.c
+    src/target/rust/projection/rust_model_func.c
+    src/target/rust/projection/rust_model_struct.c
+    src/target/rust/projection/rust_model_type.c
+    src/target/rust/projection/rust_ownership.c
 )
 
 set(SN_PACKAGE_SOURCES

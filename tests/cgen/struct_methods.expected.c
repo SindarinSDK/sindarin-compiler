@@ -67,12 +67,7 @@ typedef struct __Closure__ {
 
 void __sn__Counter_increment(__sn__Counter *__sn__self) {
 
-    ({
-        long long *__sn_place__ = &(__sn__self->__sn__value);
-        long long __sn_rhs__ = 1LL;
-        *__sn_place__ = sn_add_long(*__sn_place__, __sn_rhs__);
-        *__sn_place__;
-    });
+    __sn__self->__sn__value = __sn__self->__sn__value + 1LL;
     
 }
 

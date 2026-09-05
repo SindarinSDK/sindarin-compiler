@@ -12,6 +12,14 @@ The admitted ABI is `void` results plus `int`, `long`, `int32`, `uint`, `uint32`
 
 Native final linking uses the configured C compiler driver through a target-local linker proxy. The sidecar plan owns the effective compiler, C standard, selected mode flags, and general C flags in addition to objects, runtime, dependency paths, package options, ordered `@link` replacements, `SN_LDLIBS`, and `SN_LDFLAGS`. Raw configuration fragments keep the existing one-shell-evaluation contract; rustc-supplied arguments remain quoted argv. No cross-target or MSVC-labelled configuration is rejected by name: compatible configurations proceed to actual object compilation/linking, and genuine backend/runtime incompatibility is reported by those operations. Exact Windows batch quoting and every C-target-supported ABI remain mandatory validation/follow-up gates.
 
+Parity evidence is split by provenance. `rust-native-tagged` uses the unchanged
+tag-`79c20b` native math, native-body, and pragma-source fixtures and the
+unchanged platform configuration, compiling and running each with both C and
+Rust. The post-tag duplicate-spelling/distinct-same-basename source case and
+imported-origin case are Rust-only extra coverage; success there is not counted
+as tagged C/Rust parity and a tagged C rejection is not classified as a C
+defect.
+
 ## Baseline — historical audit baseline (build & test results)
 
 > The historical audit baseline was recorded at commit `940d5593b14a99454671b3004ada8592fddf9734` on `audit/rust-parity-architecture-v2`: unit **1609**, cgen **107**, rgen **45**, rgen-errors **8**, mgen **79**, integration **1142**, integration-errors **58**, explore **224**, and explore-errors **11**. These are the `940d5593` audit-run results, not current-head results. The exact PR #83 head gate is recorded below.

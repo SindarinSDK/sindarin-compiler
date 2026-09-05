@@ -222,16 +222,14 @@ static void extract_heap_producing_args(json_object *args, json_object *inserts)
         }
         if (!is_call_result && !is_lifted_member) continue;
 
-        /* Only extract types that need cleanup: strings, arrays, functions,
-         * and native as-ref structs. */
+        /* Only extract types that need cleanup: strings, arrays, and native as-ref structs */
         json_object *arg_type = NULL;
         if (!json_object_object_get_ex(arg, "type", &arg_type)) continue;
         json_object *type_kind_obj = NULL;
         if (!json_object_object_get_ex(arg_type, "kind", &type_kind_obj)) continue;
         const char *type_kind = json_object_get_string(type_kind_obj);
         bool needs_extraction = false;
-        if (strcmp(type_kind, "string") == 0 || strcmp(type_kind, "array") == 0 ||
-            strcmp(type_kind, "function") == 0)
+        if (strcmp(type_kind, "string") == 0 || strcmp(type_kind, "array") == 0)
         {
             needs_extraction = true;
         }

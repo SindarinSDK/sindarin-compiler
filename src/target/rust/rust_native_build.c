@@ -1,5 +1,5 @@
 #include "target/rust/rust_native_internal.h"
-#include "cc_sidecar.h"
+#include "target/rust/cc_sidecar.h"
 #include "debug.h"
 #include "gcc_backend.h"
 #include <errno.h>

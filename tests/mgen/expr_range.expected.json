@@ -74,10 +74,6 @@
               "value": 11
             }
           },
-          "element_type": {
-            "kind": "int"
-          },
-          "element_cleanup_kind": "none",
           "body": {
             "kind": "block",
             "statements": [
@@ -89,11 +85,6 @@
                   },
                   "kind": "compound_assign",
                   "op": "add",
-                  "mutation_op": "add",
-                  "mutation_place": "variable",
-                  "mutation_storage": "local",
-                  "mutation_sync": false,
-                  "mutation_arithmetic_mode": "checked",
                   "target": {
                     "type": {
                       "kind": "int"
@@ -112,8 +103,7 @@
               }
             ]
           },
-          "needs_iterable_cleanup": true,
-          "iterable_needs_copy": false
+          "needs_iterable_cleanup": true
         },
         {
           "kind": "expr",

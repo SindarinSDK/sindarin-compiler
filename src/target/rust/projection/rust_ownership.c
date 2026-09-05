@@ -1,0 +1,116 @@
+/* Rust-private projection, migrated from main 7af0d192. */
+#include "target/rust/projection/rust_ownership.h"
+#include "target/rust/projection/rust_model.h"
+
+bool rust_ownership_is_lifted_member(const Expr *src)
+{
+    if (!src || src->type != EXPR_MEMBER || !src->as.member.object)
+        return false;
+
+    Expr *object = src->as.member.object;
+    Type *object_type = object->expr_type;
+    return (object->type == EXPR_CALL || object->type == EXPR_STATIC_CALL) &&
+        object_type && object_type->kind == TYPE_STRUCT &&
+        !object_type->as.struct_type.pass_self_by_ref &&
+        rust_gen_model_type_has_heap_fields(object_type);
+}
+
+OwnershipKind rust_ownership_kind(const Expr *src)
+{
+    if (!src) return OWNERSHIP_OWNED;
+
+    switch (src->type)
+    {
+        /* OWNED — expression produces a fresh +1 credit. */
+        case EXPR_CALL:
+        case EXPR_METHOD_CALL:
+        case EXPR_STATIC_CALL:
+        case EXPR_STRUCT_LITERAL:
+        case EXPR_ARRAY:
+        case EXPR_ARRAY_SLICE:
+        case EXPR_RANGE:
+        case EXPR_SIZED_ARRAY_ALLOC:
+        case EXPR_COPY_OF:
+        case EXPR_INTERPOLATED:
+        case EXPR_LAMBDA:
+        case EXPR_THREAD_SPAWN:
+        case EXPR_MATCH:
+        case EXPR_BINARY:
+        case EXPR_UNARY:
+            return OWNERSHIP_OWNED;
+
+        /* BORROW — expression reads through a live owner that remains live. */
+        case EXPR_VARIABLE:
+        case EXPR_MEMBER_ACCESS:
+        case EXPR_ARRAY_ACCESS:
+        case EXPR_ADDRESS_OF:
+            return OWNERSHIP_BORROW;
+
+        case EXPR_MEMBER:
+            /* A normal member read borrows from its live object.  A member of
+             * an owned value-struct call result is different: expression
+             * lowering auto-cleans the lifted struct temporary and applies a
+             * keeper op to the selected field, producing a fresh owner. */
+            return rust_ownership_is_lifted_member(src)
+                ? OWNERSHIP_OWNED : OWNERSHIP_BORROW;
+
+        /* valueOf either produces a fresh owned value (deep-copy for as-ref
+         * structs, strdup for *char, fresh array for pointer-slice) or is a
+         * no-op pass-through. In every case the destination must not emit a
+         * further acquire — classify OWNED. */
+        case EXPR_VALUE_OF:
+            return OWNERSHIP_OWNED;
+
+        case EXPR_THREAD_SYNC:
+            /* Handle-based sync (`handle!` where handle is a variable) aliases
+             * the thread handle's result payload — both the handle var and the
+             * destination would claim ownership of the same pointer unless the
+             * destination acquires a fresh copy. Inline sync (`spawn f()!`)
+             * returns a unique owned value — no acquire needed. */
+            if (src->as.thread_sync.handle &&
+                src->as.thread_sync.handle->type == EXPR_VARIABLE)
+                return OWNERSHIP_BORROW;
+            return OWNERSHIP_OWNED;
+
+        case EXPR_LITERAL:
+            /* nil literals produce a NULL pointer; there is nothing to acquire.
+             * Classify as OWNED so acquire-emission sites skip strdup(NULL) /
+             * sn_array_copy(NULL) / __sn__T_retain(NULL). */
+            if (src->as.literal.type && src->as.literal.type->kind == TYPE_NIL)
+                return OWNERSHIP_OWNED;
+            return OWNERSHIP_BORROW;
+
+        /* Side-effecting forms rarely appear as acquire-context sources; classify
+         * conservatively as BORROW so callers emit an acquire if the destination
+         * type is heap-owned. Safe default: a spurious retain/copy is a perf
+         * cost but not a correctness bug, while a missed acquire is UAF. */
+        case EXPR_ASSIGN:
+        case EXPR_INDEX_ASSIGN:
+        case EXPR_COMPOUND_ASSIGN:
+        case EXPR_MEMBER_ASSIGN:
+        case EXPR_INCREMENT:
+        case EXPR_DECREMENT:
+        case EXPR_SPREAD:
+        case EXPR_THREAD_DETACH:
+        case EXPR_SYNC_LIST:
+        case EXPR_SIZEOF:
+            return OWNERSHIP_BORROW;
+
+        /* typeOf lowers to sn_typeinfo_create(...) — a call that returns a
+         * fresh val-struct with heap fields. Must classify as OWNED so the
+         * acquire site does not attempt to deep-copy an rvalue. */
+        case EXPR_TYPEOF:
+            return OWNERSHIP_OWNED;
+    }
+    return OWNERSHIP_BORROW;
+}
+
+const char *rust_ownership_kind_str(OwnershipKind k)
+{
+    switch (k)
+    {
+        case OWNERSHIP_BORROW: return "borrow";
+        case OWNERSHIP_OWNED:  return "owned";
+    }
+    return "borrow";
+}

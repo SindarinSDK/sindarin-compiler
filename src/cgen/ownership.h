@@ -35,10 +35,4 @@ typedef enum {
 OwnershipKind ownership_kind(const Expr *src);
 const char *ownership_kind_str(OwnershipKind k);
 
-/* True when member lowering lifts an owned value-struct call result into an
- * auto-cleaned temporary and applies a keeper operation to the selected
- * field.  The member expression therefore produces an owned result rather
- * than borrowing from a live struct owner. */
-bool ownership_is_lifted_member(const Expr *src);
-
 #endif

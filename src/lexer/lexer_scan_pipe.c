@@ -202,11 +202,6 @@ Token lexer_scan_pipe_string(Lexer *lexer, int is_interpolated)
         buffer[buffer_index++] = '\n';
     }
 
-    if (!string_bytes_are_valid_utf8((const unsigned char *)buffer, buffer_index))
-    {
-        snprintf(error_buffer, sizeof(error_buffer), "Invalid UTF-8 sequence in string literal");
-        return lexer_error_token(lexer, error_buffer);
-    }
     buffer[buffer_index] = '\0';
 
     /* Set lexer state for next token */

@@ -95,11 +95,6 @@
               "kind": "int"
             },
             "kind": "increment",
-            "mutation_op": "add",
-            "mutation_place": "variable",
-            "mutation_storage": "local",
-            "mutation_sync": false,
-            "mutation_arithmetic_mode": "checked",
             "operand": {
               "type": {
                 "kind": "int"
@@ -119,11 +114,6 @@
                   },
                   "kind": "compound_assign",
                   "op": "add",
-                  "mutation_op": "add",
-                  "mutation_place": "variable",
-                  "mutation_storage": "local",
-                  "mutation_sync": false,
-                  "mutation_arithmetic_mode": "checked",
                   "target": {
                     "type": {
                       "kind": "int"

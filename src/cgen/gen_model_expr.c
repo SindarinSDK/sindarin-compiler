@@ -1,81 +1,50 @@
 #include "cgen/gen_model.h"
 #include "cgen/ownership.h"
-#include "debug.h"
 #include "symbol_table/symbol_table_core.h"
-#include <stdint.h>
-#include <stdlib.h>
 #include <string.h>
-
-static int c_escape_is_ascii_hex(unsigned char byte)
-{
-    return (byte >= '0' && byte <= '9') ||
-        (byte >= 'a' && byte <= 'f') || (byte >= 'A' && byte <= 'F');
-}
 
 /* Re-escape a string value for C output.
  * The lexer already interprets escape sequences (\n → 0x0A), but the C
- * templates need C escape forms so that the generated C
+ * templates need the two-character escape form so that the generated C
  * string literals are valid.  Returns an arena-allocated string. */
 static const char *c_escape_string(Arena *arena, const char *src)
 {
     if (!src) return "";
     /* First pass: compute output length */
     size_t len = 0;
-    int after_hex_escape = 0;
     for (const char *p = src; *p; p++) {
         switch (*p) {
             case '\n': case '\t': case '\r': case '\\': case '"':
             case '\a': case '\b': case '\f': case '\v':
-                len += 2;
-                after_hex_escape = 0;
-                break;
+                len += 2; break;
             default:
-            {
-                unsigned char byte = (unsigned char)*p;
-                int is_ascii_hex = c_escape_is_ascii_hex(byte);
-                if (byte < 0x20 || (after_hex_escape && is_ascii_hex))
-                {
-                    len += 4; /* \xHH */
-                    after_hex_escape = 1;
-                }
-                else
-                {
-                    len += 1;
-                    after_hex_escape = 0;
-                }
+                if ((unsigned char)*p < 0x20) len += 4; /* \xHH */
+                else len += 1;
                 break;
-            }
         }
     }
     char *buf = arena_alloc(arena, len + 1);
     char *dst = buf;
-    after_hex_escape = 0;
     for (const char *p = src; *p; p++) {
         switch (*p) {
-            case '\n': *dst++ = '\\'; *dst++ = 'n';  after_hex_escape = 0; break;
-            case '\t': *dst++ = '\\'; *dst++ = 't';  after_hex_escape = 0; break;
-            case '\r': *dst++ = '\\'; *dst++ = 'r';  after_hex_escape = 0; break;
-            case '\\': *dst++ = '\\'; *dst++ = '\\'; after_hex_escape = 0; break;
-            case '"':  *dst++ = '\\'; *dst++ = '"';  after_hex_escape = 0; break;
-            case '\a': *dst++ = '\\'; *dst++ = 'a';  after_hex_escape = 0; break;
-            case '\b': *dst++ = '\\'; *dst++ = 'b';  after_hex_escape = 0; break;
-            case '\f': *dst++ = '\\'; *dst++ = 'f';  after_hex_escape = 0; break;
-            case '\v': *dst++ = '\\'; *dst++ = 'v';  after_hex_escape = 0; break;
+            case '\n': *dst++ = '\\'; *dst++ = 'n';  break;
+            case '\t': *dst++ = '\\'; *dst++ = 't';  break;
+            case '\r': *dst++ = '\\'; *dst++ = 'r';  break;
+            case '\\': *dst++ = '\\'; *dst++ = '\\'; break;
+            case '"':  *dst++ = '\\'; *dst++ = '"';  break;
+            case '\a': *dst++ = '\\'; *dst++ = 'a';  break;
+            case '\b': *dst++ = '\\'; *dst++ = 'b';  break;
+            case '\f': *dst++ = '\\'; *dst++ = 'f';  break;
+            case '\v': *dst++ = '\\'; *dst++ = 'v';  break;
             default:
-            {
-                unsigned char byte = (unsigned char)*p;
-                int is_ascii_hex = c_escape_is_ascii_hex(byte);
-                if (byte < 0x20 || (after_hex_escape && is_ascii_hex)) {
+                if ((unsigned char)*p < 0x20) {
                     *dst++ = '\\'; *dst++ = 'x';
-                    *dst++ = "0123456789abcdef"[(byte >> 4) & 0xf];
-                    *dst++ = "0123456789abcdef"[byte & 0xf];
-                    after_hex_escape = 1;
+                    *dst++ = "0123456789abcdef"[((unsigned char)*p >> 4) & 0xf];
+                    *dst++ = "0123456789abcdef"[(unsigned char)*p & 0xf];
                 } else {
                     *dst++ = *p;
-                    after_hex_escape = 0;
                 }
                 break;
-            }
         }
     }
     *dst = '\0';
@@ -109,34 +78,6 @@ static void mc_add(ModelCaptures *mc, Arena *arena, const char *name, Type *type
     mc->names[mc->count] = arena_strdup(arena, name);
     mc->types[mc->count] = type;
     mc->count++;
-}
-
-typedef struct {
-    Expr **items;
-    size_t count;
-    size_t capacity;
-} StringConcatExprStack;
-
-static void string_concat_stack_push(StringConcatExprStack *stack, Arena *arena,
-    Expr *expr)
-{
-    if (stack->count == stack->capacity) {
-        if (stack->capacity > SIZE_MAX / 2) {
-            DEBUG_ERROR("String concatenation model stack capacity overflow");
-            exit(1);
-        }
-        size_t new_capacity = stack->capacity == 0 ? 8 : stack->capacity * 2;
-        if (new_capacity > SIZE_MAX / sizeof(Expr *)) {
-            DEBUG_ERROR("String concatenation model stack allocation overflow");
-            exit(1);
-        }
-        Expr **new_items = arena_alloc(arena, new_capacity * sizeof(Expr *));
-        if (stack->items)
-            memcpy(new_items, stack->items, stack->count * sizeof(Expr *));
-        stack->items = new_items;
-        stack->capacity = new_capacity;
-    }
-    stack->items[stack->count++] = expr;
 }
 
 /* Hoist borrow-tmp args out of inline statement expressions.
@@ -197,31 +138,7 @@ static void hoist_borrow_temps(json_object *call_obj, json_object *args, Expr *c
             if (ret && ret->kind == TYPE_STRUCT)
                 callee_may_store = true;
         }
-        /* Preserve the same transfer exception for a fresh closure returned
-         * by a call. The chain flattener may lift this argument later; marking
-         * it consumed prevents that temporary from claiming a second cleanup
-         * while the returned struct field owns the original +1 credit. */
-        bool is_returned_closure = false;
-        json_object *arg_type_obj = NULL, *arg_type_kind_obj = NULL;
-        if (kind_obj &&
-            (strcmp(json_object_get_string(kind_obj), "call") == 0 ||
-             strcmp(json_object_get_string(kind_obj), "method_call") == 0 ||
-             strcmp(json_object_get_string(kind_obj), "static_call") == 0) &&
-            json_object_object_get_ex(arg, "type", &arg_type_obj) &&
-            json_object_object_get_ex(arg_type_obj, "kind", &arg_type_kind_obj) &&
-            strcmp(json_object_get_string(arg_type_kind_obj), "function") == 0)
-        {
-            is_returned_closure = true;
-        }
-        if (callee_may_store && is_returned_closure)
-            json_object_object_add(arg, "consumes_source",
-                json_object_new_boolean(true));
-
-        json_object *consumes_obj = NULL;
-        bool consumes_source =
-            json_object_object_get_ex(arg, "consumes_source", &consumes_obj) &&
-            json_object_get_boolean(consumes_obj);
-        if ((is_fn || is_lambda) && !callee_may_store && !consumes_source)
+        if ((is_fn || is_lambda) && !callee_may_store)
         {
             char var_name[64];
             snprintf(var_name, sizeof(var_name), "__fn_tmp_%d__", i);
@@ -563,146 +480,6 @@ static const char *binary_op_str(SnTokenType op)
     }
 }
 
-/* Checked compound mutations are deliberately limited to places whose
- * address can be formed without re-evaluating a computed receiver.  The
- * shared model records this distinction so targets do not infer it from
- * rendered expression text.  Array elements and fields reached through a
- * call/index expression remain a later single-evaluation lowering slice. */
-static const char *mutation_place_kind(Expr *expr)
-{
-    if (!expr) return "computed";
-    if (expr->type == EXPR_VARIABLE) return "variable";
-
-    if (expr->type == EXPR_MEMBER || expr->type == EXPR_MEMBER_ACCESS)
-    {
-        Expr *object = expr->type == EXPR_MEMBER
-            ? expr->as.member.object : expr->as.member_access.object;
-        if (object && object->type == EXPR_VARIABLE)
-            return "direct_field";
-    }
-    return "computed";
-}
-
-static bool checked_mutation_integral_type(Type *type)
-{
-    if (!type) return false;
-    switch (type->kind)
-    {
-    case TYPE_INT:
-    case TYPE_LONG:
-    case TYPE_INT32:
-    case TYPE_UINT:
-    case TYPE_UINT32:
-    case TYPE_BYTE:
-        return true;
-    default:
-        return false;
-    }
-}
-
-static Expr *mutation_base_variable(Expr *expr)
-{
-    while (expr && (expr->type == EXPR_MEMBER || expr->type == EXPR_MEMBER_ACCESS))
-        expr = expr->type == EXPR_MEMBER ? expr->as.member.object : expr->as.member_access.object;
-    return expr && expr->type == EXPR_VARIABLE ? expr : NULL;
-}
-
-static bool mutation_variable_name_equals(Expr *variable, const char *name)
-{
-    size_t length;
-    if (!variable || variable->type != EXPR_VARIABLE || !name) return false;
-    length = strlen(name);
-    return variable->as.variable.name.length == (int)length &&
-           strncmp(variable->as.variable.name.start, name, length) == 0;
-}
-
-static bool json_model_boolean_property(json_object *object, const char *key)
-{
-    json_object *value = NULL;
-    return object && json_object_object_get_ex(object, key, &value) &&
-           json_object_get_boolean(value);
-}
-
-static const char *mutation_storage_kind(Expr *target)
-{
-    Expr *base = mutation_base_variable(target);
-    if (!base) return "computed";
-    if (target->type == EXPR_MEMBER || target->type == EXPR_MEMBER_ACCESS) {
-        /* `self.field` is the supported direct-field method place. */
-        if (mutation_variable_name_equals(base, "self")) return "local";
-    }
-    if (base->as.variable.is_param_ref) return "parameter";
-    for (int i = 0; i < g_captured_var_count; i++)
-        if (mutation_variable_name_equals(base, g_captured_vars[i])) return "captured";
-    return "local";
-}
-
-static bool mutation_base_is_captured(Expr *base)
-{
-    if (!base) return false;
-    for (int i = 0; i < g_captured_var_count; i++)
-        if (mutation_variable_name_equals(base, g_captured_vars[i])) return true;
-    return false;
-}
-
-/* Function-local declaration scopes have been popped by model generation.
- * The type checker therefore carries the declaration symbol's sync modifier
- * on each resolved variable expression; never rediscover it from the live
- * model-generation symbol table. */
-static bool mutation_target_is_sync(Expr *target)
-{
-    Expr *base = mutation_base_variable(target);
-    return base && base->as.variable.sync_modifier == SYNC_ATOMIC;
-}
-
-static const char *mutation_sync_variable_name(Expr *target)
-{
-    Expr *base = mutation_base_variable(target);
-    if (!base || !mutation_target_is_sync(target)) return NULL;
-    return base->as.variable.name.start;
-}
-
-/* The checked stable-place slice admits direct scalar `as ref` parameters
- * only for the established signed scalar types, byte, uint32, and uint ABIs.
- * Keep all other parameter, capture, computed-place, and sync cases outside
- * this shared path until their ownership/borrowing contracts are defined. */
-static bool mutation_is_checked_scalar_ref_parameter(Expr *target)
-{
-    Expr *base = mutation_base_variable(target);
-    if (!target || target->type != EXPR_VARIABLE || target != base ||
-        mutation_base_is_captured(base) ||
-        !base->as.variable.is_param_ref ||
-        base->as.variable.param_mem_qualifier != MEM_AS_REF ||
-        !target->expr_type)
-        return false;
-
-    return target->expr_type->kind == TYPE_INT ||
-        target->expr_type->kind == TYPE_LONG ||
-        target->expr_type->kind == TYPE_INT32 ||
-        target->expr_type->kind == TYPE_BYTE ||
-        target->expr_type->kind == TYPE_UINT32 ||
-        target->expr_type->kind == TYPE_UINT;
-}
-
-static const char *mutation_arithmetic_mode(ArithmeticMode arithmetic_mode,
-                                             SnTokenType op, Expr *target, Expr *value,
-                                             bool require_same_type)
-{
-    if (arithmetic_mode != ARITH_CHECKED || !target ||
-        (op != TOKEN_PLUS && op != TOKEN_MINUS && op != TOKEN_STAR &&
-         op != TOKEN_SLASH && op != TOKEN_MODULO) ||
-        !checked_mutation_integral_type(target->expr_type) ||
-        mutation_target_is_sync(target) ||
-        strcmp(mutation_place_kind(target), "computed") == 0 ||
-        (strcmp(mutation_storage_kind(target), "local") != 0 &&
-         !mutation_is_checked_scalar_ref_parameter(target)))
-        return "unchecked";
-
-    if (require_same_type && (!value || !ast_type_equals(target->expr_type, value->expr_type)))
-        return "unchecked";
-    return "checked";
-}
-
 static const char *unary_op_str(SnTokenType op)
 {
     switch (op)
@@ -895,76 +672,6 @@ static int maybe_emit_fn_ref_wrapper(Arena *arena, Expr *arg_expr,
     return wrap_id;
 }
 
-/* Function values are refcounted closure boxes. Model a borrow-to-owner edge
- * with the existing copy_of expression so every call-site renderer evaluates
- * the source once and emits sn_closure_retain uniformly. */
-static json_object *model_closure_retain(json_object *value)
-{
-    json_object *copy = json_object_new_object();
-    json_object_object_add(copy, "kind", json_object_new_string("copy_of"));
-    json_object_object_add(copy, "operand", json_object_get(value));
-    json_object *type = NULL;
-    if (json_object_object_get_ex(value, "type", &type))
-        json_object_object_add(copy, "type", json_object_get(type));
-    return copy;
-}
-
-/* typeOf metadata is part of the shared language model. Keep the canonical
- * spelling and ID calculation in one place so stored metadata and optimized
- * direct properties cannot drift between targets. */
-static const char *reflection_type_name(Type *type)
-{
-    if (!type) return "unknown";
-    switch (type->kind)
-    {
-        case TYPE_INT:    return "int";
-        case TYPE_INT32:  return "int32";
-        case TYPE_UINT:   return "uint";
-        case TYPE_UINT32: return "uint32";
-        case TYPE_LONG:   return "long";
-        case TYPE_DOUBLE: return "double";
-        case TYPE_FLOAT:  return "float";
-        case TYPE_CHAR:   return "char";
-        case TYPE_STRING: return "str";
-        case TYPE_BOOL:   return "bool";
-        case TYPE_BYTE:   return "byte";
-        case TYPE_VOID:   return "void";
-        case TYPE_STRUCT: return type->as.struct_type.name
-            ? type->as.struct_type.name : "struct";
-        case TYPE_ARRAY:  return "array";
-        default:          return "unknown";
-    }
-}
-
-static int reflection_type_id(const char *type_name)
-{
-    unsigned long hash = 2166136261u;
-    for (const char *p = type_name; *p; p++)
-    {
-        hash ^= (unsigned char)*p;
-        hash *= 16777619u;
-    }
-    return (int)(hash & 0x7FFFFFFF);
-}
-
-static bool reflection_operand_is_sized_array(Expr *operand)
-{
-    return operand &&
-        (operand->type == EXPR_SIZED_ARRAY_ALLOC ||
-         (operand->type == EXPR_VARIABLE &&
-          operand->as.variable.declared_as_sized_array));
-}
-
-static void reflection_add_model_provenance(Arena *arena, json_object *obj,
-                                            Expr *operand)
-{
-    if (operand && operand->expr_type)
-        json_object_object_add(obj, "reflected_type",
-            gen_model_type(arena, operand->expr_type));
-    json_object_object_add(obj, "reflected_is_sized_array",
-        json_object_new_boolean(reflection_operand_is_sized_array(operand)));
-}
-
 json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                             ArithmeticMode arithmetic_mode)
 {
@@ -1078,14 +785,6 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                              * use the alias directly instead of namespace-prefixing */
                             if (g_model_ns_fn_aliases && g_model_ns_fn_aliases[fi])
                             {
-                                if (g_model_rust_native_projection)
-                                {
-                                    char callable[512];
-                                    snprintf(callable, sizeof(callable), "%s__%s",
-                                             prefix_to_use, vname);
-                                    json_object_object_add(obj, "source_callable_name",
-                                        json_object_new_string(callable));
-                                }
                                 json_object_object_add(obj, "name",
                                     json_object_new_string(g_model_ns_fn_aliases[fi]));
                                 vname = NULL; /* mark as handled */
@@ -1206,24 +905,6 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
             {
                 Type *atype = expr->expr_type;
                 const char *assign_cleanup = "none";
-                bool assign_needs_closure_wrap = false;
-
-                /* A bare named function is a code pointer, while every owned
-                 * function value is a refcounted __Closure__. Box the code
-                 * pointer before replacing/releasing the old binding. */
-                if (atype->kind == TYPE_FUNCTION)
-                {
-                    int wrap_id = maybe_emit_fn_ref_wrapper(
-                        arena, expr->as.assign.value, atype, symbol_table);
-                    if (wrap_id >= 0)
-                    {
-                        assign_needs_closure_wrap = true;
-                        json_object_object_add(obj, "needs_closure_wrap",
-                            json_object_new_boolean(true));
-                        json_object_object_add(obj, "fn_wrapper_id",
-                            json_object_new_int(wrap_id));
-                    }
-                }
 
                 /* Issue #49: lifted member RHS already runs the keeper op
                  * inside the lift block — skip the assign-side ownership op
@@ -1231,7 +912,18 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 bool assign_rhs_is_lifted_member = false;
                 {
                     Expr *val = expr->as.assign.value;
-                    assign_rhs_is_lifted_member = ownership_is_lifted_member(val);
+                    if (val && val->type == EXPR_MEMBER && val->as.member.object)
+                    {
+                        Expr *mo = val->as.member.object;
+                        Type *mot = mo->expr_type;
+                        if ((mo->type == EXPR_CALL || mo->type == EXPR_STATIC_CALL) &&
+                            mot && mot->kind == TYPE_STRUCT &&
+                            !mot->as.struct_type.pass_self_by_ref &&
+                            gen_model_type_has_heap_fields(mot))
+                        {
+                            assign_rhs_is_lifted_member = true;
+                        }
+                    }
                 }
 
                 switch (atype->kind)
@@ -1249,11 +941,18 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                         }
                         else
                         {
-                            /* Keep assignment cleanup consistent with every
-                             * other val-struct ownership path: nested value
-                             * structs can recursively own heap fields. */
-                            if (gen_model_type_has_heap_fields(atype))
-                                assign_cleanup = "cleanup_val";
+                            /* as val: only needs cleanup if it has heap fields */
+                            for (int fi = 0; fi < atype->as.struct_type.field_count; fi++)
+                            {
+                                Type *ft = atype->as.struct_type.fields[fi].type;
+                                if (ft && (ft->kind == TYPE_STRING || ft->kind == TYPE_ARRAY ||
+                                    ft->kind == TYPE_FUNCTION ||
+                                    (ft->kind == TYPE_STRUCT && ft->as.struct_type.pass_self_by_ref)))
+                                {
+                                    assign_cleanup = "cleanup_val";
+                                    break;
+                                }
+                            }
                         }
                         break;
                     case TYPE_FUNCTION:
@@ -1270,13 +969,11 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                  * concrete acquire (strdup / retain / val-copy / arr-copy)
                  * off assign_cleanup. */
                 if (!assign_rhs_is_lifted_member &&
-                    !assign_needs_closure_wrap &&
                     ownership_kind(expr->as.assign.value) == OWNERSHIP_BORROW &&
                     (strcmp(assign_cleanup, "free_str") == 0 ||
                      strcmp(assign_cleanup, "release_ref") == 0 ||
                      strcmp(assign_cleanup, "cleanup_val") == 0 ||
-                     strcmp(assign_cleanup, "cleanup_arr") == 0 ||
-                     strcmp(assign_cleanup, "free_closure") == 0))
+                     strcmp(assign_cleanup, "cleanup_arr") == 0))
                 {
                     json_object_object_add(obj, "source_is_borrow",
                         json_object_new_boolean(true));
@@ -1293,43 +990,8 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
             json_object_object_add(obj, "kind", json_object_new_string("compound_assign"));
             json_object_object_add(obj, "op",
                 json_object_new_string(binary_op_str(expr->as.compound_assign.operator)));
-            json_object_object_add(obj, "mutation_op",
-                json_object_new_string(binary_op_str(expr->as.compound_assign.operator)));
-            json_object_object_add(obj, "mutation_place",
-                json_object_new_string(mutation_place_kind(expr->as.compound_assign.target)));
-            json_object_object_add(obj, "mutation_storage",
-                json_object_new_string(mutation_storage_kind(expr->as.compound_assign.target)));
-            bool mutation_sync = mutation_target_is_sync(expr->as.compound_assign.target);
-            json_object_object_add(obj, "mutation_sync", json_object_new_boolean(mutation_sync));
-            if (mutation_sync)
-                json_object_object_add(obj, "sync_var_name", json_object_new_string(
-                    mutation_sync_variable_name(expr->as.compound_assign.target)));
-            json_object_object_add(obj, "mutation_arithmetic_mode",
-                json_object_new_string(mutation_sync
-                    ? "unchecked" : mutation_arithmetic_mode(
-                        arithmetic_mode, expr->as.compound_assign.operator,
-                        expr->as.compound_assign.target,
-                        expr->as.compound_assign.value, true)));
-            if (mutation_is_checked_scalar_ref_parameter(expr->as.compound_assign.target))
-                json_object_object_add(obj, "mutation_rhs_first", json_object_new_boolean(true));
-            json_object *ca_target = gen_model_expr(arena, expr->as.compound_assign.target,
-                                                     symbol_table, arithmetic_mode);
-            json_object_object_add(obj, "target", ca_target);
-            Expr *ca_base = mutation_base_variable(expr->as.compound_assign.target);
-            if (ca_base && ca_base->as.variable.is_param_ref)
-            {
-                json_object_object_add(ca_target, "is_parameter", json_object_new_boolean(true));
-                json_object_object_add(ca_target, "parameter_mem_qual",
-                    json_object_new_string(gen_model_mem_qual_str(
-                        ca_base->as.variable.param_mem_qualifier)));
-            }
-            json_object *captured_obj = NULL;
-            if (!json_model_boolean_property(ca_target, "is_parameter") &&
-                json_object_object_get_ex(ca_target, "is_captured", &captured_obj) &&
-                json_object_get_boolean(captured_obj)) {
-                json_object_object_add(obj, "mutation_storage", json_object_new_string("captured"));
-                json_object_object_add(obj, "mutation_arithmetic_mode", json_object_new_string("unchecked"));
-            }
+            json_object_object_add(obj, "target",
+                gen_model_expr(arena, expr->as.compound_assign.target, symbol_table, arithmetic_mode));
             json_object *ca_val = gen_model_expr(arena, expr->as.compound_assign.value, symbol_table, arithmetic_mode);
             /* For string +=, mark heap-producing value for temp cleanup */
             if (is_heap_producing_string_expr(expr->as.compound_assign.value))
@@ -1407,29 +1069,34 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
             if (expr->as.binary.operator == TOKEN_PLUS &&
                 expr->expr_type && expr->expr_type->kind == TYPE_STRING)
             {
-                /* Flatten the complete tree in source order.  The stack grows
-                 * with the expression, so deeply associated chains cannot be
-                 * silently truncated. */
-                StringConcatExprStack stack = {0};
-                StringConcatExprStack parts = {0};
-                string_concat_stack_push(&stack, arena, expr);
-                while (stack.count > 0)
+                /* Collect all parts of the chain */
+                #define MAX_CONCAT_PARTS 32
+                Expr *parts[MAX_CONCAT_PARTS];
+                int part_count = 0;
+
+                /* Flatten left-associative chain: ((a + b) + c) → [a, b, c] */
+                Expr *stack[MAX_CONCAT_PARTS];
+                int stack_top = 0;
+                stack[stack_top++] = expr;
+                while (stack_top > 0)
                 {
-                    Expr *e = stack.items[--stack.count];
+                    Expr *e = stack[--stack_top];
                     if (e->type == EXPR_BINARY && e->as.binary.operator == TOKEN_PLUS &&
                         e->expr_type && e->expr_type->kind == TYPE_STRING)
                     {
                         /* Push right first so left is processed first */
-                        string_concat_stack_push(&stack, arena, e->as.binary.right);
-                        string_concat_stack_push(&stack, arena, e->as.binary.left);
+                        if (stack_top < MAX_CONCAT_PARTS - 1)
+                            stack[stack_top++] = e->as.binary.right;
+                        if (stack_top < MAX_CONCAT_PARTS - 1)
+                            stack[stack_top++] = e->as.binary.left;
                     }
                     else
                     {
-                        string_concat_stack_push(&parts, arena, e);
+                        if (part_count < MAX_CONCAT_PARTS)
+                            parts[part_count++] = e;
                     }
                 }
-
-                size_t part_count = parts.count;
+                #undef MAX_CONCAT_PARTS
 
                 if (part_count > 2)
                 {
@@ -1437,19 +1104,19 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     json_object_object_add(obj, "kind",
                         json_object_new_string("str_concat_multi"));
                     json_object *parts_arr = json_object_new_array();
-                    for (size_t pi = 0; pi < part_count; pi++)
+                    for (int pi = 0; pi < part_count; pi++)
                     {
-                        json_object *part = gen_model_expr(arena, parts.items[pi],
+                        json_object *part = gen_model_expr(arena, parts[pi],
                             symbol_table, arithmetic_mode);
                         /* Check if this part is a temp string allocation that needs cleanup */
-                        if (is_heap_producing_string_expr(parts.items[pi]))
+                        if (is_heap_producing_string_expr(parts[pi]))
                             json_object_object_add(part, "is_str_temp",
                                 json_object_new_boolean(true));
                         json_object_array_add(parts_arr, part);
                     }
                     json_object_object_add(obj, "parts", parts_arr);
                     json_object_object_add(obj, "part_count",
-                        json_object_new_int64((int64_t)part_count));
+                        json_object_new_int(part_count));
                     break;
                 }
                 /* Fall through for 2-part concat — check for temp operands */
@@ -1805,12 +1472,6 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     pmq = expr->as.call.callee->expr_type->as.function.param_mem_quals;
                     pmq_count = expr->as.call.callee->expr_type->as.function.param_count;
                 }
-                /* Member-call function types do not retain parameter memory
-                 * qualifiers.  The resolved method does, and both C and Rust
-                 * must see its scalar `as ref` argument as an address/borrow. */
-                StructMethod *resolved_method =
-                    (expr->as.call.callee->type == EXPR_MEMBER)
-                    ? expr->as.call.callee->as.member.resolved_method : NULL;
 
                 /* Detect push/insert on string arrays — args need strdup for ownership */
                 bool member_str_push = false;
@@ -1822,8 +1483,6 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 /* Detect push/insert on as-ref struct arrays — lvalue args need retain */
                 bool member_ref_push = false;
                 const char *member_ref_push_name = NULL;
-                /* Detect push/insert on function arrays — slots own closure refs. */
-                bool member_fn_push = false;
                 /* Detect insert specifically — args need reordering (idx before val) for variadic macro */
                 bool member_is_insert = false;
                 if (expr->as.call.callee->type == EXPR_MEMBER)
@@ -1858,10 +1517,6 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                                 member_ref_push = true;
                                 member_ref_push_name = et->as.struct_type.name;
                             }
-                            else if (et->kind == TYPE_FUNCTION)
-                            {
-                                member_fn_push = true;
-                            }
                         }
                     }
                 }
@@ -1881,26 +1536,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 {
                     json_object *arg = gen_model_expr(arena, expr->as.call.arguments[i], symbol_table, arithmetic_mode);
                     /* Override matrix: param annotation vs arg type */
-                    if (resolved_method && i < resolved_method->param_count)
-                    {
-                        Expr *arg_expr = expr->as.call.arguments[i];
-                        Type *arg_type = arg_expr ? arg_expr->expr_type : NULL;
-                        bool is_ref_struct = (arg_type && arg_type->kind == TYPE_STRUCT &&
-                                              arg_type->as.struct_type.pass_self_by_ref);
-                        if (resolved_method->params[i].mem_qualifier == MEM_AS_REF &&
-                            !is_ref_struct)
-                            json_object_object_add(arg, "is_ref_arg",
-                                json_object_new_boolean(true));
-                        else if (resolved_method->params[i].mem_qualifier == MEM_AS_VAL &&
-                                 is_ref_struct)
-                        {
-                            json_object_object_add(arg, "is_copy_arg",
-                                json_object_new_boolean(true));
-                            json_object_object_add(arg, "copy_type_name",
-                                json_object_new_string(arg_type->as.struct_type.name));
-                        }
-                    }
-                    else if (pmq && i < pmq_count)
+                    if (pmq && i < pmq_count)
                     {
                         Expr *arg_expr = expr->as.call.arguments[i];
                         Type *arg_type = arg_expr ? arg_expr->expr_type : NULL;
@@ -2089,29 +1725,6 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                                 json_object_new_string(member_ref_push_name));
                             json_object_object_add(arg, "source_is_borrow",
                                 json_object_new_boolean(true));
-                        }
-                        else
-                        {
-                            json_object_object_add(arg, "consumes_source",
-                                json_object_new_boolean(true));
-                        }
-                    }
-                    /* Function-array push/insert follows the same ownership
-                     * split. A named wrapper, lambda, or call result transfers
-                     * its fresh +1; an existing closure is retained. */
-                    if (member_fn_push && i == 0)
-                    {
-                        Expr *arg_expr = expr->as.call.arguments[0];
-                        json_object *fn_ref_obj = NULL;
-                        bool is_named_fn_wrapper =
-                            json_object_object_get_ex(arg, "is_fn_ref_arg", &fn_ref_obj) &&
-                            json_object_get_boolean(fn_ref_obj);
-                        if (!is_named_fn_wrapper &&
-                            ownership_kind(arg_expr) == OWNERSHIP_BORROW)
-                        {
-                            json_object *retained = model_closure_retain(arg);
-                            json_object_put(arg);
-                            arg = retained;
                         }
                         else
                         {
@@ -2563,33 +2176,6 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                             json_object_new_boolean(true));
                     }
                 }
-                /* Function-array slots own closure references. Bare named
-                 * functions need a captureless closure wrapper; other borrowed
-                 * closure values are retained into the slot. Fresh lambdas and
-                 * function-returning calls transfer their existing +1 credit. */
-                if (ae && ae->expr_type && ae->expr_type->kind == TYPE_FUNCTION)
-                {
-                    int wrap_id = maybe_emit_fn_ref_wrapper(arena, ae,
-                        ae->expr_type, symbol_table);
-                    if (wrap_id >= 0)
-                    {
-                        json_object_object_add(elem, "needs_closure_wrap",
-                            json_object_new_boolean(true));
-                        json_object_object_add(elem, "fn_wrapper_id",
-                            json_object_new_int(wrap_id));
-                    }
-                    else if (ownership_kind(ae) == OWNERSHIP_BORROW)
-                    {
-                        json_object *retained = model_closure_retain(elem);
-                        json_object_put(elem);
-                        elem = retained;
-                    }
-                    else
-                    {
-                        json_object_object_add(elem, "consumes_source",
-                            json_object_new_boolean(true));
-                    }
-                }
                 json_object_array_add(elements, elem);
             }
             json_object_object_add(obj, "elements", elements);
@@ -2609,10 +2195,6 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     case TYPE_ARRAY:
                         elem_release_fn = "(void (*)(void *))sn_cleanup_array";
                         elem_copy_fn = "sn_copy_array";
-                        break;
-                    case TYPE_FUNCTION:
-                        elem_release_fn = "sn_release_closure_elem";
-                        elem_copy_fn = "sn_copy_closure";
                         break;
                     case TYPE_STRUCT:
                         if (et->as.struct_type.pass_self_by_ref)
@@ -2775,24 +2357,44 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 Expr *typeof_expr = expr->as.member.object;
                 Type *op_type = typeof_expr->as.typeof_expr.operand->expr_type;
 
-                const char *type_name = reflection_type_name(op_type);
-                int type_id = reflection_type_id(type_name);
+                /* Compute canonical type name (same logic as EXPR_TYPEOF below) */
+                const char *type_name = "unknown";
+                if (op_type) {
+                    switch (op_type->kind) {
+                        case TYPE_INT:    type_name = "int"; break;
+                        case TYPE_INT32:  type_name = "int32"; break;
+                        case TYPE_UINT:   type_name = "uint"; break;
+                        case TYPE_UINT32: type_name = "uint32"; break;
+                        case TYPE_LONG:   type_name = "long"; break;
+                        case TYPE_DOUBLE: type_name = "double"; break;
+                        case TYPE_FLOAT:  type_name = "float"; break;
+                        case TYPE_CHAR:   type_name = "char"; break;
+                        case TYPE_STRING: type_name = "str"; break;
+                        case TYPE_BOOL:   type_name = "bool"; break;
+                        case TYPE_BYTE:   type_name = "byte"; break;
+                        case TYPE_VOID:   type_name = "void"; break;
+                        case TYPE_STRUCT: type_name = op_type->as.struct_type.name
+                                                      ? op_type->as.struct_type.name : "struct"; break;
+                        case TYPE_ARRAY:  type_name = "array"; break;
+                        default:          type_name = "unknown"; break;
+                    }
+                }
+
+                /* FNV-1a hash */
+                unsigned long hash = 2166136261u;
+                for (const char *p = type_name; *p; p++) {
+                    hash ^= (unsigned char)*p;
+                    hash *= 16777619u;
+                }
+                int type_id = (int)(hash & 0x7FFFFFFF);
                 int field_count = (op_type && op_type->kind == TYPE_STRUCT)
                                   ? op_type->as.struct_type.field_count : 0;
-
-                if (strcmp(mname, "typeId") == 0 ||
-                    strcmp(mname, "fieldCount") == 0 ||
-                    strcmp(mname, "name") == 0)
-                    reflection_add_model_provenance(arena, obj,
-                        typeof_expr->as.typeof_expr.operand);
 
                 if (strcmp(mname, "typeId") == 0) {
                     char buf[64];
                     snprintf(buf, sizeof(buf), "%dLL", type_id);
                     json_object_object_add(obj, "kind", json_object_new_string("literal"));
                     json_object_object_add(obj, "c_literal", json_object_new_string(buf));
-                    json_object_object_add(obj, "value_kind", json_object_new_string("int"));
-                    json_object_object_add(obj, "value", json_object_new_int(type_id));
                     break;
                 }
                 if (strcmp(mname, "fieldCount") == 0) {
@@ -2800,8 +2402,6 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     snprintf(buf, sizeof(buf), "%dLL", field_count);
                     json_object_object_add(obj, "kind", json_object_new_string("literal"));
                     json_object_object_add(obj, "c_literal", json_object_new_string(buf));
-                    json_object_object_add(obj, "value_kind", json_object_new_string("int"));
-                    json_object_object_add(obj, "value", json_object_new_int(field_count));
                     break;
                 }
                 if (strcmp(mname, "name") == 0) {
@@ -2809,8 +2409,6 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     snprintf(buf, sizeof(buf), "(char *)\"%s\"", type_name);
                     json_object_object_add(obj, "kind", json_object_new_string("literal"));
                     json_object_object_add(obj, "c_literal", json_object_new_string(buf));
-                    json_object_object_add(obj, "value_kind", json_object_new_string("string"));
-                    json_object_object_add(obj, "value", json_object_new_string(type_name));
                     break;
                 }
                 /* Fall through to normal member access for .fields etc. */
@@ -2854,7 +2452,11 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                  * owned value the caller can hold.  Consumers (var_decl,
                  * etc.) detect this pattern and skip their own ownership
                  * op so we don't double-retain. */
-                if (ownership_is_lifted_member(expr))
+                Expr *o = expr->as.member.object;
+                if (o && (o->type == EXPR_CALL || o->type == EXPR_STATIC_CALL) &&
+                    obj_type && obj_type->kind == TYPE_STRUCT &&
+                    !obj_type->as.struct_type.pass_self_by_ref &&
+                    gen_model_type_has_heap_fields(obj_type))
                 {
                     /* Determine the keeper op for the accessed field. */
                     Type *ft = expr->expr_type;
@@ -3027,7 +2629,18 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                  * (strdup/sn_array_copy/retain/val_copy) inside the lift block,
                  * so the field must skip its own ownership op. */
                 bool fv_is_lifted_member = false;
-                fv_is_lifted_member = ownership_is_lifted_member(fv);
+                if (fv && fv->type == EXPR_MEMBER && fv->as.member.object)
+                {
+                    Expr *mo = fv->as.member.object;
+                    Type *mot = mo->expr_type;
+                    if ((mo->type == EXPR_CALL || mo->type == EXPR_STATIC_CALL) &&
+                        mot && mot->kind == TYPE_STRUCT &&
+                        !mot->as.struct_type.pass_self_by_ref &&
+                        gen_model_type_has_heap_fields(mot))
+                    {
+                        fv_is_lifted_member = true;
+                    }
+                }
                 /* Unified classifier: BORROW source → emit source_is_borrow
                  * plus the type-name context keys the template needs to build
                  * the concrete acquire call (retain_type_name for ref struct,
@@ -3108,13 +2721,6 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                                         json_object_new_string("(void (*)(void *))sn_cleanup_array"));
                                     json_object_object_add(fval_obj, "elem_copy_fn",
                                         json_object_new_string("sn_copy_array"));
-                                }
-                                else if (expected_et->kind == TYPE_FUNCTION)
-                                {
-                                    json_object_object_add(fval_obj, "elem_release_fn",
-                                        json_object_new_string("sn_release_closure_elem"));
-                                    json_object_object_add(fval_obj, "elem_copy_fn",
-                                        json_object_new_string("sn_copy_closure"));
                                 }
                                 else if (expected_et->kind == TYPE_STRUCT)
                                 {
@@ -3235,38 +2841,19 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
         case EXPR_INCREMENT:
         {
             json_object_object_add(obj, "kind", json_object_new_string("increment"));
-            json_object_object_add(obj, "mutation_op", json_object_new_string("add"));
-            json_object_object_add(obj, "mutation_place",
-                json_object_new_string(mutation_place_kind(expr->as.operand)));
-            json_object_object_add(obj, "mutation_storage",
-                json_object_new_string(mutation_storage_kind(expr->as.operand)));
-            bool mutation_sync = mutation_target_is_sync(expr->as.operand);
-            json_object_object_add(obj, "mutation_sync", json_object_new_boolean(mutation_sync));
-            if (mutation_sync)
-                json_object_object_add(obj, "sync_var_name", json_object_new_string(
-                    mutation_sync_variable_name(expr->as.operand)));
-            json_object_object_add(obj, "mutation_arithmetic_mode",
-                json_object_new_string(mutation_sync
-                    ? "unchecked" : mutation_arithmetic_mode(
-                        arithmetic_mode, TOKEN_PLUS, expr->as.operand, NULL, false)));
-            if (mutation_is_checked_scalar_ref_parameter(expr->as.operand))
-                json_object_object_add(obj, "mutation_rhs_first", json_object_new_boolean(true));
-            json_object *inc_operand = gen_model_expr(arena, expr->as.operand, symbol_table, arithmetic_mode);
-            json_object_object_add(obj, "operand", inc_operand);
-            Expr *inc_base = mutation_base_variable(expr->as.operand);
-            if (inc_base && inc_base->as.variable.is_param_ref)
-            {
-                json_object_object_add(inc_operand, "is_parameter", json_object_new_boolean(true));
-                json_object_object_add(inc_operand, "parameter_mem_qual",
-                    json_object_new_string(gen_model_mem_qual_str(
-                        inc_base->as.variable.param_mem_qualifier)));
-            }
-            json_object *captured_obj = NULL;
-            if (!json_model_boolean_property(inc_operand, "is_parameter") &&
-                json_object_object_get_ex(inc_operand, "is_captured", &captured_obj) &&
-                json_object_get_boolean(captured_obj)) {
-                json_object_object_add(obj, "mutation_storage", json_object_new_string("captured"));
-                json_object_object_add(obj, "mutation_arithmetic_mode", json_object_new_string("unchecked"));
+            json_object_object_add(obj, "operand",
+                gen_model_expr(arena, expr->as.operand, symbol_table, arithmetic_mode));
+            /* Sync variable: emit mutex name so template can wrap in lock/unlock */
+            if (expr->as.operand->type == EXPR_VARIABLE && symbol_table) {
+                Symbol *sym = symbol_table_lookup_symbol(symbol_table, expr->as.operand->as.variable.name);
+                if (sym && sym->sync_mod == SYNC_ATOMIC) {
+                    int nlen = expr->as.operand->as.variable.name.length;
+                    char vname[256];
+                    if (nlen >= (int)sizeof(vname)) nlen = (int)sizeof(vname) - 1;
+                    strncpy(vname, expr->as.operand->as.variable.name.start, nlen);
+                    vname[nlen] = '\0';
+                    json_object_object_add(obj, "sync_var_name", json_object_new_string(vname));
+                }
             }
             break;
         }
@@ -3274,38 +2861,19 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
         case EXPR_DECREMENT:
         {
             json_object_object_add(obj, "kind", json_object_new_string("decrement"));
-            json_object_object_add(obj, "mutation_op", json_object_new_string("subtract"));
-            json_object_object_add(obj, "mutation_place",
-                json_object_new_string(mutation_place_kind(expr->as.operand)));
-            json_object_object_add(obj, "mutation_storage",
-                json_object_new_string(mutation_storage_kind(expr->as.operand)));
-            bool mutation_sync = mutation_target_is_sync(expr->as.operand);
-            json_object_object_add(obj, "mutation_sync", json_object_new_boolean(mutation_sync));
-            if (mutation_sync)
-                json_object_object_add(obj, "sync_var_name", json_object_new_string(
-                    mutation_sync_variable_name(expr->as.operand)));
-            json_object_object_add(obj, "mutation_arithmetic_mode",
-                json_object_new_string(mutation_sync
-                    ? "unchecked" : mutation_arithmetic_mode(
-                        arithmetic_mode, TOKEN_MINUS, expr->as.operand, NULL, false)));
-            if (mutation_is_checked_scalar_ref_parameter(expr->as.operand))
-                json_object_object_add(obj, "mutation_rhs_first", json_object_new_boolean(true));
-            json_object *dec_operand = gen_model_expr(arena, expr->as.operand, symbol_table, arithmetic_mode);
-            json_object_object_add(obj, "operand", dec_operand);
-            Expr *dec_base = mutation_base_variable(expr->as.operand);
-            if (dec_base && dec_base->as.variable.is_param_ref)
-            {
-                json_object_object_add(dec_operand, "is_parameter", json_object_new_boolean(true));
-                json_object_object_add(dec_operand, "parameter_mem_qual",
-                    json_object_new_string(gen_model_mem_qual_str(
-                        dec_base->as.variable.param_mem_qualifier)));
-            }
-            json_object *captured_obj = NULL;
-            if (!json_model_boolean_property(dec_operand, "is_parameter") &&
-                json_object_object_get_ex(dec_operand, "is_captured", &captured_obj) &&
-                json_object_get_boolean(captured_obj)) {
-                json_object_object_add(obj, "mutation_storage", json_object_new_string("captured"));
-                json_object_object_add(obj, "mutation_arithmetic_mode", json_object_new_string("unchecked"));
+            json_object_object_add(obj, "operand",
+                gen_model_expr(arena, expr->as.operand, symbol_table, arithmetic_mode));
+            /* Sync variable: emit mutex name so template can wrap in lock/unlock */
+            if (expr->as.operand->type == EXPR_VARIABLE && symbol_table) {
+                Symbol *sym = symbol_table_lookup_symbol(symbol_table, expr->as.operand->as.variable.name);
+                if (sym && sym->sync_mod == SYNC_ATOMIC) {
+                    int nlen = expr->as.operand->as.variable.name.length;
+                    char vname[256];
+                    if (nlen >= (int)sizeof(vname)) nlen = (int)sizeof(vname) - 1;
+                    strncpy(vname, expr->as.operand->as.variable.name.start, nlen);
+                    vname[nlen] = '\0';
+                    json_object_object_add(obj, "sync_var_name", json_object_new_string(vname));
+                }
             }
             break;
         }
@@ -4048,13 +3616,41 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
             /* Resolve the operand's type at compile time */
             Type *op_type = expr->as.typeof_expr.operand->expr_type;
 
-            const char *type_name = reflection_type_name(op_type);
-            int type_id = reflection_type_id(type_name);
+            /* Compute canonical type name */
+            const char *type_name = "unknown";
+            if (op_type)
+            {
+                switch (op_type->kind)
+                {
+                    case TYPE_INT:    type_name = "int"; break;
+                    case TYPE_INT32:  type_name = "int32"; break;
+                    case TYPE_UINT:   type_name = "uint"; break;
+                    case TYPE_UINT32: type_name = "uint32"; break;
+                    case TYPE_LONG:   type_name = "long"; break;
+                    case TYPE_DOUBLE: type_name = "double"; break;
+                    case TYPE_FLOAT:  type_name = "float"; break;
+                    case TYPE_CHAR:   type_name = "char"; break;
+                    case TYPE_STRING: type_name = "str"; break;
+                    case TYPE_BOOL:   type_name = "bool"; break;
+                    case TYPE_BYTE:   type_name = "byte"; break;
+                    case TYPE_VOID:   type_name = "void"; break;
+                    case TYPE_STRUCT: type_name = op_type->as.struct_type.name ? op_type->as.struct_type.name : "struct"; break;
+                    case TYPE_ARRAY:  type_name = "array"; break;
+                    default:          type_name = "unknown"; break;
+                }
+            }
+
+            /* FNV-1a hash for type ID */
+            unsigned long hash = 2166136261u;
+            for (const char *p = type_name; *p; p++)
+            {
+                hash ^= (unsigned char)*p;
+                hash *= 16777619u;
+            }
+            int type_id = (int)(hash & 0x7FFFFFFF);
 
             json_object_object_add(obj, "type_name", json_object_new_string(type_name));
             json_object_object_add(obj, "type_id", json_object_new_int(type_id));
-            reflection_add_model_provenance(arena, obj,
-                expr->as.typeof_expr.operand);
 
             /* Build fields array (only for structs) */
             json_object *fields_arr = json_object_new_array();
@@ -4069,11 +3665,39 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     json_object *field_obj = json_object_new_object();
                     json_object_object_add(field_obj, "name", json_object_new_string(f->name));
 
-                    const char *field_type_name = reflection_type_name(f->type);
+                    /* Compute field type name */
+                    const char *field_type_name = "unknown";
+                    if (f->type)
+                    {
+                        switch (f->type->kind)
+                        {
+                            case TYPE_INT:    field_type_name = "int"; break;
+                            case TYPE_INT32:  field_type_name = "int32"; break;
+                            case TYPE_UINT:   field_type_name = "uint"; break;
+                            case TYPE_UINT32: field_type_name = "uint32"; break;
+                            case TYPE_LONG:   field_type_name = "long"; break;
+                            case TYPE_DOUBLE: field_type_name = "double"; break;
+                            case TYPE_FLOAT:  field_type_name = "float"; break;
+                            case TYPE_CHAR:   field_type_name = "char"; break;
+                            case TYPE_STRING: field_type_name = "str"; break;
+                            case TYPE_BOOL:   field_type_name = "bool"; break;
+                            case TYPE_BYTE:   field_type_name = "byte"; break;
+                            case TYPE_VOID:   field_type_name = "void"; break;
+                            case TYPE_STRUCT: field_type_name = f->type->as.struct_type.name ? f->type->as.struct_type.name : "struct"; break;
+                            case TYPE_ARRAY:  field_type_name = "array"; break;
+                            default:          field_type_name = "unknown"; break;
+                        }
+                    }
                     json_object_object_add(field_obj, "type_name", json_object_new_string(field_type_name));
 
-                    json_object_object_add(field_obj, "type_id",
-                        json_object_new_int(reflection_type_id(field_type_name)));
+                    /* FNV-1a hash for field type ID */
+                    unsigned long fhash = 2166136261u;
+                    for (const char *p = field_type_name; *p; p++)
+                    {
+                        fhash ^= (unsigned char)*p;
+                        fhash *= 16777619u;
+                    }
+                    json_object_object_add(field_obj, "type_id", json_object_new_int((int)(fhash & 0x7FFFFFFF)));
 
                     json_object_array_add(fields_arr, field_obj);
                 }

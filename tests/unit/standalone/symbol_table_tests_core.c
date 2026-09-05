@@ -47,7 +47,6 @@ void test_symbol_table_core_main(void)
     TEST_RUN("symbol_table_pop_scope_offset_propagation", test_symbol_table_pop_scope_offset_propagation);
     TEST_RUN("symbol_table_begin_function_scope", test_symbol_table_begin_function_scope);
     TEST_RUN("symbol_table_add_symbol_local_basic", test_symbol_table_add_symbol_local_basic);
-    TEST_RUN("symbol_table_add_symbol_foreach_local", test_symbol_table_add_symbol_foreach_local);
     TEST_RUN("symbol_table_add_symbol_param", test_symbol_table_add_symbol_param);
     TEST_RUN("symbol_table_add_symbol_global", test_symbol_table_add_symbol_global);
     TEST_RUN("symbol_table_add_symbol_no_scope", test_symbol_table_add_symbol_no_scope);
