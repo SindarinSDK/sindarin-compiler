@@ -18,7 +18,8 @@ representation. Lowering:
   effectful receiver is not rendered twice; and
 - evaluates an assertion condition and message once in source order before
   either continuing or emitting the tagged failure message and exiting with
-  status 1.
+  status 1, using model-wide collision-free names for every Rust assertion
+  binding.
 
 All annotations and rendering changes are under `src/target/rust` and
 `templates/rust`. The C model, templates, runtime, tagged sources, and existing
@@ -29,6 +30,10 @@ interpolated pipe strings, an effectful temporary receiver, named-source reuse,
 immediate indexing, CR/LF variants, empty lines, owned indexed results, and
 collisions with the private lowering names. Its emitted Rust is pinned by the
 adjacent snapshot.
+
+The `assert_helper_hygiene` regressions preserve the tagged behavior when
+source locals use each assertion helper's preferred spelling, including the
+failure path whose raw stderr is the source message followed by one newline.
 
 `tests/rgen/pipe_string_bytes.sn` is adjacent Rust coverage, not a tagged-corpus
 parity count. The same source is accepted by the tagged compiler and checks
