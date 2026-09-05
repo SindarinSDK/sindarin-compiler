@@ -319,6 +319,14 @@ TEST_CONFIGS = {
     'rust-closure-values-errors': TestConfig(
         'tests/rust/closure-values/errors', '*.sn', True,
         'Rust Closure Value Error Tests'),
+    'rust-concurrency': TestConfig(
+        'tests/rust-concurrency', '*.sn', False, 'Rust Concurrency Tests'),
+    'rust-concurrency-promoted': TestConfig(
+        'tests/rgen/concurrency-promoted', '*.sn', False,
+        'Promoted Rust Concurrency Tests'),
+    'rust-concurrency-errors': TestConfig(
+        'tests/rust-concurrency/errors', '*.sn', True,
+        'Rust Concurrency Error Tests'),
 }
 
 # These tagged files record the Rust backend's former rejection.  Keep them
@@ -1112,7 +1120,9 @@ def main():
     )
     parser.add_argument('test_type', nargs='?', default='all',
                         choices=['rgen', 'rgen-errors', 'rust-closure-values',
-                                 'rust-closure-values-errors', 'rust-toolchain', 'all'],
+                                 'rust-closure-values-errors', 'rust-concurrency',
+                                 'rust-concurrency-promoted', 'rust-concurrency-errors',
+                                 'rust-toolchain', 'all'],
                        help='Type of tests to run')
     parser.add_argument('--compiler', '-c', help='Path to compiler executable')
     parser.add_argument('--timeout', type=int, default=60,
