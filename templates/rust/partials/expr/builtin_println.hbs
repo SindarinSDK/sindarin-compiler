@@ -1,1 +1,1 @@
-{{#each args}}{{#if @index}}; {{/if}}println!("{}", {{> expr this}}){{/each}}
+{{#each args}}{{#if @index}}; {{/if}}{{rust_println_prefix type}}{{> expr this}}{{rust_print_suffix type}}{{/each}}

@@ -39,8 +39,14 @@ fn decrement(value: &mut i64) -> i64 {
 fn main() {
     let mut high: i64 = 9;
     let mut low: i64 = 5;
-    println!("{}", increment(&mut (high)));
-    println!("{}", decrement(&mut (low)));
-    println!("{}", high);
-    println!("{}", low);
+    println!("{}", increment(&mut (high))
+)
+;
+    println!("{}", decrement(&mut (low))
+)
+;
+    println!("{}", high)
+;
+    println!("{}", low)
+;
 }

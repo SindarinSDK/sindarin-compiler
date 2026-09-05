@@ -516,12 +516,73 @@ static bool rust_model_uses_string_helpers(json_object *node)
     if (!json_object_is_type(node, json_type_object)) return false;
     const char *method = json_string_property(node, "rust_string_method");
     if (method && (strcmp(method, "substring") == 0 || strcmp(method, "replace") == 0 ||
-                   strcmp(method, "charAt") == 0 || strcmp(method, "indexOf") == 0))
+                   strcmp(method, "charAt") == 0 || strcmp(method, "indexOf") == 0 ||
+                   strcmp(method, "split") == 0 || strcmp(method, "splitLines") == 0 ||
+                   strcmp(method, "splitWhitespace") == 0 || strcmp(method, "isBlank") == 0))
         return true;
     json_object_object_foreach(node, key, value)
     {
         (void)key;
         if (rust_model_uses_string_helpers(value)) return true;
+    }
+    return false;
+}
+
+static bool rust_model_uses_byte_strings(json_object *node)
+{
+    if (!node) return false;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            if (rust_model_uses_byte_strings(json_object_array_get_idx(node, i))) return true;
+        return false;
+    }
+    if (!json_object_is_type(node, json_type_object)) return false;
+    if (json_string_property_equals(node, "kind", "string")) return true;
+    if (json_string_property_equals(node, "kind", "builtin_print") ||
+        json_string_property_equals(node, "kind", "builtin_println"))
+    {
+        json_object *args = NULL;
+        if (json_object_object_get_ex(node, "args", &args))
+        {
+            size_t count = json_object_array_length(args);
+            for (size_t i = 0; i < count; i++)
+            {
+                json_object *arg = json_object_array_get_idx(args, i);
+                json_object *type = NULL;
+                if (json_object_object_get_ex(arg, "type", &type) &&
+                    json_string_property_equals(type, "kind", "char")) return true;
+            }
+        }
+    }
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        if (rust_model_uses_byte_strings(value)) return true;
+    }
+    return false;
+}
+
+static bool rust_model_uses_split_helpers(json_object *node)
+{
+    if (!node) return false;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            if (rust_model_uses_split_helpers(json_object_array_get_idx(node, i))) return true;
+        return false;
+    }
+    if (!json_object_is_type(node, json_type_object)) return false;
+    const char *method = json_string_property(node, "rust_string_method");
+    if (method && (strcmp(method, "split") == 0 || strcmp(method, "splitLines") == 0 ||
+                   strcmp(method, "splitWhitespace") == 0 || strcmp(method, "isBlank") == 0))
+        return true;
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        if (rust_model_uses_split_helpers(value)) return true;
     }
     return false;
 }
@@ -669,6 +730,97 @@ static bool rust_model_contains_string(json_object *node, const char *wanted)
         if (rust_model_contains_string(value, wanted)) return true;
     }
     return false;
+}
+
+/* Runtime helpers share the generated module namespace with user functions.
+ * Reserve an otherwise-unused spelling only after checking the complete model;
+ * adding each annotation makes subsequent helper allocations distinct too. */
+static bool rust_allocate_helper_name(json_object *model, const char *base,
+                                      char *name, size_t name_size)
+{
+    for (size_t suffix = 0; suffix != (size_t)-1; suffix++)
+    {
+        int written = suffix == 0 ? snprintf(name, name_size, "%s", base) :
+                     snprintf(name, name_size, "%s_%zu", base, suffix);
+        if (written < 0 || (size_t)written >= name_size) return false;
+        if (!rust_model_contains_string(model, name)) return true;
+    }
+    return false;
+}
+
+static void rust_copy_string_helper_names(json_object *node, const char *split,
+                                          const char *split_limit,
+                                          const char *split_lines,
+                                          const char *split_whitespace,
+                                          const char *is_blank)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array))
+    {
+        for (size_t i = 0; i < json_object_array_length(node); i++)
+            rust_copy_string_helper_names(json_object_array_get_idx(node, i), split,
+                                          split_limit, split_lines, split_whitespace,
+                                          is_blank);
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        rust_copy_string_helper_names(value, split, split_limit, split_lines,
+                                      split_whitespace, is_blank);
+    }
+
+    const char *method = json_string_property(node, "rust_string_method");
+    if (!method) return;
+    if (strcmp(method, "split") == 0)
+        json_object_object_add(node,
+            json_boolean_property(node, "rust_string_split_limited") ?
+                "rust_string_split_limit_helper" : "rust_string_split_helper",
+            json_object_new_string(json_boolean_property(node, "rust_string_split_limited") ?
+                split_limit : split));
+    else if (strcmp(method, "splitLines") == 0)
+        json_object_object_add(node, "rust_string_split_lines_helper",
+                               json_object_new_string(split_lines));
+    else if (strcmp(method, "splitWhitespace") == 0)
+        json_object_object_add(node, "rust_string_split_whitespace_helper",
+                               json_object_new_string(split_whitespace));
+    else if (strcmp(method, "isBlank") == 0)
+        json_object_object_add(node, "rust_string_is_blank_helper",
+                               json_object_new_string(is_blank));
+}
+
+static bool rust_lower_string_method_helper_names(json_object *model)
+{
+    if (!rust_model_uses_split_helpers(model)) return true;
+
+    static const struct
+    {
+        const char *property;
+        const char *base;
+    } helpers[] = {
+        { "rust_string_split_helper", "__sn_string_split" },
+        { "rust_string_split_limit_helper", "__sn_string_split_limit" },
+        { "rust_string_split_lines_helper", "__sn_string_split_lines" },
+        { "rust_string_split_whitespace_helper", "__sn_string_split_whitespace" },
+        { "rust_string_is_blank_helper", "__sn_string_is_blank" },
+    };
+    char name[96];
+    for (size_t i = 0; i < sizeof(helpers) / sizeof(helpers[0]); i++)
+    {
+        if (!rust_allocate_helper_name(model, helpers[i].base, name, sizeof(name)))
+            return false;
+        json_object_object_add(model, helpers[i].property, json_object_new_string(name));
+    }
+
+    /* Partials render each call as their current context, not the module root. */
+    rust_copy_string_helper_names(model,
+        json_string_property(model, "rust_string_split_helper"),
+        json_string_property(model, "rust_string_split_limit_helper"),
+        json_string_property(model, "rust_string_split_lines_helper"),
+        json_string_property(model, "rust_string_split_whitespace_helper"),
+        json_string_property(model, "rust_string_is_blank_helper"));
+    return true;
 }
 
 static bool rust_lower_iterator_temp_names(json_object *model, json_object *node,

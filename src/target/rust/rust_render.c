@@ -41,7 +41,7 @@ static char *rust_type(json_object *type)
     if (strcmp(kind, "bool") == 0) return strdup("bool");
     if (strcmp(kind, "char") == 0) return strdup("char");
     if (strcmp(kind, "byte") == 0) return strdup("u8");
-    if (strcmp(kind, "string") == 0) return strdup("String");
+    if (strcmp(kind, "string") == 0) return strdup("SnString");
     if (strcmp(kind, "array") == 0)
     {
         json_object *element_type = NULL;
@@ -234,9 +234,9 @@ static char *helper_rust_literal(json_object **params, int param_count, hbs_opti
         char *quoted = quote_rust_model_string(
             value_obj ? json_object_get_string(value_obj) : "");
         if (!quoted) return NULL;
-        size_t length = strlen(quoted) + sizeof(".to_string()") + 1;
+        size_t length = strlen(quoted) + sizeof("SnString::from()") + 1;
         char *result = malloc(length);
-        if (result) snprintf(result, length, "%s.to_string()", quoted);
+        if (result) snprintf(result, length, "SnString::from(%s)", quoted);
         free(quoted);
         return result;
     }
@@ -268,7 +268,7 @@ static char *helper_rust_default(json_object **params, int param_count, hbs_opti
     if (!kind) return strdup("()");
     if (strcmp(kind, "bool") == 0) return strdup("false");
     if (strcmp(kind, "char") == 0) return strdup("'\\0'");
-    if (strcmp(kind, "string") == 0) return strdup("String::new()");
+    if (strcmp(kind, "string") == 0) return strdup("SnString::new()");
     if (strcmp(kind, "array") == 0) return strdup("Vec::new()");
     if (strcmp(kind, "void") == 0) return strdup("()");
     if (strcmp(kind, "double") == 0 || strcmp(kind, "float") == 0) return strdup("0.0");
@@ -301,6 +301,34 @@ static char *helper_rust_clone_suffix(json_object **params, int param_count,
     return strdup("");
 }
 
+static char *helper_rust_print_prefix(json_object **params, int param_count,
+                                      hbs_options_t *options)
+{
+    (void)options;
+    const char *kind = param_count > 0 ? json_kind(params[0]) : NULL;
+    if (kind && strcmp(kind, "string") == 0) return strdup("__sn_print_string(&(");
+    if (kind && strcmp(kind, "char") == 0) return strdup("__sn_print_char(");
+    return strdup("print!(\"{}\", ");
+}
+
+static char *helper_rust_print_suffix(json_object **params, int param_count,
+                                      hbs_options_t *options)
+{
+    (void)options;
+    const char *kind = param_count > 0 ? json_kind(params[0]) : NULL;
+    return strdup(kind && strcmp(kind, "string") == 0 ? "))" : ")");
+}
+
+static char *helper_rust_println_prefix(json_object **params, int param_count,
+                                        hbs_options_t *options)
+{
+    (void)options;
+    const char *kind = param_count > 0 ? json_kind(params[0]) : NULL;
+    if (kind && strcmp(kind, "string") == 0) return strdup("__sn_println_string(&(");
+    if (kind && strcmp(kind, "char") == 0) return strdup("__sn_println_char(");
+    return strdup("println!(\"{}\", ");
+}
+
 static char *helper_newline(json_object **params, int param_count, hbs_options_t *options)
 {
     (void)params;
@@ -328,6 +356,9 @@ static void register_rust_helpers(hbs_env_t *env)
     hbs_register_helper(env, "rust_default", helper_rust_default);
     hbs_register_helper(env, "rust_unary", helper_rust_unary);
     hbs_register_helper(env, "rust_clone_suffix", helper_rust_clone_suffix);
+    hbs_register_helper(env, "rust_print_prefix", helper_rust_print_prefix);
+    hbs_register_helper(env, "rust_print_suffix", helper_rust_print_suffix);
+    hbs_register_helper(env, "rust_println_prefix", helper_rust_println_prefix);
     hbs_register_helper(env, "nl", helper_newline);
     hbs_register_helper(env, "rbrace", helper_right_brace);
 }

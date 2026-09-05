@@ -38,12 +38,16 @@ fn increment(point: &mut Point) {
 }
 
 fn increment_twice(point: &mut Point) {
-    increment(&mut *(point));
-    increment(&mut *(point));
+    increment(&mut *(point))
+;
+    increment(&mut *(point))
+;
 }
 
 fn main() {
     let mut point: Point = Point { x: 1 };
-    increment_twice(&mut (point));
-    println!("{}", (point).x);
+    increment_twice(&mut (point))
+;
+    println!("{}", (point).x)
+;
 }

@@ -132,18 +132,40 @@ fn main() {
     let mut specialDoubleNegativeZero: f64 = (-0.0);
     let mut orderCaller: f64 = 4.0;
     let mut ops: FloatingOps = FloatingOps { marker: 1 };
-    println!("{}", freeFloat(freeFloatCaller, &mut (calls), 99.0));
-    println!("{}", freeDouble(freeDoubleCaller, &mut (calls), 99.0));
-    println!("{}", FloatingOps::staticFloat(staticFloatCaller, &mut (calls), 99.0));
-    println!("{}", FloatingOps::staticDouble(staticDoubleCaller, &mut (calls), 99.0));
-    println!("{}", (ops).instanceFloat(instanceFloatCaller, &mut (calls), 99.0));
-    println!("{}", (ops).instanceDouble(instanceDoubleCaller, &mut (calls), 99.0));
-    println!("{}", (calls == 24));
-    println!("{}", ((((((freeFloatCaller == 8.0) && (freeDoubleCaller == 16.0)) && (staticFloatCaller == 8.0)) && (staticDoubleCaller == 16.0)) && (instanceFloatCaller == 8.0)) && (instanceDoubleCaller == 16.0)));
-    println!("{}", floatSpecial(specialFloatOne, specialFloatZero, specialFloatNegativeZero));
-    println!("{}", doubleSpecial(specialDoubleOne, specialDoubleZero, specialDoubleNegativeZero));
-    println!("{}", (((specialFloatOne == 1.0) && (specialFloatZero == 0.0)) && ((1.0 / specialFloatNegativeZero) < 0.0)));
-    println!("{}", (((specialDoubleOne == 1.0) && (specialDoubleZero == 0.0)) && ((1.0 / specialDoubleNegativeZero) < 0.0)));
-    println!("{}", helperNames(2.0, 3.0, 4.0, 5.0, 6.0));
-    println!("{}", ((shadowOrder(orderCaller) == 5.0) && (orderCaller == 4.0)));
+    println!("{}", freeFloat(freeFloatCaller, &mut (calls), 99.0)
+)
+;
+    println!("{}", freeDouble(freeDoubleCaller, &mut (calls), 99.0)
+)
+;
+    println!("{}", FloatingOps::staticFloat(staticFloatCaller, &mut (calls), 99.0))
+;
+    println!("{}", FloatingOps::staticDouble(staticDoubleCaller, &mut (calls), 99.0))
+;
+    println!("{}", (ops).instanceFloat(instanceFloatCaller, &mut (calls), 99.0)
+)
+;
+    println!("{}", (ops).instanceDouble(instanceDoubleCaller, &mut (calls), 99.0)
+)
+;
+    println!("{}", (calls == 24))
+;
+    println!("{}", ((((((freeFloatCaller == 8.0) && (freeDoubleCaller == 16.0)) && (staticFloatCaller == 8.0)) && (staticDoubleCaller == 16.0)) && (instanceFloatCaller == 8.0)) && (instanceDoubleCaller == 16.0)))
+;
+    println!("{}", floatSpecial(specialFloatOne, specialFloatZero, specialFloatNegativeZero)
+)
+;
+    println!("{}", doubleSpecial(specialDoubleOne, specialDoubleZero, specialDoubleNegativeZero)
+)
+;
+    println!("{}", (((specialFloatOne == 1.0) && (specialFloatZero == 0.0)) && ((1.0 / specialFloatNegativeZero) < 0.0)))
+;
+    println!("{}", (((specialDoubleOne == 1.0) && (specialDoubleZero == 0.0)) && ((1.0 / specialDoubleNegativeZero) < 0.0)))
+;
+    println!("{}", helperNames(2.0, 3.0, 4.0, 5.0, 6.0)
+)
+;
+    println!("{}", ((shadowOrder(orderCaller)
+ == 5.0) && (orderCaller == 4.0)))
+;
 }

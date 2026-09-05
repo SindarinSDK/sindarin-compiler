@@ -13,8 +13,18 @@ static void rust_lower_call_strings(json_object *node, const char *kind)
         {
             const char *method = json_string_property(callee, "member_name");
             if (method)
+            {
                 json_object_object_add(node, "rust_string_method",
                                        json_object_new_string(method));
+                if (strcmp(method, "split") == 0)
+                {
+                    json_object *args = NULL;
+                    if (json_object_object_get_ex(node, "args", &args) &&
+                        json_object_array_length(args) == 2)
+                        json_object_object_add(node, "rust_string_split_limited",
+                                               json_object_new_boolean(true));
+                }
+            }
         }
 
         /* Sindarin passes owned strings by value without consuming an lvalue at

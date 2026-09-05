@@ -16,5 +16,6 @@ fn main() {
     let mut value: f32 = 1.0;
     let mut action: __SnClosure<dyn Fn() -> f32> = { let (value, ) = (value.clone(), ); self::__SnClosure::<dyn Fn() -> f32>(std::rc::Rc::new(move || -> f32 { let mut value = value; (value = 2.0);return value.clone();})) }
 ;
-    println!("{}", ((action.clone()).0)());
+    println!("{}", ((action.clone()).0)())
+;
 }

@@ -1,5 +1,171 @@
 #![allow(dead_code, unused_mut, unused_variables, unused_parens)]
 
+#[derive(Clone, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+struct SnString(Vec<u8>);
+
+trait SnBytes {
+    fn sn_bytes(&self) -> &[u8];
+}
+
+impl SnBytes for SnString {
+    fn sn_bytes(&self) -> &[u8] { &self.0 }
+}
+
+impl SnBytes for str {
+    fn sn_bytes(&self) -> &[u8] { self.as_bytes() }
+}
+
+impl SnBytes for String {
+    fn sn_bytes(&self) -> &[u8] { self.as_bytes() }
+}
+
+impl SnString {
+    fn new() -> Self { Self(Vec::new()) }
+
+    fn from_bytes(bytes: Vec<u8>) -> Self { Self(bytes) }
+
+    fn from_c_bytes(bytes: &[u8]) -> Self {
+        let end = bytes.iter().position(|byte| *byte == 0).unwrap_or(bytes.len());
+        Self(bytes[..end].to_vec())
+    }
+
+    fn as_bytes(&self) -> &[u8] { &self.0 }
+
+    fn len(&self) -> usize { self.0.len() }
+
+    fn is_empty(&self) -> bool { self.0.is_empty() }
+
+    fn push_str<T: SnBytes + ?Sized>(&mut self, value: &T) {
+        self.0.extend_from_slice(value.sn_bytes());
+    }
+
+    fn push_char(&mut self, value: char) {
+        if value != '\0' { self.0.push(value as u32 as u8); }
+    }
+
+    fn contains(&self, needle: &Self) -> bool {
+        __sn_find_bytes(&self.0, &needle.0).is_some()
+    }
+
+    fn starts_with(&self, prefix: &Self) -> bool { self.0.starts_with(&prefix.0) }
+
+    fn ends_with(&self, suffix: &Self) -> bool { self.0.ends_with(&suffix.0) }
+
+    fn trim_ascii(&self) -> Self {
+        let mut start = 0;
+        let mut end = self.0.len();
+        while start < end && self.0[start].is_ascii_whitespace() { start += 1; }
+        while end > start && self.0[end - 1].is_ascii_whitespace() { end -= 1; }
+        Self(self.0[start..end].to_vec())
+    }
+
+    fn to_ascii_uppercase(&self) -> Self {
+        Self(self.0.iter().map(u8::to_ascii_uppercase).collect())
+    }
+
+    fn to_ascii_lowercase(&self) -> Self {
+        Self(self.0.iter().map(u8::to_ascii_lowercase).collect())
+    }
+}
+
+impl From<&str> for SnString {
+    fn from(value: &str) -> Self { Self(value.as_bytes().to_vec()) }
+}
+
+impl From<String> for SnString {
+    fn from(value: String) -> Self { Self(value.into_bytes()) }
+}
+
+impl std::fmt::Debug for SnString {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("\"")?;
+        for byte in &self.0 {
+            match *byte {
+                b'\\' => f.write_str("\\\\")?,
+                b'\"' => f.write_str("\\\"")?,
+                b'\n' => f.write_str("\\n")?,
+                b'\r' => f.write_str("\\r")?,
+                b'\t' => f.write_str("\\t")?,
+                0x20..=0x7e => f.write_str(&char::from(*byte).to_string())?,
+                _ => write!(f, "\\x{:02x}", byte)?,
+            }
+        }
+        f.write_str("\"")
+    }
+}
+
+fn __sn_find_bytes(haystack: &[u8], needle: &[u8]) -> Option<usize> {
+    if needle.is_empty() { return Some(0); }
+    haystack.windows(needle.len()).position(|window| window == needle)
+}
+
+fn __sn_write_bytes(bytes: &[u8]) {
+    use std::io::Write;
+    std::io::stdout().lock().write_all(bytes).expect("failed to write stdout");
+}
+
+fn __sn_print_string(value: &SnString) { __sn_write_bytes(value.as_bytes()); }
+
+fn __sn_println_string(value: &SnString) {
+    __sn_write_bytes(value.as_bytes());
+    __sn_write_bytes(b"\n");
+}
+
+fn __sn_print_char(value: char) { __sn_write_bytes(&[value as u32 as u8]); }
+
+fn __sn_println_char(value: char) {
+    __sn_print_char(value);
+    __sn_write_bytes(b"\n");
+}
+
+fn __sn_string_join(values: &[SnString], delimiter: &SnString) -> SnString {
+    let capacity = values.iter().map(SnString::len).sum::<usize>()
+        + delimiter.len().saturating_mul(values.len().saturating_sub(1));
+    let mut result = SnString(Vec::with_capacity(capacity));
+    for (index, value) in values.iter().enumerate() {
+        if index != 0 { result.push_str(delimiter); }
+        result.push_str(value);
+    }
+    result
+}
+
+fn __sn_byte_array_to_string(values: &[u8]) -> SnString {
+    SnString::from_c_bytes(values)
+}
+
+fn __sn_string_to_bytes(value: &SnString) -> Vec<u8> { value.as_bytes().to_vec() }
+
+fn __sn_string_append(value: &SnString, suffix: &SnString) -> SnString {
+    let mut result = SnString(Vec::with_capacity(value.len() + suffix.len()));
+    result.push_str(value);
+    result.push_str(suffix);
+    result
+}
+
+unsafe extern "C" {
+    fn strtoll(value: *const std::ffi::c_char,
+               end: *mut *mut std::ffi::c_char, base: std::ffi::c_int) -> i64;
+    fn strtod(value: *const std::ffi::c_char,
+              end: *mut *mut std::ffi::c_char) -> f64;
+}
+
+fn __sn_nul_terminated(value: &SnString) -> Vec<u8> {
+    let mut bytes = value.as_bytes().to_vec();
+    bytes.push(0);
+    bytes
+}
+
+fn __sn_string_to_int(value: &SnString) -> i64 {
+    let bytes = __sn_nul_terminated(value);
+    unsafe { strtoll(bytes.as_ptr().cast(), std::ptr::null_mut(), 10) }
+}
+
+fn __sn_string_to_double(value: &SnString) -> f64 {
+    let bytes = __sn_nul_terminated(value);
+    unsafe { strtod(bytes.as_ptr().cast(), std::ptr::null_mut()) }
+}
+
+
 fn __sn_index(length: usize, index: i64) -> usize {
     let resolved = if index < 0 { length as i64 + index } else { index };
     if resolved < 0 || resolved >= length as i64 {
@@ -93,37 +259,48 @@ fn main() {
     let mut evaluations: i64 = 0;
     let mut sum: i64 = 0;
     {
-    let mut __sn_iter_0 = ((sources)[__sn_index((sources).len(), selectSource(&mut (evaluations)))]).iter();
+    let mut __sn_iter_0 = ((sources)[__sn_index((sources).len(), selectSource(&mut (evaluations))
+)]).iter();
     while __sn_iter_0.hasNext() {
         let mut value = __sn_iter_0.next();
         let mut produced: i64 = value;
         (value = (-1));
-        println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("value="); __sn_interpolated.push_str(&format!("{}", produced)); __sn_interpolated.push_str(" binding="); __sn_interpolated.push_str(&format!("{}", value)); __sn_interpolated });
+        __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str("value="); __sn_interpolated.push_str(&format!("{}", produced)); __sn_interpolated.push_str(" binding="); __sn_interpolated.push_str(&format!("{}", value)); __sn_interpolated }
+))
+;
         if (produced == 218) {
         continue;
     }
         (sum = __sn_checked_0((sum).checked_add(produced), "Runtime error: integer overflow in addition"));
     }
 }
-    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("natural evaluations="); __sn_interpolated.push_str(&format!("{}", evaluations)); __sn_interpolated.push_str(" sum="); __sn_interpolated.push_str(&format!("{}", sum)); __sn_interpolated });
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str("natural evaluations="); __sn_interpolated.push_str(&format!("{}", evaluations)); __sn_interpolated.push_str(" sum="); __sn_interpolated.push_str(&format!("{}", sum)); __sn_interpolated }
+))
+;
     {
-    let mut __sn_iter_1 = ((sources)[__sn_index((sources).len(), selectSource(&mut (evaluations)))]).iter();
+    let mut __sn_iter_1 = ((sources)[__sn_index((sources).len(), selectSource(&mut (evaluations))
+)]).iter();
     while __sn_iter_1.hasNext() {
         let mut value = __sn_iter_1.next();
         if (value == 329) {
         break;
     }
-        println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("before-break="); __sn_interpolated.push_str(&format!("{}", value)); __sn_interpolated });
+        __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str("before-break="); __sn_interpolated.push_str(&format!("{}", value)); __sn_interpolated }
+))
+;
     }
 }
-    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("total evaluations="); __sn_interpolated.push_str(&format!("{}", evaluations)); __sn_interpolated.push_str(" source="); __sn_interpolated.push_str(&format!("{}", ((sources)[__sn_index((sources).len(), 0)]).start)); __sn_interpolated });
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str("total evaluations="); __sn_interpolated.push_str(&format!("{}", evaluations)); __sn_interpolated.push_str(" source="); __sn_interpolated.push_str(&format!("{}", ((sources)[__sn_index((sources).len(), 0)]).start)); __sn_interpolated }
+))
+;
     let mut outer: i64 = 0;
     {
         let mut r#loop: i64 = 0;
 
         while (outer < 1) {
             {
-    let mut __sn_iter_2 = ((sources)[__sn_index((sources).len(), selectSource(&mut (evaluations)))]).iter();
+    let mut __sn_iter_2 = ((sources)[__sn_index((sources).len(), selectSource(&mut (evaluations))
+)]).iter();
     while __sn_iter_2.hasNext() {
         let mut value = __sn_iter_2.next();
         if (value == 107) {
@@ -134,5 +311,7 @@ fn main() {
             { let __sn_place = &mut (outer); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
         }
     }
-    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("nested outer="); __sn_interpolated.push_str(&format!("{}", outer)); __sn_interpolated.push_str(" evaluations="); __sn_interpolated.push_str(&format!("{}", evaluations)); __sn_interpolated });
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str("nested outer="); __sn_interpolated.push_str(&format!("{}", outer)); __sn_interpolated.push_str(" evaluations="); __sn_interpolated.push_str(&format!("{}", evaluations)); __sn_interpolated }
+))
+;
 }

@@ -48,5 +48,6 @@ fn main() {
 ;
     ((add.clone()).0)();
     ((increment.clone()).0)();
-    println!("{}", count.get());
+    println!("{}", count.get())
+;
 }

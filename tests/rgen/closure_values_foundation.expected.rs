@@ -1,5 +1,171 @@
 #![allow(dead_code, unused_mut, unused_variables, unused_parens)]
 
+#[derive(Clone, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+struct SnString(Vec<u8>);
+
+trait SnBytes {
+    fn sn_bytes(&self) -> &[u8];
+}
+
+impl SnBytes for SnString {
+    fn sn_bytes(&self) -> &[u8] { &self.0 }
+}
+
+impl SnBytes for str {
+    fn sn_bytes(&self) -> &[u8] { self.as_bytes() }
+}
+
+impl SnBytes for String {
+    fn sn_bytes(&self) -> &[u8] { self.as_bytes() }
+}
+
+impl SnString {
+    fn new() -> Self { Self(Vec::new()) }
+
+    fn from_bytes(bytes: Vec<u8>) -> Self { Self(bytes) }
+
+    fn from_c_bytes(bytes: &[u8]) -> Self {
+        let end = bytes.iter().position(|byte| *byte == 0).unwrap_or(bytes.len());
+        Self(bytes[..end].to_vec())
+    }
+
+    fn as_bytes(&self) -> &[u8] { &self.0 }
+
+    fn len(&self) -> usize { self.0.len() }
+
+    fn is_empty(&self) -> bool { self.0.is_empty() }
+
+    fn push_str<T: SnBytes + ?Sized>(&mut self, value: &T) {
+        self.0.extend_from_slice(value.sn_bytes());
+    }
+
+    fn push_char(&mut self, value: char) {
+        if value != '\0' { self.0.push(value as u32 as u8); }
+    }
+
+    fn contains(&self, needle: &Self) -> bool {
+        __sn_find_bytes(&self.0, &needle.0).is_some()
+    }
+
+    fn starts_with(&self, prefix: &Self) -> bool { self.0.starts_with(&prefix.0) }
+
+    fn ends_with(&self, suffix: &Self) -> bool { self.0.ends_with(&suffix.0) }
+
+    fn trim_ascii(&self) -> Self {
+        let mut start = 0;
+        let mut end = self.0.len();
+        while start < end && self.0[start].is_ascii_whitespace() { start += 1; }
+        while end > start && self.0[end - 1].is_ascii_whitespace() { end -= 1; }
+        Self(self.0[start..end].to_vec())
+    }
+
+    fn to_ascii_uppercase(&self) -> Self {
+        Self(self.0.iter().map(u8::to_ascii_uppercase).collect())
+    }
+
+    fn to_ascii_lowercase(&self) -> Self {
+        Self(self.0.iter().map(u8::to_ascii_lowercase).collect())
+    }
+}
+
+impl From<&str> for SnString {
+    fn from(value: &str) -> Self { Self(value.as_bytes().to_vec()) }
+}
+
+impl From<String> for SnString {
+    fn from(value: String) -> Self { Self(value.into_bytes()) }
+}
+
+impl std::fmt::Debug for SnString {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("\"")?;
+        for byte in &self.0 {
+            match *byte {
+                b'\\' => f.write_str("\\\\")?,
+                b'\"' => f.write_str("\\\"")?,
+                b'\n' => f.write_str("\\n")?,
+                b'\r' => f.write_str("\\r")?,
+                b'\t' => f.write_str("\\t")?,
+                0x20..=0x7e => f.write_str(&char::from(*byte).to_string())?,
+                _ => write!(f, "\\x{:02x}", byte)?,
+            }
+        }
+        f.write_str("\"")
+    }
+}
+
+fn __sn_find_bytes(haystack: &[u8], needle: &[u8]) -> Option<usize> {
+    if needle.is_empty() { return Some(0); }
+    haystack.windows(needle.len()).position(|window| window == needle)
+}
+
+fn __sn_write_bytes(bytes: &[u8]) {
+    use std::io::Write;
+    std::io::stdout().lock().write_all(bytes).expect("failed to write stdout");
+}
+
+fn __sn_print_string(value: &SnString) { __sn_write_bytes(value.as_bytes()); }
+
+fn __sn_println_string(value: &SnString) {
+    __sn_write_bytes(value.as_bytes());
+    __sn_write_bytes(b"\n");
+}
+
+fn __sn_print_char(value: char) { __sn_write_bytes(&[value as u32 as u8]); }
+
+fn __sn_println_char(value: char) {
+    __sn_print_char(value);
+    __sn_write_bytes(b"\n");
+}
+
+fn __sn_string_join(values: &[SnString], delimiter: &SnString) -> SnString {
+    let capacity = values.iter().map(SnString::len).sum::<usize>()
+        + delimiter.len().saturating_mul(values.len().saturating_sub(1));
+    let mut result = SnString(Vec::with_capacity(capacity));
+    for (index, value) in values.iter().enumerate() {
+        if index != 0 { result.push_str(delimiter); }
+        result.push_str(value);
+    }
+    result
+}
+
+fn __sn_byte_array_to_string(values: &[u8]) -> SnString {
+    SnString::from_c_bytes(values)
+}
+
+fn __sn_string_to_bytes(value: &SnString) -> Vec<u8> { value.as_bytes().to_vec() }
+
+fn __sn_string_append(value: &SnString, suffix: &SnString) -> SnString {
+    let mut result = SnString(Vec::with_capacity(value.len() + suffix.len()));
+    result.push_str(value);
+    result.push_str(suffix);
+    result
+}
+
+unsafe extern "C" {
+    fn strtoll(value: *const std::ffi::c_char,
+               end: *mut *mut std::ffi::c_char, base: std::ffi::c_int) -> i64;
+    fn strtod(value: *const std::ffi::c_char,
+              end: *mut *mut std::ffi::c_char) -> f64;
+}
+
+fn __sn_nul_terminated(value: &SnString) -> Vec<u8> {
+    let mut bytes = value.as_bytes().to_vec();
+    bytes.push(0);
+    bytes
+}
+
+fn __sn_string_to_int(value: &SnString) -> i64 {
+    let bytes = __sn_nul_terminated(value);
+    unsafe { strtoll(bytes.as_ptr().cast(), std::ptr::null_mut(), 10) }
+}
+
+fn __sn_string_to_double(value: &SnString) -> f64 {
+    let bytes = __sn_nul_terminated(value);
+    unsafe { strtod(bytes.as_ptr().cast(), std::ptr::null_mut()) }
+}
+
+
 fn __sn_index(length: usize, index: i64) -> usize {
     let resolved = if index < 0 { length as i64 + index } else { index };
     if resolved < 0 || resolved >= length as i64 {
@@ -69,7 +235,7 @@ struct Holder {
 }
 #[derive(Clone, Debug, PartialEq)]
 struct Payload {
-    text: String,
+    text: SnString,
     values: Vec<i64>,
 }
 
@@ -91,46 +257,71 @@ fn factory(offset: i64) -> __SnClosure<dyn Fn(i64) -> i64> {
 ;
 }
 
-fn owned() -> __SnClosure<dyn Fn() -> String> {
-    let mut text: String = "snapshot".to_string();
+fn owned() -> __SnClosure<dyn Fn() -> SnString> {
+    let mut text: SnString = SnString::from("snapshot");
     let mut values: Vec<i64> = vec![7, 8];
-    let mut payload: Payload = Payload { text: "owned".to_string(), values: values.clone() };
-    let mut callback: __SnClosure<dyn Fn(i64) -> i64> = factory(30);
-    return { let (text, values, payload, callback, ) = (text.clone(), values.clone(), payload.clone(), callback.clone(), ); self::__SnClosure::<dyn Fn() -> String>(std::rc::Rc::new(move || -> String { { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", text.clone())); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (values.clone())[__sn_index((values.clone()).len(), 0)])); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (payload.clone()).text)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", ((callback.clone()).0)(2))); __sn_interpolated }})) }
+    let mut payload: Payload = Payload { text: SnString::from("owned"), values: values.clone() };
+    let mut callback: __SnClosure<dyn Fn(i64) -> i64> = factory(30)
+;
+    return { let (text, values, payload, callback, ) = (text.clone(), values.clone(), payload.clone(), callback.clone(), ); self::__SnClosure::<dyn Fn() -> SnString>(std::rc::Rc::new(move || -> SnString { { let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(text.clone())); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (values.clone())[__sn_index((values.clone()).len(), 0)])); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&((payload.clone()).text)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", ((callback.clone()).0)(2))); __sn_interpolated }
+ })) }
 ;
 }
 
 fn main() {
     let mut add: __SnClosure<dyn Fn(i64, i64) -> i64> = { self::__SnClosure::<dyn Fn(i64, i64) -> i64>(std::rc::Rc::new(move |a: i64, b: i64| -> i64 { __sn_checked_0((a).checked_add(b), "Runtime error: integer overflow in addition")})) }
 ;
-    print!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", ((add.clone()).0)(2, 3))); __sn_interpolated.push_str("\n"); __sn_interpolated });
+    __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", ((add.clone()).0)(2, 3))); __sn_interpolated.push_str("\n"); __sn_interpolated }
+))
+;
     let mut named: __SnClosure<dyn Fn(i64) -> i64> = { self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |x: i64| -> i64 { x.clone()})) }
 ;
     { named = self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(plusOne)); named.clone() };
-    let mut alias: __SnClosure<dyn Fn(i64) -> i64> = identity(named.clone());
-    print!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", apply(alias.clone(), 4))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", ((named.clone()).0)(5))); __sn_interpolated.push_str("\n"); __sn_interpolated });
-    { named = factory(100); named.clone() };
-    print!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", ((alias.clone()).0)(5))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", ((named.clone()).0)(5))); __sn_interpolated.push_str("\n"); __sn_interpolated });
+    let mut alias: __SnClosure<dyn Fn(i64) -> i64> = identity(named.clone())
+;
+    __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", apply(alias.clone(), 4)
+)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", ((named.clone()).0)(5))); __sn_interpolated.push_str("\n"); __sn_interpolated }
+))
+;
+    { named = factory(100)
+; named.clone() };
+    __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", ((alias.clone()).0)(5))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", ((named.clone()).0)(5))); __sn_interpolated.push_str("\n"); __sn_interpolated }
+))
+;
     let mut outer: i64 = 10;
     let mut first: __SnClosure<dyn Fn(i64) -> i64> = { let (outer, ) = (outer.clone(), ); self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |x: i64| -> i64 { __sn_checked_0((outer.clone()).checked_add(x), "Runtime error: integer overflow in addition")})) }
 ;
     let mut sibling: __SnClosure<dyn Fn(i64) -> i64> = { let (outer, ) = (outer.clone(), ); self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |x: i64| -> i64 { __sn_checked_0((outer.clone()).checked_sub(x), "Runtime error: integer overflow in subtraction")})) }
 ;
     (outer = 50);
-    print!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", ((first.clone()).0)(1))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", ((sibling.clone()).0)(1))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", outer)); __sn_interpolated.push_str("\n"); __sn_interpolated });
-    let mut h: Holder = Holder { action: factory(10) };
+    __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", ((first.clone()).0)(1))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", ((sibling.clone()).0)(1))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", outer)); __sn_interpolated.push_str("\n"); __sn_interpolated }
+))
+;
+    let mut h: Holder = Holder { action: factory(10)
+ };
     let mut copied: Holder = h.clone();
-    ((h).action = factory(100));
-    print!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", (((copied).action.clone()).0)(2))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (((h).action.clone()).0)(2))); __sn_interpolated.push_str("\n"); __sn_interpolated });
-    let mut callbacks: Vec<__SnClosure<dyn Fn(i64) -> i64>> = vec![self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(plusOne)), (first.clone()).clone(), factory(20)];
+    ((h).action = factory(100)
+);
+    __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", (((copied).action.clone()).0)(2))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (((h).action.clone()).0)(2))); __sn_interpolated.push_str("\n"); __sn_interpolated }
+))
+;
+    let mut callbacks: Vec<__SnClosure<dyn Fn(i64) -> i64>> = vec![self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(plusOne)), (first.clone()).clone(), factory(20)
+];
     let mut arrays: Vec<__SnClosure<dyn Fn(i64) -> i64>> = callbacks.clone();
-    (callbacks = vec![factory(100)]);
+    (callbacks = vec![factory(100)
+]);
     for mut action in (arrays).iter().cloned() {
-        print!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", ((action.clone()).0)(3))); __sn_interpolated.push_str("\n"); __sn_interpolated });
+        __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", ((action.clone()).0)(3))); __sn_interpolated.push_str("\n"); __sn_interpolated }
+))
+;
         { action = self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(plusOne)); action.clone() };
-        print!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", ((action.clone()).0)(4))); __sn_interpolated.push_str("\n"); __sn_interpolated });
+        __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", ((action.clone()).0)(4))); __sn_interpolated.push_str("\n"); __sn_interpolated }
+))
+;
     }
-    print!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", (({ let (__sn_functions, __sn_function_index) = (&(callbacks), 0); __sn_functions[__sn_index(__sn_functions.len(), __sn_function_index)].clone() }).0)(1))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (({ let (__sn_functions, __sn_function_index) = (&(arrays), 0); __sn_functions[__sn_index(__sn_functions.len(), __sn_function_index)].clone() }).0)(1))); __sn_interpolated.push_str("\n"); __sn_interpolated });
+    __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", (({ let (__sn_functions, __sn_function_index) = (&(callbacks), 0); __sn_functions[__sn_index(__sn_functions.len(), __sn_function_index)].clone() }).0)(1))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (({ let (__sn_functions, __sn_function_index) = (&(arrays), 0); __sn_functions[__sn_index(__sn_functions.len(), __sn_function_index)].clone() }).0)(1))); __sn_interpolated.push_str("\n"); __sn_interpolated }
+))
+;
     let mut build: __SnClosure<dyn Fn(i64) -> __SnClosure<dyn Fn(i64) -> __SnClosure<dyn Fn(i64) -> i64>>> = { let (outer, ) = (outer.clone(), ); self::__SnClosure::<dyn Fn(i64) -> __SnClosure<dyn Fn(i64) -> __SnClosure<dyn Fn(i64) -> i64>>>(std::rc::Rc::new(move |a: i64| -> __SnClosure<dyn Fn(i64) -> __SnClosure<dyn Fn(i64) -> i64>> { return { let (outer, a, ) = (outer.clone(), a.clone(), ); self::__SnClosure::<dyn Fn(i64) -> __SnClosure<dyn Fn(i64) -> i64>>(std::rc::Rc::new(move |b: i64| -> __SnClosure<dyn Fn(i64) -> i64> { return { let (outer, a, b, ) = (outer.clone(), a.clone(), b.clone(), ); self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |c: i64| -> i64 { __sn_checked_0((__sn_checked_0((__sn_checked_0((outer.clone()).checked_add(a.clone()), "Runtime error: integer overflow in addition")).checked_add(b.clone()), "Runtime error: integer overflow in addition")).checked_add(c), "Runtime error: integer overflow in addition")})) }
  ;})) }
 ;})) }
@@ -138,12 +329,20 @@ fn main() {
     (outer = 99);
     let mut middle: __SnClosure<dyn Fn(i64) -> __SnClosure<dyn Fn(i64) -> i64>> = ((build.clone()).0)(1);
     let mut inner: __SnClosure<dyn Fn(i64) -> i64> = ((middle.clone()).0)(2);
-    print!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", ((inner.clone()).0)(3))); __sn_interpolated.push_str("\n"); __sn_interpolated });
-    let mut other: __SnClosure<dyn Fn(i64) -> i64> = factory(200);
-    print!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", ((other.clone()).0)(1))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", ((first.clone()).0)(1))); __sn_interpolated.push_str("\n"); __sn_interpolated });
-    let mut producer: __SnClosure<dyn Fn() -> String> = owned();
-    let mut producerCopy: __SnClosure<dyn Fn() -> String> = { self::__SnClosure::<dyn Fn() -> String>(std::rc::Rc::new(move || -> String { "unused".to_string()})) }
+    __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", ((inner.clone()).0)(3))); __sn_interpolated.push_str("\n"); __sn_interpolated }
+))
+;
+    let mut other: __SnClosure<dyn Fn(i64) -> i64> = factory(200)
+;
+    __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", ((other.clone()).0)(1))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", ((first.clone()).0)(1))); __sn_interpolated.push_str("\n"); __sn_interpolated }
+))
+;
+    let mut producer: __SnClosure<dyn Fn() -> SnString> = owned()
+;
+    let mut producerCopy: __SnClosure<dyn Fn() -> SnString> = { self::__SnClosure::<dyn Fn() -> SnString>(std::rc::Rc::new(move || -> SnString { SnString::from("unused")})) }
 ;
     { producerCopy = producer.clone(); producerCopy.clone() };
-    print!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", ((producer.clone()).0)())); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", ((producerCopy.clone()).0)())); __sn_interpolated.push_str("\n"); __sn_interpolated });
+    __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(((producer.clone()).0)())); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&(((producerCopy.clone()).0)())); __sn_interpolated.push_str("\n"); __sn_interpolated }
+))
+;
 }
