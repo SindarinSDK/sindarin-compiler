@@ -1,1 +1,1 @@
-({{rust_unary op}}{{> expr operand}})
+{{#if rust_byte_unary}}{{> expr_rust_byte_unary this}}{{else}}({{rust_unary op}}{{> expr operand}}){{/if}}

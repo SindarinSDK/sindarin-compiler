@@ -11,8 +11,8 @@ impl ScalarAssignments {
         return (value + untouched);
     }
     fn assignByte(mut value: u8, untouched: u8) -> u8 {
-        let mut assigned: u8 = { value = (value + 5); value };
-        return ((assigned + value) + untouched);
+        let mut assigned: u8 = { value = { let (__sn_byte_left, __sn_byte_right): (u8, u8) = (value, 5); __sn_byte_left.wrapping_add(__sn_byte_right) }; value };
+        return { let (__sn_byte_left, __sn_byte_right): (u8, u8) = ({ let (__sn_byte_left, __sn_byte_right): (u8, u8) = (assigned, value); __sn_byte_left.wrapping_add(__sn_byte_right) }, untouched); __sn_byte_left.wrapping_add(__sn_byte_right) };
     }
     fn assignUint32(mut value: u32, untouched: u32) -> u32 {
         return { value = (value + untouched); value };

@@ -1,0 +1,1 @@
+{ let __sn_byte_operand: u8 = {{> expr operand}}; {{#if (eq op "negate")}}__sn_byte_operand.wrapping_neg(){{else}}!__sn_byte_operand{{/if}} }

@@ -1,0 +1,84 @@
+struct ByteBox =>
+  value: byte = 255b
+
+fn bump(value: byte as ref): byte =>
+  var one: byte = 1b
+  return value += one
+
+fn main(): void =>
+  var max: byte = 255b
+  var zero: byte = 0b
+  var one: byte = 1b
+  var two: byte = 2b
+
+  var added: byte = max + one
+  var subtracted: byte = zero - one
+  var multiplied: byte = max * two
+  var negated: byte = -one
+  var inverted: byte = ~zero
+  println(added == 0b)
+  println(subtracted == 255b)
+  println(multiplied == 254b)
+  println(negated == 255b)
+  println(inverted == 255b)
+
+  var add: byte = max
+  var sub: byte = zero
+  var mul: byte = max
+  var add_result: byte = add += one
+  var sub_result: byte = sub -= one
+  var mul_result: byte = mul *= two
+  println(add_result == 0b)
+  println(sub_result == 255b)
+  println(mul_result == 254b)
+
+  var inc: byte = max
+  var dec: byte = zero
+  println(inc++ == 255b)
+  println(inc == 0b)
+  println(dec-- == 0b)
+  println(dec == 255b)
+
+  var box: ByteBox = {}
+  println(box.value++ == 255b)
+  println(box.value == 0b)
+
+  var referenced: byte = max
+  println(bump(referenced) == 0b)
+  println(referenced == 0b)
+
+  var shifted: byte = two << 8b
+  println(shifted == 0b)
+
+  var mask: byte = 15b
+  var anded: byte = max & mask
+  var ored: byte = zero | mask
+  var xored: byte = max ^ mask
+  println(anded == 15b)
+  println(ored == 15b)
+  println(xored == 240b)
+
+  var compound_shift: byte = two
+  compound_shift <<= 8b
+  println(compound_shift == 0b)
+  var compound_bits: byte = 240b
+  compound_bits |= mask
+  compound_bits ^= 255b
+  println(compound_bits == 0b)
+
+  var quotient: byte = 240b
+  var remainder: byte = 240b
+  quotient /= two
+  remainder %= 7b
+  println(quotient == 120b)
+  println(remainder == 2b)
+
+  var __sn_byte_left: byte = max
+  var __sn_byte_right: byte = one
+  var hygienic_binary: byte = __sn_byte_left + __sn_byte_right
+  println(hygienic_binary == 0b)
+
+  var __sn_byte_rhs: byte = max
+  var __sn_byte_place: byte = one
+  var hygienic_compound: byte = __sn_byte_rhs += __sn_byte_place
+  println(hygienic_compound == 0b)

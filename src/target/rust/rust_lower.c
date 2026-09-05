@@ -1,6 +1,7 @@
 /* Included after validation; uses the same private type/model helpers. */
 #include "rust_lower_calls.c"
 #include "rust_lower_closures.c"
+#include "rust_lower_byte.c"
 
 /* Annotate target-neutral binary nodes with the Rust checked-arithmetic method
  * selected by this backend. Templates remain declarative and other targets do
