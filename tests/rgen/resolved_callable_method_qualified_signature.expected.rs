@@ -26,5 +26,5 @@ fn main() {
     let mut callback: __SnClosure<dyn Fn(i64) -> i64> = { self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |value: i64| -> i64 { value.clone()})) }
 ;
     let mut value: i64 = 1;
-    println!("{}", Dispatcher::apply(&mut (callback), value));
+    println!("{}", { let __sn_resolved_arg_0 = value; Dispatcher::apply(&mut (callback), __sn_resolved_arg_0) });
 }

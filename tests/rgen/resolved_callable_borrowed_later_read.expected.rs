@@ -45,25 +45,16 @@ struct Dispatcher {
 }
 
 impl Dispatcher {
-    fn reset(callback: &mut __SnClosure<dyn Fn(i64) -> i64>, marker: i64, order: &mut i64) {
-        (*(order) = __sn_checked_0((__sn_checked_0((*(order)).checked_mul(10), "Runtime error: integer overflow in multiplication")).checked_add(marker), "Runtime error: integer overflow in addition"));
+    fn reset(callback: &mut __SnClosure<dyn Fn(i64) -> i64>, observed: i64) -> i64 {
         { *(callback) = { self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |value: i64| -> i64 { __sn_checked_0((value).checked_add(10), "Runtime error: integer overflow in addition")})) }
 ; (*(callback)).clone() };
+        return observed;
     }
 }
 
-fn marked(order: &mut i64, marker: i64) -> i64 {
-    (*(order) = __sn_checked_0((__sn_checked_0((*(order)).checked_mul(10), "Runtime error: integer overflow in multiplication")).checked_add(marker), "Runtime error: integer overflow in addition"));
-    return marker;
-}
-
 fn main() {
-    let mut order: i64 = 0;
     let mut callback: __SnClosure<dyn Fn(i64) -> i64> = { self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |value: i64| -> i64 { __sn_checked_0((value).checked_add(1), "Runtime error: integer overflow in addition")})) }
 ;
-    { let __sn_resolved_arg_0 = marked(&mut (order), 2); let __sn_resolved_arg_1 = &mut (order); Dispatcher::reset(&mut (callback), __sn_resolved_arg_0, __sn_resolved_arg_1) };
-    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", order)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", ((callback.clone()).0)(2))); __sn_interpolated });
-    { callback = { self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |value: i64| -> i64 { __sn_checked_0((value).checked_add(100), "Runtime error: integer overflow in addition")})) }
-; callback.clone() };
-    println!("{}", ((callback.clone()).0)(1));
+    println!("{}", { let __sn_resolved_arg_0 = ((callback.clone()).0)(2); Dispatcher::reset(&mut (callback), __sn_resolved_arg_0) });
+    println!("{}", ((callback.clone()).0)(2));
 }
