@@ -447,7 +447,8 @@ json_object *gen_model_function(Arena *arena, FunctionStmt *func, SymbolTable *s
 
     /* Preserve the source-level callable identity even when the established C
      * model name below is replaced by an imported bodyless native @alias. */
-    if (g_model_namespace_prefix != NULL && func->is_native &&
+    if (g_model_rust_native_projection &&
+        g_model_namespace_prefix != NULL && func->is_native &&
         func->c_alias && func->body_count == 0)
     {
         char callable[512];

@@ -984,7 +984,8 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                     /* Keep the declaring file's directory for target-local
                      * resolution of quoted @include values. Rendering remains
                      * unchanged unless a target explicitly consumes it. */
-                    if (stmt->as.pragma.pragma_type == PRAGMA_INCLUDE &&
+                    if (g_model_rust_native_projection &&
+                        stmt->as.pragma.pragma_type == PRAGMA_INCLUDE &&
                         stmt->token && stmt->token->filename)
                     {
                         const char *filename = stmt->token->filename;

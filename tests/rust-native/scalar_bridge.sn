@@ -1,4 +1,9 @@
 @source "scalar_bridge.sn.c"
+@source "./scalar_bridge.sn.c"
+@source "same-basename-a/native.c"
+@source "same-basename-b/native.c"
+@link m
+@link ssl
 
 native fn c_int(value: int): int
 native fn c_long(value: long): long
@@ -10,8 +15,12 @@ native fn c_float(value: float): float
 native fn c_double(value: double): double
 native fn c_record(value: uint32): void
 native fn c_recorded(): uint32
+native fn c_same_a(): int
+native fn c_same_b(): int
 
 native fn c_body_add(left: int, right: int): int =>
+  if left == -999 =>
+    exit(1)
   if left < 0 =>
     return right
   return left + right
@@ -27,4 +36,5 @@ fn main(): void =>
   println(c_double(18.5))
   c_record(19u32)
   println(c_recorded())
+  println(c_same_a() + c_same_b())
   println(c_body_add(20, 22))

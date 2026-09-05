@@ -437,7 +437,10 @@ TEST_CONFIGS = {
         'tests/rgen/errors', '*.sn', True, 'Rust Generation Error Tests'
     ),
     'rust-native': TestConfig(
-        'tests/rust-native', '*.sn', False, 'Rust Native Scalar Parity Tests'
+        'tests/rust-native', 'scalar_*.sn', False, 'Rust Native Scalar Parity Tests'
+    ),
+    'rust-native-origin': TestConfig(
+        'tests/rust-native', 'imported_*.sn', False, 'Rust Native Imported-Origin Tests'
     ),
     'rust-native-errors': TestConfig(
         'tests/rust-native/errors', '*.sn', True, 'Rust Native Scalar Error Tests'
@@ -640,6 +643,11 @@ class TestRunner:
                 status, reason, details = self._run_rust_native_parity_test_internal(
                     test_file, expected_file, exe_file
                 )
+            elif test_type == 'rust-native-origin':
+                expected_file = test_file.replace('.sn', '.expected')
+                status, reason, details = self._run_rust_native_target_test_internal(
+                    test_file, expected_file, exe_file
+                )
             elif test_type == 'rust-native-errors':
                 expected_file = test_file.replace('.sn', '.expected')
                 status, reason, details = self._run_rust_native_error_test_internal(
@@ -791,12 +799,16 @@ class TestRunner:
         exe_ext = get_exe_extension()
         fake_rustc_src = os.path.abspath(os.path.join('bin', f'sn_fake_rustc{exe_ext}'))
         test_file = os.path.abspath('tests/rust-toolchain/basic.sn')
+        native_test_file = os.path.abspath('tests/rust-native/scalar_bridge.sn')
 
         if not os.path.isfile(fake_rustc_src):
             print(f"{Colors.RED}FAIL{Colors.NC}: fake rustc fixture not found: {fake_rustc_src}")
             return False, time.perf_counter() - suite_start
         if not os.path.isfile(test_file):
             print(f"{Colors.RED}FAIL{Colors.NC}: test fixture not found: {test_file}")
+            return False, time.perf_counter() - suite_start
+        if not os.path.isfile(native_test_file):
+            print(f"{Colors.RED}FAIL{Colors.NC}: native fixture not found: {native_test_file}")
             return False, time.perf_counter() - suite_start
 
         # Case 0: pin locale-independent strict UTF-8 subprocess decoding and
@@ -821,10 +833,15 @@ class TestRunner:
         cases = [
             {'name': 'subprocess_utf8_boundary', 'kind': 'subprocess_utf8'},
             {'name': 'rustc_invocation_records', 'kind': 'records'},
+            {'name': 'pure_rust_has_no_c_dependency', 'kind': 'pure_no_c'},
+            {'name': 'native_emit_requires_bundle', 'kind': 'native_emit'},
+            {'name': 'native_c_link_driver_contract', 'kind': 'native_link'},
+            {'name': 'native_compile_and_link_failures', 'kind': 'native_failures'},
             {'name': 'missing_rustc', 'kind': 'missing'},
             {'name': 'failing_rustc', 'kind': 'failing'},
             {'name': 'failing_rustc_build', 'kind': 'failing_build'},
             {'name': 'rust_generated_artifact_lifecycle', 'kind': 'rust_lifecycle'},
+            {'name': 'rust_native_artifact_lifecycle', 'kind': 'native_lifecycle'},
             {'name': 'c_generated_artifact_lifecycle', 'kind': 'c_lifecycle'},
         ]
 
@@ -973,6 +990,186 @@ class TestRunner:
                     results.append({'name': case['name'], 'status': status, 'reason': reason,
                                    'details': details or None, 'elapsed': time.perf_counter() - case_start})
 
+                elif case['kind'] == 'native_link':
+                    details = []
+                    if is_windows():
+                        details.append('Windows C-driver argv capture remains a required platform validation')
+                    else:
+                        wrapper_dir = os.path.join(temp_dir, "native cc 'driver' &")
+                        os.makedirs(wrapper_dir, exist_ok=True)
+                        wrapper = os.path.join(wrapper_dir, 'cc capture')
+                        cc_capture = os.path.join(temp_dir, 'native_cc_capture.log')
+                        Path(wrapper).write_text(
+                            '#!/bin/sh\n'
+                            '{\n'
+                            '  printf "%s\\n" INVOCATION\n'
+                            '  for arg do printf "ARG %s\\n" "$arg"; done\n'
+                            '} >> "$SN_NATIVE_CC_CAPTURE"\n'
+                            'exec "$SN_NATIVE_REAL_CC" "$@"\n',
+                            encoding='utf-8')
+                        os.chmod(wrapper, 0o700)
+                        real_cc = shutil.which('gcc') or shutil.which('clang') or shutil.which('cc')
+                        if not real_cc:
+                            details.append('no existing C compiler found for native link capture')
+                        else:
+                            link_env = env.copy()
+                            link_env['SN_CC'] = wrapper
+                            link_env['SN_NATIVE_REAL_CC'] = real_cc
+                            link_env['SN_NATIVE_CC_CAPTURE'] = cc_capture
+                            link_env['SN_RELEASE_CFLAGS'] = '-O1 -DSN_MODE_LINK_MARKER'
+                            link_env['SN_CFLAGS'] = '-DSN_CFLAGS_LINK_MARKER'
+                            link_env['SN_LDLIBS'] = '-Wl,--defsym,SN_LDLIBS_LINK_MARKER=1'
+                            link_env['SN_LDFLAGS'] = '-Wl,--defsym,SN_LDFLAGS_LINK_MARKER=1'
+                            native_output = os.path.join(temp_dir, f'native_link_output{exe_ext}')
+                            exit_code, stdout, stderr, decode_error = run_with_timeout(
+                                [self.compiler, native_test_file, '--target', 'rust',
+                                 '-o', native_output, '-l', '3', '--no-install'],
+                                self.compile_timeout, env=link_env)
+                            if decode_error:
+                                details.append(f'subprocess output decode error: {decode_error}')
+                            elif exit_code != 0:
+                                details.append('native link capture compile failed:\n' +
+                                               format_subprocess_failure(stdout, stderr))
+                            elif not os.path.isfile(cc_capture):
+                                details.append('configured C compiler wrapper was not invoked')
+                            else:
+                                invocations = []
+                                current = None
+                                for line in Path(cc_capture).read_text(encoding='utf-8').splitlines():
+                                    if line == 'INVOCATION':
+                                        current = []
+                                        invocations.append(current)
+                                    elif line.startswith('ARG ') and current is not None:
+                                        current.append(line[4:])
+                                links = [argv for argv in invocations if '-c' not in argv]
+                                if len(links) != 1:
+                                    details.append(f'expected one final C-driver link, got {len(links)}')
+                                else:
+                                    argv = links[0]
+                                    required_prefix = ['-O1', '-DSN_MODE_LINK_MARKER', '-w',
+                                                       '-Werror=implicit-function-declaration',
+                                                       '-std=c11', '-D_GNU_SOURCE',
+                                                       '-DSN_CFLAGS_LINK_MARKER']
+                                    try:
+                                        indices = [argv.index(token) for token in required_prefix]
+                                        if indices != sorted(indices):
+                                            details.append('mode/strict/CFLAGS final-link ordering changed')
+                                    except ValueError as exc:
+                                        details.append(f'missing final-link prefix token: {exc}')
+                                    requested = ['-lm', '-lssl', '-ldl']
+                                    requested_at = next(
+                                        (i for i in range(len(argv) - len(requested) + 1)
+                                         if argv[i:i + len(requested)] == requested), None)
+                                    if requested_at is None:
+                                        details.append('ordered default/multi-token @link region missing')
+                                    try:
+                                        ldlibs_at = argv.index('-Wl,--defsym,SN_LDLIBS_LINK_MARKER=1')
+                                        ldflags_at = argv.index('-Wl,--defsym,SN_LDFLAGS_LINK_MARKER=1')
+                                        if requested_at is not None and not requested_at < ldlibs_at < ldflags_at:
+                                            details.append('@link/SN_LDLIBS/SN_LDFLAGS ordering changed')
+                                    except ValueError as exc:
+                                        details.append(f'missing configured final-link token: {exc}')
+                            if not details:
+                                exit_code, output, timeout_marker, decode_error = run_with_timeout(
+                                    [native_output], self.run_timeout, env=link_env, merge_stderr=True)
+                                if decode_error or timeout_marker == 'TIMEOUT' or exit_code != 0:
+                                    details.append('captured native executable did not run successfully')
+                    results.append({'name': case['name'],
+                                   'status': 'pass' if not details else 'fail',
+                                   'reason': '' if not details else 'native C-link-driver assertions unmet',
+                                   'details': details or None,
+                                   'elapsed': time.perf_counter() - case_start})
+
+                elif case['kind'] == 'pure_no_c':
+                    pure_env = env.copy()
+                    pure_env['SN_RUSTC'] = spaced_rustc
+                    pure_env['SN_FAKE_RUSTC_VERSION_EXIT'] = '0'
+                    pure_env['SN_FAKE_RUSTC_BUILD_EXIT'] = '0'
+                    pure_env['SN_CC'] = os.path.join(temp_dir, 'C compiler must not run')
+                    exit_code, stdout, stderr, decode_error = run_with_timeout(
+                        cmd, self.compile_timeout, env=pure_env)
+                    details = []
+                    if decode_error:
+                        details.append(f'subprocess output decode error: {decode_error}')
+                    elif exit_code != 0:
+                        details.append('pure Rust build acquired a C dependency:\n' +
+                                       format_subprocess_failure(stdout, stderr))
+                    results.append({'name': case['name'],
+                                   'status': 'pass' if not details else 'fail',
+                                   'reason': '' if not details else 'pure Rust isolation assertions unmet',
+                                   'details': details or None,
+                                   'elapsed': time.perf_counter() - case_start})
+
+                elif case['kind'] == 'native_emit':
+                    emitted = os.path.join(temp_dir, 'native_single.rs')
+                    emit_env = env.copy()
+                    emit_env['SN_CC'] = os.path.join(temp_dir, 'C compiler must not run')
+                    exit_code, stdout, stderr, decode_error = run_with_timeout(
+                        [self.compiler, native_test_file, '--emit-rust', '-o', emitted,
+                         '-l', '1', '--no-install'],
+                        self.compile_timeout, env=emit_env)
+                    diagnostic = ('Error: --emit-rust cannot represent native C bodies, headers, '
+                                  'sources, or link options; build the Rust target executable instead')
+                    details = []
+                    if decode_error:
+                        details.append(f'subprocess output decode error: {decode_error}')
+                    elif exit_code == 0:
+                        details.append('native --emit-rust unexpectedly succeeded')
+                    elif diagnostic not in stderr:
+                        details.append(f'native --emit-rust diagnostic missing: {stderr!r}')
+                    if os.path.exists(emitted):
+                        details.append('native --emit-rust left a partial Rust source')
+                    results.append({'name': case['name'],
+                                   'status': 'pass' if not details else 'fail',
+                                   'reason': '' if not details else 'native emit assertions unmet',
+                                   'details': details or None,
+                                   'elapsed': time.perf_counter() - case_start})
+
+                elif case['kind'] == 'native_failures':
+                    details = []
+                    missing_header = 'sn_native_intentional_missing_header.h'
+                    compile_env = env.copy()
+                    compile_env['SN_CFLAGS'] = f'-include {missing_header}'
+                    failed_compile_output = os.path.join(temp_dir, f'native_compile_failure{exe_ext}')
+                    exit_code, stdout, stderr, decode_error = run_with_timeout(
+                        [self.compiler, native_test_file, '--target', 'rust',
+                         '-o', failed_compile_output, '-l', '3', '--no-install'],
+                        self.compile_timeout, env=compile_env)
+                    if decode_error:
+                        details.append(f'native compile failure decode error: {decode_error}')
+                    elif exit_code == 0:
+                        details.append('forced native C compile failure unexpectedly succeeded')
+                    elif missing_header not in stderr or 'failed to compile' not in stderr:
+                        details.append('native C compile failure lost the underlying diagnostic:\n' +
+                                       format_subprocess_failure(stdout, stderr))
+                    if os.path.exists(failed_compile_output):
+                        details.append('native C compile failure left an executable')
+
+                    if not is_windows():
+                        invalid_link = '--sn-native-intentional-link-failure'
+                        link_env = env.copy()
+                        link_env['SN_LDFLAGS'] = f'-Wl,{invalid_link}'
+                        failed_link_output = os.path.join(temp_dir, f'native_link_failure{exe_ext}')
+                        exit_code, stdout, stderr, decode_error = run_with_timeout(
+                            [self.compiler, native_test_file, '--target', 'rust',
+                             '-o', failed_link_output, '-l', '3', '--no-install'],
+                            self.compile_timeout, env=link_env)
+                        if decode_error:
+                            details.append(f'native link failure decode error: {decode_error}')
+                        elif exit_code == 0:
+                            details.append('forced native final-link failure unexpectedly succeeded')
+                        elif (invalid_link not in stderr or
+                              'rustc failed to link generated Rust and native C objects' not in stderr):
+                            details.append('native final-link failure lost its diagnostic:\n' +
+                                           format_subprocess_failure(stdout, stderr))
+                        if os.path.exists(failed_link_output):
+                            details.append('native final-link failure left an executable')
+                    results.append({'name': case['name'],
+                                   'status': 'pass' if not details else 'fail',
+                                   'reason': '' if not details else 'native failure assertions unmet',
+                                   'details': details or None,
+                                   'elapsed': time.perf_counter() - case_start})
+
                 elif case['kind'] == 'missing':
                     env['SN_RUSTC'] = missing_rustc
                     exit_code, _stdout, stderr, decode_error = run_with_timeout(
@@ -1059,18 +1256,19 @@ class TestRunner:
                                    'reason': '' if not details else 'failing build assertions unmet',
                                    'details': details or None, 'elapsed': time.perf_counter() - case_start})
 
-                elif case['kind'] in ('rust_lifecycle', 'c_lifecycle'):
-                    target = 'rust' if case['kind'] == 'rust_lifecycle' else 'c'
+                elif case['kind'] in ('rust_lifecycle', 'native_lifecycle', 'c_lifecycle'):
+                    target = 'c' if case['kind'] == 'c_lifecycle' else 'rust'
                     details = []
                     project_root = os.getcwd()
 
                     for keep_generated in (False, True):
                         label = '--keep-generated' if keep_generated else 'default cleanup'
-                        case_dir = os.path.join(temp_dir, f'{target}-lifecycle-{int(keep_generated)}')
+                        case_dir = os.path.join(temp_dir, f'{case["kind"]}-{int(keep_generated)}')
                         os.makedirs(case_dir)
                         output = os.path.join(case_dir, f'basic_output{exe_ext}')
-                        source_file = test_file
-                        source_basename = 'basic'
+                        source_file = native_test_file if case['kind'] == 'native_lifecycle' else test_file
+                        source_basename = ('scalar_bridge' if case['kind'] == 'native_lifecycle'
+                                           else 'basic')
                         cwd = case_dir
                         build_root = case_dir
                         stage_dir = None
@@ -1094,7 +1292,7 @@ class TestRunner:
                                 if source_error:
                                     details.append(f'{label}: {source_error}')
                             case_env = env.copy()
-                            if target == 'rust':
+                            if case['kind'] == 'rust_lifecycle':
                                 case_env['SN_RUSTC'] = spaced_rustc
                                 case_env['SN_FAKE_RUSTC_VERSION_EXIT'] = '0'
                                 case_env['SN_FAKE_RUSTC_BUILD_EXIT'] = '0'
@@ -1118,18 +1316,40 @@ class TestRunner:
                                 details.append(f'{label}: {reason}')
                                 continue
                             if keep_generated:
-                                if target == 'rust':
+                                if case['kind'] == 'native_lifecycle':
+                                    required = [build_dir / 'main.rs', build_dir / 'sn_types.h']
+                                    if not all(path.is_file() for path in required):
+                                        details.append(f'{label}: Rust native generated bundle was not retained')
+                                    proxy_pattern = ('sn_rust_linker_proxy.cmd' if is_windows()
+                                                     else 'sn_rust_linker_proxy.sh')
+                                    if not (build_dir / proxy_pattern).is_file():
+                                        details.append(f'{label}: Rust native linker proxy was not retained')
+                                    if not list(build_dir.glob('sn_native_bridge_*.c')):
+                                        details.append(f'{label}: native C body source was not retained')
+                                elif target == 'rust':
                                     if not (build_dir / 'main.rs').is_file():
                                         details.append(f'{label}: Rust main.rs was not retained')
                                 else:
                                     if not (build_dir / 'sn_types.h').is_file() or not list(build_dir.glob('*.c')):
                                         details.append(f'{label}: C generated header/source was not retained')
                             elif target == 'rust':
-                                if (build_dir / 'main.rs').exists():
-                                    details.append(f'{label}: Rust main.rs was not cleaned up')
+                                native_generated = (list(build_dir.glob('sn_native_bridge_*.c')) +
+                                                    list(build_dir.glob('sn_rust_linker_proxy.*')))
+                                generated = [build_dir / 'main.rs']
+                                if case['kind'] == 'native_lifecycle':
+                                    generated.append(build_dir / 'sn_types.h')
+                                if any(path.exists() for path in generated) or native_generated:
+                                    details.append(f'{label}: Rust generated artifacts were not cleaned up')
                             else:
                                 if (build_dir / 'sn_types.h').exists() or list(build_dir.glob('*.c')):
                                     details.append(f'{label}: C generated header/source was not cleaned up')
+                            if case['kind'] == 'native_lifecycle':
+                                native_objects = list(build_dir.glob('*.o'))
+                                if len(native_objects) != 4:
+                                    details.append(
+                                        f'{label}: expected four native objects (one generated body, '
+                                        'one deduplicated repeated source, and two distinct same-basename '
+                                        f'sources), got {[path.name for path in native_objects]!r}')
                         finally:
                             if target == 'c':
                                 cleanup_c_lifecycle_build_dirs(build_root, source_basename)
@@ -1757,6 +1977,40 @@ class TestRunner:
         details.extend(f'  {line}' for line in stderr.split('\n')[:15])
         return ('fail', 'wrong error', details)
 
+    def _run_rust_native_target_test_internal(
+            self, test_file: str, expected_file: str,
+            exe_file: str) -> Tuple[str, str, Optional[List[str]]]:
+        """Compile and execute a Rust-native fixture with an output oracle."""
+        if not os.path.isfile(expected_file):
+            return ('skip', 'no .expected', None)
+        exit_code, stdout, stderr, decode_error = run_with_timeout(
+            [self.compiler, test_file, '--target', 'rust', '-o', exe_file,
+             '-l', '1', '--no-install'],
+            self.compile_timeout, env=self.env
+        )
+        if decode_error:
+            return ('fail', 'subprocess output decode error',
+                    [decode_error, format_subprocess_failure(stdout, stderr)])
+        if exit_code != 0:
+            return ('fail', 'Rust compile error', stderr.split('\n')[:50] if stderr else None)
+        exit_code, output, timeout_marker, decode_error = run_with_timeout(
+            [exe_file], self.run_timeout, env=self.env, merge_stderr=True
+        )
+        if decode_error:
+            return ('fail', 'Rust run output decode error', [decode_error, output])
+        if timeout_marker == 'TIMEOUT':
+            return ('fail', 'Rust run timeout', output.split('\n')[:20] if output else None)
+        if exit_code != 0:
+            return ('fail', f'Rust run exit code: {exit_code}',
+                    output.split('\n')[:20] if output else None)
+        with open(expected_file, 'r', encoding='utf-8') as expected:
+            wanted = expected.read().replace('\r\n', '\n').replace('\r', '\n')
+        actual = output.replace('\r\n', '\n').replace('\r', '\n')
+        if actual != wanted:
+            return ('fail', 'output mismatch',
+                    [f'expected: {wanted!r}', f'got:      {actual!r}'])
+        return ('pass', '', None)
+
     def _run_positive_test_internal(self, test_file: str, expected_file: str,
                                      panic_file: str, exe_file: str,
                                      test_type: str) -> Tuple[str, str, Optional[List[str]]]:
@@ -1850,7 +2104,8 @@ def main():
     )
     parser.add_argument('test_type', nargs='?', default='all',
                         choices=['unit', 'cgen', 'rgen', 'rgen-errors', 'mgen', 'integration', 'integration-errors',
-                                'explore', 'explore-errors', 'rust-native', 'rust-native-errors',
+                                'explore', 'explore-errors', 'rust-native', 'rust-native-origin',
+                                'rust-native-errors',
                                 'rust-toolchain', 'all'],
                        help='Type of tests to run')
     parser.add_argument('--compiler', '-c', help='Path to compiler executable')
@@ -1923,7 +2178,8 @@ def main():
             all_passed &= passed
             total_elapsed += elapsed
             for test_type in ['cgen', 'rgen', 'rgen-errors', 'mgen', 'integration', 'integration-errors',
-                             'explore', 'explore-errors', 'rust-native', 'rust-native-errors']:
+                             'explore', 'explore-errors', 'rust-native', 'rust-native-origin',
+                             'rust-native-errors']:
                 passed, elapsed = runner.run_sn_tests(test_type)
                 all_passed &= passed
                 total_elapsed += elapsed

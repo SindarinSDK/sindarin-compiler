@@ -30,6 +30,13 @@ static inline void gen_model_add_source_file(json_object *obj, const char *filen
 json_object *gen_model_build(Arena *arena, Module *module, SymbolTable *symbol_table,
                              ArithmeticMode arithmetic_mode);
 
+/* Rust-native needs imported bodyless declarations and origin/callable
+ * metadata in its private partition input. The ordinary language-agnostic/C
+ * model deliberately retains its established shape and filtering. */
+json_object *gen_model_build_rust_native_projection(
+    Arena *arena, Module *module, SymbolTable *symbol_table,
+    ArithmeticMode arithmetic_mode);
+
 /* Serialize the model to a file. Returns 0 on success, non-zero on error. */
 int gen_model_write(json_object *model, const char *output_path);
 
@@ -114,6 +121,9 @@ extern int g_model_member_lift_count;
 
 /* Current namespace prefix for namespaced imports (NULL when not inside a namespace) */
 extern const char *g_model_namespace_prefix;
+
+/* True only while building the Rust-native partition input. */
+extern bool g_model_rust_native_projection;
 
 /* Module-level statement access for callee body analysis */
 extern Stmt **g_model_module_stmts;

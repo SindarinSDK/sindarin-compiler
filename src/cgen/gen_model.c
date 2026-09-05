@@ -170,6 +170,7 @@ int g_model_member_lift_count = 0;
 
 /* Current namespace prefix for namespaced imports */
 const char *g_model_namespace_prefix = NULL;
+bool g_model_rust_native_projection = false;
 
 /* Module statements for callee body analysis */
 Stmt **g_model_module_stmts = NULL;
@@ -375,6 +376,9 @@ static void emit_ns_import_recursive(
 
         if (strncmp(s->as.function.name.start, "main", 4) == 0 &&
             s->as.function.name.length == 4)
+            continue;
+        if (!g_model_rust_native_projection && s->as.function.is_native &&
+            s->as.function.body_count == 0)
             continue;
         /* Dedup by fully qualified name (alias path + function name) */
         char fqn[512];
@@ -797,6 +801,17 @@ json_object *gen_model_build(Arena *arena, Module *module, SymbolTable *symbol_t
     g_model_fn_wrappers = NULL;
 
     return root;
+}
+
+json_object *gen_model_build_rust_native_projection(
+    Arena *arena, Module *module, SymbolTable *symbol_table,
+    ArithmeticMode arithmetic_mode)
+{
+    g_model_rust_native_projection = true;
+    json_object *model = gen_model_build(arena, module, symbol_table,
+                                         arithmetic_mode);
+    g_model_rust_native_projection = false;
+    return model;
 }
 
 int gen_model_write(json_object *model, const char *output_path)

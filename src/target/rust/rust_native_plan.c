@@ -202,7 +202,7 @@ static bool project_native_model(json_object *model)
     replace_with_empty_array(model, "threads");
     replace_with_empty_array(model, "fn_wrappers");
     replace_with_empty_array(model, "type_decls");
-    replace_with_empty_array(model, "top_level");
+    replace_with_empty_array(model, "top_level_statements");
 
     json_object *module = NULL;
     if (json_object_object_get_ex(model, "module", &module))
