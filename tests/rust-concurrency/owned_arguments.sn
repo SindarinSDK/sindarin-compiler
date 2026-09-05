@@ -1,0 +1,12 @@
+fn combine(a: str, b: int[]): str =>
+  return $"{a}: {b[0]}"
+fn launch(): str =>
+  var name: str = "kept"
+  var data: int[] = {42}
+  var result: str = & combine(name, data)
+  result !
+  name = "changed"
+  data = {99}
+  return result
+fn main(): void =>
+  println(launch())

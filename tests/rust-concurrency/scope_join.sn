@@ -1,0 +1,9 @@
+sync var completed: int = 0
+fn work(): int =>
+  completed++
+  return 7
+fn launch(): void =>
+  var result: int = & work()
+fn main(): void =>
+  launch()
+  println($"completed: {completed}")

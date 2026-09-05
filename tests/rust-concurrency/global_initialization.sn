@@ -1,0 +1,4 @@
+var first: int = 7
+var second: int = first + 2
+fn main(): void =>
+  println($"{first}, {second}")

@@ -1,0 +1,17 @@
+sync var phase: int = 0
+sync var completed: int = 0
+fn waitForPhase(): int =>
+  while phase == 0 =>
+    continue
+  completed = 1
+  return 1
+fn quick(): int =>
+  return 2
+fn main(): void =>
+  var result: int = & waitForPhase()
+  result = & quick()
+  phase = 1
+  result !
+  while completed == 0 =>
+    continue
+  println($"{result}, {completed}")

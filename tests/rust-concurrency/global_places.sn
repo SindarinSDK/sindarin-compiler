@@ -1,0 +1,10 @@
+struct Pair =>
+  number: int
+var numbers: int[] = {1, 2}
+var pair: Pair = { number: 3 }
+var text: str = "a"
+fn main(): void =>
+  numbers[1] = 9
+  pair.number = 8
+  text += "b"
+  println($"{numbers[1]}, {pair.number}, {text}")

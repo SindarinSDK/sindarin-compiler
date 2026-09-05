@@ -1099,6 +1099,15 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
             if (vname)
                 json_object_object_add(obj, "name", json_object_new_string(vname));
 
+            if ((rust_variable_facts(expr).is_global ||
+                 (!rust_variable_facts(expr).known &&
+                  expr->as.variable.declaration_scope_depth <= 1)) &&
+                expr->expr_type && expr->expr_type->kind != TYPE_FUNCTION) {
+                json_object_object_add(obj, "rust_cell", json_object_new_boolean(true));
+                json_object_object_add(obj, "rust_global", json_object_new_boolean(true));
+            }
+            if (rust_variable_facts(expr).sync_modifier == SYNC_ATOMIC)
+                json_object_object_add(obj, "rust_cell", json_object_new_boolean(true));
             /* Retrieve the name we stored (may be prefixed) */
             json_object *name_obj = NULL;
             json_object_object_get_ex(obj, "name", &name_obj);
@@ -1139,6 +1148,11 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
 
         case EXPR_ASSIGN:
         {
+            if (rust_variable_facts(expr).is_global)
+                json_object_object_add(obj, "rust_global", json_object_new_boolean(true));
+            if (rust_variable_facts(expr).is_global ||
+                rust_variable_facts(expr).sync_modifier == SYNC_ATOMIC)
+                json_object_object_add(obj, "rust_cell_target", json_object_new_boolean(true));
             json_object_object_add(obj, "kind", json_object_new_string("assign"));
             const char *aname = expr->as.assign.name.start;
             /* Prefix module-level variable assignments in namespaced imports.

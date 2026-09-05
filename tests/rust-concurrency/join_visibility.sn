@@ -1,0 +1,12 @@
+sync var gate: int = 0
+var count: int = 0
+fn worker(): int =>
+  for i in 0..100 =>
+    lock (gate) =>
+      count = count + 1
+  return 100
+fn main(): void =>
+  var a: int = & worker()
+  var b: int = & worker()
+  [a, b] !
+  println($"count: {count}, returns: {a + b}")

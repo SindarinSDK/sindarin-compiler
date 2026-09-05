@@ -1,0 +1,1 @@
+{ {{#each rust_cell_bindings}}let {{rust_ident name}} = ({{> expr value}}).clone(); {{/each}}let mut {{rust_ident rust_value_guard}} = {{rust_ident rust_cell_owner}}.lock().unwrap_or_else(|e| e.into_inner()); {{> expr rust_cell_inner}} }
