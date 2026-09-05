@@ -22,9 +22,14 @@ fn recursive(n: int): int =>
   return n * recursive(n - 1)
 fn main(): void =>
   var selected: int = index()
-  print($"{arraySource()[selected](argument(1), argument(2))}\n")
+  var callbacks: (fn(int, int): int)[] = arraySource()
+  var first: int = argument(1)
+  var second: int = argument(2)
+  print($"{callbacks[selected](first, second)}\n")
   var holder: Holder = fieldSource()
-  print($"{holder.action(argument(3), argument(4))}\n")
+  var third: int = argument(3)
+  var fourth: int = argument(4)
+  print($"{holder.action(third, fourth)}\n")
   var factorial: fn(int): int = fn(x: int): int => x
   factorial = recursive
   var copy: fn(int): int = fn(x: int): int => x

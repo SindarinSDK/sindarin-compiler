@@ -156,9 +156,14 @@ surviving aliases.
 
 `closure_values_order.sn` retains the side-effecting index and returned-temporary
 field access as a Rust-only behavioral oracle. `closure_values_order_parity.sn`
-binds the index and returned holder to explicit locals before calling. The two
-sources are deliberately distinct. No byte-identical C parity is claimed for the
-failing originals. All findings are queued C repairs, not language exclusions.
+binds the index, returned array and holder, and each side-effecting call
+argument to explicit locals before calling. Directly passing two side-effecting
+arguments cannot be a portable C comparison: C leaves their evaluation order unspecified,
+GCC evaluates this fixture right-to-left, and Clang happened to evaluate it
+left-to-right. The two sources are deliberately distinct. No byte-identical C
+parity is claimed for the failing originals. All compiler findings are queued C
+repairs, not language exclusions; unspecified C argument order is documented as
+a comparison limitation rather than treated as evidence of Sindarin semantics.
 
 ## Verification
 

@@ -76,9 +76,14 @@ fn recursive(n: i64) -> i64 {
 
 fn main() {
     let mut selected: i64 = index();
-    print!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", (({ let (__sn_functions, __sn_function_index) = (&(arraySource()), selected); __sn_functions[__sn_index(__sn_functions.len(), __sn_function_index)].clone() }).0)(argument(1), argument(2)))); __sn_interpolated.push_str("\n"); __sn_interpolated });
+    let mut callbacks: Vec<__SnClosure<dyn Fn(i64, i64) -> i64>> = arraySource();
+    let mut first: i64 = argument(1);
+    let mut second: i64 = argument(2);
+    print!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", (({ let (__sn_functions, __sn_function_index) = (&(callbacks), selected); __sn_functions[__sn_index(__sn_functions.len(), __sn_function_index)].clone() }).0)(first.clone(), second.clone()))); __sn_interpolated.push_str("\n"); __sn_interpolated });
     let mut holder: Holder = fieldSource();
-    print!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", (((holder).action.clone()).0)(argument(3), argument(4)))); __sn_interpolated.push_str("\n"); __sn_interpolated });
+    let mut third: i64 = argument(3);
+    let mut fourth: i64 = argument(4);
+    print!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", (((holder).action.clone()).0)(third.clone(), fourth.clone()))); __sn_interpolated.push_str("\n"); __sn_interpolated });
     let mut factorial: __SnClosure<dyn Fn(i64) -> i64> = { self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |x: i64| -> i64 { x.clone()})) }
 ;
     { factorial = self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(recursive)); factorial.clone() };
