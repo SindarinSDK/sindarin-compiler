@@ -1159,6 +1159,14 @@ static bool rust_validate_expr(json_object *expr)
     json_object *child = NULL;
     if (!kind) return false;
 
+    if (json_boolean_property(expr, "rust_shared_cell") &&
+        !json_boolean_property(expr, "rust_shared_owned_cell") &&
+        (strcmp(kind, "compound_assign") == 0 || strcmp(kind, "increment") == 0 ||
+         strcmp(kind, "decrement") == 0))
+        return rust_validate_closure_cell_mutation(expr);
+    if (json_boolean_property(expr, "rust_snapshot_mutation"))
+        return rust_validate_closure_snapshot_mutation(expr);
+
     if (strcmp(kind, "match") == 0)
         return rust_validate_value_match(expr);
 
@@ -1509,6 +1517,7 @@ static bool rust_validate_expr(json_object *expr)
                     expr, "mutation_storage", "parameter") &&
                 !json_string_property_equals(
                     target, "parameter_mem_qual", "as_ref") &&
+                !json_boolean_property(expr, "rust_shared_owned_cell") &&
                 !iterator_binding_mutation)
             {
                 fprintf(stderr,

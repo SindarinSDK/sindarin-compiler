@@ -1,0 +1,11 @@
+fn main(): void =>
+  var numerator32: uint32 = 1u32
+  var divisor32: uint32 = 0u32
+  var numerator: uint = 1u
+  var divisor: uint = 0u
+  var modulo: fn(): void = fn(): void =>
+    numerator32 %= divisor32
+    println(numerator32)
+    numerator %= divisor
+    println(numerator)
+  modulo()
