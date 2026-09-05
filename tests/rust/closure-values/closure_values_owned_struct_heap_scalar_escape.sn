@@ -1,0 +1,19 @@
+struct State =>
+  label: str
+  values: int[]
+  count: int
+
+fn make(): fn(int): int =>
+  var state: State = {
+    label: "seed",
+    values: {1, 2},
+    count: 10
+  }
+  return fn(delta: int): int =>
+    state.count += delta
+    return state.count
+
+fn main(): void =>
+  var mutate: fn(int): int = make()
+  println(mutate(1))
+  println(mutate(2))

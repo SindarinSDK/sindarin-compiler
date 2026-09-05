@@ -1,0 +1,22 @@
+struct Inner =>
+  label: str
+  value: int
+
+struct Outer =>
+  inner: Inner
+  values: int[]
+
+fn main(): void =>
+  var state: Outer = {
+    inner: Inner {
+      label: "seed",
+      value: 10
+    },
+    values: {1, 2}
+  }
+  var mutate: fn(int): int = fn(delta: int): int =>
+    state.inner.value += delta
+    return state.inner.value
+  println(mutate(1))
+  println(mutate(2))
+  println(state.inner.value)

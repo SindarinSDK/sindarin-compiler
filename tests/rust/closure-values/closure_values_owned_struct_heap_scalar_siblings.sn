@@ -1,0 +1,22 @@
+struct State =>
+  label: str
+  values: int[]
+  count: int
+
+fn main(): void =>
+  var state: State = {
+    label: "seed",
+    values: {1, 2},
+    count: 10
+  }
+  var left: fn(int): int = fn(delta: int): int =>
+    state.count += delta
+    return state.count
+  var right: fn(int): int = fn(delta: int): int =>
+    state.count += delta
+    return state.count
+  var alias: fn(int): int = left
+  println(left(1))
+  println(alias(2))
+  println(right(3))
+  println(state.count)

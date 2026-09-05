@@ -308,6 +308,24 @@ static RustClosureBinding *rust_closure_place(RustClosureScope *scope, json_obje
     return NULL;
 }
 
+static json_object *rust_closure_place_root(json_object *node)
+{
+    if (json_string_property_equals(node, "kind", "variable")) return node;
+    if (json_string_property_equals(node, "kind", "member"))
+        return rust_closure_place_root(rust_closure_property(node, "object"));
+    if (json_string_property_equals(node, "kind", "array_access"))
+        return rust_closure_place_root(rust_closure_property(node, "array"));
+    return NULL;
+}
+
+static bool rust_closure_place_has_array_access(json_object *node)
+{
+    if (json_string_property_equals(node, "kind", "array_access")) return true;
+    if (json_string_property_equals(node, "kind", "member"))
+        return rust_closure_place_has_array_access(rust_closure_property(node, "object"));
+    return false;
+}
+
 static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
 {
     if (!node) return true;
@@ -455,21 +473,26 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
         rust_closure_property(place->declaration, "type"));
     if (struct_snapshot)
     {
-        json_object *root = NULL;
+        json_object *mutation_place = NULL;
         if (kind && strcmp(kind, "member_assign") == 0)
-            root = rust_closure_property(node, "object");
+            mutation_place = rust_closure_property(node, "object");
         else if (kind && strcmp(kind, "compound_assign") == 0)
-            root = rust_closure_property(rust_closure_property(node, "target"), "object");
+            mutation_place = rust_closure_property(node, "target");
         else if (kind && (strcmp(kind, "increment") == 0 || strcmp(kind, "decrement") == 0))
-            root = rust_closure_property(rust_closure_property(node, "operand"), "object");
+            mutation_place = rust_closure_property(node, "operand");
         bool direct_assign = kind && strcmp(kind, "assign") == 0;
-        bool direct_member = root && json_string_property_equals(root, "kind", "variable") &&
+        json_object *root = rust_closure_place_root(mutation_place);
+        bool rooted_member = root &&
             rust_closure_lookup(scope, json_string_property(root, "name")) == place;
-        if (!rust_heap_free_named_struct_type(
-                rust_closure_property(place->declaration, "type")))
-            return rust_closure_error("mutable heap-owning struct snapshot captures");
-        if (!direct_assign && !direct_member)
+        bool heap_free = rust_heap_free_named_struct_type(
+            rust_closure_property(place->declaration, "type"));
+        if ((!direct_assign && !rooted_member) ||
+            (mutation_place && rust_closure_place_has_array_access(mutation_place)))
             return rust_closure_error("nested mutable struct snapshot places");
+        if (!heap_free && (direct_assign ||
+            !rust_closure_scalar_type(rust_closure_property(
+                kind && strcmp(kind, "member_assign") == 0 ? node : mutation_place, "type"))))
+            return rust_closure_error("mutable heap-owning struct snapshot captures");
         json_object_object_add(place->declaration, "rust_mutable_owned_snapshot",
                                json_object_new_boolean(true));
         if (direct_assign)
@@ -483,6 +506,10 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
                                    json_object_new_boolean(true));
             json_object_object_add(node, "rust_struct_snapshot_name",
                                    json_object_new_string(place->name));
+            if (kind && strcmp(kind, "member_assign") == 0 &&
+                !json_string_property_equals(mutation_place, "kind", "variable"))
+                json_object_object_add(node, "rust_struct_snapshot_nested",
+                                       json_object_new_boolean(true));
         }
     }
     bool shared_owned = place && rust_closure_string_type(

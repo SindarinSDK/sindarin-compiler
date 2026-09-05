@@ -1,0 +1,22 @@
+struct State =>
+  label: str
+  count: int
+
+fn main(): void =>
+  var state: State = {
+    label: "seed",
+    count: 10
+  }
+  var depth: int = 0
+  var action: fn(fn(): int): int = fn(callback: fn(): int): int =>
+    var result: int = callback()
+    state.count = result + state.count
+    return state.count
+  var alias: fn(fn(): int): int = action
+  var callback: fn(): int = fn(): int =>
+    depth += 1
+    if depth == 1 =>
+      return alias(fn(): int => 1)
+    return 2
+  println(action(callback))
+  println(state.count)
