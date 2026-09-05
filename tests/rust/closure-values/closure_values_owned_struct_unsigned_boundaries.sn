@@ -1,0 +1,37 @@
+struct Boundaries =>
+  add: uint32
+  subtract: uint32
+  multiply: uint32
+  divide: uint32
+  modulo: uint32
+  increment: uint32
+  decrement: uint32
+
+fn main(): void =>
+  var max: uint32 = 4294967295u32
+  var state: Boundaries = {
+    add: max,
+    subtract: 0u32,
+    multiply: 2147483648u32,
+    divide: max,
+    modulo: max,
+    increment: max,
+    decrement: 0u32
+  }
+  var mutate: fn(): bool = fn(): bool =>
+    state.add += 1u32
+    state.subtract -= 1u32
+    state.multiply *= 2u32
+    state.divide /= 2u32
+    state.modulo %= 2u32
+    var incrementBefore: uint32 = state.increment++
+    var decrementBefore: uint32 = state.decrement--
+    var result: bool = state.add == 0u32 && state.subtract == max
+    result = result && state.multiply == 0u32 && state.divide == 2147483647u32
+    result = result && state.modulo == 1u32
+    result = result && incrementBefore == max && state.increment == 0u32
+    result = result && decrementBefore == 0u32 && state.decrement == max
+    return result
+  println(mutate())
+  println(mutate())
+  println(state.add == max)
