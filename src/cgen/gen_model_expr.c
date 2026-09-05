@@ -1055,14 +1055,6 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 json_object_object_add(mc_obj, "method_name",
                     json_object_new_string(method_name));
                 json_object_object_add(mc_obj, "is_static", json_object_new_boolean(false));
-                /* A swapped derived comparison (a > b / a <= b) dispatches
-                 * through b.lt(a), but the source language still evaluates
-                 * a before b.  Keep that ordering fact in the resolved model
-                 * so targets can stabilize the operands without repeating
-                 * overload lookup or guessing from the resolved method name. */
-                if (expr->as.binary.is_swapped_operator)
-                    json_object_object_add(mc_obj, "source_arg_before_object",
-                        json_object_new_boolean(true));
                 if (mc_object_expr && mc_object_expr->expr_type)
                     json_object_object_add(mc_obj, "struct_type",
                         gen_model_type(arena, mc_object_expr->expr_type));

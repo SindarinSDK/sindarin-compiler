@@ -1386,6 +1386,13 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                 json_object_object_add(mc_obj, "method_name",
                     json_object_new_string(method_name));
                 json_object_object_add(mc_obj, "is_static", json_object_new_boolean(false));
+                /* A swapped derived comparison (a > b / a <= b) dispatches
+                 * through b.lt(a), but the source language still evaluates
+                 * a before b. Keep this ordering fact private to the Rust
+                 * projection so the shared/tagged C model stays unchanged. */
+                if (expr->as.binary.is_swapped_operator)
+                    json_object_object_add(mc_obj, "source_arg_before_object",
+                        json_object_new_boolean(true));
                 if (mc_object_expr && mc_object_expr->expr_type)
                     json_object_object_add(mc_obj, "struct_type",
                         rust_gen_model_type(arena, mc_object_expr->expr_type));

@@ -1,10 +1,10 @@
 # Rust resolved calls
 
 This document records the implemented contract for resolved calls in the Rust
-target. The shared checked model remains authoritative: Rust consumes the
-selected struct, method name, static/instance form, argument annotations, and
-source-order metadata. It does not repeat overload lookup or lower a resolved
-call back to a Rust operator.
+target. The checked AST remains authoritative for the selected struct, method,
+static/instance form, and source operands. The Rust-private model projection
+adds target-only argument and source-order annotations. It does not repeat
+overload lookup or lower a resolved call back to a Rust operator.
 
 ## Supported envelope
 
@@ -50,14 +50,15 @@ owned call results remain supported because no source alias survives the call.
 Ordinary resolved instance calls evaluate the receiver once and then arguments
 once in source order. Swapped comparisons are different: `a > b` is already
 resolved as `b.op_lt(a)`, while the language still requires `a` before `b`.
-The model therefore records `source_arg_before_object`; Rust holds the
-source-left argument before evaluating the resolved receiver. The
+The Rust-private projection therefore records `source_arg_before_object`; Rust
+holds the source-left argument before evaluating the resolved receiver. The
 Rust validator privately derives whether the receiver is a stable place or an
 owned temporary. Nested receiver producers are stabilized inside that ordered
 Rust call scope, after the source-left argument, so they run once and retain
 their normal drop lifetime. Generated Rust local names are allocated against
-all strings in the model to avoid capture by source identifiers. The C target
-and its shared chain-flattening pass are unchanged by this feature.
+all strings in the Rust model to avoid capture by source identifiers. The C
+model, C target, and shared chain-flattening pass are unchanged by this
+feature.
 
 The same ordering applies to target validation diagnostics: swapped-call
 children are validated argument-first, while normal instance calls remain
