@@ -1,0 +1,18 @@
+{
+  "tag": "79c20bdb8314aff3c778471ceab20bb8f9ca8d62",
+  "correction_commit": "baa84a4c53c3b19ac8615fa9666f13103b125c74",
+  "tag_tracked_file_count": 3767,
+  "tag_identical_git_files": 3760,
+  "missing_tag_files": [],
+  "identity_basis": "Canonical committed Git blobs and modes. The unchanged .gitattributes checks two .ps1 installer files out with CRLF; this checkout conversion is not a repository change. Tagged verification staging was git archive with exact blob bytes.",
+  "exceptions": {
+    ".github/workflows/ci.yml": "Add the Rust toolchain pin only. The C headline sample step is removed.",
+    "CMakeLists.txt": "Compile/stage Rust dispatch, private projection, Rust templates and fake-rustc fixture. Tagged C source list, library configuration and template payload are unchanged; no C adapter or sidecar remains.",
+    "Makefile": "Add Rust-only test targets/help and cleanup of Rust fixture artifacts. All tagged C test commands remain exact and call the unchanged tag runner.",
+    "README.md": "Document Rust target invocation and separate Rust test runner. Tagged C examples/instructions remain.",
+    "src/compiler.c": "Initialize/parse target and output options, Rust/source aliases, and derive output extension. Keep tagged default C semantics, legacy flags and emit-model precedence; no optimizer/frontend changes.",
+    "src/compiler.h": "Add TargetKind/OutputKind and target/output/keep-generated fields while retaining tagged legacy fields.",
+    "src/main.c": "Run tagged C setup only for C; after tagged emit-model branch dispatch Rust to rust_target_compile. All C generation/build/cleanup bodies are tagged code."
+  },
+  "added_production_routes": "Only src/target/target.* and src/target/rust/**; public C adapter and sidecar removed. No generic target_compile(C) or target_compiler_for(C) interface remains."
+}
