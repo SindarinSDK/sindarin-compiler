@@ -26,11 +26,11 @@ fn __sn_array_size(size: i64) -> usize {
 fn main() {
     let mut words: Vec<String> = vec!["the".to_string(), "quick".to_string(), "fox".to_string()];
     let mut separator: String = " | ".to_string();
-    println!("{}", { let __sn_array = &(words); let __sn_separator = &(separator); __sn_array.join(__sn_separator.as_str()) });
+    println!("{}", { let __sn_array_0 = &(words); let __sn_separator_0 = &(separator); __sn_array_0.join(__sn_separator_0.as_str()) });
     println!("{}", separator);
-    println!("{}", { let __sn_array = &(words); let __sn_separator = &("".to_string()); __sn_array.join(__sn_separator.as_str()) });
+    println!("{}", { let __sn_array_0 = &(words); let __sn_separator_0 = &("".to_string()); __sn_array_0.join(__sn_separator_0.as_str()) });
     let mut single: Vec<String> = vec!["alone".to_string()];
-    println!("{}", { let __sn_array = &(single); let __sn_separator = &(",".to_string()); __sn_array.join(__sn_separator.as_str()) });
+    println!("{}", { let __sn_array_0 = &(single); let __sn_separator_0 = &(",".to_string()); __sn_array_0.join(__sn_separator_0.as_str()) });
     let mut empty: Vec<String> = vec![];
-    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("empty=|"); __sn_interpolated.push_str(&format!("{}", { let __sn_array = &(empty); let __sn_separator = &(",".to_string()); __sn_array.join(__sn_separator.as_str()) })); __sn_interpolated.push_str("|"); __sn_interpolated });
+    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("empty=|"); __sn_interpolated.push_str(&format!("{}", { let __sn_array_0 = &(empty); let __sn_separator_0 = &(",".to_string()); __sn_array_0.join(__sn_separator_0.as_str()) })); __sn_interpolated.push_str("|"); __sn_interpolated });
 }
