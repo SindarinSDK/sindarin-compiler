@@ -18,7 +18,9 @@ static bool rust_string_method_supported(const char *name)
            strcmp(name, "endsWith") == 0 || strcmp(name, "trim") == 0 ||
            strcmp(name, "toUpper") == 0 || strcmp(name, "toLower") == 0 ||
            strcmp(name, "substring") == 0 || strcmp(name, "replace") == 0 ||
-           strcmp(name, "charAt") == 0 || strcmp(name, "indexOf") == 0;
+           strcmp(name, "charAt") == 0 || strcmp(name, "indexOf") == 0 ||
+           strcmp(name, "split") == 0 || strcmp(name, "splitLines") == 0 ||
+           strcmp(name, "isBlank") == 0;
 }
 
 static bool rust_primitive_conversion_member(const char *type_kind, const char *name)
