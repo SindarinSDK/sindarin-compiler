@@ -685,47 +685,6 @@ static bool rust_resolved_places_alias(json_object *left, json_object *right)
     return false;
 }
 
-static bool rust_resolved_expr_references_place(json_object *expr,
-                                                json_object *place)
-{
-    if (!expr) return false;
-    if (json_object_is_type(expr, json_type_array))
-    {
-        size_t count = json_object_array_length(expr);
-        for (size_t i = 0; i < count; i++)
-            if (rust_resolved_expr_references_place(
-                    json_object_array_get_idx(expr, i), place)) return true;
-        return false;
-    }
-    if (!json_object_is_type(expr, json_type_object)) return false;
-
-    if (rust_call_stable_place(expr) &&
-        rust_resolved_places_alias(expr, place)) return true;
-
-    json_object_object_foreach(expr, key, value)
-    {
-        /* Type and resolved-declaration metadata contain variable/member-like
-         * objects but are not evaluated expressions. */
-        if (strcmp(key, "type") == 0 || strcmp(key, "struct_type") == 0 ||
-            strcmp(key, "resolved_method") == 0) continue;
-        if (rust_resolved_expr_references_place(value, place)) return true;
-    }
-    return false;
-}
-
-static bool rust_resolved_deferred_ref_place(json_object *place)
-{
-    if (!json_object_is_type(place, json_type_object)) return false;
-    if (json_string_property_equals(place, "kind", "variable")) return true;
-    if (json_string_property_equals(place, "kind", "member"))
-    {
-        json_object *object = NULL;
-        return json_object_object_get_ex(place, "object", &object) &&
-            rust_resolved_deferred_ref_place(object);
-    }
-    return false;
-}
-
 static bool rust_resolved_clone_source(json_object *arg)
 {
     json_object *type = NULL;
@@ -792,11 +751,6 @@ static bool rust_validate_method_call(json_object *expr)
         json_object_object_add(expr, "rust_receiver_mutating",
                                json_object_new_boolean(true));
 
-    if (json_boolean_property(expr, "source_arg_before_object") &&
-        (is_static || json_object_array_length(args) != 1))
-        return rust_report_resolved_call_error(
-            "encountered inconsistent resolved method_call source-order metadata");
-
     if (!rust_resolved_value_type_supported(result_type))
     {
         if (json_string_property_equals(result_type, "kind", "function"))
@@ -827,16 +781,6 @@ static bool rust_validate_method_call(json_object *expr)
             return rust_report_resolved_call_error(
                 "encountered inconsistent resolved method_call receiver metadata");
 
-        if (json_boolean_property(expr, "source_arg_before_object"))
-        {
-            const char *object_kind = json_string_property(object, "kind");
-            bool receiver_is_place = object_kind &&
-                (strcmp(object_kind, "variable") == 0 ||
-                 strcmp(object_kind, "member") == 0 ||
-                 strcmp(object_kind, "array_access") == 0);
-            json_object_object_add(expr, "source_receiver_is_place",
-                                   json_object_new_boolean(receiver_is_place));
-        }
     }
 
     size_t arg_count = json_object_array_length(args);
@@ -900,9 +844,7 @@ static bool rust_validate_method_call(json_object *expr)
 
     }
 
-    bool source_args_first =
-        json_boolean_property(expr, "source_arg_before_object");
-    if (!is_static && !source_args_first && !rust_validate_expr(object))
+    if (!is_static && !rust_validate_expr(object))
     {
         if (!rust_validation_reported_error)
             return rust_report_resolved_call_error(
@@ -920,14 +862,6 @@ static bool rust_validate_method_call(json_object *expr)
             return false;
         }
     }
-    if (!is_static && source_args_first && !rust_validate_expr(object))
-    {
-        if (!rust_validation_reported_error)
-            return rust_report_resolved_call_error(
-                "encountered an unsupported resolved method_call receiver expression");
-        return false;
-    }
-
     if (!rust_reject_shared_default_array_arguments(args)) return false;
 
     if (!is_static)
@@ -943,19 +877,6 @@ static bool rust_validate_method_call(json_object *expr)
                     "does not support aliased mutable resolved method_call operands yet");
         }
 
-        if (source_args_first && arg_count == 1)
-        {
-            json_object *arg = json_object_array_get_idx(args, 0);
-            if (json_boolean_property(arg, "is_ref_arg") &&
-                rust_resolved_expr_references_place(object, arg))
-            {
-                if (!rust_resolved_deferred_ref_place(arg))
-                    return rust_report_resolved_call_error(
-                        "does not support swapped resolved receiver evaluation that aliases an indexed mutable source operand yet");
-                json_object_object_add(arg, "rust_defer_source_ref",
-                                       json_object_new_boolean(true));
-            }
-        }
     }
     return true;
 }
