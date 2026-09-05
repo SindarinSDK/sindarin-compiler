@@ -1,0 +1,1 @@
+Error: Rust target native function 'unsupported' body uses a closure, thread, pointer, string, array, or struct construct outside the native scalar bridge

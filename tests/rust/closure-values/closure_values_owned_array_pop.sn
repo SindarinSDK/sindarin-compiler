@@ -1,0 +1,9 @@
+fn makePopper(): fn(): int =>
+  var values: int[] = {10, 20, 30}
+  return fn(): int => values.pop()
+
+fn main(): void =>
+  var popper: fn(): int = makePopper()
+  var alias: fn(): int = popper
+  println(alias())
+  println(popper())

@@ -1,0 +1,10 @@
+struct RefPoint as ref =>
+  value: int
+
+  operator == (other: RefPoint): bool =>
+    return self.value == other.value
+
+fn main(): void =>
+  var left: RefPoint = { value: 1 }
+  var right: RefPoint = { value: 1 }
+  println(left == right)

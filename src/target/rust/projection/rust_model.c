@@ -377,9 +377,6 @@ static void emit_ns_import_recursive(
         if (strncmp(s->as.function.name.start, "main", 4) == 0 &&
             s->as.function.name.length == 4)
             continue;
-        if (s->as.function.is_native && s->as.function.body_count == 0)
-            continue;
-
         /* Dedup by fully qualified name (alias path + function name) */
         char fqn[512];
         snprintf(fqn, sizeof(fqn), "%s__%.*s", ns_prefix,
