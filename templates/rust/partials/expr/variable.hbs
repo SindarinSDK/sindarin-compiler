@@ -1,1 +1,1 @@
-{{#if rust_deref}}*({{/if}}{{#if (eq name "self")}}self{{else}}{{rust_ident name}}{{/if}}{{#if rust_deref}}){{/if}}{{rust_clone_suffix this rust_needs_clone}}
+{{> expr_closure_read this}}
