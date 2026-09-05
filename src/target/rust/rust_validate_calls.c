@@ -312,6 +312,9 @@ static bool rust_validate_struct_methods(json_object *model)
                         (has_param_type &&
                          strcmp(mem_qual, "as_ref") == 0 &&
                          rust_scalar_ref_parameter_type_supported(param_type)) ||
+                        (json_boolean_property(method, "is_operator") &&
+                         has_param_type && strcmp(mem_qual, "as_ref") == 0 &&
+                         json_string_property_equals(param_type, "kind", "struct")) ||
                         (is_static && has_param_type &&
                          strcmp(mem_qual, "as_ref") == 0 &&
                          rust_heap_free_named_struct_type(param_type)) ||
@@ -489,9 +492,320 @@ static bool rust_validate_call(json_object *expr)
     return rust_validate_expr_array(args);
 }
 
-/* These model kinds previously reached the expression fallback. */
+static bool rust_report_resolved_call_error(const char *message)
+{
+    rust_validation_reported_error = true;
+    fprintf(stderr, "Error: Rust target %s\n", message);
+    return false;
+}
+
+static bool rust_resolved_types_equal(json_object *left, json_object *right)
+{
+    const char *left_kind = json_string_property(left, "kind");
+    const char *right_kind = json_string_property(right, "kind");
+    if (!left_kind || !right_kind || strcmp(left_kind, right_kind) != 0)
+        return false;
+
+    if (strcmp(left_kind, "struct") == 0)
+    {
+        const char *left_name = json_string_property(left, "name");
+        const char *right_name = json_string_property(right, "name");
+        return left_name && right_name && strcmp(left_name, right_name) == 0;
+    }
+    if (strcmp(left_kind, "array") == 0)
+    {
+        json_object *left_element = NULL, *right_element = NULL;
+        return json_object_object_get_ex(left, "element_type", &left_element) &&
+            json_object_object_get_ex(right, "element_type", &right_element) &&
+            rust_resolved_types_equal(left_element, right_element);
+    }
+    return true;
+}
+
+static json_object *rust_find_resolved_method(json_object *structure,
+                                              const char *name,
+                                              bool is_static)
+{
+    json_object *methods = NULL;
+    if (!structure || !name ||
+        !json_object_object_get_ex(structure, "methods", &methods) ||
+        !json_object_is_type(methods, json_type_array)) return NULL;
+
+    size_t count = json_object_array_length(methods);
+    for (size_t i = 0; i < count; i++)
+    {
+        json_object *method = json_object_array_get_idx(methods, i);
+        if (json_string_property_equals(method, "name", name) &&
+            json_boolean_property(method, "is_static") == is_static)
+            return method;
+    }
+    return NULL;
+}
+
+static bool rust_resolved_value_type_supported(json_object *type)
+{
+    const char *kind = json_string_property(type, "kind");
+    if (!kind || strcmp(kind, "pointer") == 0 ||
+        strcmp(kind, "function") == 0 || strcmp(kind, "interface") == 0 ||
+        strcmp(kind, "nil") == 0) return false;
+    if (strcmp(kind, "array") == 0)
+    {
+        json_object *element = NULL;
+        return json_object_object_get_ex(type, "element_type", &element) &&
+            rust_resolved_value_type_supported(element);
+    }
+    if (strcmp(kind, "struct") == 0)
+    {
+        json_object *structure = rust_find_struct(
+            rust_validation_model, json_string_property(type, "name"));
+        const char *mem_mode = json_string_property(structure, "mem_mode");
+        return structure && !json_boolean_property(structure, "is_native") &&
+            !json_boolean_property(structure, "is_packed") &&
+            !json_boolean_property(structure, "pass_self_by_ref") &&
+            (!mem_mode || strcmp(mem_mode, "val") == 0);
+    }
+    return rust_type_supported(type);
+}
+
+static bool rust_resolved_stable_place(json_object *expr)
+{
+    const char *kind = json_string_property(expr, "kind");
+    if (!kind) return false;
+    if (strcmp(kind, "variable") == 0) return true;
+    if (strcmp(kind, "member") == 0)
+    {
+        json_object *object = NULL;
+        return json_object_object_get_ex(expr, "object", &object) &&
+            rust_resolved_stable_place(object);
+    }
+    if (strcmp(kind, "array_access") == 0)
+    {
+        json_object *array = NULL, *index = NULL;
+        const char *index_kind = NULL;
+        return json_object_object_get_ex(expr, "array", &array) &&
+            json_object_object_get_ex(expr, "index", &index) &&
+            rust_resolved_stable_place(array) &&
+            (index_kind = json_string_property(index, "kind")) &&
+            (strcmp(index_kind, "literal") == 0 ||
+             rust_resolved_stable_place(index));
+    }
+    return false;
+}
+
+static bool rust_resolved_clone_source(json_object *arg)
+{
+    json_object *type = NULL;
+    const char *kind = json_string_property(arg, "kind");
+    const char *type_kind = NULL;
+    if (!kind || (strcmp(kind, "variable") != 0 &&
+                  strcmp(kind, "member") != 0 &&
+                  strcmp(kind, "array_access") != 0) ||
+        !json_object_object_get_ex(arg, "type", &type) ||
+        !(type_kind = json_string_property(type, "kind"))) return false;
+    return strcmp(type_kind, "string") == 0 ||
+        strcmp(type_kind, "array") == 0 || strcmp(type_kind, "struct") == 0;
+}
+
+static bool rust_validate_method_call(json_object *expr)
+{
+    json_object *is_static_obj = NULL, *struct_type = NULL, *result_type = NULL;
+    json_object *args = NULL, *structure = NULL, *method = NULL;
+    json_object *params = NULL, *method_return = NULL, *object = NULL;
+    const char *method_name = json_string_property(expr, "method_name");
+
+    if (!json_object_object_get_ex(expr, "is_static", &is_static_obj) ||
+        !json_object_is_type(is_static_obj, json_type_boolean) ||
+        !method_name || !json_object_object_get_ex(expr, "struct_type", &struct_type) ||
+        !json_object_is_type(struct_type, json_type_object) ||
+        !json_string_property_equals(struct_type, "kind", "struct") ||
+        !json_object_object_get_ex(expr, "type", &result_type) ||
+        !json_object_is_type(result_type, json_type_object) ||
+        !json_object_object_get_ex(expr, "args", &args) ||
+        !json_object_is_type(args, json_type_array))
+        return rust_report_resolved_call_error(
+            "encountered malformed resolved method_call model");
+
+    bool is_static = json_object_get_boolean(is_static_obj);
+    const char *struct_name = json_string_property(struct_type, "name");
+    structure = rust_find_struct(rust_validation_model, struct_name);
+    if (!structure)
+        return rust_report_resolved_call_error(
+            "encountered resolved method_call with an unknown struct receiver");
+    if (json_boolean_property(structure, "is_native") ||
+        json_boolean_property(struct_type, "is_native"))
+        return rust_report_resolved_call_error(
+            "does not support native resolved method_call receivers");
+    if (json_boolean_property(structure, "pass_self_by_ref") ||
+        json_boolean_property(struct_type, "pass_self_by_ref") ||
+        !json_string_property_equals(structure, "mem_mode", "val"))
+        return rust_report_resolved_call_error(
+            "does not support reference-struct resolved method_call receivers");
+    if (json_boolean_property(structure, "is_packed"))
+        return rust_report_resolved_call_error(
+            "does not support packed resolved method_call receivers");
+
+    method = rust_find_resolved_method(structure, method_name, is_static);
+    if (!method || json_boolean_property(method, "is_native") ||
+        !json_object_object_get_ex(method, "params", &params) ||
+        !json_object_is_type(params, json_type_array) ||
+        !json_object_object_get_ex(method, "return_type", &method_return) ||
+        !rust_resolved_types_equal(result_type, method_return) ||
+        json_object_array_length(args) != json_object_array_length(params))
+        return rust_report_resolved_call_error(
+            "encountered incomplete or inconsistent resolved method_call metadata");
+
+    if (json_boolean_property(expr, "source_arg_before_object") &&
+        (is_static || json_object_array_length(args) != 1))
+        return rust_report_resolved_call_error(
+            "encountered inconsistent resolved method_call source-order metadata");
+
+    if (json_boolean_property(expr, "source_arg_before_object"))
+    {
+        json_object *receiver_is_place = NULL;
+        if (!json_object_object_get_ex(expr, "source_receiver_is_place",
+                                       &receiver_is_place) ||
+            !json_object_is_type(receiver_is_place, json_type_boolean))
+            return rust_report_resolved_call_error(
+                "encountered incomplete resolved method_call source-order metadata");
+    }
+
+    if (!rust_resolved_value_type_supported(result_type))
+    {
+        if (json_string_property_equals(result_type, "kind", "function"))
+            return rust_report_resolved_call_error(
+                "does not support closure-dependent resolved method_call results yet");
+        return rust_report_resolved_call_error(
+            "does not support this resolved method_call result representation");
+    }
+
+    if (is_static)
+    {
+        if (json_object_object_get_ex(expr, "object", &object))
+            return rust_report_resolved_call_error(
+                "encountered a static resolved method_call with an instance receiver");
+    }
+    else
+    {
+        json_object *object_type = NULL;
+        if (!json_object_object_get_ex(expr, "object", &object) ||
+            !json_object_is_type(object, json_type_object) ||
+            !json_object_object_get_ex(object, "type", &object_type))
+            return rust_report_resolved_call_error(
+                "encountered an instance resolved method_call without a receiver");
+        if (json_string_property_equals(object_type, "kind", "pointer"))
+            return rust_report_resolved_call_error(
+                "does not support pointer resolved method_call receivers");
+        if (!rust_resolved_types_equal(object_type, struct_type))
+            return rust_report_resolved_call_error(
+                "encountered inconsistent resolved method_call receiver metadata");
+
+    }
+
+    size_t arg_count = json_object_array_length(args);
+    for (size_t i = 0; i < arg_count; i++)
+    {
+        json_object *arg = json_object_array_get_idx(args, i);
+        json_object *param = json_object_array_get_idx(params, i);
+        json_object *arg_type = NULL, *param_type = NULL;
+        const char *mem_qual = json_string_property(param, "mem_qual");
+        if (!json_object_is_type(arg, json_type_object) ||
+            !json_object_object_get_ex(arg, "type", &arg_type) ||
+            !json_object_object_get_ex(param, "type", &param_type) ||
+            !rust_resolved_types_equal(arg_type, param_type))
+            return rust_report_resolved_call_error(
+                "encountered incomplete or inconsistent resolved method_call argument metadata");
+        if (!rust_resolved_value_type_supported(arg_type))
+        {
+            if (json_string_property_equals(arg_type, "kind", "function"))
+                return rust_report_resolved_call_error(
+                    "does not support closure-dependent resolved method_call arguments yet");
+            return rust_report_resolved_call_error(
+                "does not support this resolved method_call argument representation");
+        }
+
+        bool passes_by_ref = mem_qual && strcmp(mem_qual, "as_ref") == 0;
+        bool is_ref_arg = json_boolean_property(arg, "is_ref_arg");
+        bool is_borrow_tmp = json_boolean_property(arg, "is_borrow_tmp");
+        if (is_ref_arg == is_borrow_tmp && is_ref_arg)
+            return rust_report_resolved_call_error(
+                "encountered conflicting resolved method_call borrow metadata");
+        if (passes_by_ref != (is_ref_arg || is_borrow_tmp))
+            return rust_report_resolved_call_error(
+                "encountered inconsistent resolved method_call borrow metadata");
+        if (passes_by_ref && !json_boolean_property(arg, "is_borrow_tmp") &&
+            !rust_resolved_stable_place(arg))
+            return rust_report_resolved_call_error(
+                "requires resolved as-ref method arguments to be stable mutable places");
+
+        if (!passes_by_ref &&
+            (json_boolean_property(arg, "is_copy_arg") ||
+             json_boolean_property(arg, "source_is_borrow") ||
+             rust_resolved_clone_source(arg)))
+            json_object_object_add(arg, "rust_resolved_clone",
+                                   json_object_new_boolean(true));
+
+    }
+
+    bool source_args_first =
+        json_boolean_property(expr, "source_arg_before_object");
+    if (!is_static && !source_args_first && !rust_validate_expr(object))
+    {
+        if (!rust_validation_reported_error)
+            return rust_report_resolved_call_error(
+                "encountered an unsupported resolved method_call receiver expression");
+        return false;
+    }
+    for (size_t i = 0; i < arg_count; i++)
+    {
+        json_object *arg = json_object_array_get_idx(args, i);
+        if (!rust_validate_expr(arg))
+        {
+            if (!rust_validation_reported_error)
+                return rust_report_resolved_call_error(
+                    "encountered an unsupported resolved method_call argument expression");
+            return false;
+        }
+    }
+    if (!is_static && source_args_first && !rust_validate_expr(object))
+    {
+        if (!rust_validation_reported_error)
+            return rust_report_resolved_call_error(
+                "encountered an unsupported resolved method_call receiver expression");
+        return false;
+    }
+    return true;
+}
+
+static bool rust_validate_borrow_inferred_call(json_object *expr)
+{
+    json_object *type = NULL, *inner_call = NULL, *checks = NULL;
+    const char *result_name = json_string_property(expr, "result_type_name");
+    if (!result_name || !json_object_object_get_ex(expr, "type", &type) ||
+        !json_object_is_type(type, json_type_object) ||
+        !json_string_property_equals(type, "kind", "struct") ||
+        !json_string_property_equals(type, "name", result_name) ||
+        !json_object_object_get_ex(expr, "inner_call", &inner_call) ||
+        !json_object_is_type(inner_call, json_type_object) ||
+        !json_object_object_get_ex(expr, "borrow_check_args", &checks) ||
+        !json_object_is_type(checks, json_type_array) ||
+        json_object_array_length(checks) == 0)
+        return rust_report_resolved_call_error(
+            "encountered malformed borrow_inferred_call model");
+
+    /* The shared model currently creates this wrapper exclusively for native
+     * calls whose reference-struct result may alias a reference-struct input.
+     * Neither representation is in this slice's Rust envelope; accepting the
+     * inner call as an ordinary owned call would lose the retain decision. */
+    return rust_report_resolved_call_error(
+        "does not support native reference-struct borrow_inferred_call ownership yet");
+}
+
 static bool rust_validate_resolved_call(json_object *expr)
 {
-    (void)expr;
-    return false;
+    if (json_string_property_equals(expr, "kind", "method_call"))
+        return rust_validate_method_call(expr);
+    if (json_string_property_equals(expr, "kind", "borrow_inferred_call"))
+        return rust_validate_borrow_inferred_call(expr);
+    return rust_report_resolved_call_error(
+        "encountered malformed resolved call model");
 }

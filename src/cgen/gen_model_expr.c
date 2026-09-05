@@ -1385,13 +1385,84 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 json_object_object_add(mc_obj, "method_name",
                     json_object_new_string(method_name));
                 json_object_object_add(mc_obj, "is_static", json_object_new_boolean(false));
+                /* A swapped derived comparison (a > b / a <= b) dispatches
+                 * through b.lt(a), but the source language still evaluates
+                 * a before b.  Keep that ordering fact in the resolved model
+                 * so targets can stabilize the operands without repeating
+                 * overload lookup or guessing from the resolved method name. */
+                if (expr->as.binary.is_swapped_operator)
+                {
+                    json_object_object_add(mc_obj, "source_arg_before_object",
+                        json_object_new_boolean(true));
+                    bool object_is_lvalue =
+                        mc_object_expr->type == EXPR_VARIABLE ||
+                        mc_object_expr->type == EXPR_MEMBER ||
+                        mc_object_expr->type == EXPR_ARRAY_ACCESS;
+                    json_object_object_add(mc_obj, "source_receiver_is_place",
+                        json_object_new_boolean(object_is_lvalue));
+                    if (!object_is_lvalue && mc_object_expr->expr_type &&
+                        mc_object_expr->expr_type->kind == TYPE_STRUCT &&
+                        !mc_object_expr->expr_type->as.struct_type.pass_self_by_ref &&
+                        gen_model_type_has_heap_fields(mc_object_expr->expr_type))
+                        json_object_object_add(mc_obj,
+                            "source_receiver_needs_cleanup",
+                            json_object_new_boolean(true));
+                }
                 if (mc_object_expr && mc_object_expr->expr_type)
                     json_object_object_add(mc_obj, "struct_type",
                         gen_model_type(arena, mc_object_expr->expr_type));
                 json_object *op_args = json_object_new_array();
-                json_object_array_add(op_args,
-                    gen_model_expr(arena, mc_arg_expr, symbol_table, arithmetic_mode));
+                json_object *op_arg =
+                    gen_model_expr(arena, mc_arg_expr, symbol_table, arithmetic_mode);
+
+                /* Operator calls bypass the ordinary EXPR_METHOD_CALL branch,
+                 * but their already-resolved parameter uses the same ABI
+                 * qualifiers.  Preserve those facts in the shared model so
+                 * targets do not have to rediscover whether a composite
+                 * operand is borrowed in place or through a temporary. */
+                StructMethod *operator_method = expr->as.binary.operator_method;
+                if (operator_method && operator_method->param_count == 1)
+                {
+                    MemoryQualifier mq = operator_method->params[0].mem_qualifier;
+                    Type *arg_type = mc_arg_expr ? mc_arg_expr->expr_type : NULL;
+                    bool is_ref_struct =
+                        arg_type && arg_type->kind == TYPE_STRUCT &&
+                        arg_type->as.struct_type.pass_self_by_ref;
+                    if (mq == MEM_AS_REF && !is_ref_struct)
+                        json_object_object_add(op_arg, "is_ref_arg",
+                            json_object_new_boolean(true));
+                    else if (mq == MEM_AS_VAL && is_ref_struct)
+                    {
+                        json_object_object_add(op_arg, "is_copy_arg",
+                            json_object_new_boolean(true));
+                        json_object_object_add(op_arg, "copy_type_name",
+                            json_object_new_string(arg_type->as.struct_type.name));
+                    }
+                    else if (mq == MEM_DEFAULT && arg_type &&
+                             gen_model_type_category(arg_type) == TYPE_CAT_COMPOSITE &&
+                             !operator_method->is_native)
+                    {
+                        bool is_lvalue = mc_arg_expr->type == EXPR_VARIABLE ||
+                            mc_arg_expr->type == EXPR_MEMBER ||
+                            mc_arg_expr->type == EXPR_ARRAY_ACCESS;
+                        if (is_lvalue)
+                            json_object_object_add(op_arg, "is_ref_arg",
+                                json_object_new_boolean(true));
+                        else
+                        {
+                            json_object_object_add(op_arg, "is_borrow_tmp",
+                                json_object_new_boolean(true));
+                            json_object_object_add(op_arg, "borrow_type_name",
+                                json_object_new_string(arg_type->as.struct_type.name));
+                            if (gen_model_type_has_heap_fields(arg_type))
+                                json_object_object_add(op_arg, "borrow_needs_cleanup",
+                                    json_object_new_boolean(true));
+                        }
+                    }
+                }
+                json_object_array_add(op_args, op_arg);
                 json_object_object_add(mc_obj, "args", op_args);
+                hoist_borrow_temps(mc_obj, op_args, NULL);
                 break;
             }
 

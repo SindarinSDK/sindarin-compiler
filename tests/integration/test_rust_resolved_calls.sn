@@ -1,0 +1,126 @@
+struct Point =>
+  value: int
+
+  operator == (other: Point): bool =>
+    return self.value == other.value
+
+  operator < (other: Point): bool =>
+    return self.value < other.value
+
+struct Explicit =>
+  value: int
+
+  operator != (other: Explicit): bool =>
+    return self.value != other.value
+
+struct Holder =>
+  point: Point
+
+struct OwnedPoint =>
+  label: str
+  values: int[]
+
+  operator == (other: OwnedPoint): bool =>
+    return self.label == other.label && self.values.length == other.values.length
+
+  operator < (other: OwnedPoint): bool =>
+    return self.values[0] < other.values[0]
+
+struct CallValues =>
+  label: str = ""
+
+  static fn labelMatches(value: str): bool =>
+    return value == "source"
+
+  static fn makeLabel(): str =>
+    return $"source"
+
+  static fn countNumbers(values: int[]): int =>
+    return values.length
+
+  static fn makeNumbers(): int[] =>
+    return {1, 2}
+
+  fn joinLabel(value: str): str =>
+    return $"{self.label}:{value}"
+
+  fn countNumbersAgain(values: int[]): int =>
+    return values.length
+
+  fn makeNumbersAgain(): int[] =>
+    return {3, 4}
+
+fn markedPoint(calls: int as ref, order: int as ref, marker: int, value: int): Point =>
+  calls++
+  order = order * 10 + marker
+  return Point { value: value }
+
+fn markedOwnedPoint(calls: int as ref, order: int as ref, marker: int, value: int): OwnedPoint =>
+  calls++
+  order = order * 10 + marker
+  return OwnedPoint {
+    label: $"value-{value}",
+    values: {value}
+  }
+
+fn acceptBool(value: bool): bool => return value
+
+fn returnedComparison(left: Point, right: Point): bool =>
+  return left == right
+
+fn main(): void =>
+  var left: Point = { value: 7 }
+  var same: Point = { value: 7 }
+  var greater: Point = { value: 9 }
+  var holder: Holder = { point: Point { value: 7 } }
+  var points: Point[] = {}
+  points.push(left)
+  points.push(greater)
+
+  left == same
+  var initialized: bool = left == same
+  var argument: bool = acceptBool(left != greater)
+  var returned: bool = returnedComparison(left, same)
+  var memberReceiver: bool = holder.point == same
+  var indexedReceiver: bool = points[0] < points[1]
+  var explicitNe: bool = Explicit { value: 1 } != Explicit { value: 2 }
+  var derivedGe: bool = greater >= left
+  var derivedLe: bool = left <= greater
+
+  var matched: bool = match true =>
+    true =>
+      left != greater
+      left == same
+    else => false
+
+  var calls: int = 0
+  var order: int = 0
+  var __sn_resolved_arg_0: int = 40
+  var __sn_resolved_receiver_0: int = 2
+  var directOrder: bool = markedPoint(calls, order, 1, 1) < markedPoint(calls, order, 2, 2)
+  var swappedOrder: bool = markedPoint(calls, order, 3, 3) > markedPoint(calls, order, 4, 4)
+  var ownedLeft: OwnedPoint = {
+    label: "owned",
+    values: {5, 6}
+  }
+  var ownedSame: OwnedPoint = ownedLeft
+  var ownedEqual: bool = ownedLeft == ownedSame
+  var ownedSwapped: bool = markedOwnedPoint(calls, order, 5, 5) > markedOwnedPoint(calls, order, 6, 6)
+  ownedSame.values.push(7)
+
+  var sourceLabel: str = "source"
+  var sourceNumbers: int[] = {1, 2}
+  var callValues: CallValues = { label: "prefix" }
+  var staticMatch: bool = CallValues.labelMatches(sourceLabel)
+  var staticLabel: str = CallValues.makeLabel()
+  var instanceLabel: str = callValues.joinLabel(sourceLabel)
+  var staticCount: int = CallValues.countNumbers(sourceNumbers)
+  var instanceCount: int = callValues.countNumbersAgain(sourceNumbers)
+  var staticNumbers: int[] = CallValues.makeNumbers()
+  var instanceNumbers: int[] = callValues.makeNumbersAgain()
+
+  println($"{initialized}|{argument}|{returned}|{memberReceiver}|{indexedReceiver}|{explicitNe}|{derivedGe}|{derivedLe}|{matched}")
+  println($"{directOrder}|{swappedOrder}|{ownedEqual}|{ownedSwapped}|{calls}|{order}|{__sn_resolved_arg_0 + __sn_resolved_receiver_0}")
+  println($"{ownedLeft.label}|{ownedLeft.values.length}|{ownedSame.values.length}")
+  println($"{staticMatch}|{staticLabel}|{instanceLabel}|{sourceLabel}")
+  println($"{sourceNumbers.length}|{staticCount}|{instanceCount}|{staticNumbers.length}|{instanceNumbers.length}")

@@ -1,0 +1,6055 @@
+{
+  "module": {
+    "filename": "tests\/mgen\/resolved_calls.sn",
+    "has_main": true,
+    "main_returns": false,
+    "has_main_args": false,
+    "has_forward_decls": true
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [
+    {
+      "name": "Point",
+      "is_native": false,
+      "is_packed": false,
+      "pass_self_by_ref": false,
+      "is_serializable": false,
+      "source_file": "tests\/mgen\/resolved_calls.sn",
+      "mem_mode": "val",
+      "fields": [
+        {
+          "name": "value",
+          "type": {
+            "kind": "int"
+          },
+          "offset": 8,
+          "cleanup_action": "none",
+          "copy_action": "value_copy"
+        }
+      ],
+      "has_heap_fields": false,
+      "methods": [
+        {
+          "name": "op_eq",
+          "return_type": {
+            "kind": "bool"
+          },
+          "modifier": "default",
+          "is_static": false,
+          "is_native": false,
+          "is_operator": true,
+          "has_arena_param": false,
+          "is_serializable_method": false,
+          "has_c_alias": false,
+          "params": [
+            {
+              "name": "other",
+              "type": {
+                "kind": "struct",
+                "name": "Point",
+                "is_native": false,
+                "is_packed": false,
+                "pass_self_by_ref": false,
+                "size": 16,
+                "alignment": 8,
+                "fields": [
+                  {
+                    "name": "value",
+                    "type": {
+                      "kind": "int"
+                    },
+                    "offset": 8
+                  }
+                ]
+              },
+              "mem_qual": "default",
+              "sync_mod": "none"
+            }
+          ],
+          "body": [
+            {
+              "kind": "return",
+              "value": {
+                "type": {
+                  "kind": "bool"
+                },
+                "kind": "binary",
+                "op": "eq",
+                "left": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "member",
+                  "object": {
+                    "type": {
+                      "kind": "pointer",
+                      "base_type": {
+                        "kind": "struct",
+                        "name": "Point",
+                        "is_native": false,
+                        "is_packed": false,
+                        "pass_self_by_ref": false,
+                        "size": 16,
+                        "alignment": 8,
+                        "fields": [
+                          {
+                            "name": "value",
+                            "type": {
+                              "kind": "int"
+                            },
+                            "offset": 8
+                          }
+                        ]
+                      },
+                      "pass_self_by_ref": true
+                    },
+                    "kind": "variable",
+                    "name": "self"
+                  },
+                  "member_name": "value"
+                },
+                "right": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "member",
+                  "object": {
+                    "type": {
+                      "kind": "struct",
+                      "name": "Point",
+                      "is_native": false,
+                      "is_packed": false,
+                      "pass_self_by_ref": false,
+                      "size": 16,
+                      "alignment": 8,
+                      "fields": [
+                        {
+                          "name": "value",
+                          "type": {
+                            "kind": "int"
+                          },
+                          "offset": 8
+                        }
+                      ]
+                    },
+                    "kind": "variable",
+                    "name": "other"
+                  },
+                  "member_name": "value"
+                },
+                "arithmetic_mode": "checked"
+              }
+            }
+          ]
+        },
+        {
+          "name": "op_lt",
+          "return_type": {
+            "kind": "bool"
+          },
+          "modifier": "default",
+          "is_static": false,
+          "is_native": false,
+          "is_operator": true,
+          "has_arena_param": false,
+          "is_serializable_method": false,
+          "has_c_alias": false,
+          "params": [
+            {
+              "name": "other",
+              "type": {
+                "kind": "struct",
+                "name": "Point",
+                "is_native": false,
+                "is_packed": false,
+                "pass_self_by_ref": false,
+                "size": 16,
+                "alignment": 8,
+                "fields": [
+                  {
+                    "name": "value",
+                    "type": {
+                      "kind": "int"
+                    },
+                    "offset": 8
+                  }
+                ]
+              },
+              "mem_qual": "default",
+              "sync_mod": "none"
+            }
+          ],
+          "body": [
+            {
+              "kind": "return",
+              "value": {
+                "type": {
+                  "kind": "bool"
+                },
+                "kind": "binary",
+                "op": "lt",
+                "left": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "member",
+                  "object": {
+                    "type": {
+                      "kind": "pointer",
+                      "base_type": {
+                        "kind": "struct",
+                        "name": "Point",
+                        "is_native": false,
+                        "is_packed": false,
+                        "pass_self_by_ref": false,
+                        "size": 16,
+                        "alignment": 8,
+                        "fields": [
+                          {
+                            "name": "value",
+                            "type": {
+                              "kind": "int"
+                            },
+                            "offset": 8
+                          }
+                        ]
+                      },
+                      "pass_self_by_ref": true
+                    },
+                    "kind": "variable",
+                    "name": "self"
+                  },
+                  "member_name": "value"
+                },
+                "right": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "member",
+                  "object": {
+                    "type": {
+                      "kind": "struct",
+                      "name": "Point",
+                      "is_native": false,
+                      "is_packed": false,
+                      "pass_self_by_ref": false,
+                      "size": 16,
+                      "alignment": 8,
+                      "fields": [
+                        {
+                          "name": "value",
+                          "type": {
+                            "kind": "int"
+                          },
+                          "offset": 8
+                        }
+                      ]
+                    },
+                    "kind": "variable",
+                    "name": "other"
+                  },
+                  "member_name": "value"
+                },
+                "arithmetic_mode": "checked"
+              }
+            }
+          ]
+        }
+      ],
+      "has_dispose": false
+    },
+    {
+      "name": "Explicit",
+      "is_native": false,
+      "is_packed": false,
+      "pass_self_by_ref": false,
+      "is_serializable": false,
+      "source_file": "tests\/mgen\/resolved_calls.sn",
+      "mem_mode": "val",
+      "fields": [
+        {
+          "name": "value",
+          "type": {
+            "kind": "int"
+          },
+          "offset": 8,
+          "cleanup_action": "none",
+          "copy_action": "value_copy"
+        }
+      ],
+      "has_heap_fields": false,
+      "methods": [
+        {
+          "name": "op_ne",
+          "return_type": {
+            "kind": "bool"
+          },
+          "modifier": "default",
+          "is_static": false,
+          "is_native": false,
+          "is_operator": true,
+          "has_arena_param": false,
+          "is_serializable_method": false,
+          "has_c_alias": false,
+          "params": [
+            {
+              "name": "other",
+              "type": {
+                "kind": "struct",
+                "name": "Explicit",
+                "is_native": false,
+                "is_packed": false,
+                "pass_self_by_ref": false,
+                "size": 16,
+                "alignment": 8,
+                "fields": [
+                  {
+                    "name": "value",
+                    "type": {
+                      "kind": "int"
+                    },
+                    "offset": 8
+                  }
+                ]
+              },
+              "mem_qual": "default",
+              "sync_mod": "none"
+            }
+          ],
+          "body": [
+            {
+              "kind": "return",
+              "value": {
+                "type": {
+                  "kind": "bool"
+                },
+                "kind": "binary",
+                "op": "neq",
+                "left": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "member",
+                  "object": {
+                    "type": {
+                      "kind": "pointer",
+                      "base_type": {
+                        "kind": "struct",
+                        "name": "Explicit",
+                        "is_native": false,
+                        "is_packed": false,
+                        "pass_self_by_ref": false,
+                        "size": 16,
+                        "alignment": 8,
+                        "fields": [
+                          {
+                            "name": "value",
+                            "type": {
+                              "kind": "int"
+                            },
+                            "offset": 8
+                          }
+                        ]
+                      },
+                      "pass_self_by_ref": true
+                    },
+                    "kind": "variable",
+                    "name": "self"
+                  },
+                  "member_name": "value"
+                },
+                "right": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "member",
+                  "object": {
+                    "type": {
+                      "kind": "struct",
+                      "name": "Explicit",
+                      "is_native": false,
+                      "is_packed": false,
+                      "pass_self_by_ref": false,
+                      "size": 16,
+                      "alignment": 8,
+                      "fields": [
+                        {
+                          "name": "value",
+                          "type": {
+                            "kind": "int"
+                          },
+                          "offset": 8
+                        }
+                      ]
+                    },
+                    "kind": "variable",
+                    "name": "other"
+                  },
+                  "member_name": "value"
+                },
+                "arithmetic_mode": "checked"
+              }
+            }
+          ]
+        }
+      ],
+      "has_dispose": false
+    },
+    {
+      "name": "Holder",
+      "is_native": false,
+      "is_packed": false,
+      "pass_self_by_ref": false,
+      "is_serializable": false,
+      "source_file": "tests\/mgen\/resolved_calls.sn",
+      "mem_mode": "val",
+      "fields": [
+        {
+          "name": "point",
+          "type": {
+            "kind": "struct",
+            "name": "Point",
+            "is_native": false,
+            "is_packed": false,
+            "pass_self_by_ref": false,
+            "size": 16,
+            "alignment": 8,
+            "fields": [
+              {
+                "name": "value",
+                "type": {
+                  "kind": "int"
+                },
+                "offset": 8
+              }
+            ]
+          },
+          "offset": 8,
+          "cleanup_action": "none",
+          "copy_action": "copy_val"
+        }
+      ],
+      "has_heap_fields": false,
+      "methods": [],
+      "has_dispose": false
+    },
+    {
+      "name": "OwnedPoint",
+      "is_native": false,
+      "is_packed": false,
+      "pass_self_by_ref": false,
+      "is_serializable": false,
+      "source_file": "tests\/mgen\/resolved_calls.sn",
+      "mem_mode": "val",
+      "fields": [
+        {
+          "name": "label",
+          "type": {
+            "kind": "string"
+          },
+          "offset": 8,
+          "cleanup_action": "free",
+          "copy_action": "strdup"
+        },
+        {
+          "name": "values",
+          "type": {
+            "kind": "array",
+            "name": "arr",
+            "element_type": {
+              "kind": "int"
+            }
+          },
+          "offset": 16,
+          "cleanup_action": "cleanup_array",
+          "copy_action": "array_copy"
+        }
+      ],
+      "has_heap_fields": true,
+      "methods": [
+        {
+          "name": "op_eq",
+          "return_type": {
+            "kind": "bool"
+          },
+          "modifier": "default",
+          "is_static": false,
+          "is_native": false,
+          "is_operator": true,
+          "has_arena_param": false,
+          "is_serializable_method": false,
+          "has_c_alias": false,
+          "params": [
+            {
+              "name": "other",
+              "type": {
+                "kind": "struct",
+                "name": "OwnedPoint",
+                "is_native": false,
+                "is_packed": false,
+                "pass_self_by_ref": false,
+                "size": 24,
+                "alignment": 8,
+                "fields": [
+                  {
+                    "name": "label",
+                    "type": {
+                      "kind": "string"
+                    },
+                    "offset": 8
+                  },
+                  {
+                    "name": "values",
+                    "type": {
+                      "kind": "array",
+                      "name": "arr",
+                      "element_type": {
+                        "kind": "int"
+                      }
+                    },
+                    "offset": 16
+                  }
+                ]
+              },
+              "sync_mod": "none",
+              "mem_qual": "as_ref"
+            }
+          ],
+          "body": [
+            {
+              "kind": "return",
+              "value": {
+                "type": {
+                  "kind": "bool"
+                },
+                "kind": "binary",
+                "op": "and",
+                "left": {
+                  "type": {
+                    "kind": "bool"
+                  },
+                  "kind": "binary",
+                  "op": "eq",
+                  "left": {
+                    "type": {
+                      "kind": "string"
+                    },
+                    "kind": "member",
+                    "object": {
+                      "type": {
+                        "kind": "pointer",
+                        "base_type": {
+                          "kind": "struct",
+                          "name": "OwnedPoint",
+                          "is_native": false,
+                          "is_packed": false,
+                          "pass_self_by_ref": false,
+                          "size": 24,
+                          "alignment": 8,
+                          "fields": [
+                            {
+                              "name": "label",
+                              "type": {
+                                "kind": "string"
+                              },
+                              "offset": 8
+                            },
+                            {
+                              "name": "values",
+                              "type": {
+                                "kind": "array",
+                                "name": "arr",
+                                "element_type": {
+                                  "kind": "int"
+                                }
+                              },
+                              "offset": 16
+                            }
+                          ]
+                        },
+                        "pass_self_by_ref": true
+                      },
+                      "kind": "variable",
+                      "name": "self"
+                    },
+                    "member_name": "label"
+                  },
+                  "right": {
+                    "type": {
+                      "kind": "string"
+                    },
+                    "kind": "member",
+                    "object": {
+                      "type": {
+                        "kind": "struct",
+                        "name": "OwnedPoint",
+                        "is_native": false,
+                        "is_packed": false,
+                        "pass_self_by_ref": false,
+                        "size": 24,
+                        "alignment": 8,
+                        "fields": [
+                          {
+                            "name": "label",
+                            "type": {
+                              "kind": "string"
+                            },
+                            "offset": 8
+                          },
+                          {
+                            "name": "values",
+                            "type": {
+                              "kind": "array",
+                              "name": "arr",
+                              "element_type": {
+                                "kind": "int"
+                              }
+                            },
+                            "offset": 16
+                          }
+                        ]
+                      },
+                      "kind": "variable",
+                      "name": "other",
+                      "is_captured": true
+                    },
+                    "member_name": "label"
+                  },
+                  "arithmetic_mode": "checked"
+                },
+                "right": {
+                  "type": {
+                    "kind": "bool"
+                  },
+                  "kind": "binary",
+                  "op": "eq",
+                  "left": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "builtin_length",
+                    "object": {
+                      "type": {
+                        "kind": "array",
+                        "name": "arr",
+                        "element_type": {
+                          "kind": "int"
+                        }
+                      },
+                      "kind": "member",
+                      "object": {
+                        "type": {
+                          "kind": "pointer",
+                          "base_type": {
+                            "kind": "struct",
+                            "name": "OwnedPoint",
+                            "is_native": false,
+                            "is_packed": false,
+                            "pass_self_by_ref": false,
+                            "size": 24,
+                            "alignment": 8,
+                            "fields": [
+                              {
+                                "name": "label",
+                                "type": {
+                                  "kind": "string"
+                                },
+                                "offset": 8
+                              },
+                              {
+                                "name": "values",
+                                "type": {
+                                  "kind": "array",
+                                  "name": "arr",
+                                  "element_type": {
+                                    "kind": "int"
+                                  }
+                                },
+                                "offset": 16
+                              }
+                            ]
+                          },
+                          "pass_self_by_ref": true
+                        },
+                        "kind": "variable",
+                        "name": "self"
+                      },
+                      "member_name": "values"
+                    }
+                  },
+                  "right": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "builtin_length",
+                    "object": {
+                      "type": {
+                        "kind": "array",
+                        "name": "arr",
+                        "element_type": {
+                          "kind": "int"
+                        }
+                      },
+                      "kind": "member",
+                      "object": {
+                        "type": {
+                          "kind": "struct",
+                          "name": "OwnedPoint",
+                          "is_native": false,
+                          "is_packed": false,
+                          "pass_self_by_ref": false,
+                          "size": 24,
+                          "alignment": 8,
+                          "fields": [
+                            {
+                              "name": "label",
+                              "type": {
+                                "kind": "string"
+                              },
+                              "offset": 8
+                            },
+                            {
+                              "name": "values",
+                              "type": {
+                                "kind": "array",
+                                "name": "arr",
+                                "element_type": {
+                                  "kind": "int"
+                                }
+                              },
+                              "offset": 16
+                            }
+                          ]
+                        },
+                        "kind": "variable",
+                        "name": "other",
+                        "is_captured": true
+                      },
+                      "member_name": "values"
+                    }
+                  },
+                  "arithmetic_mode": "checked"
+                },
+                "arithmetic_mode": "checked"
+              }
+            }
+          ]
+        },
+        {
+          "name": "op_lt",
+          "return_type": {
+            "kind": "bool"
+          },
+          "modifier": "default",
+          "is_static": false,
+          "is_native": false,
+          "is_operator": true,
+          "has_arena_param": false,
+          "is_serializable_method": false,
+          "has_c_alias": false,
+          "params": [
+            {
+              "name": "other",
+              "type": {
+                "kind": "struct",
+                "name": "OwnedPoint",
+                "is_native": false,
+                "is_packed": false,
+                "pass_self_by_ref": false,
+                "size": 24,
+                "alignment": 8,
+                "fields": [
+                  {
+                    "name": "label",
+                    "type": {
+                      "kind": "string"
+                    },
+                    "offset": 8
+                  },
+                  {
+                    "name": "values",
+                    "type": {
+                      "kind": "array",
+                      "name": "arr",
+                      "element_type": {
+                        "kind": "int"
+                      }
+                    },
+                    "offset": 16
+                  }
+                ]
+              },
+              "sync_mod": "none",
+              "mem_qual": "as_ref"
+            }
+          ],
+          "body": [
+            {
+              "kind": "return",
+              "value": {
+                "type": {
+                  "kind": "bool"
+                },
+                "kind": "binary",
+                "op": "lt",
+                "left": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "array_access",
+                  "array": {
+                    "type": {
+                      "kind": "array",
+                      "name": "arr",
+                      "element_type": {
+                        "kind": "int"
+                      }
+                    },
+                    "kind": "member",
+                    "object": {
+                      "type": {
+                        "kind": "pointer",
+                        "base_type": {
+                          "kind": "struct",
+                          "name": "OwnedPoint",
+                          "is_native": false,
+                          "is_packed": false,
+                          "pass_self_by_ref": false,
+                          "size": 24,
+                          "alignment": 8,
+                          "fields": [
+                            {
+                              "name": "label",
+                              "type": {
+                                "kind": "string"
+                              },
+                              "offset": 8
+                            },
+                            {
+                              "name": "values",
+                              "type": {
+                                "kind": "array",
+                                "name": "arr",
+                                "element_type": {
+                                  "kind": "int"
+                                }
+                              },
+                              "offset": 16
+                            }
+                          ]
+                        },
+                        "pass_self_by_ref": true
+                      },
+                      "kind": "variable",
+                      "name": "self"
+                    },
+                    "member_name": "values"
+                  },
+                  "index": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "literal",
+                    "value_kind": "int",
+                    "value": 0
+                  }
+                },
+                "right": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "array_access",
+                  "array": {
+                    "type": {
+                      "kind": "array",
+                      "name": "arr",
+                      "element_type": {
+                        "kind": "int"
+                      }
+                    },
+                    "kind": "member",
+                    "object": {
+                      "type": {
+                        "kind": "struct",
+                        "name": "OwnedPoint",
+                        "is_native": false,
+                        "is_packed": false,
+                        "pass_self_by_ref": false,
+                        "size": 24,
+                        "alignment": 8,
+                        "fields": [
+                          {
+                            "name": "label",
+                            "type": {
+                              "kind": "string"
+                            },
+                            "offset": 8
+                          },
+                          {
+                            "name": "values",
+                            "type": {
+                              "kind": "array",
+                              "name": "arr",
+                              "element_type": {
+                                "kind": "int"
+                              }
+                            },
+                            "offset": 16
+                          }
+                        ]
+                      },
+                      "kind": "variable",
+                      "name": "other",
+                      "is_captured": true
+                    },
+                    "member_name": "values"
+                  },
+                  "index": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "literal",
+                    "value_kind": "int",
+                    "value": 0
+                  }
+                },
+                "arithmetic_mode": "checked"
+              }
+            }
+          ]
+        }
+      ],
+      "has_dispose": false
+    },
+    {
+      "name": "CallValues",
+      "is_native": false,
+      "is_packed": false,
+      "pass_self_by_ref": false,
+      "is_serializable": false,
+      "source_file": "tests\/mgen\/resolved_calls.sn",
+      "mem_mode": "val",
+      "fields": [
+        {
+          "name": "label",
+          "type": {
+            "kind": "string"
+          },
+          "offset": 8,
+          "cleanup_action": "free",
+          "copy_action": "strdup",
+          "default_value": {
+            "type": {
+              "kind": "string"
+            },
+            "kind": "literal",
+            "value_kind": "string",
+            "value": ""
+          }
+        }
+      ],
+      "has_heap_fields": true,
+      "methods": [
+        {
+          "name": "labelMatches",
+          "return_type": {
+            "kind": "bool"
+          },
+          "modifier": "default",
+          "is_static": true,
+          "is_native": false,
+          "has_arena_param": false,
+          "is_serializable_method": false,
+          "has_c_alias": false,
+          "params": [
+            {
+              "name": "value",
+              "type": {
+                "kind": "string"
+              },
+              "mem_qual": "default",
+              "sync_mod": "none"
+            }
+          ],
+          "body": [
+            {
+              "kind": "return",
+              "value": {
+                "type": {
+                  "kind": "bool"
+                },
+                "kind": "binary",
+                "op": "eq",
+                "left": {
+                  "type": {
+                    "kind": "string"
+                  },
+                  "kind": "variable",
+                  "name": "value"
+                },
+                "right": {
+                  "type": {
+                    "kind": "string"
+                  },
+                  "kind": "literal",
+                  "value_kind": "string",
+                  "value": "source"
+                },
+                "arithmetic_mode": "checked"
+              }
+            }
+          ]
+        },
+        {
+          "name": "makeLabel",
+          "return_type": {
+            "kind": "string"
+          },
+          "modifier": "default",
+          "is_static": true,
+          "is_native": false,
+          "has_arena_param": false,
+          "is_serializable_method": false,
+          "has_c_alias": false,
+          "params": [],
+          "body": [
+            {
+              "kind": "return",
+              "value": {
+                "type": {
+                  "kind": "string"
+                },
+                "kind": "interpolated_string",
+                "parts": [
+                  {
+                    "kind": "text",
+                    "value": "source"
+                  }
+                ],
+                "part_count": 1
+              }
+            }
+          ]
+        },
+        {
+          "name": "countNumbers",
+          "return_type": {
+            "kind": "int"
+          },
+          "modifier": "default",
+          "is_static": true,
+          "is_native": false,
+          "has_arena_param": false,
+          "is_serializable_method": false,
+          "has_c_alias": false,
+          "params": [
+            {
+              "name": "values",
+              "type": {
+                "kind": "array",
+                "name": "arr",
+                "element_type": {
+                  "kind": "int"
+                }
+              },
+              "mem_qual": "default",
+              "sync_mod": "none"
+            }
+          ],
+          "body": [
+            {
+              "kind": "return",
+              "value": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "builtin_length",
+                "object": {
+                  "type": {
+                    "kind": "array",
+                    "name": "arr",
+                    "element_type": {
+                      "kind": "int"
+                    }
+                  },
+                  "kind": "variable",
+                  "name": "values"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "makeNumbers",
+          "return_type": {
+            "kind": "array",
+            "name": "arr",
+            "element_type": {
+              "kind": "int"
+            }
+          },
+          "modifier": "default",
+          "is_static": true,
+          "is_native": false,
+          "has_arena_param": false,
+          "is_serializable_method": false,
+          "has_c_alias": false,
+          "params": [],
+          "body": [
+            {
+              "kind": "return",
+              "value": {
+                "type": {
+                  "kind": "array",
+                  "name": "arr",
+                  "element_type": {
+                    "kind": "int"
+                  }
+                },
+                "kind": "array_literal",
+                "elements": [
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "literal",
+                    "value_kind": "int",
+                    "value": 1
+                  },
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "literal",
+                    "value_kind": "int",
+                    "value": 2
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "joinLabel",
+          "return_type": {
+            "kind": "string"
+          },
+          "modifier": "default",
+          "is_static": false,
+          "is_native": false,
+          "has_arena_param": false,
+          "is_serializable_method": false,
+          "has_c_alias": false,
+          "params": [
+            {
+              "name": "value",
+              "type": {
+                "kind": "string"
+              },
+              "mem_qual": "default",
+              "sync_mod": "none"
+            }
+          ],
+          "body": [
+            {
+              "kind": "return",
+              "value": {
+                "type": {
+                  "kind": "string"
+                },
+                "kind": "interpolated_string",
+                "parts": [
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "string"
+                      },
+                      "kind": "member",
+                      "object": {
+                        "type": {
+                          "kind": "pointer",
+                          "base_type": {
+                            "kind": "struct",
+                            "name": "CallValues",
+                            "is_native": false,
+                            "is_packed": false,
+                            "pass_self_by_ref": false,
+                            "size": 16,
+                            "alignment": 8,
+                            "fields": [
+                              {
+                                "name": "label",
+                                "type": {
+                                  "kind": "string"
+                                },
+                                "offset": 8
+                              }
+                            ]
+                          },
+                          "pass_self_by_ref": true
+                        },
+                        "kind": "variable",
+                        "name": "self"
+                      },
+                      "member_name": "label"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": ":"
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "string"
+                      },
+                      "kind": "variable",
+                      "name": "value"
+                    }
+                  }
+                ],
+                "part_count": 3
+              }
+            }
+          ]
+        },
+        {
+          "name": "countNumbersAgain",
+          "return_type": {
+            "kind": "int"
+          },
+          "modifier": "default",
+          "is_static": false,
+          "is_native": false,
+          "has_arena_param": false,
+          "is_serializable_method": false,
+          "has_c_alias": false,
+          "params": [
+            {
+              "name": "values",
+              "type": {
+                "kind": "array",
+                "name": "arr",
+                "element_type": {
+                  "kind": "int"
+                }
+              },
+              "mem_qual": "default",
+              "sync_mod": "none"
+            }
+          ],
+          "body": [
+            {
+              "kind": "return",
+              "value": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "builtin_length",
+                "object": {
+                  "type": {
+                    "kind": "array",
+                    "name": "arr",
+                    "element_type": {
+                      "kind": "int"
+                    }
+                  },
+                  "kind": "variable",
+                  "name": "values"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "makeNumbersAgain",
+          "return_type": {
+            "kind": "array",
+            "name": "arr",
+            "element_type": {
+              "kind": "int"
+            }
+          },
+          "modifier": "default",
+          "is_static": false,
+          "is_native": false,
+          "has_arena_param": false,
+          "is_serializable_method": false,
+          "has_c_alias": false,
+          "params": [],
+          "body": [
+            {
+              "kind": "return",
+              "value": {
+                "type": {
+                  "kind": "array",
+                  "name": "arr",
+                  "element_type": {
+                    "kind": "int"
+                  }
+                },
+                "kind": "array_literal",
+                "elements": [
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "literal",
+                    "value_kind": "int",
+                    "value": 3
+                  },
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "literal",
+                    "value_kind": "int",
+                    "value": 4
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "has_dispose": false
+    }
+  ],
+  "globals": [],
+  "functions": [
+    {
+      "name": "markedPoint",
+      "return_type": {
+        "kind": "struct",
+        "name": "Point",
+        "is_native": false,
+        "is_packed": false,
+        "pass_self_by_ref": false,
+        "size": 16,
+        "alignment": 8,
+        "fields": [
+          {
+            "name": "value",
+            "type": {
+              "kind": "int"
+            },
+            "offset": 8
+          }
+        ]
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/resolved_calls.sn",
+      "params": [
+        {
+          "name": "calls",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "as_ref",
+          "sync_mod": "none"
+        },
+        {
+          "name": "order",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "as_ref",
+          "sync_mod": "none"
+        },
+        {
+          "name": "marker",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none"
+        },
+        {
+          "name": "value",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none"
+        }
+      ],
+      "body": [
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "increment",
+            "mutation_op": "add",
+            "mutation_place": "variable",
+            "mutation_storage": "parameter",
+            "mutation_sync": false,
+            "mutation_arithmetic_mode": "checked",
+            "mutation_rhs_first": true,
+            "operand": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "variable",
+              "name": "calls",
+              "is_captured": true,
+              "is_parameter": true,
+              "parameter_mem_qual": "as_ref"
+            }
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "assign",
+            "target": "order",
+            "value": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "binary",
+              "op": "add",
+              "left": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "binary",
+                "op": "multiply",
+                "left": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "variable",
+                  "name": "order",
+                  "is_captured": true
+                },
+                "right": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 10
+                },
+                "arithmetic_mode": "checked"
+              },
+              "right": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "variable",
+                "name": "marker"
+              },
+              "arithmetic_mode": "checked"
+            },
+            "is_captured": true,
+            "assign_cleanup": "none"
+          }
+        },
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "struct",
+              "name": "Point",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 16,
+              "alignment": 8,
+              "fields": [
+                {
+                  "name": "value",
+                  "type": {
+                    "kind": "int"
+                  },
+                  "offset": 8
+                }
+              ]
+            },
+            "kind": "struct_literal",
+            "struct_name": "Point",
+            "fields": [
+              {
+                "name": "value",
+                "value": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "variable",
+                  "name": "value"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "markedOwnedPoint",
+      "return_type": {
+        "kind": "struct",
+        "name": "OwnedPoint",
+        "is_native": false,
+        "is_packed": false,
+        "pass_self_by_ref": false,
+        "size": 24,
+        "alignment": 8,
+        "fields": [
+          {
+            "name": "label",
+            "type": {
+              "kind": "string"
+            },
+            "offset": 8
+          },
+          {
+            "name": "values",
+            "type": {
+              "kind": "array",
+              "name": "arr",
+              "element_type": {
+                "kind": "int"
+              }
+            },
+            "offset": 16
+          }
+        ]
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/resolved_calls.sn",
+      "params": [
+        {
+          "name": "calls",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "as_ref",
+          "sync_mod": "none"
+        },
+        {
+          "name": "order",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "as_ref",
+          "sync_mod": "none"
+        },
+        {
+          "name": "marker",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none"
+        },
+        {
+          "name": "value",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none"
+        }
+      ],
+      "body": [
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "increment",
+            "mutation_op": "add",
+            "mutation_place": "variable",
+            "mutation_storage": "parameter",
+            "mutation_sync": false,
+            "mutation_arithmetic_mode": "checked",
+            "mutation_rhs_first": true,
+            "operand": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "variable",
+              "name": "calls",
+              "is_captured": true,
+              "is_parameter": true,
+              "parameter_mem_qual": "as_ref"
+            }
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "assign",
+            "target": "order",
+            "value": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "binary",
+              "op": "add",
+              "left": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "binary",
+                "op": "multiply",
+                "left": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "variable",
+                  "name": "order",
+                  "is_captured": true
+                },
+                "right": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 10
+                },
+                "arithmetic_mode": "checked"
+              },
+              "right": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "variable",
+                "name": "marker"
+              },
+              "arithmetic_mode": "checked"
+            },
+            "is_captured": true,
+            "assign_cleanup": "none"
+          }
+        },
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "struct",
+              "name": "OwnedPoint",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 24,
+              "alignment": 8,
+              "fields": [
+                {
+                  "name": "label",
+                  "type": {
+                    "kind": "string"
+                  },
+                  "offset": 8
+                },
+                {
+                  "name": "values",
+                  "type": {
+                    "kind": "array",
+                    "name": "arr",
+                    "element_type": {
+                      "kind": "int"
+                    }
+                  },
+                  "offset": 16
+                }
+              ]
+            },
+            "kind": "struct_literal",
+            "struct_name": "OwnedPoint",
+            "fields": [
+              {
+                "name": "label",
+                "value": {
+                  "type": {
+                    "kind": "string"
+                  },
+                  "kind": "interpolated_string",
+                  "parts": [
+                    {
+                      "kind": "text",
+                      "value": "value-"
+                    },
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "variable",
+                        "name": "value"
+                      }
+                    }
+                  ],
+                  "part_count": 2
+                }
+              },
+              {
+                "name": "values",
+                "value": {
+                  "type": {
+                    "kind": "array",
+                    "name": "arr",
+                    "element_type": {
+                      "kind": "int"
+                    }
+                  },
+                  "kind": "array_literal",
+                  "elements": [
+                    {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "variable",
+                      "name": "value"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "acceptBool",
+      "return_type": {
+        "kind": "bool"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/resolved_calls.sn",
+      "params": [
+        {
+          "name": "value",
+          "type": {
+            "kind": "bool"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none"
+        }
+      ],
+      "body": [
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "bool"
+            },
+            "kind": "variable",
+            "name": "value"
+          }
+        }
+      ]
+    },
+    {
+      "name": "returnedComparison",
+      "return_type": {
+        "kind": "bool"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/resolved_calls.sn",
+      "params": [
+        {
+          "name": "left",
+          "type": {
+            "kind": "struct",
+            "name": "Point",
+            "is_native": false,
+            "is_packed": false,
+            "pass_self_by_ref": false,
+            "size": 16,
+            "alignment": 8,
+            "fields": [
+              {
+                "name": "value",
+                "type": {
+                  "kind": "int"
+                },
+                "offset": 8
+              }
+            ]
+          },
+          "mem_qual": "default",
+          "sync_mod": "none"
+        },
+        {
+          "name": "right",
+          "type": {
+            "kind": "struct",
+            "name": "Point",
+            "is_native": false,
+            "is_packed": false,
+            "pass_self_by_ref": false,
+            "size": 16,
+            "alignment": 8,
+            "fields": [
+              {
+                "name": "value",
+                "type": {
+                  "kind": "int"
+                },
+                "offset": 8
+              }
+            ]
+          },
+          "mem_qual": "default",
+          "sync_mod": "none"
+        }
+      ],
+      "body": [
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "bool"
+            },
+            "kind": "method_call",
+            "object": {
+              "type": {
+                "kind": "struct",
+                "name": "Point",
+                "is_native": false,
+                "is_packed": false,
+                "pass_self_by_ref": false,
+                "size": 16,
+                "alignment": 8,
+                "fields": [
+                  {
+                    "name": "value",
+                    "type": {
+                      "kind": "int"
+                    },
+                    "offset": 8
+                  }
+                ]
+              },
+              "kind": "variable",
+              "name": "left"
+            },
+            "method_name": "op_eq",
+            "is_static": false,
+            "struct_type": {
+              "kind": "struct",
+              "name": "Point",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 16,
+              "alignment": 8,
+              "fields": [
+                {
+                  "name": "value",
+                  "type": {
+                    "kind": "int"
+                  },
+                  "offset": 8
+                }
+              ]
+            },
+            "args": [
+              {
+                "type": {
+                  "kind": "struct",
+                  "name": "Point",
+                  "is_native": false,
+                  "is_packed": false,
+                  "pass_self_by_ref": false,
+                  "size": 16,
+                  "alignment": 8,
+                  "fields": [
+                    {
+                      "name": "value",
+                      "type": {
+                        "kind": "int"
+                      },
+                      "offset": 8
+                    }
+                  ]
+                },
+                "kind": "variable",
+                "name": "right"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "void"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/resolved_calls.sn",
+      "params": [],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "left",
+          "type": {
+            "kind": "struct",
+            "name": "Point",
+            "is_native": false,
+            "is_packed": false,
+            "pass_self_by_ref": false,
+            "size": 16,
+            "alignment": 8,
+            "fields": [
+              {
+                "name": "value",
+                "type": {
+                  "kind": "int"
+                },
+                "offset": 8
+              }
+            ]
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "struct",
+              "name": "Point",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 16,
+              "alignment": 8,
+              "fields": [
+                {
+                  "name": "value",
+                  "type": {
+                    "kind": "int"
+                  },
+                  "offset": 8
+                }
+              ]
+            },
+            "kind": "struct_literal",
+            "struct_name": "Point",
+            "fields": [
+              {
+                "name": "value",
+                "value": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 7
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "same",
+          "type": {
+            "kind": "struct",
+            "name": "Point",
+            "is_native": false,
+            "is_packed": false,
+            "pass_self_by_ref": false,
+            "size": 16,
+            "alignment": 8,
+            "fields": [
+              {
+                "name": "value",
+                "type": {
+                  "kind": "int"
+                },
+                "offset": 8
+              }
+            ]
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "struct",
+              "name": "Point",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 16,
+              "alignment": 8,
+              "fields": [
+                {
+                  "name": "value",
+                  "type": {
+                    "kind": "int"
+                  },
+                  "offset": 8
+                }
+              ]
+            },
+            "kind": "struct_literal",
+            "struct_name": "Point",
+            "fields": [
+              {
+                "name": "value",
+                "value": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 7
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "greater",
+          "type": {
+            "kind": "struct",
+            "name": "Point",
+            "is_native": false,
+            "is_packed": false,
+            "pass_self_by_ref": false,
+            "size": 16,
+            "alignment": 8,
+            "fields": [
+              {
+                "name": "value",
+                "type": {
+                  "kind": "int"
+                },
+                "offset": 8
+              }
+            ]
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "struct",
+              "name": "Point",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 16,
+              "alignment": 8,
+              "fields": [
+                {
+                  "name": "value",
+                  "type": {
+                    "kind": "int"
+                  },
+                  "offset": 8
+                }
+              ]
+            },
+            "kind": "struct_literal",
+            "struct_name": "Point",
+            "fields": [
+              {
+                "name": "value",
+                "value": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 9
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "holder",
+          "type": {
+            "kind": "struct",
+            "name": "Holder",
+            "is_native": false,
+            "is_packed": false,
+            "pass_self_by_ref": false,
+            "size": 24,
+            "alignment": 8,
+            "fields": [
+              {
+                "name": "point",
+                "type": {
+                  "kind": "struct",
+                  "name": "Point",
+                  "is_native": false,
+                  "is_packed": false,
+                  "pass_self_by_ref": false,
+                  "size": 16,
+                  "alignment": 8,
+                  "fields": [
+                    {
+                      "name": "value",
+                      "type": {
+                        "kind": "int"
+                      },
+                      "offset": 8
+                    }
+                  ]
+                },
+                "offset": 8
+              }
+            ]
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "struct",
+              "name": "Holder",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 24,
+              "alignment": 8,
+              "fields": [
+                {
+                  "name": "point",
+                  "type": {
+                    "kind": "struct",
+                    "name": "Point",
+                    "is_native": false,
+                    "is_packed": false,
+                    "pass_self_by_ref": false,
+                    "size": 16,
+                    "alignment": 8,
+                    "fields": [
+                      {
+                        "name": "value",
+                        "type": {
+                          "kind": "int"
+                        },
+                        "offset": 8
+                      }
+                    ]
+                  },
+                  "offset": 8
+                }
+              ]
+            },
+            "kind": "struct_literal",
+            "struct_name": "Holder",
+            "fields": [
+              {
+                "name": "point",
+                "value": {
+                  "type": {
+                    "kind": "struct",
+                    "name": "Point",
+                    "is_native": false,
+                    "is_packed": false,
+                    "pass_self_by_ref": false,
+                    "size": 16,
+                    "alignment": 8,
+                    "fields": [
+                      {
+                        "name": "value",
+                        "type": {
+                          "kind": "int"
+                        },
+                        "offset": 8
+                      }
+                    ]
+                  },
+                  "kind": "struct_literal",
+                  "struct_name": "Point",
+                  "fields": [
+                    {
+                      "name": "value",
+                      "value": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "literal",
+                        "value_kind": "int",
+                        "value": 7
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "points",
+          "type": {
+            "kind": "array",
+            "name": "arr",
+            "element_type": {
+              "kind": "struct",
+              "name": "Point",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 16,
+              "alignment": 8,
+              "fields": [
+                {
+                  "name": "value",
+                  "type": {
+                    "kind": "int"
+                  },
+                  "offset": 8
+                }
+              ]
+            }
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "arr",
+          "initializer": {
+            "type": {
+              "kind": "array",
+              "name": "arr",
+              "element_type": {
+                "kind": "struct",
+                "name": "Point",
+                "is_native": false,
+                "is_packed": false,
+                "pass_self_by_ref": false,
+                "size": 16,
+                "alignment": 8,
+                "fields": [
+                  {
+                    "name": "value",
+                    "type": {
+                      "kind": "int"
+                    },
+                    "offset": 8
+                  }
+                ]
+              }
+            },
+            "kind": "array_literal",
+            "elements": []
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "call",
+            "callee": {
+              "type": {
+                "kind": "function",
+                "return_type": {
+                  "kind": "void"
+                },
+                "param_types": [
+                  {
+                    "kind": "struct",
+                    "name": "Point",
+                    "is_native": false,
+                    "is_packed": false,
+                    "pass_self_by_ref": false,
+                    "size": 16,
+                    "alignment": 8,
+                    "fields": [
+                      {
+                        "name": "value",
+                        "type": {
+                          "kind": "int"
+                        },
+                        "offset": 8
+                      }
+                    ]
+                  }
+                ],
+                "is_variadic": false,
+                "is_native": false,
+                "has_arena_param": false
+              },
+              "kind": "member",
+              "object": {
+                "type": {
+                  "kind": "array",
+                  "name": "arr",
+                  "element_type": {
+                    "kind": "struct",
+                    "name": "Point",
+                    "is_native": false,
+                    "is_packed": false,
+                    "pass_self_by_ref": false,
+                    "size": 16,
+                    "alignment": 8,
+                    "fields": [
+                      {
+                        "name": "value",
+                        "type": {
+                          "kind": "int"
+                        },
+                        "offset": 8
+                      }
+                    ]
+                  }
+                },
+                "kind": "variable",
+                "name": "points"
+              },
+              "member_name": "push"
+            },
+            "args": [
+              {
+                "type": {
+                  "kind": "struct",
+                  "name": "Point",
+                  "is_native": false,
+                  "is_packed": false,
+                  "pass_self_by_ref": false,
+                  "size": 16,
+                  "alignment": 8,
+                  "fields": [
+                    {
+                      "name": "value",
+                      "type": {
+                        "kind": "int"
+                      },
+                      "offset": 8
+                    }
+                  ]
+                },
+                "kind": "variable",
+                "name": "left"
+              }
+            ],
+            "is_tail_call": false,
+            "is_closure_call": false,
+            "is_fn_field_call": false
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "call",
+            "callee": {
+              "type": {
+                "kind": "function",
+                "return_type": {
+                  "kind": "void"
+                },
+                "param_types": [
+                  {
+                    "kind": "struct",
+                    "name": "Point",
+                    "is_native": false,
+                    "is_packed": false,
+                    "pass_self_by_ref": false,
+                    "size": 16,
+                    "alignment": 8,
+                    "fields": [
+                      {
+                        "name": "value",
+                        "type": {
+                          "kind": "int"
+                        },
+                        "offset": 8
+                      }
+                    ]
+                  }
+                ],
+                "is_variadic": false,
+                "is_native": false,
+                "has_arena_param": false
+              },
+              "kind": "member",
+              "object": {
+                "type": {
+                  "kind": "array",
+                  "name": "arr",
+                  "element_type": {
+                    "kind": "struct",
+                    "name": "Point",
+                    "is_native": false,
+                    "is_packed": false,
+                    "pass_self_by_ref": false,
+                    "size": 16,
+                    "alignment": 8,
+                    "fields": [
+                      {
+                        "name": "value",
+                        "type": {
+                          "kind": "int"
+                        },
+                        "offset": 8
+                      }
+                    ]
+                  }
+                },
+                "kind": "variable",
+                "name": "points"
+              },
+              "member_name": "push"
+            },
+            "args": [
+              {
+                "type": {
+                  "kind": "struct",
+                  "name": "Point",
+                  "is_native": false,
+                  "is_packed": false,
+                  "pass_self_by_ref": false,
+                  "size": 16,
+                  "alignment": 8,
+                  "fields": [
+                    {
+                      "name": "value",
+                      "type": {
+                        "kind": "int"
+                      },
+                      "offset": 8
+                    }
+                  ]
+                },
+                "kind": "variable",
+                "name": "greater"
+              }
+            ],
+            "is_tail_call": false,
+            "is_closure_call": false,
+            "is_fn_field_call": false
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "bool"
+            },
+            "kind": "method_call",
+            "object": {
+              "type": {
+                "kind": "struct",
+                "name": "Point",
+                "is_native": false,
+                "is_packed": false,
+                "pass_self_by_ref": false,
+                "size": 16,
+                "alignment": 8,
+                "fields": [
+                  {
+                    "name": "value",
+                    "type": {
+                      "kind": "int"
+                    },
+                    "offset": 8
+                  }
+                ]
+              },
+              "kind": "variable",
+              "name": "left"
+            },
+            "method_name": "op_eq",
+            "is_static": false,
+            "struct_type": {
+              "kind": "struct",
+              "name": "Point",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 16,
+              "alignment": 8,
+              "fields": [
+                {
+                  "name": "value",
+                  "type": {
+                    "kind": "int"
+                  },
+                  "offset": 8
+                }
+              ]
+            },
+            "args": [
+              {
+                "type": {
+                  "kind": "struct",
+                  "name": "Point",
+                  "is_native": false,
+                  "is_packed": false,
+                  "pass_self_by_ref": false,
+                  "size": 16,
+                  "alignment": 8,
+                  "fields": [
+                    {
+                      "name": "value",
+                      "type": {
+                        "kind": "int"
+                      },
+                      "offset": 8
+                    }
+                  ]
+                },
+                "kind": "variable",
+                "name": "same"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "initialized",
+          "type": {
+            "kind": "bool"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "bool"
+            },
+            "kind": "method_call",
+            "object": {
+              "type": {
+                "kind": "struct",
+                "name": "Point",
+                "is_native": false,
+                "is_packed": false,
+                "pass_self_by_ref": false,
+                "size": 16,
+                "alignment": 8,
+                "fields": [
+                  {
+                    "name": "value",
+                    "type": {
+                      "kind": "int"
+                    },
+                    "offset": 8
+                  }
+                ]
+              },
+              "kind": "variable",
+              "name": "left"
+            },
+            "method_name": "op_eq",
+            "is_static": false,
+            "struct_type": {
+              "kind": "struct",
+              "name": "Point",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 16,
+              "alignment": 8,
+              "fields": [
+                {
+                  "name": "value",
+                  "type": {
+                    "kind": "int"
+                  },
+                  "offset": 8
+                }
+              ]
+            },
+            "args": [
+              {
+                "type": {
+                  "kind": "struct",
+                  "name": "Point",
+                  "is_native": false,
+                  "is_packed": false,
+                  "pass_self_by_ref": false,
+                  "size": 16,
+                  "alignment": 8,
+                  "fields": [
+                    {
+                      "name": "value",
+                      "type": {
+                        "kind": "int"
+                      },
+                      "offset": 8
+                    }
+                  ]
+                },
+                "kind": "variable",
+                "name": "same"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "argument",
+          "type": {
+            "kind": "bool"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "bool"
+            },
+            "kind": "call",
+            "callee": {
+              "type": {
+                "kind": "function",
+                "return_type": {
+                  "kind": "bool"
+                },
+                "param_types": [
+                  {
+                    "kind": "bool"
+                  }
+                ],
+                "is_variadic": false,
+                "is_native": false,
+                "has_arena_param": false
+              },
+              "kind": "variable",
+              "name": "acceptBool"
+            },
+            "args": [
+              {
+                "type": {
+                  "kind": "bool"
+                },
+                "kind": "unary",
+                "op": "not",
+                "operand": {
+                  "type": {
+                    "kind": "bool"
+                  },
+                  "kind": "method_call",
+                  "object": {
+                    "type": {
+                      "kind": "struct",
+                      "name": "Point",
+                      "is_native": false,
+                      "is_packed": false,
+                      "pass_self_by_ref": false,
+                      "size": 16,
+                      "alignment": 8,
+                      "fields": [
+                        {
+                          "name": "value",
+                          "type": {
+                            "kind": "int"
+                          },
+                          "offset": 8
+                        }
+                      ]
+                    },
+                    "kind": "variable",
+                    "name": "left"
+                  },
+                  "method_name": "op_eq",
+                  "is_static": false,
+                  "struct_type": {
+                    "kind": "struct",
+                    "name": "Point",
+                    "is_native": false,
+                    "is_packed": false,
+                    "pass_self_by_ref": false,
+                    "size": 16,
+                    "alignment": 8,
+                    "fields": [
+                      {
+                        "name": "value",
+                        "type": {
+                          "kind": "int"
+                        },
+                        "offset": 8
+                      }
+                    ]
+                  },
+                  "args": [
+                    {
+                      "type": {
+                        "kind": "struct",
+                        "name": "Point",
+                        "is_native": false,
+                        "is_packed": false,
+                        "pass_self_by_ref": false,
+                        "size": 16,
+                        "alignment": 8,
+                        "fields": [
+                          {
+                            "name": "value",
+                            "type": {
+                              "kind": "int"
+                            },
+                            "offset": 8
+                          }
+                        ]
+                      },
+                      "kind": "variable",
+                      "name": "greater"
+                    }
+                  ]
+                }
+              }
+            ],
+            "is_tail_call": false,
+            "is_closure_call": false,
+            "is_fn_field_call": false
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "returned",
+          "type": {
+            "kind": "bool"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "bool"
+            },
+            "kind": "call",
+            "callee": {
+              "type": {
+                "kind": "function",
+                "return_type": {
+                  "kind": "bool"
+                },
+                "param_types": [
+                  {
+                    "kind": "struct",
+                    "name": "Point",
+                    "is_native": false,
+                    "is_packed": false,
+                    "pass_self_by_ref": false,
+                    "size": 16,
+                    "alignment": 8,
+                    "fields": [
+                      {
+                        "name": "value",
+                        "type": {
+                          "kind": "int"
+                        },
+                        "offset": 8
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "struct",
+                    "name": "Point",
+                    "is_native": false,
+                    "is_packed": false,
+                    "pass_self_by_ref": false,
+                    "size": 16,
+                    "alignment": 8,
+                    "fields": [
+                      {
+                        "name": "value",
+                        "type": {
+                          "kind": "int"
+                        },
+                        "offset": 8
+                      }
+                    ]
+                  }
+                ],
+                "is_variadic": false,
+                "is_native": false,
+                "has_arena_param": false
+              },
+              "kind": "variable",
+              "name": "returnedComparison"
+            },
+            "args": [
+              {
+                "type": {
+                  "kind": "struct",
+                  "name": "Point",
+                  "is_native": false,
+                  "is_packed": false,
+                  "pass_self_by_ref": false,
+                  "size": 16,
+                  "alignment": 8,
+                  "fields": [
+                    {
+                      "name": "value",
+                      "type": {
+                        "kind": "int"
+                      },
+                      "offset": 8
+                    }
+                  ]
+                },
+                "kind": "variable",
+                "name": "left"
+              },
+              {
+                "type": {
+                  "kind": "struct",
+                  "name": "Point",
+                  "is_native": false,
+                  "is_packed": false,
+                  "pass_self_by_ref": false,
+                  "size": 16,
+                  "alignment": 8,
+                  "fields": [
+                    {
+                      "name": "value",
+                      "type": {
+                        "kind": "int"
+                      },
+                      "offset": 8
+                    }
+                  ]
+                },
+                "kind": "variable",
+                "name": "same"
+              }
+            ],
+            "is_tail_call": false,
+            "is_closure_call": false,
+            "is_fn_field_call": false
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "memberReceiver",
+          "type": {
+            "kind": "bool"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "bool"
+            },
+            "kind": "method_call",
+            "object": {
+              "type": {
+                "kind": "struct",
+                "name": "Point",
+                "is_native": false,
+                "is_packed": false,
+                "pass_self_by_ref": false,
+                "size": 16,
+                "alignment": 8,
+                "fields": [
+                  {
+                    "name": "value",
+                    "type": {
+                      "kind": "int"
+                    },
+                    "offset": 8
+                  }
+                ]
+              },
+              "kind": "member",
+              "object": {
+                "type": {
+                  "kind": "struct",
+                  "name": "Holder",
+                  "is_native": false,
+                  "is_packed": false,
+                  "pass_self_by_ref": false,
+                  "size": 24,
+                  "alignment": 8,
+                  "fields": [
+                    {
+                      "name": "point",
+                      "type": {
+                        "kind": "struct",
+                        "name": "Point",
+                        "is_native": false,
+                        "is_packed": false,
+                        "pass_self_by_ref": false,
+                        "size": 16,
+                        "alignment": 8,
+                        "fields": [
+                          {
+                            "name": "value",
+                            "type": {
+                              "kind": "int"
+                            },
+                            "offset": 8
+                          }
+                        ]
+                      },
+                      "offset": 8
+                    }
+                  ]
+                },
+                "kind": "variable",
+                "name": "holder"
+              },
+              "member_name": "point"
+            },
+            "method_name": "op_eq",
+            "is_static": false,
+            "struct_type": {
+              "kind": "struct",
+              "name": "Point",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 16,
+              "alignment": 8,
+              "fields": [
+                {
+                  "name": "value",
+                  "type": {
+                    "kind": "int"
+                  },
+                  "offset": 8
+                }
+              ]
+            },
+            "args": [
+              {
+                "type": {
+                  "kind": "struct",
+                  "name": "Point",
+                  "is_native": false,
+                  "is_packed": false,
+                  "pass_self_by_ref": false,
+                  "size": 16,
+                  "alignment": 8,
+                  "fields": [
+                    {
+                      "name": "value",
+                      "type": {
+                        "kind": "int"
+                      },
+                      "offset": 8
+                    }
+                  ]
+                },
+                "kind": "variable",
+                "name": "same"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "indexedReceiver",
+          "type": {
+            "kind": "bool"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "bool"
+            },
+            "kind": "method_call",
+            "object": {
+              "type": {
+                "kind": "struct",
+                "name": "Point",
+                "is_native": false,
+                "is_packed": false,
+                "pass_self_by_ref": false,
+                "size": 16,
+                "alignment": 8,
+                "fields": [
+                  {
+                    "name": "value",
+                    "type": {
+                      "kind": "int"
+                    },
+                    "offset": 8
+                  }
+                ]
+              },
+              "kind": "array_access",
+              "array": {
+                "type": {
+                  "kind": "array",
+                  "name": "arr",
+                  "element_type": {
+                    "kind": "struct",
+                    "name": "Point",
+                    "is_native": false,
+                    "is_packed": false,
+                    "pass_self_by_ref": false,
+                    "size": 16,
+                    "alignment": 8,
+                    "fields": [
+                      {
+                        "name": "value",
+                        "type": {
+                          "kind": "int"
+                        },
+                        "offset": 8
+                      }
+                    ]
+                  }
+                },
+                "kind": "variable",
+                "name": "points"
+              },
+              "index": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "literal",
+                "value_kind": "int",
+                "value": 0
+              }
+            },
+            "method_name": "op_lt",
+            "is_static": false,
+            "struct_type": {
+              "kind": "struct",
+              "name": "Point",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 16,
+              "alignment": 8,
+              "fields": [
+                {
+                  "name": "value",
+                  "type": {
+                    "kind": "int"
+                  },
+                  "offset": 8
+                }
+              ]
+            },
+            "args": [
+              {
+                "type": {
+                  "kind": "struct",
+                  "name": "Point",
+                  "is_native": false,
+                  "is_packed": false,
+                  "pass_self_by_ref": false,
+                  "size": 16,
+                  "alignment": 8,
+                  "fields": [
+                    {
+                      "name": "value",
+                      "type": {
+                        "kind": "int"
+                      },
+                      "offset": 8
+                    }
+                  ]
+                },
+                "kind": "array_access",
+                "array": {
+                  "type": {
+                    "kind": "array",
+                    "name": "arr",
+                    "element_type": {
+                      "kind": "struct",
+                      "name": "Point",
+                      "is_native": false,
+                      "is_packed": false,
+                      "pass_self_by_ref": false,
+                      "size": 16,
+                      "alignment": 8,
+                      "fields": [
+                        {
+                          "name": "value",
+                          "type": {
+                            "kind": "int"
+                          },
+                          "offset": 8
+                        }
+                      ]
+                    }
+                  },
+                  "kind": "variable",
+                  "name": "points"
+                },
+                "index": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 1
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "explicitNe",
+          "type": {
+            "kind": "bool"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "bool"
+            },
+            "kind": "method_call",
+            "object": {
+              "type": {
+                "kind": "struct",
+                "name": "Explicit",
+                "is_native": false,
+                "is_packed": false,
+                "pass_self_by_ref": false,
+                "size": 16,
+                "alignment": 8,
+                "fields": [
+                  {
+                    "name": "value",
+                    "type": {
+                      "kind": "int"
+                    },
+                    "offset": 8
+                  }
+                ]
+              },
+              "kind": "struct_literal",
+              "struct_name": "Explicit",
+              "fields": [
+                {
+                  "name": "value",
+                  "value": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "literal",
+                    "value_kind": "int",
+                    "value": 1
+                  }
+                }
+              ]
+            },
+            "method_name": "op_ne",
+            "is_static": false,
+            "struct_type": {
+              "kind": "struct",
+              "name": "Explicit",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 16,
+              "alignment": 8,
+              "fields": [
+                {
+                  "name": "value",
+                  "type": {
+                    "kind": "int"
+                  },
+                  "offset": 8
+                }
+              ]
+            },
+            "args": [
+              {
+                "type": {
+                  "kind": "struct",
+                  "name": "Explicit",
+                  "is_native": false,
+                  "is_packed": false,
+                  "pass_self_by_ref": false,
+                  "size": 16,
+                  "alignment": 8,
+                  "fields": [
+                    {
+                      "name": "value",
+                      "type": {
+                        "kind": "int"
+                      },
+                      "offset": 8
+                    }
+                  ]
+                },
+                "kind": "struct_literal",
+                "struct_name": "Explicit",
+                "fields": [
+                  {
+                    "name": "value",
+                    "value": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "literal",
+                      "value_kind": "int",
+                      "value": 2
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "derivedGe",
+          "type": {
+            "kind": "bool"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "bool"
+            },
+            "kind": "unary",
+            "op": "not",
+            "operand": {
+              "type": {
+                "kind": "bool"
+              },
+              "kind": "method_call",
+              "object": {
+                "type": {
+                  "kind": "struct",
+                  "name": "Point",
+                  "is_native": false,
+                  "is_packed": false,
+                  "pass_self_by_ref": false,
+                  "size": 16,
+                  "alignment": 8,
+                  "fields": [
+                    {
+                      "name": "value",
+                      "type": {
+                        "kind": "int"
+                      },
+                      "offset": 8
+                    }
+                  ]
+                },
+                "kind": "variable",
+                "name": "greater"
+              },
+              "method_name": "op_lt",
+              "is_static": false,
+              "struct_type": {
+                "kind": "struct",
+                "name": "Point",
+                "is_native": false,
+                "is_packed": false,
+                "pass_self_by_ref": false,
+                "size": 16,
+                "alignment": 8,
+                "fields": [
+                  {
+                    "name": "value",
+                    "type": {
+                      "kind": "int"
+                    },
+                    "offset": 8
+                  }
+                ]
+              },
+              "args": [
+                {
+                  "type": {
+                    "kind": "struct",
+                    "name": "Point",
+                    "is_native": false,
+                    "is_packed": false,
+                    "pass_self_by_ref": false,
+                    "size": 16,
+                    "alignment": 8,
+                    "fields": [
+                      {
+                        "name": "value",
+                        "type": {
+                          "kind": "int"
+                        },
+                        "offset": 8
+                      }
+                    ]
+                  },
+                  "kind": "variable",
+                  "name": "left"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "derivedLe",
+          "type": {
+            "kind": "bool"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "bool"
+            },
+            "kind": "unary",
+            "op": "not",
+            "operand": {
+              "type": {
+                "kind": "bool"
+              },
+              "kind": "method_call",
+              "object": {
+                "type": {
+                  "kind": "struct",
+                  "name": "Point",
+                  "is_native": false,
+                  "is_packed": false,
+                  "pass_self_by_ref": false,
+                  "size": 16,
+                  "alignment": 8,
+                  "fields": [
+                    {
+                      "name": "value",
+                      "type": {
+                        "kind": "int"
+                      },
+                      "offset": 8
+                    }
+                  ]
+                },
+                "kind": "variable",
+                "name": "greater"
+              },
+              "method_name": "op_lt",
+              "is_static": false,
+              "source_arg_before_object": true,
+              "source_receiver_is_place": true,
+              "struct_type": {
+                "kind": "struct",
+                "name": "Point",
+                "is_native": false,
+                "is_packed": false,
+                "pass_self_by_ref": false,
+                "size": 16,
+                "alignment": 8,
+                "fields": [
+                  {
+                    "name": "value",
+                    "type": {
+                      "kind": "int"
+                    },
+                    "offset": 8
+                  }
+                ]
+              },
+              "args": [
+                {
+                  "type": {
+                    "kind": "struct",
+                    "name": "Point",
+                    "is_native": false,
+                    "is_packed": false,
+                    "pass_self_by_ref": false,
+                    "size": 16,
+                    "alignment": 8,
+                    "fields": [
+                      {
+                        "name": "value",
+                        "type": {
+                          "kind": "int"
+                        },
+                        "offset": 8
+                      }
+                    ]
+                  },
+                  "kind": "variable",
+                  "name": "left"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "matched",
+          "type": {
+            "kind": "bool"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "bool"
+            },
+            "kind": "match",
+            "subject": {
+              "type": {
+                "kind": "bool"
+              },
+              "kind": "literal",
+              "value_kind": "bool",
+              "value": true
+            },
+            "arms": [
+              {
+                "is_else": false,
+                "patterns": [
+                  {
+                    "type": {
+                      "kind": "bool"
+                    },
+                    "kind": "literal",
+                    "value_kind": "bool",
+                    "value": true
+                  }
+                ],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "bool"
+                        },
+                        "kind": "unary",
+                        "op": "not",
+                        "operand": {
+                          "type": {
+                            "kind": "bool"
+                          },
+                          "kind": "method_call",
+                          "object": {
+                            "type": {
+                              "kind": "struct",
+                              "name": "Point",
+                              "is_native": false,
+                              "is_packed": false,
+                              "pass_self_by_ref": false,
+                              "size": 16,
+                              "alignment": 8,
+                              "fields": [
+                                {
+                                  "name": "value",
+                                  "type": {
+                                    "kind": "int"
+                                  },
+                                  "offset": 8
+                                }
+                              ]
+                            },
+                            "kind": "variable",
+                            "name": "left"
+                          },
+                          "method_name": "op_eq",
+                          "is_static": false,
+                          "struct_type": {
+                            "kind": "struct",
+                            "name": "Point",
+                            "is_native": false,
+                            "is_packed": false,
+                            "pass_self_by_ref": false,
+                            "size": 16,
+                            "alignment": 8,
+                            "fields": [
+                              {
+                                "name": "value",
+                                "type": {
+                                  "kind": "int"
+                                },
+                                "offset": 8
+                              }
+                            ]
+                          },
+                          "args": [
+                            {
+                              "type": {
+                                "kind": "struct",
+                                "name": "Point",
+                                "is_native": false,
+                                "is_packed": false,
+                                "pass_self_by_ref": false,
+                                "size": 16,
+                                "alignment": 8,
+                                "fields": [
+                                  {
+                                    "name": "value",
+                                    "type": {
+                                      "kind": "int"
+                                    },
+                                    "offset": 8
+                                  }
+                                ]
+                              },
+                              "kind": "variable",
+                              "name": "greater"
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "bool"
+                        },
+                        "kind": "method_call",
+                        "object": {
+                          "type": {
+                            "kind": "struct",
+                            "name": "Point",
+                            "is_native": false,
+                            "is_packed": false,
+                            "pass_self_by_ref": false,
+                            "size": 16,
+                            "alignment": 8,
+                            "fields": [
+                              {
+                                "name": "value",
+                                "type": {
+                                  "kind": "int"
+                                },
+                                "offset": 8
+                              }
+                            ]
+                          },
+                          "kind": "variable",
+                          "name": "left"
+                        },
+                        "method_name": "op_eq",
+                        "is_static": false,
+                        "struct_type": {
+                          "kind": "struct",
+                          "name": "Point",
+                          "is_native": false,
+                          "is_packed": false,
+                          "pass_self_by_ref": false,
+                          "size": 16,
+                          "alignment": 8,
+                          "fields": [
+                            {
+                              "name": "value",
+                              "type": {
+                                "kind": "int"
+                              },
+                              "offset": 8
+                            }
+                          ]
+                        },
+                        "args": [
+                          {
+                            "type": {
+                              "kind": "struct",
+                              "name": "Point",
+                              "is_native": false,
+                              "is_packed": false,
+                              "pass_self_by_ref": false,
+                              "size": 16,
+                              "alignment": 8,
+                              "fields": [
+                                {
+                                  "name": "value",
+                                  "type": {
+                                    "kind": "int"
+                                  },
+                                  "offset": 8
+                                }
+                              ]
+                            },
+                            "kind": "variable",
+                            "name": "same"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "is_else": true,
+                "patterns": [],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "bool"
+                        },
+                        "kind": "literal",
+                        "value_kind": "bool",
+                        "value": false
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "calls",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "order",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "__sn_resolved_arg_0",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 40
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "__sn_resolved_receiver_0",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 2
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "directOrder",
+          "type": {
+            "kind": "bool"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "bool"
+            },
+            "kind": "method_call",
+            "object": {
+              "type": {
+                "kind": "struct",
+                "name": "Point",
+                "is_native": false,
+                "is_packed": false,
+                "pass_self_by_ref": false,
+                "size": 16,
+                "alignment": 8,
+                "fields": [
+                  {
+                    "name": "value",
+                    "type": {
+                      "kind": "int"
+                    },
+                    "offset": 8
+                  }
+                ]
+              },
+              "kind": "call",
+              "callee": {
+                "type": {
+                  "kind": "function",
+                  "return_type": {
+                    "kind": "struct",
+                    "name": "Point",
+                    "is_native": false,
+                    "is_packed": false,
+                    "pass_self_by_ref": false,
+                    "size": 16,
+                    "alignment": 8,
+                    "fields": [
+                      {
+                        "name": "value",
+                        "type": {
+                          "kind": "int"
+                        },
+                        "offset": 8
+                      }
+                    ]
+                  },
+                  "param_types": [
+                    {
+                      "kind": "int"
+                    },
+                    {
+                      "kind": "int"
+                    },
+                    {
+                      "kind": "int"
+                    },
+                    {
+                      "kind": "int"
+                    }
+                  ],
+                  "param_mem_quals": [
+                    "as_ref",
+                    "as_ref",
+                    "default",
+                    "default"
+                  ],
+                  "is_variadic": false,
+                  "is_native": false,
+                  "has_arena_param": false
+                },
+                "kind": "variable",
+                "name": "markedPoint"
+              },
+              "args": [
+                {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "variable",
+                  "name": "calls",
+                  "is_ref_arg": true
+                },
+                {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "variable",
+                  "name": "order",
+                  "is_ref_arg": true
+                },
+                {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 1
+                },
+                {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 1
+                }
+              ],
+              "is_tail_call": false,
+              "is_closure_call": false,
+              "is_fn_field_call": false
+            },
+            "method_name": "op_lt",
+            "is_static": false,
+            "struct_type": {
+              "kind": "struct",
+              "name": "Point",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 16,
+              "alignment": 8,
+              "fields": [
+                {
+                  "name": "value",
+                  "type": {
+                    "kind": "int"
+                  },
+                  "offset": 8
+                }
+              ]
+            },
+            "args": [
+              {
+                "type": {
+                  "kind": "struct",
+                  "name": "Point",
+                  "is_native": false,
+                  "is_packed": false,
+                  "pass_self_by_ref": false,
+                  "size": 16,
+                  "alignment": 8,
+                  "fields": [
+                    {
+                      "name": "value",
+                      "type": {
+                        "kind": "int"
+                      },
+                      "offset": 8
+                    }
+                  ]
+                },
+                "kind": "call",
+                "callee": {
+                  "type": {
+                    "kind": "function",
+                    "return_type": {
+                      "kind": "struct",
+                      "name": "Point",
+                      "is_native": false,
+                      "is_packed": false,
+                      "pass_self_by_ref": false,
+                      "size": 16,
+                      "alignment": 8,
+                      "fields": [
+                        {
+                          "name": "value",
+                          "type": {
+                            "kind": "int"
+                          },
+                          "offset": 8
+                        }
+                      ]
+                    },
+                    "param_types": [
+                      {
+                        "kind": "int"
+                      },
+                      {
+                        "kind": "int"
+                      },
+                      {
+                        "kind": "int"
+                      },
+                      {
+                        "kind": "int"
+                      }
+                    ],
+                    "param_mem_quals": [
+                      "as_ref",
+                      "as_ref",
+                      "default",
+                      "default"
+                    ],
+                    "is_variadic": false,
+                    "is_native": false,
+                    "has_arena_param": false
+                  },
+                  "kind": "variable",
+                  "name": "markedPoint"
+                },
+                "args": [
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "variable",
+                    "name": "calls",
+                    "is_ref_arg": true
+                  },
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "variable",
+                    "name": "order",
+                    "is_ref_arg": true
+                  },
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "literal",
+                    "value_kind": "int",
+                    "value": 2
+                  },
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "literal",
+                    "value_kind": "int",
+                    "value": 2
+                  }
+                ],
+                "is_tail_call": false,
+                "is_closure_call": false,
+                "is_fn_field_call": false
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "swappedOrder",
+          "type": {
+            "kind": "bool"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "bool"
+            },
+            "kind": "method_call",
+            "object": {
+              "type": {
+                "kind": "struct",
+                "name": "Point",
+                "is_native": false,
+                "is_packed": false,
+                "pass_self_by_ref": false,
+                "size": 16,
+                "alignment": 8,
+                "fields": [
+                  {
+                    "name": "value",
+                    "type": {
+                      "kind": "int"
+                    },
+                    "offset": 8
+                  }
+                ]
+              },
+              "kind": "call",
+              "callee": {
+                "type": {
+                  "kind": "function",
+                  "return_type": {
+                    "kind": "struct",
+                    "name": "Point",
+                    "is_native": false,
+                    "is_packed": false,
+                    "pass_self_by_ref": false,
+                    "size": 16,
+                    "alignment": 8,
+                    "fields": [
+                      {
+                        "name": "value",
+                        "type": {
+                          "kind": "int"
+                        },
+                        "offset": 8
+                      }
+                    ]
+                  },
+                  "param_types": [
+                    {
+                      "kind": "int"
+                    },
+                    {
+                      "kind": "int"
+                    },
+                    {
+                      "kind": "int"
+                    },
+                    {
+                      "kind": "int"
+                    }
+                  ],
+                  "param_mem_quals": [
+                    "as_ref",
+                    "as_ref",
+                    "default",
+                    "default"
+                  ],
+                  "is_variadic": false,
+                  "is_native": false,
+                  "has_arena_param": false
+                },
+                "kind": "variable",
+                "name": "markedPoint"
+              },
+              "args": [
+                {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "variable",
+                  "name": "calls",
+                  "is_ref_arg": true
+                },
+                {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "variable",
+                  "name": "order",
+                  "is_ref_arg": true
+                },
+                {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 4
+                },
+                {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 4
+                }
+              ],
+              "is_tail_call": false,
+              "is_closure_call": false,
+              "is_fn_field_call": false
+            },
+            "method_name": "op_lt",
+            "is_static": false,
+            "source_arg_before_object": true,
+            "source_receiver_is_place": false,
+            "struct_type": {
+              "kind": "struct",
+              "name": "Point",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 16,
+              "alignment": 8,
+              "fields": [
+                {
+                  "name": "value",
+                  "type": {
+                    "kind": "int"
+                  },
+                  "offset": 8
+                }
+              ]
+            },
+            "args": [
+              {
+                "type": {
+                  "kind": "struct",
+                  "name": "Point",
+                  "is_native": false,
+                  "is_packed": false,
+                  "pass_self_by_ref": false,
+                  "size": 16,
+                  "alignment": 8,
+                  "fields": [
+                    {
+                      "name": "value",
+                      "type": {
+                        "kind": "int"
+                      },
+                      "offset": 8
+                    }
+                  ]
+                },
+                "kind": "call",
+                "callee": {
+                  "type": {
+                    "kind": "function",
+                    "return_type": {
+                      "kind": "struct",
+                      "name": "Point",
+                      "is_native": false,
+                      "is_packed": false,
+                      "pass_self_by_ref": false,
+                      "size": 16,
+                      "alignment": 8,
+                      "fields": [
+                        {
+                          "name": "value",
+                          "type": {
+                            "kind": "int"
+                          },
+                          "offset": 8
+                        }
+                      ]
+                    },
+                    "param_types": [
+                      {
+                        "kind": "int"
+                      },
+                      {
+                        "kind": "int"
+                      },
+                      {
+                        "kind": "int"
+                      },
+                      {
+                        "kind": "int"
+                      }
+                    ],
+                    "param_mem_quals": [
+                      "as_ref",
+                      "as_ref",
+                      "default",
+                      "default"
+                    ],
+                    "is_variadic": false,
+                    "is_native": false,
+                    "has_arena_param": false
+                  },
+                  "kind": "variable",
+                  "name": "markedPoint"
+                },
+                "args": [
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "variable",
+                    "name": "calls",
+                    "is_ref_arg": true
+                  },
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "variable",
+                    "name": "order",
+                    "is_ref_arg": true
+                  },
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "literal",
+                    "value_kind": "int",
+                    "value": 3
+                  },
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "literal",
+                    "value_kind": "int",
+                    "value": 3
+                  }
+                ],
+                "is_tail_call": false,
+                "is_closure_call": false,
+                "is_fn_field_call": false
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "ownedLeft",
+          "type": {
+            "kind": "struct",
+            "name": "OwnedPoint",
+            "is_native": false,
+            "is_packed": false,
+            "pass_self_by_ref": false,
+            "size": 24,
+            "alignment": 8,
+            "fields": [
+              {
+                "name": "label",
+                "type": {
+                  "kind": "string"
+                },
+                "offset": 8
+              },
+              {
+                "name": "values",
+                "type": {
+                  "kind": "array",
+                  "name": "arr",
+                  "element_type": {
+                    "kind": "int"
+                  }
+                },
+                "offset": 16
+              }
+            ]
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "val_cleanup",
+          "initializer": {
+            "type": {
+              "kind": "struct",
+              "name": "OwnedPoint",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 24,
+              "alignment": 8,
+              "fields": [
+                {
+                  "name": "label",
+                  "type": {
+                    "kind": "string"
+                  },
+                  "offset": 8
+                },
+                {
+                  "name": "values",
+                  "type": {
+                    "kind": "array",
+                    "name": "arr",
+                    "element_type": {
+                      "kind": "int"
+                    }
+                  },
+                  "offset": 16
+                }
+              ]
+            },
+            "kind": "struct_literal",
+            "struct_name": "OwnedPoint",
+            "fields": [
+              {
+                "name": "label",
+                "value": {
+                  "type": {
+                    "kind": "string"
+                  },
+                  "kind": "literal",
+                  "value_kind": "string",
+                  "value": "owned"
+                },
+                "source_is_borrow": true
+              },
+              {
+                "name": "values",
+                "value": {
+                  "type": {
+                    "kind": "array",
+                    "name": "arr",
+                    "element_type": {
+                      "kind": "int"
+                    }
+                  },
+                  "kind": "array_literal",
+                  "elements": [
+                    {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "literal",
+                      "value_kind": "int",
+                      "value": 5
+                    },
+                    {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "literal",
+                      "value_kind": "int",
+                      "value": 6
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "ownedSame",
+          "type": {
+            "kind": "struct",
+            "name": "OwnedPoint",
+            "is_native": false,
+            "is_packed": false,
+            "pass_self_by_ref": false,
+            "size": 24,
+            "alignment": 8,
+            "fields": [
+              {
+                "name": "label",
+                "type": {
+                  "kind": "string"
+                },
+                "offset": 8
+              },
+              {
+                "name": "values",
+                "type": {
+                  "kind": "array",
+                  "name": "arr",
+                  "element_type": {
+                    "kind": "int"
+                  }
+                },
+                "offset": 16
+              }
+            ]
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "val_cleanup",
+          "initializer": {
+            "type": {
+              "kind": "struct",
+              "name": "OwnedPoint",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 24,
+              "alignment": 8,
+              "fields": [
+                {
+                  "name": "label",
+                  "type": {
+                    "kind": "string"
+                  },
+                  "offset": 8
+                },
+                {
+                  "name": "values",
+                  "type": {
+                    "kind": "array",
+                    "name": "arr",
+                    "element_type": {
+                      "kind": "int"
+                    }
+                  },
+                  "offset": 16
+                }
+              ]
+            },
+            "kind": "variable",
+            "name": "ownedLeft"
+          },
+          "source_is_borrow": true
+        },
+        {
+          "kind": "var_decl",
+          "name": "ownedEqual",
+          "type": {
+            "kind": "bool"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "bool"
+            },
+            "kind": "method_call",
+            "object": {
+              "type": {
+                "kind": "struct",
+                "name": "OwnedPoint",
+                "is_native": false,
+                "is_packed": false,
+                "pass_self_by_ref": false,
+                "size": 24,
+                "alignment": 8,
+                "fields": [
+                  {
+                    "name": "label",
+                    "type": {
+                      "kind": "string"
+                    },
+                    "offset": 8
+                  },
+                  {
+                    "name": "values",
+                    "type": {
+                      "kind": "array",
+                      "name": "arr",
+                      "element_type": {
+                        "kind": "int"
+                      }
+                    },
+                    "offset": 16
+                  }
+                ]
+              },
+              "kind": "variable",
+              "name": "ownedLeft"
+            },
+            "method_name": "op_eq",
+            "is_static": false,
+            "struct_type": {
+              "kind": "struct",
+              "name": "OwnedPoint",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 24,
+              "alignment": 8,
+              "fields": [
+                {
+                  "name": "label",
+                  "type": {
+                    "kind": "string"
+                  },
+                  "offset": 8
+                },
+                {
+                  "name": "values",
+                  "type": {
+                    "kind": "array",
+                    "name": "arr",
+                    "element_type": {
+                      "kind": "int"
+                    }
+                  },
+                  "offset": 16
+                }
+              ]
+            },
+            "args": [
+              {
+                "type": {
+                  "kind": "struct",
+                  "name": "OwnedPoint",
+                  "is_native": false,
+                  "is_packed": false,
+                  "pass_self_by_ref": false,
+                  "size": 24,
+                  "alignment": 8,
+                  "fields": [
+                    {
+                      "name": "label",
+                      "type": {
+                        "kind": "string"
+                      },
+                      "offset": 8
+                    },
+                    {
+                      "name": "values",
+                      "type": {
+                        "kind": "array",
+                        "name": "arr",
+                        "element_type": {
+                          "kind": "int"
+                        }
+                      },
+                      "offset": 16
+                    }
+                  ]
+                },
+                "kind": "variable",
+                "name": "ownedSame",
+                "is_ref_arg": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "ownedSwapped",
+          "type": {
+            "kind": "bool"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "bool"
+            },
+            "kind": "method_call",
+            "object": {
+              "type": {
+                "kind": "struct",
+                "name": "OwnedPoint",
+                "is_native": false,
+                "is_packed": false,
+                "pass_self_by_ref": false,
+                "size": 24,
+                "alignment": 8,
+                "fields": [
+                  {
+                    "name": "label",
+                    "type": {
+                      "kind": "string"
+                    },
+                    "offset": 8
+                  },
+                  {
+                    "name": "values",
+                    "type": {
+                      "kind": "array",
+                      "name": "arr",
+                      "element_type": {
+                        "kind": "int"
+                      }
+                    },
+                    "offset": 16
+                  }
+                ]
+              },
+              "kind": "call",
+              "callee": {
+                "type": {
+                  "kind": "function",
+                  "return_type": {
+                    "kind": "struct",
+                    "name": "OwnedPoint",
+                    "is_native": false,
+                    "is_packed": false,
+                    "pass_self_by_ref": false,
+                    "size": 24,
+                    "alignment": 8,
+                    "fields": [
+                      {
+                        "name": "label",
+                        "type": {
+                          "kind": "string"
+                        },
+                        "offset": 8
+                      },
+                      {
+                        "name": "values",
+                        "type": {
+                          "kind": "array",
+                          "name": "arr",
+                          "element_type": {
+                            "kind": "int"
+                          }
+                        },
+                        "offset": 16
+                      }
+                    ]
+                  },
+                  "param_types": [
+                    {
+                      "kind": "int"
+                    },
+                    {
+                      "kind": "int"
+                    },
+                    {
+                      "kind": "int"
+                    },
+                    {
+                      "kind": "int"
+                    }
+                  ],
+                  "param_mem_quals": [
+                    "as_ref",
+                    "as_ref",
+                    "default",
+                    "default"
+                  ],
+                  "is_variadic": false,
+                  "is_native": false,
+                  "has_arena_param": false
+                },
+                "kind": "variable",
+                "name": "markedOwnedPoint"
+              },
+              "args": [
+                {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "variable",
+                  "name": "calls",
+                  "is_ref_arg": true
+                },
+                {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "variable",
+                  "name": "order",
+                  "is_ref_arg": true
+                },
+                {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 6
+                },
+                {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 6
+                }
+              ],
+              "is_tail_call": false,
+              "is_closure_call": false,
+              "is_fn_field_call": false
+            },
+            "method_name": "op_lt",
+            "is_static": false,
+            "source_arg_before_object": true,
+            "source_receiver_is_place": false,
+            "source_receiver_needs_cleanup": true,
+            "struct_type": {
+              "kind": "struct",
+              "name": "OwnedPoint",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 24,
+              "alignment": 8,
+              "fields": [
+                {
+                  "name": "label",
+                  "type": {
+                    "kind": "string"
+                  },
+                  "offset": 8
+                },
+                {
+                  "name": "values",
+                  "type": {
+                    "kind": "array",
+                    "name": "arr",
+                    "element_type": {
+                      "kind": "int"
+                    }
+                  },
+                  "offset": 16
+                }
+              ]
+            },
+            "args": [
+              {
+                "type": {
+                  "kind": "struct",
+                  "name": "OwnedPoint",
+                  "is_native": false,
+                  "is_packed": false,
+                  "pass_self_by_ref": false,
+                  "size": 24,
+                  "alignment": 8,
+                  "fields": [
+                    {
+                      "name": "label",
+                      "type": {
+                        "kind": "string"
+                      },
+                      "offset": 8
+                    },
+                    {
+                      "name": "values",
+                      "type": {
+                        "kind": "array",
+                        "name": "arr",
+                        "element_type": {
+                          "kind": "int"
+                        }
+                      },
+                      "offset": 16
+                    }
+                  ]
+                },
+                "kind": "call",
+                "callee": {
+                  "type": {
+                    "kind": "function",
+                    "return_type": {
+                      "kind": "struct",
+                      "name": "OwnedPoint",
+                      "is_native": false,
+                      "is_packed": false,
+                      "pass_self_by_ref": false,
+                      "size": 24,
+                      "alignment": 8,
+                      "fields": [
+                        {
+                          "name": "label",
+                          "type": {
+                            "kind": "string"
+                          },
+                          "offset": 8
+                        },
+                        {
+                          "name": "values",
+                          "type": {
+                            "kind": "array",
+                            "name": "arr",
+                            "element_type": {
+                              "kind": "int"
+                            }
+                          },
+                          "offset": 16
+                        }
+                      ]
+                    },
+                    "param_types": [
+                      {
+                        "kind": "int"
+                      },
+                      {
+                        "kind": "int"
+                      },
+                      {
+                        "kind": "int"
+                      },
+                      {
+                        "kind": "int"
+                      }
+                    ],
+                    "param_mem_quals": [
+                      "as_ref",
+                      "as_ref",
+                      "default",
+                      "default"
+                    ],
+                    "is_variadic": false,
+                    "is_native": false,
+                    "has_arena_param": false
+                  },
+                  "kind": "variable",
+                  "name": "markedOwnedPoint"
+                },
+                "args": [
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "variable",
+                    "name": "calls",
+                    "is_ref_arg": true
+                  },
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "variable",
+                    "name": "order",
+                    "is_ref_arg": true
+                  },
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "literal",
+                    "value_kind": "int",
+                    "value": 5
+                  },
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "literal",
+                    "value_kind": "int",
+                    "value": 5
+                  }
+                ],
+                "is_tail_call": false,
+                "is_closure_call": false,
+                "is_fn_field_call": false,
+                "is_borrow_tmp": true,
+                "borrow_type_name": "OwnedPoint",
+                "borrow_needs_cleanup": true,
+                "borrow_tmp_var": "__bt_0__"
+              }
+            ],
+            "has_borrow_temps": true
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "call",
+            "callee": {
+              "type": {
+                "kind": "function",
+                "return_type": {
+                  "kind": "void"
+                },
+                "param_types": [
+                  {
+                    "kind": "int"
+                  }
+                ],
+                "is_variadic": false,
+                "is_native": false,
+                "has_arena_param": false
+              },
+              "kind": "member",
+              "object": {
+                "type": {
+                  "kind": "array",
+                  "name": "arr",
+                  "element_type": {
+                    "kind": "int"
+                  }
+                },
+                "kind": "member",
+                "object": {
+                  "type": {
+                    "kind": "struct",
+                    "name": "OwnedPoint",
+                    "is_native": false,
+                    "is_packed": false,
+                    "pass_self_by_ref": false,
+                    "size": 24,
+                    "alignment": 8,
+                    "fields": [
+                      {
+                        "name": "label",
+                        "type": {
+                          "kind": "string"
+                        },
+                        "offset": 8
+                      },
+                      {
+                        "name": "values",
+                        "type": {
+                          "kind": "array",
+                          "name": "arr",
+                          "element_type": {
+                            "kind": "int"
+                          }
+                        },
+                        "offset": 16
+                      }
+                    ]
+                  },
+                  "kind": "variable",
+                  "name": "ownedSame"
+                },
+                "member_name": "values"
+              },
+              "member_name": "push"
+            },
+            "args": [
+              {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "literal",
+                "value_kind": "int",
+                "value": 7
+              }
+            ],
+            "is_tail_call": false,
+            "is_closure_call": false,
+            "is_fn_field_call": false
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "sourceLabel",
+          "type": {
+            "kind": "string"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "str",
+          "initializer": {
+            "type": {
+              "kind": "string"
+            },
+            "kind": "literal",
+            "value_kind": "string",
+            "value": "source"
+          },
+          "source_is_borrow": true
+        },
+        {
+          "kind": "var_decl",
+          "name": "sourceNumbers",
+          "type": {
+            "kind": "array",
+            "name": "arr",
+            "element_type": {
+              "kind": "int"
+            }
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "arr",
+          "initializer": {
+            "type": {
+              "kind": "array",
+              "name": "arr",
+              "element_type": {
+                "kind": "int"
+              }
+            },
+            "kind": "array_literal",
+            "elements": [
+              {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "literal",
+                "value_kind": "int",
+                "value": 1
+              },
+              {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "literal",
+                "value_kind": "int",
+                "value": 2
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "callValues",
+          "type": {
+            "kind": "struct",
+            "name": "CallValues",
+            "is_native": false,
+            "is_packed": false,
+            "pass_self_by_ref": false,
+            "size": 16,
+            "alignment": 8,
+            "fields": [
+              {
+                "name": "label",
+                "type": {
+                  "kind": "string"
+                },
+                "offset": 8
+              }
+            ]
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "val_cleanup",
+          "initializer": {
+            "type": {
+              "kind": "struct",
+              "name": "CallValues",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 16,
+              "alignment": 8,
+              "fields": [
+                {
+                  "name": "label",
+                  "type": {
+                    "kind": "string"
+                  },
+                  "offset": 8
+                }
+              ]
+            },
+            "kind": "struct_literal",
+            "struct_name": "CallValues",
+            "fields": [
+              {
+                "name": "label",
+                "value": {
+                  "type": {
+                    "kind": "string"
+                  },
+                  "kind": "literal",
+                  "value_kind": "string",
+                  "value": "prefix"
+                },
+                "source_is_borrow": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "staticMatch",
+          "type": {
+            "kind": "bool"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "bool"
+            },
+            "kind": "static_call",
+            "type_name": "CallValues",
+            "method_name": "labelMatches",
+            "args": [
+              {
+                "type": {
+                  "kind": "string"
+                },
+                "kind": "variable",
+                "name": "sourceLabel"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "staticLabel",
+          "type": {
+            "kind": "string"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "str",
+          "initializer": {
+            "type": {
+              "kind": "string"
+            },
+            "kind": "static_call",
+            "type_name": "CallValues",
+            "method_name": "makeLabel",
+            "args": []
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "instanceLabel",
+          "type": {
+            "kind": "string"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "str",
+          "initializer": {
+            "type": {
+              "kind": "string"
+            },
+            "kind": "call",
+            "callee": {
+              "type": {
+                "kind": "function",
+                "return_type": {
+                  "kind": "string"
+                },
+                "param_types": [
+                  {
+                    "kind": "string"
+                  }
+                ],
+                "is_variadic": false,
+                "is_native": false,
+                "has_arena_param": false
+              },
+              "kind": "member",
+              "object": {
+                "type": {
+                  "kind": "struct",
+                  "name": "CallValues",
+                  "is_native": false,
+                  "is_packed": false,
+                  "pass_self_by_ref": false,
+                  "size": 16,
+                  "alignment": 8,
+                  "fields": [
+                    {
+                      "name": "label",
+                      "type": {
+                        "kind": "string"
+                      },
+                      "offset": 8
+                    }
+                  ]
+                },
+                "kind": "variable",
+                "name": "callValues"
+              },
+              "member_name": "joinLabel",
+              "has_c_alias": true,
+              "c_alias": "__sn__CallValues_joinLabel"
+            },
+            "args": [
+              {
+                "type": {
+                  "kind": "string"
+                },
+                "kind": "variable",
+                "name": "sourceLabel"
+              }
+            ],
+            "is_tail_call": false,
+            "is_closure_call": false,
+            "is_fn_field_call": false
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "staticCount",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "static_call",
+            "type_name": "CallValues",
+            "method_name": "countNumbers",
+            "args": [
+              {
+                "type": {
+                  "kind": "array",
+                  "name": "arr",
+                  "element_type": {
+                    "kind": "int"
+                  }
+                },
+                "kind": "variable",
+                "name": "sourceNumbers"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "instanceCount",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "call",
+            "callee": {
+              "type": {
+                "kind": "function",
+                "return_type": {
+                  "kind": "int"
+                },
+                "param_types": [
+                  {
+                    "kind": "array",
+                    "name": "arr",
+                    "element_type": {
+                      "kind": "int"
+                    }
+                  }
+                ],
+                "is_variadic": false,
+                "is_native": false,
+                "has_arena_param": false
+              },
+              "kind": "member",
+              "object": {
+                "type": {
+                  "kind": "struct",
+                  "name": "CallValues",
+                  "is_native": false,
+                  "is_packed": false,
+                  "pass_self_by_ref": false,
+                  "size": 16,
+                  "alignment": 8,
+                  "fields": [
+                    {
+                      "name": "label",
+                      "type": {
+                        "kind": "string"
+                      },
+                      "offset": 8
+                    }
+                  ]
+                },
+                "kind": "variable",
+                "name": "callValues"
+              },
+              "member_name": "countNumbersAgain",
+              "has_c_alias": true,
+              "c_alias": "__sn__CallValues_countNumbersAgain"
+            },
+            "args": [
+              {
+                "type": {
+                  "kind": "array",
+                  "name": "arr",
+                  "element_type": {
+                    "kind": "int"
+                  }
+                },
+                "kind": "variable",
+                "name": "sourceNumbers"
+              }
+            ],
+            "is_tail_call": false,
+            "is_closure_call": false,
+            "is_fn_field_call": false
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "staticNumbers",
+          "type": {
+            "kind": "array",
+            "name": "arr",
+            "element_type": {
+              "kind": "int"
+            }
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "arr",
+          "initializer": {
+            "type": {
+              "kind": "array",
+              "name": "arr",
+              "element_type": {
+                "kind": "int"
+              }
+            },
+            "kind": "static_call",
+            "type_name": "CallValues",
+            "method_name": "makeNumbers",
+            "args": []
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "instanceNumbers",
+          "type": {
+            "kind": "array",
+            "name": "arr",
+            "element_type": {
+              "kind": "int"
+            }
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "arr",
+          "initializer": {
+            "type": {
+              "kind": "array",
+              "name": "arr",
+              "element_type": {
+                "kind": "int"
+              }
+            },
+            "kind": "call",
+            "callee": {
+              "type": {
+                "kind": "function",
+                "return_type": {
+                  "kind": "array",
+                  "name": "arr",
+                  "element_type": {
+                    "kind": "int"
+                  }
+                },
+                "param_types": [],
+                "is_variadic": false,
+                "is_native": false,
+                "has_arena_param": false
+              },
+              "kind": "member",
+              "object": {
+                "type": {
+                  "kind": "struct",
+                  "name": "CallValues",
+                  "is_native": false,
+                  "is_packed": false,
+                  "pass_self_by_ref": false,
+                  "size": 16,
+                  "alignment": 8,
+                  "fields": [
+                    {
+                      "name": "label",
+                      "type": {
+                        "kind": "string"
+                      },
+                      "offset": 8
+                    }
+                  ]
+                },
+                "kind": "variable",
+                "name": "callValues"
+              },
+              "member_name": "makeNumbersAgain",
+              "has_c_alias": true,
+              "c_alias": "__sn__CallValues_makeNumbersAgain"
+            },
+            "args": [],
+            "is_tail_call": false,
+            "is_closure_call": false,
+            "is_fn_field_call": false
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "string"
+                },
+                "kind": "interpolated_string",
+                "parts": [
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "bool"
+                      },
+                      "kind": "variable",
+                      "name": "initialized"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": "|"
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "bool"
+                      },
+                      "kind": "variable",
+                      "name": "argument"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": "|"
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "bool"
+                      },
+                      "kind": "variable",
+                      "name": "returned"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": "|"
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "bool"
+                      },
+                      "kind": "variable",
+                      "name": "memberReceiver"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": "|"
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "bool"
+                      },
+                      "kind": "variable",
+                      "name": "indexedReceiver"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": "|"
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "bool"
+                      },
+                      "kind": "variable",
+                      "name": "explicitNe"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": "|"
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "bool"
+                      },
+                      "kind": "variable",
+                      "name": "derivedGe"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": "|"
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "bool"
+                      },
+                      "kind": "variable",
+                      "name": "derivedLe"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": "|"
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "bool"
+                      },
+                      "kind": "variable",
+                      "name": "matched"
+                    }
+                  }
+                ],
+                "part_count": 17
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "string"
+                },
+                "kind": "interpolated_string",
+                "parts": [
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "bool"
+                      },
+                      "kind": "variable",
+                      "name": "directOrder"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": "|"
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "bool"
+                      },
+                      "kind": "variable",
+                      "name": "swappedOrder"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": "|"
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "bool"
+                      },
+                      "kind": "variable",
+                      "name": "ownedEqual"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": "|"
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "bool"
+                      },
+                      "kind": "variable",
+                      "name": "ownedSwapped"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": "|"
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "variable",
+                      "name": "calls"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": "|"
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "variable",
+                      "name": "order"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": "|"
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "binary",
+                      "op": "add",
+                      "left": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "variable",
+                        "name": "__sn_resolved_arg_0"
+                      },
+                      "right": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "variable",
+                        "name": "__sn_resolved_receiver_0"
+                      },
+                      "arithmetic_mode": "checked"
+                    }
+                  }
+                ],
+                "part_count": 13
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "string"
+                },
+                "kind": "interpolated_string",
+                "parts": [
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "string"
+                      },
+                      "kind": "member",
+                      "object": {
+                        "type": {
+                          "kind": "struct",
+                          "name": "OwnedPoint",
+                          "is_native": false,
+                          "is_packed": false,
+                          "pass_self_by_ref": false,
+                          "size": 24,
+                          "alignment": 8,
+                          "fields": [
+                            {
+                              "name": "label",
+                              "type": {
+                                "kind": "string"
+                              },
+                              "offset": 8
+                            },
+                            {
+                              "name": "values",
+                              "type": {
+                                "kind": "array",
+                                "name": "arr",
+                                "element_type": {
+                                  "kind": "int"
+                                }
+                              },
+                              "offset": 16
+                            }
+                          ]
+                        },
+                        "kind": "variable",
+                        "name": "ownedLeft"
+                      },
+                      "member_name": "label"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": "|"
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "builtin_length",
+                      "object": {
+                        "type": {
+                          "kind": "array",
+                          "name": "arr",
+                          "element_type": {
+                            "kind": "int"
+                          }
+                        },
+                        "kind": "member",
+                        "object": {
+                          "type": {
+                            "kind": "struct",
+                            "name": "OwnedPoint",
+                            "is_native": false,
+                            "is_packed": false,
+                            "pass_self_by_ref": false,
+                            "size": 24,
+                            "alignment": 8,
+                            "fields": [
+                              {
+                                "name": "label",
+                                "type": {
+                                  "kind": "string"
+                                },
+                                "offset": 8
+                              },
+                              {
+                                "name": "values",
+                                "type": {
+                                  "kind": "array",
+                                  "name": "arr",
+                                  "element_type": {
+                                    "kind": "int"
+                                  }
+                                },
+                                "offset": 16
+                              }
+                            ]
+                          },
+                          "kind": "variable",
+                          "name": "ownedLeft"
+                        },
+                        "member_name": "values"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": "|"
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "builtin_length",
+                      "object": {
+                        "type": {
+                          "kind": "array",
+                          "name": "arr",
+                          "element_type": {
+                            "kind": "int"
+                          }
+                        },
+                        "kind": "member",
+                        "object": {
+                          "type": {
+                            "kind": "struct",
+                            "name": "OwnedPoint",
+                            "is_native": false,
+                            "is_packed": false,
+                            "pass_self_by_ref": false,
+                            "size": 24,
+                            "alignment": 8,
+                            "fields": [
+                              {
+                                "name": "label",
+                                "type": {
+                                  "kind": "string"
+                                },
+                                "offset": 8
+                              },
+                              {
+                                "name": "values",
+                                "type": {
+                                  "kind": "array",
+                                  "name": "arr",
+                                  "element_type": {
+                                    "kind": "int"
+                                  }
+                                },
+                                "offset": 16
+                              }
+                            ]
+                          },
+                          "kind": "variable",
+                          "name": "ownedSame"
+                        },
+                        "member_name": "values"
+                      }
+                    }
+                  }
+                ],
+                "part_count": 5
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "string"
+                },
+                "kind": "interpolated_string",
+                "parts": [
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "bool"
+                      },
+                      "kind": "variable",
+                      "name": "staticMatch"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": "|"
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "string"
+                      },
+                      "kind": "variable",
+                      "name": "staticLabel"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": "|"
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "string"
+                      },
+                      "kind": "variable",
+                      "name": "instanceLabel"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": "|"
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "string"
+                      },
+                      "kind": "variable",
+                      "name": "sourceLabel"
+                    }
+                  }
+                ],
+                "part_count": 7
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "string"
+                },
+                "kind": "interpolated_string",
+                "parts": [
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "builtin_length",
+                      "object": {
+                        "type": {
+                          "kind": "array",
+                          "name": "arr",
+                          "element_type": {
+                            "kind": "int"
+                          }
+                        },
+                        "kind": "variable",
+                        "name": "sourceNumbers"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": "|"
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "variable",
+                      "name": "staticCount"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": "|"
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "variable",
+                      "name": "instanceCount"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": "|"
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "builtin_length",
+                      "object": {
+                        "type": {
+                          "kind": "array",
+                          "name": "arr",
+                          "element_type": {
+                            "kind": "int"
+                          }
+                        },
+                        "kind": "variable",
+                        "name": "staticNumbers"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": "|"
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "builtin_length",
+                      "object": {
+                        "type": {
+                          "kind": "array",
+                          "name": "arr",
+                          "element_type": {
+                            "kind": "int"
+                          }
+                        },
+                        "kind": "variable",
+                        "name": "instanceNumbers"
+                      }
+                    }
+                  }
+                ],
+                "part_count": 9
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": [],
+  "fn_wrappers": []
+}

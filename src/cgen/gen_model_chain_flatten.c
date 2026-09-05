@@ -562,7 +562,17 @@ static void flatten_expr(json_object *expr, json_object *inserts)
     if (strcmp(kind, "method_call") == 0)
     {
         json_object *object = NULL;
-        if (json_object_object_get_ex(expr, "object", &object))
+        bool source_arg_before_object = false;
+        json_object *source_order = NULL;
+        if (json_object_object_get_ex(expr, "source_arg_before_object", &source_order))
+            source_arg_before_object = json_object_get_boolean(source_order);
+
+        /* Swapped resolved comparisons retain their original left-to-right
+         * order in the model.  Leave the receiver inline for the method-call
+         * partial to evaluate after the source-first argument; lifting it to
+         * a preceding statement here would discard that ordering fact. */
+        if (!source_arg_before_object &&
+            json_object_object_get_ex(expr, "object", &object))
         {
             flatten_expr(object, inserts);
 
