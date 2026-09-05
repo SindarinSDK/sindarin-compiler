@@ -1,0 +1,7 @@
+fn main(): void =>
+  println(255b + 1b)
+  println(-1b)
+  println(~1b)
+  println(255b + 1b == 0b)
+  var stored: byte = (255b + 1b) / 2b
+  println(stored)

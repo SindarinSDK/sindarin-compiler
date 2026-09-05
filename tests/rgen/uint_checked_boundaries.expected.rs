@@ -32,11 +32,11 @@ fn main() {
     let mut half: u64 = 9223372036854775807;
     let mut two: u64 = 2;
     let mut one: u64 = 1;
-    let mut max_minus_one: u64 = __sn_checked_0((half).checked_mul(two), "Runtime error: integer overflow in multiplication");
-    let mut max: u64 = __sn_checked_0((max_minus_one).checked_add(one), "Runtime error: integer overflow in addition");
-    let mut sum: u64 = __sn_checked_0((max_minus_one).checked_add(one), "Runtime error: integer overflow in addition");
-    let mut difference: u64 = __sn_checked_0((one).checked_sub(one), "Runtime error: integer overflow in subtraction");
-    let mut product: u64 = __sn_checked_0((half).checked_mul(two), "Runtime error: integer overflow in multiplication");
+    let mut max_minus_one: u64 = { let (__sn_byte_left, __sn_byte_right): (u64, u64) = (half, two); __sn_byte_left.wrapping_mul(__sn_byte_right) };
+    let mut max: u64 = { let (__sn_byte_left, __sn_byte_right): (u64, u64) = (max_minus_one, one); __sn_byte_left.wrapping_add(__sn_byte_right) };
+    let mut sum: u64 = { let (__sn_byte_left, __sn_byte_right): (u64, u64) = (max_minus_one, one); __sn_byte_left.wrapping_add(__sn_byte_right) };
+    let mut difference: u64 = { let (__sn_byte_left, __sn_byte_right): (u64, u64) = (one, one); __sn_byte_left.wrapping_sub(__sn_byte_right) };
+    let mut product: u64 = { let (__sn_byte_left, __sn_byte_right): (u64, u64) = (half, two); __sn_byte_left.wrapping_mul(__sn_byte_right) };
     let mut quotient: u64 = { let __sn_left = max; let __sn_right = one; __sn_checked_div_0(__sn_left.checked_div(__sn_right), __sn_right == 0) };
     let mut remainder: u64 = { let __sn_left = max; let __sn_right = two; __sn_checked_mod_0(__sn_left.checked_rem(__sn_right), __sn_right == 0) };
     if (((((sum == max) && (difference == 0)) && (product == max_minus_one)) && (quotient == max)) && (remainder == one)) {

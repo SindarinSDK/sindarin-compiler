@@ -1,0 +1,8 @@
+{
+  "logical_source": "tests/rust-native/scalar_bool_char.sn",
+  "raw_source": "tests/rust-native/scalar_bool_char.sn.raw",
+  "raw_source_sha256": "b71985948b51da5f01cf880272764257bd9e4ed4831a0a61e10d2394e24cb6d3",
+  "sidecars": [
+    "tests/rust-native/scalar_bool_char.sn.c"
+  ]
+}

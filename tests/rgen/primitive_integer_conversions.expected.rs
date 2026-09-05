@@ -39,7 +39,7 @@ fn main() {
     let mut as_uint: u64 = (negative as u64);
     let mut as_byte: u8 = (negative as u8);
     let mut half_uint: u64 = 9223372036854775807;
-    let mut max_uint: u64 = __sn_checked_0((__sn_checked_0((half_uint).checked_mul(2), "Runtime error: integer overflow in multiplication")).checked_add(1), "Runtime error: integer overflow in addition");
+    let mut max_uint: u64 = { let (__sn_byte_left, __sn_byte_right): (u64, u64) = ({ let (__sn_byte_left, __sn_byte_right): (u64, u64) = (half_uint, 2); __sn_byte_left.wrapping_mul(__sn_byte_right) }, 1); __sn_byte_left.wrapping_add(__sn_byte_right) };
     let mut long_value: i64 = 42;
     let mut as_int: i64 = (long_value as i64);
     let mut byte_value: u8 = 200;

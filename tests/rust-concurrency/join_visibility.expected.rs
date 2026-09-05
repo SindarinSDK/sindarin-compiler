@@ -104,7 +104,7 @@ fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
 fn worker() -> i64 {
     for mut i in ((0..100).collect::<Vec<i64>>()).iter().cloned() {
         { let __sn_concurrency0_lock_guard = __sn_concurrency0_global_gate.guard(); {
-        { let __sn_concurrency0_value = __sn_checked_0((({ let value = __sn_concurrency0_global_count.lock().unwrap_or_else(|e| e.into_inner()).clone(); value } as i64)).checked_add(1), "Runtime error: integer overflow in addition"); *__sn_concurrency0_global_count.lock().unwrap_or_else(|e| e.into_inner()) = __sn_concurrency0_value.clone(); __sn_concurrency0_value };
+        { let __sn_concurrency0_value = __sn_checked_0(({ let value = __sn_concurrency0_global_count.lock().unwrap_or_else(|e| e.into_inner()).clone(); value }).checked_add(1), "Runtime error: integer overflow in addition"); *__sn_concurrency0_global_count.lock().unwrap_or_else(|e| e.into_inner()) = __sn_concurrency0_value.clone(); __sn_concurrency0_value };
     } }
 
     }
@@ -120,5 +120,5 @@ fn main() {
 );
     { if let Some(__sn_concurrency0_handle) = __sn_concurrency0_handle_a.take() { a = __sn_concurrency0_handle.join(); } if let Some(__sn_concurrency0_handle) = __sn_concurrency0_handle_b.take() { b = __sn_concurrency0_handle.join(); }  }
 ;
-    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("count: "); __sn_interpolated.push_str(&format!("{}", { let value = __sn_concurrency0_global_count.lock().unwrap_or_else(|e| e.into_inner()).clone(); value })); __sn_interpolated.push_str(", returns: "); __sn_interpolated.push_str(&format!("{}", __sn_checked_0(((a as i64)).checked_add(b), "Runtime error: integer overflow in addition"))); __sn_interpolated });
+    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("count: "); __sn_interpolated.push_str(&format!("{}", { let value = __sn_concurrency0_global_count.lock().unwrap_or_else(|e| e.into_inner()).clone(); value })); __sn_interpolated.push_str(", returns: "); __sn_interpolated.push_str(&format!("{}", __sn_checked_0((a).checked_add(b), "Runtime error: integer overflow in addition"))); __sn_interpolated });
 }

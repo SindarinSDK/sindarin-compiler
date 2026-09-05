@@ -1,0 +1,10 @@
+fn operand(trace: int as ref, value: byte): byte =>
+  println(trace)
+  trace += 1
+  return value
+
+fn main(): void =>
+  var trace: int = 1
+  var result: byte = operand(trace, 255b) + operand(trace, 1b)
+  println(trace)
+  println(result == 0b)

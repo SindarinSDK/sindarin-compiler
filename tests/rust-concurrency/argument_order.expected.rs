@@ -78,12 +78,12 @@ fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
 }
 
 fn next() -> i64 {
-    { let __sn_concurrency0_value = __sn_checked_0((({ let value = __sn_concurrency0_global_sequence.lock().unwrap_or_else(|e| e.into_inner()).clone(); value } as i64)).checked_add(1), "Runtime error: integer overflow in addition"); *__sn_concurrency0_global_sequence.lock().unwrap_or_else(|e| e.into_inner()) = __sn_concurrency0_value.clone(); __sn_concurrency0_value };
+    { let __sn_concurrency0_value = __sn_checked_0(({ let value = __sn_concurrency0_global_sequence.lock().unwrap_or_else(|e| e.into_inner()).clone(); value }).checked_add(1), "Runtime error: integer overflow in addition"); *__sn_concurrency0_global_sequence.lock().unwrap_or_else(|e| e.into_inner()) = __sn_concurrency0_value.clone(); __sn_concurrency0_value };
     return { let value = __sn_concurrency0_global_sequence.lock().unwrap_or_else(|e| e.into_inner()).clone(); value };
 }
 
 fn combine(a: i64, b: i64) -> i64 {
-    return __sn_checked_0(((__sn_checked_0(((a as i64)).checked_mul(10), "Runtime error: integer overflow in multiplication") as i64)).checked_add(b), "Runtime error: integer overflow in addition");
+    return __sn_checked_0((__sn_checked_0((a).checked_mul(10), "Runtime error: integer overflow in multiplication")).checked_add(b), "Runtime error: integer overflow in addition");
 }
 
 fn main() {

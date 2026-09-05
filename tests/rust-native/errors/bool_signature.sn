@@ -1,4 +1,0 @@
-native fn unsupported(value: bool): bool
-
-fn main(): void =>
-  println(unsupported(true))

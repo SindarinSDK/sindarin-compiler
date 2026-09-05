@@ -60,12 +60,12 @@ fn main() {
     let mut u32: u32 = 2;
     let mut u: u64 = 3;
     let mut f: f32 = 4.0;
-    let mut snapshot: __SnClosure<dyn Fn() -> ()> = { let (i32, u32, u, f, ) = (i32.clone(), u32.clone(), u.clone(), f.clone(), ); self::__SnClosure::<dyn Fn() -> ()>(std::rc::Rc::new(move || -> () { let mut i32 = i32; let mut u32 = u32; let mut u = u; let mut f = f; { let __sn_rhs = 1; let __sn_place = &mut (i32); let __sn_next = __sn_checked_0((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };{ let __sn_rhs = 1; let __sn_place = &mut (u32); let __sn_next = __sn_checked_0((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };{ let __sn_rhs = 1; let __sn_place = &mut (u); let __sn_next = __sn_checked_0((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };{ let (__sn_rhs, __sn_place) = (1.0, &mut (f)); let __sn_next = *__sn_place + __sn_rhs; *__sn_place = __sn_next; __sn_next };println!("{}", i32.clone());println!("{}", u32.clone());println!("{}", u.clone());println!("{}", (f.clone() == 5.0));})) }
+    let mut snapshot: __SnClosure<dyn Fn() -> ()> = { let (i32, u32, u, f, ) = (i32.clone(), u32.clone(), u.clone(), f.clone(), ); self::__SnClosure::<dyn Fn() -> ()>(std::rc::Rc::new(move || -> () { let mut i32 = i32; let mut u32 = u32; let mut u = u; let mut f = f; { let __sn_rhs = 1; let __sn_place = &mut (i32); let __sn_next = __sn_checked_0((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };{ let (__sn_byte_rhs, __sn_byte_place): (u32, &mut u32) = (1, &mut (u32)); let __sn_byte_next = (*__sn_byte_place).wrapping_add(__sn_byte_rhs); *__sn_byte_place = __sn_byte_next; __sn_byte_next };{ let (__sn_byte_rhs, __sn_byte_place): (u64, &mut u64) = (1, &mut (u)); let __sn_byte_next = (*__sn_byte_place).wrapping_add(__sn_byte_rhs); *__sn_byte_place = __sn_byte_next; __sn_byte_next };{ let (__sn_rhs, __sn_place) = (1.0, &mut (f)); let __sn_next = *__sn_place + __sn_rhs; *__sn_place = __sn_next; __sn_next };println!("{}", i32.clone());println!("{}", u32.clone());println!("{}", (u.clone() as i64));println!("{}", (f.clone() == 5.0));})) }
 ;
     ((snapshot.clone()).0)();
     ((snapshot.clone()).0)();
     println!("{}", i32);
     println!("{}", u32);
-    println!("{}", u);
+    println!("{}", (u as i64));
     println!("{}", (f == 4.0));
 }

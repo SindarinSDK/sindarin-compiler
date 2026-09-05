@@ -23,6 +23,34 @@ fn __sn_array_size(size: i64) -> usize {
     size as usize
 }
 
+fn __sn_runtime_error_0(message: &'static str) -> ! {
+    eprintln!("{}", message);
+    std::process::exit(1);
+}
+
+fn __sn_checked_0<T>(value: Option<T>, message: &'static str) -> T {
+    match value {
+        Some(value) => value,
+        None => __sn_runtime_error_0(message),
+    }
+}
+
+fn __sn_checked_div_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked_0(value, if divisor_is_zero {
+        "panic: Division by zero"
+    } else {
+        "Runtime error: integer overflow in division"
+    })
+}
+
+fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked_0(value, if divisor_is_zero {
+        "panic: Modulo by zero"
+    } else {
+        "Runtime error: integer overflow in modulo"
+    })
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 struct Item {
     value: i64,
@@ -30,7 +58,7 @@ struct Item {
 
 impl Item {
     fn op_lt(&self, other: &mut Item) -> bool {
-        ((other).value = ((other).value).checked_add(1).expect("checked arithmetic failed"));
+        ((other).value = __sn_checked_0(((other).value).checked_add(1), "Runtime error: integer overflow in addition"));
         return ((self).value < (other).value);
     }
 }
@@ -40,31 +68,31 @@ struct Bucket {
 }
 
 fn makeReceiver(item: Item, trace: &mut i64, digit: i64) -> Item {
-    (*(trace) = ((*(trace)).checked_mul(10).expect("checked arithmetic failed")).checked_add(digit).expect("checked arithmetic failed"));
-    return Item { value: ((item).value).checked_add(1).expect("checked arithmetic failed") };
+    (*(trace) = __sn_checked_0((__sn_checked_0((*(trace)).checked_mul(10), "Runtime error: integer overflow in multiplication")).checked_add(digit), "Runtime error: integer overflow in addition"));
+    return Item { value: __sn_checked_0(((item).value).checked_add(1), "Runtime error: integer overflow in addition") };
 }
 
 fn makeItems(calls: &mut i64, trace: &mut i64, digit: i64) -> Vec<Item> {
-    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
-    (*(trace) = ((*(trace)).checked_mul(10).expect("checked arithmetic failed")).checked_add(digit).expect("checked arithmetic failed"));
+    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
+    (*(trace) = __sn_checked_0((__sn_checked_0((*(trace)).checked_mul(10), "Runtime error: integer overflow in multiplication")).checked_add(digit), "Runtime error: integer overflow in addition"));
     return vec![Item { value: 1 }];
 }
 
 fn makeBucket(calls: &mut i64, trace: &mut i64, digit: i64) -> Bucket {
-    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
-    (*(trace) = ((*(trace)).checked_mul(10).expect("checked arithmetic failed")).checked_add(digit).expect("checked arithmetic failed"));
+    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
+    (*(trace) = __sn_checked_0((__sn_checked_0((*(trace)).checked_mul(10), "Runtime error: integer overflow in multiplication")).checked_add(digit), "Runtime error: integer overflow in addition"));
     return Bucket { items: vec![Item { value: 1 }] };
 }
 
 fn makeBuckets(calls: &mut i64, trace: &mut i64, digit: i64) -> Vec<Bucket> {
-    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
-    (*(trace) = ((*(trace)).checked_mul(10).expect("checked arithmetic failed")).checked_add(digit).expect("checked arithmetic failed"));
+    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
+    (*(trace) = __sn_checked_0((__sn_checked_0((*(trace)).checked_mul(10), "Runtime error: integer overflow in multiplication")).checked_add(digit), "Runtime error: integer overflow in addition"));
     return vec![Bucket { items: vec![Item { value: 1 }] }];
 }
 
 fn index(calls: &mut i64, trace: &mut i64, digit: i64) -> i64 {
-    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
-    (*(trace) = ((*(trace)).checked_mul(10).expect("checked arithmetic failed")).checked_add(digit).expect("checked arithmetic failed"));
+    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
+    (*(trace) = __sn_checked_0((__sn_checked_0((*(trace)).checked_mul(10), "Runtime error: integer overflow in multiplication")).checked_add(digit), "Runtime error: integer overflow in addition"));
     return 0;
 }
 

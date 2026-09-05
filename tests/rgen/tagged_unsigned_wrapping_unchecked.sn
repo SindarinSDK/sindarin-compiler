@@ -1,0 +1,13 @@
+fn main(): void =>
+  var u32_value: uint32 = 4294967295u32
+  println(u32_value++)
+  println(u32_value)
+  u32_value -= 1u32
+  println(u32_value)
+
+  var u_half: uint = 9223372036854775807u
+  var u_value: uint = u_half * 2u + 1u
+  println(u_value++)
+  println(u_value)
+  u_value -= 1u
+  println(u_value)
