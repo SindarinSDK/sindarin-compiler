@@ -2,7 +2,7 @@
 
 ## Scope
 
-This branch restores the `v0.0.83` fixed-width arithmetic contract in the Rust backend. The oracle is peeled tag commit `79c20bdb8314aff3c778471ceab20bb8f9ca8d62`; the branch includes the closure integration through `63422ab604512e9545b01f56d0ba4ecbde005e82`.
+This branch restores the `v0.0.83` fixed-width arithmetic contract in the Rust backend. The oracle is peeled tag commit `79c20bdb8314aff3c778471ceab20bb8f9ca8d62`; the branch is composed with main `ca485726a9f01321d3eca9361bd2f9cea65f51a8`, including the resolved-call, native scalar, and owned-array closure integrations.
 
 Rust-private lowering now covers:
 
@@ -38,6 +38,8 @@ Every source was unchanged between the peeled tag C compiler and this Rust compi
 
 Twelve representative members of the measured E0689 group were compiled and run through both current C and Rust at O0. All 24 compilations and executions returned zero, all 12 raw stdout/stderr pairs matched, and no Rust stream contained E0689. Results are in `/tmp/sn-s2-byte-work/numeric-inference-representative-80c/results.tsv`.
 
+After the `ca485726` composition, the 22 fixtures named by the fresh main653 rgen failure catalog were compiled individually at O0. Fourteen produced Rust executables and none of the 22 raw compile streams contained E0689 or an ambiguous-numeric-type diagnostic. Eight stopped at existing source/frontend boundaries before rustc; they are retained in `/tmp/sindarin-s2-e0689-main653-catalog-1788647749-3277354/results.tsv` and were not treated as numeric parity successes or changed by this branch.
+
 The earlier byte-only matrices remain at `/tmp/sn-s2-byte-work/differential-20260905b` and `/tmp/sn-s2-byte-work/differential-20260905c`. They contain 18 raw pairs each for the two original byte fixtures across three arithmetic selections and O0/O1/O2.
 
 The mixed integral compound source was accepted independently by the verified tagged compiler in default, checked, and unchecked modes at O0/O1/O2. All nine tagged compilations and executions returned zero and produced exactly `0x07\n7\n48\n`; results are `/tmp/sindarin-s2-tag-mixed-compound-13eO3Z/results.tsv`. The Rust regression passed the same nine-mode matrix with executable checks and raw output comparison at commit `7d34e95ae3c6dc86db673412ca7b4cc37a1416c9`; results are `/tmp/sindarin-s2-rust-mixed-compound-head7d34-1788647151-3212756/results.tsv`.
@@ -59,5 +61,7 @@ The merged diagnostic helper contract remains authoritative. Numeric routing occ
 The array text branch is required to execute the unchanged `test_arr_sum_pairs.sn`, `test_fn_collatz_seq.sn`, and `test_fn_powers_of_two.sn` sources. On the numeric branch alone they advance to the independent array-join boundary. The historical `a6a1cfb1`/`a343` evidence remains under `/tmp/sn-s2-byte-work/array-numeric-combined-a6a1-a343`, but is not used as approval for the current head.
 
 A fresh isolated composition used numeric commit `7d34e95ae3c6dc86db673412ca7b4cc37a1416c9` and reviewed array head `8c1cb92072d94957a1a618abc9bb7a85cd0c10b2`. A hello-world control and all three unchanged integration sources compiled and ran through Rust's default optimizer, produced executables, returned zero, and matched their existing expected output byte for byte. Every child status was asserted by a bash harness. Results are `/tmp/sindarin-s2-array-numeric-final-1788647124-3211774/results.tsv`.
+
+After composing main `ca485726`, the same strict check was repeated at numeric candidate `77f0c3f353965a17a2c7ceac283701a601ac0787` with reviewed array head `8c1cb92072d94957a1a618abc9bb7a85cd0c10b2`. The hello-world control and all three unchanged integration sources again compiled, produced executables, ran with status zero, and matched expected output byte for byte. Results are `/tmp/sindarin-s2-array-numeric-main-ca-1788647708-3268794/results.tsv`.
 
 Remaining numeric parity includes the preserved signed-literal C emission nuance, undefined signed C overflow forms outside the valid oracle envelope, and other numeric types not listed in this scope.
