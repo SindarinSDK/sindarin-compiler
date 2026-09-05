@@ -291,7 +291,8 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
         root_name = json_string_property(root, "name");
         json_object *param = rust_name_is_shadowed(scope, root_name)
             ? NULL : rust_find_parameter(params, root_name);
-        if (param && json_string_property_equals(param, "mem_qual", "default"))
+        if (param && json_string_property_equals(param, "mem_qual", "default") &&
+            !json_boolean_property(param, "rust_default_array_ref"))
         {
             fprintf(stderr,
                     "Error: Rust target does not support direct assignment through %s targets rooted in by-value parameter '%s'\n",
