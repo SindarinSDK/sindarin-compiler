@@ -15,7 +15,6 @@
 #include <unistd.h>
 #endif
 
-extern const TargetCompiler sn_c_target;
 extern const TargetCompiler sn_rust_target;
 
 void generated_file_set_init(GeneratedFileSet *set)
@@ -81,16 +80,6 @@ bool target_kind_parse(const char *name, TargetKind *kind)
     else
         return false;
     return true;
-}
-
-const TargetCompiler *target_compiler_for(TargetKind kind)
-{
-    switch (kind)
-    {
-        case TARGET_C: return &sn_c_target;
-        case TARGET_RUST: return &sn_rust_target;
-    }
-    return NULL;
 }
 
 static bool write_file(const char *path, const char *content)
@@ -188,14 +177,9 @@ static void report_success(const char *path)
     diagnostic_compile_success(path, file_size, 0);
 }
 
-int target_compile(CompilerOptions *options, Module *module)
+int rust_target_compile(CompilerOptions *options, Module *module)
 {
-    const TargetCompiler *target = target_compiler_for(options->target);
-    if (!target)
-    {
-        fprintf(stderr, "Error: unsupported compilation target\n");
-        return 1;
-    }
+    const TargetCompiler *target = &sn_rust_target;
 
     if (options->output_kind == OUTPUT_EXECUTABLE &&
         (!target->check_toolchain || !target->check_toolchain(options)))

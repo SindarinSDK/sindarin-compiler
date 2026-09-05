@@ -1,6 +1,6 @@
 /* Rust-private projection, migrated from main 7af0d192. */
-#ifndef CGEN_OWNERSHIP_H
-#define CGEN_OWNERSHIP_H
+#ifndef RUST_PROJECTION_OWNERSHIP_H
+#define RUST_PROJECTION_OWNERSHIP_H
 
 #include "ast.h"
 
@@ -29,12 +29,12 @@
  */
 
 typedef enum {
-    OWNERSHIP_BORROW,
-    OWNERSHIP_OWNED
-} OwnershipKind;
+    RUST_OWNERSHIP_BORROW,
+    RUST_OWNERSHIP_OWNED
+} RustOwnershipKind;
 
-OwnershipKind rust_ownership_kind(const Expr *src);
-const char *rust_ownership_kind_str(OwnershipKind k);
+RustOwnershipKind rust_ownership_kind(const Expr *src);
+const char *rust_ownership_kind_str(RustOwnershipKind k);
 
 /* True when member lowering lifts an owned value-struct call result into an
  * auto-cleaned temporary and applies a keeper operation to the selected

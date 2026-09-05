@@ -159,7 +159,7 @@ Or use the test runner directly (cross-platform):
 python3 scripts/run_tests.py all                # All tests
 python3 scripts/run_tests.py unit               # Unit tests
 python3 scripts/run_tests.py cgen               # Code generation tests
-python3 scripts/run_tests.py rgen               # Rust generation tests
+python3 scripts/run_rust_tests.py all           # Rust generation, errors and toolchain
 python3 scripts/run_tests.py mgen               # Model generation tests
 python3 scripts/run_tests.py integration        # Integration tests
 python3 scripts/run_tests.py integration-errors # Integration error tests

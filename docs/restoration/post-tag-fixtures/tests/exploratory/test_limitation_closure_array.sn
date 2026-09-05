@@ -1,0 +1,35 @@
+# Test closures capturing arrays in threads with explicit synchronization
+
+sync var array_guard: int = 0
+
+fn run_closure(f: fn(): int): int =>
+  lock (array_guard) =>
+    var result: int = f()
+    return result
+
+fn main(): int =>
+  var data: int[] = {1, 2, 3}
+
+  # Share one closure while serializing mutations of its captured array.
+  var append: fn(): int = fn(): int =>
+    data.push(99)
+    return data.length
+
+  # Spawn multiple threads with the closure
+  var r1: int = & run_closure(append)
+  var r2: int = & run_closure(append)
+  var r3: int = & run_closure(append)
+
+  var v1 = r1 !
+  var v2 = r2 !
+  var v3 = r3 !
+
+  assert(v1 >= 4 && v1 <= 6 && v2 >= 4 && v2 <= 6 && v3 >= 4 && v3 <= 6,
+    $"Returned lengths out of range: {v1}, {v2}, {v3}")
+  assert(v1 != v2 && v1 != v3 && v2 != v3,
+    $"Returned lengths must be distinct: {v1}, {v2}, {v3}")
+  assert(v1 + v2 + v3 == 15, $"Returned lengths must sum to 15: {v1}, {v2}, {v3}")
+  assert(v1 * v2 * v3 == 120, $"Returned lengths must multiply to 120: {v1}, {v2}, {v3}")
+
+  print("PASS\n")
+  return 0

@@ -40,9 +40,9 @@ const char *rust_gen_model_func_mod_str(FunctionModifier fm)
  * Type category classification
  * ============================================================================ */
 
-TypeCategory rust_gen_model_type_category(Type *type)
+RustTypeCategory rust_gen_model_type_category(Type *type)
 {
-    if (!type) return TYPE_CAT_SCALAR;
+    if (!type) return RUST_TYPE_CAT_SCALAR;
     switch (type->kind)
     {
         case TYPE_INT:
@@ -59,40 +59,40 @@ TypeCategory rust_gen_model_type_category(Type *type)
         case TYPE_NIL:
         case TYPE_POINTER:
         case TYPE_OPAQUE:
-            return TYPE_CAT_SCALAR;
+            return RUST_TYPE_CAT_SCALAR;
 
         case TYPE_STRING:
         case TYPE_ARRAY:
         case TYPE_FUNCTION:
-            return TYPE_CAT_OWNED;
+            return RUST_TYPE_CAT_OWNED;
 
         case TYPE_STRUCT:
             if (type->as.struct_type.pass_self_by_ref)
-                return TYPE_CAT_REFCOUNTED;
+                return RUST_TYPE_CAT_REFCOUNTED;
             if (rust_gen_model_type_has_heap_fields(type))
-                return TYPE_CAT_COMPOSITE;
-            return TYPE_CAT_INERT;
+                return RUST_TYPE_CAT_COMPOSITE;
+            return RUST_TYPE_CAT_INERT;
 
         case TYPE_GENERIC_INST:
             /* Before type-checking resolution, treat as scalar placeholder */
             if (type->as.generic_inst.resolved != NULL)
                 return rust_gen_model_type_category(type->as.generic_inst.resolved);
-            return TYPE_CAT_SCALAR;
+            return RUST_TYPE_CAT_SCALAR;
 
         default:
-            return TYPE_CAT_SCALAR;
+            return RUST_TYPE_CAT_SCALAR;
     }
 }
 
-const char *rust_gen_model_type_category_str(TypeCategory cat)
+const char *rust_gen_model_type_category_str(RustTypeCategory cat)
 {
     switch (cat)
     {
-        case TYPE_CAT_SCALAR:     return "scalar";
-        case TYPE_CAT_OWNED:      return "owned";
-        case TYPE_CAT_REFCOUNTED: return "refcounted";
-        case TYPE_CAT_COMPOSITE:  return "composite";
-        case TYPE_CAT_INERT:      return "inert";
+        case RUST_TYPE_CAT_SCALAR:     return "scalar";
+        case RUST_TYPE_CAT_OWNED:      return "owned";
+        case RUST_TYPE_CAT_REFCOUNTED: return "refcounted";
+        case RUST_TYPE_CAT_COMPOSITE:  return "composite";
+        case RUST_TYPE_CAT_INERT:      return "inert";
         default:                  return "scalar";
     }
 }
@@ -132,19 +132,19 @@ bool rust_gen_model_type_has_heap_fields(Type *type)
 const char *rust_gen_model_var_cleanup_kind(Type *type, bool suppress_local)
 {
     if (!type) return "none";
-    TypeCategory cat = rust_gen_model_type_category(type);
+    RustTypeCategory cat = rust_gen_model_type_category(type);
     switch (cat)
     {
-        case TYPE_CAT_OWNED:
+        case RUST_TYPE_CAT_OWNED:
             if (type->kind == TYPE_FUNCTION) return "fn";
             /* string/array can be suppressed for struct-returning functions */
             return suppress_local ? "none" : (type->kind == TYPE_STRING ? "str" : "arr");
-        case TYPE_CAT_REFCOUNTED:
+        case RUST_TYPE_CAT_REFCOUNTED:
             return "release";
-        case TYPE_CAT_COMPOSITE:
+        case RUST_TYPE_CAT_COMPOSITE:
             return "val_cleanup";
-        case TYPE_CAT_SCALAR:
-        case TYPE_CAT_INERT:
+        case RUST_TYPE_CAT_SCALAR:
+        case RUST_TYPE_CAT_INERT:
         default:
             return "none";
     }

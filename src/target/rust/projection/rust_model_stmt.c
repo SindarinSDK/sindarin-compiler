@@ -84,10 +84,10 @@ json_object *rust_gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_t
                 }
                 if (!skip_discard && ex->expr_type)
                 {
-                    TypeCategory cat = rust_gen_model_type_category(ex->expr_type);
+                    RustTypeCategory cat = rust_gen_model_type_category(ex->expr_type);
                     switch (cat)
                     {
-                        case TYPE_CAT_OWNED:
+                        case RUST_TYPE_CAT_OWNED:
                             json_object_object_add(obj, "needs_discard_cleanup",
                                 json_object_new_boolean(true));
                             if (ex->expr_type->kind == TYPE_STRING)
@@ -100,7 +100,7 @@ json_object *rust_gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_t
                                 json_object_object_add(obj, "discard_kind",
                                     json_object_new_string("fn"));
                             break;
-                        case TYPE_CAT_REFCOUNTED:
+                        case RUST_TYPE_CAT_REFCOUNTED:
                             /* With borrow-inference at native call sites and explicit
                              * retain on `return self`/`return param` for Sindarin fns,
                              * every refcounted call result is +1 owned. A discarded
@@ -114,7 +114,7 @@ json_object *rust_gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_t
                             json_object_object_add(obj, "discard_type_name",
                                 json_object_new_string(ex->expr_type->as.struct_type.name));
                             break;
-                        case TYPE_CAT_COMPOSITE:
+                        case RUST_TYPE_CAT_COMPOSITE:
                             json_object_object_add(obj, "needs_discard_cleanup",
                                 json_object_new_boolean(true));
                             json_object_object_add(obj, "discard_kind",
@@ -229,11 +229,11 @@ json_object *rust_gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_t
                 bool want_acquire =
                     (vtype && vtype->kind == TYPE_STRING) ||
                     (vtype && vtype->kind == TYPE_ARRAY) ||
-                    rust_gen_model_type_category(vtype) == TYPE_CAT_COMPOSITE ||
-                    rust_gen_model_type_category(vtype) == TYPE_CAT_REFCOUNTED;
+                    rust_gen_model_type_category(vtype) == RUST_TYPE_CAT_COMPOSITE ||
+                    rust_gen_model_type_category(vtype) == RUST_TYPE_CAT_REFCOUNTED;
                 if (want_acquire &&
                     !init_is_lifted_member &&
-                    rust_ownership_kind(stmt->as.var_decl.initializer) == OWNERSHIP_BORROW)
+                    rust_ownership_kind(stmt->as.var_decl.initializer) == RUST_OWNERSHIP_BORROW)
                 {
                     json_object_object_add(obj, "source_is_borrow",
                         json_object_new_boolean(true));
@@ -872,7 +872,7 @@ json_object *rust_gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_t
                  * Snapshot it so the loop's backing storage remains valid;
                  * owned temporaries already provide their own +1 credit. */
                 json_object_object_add(obj, "iterable_needs_copy",
-                    json_object_new_boolean(rust_ownership_kind(iter_expr) == OWNERSHIP_BORROW));
+                    json_object_new_boolean(rust_ownership_kind(iter_expr) == RUST_OWNERSHIP_BORROW));
             }
             break;
         }

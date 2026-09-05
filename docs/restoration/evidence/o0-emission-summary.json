@@ -1,0 +1,16 @@
+{
+  "fixture_commit": "79c20bdb8314aff3c778471ceab20bb8f9ca8d62",
+  "compiler_commit": "48975cbe54c034c79c49642227a2e28eb4a8ba7b",
+  "source_count": 1691,
+  "equal": 1691,
+  "different": 0,
+  "optimization": "-O0 only",
+  "raw_artifact_bytes_normalized": false,
+  "diagnostic_normalizations": [
+    "per-invocation output file path -> <OUTPUT>",
+    "compiler installation directory -> <COMPILER_DIR>",
+    "ANSI SGR styling stripped by harness"
+  ],
+  "diagnostic_differences_without_ANSI_stripping": 0,
+  "limitations": "This is emission/model/status/diagnostics coverage, not all-mode executable differential coverage. Other modes and driver matrix are independently assigned."
+}
