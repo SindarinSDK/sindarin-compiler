@@ -1,0 +1,21 @@
+struct ReceiverInner =>
+  value: int
+
+struct ReceiverOuter =>
+  inner: ReceiverInner
+  count: int
+
+  fn touch(value: int as ref): int =>
+    self.count = self.count + 1
+    value = value + 10
+    return self.count + value
+
+fn main(): void =>
+  var __sn_raw_self_0: int = 5
+  println(__sn_raw_self_0)
+  var outer: ReceiverOuter = {
+    inner: ReceiverInner { value: 1 },
+    count: 0
+  }
+  println(outer.touch(outer.inner.value))
+  println($"{outer.count}:{outer.inner.value}")

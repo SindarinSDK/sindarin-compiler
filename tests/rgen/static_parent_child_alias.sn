@@ -1,0 +1,20 @@
+struct Inner =>
+  value: int
+
+struct Outer =>
+  inner: Inner
+  count: int
+
+struct Ops =>
+  static fn touch(outer: Outer as ref, inner: Inner as ref): int =>
+    outer.count = outer.count + 1
+    inner.value = inner.value + 10
+    return outer.count + inner.value
+
+fn main(): void =>
+  var outer: Outer = {
+    inner: Inner { value: 1 },
+    count: 0
+  }
+  println(Ops.touch(outer, outer.inner))
+  println($"{outer.count}:{outer.inner.value}")

@@ -1,1 +1,1 @@
-{{#if rust_deref}}*({{/if}}{{#if (eq name "self")}}self{{else}}{{rust_ident name}}{{/if}}{{#if rust_deref}}){{/if}}{{rust_clone_suffix this rust_needs_clone}}
+{{#if rust_deref}}*({{/if}}{{#if rust_raw_name}}{{rust_ident rust_raw_name}}{{else}}{{#if (eq name "self")}}self{{else}}{{rust_ident name}}{{/if}}{{/if}}{{#if rust_deref}}){{/if}}{{rust_clone_suffix this rust_needs_clone~}}

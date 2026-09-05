@@ -1,4 +1,5 @@
 /* Included after validation; uses the same private type/model helpers. */
+static void rust_mark_scalar_ref_uses(json_object *node, const char *param_name);
 #include "rust_lower_calls.c"
 #include "rust_lower_closures.c"
 

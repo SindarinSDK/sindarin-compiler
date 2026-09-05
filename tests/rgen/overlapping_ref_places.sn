@@ -1,0 +1,97 @@
+struct Leaf =>
+  value: int
+
+struct InnerNode =>
+  leaf: Leaf
+  score: int
+
+struct OuterNode =>
+  inner: InnerNode
+  total: int
+
+struct AliasOps =>
+  static fn touchNested(outer: OuterNode as ref, inner: InnerNode as ref, leaf: Leaf as ref): int =>
+    outer.total = outer.total + 1
+    inner.score = inner.score + 10
+    leaf.value = leaf.value + 100
+    return outer.total + outer.inner.score + outer.inner.leaf.value
+
+  static fn touchSame(value: int as ref, alias: int as ref): int =>
+    value = value + 1
+    alias = alias + 10
+    return value
+
+  static fn forwardedSink(outer: OuterNode as ref, inner: InnerNode as ref): int =>
+    outer.total = outer.total + 2
+    inner.score = inner.score + 20
+    return outer.total + outer.inner.score
+
+  static fn forwardedWrapper(outer: OuterNode as ref, inner: InnerNode as ref): int =>
+    return AliasOps.forwardedSink(outer, inner)
+
+  static fn recursiveTouch(outer: OuterNode as ref, inner: InnerNode as ref, remaining: int): int =>
+    if remaining == 0 =>
+      return outer.total + outer.inner.score
+    outer.total = outer.total + 1
+    inner.score = inner.score + 2
+    return AliasOps.recursiveTouch(outer, inner, remaining - 1)
+
+fn touchSameFree(value: int as ref, alias: int as ref): int =>
+  value = value + 2
+  alias = alias + 20
+  return value
+
+fn forwardedSameSink(value: int as ref, alias: int as ref): int =>
+  value = value + 3
+  alias = alias + 30
+  return value
+
+fn forwardedSameWrapper(value: int as ref, alias: int as ref): int =>
+  return forwardedSameSink(value, alias)
+
+fn scopedMutation(): int =>
+  var outer: OuterNode = {
+    inner: InnerNode {
+      leaf: Leaf { value: 3 },
+      score: 2
+    },
+    total: 1
+  }
+  println(AliasOps.touchNested(outer, outer.inner, outer.inner.leaf))
+  println($"{outer.total}:{outer.inner.score}:{outer.inner.leaf.value}")
+  return outer.inner.leaf.value
+
+fn main(): void =>
+  var first: int = 1
+  println(AliasOps.touchSame(first, first))
+  println(first)
+
+  var second: int = 5
+  println(touchSameFree(second, second))
+  println(second)
+
+  var third: int = 7
+  println(forwardedSameWrapper(third, third))
+  println(third)
+
+  println(scopedMutation())
+
+  var forwarded: OuterNode = {
+    inner: InnerNode {
+      leaf: Leaf { value: 0 },
+      score: 1
+    },
+    total: 2
+  }
+  println(AliasOps.forwardedWrapper(forwarded, forwarded.inner))
+  println($"{forwarded.total}:{forwarded.inner.score}")
+
+  var recursive: OuterNode = {
+    inner: InnerNode {
+      leaf: Leaf { value: 0 },
+      score: 2
+    },
+    total: 1
+  }
+  println(AliasOps.recursiveTouch(recursive, recursive.inner, 3))
+  println($"{recursive.total}:{recursive.inner.score}")
