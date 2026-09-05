@@ -1,0 +1,34 @@
+@source "scalar_pointer_bridge.sn.c"
+
+type NativeHandle = opaque
+
+native fn int_slot(): *int
+native fn second_int_slot(): *int
+native fn char_slot(): *char
+native fn void_slot(): *void
+native fn opaque_slot(): *NativeHandle
+native fn pointer_calls(): int
+
+native fn pass_int(value: *int): *int
+native fn pass_char(value: *char): *char
+native fn pass_void(value: *void): *void
+native fn pass_opaque(value: *NativeHandle): *NativeHandle
+native fn same_int(left: *int, right: *int): bool
+native fn same_char(left: *char, right: *char): bool
+native fn same_void(left: *void, right: *void): bool
+native fn same_opaque(left: *NativeHandle, right: *NativeHandle): bool
+
+fn main(): void =>
+  println(same_int(int_slot(), int_slot()))
+  println(!same_int(int_slot(), second_int_slot()))
+  println(same_int(pass_int(int_slot()), int_slot()))
+  println(pointer_calls())
+
+  println(same_char(char_slot(), pass_char(char_slot())))
+  println(same_void(void_slot(), pass_void(void_slot())))
+  println(same_opaque(opaque_slot(), pass_opaque(opaque_slot())))
+
+  println(same_int(pass_int(nil), nil))
+  println(same_char(pass_char(nil), nil))
+  println(same_void(pass_void(nil), nil))
+  println(same_opaque(pass_opaque(nil), nil))

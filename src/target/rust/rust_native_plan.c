@@ -56,7 +56,19 @@ static bool native_scalar_kind(const char *kind, bool allow_void)
 
 static bool native_scalar_type(json_object *type, bool allow_void)
 {
-    return native_scalar_kind(native_string(type, "kind"), allow_void);
+    const char *kind = native_string(type, "kind");
+    if (native_scalar_kind(kind, allow_void)) return true;
+    if (!kind || strcmp(kind, "pointer") != 0) return false;
+
+    json_object *base_type = NULL;
+    if (!json_object_object_get_ex(type, "base_type", &base_type)) return false;
+    const char *base_kind = native_string(base_type, "kind");
+    if (!base_kind) return false;
+    if (strcmp(base_kind, "pointer") == 0)
+        return native_scalar_type(base_type, false);
+    return strcmp(base_kind, "void") == 0 ||
+        strcmp(base_kind, "opaque") == 0 ||
+        native_scalar_kind(base_kind, false);
 }
 
 static bool native_body_has_unsupported_construct_impl(json_object *node,
@@ -92,10 +104,8 @@ static bool native_body_has_unsupported_construct_impl(json_object *node,
     if (json_object_object_get_ex(node, "type", &type))
     {
         const char *type_kind = native_string(type, "kind");
-        if (type_kind && (strcmp(type_kind, "string") == 0 ||
-                          strcmp(type_kind, "array") == 0 ||
+        if (type_kind && (strcmp(type_kind, "array") == 0 ||
                           strcmp(type_kind, "struct") == 0 ||
-                          strcmp(type_kind, "pointer") == 0 ||
                           (strcmp(type_kind, "function") == 0 && !direct_callee)))
             return true;
     }
@@ -131,7 +141,7 @@ static bool validate_native_function(json_object *function)
     {
         const char *kind = native_string(return_type, "kind");
         fprintf(stderr,
-                "Error: Rust target native function '%s' has unsupported result type '%s'; the native scalar bridge supports void, bool, char, int, long, int32, uint, uint32, byte, float, and double\n",
+                "Error: Rust target native function '%s' has unsupported result type '%s'; the native bridge supports raw pointers plus void, bool, char, int, long, int32, uint, uint32, byte, float, and double\n",
                 name ? name : "<anonymous>", kind ? kind : "unknown");
         return false;
     }
@@ -150,7 +160,7 @@ static bool validate_native_function(json_object *function)
                 (sync && strcmp(sync, "none") != 0))
             {
                 fprintf(stderr,
-                        "Error: Rust target native function '%s' parameter '%s' must be an unsynchronized, default-qualified native scalar\n",
+                        "Error: Rust target native function '%s' parameter '%s' must be an unsynchronized, default-qualified native scalar or raw pointer\n",
                         name ? name : "<anonymous>",
                         native_string(param, "name") ? native_string(param, "name") : "<anonymous>");
                 return false;
@@ -161,7 +171,7 @@ static bool validate_native_function(json_object *function)
         native_body_has_unsupported_construct(body))
     {
         fprintf(stderr,
-                "Error: Rust target native function '%s' body uses a closure, thread, pointer, string, array, or struct construct outside the native scalar bridge\n",
+                "Error: Rust target native function '%s' body uses a closure, thread, array, or struct construct outside the native bridge\n",
                 name ? name : "<anonymous>");
         return false;
     }
@@ -903,16 +913,25 @@ bool rust_native_partition_model(json_object *rust_model,
     char *initializer_symbol = NULL;
     char *rust_initializer_name = NULL;
     char *rust_fflush_name = NULL;
+    json_object *globals = NULL;
+    json_object_object_get_ex(rust_model, "globals", &globals);
+    if (native_count || initializer_name)
+        rust_fflush_name = unique_private_name(
+            functions, globals, "__sn_native_fflush");
+    if ((native_count || initializer_name) && !rust_fflush_name)
+    {
+        json_object_put(selected_function_names);
+        json_object_put(selected_global_names);
+        free(initializer_name);
+        rust_native_plan_free(plan);
+        return false;
+    }
     if (initializer_name)
     {
         initializer_symbol = malloc(strlen(initializer_name) + 7);
-        json_object *globals = NULL;
-        json_object_object_get_ex(rust_model, "globals", &globals);
         rust_initializer_name = unique_private_name(
             functions, globals, "__sn_native_initializer");
-        rust_fflush_name = unique_private_name(
-            functions, globals, "__sn_native_fflush");
-        if (!initializer_symbol || !rust_initializer_name || !rust_fflush_name)
+        if (!initializer_symbol || !rust_initializer_name)
         {
             free(initializer_symbol);
             free(rust_initializer_name);
@@ -991,6 +1010,13 @@ bool rust_native_partition_model(json_object *rust_model,
 
     remove_private_helper_functions(rust_model, selected_function_names);
     remove_private_globals(rust_model, selected_global_names);
+    if (rust_fflush_name)
+    {
+        json_object_object_add(rust_model, "rust_native_flush",
+                               json_object_new_boolean(true));
+        json_object_object_add(rust_model, "rust_native_fflush_extern_name",
+                               json_object_new_string(rust_fflush_name));
+    }
     if (initializer_name)
     {
         json_object *remaining_functions = NULL;
@@ -1001,8 +1027,6 @@ bool rust_native_partition_model(json_object *rust_model,
                                json_object_new_string(initializer_symbol));
         json_object_object_add(rust_model, "rust_native_initializer_extern_name",
                                json_object_new_string(rust_initializer_name));
-        json_object_object_add(rust_model, "rust_native_fflush_extern_name",
-                               json_object_new_string(rust_fflush_name));
         size_t count = remaining_functions
             ? json_object_array_length(remaining_functions) : 0;
         for (size_t i = 0; i < count; i++)
