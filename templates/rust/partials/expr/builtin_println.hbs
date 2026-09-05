@@ -1,1 +1,1 @@
-{{#each args}}{{#if @index}}; {{/if}}println!("{}", {{> expr this}}){{/each}}
+{{#each args}}{{#if @index}}; {{/if}}{{#if (eq type.kind "byte")}}println!("0x{:02X}", ({{> expr this}} as u32)){{else}}{{#if (eq type.kind "uint")}}println!("{}", ({{> expr this}} as i64)){{else}}println!("{}", {{> expr this}}){{/if}}{{/if}}{{/each}}

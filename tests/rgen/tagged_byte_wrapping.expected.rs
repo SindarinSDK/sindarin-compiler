@@ -18,8 +18,8 @@ fn main() {
     let mut added: u8 = { let (__sn_byte_left, __sn_byte_right): (u8, u8) = (max, one); __sn_byte_left.wrapping_add(__sn_byte_right) };
     let mut subtracted: u8 = { let (__sn_byte_left, __sn_byte_right): (u8, u8) = (zero, one); __sn_byte_left.wrapping_sub(__sn_byte_right) };
     let mut multiplied: u8 = { let (__sn_byte_left, __sn_byte_right): (u8, u8) = (max, two); __sn_byte_left.wrapping_mul(__sn_byte_right) };
-    let mut negated: u8 = { let __sn_byte_operand: u8 = one; __sn_byte_operand.wrapping_neg() };
-    let mut inverted: u8 = { let __sn_byte_operand: u8 = zero; !__sn_byte_operand };
+    let mut negated: u8 = -(one as i32) as u8;
+    let mut inverted: u8 = !(zero as i32) as u8;
     println!("{}", (added == 0));
     println!("{}", (subtracted == 255));
     println!("{}", (multiplied == 254));
@@ -46,12 +46,12 @@ fn main() {
     let mut referenced: u8 = max;
     println!("{}", (bump(&mut (referenced)) == 0));
     println!("{}", (referenced == 0));
-    let mut shifted: u8 = { let (__sn_byte_left, __sn_byte_right): (u8, u8) = (two, 8); (__sn_byte_left as u32).wrapping_shl(__sn_byte_right as u32) as u8 };
+    let mut shifted: u8 = { let (__sn_byte_left, __sn_byte_right): (i32, i32) = (two as i32, 8 as i32); __sn_byte_left << (__sn_byte_right as u32) } as u8;
     println!("{}", (shifted == 0));
     let mut mask: u8 = 15;
-    let mut anded: u8 = { let (__sn_byte_left, __sn_byte_right): (u8, u8) = (max, mask); __sn_byte_left & __sn_byte_right };
-    let mut ored: u8 = { let (__sn_byte_left, __sn_byte_right): (u8, u8) = (zero, mask); __sn_byte_left | __sn_byte_right };
-    let mut xored: u8 = { let (__sn_byte_left, __sn_byte_right): (u8, u8) = (max, mask); __sn_byte_left ^ __sn_byte_right };
+    let mut anded: u8 = { let (__sn_byte_left, __sn_byte_right): (i32, i32) = (max as i32, mask as i32); __sn_byte_left & __sn_byte_right } as u8;
+    let mut ored: u8 = { let (__sn_byte_left, __sn_byte_right): (i32, i32) = (zero as i32, mask as i32); __sn_byte_left | __sn_byte_right } as u8;
+    let mut xored: u8 = { let (__sn_byte_left, __sn_byte_right): (i32, i32) = (max as i32, mask as i32); __sn_byte_left ^ __sn_byte_right } as u8;
     println!("{}", (anded == 15));
     println!("{}", (ored == 15));
     println!("{}", (xored == 240));
