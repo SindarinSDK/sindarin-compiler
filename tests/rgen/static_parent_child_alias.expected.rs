@@ -1,5 +1,33 @@
 #![allow(dead_code, unused_mut, unused_variables, unused_parens)]
 
+fn __sn_runtime_error_0(message: &'static str) -> ! {
+    eprintln!("{}", message);
+    std::process::exit(1);
+}
+
+fn __sn_checked_0<T>(value: Option<T>, message: &'static str) -> T {
+    match value {
+        Some(value) => value,
+        None => __sn_runtime_error_0(message),
+    }
+}
+
+fn __sn_checked_div_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked_0(value, if divisor_is_zero {
+        "panic: Division by zero"
+    } else {
+        "Runtime error: integer overflow in division"
+    })
+}
+
+fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked_0(value, if divisor_is_zero {
+        "panic: Modulo by zero"
+    } else {
+        "Runtime error: integer overflow in modulo"
+    })
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 struct Inner {
     value: i64,
@@ -15,9 +43,9 @@ struct Ops {
 
 impl Ops {
     unsafe fn touch(outer: *mut Outer, inner: *mut Inner) -> i64 {
-        ((*(outer)).count = ((*(outer)).count).checked_add(1).expect("checked arithmetic failed"));
-        ((*(inner)).value = ((*(inner)).value).checked_add(10).expect("checked arithmetic failed"));
-        return ((*(outer)).count).checked_add((*(inner)).value).expect("checked arithmetic failed");
+        ((*(outer)).count = __sn_checked_0(((*(outer)).count).checked_add(1), "Runtime error: integer overflow in addition"));
+        ((*(inner)).value = __sn_checked_0(((*(inner)).value).checked_add(10), "Runtime error: integer overflow in addition"));
+        return __sn_checked_0(((*(outer)).count).checked_add((*(inner)).value), "Runtime error: integer overflow in addition");
     }
 }
 

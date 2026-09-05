@@ -351,7 +351,8 @@ static void rust_lower_resolved_receiver_prefixes(json_object *model,
         for (size_t i = 0; i < count; i++)
         {
             json_object *arg = json_object_array_get_idx(args, i);
-            if (!json_boolean_property(arg, "is_ref_arg") ||
+            if ((!json_boolean_property(arg, "is_ref_arg") &&
+                 !json_boolean_property(arg, "is_borrow_tmp")) ||
                 !json_string_property_equals(arg, "kind", "array_access"))
                 continue;
 

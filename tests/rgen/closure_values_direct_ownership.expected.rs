@@ -23,6 +23,34 @@ fn __sn_array_size(size: i64) -> usize {
     size as usize
 }
 
+fn __sn_runtime_error_0(message: &'static str) -> ! {
+    eprintln!("{}", message);
+    std::process::exit(1);
+}
+
+fn __sn_checked_0<T>(value: Option<T>, message: &'static str) -> T {
+    match value {
+        Some(value) => value,
+        None => __sn_runtime_error_0(message),
+    }
+}
+
+fn __sn_checked_div_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked_0(value, if divisor_is_zero {
+        "panic: Division by zero"
+    } else {
+        "Runtime error: integer overflow in division"
+    })
+}
+
+fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked_0(value, if divisor_is_zero {
+        "panic: Modulo by zero"
+    } else {
+        "Runtime error: integer overflow in modulo"
+    })
+}
+
 struct __SnClosure<F: ?Sized>(std::rc::Rc<F>);
 impl<F: ?Sized> Clone for __SnClosure<F> {
     fn clone(&self) -> Self { Self(self.0.clone()) }
@@ -41,7 +69,7 @@ struct Holder {
 }
 
 fn increment(x: i64) -> i64 {
-    return (x).checked_add(1).expect("checked arithmetic failed");
+    return __sn_checked_0((x).checked_add(1), "Runtime error: integer overflow in addition");
 }
 
 fn identity(action: __SnClosure<dyn Fn(i64) -> i64>) -> __SnClosure<dyn Fn(i64) -> i64> {
@@ -52,7 +80,7 @@ fn main() {
     let mut named: __SnClosure<dyn Fn(i64) -> i64> = self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(increment));
     let mut alias: __SnClosure<dyn Fn(i64) -> i64> = named.clone();
     let mut returned: __SnClosure<dyn Fn(i64) -> i64> = identity(alias.clone());
-    { named = { self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |x: i64| -> i64 { (x).checked_add(100).expect("checked arithmetic failed")})) }
+    { named = { self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |x: i64| -> i64 { __sn_checked_0((x).checked_add(100), "Runtime error: integer overflow in addition")})) }
 ; named.clone() };
     print!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", ((alias.clone()).0)(1))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", ((returned.clone()).0)(2))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", ((named.clone()).0)(3))); __sn_interpolated.push_str("\n"); __sn_interpolated });
     let mut holder: Holder = Holder { action: alias.clone() };

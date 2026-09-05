@@ -1,5 +1,33 @@
 #![allow(dead_code, unused_mut, unused_variables, unused_parens)]
 
+fn __sn_runtime_error_0(message: &'static str) -> ! {
+    eprintln!("{}", message);
+    std::process::exit(1);
+}
+
+fn __sn_checked_0<T>(value: Option<T>, message: &'static str) -> T {
+    match value {
+        Some(value) => value,
+        None => __sn_runtime_error_0(message),
+    }
+}
+
+fn __sn_checked_div_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked_0(value, if divisor_is_zero {
+        "panic: Division by zero"
+    } else {
+        "Runtime error: integer overflow in division"
+    })
+}
+
+fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked_0(value, if divisor_is_zero {
+        "panic: Modulo by zero"
+    } else {
+        "Runtime error: integer overflow in modulo"
+    })
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 struct Leaf {
     value: i64,
@@ -20,43 +48,43 @@ struct AliasOps {
 
 impl AliasOps {
     unsafe fn touchNested(outer: *mut OuterNode, inner: *mut InnerNode, leaf: *mut Leaf) -> i64 {
-        ((*(outer)).total = ((*(outer)).total).checked_add(1).expect("checked arithmetic failed"));
-        ((*(inner)).score = ((*(inner)).score).checked_add(10).expect("checked arithmetic failed"));
-        ((*(leaf)).value = ((*(leaf)).value).checked_add(100).expect("checked arithmetic failed"));
-        return (((*(outer)).total).checked_add(((*(outer)).inner).score).expect("checked arithmetic failed")).checked_add((((*(outer)).inner).leaf).value).expect("checked arithmetic failed");
+        ((*(outer)).total = __sn_checked_0(((*(outer)).total).checked_add(1), "Runtime error: integer overflow in addition"));
+        ((*(inner)).score = __sn_checked_0(((*(inner)).score).checked_add(10), "Runtime error: integer overflow in addition"));
+        ((*(leaf)).value = __sn_checked_0(((*(leaf)).value).checked_add(100), "Runtime error: integer overflow in addition"));
+        return __sn_checked_0((__sn_checked_0(((*(outer)).total).checked_add(((*(outer)).inner).score), "Runtime error: integer overflow in addition")).checked_add((((*(outer)).inner).leaf).value), "Runtime error: integer overflow in addition");
     }
     unsafe fn touchSame(value: *mut i64, alias: *mut i64) -> i64 {
-        (*(value) = (*(value)).checked_add(1).expect("checked arithmetic failed"));
-        (*(alias) = (*(alias)).checked_add(10).expect("checked arithmetic failed"));
+        (*(value) = __sn_checked_0((*(value)).checked_add(1), "Runtime error: integer overflow in addition"));
+        (*(alias) = __sn_checked_0((*(alias)).checked_add(10), "Runtime error: integer overflow in addition"));
         return *(value);
     }
     unsafe fn forwardedSink(outer: *mut OuterNode, inner: *mut InnerNode) -> i64 {
-        ((*(outer)).total = ((*(outer)).total).checked_add(2).expect("checked arithmetic failed"));
-        ((*(inner)).score = ((*(inner)).score).checked_add(20).expect("checked arithmetic failed"));
-        return ((*(outer)).total).checked_add(((*(outer)).inner).score).expect("checked arithmetic failed");
+        ((*(outer)).total = __sn_checked_0(((*(outer)).total).checked_add(2), "Runtime error: integer overflow in addition"));
+        ((*(inner)).score = __sn_checked_0(((*(inner)).score).checked_add(20), "Runtime error: integer overflow in addition"));
+        return __sn_checked_0(((*(outer)).total).checked_add(((*(outer)).inner).score), "Runtime error: integer overflow in addition");
     }
     unsafe fn forwardedWrapper(outer: *mut OuterNode, inner: *mut InnerNode) -> i64 {
         return unsafe { AliasOps::forwardedSink(std::ptr::addr_of_mut!(*(outer)), std::ptr::addr_of_mut!(*(inner))) };
     }
     unsafe fn recursiveTouch(outer: *mut OuterNode, inner: *mut InnerNode, remaining: i64) -> i64 {
         if (remaining == 0) {
-        return ((*(outer)).total).checked_add(((*(outer)).inner).score).expect("checked arithmetic failed");
+        return __sn_checked_0(((*(outer)).total).checked_add(((*(outer)).inner).score), "Runtime error: integer overflow in addition");
     }
-        ((*(outer)).total = ((*(outer)).total).checked_add(1).expect("checked arithmetic failed"));
-        ((*(inner)).score = ((*(inner)).score).checked_add(2).expect("checked arithmetic failed"));
-        return unsafe { AliasOps::recursiveTouch(std::ptr::addr_of_mut!(*(outer)), std::ptr::addr_of_mut!(*(inner)), (remaining).checked_sub(1).expect("checked arithmetic failed")) };
+        ((*(outer)).total = __sn_checked_0(((*(outer)).total).checked_add(1), "Runtime error: integer overflow in addition"));
+        ((*(inner)).score = __sn_checked_0(((*(inner)).score).checked_add(2), "Runtime error: integer overflow in addition"));
+        return unsafe { AliasOps::recursiveTouch(std::ptr::addr_of_mut!(*(outer)), std::ptr::addr_of_mut!(*(inner)), __sn_checked_0((remaining).checked_sub(1), "Runtime error: integer overflow in subtraction")) };
     }
 }
 
 unsafe fn touchSameFree(value: *mut i64, alias: *mut i64) -> i64 {
-    (*(value) = (*(value)).checked_add(2).expect("checked arithmetic failed"));
-    (*(alias) = (*(alias)).checked_add(20).expect("checked arithmetic failed"));
+    (*(value) = __sn_checked_0((*(value)).checked_add(2), "Runtime error: integer overflow in addition"));
+    (*(alias) = __sn_checked_0((*(alias)).checked_add(20), "Runtime error: integer overflow in addition"));
     return *(value);
 }
 
 unsafe fn forwardedSameSink(value: *mut i64, alias: *mut i64) -> i64 {
-    (*(value) = (*(value)).checked_add(3).expect("checked arithmetic failed"));
-    (*(alias) = (*(alias)).checked_add(30).expect("checked arithmetic failed"));
+    (*(value) = __sn_checked_0((*(value)).checked_add(3), "Runtime error: integer overflow in addition"));
+    (*(alias) = __sn_checked_0((*(alias)).checked_add(30), "Runtime error: integer overflow in addition"));
     return *(value);
 }
 
