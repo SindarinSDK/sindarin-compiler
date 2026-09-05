@@ -19,6 +19,46 @@ typedef struct {
     size_t capacity;
 } NativeBuffer;
 
+typedef struct {
+    char *compiler_command;
+    char *c_standard;
+    char *mode_cflags;
+    char *configured_compile_options;
+} RustNativeLinkConfig;
+
+static void rust_native_link_config_free(RustNativeLinkConfig *config)
+{
+    if (!config) return;
+    free(config->compiler_command);
+    free(config->c_standard);
+    free(config->mode_cflags);
+    free(config->configured_compile_options);
+    memset(config, 0, sizeof(*config));
+}
+
+static bool rust_native_link_config_init(
+    RustNativeLinkConfig *owned, const CCBackendConfig *config,
+    bool debug_mode, bool profile_mode)
+{
+    if (!owned || !config) return false;
+    memset(owned, 0, sizeof(*owned));
+    const char *mode = profile_mode ? config->profile_cflags
+                     : debug_mode   ? config->debug_cflags
+                     :                config->release_cflags;
+    char filtered_mode[1024];
+    if (detect_backend(config->cc) == BACKEND_TINYCC)
+        mode = filter_tinycc_flags(mode, filtered_mode, sizeof(filtered_mode));
+    owned->compiler_command = strdup(config->cc);
+    owned->c_standard = strdup(config->std);
+    owned->mode_cflags = strdup(mode);
+    owned->configured_compile_options = strdup(config->cflags);
+    if (owned->compiler_command && owned->c_standard && owned->mode_cflags &&
+        owned->configured_compile_options)
+        return true;
+    rust_native_link_config_free(owned);
+    return false;
+}
+
 static bool buffer_appendf(NativeBuffer *buffer, const char *format, ...)
 {
     va_list args;
@@ -103,6 +143,7 @@ static char *shell_quote(const char *value)
 }
 
 static bool write_linker_proxy(const char *path,
+                               const RustNativeLinkConfig *link_config,
                                const CCSidecarBuildPlan *sidecar)
 {
     FILE *file = fopen(path, "wb");
@@ -114,22 +155,22 @@ static bool write_linker_proxy(const char *path,
     }
 
 #ifdef _WIN32
-    const char *cc_prefix = strchr(sidecar->compiler_command, ' ') ? "\"" : "";
+    const char *cc_prefix = strchr(link_config->compiler_command, ' ') ? "\"" : "";
     bool ok = fprintf(file,
         "@echo off\r\n%s%s%s %s -w -Werror=implicit-function-declaration -std=%s -D_GNU_SOURCE %s %%* %s%s %s %s\r\nexit /b %%errorlevel%%\r\n",
-        cc_prefix, sidecar->compiler_command, cc_prefix,
-        sidecar->mode_cflags, sidecar->c_standard,
-        sidecar->configured_compile_options, sidecar->package_link_options,
+        cc_prefix, link_config->compiler_command, cc_prefix,
+        link_config->mode_cflags, link_config->c_standard,
+        link_config->configured_compile_options, sidecar->package_link_options,
         sidecar->link_library_options, sidecar->configured_libraries,
         sidecar->configured_linker_options) >= 0;
 #else
-    char *quoted_cc = strchr(sidecar->compiler_command, ' ')
-        ? shell_quote(sidecar->compiler_command)
-        : strdup(sidecar->compiler_command);
+    char *quoted_cc = strchr(link_config->compiler_command, ' ')
+        ? shell_quote(link_config->compiler_command)
+        : strdup(link_config->compiler_command);
     bool ok = quoted_cc && fprintf(file,
         "#!/bin/sh\nexec %s %s -w -Werror=implicit-function-declaration -std=%s -D_GNU_SOURCE %s \"$@\" %s%s %s %s\n",
-        quoted_cc, sidecar->mode_cflags, sidecar->c_standard,
-        sidecar->configured_compile_options, sidecar->package_link_options,
+        quoted_cc, link_config->mode_cflags, link_config->c_standard,
+        link_config->configured_compile_options, sidecar->package_link_options,
         sidecar->link_library_options, sidecar->configured_libraries,
         sidecar->configured_linker_options) >= 0;
     free(quoted_cc);
@@ -183,6 +224,14 @@ bool rust_native_build(const CompilerOptions *options, const char *build_dir,
     CCBackendConfig config;
     cc_backend_load_config(options->compiler_dir);
     cc_backend_init_config(&config);
+    RustNativeLinkConfig link_config;
+    if (!rust_native_link_config_init(&link_config, &config,
+                                      options->debug_build,
+                                      options->profile_build))
+    {
+        free(generated);
+        return false;
+    }
     CCSidecarBuildRequest request = {
         .build_dir = build_dir,
         .compiler_dir = options->compiler_dir,
@@ -200,7 +249,11 @@ bool rust_native_build(const CompilerOptions *options, const char *build_dir,
     CCSidecarBuildPlan sidecar;
     bool sidecar_ok = cc_sidecar_build(&config, &request, &sidecar);
     free(generated);
-    if (!sidecar_ok) return false;
+    if (!sidecar_ok)
+    {
+        rust_native_link_config_free(&link_config);
+        return false;
+    }
 
 #ifdef _WIN32
     const char *proxy_name = "sn_rust_linker_proxy.cmd";
@@ -211,9 +264,10 @@ bool rust_native_build(const CompilerOptions *options, const char *build_dir,
     int written = snprintf(proxy_path, sizeof(proxy_path), "%s/%s",
                            build_dir, proxy_name);
     if (written < 0 || (size_t)written >= sizeof(proxy_path) ||
-        !write_linker_proxy(proxy_path, &sidecar))
+        !write_linker_proxy(proxy_path, &link_config, &sidecar))
     {
         cc_sidecar_build_plan_free(&sidecar);
+        rust_native_link_config_free(&link_config);
         return false;
     }
 
@@ -223,6 +277,7 @@ bool rust_native_build(const CompilerOptions *options, const char *build_dir,
     if (written < 0 || (size_t)written >= sizeof(source_path))
     {
         cc_sidecar_build_plan_free(&sidecar);
+        rust_native_link_config_free(&link_config);
         return false;
     }
 
@@ -271,6 +326,7 @@ bool rust_native_build(const CompilerOptions *options, const char *build_dir,
     free(quoted_source);
     free(quoted_output);
     cc_sidecar_build_plan_free(&sidecar);
+    rust_native_link_config_free(&link_config);
     if (!ok)
     {
         free(command.data);
