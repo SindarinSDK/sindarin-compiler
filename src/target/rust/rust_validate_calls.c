@@ -11,6 +11,22 @@ static bool rust_array_method_supported(const char *name)
            strcmp(name, "join") == 0 || strcmp(name, "toString") == 0;
 }
 
+static bool rust_array_text_element_supported(json_object *type)
+{
+    const char *kind = json_string_property(type, "kind");
+    if (!kind) return false;
+    if (strcmp(kind, "array") == 0)
+    {
+        json_object *element_type = NULL;
+        return json_object_object_get_ex(type, "element_type", &element_type) &&
+               rust_array_text_element_supported(element_type);
+    }
+    return strcmp(kind, "int") == 0 || strcmp(kind, "long") == 0 ||
+           strcmp(kind, "double") == 0 || strcmp(kind, "bool") == 0 ||
+           strcmp(kind, "char") == 0 || strcmp(kind, "byte") == 0 ||
+           strcmp(kind, "string") == 0;
+}
+
 static bool rust_string_method_supported(const char *name)
 {
     if (!name) return false;
@@ -456,7 +472,7 @@ static bool rust_validate_call(json_object *expr)
                 const char *element_kind = NULL;
                 if (!json_object_object_get_ex(object_type, "element_type", &element_type) ||
                     !(element_kind = json_string_property(element_type, "kind")) ||
-                    strcmp(element_kind, "string") != 0)
+                    !rust_array_text_element_supported(element_type))
                 {
                     fprintf(stderr,
                             "Error: Rust target does not support array method 'join' for %s elements yet\n",

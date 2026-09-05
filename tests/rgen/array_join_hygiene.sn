@@ -1,0 +1,12 @@
+fn __sn_array_join(): int => 11
+fn __sn_array_join_0(): int => 21
+
+fn main(): void =>
+  var __sn_array: int[] = {1, 2, 3}
+  var __sn_array_0: int[] = {4}
+  var __sn_separator: str = "-"
+  var __sn_separator_0: str = ","
+  println(__sn_array.join(__sn_separator))
+  println(__sn_array_0.join(__sn_separator_0))
+  println(__sn_array_join())
+  println(__sn_array_join_0())

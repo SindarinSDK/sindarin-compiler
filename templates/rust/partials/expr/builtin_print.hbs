@@ -1,1 +1,1 @@
-{{#each args}}{{#if @index}}; {{/if}}{{rust_print_prefix type}}{{> expr this}}{{rust_print_suffix type}}{{/each}}
+{{#each args}}{{#if @index}}; {{/if}}{{#if (eq type.kind "array")}}print!("{}", {{rust_ident @root.rust_array_to_string_name}}(&({{> expr this}}))){{else}}print!("{}", {{> expr this}}){{/if}}{{/each~}}{{~!-- trim partial EOF --~}}

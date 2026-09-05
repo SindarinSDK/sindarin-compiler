@@ -613,6 +613,80 @@ static bool rust_model_uses_string_format_helpers(json_object *node)
     return false;
 }
 
+static bool rust_expr_is_array(json_object *expr)
+{
+    json_object *type = NULL;
+    return expr && json_object_object_get_ex(expr, "type", &type) &&
+           json_string_property_equals(type, "kind", "array");
+}
+
+static bool rust_model_uses_array_text(json_object *node)
+{
+    if (!node) return false;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            if (rust_model_uses_array_text(json_object_array_get_idx(node, i))) return true;
+        return false;
+    }
+    if (!json_object_is_type(node, json_type_object)) return false;
+
+    const char *kind = json_string_property(node, "kind");
+    if (kind && (strcmp(kind, "builtin_print") == 0 ||
+                 strcmp(kind, "builtin_println") == 0))
+    {
+        json_object *args = NULL;
+        if (json_object_object_get_ex(node, "args", &args))
+        {
+            size_t count = json_object_array_length(args);
+            for (size_t i = 0; i < count; i++)
+                if (rust_expr_is_array(json_object_array_get_idx(args, i))) return true;
+        }
+    }
+    if (kind && strcmp(kind, "interpolated_string") == 0)
+    {
+        json_object *parts = NULL;
+        if (json_object_object_get_ex(node, "parts", &parts))
+        {
+            size_t count = json_object_array_length(parts);
+            for (size_t i = 0; i < count; i++)
+            {
+                json_object *expr = NULL;
+                json_object *part = json_object_array_get_idx(parts, i);
+                if (json_object_object_get_ex(part, "expr", &expr) &&
+                    rust_expr_is_array(expr)) return true;
+            }
+        }
+    }
+    if (kind && strcmp(kind, "call") == 0)
+    {
+        json_object *callee = NULL, *object = NULL;
+        if (json_object_object_get_ex(node, "callee", &callee) &&
+            json_string_property_equals(callee, "kind", "member") &&
+            json_object_object_get_ex(callee, "object", &object) &&
+            rust_expr_is_array(object))
+        {
+            const char *method = json_string_property(callee, "member_name");
+            if (method && strcmp(method, "toString") == 0) return true;
+            if (method && strcmp(method, "join") == 0)
+            {
+                json_object *array_type = NULL, *element_type = NULL;
+                if (!json_object_object_get_ex(object, "type", &array_type) ||
+                    !json_object_object_get_ex(array_type, "element_type", &element_type) ||
+                    !json_string_property_equals(element_type, "kind", "string")) return true;
+            }
+        }
+    }
+
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        if (rust_model_uses_array_text(value)) return true;
+    }
+    return false;
+}
+
 static void rust_mark_scalar_ref_uses(json_object *node, const char *param_name)
 {
     if (!node || !param_name) return;
@@ -820,6 +894,45 @@ static bool rust_lower_string_method_helper_names(json_object *model)
         json_string_property(model, "rust_string_split_lines_helper"),
         json_string_property(model, "rust_string_split_whitespace_helper"),
         json_string_property(model, "rust_string_is_blank_helper"));
+    return true;
+}
+
+/* Array rendering introduces module helpers and expression-local bindings.
+ * Allocate every spelling against the complete projected model so a valid
+ * Sindarin declaration can neither collide with a helper nor be captured by
+ * a join argument evaluated after the receiver temporary is bound. */
+static bool rust_assign_array_text_names(json_object *model)
+{
+    const char *bases[] = {
+        "__SnArrayText", "__sn_array_text", "__sn_join_text",
+        "__sn_integer_array_text", "__sn_float_array_text_impl",
+        "__sn_float_array_text", "__sn_array_to_string", "__sn_array_join",
+        "__sn_array", "__sn_separator"
+    };
+    const char *keys[] = {
+        "rust_array_text_trait_name", "rust_array_text_method_name",
+        "rust_array_join_text_method_name", "rust_array_integer_macro_name",
+        "rust_array_float_macro_name", "rust_array_float_format_name",
+        "rust_array_to_string_name", "rust_array_join_name",
+        "rust_array_temp_name", "rust_array_separator_temp_name"
+    };
+
+    for (size_t i = 0; i < sizeof(bases) / sizeof(bases[0]); i++)
+    {
+        char candidate[96];
+        size_t suffix = 0;
+        do
+        {
+            int written = snprintf(candidate, sizeof(candidate), "%s_%zu",
+                                   bases[i], suffix);
+            if (written < 0 || (size_t)written >= sizeof(candidate)) return false;
+            if (suffix == (size_t)-1) return false;
+            suffix++;
+        }
+        while (rust_model_contains_string(model, candidate));
+
+        json_object_object_add(model, keys[i], json_object_new_string(candidate));
+    }
     return true;
 }
 
