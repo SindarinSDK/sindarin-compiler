@@ -161,6 +161,16 @@ static void rust_concurrency_annotate(json_object *node, const char *prefix,
     if (!kind) return;
     if (strcmp(kind, "function") == 0 && json_boolean_property(model, "rust_thread_ownership"))
         json_object_object_add(node, "rust_thread_ownership", json_object_new_boolean(true));
+    if (json_boolean_property(node, "rust_thread_array_read"))
+        json_object_object_add(node, "rust_cell", json_object_new_boolean(true));
+    if (json_boolean_property(node, "rust_thread_array_temporary")) {
+        json_object *value = NULL;
+        json_object_object_del(node, "rust_thread_array_temporary");
+        json_object_deep_copy(node, &value, NULL);
+        rust_concurrency_string(node, "kind", "rust_thread_array_owner");
+        json_object_object_add(node, "rust_thread_array_value", value);
+        kind = json_string_property(node, "kind");
+    }
     if (json_boolean_property(node, "rust_thread_ref_owner"))
         json_object_object_del(node, "is_ref_arg");
     const char *temps[] = {"value", "rhs", "previous", "handle", "gate"};

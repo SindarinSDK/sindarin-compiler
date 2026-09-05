@@ -6,6 +6,33 @@ typedef struct RustThreadRefBinding {
     struct RustThreadRefBinding *next;
 } RustThreadRefBinding;
 
+/* Reuse the lexical owner graph for default arrays escaping through threads.
+ * Array owners retain buffer identity; scalar owners retain variable storage. */
+static bool rust_thread_array_parameter(json_object *param)
+{
+    json_object *type = NULL;
+    json_object_object_get_ex(param, "type", &type);
+    return json_string_property_equals(type, "kind", "array") &&
+        json_boolean_property(param, "rust_default_array_ref");
+}
+
+static void rust_thread_array_promote(json_object *decl, bool *changed)
+{
+    if (!json_boolean_property(decl, "rust_thread_array_storage")) *changed = true;
+    json_object_object_add(decl, "rust_thread_array_storage", json_object_new_boolean(true));
+    json_object_object_add(decl, "rust_shared_cell", json_object_new_boolean(true));
+    if (!json_string_property_equals(decl, "kind", "var_decl")) {
+        json_object_object_add(decl, "rust_thread_ref_param", json_object_new_boolean(true));
+        json_object_object_add(decl, "rust_thread_array_param", json_object_new_boolean(true));
+    }
+}
+
+static RustThreadRefBinding *rust_thread_ref_lookup(RustThreadRefBinding *scope, const char *name)
+{
+    while (scope && (!name || strcmp(name, scope->name))) scope = scope->next;
+    return scope;
+}
+
 static void rust_thread_ref_find_targets(json_object *node, json_object *functions)
 {
     if (!node) return;
@@ -28,6 +55,10 @@ static void rust_thread_ref_find_targets(json_object *node, json_object *functio
             for (size_t j = 0; params && j < json_object_array_length(params); j++) {
                 json_object *param = json_object_array_get_idx(params, j), *type = NULL;
                 json_object_object_get_ex(param, "type", &type);
+                if (rust_thread_array_parameter(param)) {
+                    bool changed = false;
+                    rust_thread_array_promote(param, &changed);
+                }
                 if (json_string_property_equals(param, "mem_qual", "as_ref") &&
                     rust_scalar_ref_parameter_type_supported(type)) {
                     json_object_object_add(param, "rust_thread_ref_param", json_object_new_boolean(true));
@@ -62,6 +93,20 @@ static bool rust_thread_ref_walk(json_object *node, json_object *functions,
         return ok;
     }
     if (!json_object_is_type(node, json_type_object)) return true;
+    /* Tagged local array initialization/assignment copies the value. Only
+     * parameter transport shares the caller's selected array owner. */
+    if (json_string_property_equals(node, "kind", "assign")) {
+        RustThreadRefBinding *target = rust_thread_ref_lookup(scope, json_string_property(node, "target"));
+        if (target && json_boolean_property(target->declaration, "rust_thread_array_storage"))
+            json_object_object_add(node, "rust_thread_array_storage", json_object_new_boolean(true));
+    }
+    if (json_string_property_equals(node, "kind", "variable")) {
+        RustThreadRefBinding *binding = rust_thread_ref_lookup(scope, json_string_property(node, "name"));
+        if (binding && json_boolean_property(binding->declaration, "rust_thread_array_storage")) {
+            json_object_object_add(node, "rust_thread_array_read", json_object_new_boolean(true));
+            json_object_object_del(node, "rust_deref");
+        }
+    }
     if (json_string_property_equals(node, "kind", "call") &&
         !json_boolean_property(node, "is_closure_call")) {
         json_object *callee = NULL, *args = NULL;
@@ -87,6 +132,20 @@ static bool rust_thread_ref_walk(json_object *node, json_object *functions,
                     json_object_object_add(param, "rust_thread_ref_param", json_object_new_boolean(true));
                     json_object_object_add(param, "rust_shared_cell", json_object_new_boolean(true));
                     *changed = true;
+                }
+                if (binding && json_boolean_property(binding->declaration, "rust_thread_array_storage") &&
+                    rust_thread_array_parameter(param)) rust_thread_array_promote(param, changed);
+                if (json_boolean_property(param, "rust_thread_array_param")) {
+                    if (binding && json_string_property_equals(arg, "kind", "variable")) {
+                        rust_thread_array_promote(binding->declaration, changed);
+                        json_object_object_add(arg, "rust_thread_ref_owner", json_object_new_boolean(true));
+                    } else {
+                        json_object_object_add(arg, "rust_thread_array_temporary", json_object_new_boolean(true));
+                    }
+                    json_object_object_del(arg, "rust_default_array_ref_arg");
+                    json_object_object_del(arg, "rust_thread_default_array_arg");
+                    json_object_object_del(arg, "is_ref_arg");
+                    continue;
                 }
                 if (!json_boolean_property(param, "rust_thread_ref_param")) continue;
                 if (!binding || !json_string_property_equals(arg, "kind", "variable")) {

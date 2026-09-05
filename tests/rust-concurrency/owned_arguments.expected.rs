@@ -60,19 +60,19 @@ fn __sn_array_size(size: i64) -> usize {
     size as usize
 }
 
-fn combine(a: String, b: &mut Vec<i64>) -> String {
-    return { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", a)); __sn_interpolated.push_str(": "); __sn_interpolated.push_str(&format!("{}", (b)[__sn_index((b).len(), 0)])); __sn_interpolated };
+fn combine(a: String, b: std::sync::Arc<__sn_concurrency0_Capture<Vec<i64>>>) -> String {
+    return { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", a)); __sn_interpolated.push_str(": "); __sn_interpolated.push_str(&format!("{}", ({ let value = b.lock().unwrap_or_else(|e| e.into_inner()).clone(); value })[__sn_index(({ let value = b.lock().unwrap_or_else(|e| e.into_inner()).clone(); value }).len(), 0)])); __sn_interpolated };
 }
 
 fn launch() -> String {
     let mut name: String = "kept".to_string();
-    let mut data: Vec<i64> = vec![42];
-    let mut result: String = String::new(); let mut __sn_concurrency0_handle_result: Option<__sn_concurrency0_Join<String>> = Some({ let __sn_concurrency0_arg0 = (name.clone()).clone(); let mut __sn_concurrency0_arg1 = (data).clone(); __sn_concurrency0_Join::spawn(move || combine(__sn_concurrency0_arg0.clone(), &mut (__sn_concurrency0_arg1))) }
+    let mut data = std::sync::Arc::new(__sn_concurrency0_Capture::new(vec![42]));
+    let mut result: String = String::new(); let mut __sn_concurrency0_handle_result: Option<__sn_concurrency0_Join<String>> = Some({ let __sn_concurrency0_arg0 = (name.clone()).clone(); let __sn_concurrency0_arg1 = (data.clone()).clone(); __sn_concurrency0_Join::spawn(move || combine(__sn_concurrency0_arg0.clone(), __sn_concurrency0_arg1.clone())) }
 );
     { if let Some(__sn_concurrency0_handle) = __sn_concurrency0_handle_result.take() { result = __sn_concurrency0_handle.join(); } result.clone() }
 ;
     (name = "changed".to_string());
-    (data = vec![99]);
+    { data = std::sync::Arc::new(__sn_concurrency0_Capture::new(vec![99])); data.get() };
     return result;
 }
 
