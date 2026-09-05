@@ -1440,8 +1440,18 @@ class TestRunner:
             return ('skip', 'no .expected', None)
         with open(expected_file, 'r', encoding='utf-8') as expected:
             wanted = expected.read().replace('\r\n', '\n').replace('\r', '\n')
+        base = os.path.splitext(test_file)[0]
+        expected_exit = 0
+        exit_file = base + '.exit-code'
+        if os.path.isfile(exit_file):
+            try:
+                with open(exit_file, 'r', encoding='utf-8') as expected:
+                    expected_exit = int(expected.read().strip())
+            except (OSError, ValueError) as error:
+                return ('fail', 'invalid .exit-code', [str(error)])
         modes = self._native_abi_matrix(test_file)
-        targets = ('c', 'rust') if len(modes) > 1 else ('rust',)
+        compare_c = len(modes) > 1 or os.path.isfile(base + '.c-parity')
+        targets = ('c', 'rust') if compare_c else ('rust',)
         for mode_index, mode in enumerate(modes):
             mode_name = ' '.join(mode) if mode else 'default'
             outputs = {}
@@ -1466,9 +1476,10 @@ class TestRunner:
                 if timeout_marker == 'TIMEOUT':
                     return ('fail', f'{label} run timeout',
                             output.split('\n')[:20] if output else None)
-                if exit_code != 0:
+                if exit_code != expected_exit:
                     return ('fail', f'{label} run exit code: {exit_code}',
-                            output.split('\n')[:20] if output else None)
+                            [f'expected: {expected_exit}',
+                             *(output.split('\n')[:20] if output else [])])
                 outputs[target] = output.replace('\r\n', '\n').replace('\r', '\n')
                 if outputs[target] != wanted:
                     return ('fail', f'{label} output mismatch',

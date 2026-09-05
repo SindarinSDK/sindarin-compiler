@@ -1,13 +1,10 @@
 #![allow(dead_code, unused_mut, unused_variables, unused_parens)]
 
 {{#if rust_native_initializer}}extern "C" {
-    #[link_name = "__sn____rust_native_initialize"]
-    fn __sn_native_initialize_extern();
-}
-
-fn __sn_native_initialize_once() {
-    static INIT: std::sync::Once = std::sync::Once::new();
-    INIT.call_once(|| unsafe { __sn_native_initialize_extern() });
+    #[link_name = {{rust_string_literal rust_native_initializer_symbol}}]
+    fn {{rust_ident rust_native_initializer_extern_name}}();
+    #[link_name = "fflush"]
+    fn {{rust_ident rust_native_fflush_extern_name}}(_: *mut std::ffi::c_void) -> std::ffi::c_int;
 }
 
 {{/if}}
