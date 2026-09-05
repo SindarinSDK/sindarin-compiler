@@ -1,0 +1,10 @@
+seed
+outer
+OUTER-SET-APPEND
+OUTER-SET-APPEND-SET-APPEND
+outer-set-append-set-append-sibling
+outer-set-append-set-append-sibling-sibling
+outer-set-append-set-append-sibling-sibling
+shadow-local
+shadow-local-local
+outer-set-append-set-append-sibling-sibling
