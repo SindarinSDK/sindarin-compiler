@@ -100,10 +100,6 @@
         {
           "kind": "for_each",
           "iterator_name": "item",
-          "element_type": {
-            "kind": "int"
-          },
-          "element_cleanup_kind": "none",
           "iterable": {
             "type": {
               "kind": "array",
@@ -126,11 +122,6 @@
                   },
                   "kind": "compound_assign",
                   "op": "add",
-                  "mutation_op": "add",
-                  "mutation_place": "variable",
-                  "mutation_storage": "local",
-                  "mutation_sync": false,
-                  "mutation_arithmetic_mode": "checked",
                   "target": {
                     "type": {
                       "kind": "int"
@@ -149,8 +140,7 @@
               }
             ]
           },
-          "needs_iterable_cleanup": false,
-          "iterable_needs_copy": true
+          "needs_iterable_cleanup": false
         },
         {
           "kind": "expr",

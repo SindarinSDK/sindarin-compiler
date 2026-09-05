@@ -39,16 +39,6 @@ var greeting: str = "Hello, World!"
 var empty: str = ""
 ```
 
-`str` values are valid UTF-8. After escape sequences are decoded, a string
-literal containing a non-canonical or incomplete UTF-8 byte sequence is
-rejected by the lexer before model or backend emission. This applies equally
-to quoted, interpolated, pipe, and interpolated-pipe string literals.
-
-The `\0` escape is a valid UTF-8 NUL byte, but the current C-compatible string
-representation is NUL-terminated. Literal content after the first NUL is
-therefore not preserved. Embedded-NUL support is a separate representation
-limitation; UTF-8 validation does not change that behavior.
-
 ## Multi-line Strings (Pipe Block Syntax)
 
 For multi-line strings, use the pipe block syntax with `|`:
@@ -210,15 +200,11 @@ print("Path: C:\\Users\\name\n")
 
 ### length
 
-Returns the number of UTF-8 bytes before the first NUL byte. It does not count
-Unicode scalar values, grapheme clusters, or normalized characters. Array
-`length` is unaffected and continues to count elements.
+Returns the number of characters in the string:
 
 ```sindarin
 var size: int = "hello".length  // 5
 var empty: int = "".length      // 0
-var accent: int = "é".length    // 2
-var emoji: int = "🙂".length    // 4
 ```
 
 ## String Methods

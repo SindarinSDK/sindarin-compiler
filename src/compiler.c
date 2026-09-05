@@ -28,11 +28,13 @@ void compiler_init(CompilerOptions *options, int argc, char **argv)
     options->log_level = DEBUG_LEVEL_ERROR;
     options->arithmetic_mode = ARITH_CHECKED;
     options->optimization_level = OPT_LEVEL_FULL;
+    options->emit_c = 0;
+    options->emit_model = 0;
+    options->keep_c = 0;
     options->target = TARGET_C;
     options->output_kind = OUTPUT_EXECUTABLE;
     options->keep_generated = 0;
     options->debug_build = 0;
-    options->profile_build = 0;
     options->do_init = 0;
     options->do_install = 0;
     options->install_target = NULL;
@@ -285,6 +287,7 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
         }
         else if (strcmp(argv[i], "--emit-model") == 0)
         {
+            options->emit_model = 1;
             options->output_kind = OUTPUT_MODEL;
         }
         else if (strcmp(argv[i], "--keep-c") == 0 ||
@@ -340,6 +343,11 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
     /* Determine output paths */
     const char *dot = strrchr(options->source_file, '.');
     size_t base_len = dot ? (size_t)(dot - options->source_file) : strlen(options->source_file);
+
+    /* Tagged --emit-model takes precedence regardless of option order. */
+    if (options->emit_model) options->output_kind = OUTPUT_MODEL;
+    options->emit_c = options->output_kind == OUTPUT_SOURCE;
+    options->keep_c = options->keep_generated;
 
     if (options->output_kind == OUTPUT_MODEL)
     {
@@ -436,8 +444,6 @@ Module* compiler_compile(CompilerOptions *options)
     {
         Optimizer opt;
         optimizer_init(&opt, &options->arena);
-        optimizer_set_checked_arithmetic(&opt,
-            options->arithmetic_mode == ARITH_CHECKED);
         optimizer_dead_code_elimination(&opt, module);
         optimizer_merge_string_literals(&opt, module);
 

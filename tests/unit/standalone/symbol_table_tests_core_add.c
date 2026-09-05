@@ -32,30 +32,6 @@ static void test_symbol_table_add_symbol_local_basic(void) {
     DEBUG_INFO("Finished test_symbol_table_add_symbol_local_basic");
 }
 
-static void test_symbol_table_add_symbol_foreach_local(void) {
-    Arena arena;
-    arena_init(&arena, TEST_ARENA_SIZE);
-    SymbolTable table;
-    symbol_table_init(&arena, &table);
-    symbol_table_begin_function_scope(&table);
-
-    Type *int_type = create_int_type(&arena);
-    Token name = TOKEN_LITERAL("item");
-    symbol_table_add_symbol_with_kind(&table, name, int_type,
-                                      SYMBOL_FOREACH_LOCAL);
-
-    Symbol *sym = symbol_table_lookup_symbol_current(&table, name);
-    assert(sym != NULL);
-    assert(sym->kind == SYMBOL_FOREACH_LOCAL);
-    assert(sym->offset == -LOCAL_BASE_OFFSET);
-    assert(table.current->next_local_offset == LOCAL_BASE_OFFSET + 8);
-    assert(table.current->next_param_offset == PARAM_BASE_OFFSET);
-
-    symbol_table_pop_scope(&table);
-    symbol_table_cleanup(&table);
-    arena_free(&arena);
-}
-
 static void test_symbol_table_add_symbol_param(void) {
     DEBUG_INFO("Starting test_symbol_table_add_symbol_param");
 

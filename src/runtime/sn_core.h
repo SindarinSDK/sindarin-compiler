@@ -102,20 +102,6 @@ static inline void sn_closure_release(void **p) {
     *p = NULL;
 }
 
-/* SnArray elem_release receives the address of an element slot as void *.
- * Adapt that callback ABI explicitly instead of calling through an
- * incompatible cast of sn_closure_release(void **). */
-static inline void sn_release_closure_elem(void *elem) {
-    sn_closure_release((void **)elem);
-}
-
-/* Array slots store closure pointers by value. Copying an owning slot must
- * contribute a distinct reference for the destination array. */
-static inline void sn_copy_closure(const void *src, void *dst) {
-    void *closure = *(void *const *)src;
-    *(void **)dst = sn_closure_retain(closure);
-}
-
 static inline void sn_cleanup_fn(void **p) { sn_closure_release(p); }
 
 #define sn_auto_str __attribute__((cleanup(sn_cleanup_str)))

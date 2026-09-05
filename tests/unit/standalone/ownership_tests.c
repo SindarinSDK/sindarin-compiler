@@ -111,36 +111,6 @@ static void test_borrow_reads(void)
     assert(ownership_kind(&address_of) == OWNERSHIP_BORROW);
 }
 
-static void test_lifted_owned_member(void)
-{
-    Type array_type;
-    Type holder_type;
-    StructField items_field;
-    memset(&array_type, 0, sizeof(array_type));
-    memset(&holder_type, 0, sizeof(holder_type));
-    memset(&items_field, 0, sizeof(items_field));
-    array_type.kind = TYPE_ARRAY;
-    items_field.type = &array_type;
-    holder_type.kind = TYPE_STRUCT;
-    holder_type.as.struct_type.fields = &items_field;
-    holder_type.as.struct_type.field_count = 1;
-
-    Expr build_call = make_expr(EXPR_CALL);
-    build_call.expr_type = &holder_type;
-    Expr lifted_member = make_expr(EXPR_MEMBER);
-    lifted_member.as.member.object = &build_call;
-    lifted_member.expr_type = &array_type;
-
-    assert(ownership_is_lifted_member(&lifted_member));
-    assert(ownership_kind(&lifted_member) == OWNERSHIP_OWNED);
-
-    Expr holder_var = make_expr(EXPR_VARIABLE);
-    holder_var.expr_type = &holder_type;
-    lifted_member.as.member.object = &holder_var;
-    assert(!ownership_is_lifted_member(&lifted_member));
-    assert(ownership_kind(&lifted_member) == OWNERSHIP_BORROW);
-}
-
 static void test_owned_transforms(void)
 {
     /* valueOf and typeOf are each lowered to expressions that produce a
@@ -228,7 +198,6 @@ void test_ownership_main(void)
     TEST_RUN("owned_operators",                     test_owned_operators);
     TEST_RUN("owned_nil_literal",                   test_owned_nil_literal);
     TEST_RUN("borrow_reads",                        test_borrow_reads);
-    TEST_RUN("lifted_owned_member",                 test_lifted_owned_member);
     TEST_RUN("owned_transforms",                    test_owned_transforms);
     TEST_RUN("borrow_literals",                     test_borrow_literals);
     TEST_RUN("borrow_thread_sync_from_handle",      test_borrow_thread_sync_from_handle);

@@ -1,0 +1,22 @@
+{
+  "frozen_head": "2b4717569e52cded9958d5812087af2d1f2ad500",
+  "baseline_commit": "79c20bdb8314aff3c778471ceab20bb8f9ca8d62",
+  "active_files": 3183,
+  "active_file_paths_equal_tag": true,
+  "active_blobs_equal_tag": true,
+  "moved_files": 677,
+  "verification_command": "TMPDIR=/tmp/sn-restore-tagged-c-evidence/effective-corpus-run/tmp timeout 900 make test CMAKE_GENERATOR='Unix Makefiles'",
+  "generator_note": "Reuse of the existing project-local CMake generator only; no test/compiler flags or corpus override. The first unqualified make stopped before tests because the cache used Unix Makefiles while Makefile defaulted to Ninja.",
+  "suite_pass_counts": {
+    "unit": 1608,
+    "cgen": 107,
+    "mgen": 79,
+    "integration": 1141,
+    "integration-errors": 58,
+    "explore": 224,
+    "explore-errors": 11
+  },
+  "failed": 0,
+  "format_check": "timeout 60 bin/sn --format --check: all files already formatted",
+  "compiler_and_tag_runner_changes": "none"
+}

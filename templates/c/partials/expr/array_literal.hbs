@@ -24,9 +24,6 @@
 {{#if (eq kind "range")}}
         { SnArray *__rng__ = {{> expr this}}; sn_array_extend(__al__, __rng__); sn_array_free(__rng__); }
 {{else}}
-{{#if needs_closure_wrap}}
-        sn_array_push(__al__, &(void *){ ({ __Closure__ *__cl__ = malloc(sizeof(__Closure__)); __cl__->fn = (void *)__fn_wrap_{{fn_wrapper_id}}__; __cl__->size = sizeof(__Closure__); __cl__->__cleanup__ = NULL; __cl__->__rc__ = 1; __cl__; }) });
-{{else}}
 {{#if source_is_borrow}}
 {{#if (eq ../type.element_type.kind "struct")}}
 {{#if ../type.element_type.pass_self_by_ref}}
@@ -43,7 +40,6 @@
         sn_array_push(__al__, &({{> expr this}}));
 {{else}}
         sn_array_push(__al__, &({{c_type ../type.element_type}}){ {{> expr this}} });
-{{/if}}
 {{/if}}
 {{/if}}
 {{/if}}

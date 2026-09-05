@@ -101,72 +101,11 @@ static bool import_file_exists(const char *path)
     return false;
 }
 
-/* Walk up from current_file looking for a package whose sn.yaml name matches the
- * first component of module_name. A matching workspace owns the import even when
- * the target file is absent, preventing an installed copy from masking deleted or
- * renamed workspace modules. */
-static char *resolve_workspace_package_import(Arena *arena, const char *current_file,
-                                              const char *module_name)
-{
-    size_t pos = strlen(current_file);
-
-    /* Find end of directory portion (last path separator) */
-    while (pos > 0 && current_file[pos - 1] != '/' && current_file[pos - 1] != '\\') {
-        pos--;
-    }
-
-    for (;;) {
-        size_t yaml_path_len = pos + sizeof("sn.yaml");
-        char *yaml_path = arena_alloc(arena, yaml_path_len);
-        if (!yaml_path) return NULL;
-        strncpy(yaml_path, current_file, pos);
-        yaml_path[pos] = '\0';
-        strcat(yaml_path, "sn.yaml");
-
-        if (import_file_exists(yaml_path)) {
-            PackageConfig config;
-            if (package_yaml_parse(yaml_path, &config) && config.name[0] != '\0') {
-                size_t package_name_len = strlen(config.name);
-                size_t module_name_len = strlen(module_name);
-                char separator = module_name_len > package_name_len ?
-                                     module_name[package_name_len] : '\0';
-                if (module_name_len > package_name_len &&
-                    strncmp(module_name, config.name, package_name_len) == 0 &&
-                    (separator == '/' || separator == '\\')) {
-                    const char *relative_module = module_name + package_name_len + 1;
-                    size_t relative_len = strlen(relative_module);
-                    size_t candidate_len = pos + relative_len + 4;
-                    char *candidate = arena_alloc(arena, candidate_len);
-                    if (!candidate) return NULL;
-                    strncpy(candidate, current_file, pos);
-                    candidate[pos] = '\0';
-                    strcat(candidate, relative_module);
-                    strcat(candidate, ".sn");
-                    return candidate;
-                }
-            }
-        }
-
-        if (pos == 0) break;
-
-        pos--;
-        while (pos > 0 && current_file[pos - 1] != '/' && current_file[pos - 1] != '\\') {
-            pos--;
-        }
-    }
-
-    return NULL;
-}
-
-/* Resolve a package-qualified import from the current workspace first, then
- * walk up the directory hierarchy looking for .sn/<module_name>.sn. */
+/* Walk up the directory hierarchy from current_file, looking for .sn/<module_name>.sn.
+ * This enables package-scoped imports: import "sindarin-pkg-sdk/src/net/tcp" resolves
+ * to the nearest ancestor's .sn/sindarin-pkg-sdk/src/net/tcp.sn. */
 static char *resolve_package_import(Arena *arena, const char *current_file, const char *module_name)
 {
-    char *workspace_path = resolve_workspace_package_import(arena, current_file, module_name);
-    if (workspace_path) {
-        return workspace_path;
-    }
-
     size_t mod_name_len = strlen(module_name);
     size_t pos = strlen(current_file);
 

@@ -28,7 +28,6 @@ typedef enum
     SYMBOL_GLOBAL,
     SYMBOL_LOCAL,
     SYMBOL_PARAM,
-    SYMBOL_FOREACH_LOCAL,
     SYMBOL_NAMESPACE,
     SYMBOL_TYPE       /* Type alias (opaque types) */
 } SymbolKind;

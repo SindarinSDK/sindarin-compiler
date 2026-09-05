@@ -65,11 +65,6 @@
                     "kind": "int"
                   },
                   "kind": "increment",
-                  "mutation_op": "add",
-                  "mutation_place": "variable",
-                  "mutation_storage": "local",
-                  "mutation_sync": false,
-                  "mutation_arithmetic_mode": "checked",
                   "operand": {
                     "type": {
                       "kind": "int"

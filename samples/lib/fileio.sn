@@ -7,8 +7,8 @@
 // - BinaryFile: For reading/writing raw bytes
 // ============================================================================
 
-import "sindarin-pkg-sdk/src/io/textfile"
-import "sindarin-pkg-sdk/src/io/binaryfile"
+import "../../sdk/io/textfile"
+import "../../sdk/io/binaryfile"
 
 // Entry point for file I/O demos
 fn demo_fileio(): void =>
@@ -28,39 +28,39 @@ fn demo_textfile(): void =>
 
   // Write entire content at once (static method)
   print("Writing entire content at once:\n")
-  TextFile.writeAll("sindarin_demo.txt", "Hello from Sindarin!\nLine 2\nLine 3")
-  print("  Wrote 3 lines to sindarin_demo.txt\n")
+  TextFile.writeAll("/tmp/sindarin_demo.txt", "Hello from Sindarin!\nLine 2\nLine 3")
+  print("  Wrote 3 lines to /tmp/sindarin_demo.txt\n")
 
   // Read entire file at once (static method)
   print("\nReading entire file at once:\n")
-  var content: str = TextFile.readAll("sindarin_demo.txt")
+  var content: str = TextFile.readAll("/tmp/sindarin_demo.txt")
   print($"  Content length: {content.length} characters\n")
 
   // Open and read line by line
   print("\nReading the file line by line:\n")
-  var reader: TextFile = TextFile.open("sindarin_demo.txt")
+  var reader: TextFile = TextFile.open("/tmp/sindarin_demo.txt")
   var lineNum: int = 1
   while !reader.isEof() =>
     var line: str = reader.readLine()
     if line.length > 0 =>
       print($"  Line {lineNum}: {line}\n")
       lineNum++
-  reader.dispose()
+  reader.close()
 
   // Read all lines into array
   print("\nReading all lines into array:\n")
-  var reader2: TextFile = TextFile.open("sindarin_demo.txt")
+  var reader2: TextFile = TextFile.open("/tmp/sindarin_demo.txt")
   var lines: str[] = reader2.readLines()
-  reader2.dispose()
+  reader2.close()
   print($"  Got {lines.length} lines\n")
 
   // Check file existence
   print("\nFile existence:\n")
-  print($"  sindarin_demo.txt exists: {TextFile.exists("sindarin_demo.txt")}\n")
-  print($"  nonexistent.txt exists: {TextFile.exists("nonexistent.txt")}\n")
+  print($"  /tmp/sindarin_demo.txt exists: {TextFile.exists("/tmp/sindarin_demo.txt")}\n")
+  print($"  /tmp/nonexistent.txt exists: {TextFile.exists("/tmp/nonexistent.txt")}\n")
 
   // Cleanup
-  TextFile.delete("sindarin_demo.txt")
+  TextFile.delete("/tmp/sindarin_demo.txt")
   print("\n")
 
 // ----------------------------------------------------------------------------
@@ -76,29 +76,29 @@ fn demo_binaryfile(): void =>
   var data2: byte = 0
   var footer: byte = 171
   var bytes: byte[] = {255, 66, 0, 171}
-  BinaryFile.writeAll("sindarin_demo.bin", bytes)
+  BinaryFile.writeAll("/tmp/sindarin_demo.bin", bytes)
   print($"  Wrote {bytes.length} bytes: 255, 66, 0, 171\n")
 
   // Read back the binary file
   print("\nReading binary file:\n")
-  var readBytes: byte[] = BinaryFile.readAll("sindarin_demo.bin")
+  var readBytes: byte[] = BinaryFile.readAll("/tmp/sindarin_demo.bin")
   print($"  Read {readBytes.length} bytes\n")
   print($"  Values: {readBytes[0]}, {readBytes[1]}, {readBytes[2]}, {readBytes[3]}\n")
 
   // Open and read byte by byte
   print("\nReading byte by byte:\n")
-  var reader: BinaryFile = BinaryFile.open("sindarin_demo.bin")
+  var reader: BinaryFile = BinaryFile.open("/tmp/sindarin_demo.bin")
   var b1: int = reader.readByte()
   var b2: int = reader.readByte()
   print($"  First two bytes: {b1}, {b2}\n")
-  reader.dispose()
+  reader.close()
 
   // Check file existence
   print("\nBinary file existence:\n")
-  print($"  sindarin_demo.bin exists: {BinaryFile.exists("sindarin_demo.bin")}\n")
+  print($"  /tmp/sindarin_demo.bin exists: {BinaryFile.exists("/tmp/sindarin_demo.bin")}\n")
 
   // Cleanup
-  BinaryFile.delete("sindarin_demo.bin")
+  BinaryFile.delete("/tmp/sindarin_demo.bin")
   print("\n")
 
 // ----------------------------------------------------------------------------
@@ -109,10 +109,10 @@ fn demo_file_utilities(): void =>
 
   // Create a file with specific content
   print("Common file operations:\n")
-  TextFile.writeAll("utility_test.txt", "Test content\nLine 2\nLine 3")
+  TextFile.writeAll("/tmp/utility_test.txt", "Test content\nLine 2\nLine 3")
 
   // Check existence
-  var path: str = "utility_test.txt"
+  var path: str = "/tmp/utility_test.txt"
   print($"  File exists: {TextFile.exists(path)}\n")
 
   // Read and process
@@ -122,15 +122,15 @@ fn demo_file_utilities(): void =>
 
   // Copy and move files
   print("\nCopy and move:\n")
-  TextFile.copy(path, "utility_copy.txt")
-  print($"  Copied file exists: {TextFile.exists("utility_copy.txt")}\n")
+  TextFile.copy(path, "/tmp/utility_copy.txt")
+  print($"  Copied file exists: {TextFile.exists("/tmp/utility_copy.txt")}\n")
 
-  TextFile.move("utility_copy.txt", "utility_moved.txt")
-  print($"  Original copy exists: {TextFile.exists("utility_copy.txt")}\n")
-  print($"  Moved file exists: {TextFile.exists("utility_moved.txt")}\n")
+  TextFile.move("/tmp/utility_copy.txt", "/tmp/utility_moved.txt")
+  print($"  Original copy exists: {TextFile.exists("/tmp/utility_copy.txt")}\n")
+  print($"  Moved file exists: {TextFile.exists("/tmp/utility_moved.txt")}\n")
 
   // Cleanup
-  TextFile.delete("utility_test.txt")
-  TextFile.delete("utility_moved.txt")
+  TextFile.delete("/tmp/utility_test.txt")
+  TextFile.delete("/tmp/utility_moved.txt")
 
   print("\n")
