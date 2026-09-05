@@ -1,0 +1,6 @@
+@source "../shared/native.c"
+
+native fn native_source_identity_value(): int
+
+fn native_source_identity_left(): int =>
+  return native_source_identity_value()

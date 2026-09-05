@@ -1,0 +1,3 @@
+@source "native/shared.c"
+
+native fn native_source_right(): int
