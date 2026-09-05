@@ -220,7 +220,7 @@ fn main() {
 };
     let mut joined: String = match (3 as i64) {
         3 => {
-            ({ let __sn_array_0 = &(((r#box).rows)[__sn_index(((r#box).rows).len(), 0)]); let __sn_separator_0 = &("+".to_string()); __sn_array_0.join(__sn_separator_0.as_str()) })
+            ({ let __sn_join_index_0 = __sn_index(((r#box).rows).len(), 0); let __sn_separator_0 = &("+".to_string()); (((r#box).rows)[__sn_join_index_0]).join(__sn_separator_0.as_str()) })
         },
         _ => {
             (fallbackResult.clone())
