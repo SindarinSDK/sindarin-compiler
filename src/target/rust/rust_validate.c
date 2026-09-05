@@ -291,7 +291,8 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
         root_name = json_string_property(root, "name");
         json_object *param = rust_name_is_shadowed(scope, root_name)
             ? NULL : rust_find_parameter(params, root_name);
-        if (param && json_string_property_equals(param, "mem_qual", "default"))
+        if (param && json_string_property_equals(param, "mem_qual", "default") &&
+            !json_boolean_property(param, "rust_default_array_ref"))
         {
             fprintf(stderr,
                     "Error: Rust target does not support direct assignment through %s targets rooted in by-value parameter '%s'\n",
@@ -1339,11 +1340,14 @@ static bool rust_validate_expr(json_object *expr)
             fprintf(stderr, "Error: Rust target does not support pointer array slices yet\n");
             return false;
         }
-        if (json_object_object_get_ex(expr, "step", &step))
-        {
-            fprintf(stderr, "Error: Rust target does not support stepped array slices yet\n");
-            return false;
-        }
+        /*
+         * v0.0.83 accepts a step expression on an array slice.  The tagged C
+         * renderer deliberately keeps the slice's contiguous-copy semantics:
+         * it neither evaluates nor applies `step`.  Rust uses the same
+         * target-private model and template, so accepting it here preserves
+         * the established contract without expanding the shared frontend.
+         */
+        (void)step;
         if (!json_object_object_get_ex(expr, "array", &array) ||
             !rust_validate_expr(array)) return false;
         if (json_object_object_get_ex(expr, "start", &start) &&

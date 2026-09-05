@@ -1,0 +1,7 @@
+fn appendObserved(values: int[], observed: int): int =>
+  values.push(observed)
+  return values.length
+fn main(): void =>
+  var values: int[] = {7}
+  println(appendObserved(values, values.length))
+  println($"{values.length}:{values[1]}")

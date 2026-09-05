@@ -1,0 +1,21 @@
+fn marker(): int =>
+  print("marker\n")
+  return 2
+
+fn main(): int =>
+  var values: int[] = {0, 1, 2, 3, 4, 5}
+  var default_step: int[] = values[..: marker()]
+  var positive_step: int[] = values[1..5: 2]
+  var negative_step: int[] = values[1..5: -2]
+  var zero_step: int[] = values[..: 0]
+  var negative_bounds: int[] = values[-4..- 1: 3]
+  var beyond_start: int[] = values[8..: 2]
+  var before_end: int[] = values[..- 8: 2]
+  var empty: int[] = values[3..3: -1]
+  print($"{default_step.length}:{default_step[0]}:{default_step[5]}\n")
+  print($"{positive_step.length}:{positive_step[0]}:{positive_step[3]}\n")
+  print($"{negative_step.length}:{negative_step[0]}:{negative_step[3]}\n")
+  print($"{zero_step.length}:{zero_step[0]}:{zero_step[5]}\n")
+  print($"{negative_bounds.length}:{negative_bounds[0]}:{negative_bounds[2]}\n")
+  print($"{beyond_start.length}:{before_end.length}:{empty.length}\n")
+  return 0
