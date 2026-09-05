@@ -1,0 +1,17 @@
+struct State =>
+  label: str
+  values: int[]
+  count: int
+
+fn makeReader(): fn(): str =>
+  var state: State = {
+    label: "seed",
+    values: {1, 2},
+    count: 7
+  }
+  return fn(): str => $"{state.label}:{state.count}:{state.values.length}"
+
+fn main(): void =>
+  var read: fn(): str = makeReader()
+  println(read())
+  println(read())

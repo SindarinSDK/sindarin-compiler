@@ -1,0 +1,16 @@
+struct Counter =>
+  value: int
+
+fn main(): void =>
+  var state: Counter = { value: 10 }
+  var outer: fn(): fn(int): int = fn(): fn(int): int =>
+    state.value += 1
+    return fn(delta: int): int =>
+      state.value += delta
+      return state.value
+  var first: fn(int): int = outer()
+  var second: fn(int): int = outer()
+  println(first(2))
+  println(first(3))
+  println(second(4))
+  println(state.value)

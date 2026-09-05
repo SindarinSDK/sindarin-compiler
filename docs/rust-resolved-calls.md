@@ -68,6 +68,16 @@ Ordinary function values remain supported inside resolved receiver-producing
 expressions; receiver traversal and alias analysis ignore function-type
 metadata while still validating and evaluating the nested call normally.
 
+Immutable function values are also supported as value parameters and results
+of non-native static and instance methods. The Rust target uses the closure
+backend's reference-counted callable handle, so passing a stable callable
+preserves handle identity, returning a capturing callable transfers an owned
+handle, and a later reassignment of the source binding does not change an
+already returned composition. Callable signatures are compared recursively
+when resolved-call metadata is validated; unsupported callable component types
+remain outside the same closure representation predicate. Borrowed mutable
+callable parameters remain outside this immutable slice.
+
 Resolved results are ordinary Rust expressions and retain ownership correctly
 in expression statements, initializers, returns, call arguments, match-arm
 prefix statements, and match tails. Stable member and index receiver places
@@ -92,11 +102,10 @@ mask the missing native reference-ownership implementation.
 ## Explicit follow-ups
 
 Native and pointer receivers, reference structs, packed structs, and
-closure-typed arguments/results remain separate representation work. These are
-targeted diagnostics, not fallback lowering paths. Closure validation,
-lowering, rendering, and support remain owned by the closure feature branch.
-Ordinary function values nested inside otherwise supported resolved
-expressions do not imply support for closure-typed resolved method parameters.
+borrowed mutable callable parameters remain separate representation work.
+These are targeted diagnostics, not fallback lowering paths. The resolved-call
+slice reuses the closure feature's immutable callable representation and does
+not modify closure validation, lowering, rendering, or capture support.
 
 Rust also rejects a resolved method receiver and mutable borrowed operand when
 their stable place paths are identical or are elements of the same array.
@@ -126,6 +135,13 @@ The small plain-value
 `resolved_operator_tagged_eval_order` control is valid on both targets and
 pins tagged C's receiver-before-argument swapped order. The existing C
 snapshot suite is retained unchanged as a backend-freeze check.
+
+The `resolved_callable_methods` fixture additionally covers immutable callable
+parameters and results on static and instance methods, reference-counted handle
+identity, captured-result ownership after source reassignment, a returned
+method result crossing another function boundary, receiver/argument source
+order, and execution at each optimization level. Its C execution is an
+unchanged-language behavior control rather than a C snapshot change.
 
 The final feature gate records Rust generation snapshots and execution at
 `-O0`, `-O1`, and `-O2`, the focused Rust generator suite, unchanged C

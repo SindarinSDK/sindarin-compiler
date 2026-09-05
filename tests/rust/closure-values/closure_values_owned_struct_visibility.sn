@@ -1,0 +1,29 @@
+struct Point =>
+  x: int = 0
+  y: int = 0
+
+fn main(): void =>
+  var point: Point = {
+    x: 10,
+    y: 20
+  }
+  var read: fn(): int = fn(): int => point.x + point.y
+  point = Point {
+    x: 30,
+    y: 40
+  }
+  println(read())
+  println(point.x + point.y)
+  if true =>
+    var point: Point = {
+      x: 1,
+      y: 2
+    }
+    var shadowed: fn(): int = fn(): int => point.x + point.y
+    point = Point {
+      x: 3,
+      y: 4
+    }
+    println(shadowed())
+    println(shadowed())
+  println(read())
