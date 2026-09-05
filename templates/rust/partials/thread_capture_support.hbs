@@ -1,0 +1,15 @@
+// Arc owns capture identity. Reads clone under the lock and release it before
+// evaluating the next source operand; mutable operations borrow the same cell.
+struct {{rust_ident rust_thread_capture_cell}}<T>(std::sync::Mutex<T>, std::sync::Mutex<()>);
+impl<T> {{rust_ident rust_thread_capture_cell}}<T> {
+    fn new(value: T) -> Self { Self(std::sync::Mutex::new(value), std::sync::Mutex::new(())) }
+    fn lock(&self) -> std::sync::LockResult<std::sync::MutexGuard<'_, T>> { self.0.lock() }
+    fn guard(&self) -> std::sync::MutexGuard<'_, ()> { self.1.lock().unwrap_or_else(|e| e.into_inner()) }
+    fn borrow_mut(&self) -> std::sync::MutexGuard<'_, T> { self.0.lock().unwrap_or_else(|e| e.into_inner()) }
+    fn set(&self, value: T) { *self.borrow_mut() = value; }
+    fn replace(&self, value: T) -> T { std::mem::replace(&mut *self.borrow_mut(), value) }
+}
+impl<T: Clone> {{rust_ident rust_thread_capture_cell}}<T> {
+    fn borrow(&self) -> T { self.borrow_mut().clone() }
+    fn get(&self) -> T { self.borrow() }
+}

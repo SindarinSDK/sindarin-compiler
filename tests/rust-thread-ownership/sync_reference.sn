@@ -1,0 +1,11 @@
+fn update(value: int as ref): int =>
+  value = value + 2
+  return value
+fn main(): void =>
+  sync var value: int = 3
+  var result: int = & update(value)
+  result !
+  lock (value) =>
+    value = value + 1
+  value++
+  println($"{value}, {result}")

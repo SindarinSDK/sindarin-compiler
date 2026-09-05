@@ -1,0 +1,19 @@
+struct {{rust_ident rust_thread_array_type}}<T>(Vec<Option<{{rust_ident rust_join_type}}<T>>>);
+impl<T> {{rust_ident rust_thread_array_type}}<T> {
+    fn new() -> Self { Self(Vec::new()) }
+    fn fill_to(&mut self, size: usize) {
+        if size < self.0.len() { for handle in self.0.drain(size..).flatten() { handle.detach(); } }
+        self.0.resize_with(size, || None);
+    }
+    fn push(&mut self, value: Option<{{rust_ident rust_join_type}}<T>>) { self.0.push(value); }
+    fn join(&mut self, index: usize) -> Option<T> { self.0.get_mut(index).and_then(Option::take).map(|handle| handle.join()) }
+    fn sync_all(&mut self, values: &mut [T]) {
+        for (index, value) in values.iter_mut().enumerate() {
+            if let Some(result) = self.join(index) { *value = result; }
+        }
+    }
+    fn reset(&mut self) { for handle in self.0.drain(..).flatten() { handle.detach(); } }
+}
+impl<T> Drop for {{rust_ident rust_thread_array_type}}<T> {
+    fn drop(&mut self) { self.reset(); }
+}

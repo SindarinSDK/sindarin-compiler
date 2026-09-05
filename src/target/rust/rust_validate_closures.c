@@ -402,7 +402,7 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
             if (json_string_property_equals(b->declaration, "rust_capture_mode", "self"))
                 json_object_object_add(node, "rust_self_read", json_object_new_boolean(true));
             if ((b->capture || json_boolean_property(b->declaration, "rust_shared_cell")) &&
-                json_boolean_property(node, "is_ref_arg"))
+                json_boolean_property(node, "is_ref_arg") && !json_boolean_property(node, "rust_thread_ref_owner"))
                 return rust_closure_error("mutable access to snapshot closure captures");
         }
         else if (!json_boolean_property(node, "rust_direct_callee") && name &&
