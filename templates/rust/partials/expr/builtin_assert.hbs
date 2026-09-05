@@ -1,0 +1,1 @@
+{ let __sn_assert_condition = {{#each args}}{{#unless @index}}{{> expr this}}{{/unless}}{{/each}}; let __sn_assert_message = {{#each args}}{{#if @index}}{{> expr this}}{{/if}}{{/each}}; if !__sn_assert_condition { eprintln!("{}", __sn_assert_message); std::process::exit(1); } }

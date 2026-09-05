@@ -1,0 +1,24 @@
+fn makePipe(): str =>
+  println("made")
+  return |
+    first
+    second
+
+fn forward(value: str): str => value
+
+fn chooseIndex(): int =>
+  println("index")
+  return 1
+
+fn main(): void =>
+  var source: str = makePipe()
+  var lines: str[] = source.splitLines()
+  assert(lines.length == 3, "pipe lines preserved")
+  println($"{lines.length}:{lines[0]}:{lines[1]}")
+  println(source.contains("first"))
+  println(makePipe().splitLines()[chooseIndex()])
+
+  var __sn_string_value: str = "a\r\nb\n\nc\r"
+  var __sn_array_value: str[] = __sn_string_value.splitLines()
+  println($"{__sn_array_value.length}:{__sn_array_value[0]}:{__sn_array_value[1]}:{__sn_array_value[2]}:{__sn_array_value[3]}")
+  println(forward(__sn_string_value).splitLines()[2].length)

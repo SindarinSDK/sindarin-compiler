@@ -1680,6 +1680,13 @@ static bool rust_validate_expr(json_object *expr)
         return json_object_object_get_ex(expr, "value", &child) && rust_validate_expr(child);
     if (strcmp(kind, "call") == 0)
         return rust_validate_call(expr);
+    if (strcmp(kind, "builtin_assert") == 0)
+    {
+        json_object *args = NULL;
+        return json_object_object_get_ex(expr, "args", &args) &&
+               json_object_array_length(args) == 2 &&
+               rust_validate_expr_array(args);
+    }
     if (strcmp(kind, "builtin_print") == 0 || strcmp(kind, "builtin_println") == 0)
     {
         json_object *args = NULL;

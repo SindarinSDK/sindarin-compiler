@@ -84,6 +84,44 @@ static void rust_lower_call_strings(json_object *node, const char *kind)
     }
 }
 
+/* Generic array access renders its receiver once for the value and once for
+ * its length.  A splitLines receiver can be an owned string temporary with
+ * observable effects, so bind the produced array before evaluating the index.
+ * This is deliberately limited to the newly admitted string method. */
+static void rust_lower_split_lines_accesses(json_object *node)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            rust_lower_split_lines_accesses(json_object_array_get_idx(node, i));
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
+
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        rust_lower_split_lines_accesses(value);
+    }
+
+    json_object *array = NULL;
+    if (json_string_property_equals(node, "kind", "array_access") &&
+        json_object_object_get_ex(node, "array", &array) &&
+        json_string_property_equals(array, "kind", "call") &&
+        json_string_property_equals(array, "rust_string_method", "splitLines"))
+    {
+        json_object_object_add(node, "rust_bind_array_once",
+                               json_object_new_boolean(true));
+        json_object *type = NULL;
+        if (json_object_object_get_ex(node, "type", &type) &&
+            json_string_property_equals(type, "kind", "string"))
+            json_object_object_add(node, "rust_needs_clone",
+                                   json_object_new_boolean(true));
+    }
+}
+
 /* C array search compares non-string elements byte-for-byte. Mark floating
  * searches so Rust preserves C behavior for signed zero and NaN payloads. */
 static void rust_lower_array_searches(json_object *node)
@@ -233,6 +271,7 @@ static void rust_lower_instance_method_clones(json_object *model)
 
 static void rust_lower_calls(json_object *model)
 {
+    rust_lower_split_lines_accesses(model);
     rust_lower_array_searches(model);
     rust_lower_instance_method_clones(model);
 }
