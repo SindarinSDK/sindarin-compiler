@@ -143,6 +143,14 @@ static bool rust_owned_value_type(json_object *node)
                     strcmp(kind, "struct") == 0);
 }
 
+static bool rust_borrowed_callable_argument(json_object *arg)
+{
+    json_object *type = NULL;
+    return json_boolean_property(arg, "is_ref_arg") &&
+           json_object_object_get_ex(arg, "type", &type) &&
+           json_string_property_equals(type, "kind", "function");
+}
+
 static void rust_mark_instance_method_clones(json_object *node)
 {
     if (!node) return;
@@ -376,7 +384,9 @@ static void rust_lower_resolved_receiver_prefixes(json_object *model,
         rust_lower_resolved_receiver_prefixes(model, value, next_id);
     }
 
-    if (!json_string_property_equals(node, "kind", "method_call")) return;
+    bool is_static_call = json_string_property_equals(node, "kind", "static_call");
+    if (!is_static_call &&
+        !json_string_property_equals(node, "kind", "method_call")) return;
 
     json_object *args = NULL;
     bool stabilize_args = false;
@@ -384,6 +394,21 @@ static void rust_lower_resolved_receiver_prefixes(json_object *model,
         json_object_is_type(args, json_type_array))
     {
         size_t count = json_object_array_length(args);
+        /* A callable slot is an ordinary source place.  Creating Rust's &mut
+         * for it before later argument values are evaluated can overlap a
+         * later read of the same handle.  Preserve the argument order by
+         * evaluating the other argument values first, then form this borrow
+         * only in the final call expression. */
+        for (size_t i = 0; i + 1 < count; i++)
+        {
+            json_object *arg = json_object_array_get_idx(args, i);
+            if (rust_borrowed_callable_argument(arg))
+            {
+                json_object_object_add(arg, "rust_defer_callable_borrow",
+                                       json_object_new_boolean(true));
+                stabilize_args = true;
+            }
+        }
         for (size_t i = 0; i < count; i++)
         {
             json_object *arg = json_object_array_get_idx(args, i);
@@ -391,6 +416,19 @@ static void rust_lower_resolved_receiver_prefixes(json_object *model,
                  !json_boolean_property(arg, "is_borrow_tmp")) ||
                 !json_string_property_equals(arg, "kind", "array_access"))
                 continue;
+
+            if (json_boolean_property(arg, "rust_defer_callable_borrow"))
+            {
+                json_object *arg_prefix = json_object_new_array();
+                rust_stabilize_resolved_receiver(
+                    model, arg, arg_prefix, next_id, true);
+                if (json_object_array_length(arg_prefix) > 0)
+                    json_object_object_add(arg, "rust_resolved_arg_prefix",
+                                           arg_prefix);
+                else
+                    json_object_put(arg_prefix);
+                continue;
+            }
 
             json_object *array = NULL;
             if (json_object_object_get_ex(arg, "array", &array))
@@ -435,6 +473,8 @@ static void rust_lower_resolved_receiver_prefixes(json_object *model,
             for (size_t i = 0; i < count; i++)
             {
                 json_object *arg = json_object_array_get_idx(args, i);
+                if (json_boolean_property(arg, "rust_defer_callable_borrow"))
+                    continue;
                 char arg_name[80];
                 do
                 {
@@ -452,6 +492,13 @@ static void rust_lower_resolved_receiver_prefixes(json_object *model,
     }
 
     json_object *object = NULL;
+    if (is_static_call)
+    {
+        if (stabilize_args)
+            json_object_object_add(node, "rust_stabilize_call",
+                                   json_object_new_boolean(true));
+        return;
+    }
     if (json_object_object_get_ex(node, "object", &object))
     {
         json_object *prefix = json_object_new_array();

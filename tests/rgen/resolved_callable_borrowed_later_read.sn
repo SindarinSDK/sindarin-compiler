@@ -1,0 +1,9 @@
+struct Dispatcher =>
+  static fn reset(callback: (fn(int): int) as ref, observed: int): int =>
+    callback = fn(value: int): int => value + 10
+    return observed
+
+fn main(): void =>
+  var callback: fn(int): int = fn(value: int): int => value + 1
+  println(Dispatcher.reset(callback, callback(2)))
+  println(callback(2))
