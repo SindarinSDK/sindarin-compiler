@@ -477,6 +477,17 @@ static json_object *rust_find_function(json_object *model, const char *name)
     return NULL;
 }
 
+static json_object *rust_raw_receiver_struct_type(json_object *type)
+{
+    if (json_string_property_equals(type, "kind", "struct")) return type;
+    json_object *base_type = NULL;
+    if (json_string_property_equals(type, "kind", "pointer") &&
+        json_object_object_get_ex(type, "base_type", &base_type) &&
+        json_string_property_equals(base_type, "kind", "struct"))
+        return base_type;
+    return NULL;
+}
+
 static json_object *rust_raw_place_call_target(json_object *model, json_object *node)
 {
     const char *kind = json_string_property(node, "kind");
@@ -492,8 +503,9 @@ static json_object *rust_raw_place_call_target(json_object *model, json_object *
         {
             json_object *object = NULL, *type = NULL;
             if (!json_object_object_get_ex(callee, "object", &object) ||
-                !json_object_object_get_ex(object, "type", &type) ||
-                !json_string_property_equals(type, "kind", "struct")) return NULL;
+                !json_object_object_get_ex(object, "type", &type)) return NULL;
+            type = rust_raw_receiver_struct_type(type);
+            if (!type) return NULL;
             json_object *structure = rust_find_struct(model,
                 json_string_property(type, "name"));
             return rust_find_resolved_method(structure,
@@ -847,13 +859,75 @@ static void rust_mark_raw_place_calls(json_object *model, json_object *node)
             if (json_object_object_get_ex(node, "callee", &callee) &&
                 json_object_object_get_ex(callee, "object", &object) &&
                 json_object_object_get_ex(object, "type", &type))
-                json_object_object_add(node, "rust_raw_receiver_type",
-                                       json_object_new_string(
-                                           json_string_property(type, "name")));
+            {
+                type = rust_raw_receiver_struct_type(type);
+                const char *name = type ? json_string_property(type, "name") : NULL;
+                if (name)
+                    json_object_object_add(node, "rust_raw_receiver_type",
+                                           json_object_new_string(name));
+            }
         }
     }
     json_object_object_add(node, "rust_raw_ref_call",
                            json_object_new_boolean(true));
+}
+
+/* A raw-selected wrapper can still call an ordinary as-ref callee.  Keep that
+ * edge ordinary, but reborrow the wrapper's raw place for only the duration of
+ * the call.  The generic captured-as-ref rendering adds a dereference intended
+ * for &mut-backed captures; applying it to an already dereferenced raw place
+ * would produce &mut *(*(ptr)). */
+static void rust_mark_raw_reborrow_calls(json_object *model,
+                                         json_object *caller,
+                                         json_object *node)
+{
+    if (!node || !caller) return;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            rust_mark_raw_reborrow_calls(
+                model, caller, json_object_array_get_idx(node, i));
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
+    json_object_object_foreach(node, key, value)
+    {
+        if (strcmp(key, "type") != 0 && strcmp(key, "struct_type") != 0)
+            rust_mark_raw_reborrow_calls(model, caller, value);
+    }
+
+    json_object *target = rust_raw_place_call_target(model, node);
+    json_object *args = NULL, *params = NULL;
+    if (!target || !json_object_object_get_ex(node, "args", &args) ||
+        !json_object_object_get_ex(target, "params", &params)) return;
+    size_t count = json_object_array_length(args);
+    for (size_t i = 0; i < count && i < json_object_array_length(params); i++)
+    {
+        json_object *param = json_object_array_get_idx(params, i);
+        json_object *arg = json_object_array_get_idx(args, i);
+        if (json_string_property_equals(param, "mem_qual", "as_ref") &&
+            !json_boolean_property(param, "rust_raw_ref_param") &&
+            json_boolean_property(arg, "is_ref_arg") &&
+            rust_raw_definition_place(caller, arg))
+            json_object_object_add(arg, "rust_raw_reborrow_arg",
+                                   json_object_new_boolean(true));
+    }
+}
+
+static void rust_mark_definition_raw_reborrows(json_object *model,
+                                               json_object *definitions)
+{
+    if (!json_object_is_type(definitions, json_type_array)) return;
+    size_t count = json_object_array_length(definitions);
+    for (size_t i = 0; i < count; i++)
+    {
+        json_object *definition = json_object_array_get_idx(definitions, i);
+        json_object *body = NULL;
+        if (json_boolean_property(definition, "rust_raw_place_abi") &&
+            json_object_object_get_ex(definition, "body", &body))
+            rust_mark_raw_reborrow_calls(model, definition, body);
+    }
 }
 
 static void rust_lower_overlapping_ref_places(json_object *model)
@@ -896,6 +970,18 @@ static void rust_lower_overlapping_ref_places(json_object *model)
         }
     }
     rust_mark_raw_place_calls(model, model);
+    rust_mark_definition_raw_reborrows(model, functions);
+    if (json_object_is_type(structs, json_type_array))
+    {
+        size_t count = json_object_array_length(structs);
+        for (size_t i = 0; i < count; i++)
+        {
+            json_object *methods = NULL;
+            if (json_object_object_get_ex(json_object_array_get_idx(structs, i),
+                                          "methods", &methods))
+                rust_mark_definition_raw_reborrows(model, methods);
+        }
+    }
 }
 
 static void rust_lower_calls(json_object *model)

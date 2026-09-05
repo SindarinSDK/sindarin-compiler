@@ -1,0 +1,44 @@
+struct RouteCell =>
+  value: int
+
+struct RouteHolder =>
+  cell: RouteCell
+
+struct RouteOps =>
+  static fn bumpStatic(value: int as ref): void =>
+    value = value + 1
+
+  fn bumpInstance(value: int as ref): void =>
+    value = value + 1
+
+  static fn forwardStatic(value: int as ref, alias: int as ref): int =>
+    RouteOps.bumpStatic(value)
+    alias = alias + 10
+    return value
+
+  fn forwardInstance(value: int as ref, alias: int as ref): int =>
+    self.bumpInstance(value)
+    alias = alias + 10
+    return value
+
+  static fn bumpCell(cell: RouteCell as ref): void =>
+    cell.value = cell.value + 1
+
+  static fn forwardHolder(holder: RouteHolder as ref, cell: RouteCell as ref): int =>
+    RouteOps.bumpCell(holder.cell)
+    cell.value = cell.value + 10
+    return holder.cell.value
+
+fn main(): void =>
+  var staticValue: int = 1
+  println(RouteOps.forwardStatic(staticValue, staticValue))
+  println(staticValue)
+
+  var ops: RouteOps = {}
+  var instanceValue: int = 2
+  println(ops.forwardInstance(instanceValue, instanceValue))
+  println(instanceValue)
+
+  var holder: RouteHolder = { cell: RouteCell { value: 1 } }
+  println(RouteOps.forwardHolder(holder, holder.cell))
+  println(holder.cell.value)

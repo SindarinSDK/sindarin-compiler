@@ -1,0 +1,12 @@
+fn bump(value: int as ref): void =>
+  value = value + 1
+
+fn forward(value: int as ref, alias: int as ref): int =>
+  bump(value)
+  alias = alias + 10
+  return value
+
+fn main(): void =>
+  var value: int = 1
+  println(forward(value, value))
+  println(value)
