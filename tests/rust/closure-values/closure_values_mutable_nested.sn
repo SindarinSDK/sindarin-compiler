@@ -1,0 +1,13 @@
+fn main(): void =>
+  var count: int = 1
+  var factory: fn(): fn(): int = fn(): fn(): int =>
+    return fn(): int =>
+      count++
+      return count
+  var first: fn(): int = factory()
+  var second: fn(): int = factory()
+  println(first())
+  println(second())
+  count = 9
+  println(first())
+  println(count)

@@ -1,0 +1,17 @@
+fn invoke(callback: fn(int): str, depth: int): str =>
+  return callback(depth)
+
+fn main(): void =>
+  var trace: str = "r"
+  var calls: int = 0
+  var action: fn(int): str = fn(depth: int): str =>
+    trace += "a"
+    calls++
+    if depth > 0 =>
+      trace += invoke(action, depth - 1)
+    return trace
+  println(action(2))
+  println(calls)
+  println(action(1))
+  println(calls)
+  println(trace)

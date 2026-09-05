@@ -1,0 +1,6 @@
+fn main(): void =>
+  var value: float = 1.0f
+  var action: fn(): float = fn(): float =>
+    value = 2.0f
+    return value
+  println(action() == 2.0f)
