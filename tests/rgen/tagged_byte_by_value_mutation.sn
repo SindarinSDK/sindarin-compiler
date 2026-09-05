@@ -1,0 +1,11 @@
+fn mutate(value: byte): byte =>
+  value += 2b
+  value *= 2b
+  var before: byte = value++
+  value--
+  return before + value
+
+fn main(): void =>
+  var original: byte = 255b
+  println(mutate(original) == 4b)
+  println(original == 255b)

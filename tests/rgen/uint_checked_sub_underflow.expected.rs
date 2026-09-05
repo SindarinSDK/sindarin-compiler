@@ -31,5 +31,5 @@ fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
 fn main() {
     let mut zero: u64 = 0;
     let mut one: u64 = 1;
-    let mut underflow: u64 = __sn_checked_0((zero).checked_sub(one), "Runtime error: integer overflow in subtraction");
+    let mut underflow: u64 = { let (__sn_byte_left, __sn_byte_right): (u64, u64) = (zero, one); __sn_byte_left.wrapping_sub(__sn_byte_right) };
 }
