@@ -237,54 +237,454 @@ static void mark_function_dependencies(json_object *node,
     }
 }
 
-static bool project_native_model(json_object *model)
+static void mark_named_model_dependencies(json_object *node,
+                                          json_object *structs,
+                                          bool *selected_structs,
+                                          size_t struct_count,
+                                          json_object *globals,
+                                          bool *selected_globals,
+                                          size_t global_count,
+                                          bool *changed)
 {
-    json_object *functions = NULL;
-    json_object *native_functions = json_object_new_array();
-    if (!native_functions) return false;
-    if (json_object_object_get_ex(model, "functions", &functions))
+    /* This walks only nodes already selected for the Rust-private sidecar.
+     * Repeating it with the callable walk below computes a deterministic
+     * source-order closure without exposing dependency metadata to C codegen. */
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array))
     {
-        size_t count = json_object_array_length(functions);
-        bool *selected = count ? calloc(count, sizeof(*selected)) : NULL;
-        if (count && !selected)
-        {
-            json_object_put(native_functions);
-            return false;
-        }
+        size_t count = json_object_array_length(node);
         for (size_t i = 0; i < count; i++)
-        {
-            json_object *function = json_object_array_get_idx(functions, i);
-            if (native_bool(function, "is_native"))
-                selected[i] = true;
-        }
+            mark_named_model_dependencies(json_object_array_get_idx(node, i),
+                                          structs, selected_structs,
+                                          struct_count, globals,
+                                          selected_globals, global_count,
+                                          changed);
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
 
-        bool changed;
-        do
+    const char *kind = native_string(node, "kind");
+    const char *name = native_string(node, "name");
+    if (kind && name && strcmp(kind, "struct") == 0)
+    {
+        for (size_t i = 0; i < struct_count; i++)
         {
-            changed = false;
-            for (size_t i = 0; i < count; i++)
+            const char *struct_name = native_string(
+                json_object_array_get_idx(structs, i), "name");
+            if (!selected_structs[i] && struct_name &&
+                strcmp(struct_name, name) == 0)
             {
-                if (!selected[i]) continue;
-                json_object *function = json_object_array_get_idx(functions, i);
-                json_object *body = NULL;
-                if (json_object_object_get_ex(function, "body", &body))
-                    mark_function_dependencies(body, functions, selected,
-                                               count, &changed);
+                selected_structs[i] = true;
+                *changed = true;
+                break;
             }
-        } while (changed);
-
-        for (size_t i = 0; i < count; i++)
-        {
-            if (selected[i])
-                json_object_array_add(native_functions, json_object_get(
-                    json_object_array_get_idx(functions, i)));
         }
-        free(selected);
+    }
+    else if (kind && name && strcmp(kind, "variable") == 0)
+    {
+        for (size_t i = 0; i < global_count; i++)
+        {
+            const char *global_name = native_string(
+                json_object_array_get_idx(globals, i), "name");
+            if (!selected_globals[i] && global_name &&
+                strcmp(global_name, name) == 0)
+            {
+                selected_globals[i] = true;
+                *changed = true;
+                break;
+            }
+        }
+    }
+
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        mark_named_model_dependencies(value, structs, selected_structs,
+                                      struct_count, globals,
+                                      selected_globals, global_count, changed);
+    }
+}
+
+static json_object *selected_array(json_object *source, const bool *selected,
+                                   size_t count)
+{
+    json_object *result = json_object_new_array();
+    if (!result) return NULL;
+    for (size_t i = 0; i < count; i++)
+        if (selected[i])
+            json_object_array_add(result, json_object_get(
+                json_object_array_get_idx(source, i)));
+    return result;
+}
+
+static bool node_references_selected_global(json_object *node,
+                                            json_object *globals,
+                                            const bool *selected_globals,
+                                            size_t global_count)
+{
+    if (!node) return false;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            if (node_references_selected_global(
+                    json_object_array_get_idx(node, i), globals,
+                    selected_globals, global_count)) return true;
+        return false;
+    }
+    if (!json_object_is_type(node, json_type_object)) return false;
+    const char *kind = native_string(node, "kind");
+    const char *name = native_string(node, "name");
+    if (kind && name && strcmp(kind, "variable") == 0)
+    {
+        for (size_t i = 0; i < global_count; i++)
+        {
+            const char *global_name = native_string(
+                json_object_array_get_idx(globals, i), "name");
+            if (selected_globals[i] && global_name &&
+                strcmp(global_name, name) == 0) return true;
+        }
+    }
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        if (node_references_selected_global(value, globals, selected_globals,
+                                            global_count)) return true;
+    }
+    return false;
+}
+
+static bool node_calls_selected_function(json_object *node,
+                                         json_object *functions,
+                                         const bool *selected_functions,
+                                         size_t function_count)
+{
+    if (!node) return false;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            if (node_calls_selected_function(
+                    json_object_array_get_idx(node, i), functions,
+                    selected_functions, function_count)) return true;
+        return false;
+    }
+    if (!json_object_is_type(node, json_type_object)) return false;
+    if (native_string(node, "kind") &&
+        strcmp(native_string(node, "kind"), "call") == 0)
+    {
+        json_object *callee = NULL;
+        if (json_object_object_get_ex(node, "callee", &callee) &&
+            callee && native_string(callee, "kind") &&
+            strcmp(native_string(callee, "kind"), "variable") == 0)
+        {
+            const char *callable_name = native_string(callee, "name");
+            for (size_t i = 0; callable_name && i < function_count; i++)
+                if (selected_functions[i] && function_matches_callable(
+                        json_object_array_get_idx(functions, i), callable_name))
+                    return true;
+        }
+    }
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        if (node_calls_selected_function(value, functions,
+                                         selected_functions, function_count))
+            return true;
+    }
+    return false;
+}
+
+static json_object *native_primitive_type(const char *kind)
+{
+    json_object *type = json_object_new_object();
+    if (type) json_object_object_add(type, "kind", json_object_new_string(kind));
+    return type;
+}
+
+static json_object *native_variable(const char *name, const char *type_kind)
+{
+    json_object *variable = json_object_new_object();
+    if (!variable) return NULL;
+    json_object_object_add(variable, "kind", json_object_new_string("variable"));
+    json_object_object_add(variable, "name", json_object_new_string(name));
+    json_object_object_add(variable, "type", native_primitive_type(type_kind));
+    return variable;
+}
+
+static json_object *native_bool_literal(bool value)
+{
+    json_object *literal = json_object_new_object();
+    if (!literal) return NULL;
+    json_object_object_add(literal, "kind", json_object_new_string("literal"));
+    json_object_object_add(literal, "value_kind", json_object_new_string("bool"));
+    json_object_object_add(literal, "value", json_object_new_boolean(value));
+    json_object_object_add(literal, "type", native_primitive_type("bool"));
+    return literal;
+}
+
+static json_object *native_assignment_statement(const char *target,
+                                                json_object *value)
+{
+    json_object *assignment = json_object_new_object();
+    json_object *statement = json_object_new_object();
+    if (!assignment || !statement)
+    {
+        if (assignment) json_object_put(assignment);
+        if (statement) json_object_put(statement);
+        return NULL;
+    }
+    json_object_object_add(assignment, "kind", json_object_new_string("assign"));
+    json_object_object_add(assignment, "target", json_object_new_string(target));
+    json_object_object_add(assignment, "value", value);
+    json_object_object_add(statement, "kind", json_object_new_string("expr"));
+    json_object_object_add(statement, "expr", assignment);
+    return statement;
+}
+
+static bool add_native_initializer(json_object *functions,
+                                   json_object *globals)
+{
+    /* The C backend normally assigns deferred globals from generated main().
+     * A sidecar has no C main, so synthesize the equivalent guarded routine;
+     * the Rust wrapper serializes its first call with std::sync::Once. */
+    static const char *guard_name = "__rust_native_initialized";
+    json_object *guard = json_object_new_object();
+    json_object *initializer = json_object_new_object();
+    json_object *body = json_object_new_array();
+    json_object *params = json_object_new_array();
+    if (!guard || !initializer || !body || !params) goto fail;
+
+    json_object_object_add(guard, "kind", json_object_new_string("var_decl"));
+    json_object_object_add(guard, "name", json_object_new_string(guard_name));
+    json_object_object_add(guard, "type", native_primitive_type("bool"));
+    json_object_object_add(guard, "sync_mod", json_object_new_string("none"));
+    json_object_object_add(guard, "is_global", json_object_new_boolean(true));
+    json_object_object_add(guard, "initializer", native_bool_literal(false));
+    json_object_array_add(globals, guard);
+    guard = NULL;
+
+    json_object *if_statement = json_object_new_object();
+    json_object *then_body = json_object_new_object();
+    json_object *then_statements = json_object_new_array();
+    json_object *return_statement = json_object_new_object();
+    if (!if_statement || !then_body || !then_statements || !return_statement)
+    {
+        if (if_statement) json_object_put(if_statement);
+        if (then_body) json_object_put(then_body);
+        if (then_statements) json_object_put(then_statements);
+        if (return_statement) json_object_put(return_statement);
+        goto fail;
+    }
+    json_object_object_add(return_statement, "kind", json_object_new_string("return"));
+    json_object_array_add(then_statements, return_statement);
+    json_object_object_add(then_body, "statements", then_statements);
+    json_object_object_add(if_statement, "kind", json_object_new_string("if"));
+    json_object_object_add(if_statement, "condition",
+                           native_variable(guard_name, "bool"));
+    json_object_object_add(if_statement, "then_body", then_body);
+    json_object_array_add(body, if_statement);
+
+    json_object *set_guard = native_assignment_statement(
+        guard_name, native_bool_literal(true));
+    if (!set_guard) goto fail;
+    json_object_array_add(body, set_guard);
+
+    size_t global_count = json_object_array_length(globals);
+    for (size_t i = 0; i + 1 < global_count; i++)
+    {
+        json_object *global = json_object_array_get_idx(globals, i);
+        if (!native_bool(global, "is_deferred")) continue;
+        json_object *value = NULL;
+        const char *name = native_string(global, "name");
+        if (!name || !json_object_object_get_ex(global, "initializer", &value))
+            continue;
+        json_object *assignment = native_assignment_statement(name, deep_copy(value));
+        if (!assignment) goto fail;
+        json_object_array_add(body, assignment);
+    }
+
+    json_object_object_add(initializer, "name",
+                           json_object_new_string("__rust_native_initialize"));
+    json_object_object_add(initializer, "return_type", native_primitive_type("void"));
+    json_object_object_add(initializer, "params", params);
+    params = NULL;
+    json_object_object_add(initializer, "body", body);
+    body = NULL;
+    json_object_object_add(initializer, "has_body", json_object_new_boolean(true));
+    json_object_object_add(initializer, "is_native", json_object_new_boolean(false));
+    json_object_array_add(functions, initializer);
+    return true;
+
+fail:
+    if (guard) json_object_put(guard);
+    if (initializer) json_object_put(initializer);
+    if (body) json_object_put(body);
+    if (params) json_object_put(params);
+    return false;
+}
+
+static bool project_native_model(json_object *model,
+                                 json_object **selected_function_names,
+                                 json_object **selected_global_names,
+                                 bool *needs_initializer)
+{
+    json_object *functions = NULL, *structs = NULL, *globals = NULL;
+    json_object_object_get_ex(model, "functions", &functions);
+    json_object_object_get_ex(model, "structs", &structs);
+    json_object_object_get_ex(model, "globals", &globals);
+    size_t function_count = functions ? json_object_array_length(functions) : 0;
+    size_t struct_count = structs ? json_object_array_length(structs) : 0;
+    size_t global_count = globals ? json_object_array_length(globals) : 0;
+    bool *selected_functions = function_count
+        ? calloc(function_count, sizeof(*selected_functions)) : NULL;
+    bool *selected_structs = struct_count
+        ? calloc(struct_count, sizeof(*selected_structs)) : NULL;
+    bool *selected_globals = global_count
+        ? calloc(global_count, sizeof(*selected_globals)) : NULL;
+    if ((function_count && !selected_functions) ||
+        (struct_count && !selected_structs) ||
+        (global_count && !selected_globals))
+    {
+        free(selected_functions);
+        free(selected_structs);
+        free(selected_globals);
+        return false;
+    }
+    for (size_t i = 0; i < function_count; i++)
+        if (native_bool(json_object_array_get_idx(functions, i), "is_native"))
+            selected_functions[i] = true;
+
+    bool changed;
+    do
+    {
+        changed = false;
+        for (size_t i = 0; i < function_count; i++)
+        {
+            if (!selected_functions[i]) continue;
+            json_object *function = json_object_array_get_idx(functions, i);
+            mark_function_dependencies(function, functions,
+                                       selected_functions, function_count,
+                                       &changed);
+            mark_named_model_dependencies(function, structs, selected_structs,
+                                          struct_count, globals,
+                                          selected_globals, global_count,
+                                          &changed);
+        }
+        for (size_t i = 0; i < struct_count; i++)
+        {
+            if (!selected_structs[i]) continue;
+            json_object *structure = json_object_array_get_idx(structs, i);
+            mark_function_dependencies(structure, functions,
+                                       selected_functions, function_count,
+                                       &changed);
+            mark_named_model_dependencies(structure, structs,
+                                          selected_structs, struct_count,
+                                          globals, selected_globals,
+                                          global_count, &changed);
+        }
+        for (size_t i = 0; i < global_count; i++)
+        {
+            if (!selected_globals[i]) continue;
+            json_object *global = json_object_array_get_idx(globals, i);
+            mark_function_dependencies(global, functions,
+                                       selected_functions, function_count,
+                                       &changed);
+            mark_named_model_dependencies(global, structs, selected_structs,
+                                          struct_count, globals,
+                                          selected_globals, global_count,
+                                          &changed);
+        }
+    } while (changed);
+
+    json_object *native_functions = selected_array(
+        functions, selected_functions, function_count);
+    json_object *native_structs = selected_array(
+        structs, selected_structs, struct_count);
+    json_object *native_globals = selected_array(
+        globals, selected_globals, global_count);
+    json_object *function_names = json_object_new_array();
+    json_object *global_names = json_object_new_array();
+    bool has_deferred_global = false;
+    bool *private_helpers = function_count
+        ? calloc(function_count, sizeof(*private_helpers)) : NULL;
+    if (!native_functions || !native_structs || !native_globals ||
+        !function_names || !global_names ||
+        (function_count && !private_helpers))
+    {
+        if (native_functions) json_object_put(native_functions);
+        if (native_structs) json_object_put(native_structs);
+        if (native_globals) json_object_put(native_globals);
+        if (function_names) json_object_put(function_names);
+        if (global_names) json_object_put(global_names);
+        free(selected_functions);
+        free(selected_structs);
+        free(selected_globals);
+        free(private_helpers);
+        return false;
+    }
+    for (size_t i = 0; i < function_count; i++)
+        if (selected_functions[i] &&
+            !native_bool(json_object_array_get_idx(functions, i), "is_native") &&
+            node_references_selected_global(
+                json_object_array_get_idx(functions, i), globals,
+                selected_globals, global_count))
+            private_helpers[i] = true;
+    do
+    {
+        changed = false;
+        for (size_t i = 0; i < function_count; i++)
+        {
+            if (!selected_functions[i] || private_helpers[i] ||
+                native_bool(json_object_array_get_idx(functions, i), "is_native"))
+                continue;
+            if (node_calls_selected_function(
+                    json_object_array_get_idx(functions, i), functions,
+                    private_helpers, function_count))
+            {
+                private_helpers[i] = true;
+                changed = true;
+            }
+        }
+    } while (changed);
+    for (size_t i = 0; i < function_count; i++)
+    {
+        if (!private_helpers[i]) continue;
+        const char *name = native_string(
+            json_object_array_get_idx(functions, i), "name");
+        if (name) json_object_array_add(function_names, json_object_new_string(name));
+    }
+    free(private_helpers);
+    for (size_t i = 0; i < global_count; i++)
+    {
+        if (!selected_globals[i]) continue;
+        json_object *global = json_object_array_get_idx(globals, i);
+        const char *name = native_string(global, "name");
+        if (name) json_object_array_add(global_names, json_object_new_string(name));
+        if (native_bool(global, "is_deferred")) has_deferred_global = true;
+    }
+    free(selected_functions);
+    free(selected_structs);
+    free(selected_globals);
+    if (has_deferred_global &&
+        !add_native_initializer(native_functions, native_globals))
+    {
+        json_object_put(native_functions);
+        json_object_put(native_structs);
+        json_object_put(native_globals);
+        json_object_put(function_names);
+        json_object_put(global_names);
+        return false;
     }
     json_object_object_del(model, "functions");
     json_object_object_add(model, "functions", native_functions);
-    replace_with_empty_array(model, "globals");
-    replace_with_empty_array(model, "structs");
+    json_object_object_del(model, "structs");
+    json_object_object_add(model, "structs", native_structs);
+    json_object_object_del(model, "globals");
+    json_object_object_add(model, "globals", native_globals);
+    *selected_function_names = function_names;
+    *selected_global_names = global_names;
+    *needs_initializer = has_deferred_global;
     replace_with_empty_array(model, "lambdas");
     replace_with_empty_array(model, "threads");
     replace_with_empty_array(model, "fn_wrappers");
@@ -358,6 +758,72 @@ static void restore_source_callable_names(json_object *node)
     }
 }
 
+static void remove_private_globals(json_object *rust_model,
+                                   json_object *selected_names)
+{
+    json_object *globals = NULL;
+    if (!rust_model || !selected_names ||
+        !json_object_object_get_ex(rust_model, "globals", &globals)) return;
+    json_object *remaining = json_object_new_array();
+    if (!remaining) return;
+    size_t global_count = json_object_array_length(globals);
+    size_t selected_count = json_object_array_length(selected_names);
+    for (size_t i = 0; i < global_count; i++)
+    {
+        json_object *global = json_object_array_get_idx(globals, i);
+        const char *name = native_string(global, "name");
+        bool selected = false;
+        for (size_t j = 0; name && j < selected_count; j++)
+        {
+            const char *selected_name = json_object_get_string(
+                json_object_array_get_idx(selected_names, j));
+            if (selected_name && strcmp(name, selected_name) == 0)
+            {
+                selected = true;
+                break;
+            }
+        }
+        if (!selected) json_object_array_add(remaining, json_object_get(global));
+    }
+    json_object_object_del(rust_model, "globals");
+    json_object_object_add(rust_model, "globals", remaining);
+}
+
+static void remove_private_helper_functions(json_object *rust_model,
+                                            json_object *selected_names)
+{
+    /* Struct-only helpers may still be useful to ordinary Rust code and can
+     * safely remain duplicated. Helpers that read privatized globals cannot
+     * remain in Rust, whose central validator intentionally rejects globals. */
+    json_object *functions = NULL;
+    if (!rust_model || !selected_names ||
+        !json_object_object_get_ex(rust_model, "functions", &functions)) return;
+    json_object *remaining = json_object_new_array();
+    if (!remaining) return;
+    size_t function_count = json_object_array_length(functions);
+    size_t selected_count = json_object_array_length(selected_names);
+    for (size_t i = 0; i < function_count; i++)
+    {
+        json_object *function = json_object_array_get_idx(functions, i);
+        const char *name = native_string(function, "name");
+        bool selected = false;
+        for (size_t j = 0; !native_bool(function, "is_native") && name &&
+                           j < selected_count; j++)
+        {
+            const char *selected_name = json_object_get_string(
+                json_object_array_get_idx(selected_names, j));
+            if (selected_name && strcmp(name, selected_name) == 0)
+            {
+                selected = true;
+                break;
+            }
+        }
+        if (!selected) json_object_array_add(remaining, json_object_get(function));
+    }
+    json_object_object_del(rust_model, "functions");
+    json_object_object_add(rust_model, "functions", remaining);
+}
+
 bool rust_native_partition_model(json_object *rust_model,
                                  const CompilerOptions *options,
                                  RustNativePlan **out_plan)
@@ -389,7 +855,12 @@ bool rust_native_partition_model(json_object *rust_model,
         return false;
     }
     resolve_private_include_origins(private_model);
-    if (!project_native_model(private_model))
+    json_object *selected_function_names = NULL;
+    json_object *selected_global_names = NULL;
+    bool needs_initializer = false;
+    if (!project_native_model(private_model, &selected_function_names,
+                              &selected_global_names,
+                              &needs_initializer))
     {
         json_object_put(private_model);
         free(plan);
@@ -399,6 +870,8 @@ bool rust_native_partition_model(json_object *rust_model,
     json_object_put(private_model);
     if (!plan->split)
     {
+        json_object_put(selected_function_names);
+        json_object_put(selected_global_names);
         rust_native_plan_free(plan);
         return false;
     }
@@ -407,6 +880,8 @@ bool rust_native_partition_model(json_object *rust_model,
         plan->declarations = calloc(native_count, sizeof(*plan->declarations));
         if (!plan->declarations)
         {
+            json_object_put(selected_function_names);
+            json_object_put(selected_global_names);
             rust_native_plan_free(plan);
             return false;
         }
@@ -433,6 +908,8 @@ bool rust_native_partition_model(json_object *rust_model,
             if (!plan->declarations[native_index].rust_callable_name ||
                 !plan->declarations[native_index].c_link_symbol)
             {
+                json_object_put(selected_function_names);
+                json_object_put(selected_global_names);
                 rust_native_plan_free(plan);
                 return false;
             }
@@ -462,6 +939,11 @@ bool rust_native_partition_model(json_object *rust_model,
                                    json_object_new_string(name));
             json_object_object_add(function, "c_link_symbol",
                                    json_object_new_string(symbol));
+            if (needs_initializer)
+            {
+                json_object_object_add(function, "rust_native_initializer",
+                                       json_object_new_boolean(true));
+            }
             json_object_object_del(function, "body");
             json_object_object_add(function, "body", json_object_new_array());
             json_object_object_add(function, "has_body", json_object_new_boolean(false));
@@ -469,6 +951,13 @@ bool rust_native_partition_model(json_object *rust_model,
         }
     }
 
+    remove_private_helper_functions(rust_model, selected_function_names);
+    remove_private_globals(rust_model, selected_global_names);
+    if (needs_initializer)
+        json_object_object_add(rust_model, "rust_native_initializer",
+                               json_object_new_boolean(true));
+    json_object_put(selected_function_names);
+    json_object_put(selected_global_names);
     restore_source_callable_names(rust_model);
 
     *out_plan = plan;

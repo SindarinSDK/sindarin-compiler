@@ -8,6 +8,9 @@ same-basename source objects depend on post-tag sidecar behavior and are
 classified as Rust-only extra coverage, not tagged C/Rust parity evidence.
 `scalar_helper_dependency.sn` proves that a native body retains complete,
 transitive ordinary-function dependencies in its private C projection.
+`scalar_helper_struct_dependency.sn` pins a helper's value-struct definition;
+`scalar_helper_type_dependency.sn` extends that closure through nested value
+struct definitions and a helper global's transitive initializer and lifecycle.
 `imported_alias.sn` likewise covers post-tag imported source origins and a Rust
 callable whose name differs from its external C symbol. The error fixtures pin
 the first-slice bool and closure boundaries.
