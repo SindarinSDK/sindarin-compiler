@@ -1,1 +1,1 @@
-Error: Rust target does not support shared default-array arguments from stable places yet
+Error: Rust target does not support shared default-array arguments from non-owning expressions yet

@@ -46,13 +46,26 @@ static bool rust_call_stable_place(json_object *expr)
     return false;
 }
 
+static bool rust_owned_default_array_temporary(json_object *arg)
+{
+    /* Admission must positively prove that no source-visible array alias
+     * survives the call.  In particular, member/index expressions still
+     * designate shared C array storage even when an effectful index makes the
+     * expression syntactically unstable. */
+    return json_string_property_equals(arg, "kind", "array_literal") ||
+        json_string_property_equals(arg, "kind", "sized_array") ||
+        json_string_property_equals(arg, "kind", "call") ||
+        json_string_property_equals(arg, "kind", "static_call") ||
+        json_string_property_equals(arg, "kind", "method_call");
+}
+
 static bool rust_shared_default_array_argument(json_object *arg)
 {
     json_object *type = NULL;
     return json_object_is_type(arg, json_type_object) &&
         json_object_object_get_ex(arg, "type", &type) &&
         json_string_property_equals(type, "kind", "array") &&
-        rust_call_stable_place(arg) &&
+        !rust_owned_default_array_temporary(arg) &&
         !json_boolean_property(arg, "is_ref_arg") &&
         !json_boolean_property(arg, "is_borrow_tmp") &&
         !json_boolean_property(arg, "is_copy_arg") &&
@@ -69,7 +82,7 @@ static bool rust_reject_shared_default_array_arguments(json_object *args)
                 json_object_array_get_idx(args, i))) continue;
         rust_validation_reported_error = true;
         fprintf(stderr,
-                "Error: Rust target does not support shared default-array arguments from stable places yet\n");
+                "Error: Rust target does not support shared default-array arguments from non-owning expressions yet\n");
         return false;
     }
     return true;
@@ -672,6 +685,47 @@ static bool rust_resolved_places_alias(json_object *left, json_object *right)
     return false;
 }
 
+static bool rust_resolved_expr_references_place(json_object *expr,
+                                                json_object *place)
+{
+    if (!expr) return false;
+    if (json_object_is_type(expr, json_type_array))
+    {
+        size_t count = json_object_array_length(expr);
+        for (size_t i = 0; i < count; i++)
+            if (rust_resolved_expr_references_place(
+                    json_object_array_get_idx(expr, i), place)) return true;
+        return false;
+    }
+    if (!json_object_is_type(expr, json_type_object)) return false;
+
+    if (rust_call_stable_place(expr) &&
+        rust_resolved_places_alias(expr, place)) return true;
+
+    json_object_object_foreach(expr, key, value)
+    {
+        /* Type and resolved-declaration metadata contain variable/member-like
+         * objects but are not evaluated expressions. */
+        if (strcmp(key, "type") == 0 || strcmp(key, "struct_type") == 0 ||
+            strcmp(key, "resolved_method") == 0) continue;
+        if (rust_resolved_expr_references_place(value, place)) return true;
+    }
+    return false;
+}
+
+static bool rust_resolved_deferred_ref_place(json_object *place)
+{
+    if (!json_object_is_type(place, json_type_object)) return false;
+    if (json_string_property_equals(place, "kind", "variable")) return true;
+    if (json_string_property_equals(place, "kind", "member"))
+    {
+        json_object *object = NULL;
+        return json_object_object_get_ex(place, "object", &object) &&
+            rust_resolved_deferred_ref_place(object);
+    }
+    return false;
+}
+
 static bool rust_resolved_clone_source(json_object *arg)
 {
     json_object *type = NULL;
@@ -871,6 +925,20 @@ static bool rust_validate_method_call(json_object *expr)
                 rust_resolved_places_alias(object, arg))
                 return rust_report_resolved_call_error(
                     "does not support aliased mutable resolved method_call operands yet");
+        }
+
+        if (source_args_first && arg_count == 1)
+        {
+            json_object *arg = json_object_array_get_idx(args, 0);
+            if (json_boolean_property(arg, "is_ref_arg") &&
+                rust_resolved_expr_references_place(object, arg))
+            {
+                if (!rust_resolved_deferred_ref_place(arg))
+                    return rust_report_resolved_call_error(
+                        "does not support swapped resolved receiver evaluation that aliases an indexed mutable source operand yet");
+                json_object_object_add(arg, "rust_defer_source_ref",
+                                       json_object_new_boolean(true));
+            }
         }
     }
     return true;

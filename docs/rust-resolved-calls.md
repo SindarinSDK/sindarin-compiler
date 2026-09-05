@@ -37,10 +37,12 @@ moving it.
 
 Default array parameters use shared pointer identity in C, while the current
 Rust representation is an owned `Vec`. Cloning hides mutations and moving a
-stable source place destroys its continued ownership. Calls from stable array
-places are therefore rejected precisely until arrays have a shared Rust
-representation; owned array temporaries remain supported when no source alias
-survives the call.
+stable source place destroys its continued ownership. Calls from non-owning
+array expressions are therefore rejected precisely until arrays have a shared Rust
+representation. Admission requires positive proof of fresh ownership rather
+than merely the absence of a stable-place shape: an array-valued member below
+an effectful index still aliases its source in C. Fresh array constructors and
+owned call results remain supported because no source alias survives the call.
 
 ## Evaluation and lifetime contract
 
@@ -58,6 +60,10 @@ strings in the model to avoid capture by source identifiers.
 The same ordering applies to target validation diagnostics: swapped-call
 children are validated argument-first, while normal instance calls remain
 receiver-first. Static calls validate arguments in order.
+
+Ordinary function values remain supported inside resolved receiver-producing
+expressions; receiver traversal and alias analysis ignore function-type
+metadata while still validating and evaluating the nested call normally.
 
 Resolved results are ordinary Rust expressions and retain ownership correctly
 in expression statements, initializers, returns, call arguments, match-arm
@@ -86,6 +92,8 @@ Native and pointer receivers, reference structs, packed structs, and
 closure-typed arguments/results remain separate representation work. These are
 targeted diagnostics, not fallback lowering paths. Closure validation,
 lowering, rendering, and support remain owned by the closure feature branch.
+Ordinary function values nested inside otherwise supported resolved
+expressions do not imply support for closure-typed resolved method parameters.
 
 Rust also rejects a resolved method receiver and mutable borrowed operand when
 their stable place paths are identical or are elements of the same array.
@@ -93,6 +101,15 @@ Sindarin/C permits the operand to alias and observe mutation, but Rust cannot
 form the required overlapping references safely. Full parity requires a
 shared/interior-mutability value-struct representation; unsafe aliasing or a
 defensive clone would change the language contract.
+
+When a swapped comparison's resolved receiver reads a mutable source operand,
+Rust delays forming the mutable borrow until receiver evaluation completes for
+side-effect-free variable/member places. This preserves the C-visible read
+before the operator mutates the operand without overlapping Rust references.
+Indexed operands remain rejected in this shape: delaying their selection can
+change source order, bounds checks, or the selected element if receiver
+evaluation mutates the array owner. This remains an explicit parity boundary
+until the representation can preserve C aliasing without unsafe references.
 
 ## Regression evidence
 
