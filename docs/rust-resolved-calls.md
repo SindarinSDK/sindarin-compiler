@@ -124,10 +124,12 @@ member and index receivers, expression statements, initializers, returns,
 arguments, match prefixes and tails, source-order counters, generated-name
 collision, heap-bearing value structs, borrow temporaries, and independent
 ownership of returned strings/arrays and copied source values. Heap-bearing
-operator cases are Rust generation coverage, not tagged-C parity claims. The
-small plain-value `resolved_operator_tagged_eval_order` control is valid on
-both targets and pins tagged C's receiver-before-argument swapped order. The
-existing C snapshot suite is retained unchanged as a backend-freeze check.
+and `as ref` operator cases are Rust generation extras, not tagged-C parity
+claims; this includes the computed-index control that pins once-only place
+evaluation while borrowing its resolved argument. The small plain-value
+`resolved_operator_tagged_eval_order` control is valid on both targets and
+pins tagged C's receiver-before-argument swapped order. The existing C
+snapshot suite is retained unchanged as a backend-freeze check.
 
 The `resolved_callable_methods` fixture additionally covers immutable callable
 parameters and results on static and instance methods, reference-counted handle
