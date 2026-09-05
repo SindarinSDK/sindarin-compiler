@@ -85,8 +85,9 @@ static void rust_concurrency_numeric_cell(json_object *node, const char *prefix)
     const char *kind = json_string_property(node, "kind");
     bool compound = kind && strcmp(kind, "compound_assign") == 0;
     bool postfix = kind && (strcmp(kind, "increment") == 0 || strcmp(kind, "decrement") == 0);
+    bool snapshot = compound && json_boolean_property(node, "mutation_sync");
     if ((!compound && !postfix) ||
-        !(json_boolean_property(node, "rust_mixed_integral_compound") ||
+        !(snapshot || json_boolean_property(node, "rust_mixed_integral_compound") ||
           json_boolean_property(node, "rust_wrapping_compound_assign") ||
           json_boolean_property(node, "rust_unchecked_integral_compound") ||
           json_boolean_property(node, "rust_wrapping_increment") ||
@@ -104,7 +105,14 @@ static void rust_concurrency_numeric_cell(json_object *node, const char *prefix)
     rust_concurrency_string(inner_place, "name", guard);
     json_object_object_del(inner_place, "rust_cell");
     json_object_object_del(inner_place, "rust_global");
-    json_object_object_add(inner_place, "rust_cell_guard", json_object_new_boolean(true));
+    if (snapshot) {
+        /* Tagged atomic compound assignment reads before its RHS. Retain that
+         * value, not a lock: the RHS may reenter this cell or join a worker.
+         * Core arithmetic updates the snapshot, then the template stores it. */
+        json_object_object_add(node, "rust_cell_snapshot", json_object_new_boolean(true));
+    } else {
+        json_object_object_add(inner_place, "rust_cell_guard", json_object_new_boolean(true));
+    }
     json_object *bindings = json_object_new_array(), *value = NULL;
     if (compound && json_object_object_get_ex(node, "value", &value)) {
         json_object *binding = json_object_new_object(), *read = NULL;
