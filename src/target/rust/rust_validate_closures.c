@@ -40,6 +40,11 @@ static bool rust_closure_array_type(json_object *type)
     return json_string_property_equals(type, "kind", "array");
 }
 
+static bool rust_closure_struct_type(json_object *type)
+{
+    return json_string_property_equals(type, "kind", "struct");
+}
+
 static bool rust_closure_mutating_array_method(const char *name)
 {
     return name && (strcmp(name, "push") == 0 || strcmp(name, "pop") == 0 ||
@@ -446,6 +451,40 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
     if (kind && strcmp(kind, "index_assign") == 0 && place && place->capture &&
         rust_closure_array_type(rust_closure_property(place->declaration, "type")))
         return rust_closure_error("mutable access to snapshot closure captures");
+    bool struct_snapshot = place && place->capture && rust_closure_struct_type(
+        rust_closure_property(place->declaration, "type"));
+    if (struct_snapshot)
+    {
+        json_object *root = NULL;
+        if (kind && strcmp(kind, "member_assign") == 0)
+            root = rust_closure_property(node, "object");
+        else if (kind && strcmp(kind, "compound_assign") == 0)
+            root = rust_closure_property(rust_closure_property(node, "target"), "object");
+        else if (kind && (strcmp(kind, "increment") == 0 || strcmp(kind, "decrement") == 0))
+            root = rust_closure_property(rust_closure_property(node, "operand"), "object");
+        bool direct_assign = kind && strcmp(kind, "assign") == 0;
+        bool direct_member = root && json_string_property_equals(root, "kind", "variable") &&
+            rust_closure_lookup(scope, json_string_property(root, "name")) == place;
+        if (!rust_heap_free_named_struct_type(
+                rust_closure_property(place->declaration, "type")))
+            return rust_closure_error("mutable heap-owning struct snapshot captures");
+        if (!direct_assign && !direct_member)
+            return rust_closure_error("nested mutable struct snapshot places");
+        json_object_object_add(place->declaration, "rust_mutable_owned_snapshot",
+                               json_object_new_boolean(true));
+        if (direct_assign)
+            json_object_object_add(node, "rust_mutable_owned_snapshot",
+                                   json_object_new_boolean(true));
+        else
+        {
+            json_object_object_add(root, "rust_capture_mutation_place",
+                                   json_object_new_boolean(true));
+            json_object_object_add(node, "rust_struct_snapshot_mutation",
+                                   json_object_new_boolean(true));
+            json_object_object_add(node, "rust_struct_snapshot_name",
+                                   json_object_new_string(place->name));
+        }
+    }
     bool shared_owned = place && rust_closure_string_type(
         rust_closure_property(place->declaration, "type")) &&
         json_boolean_property(place->declaration, "rust_owned_capture_candidate");
@@ -480,7 +519,8 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
     }
     if (place && (place->capture || place->lambda_depth < scope->lambda_depth) &&
         !json_boolean_property(place->declaration, "rust_shared_cell") &&
-        !json_boolean_property(place->declaration, "rust_scalar_snapshot"))
+        !json_boolean_property(place->declaration, "rust_scalar_snapshot") &&
+        !json_boolean_property(place->declaration, "rust_mutable_owned_snapshot"))
         return rust_closure_error("mutable access to snapshot closure captures");
     if (kind && strcmp(kind, "call") == 0)
     {
@@ -899,6 +939,70 @@ static bool rust_validate_closure_snapshot_mutation(json_object *expr)
             json_object_object_add(expr, "rust_checked_operation", json_object_new_string(op));
             json_object_object_add(expr, "rust_checked_error_name", json_object_new_string(error_name));
         }
+    }
+    return rust_validate_expr(place);
+}
+
+/* A mutable plain-value struct capture is cloned at the start of each
+ * invocation, matching the C closure frame's value snapshot.  Direct field
+ * mutations therefore have a stable local Rust place even though the source
+ * projection retains the capture's unchecked O2 storage annotation. */
+static bool rust_validate_closure_struct_snapshot_mutation(json_object *expr)
+{
+    const char *expr_kind = json_string_property(expr, "kind");
+    bool compound = expr_kind && strcmp(expr_kind, "compound_assign") == 0;
+    bool postfix = expr_kind &&
+        (strcmp(expr_kind, "increment") == 0 || strcmp(expr_kind, "decrement") == 0);
+    if (!compound && !postfix) return rust_validate_expr(
+        rust_closure_property(expr, "value"));
+
+    json_object *place = rust_closure_property(expr, compound ? "target" : "operand");
+    json_object *type = rust_closure_property(place, "type");
+    const char *type_kind = json_string_property(type, "kind");
+    if (!json_string_property_equals(place, "kind", "member") || !type_kind ||
+        (!rust_integer_type(type_kind) && !rust_float_type(type_kind)) ||
+        json_boolean_property(expr, "mutation_sync"))
+        return rust_closure_error("this mutable struct snapshot field operation");
+
+    if (compound)
+    {
+        json_object *value = rust_closure_property(expr, "value");
+        if (!rust_closure_same_type(type, rust_closure_property(value, "type")))
+            return rust_closure_error("mixed-type mutable struct snapshot field operation");
+        const char *op = json_string_property(expr, "op");
+        if (rust_float_type(type_kind) &&
+            (!op || (strcmp(op, "add") != 0 && strcmp(op, "subtract") != 0 &&
+                     strcmp(op, "multiply") != 0 && strcmp(op, "divide") != 0)))
+        {
+            fprintf(stderr,
+                    "Error: Rust target supports floating-point compound assignment only for +=, -=, *=, and /=\n");
+            rust_validation_reported_error = true;
+            return false;
+        }
+        if (rust_integer_type(type_kind) &&
+            !json_string_property_equals(expr, "mutation_arithmetic_mode", "checked"))
+        {
+            if (strcmp(type_kind, "uint32") == 0 || strcmp(type_kind, "uint") == 0 ||
+                strcmp(type_kind, "byte") == 0)
+            {
+                const char *method = NULL;
+                if (op && strcmp(op, "add") == 0) method = "wrapping_add";
+                else if (op && strcmp(op, "subtract") == 0) method = "wrapping_sub";
+                else if (op && strcmp(op, "multiply") == 0) method = "wrapping_mul";
+                else if (op && strcmp(op, "divide") == 0) method = "wrapping_div";
+                else if (op && strcmp(op, "modulo") == 0) method = "wrapping_rem";
+                if (!method)
+                    return rust_closure_error("this mutable struct snapshot field operator");
+                json_object_object_add(expr, "rust_checked_method",
+                                       json_object_new_string(method));
+                json_object_object_add(expr, "rust_snapshot_wrapping",
+                                       json_object_new_boolean(true));
+            }
+            else
+                json_object_object_add(expr, "rust_unchecked_compound",
+                                       json_object_new_boolean(true));
+        }
+        if (!rust_validate_expr(value)) return false;
     }
     return rust_validate_expr(place);
 }

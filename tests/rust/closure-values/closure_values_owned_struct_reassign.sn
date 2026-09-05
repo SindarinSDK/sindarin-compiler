@@ -1,0 +1,18 @@
+struct Pair =>
+  left: int
+  right: int
+
+fn main(): void =>
+  var pair: Pair = {
+    left: 1,
+    right: 2
+  }
+  var replace: fn(int): int = fn(value: int): int =>
+    pair = Pair {
+      left: value,
+      right: pair.left
+    }
+    return pair.left * 10 + pair.right
+  println(replace(3))
+  println(replace(4))
+  println(pair.left * 10 + pair.right)
