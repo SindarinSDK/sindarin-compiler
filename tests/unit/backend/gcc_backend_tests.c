@@ -296,6 +296,144 @@ static void test_sidecar_plan_preserves_mode_precedence(void)
     cc_sidecar_build_plan_free(&plan);
 }
 
+static void assert_empty_sidecar_plan(const CCSidecarBuildPlan *plan)
+{
+    assert(plan->sdk_root == NULL);
+    assert(plan->runtime_archive == NULL);
+    assert(plan->object_files == NULL);
+    assert(plan->object_file_count == 0);
+    assert(plan->requested_link_options == NULL);
+    assert(plan->requested_link_option_count == 0);
+}
+
+static void test_sidecar_plan_rejects_invalid_input_atomically(void)
+{
+    CCBackendConfig config;
+    cc_backend_init_config(&config);
+    CCSidecarBuildPlan plan;
+    CCSidecarBuildRequest request = {
+        .build_dir = ".sn/build/c/sidecar_invalid_probe",
+        .compiler_dir = "bin",
+        .generated_source_count = -1,
+    };
+
+    assert(!cc_sidecar_build(&config, &request, &plan));
+    assert_empty_sidecar_plan(&plan);
+
+    request.generated_source_count = 1;
+    assert(!cc_sidecar_build(&config, &request, &plan));
+    assert_empty_sidecar_plan(&plan);
+
+    const char *bad_generated_sources[] = {"not_generated_object.o"};
+    request.generated_sources = bad_generated_sources;
+    assert(!cc_sidecar_build(&config, &request, &plan));
+    assert_empty_sidecar_plan(&plan);
+
+    const char *null_generated_sources[] = {NULL};
+    request.generated_sources = null_generated_sources;
+    assert(!cc_sidecar_build(&config, &request, &plan));
+    assert_empty_sidecar_plan(&plan);
+
+    request.generated_source_count = 0;
+    request.generated_sources = NULL;
+    request.native_source_count = 1;
+    assert(!cc_sidecar_build(&config, &request, &plan));
+    assert_empty_sidecar_plan(&plan);
+
+    const char *native_sources[] = {"sidecar.c"};
+    const char *native_dirs[] = {NULL};
+    request.native_sources = native_sources;
+    request.native_source_dirs = native_dirs;
+    assert(!cc_sidecar_build(&config, &request, &plan));
+    assert_empty_sidecar_plan(&plan);
+
+    request.native_source_count = 0;
+    request.native_sources = NULL;
+    request.native_source_dirs = NULL;
+    request.link_library_count = 1;
+    assert(!cc_sidecar_build(&config, &request, &plan));
+    assert_empty_sidecar_plan(&plan);
+
+    const char *null_link_libraries[] = {NULL};
+    request.link_libraries = null_link_libraries;
+    assert(!cc_sidecar_build(&config, &request, &plan));
+    assert_empty_sidecar_plan(&plan);
+}
+
+static void test_sidecar_plan_rejects_translation_unit_overflow(void)
+{
+    CCBackendConfig config;
+    cc_backend_init_config(&config);
+    const char *generated_sources[511];
+    for (int i = 0; i < 511; i++) generated_sources[i] = "module.c";
+    CCSidecarBuildRequest request = {
+        .build_dir = ".sn/build/c/sidecar_limit_probe",
+        .compiler_dir = "bin",
+        .generated_sources = generated_sources,
+        .generated_source_count = 511,
+    };
+    CCSidecarBuildPlan plan;
+
+    assert(!cc_sidecar_build(&config, &request, &plan));
+    assert_empty_sidecar_plan(&plan);
+}
+
+static void test_sidecar_plan_rejects_truncated_source_paths(void)
+{
+    enum { LONG_SOURCE_SIZE = 8192 };
+    CCBackendConfig config;
+    cc_backend_init_config(&config);
+    char long_source[LONG_SOURCE_SIZE + 1];
+    memset(long_source, 'a', sizeof(long_source) - 1);
+    long_source[sizeof(long_source) - 3] = '.';
+    long_source[sizeof(long_source) - 2] = 'c';
+    long_source[sizeof(long_source) - 1] = '\0';
+    const char *generated_sources[] = {long_source};
+    CCSidecarBuildRequest request = {
+        .build_dir = ".sn/build/c/sidecar_path_probe",
+        .compiler_dir = "bin",
+        .generated_sources = generated_sources,
+        .generated_source_count = 1,
+    };
+    CCSidecarBuildPlan plan;
+
+    assert(!cc_sidecar_build(&config, &request, &plan));
+    assert_empty_sidecar_plan(&plan);
+}
+
+static void test_sidecar_plan_joins_all_structured_link_options(void)
+{
+    enum { LINK_OPTION_COUNT = 300 };
+    CCBackendConfig config;
+    cc_backend_init_config(&config);
+    const char *libraries[LINK_OPTION_COUNT];
+    const char *library =
+        "sidecar_plan_library_name_long_enough_to_cross_the_old_fixed_buffer";
+    for (int i = 0; i < LINK_OPTION_COUNT; i++) libraries[i] = library;
+    CCSidecarBuildRequest request = {
+        .build_dir = ".sn/build/c/sidecar_link_probe",
+        .compiler_dir = "bin",
+        .link_libraries = libraries,
+        .link_library_count = LINK_OPTION_COUNT,
+    };
+    CCSidecarBuildPlan plan;
+
+    assert(cc_sidecar_build(&config, &request, &plan));
+    assert(plan.requested_link_option_count == LINK_OPTION_COUNT);
+    assert(strlen(plan.link_library_options) > 4096);
+
+    const char *joined = plan.link_library_options;
+    for (int i = 0; i < plan.requested_link_option_count; i++)
+    {
+        assert(*joined++ == ' ');
+        size_t length = strlen(plan.requested_link_options[i]);
+        assert(strncmp(joined, plan.requested_link_options[i], length) == 0);
+        joined += length;
+    }
+    assert(*joined == '\0');
+    cc_sidecar_build_plan_free(&plan);
+}
+
 /* ============================================================================
  * Config Load Tests
  * ============================================================================ */
@@ -615,6 +753,10 @@ void test_gcc_backend_main(void)
     TEST_SECTION("GCC Backend - Pragma Validation");
     TEST_RUN("sidecar_plan_resolves_native_link_inputs", test_sidecar_plan_resolves_native_link_inputs);
     TEST_RUN("sidecar_plan_preserves_mode_precedence", test_sidecar_plan_preserves_mode_precedence);
+    TEST_RUN("sidecar_plan_rejects_invalid_input_atomically", test_sidecar_plan_rejects_invalid_input_atomically);
+    TEST_RUN("sidecar_plan_rejects_translation_unit_overflow", test_sidecar_plan_rejects_translation_unit_overflow);
+    TEST_RUN("sidecar_plan_rejects_truncated_source_paths", test_sidecar_plan_rejects_truncated_source_paths);
+    TEST_RUN("sidecar_plan_joins_all_structured_link_options", test_sidecar_plan_joins_all_structured_link_options);
 
     TEST_SECTION("GCC Backend - Config Load");
     TEST_RUN("load_config_no_crash", test_load_config_no_crash);

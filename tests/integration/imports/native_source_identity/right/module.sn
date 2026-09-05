@@ -1,0 +1,4 @@
+@source "../shared/native.c"
+
+fn native_source_identity_right(): int =>
+  return 21

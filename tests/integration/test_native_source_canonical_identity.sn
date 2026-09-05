@@ -1,0 +1,5 @@
+import "imports/native_source_identity/left/module"
+import "imports/native_source_identity/right/module"
+
+fn main(): void =>
+  println($"{native_source_identity_left() + native_source_identity_right()}")

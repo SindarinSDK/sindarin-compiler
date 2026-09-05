@@ -54,7 +54,8 @@ void cc_sidecar_build_plan_free(CCSidecarBuildPlan *plan);
 
 /* Resolve the established C compile/link environment and compile all supplied
  * generated/native C translation units to objects. This does not link an
- * executable. On success, out_plan owns every returned path and option. */
+ * executable. out_plan must point to fresh, unowned storage; on success it
+ * owns every returned path and option, and on failure it is reset to empty. */
 bool cc_sidecar_build(const CCBackendConfig *config,
                       const CCSidecarBuildRequest *request,
                       CCSidecarBuildPlan *out_plan);
