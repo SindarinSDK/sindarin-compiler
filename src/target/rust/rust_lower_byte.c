@@ -81,18 +81,30 @@ static bool rust_unsigned_literal_unary(json_object *expr)
            json_boolean_property(expr, "rust_unsigned_literal_unary");
 }
 
-static const char *rust_unsigned_literal_comparison_type(json_object *left,
+static const char *rust_unsigned_literal_comparison_type(json_object *node,
+                                                          json_object *left,
                                                           json_object *right)
 {
     json_object *other = rust_unsigned_literal_unary(left) ? right : left;
-    const char *promoted_kind = rust_wrapping_expr_type(
-        rust_unsigned_literal_unary(left) ? left : right);
     const char *other_kind = json_string_property(other, "kind");
+    const char *other_type_kind = rust_wrapping_expr_type(other);
+    const char *op = json_string_property(node, "op");
+
+    /* Tagged checked < and > dispatch through the helper selected by the
+     * left operand's declared width. The unchecked forms remain raw C
+     * operators and use the usual integer conversions below. */
+    if (json_string_property_equals(node, "arithmetic_mode", "checked") &&
+        op && (strcmp(op, "lt") == 0 || strcmp(op, "gt") == 0))
+    {
+        const char *left_type_kind = rust_wrapping_expr_type(left);
+        return left_type_kind && strcmp(left_type_kind, "uint") == 0
+            ? "u64" : "u32";
+    }
 
     /* uint32_t converts to signed long long beside the tagged LL literal.
      * uint64 storage has the higher unsigned rank, while two source literals
      * remain signed LL expressions until a storage boundary. */
-    if (promoted_kind && strcmp(promoted_kind, "uint") == 0 && other_kind &&
+    if (other_type_kind && strcmp(other_type_kind, "uint") == 0 && other_kind &&
         strcmp(other_kind, "literal") != 0 &&
         !rust_unsigned_literal_unary(other))
         return "u64";
@@ -271,7 +283,7 @@ static void rust_lower_byte_arithmetic(json_object *node)
             json_object_object_add(
                 node, "rust_unsigned_literal_comparison_type",
                 json_object_new_string(
-                    rust_unsigned_literal_comparison_type(left, right)));
+                    rust_unsigned_literal_comparison_type(node, left, right)));
         }
         return;
     }

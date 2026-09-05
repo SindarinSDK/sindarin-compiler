@@ -1,0 +1,8 @@
+fn zero(calls: int as ref): uint =>
+  calls++
+  return 0u
+
+fn main(): void =>
+  var calls: int = 0
+  println((-1u32) > zero(calls))
+  println(calls)

@@ -89,6 +89,36 @@ ANSI, or newline normalization. The 18 direct tag/Rust stdout comparisons are
 recorded in
 `/tmp/sindarin-s2-u32-final2-rust-b2ogyT/tag-rust-comparisons.tsv`.
 
+Independent review then exposed a mixed-width comparison in which the other
+operand's rank is significant. The exact source is committed as
+`tagged_unsigned_literal_mixed_width_comparisons.sn` (SHA-256
+`01d3a34f17a2d15d7145f54836bb7516c79d8c78c86ffab8fcda7d9e528521ce`).
+Its first comparison, `(-1u) < uint32(0)`, observes the signed promoted
+literal in checked/default O0 and O1 modes, but uses the raw C usual integer
+conversions in unchecked mode and default O2. Its second comparison,
+`(-1u32) > uint(0)`, is true in every mode: checked `<` and `>` dispatch by
+the left operand width, while the raw form promotes against the opposite
+`uint` operand. The reviewer's unnormalized nine-mode captures are preserved
+at `/tmp/sindarin-numeric-5898-u32-matrix-rTTs5v`; they replace an earlier
+withdrawn shorthand description of this result.
+
+`tagged_unsigned_literal_mixed_width_once.sn` is the reviewer's unchanged
+side-effect probe (SHA-256
+`44c93092a8ac92a7e06060dbe7af52c41b6848f1d1f1a4e0b56064ed45dbf652`).
+It prints `true` followed by `1` in the tag, proving that selecting the
+comparison width must not evaluate the function operand again. The original
+review evidence is `/tmp/sindarin-numeric-5898-once-B0Vnhh`.
+
+A fresh required smoke passed at
+`/tmp/sindarin-s2-numeric-rank-smoke-3sEA1l`. The strict replacement matrix is
+`/tmp/sindarin-s2-numeric-rank-matrix-3ZZGFq`: the two review probes plus the
+existing observation and transport regressions, each under
+default/checked/unchecked and O0/O1/O2. All 36 tagged and all 36 Rust compiles
+returned zero and produced executables; all 72 executions returned zero; and
+all 72 direct stdout/stderr comparisons were byte-identical. Each child
+status, executable check, raw stream, and source hash is retained. No output,
+diagnostic, path, ANSI, or newline normalization was applied.
+
 Unchecked compound binary expressions retain their separately measured
 optimizer boundary. C-rejected and undefined probes remain outside parity
 claims.

@@ -1,0 +1,5 @@
+fn main(): void =>
+  var narrow: uint32 = 0u32
+  var wide: uint = 0u
+  println((-1u) < narrow)
+  println((-1u32) > wide)
