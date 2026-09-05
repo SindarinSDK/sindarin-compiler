@@ -106,6 +106,36 @@ static char *helper_rust_ident(json_object **params, int param_count, hbs_option
     return escaped;
 }
 
+static char *quote_rust_source_string(const char *value)
+{
+    if (!value) value = "";
+    size_t capacity = strlen(value) * 4 + 3;
+    char *result = malloc(capacity);
+    if (!result) return NULL;
+    size_t out = 0;
+    result[out++] = '"';
+    for (const unsigned char *p = (const unsigned char *)value; *p; p++)
+    {
+        switch (*p)
+        {
+            case '\\': result[out++] = '\\'; result[out++] = '\\'; break;
+            case '\n': result[out++] = '\\'; result[out++] = 'n'; break;
+            case '\r': result[out++] = '\\'; result[out++] = 'r'; break;
+            case '\t': result[out++] = '\\'; result[out++] = 't'; break;
+            case '"': result[out++] = '\\'; result[out++] = '"'; break;
+            default:
+                if (*p < 0x20)
+                    out += (size_t)snprintf(result + out, capacity - out,
+                                           "\\u{%x}", *p);
+                else
+                    result[out++] = (char)*p;
+        }
+    }
+    result[out++] = '"';
+    result[out] = '\0';
+    return result;
+}
+
 /* String values in the shared render model are escaped for direct insertion
  * into C string literals. Decode that representation into an explicit byte
  * sequence. Rust source must be UTF-8, so arbitrary Sindarin string bytes can
@@ -235,6 +265,20 @@ static char *helper_rust_string_literal(json_object **params, int param_count,
     return rust_model_string_expr(value);
 }
 
+/* Rust metadata attributes require a source string token, not a Sindarin
+ * string value. Native link symbols are compiler-owned ASCII identifiers, so
+ * keep this code-generation boundary distinct from byte-backed SnString
+ * literals. */
+static char *helper_rust_source_string_literal(json_object **params,
+                                               int param_count,
+                                               hbs_options_t *options)
+{
+    (void)options;
+    const char *value = param_count > 0 && params[0]
+        ? json_object_get_string(params[0]) : "";
+    return quote_rust_source_string(value);
+}
+
 static char *helper_rust_default(json_object **params, int param_count, hbs_options_t *options)
 {
     (void)options;
@@ -327,6 +371,8 @@ static void register_rust_helpers(hbs_env_t *env)
     hbs_register_helper(env, "rust_ident", helper_rust_ident);
     hbs_register_helper(env, "rust_literal", helper_rust_literal);
     hbs_register_helper(env, "rust_string_literal", helper_rust_string_literal);
+    hbs_register_helper(env, "rust_source_string_literal",
+                        helper_rust_source_string_literal);
     hbs_register_helper(env, "rust_default", helper_rust_default);
     hbs_register_helper(env, "rust_unary", helper_rust_unary);
     hbs_register_helper(env, "rust_clone_suffix", helper_rust_clone_suffix);
