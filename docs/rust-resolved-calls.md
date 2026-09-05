@@ -47,22 +47,19 @@ owned call results remain supported because no source alias survives the call.
 
 ## Evaluation and lifetime contract
 
-Ordinary resolved instance calls evaluate the receiver once and then arguments
-once in source order. Swapped comparisons are different: `a > b` is already
-resolved as `b.op_lt(a)`, while the language still requires `a` before `b`.
-The Rust-private projection therefore records `source_arg_before_object`; Rust
-holds the source-left argument before evaluating the resolved receiver. The
-Rust validator privately derives whether the receiver is a stable place or an
-owned temporary. Nested receiver producers are stabilized inside that ordered
-Rust call scope, after the source-left argument, so they run once and retain
-their normal drop lifetime. Generated Rust local names are allocated against
-all strings in the Rust model to avoid capture by source identifiers. The C
-model, C target, and shared chain-flattening pass are unchanged by this
-feature.
+Resolved instance calls evaluate the already-selected receiver once and then
+the arguments once in model order. This includes swapped comparisons: `a > b`
+is resolved as `b.op_lt(a)`, and tagged C evaluates `b` before `a`. Rust method
+call evaluation has the same order. A Rust-private lowering prefix stabilizes
+an owning array producer below a computed receiver so the array expression is
+not duplicated by bounds-checked indexing. That prefix runs before the receiver
+index and arguments, preserving tagged C order and normal drop lifetime.
+Generated Rust local names are allocated against all strings in the Rust model
+to avoid capture by source identifiers. The C model, C target, and shared
+chain-flattening pass are unchanged by this feature.
 
-The same ordering applies to target validation diagnostics: swapped-call
-children are validated argument-first, while normal instance calls remain
-receiver-first. Static calls validate arguments in order.
+Target validation diagnostics follow the same order: instance receivers are
+validated before arguments, and static calls validate arguments in order.
 
 Ordinary function values remain supported inside resolved receiver-producing
 expressions; receiver traversal and alias analysis ignore function-type
@@ -115,13 +112,9 @@ shared/interior-mutability value-struct representation; unsafe aliasing or a
 defensive clone would change the language contract.
 
 When a swapped comparison's resolved receiver reads a mutable source operand,
-Rust delays forming the mutable borrow until receiver evaluation completes for
-side-effect-free variable/member places. This preserves the C-visible read
-before the operator mutates the operand without overlapping Rust references.
-Indexed operands remain rejected in this shape: delaying their selection can
-change source order, bounds checks, or the selected element if receiver
-evaluation mutates the array owner. This remains an explicit parity boundary
-until the representation can preserve C aliasing without unsafe references.
+receiver-first evaluation completes that read before Rust forms the argument's
+mutable borrow. Variable, member, and indexed operands are therefore supported
+for this non-overlapping lifetime shape without unsafe references or clones.
 
 ## Regression evidence
 
@@ -130,8 +123,11 @@ form, resolved direct-call snapshots, static and instance metadata, stable
 member and index receivers, expression statements, initializers, returns,
 arguments, match prefixes and tails, source-order counters, generated-name
 collision, heap-bearing value structs, borrow temporaries, and independent
-ownership of returned strings/arrays and copied source values. The existing C
-snapshot suite is retained unchanged as a backend-freeze check.
+ownership of returned strings/arrays and copied source values. Heap-bearing
+operator cases are Rust generation coverage, not tagged-C parity claims. The
+small plain-value `resolved_operator_tagged_eval_order` control is valid on
+both targets and pins tagged C's receiver-before-argument swapped order. The
+existing C snapshot suite is retained unchanged as a backend-freeze check.
 
 The `resolved_callable_methods` fixture additionally covers immutable callable
 parameters and results on static and instance methods, reference-counted handle

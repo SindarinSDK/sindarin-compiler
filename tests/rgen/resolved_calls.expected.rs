@@ -137,7 +137,7 @@ fn main() {
     let mut indexedReceiver: bool = ((points)[__sn_index((points).len(), 0)]).op_lt((points)[__sn_index((points).len(), 1)].clone());
     let mut explicitNe: bool = (Explicit { value: 1 }).op_ne(Explicit { value: 2 });
     let mut derivedGe: bool = (!(greater).op_lt(left.clone()));
-    let mut derivedLe: bool = (!{ let __sn_resolved_arg_1 = left.clone(); let __sn_resolved_receiver_1 = & (greater); (__sn_resolved_receiver_1).op_lt(__sn_resolved_arg_1) });
+    let mut derivedLe: bool = (!(greater).op_lt(left.clone()));
     let mut matched: bool = match (true) {
         true => {
             (!(left).op_eq(greater.clone()));
@@ -152,13 +152,13 @@ fn main() {
     let mut __sn_resolved_arg_0: i64 = 40;
     let mut __sn_resolved_receiver_0: i64 = 2;
     let mut directOrder: bool = (markedPoint(&mut (calls), &mut (order), 1, 1)).op_lt(markedPoint(&mut (calls), &mut (order), 2, 2));
-    let mut swappedOrder: bool = { let __sn_resolved_arg_2 = markedPoint(&mut (calls), &mut (order), 3, 3); let __sn_resolved_receiver_2 = markedPoint(&mut (calls), &mut (order), 4, 4); (__sn_resolved_receiver_2).op_lt(__sn_resolved_arg_2) };
+    let mut swappedOrder: bool = (markedPoint(&mut (calls), &mut (order), 4, 4)).op_lt(markedPoint(&mut (calls), &mut (order), 3, 3));
     let mut ownedLeft: OwnedPoint = OwnedPoint { label: "owned".to_string(), values: vec![5, 6] };
     let mut ownedSame: OwnedPoint = ownedLeft.clone();
     let mut ownedEqual: bool = (ownedLeft).op_eq(&mut (ownedSame));
-    let mut ownedSwapped: bool = { let mut __sn_resolved_arg_3 = markedOwnedPoint(&mut (calls), &mut (order), 5, 5); let __sn_resolved_receiver_3 = markedOwnedPoint(&mut (calls), &mut (order), 6, 6); (__sn_resolved_receiver_3).op_lt(&mut (__sn_resolved_arg_3)) };
-    let mut nestedReceiver: bool = { let __sn_resolved_arg_4 = markedPoint(&mut (calls), &mut (order), 7, 7); let mut __sn_resolved_owner_5: Vec<Point> = markedPoints(&mut (calls), &mut (order), 8, 8);let __sn_resolved_receiver_4 = & ((__sn_resolved_owner_5)[__sn_index((__sn_resolved_owner_5).len(), markedIndex(&mut (calls), &mut (order), 9, 0))]); (__sn_resolved_receiver_4).op_lt(__sn_resolved_arg_4) };
-    let mut negativeNestedReceiver: bool = { let __sn_resolved_arg_6 = markedPoint(&mut (calls), &mut (order), 1, 9); let mut __sn_resolved_owner_7: Vec<Point> = markedPoints(&mut (calls), &mut (order), 2, 10);let __sn_resolved_receiver_6 = & ((__sn_resolved_owner_7)[__sn_index((__sn_resolved_owner_7).len(), markedIndex(&mut (calls), &mut (order), 3, (-1)))]); (__sn_resolved_receiver_6).op_lt(__sn_resolved_arg_6) };
+    let mut ownedSwapped: bool = (markedOwnedPoint(&mut (calls), &mut (order), 6, 6)).op_lt(&mut (markedOwnedPoint(&mut (calls), &mut (order), 5, 5)));
+    let mut nestedReceiver: bool = { let mut __sn_resolved_owner_0: Vec<Point> = markedPoints(&mut (calls), &mut (order), 8, 8);let __sn_resolved_receiver_1 = & ((__sn_resolved_owner_0)[__sn_index((__sn_resolved_owner_0).len(), markedIndex(&mut (calls), &mut (order), 9, 0))]); (__sn_resolved_receiver_1).op_lt(markedPoint(&mut (calls), &mut (order), 7, 7)) };
+    let mut negativeNestedReceiver: bool = { let mut __sn_resolved_owner_2: Vec<Point> = markedPoints(&mut (calls), &mut (order), 2, 10);let __sn_resolved_receiver_3 = & ((__sn_resolved_owner_2)[__sn_index((__sn_resolved_owner_2).len(), markedIndex(&mut (calls), &mut (order), 3, (-1)))]); (__sn_resolved_receiver_3).op_lt(markedPoint(&mut (calls), &mut (order), 1, 9)) };
     ((ownedSame).values).push(7);
     let mut sourceLabel: String = "source".to_string();
     let mut callValues: CallValues = CallValues { label: "prefix".to_string() };

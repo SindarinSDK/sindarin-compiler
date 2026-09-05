@@ -12,3 +12,4 @@ fn main(): void =>
   var items: Item[] = {}
   items.push(Item { value: 1 })
   println(items[0] > makeFrom(items[0]))
+  println(items[0].value)

@@ -34,6 +34,6 @@ fn makeFrom(item: Item, transform: __SnClosure<dyn Fn(i64) -> i64>) -> Item {
 
 fn main() {
     let mut item: Item = Item { value: 1 };
-    println!("{}", { let __sn_resolved_receiver_0 = makeFrom(item, self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(increment))); (__sn_resolved_receiver_0).op_lt(&mut (item)) });
+    println!("{}", (makeFrom(item, self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(increment)))).op_lt(&mut (item)));
     println!("{}", (item).value);
 }
