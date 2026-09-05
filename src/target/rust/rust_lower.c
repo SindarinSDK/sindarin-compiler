@@ -634,7 +634,8 @@ static void rust_lower_scalar_ref_parameters(json_object *model)
                 const char *name = json_string_property(param, "name");
                 if (name && json_string_property_equals(param, "mem_qual", "as_ref") &&
                     json_object_object_get_ex(param, "type", &type) &&
-                    rust_scalar_ref_parameter_type_supported(type))
+                    (rust_scalar_ref_parameter_type_supported(type) ||
+                     json_string_property_equals(type, "kind", "function")))
                     rust_mark_scalar_ref_uses(body, name);
             }
         }

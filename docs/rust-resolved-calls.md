@@ -68,15 +68,18 @@ Ordinary function values remain supported inside resolved receiver-producing
 expressions; receiver traversal and alias analysis ignore function-type
 metadata while still validating and evaluating the nested call normally.
 
-Immutable function values are also supported as value parameters and results
-of non-native static and instance methods. The Rust target uses the closure
+Function values are also supported as value parameters and results of
+non-native static and instance methods. The Rust target uses the closure
 backend's reference-counted callable handle, so passing a stable callable
 preserves handle identity, returning a capturing callable transfers an owned
 handle, and a later reassignment of the source binding does not change an
-already returned composition. Callable signatures are compared recursively
-when resolved-call metadata is validated; unsupported callable component types
-remain outside the same closure representation predicate. Borrowed mutable
-callable parameters remain outside this immutable slice.
+already returned composition. A callable `as ref` parameter borrows the
+caller's handle slot, so reassignment is visible to the caller while ordinary
+reads retain the selected handle independently. Callable signatures are
+compared recursively when resolved-call metadata is validated; unsupported
+callable component types remain outside the same closure representation
+predicate. Returning an owned callable value retains the existing callable
+result behavior.
 
 Resolved results are ordinary Rust expressions and retain ownership correctly
 in expression statements, initializers, returns, call arguments, match-arm
@@ -101,11 +104,11 @@ mask the missing native reference-ownership implementation.
 
 ## Explicit follow-ups
 
-Native and pointer receivers, reference structs, packed structs, and
-borrowed mutable callable parameters remain separate representation work.
-These are targeted diagnostics, not fallback lowering paths. The resolved-call
-slice reuses the closure feature's immutable callable representation and does
-not modify closure validation, lowering, rendering, or capture support.
+Native and pointer receivers, reference structs, and packed structs remain
+separate representation work. These are targeted diagnostics, not fallback
+lowering paths. The resolved-call slice reuses the closure feature's callable
+handle representation and adds only borrowed handle-slot reads and writes; it
+does not change capture representation or capture support.
 
 Rust also rejects a resolved method receiver and mutable borrowed operand when
 their stable place paths are identical or are elements of the same array.
@@ -142,6 +145,13 @@ identity, captured-result ownership after source reassignment, a returned
 method result crossing another function boundary, receiver/argument source
 order, and execution at each optimization level. Its C execution is an
 unchanged-language behavior control rather than a C snapshot change.
+
+`resolved_callable_method_qualified_signature` promotes the previously
+rejected tagged-valid callable `as ref` method parameter without changing its
+source. `resolved_callable_borrowed_parameters` proves caller-visible handle
+replacement with a fresh closure and once-only argument evaluation. Existing
+owned-callable controls continue to cover returned captures, escaping owners,
+handle identity, and instance receiver order.
 
 The final feature gate records Rust generation snapshots and execution at
 `-O0`, `-O1`, and `-O2`, the focused Rust generator suite, unchanged C

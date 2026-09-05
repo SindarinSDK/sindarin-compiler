@@ -378,7 +378,9 @@ static bool rust_validate_struct_methods(json_object *model)
                         !mem_qual || strcmp(mem_qual, "default") == 0 ||
                         (has_param_type &&
                          strcmp(mem_qual, "as_ref") == 0 &&
-                         rust_scalar_ref_parameter_type_supported(param_type)) ||
+                         (rust_scalar_ref_parameter_type_supported(param_type) ||
+                          (json_string_property_equals(param_type, "kind", "function") &&
+                           rust_closure_type_supported(param_type)))) ||
                         (json_boolean_property(method, "is_operator") &&
                          has_param_type && strcmp(mem_qual, "as_ref") == 0 &&
                          json_string_property_equals(param_type, "kind", "struct")) ||
@@ -804,9 +806,6 @@ static bool rust_validate_method_call(json_object *expr)
         }
 
         bool passes_by_ref = mem_qual && strcmp(mem_qual, "as_ref") == 0;
-        if (passes_by_ref && json_string_property_equals(arg_type, "kind", "function"))
-            return rust_report_resolved_call_error(
-                "does not support borrowed mutable resolved callable arguments yet");
         bool is_ref_arg = json_boolean_property(arg, "is_ref_arg");
         bool is_borrow_tmp = json_boolean_property(arg, "is_borrow_tmp");
         if (json_boolean_property(method, "is_operator") && passes_by_ref &&

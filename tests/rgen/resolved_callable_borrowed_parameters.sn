@@ -1,0 +1,17 @@
+struct Dispatcher =>
+  static fn reset(callback: (fn(int): int) as ref,
+    marker: int, order: int as ref): void =>
+    order = order * 10 + marker
+    callback = fn(value: int): int => value + 10
+
+fn marked(order: int as ref, marker: int): int =>
+  order = order * 10 + marker
+  return marker
+
+fn main(): void =>
+  var order: int = 0
+  var callback: fn(int): int = fn(value: int): int => value + 1
+  Dispatcher.reset(callback, marked(order, 2), order)
+  println($"{order}:{callback(2)}")
+  callback = fn(value: int): int => value + 100
+  println(callback(1))

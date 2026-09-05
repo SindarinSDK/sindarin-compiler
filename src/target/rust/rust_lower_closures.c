@@ -32,13 +32,16 @@ static void rust_lower_closure_node(json_object *node, bool *uses)
     if (!kind) return;
     if (strcmp(kind, "variable") == 0 &&
         !json_boolean_property(node, "rust_direct_callee") &&
-        !json_boolean_property(node, "rust_named_function_value"))
+        !json_boolean_property(node, "rust_named_function_value") &&
+        !json_boolean_property(node, "is_ref_arg"))
         json_object_object_add(node, "rust_function_read", json_object_new_boolean(true));
     if (strcmp(kind, "assign") == 0)
         json_object_object_add(node, "rust_function_assign", json_object_new_boolean(true));
-    if (strcmp(kind, "member") == 0)
+    if (strcmp(kind, "member") == 0 &&
+        !json_boolean_property(node, "is_ref_arg"))
         json_object_object_add(node, "rust_needs_clone", json_object_new_boolean(true));
-    if (strcmp(kind, "array_access") == 0)
+    if (strcmp(kind, "array_access") == 0 &&
+        !json_boolean_property(node, "is_ref_arg"))
         json_object_object_add(node, "rust_function_index", json_object_new_boolean(true));
 }
 
