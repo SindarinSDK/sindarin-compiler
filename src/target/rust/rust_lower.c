@@ -936,6 +936,156 @@ static bool rust_assign_array_text_names(json_object *model)
     return true;
 }
 
+/* Assign one collision-safe temporary to every indexed projection in a stable
+ * array-join receiver. The join-place prelude normalizes these indexes from
+ * owner to leaf before evaluating the separator; the final receiver then uses
+ * only the saved indexes, so no owner borrow spans a mutating separator call. */
+static bool rust_assign_array_join_place_index_names(
+    json_object *model, json_object *place, size_t *next_id)
+{
+    if (!place || !json_object_is_type(place, json_type_object)) return true;
+
+    json_object *parent = NULL;
+    if (json_string_property_equals(place, "kind", "member"))
+    {
+        if (!json_object_object_get_ex(place, "object", &parent)) return false;
+        return rust_assign_array_join_place_index_names(model, parent, next_id);
+    }
+    if (!json_string_property_equals(place, "kind", "array_access")) return true;
+    if (!json_object_object_get_ex(place, "array", &parent) ||
+        !rust_assign_array_join_place_index_names(model, parent, next_id))
+        return false;
+
+    char candidate[80];
+    do
+    {
+        if (*next_id == (size_t)-1) return false;
+        int written = snprintf(candidate, sizeof(candidate),
+                               "__sn_join_index_%zu", *next_id);
+        (*next_id)++;
+        if (written < 0 || (size_t)written >= sizeof(candidate)) return false;
+    }
+    while (rust_model_contains_string(model, candidate));
+
+    json_object_object_add(place, "rust_array_join_index_name",
+                           json_object_new_string(candidate));
+    return true;
+}
+
+static json_object *rust_array_join_place_root(
+    json_object *place, json_object **parent_out, const char **key_out)
+{
+    json_object *parent = NULL;
+    if (json_string_property_equals(place, "kind", "member"))
+    {
+        if (!json_object_object_get_ex(place, "object", &parent)) return NULL;
+        *parent_out = place;
+        *key_out = "object";
+        json_object *nested_parent = NULL;
+        const char *nested_key = NULL;
+        json_object *root = rust_array_join_place_root(
+            parent, &nested_parent, &nested_key);
+        if (nested_parent)
+        {
+            *parent_out = nested_parent;
+            *key_out = nested_key;
+        }
+        return root;
+    }
+    if (json_string_property_equals(place, "kind", "array_access"))
+    {
+        if (!json_object_object_get_ex(place, "array", &parent)) return NULL;
+        *parent_out = place;
+        *key_out = "array";
+        json_object *nested_parent = NULL;
+        const char *nested_key = NULL;
+        json_object *root = rust_array_join_place_root(
+            parent, &nested_parent, &nested_key);
+        if (nested_parent)
+        {
+            *parent_out = nested_parent;
+            *key_out = nested_key;
+        }
+        return root;
+    }
+    return place;
+}
+
+static bool rust_capture_array_join_place_owner(
+    json_object *model, json_object *call, json_object *place,
+    size_t *next_owner_id)
+{
+    json_object *parent = NULL;
+    const char *key = NULL;
+    json_object *root = rust_array_join_place_root(place, &parent, &key);
+    if (!root) return false;
+    if (json_string_property_equals(root, "kind", "variable")) return true;
+    if (!parent || !key) return true;
+
+    char candidate[80];
+    do
+    {
+        if (*next_owner_id == (size_t)-1) return false;
+        int written = snprintf(candidate, sizeof(candidate),
+                               "__sn_join_owner_%zu", *next_owner_id);
+        (*next_owner_id)++;
+        if (written < 0 || (size_t)written >= sizeof(candidate)) return false;
+    }
+    while (rust_model_contains_string(model, candidate));
+
+    json_object *replacement = json_object_new_object();
+    json_object *type = NULL;
+    json_object_object_add(replacement, "kind", json_object_new_string("variable"));
+    json_object_object_add(replacement, "name", json_object_new_string(candidate));
+    if (json_object_object_get_ex(root, "type", &type))
+        json_object_object_add(replacement, "type", json_object_get(type));
+
+    json_object_object_add(call, "rust_array_join_owner_expr", json_object_get(root));
+    json_object_object_add(call, "rust_array_join_owner_name",
+                           json_object_new_string(candidate));
+    json_object_object_add(parent, key, replacement);
+    return true;
+}
+
+static bool rust_assign_array_join_index_names(
+    json_object *model, json_object *node, size_t *next_id,
+    size_t *next_owner_id)
+{
+    if (!node) return true;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            if (!rust_assign_array_join_index_names(
+                    model, json_object_array_get_idx(node, i), next_id,
+                    next_owner_id))
+                return false;
+        return true;
+    }
+    if (!json_object_is_type(node, json_type_object)) return true;
+
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        if (!rust_assign_array_join_index_names(
+                model, value, next_id, next_owner_id))
+            return false;
+    }
+
+    bool is_join = json_boolean_property(node, "rust_array_join_stable_place");
+    bool is_indexed_method =
+        json_boolean_property(node, "rust_indexed_method_stable_place");
+    if (!is_join && !is_indexed_method) return true;
+    json_object *callee = NULL, *receiver = NULL;
+    if (!json_object_object_get_ex(node, "callee", &callee) ||
+        !json_object_object_get_ex(callee, "object", &receiver))
+        return false;
+    if (!rust_capture_array_join_place_owner(
+            model, node, receiver, next_owner_id))
+        return false;
+    return rust_assign_array_join_place_index_names(model, receiver, next_id);
+}
+
 static bool rust_lower_iterator_temp_names(json_object *model, json_object *node,
                                            size_t *next_id)
 {
