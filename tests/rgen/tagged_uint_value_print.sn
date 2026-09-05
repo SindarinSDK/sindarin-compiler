@@ -3,3 +3,4 @@ fn main(): void =>
   var two: uint = 2u
   var max_minus_one: uint = half * two
   var overflow: uint = max_minus_one * two
+  println(overflow)

@@ -16,21 +16,22 @@ Rust-private lowering now covers:
 
 The same target-local templates preserve left-to-right, once-only binary operand evaluation. Compound operations evaluate the RHS once before taking one short-lived mutable place borrow. Postfix operations evaluate and borrow the place once. Signed `int` and `long` retain the merged checked diagnostic helpers and messages.
 
-Direct tagged printing represents bytes as uppercase hexadecimal and `uint` through its signed 64-bit bit pattern. This matters for the unchanged `uint_checked_mul_overflow.sn` value probe: the peeled tag prints the wrapped value as `-4`, and Rust now prints the same bytes.
+Direct tagged printing represents bytes as uppercase hexadecimal and `uint` through its signed 64-bit bit pattern. The existing `uint_checked_mul_overflow.sn` source remains byte-for-byte identical to main `80c689c2` (Git blob `663aca84188aacbfb78412dd2bda683c31180592`) and produces no output. The separate `tagged_uint_value_print.sn` regression observes the same wrapped calculation as `-4`.
 
 No C generator, shared model, frontend, or tagged oracle source is changed.
 
 ## Tagged differential evidence
 
-The final matrix is `/tmp/sn-s2-byte-work/differential-fixed-width-80c-20260905/results.tsv`. It contains 34 C/Rust pairs and 68 successful compilations and executions:
+The final matrix is `/tmp/sn-s2-byte-work/differential-fixed-width-final-20260905/results.tsv`. It contains 43 C/Rust pairs and 86 successful compilations and executions:
 
 - `tagged_byte_promotions_checked.sn`: default, checked, and unchecked, each at O0/O1/O2 (9 pairs);
 - `tagged_byte_promotions_unchecked.sn`: unchecked at O0/O1/O2 plus default O2 (4 pairs);
 - `tagged_wrapping_integer_values.sn`: checked at O0/O1/O2 (3 pairs);
 - `tagged_unsigned_wrapping_unchecked.sn`: default, checked, and unchecked, each at O0/O1/O2 (9 pairs);
-- the value-printing `uint_checked_mul_overflow.sn`: default, checked, and unchecked, each at O0/O1/O2 (9 pairs).
+- the unchanged, no-output `uint_checked_mul_overflow.sn`: default, checked, and unchecked, each at O0/O1/O2 (9 pairs);
+- the separate value-observing `tagged_uint_value_print.sn`: default, checked, and unchecked, each at O0/O1/O2 (9 pairs).
 
-Every source was unchanged between the peeled tag C compiler and this Rust compiler. Every compile and execution returned zero. Runtime stdout and stderr were compared with raw `cmp`; all 34 pairs matched. No diagnostic, path, ANSI, newline, or numeric-output normalization was applied.
+Every source was unchanged between the peeled tag C compiler and this Rust compiler. Every compile and execution returned zero. Runtime stdout and stderr were compared with raw `cmp`; all 43 pairs matched. No diagnostic, path, ANSI, newline, or numeric-output normalization was applied. The unchanged overflow fixture produced zero-byte stdout and stderr in all 18 executions; the separate printed-value fixture produced exactly `-4\n` in all 18 executions.
 
 Twelve representative members of the measured E0689 group were compiled and run through both current C and Rust at O0. All 24 compilations and executions returned zero, all 12 raw stdout/stderr pairs matched, and no Rust stream contained E0689. Results are in `/tmp/sn-s2-byte-work/numeric-inference-representative-80c/results.tsv`.
 
@@ -50,6 +51,6 @@ Shift counts from 0 through 31 are the defined byte C-oracle range. Larger count
 
 The merged diagnostic helper contract remains authoritative. Numeric routing occurs before checked helper rendering only for operations whose tag contract wraps; signed checked operations continue through the collision-free `__sn_checked` family. The literal-receiver type annotation changes only checked expressions whose Rust receiver otherwise has no inherent integer type.
 
-The array text branch `a6a1cfb1c0e3fd16d4bfe8c023881023f1d39892` is required to execute the unchanged `test_arr_sum_pairs.sn`, `test_fn_collatz_seq.sn`, and `test_fn_powers_of_two.sn` sources. On this branch their former numeric rejection advances to the independent array-join boundary. An isolated combined validation records their final behavior without changing those sources.
+The array text branch `a6a1cfb1c0e3fd16d4bfe8c023881023f1d39892` is required to execute the unchanged `test_arr_sum_pairs.sn`, `test_fn_collatz_seq.sn`, and `test_fn_powers_of_two.sn` sources. On this branch their former numeric rejection advances to the independent array-join boundary. In the isolated combined validation, all three sources compile and run through both C and Rust in default/O0/O1/O2 mode: 12 pairs, 24 successful compilations and executions, with all raw stdout/stderr pairs equal. The results are `/tmp/sn-s2-byte-work/array-numeric-combined-a6a1-a343/results.tsv`.
 
 Remaining numeric parity includes the preserved signed-literal C emission nuance, undefined signed C overflow forms outside the valid oracle envelope, and other numeric types not listed in this scope.
