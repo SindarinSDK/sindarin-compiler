@@ -1,0 +1,12 @@
+fn main(): void =>
+  var values: int[] = {1}
+  var outer: fn(): fn(): int = fn(): fn(): int =>
+    values.push(2)
+    var inner: fn(): int = fn(): int => values.length
+    values.push(3)
+    return inner
+  var first: fn(): int = outer()
+  var second: fn(): int = outer()
+  println(first())
+  println(second())
+  println(values.length)

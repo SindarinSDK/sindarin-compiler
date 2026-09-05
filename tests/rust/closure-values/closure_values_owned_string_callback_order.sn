@@ -1,0 +1,17 @@
+fn invoke(callback: fn(): str): str =>
+  return callback()
+
+fn main(): void =>
+  var calls: int = 0
+  var part: fn(): str = fn(): str =>
+    calls++
+    return "-part"
+  var value: str = "base"
+  var update: fn(): str = fn(): str =>
+    value += invoke(part)
+    return value
+  println(update())
+  println(calls)
+  println(update())
+  println(calls)
+  println(value)

@@ -1,0 +1,13 @@
+fn main(): void =>
+  var values: int[] = {10}
+  var left: fn(int): int = fn(value: int): int =>
+    values.push(value)
+    return values.length
+  var right: fn(int): int = fn(value: int): int =>
+    values.push(value)
+    return values.length
+  println(left(20))
+  println(right(30))
+  println(left(40))
+  println(right(50))
+  println(values.length)
