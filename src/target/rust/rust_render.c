@@ -21,10 +21,16 @@ static const char *json_string_property(json_object *object, const char *key)
 
 static char *helper_rust_ident(json_object **params, int param_count, hbs_options_t *options);
 
+static char *rust_type(json_object *type);
+
+/* Closure rendering owns the function-type fallback without exposing an API. */
+#include "rust_render_closures.c"
+
 static char *rust_type(json_object *type)
 {
     const char *kind = json_kind(type);
     if (!kind) return strdup("()");
+    if (strcmp(kind, "function") == 0) return rust_closure_type(type);
     if (strcmp(kind, "void") == 0) return strdup("()");
     if (strcmp(kind, "int") == 0 || strcmp(kind, "long") == 0) return strdup("i64");
     if (strcmp(kind, "int32") == 0) return strdup("i32");
