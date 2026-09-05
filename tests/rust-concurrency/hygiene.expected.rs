@@ -31,6 +31,22 @@ impl<T> Drop for __sn_concurrency0_Join<T> {
     }
 }
 
+// Arc owns capture identity. Reads clone under the lock and release it before
+// evaluating the next source operand; mutable operations borrow the same cell.
+struct __sn_concurrency0_Capture<T>(std::sync::Mutex<T>, std::sync::Mutex<()>);
+impl<T> __sn_concurrency0_Capture<T> {
+    fn new(value: T) -> Self { Self(std::sync::Mutex::new(value), std::sync::Mutex::new(())) }
+    fn lock(&self) -> std::sync::LockResult<std::sync::MutexGuard<'_, T>> { self.0.lock() }
+    fn guard(&self) -> std::sync::MutexGuard<'_, ()> { self.1.lock().unwrap_or_else(|e| e.into_inner()) }
+    fn borrow_mut(&self) -> std::sync::MutexGuard<'_, T> { self.0.lock().unwrap_or_else(|e| e.into_inner()) }
+    fn set(&self, value: T) { *self.borrow_mut() = value; }
+    fn replace(&self, value: T) -> T { std::mem::replace(&mut *self.borrow_mut(), value) }
+}
+impl<T: Clone> __sn_concurrency0_Capture<T> {
+    fn borrow(&self) -> T { self.borrow_mut().clone() }
+    fn get(&self) -> T { self.borrow() }
+}
+
 static __sn_concurrency0_global_rhs: std::sync::LazyLock<__sn_concurrency0_Cell<i64>> = std::sync::LazyLock::new(|| __sn_concurrency0_Cell::new(1));
 static __sn_concurrency0_global_value: std::sync::LazyLock<__sn_concurrency0_Cell<i64>> = std::sync::LazyLock::new(|| __sn_concurrency0_Cell::new(2));
 
@@ -70,7 +86,7 @@ fn main() {
     std::sync::LazyLock::force(&__sn_concurrency0_global_rhs);
     std::sync::LazyLock::force(&__sn_concurrency0_global_value);
     { let __sn_concurrency0_rhs = 3; let mut __sn_concurrency0_value = __sn_concurrency0_global_rhs.lock().unwrap_or_else(|e| e.into_inner()); *__sn_concurrency0_value = *__sn_concurrency0_value + __sn_concurrency0_rhs; __sn_concurrency0_value.clone() };
-    { let __sn_concurrency0_value = __sn_checked_0(({ let value = __sn_concurrency0_global_rhs.lock().unwrap_or_else(|e| e.into_inner()).clone(); value }).checked_add({ let value = __sn_concurrency0_global_value.lock().unwrap_or_else(|e| e.into_inner()).clone(); value }), "Runtime error: integer overflow in addition"); *__sn_concurrency0_global_value.lock().unwrap_or_else(|e| e.into_inner()) = __sn_concurrency0_value.clone(); __sn_concurrency0_value };
+    { let __sn_concurrency0_value = __sn_checked_0((({ let value = __sn_concurrency0_global_rhs.lock().unwrap_or_else(|e| e.into_inner()).clone(); value } as i64)).checked_add({ let value = __sn_concurrency0_global_value.lock().unwrap_or_else(|e| e.into_inner()).clone(); value }), "Runtime error: integer overflow in addition"); *__sn_concurrency0_global_value.lock().unwrap_or_else(|e| e.into_inner()) = __sn_concurrency0_value.clone(); __sn_concurrency0_value };
     let mut handle: i64 = 0; let mut __sn_concurrency0_handle_handle: Option<__sn_concurrency0_Join<i64>> = Some({ __sn_concurrency0_Join::spawn(move || calculate()) }
 );
     { if let Some(__sn_concurrency0_handle) = __sn_concurrency0_handle_handle.take() { handle = __sn_concurrency0_handle.join(); } handle.clone() }

@@ -1,0 +1,12 @@
+fn compute(value: int): int =>
+  return value * 2
+fn main(): void =>
+  var handles: int[] = {}
+  handles.push(& compute(21))
+  var intermediate: int[] = handles
+  var copied: int[] = {}
+  copied = intermediate
+  handles = {}
+  intermediate = {}
+  copied !
+  println(copied[0])

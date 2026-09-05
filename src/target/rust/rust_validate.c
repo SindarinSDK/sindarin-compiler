@@ -2600,6 +2600,12 @@ static bool rust_validate_stmt(json_object *stmt)
     const char *kind = json_object_get_string(kind_obj);
     json_object *child = NULL;
     if (!kind) return false;
+    if (strcmp(kind, "using") == 0) {
+        json_object *type = NULL, *body = NULL;
+        return json_object_object_get_ex(stmt, "type", &type) && rust_type_supported(type) &&
+            json_object_object_get_ex(stmt, "initializer", &child) && rust_validate_expr(child) &&
+            json_object_object_get_ex(stmt, "body", &body) && rust_validate_block(body);
+    }
     if (strcmp(kind, "lock") == 0) {
         json_object *body = NULL;
         return json_object_object_get_ex(stmt, "lock_expr", &child) && rust_validate_expr(child) &&

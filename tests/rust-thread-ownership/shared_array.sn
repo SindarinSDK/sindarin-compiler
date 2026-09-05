@@ -1,0 +1,10 @@
+fn main(): void =>
+  var values: int[] = {7}
+  var action: fn(): int = fn(): int =>
+    values = {values[0] + 1}
+    return values[0]
+  var result: int = & action()
+  result !
+  println($"{values[0]}, {result}")
+  println(action())
+  println(values[0])

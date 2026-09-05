@@ -1,0 +1,9 @@
+fn main(): void =>
+  var counter: int = 0
+  var action: fn(): int = fn(): int =>
+    counter = counter + 1
+    return counter
+  var result: int = & action()
+  result !
+  println($"{counter}, {result}, {action()}")
+  println(counter)
