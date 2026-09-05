@@ -1108,6 +1108,11 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                              * use the alias directly instead of namespace-prefixing */
                             if (rust_g_model_ns_fn_aliases && rust_g_model_ns_fn_aliases[fi])
                             {
+                                char callable[512];
+                                snprintf(callable, sizeof(callable), "%s__%s",
+                                         prefix_to_use, vname);
+                                json_object_object_add(obj, "source_callable_name",
+                                    json_object_new_string(callable));
                                 json_object_object_add(obj, "name",
                                     json_object_new_string(rust_g_model_ns_fn_aliases[fi]));
                                 vname = NULL; /* mark as handled */

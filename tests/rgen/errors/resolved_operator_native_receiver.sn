@@ -1,0 +1,13 @@
+native struct NativePoint =>
+  value: int
+
+  operator == (other: NativePoint): bool =>
+    return self.value == other.value
+
+native fn compare(): bool =>
+  var left: NativePoint = { value: 1 }
+  var right: NativePoint = { value: 1 }
+  return left == right
+
+fn main(): void =>
+  println(compare())

@@ -1,0 +1,21 @@
+struct InnerValue =>
+  value: int
+
+struct OuterValue =>
+  inner: InnerValue
+
+fn initialValue(): int =>
+  return 40
+
+var helperSeed: int = initialValue()
+
+fn helperThroughTypes(value: int): int =>
+  var inner: InnerValue = { value: value }
+  var outer: OuterValue = { inner: inner }
+  return outer.inner.value + helperSeed
+
+native fn nativeThroughTypes(value: int): int =>
+  return helperThroughTypes(value)
+
+fn main(): void =>
+  println(nativeThroughTypes(2))

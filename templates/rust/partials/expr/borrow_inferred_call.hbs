@@ -1,1 +1,3 @@
-{{! Rejected by Rust validation; preserve the empty expression fallback. }}
+{{! Unreachable until native reference-struct support lands.  Keeping the
+    ownership-neutral inner form here prevents a silent empty expression if a
+    validated future representation delegates through this registered route. }}{{> expr inner_call}}{{! Keep expression partial output inline. ~}}

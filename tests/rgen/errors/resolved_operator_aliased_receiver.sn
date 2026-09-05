@@ -1,0 +1,13 @@
+struct Item =>
+  value: int
+  label: str
+
+  operator == (other: Item): bool =>
+    return self.value == other.value
+
+fn main(): void =>
+  var item: Item = {
+    value: 1,
+    label: "one"
+  }
+  println(item == item)
