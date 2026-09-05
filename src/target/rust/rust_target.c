@@ -197,6 +197,15 @@ static bool rust_emit(CompilerOptions *options, Module *module,
         json_object_put(model);
         return false;
     }
+    size_t array_join_index_id = 0;
+    size_t array_join_owner_id = 0;
+    if (!rust_assign_array_join_index_names(
+            model, model, &array_join_index_id, &array_join_owner_id))
+    {
+        fprintf(stderr, "Error: Rust target could not assign hygienic array join index names\n");
+        json_object_put(model);
+        return false;
+    }
     if (rust_model_uses_arrays(model))
         json_object_object_add(model, "rust_uses_arrays", json_object_new_boolean(true));
     if (rust_model_uses_array_text(model))

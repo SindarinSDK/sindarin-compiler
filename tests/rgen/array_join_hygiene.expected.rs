@@ -148,6 +148,11 @@ fn __sn_array_join_0() -> i64 {
     return 21;
 }
 
+fn produceNested(calls: &mut i64) -> Vec<Vec<JoinBag>> {
+    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
+    return vec![vec![JoinBag { values: vec![4, 5] }]];
+}
+
 fn main() {
     let mut __sn_array: Vec<i64> = vec![1, 2, 3];
     let mut __sn_array_0: Vec<i64> = vec![4];
@@ -164,6 +169,18 @@ fn main() {
     let mut bag: JoinBag = JoinBag { values: vec![1, 2] };
     println!("{}", (bag).render());
     println!("{}", __sn_array_to_string_0(&((bag).values)));
+    let mut __sn_join_index_0: i64 = 41;
+    let mut receiverIndexCalls: i64 = 0;
+    let mut nested: Vec<Vec<JoinBag>> = vec![vec![JoinBag { values: vec![1, 2] }]];
+    println!("{}", { let __sn_join_index_3 = __sn_index((nested).len(), { let __sn_place = &mut (receiverIndexCalls); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous }); let __sn_join_index_4 = __sn_index(((nested)[__sn_join_index_3]).len(), 0); let __sn_separator_1 = &({ let __sn_join_index_1 = __sn_index((nested).len(), 0); let __sn_join_index_2 = __sn_index(((nested)[__sn_join_index_1]).len(), 0); (((nested)[__sn_join_index_1])[__sn_join_index_2]).mutateSeparator() }); __sn_array_join_1(((((nested)[__sn_join_index_3])[__sn_join_index_4]).values).as_slice(), __sn_separator_1.as_str()) });
+    println!("{}", receiverIndexCalls);
+    println!("{}", __sn_array_to_string_0(&((((nested)[__sn_index((nested).len(), 0)])[__sn_index(((nested)[__sn_index((nested).len(), 0)]).len(), 0)]).values)));
+    println!("{}", __sn_join_index_0);
+    let mut __sn_join_owner_0: i64 = 42;
+    let mut producerCalls: i64 = 0;
+    println!("{}", { let __sn_join_owner_1 = produceNested(&mut (producerCalls)); let __sn_join_index_5 = __sn_index((__sn_join_owner_1).len(), 0); let __sn_join_index_6 = __sn_index(((__sn_join_owner_1)[__sn_join_index_5]).len(), 0); let __sn_separator_1 = &("/".to_string()); __sn_array_join_1(((((__sn_join_owner_1)[__sn_join_index_5])[__sn_join_index_6]).values).as_slice(), __sn_separator_1.as_str()) });
+    println!("{}", producerCalls);
+    println!("{}", __sn_join_owner_0);
     let mut bytes: Vec<u8> = vec![65, 0, 66, 255];
     let mut byteText: String = { let __sn_array_1 = &(bytes); String::from_utf8_lossy(__sn_array_1.split(|value| *value == 0).next().unwrap_or(&[])).into_owned() };
     println!("{}", byteText);
