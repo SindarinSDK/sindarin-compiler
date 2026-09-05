@@ -23,6 +23,34 @@ fn __sn_array_size(size: i64) -> usize {
     size as usize
 }
 
+fn __sn_runtime_error_0(message: &'static str) -> ! {
+    eprintln!("{}", message);
+    std::process::exit(1);
+}
+
+fn __sn_checked_0<T>(value: Option<T>, message: &'static str) -> T {
+    match value {
+        Some(value) => value,
+        None => __sn_runtime_error_0(message),
+    }
+}
+
+fn __sn_checked_div_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked_0(value, if divisor_is_zero {
+        "panic: Division by zero"
+    } else {
+        "Runtime error: integer overflow in division"
+    })
+}
+
+fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked_0(value, if divisor_is_zero {
+        "panic: Modulo by zero"
+    } else {
+        "Runtime error: integer overflow in modulo"
+    })
+}
+
 #[allow(non_camel_case_types)]
 trait __SnArrayText_0 {
     fn __sn_array_text_0(&self) -> String;
@@ -149,7 +177,7 @@ fn __sn_array_join_0() -> i64 {
 }
 
 fn produceNested(calls: &mut i64) -> Vec<Vec<JoinBag>> {
-    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
+    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
     return vec![vec![JoinBag { values: vec![4, 5] }]];
 }
 
@@ -172,7 +200,7 @@ fn main() {
     let mut __sn_join_index_0: i64 = 41;
     let mut receiverIndexCalls: i64 = 0;
     let mut nested: Vec<Vec<JoinBag>> = vec![vec![JoinBag { values: vec![1, 2] }]];
-    println!("{}", { let __sn_join_index_3 = __sn_index((nested).len(), { let __sn_place = &mut (receiverIndexCalls); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous }); let __sn_join_index_4 = __sn_index(((nested)[__sn_join_index_3]).len(), 0); let __sn_separator_1 = &({ let __sn_join_index_1 = __sn_index((nested).len(), 0); let __sn_join_index_2 = __sn_index(((nested)[__sn_join_index_1]).len(), 0); (((nested)[__sn_join_index_1])[__sn_join_index_2]).mutateSeparator() }); __sn_array_join_1(((((nested)[__sn_join_index_3])[__sn_join_index_4]).values).as_slice(), __sn_separator_1.as_str()) });
+    println!("{}", { let __sn_join_index_3 = __sn_index((nested).len(), { let __sn_place = &mut (receiverIndexCalls); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous }); let __sn_join_index_4 = __sn_index(((nested)[__sn_join_index_3]).len(), 0); let __sn_separator_1 = &({ let __sn_join_index_1 = __sn_index((nested).len(), 0); let __sn_join_index_2 = __sn_index(((nested)[__sn_join_index_1]).len(), 0); (((nested)[__sn_join_index_1])[__sn_join_index_2]).mutateSeparator() }); __sn_array_join_1(((((nested)[__sn_join_index_3])[__sn_join_index_4]).values).as_slice(), __sn_separator_1.as_str()) });
     println!("{}", receiverIndexCalls);
     println!("{}", __sn_array_to_string_0(&((((nested)[__sn_index((nested).len(), 0)])[__sn_index(((nested)[__sn_index((nested).len(), 0)]).len(), 0)]).values)));
     println!("{}", __sn_join_index_0);
