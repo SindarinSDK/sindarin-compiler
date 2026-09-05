@@ -48,7 +48,7 @@ fn main() {
     let mut mod32: u32 = 4294967295;
     let mut inc32: u32 = 4294967295;
     let mut dec32: u32 = 0;
-    let mut max: u64 = { let __sn_byte_operand: u64 = 0; !__sn_byte_operand };
+    let mut max: u64 = (!(0 as i64) as u64);
     let mut high: u64 = { let (__sn_byte_left, __sn_byte_right): (u64, u64) = ((max / 2), 1); __sn_byte_left.wrapping_add(__sn_byte_right) };
     let mut add: u64 = max;
     let mut sub: u64 = 0;
