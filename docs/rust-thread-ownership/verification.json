@@ -38,6 +38,8 @@
     "reference": "/tmp/sindarin-tagged-control-reference.json",
     "reference_schema": "sindarin-tagged-control-reference/v1",
     "reference_sha256": "8dec424d359c4537de4a0d3414d1c32d7081aac42a2e6b223e40c68f3460bd47",
+    "reference_layout": "root-v1",
+    "reference_host": "Spark1",
     "tag_peeled": "79c20bdb8314aff3c778471ceab20bb8f9ca8d62",
     "tag_compiler_sha256": "b8c32932c385d9ae6692dff82bacb20c94eddef5379410efb5a26bdbae9f7789",
     "control_worktree": "/home/gavin/code/sindarin/review-rust-diagnostic-tag79c20b",

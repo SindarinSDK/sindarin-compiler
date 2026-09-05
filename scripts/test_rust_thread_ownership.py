@@ -25,6 +25,33 @@ def capture(command, cwd, env, output, limit):
     return status
 
 
+def required(mapping, key, context):
+    if not isinstance(mapping, dict) or key not in mapping or not mapping[key]:
+        raise SystemExit(f'HARNESSISSUE: reference missing {context}.{key}')
+    return mapping[key]
+
+
+def read_reference(reference):
+    ref = json.loads(reference.read_text())
+    repository = ref.get('repository')
+    if repository is not None:
+        layout = 'repository-v2'
+        tag = Path(required(repository, 'worktree', 'repository'))
+        tag_peeled = required(repository, 'tag_peeled_commit', 'repository')
+    else:
+        layout = 'root-v1'
+        tag = Path(required(ref, 'worktree', 'root'))
+        tag_peeled = required(ref, 'tag_peeled', 'root')
+    compiler = required(ref, 'compiler', 'root')
+    return ref, tag, tag_peeled, required(compiler, 'path', 'compiler'), {
+        'layout': layout,
+        'declared_spark': ref.get('spark'),
+        'platform': ref.get('platform'),
+        'schema': required(ref, 'schema', 'root'),
+        'compiler_sha256': required(compiler, 'sha256', 'compiler'),
+    }
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, required=True)
@@ -34,16 +61,13 @@ def main():
     out = args.output.resolve(); out.mkdir(parents=True, exist_ok=False)
     repo = Path(__file__).resolve().parent.parent
     reference = Path('/tmp/sindarin-tagged-control-reference.json')
-    ref = json.loads(reference.read_text())
-    # Spark1's canonical v1 record is intentionally read without a schema
-    # compatibility fallback.  A stale or differently shaped reference is a
-    # harness issue, not evidence about either backend.
-    tag = Path(ref['worktree'])
-    tag_peeled = ref['tag_peeled']
-    compiler = ref['compiler']['path']
+    # Both preserved canonical records are accepted deliberately: Spark1's
+    # root-v1 layout and Spark2's repository-v2 layout.  Other/malformed
+    # layouts fail with a field-specific HARNESSISSUE rather than a fallback.
+    ref, tag, tag_peeled, compiler, reference_provenance = read_reference(reference)
     if subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=tag, text=True).strip() != tag_peeled:
         raise SystemExit('HARNESSISSUE: control worktree does not match tag_peeled')
-    (out/'provenance.json').write_text(json.dumps({'reference': str(reference), 'tag_peeled': tag_peeled, 'tag_compiler_verified_sha256': ref['compiler']['sha256'], 'rust_compiler_sha256': hashlib.sha256((repo/'bin/sn').read_bytes()).hexdigest(), 'mode': '-O0', 'inventory_only': args.inventory, 'filter': args.filter, 'control_worktree': str(tag), 'reference_schema': ref['schema'], 'reference_sha256': hashlib.sha256(reference.read_bytes()).hexdigest()}, indent=2)+'\n')
+    (out/'provenance.json').write_text(json.dumps({'reference': str(reference), 'tag_peeled': tag_peeled, 'tag_compiler_verified_sha256': reference_provenance['compiler_sha256'], 'rust_compiler_sha256': hashlib.sha256((repo/'bin/sn').read_bytes()).hexdigest(), 'mode': '-O0', 'inventory_only': args.inventory, 'filter': args.filter, 'control_worktree': str(tag), 'reference_schema': reference_provenance['schema'], 'reference_sha256': hashlib.sha256(reference.read_bytes()).hexdigest(), 'reference_provenance': reference_provenance}, indent=2)+'\n')
     smoke = out/'smoke'; (smoke/'tmp').mkdir(parents=True)
     clean = {'HOME': '/home/gavin', 'PATH': '/usr/bin:/bin', 'TMPDIR': str(smoke/'tmp')}
     executable = smoke/'program'
