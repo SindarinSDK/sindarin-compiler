@@ -1,0 +1,9 @@
+struct Point =>
+  value: int
+
+  operator < (other: Point): bool =>
+    return self.value < other.value
+
+fn main(): void =>
+  var result: bool = Point { value: sizeof(Point) } > Point { value: 1 }
+  println(result)

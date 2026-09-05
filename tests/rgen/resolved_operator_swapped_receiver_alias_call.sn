@@ -1,0 +1,17 @@
+struct Item =>
+  value: int
+
+  operator < (other: Item as ref): bool =>
+    other.value = other.value + 1
+    return self.value < other.value
+
+fn increment(value: int): int =>
+  return value + 1
+
+fn makeFrom(item: Item, transform: fn(int): int): Item =>
+  return Item { value: transform(item.value) }
+
+fn main(): void =>
+  var item: Item = { value: 1 }
+  println(item > makeFrom(item, increment))
+  println(item.value)
