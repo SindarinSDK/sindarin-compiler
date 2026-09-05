@@ -23,6 +23,34 @@ fn __sn_array_size(size: i64) -> usize {
     size as usize
 }
 
+fn __sn_runtime_error(message: &'static str) -> ! {
+    eprintln!("{}", message);
+    std::process::exit(1);
+}
+
+fn __sn_checked<T>(value: Option<T>, message: &'static str) -> T {
+    match value {
+        Some(value) => value,
+        None => __sn_runtime_error(message),
+    }
+}
+
+fn __sn_checked_div<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked(value, if divisor_is_zero {
+        "panic: Division by zero"
+    } else {
+        "Runtime error: integer overflow in division"
+    })
+}
+
+fn __sn_checked_mod<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked(value, if divisor_is_zero {
+        "panic: Modulo by zero"
+    } else {
+        "Runtime error: integer overflow in modulo"
+    })
+}
+
 #[derive(Clone, Debug, PartialEq)]
 struct Matcher {
     text: String,
@@ -61,32 +89,37 @@ impl Matcher {
 }
 
 fn makeSubject(calls: &mut i64) -> String {
-    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
-    return { let mut __sn_string = String::new(); __sn_string.push_str(&("to".to_string())); __sn_string.push_str(&("ken".to_string())); __sn_string };
+    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
+    return { let mut __sn_string = String::new(); __sn_string.push_str(&("to".to_string())); __sn_string.push_str(&("ken".to_string())); __sn_string }
+;
 }
 
 fn makeLabels(calls: &mut i64) -> Vec<String> {
-    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
+    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
     return vec!["indexed".to_string()];
 }
 
 fn makeRows(calls: &mut i64) -> Vec<Vec<String>> {
-    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
+    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
     return vec![vec!["nested".to_string()]];
 }
 
 fn recordIndex(trace: &mut i64, marker: i64) -> i64 {
-    (*(trace) = ((*(trace)).checked_mul(10).expect("checked arithmetic failed")).checked_add(marker).expect("checked arithmetic failed"));
+    (*(trace) = __sn_checked(__sn_checked(*(trace).checked_mul(10), "Runtime error: integer overflow in multiplication")
+.checked_add(marker), "Runtime error: integer overflow in addition")
+);
     return (-1);
 }
 
 fn makeCube(trace: &mut i64) -> Vec<Vec<Vec<String>>> {
-    (*(trace) = ((*(trace)).checked_mul(10).expect("checked arithmetic failed")).checked_add(1).expect("checked arithmetic failed"));
+    (*(trace) = __sn_checked(__sn_checked(*(trace).checked_mul(10), "Runtime error: integer overflow in multiplication")
+.checked_add(1), "Runtime error: integer overflow in addition")
+);
     return vec![vec![vec!["deep".to_string()]]];
 }
 
 fn selectedValue(calls: &mut i64, value: i64) -> i64 {
-    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
+    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
     return value;
 }
 
@@ -112,13 +145,16 @@ fn main() {
         (statementCalls = 100);
     }
     else if (__sn_match_subject_4.as_str() == "token" || __sn_match_subject_4.as_str() == "token") {
-        { let __sn_place = &mut (statementCalls); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
+        { let __sn_place = &mut (statementCalls); let __sn_previous = *__sn_place; let __sn_next = __sn_checked(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
     }
     else {
         (statementCalls = 200);
     }
 };
-    println!("{}", ((statementCalls == 1) && (subject == "token".to_string())));
+    println!("{}", ((statementCalls == 1)
+ && (subject == "token".to_string())
+)
+);
     let mut subjectCalls: i64 = 0;
     let mut armCalls: i64 = 0;
     let mut chosen: i64 = {
@@ -136,15 +172,21 @@ fn main() {
         (selectedValue(&mut (armCalls), 0) as i64)
     }
 };
-    println!("{}", (((chosen == 7) && (subjectCalls == 1)) && (armCalls == 1)));
+    println!("{}", (((chosen == 7)
+ && (subjectCalls == 1)
+)
+ && (armCalls == 1)
+)
+);
     let mut noElseCalls: i64 = 0;
     {
     let __sn_match_subject_6: String = "absent".to_string();
     if (__sn_match_subject_6.as_str() == "present") {
-        { let __sn_place = &mut (noElseCalls); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
+        { let __sn_place = &mut (noElseCalls); let __sn_previous = *__sn_place; let __sn_next = __sn_checked(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
     }
 };
-    println!("{}", (noElseCalls == 0));
+    println!("{}", (noElseCalls == 0)
+);
     let mut literalResult: bool = {
     let __sn_match_subject_7: String = "".to_string();
     if (__sn_match_subject_7.as_str() == "") {
@@ -189,9 +231,11 @@ fn main() {
     let __sn_match_subject_12: String = __sn_match_array_12[__sn_match_index_12].clone();
     if (__sn_match_subject_12.as_str() == "nested") {
         (__sn_match_subject = __sn_match_subject.clone());
-        (__sn_match_array = (__sn_match_index).checked_add(1).expect("checked arithmetic failed"));
+        (__sn_match_array = __sn_checked(__sn_match_index.checked_add(1), "Runtime error: integer overflow in addition")
+);
         (__sn_match_subject_0 = __sn_match_subject_0.clone());
-        (__sn_match_array_0 = (__sn_match_index_0).checked_add(1).expect("checked arithmetic failed"));
+        (__sn_match_array_0 = __sn_checked(__sn_match_index_0.checked_add(1), "Runtime error: integer overflow in addition")
+);
         {
     let __sn_match_array_10 = &(hygieneRows);
     let __sn_match_index_10 = __sn_index(__sn_match_array_10.len(), 0);
@@ -199,8 +243,10 @@ fn main() {
     let __sn_match_index_10 = __sn_index(__sn_match_array_10.len(), 0);
     let __sn_match_subject_10: String = __sn_match_array_10[__sn_match_index_10].clone();
     if (__sn_match_subject_10.as_str() == "nested") {
-        (__sn_match_index = (__sn_match_array).checked_sub(1).expect("checked arithmetic failed"));
-        (__sn_match_index_0 = (__sn_match_array_0).checked_sub(1).expect("checked arithmetic failed"));
+        (__sn_match_index = __sn_checked(__sn_match_array.checked_sub(1), "Runtime error: integer overflow in subtraction")
+);
+        (__sn_match_index_0 = __sn_checked(__sn_match_array_0.checked_sub(1), "Runtime error: integer overflow in subtraction")
+);
     }
 };
         {
@@ -212,7 +258,14 @@ fn main() {
     }
 };
     println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", __sn_match_subject)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", __sn_match_array)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", __sn_match_index)); __sn_interpolated });
-    println!("{}", ((((hygieneCalls == 1) && (__sn_match_subject_0 == "candidate-subject".to_string())) && (__sn_match_array_0 == 9)) && (__sn_match_index_0 == 8)));
+    println!("{}", ((((hygieneCalls == 1)
+ && (__sn_match_subject_0 == "candidate-subject".to_string())
+)
+ && (__sn_match_array_0 == 9)
+)
+ && (__sn_match_index_0 == 8)
+)
+);
     let mut labels: Vec<String> = vec!["indexed".to_string()];
     let mut indexed: bool = {
     let __sn_match_array_13 = &(labels);
@@ -225,7 +278,13 @@ fn main() {
         (false)
     }
 };
-    println!("{}", (((indexed && ((labels)[__sn_index((labels).len(), 0)] == "indexed".to_string())) && (__sn_match_array == 42)) && (__sn_match_index == 41)));
+    println!("{}", (((indexed && ((labels)[__sn_index((labels).len(), 0)] == "indexed".to_string())
+)
+ && (__sn_match_array == 42)
+)
+ && (__sn_match_index == 41)
+)
+);
     let mut indexedReceiverCalls: i64 = 0;
     let mut indexedReceiverResult: i64 = {
     let __sn_match_array_14 = &(makeLabels(&mut (indexedReceiverCalls)));
@@ -272,9 +331,17 @@ fn main() {
         (0 as i64)
     }
 };
-    println!("{}", ((((deepIndexedResult == 1) && (nestedOrder == 1234)) && (__sn_match_array == 42)) && (__sn_match_index == 41)));
+    println!("{}", ((((deepIndexedResult == 1)
+ && (nestedOrder == 1234)
+)
+ && (__sn_match_array == 42)
+)
+ && (__sn_match_index == 41)
+)
+);
     let mut concatenated: i64 = {
-    let __sn_match_subject_17: String = { let mut __sn_string = String::new(); __sn_string.push_str(&("con".to_string())); __sn_string.push_str(&("tent".to_string())); __sn_string };
+    let __sn_match_subject_17: String = { let mut __sn_string = String::new(); __sn_string.push_str(&("con".to_string())); __sn_string.push_str(&("tent".to_string())); __sn_string }
+;
     if (__sn_match_subject_17.as_str() == "content") {
         (1 as i64)
     }
@@ -282,10 +349,20 @@ fn main() {
         (0 as i64)
     }
 };
-    println!("{}", (concatenated == 1));
+    println!("{}", (concatenated == 1)
+);
     let mut matcher: Matcher = Matcher { text: "north".to_string() };
-    println!("{}", (((matcher).instanceValue() == 10) && ((matcher).text == "north".to_string())));
+    println!("{}", (((matcher).instanceValue() == 10)
+ && ((matcher).text == "north".to_string())
+)
+);
     let mut greeting: String = "héllo".to_string();
-    println!("{}", (Matcher::staticValue(greeting.clone()) && (greeting == "héllo".to_string())));
-    println!("{}", ((parameterValue(subject.clone()) == 7) && (subject == "token".to_string())));
+    println!("{}", (Matcher::staticValue(greeting.clone()) && (greeting == "héllo".to_string())
+)
+);
+    println!("{}", ((parameterValue(subject.clone()) == 7)
+ && (subject == "token".to_string())
+)
+);
 }
+

@@ -1,5 +1,33 @@
 #![allow(dead_code, unused_mut, unused_variables, unused_parens)]
 
+fn __sn_runtime_error(message: &'static str) -> ! {
+    eprintln!("{}", message);
+    std::process::exit(1);
+}
+
+fn __sn_checked<T>(value: Option<T>, message: &'static str) -> T {
+    match value {
+        Some(value) => value,
+        None => __sn_runtime_error(message),
+    }
+}
+
+fn __sn_checked_div<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked(value, if divisor_is_zero {
+        "panic: Division by zero"
+    } else {
+        "Runtime error: integer overflow in division"
+    })
+}
+
+fn __sn_checked_mod<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked(value, if divisor_is_zero {
+        "panic: Modulo by zero"
+    } else {
+        "Runtime error: integer overflow in modulo"
+    })
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 struct Prefixes {
     marker: i64,
@@ -15,8 +43,10 @@ impl Prefixes {
     fn chooseBool(value: bool, calls: &mut i64, order: &mut i64) -> bool {
         return match (value) {
          true => {
-             { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
-             (*(order) = ((*(order)).checked_mul(10).expect("checked arithmetic failed")).checked_add(1).expect("checked arithmetic failed"));
+             { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
+             (*(order) = __sn_checked(__sn_checked(*(order).checked_mul(10), "Runtime error: integer overflow in multiplication")
+ .checked_add(1), "Runtime error: integer overflow in addition")
+ );
              markInt(&mut *(calls), &mut *(order), 2, 0);
              (markBool(&mut *(calls), &mut *(order), 3, true))
          },
@@ -46,26 +76,34 @@ impl Prefixes {
 }
 
 fn markInt(calls: &mut i64, order: &mut i64, marker: i64, value: i64) -> i64 {
-    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
-    (*(order) = ((*(order)).checked_mul(10).expect("checked arithmetic failed")).checked_add(marker).expect("checked arithmetic failed"));
+    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
+    (*(order) = __sn_checked(__sn_checked(*(order).checked_mul(10), "Runtime error: integer overflow in multiplication")
+.checked_add(marker), "Runtime error: integer overflow in addition")
+);
     return value;
 }
 
 fn markBool(calls: &mut i64, order: &mut i64, marker: i64, value: bool) -> bool {
-    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
-    (*(order) = ((*(order)).checked_mul(10).expect("checked arithmetic failed")).checked_add(marker).expect("checked arithmetic failed"));
+    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
+    (*(order) = __sn_checked(__sn_checked(*(order).checked_mul(10), "Runtime error: integer overflow in multiplication")
+.checked_add(marker), "Runtime error: integer overflow in addition")
+);
     return value;
 }
 
 fn markDouble(calls: &mut i64, order: &mut i64, marker: i64, value: f64) -> f64 {
-    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
-    (*(order) = ((*(order)).checked_mul(10).expect("checked arithmetic failed")).checked_add(marker).expect("checked arithmetic failed"));
+    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
+    (*(order) = __sn_checked(__sn_checked(*(order).checked_mul(10), "Runtime error: integer overflow in multiplication")
+.checked_add(marker), "Runtime error: integer overflow in addition")
+);
     return value;
 }
 
 fn markString(calls: &mut i64, order: &mut i64, marker: i64, value: String) -> String {
-    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
-    (*(order) = ((*(order)).checked_mul(10).expect("checked arithmetic failed")).checked_add(marker).expect("checked arithmetic failed"));
+    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
+    (*(order) = __sn_checked(__sn_checked(*(order).checked_mul(10), "Runtime error: integer overflow in multiplication")
+.checked_add(marker), "Runtime error: integer overflow in addition")
+);
     return value;
 }
 
@@ -162,7 +200,20 @@ fn scalarFamilies(calls: &mut i64) -> bool {
         (0.0 as f32)
     }
 };
-    return (((((((longResult == 2) && (int32Result == 3)) && (uint32Result == 4)) && (uintResult == 5)) && (byteResult == 6)) && (floatResult == 7.0)) && (order == 123456));
+    return (((((((longResult == 2)
+  && (int32Result == 3)
+ )
+  && (uint32Result == 4)
+ )
+  && (uintResult == 5)
+ )
+  && (byteResult == 6)
+ )
+  && (floatResult == 7.0)
+ )
+  && (order == 123456)
+ )
+;
 }
 
 fn main() {
@@ -243,3 +294,4 @@ fn main() {
     (calls = 0);
     println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", scalarFamilies(&mut (calls)))); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", calls)); __sn_interpolated });
 }
+

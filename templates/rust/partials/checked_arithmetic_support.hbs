@@ -1,5 +1,3 @@
-#![allow(dead_code, unused_mut, unused_variables, unused_parens)]
-
 fn __sn_runtime_error(message: &'static str) -> ! {
     eprintln!("{}", message);
     std::process::exit(1);
@@ -27,13 +25,3 @@ fn __sn_checked_mod<T>(value: Option<T>, divisor_is_zero: bool) -> T {
         "Runtime error: integer overflow in modulo"
     })
 }
-
-fn fail(value: &mut i64) {
-    { let __sn_rhs = 0; let __sn_place = &mut (*(value)); let __sn_next = __sn_checked_mod((*__sn_place).checked_rem(__sn_rhs), __sn_rhs == 0); *__sn_place = __sn_next; __sn_next };
-}
-
-fn main() {
-    let mut value: i64 = 1;
-    fail(&mut (value));
-}
-
