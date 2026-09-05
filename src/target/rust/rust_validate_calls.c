@@ -8,7 +8,7 @@ static bool rust_array_method_supported(const char *name)
            strcmp(name, "reverse") == 0 || strcmp(name, "clear") == 0 ||
            strcmp(name, "clone") == 0 || strcmp(name, "contains") == 0 ||
            strcmp(name, "indexOf") == 0 || strcmp(name, "concat") == 0 ||
-           strcmp(name, "join") == 0;
+           strcmp(name, "join") == 0 || strcmp(name, "toString") == 0;
 }
 
 static bool rust_string_method_supported(const char *name)
@@ -20,7 +20,8 @@ static bool rust_string_method_supported(const char *name)
            strcmp(name, "substring") == 0 || strcmp(name, "replace") == 0 ||
            strcmp(name, "charAt") == 0 || strcmp(name, "indexOf") == 0 ||
            strcmp(name, "split") == 0 || strcmp(name, "splitLines") == 0 ||
-           strcmp(name, "isBlank") == 0;
+           strcmp(name, "splitWhitespace") == 0 || strcmp(name, "isBlank") == 0 ||
+           strcmp(name, "toBytes") == 0 || strcmp(name, "append") == 0;
 }
 
 static bool rust_primitive_conversion_member(const char *type_kind, const char *name)
@@ -60,7 +61,10 @@ static bool rust_primitive_integer_conversion_supported(const char *type_kind,
             (strcmp(name, "toInt") == 0 || strcmp(name, "toDouble") == 0)) ||
            (strcmp(type_kind, "uint") == 0 && strcmp(name, "toDouble") == 0) ||
            (strcmp(type_kind, "byte") == 0 && strcmp(name, "toInt") == 0) ||
-           (strcmp(type_kind, "bool") == 0 && strcmp(name, "toInt") == 0);
+           (strcmp(type_kind, "bool") == 0 && strcmp(name, "toInt") == 0) ||
+           (strcmp(type_kind, "string") == 0 &&
+            (strcmp(name, "toInt") == 0 || strcmp(name, "toLong") == 0 ||
+             strcmp(name, "toDouble") == 0));
 }
 
 static bool rust_array_search_type_supported(const char *kind)
@@ -456,6 +460,20 @@ static bool rust_validate_call(json_object *expr)
                 {
                     fprintf(stderr,
                             "Error: Rust target does not support array method 'join' for %s elements yet\n",
+                            element_kind ? element_kind : "<unknown>");
+                    return false;
+                }
+            }
+            if (strcmp(method, "toString") == 0)
+            {
+                json_object *element_type = NULL;
+                const char *element_kind = NULL;
+                if (!json_object_object_get_ex(object_type, "element_type", &element_type) ||
+                    !(element_kind = json_string_property(element_type, "kind")) ||
+                    strcmp(element_kind, "byte") != 0)
+                {
+                    fprintf(stderr,
+                            "Error: Rust target does not support array method 'toString' for %s elements yet\n",
                             element_kind ? element_kind : "<unknown>");
                     return false;
                 }

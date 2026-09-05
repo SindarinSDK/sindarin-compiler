@@ -1,1 +1,1 @@
-{{#each args}}{{#if @index}}; {{/if}}print!("{}", {{> expr this}}){{/each}}
+{{#each args}}{{#if @index}}; {{/if}}{{#if (eq type.kind "string")}}__sn_print_string(&({{> expr this}})){{else}}{{#if (eq type.kind "char")}}__sn_print_char({{> expr this}}){{else}}print!("{}", {{> expr this}}){{/if}}{{/if}}{{/each}}

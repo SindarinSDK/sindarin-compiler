@@ -518,7 +518,7 @@ static bool rust_model_uses_string_helpers(json_object *node)
     if (method && (strcmp(method, "substring") == 0 || strcmp(method, "replace") == 0 ||
                    strcmp(method, "charAt") == 0 || strcmp(method, "indexOf") == 0 ||
                    strcmp(method, "split") == 0 || strcmp(method, "splitLines") == 0 ||
-                   strcmp(method, "isBlank") == 0))
+                   strcmp(method, "splitWhitespace") == 0 || strcmp(method, "isBlank") == 0))
         return true;
     json_object_object_foreach(node, key, value)
     {
@@ -541,7 +541,7 @@ static bool rust_model_uses_split_helpers(json_object *node)
     if (!json_object_is_type(node, json_type_object)) return false;
     const char *method = json_string_property(node, "rust_string_method");
     if (method && (strcmp(method, "split") == 0 || strcmp(method, "splitLines") == 0 ||
-                   strcmp(method, "isBlank") == 0))
+                   strcmp(method, "splitWhitespace") == 0 || strcmp(method, "isBlank") == 0))
         return true;
     json_object_object_foreach(node, key, value)
     {
@@ -715,6 +715,7 @@ static bool rust_allocate_helper_name(json_object *model, const char *base,
 static void rust_copy_string_helper_names(json_object *node, const char *split,
                                           const char *split_limit,
                                           const char *split_lines,
+                                          const char *split_whitespace,
                                           const char *is_blank)
 {
     if (!node) return;
@@ -722,14 +723,16 @@ static void rust_copy_string_helper_names(json_object *node, const char *split,
     {
         for (size_t i = 0; i < json_object_array_length(node); i++)
             rust_copy_string_helper_names(json_object_array_get_idx(node, i), split,
-                                          split_limit, split_lines, is_blank);
+                                          split_limit, split_lines, split_whitespace,
+                                          is_blank);
         return;
     }
     if (!json_object_is_type(node, json_type_object)) return;
     json_object_object_foreach(node, key, value)
     {
         (void)key;
-        rust_copy_string_helper_names(value, split, split_limit, split_lines, is_blank);
+        rust_copy_string_helper_names(value, split, split_limit, split_lines,
+                                      split_whitespace, is_blank);
     }
 
     const char *method = json_string_property(node, "rust_string_method");
@@ -743,6 +746,9 @@ static void rust_copy_string_helper_names(json_object *node, const char *split,
     else if (strcmp(method, "splitLines") == 0)
         json_object_object_add(node, "rust_string_split_lines_helper",
                                json_object_new_string(split_lines));
+    else if (strcmp(method, "splitWhitespace") == 0)
+        json_object_object_add(node, "rust_string_split_whitespace_helper",
+                               json_object_new_string(split_whitespace));
     else if (strcmp(method, "isBlank") == 0)
         json_object_object_add(node, "rust_string_is_blank_helper",
                                json_object_new_string(is_blank));
@@ -760,6 +766,7 @@ static bool rust_lower_string_method_helper_names(json_object *model)
         { "rust_string_split_helper", "__sn_string_split" },
         { "rust_string_split_limit_helper", "__sn_string_split_limit" },
         { "rust_string_split_lines_helper", "__sn_string_split_lines" },
+        { "rust_string_split_whitespace_helper", "__sn_string_split_whitespace" },
         { "rust_string_is_blank_helper", "__sn_string_is_blank" },
     };
     char name[96];
@@ -775,6 +782,7 @@ static bool rust_lower_string_method_helper_names(json_object *model)
         json_string_property(model, "rust_string_split_helper"),
         json_string_property(model, "rust_string_split_limit_helper"),
         json_string_property(model, "rust_string_split_lines_helper"),
+        json_string_property(model, "rust_string_split_whitespace_helper"),
         json_string_property(model, "rust_string_is_blank_helper"));
     return true;
 }

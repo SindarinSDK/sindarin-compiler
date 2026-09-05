@@ -1,5 +1,5 @@
-fn __sn_format_string(value: &str, width: usize, left_align: bool,
-                      has_precision: bool, precision: usize) -> String {
+fn __sn_format_string(value: &SnString, width: usize, left_align: bool,
+                      has_precision: bool, precision: usize) -> SnString {
     let c_length = value.as_bytes().iter().position(|byte| *byte == 0)
         .unwrap_or(value.len());
     let length = if has_precision {
@@ -7,31 +7,33 @@ fn __sn_format_string(value: &str, width: usize, left_align: bool,
     } else {
         c_length
     };
-    if !value.is_char_boundary(length) {
-        panic!("Rust target cannot represent C string precision that splits a UTF-8 code point");
-    }
-    let value = &value[..length];
     let padding = width.saturating_sub(length);
+    let mut result = SnString::new();
     if left_align {
-        format!("{}{}", value, " ".repeat(padding))
+        result.0.extend_from_slice(&value.as_bytes()[..length]);
+        result.0.extend(std::iter::repeat_n(b' ', padding));
     } else {
-        format!("{}{}", " ".repeat(padding), value)
+        result.0.extend(std::iter::repeat_n(b' ', padding));
+        result.0.extend_from_slice(&value.as_bytes()[..length]);
     }
+    result
 }
 
-fn __sn_format_character(value: char, width: usize, left_align: bool) -> String {
-    if !value.is_ascii() {
-        panic!("Rust target cannot represent non-ASCII C character interpolation");
-    }
+fn __sn_format_character(value: char, width: usize, left_align: bool) -> SnString {
     let padding = width.saturating_sub(1);
     if value == '\0' {
-        return if left_align { String::new() } else { " ".repeat(padding) };
+        return if left_align { SnString::new() }
+            else { SnString::from_bytes(vec![b' '; padding]) };
     }
+    let mut result = SnString::new();
     if left_align {
-        format!("{}{}", value, " ".repeat(padding))
+        result.push_char(value);
+        result.0.extend(std::iter::repeat_n(b' ', padding));
     } else {
-        format!("{}{}", " ".repeat(padding), value)
+        result.0.extend(std::iter::repeat_n(b' ', padding));
+        result.push_char(value);
     }
+    result
 }
 
 fn __sn_format_integer_alternate(digits: &str, is_zero: bool, uppercase: bool,

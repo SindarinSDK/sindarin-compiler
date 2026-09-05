@@ -1,15 +1,15 @@
 #[allow(non_snake_case)]
 #[derive(Clone, Debug, PartialEq)]
 struct FieldInfo {
-    name: String,
-    typeName: String,
+    name: SnString,
+    typeName: SnString,
     typeId: i64,
 }
 
 #[allow(non_snake_case)]
 #[derive(Clone, Debug, PartialEq)]
 struct TypeInfo {
-    name: String,
+    name: SnString,
     fields: Vec<FieldInfo>,
     fieldCount: i64,
     typeId: i64,
