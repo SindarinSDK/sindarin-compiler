@@ -46,6 +46,15 @@ static void rust_mark_promoted_child(json_object *child, bool observed)
         json_object_new_boolean(true));
 }
 
+static void rust_mark_unsigned_literal_unary_observed(json_object *child)
+{
+    if (!child ||
+        !json_boolean_property(child, "rust_unsigned_literal_unary"))
+        return;
+    json_object_object_add(child, "rust_unsigned_literal_unary_observed",
+                           json_object_new_boolean(true));
+}
+
 static bool rust_wrapping_compound_op(json_object *node, const char *op)
 {
     if (rust_wrapping_binary_op(op)) return true;
@@ -161,8 +170,16 @@ static void rust_lower_byte_arithmetic(json_object *node)
     if (strcmp(kind, "unary") == 0 && unsigned_type && op &&
         (strcmp(op, "negate") == 0 || strcmp(op, "bitnot") == 0))
     {
-        json_object_object_add(node, "rust_wrapping_unary",
-                               json_object_new_boolean(true));
+        json_object *operand = NULL;
+        const char *operand_kind = NULL;
+        json_object_object_get_ex(node, "operand", &operand);
+        operand_kind = json_string_property(operand, "kind");
+        json_object_object_add(
+            node,
+            operand_kind && strcmp(operand_kind, "literal") == 0
+                ? "rust_unsigned_literal_unary"
+                : "rust_wrapping_unary",
+            json_object_new_boolean(true));
         return;
     }
 
@@ -173,7 +190,11 @@ static void rust_lower_byte_arithmetic(json_object *node)
         if (json_object_object_get_ex(node, "args", &args) &&
             json_object_is_type(args, json_type_array))
             for (size_t i = 0; i < json_object_array_length(args); i++)
+            {
                 rust_mark_promoted_child(json_object_array_get_idx(args, i), true);
+                rust_mark_unsigned_literal_unary_observed(
+                    json_object_array_get_idx(args, i));
+            }
         return;
     }
 
