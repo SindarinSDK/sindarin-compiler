@@ -50,10 +50,13 @@ owned call results remain supported because no source alias survives the call.
 Resolved instance calls evaluate the already-selected receiver once and then
 the arguments once in model order. This includes swapped comparisons: `a > b`
 is resolved as `b.op_lt(a)`, and tagged C evaluates `b` before `a`. Rust method
-call evaluation has the same order. A Rust-private lowering prefix stabilizes
-an owning array producer below a computed receiver so the array expression is
-not duplicated by bounds-checked indexing. That prefix runs before the receiver
-index and arguments, preserving tagged C order and normal drop lifetime.
+call evaluation has the same order. Rust-private lowering prefixes stabilize
+owning array producers and computed indices below receivers and borrowed
+arguments so bounds-checked indexing never duplicates either expression. When
+an argument needs stabilization, the receiver and every argument are bound
+once in source order; a borrowed array producer remains live through the
+method invocation. These prefixes preserve tagged C order and normal drop
+lifetime.
 Generated Rust local names are allocated against all strings in the Rust model
 to avoid capture by source identifiers. The C model, C target, and shared
 chain-flattening pass are unchanged by this feature.
@@ -126,7 +129,9 @@ collision, heap-bearing value structs, borrow temporaries, and independent
 ownership of returned strings/arrays and copied source values. Heap-bearing
 and `as ref` operator cases are Rust generation extras, not tagged-C parity
 claims; this includes the computed-index control that pins once-only place
-evaluation while borrowing its resolved argument. The small plain-value
+evaluation while borrowing its resolved argument and the call/member/nested
+producer control that pins owner lifetime and receiver-before-argument order.
+The small plain-value
 `resolved_operator_tagged_eval_order` control is valid on both targets and
 pins tagged C's receiver-before-argument swapped order. The existing C
 snapshot suite is retained unchanged as a backend-freeze check.

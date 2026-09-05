@@ -47,7 +47,7 @@ fn index(calls: &mut i64) -> i64 {
 fn main() {
     let mut items: Vec<Item> = vec![Item { value: 1 }];
     let mut calls: i64 = 0;
-    println!("{}", (makeFrom((items)[__sn_index((items).len(), 0)])).op_lt({ let __sn_resolved_index_0 = __sn_index((items).len(), index(&mut (calls))); &mut (items)[__sn_resolved_index_0] }));
+    println!("{}", { let __sn_resolved_receiver_3 = & (makeFrom((items)[__sn_index((items).len(), 0)])); let __sn_resolved_array_0 = &mut (items); let __sn_resolved_index_1 = __sn_index((__sn_resolved_array_0).len(), index(&mut (calls))); let __sn_resolved_arg_2 = &mut (__sn_resolved_array_0)[__sn_resolved_index_1];(__sn_resolved_receiver_3).op_lt(__sn_resolved_arg_2) });
     println!("{}", calls);
     println!("{}", ((items)[__sn_index((items).len(), 0)]).value);
 }

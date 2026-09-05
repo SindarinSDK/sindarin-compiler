@@ -1,0 +1,1 @@
+{{#if rust_resolved_index_decl}}let {{rust_ident name}} = __sn_index(({{> expr array}}).len(), {{> expr index}});{{else}}{{> stmt this}}{{/if~}}

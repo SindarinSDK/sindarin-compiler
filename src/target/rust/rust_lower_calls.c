@@ -222,8 +222,8 @@ static void rust_mark_instance_method_clones(json_object *node)
                                json_object_new_boolean(true));
 }
 
-/* Select private receiver-stabilization names against every string in the
- * model so a source helper-like identifier cannot be captured. */
+/* Select private resolved-call stabilization names against every string in
+ * the model so a source helper-like identifier cannot be captured. */
 static bool rust_call_model_contains_string(json_object *node,
                                             const char *wanted)
 {
@@ -251,14 +251,16 @@ static bool rust_call_model_contains_string(json_object *node,
 static void rust_stabilize_resolved_receiver(json_object *model,
                                              json_object *expr,
                                              json_object *prefix,
-                                             size_t *next_id)
+                                             size_t *next_id,
+                                             bool stabilize_indices)
 {
     if (json_object_is_type(expr, json_type_array))
     {
         size_t count = json_object_array_length(expr);
         for (size_t i = 0; i < count; i++)
             rust_stabilize_resolved_receiver(
-                model, json_object_array_get_idx(expr, i), prefix, next_id);
+                model, json_object_array_get_idx(expr, i), prefix, next_id,
+                stabilize_indices);
         return;
     }
     if (!json_object_is_type(expr, json_type_object)) return;
@@ -268,7 +270,8 @@ static void rust_stabilize_resolved_receiver(json_object *model,
         json_object *array = NULL, *index = NULL;
         bool has_array = json_object_object_get_ex(expr, "array", &array);
         if (has_array && rust_call_stable_place(array))
-            rust_stabilize_resolved_receiver(model, array, prefix, next_id);
+            rust_stabilize_resolved_receiver(
+                model, array, prefix, next_id, stabilize_indices);
         else if (has_array)
         {
             /* The array operand precedes its index in source evaluation order,
@@ -308,7 +311,38 @@ static void rust_stabilize_resolved_receiver(json_object *model,
             }
         }
         if (json_object_object_get_ex(expr, "index", &index))
-            rust_stabilize_resolved_receiver(model, index, prefix, next_id);
+        {
+            rust_stabilize_resolved_receiver(
+                model, index, prefix, next_id, stabilize_indices);
+
+            if (!stabilize_indices) return;
+
+            char index_name[80];
+            do
+            {
+                size_t id = (*next_id)++;
+                snprintf(index_name, sizeof(index_name),
+                         "__sn_resolved_place_index_%zu", id);
+            }
+            while (rust_call_model_contains_string(model, index_name));
+
+            json_object *resolved_array = NULL;
+            if (json_object_object_get_ex(expr, "array", &resolved_array))
+            {
+                json_object *index_decl = json_object_new_object();
+                json_object_object_add(index_decl, "rust_resolved_index_decl",
+                                       json_object_new_boolean(true));
+                json_object_object_add(index_decl, "name",
+                                       json_object_new_string(index_name));
+                json_object_object_add(index_decl, "array",
+                                       json_object_get(resolved_array));
+                json_object_object_add(index_decl, "index",
+                                       json_object_get(index));
+                json_object_array_add(prefix, index_decl);
+                json_object_object_add(expr, "rust_resolved_index_name",
+                                       json_object_new_string(index_name));
+            }
+        }
         return;
     }
 
@@ -316,7 +350,8 @@ static void rust_stabilize_resolved_receiver(json_object *model,
     {
         json_object *object = NULL;
         if (json_object_object_get_ex(expr, "object", &object))
-            rust_stabilize_resolved_receiver(model, object, prefix, next_id);
+            rust_stabilize_resolved_receiver(
+                model, object, prefix, next_id, stabilize_indices);
     }
 }
 
@@ -344,6 +379,7 @@ static void rust_lower_resolved_receiver_prefixes(json_object *model,
     if (!json_string_property_equals(node, "kind", "method_call")) return;
 
     json_object *args = NULL;
+    bool stabilize_args = false;
     if (json_object_object_get_ex(node, "args", &args) &&
         json_object_is_type(args, json_type_array))
     {
@@ -356,7 +392,27 @@ static void rust_lower_resolved_receiver_prefixes(json_object *model,
                 !json_string_property_equals(arg, "kind", "array_access"))
                 continue;
 
-            char index_name[80];
+            json_object *array = NULL;
+            if (json_object_object_get_ex(arg, "array", &array))
+            {
+                json_object *arg_prefix = json_object_new_array();
+                rust_stabilize_resolved_receiver(
+                    model, array, arg_prefix, next_id, true);
+                if (json_object_array_length(arg_prefix) > 0)
+                    json_object_object_add(arg, "rust_resolved_arg_prefix",
+                                           arg_prefix);
+                else
+                    json_object_put(arg_prefix);
+            }
+
+            char array_name[80], index_name[80];
+            do
+            {
+                size_t id = (*next_id)++;
+                snprintf(array_name, sizeof(array_name),
+                         "__sn_resolved_array_%zu", id);
+            }
+            while (rust_call_model_contains_string(model, array_name));
             do
             {
                 size_t id = (*next_id)++;
@@ -364,8 +420,34 @@ static void rust_lower_resolved_receiver_prefixes(json_object *model,
                          "__sn_resolved_index_%zu", id);
             }
             while (rust_call_model_contains_string(model, index_name));
+            json_object_object_add(arg, "rust_ref_array_name",
+                                   json_object_new_string(array_name));
             json_object_object_add(arg, "rust_ref_index_name",
                                    json_object_new_string(index_name));
+            stabilize_args = true;
+        }
+
+        /* An array producer borrowed for an as-ref argument must outlive the
+         * call.  Bind every argument in order so lifting that producer does
+         * not reorder it across sibling arguments. */
+        if (stabilize_args)
+        {
+            for (size_t i = 0; i < count; i++)
+            {
+                json_object *arg = json_object_array_get_idx(args, i);
+                char arg_name[80];
+                do
+                {
+                    size_t id = (*next_id)++;
+                    snprintf(arg_name, sizeof(arg_name),
+                             "__sn_resolved_arg_%zu", id);
+                }
+                while (rust_call_model_contains_string(model, arg_name));
+                json_object_object_add(arg, "rust_resolved_arg_name",
+                                       json_object_new_string(arg_name));
+            }
+            json_object_object_add(node, "rust_stabilize_args",
+                                   json_object_new_boolean(true));
         }
     }
 
@@ -374,24 +456,38 @@ static void rust_lower_resolved_receiver_prefixes(json_object *model,
     {
         json_object *prefix = json_object_new_array();
         rust_stabilize_resolved_receiver(
-            model, object, prefix, next_id);
+            model, object, prefix, next_id,
+            json_boolean_property(node, "rust_receiver_mutating"));
         if (json_object_array_length(prefix) > 0)
         {
-            char receiver_name[80];
-            do
-            {
-                size_t id = (*next_id)++;
-                snprintf(receiver_name, sizeof(receiver_name),
-                         "__sn_resolved_receiver_%zu", id);
-            }
-            while (rust_call_model_contains_string(model, receiver_name));
-            json_object_object_add(node, "rust_receiver_name",
-                                   json_object_new_string(receiver_name));
             json_object_object_add(node, "rust_receiver_prefix", prefix);
         }
         else
             json_object_put(prefix);
     }
+
+    json_object *receiver_prefix = NULL;
+    bool has_receiver_prefix = json_object_object_get_ex(
+        node, "rust_receiver_prefix", &receiver_prefix);
+    if ((stabilize_args || has_receiver_prefix) &&
+        !json_boolean_property(node, "is_static"))
+    {
+        char receiver_name[80];
+        do
+        {
+            size_t id = (*next_id)++;
+            snprintf(receiver_name, sizeof(receiver_name),
+                     "__sn_resolved_receiver_%zu", id);
+        }
+        while (rust_call_model_contains_string(model, receiver_name));
+        json_object_object_add(node, "rust_receiver_name",
+                               json_object_new_string(receiver_name));
+        json_object_object_add(node, "rust_stabilize_call",
+                               json_object_new_boolean(true));
+    }
+    else if (stabilize_args)
+        json_object_object_add(node, "rust_stabilize_call",
+                               json_object_new_boolean(true));
 }
 
 static void rust_lower_instance_method_clones(json_object *model)
