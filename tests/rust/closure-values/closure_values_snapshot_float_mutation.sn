@@ -3,4 +3,4 @@ fn main(): void =>
   var action: fn(): float = fn(): float =>
     value = 2.0f
     return value
-  println(action() == 2.0f)
+  println(action())
