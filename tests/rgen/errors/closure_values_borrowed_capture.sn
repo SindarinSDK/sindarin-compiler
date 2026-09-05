@@ -1,0 +1,6 @@
+fn make(value: int as ref): fn(): int =>
+  return fn(): int => value
+fn main(): void =>
+  var value: int = 1
+  var action: fn(): int = make(value)
+  println(action())

@@ -1,0 +1,11 @@
+struct __SnClosure =>
+  value: int
+struct __SnClosure_0 =>
+  value: int
+fn main(): void =>
+  var __SnClosure_1: int = 20
+  var item: __SnClosure = { value: 7 }
+  var factory: fn(): __SnClosure = fn(): __SnClosure => item
+  var result: __SnClosure = factory()
+  item.value = 9
+  print($"{result.value}:{item.value}:{__SnClosure_1}\n")

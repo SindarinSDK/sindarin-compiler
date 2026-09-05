@@ -1,0 +1,10 @@
+fn __SnClosure(value: int): int => value + 1
+fn __SnClosure_0(): int => 10
+fn main(): void =>
+  var __SnClosure_1: int = 20
+  var action: fn(int): int = fn(value: int): int => value
+  action = __SnClosure
+  var wrap: fn(fn(int): int): fn(int): int = fn(callback: fn(int): int): fn(int): int =>
+    return fn(value: int): int => callback(value)
+  var wrapped: fn(int): int = wrap(action)
+  print($"{wrapped(2)}:{__SnClosure_0()}:{__SnClosure_1}\n")

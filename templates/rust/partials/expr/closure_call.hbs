@@ -1,1 +1,1 @@
-{{> expr_direct_call this}}
+{{#if rust_closure_call}}(({{> expr callee}}).0)({{#each args}}{{#if @index}}, {{/if}}{{> expr this}}{{#if rust_closure_arg_clone}}.clone(){{/if}}{{/each}}){{else}}{{> expr_direct_call this}}{{/if~}}

@@ -1,0 +1,5 @@
+fn same(n: int): int => n
+fn main(): void =>
+  var first: fn(int): int = fn(n: int): int => n
+  var copied: fn(int): int = first
+  print($"{first <= copied}\n")

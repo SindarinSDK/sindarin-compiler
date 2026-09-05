@@ -1,0 +1,12 @@
+struct Holder =>
+  action: fn(int): int
+
+  fn apply(value: int): int =>
+    return self.action(value)
+
+fn main(): void =>
+  var offset: int = 10
+  var holder: Holder = { action: fn(value: int): int => value + offset }
+  var copied: Holder = holder
+  holder.action = fn(value: int): int => value + 100
+  print($"{holder.apply(1)}:{copied.apply(2)}\n")

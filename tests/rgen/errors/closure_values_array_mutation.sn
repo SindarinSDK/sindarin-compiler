@@ -1,0 +1,5 @@
+fn main(): void =>
+  var values: int[] = {1}
+  var action: fn(): void = fn(): void =>
+    values[0] = 2
+  action()

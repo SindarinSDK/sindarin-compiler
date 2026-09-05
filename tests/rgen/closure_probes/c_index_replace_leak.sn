@@ -1,0 +1,4 @@
+fn main(): void =>
+  var actions: (fn(): int)[] = {fn(): int => 1}
+  actions[0] = fn(): int => 7
+  println(actions[0] ())
