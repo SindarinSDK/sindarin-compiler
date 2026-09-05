@@ -552,6 +552,80 @@ static bool rust_model_uses_string_format_helpers(json_object *node)
     return false;
 }
 
+static bool rust_expr_is_array(json_object *expr)
+{
+    json_object *type = NULL;
+    return expr && json_object_object_get_ex(expr, "type", &type) &&
+           json_string_property_equals(type, "kind", "array");
+}
+
+static bool rust_model_uses_array_text(json_object *node)
+{
+    if (!node) return false;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            if (rust_model_uses_array_text(json_object_array_get_idx(node, i))) return true;
+        return false;
+    }
+    if (!json_object_is_type(node, json_type_object)) return false;
+
+    const char *kind = json_string_property(node, "kind");
+    if (kind && (strcmp(kind, "builtin_print") == 0 ||
+                 strcmp(kind, "builtin_println") == 0))
+    {
+        json_object *args = NULL;
+        if (json_object_object_get_ex(node, "args", &args))
+        {
+            size_t count = json_object_array_length(args);
+            for (size_t i = 0; i < count; i++)
+                if (rust_expr_is_array(json_object_array_get_idx(args, i))) return true;
+        }
+    }
+    if (kind && strcmp(kind, "interpolated_string") == 0)
+    {
+        json_object *parts = NULL;
+        if (json_object_object_get_ex(node, "parts", &parts))
+        {
+            size_t count = json_object_array_length(parts);
+            for (size_t i = 0; i < count; i++)
+            {
+                json_object *expr = NULL;
+                json_object *part = json_object_array_get_idx(parts, i);
+                if (json_object_object_get_ex(part, "expr", &expr) &&
+                    rust_expr_is_array(expr)) return true;
+            }
+        }
+    }
+    if (kind && strcmp(kind, "call") == 0)
+    {
+        json_object *callee = NULL, *object = NULL;
+        if (json_object_object_get_ex(node, "callee", &callee) &&
+            json_string_property_equals(callee, "kind", "member") &&
+            json_object_object_get_ex(callee, "object", &object) &&
+            rust_expr_is_array(object))
+        {
+            const char *method = json_string_property(callee, "member_name");
+            if (method && strcmp(method, "toString") == 0) return true;
+            if (method && strcmp(method, "join") == 0)
+            {
+                json_object *array_type = NULL, *element_type = NULL;
+                if (!json_object_object_get_ex(object, "type", &array_type) ||
+                    !json_object_object_get_ex(array_type, "element_type", &element_type) ||
+                    !json_string_property_equals(element_type, "kind", "string")) return true;
+            }
+        }
+    }
+
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        if (rust_model_uses_array_text(value)) return true;
+    }
+    return false;
+}
+
 static void rust_mark_scalar_ref_uses(json_object *node, const char *param_name)
 {
     if (!node || !param_name) return;
@@ -669,6 +743,207 @@ static bool rust_model_contains_string(json_object *node, const char *wanted)
         if (rust_model_contains_string(value, wanted)) return true;
     }
     return false;
+}
+
+/* Array rendering introduces module helpers and expression-local bindings.
+ * Allocate every spelling against the complete projected model so a valid
+ * Sindarin declaration can neither collide with a helper nor be captured by
+ * a join argument evaluated after the receiver temporary is bound. */
+static bool rust_assign_array_text_names(json_object *model)
+{
+    const char *bases[] = {
+        "__SnArrayText", "__sn_array_text", "__sn_join_text",
+        "__sn_integer_array_text", "__sn_float_array_text_impl",
+        "__sn_float_array_text", "__sn_array_to_string", "__sn_array_join",
+        "__sn_array", "__sn_separator"
+    };
+    const char *keys[] = {
+        "rust_array_text_trait_name", "rust_array_text_method_name",
+        "rust_array_join_text_method_name", "rust_array_integer_macro_name",
+        "rust_array_float_macro_name", "rust_array_float_format_name",
+        "rust_array_to_string_name", "rust_array_join_name",
+        "rust_array_temp_name", "rust_array_separator_temp_name"
+    };
+
+    for (size_t i = 0; i < sizeof(bases) / sizeof(bases[0]); i++)
+    {
+        char candidate[96];
+        size_t suffix = 0;
+        do
+        {
+            int written = snprintf(candidate, sizeof(candidate), "%s_%zu",
+                                   bases[i], suffix);
+            if (written < 0 || (size_t)written >= sizeof(candidate)) return false;
+            if (suffix == (size_t)-1) return false;
+            suffix++;
+        }
+        while (rust_model_contains_string(model, candidate));
+
+        json_object_object_add(model, keys[i], json_object_new_string(candidate));
+    }
+    return true;
+}
+
+/* Assign collision-safe raw and normalized temporaries to every indexed
+ * projection in a stable array-join receiver.  Raw index expressions execute
+ * in receiver order before the separator.  Normalization is deliberately
+ * separate: the template performs it after the separator, against the owners
+ * as they exist after any separator-side mutation. */
+static bool rust_assign_array_join_place_index_names(
+    json_object *model, json_object *place, size_t *next_id)
+{
+    if (!place || !json_object_is_type(place, json_type_object)) return true;
+
+    json_object *parent = NULL;
+    if (json_string_property_equals(place, "kind", "member"))
+    {
+        if (!json_object_object_get_ex(place, "object", &parent)) return false;
+        return rust_assign_array_join_place_index_names(model, parent, next_id);
+    }
+    if (!json_string_property_equals(place, "kind", "array_access")) return true;
+    if (!json_object_object_get_ex(place, "array", &parent) ||
+        !rust_assign_array_join_place_index_names(model, parent, next_id))
+        return false;
+
+    char index_candidate[80];
+    char raw_candidate[80];
+    do
+    {
+        if (*next_id == (size_t)-1) return false;
+        size_t id = *next_id;
+        (*next_id)++;
+        int index_written = snprintf(index_candidate, sizeof(index_candidate),
+                                     "__sn_join_index_%zu", id);
+        int raw_written = snprintf(raw_candidate, sizeof(raw_candidate),
+                                   "__sn_join_raw_index_%zu", id);
+        if (index_written < 0 ||
+            (size_t)index_written >= sizeof(index_candidate) ||
+            raw_written < 0 ||
+            (size_t)raw_written >= sizeof(raw_candidate))
+            return false;
+    }
+    while (rust_model_contains_string(model, index_candidate) ||
+           rust_model_contains_string(model, raw_candidate));
+
+    json_object_object_add(place, "rust_array_join_index_name",
+                           json_object_new_string(index_candidate));
+    json_object_object_add(place, "rust_array_join_raw_index_name",
+                           json_object_new_string(raw_candidate));
+    return true;
+}
+
+static json_object *rust_array_join_place_root(
+    json_object *place, json_object **parent_out, const char **key_out)
+{
+    json_object *parent = NULL;
+    if (json_string_property_equals(place, "kind", "member"))
+    {
+        if (!json_object_object_get_ex(place, "object", &parent)) return NULL;
+        *parent_out = place;
+        *key_out = "object";
+        json_object *nested_parent = NULL;
+        const char *nested_key = NULL;
+        json_object *root = rust_array_join_place_root(
+            parent, &nested_parent, &nested_key);
+        if (nested_parent)
+        {
+            *parent_out = nested_parent;
+            *key_out = nested_key;
+        }
+        return root;
+    }
+    if (json_string_property_equals(place, "kind", "array_access"))
+    {
+        if (!json_object_object_get_ex(place, "array", &parent)) return NULL;
+        *parent_out = place;
+        *key_out = "array";
+        json_object *nested_parent = NULL;
+        const char *nested_key = NULL;
+        json_object *root = rust_array_join_place_root(
+            parent, &nested_parent, &nested_key);
+        if (nested_parent)
+        {
+            *parent_out = nested_parent;
+            *key_out = nested_key;
+        }
+        return root;
+    }
+    return place;
+}
+
+static bool rust_capture_array_join_place_owner(
+    json_object *model, json_object *call, json_object *place,
+    size_t *next_owner_id)
+{
+    json_object *parent = NULL;
+    const char *key = NULL;
+    json_object *root = rust_array_join_place_root(place, &parent, &key);
+    if (!root) return false;
+    if (json_string_property_equals(root, "kind", "variable")) return true;
+    if (!parent || !key) return true;
+
+    char candidate[80];
+    do
+    {
+        if (*next_owner_id == (size_t)-1) return false;
+        int written = snprintf(candidate, sizeof(candidate),
+                               "__sn_join_owner_%zu", *next_owner_id);
+        (*next_owner_id)++;
+        if (written < 0 || (size_t)written >= sizeof(candidate)) return false;
+    }
+    while (rust_model_contains_string(model, candidate));
+
+    json_object *replacement = json_object_new_object();
+    json_object *type = NULL;
+    json_object_object_add(replacement, "kind", json_object_new_string("variable"));
+    json_object_object_add(replacement, "name", json_object_new_string(candidate));
+    if (json_object_object_get_ex(root, "type", &type))
+        json_object_object_add(replacement, "type", json_object_get(type));
+
+    json_object_object_add(call, "rust_array_join_owner_expr", json_object_get(root));
+    json_object_object_add(call, "rust_array_join_owner_name",
+                           json_object_new_string(candidate));
+    json_object_object_add(parent, key, replacement);
+    return true;
+}
+
+static bool rust_assign_array_join_index_names(
+    json_object *model, json_object *node, size_t *next_id,
+    size_t *next_owner_id)
+{
+    if (!node) return true;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            if (!rust_assign_array_join_index_names(
+                    model, json_object_array_get_idx(node, i), next_id,
+                    next_owner_id))
+                return false;
+        return true;
+    }
+    if (!json_object_is_type(node, json_type_object)) return true;
+
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        if (!rust_assign_array_join_index_names(
+                model, value, next_id, next_owner_id))
+            return false;
+    }
+
+    bool is_join = json_boolean_property(node, "rust_array_join_stable_place");
+    bool is_indexed_method =
+        json_boolean_property(node, "rust_indexed_method_stable_place");
+    if (!is_join && !is_indexed_method) return true;
+    json_object *callee = NULL, *receiver = NULL;
+    if (!json_object_object_get_ex(node, "callee", &callee) ||
+        !json_object_object_get_ex(callee, "object", &receiver))
+        return false;
+    if (!rust_capture_array_join_place_owner(
+            model, node, receiver, next_owner_id))
+        return false;
+    return rust_assign_array_join_place_index_names(model, receiver, next_id);
 }
 
 static bool rust_lower_iterator_temp_names(json_object *model, json_object *node,

@@ -1,0 +1,48 @@
+fn __sn_array_join(): int => 11
+fn __sn_array_join_0(): int => 21
+
+struct JoinBag =>
+  values: int[] = {}
+
+  fn mutateSeparator(): str =>
+    self.values.push(3)
+    return "-"
+
+  fn render(): str => self.values.join(self.mutateSeparator())
+
+fn produceNested(calls: int as ref): JoinBag[][] =>
+  calls++
+  return {{ JoinBag { values: {4, 5} } }}
+
+fn main(): void =>
+  var __sn_array: int[] = {1, 2, 3}
+  var __sn_array_0: int[] = {4}
+  var __sn_separator: str = "-"
+  var __sn_separator_0: str = ","
+  println(__sn_array.join(__sn_separator))
+  println(__sn_array_0.join(__sn_separator_0))
+  println(__sn_array_join())
+  println(__sn_array_join_0())
+  var negative: int = -1
+  var unsigned: uint[] = {0u, 42u, 9223372036854775807u, negative.toUint()}
+  println(unsigned.join(","))
+  println(unsigned)
+  var bag: JoinBag = { values: {1, 2} }
+  println(bag.render())
+  println(bag.values)
+  var __sn_join_index_0: int = 41
+  var receiverIndexCalls: int = 0
+  var nested: JoinBag[][] = {{ JoinBag { values: {1, 2} } }}
+  println(nested[receiverIndexCalls++][0].values.join(nested[0][0].mutateSeparator()))
+  println(receiverIndexCalls)
+  println(nested[0][0].values)
+  println(__sn_join_index_0)
+  var __sn_join_owner_0: int = 42
+  var producerCalls: int = 0
+  println(produceNested(producerCalls)[0][0].values.join("/"))
+  println(producerCalls)
+  println(__sn_join_owner_0)
+  var bytes: byte[] = {65b, 0b, 66b, 255b}
+  var byteText: str = bytes.toString()
+  println(byteText)
+  println(byteText.length)

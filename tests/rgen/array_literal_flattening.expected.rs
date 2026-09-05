@@ -48,5 +48,5 @@ fn main() {
     let mut names: Vec<String> = vec!["alpha".to_string(), "beta".to_string()];
     let mut copied_names: Vec<String> = { let mut __sn_array: Vec<String> = Vec::new(); __sn_array.extend((names).iter().cloned()); __sn_array.push("gamma".to_string()); __sn_array };
     { let __sn_array_index = __sn_index((names).len(), 0); (names)[__sn_array_index] = "changed".to_string(); };
-    println!("{}", { let __sn_array = &(copied_names); let __sn_separator = &(",".to_string()); __sn_array.join(__sn_separator.as_str()) });
+    println!("{}", { let __sn_separator_0 = &(",".to_string()); (copied_names).join(__sn_separator_0.as_str()) });
 }
