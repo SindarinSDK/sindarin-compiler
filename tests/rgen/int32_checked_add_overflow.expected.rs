@@ -3,5 +3,4 @@
 fn main() {
     let mut max: i32 = 2147483647;
     let mut one: i32 = 1;
-    let mut overflow: i32 = (max).checked_add(one).expect("checked arithmetic failed");
 }

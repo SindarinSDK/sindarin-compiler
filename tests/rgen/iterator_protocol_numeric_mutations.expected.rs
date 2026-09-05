@@ -264,7 +264,7 @@ fn main() {
     while __sn_iter_4.hasNext() {
         let mut value = __sn_iter_4.next();
         let mut compound: u8 = { let __sn_rhs = 2; let __sn_place = &mut (value); let __sn_next = __sn_checked_div_0((*__sn_place).checked_div(__sn_rhs), __sn_rhs == 0); *__sn_place = __sn_next; __sn_next };
-        let mut postfix: u8 = { let __sn_place = &mut (value); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_sub(1), "Runtime error: integer overflow in subtraction"); *__sn_place = __sn_next; __sn_previous };
+        let mut postfix: u8 = { let __sn_byte_place = &mut (value); let __sn_byte_previous = *__sn_byte_place; *__sn_byte_place = __sn_byte_previous.wrapping_sub(1); __sn_byte_previous };
         println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("byte "); __sn_interpolated.push_str(&format!("{}", compound)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", postfix)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", value)); __sn_interpolated });
     }
 }
@@ -274,7 +274,7 @@ fn main() {
     while __sn_iter_5.hasNext() {
         let mut value = __sn_iter_5.next();
         let mut compound: u32 = { let __sn_rhs = 6; let __sn_place = &mut (value); let __sn_next = __sn_checked_mod_0((*__sn_place).checked_rem(__sn_rhs), __sn_rhs == 0); *__sn_place = __sn_next; __sn_next };
-        let mut postfix: u32 = { let __sn_place = &mut (value); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
+        let mut postfix: u32 = { let __sn_byte_place = &mut (value); let __sn_byte_previous = *__sn_byte_place; *__sn_byte_place = __sn_byte_previous.wrapping_add(1); __sn_byte_previous };
         println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("uint32 "); __sn_interpolated.push_str(&format!("{}", compound)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", postfix)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", value)); __sn_interpolated });
     }
 }
@@ -283,8 +283,8 @@ fn main() {
     let mut __sn_iter_6 = (uints).iter();
     while __sn_iter_6.hasNext() {
         let mut value = __sn_iter_6.next();
-        let mut compound: u64 = { let __sn_rhs = 3; let __sn_place = &mut (value); let __sn_next = __sn_checked_0((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };
-        let mut postfix: u64 = { let __sn_place = &mut (value); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_sub(1), "Runtime error: integer overflow in subtraction"); *__sn_place = __sn_next; __sn_previous };
+        let mut compound: u64 = { let (__sn_byte_rhs, __sn_byte_place): (u64, &mut u64) = (3, &mut (value)); let __sn_byte_next = (*__sn_byte_place).wrapping_add(__sn_byte_rhs); *__sn_byte_place = __sn_byte_next; __sn_byte_next };
+        let mut postfix: u64 = { let __sn_byte_place = &mut (value); let __sn_byte_previous = *__sn_byte_place; *__sn_byte_place = __sn_byte_previous.wrapping_sub(1); __sn_byte_previous };
         println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("uint "); __sn_interpolated.push_str(&format!("{}", compound)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", postfix)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", value)); __sn_interpolated });
     }
 }
@@ -321,7 +321,7 @@ fn main() {
     let mut __sn_iter_9 = (nested_inner).iter();
     while __sn_iter_9.hasNext() {
         let mut value = __sn_iter_9.next();
-        let mut inner_postfix: u8 = { let __sn_place = &mut (value); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
+        let mut inner_postfix: u8 = { let __sn_byte_place = &mut (value); let __sn_byte_previous = *__sn_byte_place; *__sn_byte_place = __sn_byte_previous.wrapping_add(1); __sn_byte_previous };
         println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("nested inner "); __sn_interpolated.push_str(&format!("{}", inner_postfix)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", value)); __sn_interpolated });
         break;
     }

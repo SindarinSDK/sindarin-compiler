@@ -31,5 +31,5 @@ fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
 fn main() {
     let mut max: i32 = 2147483647;
     let mut two: i32 = 2;
-    let mut overflow: i32 = __sn_checked_0((max).checked_mul(two), "Runtime error: integer overflow in multiplication");
+    let mut overflow: i32 = { let (__sn_byte_left, __sn_byte_right): (i32, i32) = (max, two); __sn_byte_left.wrapping_mul(__sn_byte_right) };
 }

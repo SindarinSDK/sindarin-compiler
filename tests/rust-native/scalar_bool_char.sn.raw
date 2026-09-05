@@ -1,0 +1,28 @@
+@source "scalar_bool_char.sn.c"
+
+native fn cBoolIdentity(value: bool): bool
+native fn cBoolBits(value: bool): byte
+native fn cBoolSize(): uint32
+native fn cCharIdentity(value: char): char
+native fn cCharPromotion(value: char): int32
+native fn cExpectedHighPromotion(): int32
+native fn cCharSize(): uint32
+
+native fn bodyBoolNot(value: bool): bool => !value
+native fn bodyCharIdentity(value: char): char => value
+
+fn main(): void =>
+  println(cBoolIdentity(false) == false)
+  println(cBoolIdentity(true) == true)
+  println(cBoolBits(false) == 0b)
+  println(cBoolBits(true) == 1b)
+  println(cBoolSize() == 1u32)
+  println(bodyBoolNot(false) == true)
+  println(bodyBoolNot(true) == false)
+  println(cCharIdentity('\0') == '\0')
+  println(cCharIdentity('\x7f') == '\x7f')
+  println(cCharIdentity('\xff') == '\xff')
+  println(cCharPromotion('\xff') == cExpectedHighPromotion())
+  println(cCharSize() == 1u32)
+  println(bodyCharIdentity('\0') == '\0')
+  println(bodyCharIdentity('\xff') == '\xff')
