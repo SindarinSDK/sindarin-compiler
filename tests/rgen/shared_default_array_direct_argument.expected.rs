@@ -27,11 +27,8 @@ fn observe(values: &mut Vec<i64>) -> i64 {
     return (values).len() as i64;
 }
 
-fn makeValues() -> Vec<i64> {
-    return vec![4, 5];
-}
-
 fn main() {
-    println!("{}", observe(&mut (vec![1, 2, 3])));
-    println!("{}", observe(&mut (makeValues())));
+    let mut values: Vec<i64> = vec![1];
+    println!("{}", observe(&mut (values)));
+    println!("{}", (values).len() as i64);
 }

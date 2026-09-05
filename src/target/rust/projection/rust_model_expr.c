@@ -1966,7 +1966,34 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                             bool param_is_default = true;
                             if (pmq && i < pmq_count && pmq[i] != MEM_DEFAULT)
                                 param_is_default = false;
-                            if (arg_type && rust_gen_model_type_category(arg_type) == RUST_TYPE_CAT_COMPOSITE)
+                            bool default_array_callee = false;
+                            if (expr->as.call.callee->type == EXPR_VARIABLE)
+                            {
+                                Symbol *callee_sym = symbol_table
+                                    ? symbol_table_lookup_symbol(
+                                        symbol_table,
+                                        expr->as.call.callee->as.variable.name)
+                                    : NULL;
+                                default_array_callee = callee_sym &&
+                                    callee_sym->is_function &&
+                                    !callee_sym->is_native;
+                            }
+                            else if (resolved_method)
+                            {
+                                default_array_callee = !resolved_method->is_native;
+                            }
+                            bool default_array_ref = arg_type &&
+                                arg_type->kind == TYPE_ARRAY &&
+                                default_array_callee &&
+                                param_is_default && !rust_g_in_thread_spawn_call;
+                            if (default_array_ref)
+                            {
+                                json_object_object_add(arg,
+                                    "rust_default_array_ref_arg",
+                                    json_object_new_boolean(true));
+                            }
+                            else if (arg_type &&
+                                     rust_gen_model_type_category(arg_type) == RUST_TYPE_CAT_COMPOSITE)
                             {
                                 bool is_lvalue = (arg_expr->type == EXPR_VARIABLE ||
                                                   arg_expr->type == EXPR_MEMBER ||
@@ -2349,8 +2376,16 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                             bool method_param_default = true;
                             if (m && i < m->param_count && m->params[i].mem_qualifier != MEM_DEFAULT)
                                 method_param_default = false;
-                            if (arg_type && rust_gen_model_type_category(arg_type) == RUST_TYPE_CAT_COMPOSITE &&
+                            if (arg_type && arg_type->kind == TYPE_ARRAY &&
                                 m && !m->is_native && method_param_default)
+                            {
+                                json_object_object_add(arg,
+                                    "rust_default_array_ref_arg",
+                                    json_object_new_boolean(true));
+                            }
+                            else if (arg_type &&
+                                     rust_gen_model_type_category(arg_type) == RUST_TYPE_CAT_COMPOSITE &&
+                                     m && !m->is_native && method_param_default)
                             {
                                 bool is_lvalue = (arg_expr->type == EXPR_VARIABLE ||
                                                   arg_expr->type == EXPR_MEMBER ||
@@ -2437,8 +2472,16 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                             bool static_param_default = true;
                             if (m && i < m->param_count && m->params[i].mem_qualifier != MEM_DEFAULT)
                                 static_param_default = false;
-                            if (arg_type && rust_gen_model_type_category(arg_type) == RUST_TYPE_CAT_COMPOSITE &&
+                            if (arg_type && arg_type->kind == TYPE_ARRAY &&
                                 m && !m->is_native && static_param_default)
+                            {
+                                json_object_object_add(arg,
+                                    "rust_default_array_ref_arg",
+                                    json_object_new_boolean(true));
+                            }
+                            else if (arg_type &&
+                                     rust_gen_model_type_category(arg_type) == RUST_TYPE_CAT_COMPOSITE &&
+                                     m && !m->is_native && static_param_default)
                             {
                                 bool is_lvalue = (arg_expr->type == EXPR_VARIABLE ||
                                                   arg_expr->type == EXPR_MEMBER ||

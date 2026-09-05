@@ -23,15 +23,13 @@ fn __sn_array_size(size: i64) -> usize {
     size as usize
 }
 
-fn observe(values: &mut Vec<i64>) -> i64 {
+fn appendObserved(values: &mut Vec<i64>, observed: i64) -> i64 {
+    (values).push(observed);
     return (values).len() as i64;
 }
 
-fn makeValues() -> Vec<i64> {
-    return vec![4, 5];
-}
-
 fn main() {
-    println!("{}", observe(&mut (vec![1, 2, 3])));
-    println!("{}", observe(&mut (makeValues())));
+    let mut values: Vec<i64> = vec![7];
+    println!("{}", { let __sn_array_call_arg_0 = (values).len() as i64; appendObserved(&mut (values), __sn_array_call_arg_0) });
+    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", (values).len() as i64)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (values)[__sn_index((values).len(), 1)])); __sn_interpolated });
 }
