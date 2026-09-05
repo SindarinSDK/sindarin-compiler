@@ -1,0 +1,40 @@
+fn main(): void =>
+  var i: int = 1
+  var l: long = 2l
+  var b: byte = 3b
+  var d: double = 4.0
+  var yes: bool = false
+  var letter: char = 'a'
+  var update: fn(): void = fn(): void =>
+    i = 11
+    l = 12l
+    b = 13b
+    d = 14.0
+    yes = true
+    letter = 'z'
+  update()
+  println(i)
+  println(l)
+  println(b == 13b)
+  println(d == 14.0)
+  println(yes)
+  println(letter)
+  var i32: int32 = 1i32
+  var u32: uint32 = 2u32
+  var u: uint = 3u
+  var f: float = 4.0f
+  var snapshot: fn(): void = fn(): void =>
+    i32 += 1i32
+    u32 += 1u32
+    u += 1u
+    f += 1.0f
+    println(i32)
+    println(u32)
+    println(u)
+    println(f == 5.0f)
+  snapshot()
+  snapshot()
+  println(i32)
+  println(u32)
+  println(u)
+  println(f == 4.0f)

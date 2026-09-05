@@ -316,3 +316,80 @@ worker's own changes onto the final correction commit reported with PR117.
 Shared mutable captures, recursive self/reentrancy, remaining owned/borrowed
 capture families, foreign callbacks and threads remain required later slices.
 This PR continues to claim only the documented immutable callable foundation.
+
+## Shared scalar and recursive follow-on
+
+The mutation commit was replayed alone onto final PR117 fixture-fix head
+`5e7a01e2657d6775904fbd2a85bd6a0f9db495d2` in the dedicated
+`feature/rust-mutable-closures` worktree. Conflict resolution preserves PR117's
+collision-free handle name, bare-symbol versus wrapper identity, computed and
+shadowed callee classification, ordered-comparison diagnostic, and comparison
+fixtures. The clean starting tree and successful worktree-local `make setup`
+were confirmed before the first build.
+
+The source implementation retains immutable `Rc<dyn Fn>` callable identity.
+Promoted scalar declarations own `Rc<Cell<T>>`; capture aliases clone the cell
+identity and outer/sibling reads and writes use `get`/`set`. No mutable borrow
+survives an RHS evaluation or invocation. Compound updates evaluate the RHS
+before reading and storing the resulting cell value. Unsigned unchecked cell
+updates use wrapping arithmetic; signed overflow has no defined C parity oracle.
+Recursive self captures own a shared initialization slot containing only a
+`Weak<dyn Fn>`; reading self upgrades to a temporary strong callable handle.
+Nested closures capturing self acquire a normal owning handle at creation.
+
+C's non-reference scalar captures are copied into invocation locals, so mutable
+snapshots must reset on every invocation. The four kinds omitted from C's
+promotion list (`int32`, `uint32`, `uint`, `float`) retain that behavior. They are
+included in the new ten-kind fixture, not excluded from this scalar slice.
+Owned mutable and borrowed captures remain immediate subsequent required slices.
+
+New `closure_values_mutable_*` sources cover outer/sibling visibility, independent
+escaping factories, shadowed binding identity, transitive shared cells, callback
+recursion, nested closures capturing recursive self, reentrant assignment and
+compound RHS evaluation, and all ten scalar kinds. Identical C integration
+sources cover five mutable families with sanitizers. Three former scalar/self
+negatives are now compiled positives with Rust generation snapshots.
+
+`closure_values_mutable_alias` additionally exercises a copied recursive handle
+surviving replacement of its original binding, with reentrant compound RHS
+updates. It is Rust-only because it deliberately retains C's known
+unretained copy-declaration/replacement defect. Its byte-identical C source is
+preserved as `closure_probes/c_mutable_recursive_alias.sn` and is never counted
+as a differential pass. An O0 debug/ASAN run exits 1 with a heap-use-after-free:
+replacement releases the allocation still referenced by the unretained alias,
+and the later alias call reads the freed closure header. This remains an exact C
+regression rather than a Rust parity exclusion. The weak construction helper is
+an associated constructor, so its initialization temporaries are never introduced
+into the source lambda's lexical capture scope.
+
+## Mutable follow-on verification (Spark2, 2026-09-05)
+
+The focused comparison covers 29 sources at O0/O1/O2. Twenty-four run as Rust,
+explicit C, and default C; five known C-defect families run as Rust only. That is
+231 compiled executions: 87 Rust and 144 C/default-C. Sixteen remaining closure
+negatives produce 48 exact ordered rejections with no emitted Rust artifact.
+Focused Rust generation passes 29/29 with zero skips after adding nine new
+snapshots; focused sanitized integration passes 16/16.
+
+`make test-rgen` passes 260/260. The subsequent literal
+`make build && make test` passes all 3,966 tests with default 20-worker harnesses:
+
+| Suite | Passed |
+|---|---:|
+| Unit | 1634 |
+| C generation | 154 |
+| Rust generation | 260 |
+| Rust generation errors | 180 |
+| Shared model generation | 108 |
+| Default-C integration | 1312 |
+| Integration errors | 76 |
+| Exploratory | 224 |
+| Exploratory errors | 11 |
+| Rust toolchain/lifecycle | 7 |
+| Total | **3966** |
+
+Every reported suite has zero failures and zero skips. Final formatting and
+protected-file checks passed after the documentation and checkpoint commit.
+Mutable owned captures and borrowed/as-ref captures remain
+the immediate subsequent slices; this work does not depend on repairing the
+separately preserved C callable ownership failures.

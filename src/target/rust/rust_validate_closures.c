@@ -1,6 +1,5 @@
-/* Private closure validation. The first family deliberately admits only owned
- * immutable snapshots. Mutable places, recursive self and borrowed captures
- * remain explicit parity work; none may fall through to implicit Rust capture. */
+/* Private lexical capture validation. Shared scalar cells and weak recursive
+ * identity are explicit; Rust implicit captures never decide source ownership. */
 static json_object *rust_closure_property(json_object *node, const char *key)
 {
     json_object *value = NULL;
@@ -19,6 +18,16 @@ static bool rust_closure_error(const char *reason)
     fprintf(stderr, "Error: Rust target does not support %s yet\n", reason);
     rust_validation_reported_error = true;
     return false;
+}
+
+static bool rust_closure_scalar_type(json_object *type)
+{
+    const char *kind = json_string_property(type, "kind");
+    return kind && (strcmp(kind, "int") == 0 || strcmp(kind, "long") == 0 ||
+        strcmp(kind, "int32") == 0 || strcmp(kind, "byte") == 0 ||
+        strcmp(kind, "uint32") == 0 || strcmp(kind, "uint") == 0 ||
+        strcmp(kind, "float") == 0 || strcmp(kind, "double") == 0 ||
+        strcmp(kind, "bool") == 0 || strcmp(kind, "char") == 0);
 }
 
 static bool rust_closure_owned_type(json_object *type)
@@ -123,6 +132,11 @@ static bool rust_closure_bind(RustClosureScope *scope, json_object *node,
     *b = (RustClosureBinding){name, node, id < 0 ? scope->next_id++ : id,
                              scope->lambda_depth, capture, scope->bindings};
     scope->bindings = b;
+    if (!capture && json_string_property_equals(node, "kind", "var_decl") &&
+        json_boolean_property(node, "is_captured") &&
+        rust_closure_scalar_type(rust_closure_property(node, "type")) &&
+        json_string_property_equals(node, "mem_qual", "default"))
+        json_object_object_add(node, "rust_shared_cell", json_object_new_boolean(true));
     json_object_object_add(node, "rust_binding_id", json_object_new_int(b->id));
     return true;
 }
@@ -158,20 +172,39 @@ static bool rust_closure_walk_lambda(RustClosureScope *scope, json_object *node)
     {
         json_object *cap = json_object_array_get_idx(caps, i);
         if (json_boolean_property(cap, "is_self"))
-            return rust_closure_error("recursive closure self captures");
-        if (json_boolean_property(cap, "is_ref"))
+        {
+            json_object_object_add(cap, "rust_binding_id", json_object_new_int(scope->next_id++));
+            json_object_object_add(cap, "rust_capture_mode", json_object_new_string("self"));
+            json_object_object_add(node, "rust_recursive", json_object_new_boolean(true));
+            json_object_object_add(scope->model, "rust_has_recursive_closures", json_object_new_boolean(true));
+            continue;
+        }
+        if (json_boolean_property(cap, "is_ref") &&
+            !rust_closure_scalar_type(rust_closure_property(cap, "type")))
             return rust_closure_error("shared mutable closure captures");
         RustClosureBinding *b = rust_closure_lookup(scope, json_string_property(cap, "name"));
         if (!b) return rust_closure_error("unresolved or recursive closure captures");
         if (b->lambda_depth != scope->lambda_depth)
             return rust_closure_error("missing transitive closure captures");
         if (json_string_property_equals(b->declaration, "mem_qual", "as_ref") ||
-            json_boolean_property(b->declaration, "is_captured"))
+            (json_boolean_property(b->declaration, "is_captured") &&
+             !json_boolean_property(b->declaration, "rust_shared_cell")))
             return rust_closure_error("borrowed or promoted closure captures");
         if (!rust_closure_owned_type(rust_closure_property(cap, "type")))
             return rust_closure_error("this closure capture type");
         json_object_object_add(cap, "rust_binding_id", json_object_new_int(b->id));
-        json_object_object_add(cap, "rust_capture_mode", json_object_new_string("value"));
+        bool shared = json_boolean_property(cap, "is_ref");
+        if (shared && !json_boolean_property(b->declaration, "rust_shared_cell"))
+            return rust_closure_error("shared captures without scalar cell storage");
+        json_object_object_add(cap, "rust_capture_mode", json_object_new_string(shared ? "shared" : "value"));
+        if (shared)
+            json_object_object_add(cap, "rust_shared_cell", json_object_new_boolean(true));
+        else if (rust_closure_scalar_type(rust_closure_property(cap, "type")))
+            json_object_object_add(cap, "rust_scalar_snapshot", json_object_new_boolean(true));
+        if (!shared && json_boolean_property(b->declaration, "rust_shared_cell"))
+            json_object_object_add(cap, "rust_snapshot_cell_source", json_object_new_boolean(true));
+        if (json_string_property_equals(b->declaration, "rust_capture_mode", "self"))
+            json_object_object_add(cap, "rust_self_source", json_object_new_boolean(true));
     }
     RustClosureBinding *saved = scope->bindings;
     scope->lambda_depth++;
@@ -301,9 +334,14 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
             if (b->lambda_depth != scope->lambda_depth)
                 return rust_closure_error("missing transitive closure captures");
             json_object_object_add(node, "rust_binding_id", json_object_new_int(b->id));
-            if (b->capture)
+            if (b->capture && !json_boolean_property(node, "rust_capture_mutation_place"))
                 json_object_object_add(node, "rust_needs_clone", json_object_new_boolean(true));
-            if (b->capture && json_boolean_property(node, "is_ref_arg"))
+            if (json_boolean_property(b->declaration, "rust_shared_cell"))
+                json_object_object_add(node, "rust_shared_cell", json_object_new_boolean(true));
+            if (json_string_property_equals(b->declaration, "rust_capture_mode", "self"))
+                json_object_object_add(node, "rust_self_read", json_object_new_boolean(true));
+            if ((b->capture || json_boolean_property(b->declaration, "rust_shared_cell")) &&
+                json_boolean_property(node, "is_ref_arg"))
                 return rust_closure_error("mutable access to snapshot closure captures");
         }
         else if (!json_boolean_property(node, "rust_direct_callee") && name &&
@@ -335,7 +373,29 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
         if (borrowed && borrowed->capture)
             return rust_closure_error("mutable access to snapshot closure captures");
     }
-    if (place && (place->capture || place->lambda_depth < scope->lambda_depth))
+    if (place && json_boolean_property(place->declaration, "rust_scalar_snapshot"))
+    {
+        json_object_object_add(place->declaration, "rust_mutable_snapshot", json_object_new_boolean(true));
+        if (kind && (strcmp(kind, "compound_assign") == 0 ||
+                     strcmp(kind, "increment") == 0 || strcmp(kind, "decrement") == 0))
+            json_object_object_add(node, "rust_snapshot_mutation", json_object_new_boolean(true));
+        json_object *mutation_place = NULL;
+        if (kind && strcmp(kind, "compound_assign") == 0)
+            mutation_place = rust_closure_property(node, "target");
+        else if (kind && (strcmp(kind, "increment") == 0 || strcmp(kind, "decrement") == 0))
+            mutation_place = rust_closure_property(node, "operand");
+        if (mutation_place)
+            json_object_object_add(mutation_place, "rust_capture_mutation_place",
+                                   json_object_new_boolean(true));
+    }
+    if (place && json_boolean_property(place->declaration, "rust_shared_cell"))
+    {
+        json_object_object_add(node, "rust_shared_cell", json_object_new_boolean(true));
+        json_object_object_add(node, "rust_cell_name", json_object_new_string(place->name));
+    }
+    if (place && (place->capture || place->lambda_depth < scope->lambda_depth) &&
+        !json_boolean_property(place->declaration, "rust_shared_cell") &&
+        !json_boolean_property(place->declaration, "rust_scalar_snapshot"))
         return rust_closure_error("mutable access to snapshot closure captures");
     if (kind && strcmp(kind, "call") == 0)
     {
@@ -474,7 +534,7 @@ static bool rust_validate_lambda(json_object *expr)
         return rust_closure_error("this closure signature (native, qualified, variadic or unsupported owned type)");
     json_object *caps = rust_closure_property(expr, "captures");
     for (size_t i = 0; i < rust_closure_length(caps); i++)
-        if (!json_string_property_equals(json_object_array_get_idx(caps, i), "rust_capture_mode", "value"))
+        if (!json_string_property(json_object_array_get_idx(caps, i), "rust_capture_mode"))
             return rust_closure_error("closures in this callable context");
     json_object *body = rust_closure_property(expr, "body");
     if (body)
@@ -487,6 +547,82 @@ static bool rust_validate_lambda(json_object *expr)
         return true;
     }
     return rust_validate_statements(rust_closure_property(expr, "body_stmts"));
+}
+
+/* Captured scalar places have C's unchecked storage annotation. Validate the
+ * cell operation here without weakening ordinary parameter/place validation. */
+static bool rust_validate_closure_cell_mutation(json_object *expr)
+{
+    bool compound = json_string_property_equals(expr, "kind", "compound_assign");
+    json_object *place = rust_closure_property(expr, compound ? "target" : "operand");
+    json_object *type = rust_closure_property(place, "type");
+    const char *kind = json_string_property(type, "kind");
+    if (!json_string_property_equals(place, "kind", "variable") ||
+        !kind || (!rust_integer_type(kind) && !rust_float_type(kind)) ||
+        json_boolean_property(expr, "mutation_sync"))
+        return rust_closure_error("this shared scalar mutation");
+    const char *op = compound ? json_string_property(expr, "op") :
+        (json_string_property_equals(expr, "kind", "increment") ? "add" : "subtract");
+    const char *method = NULL;
+    if (op && strcmp(op, "add") == 0) method = "checked_add";
+    else if (op && strcmp(op, "subtract") == 0) method = "checked_sub";
+    else if (op && strcmp(op, "multiply") == 0) method = "checked_mul";
+    else if (op && strcmp(op, "divide") == 0) method = "checked_div";
+    else if (op && strcmp(op, "modulo") == 0 && !rust_float_type(kind)) method = "checked_rem";
+    if (!method) return rust_closure_error("this shared scalar mutation operator");
+    /* C's unchecked unsigned capture updates wrap at the scalar width. */
+    if (strcmp(kind, "byte") == 0 || strcmp(kind, "uint32") == 0 || strcmp(kind, "uint") == 0)
+    {
+        if (strcmp(method, "checked_add") == 0) method = "wrapping_add";
+        else if (strcmp(method, "checked_sub") == 0) method = "wrapping_sub";
+        else if (strcmp(method, "checked_mul") == 0) method = "wrapping_mul";
+        else if (strcmp(method, "checked_div") == 0) method = "wrapping_div";
+        else method = "wrapping_rem";
+        json_object_object_add(expr, "rust_cell_wrapping", json_object_new_boolean(true));
+    }
+    json_object_object_add(expr, "rust_cell_method", json_object_new_string(method));
+    if (compound)
+    {
+        json_object *value = rust_closure_property(expr, "value");
+        if (!rust_closure_same_type(type, rust_closure_property(value, "type")))
+            return rust_closure_error("mixed-type shared scalar mutation");
+        if (!rust_validate_expr(value)) return false;
+    }
+    return rust_validate_expr(place);
+}
+
+static bool rust_validate_closure_snapshot_mutation(json_object *expr)
+{
+    bool compound = json_string_property_equals(expr, "kind", "compound_assign");
+    json_object *place = rust_closure_property(expr, compound ? "target" : "operand");
+    json_object *type = rust_closure_property(place, "type");
+    const char *kind = json_string_property(type, "kind");
+    if (!json_string_property_equals(place, "kind", "variable") ||
+        !kind || (!rust_integer_type(kind) && !rust_float_type(kind)) ||
+        json_boolean_property(expr, "mutation_sync"))
+        return rust_closure_error("this mutable scalar snapshot operation");
+
+    if (compound)
+    {
+        json_object *value = rust_closure_property(expr, "value");
+        if (!rust_closure_same_type(type, rust_closure_property(value, "type")) ||
+            !rust_validate_expr(value))
+            return rust_closure_error("mixed-type mutable scalar snapshot operation");
+    }
+    if (rust_integer_type(kind))
+    {
+        const char *op = compound ? json_string_property(expr, "op") :
+            (json_string_property_equals(expr, "kind", "increment") ? "add" : "subtract");
+        const char *method = NULL;
+        if (op && strcmp(op, "add") == 0) method = "checked_add";
+        else if (op && strcmp(op, "subtract") == 0) method = "checked_sub";
+        else if (op && strcmp(op, "multiply") == 0) method = "checked_mul";
+        else if (op && strcmp(op, "divide") == 0) method = "checked_div";
+        else if (op && strcmp(op, "modulo") == 0) method = "checked_rem";
+        if (!method) return rust_closure_error("this mutable scalar snapshot operator");
+        json_object_object_add(expr, "rust_checked_method", json_object_new_string(method));
+    }
+    return rust_validate_expr(place);
 }
 
 static bool rust_validate_function_value(json_object *expr)
