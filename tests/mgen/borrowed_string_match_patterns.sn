@@ -1,0 +1,9 @@
+struct Item =>
+  text: str
+
+fn main(): void =>
+  var pattern: str = "same"
+  var item: Item = { text: "same" }
+  match "same" =>
+    "sa" + "me", pattern, item.text => println("matched")
+    else => println("other")

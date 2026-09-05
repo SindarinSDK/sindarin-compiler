@@ -1,0 +1,5 @@
+fn main(): void =>
+  var pattern: str = "zero"
+  var result: int = match "one" =>
+    (pattern = "one") => 1
+    else => 0

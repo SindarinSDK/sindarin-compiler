@@ -1,0 +1,1 @@
+Error: Rust target supports string value match only with string literal, literal-only concatenation, or stable borrowed variable/member patterns

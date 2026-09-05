@@ -1,0 +1,7 @@
+fn pattern(): str =>
+  return "one"
+
+fn main(): void =>
+  var result: int = match "one" =>
+    pattern() => 1
+    else => 0

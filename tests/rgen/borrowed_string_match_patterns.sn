@@ -1,0 +1,72 @@
+struct Leaf =>
+  text: str
+
+struct Holder =>
+  direct: str
+  leaf: Leaf
+
+  fn selfMatches(subject: str): bool =>
+    return match subject =>
+      self.leaf.text => true
+      else => false
+
+fn parameterMatch(subject: str, pattern: str): str =>
+  return match subject =>
+    "miss", pattern, pattern => "matched"
+    else => "other"
+
+fn main(): void =>
+  var empty: str = ""
+  var utf8: str = "héllo-世界-🙂"
+  var escaped: str = "quote:\" slash:\\ line:\n tab:\t"
+  var leaf: Leaf = { text: "nested" }
+  var holder: Holder = {
+    direct: "direct",
+    leaf: leaf
+  }
+
+  var statementHits: int = 0
+  match "nested" =>
+    "miss", holder.direct => statementHits = 10
+    holder.leaf.text, holder.leaf.text => statementHits++
+  println(statementHits == 1)
+
+  var scalar: int = match "héllo-世界-🙂" =>
+    empty => 0
+    utf8, utf8 => 7
+    else => -1
+  println(scalar == 7)
+
+  var prefix: int = 0
+  var stringResult: str = match escaped =>
+    escaped =>
+      prefix++
+      "ok"
+    else => "bad"
+  println(stringResult == "ok" && prefix == 1)
+
+  utf8 = "changed"
+  var later: bool = match "changed" =>
+    utf8 => true
+    else => false
+  utf8 += "!"
+  println(later && utf8 == "changed!")
+
+  var nestedResult: bool = match "outer" =>
+    "outer" => match "direct" =>
+      holder.direct => true
+      else => false
+    else => false
+  println(nestedResult)
+
+  var __sn_match_subject_0: str = "helper"
+  var __sn_match_array_0: str = "helper"
+  var __sn_match_index_0: str = "helper"
+  match "helper" =>
+    __sn_match_subject_0, __sn_match_array_0, __sn_match_index_0 => prefix++
+  println(prefix == 2)
+
+  println(parameterMatch("", empty) == "matched")
+  println(holder.selfMatches("nested"))
+  holder.leaf.text = "after"
+  println(holder.leaf.text == "after" && empty == "")

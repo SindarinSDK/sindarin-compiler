@@ -1,0 +1,23 @@
+struct Leaf =>
+  text: str
+
+struct Holder =>
+  direct: str
+  leaf: Leaf
+
+fn main(): void =>
+  var local: str = "héllo-世界-🙂"
+  var leaf: Leaf = { text: "" }
+  var holder: Holder = {
+    direct: "quote:\"",
+    leaf: leaf
+  }
+  var hits: int = 0
+  match "héllo-世界-🙂" =>
+    holder.leaf.text, local, local => hits++
+    else => hits = 100
+  var result: str = match "quote:\"" =>
+    holder.direct => "matched"
+    else => "other"
+  local = "after"
+  println(hits == 1 && result == "matched" && local == "after" && holder.direct == "quote:\"")

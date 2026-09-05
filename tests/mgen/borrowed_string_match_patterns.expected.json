@@ -1,0 +1,279 @@
+{
+  "module": {
+    "filename": "tests\/mgen\/borrowed_string_match_patterns.sn",
+    "has_main": true,
+    "main_returns": false,
+    "has_main_args": false,
+    "has_forward_decls": false
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [
+    {
+      "name": "Item",
+      "is_native": false,
+      "is_packed": false,
+      "pass_self_by_ref": false,
+      "is_serializable": false,
+      "source_file": "tests\/mgen\/borrowed_string_match_patterns.sn",
+      "mem_mode": "val",
+      "fields": [
+        {
+          "name": "text",
+          "type": {
+            "kind": "string"
+          },
+          "offset": 8,
+          "cleanup_action": "free",
+          "copy_action": "strdup"
+        }
+      ],
+      "has_heap_fields": true,
+      "methods": [],
+      "has_dispose": false
+    }
+  ],
+  "globals": [],
+  "functions": [
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "void"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/borrowed_string_match_patterns.sn",
+      "params": [],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "pattern",
+          "type": {
+            "kind": "string"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "str",
+          "initializer": {
+            "type": {
+              "kind": "string"
+            },
+            "kind": "literal",
+            "value_kind": "string",
+            "value": "same"
+          },
+          "source_is_borrow": true
+        },
+        {
+          "kind": "var_decl",
+          "name": "item",
+          "type": {
+            "kind": "struct",
+            "name": "Item",
+            "is_native": false,
+            "is_packed": false,
+            "pass_self_by_ref": false,
+            "size": 16,
+            "alignment": 8,
+            "fields": [
+              {
+                "name": "text",
+                "type": {
+                  "kind": "string"
+                },
+                "offset": 8
+              }
+            ]
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "val_cleanup",
+          "initializer": {
+            "type": {
+              "kind": "struct",
+              "name": "Item",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 16,
+              "alignment": 8,
+              "fields": [
+                {
+                  "name": "text",
+                  "type": {
+                    "kind": "string"
+                  },
+                  "offset": 8
+                }
+              ]
+            },
+            "kind": "struct_literal",
+            "struct_name": "Item",
+            "fields": [
+              {
+                "name": "text",
+                "value": {
+                  "type": {
+                    "kind": "string"
+                  },
+                  "kind": "literal",
+                  "value_kind": "string",
+                  "value": "same"
+                },
+                "source_is_borrow": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "match",
+            "subject": {
+              "type": {
+                "kind": "string"
+              },
+              "kind": "literal",
+              "value_kind": "string",
+              "value": "same"
+            },
+            "arms": [
+              {
+                "is_else": false,
+                "patterns": [
+                  {
+                    "type": {
+                      "kind": "string"
+                    },
+                    "kind": "binary",
+                    "op": "add",
+                    "left": {
+                      "type": {
+                        "kind": "string"
+                      },
+                      "kind": "literal",
+                      "value_kind": "string",
+                      "value": "sa"
+                    },
+                    "right": {
+                      "type": {
+                        "kind": "string"
+                      },
+                      "kind": "literal",
+                      "value_kind": "string",
+                      "value": "me"
+                    },
+                    "arithmetic_mode": "checked"
+                  },
+                  {
+                    "type": {
+                      "kind": "string"
+                    },
+                    "kind": "variable",
+                    "name": "pattern"
+                  },
+                  {
+                    "type": {
+                      "kind": "string"
+                    },
+                    "kind": "member",
+                    "object": {
+                      "type": {
+                        "kind": "struct",
+                        "name": "Item",
+                        "is_native": false,
+                        "is_packed": false,
+                        "pass_self_by_ref": false,
+                        "size": 16,
+                        "alignment": 8,
+                        "fields": [
+                          {
+                            "name": "text",
+                            "type": {
+                              "kind": "string"
+                            },
+                            "offset": 8
+                          }
+                        ]
+                      },
+                      "kind": "variable",
+                      "name": "item"
+                    },
+                    "member_name": "text"
+                  }
+                ],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "void"
+                        },
+                        "kind": "builtin_println",
+                        "args": [
+                          {
+                            "type": {
+                              "kind": "string"
+                            },
+                            "kind": "literal",
+                            "value_kind": "string",
+                            "value": "matched"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "is_else": true,
+                "patterns": [],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "void"
+                        },
+                        "kind": "builtin_println",
+                        "args": [
+                          {
+                            "type": {
+                              "kind": "string"
+                            },
+                            "kind": "literal",
+                            "value_kind": "string",
+                            "value": "other"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": [],
+  "fn_wrappers": []
+}
