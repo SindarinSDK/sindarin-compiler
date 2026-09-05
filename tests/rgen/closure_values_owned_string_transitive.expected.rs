@@ -13,9 +13,15 @@ impl<F: ?Sized> PartialEq for __SnClosure<F> {
     fn eq(&self, other: &Self) -> bool { std::rc::Rc::ptr_eq(&self.0, &other.0) }
 }
 fn make(seed: String) -> __SnClosure<dyn Fn() -> __SnClosure<dyn Fn(String) -> String>> {
-    let mut value: String = seed.clone();
-    return { let (value, ) = (value.clone(), ); self::__SnClosure::<dyn Fn() -> __SnClosure<dyn Fn(String) -> String>>(std::rc::Rc::new(move || -> __SnClosure<dyn Fn(String) -> String> { let mut value = value.clone(); { let (__sn_string_part, __sn_string_place) = (("-middle".to_string()).clone(), &mut (value)); __sn_string_place.push_str(&__sn_string_part); (*__sn_string_place).clone() };return { let (value, ) = (value.clone(), ); self::__SnClosure::<dyn Fn(String) -> String>(std::rc::Rc::new(move |suffix: String| -> String { let mut value = value.clone(); { let (__sn_string_part, __sn_string_place) = ((suffix).clone(), &mut (value)); __sn_string_place.push_str(&__sn_string_part); (*__sn_string_place).clone() };return value.clone();})) }
+    let value: std::rc::Rc<std::cell::RefCell<String>> = std::rc::Rc::new(std::cell::RefCell::new(seed));
+    return { let (value, ) = (value.clone(), ); self::__SnClosure::<dyn Fn() -> __SnClosure<dyn Fn(String) -> String>>(std::rc::Rc::new(move || -> __SnClosure<dyn Fn(String) -> String> { { let (__sn_string_part, __sn_cell) = (("-middle".to_string()).clone(), &value); let mut __sn_string_place = __sn_cell.borrow_mut(); __sn_string_place.push_str(&__sn_string_part); (*__sn_string_place).clone() };return { let (value, ) = (value.clone(), ); self::__SnClosure::<dyn Fn(String) -> String>(std::rc::Rc::new(move |suffix: String| -> String { { let (__sn_string_part, __sn_cell) = ((suffix).clone(), &value); let mut __sn_string_place = __sn_cell.borrow_mut(); __sn_string_place.push_str(&__sn_string_part); (*__sn_string_place).clone() };return value.borrow().clone();})) }
  ;})) }
+;
+}
+
+fn makeDirect(seed: String) -> __SnClosure<dyn Fn(String) -> String> {
+    let seed: std::rc::Rc<std::cell::RefCell<String>> = std::rc::Rc::new(std::cell::RefCell::new(seed));
+    return { let (seed, ) = (seed.clone(), ); self::__SnClosure::<dyn Fn(String) -> String>(std::rc::Rc::new(move |suffix: String| -> String { { let (__sn_string_part, __sn_cell) = ((suffix).clone(), &seed); let mut __sn_string_place = __sn_cell.borrow_mut(); __sn_string_place.push_str(&__sn_string_part); (*__sn_string_place).clone() };return seed.borrow().clone();})) }
 ;
 }
 
@@ -29,4 +35,7 @@ fn main() {
     let mut other: __SnClosure<dyn Fn() -> __SnClosure<dyn Fn(String) -> String>> = make("other".to_string());
     let mut third: __SnClosure<dyn Fn(String) -> String> = ((other.clone()).0)();
     println!("{}", ((third.clone()).0)("-four".to_string()));
+    let mut direct: __SnClosure<dyn Fn(String) -> String> = makeDirect("param".to_string());
+    println!("{}", ((direct.clone()).0)("-one".to_string()));
+    println!("{}", ((direct.clone()).0)("-two".to_string()));
 }

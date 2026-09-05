@@ -1,9 +1,10 @@
 seed
-SEED-SET-APPEND
-SEED-SET-APPEND
-seed-sibling
-seed-sibling
 outer
+OUTER-SET-APPEND
+OUTER-SET-APPEND-SET-APPEND
+outer-set-append-set-append-sibling
+outer-set-append-set-append-sibling-sibling
+outer-set-append-set-append-sibling-sibling
 shadow-local
-shadow-local
-seed
+shadow-local-local
+outer-set-append-set-append-sibling-sibling

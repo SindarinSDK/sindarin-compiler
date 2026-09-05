@@ -4,4 +4,4 @@
     })() as i32);
 {{rbrace}}{{nl}}{{else}}{{#if (eq name "main")}}fn main() {
 {{#if rust_main_has_args}}    let mut {{rust_ident rust_main_args_name}}: Vec<String> = std::env::args().collect();{{nl}}{{/if}}{{else}}fn {{rust_ident name}}({{#each params}}{{#if @index}}, {{/if}}{{#if rust_by_value_mutated}}mut {{else}}{{#if (eq mem_qual "as_val")}}mut {{/if}}{{/if}}{{rust_ident name}}: {{#if (eq mem_qual "as_ref")}}&mut {{/if}}{{rust_type type}}{{/each}}){{#unless (eq return_type.kind "void")}} -> {{rust_type return_type}}{{/unless}} {
-{{/if}}{{#each body}}    {{> stmt this}}{{nl}}{{/each}}{{rbrace}}{{nl}}{{/if~}}
+{{/if}}{{#each params}}{{#if rust_shared_owned_cell}}    let {{rust_ident name}}: std::rc::Rc<std::cell::RefCell<{{rust_type type}}>> = std::rc::Rc::new(std::cell::RefCell::new({{rust_ident name}}));{{nl}}{{/if}}{{/each}}{{#each body}}    {{> stmt this}}{{nl}}{{/each}}{{rbrace}}{{nl}}{{/if~}}

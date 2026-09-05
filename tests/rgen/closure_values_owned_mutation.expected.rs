@@ -13,8 +13,8 @@ impl<F: ?Sized> PartialEq for __SnClosure<F> {
     fn eq(&self, other: &Self) -> bool { std::rc::Rc::ptr_eq(&self.0, &other.0) }
 }
 fn main() {
-    let mut value: String = "one".to_string();
-    let mut action: __SnClosure<dyn Fn() -> String> = { let (value, ) = (value.clone(), ); self::__SnClosure::<dyn Fn() -> String>(std::rc::Rc::new(move || -> String { let mut value = value.clone(); (value = "two".to_string());return value.clone();})) }
+    let value: std::rc::Rc<std::cell::RefCell<String>> = std::rc::Rc::new(std::cell::RefCell::new("one".to_string()));
+    let mut action: __SnClosure<dyn Fn() -> String> = { let (value, ) = (value.clone(), ); self::__SnClosure::<dyn Fn() -> String>(std::rc::Rc::new(move || -> String { { let (__sn_value, __sn_cell) = ("two".to_string(), &value); __sn_cell.replace(__sn_value.clone()); __sn_value };return value.borrow().clone();})) }
 ;
     println!("{}", ((action.clone()).0)());
 }

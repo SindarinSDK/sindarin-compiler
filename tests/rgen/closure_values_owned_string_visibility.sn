@@ -1,5 +1,6 @@
 fn main(): void =>
   var value: str = "seed"
+  println(value)
   var read: fn(): str = fn(): str => value
   var first: fn(): str = fn(): str =>
     value = value + "-set"

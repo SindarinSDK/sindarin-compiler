@@ -25,15 +25,15 @@ fn invoke(callback: __SnClosure<dyn Fn(i64) -> String>, depth: i64) -> String {
 }
 
 fn main() {
-    let mut trace: String = "r".to_string();
+    let trace: std::rc::Rc<std::cell::RefCell<String>> = std::rc::Rc::new(std::cell::RefCell::new("r".to_string()));
     let calls: std::rc::Rc<std::cell::Cell<i64>> = std::rc::Rc::new(std::cell::Cell::new(0));
-    let mut action: __SnClosure<dyn Fn(i64) -> String> = { let (trace, calls, ) = (trace.clone(), calls.clone(), ); self::__SnClosure::<dyn Fn(i64) -> String>::recursive(move |action| std::rc::Rc::new(move |depth: i64| -> String { let mut trace = trace.clone(); { let (__sn_string_part, __sn_string_place) = (("a".to_string()).clone(), &mut (trace)); __sn_string_place.push_str(&__sn_string_part); (*__sn_string_place).clone() };{ let __sn_cell = &calls; let __sn_previous = __sn_cell.get(); let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); __sn_cell.set(__sn_next); __sn_previous };if (depth > 0) {
-        { let (__sn_string_part, __sn_string_place) = ((invoke(self::__SnClosure(action.get().expect("recursive identity initialized").upgrade().expect("recursive callable alive")), (depth).checked_sub(1).expect("checked arithmetic failed"))).clone(), &mut (trace)); __sn_string_place.push_str(&__sn_string_part); (*__sn_string_place).clone() };
-    }return trace.clone();})) }
+    let mut action: __SnClosure<dyn Fn(i64) -> String> = { let (trace, calls, ) = (trace.clone(), calls.clone(), ); self::__SnClosure::<dyn Fn(i64) -> String>::recursive(move |action| std::rc::Rc::new(move |depth: i64| -> String { { let (__sn_string_part, __sn_cell) = (("a".to_string()).clone(), &trace); let mut __sn_string_place = __sn_cell.borrow_mut(); __sn_string_place.push_str(&__sn_string_part); (*__sn_string_place).clone() };{ let __sn_cell = &calls; let __sn_previous = __sn_cell.get(); let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); __sn_cell.set(__sn_next); __sn_previous };if (depth > 0) {
+        { let (__sn_string_part, __sn_cell) = ((invoke(self::__SnClosure(action.get().expect("recursive identity initialized").upgrade().expect("recursive callable alive")), (depth).checked_sub(1).expect("checked arithmetic failed"))).clone(), &trace); let mut __sn_string_place = __sn_cell.borrow_mut(); __sn_string_place.push_str(&__sn_string_part); (*__sn_string_place).clone() };
+    }return trace.borrow().clone();})) }
 ;
     println!("{}", ((action.clone()).0)(2));
     println!("{}", calls.get());
     println!("{}", ((action.clone()).0)(1));
     println!("{}", calls.get());
-    println!("{}", trace);
+    println!("{}", trace.borrow().clone());
 }

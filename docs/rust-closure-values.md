@@ -450,33 +450,35 @@ The production-change gates pass `make test-rgen` at 263/263 and the subsequent
 
 ## Owned string capture follow-on
 
-Mutable owned string captures follow the existing C model's value-capture
-classification. Closure construction clones the string value into the callable
-environment. Each invocation clones that immutable environment value into a
-short-lived mutable local, so assignment and `+=` affect only that invocation.
-The outer binding, sibling closures, and later invocations retain their own
-snapshots. Nested closure construction clones the current invocation-local value,
-which preserves transitive capture and escaping-factory behavior without sharing
-a mutable Rust borrow or adding a new source-level ownership rule.
+Mutable owned string captures follow the documented default reference-capture
+semantics in v0.0.83 `docs/lambdas.md`: mutation through a closure is visible to
+the outer binding and to sibling closures. Rust promotes a captured owned string
+to `Rc<RefCell<String>>`; closure construction clones only the `Rc`, and every
+read clones the current string through a short-lived immutable borrow. This keeps
+the callable itself `Fn`, supports escaping and transitive captures, and preserves
+binding identity across shadowed names.
 
-String append evaluates its complete right-hand side before borrowing the local
-destination. The reentrant fixture invokes the same recursive callable through a
-callback during RHS evaluation; every stack frame owns a separate local string.
-Additional fixtures cover reassignment, append, captured string methods, outer
-and sibling observations, binding shadowing, two-level transitive capture,
-independent factories, escaping closures, evaluate-once callbacks, and per-call
-reset at O0/O1/O2. The original `closure_values_owned_mutation.sn` source is
-unchanged and now serves as a Rust runtime fixture.
+Assignment evaluates its right-hand side before replacing the cell value. String
+append likewise evaluates and owns the complete right-hand side before taking a
+short-lived mutable borrow. The reentrant fixture invokes the same recursive
+callable through a callback during RHS evaluation, after which the caller borrows
+the cell and commits its append. Additional Rust regression fixtures cover
+reassignment, append, captured string methods, outer and sibling visibility,
+binding shadowing, two-level transitive capture, captured function parameters,
+independent factories, escaping closures, and evaluate-once callbacks at
+O0/O1/O2. The original `closure_values_owned_mutation.sn` source is unchanged and
+now serves as a Rust runtime fixture.
 
 The C backend, runtime, templates, shared frontend, and existing C expectations
-are unchanged. The unchanged PR119 compiler independently reproduces a C cleanup
-failure for mutable string captures: both reassignment and append print their
-calculated value at O0/O1/O2 and then abort; debug/ASAN reports the lambda freeing
-the captured allocation before closure cleanup frees it again. Byte-identical
-reassignment and minimal append sources are retained under `closure_probes/` and
-are not counted as C parity passes. A separate by-value string parameter mutation
-probe also aborts in the unchanged C backend and remains outside this capture
-slice.
+are unchanged. A detached build of the authoritative v0.0.83 source at
+`79c20bdb8314aff3c778471ceab20bb8f9ca8d62` passes its existing read-only,
+escaping string-capture integration case on repeated calls. Separate raw mutable
+reassignment and append probes compile at the tag but abort at O0/O1/O2; the
+minimal reassignment prints `two` before ASAN reports a double free. These failing
+executions establish no expected language result and are never counted as parity
+passes. Their byte-identical sources remain under `closure_probes/` as diagnostic
+evidence. The tag build also aborts on the separate by-value string parameter
+mutation probe, which remains outside this capture slice.
 
 Calling a string method on a closure parameter is a defined C-supported form but
 is still rejected by the Rust target's existing closure-parameter boundary. Its
