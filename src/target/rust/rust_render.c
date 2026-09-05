@@ -334,5 +334,16 @@ static void register_rust_helpers(hbs_env_t *env)
 
 char *rust_render_model(json_object *model, const char *template_dir)
 {
-    return render_with_helpers(model, template_dir, register_rust_helpers, "rust");
+    char *rendered = render_with_helpers(model, template_dir,
+                                         register_rust_helpers, "rust");
+    /* module.hbs is intentionally snapshot-stable without a terminal newline.
+     * Keep that contract even when the template file itself is edited by tools
+     * that require a final line terminator. */
+    if (rendered)
+    {
+        size_t length = strlen(rendered);
+        if (length > 0 && rendered[length - 1] == '\n')
+            rendered[length - 1] = '\0';
+    }
+    return rendered;
 }

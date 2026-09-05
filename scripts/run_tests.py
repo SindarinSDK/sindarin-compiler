@@ -436,6 +436,12 @@ TEST_CONFIGS = {
     'rgen-errors': TestConfig(
         'tests/rgen/errors', '*.sn', True, 'Rust Generation Error Tests'
     ),
+    'rust-native': TestConfig(
+        'tests/rust-native', '*.sn', False, 'Rust Native Scalar Parity Tests'
+    ),
+    'rust-native-errors': TestConfig(
+        'tests/rust-native/errors', '*.sn', True, 'Rust Native Scalar Error Tests'
+    ),
     'mgen': TestConfig(
         'tests/mgen', '*.sn', False, 'Model Generation Tests'
     ),
@@ -628,6 +634,16 @@ class TestRunner:
                 rs_file = exe_file + '.rs'
                 status, reason, details = self._run_rgen_error_test_internal(
                     test_file, expected_file, rs_file
+                )
+            elif test_type == 'rust-native':
+                expected_file = test_file.replace('.sn', '.expected')
+                status, reason, details = self._run_rust_native_parity_test_internal(
+                    test_file, expected_file, exe_file
+                )
+            elif test_type == 'rust-native-errors':
+                expected_file = test_file.replace('.sn', '.expected')
+                status, reason, details = self._run_rust_native_error_test_internal(
+                    test_file, expected_file, exe_file
                 )
             elif config.expect_compile_fail:
                 expected_file = test_file.replace('.sn', '.expected')
@@ -1669,6 +1685,78 @@ class TestRunner:
         details.extend(f"  {line}" for line in stderr.split('\n')[:15])
         return ('fail', 'wrong error', details)
 
+    def _run_rust_native_parity_test_internal(
+            self, test_file: str, expected_file: str,
+            exe_file: str) -> Tuple[str, str, Optional[List[str]]]:
+        """Compile and execute one unchanged native source with both backends."""
+        if not os.path.isfile(expected_file):
+            return ('skip', 'no .expected', None)
+
+        with open(expected_file, 'r', encoding='utf-8') as expected:
+            expected_output = expected.read().replace('\r\n', '\n').replace('\r', '\n')
+
+        outputs = {}
+        for target in ('c', 'rust'):
+            target_exe = f'{exe_file}.{target}{get_exe_extension()}'
+            exit_code, stdout, stderr, decode_error = run_with_timeout(
+                [self.compiler, test_file, '--target', target, '-o', target_exe,
+                 '-l', '1', '--no-install'],
+                self.compile_timeout, env=self.env
+            )
+            if decode_error:
+                return ('fail', f'{target} subprocess output decode error',
+                        [decode_error, format_subprocess_failure(stdout, stderr)])
+            if exit_code != 0:
+                return ('fail', f'{target} compile error', stderr.split('\n')[:50] if stderr else None)
+
+            exit_code, output, timeout_marker, decode_error = run_with_timeout(
+                [target_exe], self.run_timeout, env=self.env, merge_stderr=True
+            )
+            if decode_error:
+                return ('fail', f'{target} run output decode error', [decode_error, output])
+            if timeout_marker == 'TIMEOUT':
+                return ('fail', f'{target} run timeout', output.split('\n')[:20] if output else None)
+            if exit_code != 0:
+                details = [f'exit code: {exit_code}']
+                if output:
+                    details.extend(output.split('\n')[:20])
+                return ('fail', f'{target} run error', details)
+            outputs[target] = output.replace('\r\n', '\n').replace('\r', '\n')
+
+        if outputs['c'] != outputs['rust']:
+            return ('fail', 'C/Rust output mismatch',
+                    [f"C:    {outputs['c']!r}", f"Rust: {outputs['rust']!r}"])
+        if outputs['rust'] != expected_output:
+            return ('fail', 'output mismatch',
+                    [f'expected: {expected_output!r}', f"got:      {outputs['rust']!r}"])
+        return ('pass', '', None)
+
+    def _run_rust_native_error_test_internal(
+            self, test_file: str, expected_file: str,
+            exe_file: str) -> Tuple[str, str, Optional[List[str]]]:
+        """Require the precise Rust native scalar validation diagnostic."""
+        if not os.path.isfile(expected_file):
+            return ('skip', 'no .expected', None)
+
+        exit_code, stdout, stderr, decode_error = run_with_timeout(
+            [self.compiler, test_file, '--target', 'rust', '-o', exe_file,
+             '-l', '1', '--no-install'],
+            self.compile_timeout, env=self.env
+        )
+        if decode_error:
+            return ('fail', 'subprocess output decode error',
+                    [decode_error, format_subprocess_failure(stdout, stderr)])
+        if exit_code == 0:
+            return ('fail', 'Rust native compilation should fail', None)
+
+        with open(expected_file, 'r', encoding='utf-8') as expected:
+            expected_error = expected.readline().strip()
+        if expected_error in stderr:
+            return ('pass', '', None)
+        details = [f'Expected: {expected_error}', 'Got:']
+        details.extend(f'  {line}' for line in stderr.split('\n')[:15])
+        return ('fail', 'wrong error', details)
+
     def _run_positive_test_internal(self, test_file: str, expected_file: str,
                                      panic_file: str, exe_file: str,
                                      test_type: str) -> Tuple[str, str, Optional[List[str]]]:
@@ -1762,7 +1850,8 @@ def main():
     )
     parser.add_argument('test_type', nargs='?', default='all',
                         choices=['unit', 'cgen', 'rgen', 'rgen-errors', 'mgen', 'integration', 'integration-errors',
-                                'explore', 'explore-errors', 'rust-toolchain', 'all'],
+                                'explore', 'explore-errors', 'rust-native', 'rust-native-errors',
+                                'rust-toolchain', 'all'],
                        help='Type of tests to run')
     parser.add_argument('--compiler', '-c', help='Path to compiler executable')
     parser.add_argument('--timeout', type=int, default=60,
@@ -1834,7 +1923,7 @@ def main():
             all_passed &= passed
             total_elapsed += elapsed
             for test_type in ['cgen', 'rgen', 'rgen-errors', 'mgen', 'integration', 'integration-errors',
-                             'explore', 'explore-errors']:
+                             'explore', 'explore-errors', 'rust-native', 'rust-native-errors']:
                 passed, elapsed = runner.run_sn_tests(test_type)
                 all_passed &= passed
                 total_elapsed += elapsed

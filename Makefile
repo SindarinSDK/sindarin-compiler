@@ -12,7 +12,7 @@
 #------------------------------------------------------------------------------
 .PHONY: all build rebuild run clean test help
 .PHONY: test-unit test-cgen test-rgen test-mgen test-integration test-integration-errors
-.PHONY: test-explore test-explore-errors test-rust-toolchain
+.PHONY: test-explore test-explore-errors test-rust-native test-rust-native-errors test-rust-toolchain
 .PHONY: configure install package setup hooks
 
 #------------------------------------------------------------------------------
@@ -196,6 +196,12 @@ test-explore: build
 test-explore-errors: build
 	@$(PYTHON) scripts/run_tests.py explore-errors --verbose
 
+test-rust-native: build
+	@$(PYTHON) scripts/run_tests.py rust-native --verbose
+
+test-rust-native-errors: build
+	@$(PYTHON) scripts/run_tests.py rust-native-errors --verbose
+
 test-rust-toolchain: build
 	@$(PYTHON) scripts/run_tests.py rust-toolchain --verbose
 
@@ -305,6 +311,8 @@ help:
 	@echo "  make test-unit              Run unit tests only"
 	@echo "  make test-cgen              Run code generation tests (compare generated C)"
 	@echo "  make test-rgen              Run Rust generation tests"
+	@echo "  make test-rust-native       Run C/Rust native scalar parity tests"
+	@echo "  make test-rust-native-errors Run Rust native scalar error tests"
 	@echo "  make test-mgen              Run model generation tests (compare JSON model)"
 	@echo "  make test-integration       Run integration tests"
 	@echo "  make test-integration-errors Run integration error tests"
