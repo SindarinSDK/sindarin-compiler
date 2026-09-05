@@ -522,7 +522,7 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
                     const char *method = json_string_property(callee, "member_name");
                     if (rust_closure_mutating_array_method(method))
                     {
-                        if (strcmp(method, "push") != 0)
+                        if (strcmp(method, "push") != 0 && strcmp(method, "pop") != 0)
                             return rust_closure_error("this mutable array snapshot method");
                         if (!json_boolean_property(b->declaration, "rust_shared_cell"))
                             json_object_object_add(b->declaration, "rust_array_snapshot_cell",
@@ -531,6 +531,20 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
                                                json_object_new_boolean(true));
                         json_object_object_add(node, "rust_array_cell_name",
                                                json_object_new_string(b->name));
+                        json_object *receiver = rust_closure_property(callee, "object");
+                        if (json_string_property_equals(receiver, "kind", "array_access"))
+                        {
+                            json_object *outer = rust_closure_property(receiver, "array");
+                            if (!json_string_property_equals(outer, "kind", "variable") ||
+                                rust_closure_lookup(scope, json_string_property(outer, "name")) != b)
+                                return rust_closure_error("this nested mutable array snapshot method");
+                            json_object_object_add(node, "rust_array_cell_nested_mutation",
+                                                   json_object_new_boolean(true));
+                            json_object_object_add(node, "rust_array_cell_nested_index",
+                                                   json_object_get(rust_closure_property(receiver, "index")));
+                        }
+                        else if (!json_string_property_equals(receiver, "kind", "variable"))
+                            return rust_closure_error("this nested mutable array snapshot method");
                     }
                 }
                 else if (!rust_closure_string_type(binding_type))
