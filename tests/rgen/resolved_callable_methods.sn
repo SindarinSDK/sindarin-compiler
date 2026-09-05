@@ -1,0 +1,61 @@
+struct Dispatcher =>
+  bias: int
+
+  static fn apply(callback: fn(int): int, value: int): int =>
+    return callback(value)
+
+  static fn same(left: fn(int): int, right: fn(int): int): bool =>
+    return left == right
+
+  static fn make(offset: int): fn(int): int =>
+    return fn(value: int): int => offset + value
+
+  static fn composeStatic(callback: fn(int): int,
+    offset: int): fn(int): int =>
+    return fn(value: int): int => callback(value) + offset
+
+  fn run(callback: fn(int): int, value: int): int =>
+    return callback(value) + self.bias
+
+  fn compose(callback: fn(int): int): fn(int): int =>
+    var bias: int = self.bias
+    return fn(value: int): int => callback(value) + bias
+
+fn markedValue(order: int as ref, marker: int, value: int): int =>
+  order = order * 10 + marker
+  return value
+
+fn makeDispatcher(order: int as ref, marker: int,
+  callback: fn(int): int): Dispatcher =>
+  order = order * 10 + marker
+  callback(marker)
+  return Dispatcher { bias: marker }
+
+fn returnComposed(dispatcher: Dispatcher,
+  callback: fn(int): int): fn(int): int =>
+  return dispatcher.compose(callback)
+
+fn main(): void =>
+  var order: int = 0
+  var source: fn(int): int = fn(value: int): int => value + 1
+  var dispatcher: Dispatcher = { bias: 10 }
+
+  var staticApplied: int = Dispatcher.apply(source, 2)
+  var instanceApplied: int = dispatcher.run(source, 3)
+  var same: bool = Dispatcher.same(source, source)
+  var made: fn(int): int = Dispatcher.make(20)
+  var staticComposed: fn(int): int = Dispatcher.composeStatic(source, 30)
+  var instanceComposed: fn(int): int = dispatcher.compose(source)
+  var returned: fn(int): int = returnComposed(dispatcher, source)
+
+  println($"{staticApplied}:{instanceApplied}:{same}:{made(4)}")
+  println($"{staticComposed(5)}:{instanceComposed(6)}:{returned(7)}:{source(8)}")
+
+  source = Dispatcher.make(100)
+  println($"{staticComposed(9)}:{instanceComposed(10)}:{returned(11)}:{source(1)}")
+
+  var ordered: int = makeDispatcher(order, 1, source).run(
+    source, markedValue(order, 2, 5))
+  var temporary: fn(int): int = Dispatcher.make(40)
+  var temporaryApplied: int = Dispatcher.apply(temporary, 2)
+  println($"{ordered}:{temporaryApplied}:{order}:{source(12)}")

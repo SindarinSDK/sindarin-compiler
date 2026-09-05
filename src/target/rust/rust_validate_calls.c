@@ -604,6 +604,8 @@ static bool rust_resolved_types_equal(json_object *left, json_object *right)
             json_object_object_get_ex(right, "element_type", &right_element) &&
             rust_resolved_types_equal(left_element, right_element);
     }
+    if (strcmp(left_kind, "function") == 0)
+        return rust_closure_same_type(left, right);
     return true;
 }
 
@@ -631,8 +633,9 @@ static bool rust_resolved_value_type_supported(json_object *type)
 {
     const char *kind = json_string_property(type, "kind");
     if (!kind || strcmp(kind, "pointer") == 0 ||
-        strcmp(kind, "function") == 0 || strcmp(kind, "interface") == 0 ||
-        strcmp(kind, "nil") == 0) return false;
+        strcmp(kind, "interface") == 0 || strcmp(kind, "nil") == 0) return false;
+    if (strcmp(kind, "function") == 0)
+        return rust_closure_type_supported(type);
     if (strcmp(kind, "array") == 0)
     {
         json_object *element = NULL;
@@ -696,6 +699,7 @@ static bool rust_resolved_clone_source(json_object *arg)
         !json_object_object_get_ex(arg, "type", &type) ||
         !(type_kind = json_string_property(type, "kind"))) return false;
     return strcmp(type_kind, "string") == 0 ||
+        strcmp(type_kind, "function") == 0 ||
         strcmp(type_kind, "array") == 0 || strcmp(type_kind, "struct") == 0;
 }
 
@@ -753,9 +757,6 @@ static bool rust_validate_method_call(json_object *expr)
 
     if (!rust_resolved_value_type_supported(result_type))
     {
-        if (json_string_property_equals(result_type, "kind", "function"))
-            return rust_report_resolved_call_error(
-                "does not support closure-dependent resolved method_call results yet");
         return rust_report_resolved_call_error(
             "does not support this resolved method_call result representation");
     }
@@ -798,14 +799,14 @@ static bool rust_validate_method_call(json_object *expr)
                 "encountered incomplete or inconsistent resolved method_call argument metadata");
         if (!rust_resolved_value_type_supported(arg_type))
         {
-            if (json_string_property_equals(arg_type, "kind", "function"))
-                return rust_report_resolved_call_error(
-                    "does not support closure-dependent resolved method_call arguments yet");
             return rust_report_resolved_call_error(
                 "does not support this resolved method_call argument representation");
         }
 
         bool passes_by_ref = mem_qual && strcmp(mem_qual, "as_ref") == 0;
+        if (passes_by_ref && json_string_property_equals(arg_type, "kind", "function"))
+            return rust_report_resolved_call_error(
+                "does not support borrowed mutable resolved callable arguments yet");
         bool is_ref_arg = json_boolean_property(arg, "is_ref_arg");
         bool is_borrow_tmp = json_boolean_property(arg, "is_borrow_tmp");
         if (json_boolean_property(method, "is_operator") && passes_by_ref &&
