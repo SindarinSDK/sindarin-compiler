@@ -180,6 +180,7 @@ static bool rust_emit(CompilerOptions *options, Module *module,
         return false;
     }
     rust_lower_closures(model);
+    rust_lower_byte_arithmetic(model);
     rust_lower_checked_arithmetic(model);
     rust_lower_checked_mutations(model);
     if (rust_model_uses_checked_arithmetic(model))

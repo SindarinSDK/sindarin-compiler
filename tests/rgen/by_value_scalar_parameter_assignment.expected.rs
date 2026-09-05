@@ -35,19 +35,19 @@ struct ScalarAssignments {
 
 impl ScalarAssignments {
     fn assignInt32(mut value: i32, untouched: i32) -> i32 {
-        { value = __sn_checked_0((value).checked_add(4), "Runtime error: integer overflow in addition"); value };
-        return __sn_checked_0((value).checked_add(untouched), "Runtime error: integer overflow in addition");
+        { value = { let (__sn_byte_left, __sn_byte_right): (i32, i32) = (value, 4); __sn_byte_left.wrapping_add(__sn_byte_right) }; value };
+        return { let (__sn_byte_left, __sn_byte_right): (i32, i32) = (value, untouched); __sn_byte_left.wrapping_add(__sn_byte_right) };
     }
     fn assignByte(mut value: u8, untouched: u8) -> u8 {
-        let mut assigned: u8 = { value = __sn_checked_0((value).checked_add(5), "Runtime error: integer overflow in addition"); value };
-        return __sn_checked_0((__sn_checked_0((assigned).checked_add(value), "Runtime error: integer overflow in addition")).checked_add(untouched), "Runtime error: integer overflow in addition");
+        let mut assigned: u8 = { value = { let (__sn_byte_left, __sn_byte_right): (u8, u8) = (value, 5); __sn_byte_left.wrapping_add(__sn_byte_right) }; value };
+        return { let (__sn_byte_left, __sn_byte_right): (u8, u8) = ({ let (__sn_byte_left, __sn_byte_right): (u8, u8) = (assigned, value); __sn_byte_left.wrapping_add(__sn_byte_right) }, untouched); __sn_byte_left.wrapping_add(__sn_byte_right) };
     }
     fn assignUint32(mut value: u32, untouched: u32) -> u32 {
-        return { value = __sn_checked_0((value).checked_add(untouched), "Runtime error: integer overflow in addition"); value };
+        return { value = { let (__sn_byte_left, __sn_byte_right): (u32, u32) = (value, untouched); __sn_byte_left.wrapping_add(__sn_byte_right) }; value };
     }
     fn assignUint(&self, mut value: u64, untouched: u64) -> u64 {
-        { value = __sn_checked_0((value).checked_add(7), "Runtime error: integer overflow in addition"); value };
-        return __sn_checked_0((__sn_checked_0((value).checked_add(untouched), "Runtime error: integer overflow in addition")).checked_add(((self).marker as u64)), "Runtime error: integer overflow in addition");
+        { value = { let (__sn_byte_left, __sn_byte_right): (u64, u64) = (value, 7); __sn_byte_left.wrapping_add(__sn_byte_right) }; value };
+        return { let (__sn_byte_left, __sn_byte_right): (u64, u64) = ({ let (__sn_byte_left, __sn_byte_right): (u64, u64) = (value, untouched); __sn_byte_left.wrapping_add(__sn_byte_right) }, ((self).marker as u64)); __sn_byte_left.wrapping_add(__sn_byte_right) };
     }
     fn assignFloat(&self, mut value: f32, untouched: f32) -> f32 {
         let mut assigned: f32 = { value = (value + 1.5); value };

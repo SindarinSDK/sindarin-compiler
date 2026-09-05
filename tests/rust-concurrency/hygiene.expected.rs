@@ -69,7 +69,7 @@ fn calculate() -> i64 {
 fn main() {
     std::sync::LazyLock::force(&__sn_concurrency0_global_rhs);
     std::sync::LazyLock::force(&__sn_concurrency0_global_value);
-    { let __sn_concurrency0_rhs = 3; let mut __sn_concurrency0_value = __sn_concurrency0_global_rhs.lock().unwrap_or_else(|e| e.into_inner()); *__sn_concurrency0_value = *__sn_concurrency0_value + __sn_concurrency0_rhs; __sn_concurrency0_value.clone() };
+    { let __sn_concurrency0_numeric_rhs = (3).clone(); let mut __sn_concurrency0_value_guard = __sn_concurrency0_global_rhs.lock().unwrap_or_else(|e| e.into_inner()); { let (__sn_rhs, __sn_place): (i64, &mut i64) = (__sn_concurrency0_numeric_rhs, &mut ((*__sn_concurrency0_value_guard))); let __sn_next = *__sn_place + __sn_rhs; *__sn_place = __sn_next; __sn_next } };
     { let __sn_concurrency0_value = __sn_checked_0(({ let value = __sn_concurrency0_global_rhs.lock().unwrap_or_else(|e| e.into_inner()).clone(); value }).checked_add({ let value = __sn_concurrency0_global_value.lock().unwrap_or_else(|e| e.into_inner()).clone(); value }), "Runtime error: integer overflow in addition"); *__sn_concurrency0_global_value.lock().unwrap_or_else(|e| e.into_inner()) = __sn_concurrency0_value.clone(); __sn_concurrency0_value };
     let mut handle: i64 = 0; let mut __sn_concurrency0_handle_handle: Option<__sn_concurrency0_Join<i64>> = Some({ __sn_concurrency0_Join::spawn(move || calculate()) }
 );

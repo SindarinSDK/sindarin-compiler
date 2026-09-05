@@ -75,6 +75,56 @@ static json_object *rust_concurrency_bind_args(json_object *call, const char *pr
     return bindings;
 }
 
+/* Apply core fixed-width arithmetic to the actual mutex-protected place.
+ * Ordinary call/field lowering must not turn this into a cloned rvalue. */
+static void rust_concurrency_numeric_cell(json_object *node, const char *prefix)
+{
+    const char *kind = json_string_property(node, "kind");
+    bool compound = kind && strcmp(kind, "compound_assign") == 0;
+    bool postfix = kind && (strcmp(kind, "increment") == 0 || strcmp(kind, "decrement") == 0);
+    if ((!compound && !postfix) ||
+        !(json_boolean_property(node, "rust_mixed_integral_compound") ||
+          json_boolean_property(node, "rust_wrapping_compound_assign") ||
+          json_boolean_property(node, "rust_unchecked_integral_compound") ||
+          json_boolean_property(node, "rust_wrapping_increment") ||
+          json_boolean_property(node, "rust_wrapping_decrement"))) return;
+    const char *key = compound ? "target" : "operand";
+    json_object *place = NULL;
+    if (!json_object_object_get_ex(node, key, &place) ||
+        !json_boolean_property(place, "rust_cell")) return;
+    json_object *inner = NULL, *inner_place = NULL;
+    json_object_deep_copy(node, &inner, NULL);
+    json_object_object_get_ex(inner, key, &inner_place);
+    char guard[256]; snprintf(guard, sizeof(guard), "%svalue_guard", prefix);
+    rust_concurrency_string(node, "rust_cell_owner", json_string_property(place, "name"));
+    rust_concurrency_string(node, "rust_value_guard", guard);
+    rust_concurrency_string(inner_place, "name", guard);
+    json_object_object_del(inner_place, "rust_cell");
+    json_object_object_del(inner_place, "rust_global");
+    json_object_object_add(inner_place, "rust_cell_guard", json_object_new_boolean(true));
+    json_object *bindings = json_object_new_array(), *value = NULL;
+    if (compound && json_object_object_get_ex(node, "value", &value)) {
+        json_object *binding = json_object_new_object(), *read = NULL;
+        char rhs[256]; snprintf(rhs, sizeof(rhs), "%snumeric_rhs", prefix);
+        rust_concurrency_string(binding, "name", rhs);
+        json_object_object_add(binding, "value", json_object_get(value));
+        json_object_array_add(bindings, binding);
+        json_object_deep_copy(value, &read, NULL);
+        rust_concurrency_string(read, "kind", "variable");
+        rust_concurrency_string(read, "name", rhs);
+        json_object_object_del(read, "rust_cell");
+        json_object_object_del(read, "rust_global");
+        json_object_object_add(inner, "value", read);
+    }
+    if (postfix && json_boolean_property(node, "mutation_sync"))
+        json_object_object_add(node, "rust_cell_postfix_gate", json_object_new_boolean(true));
+    if (postfix && json_boolean_property(node, "rust_tagged_sync_postfix"))
+        json_object_object_add(node, "rust_cell_updated_postfix", json_object_new_boolean(true));
+    rust_concurrency_string(node, "kind", "rust_cell_operation");
+    json_object_object_add(node, "rust_cell_bindings", bindings);
+    json_object_object_add(node, "rust_cell_inner", inner);
+}
+
 static void rust_concurrency_annotate(json_object *node, const char *prefix,
                                      const char *join_name, json_object *model)
 {
@@ -170,6 +220,8 @@ static void rust_concurrency_annotate(json_object *node, const char *prefix,
             json_object_object_add(node, "rust_cell_inner", inner);
         }
     }
+    rust_concurrency_numeric_cell(node, prefix);
+    kind = json_string_property(node, "kind");
     if (strcmp(kind, "var_decl") == 0 &&
         (json_boolean_property(node, "is_thread_handle") || json_boolean_property(node, "needs_thread_handle"))) {
         char name[512];

@@ -656,6 +656,16 @@ static bool mutation_target_is_sync(Expr *target)
     return base && rust_variable_facts(base).sync_modifier == SYNC_ATOMIC;
 }
 
+/* The tagged postfix renderer uses the live model-generation symbol lookup
+ * for its returned value. Keep that convention separate from storage facts:
+ * local scopes may already have been popped, while globals remain visible. */
+static bool rust_tagged_sync_postfix(Expr *operand, SymbolTable *symbol_table)
+{
+    if (!operand || operand->type != EXPR_VARIABLE || !symbol_table) return false;
+    Symbol *sym = symbol_table_lookup_symbol(symbol_table, operand->as.variable.name);
+    return sym && sym->sync_mod == SYNC_ATOMIC;
+}
+
 static const char *mutation_sync_variable_name(Expr *target)
 {
     Expr *base = mutation_base_variable(target);
@@ -3247,6 +3257,8 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
         case EXPR_INCREMENT:
         {
             json_object_object_add(obj, "kind", json_object_new_string("increment"));
+            json_object_object_add(obj, "rust_tagged_sync_postfix",
+                json_object_new_boolean(rust_tagged_sync_postfix(expr->as.operand, symbol_table)));
             json_object_object_add(obj, "mutation_op", json_object_new_string("add"));
             json_object_object_add(obj, "mutation_place",
                 json_object_new_string(mutation_place_kind(expr->as.operand)));
@@ -3286,6 +3298,8 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
         case EXPR_DECREMENT:
         {
             json_object_object_add(obj, "kind", json_object_new_string("decrement"));
+            json_object_object_add(obj, "rust_tagged_sync_postfix",
+                json_object_new_boolean(rust_tagged_sync_postfix(expr->as.operand, symbol_table)));
             json_object_object_add(obj, "mutation_op", json_object_new_string("subtract"));
             json_object_object_add(obj, "mutation_place",
                 json_object_new_string(mutation_place_kind(expr->as.operand)));

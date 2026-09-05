@@ -12,5 +12,5 @@ impl<T> __sn_concurrency0_Cell<T> {
 
 fn main() {
     let value: __sn_concurrency0_Cell<f32> = __sn_concurrency0_Cell::new(1.0);
-    { let __sn_concurrency0_gate = value.guard(); let mut __sn_concurrency0_value = value.lock().unwrap_or_else(|e| e.into_inner()); let __sn_concurrency0_previous = *__sn_concurrency0_value; *__sn_concurrency0_value -= 1.0; drop(__sn_concurrency0_value); drop(__sn_concurrency0_gate); { let value = value.lock().unwrap_or_else(|e| e.into_inner()).clone(); value } };
+    { let __sn_concurrency0_gate = value.guard(); let mut __sn_concurrency0_value = value.lock().unwrap_or_else(|e| e.into_inner()); let __sn_concurrency0_previous = *__sn_concurrency0_value; *__sn_concurrency0_value -= 1.0; __sn_concurrency0_previous };
 }

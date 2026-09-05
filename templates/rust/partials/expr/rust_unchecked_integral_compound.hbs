@@ -1,0 +1,1 @@
+{ let (__sn_rhs, __sn_place): ({{rust_type target.type}}, &mut {{rust_type target.type}}) = ({{> expr value}}, &mut ({{> expr target}})); let __sn_next = *__sn_place {{op_symbol op}} __sn_rhs; *__sn_place = __sn_next; __sn_next }

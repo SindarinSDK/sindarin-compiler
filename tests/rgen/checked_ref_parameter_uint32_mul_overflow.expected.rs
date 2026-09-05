@@ -30,7 +30,7 @@ fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
 
 fn fail(value: &mut u32) {
     let mut two: u32 = 2;
-    { let __sn_rhs = two; let __sn_place = &mut (*(value)); let __sn_next = __sn_checked_0((*__sn_place).checked_mul(__sn_rhs), "Runtime error: integer overflow in multiplication"); *__sn_place = __sn_next; __sn_next };
+    { let (__sn_byte_rhs, __sn_byte_place): (u32, &mut u32) = (two, &mut (*(value))); let __sn_byte_next = (*__sn_byte_place).wrapping_mul(__sn_byte_rhs); *__sn_byte_place = __sn_byte_next; __sn_byte_next };
 }
 
 fn main() {

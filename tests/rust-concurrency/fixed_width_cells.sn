@@ -1,0 +1,22 @@
+sync var atomic_value: byte = 255b
+var byte_value: byte = 255b
+var wide_value: uint32 = 4294967295u32
+fn worker(): int =>
+  byte_value += 1b
+  byte_value--
+  byte_value += 2
+  wide_value++
+  return 1
+fn main(): void =>
+  var handle: int = & worker()
+  handle !
+  println(byte_value)
+  println(wide_value)
+  var next: byte = atomic_value++
+  println(next)
+  sync var local: byte = 255b
+  var previous: byte = local++
+  println(previous)
+  println(local)
+  local -= 2
+  println(local)

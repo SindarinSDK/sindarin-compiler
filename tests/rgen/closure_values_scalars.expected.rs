@@ -55,13 +55,13 @@ fn main() {
 ;
     let mut fl: __SnClosure<dyn Fn(i64) -> i64> = { let (l, ) = (l.clone(), ); self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |x: i64| -> i64 { __sn_checked_0((l.clone()).checked_add(x), "Runtime error: integer overflow in addition")})) }
 ;
-    let mut fi32: __SnClosure<dyn Fn(i32) -> i32> = { let (i32, ) = (i32.clone(), ); self::__SnClosure::<dyn Fn(i32) -> i32>(std::rc::Rc::new(move |x: i32| -> i32 { __sn_checked_0((i32.clone()).checked_add(x), "Runtime error: integer overflow in addition")})) }
+    let mut fi32: __SnClosure<dyn Fn(i32) -> i32> = { let (i32, ) = (i32.clone(), ); self::__SnClosure::<dyn Fn(i32) -> i32>(std::rc::Rc::new(move |x: i32| -> i32 { { let (__sn_byte_left, __sn_byte_right): (i32, i32) = (i32.clone(), x); __sn_byte_left.wrapping_add(__sn_byte_right) }})) }
 ;
-    let mut fb: __SnClosure<dyn Fn(u8) -> u8> = { let (b, ) = (b.clone(), ); self::__SnClosure::<dyn Fn(u8) -> u8>(std::rc::Rc::new(move |x: u8| -> u8 { __sn_checked_0((b.clone()).checked_add(x), "Runtime error: integer overflow in addition")})) }
+    let mut fb: __SnClosure<dyn Fn(u8) -> u8> = { let (b, ) = (b.clone(), ); self::__SnClosure::<dyn Fn(u8) -> u8>(std::rc::Rc::new(move |x: u8| -> u8 { { let (__sn_byte_left, __sn_byte_right): (u8, u8) = (b.clone(), x); __sn_byte_left.wrapping_add(__sn_byte_right) }})) }
 ;
-    let mut fu32: __SnClosure<dyn Fn(u32) -> u32> = { let (u32, ) = (u32.clone(), ); self::__SnClosure::<dyn Fn(u32) -> u32>(std::rc::Rc::new(move |x: u32| -> u32 { __sn_checked_0((u32.clone()).checked_add(x), "Runtime error: integer overflow in addition")})) }
+    let mut fu32: __SnClosure<dyn Fn(u32) -> u32> = { let (u32, ) = (u32.clone(), ); self::__SnClosure::<dyn Fn(u32) -> u32>(std::rc::Rc::new(move |x: u32| -> u32 { { let (__sn_byte_left, __sn_byte_right): (u32, u32) = (u32.clone(), x); __sn_byte_left.wrapping_add(__sn_byte_right) }})) }
 ;
-    let mut fu: __SnClosure<dyn Fn(u64) -> u64> = { let (u, ) = (u.clone(), ); self::__SnClosure::<dyn Fn(u64) -> u64>(std::rc::Rc::new(move |x: u64| -> u64 { __sn_checked_0((u.clone()).checked_add(x), "Runtime error: integer overflow in addition")})) }
+    let mut fu: __SnClosure<dyn Fn(u64) -> u64> = { let (u, ) = (u.clone(), ); self::__SnClosure::<dyn Fn(u64) -> u64>(std::rc::Rc::new(move |x: u64| -> u64 { { let (__sn_byte_left, __sn_byte_right): (u64, u64) = (u.clone(), x); __sn_byte_left.wrapping_add(__sn_byte_right) }})) }
 ;
     let mut ff: __SnClosure<dyn Fn(f32) -> f32> = { let (f, ) = (f.clone(), ); self::__SnClosure::<dyn Fn(f32) -> f32>(std::rc::Rc::new(move |x: f32| -> f32 { (f.clone() + x)})) }
 ;
