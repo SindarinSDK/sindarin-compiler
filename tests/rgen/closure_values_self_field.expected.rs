@@ -1,5 +1,33 @@
 #![allow(dead_code, unused_mut, unused_variables, unused_parens)]
 
+fn __sn_runtime_error(message: &'static str) -> ! {
+    eprintln!("{}", message);
+    std::process::exit(1);
+}
+
+fn __sn_checked<T>(value: Option<T>, message: &'static str) -> T {
+    match value {
+        Some(value) => value,
+        None => __sn_runtime_error(message),
+    }
+}
+
+fn __sn_checked_div<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked(value, if divisor_is_zero {
+        "panic: Division by zero"
+    } else {
+        "Runtime error: integer overflow in division"
+    })
+}
+
+fn __sn_checked_mod<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked(value, if divisor_is_zero {
+        "panic: Modulo by zero"
+    } else {
+        "Runtime error: integer overflow in modulo"
+    })
+}
+
 struct __SnClosure<F: ?Sized>(std::rc::Rc<F>);
 impl<F: ?Sized> Clone for __SnClosure<F> {
     fn clone(&self) -> Self { Self(self.0.clone()) }
@@ -25,10 +53,13 @@ impl Holder {
 
 fn main() {
     let mut offset: i64 = 10;
-    let mut holder: Holder = Holder { action: { let (offset, ) = (offset.clone(), ); self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |value: i64| -> i64 { (value).checked_add(offset.clone()).expect("checked arithmetic failed")})) }
+    let mut holder: Holder = Holder { action: { let (offset, ) = (offset.clone(), ); self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |value: i64| -> i64 { __sn_checked(value.checked_add(offset.clone()), "Runtime error: integer overflow in addition")
+})) }
  };
     let mut copied: Holder = holder.clone();
-    ((holder).action = { self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |value: i64| -> i64 { (value).checked_add(100).expect("checked arithmetic failed")})) }
+    ((holder).action = { self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |value: i64| -> i64 { __sn_checked(value.checked_add(100), "Runtime error: integer overflow in addition")
+})) }
 );
     print!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", (holder).apply(1))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (copied).apply(2))); __sn_interpolated.push_str("\n"); __sn_interpolated });
 }
+

@@ -1,20 +1,54 @@
 #![allow(dead_code, unused_mut, unused_variables, unused_parens)]
 
+fn __sn_runtime_error(message: &'static str) -> ! {
+    eprintln!("{}", message);
+    std::process::exit(1);
+}
+
+fn __sn_checked<T>(value: Option<T>, message: &'static str) -> T {
+    match value {
+        Some(value) => value,
+        None => __sn_runtime_error(message),
+    }
+}
+
+fn __sn_checked_div<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked(value, if divisor_is_zero {
+        "panic: Division by zero"
+    } else {
+        "Runtime error: integer overflow in division"
+    })
+}
+
+fn __sn_checked_mod<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked(value, if divisor_is_zero {
+        "panic: Modulo by zero"
+    } else {
+        "Runtime error: integer overflow in modulo"
+    })
+}
+
 fn observeFloat(calls: &mut i64, order: &mut i64, marker: i64, value: f32) -> f32 {
-    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
-    (*(order) = ((*(order)).checked_mul(10).expect("checked arithmetic failed")).checked_add(marker).expect("checked arithmetic failed"));
+    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
+    (*(order) = __sn_checked(__sn_checked(*(order).checked_mul(10), "Runtime error: integer overflow in multiplication")
+.checked_add(marker), "Runtime error: integer overflow in addition")
+);
     return value;
 }
 
 fn observeDouble(calls: &mut i64, order: &mut i64, marker: i64, value: f64) -> f64 {
-    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
-    (*(order) = ((*(order)).checked_mul(10).expect("checked arithmetic failed")).checked_add(marker).expect("checked arithmetic failed"));
+    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
+    (*(order) = __sn_checked(__sn_checked(*(order).checked_mul(10), "Runtime error: integer overflow in multiplication")
+.checked_add(marker), "Runtime error: integer overflow in addition")
+);
     return value;
 }
 
 fn observeInt(calls: &mut i64, order: &mut i64, marker: i64, value: i64) -> i64 {
-    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
-    (*(order) = ((*(order)).checked_mul(10).expect("checked arithmetic failed")).checked_add(marker).expect("checked arithmetic failed"));
+    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
+    (*(order) = __sn_checked(__sn_checked(*(order).checked_mul(10), "Runtime error: integer overflow in multiplication")
+.checked_add(marker), "Runtime error: integer overflow in addition")
+);
     return value;
 }
 
@@ -55,7 +89,7 @@ fn main() {
     {
     let __sn_match_subject_2: f64 = observeDouble(&mut (subject_calls), &mut (order), 3, (-4.5));
     if (__sn_match_subject_2 == 4.5 || __sn_match_subject_2 == (-4.5) || __sn_match_subject_2 == (-1.0)) {
-        { let __sn_rhs = 20; let __sn_place = &mut (selected); let __sn_next = (*__sn_place).checked_add(__sn_rhs).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_next };
+        { let __sn_rhs = 20; let __sn_place = &mut (selected); let __sn_next = __sn_checked((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };
         observeInt(&mut (body_calls), &mut (order), 4, 0);
     }
     else if (__sn_match_subject_2 == (-4.5)) {
@@ -81,22 +115,23 @@ fn main() {
 };
     let mut nan_statement_hits: i64 = 0;
     {
-    let __sn_match_subject_5: f32 = (0.0 / 0.0);
+    let __sn_match_subject_5: f32 = (0.0 / 0.0)
+;
     if (__sn_match_subject_5 == 0.0) {
-        { let __sn_place = &mut (nan_statement_hits); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
+        { let __sn_place = &mut (nan_statement_hits); let __sn_previous = *__sn_place; let __sn_next = __sn_checked(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
     }
 };
     let mut zero_hits: i64 = 0;
     {
     let __sn_match_subject_6: f32 = (-0.0);
     if (__sn_match_subject_6 == 0.0) {
-        { let __sn_place = &mut (zero_hits); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
+        { let __sn_place = &mut (zero_hits); let __sn_previous = *__sn_place; let __sn_next = __sn_checked(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
     }
 };
     {
     let __sn_match_subject_7: f64 = 0.0;
     if (__sn_match_subject_7 == (-0.0)) {
-        { let __sn_place = &mut (zero_hits); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
+        { let __sn_place = &mut (zero_hits); let __sn_previous = *__sn_place; let __sn_next = __sn_checked(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
     }
 };
     let mut first_value: i64 = {
@@ -112,7 +147,8 @@ fn main() {
     }
 };
     let mut nan_value: bool = {
-    let __sn_match_subject_9: f64 = (0.0 / 0.0);
+    let __sn_match_subject_9: f64 = (0.0 / 0.0)
+;
     if (__sn_match_subject_9 == 0.0) {
         (false)
     }
@@ -156,5 +192,9 @@ fn main() {
         ((-1) as i64)
     }
 };
-    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", __sn_match_subject)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", __sn_match_result)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", subject_calls)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", body_calls)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", order)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", selected)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", nested_statement)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", nan_statement_hits)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", zero_hits)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", first_value)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", nan_value)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", (float_value == (-3.5)))); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", (double_value == 6.75))); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", (returned == 42.25))); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", nested_value)); __sn_interpolated });
+    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", __sn_match_subject)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", __sn_match_result)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", subject_calls)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", body_calls)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", order)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", selected)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", nested_statement)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", nan_statement_hits)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", zero_hits)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", first_value)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", nan_value)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", (float_value == (-3.5))
+)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", (double_value == 6.75)
+)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", (returned == 42.25)
+)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", nested_value)); __sn_interpolated });
 }
+

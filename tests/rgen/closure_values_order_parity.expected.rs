@@ -23,6 +23,34 @@ fn __sn_array_size(size: i64) -> usize {
     size as usize
 }
 
+fn __sn_runtime_error(message: &'static str) -> ! {
+    eprintln!("{}", message);
+    std::process::exit(1);
+}
+
+fn __sn_checked<T>(value: Option<T>, message: &'static str) -> T {
+    match value {
+        Some(value) => value,
+        None => __sn_runtime_error(message),
+    }
+}
+
+fn __sn_checked_div<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked(value, if divisor_is_zero {
+        "panic: Division by zero"
+    } else {
+        "Runtime error: integer overflow in division"
+    })
+}
+
+fn __sn_checked_mod<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked(value, if divisor_is_zero {
+        "panic: Modulo by zero"
+    } else {
+        "Runtime error: integer overflow in modulo"
+    })
+}
+
 struct __SnClosure<F: ?Sized>(std::rc::Rc<F>);
 impl<F: ?Sized> Clone for __SnClosure<F> {
     fn clone(&self) -> Self { Self(self.0.clone()) }
@@ -41,7 +69,9 @@ struct Holder {
 }
 
 fn combine(a: i64, b: i64) -> i64 {
-    return ((a).checked_mul(10).expect("checked arithmetic failed")).checked_add(b).expect("checked arithmetic failed");
+    return __sn_checked(__sn_checked(a.checked_mul(10), "Runtime error: integer overflow in multiplication")
+ .checked_add(b), "Runtime error: integer overflow in addition")
+;
 }
 
 fn argument(value: i64) -> i64 {
@@ -68,10 +98,13 @@ fn index() -> i64 {
 }
 
 fn recursive(n: i64) -> i64 {
-    if (n < 2) {
+    if (n < 2)
+ {
         return 1;
     }
-    return (n).checked_mul(recursive((n).checked_sub(1).expect("checked arithmetic failed"))).expect("checked arithmetic failed");
+    return __sn_checked(n.checked_mul(recursive(__sn_checked(n.checked_sub(1), "Runtime error: integer overflow in subtraction")
+ )), "Runtime error: integer overflow in multiplication")
+;
 }
 
 fn main() {
@@ -92,3 +125,4 @@ fn main() {
     { copy = factorial.clone(); copy.clone() };
     print!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", ((copy.clone()).0)(5))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", ((factorial.clone()).0)(4))); __sn_interpolated.push_str("\n"); __sn_interpolated });
 }
+

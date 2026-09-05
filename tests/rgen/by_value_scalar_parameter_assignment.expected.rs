@@ -1,5 +1,33 @@
 #![allow(dead_code, unused_mut, unused_variables, unused_parens)]
 
+fn __sn_runtime_error(message: &'static str) -> ! {
+    eprintln!("{}", message);
+    std::process::exit(1);
+}
+
+fn __sn_checked<T>(value: Option<T>, message: &'static str) -> T {
+    match value {
+        Some(value) => value,
+        None => __sn_runtime_error(message),
+    }
+}
+
+fn __sn_checked_div<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked(value, if divisor_is_zero {
+        "panic: Division by zero"
+    } else {
+        "Runtime error: integer overflow in division"
+    })
+}
+
+fn __sn_checked_mod<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked(value, if divisor_is_zero {
+        "panic: Modulo by zero"
+    } else {
+        "Runtime error: integer overflow in modulo"
+    })
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 struct ScalarAssignments {
     marker: i64,
@@ -7,64 +35,90 @@ struct ScalarAssignments {
 
 impl ScalarAssignments {
     fn assignInt32(mut value: i32, untouched: i32) -> i32 {
-        { value = (value).checked_add(4).expect("checked arithmetic failed"); value };
-        return (value).checked_add(untouched).expect("checked arithmetic failed");
+        { value = __sn_checked(value.checked_add(4), "Runtime error: integer overflow in addition")
+; value };
+        return __sn_checked(value.checked_add(untouched), "Runtime error: integer overflow in addition")
+;
     }
     fn assignByte(mut value: u8, untouched: u8) -> u8 {
-        let mut assigned: u8 = { value = (value).checked_add(5).expect("checked arithmetic failed"); value };
-        return ((assigned).checked_add(value).expect("checked arithmetic failed")).checked_add(untouched).expect("checked arithmetic failed");
+        let mut assigned: u8 = { value = __sn_checked(value.checked_add(5), "Runtime error: integer overflow in addition")
+; value };
+        return __sn_checked(__sn_checked(assigned.checked_add(value), "Runtime error: integer overflow in addition")
+ .checked_add(untouched), "Runtime error: integer overflow in addition")
+;
     }
     fn assignUint32(mut value: u32, untouched: u32) -> u32 {
-        return { value = (value).checked_add(untouched).expect("checked arithmetic failed"); value };
+        return { value = __sn_checked(value.checked_add(untouched), "Runtime error: integer overflow in addition")
+ ; value };
     }
     fn assignUint(&self, mut value: u64, untouched: u64) -> u64 {
-        { value = (value).checked_add(7).expect("checked arithmetic failed"); value };
-        return ((value).checked_add(untouched).expect("checked arithmetic failed")).checked_add(((self).marker as u64)).expect("checked arithmetic failed");
+        { value = __sn_checked(value.checked_add(7), "Runtime error: integer overflow in addition")
+; value };
+        return __sn_checked(__sn_checked(value.checked_add(untouched), "Runtime error: integer overflow in addition")
+ .checked_add(((self).marker as u64)), "Runtime error: integer overflow in addition")
+;
     }
     fn assignFloat(&self, mut value: f32, untouched: f32) -> f32 {
-        let mut assigned: f32 = { value = (value + 1.5); value };
-        return ((assigned + value) + untouched);
+        let mut assigned: f32 = { value = (value + 1.5)
+; value };
+        return ((assigned + value)
+  + untouched)
+;
     }
     fn assignDouble(&self, mut value: f64, untouched: f64) -> f64 {
-        return { value = (value + untouched); value };
+        return { value = (value + untouched)
+ ; value };
     }
 }
 
 fn observeInt(calls: &mut i64, value: i64) -> i64 {
-    (*(calls) = (*(calls)).checked_add(1).expect("checked arithmetic failed"));
+    (*(calls) = __sn_checked(*(calls).checked_add(1), "Runtime error: integer overflow in addition")
+);
     return value;
 }
 
 fn assignBool(mut value: bool, untouched: bool) -> bool {
     { value = (!value); value };
-    return (value && untouched);
+    return (value && untouched)
+;
 }
 
 fn assignInt(mut value: i64, calls: &mut i64, untouched: i64) -> i64 {
-    { value = observeInt(&mut *(calls), (value).checked_add(2).expect("checked arithmetic failed")); value };
-    return (value).checked_add(untouched).expect("checked arithmetic failed");
+    { value = observeInt(&mut *(calls), __sn_checked(value.checked_add(2), "Runtime error: integer overflow in addition")
+); value };
+    return __sn_checked(value.checked_add(untouched), "Runtime error: integer overflow in addition")
+;
 }
 
 fn assignLong(mut value: i64, untouched: i64) -> i64 {
-    let mut assigned: i64 = { value = (value).checked_add(3).expect("checked arithmetic failed"); value };
-    return ((assigned).checked_add(value).expect("checked arithmetic failed")).checked_add(untouched).expect("checked arithmetic failed");
+    let mut assigned: i64 = { value = __sn_checked(value.checked_add(3), "Runtime error: integer overflow in addition")
+; value };
+    return __sn_checked(__sn_checked(assigned.checked_add(value), "Runtime error: integer overflow in addition")
+ .checked_add(untouched), "Runtime error: integer overflow in addition")
+;
 }
 
 fn helperNames(mut __sn_rhs: i64, __sn_place: i64, __sn_next: i64) -> i64 {
-    let mut assigned: i64 = { __sn_rhs = (__sn_rhs).checked_add(__sn_place).expect("checked arithmetic failed"); __sn_rhs };
+    let mut assigned: i64 = { __sn_rhs = __sn_checked(__sn_rhs.checked_add(__sn_place), "Runtime error: integer overflow in addition")
+; __sn_rhs };
     if true {
         let mut __sn_next: i64 = 4;
         (__sn_next = 5);
     }
-    return ((assigned).checked_add(__sn_rhs).expect("checked arithmetic failed")).checked_add(__sn_next).expect("checked arithmetic failed");
+    return __sn_checked(__sn_checked(assigned.checked_add(__sn_rhs), "Runtime error: integer overflow in addition")
+ .checked_add(__sn_next), "Runtime error: integer overflow in addition")
+;
 }
 
 fn statementOrder(mut value: i64, delta: i64) -> i64 {
     if true {
-        let mut readBefore: i64 = (value).checked_add(delta).expect("checked arithmetic failed");
-        { value = (value).checked_add(1).expect("checked arithmetic failed"); value };
+        let mut readBefore: i64 = __sn_checked(value.checked_add(delta), "Runtime error: integer overflow in addition")
+;
+        { value = __sn_checked(value.checked_add(1), "Runtime error: integer overflow in addition")
+; value };
         let mut value: i64 = readBefore;
-        (value = (value).checked_add(10).expect("checked arithmetic failed"));
+        (value = __sn_checked(value.checked_add(10), "Runtime error: integer overflow in addition")
+);
     }
     return value;
 }
@@ -93,15 +147,23 @@ fn main() {
     let mut helperResult: i64 = helperNames(1, 2, 3);
     let mut orderCaller: i64 = 4;
     let mut orderResult: i64 = statementOrder(orderCaller, 2);
-    println!("{}", (boolResult && (!boolCaller)));
+    println!("{}", (boolResult && (!boolCaller))
+);
     println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", intResult)); __sn_interpolated.push_str("/"); __sn_interpolated.push_str(&format!("{}", intCaller)); __sn_interpolated.push_str("/"); __sn_interpolated.push_str(&format!("{}", calls)); __sn_interpolated });
     println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", longResult)); __sn_interpolated.push_str("/"); __sn_interpolated.push_str(&format!("{}", longCaller)); __sn_interpolated });
     println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", int32Result)); __sn_interpolated.push_str("/"); __sn_interpolated.push_str(&format!("{}", int32Caller)); __sn_interpolated });
     println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", byteResult)); __sn_interpolated.push_str("/"); __sn_interpolated.push_str(&format!("{}", byteCaller)); __sn_interpolated });
     println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", uint32Result)); __sn_interpolated.push_str("/"); __sn_interpolated.push_str(&format!("{}", uint32Caller)); __sn_interpolated });
     println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", uintResult)); __sn_interpolated.push_str("/"); __sn_interpolated.push_str(&format!("{}", uintCaller)); __sn_interpolated });
-    println!("{}", ((floatResult == 7.5) && (floatCaller == 2.0)));
-    println!("{}", ((doubleResult == 3.25) && (doubleCaller == 3.0)));
+    println!("{}", ((floatResult == 7.5)
+ && (floatCaller == 2.0)
+)
+);
+    println!("{}", ((doubleResult == 3.25)
+ && (doubleCaller == 3.0)
+)
+);
     println!("{}", helperResult);
     println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", orderResult)); __sn_interpolated.push_str("/"); __sn_interpolated.push_str(&format!("{}", orderCaller)); __sn_interpolated });
 }
+

@@ -1,8 +1,39 @@
 #![allow(dead_code, unused_mut, unused_variables, unused_parens)]
 
+fn __sn_runtime_error(message: &'static str) -> ! {
+    eprintln!("{}", message);
+    std::process::exit(1);
+}
+
+fn __sn_checked<T>(value: Option<T>, message: &'static str) -> T {
+    match value {
+        Some(value) => value,
+        None => __sn_runtime_error(message),
+    }
+}
+
+fn __sn_checked_div<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked(value, if divisor_is_zero {
+        "panic: Division by zero"
+    } else {
+        "Runtime error: integer overflow in division"
+    })
+}
+
+fn __sn_checked_mod<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked(value, if divisor_is_zero {
+        "panic: Modulo by zero"
+    } else {
+        "Runtime error: integer overflow in modulo"
+    })
+}
+
 fn main() {
     let mut min_base: i64 = (-9223372036854775807);
     let mut one: i64 = 1;
-    let mut min: i64 = (min_base).checked_sub(one).expect("checked arithmetic failed");
-    let mut underflow: i64 = (min).checked_sub(one).expect("checked arithmetic failed");
+    let mut min: i64 = __sn_checked(min_base.checked_sub(one), "Runtime error: integer overflow in subtraction")
+;
+    let mut underflow: i64 = __sn_checked(min.checked_sub(one), "Runtime error: integer overflow in subtraction")
+;
 }
+
