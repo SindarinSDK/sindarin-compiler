@@ -38,7 +38,12 @@ macro_rules! __sn_integer_array_text_0 {
     )+};
 }
 
-__sn_integer_array_text_0!(i64, i32, u64, u32);
+__sn_integer_array_text_0!(i64, i32, u32);
+
+impl __SnArrayText_0 for u64 {
+    fn __sn_array_text_0(&self) -> String { (*self as i64).to_string() }
+    fn __sn_join_text_0(&self) -> String { (*self as i64).to_string() }
+}
 
 impl __SnArrayText_0 for u8 {
     fn __sn_array_text_0(&self) -> String { format!("0x{:02X}", self) }
