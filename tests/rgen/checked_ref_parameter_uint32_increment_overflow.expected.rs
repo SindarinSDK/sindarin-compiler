@@ -34,6 +34,5 @@ fn fail(value: &mut u32) {
 
 fn main() {
     let mut value: u32 = 4294967295;
-    fail(&mut (value))
-;
+    fail(&mut (value));
 }

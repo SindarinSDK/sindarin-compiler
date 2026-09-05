@@ -24,6 +24,8 @@ impl SnString {
 
     fn from_bytes(bytes: Vec<u8>) -> Self { Self(bytes) }
 
+    fn from_slice(bytes: &[u8]) -> Self { Self(bytes.to_vec()) }
+
     fn from_c_bytes(bytes: &[u8]) -> Self {
         let end = bytes.iter().position(|byte| *byte == 0).unwrap_or(bytes.len());
         Self(bytes[..end].to_vec())
@@ -75,6 +77,61 @@ impl From<&str> for SnString {
 impl From<String> for SnString {
     fn from(value: String) -> Self { Self(value.into_bytes()) }
 }
+
+#[cfg(unix)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::unix::ffi::OsStrExt;
+    std::env::args_os()
+        .map(|value| SnString::from_slice(value.as_os_str().as_bytes()))
+        .collect()
+}
+
+#[cfg(windows)]
+fn __sn_push_wtf8(bytes: &mut Vec<u8>, value: u32) {
+    if value <= 0x7f {
+        bytes.push(value as u8);
+    } else if value <= 0x7ff {
+        bytes.push((0xc0 | (value >> 6)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else if value <= 0xffff {
+        bytes.push((0xe0 | (value >> 12)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else {
+        bytes.push((0xf0 | (value >> 18)) as u8);
+        bytes.push((0x80 | ((value >> 12) & 0x3f)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    }
+}
+
+#[cfg(windows)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::windows::ffi::OsStrExt;
+    std::env::args_os().map(|value| {
+        let mut bytes = Vec::new();
+        let mut units = value.as_os_str().encode_wide().peekable();
+        while let Some(unit) = units.next() {
+            let scalar = if (0xd800..=0xdbff).contains(&unit) {
+                match units.peek().copied() {
+                    Some(low) if (0xdc00..=0xdfff).contains(&low) => {
+                        units.next();
+                        0x10000 + (((unit as u32 - 0xd800) << 10) |
+                                   (low as u32 - 0xdc00))
+                    }
+                    _ => unit as u32,
+                }
+            } else {
+                unit as u32
+            };
+            __sn_push_wtf8(&mut bytes, scalar);
+        }
+        SnString::from_bytes(bytes)
+    }).collect()
+}
+
+#[cfg(not(any(unix, windows)))]
+compile_error!("Sindarin Rust argv byte transport supports Unix and Windows targets");
 
 impl std::fmt::Debug for SnString {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -254,8 +311,8 @@ fn touch(counter: &mut i64) -> i64 {
 }
 
 fn reflectedRecord() -> TypeInfo {
-    let mut value: Record = Record { name: SnString::from("returned"), count: 2, flags: vec![true, false], inner: Inner { code: 7 }, ratio: 1.5 };
-    let mut info: TypeInfo = TypeInfo { name: SnString::from("Record"), fields: vec![FieldInfo { name: SnString::from("name"), typeName: SnString::from("str"), typeId: 1112265104 }, FieldInfo { name: SnString::from("count"), typeName: SnString::from("int"), typeId: 367623774 }, FieldInfo { name: SnString::from("flags"), typeName: SnString::from("array"), typeId: 173583654 }, FieldInfo { name: SnString::from("inner"), typeName: SnString::from("Inner"), typeId: 2124115655 }, FieldInfo { name: SnString::from("ratio"), typeName: SnString::from("float"), typeId: 650403205 }], fieldCount: 5, typeId: 524641772 }
+    let mut value: Record = Record { name: SnString::from_slice(&[0x72, 0x65, 0x74, 0x75, 0x72, 0x6e, 0x65, 0x64]), count: 2, flags: vec![true, false], inner: Inner { code: 7 }, ratio: 1.5 };
+    let mut info: TypeInfo = TypeInfo { name: SnString::from_slice(&[0x52, 0x65, 0x63, 0x6f, 0x72, 0x64]), fields: vec![FieldInfo { name: SnString::from_slice(&[0x6e, 0x61, 0x6d, 0x65]), typeName: SnString::from_slice(&[0x73, 0x74, 0x72]), typeId: 1112265104 }, FieldInfo { name: SnString::from_slice(&[0x63, 0x6f, 0x75, 0x6e, 0x74]), typeName: SnString::from_slice(&[0x69, 0x6e, 0x74]), typeId: 367623774 }, FieldInfo { name: SnString::from_slice(&[0x66, 0x6c, 0x61, 0x67, 0x73]), typeName: SnString::from_slice(&[0x61, 0x72, 0x72, 0x61, 0x79]), typeId: 173583654 }, FieldInfo { name: SnString::from_slice(&[0x69, 0x6e, 0x6e, 0x65, 0x72]), typeName: SnString::from_slice(&[0x49, 0x6e, 0x6e, 0x65, 0x72]), typeId: 2124115655 }, FieldInfo { name: SnString::from_slice(&[0x72, 0x61, 0x74, 0x69, 0x6f]), typeName: SnString::from_slice(&[0x66, 0x6c, 0x6f, 0x61, 0x74]), typeId: 650403205 }], fieldCount: 5, typeId: 524641772 }
 ;
     return info;
 }
@@ -271,97 +328,46 @@ fn main() {
     let mut bool_value: bool = true;
     let mut char_value: char = '\u{78}';
     let mut byte_value: u8 = 8;
-    let mut string_value: SnString = SnString::from("text");
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from("int"))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", 367623774)); __sn_interpolated }
-))
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from("long"))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", 1122819923)); __sn_interpolated }
-))
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from("int32"))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", 2078204607)); __sn_interpolated }
-))
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from("uint"))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", 1268266657)); __sn_interpolated }
-))
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from("uint32"))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", 848563180)); __sn_interpolated }
-))
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from("double"))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", 552275720)); __sn_interpolated }
-))
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from("float"))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", 650403205)); __sn_interpolated }
-))
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from("bool"))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", 1217697085)); __sn_interpolated }
-))
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from("char"))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", 676070173)); __sn_interpolated }
-))
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from("byte"))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", 1683620383)); __sn_interpolated }
-))
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from("str"))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", 1112265104)); __sn_interpolated }
-))
-;
+    let mut string_value: SnString = SnString::from_slice(&[0x74, 0x65, 0x78, 0x74]);
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x69, 0x6e, 0x74]))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", 367623774)); __sn_interpolated }));
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x6c, 0x6f, 0x6e, 0x67]))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", 1122819923)); __sn_interpolated }));
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x69, 0x6e, 0x74, 0x33, 0x32]))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", 2078204607)); __sn_interpolated }));
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x75, 0x69, 0x6e, 0x74]))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", 1268266657)); __sn_interpolated }));
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x75, 0x69, 0x6e, 0x74, 0x33, 0x32]))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", 848563180)); __sn_interpolated }));
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x64, 0x6f, 0x75, 0x62, 0x6c, 0x65]))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", 552275720)); __sn_interpolated }));
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x66, 0x6c, 0x6f, 0x61, 0x74]))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", 650403205)); __sn_interpolated }));
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x62, 0x6f, 0x6f, 0x6c]))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", 1217697085)); __sn_interpolated }));
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x63, 0x68, 0x61, 0x72]))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", 676070173)); __sn_interpolated }));
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x62, 0x79, 0x74, 0x65]))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", 1683620383)); __sn_interpolated }));
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x73, 0x74, 0x72]))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", 1112265104)); __sn_interpolated }));
     let mut numbers: Vec<i64> = vec![1, 2, 3];
-    let mut words: Vec<SnString> = vec![SnString::from("a"), SnString::from("b")];
-    let mut number_info: TypeInfo = TypeInfo { name: SnString::from("array"), fields: vec![], fieldCount: 0, typeId: 173583654 }
+    let mut words: Vec<SnString> = vec![SnString::from_slice(&[0x61]), SnString::from_slice(&[0x62])];
+    let mut number_info: TypeInfo = TypeInfo { name: SnString::from_slice(&[0x61, 0x72, 0x72, 0x61, 0x79]), fields: vec![], fieldCount: 0, typeId: 173583654 }
 ;
-    let mut word_info: TypeInfo = TypeInfo { name: SnString::from("array"), fields: vec![], fieldCount: 0, typeId: 173583654 }
+    let mut word_info: TypeInfo = TypeInfo { name: SnString::from_slice(&[0x61, 0x72, 0x72, 0x61, 0x79]), fields: vec![], fieldCount: 0, typeId: 173583654 }
 ;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&((number_info).name)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (number_info).fieldCount)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (number_info).typeId)); __sn_interpolated }
-))
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&((word_info).name)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (word_info).fieldCount)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (word_info).typeId)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", ((number_info).typeId == (word_info).typeId))); __sn_interpolated }
-))
-;
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&((number_info).name)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", (number_info).fieldCount)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", (number_info).typeId)); __sn_interpolated }));
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&((word_info).name)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", (word_info).fieldCount)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", (word_info).typeId)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", ((number_info).typeId == (word_info).typeId))); __sn_interpolated }));
     let mut inner: Inner = Inner { code: 9 };
-    let mut record: Record = Record { name: SnString::from("record"), count: 3, flags: vec![true], inner: inner, ratio: 2.5 };
-    let mut info: TypeInfo = TypeInfo { name: SnString::from("Record"), fields: vec![FieldInfo { name: SnString::from("name"), typeName: SnString::from("str"), typeId: 1112265104 }, FieldInfo { name: SnString::from("count"), typeName: SnString::from("int"), typeId: 367623774 }, FieldInfo { name: SnString::from("flags"), typeName: SnString::from("array"), typeId: 173583654 }, FieldInfo { name: SnString::from("inner"), typeName: SnString::from("Inner"), typeId: 2124115655 }, FieldInfo { name: SnString::from("ratio"), typeName: SnString::from("float"), typeId: 650403205 }], fieldCount: 5, typeId: 524641772 }
+    let mut record: Record = Record { name: SnString::from_slice(&[0x72, 0x65, 0x63, 0x6f, 0x72, 0x64]), count: 3, flags: vec![true], inner: inner, ratio: 2.5 };
+    let mut info: TypeInfo = TypeInfo { name: SnString::from_slice(&[0x52, 0x65, 0x63, 0x6f, 0x72, 0x64]), fields: vec![FieldInfo { name: SnString::from_slice(&[0x6e, 0x61, 0x6d, 0x65]), typeName: SnString::from_slice(&[0x73, 0x74, 0x72]), typeId: 1112265104 }, FieldInfo { name: SnString::from_slice(&[0x63, 0x6f, 0x75, 0x6e, 0x74]), typeName: SnString::from_slice(&[0x69, 0x6e, 0x74]), typeId: 367623774 }, FieldInfo { name: SnString::from_slice(&[0x66, 0x6c, 0x61, 0x67, 0x73]), typeName: SnString::from_slice(&[0x61, 0x72, 0x72, 0x61, 0x79]), typeId: 173583654 }, FieldInfo { name: SnString::from_slice(&[0x69, 0x6e, 0x6e, 0x65, 0x72]), typeName: SnString::from_slice(&[0x49, 0x6e, 0x6e, 0x65, 0x72]), typeId: 2124115655 }, FieldInfo { name: SnString::from_slice(&[0x72, 0x61, 0x74, 0x69, 0x6f]), typeName: SnString::from_slice(&[0x66, 0x6c, 0x6f, 0x61, 0x74]), typeId: 650403205 }], fieldCount: 5, typeId: 524641772 }
 ;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&((info).name)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (info).fieldCount)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (info).typeId)); __sn_interpolated }
-))
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&((((info).fields)[__sn_index(((info).fields).len(), 0)]).name)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&((((info).fields)[__sn_index(((info).fields).len(), 0)]).typeName)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (((info).fields)[__sn_index(((info).fields).len(), 0)]).typeId)); __sn_interpolated }
-))
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&((((info).fields)[__sn_index(((info).fields).len(), 1)]).name)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&((((info).fields)[__sn_index(((info).fields).len(), 1)]).typeName)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (((info).fields)[__sn_index(((info).fields).len(), 1)]).typeId)); __sn_interpolated }
-))
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&((((info).fields)[__sn_index(((info).fields).len(), 2)]).name)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&((((info).fields)[__sn_index(((info).fields).len(), 2)]).typeName)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (((info).fields)[__sn_index(((info).fields).len(), 2)]).typeId)); __sn_interpolated }
-))
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&((((info).fields)[__sn_index(((info).fields).len(), 3)]).name)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&((((info).fields)[__sn_index(((info).fields).len(), 3)]).typeName)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (((info).fields)[__sn_index(((info).fields).len(), 3)]).typeId)); __sn_interpolated }
-))
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&((((info).fields)[__sn_index(((info).fields).len(), 4)]).name)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&((((info).fields)[__sn_index(((info).fields).len(), 4)]).typeName)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (((info).fields)[__sn_index(((info).fields).len(), 4)]).typeId)); __sn_interpolated }
-))
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", ((((info).fields)[__sn_index(((info).fields).len(), 3)]).typeId == 2124115655))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (524641772 == (info).typeId))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (524641772 != 367623774))); __sn_interpolated }
-))
-;
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&((info).name)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", (info).fieldCount)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", (info).typeId)); __sn_interpolated }));
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&((((info).fields)[__sn_index(((info).fields).len(), 0)]).name)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&((((info).fields)[__sn_index(((info).fields).len(), 0)]).typeName)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", (((info).fields)[__sn_index(((info).fields).len(), 0)]).typeId)); __sn_interpolated }));
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&((((info).fields)[__sn_index(((info).fields).len(), 1)]).name)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&((((info).fields)[__sn_index(((info).fields).len(), 1)]).typeName)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", (((info).fields)[__sn_index(((info).fields).len(), 1)]).typeId)); __sn_interpolated }));
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&((((info).fields)[__sn_index(((info).fields).len(), 2)]).name)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&((((info).fields)[__sn_index(((info).fields).len(), 2)]).typeName)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", (((info).fields)[__sn_index(((info).fields).len(), 2)]).typeId)); __sn_interpolated }));
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&((((info).fields)[__sn_index(((info).fields).len(), 3)]).name)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&((((info).fields)[__sn_index(((info).fields).len(), 3)]).typeName)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", (((info).fields)[__sn_index(((info).fields).len(), 3)]).typeId)); __sn_interpolated }));
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&((((info).fields)[__sn_index(((info).fields).len(), 4)]).name)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&((((info).fields)[__sn_index(((info).fields).len(), 4)]).typeName)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", (((info).fields)[__sn_index(((info).fields).len(), 4)]).typeId)); __sn_interpolated }));
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", ((((info).fields)[__sn_index(((info).fields).len(), 3)]).typeId == 2124115655))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", (524641772 == (info).typeId))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", (524641772 != 367623774))); __sn_interpolated }));
     let mut assigned: TypeInfo = info.clone();
-    ((assigned).fields).clear()
-
-;
+    ((assigned).fields).clear();
     let mut copied: TypeInfo = (info).clone();
-    ((copied).fields).clear()
-
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&((info).name)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", ((info).fields).len() as i64)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&((assigned).name)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", ((assigned).fields).len() as i64)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&((copied).name)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", ((copied).fields).len() as i64)); __sn_interpolated }
-))
-;
-    let mut returned: TypeInfo = reflectedRecord()
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&((returned).name)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (returned).fieldCount)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&((((returned).fields)[__sn_index(((returned).fields).len(), 3)]).typeName)); __sn_interpolated }
-))
-;
+    ((copied).fields).clear();
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&((info).name)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", ((info).fields).len() as i64)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&((assigned).name)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", ((assigned).fields).len() as i64)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&((copied).name)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", ((copied).fields).len() as i64)); __sn_interpolated }));
+    let mut returned: TypeInfo = reflectedRecord();
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&((returned).name)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", (returned).fieldCount)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&((((returned).fields)[__sn_index(((returned).fields).len(), 3)]).typeName)); __sn_interpolated }));
     let mut counter: i64 = 0;
-    let mut unevaluated: TypeInfo = TypeInfo { name: SnString::from("int"), fields: vec![], fieldCount: 0, typeId: 367623774 }
+    let mut unevaluated: TypeInfo = TypeInfo { name: SnString::from_slice(&[0x69, 0x6e, 0x74]), fields: vec![], fieldCount: 0, typeId: 367623774 }
 ;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", counter)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&((unevaluated).name)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", 0)); __sn_interpolated }
-))
-;
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", counter)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&((unevaluated).name)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", 0)); __sn_interpolated }));
 }

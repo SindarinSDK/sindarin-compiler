@@ -24,6 +24,8 @@ impl SnString {
 
     fn from_bytes(bytes: Vec<u8>) -> Self { Self(bytes) }
 
+    fn from_slice(bytes: &[u8]) -> Self { Self(bytes.to_vec()) }
+
     fn from_c_bytes(bytes: &[u8]) -> Self {
         let end = bytes.iter().position(|byte| *byte == 0).unwrap_or(bytes.len());
         Self(bytes[..end].to_vec())
@@ -75,6 +77,61 @@ impl From<&str> for SnString {
 impl From<String> for SnString {
     fn from(value: String) -> Self { Self(value.into_bytes()) }
 }
+
+#[cfg(unix)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::unix::ffi::OsStrExt;
+    std::env::args_os()
+        .map(|value| SnString::from_slice(value.as_os_str().as_bytes()))
+        .collect()
+}
+
+#[cfg(windows)]
+fn __sn_push_wtf8(bytes: &mut Vec<u8>, value: u32) {
+    if value <= 0x7f {
+        bytes.push(value as u8);
+    } else if value <= 0x7ff {
+        bytes.push((0xc0 | (value >> 6)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else if value <= 0xffff {
+        bytes.push((0xe0 | (value >> 12)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else {
+        bytes.push((0xf0 | (value >> 18)) as u8);
+        bytes.push((0x80 | ((value >> 12) & 0x3f)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    }
+}
+
+#[cfg(windows)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::windows::ffi::OsStrExt;
+    std::env::args_os().map(|value| {
+        let mut bytes = Vec::new();
+        let mut units = value.as_os_str().encode_wide().peekable();
+        while let Some(unit) = units.next() {
+            let scalar = if (0xd800..=0xdbff).contains(&unit) {
+                match units.peek().copied() {
+                    Some(low) if (0xdc00..=0xdfff).contains(&low) => {
+                        units.next();
+                        0x10000 + (((unit as u32 - 0xd800) << 10) |
+                                   (low as u32 - 0xdc00))
+                    }
+                    _ => unit as u32,
+                }
+            } else {
+                unit as u32
+            };
+            __sn_push_wtf8(&mut bytes, scalar);
+        }
+        SnString::from_bytes(bytes)
+    }).collect()
+}
+
+#[cfg(not(any(unix, windows)))]
+compile_error!("Sindarin Rust argv byte transport supports Unix and Windows targets");
 
 impl std::fmt::Debug for SnString {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -180,7 +237,7 @@ impl<F: ?Sized> PartialEq for __SnClosure<F> {
 }
 fn make(seed: SnString) -> __SnClosure<dyn Fn() -> __SnClosure<dyn Fn(SnString) -> SnString>> {
     let value: std::rc::Rc<std::cell::RefCell<SnString>> = std::rc::Rc::new(std::cell::RefCell::new(seed));
-    return { let (value, ) = (value.clone(), ); self::__SnClosure::<dyn Fn() -> __SnClosure<dyn Fn(SnString) -> SnString>>(std::rc::Rc::new(move || -> __SnClosure<dyn Fn(SnString) -> SnString> { { let (__sn_string_part, __sn_cell) = ((SnString::from("-middle")).clone(), &value); let mut __sn_string_place = __sn_cell.borrow_mut(); __sn_string_place.push_str(&__sn_string_part); (*__sn_string_place).clone() };return { let (value, ) = (value.clone(), ); self::__SnClosure::<dyn Fn(SnString) -> SnString>(std::rc::Rc::new(move |suffix: SnString| -> SnString { { let (__sn_string_part, __sn_cell) = ((suffix).clone(), &value); let mut __sn_string_place = __sn_cell.borrow_mut(); __sn_string_place.push_str(&__sn_string_part); (*__sn_string_place).clone() };return value.borrow().clone();})) }
+    return { let (value, ) = (value.clone(), ); self::__SnClosure::<dyn Fn() -> __SnClosure<dyn Fn(SnString) -> SnString>>(std::rc::Rc::new(move || -> __SnClosure<dyn Fn(SnString) -> SnString> { { let (__sn_string_part, __sn_cell) = ((SnString::from_slice(&[0x2d, 0x6d, 0x69, 0x64, 0x64, 0x6c, 0x65])).clone(), &value); let mut __sn_string_place = __sn_cell.borrow_mut(); __sn_string_place.push_str(&__sn_string_part); (*__sn_string_place).clone() };return { let (value, ) = (value.clone(), ); self::__SnClosure::<dyn Fn(SnString) -> SnString>(std::rc::Rc::new(move |suffix: SnString| -> SnString { { let (__sn_string_part, __sn_cell) = ((suffix).clone(), &value); let mut __sn_string_place = __sn_cell.borrow_mut(); __sn_string_place.push_str(&__sn_string_part); (*__sn_string_place).clone() };return value.borrow().clone();})) }
  ;})) }
 ;
 }
@@ -192,25 +249,16 @@ fn makeDirect(seed: SnString) -> __SnClosure<dyn Fn(SnString) -> SnString> {
 }
 
 fn main() {
-    let mut factory: __SnClosure<dyn Fn() -> __SnClosure<dyn Fn(SnString) -> SnString>> = make(SnString::from("root"))
-;
+    let mut factory: __SnClosure<dyn Fn() -> __SnClosure<dyn Fn(SnString) -> SnString>> = make(SnString::from_slice(&[0x72, 0x6f, 0x6f, 0x74]));
     let mut first: __SnClosure<dyn Fn(SnString) -> SnString> = ((factory.clone()).0)();
     let mut second: __SnClosure<dyn Fn(SnString) -> SnString> = ((factory.clone()).0)();
-    __sn_println_string(&(((first.clone()).0)(SnString::from("-one"))))
-;
-    __sn_println_string(&(((first.clone()).0)(SnString::from("-two"))))
-;
-    __sn_println_string(&(((second.clone()).0)(SnString::from("-three"))))
-;
-    let mut other: __SnClosure<dyn Fn() -> __SnClosure<dyn Fn(SnString) -> SnString>> = make(SnString::from("other"))
-;
+    __sn_println_string(&(((first.clone()).0)(SnString::from_slice(&[0x2d, 0x6f, 0x6e, 0x65]))));
+    __sn_println_string(&(((first.clone()).0)(SnString::from_slice(&[0x2d, 0x74, 0x77, 0x6f]))));
+    __sn_println_string(&(((second.clone()).0)(SnString::from_slice(&[0x2d, 0x74, 0x68, 0x72, 0x65, 0x65]))));
+    let mut other: __SnClosure<dyn Fn() -> __SnClosure<dyn Fn(SnString) -> SnString>> = make(SnString::from_slice(&[0x6f, 0x74, 0x68, 0x65, 0x72]));
     let mut third: __SnClosure<dyn Fn(SnString) -> SnString> = ((other.clone()).0)();
-    __sn_println_string(&(((third.clone()).0)(SnString::from("-four"))))
-;
-    let mut direct: __SnClosure<dyn Fn(SnString) -> SnString> = makeDirect(SnString::from("param"))
-;
-    __sn_println_string(&(((direct.clone()).0)(SnString::from("-one"))))
-;
-    __sn_println_string(&(((direct.clone()).0)(SnString::from("-two"))))
-;
+    __sn_println_string(&(((third.clone()).0)(SnString::from_slice(&[0x2d, 0x66, 0x6f, 0x75, 0x72]))));
+    let mut direct: __SnClosure<dyn Fn(SnString) -> SnString> = makeDirect(SnString::from_slice(&[0x70, 0x61, 0x72, 0x61, 0x6d]));
+    __sn_println_string(&(((direct.clone()).0)(SnString::from_slice(&[0x2d, 0x6f, 0x6e, 0x65]))));
+    __sn_println_string(&(((direct.clone()).0)(SnString::from_slice(&[0x2d, 0x74, 0x77, 0x6f]))));
 }

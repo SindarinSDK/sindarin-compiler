@@ -24,6 +24,8 @@ impl SnString {
 
     fn from_bytes(bytes: Vec<u8>) -> Self { Self(bytes) }
 
+    fn from_slice(bytes: &[u8]) -> Self { Self(bytes.to_vec()) }
+
     fn from_c_bytes(bytes: &[u8]) -> Self {
         let end = bytes.iter().position(|byte| *byte == 0).unwrap_or(bytes.len());
         Self(bytes[..end].to_vec())
@@ -75,6 +77,61 @@ impl From<&str> for SnString {
 impl From<String> for SnString {
     fn from(value: String) -> Self { Self(value.into_bytes()) }
 }
+
+#[cfg(unix)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::unix::ffi::OsStrExt;
+    std::env::args_os()
+        .map(|value| SnString::from_slice(value.as_os_str().as_bytes()))
+        .collect()
+}
+
+#[cfg(windows)]
+fn __sn_push_wtf8(bytes: &mut Vec<u8>, value: u32) {
+    if value <= 0x7f {
+        bytes.push(value as u8);
+    } else if value <= 0x7ff {
+        bytes.push((0xc0 | (value >> 6)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else if value <= 0xffff {
+        bytes.push((0xe0 | (value >> 12)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else {
+        bytes.push((0xf0 | (value >> 18)) as u8);
+        bytes.push((0x80 | ((value >> 12) & 0x3f)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    }
+}
+
+#[cfg(windows)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::windows::ffi::OsStrExt;
+    std::env::args_os().map(|value| {
+        let mut bytes = Vec::new();
+        let mut units = value.as_os_str().encode_wide().peekable();
+        while let Some(unit) = units.next() {
+            let scalar = if (0xd800..=0xdbff).contains(&unit) {
+                match units.peek().copied() {
+                    Some(low) if (0xdc00..=0xdfff).contains(&low) => {
+                        units.next();
+                        0x10000 + (((unit as u32 - 0xd800) << 10) |
+                                   (low as u32 - 0xdc00))
+                    }
+                    _ => unit as u32,
+                }
+            } else {
+                unit as u32
+            };
+            __sn_push_wtf8(&mut bytes, scalar);
+        }
+        SnString::from_bytes(bytes)
+    }).collect()
+}
+
+#[cfg(not(any(unix, windows)))]
+compile_error!("Sindarin Rust argv byte transport supports Unix and Windows targets");
 
 impl std::fmt::Debug for SnString {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -189,6 +246,135 @@ fn __sn_array_size(size: i64) -> usize {
     size as usize
 }
 
+#[allow(non_camel_case_types)]
+trait __SnArrayText_0 {
+    fn __sn_array_text_0(&self) -> SnString;
+    fn __sn_join_text_0(&self) -> SnString;
+    fn __sn_struct_text_0(&self) -> SnString;
+}
+
+macro_rules! __sn_integer_array_text_0 {
+    ($($type:ty),+ $(,)?) => {$(
+        impl __SnArrayText_0 for $type {
+            fn __sn_array_text_0(&self) -> SnString { SnString::from(self.to_string()) }
+            fn __sn_join_text_0(&self) -> SnString { SnString::from(self.to_string()) }
+            fn __sn_struct_text_0(&self) -> SnString { SnString::from(self.to_string()) }
+        }
+    )+};
+}
+
+__sn_integer_array_text_0!(i64, i32, u32);
+
+impl __SnArrayText_0 for u64 {
+    fn __sn_array_text_0(&self) -> SnString { SnString::from((*self as i64).to_string()) }
+    fn __sn_join_text_0(&self) -> SnString { SnString::from((*self as i64).to_string()) }
+    fn __sn_struct_text_0(&self) -> SnString { SnString::from((*self as i64).to_string()) }
+}
+
+impl __SnArrayText_0 for u8 {
+    fn __sn_array_text_0(&self) -> SnString { SnString::from(format!("0x{:02X}", self)) }
+    fn __sn_join_text_0(&self) -> SnString { SnString::from(format!("0x{:02X}", self)) }
+    fn __sn_struct_text_0(&self) -> SnString { SnString::from(self.to_string()) }
+}
+
+impl __SnArrayText_0 for bool {
+    fn __sn_array_text_0(&self) -> SnString { SnString::from(self.to_string()) }
+    fn __sn_join_text_0(&self) -> SnString { SnString::from(self.to_string()) }
+    fn __sn_struct_text_0(&self) -> SnString { SnString::from(self.to_string()) }
+}
+
+impl __SnArrayText_0 for char {
+    fn __sn_array_text_0(&self) -> SnString {
+        let mut result = SnString::from_slice(b"'");
+        result.push_char(*self);
+        result.push_str("'");
+        result
+    }
+    fn __sn_join_text_0(&self) -> SnString {
+        let mut result = SnString::new();
+        result.push_char(*self);
+        result
+    }
+    fn __sn_struct_text_0(&self) -> SnString {
+        self.__sn_array_text_0()
+    }
+}
+
+impl __SnArrayText_0 for SnString {
+    fn __sn_array_text_0(&self) -> SnString {
+        let mut result = SnString::from_slice(b"\"");
+        result.push_str(self);
+        result.push_str("\"");
+        result
+    }
+    fn __sn_join_text_0(&self) -> SnString { self.clone() }
+    fn __sn_struct_text_0(&self) -> SnString {
+        self.__sn_array_text_0()
+    }
+}
+
+fn __sn_float_array_text_0(value: f64) -> String {
+    if value.is_nan() { return "nan".to_string(); }
+    if value == f64::INFINITY { return "inf".to_string(); }
+    if value == f64::NEG_INFINITY { return "-inf".to_string(); }
+
+    let scientific = format!("{:.5e}", value);
+    let (mantissa, exponent_text) = scientific.split_once('e').unwrap();
+    let exponent: i32 = exponent_text.parse().unwrap();
+    if exponent < -4 || exponent >= 6 {
+        let mantissa = mantissa.trim_end_matches('0').trim_end_matches('.');
+        return format!("{}e{:+03}", mantissa, exponent);
+    }
+
+    let precision = (5 - exponent).max(0) as usize;
+    let fixed = format!("{:.*}", precision, value);
+    if fixed.contains('.') {
+        fixed.trim_end_matches('0').trim_end_matches('.').to_string()
+    } else {
+        fixed
+    }
+}
+
+macro_rules! __sn_float_array_text_impl_0 {
+    ($($type:ty),+ $(,)?) => {$(
+        impl __SnArrayText_0 for $type {
+            fn __sn_array_text_0(&self) -> SnString { SnString::from(__sn_float_array_text_0(*self as f64)) }
+            fn __sn_join_text_0(&self) -> SnString { SnString::from(format!("{:.5}", self)) }
+            fn __sn_struct_text_0(&self) -> SnString { SnString::from(format!("{:.5}", self)) }
+        }
+    )+};
+}
+
+__sn_float_array_text_impl_0!(f64, f32);
+
+impl<T: __SnArrayText_0> __SnArrayText_0 for Vec<T> {
+    fn __sn_array_text_0(&self) -> SnString { __sn_array_to_string_0(self.as_slice()) }
+    // sn_array_join renders each nested-array element as "?"; recursion is
+    // reserved for full array formatting (print and interpolation).
+    fn __sn_join_text_0(&self) -> SnString { SnString::from_slice(b"?") }
+    fn __sn_struct_text_0(&self) -> SnString { __sn_array_to_string_0(self.as_slice()) }
+}
+
+fn __sn_array_to_string_0<T: __SnArrayText_0>(array: &[T]) -> SnString {
+    let mut result = SnString::from_slice(b"[");
+    for (index, value) in array.iter().enumerate() {
+        if index != 0 { result.push_str(", "); }
+        result.push_str(&value.__sn_array_text_0());
+    }
+    result.push_str("]");
+    result
+}
+
+fn __sn_array_join_0<T: __SnArrayText_0>(array: &[T], separator: &SnString) -> SnString {
+    let mut result = SnString::new();
+    for (index, value) in array.iter().enumerate() {
+        if index != 0 { result.push_str(separator); }
+        result.push_str(&value.__sn_join_text_0());
+    }
+    result
+}
+
+
 #[derive(Clone, Debug, PartialEq)]
 struct Playlist {
     names: Vec<SnString>,
@@ -203,21 +389,36 @@ impl Playlist {
         { let __sn_array_index = __sn_index(((self).names).len(), index); ((self).names)[__sn_array_index] = (self).replacement.clone(); };
     }
     fn replaceLast(&mut self, value: SnString) {
-        (self).replace((-1), value.clone())
-;
+        (self).replace((-1), value.clone());
+    }
+}
+
+impl __SnArrayText_0 for Playlist {
+    fn __sn_array_text_0(&self) -> SnString {
+        let mut result = SnString::from_slice(b"Playlist { ");
+        result.push_str("names: ");
+        result.push_str(&self.names.__sn_struct_text_0());
+        result.push_str(", ");
+        result.push_str("replacement: ");
+        result.push_str(&self.replacement.__sn_struct_text_0());
+        result.push_str(" }");
+        result
+    }
+
+    fn __sn_join_text_0(&self) -> SnString {
+        self.__sn_array_text_0()
+    }
+
+    fn __sn_struct_text_0(&self) -> SnString {
+        self.__sn_array_text_0()
     }
 }
 
 fn main() {
-    let mut playlist: Playlist = Playlist { names: vec![SnString::from("one"), SnString::from("two"), SnString::from("three")], replacement: SnString::from("stored") };
-    let mut first: SnString = SnString::from("first");
-    (playlist).replace(0, first.clone())
-;
-    (playlist).replaceWithStored(1)
-;
-    (playlist).replaceLast(SnString::from("last"))
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str("names="); __sn_interpolated.push_str(&format!("{:?}", (playlist).names)); __sn_interpolated.push_str("; replacement="); __sn_interpolated.push_str(&((playlist).replacement)); __sn_interpolated.push_str("; source="); __sn_interpolated.push_str(&(first)); __sn_interpolated }
-))
-;
+    let mut playlist: Playlist = Playlist { names: vec![SnString::from_slice(&[0x6f, 0x6e, 0x65]), SnString::from_slice(&[0x74, 0x77, 0x6f]), SnString::from_slice(&[0x74, 0x68, 0x72, 0x65, 0x65])], replacement: SnString::from_slice(&[0x73, 0x74, 0x6f, 0x72, 0x65, 0x64]) };
+    let mut first: SnString = SnString::from_slice(&[0x66, 0x69, 0x72, 0x73, 0x74]);
+    (playlist).replace(0, first.clone());
+    (playlist).replaceWithStored(1);
+    (playlist).replaceLast(SnString::from_slice(&[0x6c, 0x61, 0x73, 0x74]));
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x6e, 0x61, 0x6d, 0x65, 0x73, 0x3d]))); __sn_interpolated.push_str(&__sn_array_to_string_0(&((playlist).names))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3b, 0x20, 0x72, 0x65, 0x70, 0x6c, 0x61, 0x63, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x3d]))); __sn_interpolated.push_str(&((playlist).replacement)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3b, 0x20, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x3d]))); __sn_interpolated.push_str(&(first)); __sn_interpolated }));
 }

@@ -24,6 +24,8 @@ impl SnString {
 
     fn from_bytes(bytes: Vec<u8>) -> Self { Self(bytes) }
 
+    fn from_slice(bytes: &[u8]) -> Self { Self(bytes.to_vec()) }
+
     fn from_c_bytes(bytes: &[u8]) -> Self {
         let end = bytes.iter().position(|byte| *byte == 0).unwrap_or(bytes.len());
         Self(bytes[..end].to_vec())
@@ -75,6 +77,61 @@ impl From<&str> for SnString {
 impl From<String> for SnString {
     fn from(value: String) -> Self { Self(value.into_bytes()) }
 }
+
+#[cfg(unix)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::unix::ffi::OsStrExt;
+    std::env::args_os()
+        .map(|value| SnString::from_slice(value.as_os_str().as_bytes()))
+        .collect()
+}
+
+#[cfg(windows)]
+fn __sn_push_wtf8(bytes: &mut Vec<u8>, value: u32) {
+    if value <= 0x7f {
+        bytes.push(value as u8);
+    } else if value <= 0x7ff {
+        bytes.push((0xc0 | (value >> 6)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else if value <= 0xffff {
+        bytes.push((0xe0 | (value >> 12)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else {
+        bytes.push((0xf0 | (value >> 18)) as u8);
+        bytes.push((0x80 | ((value >> 12) & 0x3f)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    }
+}
+
+#[cfg(windows)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::windows::ffi::OsStrExt;
+    std::env::args_os().map(|value| {
+        let mut bytes = Vec::new();
+        let mut units = value.as_os_str().encode_wide().peekable();
+        while let Some(unit) = units.next() {
+            let scalar = if (0xd800..=0xdbff).contains(&unit) {
+                match units.peek().copied() {
+                    Some(low) if (0xdc00..=0xdfff).contains(&low) => {
+                        units.next();
+                        0x10000 + (((unit as u32 - 0xd800) << 10) |
+                                   (low as u32 - 0xdc00))
+                    }
+                    _ => unit as u32,
+                }
+            } else {
+                unit as u32
+            };
+            __sn_push_wtf8(&mut bytes, scalar);
+        }
+        SnString::from_bytes(bytes)
+    }).collect()
+}
+
+#[cfg(not(any(unix, windows)))]
+compile_error!("Sindarin Rust argv byte transport supports Unix and Windows targets");
 
 impl std::fmt::Debug for SnString {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -258,70 +315,45 @@ fn factory(offset: i64) -> __SnClosure<dyn Fn(i64) -> i64> {
 }
 
 fn owned() -> __SnClosure<dyn Fn() -> SnString> {
-    let mut text: SnString = SnString::from("snapshot");
+    let mut text: SnString = SnString::from_slice(&[0x73, 0x6e, 0x61, 0x70, 0x73, 0x68, 0x6f, 0x74]);
     let mut values: Vec<i64> = vec![7, 8];
-    let mut payload: Payload = Payload { text: SnString::from("owned"), values: values.clone() };
-    let mut callback: __SnClosure<dyn Fn(i64) -> i64> = factory(30)
-;
-    return { let (text, values, payload, callback, ) = (text.clone(), values.clone(), payload.clone(), callback.clone(), ); self::__SnClosure::<dyn Fn() -> SnString>(std::rc::Rc::new(move || -> SnString { { let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(text.clone())); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (values.clone())[__sn_index((values.clone()).len(), 0)])); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&((payload.clone()).text)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", ((callback.clone()).0)(2))); __sn_interpolated }
- })) }
+    let mut payload: Payload = Payload { text: SnString::from_slice(&[0x6f, 0x77, 0x6e, 0x65, 0x64]), values: values.clone() };
+    let mut callback: __SnClosure<dyn Fn(i64) -> i64> = factory(30);
+    return { let (text, values, payload, callback, ) = (text.clone(), values.clone(), payload.clone(), callback.clone(), ); self::__SnClosure::<dyn Fn() -> SnString>(std::rc::Rc::new(move || -> SnString { { let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(text.clone())); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", (values.clone())[__sn_index((values.clone()).len(), 0)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&((payload.clone()).text)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", ((callback.clone()).0)(2))); __sn_interpolated }})) }
 ;
 }
 
 fn main() {
     let mut add: __SnClosure<dyn Fn(i64, i64) -> i64> = { self::__SnClosure::<dyn Fn(i64, i64) -> i64>(std::rc::Rc::new(move |a: i64, b: i64| -> i64 { __sn_checked_0((a).checked_add(b), "Runtime error: integer overflow in addition")})) }
 ;
-    __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", ((add.clone()).0)(2, 3))); __sn_interpolated.push_str("\n"); __sn_interpolated }
-))
-;
+    __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", ((add.clone()).0)(2, 3))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x0a]))); __sn_interpolated }));
     let mut named: __SnClosure<dyn Fn(i64) -> i64> = { self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |x: i64| -> i64 { x.clone()})) }
 ;
     { named = self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(plusOne)); named.clone() };
-    let mut alias: __SnClosure<dyn Fn(i64) -> i64> = identity(named.clone())
-;
-    __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", apply(alias.clone(), 4)
-)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", ((named.clone()).0)(5))); __sn_interpolated.push_str("\n"); __sn_interpolated }
-))
-;
-    { named = factory(100)
-; named.clone() };
-    __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", ((alias.clone()).0)(5))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", ((named.clone()).0)(5))); __sn_interpolated.push_str("\n"); __sn_interpolated }
-))
-;
+    let mut alias: __SnClosure<dyn Fn(i64) -> i64> = identity(named.clone());
+    __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", apply(alias.clone(), 4))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", ((named.clone()).0)(5))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x0a]))); __sn_interpolated }));
+    { named = factory(100); named.clone() };
+    __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", ((alias.clone()).0)(5))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", ((named.clone()).0)(5))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x0a]))); __sn_interpolated }));
     let mut outer: i64 = 10;
     let mut first: __SnClosure<dyn Fn(i64) -> i64> = { let (outer, ) = (outer.clone(), ); self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |x: i64| -> i64 { __sn_checked_0((outer.clone()).checked_add(x), "Runtime error: integer overflow in addition")})) }
 ;
     let mut sibling: __SnClosure<dyn Fn(i64) -> i64> = { let (outer, ) = (outer.clone(), ); self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |x: i64| -> i64 { __sn_checked_0((outer.clone()).checked_sub(x), "Runtime error: integer overflow in subtraction")})) }
 ;
     (outer = 50);
-    __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", ((first.clone()).0)(1))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", ((sibling.clone()).0)(1))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", outer)); __sn_interpolated.push_str("\n"); __sn_interpolated }
-))
-;
-    let mut h: Holder = Holder { action: factory(10)
- };
+    __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", ((first.clone()).0)(1))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", ((sibling.clone()).0)(1))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", outer)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x0a]))); __sn_interpolated }));
+    let mut h: Holder = Holder { action: factory(10) };
     let mut copied: Holder = h.clone();
-    ((h).action = factory(100)
-);
-    __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", (((copied).action.clone()).0)(2))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (((h).action.clone()).0)(2))); __sn_interpolated.push_str("\n"); __sn_interpolated }
-))
-;
-    let mut callbacks: Vec<__SnClosure<dyn Fn(i64) -> i64>> = vec![self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(plusOne)), (first.clone()).clone(), factory(20)
-];
+    ((h).action = factory(100));
+    __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", (((copied).action.clone()).0)(2))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", (((h).action.clone()).0)(2))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x0a]))); __sn_interpolated }));
+    let mut callbacks: Vec<__SnClosure<dyn Fn(i64) -> i64>> = vec![self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(plusOne)), (first.clone()).clone(), factory(20)];
     let mut arrays: Vec<__SnClosure<dyn Fn(i64) -> i64>> = callbacks.clone();
-    (callbacks = vec![factory(100)
-]);
+    (callbacks = vec![factory(100)]);
     for mut action in (arrays).iter().cloned() {
-        __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", ((action.clone()).0)(3))); __sn_interpolated.push_str("\n"); __sn_interpolated }
-))
-;
+        __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", ((action.clone()).0)(3))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x0a]))); __sn_interpolated }));
         { action = self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(plusOne)); action.clone() };
-        __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", ((action.clone()).0)(4))); __sn_interpolated.push_str("\n"); __sn_interpolated }
-))
-;
+        __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", ((action.clone()).0)(4))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x0a]))); __sn_interpolated }));
     }
-    __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", (({ let (__sn_functions, __sn_function_index) = (&(callbacks), 0); __sn_functions[__sn_index(__sn_functions.len(), __sn_function_index)].clone() }).0)(1))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (({ let (__sn_functions, __sn_function_index) = (&(arrays), 0); __sn_functions[__sn_index(__sn_functions.len(), __sn_function_index)].clone() }).0)(1))); __sn_interpolated.push_str("\n"); __sn_interpolated }
-))
-;
+    __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", (({ let (__sn_functions, __sn_function_index) = (&(callbacks), 0); __sn_functions[__sn_index(__sn_functions.len(), __sn_function_index)].clone() }).0)(1))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", (({ let (__sn_functions, __sn_function_index) = (&(arrays), 0); __sn_functions[__sn_index(__sn_functions.len(), __sn_function_index)].clone() }).0)(1))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x0a]))); __sn_interpolated }));
     let mut build: __SnClosure<dyn Fn(i64) -> __SnClosure<dyn Fn(i64) -> __SnClosure<dyn Fn(i64) -> i64>>> = { let (outer, ) = (outer.clone(), ); self::__SnClosure::<dyn Fn(i64) -> __SnClosure<dyn Fn(i64) -> __SnClosure<dyn Fn(i64) -> i64>>>(std::rc::Rc::new(move |a: i64| -> __SnClosure<dyn Fn(i64) -> __SnClosure<dyn Fn(i64) -> i64>> { return { let (outer, a, ) = (outer.clone(), a.clone(), ); self::__SnClosure::<dyn Fn(i64) -> __SnClosure<dyn Fn(i64) -> i64>>(std::rc::Rc::new(move |b: i64| -> __SnClosure<dyn Fn(i64) -> i64> { return { let (outer, a, b, ) = (outer.clone(), a.clone(), b.clone(), ); self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |c: i64| -> i64 { __sn_checked_0((__sn_checked_0((__sn_checked_0((outer.clone()).checked_add(a.clone()), "Runtime error: integer overflow in addition")).checked_add(b.clone()), "Runtime error: integer overflow in addition")).checked_add(c), "Runtime error: integer overflow in addition")})) }
  ;})) }
 ;})) }
@@ -329,20 +361,12 @@ fn main() {
     (outer = 99);
     let mut middle: __SnClosure<dyn Fn(i64) -> __SnClosure<dyn Fn(i64) -> i64>> = ((build.clone()).0)(1);
     let mut inner: __SnClosure<dyn Fn(i64) -> i64> = ((middle.clone()).0)(2);
-    __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", ((inner.clone()).0)(3))); __sn_interpolated.push_str("\n"); __sn_interpolated }
-))
-;
-    let mut other: __SnClosure<dyn Fn(i64) -> i64> = factory(200)
-;
-    __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", ((other.clone()).0)(1))); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", ((first.clone()).0)(1))); __sn_interpolated.push_str("\n"); __sn_interpolated }
-))
-;
-    let mut producer: __SnClosure<dyn Fn() -> SnString> = owned()
-;
-    let mut producerCopy: __SnClosure<dyn Fn() -> SnString> = { self::__SnClosure::<dyn Fn() -> SnString>(std::rc::Rc::new(move || -> SnString { SnString::from("unused")})) }
+    __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", ((inner.clone()).0)(3))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x0a]))); __sn_interpolated }));
+    let mut other: __SnClosure<dyn Fn(i64) -> i64> = factory(200);
+    __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", ((other.clone()).0)(1))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", ((first.clone()).0)(1))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x0a]))); __sn_interpolated }));
+    let mut producer: __SnClosure<dyn Fn() -> SnString> = owned();
+    let mut producerCopy: __SnClosure<dyn Fn() -> SnString> = { self::__SnClosure::<dyn Fn() -> SnString>(std::rc::Rc::new(move || -> SnString { SnString::from_slice(&[0x75, 0x6e, 0x75, 0x73, 0x65, 0x64])})) }
 ;
     { producerCopy = producer.clone(); producerCopy.clone() };
-    __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(((producer.clone()).0)())); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&(((producerCopy.clone()).0)())); __sn_interpolated.push_str("\n"); __sn_interpolated }
-))
-;
+    __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(((producer.clone()).0)())); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&(((producerCopy.clone()).0)())); __sn_interpolated.push_str(&(SnString::from_slice(&[0x0a]))); __sn_interpolated }));
 }

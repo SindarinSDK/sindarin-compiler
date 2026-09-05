@@ -24,6 +24,8 @@ impl SnString {
 
     fn from_bytes(bytes: Vec<u8>) -> Self { Self(bytes) }
 
+    fn from_slice(bytes: &[u8]) -> Self { Self(bytes.to_vec()) }
+
     fn from_c_bytes(bytes: &[u8]) -> Self {
         let end = bytes.iter().position(|byte| *byte == 0).unwrap_or(bytes.len());
         Self(bytes[..end].to_vec())
@@ -75,6 +77,61 @@ impl From<&str> for SnString {
 impl From<String> for SnString {
     fn from(value: String) -> Self { Self(value.into_bytes()) }
 }
+
+#[cfg(unix)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::unix::ffi::OsStrExt;
+    std::env::args_os()
+        .map(|value| SnString::from_slice(value.as_os_str().as_bytes()))
+        .collect()
+}
+
+#[cfg(windows)]
+fn __sn_push_wtf8(bytes: &mut Vec<u8>, value: u32) {
+    if value <= 0x7f {
+        bytes.push(value as u8);
+    } else if value <= 0x7ff {
+        bytes.push((0xc0 | (value >> 6)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else if value <= 0xffff {
+        bytes.push((0xe0 | (value >> 12)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else {
+        bytes.push((0xf0 | (value >> 18)) as u8);
+        bytes.push((0x80 | ((value >> 12) & 0x3f)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    }
+}
+
+#[cfg(windows)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::windows::ffi::OsStrExt;
+    std::env::args_os().map(|value| {
+        let mut bytes = Vec::new();
+        let mut units = value.as_os_str().encode_wide().peekable();
+        while let Some(unit) = units.next() {
+            let scalar = if (0xd800..=0xdbff).contains(&unit) {
+                match units.peek().copied() {
+                    Some(low) if (0xdc00..=0xdfff).contains(&low) => {
+                        units.next();
+                        0x10000 + (((unit as u32 - 0xd800) << 10) |
+                                   (low as u32 - 0xdc00))
+                    }
+                    _ => unit as u32,
+                }
+            } else {
+                unit as u32
+            };
+            __sn_push_wtf8(&mut bytes, scalar);
+        }
+        SnString::from_bytes(bytes)
+    }).collect()
+}
+
+#[cfg(not(any(unix, windows)))]
+compile_error!("Sindarin Rust argv byte transport supports Unix and Windows targets");
 
 impl std::fmt::Debug for SnString {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -192,17 +249,11 @@ fn __sn_array_size(size: i64) -> usize {
 fn main() {
     let mut values: Vec<i64> = vec![0, 1, 2, 3, 4, 5];
     let mut middle: Vec<i64> = { let __sn_array = &(values); let __sn_length = __sn_array.len() as i64; let mut __sn_start: i64 = 1; let mut __sn_end: i64 = 4; if __sn_start < 0 { __sn_start += __sn_length; } if __sn_end < 0 { __sn_end += __sn_length; } if __sn_start < 0 { __sn_start = 0; } if __sn_end > __sn_length { __sn_end = __sn_length; } if __sn_start >= __sn_end { Vec::new() } else { __sn_array[__sn_start as usize..__sn_end as usize].to_vec() } };
-    (middle).push(9)
-
-;
-    println!("{}", (values).len() as i64)
-;
-    println!("{}", (middle).len() as i64)
-;
-    println!("{}", (middle)[__sn_index((middle).len(), 0)])
-;
-    println!("{}", (middle)[__sn_index((middle).len(), (-1))])
-;
+    (middle).push(9);
+    println!("{}", (values).len() as i64);
+    println!("{}", (middle).len() as i64);
+    println!("{}", (middle)[__sn_index((middle).len(), 0)]);
+    println!("{}", (middle)[__sn_index((middle).len(), (-1))]);
     let mut prefix: Vec<i64> = { let __sn_array = &(values); let __sn_length = __sn_array.len() as i64; let mut __sn_start: i64 = 0; let mut __sn_end: i64 = 3; if __sn_start < 0 { __sn_start += __sn_length; } if __sn_end < 0 { __sn_end += __sn_length; } if __sn_start < 0 { __sn_start = 0; } if __sn_end > __sn_length { __sn_end = __sn_length; } if __sn_start >= __sn_end { Vec::new() } else { __sn_array[__sn_start as usize..__sn_end as usize].to_vec() } };
     let mut suffix: Vec<i64> = { let __sn_array = &(values); let __sn_length = __sn_array.len() as i64; let mut __sn_start: i64 = (-2); let mut __sn_end: i64 = __sn_length; if __sn_start < 0 { __sn_start += __sn_length; } if __sn_end < 0 { __sn_end += __sn_length; } if __sn_start < 0 { __sn_start = 0; } if __sn_end > __sn_length { __sn_end = __sn_length; } if __sn_start >= __sn_end { Vec::new() } else { __sn_array[__sn_start as usize..__sn_end as usize].to_vec() } };
     let mut full: Vec<i64> = { let __sn_array = &(values); let __sn_length = __sn_array.len() as i64; let mut __sn_start: i64 = 0; let mut __sn_end: i64 = __sn_length; if __sn_start < 0 { __sn_start += __sn_length; } if __sn_end < 0 { __sn_end += __sn_length; } if __sn_start < 0 { __sn_start = 0; } if __sn_end > __sn_length { __sn_end = __sn_length; } if __sn_start >= __sn_end { Vec::new() } else { __sn_array[__sn_start as usize..__sn_end as usize].to_vec() } };
@@ -210,27 +261,16 @@ fn main() {
     let mut empty_equal: Vec<i64> = { let __sn_array = &(values); let __sn_length = __sn_array.len() as i64; let mut __sn_start: i64 = 3; let mut __sn_end: i64 = 3; if __sn_start < 0 { __sn_start += __sn_length; } if __sn_end < 0 { __sn_end += __sn_length; } if __sn_start < 0 { __sn_start = 0; } if __sn_end > __sn_length { __sn_end = __sn_length; } if __sn_start >= __sn_end { Vec::new() } else { __sn_array[__sn_start as usize..__sn_end as usize].to_vec() } };
     let mut empty_reverse: Vec<i64> = { let __sn_array = &(values); let __sn_length = __sn_array.len() as i64; let mut __sn_start: i64 = 4; let mut __sn_end: i64 = 2; if __sn_start < 0 { __sn_start += __sn_length; } if __sn_end < 0 { __sn_end += __sn_length; } if __sn_start < 0 { __sn_start = 0; } if __sn_end > __sn_length { __sn_end = __sn_length; } if __sn_start >= __sn_end { Vec::new() } else { __sn_array[__sn_start as usize..__sn_end as usize].to_vec() } };
     let mut empty_end: Vec<i64> = { let __sn_array = &(values); let __sn_length = __sn_array.len() as i64; let mut __sn_start: i64 = 0; let mut __sn_end: i64 = (-20); if __sn_start < 0 { __sn_start += __sn_length; } if __sn_end < 0 { __sn_end += __sn_length; } if __sn_start < 0 { __sn_start = 0; } if __sn_end > __sn_length { __sn_end = __sn_length; } if __sn_start >= __sn_end { Vec::new() } else { __sn_array[__sn_start as usize..__sn_end as usize].to_vec() } };
-    println!("{}", (prefix)[__sn_index((prefix).len(), (-1))])
-;
-    println!("{}", (suffix)[__sn_index((suffix).len(), 0)])
-;
-    println!("{}", (suffix)[__sn_index((suffix).len(), (-1))])
-;
-    println!("{}", (full).len() as i64)
-;
-    println!("{}", (clamped).len() as i64)
-;
-    println!("{}", (empty_equal).len() as i64)
-;
-    println!("{}", (empty_reverse).len() as i64)
-;
-    println!("{}", (empty_end).len() as i64)
-;
-    let mut names: Vec<SnString> = vec![SnString::from("alpha"), SnString::from("beta"), SnString::from("gamma")];
+    println!("{}", (prefix)[__sn_index((prefix).len(), (-1))]);
+    println!("{}", (suffix)[__sn_index((suffix).len(), 0)]);
+    println!("{}", (suffix)[__sn_index((suffix).len(), (-1))]);
+    println!("{}", (full).len() as i64);
+    println!("{}", (clamped).len() as i64);
+    println!("{}", (empty_equal).len() as i64);
+    println!("{}", (empty_reverse).len() as i64);
+    println!("{}", (empty_end).len() as i64);
+    let mut names: Vec<SnString> = vec![SnString::from_slice(&[0x61, 0x6c, 0x70, 0x68, 0x61]), SnString::from_slice(&[0x62, 0x65, 0x74, 0x61]), SnString::from_slice(&[0x67, 0x61, 0x6d, 0x6d, 0x61])];
     let mut selected: Vec<SnString> = { let __sn_array = &(names); let __sn_length = __sn_array.len() as i64; let mut __sn_start: i64 = 1; let mut __sn_end: i64 = __sn_length; if __sn_start < 0 { __sn_start += __sn_length; } if __sn_end < 0 { __sn_end += __sn_length; } if __sn_start < 0 { __sn_start = 0; } if __sn_end > __sn_length { __sn_end = __sn_length; } if __sn_start >= __sn_end { Vec::new() } else { __sn_array[__sn_start as usize..__sn_end as usize].to_vec() } };
-    { let __sn_array_index = __sn_index((names).len(), 1); (names)[__sn_array_index] = SnString::from("changed"); };
-    __sn_println_string(&({ let __sn_array = &(selected); let __sn_separator = &(SnString::from(",")); __sn_string_join(__sn_array, __sn_separator) }
-
-))
-;
+    { let __sn_array_index = __sn_index((names).len(), 1); (names)[__sn_array_index] = SnString::from_slice(&[0x63, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x64]); };
+    __sn_println_string(&({ let __sn_separator_0 = &(SnString::from_slice(&[0x2c])); __sn_string_join((selected).as_slice(), __sn_separator_0) }));
 }

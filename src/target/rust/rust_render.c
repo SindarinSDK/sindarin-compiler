@@ -106,51 +106,15 @@ static char *helper_rust_ident(json_object **params, int param_count, hbs_option
     return escaped;
 }
 
-static char *quote_rust_string(const char *value, char quote)
-{
-    if (!value) value = "";
-    size_t capacity = strlen(value) * 4 + 3;
-    char *result = malloc(capacity);
-    if (!result) return NULL;
-    size_t out = 0;
-    result[out++] = quote;
-    for (const unsigned char *p = (const unsigned char *)value; *p; p++)
-    {
-        switch (*p)
-        {
-            case '\\': result[out++] = '\\'; result[out++] = '\\'; break;
-            case '\n': result[out++] = '\\'; result[out++] = 'n'; break;
-            case '\r': result[out++] = '\\'; result[out++] = 'r'; break;
-            case '\t': result[out++] = '\\'; result[out++] = 't'; break;
-            case '"':
-                if (quote == '"') result[out++] = '\\';
-                result[out++] = '"';
-                break;
-            case '\'':
-                if (quote == '\'') result[out++] = '\\';
-                result[out++] = '\'';
-                break;
-            default:
-                if (*p < 0x20)
-                    out += (size_t)snprintf(result + out, capacity - out, "\\u{%x}", *p);
-                else
-                    result[out++] = (char)*p;
-        }
-    }
-    result[out++] = quote;
-    result[out] = '\0';
-    return result;
-}
-
 /* String values in the shared render model are escaped for direct insertion
- * into C string literals. Decode that representation before quoting it as a
- * Rust literal; otherwise source escapes such as \n and \\ become literal
- * backslash sequences in generated Rust. */
-static char *decode_model_c_string(const char *value)
+ * into C string literals. Decode that representation into an explicit byte
+ * sequence. Rust source must be UTF-8, so arbitrary Sindarin string bytes can
+ * never be copied into a Rust string token. */
+static unsigned char *decode_model_c_string(const char *value, size_t *decoded_length)
 {
     if (!value) value = "";
     size_t length = strlen(value);
-    char *decoded = malloc(length + 1);
+    unsigned char *decoded = malloc(length + 1);
     if (!decoded) return NULL;
 
     size_t out = 0;
@@ -158,7 +122,7 @@ static char *decode_model_c_string(const char *value)
     {
         if (value[i] != '\\' || i + 1 >= length)
         {
-            decoded[out++] = value[i];
+            decoded[out++] = (unsigned char)value[i];
             continue;
         }
 
@@ -193,27 +157,42 @@ static char *decode_model_c_string(const char *value)
                         break;
                     }
                 }
-                decoded[out++] = '\\';
-                decoded[out++] = escaped;
+                decoded[out++] = (unsigned char)'\\';
+                decoded[out++] = (unsigned char)escaped;
                 break;
             }
             default:
-                decoded[out++] = '\\';
-                decoded[out++] = escaped;
+                decoded[out++] = (unsigned char)'\\';
+                decoded[out++] = (unsigned char)escaped;
                 break;
         }
     }
-    decoded[out] = '\0';
+    *decoded_length = out;
     return decoded;
 }
 
-static char *quote_rust_model_string(const char *value)
+static char *rust_model_string_expr(const char *value)
 {
-    char *decoded = decode_model_c_string(value);
+    size_t decoded_length = 0;
+    unsigned char *decoded = decode_model_c_string(value, &decoded_length);
     if (!decoded) return NULL;
-    char *quoted = quote_rust_string(decoded, '"');
+
+    const char *prefix = "SnString::from_slice(&[";
+    const char *suffix = "])";
+    size_t capacity = strlen(prefix) + strlen(suffix) + decoded_length * 6 + 1;
+    char *result = malloc(capacity);
+    if (!result)
+    {
+        free(decoded);
+        return NULL;
+    }
+    size_t out = (size_t)snprintf(result, capacity, "%s", prefix);
+    for (size_t i = 0; i < decoded_length; i++)
+        out += (size_t)snprintf(result + out, capacity - out,
+                               "%s0x%02x", i ? ", " : "", decoded[i]);
+    snprintf(result + out, capacity - out, "%s", suffix);
     free(decoded);
-    return quoted;
+    return result;
 }
 
 static char *helper_rust_literal(json_object **params, int param_count, hbs_options_t *options)
@@ -231,14 +210,9 @@ static char *helper_rust_literal(json_object **params, int param_count, hbs_opti
         return strdup(value_obj && json_object_get_boolean(value_obj) ? "true" : "false");
     if (strcmp(kind, "string") == 0)
     {
-        char *quoted = quote_rust_model_string(
+        char *expression = rust_model_string_expr(
             value_obj ? json_object_get_string(value_obj) : "");
-        if (!quoted) return NULL;
-        size_t length = strlen(quoted) + sizeof("SnString::from()") + 1;
-        char *result = malloc(length);
-        if (result) snprintf(result, length, "SnString::from(%s)", quoted);
-        free(quoted);
-        return result;
+        return expression;
     }
     if (strcmp(kind, "char") == 0)
     {
@@ -258,7 +232,7 @@ static char *helper_rust_string_literal(json_object **params, int param_count,
     (void)options;
     const char *value = param_count > 0 && params[0]
         ? json_object_get_string(params[0]) : "";
-    return quote_rust_model_string(value);
+    return rust_model_string_expr(value);
 }
 
 static char *helper_rust_default(json_object **params, int param_count, hbs_options_t *options)

@@ -24,6 +24,8 @@ impl SnString {
 
     fn from_bytes(bytes: Vec<u8>) -> Self { Self(bytes) }
 
+    fn from_slice(bytes: &[u8]) -> Self { Self(bytes.to_vec()) }
+
     fn from_c_bytes(bytes: &[u8]) -> Self {
         let end = bytes.iter().position(|byte| *byte == 0).unwrap_or(bytes.len());
         Self(bytes[..end].to_vec())
@@ -75,6 +77,61 @@ impl From<&str> for SnString {
 impl From<String> for SnString {
     fn from(value: String) -> Self { Self(value.into_bytes()) }
 }
+
+#[cfg(unix)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::unix::ffi::OsStrExt;
+    std::env::args_os()
+        .map(|value| SnString::from_slice(value.as_os_str().as_bytes()))
+        .collect()
+}
+
+#[cfg(windows)]
+fn __sn_push_wtf8(bytes: &mut Vec<u8>, value: u32) {
+    if value <= 0x7f {
+        bytes.push(value as u8);
+    } else if value <= 0x7ff {
+        bytes.push((0xc0 | (value >> 6)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else if value <= 0xffff {
+        bytes.push((0xe0 | (value >> 12)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else {
+        bytes.push((0xf0 | (value >> 18)) as u8);
+        bytes.push((0x80 | ((value >> 12) & 0x3f)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    }
+}
+
+#[cfg(windows)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::windows::ffi::OsStrExt;
+    std::env::args_os().map(|value| {
+        let mut bytes = Vec::new();
+        let mut units = value.as_os_str().encode_wide().peekable();
+        while let Some(unit) = units.next() {
+            let scalar = if (0xd800..=0xdbff).contains(&unit) {
+                match units.peek().copied() {
+                    Some(low) if (0xdc00..=0xdfff).contains(&low) => {
+                        units.next();
+                        0x10000 + (((unit as u32 - 0xd800) << 10) |
+                                   (low as u32 - 0xdc00))
+                    }
+                    _ => unit as u32,
+                }
+            } else {
+                unit as u32
+            };
+            __sn_push_wtf8(&mut bytes, scalar);
+        }
+        SnString::from_bytes(bytes)
+    }).collect()
+}
+
+#[cfg(not(any(unix, windows)))]
+compile_error!("Sindarin Rust argv byte transport supports Unix and Windows targets");
 
 impl std::fmt::Debug for SnString {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -224,7 +281,7 @@ struct Point {
 
 fn observe_text(counter: &mut i64) -> SnString {
     { let __sn_rhs = 1; let __sn_place = &mut (*(counter)); let __sn_next = __sn_checked_0((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };
-    return SnString::from("called");
+    return SnString::from_slice(&[0x63, 0x61, 0x6c, 0x6c, 0x65, 0x64]);
 }
 
 fn observe_values(counter: &mut i64) -> Vec<i64> {
@@ -237,13 +294,11 @@ fn main() {
     let mut type_array: i64 = 8i64;
     let mut type_nested_array: i64 = 8i64;
     let mut type_struct_array: i64 = 8i64;
-    let mut text: SnString = SnString::from("managed");
+    let mut text: SnString = SnString::from_slice(&[0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x64]);
     let mut values: Vec<i64> = vec![1, 2];
     let mut rows: Vec<Vec<i64>> = vec![vec![1, 2]];
     let mut points: Vec<Point> = vec![Point { x: 1 }];
     let mut counter: i64 = 0;
     let mut expression_sizes: i64 = __sn_checked_0((__sn_checked_0((__sn_checked_0((__sn_checked_0((__sn_checked_0((8i64).checked_add(8i64), "Runtime error: integer overflow in addition")).checked_add(8i64), "Runtime error: integer overflow in addition")).checked_add(8i64), "Runtime error: integer overflow in addition")).checked_add(8i64), "Runtime error: integer overflow in addition")).checked_add(8i64), "Runtime error: integer overflow in addition");
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", ((((type_string == 8) && (type_array == 8)) && (type_nested_array == 8)) && (type_struct_array == 8)))); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", (expression_sizes == 48))); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", (counter == 0))); __sn_interpolated }
-))
-;
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", ((((type_string == 8) && (type_array == 8)) && (type_nested_array == 8)) && (type_struct_array == 8)))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", (expression_sizes == 48))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", (counter == 0))); __sn_interpolated }));
 }

@@ -24,6 +24,8 @@ impl SnString {
 
     fn from_bytes(bytes: Vec<u8>) -> Self { Self(bytes) }
 
+    fn from_slice(bytes: &[u8]) -> Self { Self(bytes.to_vec()) }
+
     fn from_c_bytes(bytes: &[u8]) -> Self {
         let end = bytes.iter().position(|byte| *byte == 0).unwrap_or(bytes.len());
         Self(bytes[..end].to_vec())
@@ -75,6 +77,61 @@ impl From<&str> for SnString {
 impl From<String> for SnString {
     fn from(value: String) -> Self { Self(value.into_bytes()) }
 }
+
+#[cfg(unix)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::unix::ffi::OsStrExt;
+    std::env::args_os()
+        .map(|value| SnString::from_slice(value.as_os_str().as_bytes()))
+        .collect()
+}
+
+#[cfg(windows)]
+fn __sn_push_wtf8(bytes: &mut Vec<u8>, value: u32) {
+    if value <= 0x7f {
+        bytes.push(value as u8);
+    } else if value <= 0x7ff {
+        bytes.push((0xc0 | (value >> 6)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else if value <= 0xffff {
+        bytes.push((0xe0 | (value >> 12)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else {
+        bytes.push((0xf0 | (value >> 18)) as u8);
+        bytes.push((0x80 | ((value >> 12) & 0x3f)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    }
+}
+
+#[cfg(windows)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::windows::ffi::OsStrExt;
+    std::env::args_os().map(|value| {
+        let mut bytes = Vec::new();
+        let mut units = value.as_os_str().encode_wide().peekable();
+        while let Some(unit) = units.next() {
+            let scalar = if (0xd800..=0xdbff).contains(&unit) {
+                match units.peek().copied() {
+                    Some(low) if (0xdc00..=0xdfff).contains(&low) => {
+                        units.next();
+                        0x10000 + (((unit as u32 - 0xd800) << 10) |
+                                   (low as u32 - 0xdc00))
+                    }
+                    _ => unit as u32,
+                }
+            } else {
+                unit as u32
+            };
+            __sn_push_wtf8(&mut bytes, scalar);
+        }
+        SnString::from_bytes(bytes)
+    }).collect()
+}
+
+#[cfg(not(any(unix, windows)))]
+compile_error!("Sindarin Rust argv byte transport supports Unix and Windows targets");
 
 impl std::fmt::Debug for SnString {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -169,8 +226,8 @@ fn __sn_string_to_double(value: &SnString) -> f64 {
 fn main() {
     let mut directStatement: i64 = 0;
     {
-    let __sn_match_subject_0: SnString = SnString::from("alphabet");
-    if (__sn_match_subject_0 == SnString::from("alphabet")) {
+    let __sn_match_subject_0: SnString = SnString::from_slice(&[0x61, 0x6c, 0x70, 0x68, 0x61, 0x62, 0x65, 0x74]);
+    if (__sn_match_subject_0 == SnString::from_slice(&[0x61, 0x6c, 0x70, 0x68, 0x61, 0x62, 0x65, 0x74])) {
         (directStatement = 1);
     }
 };
@@ -178,8 +235,8 @@ fn main() {
     match (1 as i64) {
         1 => {
             {
-    let __sn_match_subject_1: SnString = SnString::from("nested");
-    if (__sn_match_subject_1 == SnString::from("nested")) {
+    let __sn_match_subject_1: SnString = SnString::from_slice(&[0x6e, 0x65, 0x73, 0x74, 0x65, 0x64]);
+    if (__sn_match_subject_1 == SnString::from_slice(&[0x6e, 0x65, 0x73, 0x74, 0x65, 0x64])) {
         (nestedStatement = 2);
     }
 };
@@ -187,8 +244,8 @@ fn main() {
         _ => {},
     };
     let mut directValue: i64 = {
-    let __sn_match_subject_2: SnString = SnString::from("value");
-    if (__sn_match_subject_2 == SnString::from("value")) {
+    let __sn_match_subject_2: SnString = SnString::from_slice(&[0x76, 0x61, 0x6c, 0x75, 0x65]);
+    if (__sn_match_subject_2 == SnString::from_slice(&[0x76, 0x61, 0x6c, 0x75, 0x65])) {
         (3 as i64)
     }
     else {
@@ -198,8 +255,8 @@ fn main() {
     let mut nestedValue: i64 = match (1 as i64) {
         1 => {
             ({
-    let __sn_match_subject_3: SnString = SnString::from("inside");
-    if (__sn_match_subject_3 == SnString::from("inside")) {
+    let __sn_match_subject_3: SnString = SnString::from_slice(&[0x69, 0x6e, 0x73, 0x69, 0x64, 0x65]);
+    if (__sn_match_subject_3 == SnString::from_slice(&[0x69, 0x6e, 0x73, 0x69, 0x64, 0x65])) {
         (4 as i64)
     }
     else {
@@ -211,6 +268,5 @@ fn main() {
             (0 as i64)
         },
     };
-    println!("{}", ((((directStatement == 1) && (nestedStatement == 2)) && (directValue == 3)) && (nestedValue == 4)))
-;
+    println!("{}", ((((directStatement == 1) && (nestedStatement == 2)) && (directValue == 3)) && (nestedValue == 4)));
 }

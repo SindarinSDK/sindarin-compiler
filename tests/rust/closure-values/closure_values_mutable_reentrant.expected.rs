@@ -54,8 +54,6 @@ fn main() {
         { let (__sn_value, __sn_cell) = (__sn_checked_0((((self::__SnClosure(action.get().expect("recursive identity initialized").upgrade().expect("recursive callable alive"))).0)(__sn_checked_0((n).checked_sub(1), "Runtime error: integer overflow in subtraction"))).checked_add(10), "Runtime error: integer overflow in addition"), &count); __sn_cell.set(__sn_value); __sn_value };
     }return count.get();})) }
 ;
-    println!("{}", ((action.clone()).0)(2))
-;
-    println!("{}", count.get())
-;
+    println!("{}", ((action.clone()).0)(2));
+    println!("{}", count.get());
 }

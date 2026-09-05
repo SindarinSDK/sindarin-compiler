@@ -53,6 +53,5 @@ fn main() {
         return 1;
     }return ((self::__SnClosure(action.get().expect("recursive identity initialized").upgrade().expect("recursive callable alive"))).0)(__sn_checked_0((n).checked_sub(1), "Runtime error: integer overflow in subtraction"));})) }
 ;
-    println!("{}", ((action.clone()).0)(3))
-;
+    println!("{}", ((action.clone()).0)(3));
 }

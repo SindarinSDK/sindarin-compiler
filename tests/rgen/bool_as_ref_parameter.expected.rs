@@ -45,8 +45,7 @@ fn forwardStatic(value: &mut bool) -> bool {
 
 fn forwardInstance(value: &mut bool) -> bool {
     let mut ops: RefOps = RefOps {  };
-    (ops).instanceToggle(&mut *(value))
-;
+    (ops).instanceToggle(&mut *(value));
     return *(value);
 }
 
@@ -58,23 +57,11 @@ fn main() {
     let mut forwardedStatic: bool = true;
     let mut forwardedInstance: bool = false;
     let mut ops: RefOps = RefOps {  };
-    println!("{}", (readBool(&mut (readValue))
- && readValue))
-;
-    println!("{}", (toggleBool(&mut (freeValue))
- && (!freeValue)))
-;
-    println!("{}", ((!RefOps::staticRead(&mut (((holder).state).enabled))) && (!((holder).state).enabled)))
-;
-    println!("{}", ((!RefOps::staticToggle(&mut (((holder).state).enabled))) && ((holder).state).enabled))
-;
-    println!("{}", ((!(ops).instanceToggle(&mut (instanceValue))
-) && instanceValue))
-;
-    println!("{}", ((!forwardStatic(&mut (forwardedStatic))
-) && (!forwardedStatic)))
-;
-    println!("{}", (forwardInstance(&mut (forwardedInstance))
- && forwardedInstance))
-;
+    println!("{}", (readBool(&mut (readValue)) && readValue));
+    println!("{}", (toggleBool(&mut (freeValue)) && (!freeValue)));
+    println!("{}", ((!RefOps::staticRead(&mut (((holder).state).enabled))) && (!((holder).state).enabled)));
+    println!("{}", ((!RefOps::staticToggle(&mut (((holder).state).enabled))) && ((holder).state).enabled));
+    println!("{}", ((!(ops).instanceToggle(&mut (instanceValue))) && instanceValue));
+    println!("{}", ((!forwardStatic(&mut (forwardedStatic))) && (!forwardedStatic)));
+    println!("{}", (forwardInstance(&mut (forwardedInstance)) && forwardedInstance));
 }

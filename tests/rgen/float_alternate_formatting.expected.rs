@@ -24,6 +24,8 @@ impl SnString {
 
     fn from_bytes(bytes: Vec<u8>) -> Self { Self(bytes) }
 
+    fn from_slice(bytes: &[u8]) -> Self { Self(bytes.to_vec()) }
+
     fn from_c_bytes(bytes: &[u8]) -> Self {
         let end = bytes.iter().position(|byte| *byte == 0).unwrap_or(bytes.len());
         Self(bytes[..end].to_vec())
@@ -75,6 +77,61 @@ impl From<&str> for SnString {
 impl From<String> for SnString {
     fn from(value: String) -> Self { Self(value.into_bytes()) }
 }
+
+#[cfg(unix)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::unix::ffi::OsStrExt;
+    std::env::args_os()
+        .map(|value| SnString::from_slice(value.as_os_str().as_bytes()))
+        .collect()
+}
+
+#[cfg(windows)]
+fn __sn_push_wtf8(bytes: &mut Vec<u8>, value: u32) {
+    if value <= 0x7f {
+        bytes.push(value as u8);
+    } else if value <= 0x7ff {
+        bytes.push((0xc0 | (value >> 6)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else if value <= 0xffff {
+        bytes.push((0xe0 | (value >> 12)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else {
+        bytes.push((0xf0 | (value >> 18)) as u8);
+        bytes.push((0x80 | ((value >> 12) & 0x3f)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    }
+}
+
+#[cfg(windows)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::windows::ffi::OsStrExt;
+    std::env::args_os().map(|value| {
+        let mut bytes = Vec::new();
+        let mut units = value.as_os_str().encode_wide().peekable();
+        while let Some(unit) = units.next() {
+            let scalar = if (0xd800..=0xdbff).contains(&unit) {
+                match units.peek().copied() {
+                    Some(low) if (0xdc00..=0xdfff).contains(&low) => {
+                        units.next();
+                        0x10000 + (((unit as u32 - 0xd800) << 10) |
+                                   (low as u32 - 0xdc00))
+                    }
+                    _ => unit as u32,
+                }
+            } else {
+                unit as u32
+            };
+            __sn_push_wtf8(&mut bytes, scalar);
+        }
+        SnString::from_bytes(bytes)
+    }).collect()
+}
+
+#[cfg(not(any(unix, windows)))]
+compile_error!("Sindarin Rust argv byte transport supports Unix and Windows targets");
 
 impl std::fmt::Debug for SnString {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -315,28 +372,12 @@ fn main() {
     let mut zero: f64 = 0.0;
     let mut infinity: f64 = (1.0 / zero);
     let mut nan: f64 = (zero / zero);
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str("fixed="); __sn_interpolated.push_str(&__sn_format_fixed_alternate((value) as f64, 6, 0, false, false, false, false)); __sn_interpolated.push_str("/"); __sn_interpolated.push_str(&__sn_format_fixed_alternate((value) as f64, 2, 0, false, false, false, false)); __sn_interpolated.push_str("/"); __sn_interpolated.push_str(&__sn_format_fixed_alternate((value) as f64, 0, 0, false, false, false, false)); __sn_interpolated }
-))
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str("fixed-width=|"); __sn_interpolated.push_str(&__sn_format_fixed_alternate((value) as f64, 0, 8, false, false, false, false)); __sn_interpolated.push_str("|/|"); __sn_interpolated.push_str(&__sn_format_fixed_alternate((value) as f64, 0, 8, true, false, false, false)); __sn_interpolated.push_str("|"); __sn_interpolated }
-))
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str("fixed-zero=|"); __sn_interpolated.push_str(&__sn_format_fixed_alternate((value) as f64, 0, 8, false, true, false, true)); __sn_interpolated.push_str("|/|"); __sn_interpolated.push_str(&__sn_format_fixed_alternate((negative) as f64, 0, 8, false, false, false, true)); __sn_interpolated.push_str("|"); __sn_interpolated }
-))
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str("fixed-space=|"); __sn_interpolated.push_str(&__sn_format_fixed_alternate((value) as f64, 0, 8, false, false, true, true)); __sn_interpolated.push_str("|/|"); __sn_interpolated.push_str(&__sn_format_fixed_alternate((negative_zero) as f64, 0, 8, false, false, false, true)); __sn_interpolated.push_str("|"); __sn_interpolated }
-))
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str("scientific="); __sn_interpolated.push_str(&__sn_format_scientific((value) as f64, 0, false, 0, false, false, false, false, true)); __sn_interpolated.push_str("/"); __sn_interpolated.push_str(&__sn_format_scientific((negative) as f64, 0, true, 0, false, false, false, false, true)); __sn_interpolated.push_str("/"); __sn_interpolated.push_str(&__sn_format_scientific((single) as f64, 0, false, 0, false, false, false, false, true)); __sn_interpolated }
-))
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str("scientific-width=|"); __sn_interpolated.push_str(&__sn_format_scientific((value) as f64, 0, false, 12, false, false, false, false, true)); __sn_interpolated.push_str("|/|"); __sn_interpolated.push_str(&__sn_format_scientific((value) as f64, 0, true, 12, true, false, false, false, true)); __sn_interpolated.push_str("|"); __sn_interpolated }
-))
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str("scientific-zero=|"); __sn_interpolated.push_str(&__sn_format_scientific((value) as f64, 0, false, 12, false, true, false, true, true)); __sn_interpolated.push_str("|/|"); __sn_interpolated.push_str(&__sn_format_scientific((negative) as f64, 0, false, 12, false, false, false, true, true)); __sn_interpolated.push_str("|"); __sn_interpolated }
-))
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str("special=|"); __sn_interpolated.push_str(&__sn_format_fixed_alternate((infinity) as f64, 0, 8, false, false, false, false)); __sn_interpolated.push_str("|/|"); __sn_interpolated.push_str(&__sn_format_scientific((nan) as f64, 0, true, 8, false, false, false, false, true)); __sn_interpolated.push_str("|"); __sn_interpolated }
-))
-;
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x66, 0x69, 0x78, 0x65, 0x64, 0x3d]))); __sn_interpolated.push_str(&__sn_format_fixed_alternate((value) as f64, 6, 0, false, false, false, false)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2f]))); __sn_interpolated.push_str(&__sn_format_fixed_alternate((value) as f64, 2, 0, false, false, false, false)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2f]))); __sn_interpolated.push_str(&__sn_format_fixed_alternate((value) as f64, 0, 0, false, false, false, false)); __sn_interpolated }));
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x66, 0x69, 0x78, 0x65, 0x64, 0x2d, 0x77, 0x69, 0x64, 0x74, 0x68, 0x3d, 0x7c]))); __sn_interpolated.push_str(&__sn_format_fixed_alternate((value) as f64, 0, 8, false, false, false, false)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c, 0x2f, 0x7c]))); __sn_interpolated.push_str(&__sn_format_fixed_alternate((value) as f64, 0, 8, true, false, false, false)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated }));
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x66, 0x69, 0x78, 0x65, 0x64, 0x2d, 0x7a, 0x65, 0x72, 0x6f, 0x3d, 0x7c]))); __sn_interpolated.push_str(&__sn_format_fixed_alternate((value) as f64, 0, 8, false, true, false, true)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c, 0x2f, 0x7c]))); __sn_interpolated.push_str(&__sn_format_fixed_alternate((negative) as f64, 0, 8, false, false, false, true)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated }));
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x66, 0x69, 0x78, 0x65, 0x64, 0x2d, 0x73, 0x70, 0x61, 0x63, 0x65, 0x3d, 0x7c]))); __sn_interpolated.push_str(&__sn_format_fixed_alternate((value) as f64, 0, 8, false, false, true, true)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c, 0x2f, 0x7c]))); __sn_interpolated.push_str(&__sn_format_fixed_alternate((negative_zero) as f64, 0, 8, false, false, false, true)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated }));
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x73, 0x63, 0x69, 0x65, 0x6e, 0x74, 0x69, 0x66, 0x69, 0x63, 0x3d]))); __sn_interpolated.push_str(&__sn_format_scientific((value) as f64, 0, false, 0, false, false, false, false, true)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2f]))); __sn_interpolated.push_str(&__sn_format_scientific((negative) as f64, 0, true, 0, false, false, false, false, true)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2f]))); __sn_interpolated.push_str(&__sn_format_scientific((single) as f64, 0, false, 0, false, false, false, false, true)); __sn_interpolated }));
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x73, 0x63, 0x69, 0x65, 0x6e, 0x74, 0x69, 0x66, 0x69, 0x63, 0x2d, 0x77, 0x69, 0x64, 0x74, 0x68, 0x3d, 0x7c]))); __sn_interpolated.push_str(&__sn_format_scientific((value) as f64, 0, false, 12, false, false, false, false, true)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c, 0x2f, 0x7c]))); __sn_interpolated.push_str(&__sn_format_scientific((value) as f64, 0, true, 12, true, false, false, false, true)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated }));
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x73, 0x63, 0x69, 0x65, 0x6e, 0x74, 0x69, 0x66, 0x69, 0x63, 0x2d, 0x7a, 0x65, 0x72, 0x6f, 0x3d, 0x7c]))); __sn_interpolated.push_str(&__sn_format_scientific((value) as f64, 0, false, 12, false, true, false, true, true)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c, 0x2f, 0x7c]))); __sn_interpolated.push_str(&__sn_format_scientific((negative) as f64, 0, false, 12, false, false, false, true, true)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated }));
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x73, 0x70, 0x65, 0x63, 0x69, 0x61, 0x6c, 0x3d, 0x7c]))); __sn_interpolated.push_str(&__sn_format_fixed_alternate((infinity) as f64, 0, 8, false, false, false, false)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c, 0x2f, 0x7c]))); __sn_interpolated.push_str(&__sn_format_scientific((nan) as f64, 0, true, 8, false, false, false, false, true)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated }));
 }

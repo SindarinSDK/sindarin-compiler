@@ -28,28 +28,10 @@ fn main() {
     let mut negative_zero: f64 = (-0.0);
     let mut nan: f64 = (zero / zero);
     let mut values: Vec<f64> = vec![zero, 1.5, nan, 1.5];
-    println!("{}", { let __sn_array = &(values); let __sn_array_search = (1.5 as f64).to_bits(); __sn_array.iter().any(|__sn_item| __sn_item.to_bits() == __sn_array_search) }
-
-)
-;
-    println!("{}", { let __sn_array = &(values); let __sn_array_search = (1.5 as f64).to_bits(); __sn_array.iter().position(|__sn_item| __sn_item.to_bits() == __sn_array_search).map(|__sn_index| __sn_index as i64).unwrap_or(-1) }
-
-)
-;
-    println!("{}", { let __sn_array = &(values); let __sn_array_search = (negative_zero as f64).to_bits(); __sn_array.iter().any(|__sn_item| __sn_item.to_bits() == __sn_array_search) }
-
-)
-;
-    println!("{}", { let __sn_array = &(values); let __sn_array_search = (negative_zero as f64).to_bits(); __sn_array.iter().position(|__sn_item| __sn_item.to_bits() == __sn_array_search).map(|__sn_index| __sn_index as i64).unwrap_or(-1) }
-
-)
-;
-    println!("{}", { let __sn_array = &(values); let __sn_array_search = (nan as f64).to_bits(); __sn_array.iter().any(|__sn_item| __sn_item.to_bits() == __sn_array_search) }
-
-)
-;
-    println!("{}", { let __sn_array = &(values); let __sn_array_search = (nan as f64).to_bits(); __sn_array.iter().position(|__sn_item| __sn_item.to_bits() == __sn_array_search).map(|__sn_index| __sn_index as i64).unwrap_or(-1) }
-
-)
-;
+    println!("{}", { let __sn_array = &(values); let __sn_array_search = (1.5 as f64).to_bits(); __sn_array.iter().any(|__sn_item| __sn_item.to_bits() == __sn_array_search) });
+    println!("{}", { let __sn_array = &(values); let __sn_array_search = (1.5 as f64).to_bits(); __sn_array.iter().position(|__sn_item| __sn_item.to_bits() == __sn_array_search).map(|__sn_index| __sn_index as i64).unwrap_or(-1) });
+    println!("{}", { let __sn_array = &(values); let __sn_array_search = (negative_zero as f64).to_bits(); __sn_array.iter().any(|__sn_item| __sn_item.to_bits() == __sn_array_search) });
+    println!("{}", { let __sn_array = &(values); let __sn_array_search = (negative_zero as f64).to_bits(); __sn_array.iter().position(|__sn_item| __sn_item.to_bits() == __sn_array_search).map(|__sn_index| __sn_index as i64).unwrap_or(-1) });
+    println!("{}", { let __sn_array = &(values); let __sn_array_search = (nan as f64).to_bits(); __sn_array.iter().any(|__sn_item| __sn_item.to_bits() == __sn_array_search) });
+    println!("{}", { let __sn_array = &(values); let __sn_array_search = (nan as f64).to_bits(); __sn_array.iter().position(|__sn_item| __sn_item.to_bits() == __sn_array_search).map(|__sn_index| __sn_index as i64).unwrap_or(-1) });
 }

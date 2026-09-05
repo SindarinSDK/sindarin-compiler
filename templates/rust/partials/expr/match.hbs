@@ -4,7 +4,7 @@
 {{else}}
     let {{rust_ident rust_match_subject_name}}: SnString = {{> expr subject}};
 {{/if}}
-{{#each arms}}    {{#if is_else}}else{{else}}{{#if @first}}if{{else}}else if{{/if}} ({{#each patterns}}{{#if @index}} || {{/if}}{{rust_ident ../../../rust_match_subject_name}} == {{#if rust_string_pattern_borrowed}}({{> expr this}}){{else}}SnString::from({{rust_string_literal rust_string_pattern_value}}){{/if}}{{/each}}){{/if}} {
+{{#each arms}}    {{#if is_else}}else{{else}}{{#if @first}}if{{else}}else if{{/if}} ({{#each patterns}}{{#if @index}} || {{/if}}{{rust_ident ../../../rust_match_subject_name}} == {{#if rust_string_pattern_borrowed}}({{> expr this}}){{else}}{{rust_string_literal rust_string_pattern_value}}{{/if}}{{/each}}){{/if}} {
 {{#each body.statements}}{{#if @last}}        ({{> expr expr}}{{#unless (eq ../../type.kind "bool")}}{{#unless (eq ../../type.kind "string")}} as {{rust_type ../../type}}{{/unless}}{{/unless}}){{else}}        {{> stmt this}}{{nl}}{{/if}}{{/each}}
     }
 {{/each}}{{rbrace}}{{else}}{
@@ -13,7 +13,7 @@
 {{else}}
     let {{rust_ident rust_match_subject_name}}: SnString = {{> expr subject}};
 {{/if}}
-{{#each arms}}    {{#if is_else}}else{{else}}{{#if @first}}if{{else}}else if{{/if}} ({{#each patterns}}{{#if @index}} || {{/if}}{{rust_ident ../../../rust_match_subject_name}} == {{#if rust_string_pattern_borrowed}}({{> expr this}}){{else}}SnString::from({{rust_string_literal rust_string_pattern_value}}){{/if}}{{/each}}){{/if}} {
+{{#each arms}}    {{#if is_else}}else{{else}}{{#if @first}}if{{else}}else if{{/if}} ({{#each patterns}}{{#if @index}} || {{/if}}{{rust_ident ../../../rust_match_subject_name}} == {{#if rust_string_pattern_borrowed}}({{> expr this}}){{else}}{{rust_string_literal rust_string_pattern_value}}{{/if}}{{/each}}){{/if}} {
 {{#each body.statements}}        {{> stmt this}}{{nl}}{{/each}}    }
 {{/each}}{{rbrace}}{{/if}}{{else}}{{#if rust_floating_match}}{{#if rust_value_match}}{
     let {{rust_ident rust_match_subject_name}}: {{rust_type subject.type}} = {{> expr subject}};

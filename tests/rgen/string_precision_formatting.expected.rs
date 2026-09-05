@@ -24,6 +24,8 @@ impl SnString {
 
     fn from_bytes(bytes: Vec<u8>) -> Self { Self(bytes) }
 
+    fn from_slice(bytes: &[u8]) -> Self { Self(bytes.to_vec()) }
+
     fn from_c_bytes(bytes: &[u8]) -> Self {
         let end = bytes.iter().position(|byte| *byte == 0).unwrap_or(bytes.len());
         Self(bytes[..end].to_vec())
@@ -75,6 +77,61 @@ impl From<&str> for SnString {
 impl From<String> for SnString {
     fn from(value: String) -> Self { Self(value.into_bytes()) }
 }
+
+#[cfg(unix)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::unix::ffi::OsStrExt;
+    std::env::args_os()
+        .map(|value| SnString::from_slice(value.as_os_str().as_bytes()))
+        .collect()
+}
+
+#[cfg(windows)]
+fn __sn_push_wtf8(bytes: &mut Vec<u8>, value: u32) {
+    if value <= 0x7f {
+        bytes.push(value as u8);
+    } else if value <= 0x7ff {
+        bytes.push((0xc0 | (value >> 6)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else if value <= 0xffff {
+        bytes.push((0xe0 | (value >> 12)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else {
+        bytes.push((0xf0 | (value >> 18)) as u8);
+        bytes.push((0x80 | ((value >> 12) & 0x3f)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    }
+}
+
+#[cfg(windows)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::windows::ffi::OsStrExt;
+    std::env::args_os().map(|value| {
+        let mut bytes = Vec::new();
+        let mut units = value.as_os_str().encode_wide().peekable();
+        while let Some(unit) = units.next() {
+            let scalar = if (0xd800..=0xdbff).contains(&unit) {
+                match units.peek().copied() {
+                    Some(low) if (0xdc00..=0xdfff).contains(&low) => {
+                        units.next();
+                        0x10000 + (((unit as u32 - 0xd800) << 10) |
+                                   (low as u32 - 0xdc00))
+                    }
+                    _ => unit as u32,
+                }
+            } else {
+                unit as u32
+            };
+            __sn_push_wtf8(&mut bytes, scalar);
+        }
+        SnString::from_bytes(bytes)
+    }).collect()
+}
+
+#[cfg(not(any(unix, windows)))]
+compile_error!("Sindarin Rust argv byte transport supports Unix and Windows targets");
 
 impl std::fmt::Debug for SnString {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -308,15 +365,9 @@ fn __sn_format_scientific(value: f64, precision: usize, uppercase: bool,
 
 
 fn main() {
-    let mut ascii: SnString = SnString::from("abcdef");
-    let mut unicode: SnString = SnString::from("éclair");
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str("precision="); __sn_interpolated.push_str(&__sn_format_string(&(ascii), 0, false, true, 3)); __sn_interpolated.push_str("/"); __sn_interpolated.push_str(&__sn_format_string(&(ascii), 0, false, true, 0)); __sn_interpolated.push_str("/"); __sn_interpolated.push_str(&__sn_format_string(&(ascii), 0, false, true, 20)); __sn_interpolated }
-))
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str("width=|"); __sn_interpolated.push_str(&__sn_format_string(&(ascii), 8, false, true, 3)); __sn_interpolated.push_str("|/|"); __sn_interpolated.push_str(&__sn_format_string(&(ascii), 8, true, true, 3)); __sn_interpolated.push_str("|"); __sn_interpolated }
-))
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str("bytes=|"); __sn_interpolated.push_str(&__sn_format_string(&(unicode), 6, false, true, 2)); __sn_interpolated.push_str("|/|"); __sn_interpolated.push_str(&__sn_format_string(&(unicode), 6, true, true, 3)); __sn_interpolated.push_str("|"); __sn_interpolated }
-))
-;
+    let mut ascii: SnString = SnString::from_slice(&[0x61, 0x62, 0x63, 0x64, 0x65, 0x66]);
+    let mut unicode: SnString = SnString::from_slice(&[0xc3, 0xa9, 0x63, 0x6c, 0x61, 0x69, 0x72]);
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x70, 0x72, 0x65, 0x63, 0x69, 0x73, 0x69, 0x6f, 0x6e, 0x3d]))); __sn_interpolated.push_str(&__sn_format_string(&(ascii), 0, false, true, 3)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2f]))); __sn_interpolated.push_str(&__sn_format_string(&(ascii), 0, false, true, 0)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2f]))); __sn_interpolated.push_str(&__sn_format_string(&(ascii), 0, false, true, 20)); __sn_interpolated }));
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x77, 0x69, 0x64, 0x74, 0x68, 0x3d, 0x7c]))); __sn_interpolated.push_str(&__sn_format_string(&(ascii), 8, false, true, 3)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c, 0x2f, 0x7c]))); __sn_interpolated.push_str(&__sn_format_string(&(ascii), 8, true, true, 3)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated }));
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x62, 0x79, 0x74, 0x65, 0x73, 0x3d, 0x7c]))); __sn_interpolated.push_str(&__sn_format_string(&(unicode), 6, false, true, 2)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c, 0x2f, 0x7c]))); __sn_interpolated.push_str(&__sn_format_string(&(unicode), 6, true, true, 3)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated }));
 }

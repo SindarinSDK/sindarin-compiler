@@ -33,15 +33,12 @@ fn increment(value: &mut i64) {
 }
 
 fn twice(value: &mut i64) {
-    increment(&mut *(value))
-;
+    increment(&mut *(value));
     { let __sn_place = &mut (*(value)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
 }
 
 fn main() {
     let mut value: i64 = 100;
-    twice(&mut (value))
-;
-    println!("{}", value)
-;
+    twice(&mut (value));
+    println!("{}", value);
 }

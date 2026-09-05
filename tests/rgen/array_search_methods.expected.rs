@@ -24,6 +24,8 @@ impl SnString {
 
     fn from_bytes(bytes: Vec<u8>) -> Self { Self(bytes) }
 
+    fn from_slice(bytes: &[u8]) -> Self { Self(bytes.to_vec()) }
+
     fn from_c_bytes(bytes: &[u8]) -> Self {
         let end = bytes.iter().position(|byte| *byte == 0).unwrap_or(bytes.len());
         Self(bytes[..end].to_vec())
@@ -75,6 +77,61 @@ impl From<&str> for SnString {
 impl From<String> for SnString {
     fn from(value: String) -> Self { Self(value.into_bytes()) }
 }
+
+#[cfg(unix)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::unix::ffi::OsStrExt;
+    std::env::args_os()
+        .map(|value| SnString::from_slice(value.as_os_str().as_bytes()))
+        .collect()
+}
+
+#[cfg(windows)]
+fn __sn_push_wtf8(bytes: &mut Vec<u8>, value: u32) {
+    if value <= 0x7f {
+        bytes.push(value as u8);
+    } else if value <= 0x7ff {
+        bytes.push((0xc0 | (value >> 6)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else if value <= 0xffff {
+        bytes.push((0xe0 | (value >> 12)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else {
+        bytes.push((0xf0 | (value >> 18)) as u8);
+        bytes.push((0x80 | ((value >> 12) & 0x3f)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    }
+}
+
+#[cfg(windows)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::windows::ffi::OsStrExt;
+    std::env::args_os().map(|value| {
+        let mut bytes = Vec::new();
+        let mut units = value.as_os_str().encode_wide().peekable();
+        while let Some(unit) = units.next() {
+            let scalar = if (0xd800..=0xdbff).contains(&unit) {
+                match units.peek().copied() {
+                    Some(low) if (0xdc00..=0xdfff).contains(&low) => {
+                        units.next();
+                        0x10000 + (((unit as u32 - 0xd800) << 10) |
+                                   (low as u32 - 0xdc00))
+                    }
+                    _ => unit as u32,
+                }
+            } else {
+                unit as u32
+            };
+            __sn_push_wtf8(&mut bytes, scalar);
+        }
+        SnString::from_bytes(bytes)
+    }).collect()
+}
+
+#[cfg(not(any(unix, windows)))]
+compile_error!("Sindarin Rust argv byte transport supports Unix and Windows targets");
 
 impl std::fmt::Debug for SnString {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -191,80 +248,28 @@ fn __sn_array_size(size: i64) -> usize {
 
 fn main() {
     let mut numbers: Vec<i64> = vec![10, 20, 10];
-    println!("{}", { let __sn_array = &(numbers); let __sn_array_search = &(20); __sn_array.contains(__sn_array_search) }
-
-)
-;
-    println!("{}", { let __sn_array = &(numbers); let __sn_array_search = &(99); __sn_array.contains(__sn_array_search) }
-
-)
-;
-    println!("{}", { let __sn_array = &(numbers); let __sn_array_search = &(10); __sn_array.iter().position(|__sn_item| __sn_item == __sn_array_search).map(|__sn_index| __sn_index as i64).unwrap_or(-1) }
-
-)
-;
-    println!("{}", { let __sn_array = &(numbers); let __sn_array_search = &(99); __sn_array.iter().position(|__sn_item| __sn_item == __sn_array_search).map(|__sn_index| __sn_index as i64).unwrap_or(-1) }
-
-)
-;
-    let mut names: Vec<SnString> = vec![SnString::from("alpha"), SnString::from("beta"), SnString::from("alpha")];
-    let mut needle: SnString = SnString::from("beta");
-    println!("{}", { let __sn_array = &(names); let __sn_array_search = &(needle); __sn_array.contains(__sn_array_search) }
-
-)
-;
-    println!("{}", { let __sn_array = &(names); let __sn_array_search = &(SnString::from("alpha")); __sn_array.iter().position(|__sn_item| __sn_item == __sn_array_search).map(|__sn_index| __sn_index as i64).unwrap_or(-1) }
-
-)
-;
-    println!("{}", { let __sn_array = &(names); let __sn_array_search = &(SnString::from("missing")); __sn_array.iter().position(|__sn_item| __sn_item == __sn_array_search).map(|__sn_index| __sn_index as i64).unwrap_or(-1) }
-
-)
-;
-    __sn_println_string(&(needle))
-;
+    println!("{}", { let __sn_array = &(numbers); let __sn_array_search = &(20); __sn_array.contains(__sn_array_search) });
+    println!("{}", { let __sn_array = &(numbers); let __sn_array_search = &(99); __sn_array.contains(__sn_array_search) });
+    println!("{}", { let __sn_array = &(numbers); let __sn_array_search = &(10); __sn_array.iter().position(|__sn_item| __sn_item == __sn_array_search).map(|__sn_index| __sn_index as i64).unwrap_or(-1) });
+    println!("{}", { let __sn_array = &(numbers); let __sn_array_search = &(99); __sn_array.iter().position(|__sn_item| __sn_item == __sn_array_search).map(|__sn_index| __sn_index as i64).unwrap_or(-1) });
+    let mut names: Vec<SnString> = vec![SnString::from_slice(&[0x61, 0x6c, 0x70, 0x68, 0x61]), SnString::from_slice(&[0x62, 0x65, 0x74, 0x61]), SnString::from_slice(&[0x61, 0x6c, 0x70, 0x68, 0x61])];
+    let mut needle: SnString = SnString::from_slice(&[0x62, 0x65, 0x74, 0x61]);
+    println!("{}", { let __sn_array = &(names); let __sn_array_search = &(needle); __sn_array.contains(__sn_array_search) });
+    println!("{}", { let __sn_array = &(names); let __sn_array_search = &(SnString::from_slice(&[0x61, 0x6c, 0x70, 0x68, 0x61])); __sn_array.iter().position(|__sn_item| __sn_item == __sn_array_search).map(|__sn_index| __sn_index as i64).unwrap_or(-1) });
+    println!("{}", { let __sn_array = &(names); let __sn_array_search = &(SnString::from_slice(&[0x6d, 0x69, 0x73, 0x73, 0x69, 0x6e, 0x67])); __sn_array.iter().position(|__sn_item| __sn_item == __sn_array_search).map(|__sn_index| __sn_index as i64).unwrap_or(-1) });
+    __sn_println_string(&(needle));
     let mut flags: Vec<bool> = vec![true, false];
-    println!("{}", { let __sn_array = &(flags); let __sn_array_search = &(false); __sn_array.contains(__sn_array_search) }
-
-)
-;
-    println!("{}", { let __sn_array = &(flags); let __sn_array_search = &(true); __sn_array.iter().position(|__sn_item| __sn_item == __sn_array_search).map(|__sn_index| __sn_index as i64).unwrap_or(-1) }
-
-)
-;
+    println!("{}", { let __sn_array = &(flags); let __sn_array_search = &(false); __sn_array.contains(__sn_array_search) });
+    println!("{}", { let __sn_array = &(flags); let __sn_array_search = &(true); __sn_array.iter().position(|__sn_item| __sn_item == __sn_array_search).map(|__sn_index| __sn_index as i64).unwrap_or(-1) });
     let mut bytes: Vec<u8> = vec![10, 20, 30];
-    println!("{}", { let __sn_array = &(bytes); let __sn_array_search = &(20); __sn_array.contains(__sn_array_search) }
-
-)
-;
-    println!("{}", { let __sn_array = &(bytes); let __sn_array_search = &(30); __sn_array.iter().position(|__sn_item| __sn_item == __sn_array_search).map(|__sn_index| __sn_index as i64).unwrap_or(-1) }
-
-)
-;
+    println!("{}", { let __sn_array = &(bytes); let __sn_array_search = &(20); __sn_array.contains(__sn_array_search) });
+    println!("{}", { let __sn_array = &(bytes); let __sn_array_search = &(30); __sn_array.iter().position(|__sn_item| __sn_item == __sn_array_search).map(|__sn_index| __sn_index as i64).unwrap_or(-1) });
     let mut letters: Vec<char> = vec!['\u{61}', '\u{62}', '\u{61}'];
-    println!("{}", { let __sn_array = &(letters); let __sn_array_search = &('\u{62}'); __sn_array.contains(__sn_array_search) }
-
-)
-;
-    println!("{}", { let __sn_array = &(letters); let __sn_array_search = &('\u{7a}'); __sn_array.contains(__sn_array_search) }
-
-)
-;
-    println!("{}", { let __sn_array = &(letters); let __sn_array_search = &('\u{61}'); __sn_array.iter().position(|__sn_item| __sn_item == __sn_array_search).map(|__sn_index| __sn_index as i64).unwrap_or(-1) }
-
-)
-;
-    println!("{}", { let __sn_array = &(letters); let __sn_array_search = &('\u{7a}'); __sn_array.iter().position(|__sn_item| __sn_item == __sn_array_search).map(|__sn_index| __sn_index as i64).unwrap_or(-1) }
-
-)
-;
+    println!("{}", { let __sn_array = &(letters); let __sn_array_search = &('\u{62}'); __sn_array.contains(__sn_array_search) });
+    println!("{}", { let __sn_array = &(letters); let __sn_array_search = &('\u{7a}'); __sn_array.contains(__sn_array_search) });
+    println!("{}", { let __sn_array = &(letters); let __sn_array_search = &('\u{61}'); __sn_array.iter().position(|__sn_item| __sn_item == __sn_array_search).map(|__sn_index| __sn_index as i64).unwrap_or(-1) });
+    println!("{}", { let __sn_array = &(letters); let __sn_array_search = &('\u{7a}'); __sn_array.iter().position(|__sn_item| __sn_item == __sn_array_search).map(|__sn_index| __sn_index as i64).unwrap_or(-1) });
     let mut empty: Vec<i64> = vec![];
-    println!("{}", { let __sn_array = &(empty); let __sn_array_search = &(1); __sn_array.contains(__sn_array_search) }
-
-)
-;
-    println!("{}", { let __sn_array = &(empty); let __sn_array_search = &(1); __sn_array.iter().position(|__sn_item| __sn_item == __sn_array_search).map(|__sn_index| __sn_index as i64).unwrap_or(-1) }
-
-)
-;
+    println!("{}", { let __sn_array = &(empty); let __sn_array_search = &(1); __sn_array.contains(__sn_array_search) });
+    println!("{}", { let __sn_array = &(empty); let __sn_array_search = &(1); __sn_array.iter().position(|__sn_item| __sn_item == __sn_array_search).map(|__sn_index| __sn_index as i64).unwrap_or(-1) });
 }

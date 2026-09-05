@@ -42,8 +42,6 @@ impl Point {
 
 fn main() {
     let mut point: Point = Point { x: 1 };
-    println!("{}", Point::increment(point))
-;
-    println!("{}", (point).x)
-;
+    println!("{}", Point::increment(point));
+    println!("{}", (point).x);
 }
