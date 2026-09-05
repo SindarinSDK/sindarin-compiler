@@ -1,0 +1,1 @@
+C and Rust must exit during initialization before source main begins.
