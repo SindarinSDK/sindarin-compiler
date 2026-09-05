@@ -1,0 +1,15 @@
+fn invoke(action: fn(int): int, n: int): int =>
+  return action(n)
+
+fn main(): void =>
+  var calls: int = 0
+  var action: fn(int): int = fn(n: int): int =>
+    calls++
+    if n < 1 =>
+      return 1
+    var step: fn(): int = fn(): int => invoke(action, n - 1)
+    return n * step()
+  println(action(5))
+  println(calls)
+  println(invoke(action, 3))
+  println(calls)

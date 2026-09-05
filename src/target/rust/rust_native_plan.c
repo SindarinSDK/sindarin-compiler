@@ -434,8 +434,16 @@ static bool model_name_in_use(json_object *functions, json_object *globals,
             json_object *item = json_object_array_get_idx(items, i);
             const char *name = native_string(item, "name");
             const char *source_name = native_string(item, "source_callable_name");
+            const char *alias = native_string(item, "c_alias");
+            const char *link_symbol = native_string(item, "c_link_symbol");
             if ((name && strcmp(name, candidate) == 0) ||
-                (source_name && strcmp(source_name, candidate) == 0))
+                (source_name && strcmp(source_name, candidate) == 0) ||
+                (alias && (strcmp(alias, candidate) == 0 ||
+                           (strncmp(alias, "__sn__", 6) == 0 &&
+                            strcmp(alias + 6, candidate) == 0))) ||
+                (link_symbol && (strcmp(link_symbol, candidate) == 0 ||
+                                 (strncmp(link_symbol, "__sn__", 6) == 0 &&
+                                  strcmp(link_symbol + 6, candidate) == 0))))
                 return true;
         }
     }

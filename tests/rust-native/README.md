@@ -11,11 +11,11 @@ transitive ordinary-function dependencies in its private C projection.
 `scalar_helper_struct_dependency.sn` pins a helper's value-struct definition;
 `scalar_helper_type_dependency.sn` extends that closure through nested value
 struct definitions and a helper global's transitive initializer and lifecycle.
-`scalar_initializer_timing.sn`, `scalar_initializer_name_collision.sn`, and
-`scalar_initializer_exit.sn` compare C and Rust initialization before source
-main: mixed C/Rust output stays ordered, compiler-private initializer names do
-not collide with tag-valid user functions, and transitive initializer helpers
-retain terminating behavior.
+`scalar_initializer_timing.sn`, `scalar_initializer_name_collision.sn`,
+`scalar_initializer_alias_collision.sn`, and `scalar_initializer_exit.sn`
+compare C and Rust initialization before source main: mixed C/Rust output stays
+ordered, compiler-private initializer names avoid tag-valid user functions and
+native aliases, and transitive initializer helpers retain terminating behavior.
 `imported_alias.sn` likewise covers post-tag imported source origins and a Rust
 callable whose name differs from its external C symbol. The error fixtures pin
 the first-slice bool and closure boundaries.

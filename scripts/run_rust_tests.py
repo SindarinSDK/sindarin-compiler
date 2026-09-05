@@ -322,6 +322,21 @@ TEST_CONFIGS = {
         'tests/rust-native', 'imported_*.sn', False, 'Rust Native Imported-Origin Extra Coverage'),
     'rust-native-errors': TestConfig(
         'tests/rust-native/errors', '*.sn', True, 'Rust Native Scalar Error Tests'),
+    'rust-closure-values': TestConfig(
+        'tests/rust/closure-values', '*.sn', False, 'Rust Closure Value Tests'),
+    'rust-closure-values-errors': TestConfig(
+        'tests/rust/closure-values/errors', '*.sn', True,
+        'Rust Closure Value Error Tests'),
+}
+
+# These tagged files record the Rust backend's former rejection.  Keep them
+# byte-for-byte for corpus identity; their promoted success coverage lives in
+# tests/rust/closure-values and is exercised by this runner below.
+PROMOTED_CLOSURE_NEGATIVES = {
+    'closure_values_owned_mutation',
+    'closure_values_recursive',
+    'closure_values_shared_scalar',
+    'closure_values_snapshot_float_mutation',
 }
 
 class TestRunner:
@@ -423,7 +438,16 @@ class TestRunner:
         exe_file = test_info['exe_file']
 
         # Check if test is excluded
-        if test_name in self.excluded_tests:
+        if (test_type == 'rgen-errors' and
+                test_name in PROMOTED_CLOSURE_NEGATIVES):
+            result = {
+                'test_name': test_name,
+                'status': 'skip',
+                'reason': 'promoted to Rust-private closure regression',
+                'details': None,
+                'elapsed': 0.0
+            }
+        elif test_name in self.excluded_tests:
             result = {
                 'test_name': test_name,
                 'status': 'skip',
@@ -436,13 +460,13 @@ class TestRunner:
 
             start_time = time.perf_counter()
 
-            if test_type == 'rgen':
+            if test_type in ('rgen', 'rust-closure-values'):
                 expected_file = os.path.splitext(test_file)[0] + '.expected.rs'
                 rs_file = exe_file + '.rs'
                 status, reason, details = self._run_rgen_test_internal(
                     test_file, expected_file, rs_file, exe_file
                 )
-            elif test_type == 'rgen-errors':
+            elif test_type in ('rgen-errors', 'rust-closure-values-errors'):
                 expected_file = os.path.splitext(test_file)[0] + '.expected'
                 rs_file = exe_file + '.rs'
                 status, reason, details = self._run_rgen_error_test_internal(
@@ -1505,7 +1529,8 @@ def main():
     parser.add_argument('test_type', nargs='?', default='all',
                         choices=['rgen', 'rgen-errors', 'rust-native-tagged',
                                  'rust-native-extra', 'rust-native-origin',
-                                 'rust-native-errors', 'rust-toolchain', 'all'],
+                                 'rust-native-errors', 'rust-closure-values',
+                                 'rust-closure-values-errors', 'rust-toolchain', 'all'],
                        help='Type of tests to run')
     parser.add_argument('--compiler', '-c', help='Path to compiler executable')
     parser.add_argument('--timeout', type=int, default=60,
@@ -1574,7 +1599,8 @@ def main():
         if args.test_type == 'all':
             for test_type in ['rgen', 'rgen-errors', 'rust-native-tagged',
                               'rust-native-extra', 'rust-native-origin',
-                              'rust-native-errors']:
+                              'rust-native-errors', 'rust-closure-values',
+                              'rust-closure-values-errors']:
                 passed, elapsed = runner.run_sn_tests(test_type)
                 all_passed &= passed
                 total_elapsed += elapsed

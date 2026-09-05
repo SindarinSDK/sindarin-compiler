@@ -1,0 +1,14 @@
+@source "scalar_initializer_alias_collision.c"
+@alias "__sn____rust_native_initialize_0"
+native fn externalValue(): int
+
+fn initialValue(): int =>
+  return 40
+
+var helperSeed: int = initialValue()
+
+native fn throughNative(): int =>
+  return helperSeed
+
+fn main(): void =>
+  println(externalValue() + throughNative())
