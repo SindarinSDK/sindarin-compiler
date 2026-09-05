@@ -17,11 +17,11 @@ struct definitions and a helper global's transitive initializer and lifecycle.
 extraction of tag-`79c20b`'s `native_identity_char`; the unchanged full tagged
 fixture remains outside the parity denominator because unrelated ordinary Rust
 constructs are not supported yet.
-`scalar_initializer_timing.sn`, `scalar_initializer_name_collision.sn`, and
-`scalar_initializer_exit.sn` compare C and Rust initialization before source
-main: mixed C/Rust output stays ordered, compiler-private initializer names do
-not collide with tag-valid user functions, and transitive initializer helpers
-retain terminating behavior.
+`scalar_initializer_timing.sn`, `scalar_initializer_name_collision.sn`,
+`scalar_initializer_alias_collision.sn`, and `scalar_initializer_exit.sn`
+compare C and Rust initialization before source main: mixed C/Rust output stays
+ordered, compiler-private initializer names avoid tag-valid user functions and
+native aliases, and transitive initializer helpers retain terminating behavior.
 `imported_alias.sn` likewise covers post-tag imported source origins and a Rust
 callable whose name differs from its external C symbol. The error fixtures pin
 the remaining pointer and closure boundaries.
