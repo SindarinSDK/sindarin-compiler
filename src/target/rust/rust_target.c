@@ -208,8 +208,16 @@ static bool rust_emit(CompilerOptions *options, Module *module,
         json_object_put(model);
         return false;
     }
+    if (!rust_assign_array_text_names(model))
+    {
+        fprintf(stderr, "Error: Rust target could not assign hygienic array text helper names\n");
+        json_object_put(model);
+        return false;
+    }
     if (rust_model_uses_arrays(model))
         json_object_object_add(model, "rust_uses_arrays", json_object_new_boolean(true));
+    if (rust_model_uses_array_text(model))
+        json_object_object_add(model, "rust_uses_array_text", json_object_new_boolean(true));
     if (rust_model_uses_reflection(model))
         json_object_object_add(model, "rust_uses_reflection", json_object_new_boolean(true));
     if (rust_model_uses_string_helpers(model))

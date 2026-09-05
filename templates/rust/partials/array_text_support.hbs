@@ -1,0 +1,95 @@
+#[allow(non_camel_case_types)]
+trait {{rust_ident rust_array_text_trait_name}} {
+    fn {{rust_ident rust_array_text_method_name}}(&self) -> String;
+    fn {{rust_ident rust_array_join_text_method_name}}(&self) -> String;
+}
+
+macro_rules! {{rust_ident rust_array_integer_macro_name}} {
+    ($($type:ty),+ $(,)?) => {$(
+        impl {{rust_ident rust_array_text_trait_name}} for $type {
+            fn {{rust_ident rust_array_text_method_name}}(&self) -> String { self.to_string() }
+            fn {{rust_ident rust_array_join_text_method_name}}(&self) -> String { self.to_string() }
+        }
+    )+};
+}
+
+{{rust_ident rust_array_integer_macro_name}}!(i64, i32, u64, u32);
+
+impl {{rust_ident rust_array_text_trait_name}} for u8 {
+    fn {{rust_ident rust_array_text_method_name}}(&self) -> String { format!("0x{:02X}", self) }
+    fn {{rust_ident rust_array_join_text_method_name}}(&self) -> String { format!("0x{:02X}", self) }
+}
+
+impl {{rust_ident rust_array_text_trait_name}} for bool {
+    fn {{rust_ident rust_array_text_method_name}}(&self) -> String { self.to_string() }
+    fn {{rust_ident rust_array_join_text_method_name}}(&self) -> String { self.to_string() }
+}
+
+impl {{rust_ident rust_array_text_trait_name}} for char {
+    fn {{rust_ident rust_array_text_method_name}}(&self) -> String { format!("'{}'", self) }
+    fn {{rust_ident rust_array_join_text_method_name}}(&self) -> String { self.to_string() }
+}
+
+impl {{rust_ident rust_array_text_trait_name}} for String {
+    fn {{rust_ident rust_array_text_method_name}}(&self) -> String { format!("\"{}\"", self) }
+    fn {{rust_ident rust_array_join_text_method_name}}(&self) -> String { self.clone() }
+}
+
+fn {{rust_ident rust_array_float_format_name}}(value: f64) -> String {
+    if value.is_nan() { return "nan".to_string(); }
+    if value == f64::INFINITY { return "inf".to_string(); }
+    if value == f64::NEG_INFINITY { return "-inf".to_string(); }
+
+    let scientific = format!("{:.5e}", value);
+    let (mantissa, exponent_text) = scientific.split_once('e').unwrap();
+    let exponent: i32 = exponent_text.parse().unwrap();
+    if exponent < -4 || exponent >= 6 {
+        let mantissa = mantissa.trim_end_matches('0').trim_end_matches('.');
+        return format!("{}e{:+03}", mantissa, exponent);
+    }
+
+    let precision = (5 - exponent).max(0) as usize;
+    let fixed = format!("{:.*}", precision, value);
+    if fixed.contains('.') {
+        fixed.trim_end_matches('0').trim_end_matches('.').to_string()
+    } else {
+        fixed
+    }
+}
+
+macro_rules! {{rust_ident rust_array_float_macro_name}} {
+    ($($type:ty),+ $(,)?) => {$(
+        impl {{rust_ident rust_array_text_trait_name}} for $type {
+            fn {{rust_ident rust_array_text_method_name}}(&self) -> String { {{rust_ident rust_array_float_format_name}}(*self as f64) }
+            fn {{rust_ident rust_array_join_text_method_name}}(&self) -> String { format!("{:.5}", self) }
+        }
+    )+};
+}
+
+{{rust_ident rust_array_float_macro_name}}!(f64, f32);
+
+impl<T: {{rust_ident rust_array_text_trait_name}}> {{rust_ident rust_array_text_trait_name}} for Vec<T> {
+    fn {{rust_ident rust_array_text_method_name}}(&self) -> String { {{rust_ident rust_array_to_string_name}}(self.as_slice()) }
+    // sn_array_join renders each nested-array element as "?"; recursion is
+    // reserved for full array formatting (print and interpolation).
+    fn {{rust_ident rust_array_join_text_method_name}}(&self) -> String { "?".to_string() }
+}
+
+fn {{rust_ident rust_array_to_string_name}}<T: {{rust_ident rust_array_text_trait_name}}>(array: &[T]) -> String {
+    let mut result = String::from("[");
+    for (index, value) in array.iter().enumerate() {
+        if index != 0 { result.push_str(", "); }
+        result.push_str(&value.{{rust_ident rust_array_text_method_name}}());
+    }
+    result.push(']');
+    result
+}
+
+fn {{rust_ident rust_array_join_name}}<T: {{rust_ident rust_array_text_trait_name}}>(array: &[T], separator: &str) -> String {
+    let mut result = String::new();
+    for (index, value) in array.iter().enumerate() {
+        if index != 0 { result.push_str(separator); }
+        result.push_str(&value.{{rust_ident rust_array_join_text_method_name}}());
+    }
+    result
+}
