@@ -23,6 +23,34 @@ fn __sn_array_size(size: i64) -> usize {
     size as usize
 }
 
+fn __sn_runtime_error_0(message: &'static str) -> ! {
+    eprintln!("{}", message);
+    std::process::exit(1);
+}
+
+fn __sn_checked_0<T>(value: Option<T>, message: &'static str) -> T {
+    match value {
+        Some(value) => value,
+        None => __sn_runtime_error_0(message),
+    }
+}
+
+fn __sn_checked_div_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked_0(value, if divisor_is_zero {
+        "panic: Division by zero"
+    } else {
+        "Runtime error: integer overflow in division"
+    })
+}
+
+fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked_0(value, if divisor_is_zero {
+        "panic: Modulo by zero"
+    } else {
+        "Runtime error: integer overflow in modulo"
+    })
+}
+
 struct __SnClosure<F: ?Sized>(std::rc::Rc<F>);
 impl<F: ?Sized> Clone for __SnClosure<F> {
     fn clone(&self) -> Self { Self(self.0.clone()) }
@@ -37,7 +65,7 @@ impl<F: ?Sized> PartialEq for __SnClosure<F> {
 }
 fn makeAppender(seed: i64) -> __SnClosure<dyn Fn(i64) -> i64> {
     let mut values: Vec<i64> = vec![seed];
-    let mut outer: __SnClosure<dyn Fn() -> __SnClosure<dyn Fn(i64) -> i64>> = { let (values, ) = (values.clone(), ); self::__SnClosure::<dyn Fn() -> __SnClosure<dyn Fn(i64) -> i64>>(std::rc::Rc::new(move || -> __SnClosure<dyn Fn(i64) -> i64> { let mut inner: __SnClosure<dyn Fn(i64) -> i64> = { let (values, ) = (std::rc::Rc::new(std::cell::RefCell::new(values.clone())), ); self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |value: i64| -> i64 { { let __sn_array_value = value; values.borrow_mut().push(__sn_array_value); };return ((((values.borrow().clone()).len() as i64).checked_mul(100).expect("checked arithmetic failed")).checked_add((values.borrow().clone())[__sn_index((values.borrow().clone()).len(), 0)]).expect("checked arithmetic failed")).checked_add((values.borrow().clone())[__sn_index((values.borrow().clone()).len(), ((values.borrow().clone()).len() as i64).checked_sub(1).expect("checked arithmetic failed"))]).expect("checked arithmetic failed");})) }
+    let mut outer: __SnClosure<dyn Fn() -> __SnClosure<dyn Fn(i64) -> i64>> = { let (values, ) = (values.clone(), ); self::__SnClosure::<dyn Fn() -> __SnClosure<dyn Fn(i64) -> i64>>(std::rc::Rc::new(move || -> __SnClosure<dyn Fn(i64) -> i64> { let mut inner: __SnClosure<dyn Fn(i64) -> i64> = { let (values, ) = (std::rc::Rc::new(std::cell::RefCell::new(values.clone())), ); self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |value: i64| -> i64 { { let __sn_array_value = value; values.borrow_mut().push(__sn_array_value); };return __sn_checked_0((__sn_checked_0((__sn_checked_0(((values.borrow().clone()).len() as i64).checked_mul(100), "Runtime error: integer overflow in multiplication")).checked_add((values.borrow().clone())[__sn_index((values.borrow().clone()).len(), 0)]), "Runtime error: integer overflow in addition")).checked_add((values.borrow().clone())[__sn_index((values.borrow().clone()).len(), __sn_checked_0(((values.borrow().clone()).len() as i64).checked_sub(1), "Runtime error: integer overflow in subtraction"))]), "Runtime error: integer overflow in addition");})) }
 ;return inner.clone();})) }
 ;
     return ((outer.clone()).0)();
