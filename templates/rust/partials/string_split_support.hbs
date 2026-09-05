@@ -1,0 +1,57 @@
+fn {{rust_string_split_helper}}(value: &str, delimiter: &str) -> Vec<String> {
+    if value.is_empty() { return Vec::new(); }
+    if delimiter.is_empty() {
+        /* Tagged C emits one element per source byte, rather than per Unicode
+         * scalar. Preserve that cardinality without creating invalid Rust
+         * strings for a byte that is part of a UTF-8 sequence. */
+        return value.as_bytes().iter().map(|byte| char::from(*byte).to_string()).collect();
+    }
+    let mut result = Vec::new();
+    let mut remaining = value;
+    while !remaining.is_empty() {
+        if let Some(index) = remaining.find(delimiter) {
+            result.push(remaining[..index].to_string());
+            remaining = &remaining[index + delimiter.len()..];
+            if remaining.is_empty() { result.push(String::new()); }
+        } else { result.push(remaining.to_string()); break; }
+    }
+    result
+}
+
+fn {{rust_string_split_limit_helper}}(value: &str, delimiter: &str, limit: i64) -> Vec<String> {
+    if value.is_empty() || limit <= 0 { return Vec::new(); }
+    if delimiter.is_empty() {
+        return value.as_bytes().iter().take(limit as usize).map(|byte| char::from(*byte).to_string()).collect();
+    }
+    let mut result = Vec::new();
+    let mut remaining = value;
+    while !remaining.is_empty() {
+        if result.len() >= (limit - 1) as usize { result.push(remaining.to_string()); return result; }
+        if let Some(index) = remaining.find(delimiter) {
+            result.push(remaining[..index].to_string());
+            remaining = &remaining[index + delimiter.len()..];
+            if remaining.is_empty() { result.push(String::new()); }
+        } else { result.push(remaining.to_string()); break; }
+    }
+    result
+}
+
+fn {{rust_string_split_lines_helper}}(value: &str) -> Vec<String> {
+    let mut result = Vec::new();
+    let bytes = value.as_bytes();
+    let mut start = 0;
+    while start < bytes.len() {
+        let mut end = start;
+        while end < bytes.len() && bytes[end] != b'\n' && bytes[end] != b'\r' { end += 1; }
+        result.push(value[start..end].to_string());
+        start = end;
+        if start < bytes.len() && bytes[start] == b'\r' && start + 1 < bytes.len() && bytes[start + 1] == b'\n' { start += 2; }
+        else if start < bytes.len() { start += 1; }
+    }
+    result
+}
+
+fn {{rust_string_is_blank_helper}}(value: &str) -> bool {
+    /* Tagged C isspace in its C locale: HT, LF, VT, FF, CR, and SP only. */
+    value.as_bytes().iter().all(|byte| matches!(*byte, b'\t'..=b'\r' | b' '))
+}
