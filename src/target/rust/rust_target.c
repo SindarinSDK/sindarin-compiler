@@ -166,6 +166,12 @@ static bool rust_emit(CompilerOptions *options, Module *module,
     rust_lower_closures(model);
     rust_lower_checked_arithmetic(model);
     rust_lower_checked_mutations(model);
+    if (rust_model_uses_checked_arithmetic(model))
+    {
+        json_object_object_add(model, "rust_uses_checked_arithmetic",
+                               json_object_new_boolean(true));
+        if (!rust_assign_checked_helper_names(model)) { json_object_put(model); return false; }
+    }
     rust_lower_floating_mutations(model);
     rust_lower_strings(model);
     rust_lower_calls(model);
