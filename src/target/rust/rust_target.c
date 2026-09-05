@@ -191,6 +191,12 @@ static bool rust_emit(CompilerOptions *options, Module *module,
     rust_lower_floating_mutations(model);
     rust_lower_strings(model);
     rust_lower_calls(model);
+    if (!rust_lower_assert_temp_names(model, model))
+    {
+        fprintf(stderr, "Error: Rust target could not assign hygienic assertion temporary names\n");
+        json_object_put(model);
+        return false;
+    }
     if (!rust_lower_string_method_helper_names(model))
     {
         fprintf(stderr, "Error: Rust target could not assign hygienic string helper names\n");
