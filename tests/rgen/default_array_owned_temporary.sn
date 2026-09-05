@@ -1,0 +1,9 @@
+fn observe(values: int[]): int =>
+  return values.length
+
+fn makeValues(): int[] =>
+  return {4, 5}
+
+fn main(): void =>
+  println(observe({1, 2, 3}))
+  println(observe(makeValues()))

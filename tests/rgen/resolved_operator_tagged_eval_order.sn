@@ -1,0 +1,16 @@
+struct Point =>
+  value: int
+  operator < (other: Point): bool => return self.value < other.value
+
+fn marked(calls: int as ref, order: int as ref, marker: int, value: int): Point =>
+  calls++
+  order = order * 10 + marker
+  return Point { value: value }
+
+fn main(): void =>
+  var calls: int = 0
+  var order: int = 0
+  println(marked(calls, order, 1, 1) < marked(calls, order, 2, 2))
+  println(marked(calls, order, 3, 3) > marked(calls, order, 4, 4))
+  println(calls)
+  println(order)
