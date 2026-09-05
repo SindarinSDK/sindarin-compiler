@@ -1,0 +1,13 @@
+struct Record as ref =>
+  value: int
+fn update(record: Record): int =>
+  record.value = record.value + 7
+  return record.value
+fn main(): void =>
+  var record: Record = { value: 5 }
+  var observer: Record = record
+  var result: int = & update(record)
+  record = Record { value: 100 }
+  println(result !)
+  println(observer.value)
+  println(record.value)

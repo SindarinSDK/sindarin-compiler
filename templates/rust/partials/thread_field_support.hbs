@@ -1,0 +1,17 @@
+#[derive(Debug)]
+struct {{rust_ident rust_thread_field_type}}<T>(std::sync::Arc<std::sync::Mutex<T>>);
+impl<T> {{rust_ident rust_thread_field_type}}<T> {
+    fn new(value: T) -> Self { Self(std::sync::Arc::new(std::sync::Mutex::new(value))) }
+    fn share(&self) -> Self { Self(self.0.clone()) }
+    fn lock(&self) -> std::sync::MutexGuard<'_ , T> { self.0.lock().unwrap_or_else(|e| e.into_inner()) }
+    fn set(&self, value: T) { *self.0.lock().unwrap_or_else(|e| e.into_inner()) = value; }
+}
+impl<T: Clone> {{rust_ident rust_thread_field_type}}<T> {
+    fn read(&self) -> T { self.0.lock().unwrap_or_else(|e| e.into_inner()).clone() }
+}
+impl<T: Clone> Clone for {{rust_ident rust_thread_field_type}}<T> {
+    fn clone(&self) -> Self { Self::new(self.read()) }
+}
+impl<T: Clone + PartialEq> PartialEq for {{rust_ident rust_thread_field_type}}<T> {
+    fn eq(&self, other: &Self) -> bool { self.read() == other.read() }
+}

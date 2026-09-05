@@ -1,5 +1,5 @@
 #![allow(dead_code, unused_mut, unused_variables, unused_parens)]
-
+{{#if rust_uses_thread_fields}}{{> thread_field_support}}{{/if}}
 {{#if rust_native_initializer}}extern "C" {
     #[link_name = {{rust_string_literal rust_native_initializer_symbol}}]
     fn {{rust_ident rust_native_initializer_extern_name}}();

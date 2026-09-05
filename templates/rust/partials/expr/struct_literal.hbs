@@ -1,1 +1,1 @@
-{{rust_ident struct_name}} { {{#each fields}}{{#if @index}}, {{/if}}{{rust_ident name}}: {{> expr value}}{{rust_clone_suffix value source_is_borrow}}{{/each}} }
+{{rust_ident struct_name}} { {{#each fields}}{{#if @index}}, {{/if}}{{rust_ident name}}: {{#if ../rust_thread_fields}}{{rust_ident @root.rust_thread_field_type}}::new({{> expr value}}{{rust_clone_suffix value source_is_borrow}}){{else}}{{> expr value}}{{rust_clone_suffix value source_is_borrow}}{{/if}}{{/each}} }

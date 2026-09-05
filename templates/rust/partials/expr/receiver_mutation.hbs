@@ -1,0 +1,1 @@
+{ let {{rust_ident @root.rust_thread_receiver_temp}} = ({{> expr rust_field_place.object}}).{{rust_ident rust_field_place.member_name}}.share(); {{#if value}}let {{rust_ident @root.rust_thread_field_rhs}} = {{> expr value}}; {{/if}}let mut {{rust_ident @root.rust_thread_field_guard}} = {{rust_ident @root.rust_thread_receiver_temp}}.lock(); {{> expr rust_field_inner}} }

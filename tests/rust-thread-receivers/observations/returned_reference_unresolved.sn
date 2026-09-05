@@ -1,0 +1,15 @@
+struct Worker as ref =>
+  value: int
+  fn update(amount: int): int =>
+    self.value = self.value + amount
+    return self.value
+  fn run(amount: int): int =>
+    var inner: int = & self.update(amount)
+    return inner !
+fn create(): Worker =>
+  return Worker { value: 5 }
+fn main(): void =>
+  var worker: Worker = create()
+  var outer: int = & worker.run(7)
+  println(outer !)
+  println(worker.value)
