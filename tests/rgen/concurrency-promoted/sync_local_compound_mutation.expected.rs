@@ -12,5 +12,5 @@ impl<T> __sn_concurrency0_Cell<T> {
 
 fn main() {
     let counter: __sn_concurrency0_Cell<i64> = __sn_concurrency0_Cell::new(1);
-    { let __sn_concurrency0_numeric_rhs = (1).clone(); let mut __sn_concurrency0_value_guard = counter.lock().unwrap_or_else(|e| e.into_inner()); { let (__sn_rhs, __sn_place): (i64, &mut i64) = (__sn_concurrency0_numeric_rhs, &mut ((*__sn_concurrency0_value_guard))); let __sn_next = *__sn_place + __sn_rhs; *__sn_place = __sn_next; __sn_next } };
+    { let mut __sn_concurrency0_value_guard = { (*counter.lock().unwrap_or_else(|e| e.into_inner())).clone() }; let __sn_concurrency0_numeric_rhs = (1).clone(); let __sn_concurrency0_value = { { let (__sn_rhs, __sn_place): (i64, &mut i64) = (__sn_concurrency0_numeric_rhs, &mut (__sn_concurrency0_value_guard)); let __sn_next = *__sn_place + __sn_rhs; *__sn_place = __sn_next; __sn_next } }; *counter.lock().unwrap_or_else(|e| e.into_inner()) = __sn_concurrency0_value_guard; __sn_concurrency0_value };
 }
