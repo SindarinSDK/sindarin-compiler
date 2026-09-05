@@ -13,6 +13,10 @@ transitive ordinary-function dependencies in its private C projection.
 struct definitions and a helper global's transitive initializer and lifecycle.
 `scalar_bool_char.sn` verifies C `_Bool` normalization and byte-preserving C
 `char` calls/results through both backends at O0, O1, O2, and debug O0.
+Its exact source is stored as `scalar_bool_char.sn.raw`: the formatter currently
+rewrites the approved `\x7f` and `\xff` char tokens. The adjacent manifest pins
+the raw SHA-256, and `run_rust_tests.py rust-native-extra` stages a byte-identical
+temporary `.sn` plus its C sidecar before compiling the same ABI matrix.
 `scalar_tagged_char_control.sn` is the separately classified source-equivalent
 extraction of tag-`79c20b`'s `native_identity_char`; the unchanged full tagged
 fixture remains outside the parity denominator because unrelated ordinary Rust

@@ -8,6 +8,7 @@ Use run_tests.py for the unchanged tagged C harness. This runner owns Rust
 import argparse
 import atexit
 import glob
+import hashlib
 import json
 import os
 import platform
@@ -311,6 +312,33 @@ class TestConfig:
         self.title = title
 
 
+RUST_NATIVE_RAW_FIXTURE_MANIFESTS = (
+    'tests/rust-native/scalar_bool_char.fixture.json',
+)
+
+
+def load_rust_native_raw_fixture(manifest_path: str) -> Dict[str, Any]:
+    """Read one formatter-exempt native fixture manifest with strict identity."""
+    with open(manifest_path, 'r', encoding='utf-8') as source:
+        item = json.load(source)
+    required = ('logical_source', 'raw_source', 'raw_source_sha256', 'sidecars')
+    if not all(isinstance(item.get(key), str) for key in required[:3]):
+        raise ValueError(f'{manifest_path}: missing string source identity')
+    if not isinstance(item.get('sidecars'), list) or not all(
+            isinstance(path, str) for path in item['sidecars']):
+        raise ValueError(f'{manifest_path}: sidecars must be a string list')
+    raw_path = item['raw_source']
+    if not raw_path.endswith('.sn.raw') or not os.path.isfile(raw_path):
+        raise ValueError(f'{manifest_path}: raw source is not an existing .sn.raw file')
+    digest = hashlib.sha256(Path(raw_path).read_bytes()).hexdigest()
+    if digest != item['raw_source_sha256']:
+        raise ValueError(f'{manifest_path}: raw source SHA-256 mismatch')
+    for sidecar in item['sidecars']:
+        if not os.path.isfile(sidecar):
+            raise ValueError(f'{manifest_path}: missing sidecar {sidecar}')
+    return item
+
+
 TEST_CONFIGS = {
     'rgen': TestConfig('tests/rgen', '*.sn', False, 'Rust Generation Tests'),
     'rgen-errors': TestConfig('tests/rgen/errors', '*.sn', True, 'Rust Generation Error Tests'),
@@ -429,12 +457,39 @@ class TestRunner:
                       f'or -O2; got {mode!r}')
 
     @staticmethod
-    def _native_abi_matrix(test_file: str) -> List[List[str]]:
+    def _native_abi_matrix(test_file: str, fixture_base: Optional[str] = None) -> List[List[str]]:
         """Expand explicitly marked ABI controls across optimized/debug builds."""
-        marker = os.path.splitext(test_file)[0] + '.abi-matrix'
+        marker = (fixture_base or os.path.splitext(test_file)[0]) + '.abi-matrix'
         if not os.path.isfile(marker):
             return [[]]
         return [['-O0'], ['-O1'], ['-O2'], ['-O0', '-g']]
+
+    def _stage_rust_native_raw_fixture(
+            self, raw_fixture: Dict[str, Any], test_index: int) -> Tuple[Optional[str], Optional[str]]:
+        """Stage a formatter-exempt .sn.raw fixture without altering its bytes."""
+        raw_path = raw_fixture['raw_source']
+        expected_digest = raw_fixture['raw_source_sha256']
+        actual_digest = hashlib.sha256(Path(raw_path).read_bytes()).hexdigest()
+        if actual_digest != expected_digest:
+            return None, f'raw fixture SHA-256 mismatch for {raw_path}'
+        stage_dir = os.path.join(self.temp_dir, f'raw_native_{test_index}_{uuid.uuid4().hex}')
+        os.makedirs(stage_dir, exist_ok=False)
+        logical_name = os.path.basename(raw_fixture['logical_source'])
+        staged_source = os.path.join(stage_dir, logical_name)
+        shutil.copy2(raw_path, staged_source)
+        staged_digest = hashlib.sha256(Path(staged_source).read_bytes()).hexdigest()
+        if staged_digest != expected_digest:
+            return None, f'staged raw fixture SHA-256 mismatch for {raw_path}'
+        for sidecar in raw_fixture['sidecars']:
+            shutil.copy2(sidecar, os.path.join(stage_dir, os.path.basename(sidecar)))
+        Path(os.path.join(stage_dir, 'staging-identity.json')).write_text(json.dumps({
+            'logical_source': raw_fixture['logical_source'],
+            'raw_source': raw_path,
+            'raw_source_sha256': expected_digest,
+            'staged_source_sha256': staged_digest,
+            'sidecars': raw_fixture['sidecars'],
+        }, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+        return staged_source, None
 
 
     def _run_single_test(self, test_info: Dict[str, Any]) -> Dict[str, Any]:
@@ -467,12 +522,22 @@ class TestRunner:
             panic_file = test_file.replace('.sn', '.panic')
 
             start_time = time.perf_counter()
+            raw_fixture = test_info.get('raw_fixture')
+            source_file = test_file
+            fixture_base = os.path.splitext(test_file)[0]
+            stage_error = None
+            if raw_fixture is not None:
+                fixture_base = os.path.splitext(raw_fixture['logical_source'])[0]
+                source_file, stage_error = self._stage_rust_native_raw_fixture(
+                    raw_fixture, test_info['index'])
 
-            if test_type in ('rgen', 'rust-closure-values'):
+            if stage_error:
+                status, reason, details = ('fail', 'raw fixture staging error', [stage_error])
+            elif test_type in ('rgen', 'rust-closure-values'):
                 expected_file = os.path.splitext(test_file)[0] + '.expected.rs'
                 rs_file = exe_file + '.rs'
                 status, reason, details = self._run_rgen_test_internal(
-                    test_file, expected_file, rs_file, exe_file
+                    source_file, expected_file, rs_file, exe_file
                 )
             elif test_type in ('rgen-errors', 'rust-closure-values-errors'):
                 expected_file = os.path.splitext(test_file)[0] + '.expected'
@@ -487,9 +552,9 @@ class TestRunner:
                 status, reason, details = self._run_rust_native_parity_test_internal(
                     test_file, expected_file, exe_file)
             elif test_type in ('rust-native-extra', 'rust-native-origin'):
-                expected_file = test_file.replace('.sn', '.expected')
+                expected_file = fixture_base + '.expected'
                 status, reason, details = self._run_rust_native_target_test_internal(
-                    test_file, expected_file, exe_file)
+                    source_file, expected_file, exe_file, fixture_base)
             elif test_type == 'rust-native-errors':
                 expected_file = test_file.replace('.sn', '.expected')
                 status, reason, details = self._run_rust_native_error_test_internal(
@@ -537,6 +602,17 @@ class TestRunner:
             ]
         else:
             test_files = sorted(glob.glob(pattern, recursive=True))
+        raw_fixtures = {}
+        if test_type == 'rust-native-extra':
+            try:
+                for manifest_path in RUST_NATIVE_RAW_FIXTURE_MANIFESTS:
+                    raw_fixture = load_rust_native_raw_fixture(manifest_path)
+                    raw_fixtures[raw_fixture['raw_source']] = raw_fixture
+                    test_files.append(raw_fixture['raw_source'])
+            except (OSError, ValueError, json.JSONDecodeError) as error:
+                print(f"{Colors.RED}FAIL{Colors.NC}: invalid Rust-native raw fixture manifest: {error}")
+                return False, time.perf_counter() - suite_start
+            test_files.sort()
         # Normalize to forward slashes — the compiler expects Unix-style paths
         # (Windows glob returns backslashes which break build dir creation)
         test_files = [f.replace('\\', '/') for f in test_files]
@@ -554,7 +630,10 @@ class TestRunner:
         # Build test info list
         test_infos = []
         for idx, test_file in enumerate(test_files):
-            rel_path = os.path.relpath(test_file, config.test_dir)
+            raw_fixture = raw_fixtures.get(test_file)
+            logical_test_file = (raw_fixture['logical_source'] if raw_fixture is not None
+                                 else test_file)
+            rel_path = os.path.relpath(logical_test_file, config.test_dir)
             test_name = os.path.splitext(rel_path)[0]
             # Use unique exe name with index to avoid conflicts in parallel runs
             exe_basename = f"test_{idx}_{os.path.basename(test_file).replace('.sn', '')}"
@@ -566,7 +645,8 @@ class TestRunner:
                 'config': config,
                 'test_type': test_type,
                 'exe_file': exe_file,
-                'index': idx
+                'index': idx,
+                'raw_fixture': raw_fixture,
             })
 
         # Reset progress counters
@@ -1458,13 +1538,13 @@ class TestRunner:
 
     def _run_rust_native_target_test_internal(
             self, test_file: str, expected_file: str,
-            exe_file: str) -> Tuple[str, str, Optional[List[str]]]:
+            exe_file: str, fixture_base: Optional[str] = None) -> Tuple[str, str, Optional[List[str]]]:
         """Compile and execute a post-tag Rust-native fixture with its oracle."""
         if not os.path.isfile(expected_file):
             return ('skip', 'no .expected', None)
         with open(expected_file, 'r', encoding='utf-8') as expected:
             wanted = expected.read().replace('\r\n', '\n').replace('\r', '\n')
-        base = os.path.splitext(test_file)[0]
+        base = fixture_base or os.path.splitext(test_file)[0]
         expected_exit = 0
         exit_file = base + '.exit-code'
         if os.path.isfile(exit_file):
@@ -1473,7 +1553,7 @@ class TestRunner:
                     expected_exit = int(expected.read().strip())
             except (OSError, ValueError) as error:
                 return ('fail', 'invalid .exit-code', [str(error)])
-        modes = self._native_abi_matrix(test_file)
+        modes = self._native_abi_matrix(test_file, fixture_base)
         compare_c = len(modes) > 1 or os.path.isfile(base + '.c-parity')
         targets = ('c', 'rust') if compare_c else ('rust',)
         for mode_index, mode in enumerate(modes):
