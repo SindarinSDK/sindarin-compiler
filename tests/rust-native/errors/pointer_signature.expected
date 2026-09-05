@@ -1,0 +1,1 @@
+Error: Rust target native function 'unsupported' parameter 'value' must be an unsynchronized, default-qualified native scalar

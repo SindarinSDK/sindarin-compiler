@@ -1,0 +1,4 @@
+native fn unsupported(value: *int): int
+
+fn main(): void =>
+  println(unsupported(nil))
