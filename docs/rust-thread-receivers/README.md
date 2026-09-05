@@ -1,11 +1,13 @@
 # Thread-private receiver and aggregate ownership
 
-Dependent on preserved PR133 head
-`824195cdb54e8ab91386427996aa5a02fc47917a`. This branch does not change PR127
-or PR133 and has not integrated current main. Root supplies the corrected
-foundation for a later ordered restack. The mutable lane's supplied checkpoints
-`132f0e4f957` and `dd7504` use invocation-local snapshots; no shared-owner API
-was assumed or imported from those branches.
+The initial implementation checkpoint is
+`334ecc993c82110e398d6f0a511b95aac4ddf059`. This composition includes corrected
+PR133 `f85aefad68c18074968f3e1aa8e65f52695b5bda`, foundation
+`6b39ef6d8f992f9ae63e29d7a7711176687e18f3`, and main
+`3ed3eacd30e6a17ad5895a15718138a22f1dace3`. Root owns integration.
+The mutable lane's supplied checkpoints `f0e4f957` and `dd7504` use
+invocation-local snapshots; no shared-owner API was assumed or imported from
+those branches.
 
 ## Private interface for composition
 
@@ -49,14 +51,20 @@ value snapshots, aggregate returns, and nested self-method spawn/join. No sleeps
 or changed tagged expectations are involved. These three catalog paths now have
 focused parity evidence; this is not a new full-corpus measurement.
 
-The existing ownership preservation run has 20/20 raw O0 matches, including
-scalar reference forwarding/aliasing, synchronized reference storage, closure
-captures and pending-handle array aliases. Full Rust checks retain 237 generation
-passes/16 known failures, 163 negative passes/eight known failures/five inherited
-promotions, 23 positive and one negative closure passes, and six toolchain passes.
-Final generation checks and the corrected-worktree unit binary (1608 passes)
-are recorded separately with their actual provenance. Earlier suite evidence is
-not relabeled as a rerun after later edits.
+The parent PR133 restack separately preserved the exact two handle-array alias
+and three scalar-reference probes. Fresh receiver-composition gates pass
+8 concurrency, 7 promoted, 1 concurrency-error, 29 closure, 1 closure-error,
+8 native-extra cases and 1608 compiler units. Their logs and current unit binary
+identity are recorded in `verification.json`. Earlier broad Rust suite and
+20-case ownership evidence is historical; it is not a full rerun at this head.
+The broader generation limitations recorded on PR127 remain unresolved.
+
+The repository pre-commit hook formats staged `.sn` files. Fresh review evidence
+therefore checks bytes against committed Git blobs and supersedes prior
+pre-format source hashes. The former manifest and all raw attempts are retained
+under `/tmp/sn-thread-receivers-evidence`; no old output is reused for fresh
+comparisons. The harness supports canonical `repository.worktree` references
+and the recorded Spark1 v1 layout.
 
 All changed production files are under Rust target/templates. C/shared sources,
 tagged fixtures, harness/config and runtime are unchanged from the parent.

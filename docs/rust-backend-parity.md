@@ -4,6 +4,22 @@
 C is the default target (`src/compiler.c:31` `options->target = TARGET_C`); Rust is opt-in via `--target rust` / `--emit-rust`.
 Reconciled against the independent audit `audit-rust-parity-tests.md` @ `1f26b33` on `audit/rust-parity-tests-v2` (fetched, not merged/cherry-picked).
 
+## Rust native scalar bridge (source checkpoint)
+
+The Rust executable target now partitions supported free native functions before every Rust validation and lowering traversal. Its Rust-facing model retains a body-free declaration and renders a private `extern "C"` item plus a safe source-named wrapper. An owned private projection retains native Sindarin bodies, their transitive ordinary free-function dependencies, and `@include`, `@source`, and `@link` metadata; the established modular C renderer and C sidecar compile those complete bodies and original sources. Pure Rust programs retain the direct rustc path and do not load or launch the C toolchain. C remains the default target.
+
+The admitted ABI is `void` results plus `int`, `long`, `int32`, `uint`, `uint32`, `byte`, `float`, and `double` parameters/results with default memory and synchronization qualifiers. Bodyless declarations, `@alias` (including imported aliases), and scalar native bodies are included. `--emit-rust` rejects native bundles explicitly. Bool/char normalization, strings, arrays, pointers, structs and methods, callbacks/closures, variadics, ownership-bearing values, and thread/synchronization constructs remain required parity follow-ups rather than being assigned an accidental ABI.
+
+Native final linking uses the configured C compiler driver through a target-local linker proxy. The sidecar plan owns the effective compiler, C standard, selected mode flags, and general C flags in addition to objects, runtime, dependency paths, package options, ordered `@link` replacements, `SN_LDLIBS`, and `SN_LDFLAGS`. Native rustc builds enable the driver's default libraries so configured debug sanitizer and profiling runtimes are not suppressed by rustc's normal `-nodefaultlibs`; pure Rust builds retain their prior command. Raw configuration fragments keep the existing one-shell-evaluation contract; rustc-supplied arguments remain quoted argv. No cross-target or MSVC-labelled configuration is rejected by name: compatible configurations proceed to actual object compilation/linking, and genuine backend/runtime incompatibility is reported by those operations. Exact Windows batch quoting and every C-target-supported ABI remain mandatory validation/follow-up gates.
+
+Parity evidence is split by provenance. `rust-native-tagged` uses the unchanged
+tag-`79c20b` native math, native-body, and pragma-source fixtures and the
+unchanged platform configuration, compiling and running each with both C and
+Rust. The post-tag duplicate-spelling/distinct-same-basename source case and
+imported-origin case are Rust-only extra coverage; success there is not counted
+as tagged C/Rust parity and a tagged C rejection is not classified as a C
+defect.
+
 ## Baseline — historical audit baseline (build & test results)
 
 > The historical audit baseline was recorded at commit `940d5593b14a99454671b3004ada8592fddf9734` on `audit/rust-parity-architecture-v2`: unit **1609**, cgen **107**, rgen **45**, rgen-errors **8**, mgen **79**, integration **1142**, integration-errors **58**, explore **224**, and explore-errors **11**. These are the `940d5593` audit-run results, not current-head results. The exact PR #83 head gate is recorded below.

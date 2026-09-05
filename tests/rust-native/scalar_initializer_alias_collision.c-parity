@@ -1,0 +1,1 @@
+C and Rust must reserve compiler-private symbols against native aliases.

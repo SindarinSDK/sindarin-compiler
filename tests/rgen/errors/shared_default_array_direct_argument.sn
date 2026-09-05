@@ -1,0 +1,7 @@
+fn observe(values: int[]): int =>
+  return values.length
+
+fn main(): void =>
+  var values: int[] = {1}
+  println(observe(values))
+  println(values.length)

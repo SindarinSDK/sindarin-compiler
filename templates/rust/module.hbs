@@ -1,3 +1,11 @@
 #![allow(dead_code, unused_mut, unused_variables, unused_parens)]
 {{#if rust_uses_thread_fields}}{{> thread_field_support}}{{/if}}
-{{#if rust_uses_cells}}{{> cell_support this}}{{nl}}{{/if}}{{#if rust_uses_threads}}{{> thread_support this}}{{nl}}{{/if}}{{#if rust_uses_thread_arrays}}{{> thread_array_support this}}{{nl}}{{/if}}{{#if rust_thread_ownership}}{{> thread_capture_support this}}{{nl}}{{/if}}{{#if globals}}{{> globals this}}{{nl}}{{/if}}{{#if rust_uses_arrays}}{{> array_support}}{{nl}}{{nl}}{{/if}}{{#if rust_uses_checked_arithmetic}}{{> checked_arithmetic_support~}}{{nl}}{{/if}}{{#if rust_uses_string_helpers}}{{> string_support}}{{nl}}{{nl}}{{/if}}{{#if rust_uses_string_format_helpers}}{{> string_format_support}}{{nl}}{{nl}}{{/if}}{{#if rust_uses_reflection}}{{> reflection_support}}{{nl}}{{nl}}{{/if}}{{> closure_support this}}{{#each structs}}{{> struct this}}{{nl}}{{/each}}{{#if structs}}{{nl}}{{/if}}{{#each functions}}{{#unless is_native}}{{> function this}}{{#unless @last}}{{nl}}{{/unless}}{{/unless}}{{/each~}}
+{{#if rust_native_initializer}}extern "C" {
+    #[link_name = {{rust_string_literal rust_native_initializer_symbol}}]
+    fn {{rust_ident rust_native_initializer_extern_name}}();
+    #[link_name = "fflush"]
+    fn {{rust_ident rust_native_fflush_extern_name}}(_: *mut std::ffi::c_void) -> std::ffi::c_int;
+}
+
+{{/if}}
+{{#if rust_uses_cells}}{{> cell_support this}}{{nl}}{{/if}}{{#if rust_uses_threads}}{{> thread_support this}}{{nl}}{{/if}}{{#if rust_uses_thread_arrays}}{{> thread_array_support this}}{{nl}}{{/if}}{{#if rust_thread_ownership}}{{> thread_capture_support this}}{{nl}}{{/if}}{{#if globals}}{{> globals this}}{{nl}}{{/if}}{{#if rust_uses_arrays}}{{> array_support}}{{nl}}{{nl}}{{/if}}{{#if rust_uses_checked_arithmetic}}{{> checked_arithmetic_support~}}{{nl}}{{/if}}{{#if rust_uses_string_helpers}}{{> string_support}}{{nl}}{{nl}}{{/if}}{{#if rust_uses_string_format_helpers}}{{> string_format_support}}{{nl}}{{nl}}{{/if}}{{#if rust_uses_reflection}}{{> reflection_support}}{{nl}}{{nl}}{{/if}}{{> closure_support this}}{{#each structs}}{{> struct this}}{{nl}}{{/each}}{{#if structs}}{{nl}}{{/if}}{{#each functions}}{{#if rust_native_bridge}}{{> native_function this}}{{else}}{{#unless is_native}}{{> function this}}{{/unless}}{{/if}}{{#unless @last}}{{nl}}{{/unless}}{{/each~}}

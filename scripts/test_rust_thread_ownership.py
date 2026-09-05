@@ -35,8 +35,11 @@ def main():
     out = args.output.resolve(); out.mkdir(parents=True, exist_ok=False)
     repo = Path(__file__).resolve().parent.parent
     ref = json.loads(Path('/tmp/sindarin-tagged-control-reference.json').read_text())
-    tag = Path(ref['cwd']); compiler = ref['compiler']['path']
-    (out/'provenance.json').write_text(json.dumps({'reference': '/tmp/sindarin-tagged-control-reference.json', 'tag_peeled': ref['tag_peeled'], 'tag_compiler_verified_sha256': ref['compiler']['sha256'], 'rust_compiler_sha256': hashlib.sha256((repo/'bin/sn').read_bytes()).hexdigest(), 'mode': '-O0', 'inventory_only': args.inventory, 'filter': args.filter}, indent=2)+'\n')
+    # Canonical shared reference schema; retain the verified Spark1 v1 layout.
+    control_cwd = ref.get('repository', {}).get('worktree') or ref.get('cwd')
+    if not control_cwd: raise SystemExit('HARNESSISSUE: reference has no repository.worktree')
+    tag = Path(control_cwd); compiler = ref['compiler']['path']
+    (out/'provenance.json').write_text(json.dumps({'reference': '/tmp/sindarin-tagged-control-reference.json', 'tag_peeled': ref['tag_peeled'], 'tag_compiler_verified_sha256': ref['compiler']['sha256'], 'rust_compiler_sha256': hashlib.sha256((repo/'bin/sn').read_bytes()).hexdigest(), 'mode': '-O0', 'inventory_only': args.inventory, 'filter': args.filter, 'control_worktree': str(tag), 'reference_schema': ref.get('schema'), 'reference_sha256': hashlib.sha256(Path('/tmp/sindarin-tagged-control-reference.json').read_bytes()).hexdigest()}, indent=2)+'\n')
     smoke = out/'smoke'; (smoke/'tmp').mkdir(parents=True)
     clean = {'HOME': '/home/gavin', 'PATH': '/usr/bin:/bin', 'TMPDIR': str(smoke/'tmp')}
     executable = smoke/'program'
@@ -63,6 +66,12 @@ def main():
         if not sources: raise SystemExit("No matching feature cases")
     for i, source in enumerate(sources):
         row = {'source': str(source), 'sha256': hashlib.sha256(source.read_bytes()).hexdigest()}
+        source_repo = tag if source.is_relative_to(tag) else repo
+        source_path = str(source.relative_to(source_repo))
+        committed = subprocess.check_output(['git', 'show', 'HEAD:' + source_path], cwd=source_repo)
+        if committed != source.read_bytes(): raise SystemExit('HARNESSISSUE: source differs from committed blob: ' + source_path)
+        row['fixture_commit'] = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=source_repo, text=True).strip()
+        row['git_blob'] = subprocess.check_output(['git', 'rev-parse', 'HEAD:' + source_path], cwd=source_repo, text=True).strip()
         backends = [('rust', str(repo/'bin/sn'), repo)] if args.inventory else [('tag', compiler, tag), ('rust', str(repo/'bin/sn'), repo)]
         for backend, cc, cwd in backends:
             d = out/str(i)/backend; (d/'tmp').mkdir(parents=True)
