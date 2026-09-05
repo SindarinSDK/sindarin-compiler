@@ -1,0 +1,8 @@
+struct Dispatcher =>
+  static fn apply(callback: (fn(int): int) as ref, value: int): int =>
+    return callback(value)
+
+fn main(): void =>
+  var callback = fn(value: int): int => value
+  var value: int = 1
+  println(Dispatcher.apply(callback, value))
