@@ -295,7 +295,6 @@ int main(int argc, char **argv)
                 return 1;
             }
         }
-
     }
 
     /* Package management */
@@ -339,7 +338,7 @@ int main(int argc, char **argv)
 
     if (options.target == TARGET_RUST)
     {
-        int result = target_compile(&options, module);
+        int result = rust_target_compile(&options, module);
         compiler_cleanup(&options);
         return result;
     }

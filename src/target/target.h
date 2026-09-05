@@ -48,11 +48,10 @@ bool generated_file_set_add(GeneratedFileSet *set, const char *relative_path,
                             char *contents, GeneratedFileKind kind, bool primary);
 void generated_file_set_free(GeneratedFileSet *set);
 
-const TargetCompiler *target_compiler_for(TargetKind kind);
 const char *target_kind_name(TargetKind kind);
 bool target_kind_parse(const char *name, TargetKind *kind);
 
-/* Emit target source or build an executable according to options->output_kind. */
-int target_compile(CompilerOptions *options, Module *module);
+/* Rust-only driver. C retains its original lifecycle in main.c. */
+int rust_target_compile(CompilerOptions *options, Module *module);
 
 #endif

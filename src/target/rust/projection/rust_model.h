@@ -151,15 +151,15 @@ const char *rust_gen_model_func_mod_str(FunctionModifier fm);
 
 /* Type category classification — replaces scattered inline type checks */
 typedef enum {
-    TYPE_CAT_SCALAR,      /* int/int32/uint/uint32/long/double/float/bool/byte/char/void/nil/pointer/opaque */
-    TYPE_CAT_OWNED,       /* string/array/function — caller-owned heap allocation */
-    TYPE_CAT_REFCOUNTED,  /* struct with pass_self_by_ref — reference counted */
-    TYPE_CAT_COMPOSITE,   /* struct without pass_self_by_ref, has heap fields — needs cleanup */
-    TYPE_CAT_INERT        /* struct without pass_self_by_ref, no heap fields — plain value */
-} TypeCategory;
+    RUST_TYPE_CAT_SCALAR,      /* int/int32/uint/uint32/long/double/float/bool/byte/char/void/nil/pointer/opaque */
+    RUST_TYPE_CAT_OWNED,       /* string/array/function — caller-owned heap allocation */
+    RUST_TYPE_CAT_REFCOUNTED,  /* struct with pass_self_by_ref — reference counted */
+    RUST_TYPE_CAT_COMPOSITE,   /* struct without pass_self_by_ref, has heap fields — needs cleanup */
+    RUST_TYPE_CAT_INERT        /* struct without pass_self_by_ref, no heap fields — plain value */
+} RustTypeCategory;
 
-TypeCategory rust_gen_model_type_category(Type *type);
-const char *rust_gen_model_type_category_str(TypeCategory cat);
+RustTypeCategory rust_gen_model_type_category(Type *type);
+const char *rust_gen_model_type_category_str(RustTypeCategory cat);
 
 /* Type utilities */
 json_object *rust_gen_model_type(Arena *arena, Type *type);
