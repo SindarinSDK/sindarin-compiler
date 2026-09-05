@@ -1,6 +1,15 @@
 fn __sn_array_join(): int => 11
 fn __sn_array_join_0(): int => 21
 
+struct JoinBag =>
+  values: int[] = {}
+
+  fn mutateSeparator(): str =>
+    self.values.push(3)
+    return "-"
+
+  fn render(): str => self.values.join(self.mutateSeparator())
+
 fn main(): void =>
   var __sn_array: int[] = {1, 2, 3}
   var __sn_array_0: int[] = {4}
@@ -14,3 +23,10 @@ fn main(): void =>
   var unsigned: uint[] = {0u, 42u, 9223372036854775807u, negative.toUint()}
   println(unsigned.join(","))
   println(unsigned)
+  var bag: JoinBag = { values: {1, 2} }
+  println(bag.render())
+  println(bag.values)
+  var bytes: byte[] = {65b, 0b, 66b, 255b}
+  var byteText: str = bytes.toString()
+  println(byteText)
+  println(byteText.length)
