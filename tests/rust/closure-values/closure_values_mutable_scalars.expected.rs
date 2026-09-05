@@ -24,6 +24,8 @@ impl SnString {
 
     fn from_bytes(bytes: Vec<u8>) -> Self { Self(bytes) }
 
+    fn from_slice(bytes: &[u8]) -> Self { Self(bytes.to_vec()) }
+
     fn from_c_bytes(bytes: &[u8]) -> Self {
         let end = bytes.iter().position(|byte| *byte == 0).unwrap_or(bytes.len());
         Self(bytes[..end].to_vec())
@@ -75,6 +77,61 @@ impl From<&str> for SnString {
 impl From<String> for SnString {
     fn from(value: String) -> Self { Self(value.into_bytes()) }
 }
+
+#[cfg(unix)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::unix::ffi::OsStrExt;
+    std::env::args_os()
+        .map(|value| SnString::from_slice(value.as_os_str().as_bytes()))
+        .collect()
+}
+
+#[cfg(windows)]
+fn __sn_push_wtf8(bytes: &mut Vec<u8>, value: u32) {
+    if value <= 0x7f {
+        bytes.push(value as u8);
+    } else if value <= 0x7ff {
+        bytes.push((0xc0 | (value >> 6)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else if value <= 0xffff {
+        bytes.push((0xe0 | (value >> 12)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else {
+        bytes.push((0xf0 | (value >> 18)) as u8);
+        bytes.push((0x80 | ((value >> 12) & 0x3f)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    }
+}
+
+#[cfg(windows)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::windows::ffi::OsStrExt;
+    std::env::args_os().map(|value| {
+        let mut bytes = Vec::new();
+        let mut units = value.as_os_str().encode_wide().peekable();
+        while let Some(unit) = units.next() {
+            let scalar = if (0xd800..=0xdbff).contains(&unit) {
+                match units.peek().copied() {
+                    Some(low) if (0xdc00..=0xdfff).contains(&low) => {
+                        units.next();
+                        0x10000 + (((unit as u32 - 0xd800) << 10) |
+                                   (low as u32 - 0xdc00))
+                    }
+                    _ => unit as u32,
+                }
+            } else {
+                unit as u32
+            };
+            __sn_push_wtf8(&mut bytes, scalar);
+        }
+        SnString::from_bytes(bytes)
+    }).collect()
+}
+
+#[cfg(not(any(unix, windows)))]
+compile_error!("Sindarin Rust argv byte transport supports Unix and Windows targets");
 
 impl std::fmt::Debug for SnString {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -216,36 +273,22 @@ fn main() {
     let mut update: __SnClosure<dyn Fn() -> ()> = { let (i, l, b, d, yes, letter, ) = (i.clone(), l.clone(), b.clone(), d.clone(), yes.clone(), letter.clone(), ); self::__SnClosure::<dyn Fn() -> ()>(std::rc::Rc::new(move || -> () { { let (__sn_value, __sn_cell) = (11, &i); __sn_cell.set(__sn_value); __sn_value };{ let (__sn_value, __sn_cell) = (12, &l); __sn_cell.set(__sn_value); __sn_value };{ let (__sn_value, __sn_cell) = (13, &b); __sn_cell.set(__sn_value); __sn_value };{ let (__sn_value, __sn_cell) = (14.0, &d); __sn_cell.set(__sn_value); __sn_value };{ let (__sn_value, __sn_cell) = (true, &yes); __sn_cell.set(__sn_value); __sn_value };{ let (__sn_value, __sn_cell) = ('\u{7a}', &letter); __sn_cell.set(__sn_value); __sn_value };})) }
 ;
     ((update.clone()).0)();
-    println!("{}", i.get())
-;
-    println!("{}", l.get())
-;
-    println!("{}", (b.get() == 13))
-;
-    println!("{}", (d.get() == 14.0))
-;
-    println!("{}", yes.get())
-;
-    __sn_println_char(letter.get())
-;
+    println!("{}", i.get());
+    println!("{}", l.get());
+    println!("{}", (b.get() == 13));
+    println!("{}", (d.get() == 14.0));
+    println!("{}", yes.get());
+    __sn_println_char(letter.get());
     let mut i32: i32 = 1;
     let mut u32: u32 = 2;
     let mut u: u64 = 3;
     let mut f: f32 = 4.0;
-    let mut snapshot: __SnClosure<dyn Fn() -> ()> = { let (i32, u32, u, f, ) = (i32.clone(), u32.clone(), u.clone(), f.clone(), ); self::__SnClosure::<dyn Fn() -> ()>(std::rc::Rc::new(move || -> () { let mut i32 = i32; let mut u32 = u32; let mut u = u; let mut f = f; { let __sn_rhs = 1; let __sn_place = &mut (i32); let __sn_next = __sn_checked_0((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };{ let __sn_rhs = 1; let __sn_place = &mut (u32); let __sn_next = __sn_checked_0((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };{ let __sn_rhs = 1; let __sn_place = &mut (u); let __sn_next = __sn_checked_0((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };{ let (__sn_rhs, __sn_place) = (1.0, &mut (f)); let __sn_next = *__sn_place + __sn_rhs; *__sn_place = __sn_next; __sn_next };println!("{}", i32.clone())
-;println!("{}", u32.clone())
-;println!("{}", u.clone())
-;println!("{}", (f.clone() == 5.0))
-;})) }
+    let mut snapshot: __SnClosure<dyn Fn() -> ()> = { let (i32, u32, u, f, ) = (i32.clone(), u32.clone(), u.clone(), f.clone(), ); self::__SnClosure::<dyn Fn() -> ()>(std::rc::Rc::new(move || -> () { let mut i32 = i32; let mut u32 = u32; let mut u = u; let mut f = f; { let __sn_rhs = 1; let __sn_place = &mut (i32); let __sn_next = __sn_checked_0((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };{ let __sn_rhs = 1; let __sn_place = &mut (u32); let __sn_next = __sn_checked_0((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };{ let __sn_rhs = 1; let __sn_place = &mut (u); let __sn_next = __sn_checked_0((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };{ let (__sn_rhs, __sn_place) = (1.0, &mut (f)); let __sn_next = *__sn_place + __sn_rhs; *__sn_place = __sn_next; __sn_next };println!("{}", i32.clone());println!("{}", u32.clone());println!("{}", u.clone());println!("{}", (f.clone() == 5.0));})) }
 ;
     ((snapshot.clone()).0)();
     ((snapshot.clone()).0)();
-    println!("{}", i32)
-;
-    println!("{}", u32)
-;
-    println!("{}", u)
-;
-    println!("{}", (f == 4.0))
-;
+    println!("{}", i32);
+    println!("{}", u32);
+    println!("{}", u);
+    println!("{}", (f == 4.0));
 }

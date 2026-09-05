@@ -44,6 +44,5 @@ fn main() {
     let value: std::rc::Rc<std::cell::Cell<i64>> = std::rc::Rc::new(std::cell::Cell::new(1));
     let mut action: __SnClosure<dyn Fn() -> i64> = { let (value, ) = (value.clone(), ); self::__SnClosure::<dyn Fn() -> i64>(std::rc::Rc::new(move || -> i64 { { let (__sn_value, __sn_cell) = (__sn_checked_0((value.get()).checked_add(1), "Runtime error: integer overflow in addition"), &value); __sn_cell.set(__sn_value); __sn_value };return value.get();})) }
 ;
-    println!("{}", ((action.clone()).0)())
-;
+    println!("{}", ((action.clone()).0)());
 }

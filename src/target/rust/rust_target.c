@@ -214,11 +214,12 @@ static bool rust_emit(CompilerOptions *options, Module *module,
     }
     if (rust_model_uses_arrays(model))
         json_object_object_add(model, "rust_uses_arrays", json_object_new_boolean(true));
-    if (rust_model_uses_array_text(model))
+    bool uses_array_text = rust_model_uses_array_text(model);
+    if (uses_array_text)
         json_object_object_add(model, "rust_uses_array_text", json_object_new_boolean(true));
     if (rust_model_uses_reflection(model))
         json_object_object_add(model, "rust_uses_reflection", json_object_new_boolean(true));
-    if (rust_model_uses_byte_strings(model))
+    if (uses_array_text || rust_model_uses_byte_strings(model))
         json_object_object_add(model, "rust_uses_byte_strings", json_object_new_boolean(true));
     if (rust_model_uses_string_helpers(model))
         json_object_object_add(model, "rust_uses_string_helpers", json_object_new_boolean(true));

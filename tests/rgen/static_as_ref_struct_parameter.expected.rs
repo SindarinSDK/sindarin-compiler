@@ -46,6 +46,5 @@ impl Point {
 fn main() {
     let mut point: Point = Point { x: 1 };
     Point::twice(&mut (point));
-    println!("{}", (point).x)
-;
+    println!("{}", (point).x);
 }

@@ -24,6 +24,8 @@ impl SnString {
 
     fn from_bytes(bytes: Vec<u8>) -> Self { Self(bytes) }
 
+    fn from_slice(bytes: &[u8]) -> Self { Self(bytes.to_vec()) }
+
     fn from_c_bytes(bytes: &[u8]) -> Self {
         let end = bytes.iter().position(|byte| *byte == 0).unwrap_or(bytes.len());
         Self(bytes[..end].to_vec())
@@ -75,6 +77,61 @@ impl From<&str> for SnString {
 impl From<String> for SnString {
     fn from(value: String) -> Self { Self(value.into_bytes()) }
 }
+
+#[cfg(unix)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::unix::ffi::OsStrExt;
+    std::env::args_os()
+        .map(|value| SnString::from_slice(value.as_os_str().as_bytes()))
+        .collect()
+}
+
+#[cfg(windows)]
+fn __sn_push_wtf8(bytes: &mut Vec<u8>, value: u32) {
+    if value <= 0x7f {
+        bytes.push(value as u8);
+    } else if value <= 0x7ff {
+        bytes.push((0xc0 | (value >> 6)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else if value <= 0xffff {
+        bytes.push((0xe0 | (value >> 12)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else {
+        bytes.push((0xf0 | (value >> 18)) as u8);
+        bytes.push((0x80 | ((value >> 12) & 0x3f)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    }
+}
+
+#[cfg(windows)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::windows::ffi::OsStrExt;
+    std::env::args_os().map(|value| {
+        let mut bytes = Vec::new();
+        let mut units = value.as_os_str().encode_wide().peekable();
+        while let Some(unit) = units.next() {
+            let scalar = if (0xd800..=0xdbff).contains(&unit) {
+                match units.peek().copied() {
+                    Some(low) if (0xdc00..=0xdfff).contains(&low) => {
+                        units.next();
+                        0x10000 + (((unit as u32 - 0xd800) << 10) |
+                                   (low as u32 - 0xdc00))
+                    }
+                    _ => unit as u32,
+                }
+            } else {
+                unit as u32
+            };
+            __sn_push_wtf8(&mut bytes, scalar);
+        }
+        SnString::from_bytes(bytes)
+    }).collect()
+}
+
+#[cfg(not(any(unix, windows)))]
+compile_error!("Sindarin Rust argv byte transport supports Unix and Windows targets");
 
 impl std::fmt::Debug for SnString {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -221,35 +278,34 @@ impl Holder {
 fn parameterMatch(subject: SnString, pattern: SnString) -> SnString {
     return {
      let __sn_match_subject_2: SnString = subject.clone();
-     if (__sn_match_subject_2 == SnString::from("miss") || __sn_match_subject_2 == (pattern) || __sn_match_subject_2 == (pattern)) {
-         (SnString::from("matched"))
+     if (__sn_match_subject_2 == SnString::from_slice(&[0x6d, 0x69, 0x73, 0x73]) || __sn_match_subject_2 == (pattern) || __sn_match_subject_2 == (pattern)) {
+         (SnString::from_slice(&[0x6d, 0x61, 0x74, 0x63, 0x68, 0x65, 0x64]))
      }
      else {
-         (SnString::from("other"))
+         (SnString::from_slice(&[0x6f, 0x74, 0x68, 0x65, 0x72]))
      }
  };
 }
 
 fn main() {
-    let mut empty: SnString = SnString::from("");
-    let mut utf8: SnString = SnString::from("héllo-世界-🙂");
-    let mut escaped: SnString = SnString::from("quote:\" slash:\\ line:\n tab:\t");
-    let mut leaf: Leaf = Leaf { text: SnString::from("nested") };
-    let mut holder: Holder = Holder { direct: SnString::from("direct"), leaf: leaf.clone() };
+    let mut empty: SnString = SnString::from_slice(&[]);
+    let mut utf8: SnString = SnString::from_slice(&[0x68, 0xc3, 0xa9, 0x6c, 0x6c, 0x6f, 0x2d, 0xe4, 0xb8, 0x96, 0xe7, 0x95, 0x8c, 0x2d, 0xf0, 0x9f, 0x99, 0x82]);
+    let mut escaped: SnString = SnString::from_slice(&[0x71, 0x75, 0x6f, 0x74, 0x65, 0x3a, 0x22, 0x20, 0x73, 0x6c, 0x61, 0x73, 0x68, 0x3a, 0x5c, 0x20, 0x6c, 0x69, 0x6e, 0x65, 0x3a, 0x0a, 0x20, 0x74, 0x61, 0x62, 0x3a, 0x09]);
+    let mut leaf: Leaf = Leaf { text: SnString::from_slice(&[0x6e, 0x65, 0x73, 0x74, 0x65, 0x64]) };
+    let mut holder: Holder = Holder { direct: SnString::from_slice(&[0x64, 0x69, 0x72, 0x65, 0x63, 0x74]), leaf: leaf.clone() };
     let mut statementHits: i64 = 0;
     {
-    let __sn_match_subject_3: SnString = SnString::from("nested");
-    if (__sn_match_subject_3 == SnString::from("miss") || __sn_match_subject_3 == ((holder).direct)) {
+    let __sn_match_subject_3: SnString = SnString::from_slice(&[0x6e, 0x65, 0x73, 0x74, 0x65, 0x64]);
+    if (__sn_match_subject_3 == SnString::from_slice(&[0x6d, 0x69, 0x73, 0x73]) || __sn_match_subject_3 == ((holder).direct)) {
         (statementHits = 10);
     }
     else if (__sn_match_subject_3 == (((holder).leaf).text) || __sn_match_subject_3 == (((holder).leaf).text)) {
         { let __sn_place = &mut (statementHits); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
     }
 };
-    println!("{}", (statementHits == 1))
-;
+    println!("{}", (statementHits == 1));
     let mut scalar: i64 = {
-    let __sn_match_subject_4: SnString = SnString::from("héllo-世界-🙂");
+    let __sn_match_subject_4: SnString = SnString::from_slice(&[0x68, 0xc3, 0xa9, 0x6c, 0x6c, 0x6f, 0x2d, 0xe4, 0xb8, 0x96, 0xe7, 0x95, 0x8c, 0x2d, 0xf0, 0x9f, 0x99, 0x82]);
     if (__sn_match_subject_4 == (empty)) {
         (0 as i64)
     }
@@ -260,24 +316,22 @@ fn main() {
         ((-1) as i64)
     }
 };
-    println!("{}", (scalar == 7))
-;
+    println!("{}", (scalar == 7));
     let mut prefix: i64 = 0;
     let mut stringResult: SnString = {
     let __sn_match_subject_5: SnString = escaped.clone();
     if (__sn_match_subject_5 == (escaped)) {
         { let __sn_place = &mut (prefix); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
-        (SnString::from("ok"))
+        (SnString::from_slice(&[0x6f, 0x6b]))
     }
     else {
-        (SnString::from("bad"))
+        (SnString::from_slice(&[0x62, 0x61, 0x64]))
     }
 };
-    println!("{}", ((stringResult == SnString::from("ok")) && (prefix == 1)))
-;
-    (utf8 = SnString::from("changed"));
+    println!("{}", ((stringResult == SnString::from_slice(&[0x6f, 0x6b])) && (prefix == 1)));
+    (utf8 = SnString::from_slice(&[0x63, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x64]));
     let mut later: bool = {
-    let __sn_match_subject_6: SnString = SnString::from("changed");
+    let __sn_match_subject_6: SnString = SnString::from_slice(&[0x63, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x64]);
     if (__sn_match_subject_6 == (utf8)) {
         (true)
     }
@@ -285,14 +339,13 @@ fn main() {
         (false)
     }
 };
-    { let (__sn_string_part, __sn_string_place) = ((SnString::from("!")).clone(), &mut (utf8)); __sn_string_place.push_str(&__sn_string_part); (*__sn_string_place).clone() };
-    println!("{}", (later && (utf8 == SnString::from("changed!"))))
-;
+    { let (__sn_string_part, __sn_string_place) = ((SnString::from_slice(&[0x21])).clone(), &mut (utf8)); __sn_string_place.push_str(&__sn_string_part); (*__sn_string_place).clone() };
+    println!("{}", (later && (utf8 == SnString::from_slice(&[0x63, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x64, 0x21]))));
     let mut nestedResult: bool = {
-    let __sn_match_subject_8: SnString = SnString::from("outer");
-    if (__sn_match_subject_8 == SnString::from("outer")) {
+    let __sn_match_subject_8: SnString = SnString::from_slice(&[0x6f, 0x75, 0x74, 0x65, 0x72]);
+    if (__sn_match_subject_8 == SnString::from_slice(&[0x6f, 0x75, 0x74, 0x65, 0x72])) {
         ({
-    let __sn_match_subject_7: SnString = SnString::from("direct");
+    let __sn_match_subject_7: SnString = SnString::from_slice(&[0x64, 0x69, 0x72, 0x65, 0x63, 0x74]);
     if (__sn_match_subject_7 == ((holder).direct)) {
         (true)
     }
@@ -305,26 +358,19 @@ fn main() {
         (false)
     }
 };
-    println!("{}", nestedResult)
-;
-    let mut __sn_match_subject_0: SnString = SnString::from("helper");
-    let mut __sn_match_array_0: SnString = SnString::from("helper");
-    let mut __sn_match_index_0: SnString = SnString::from("helper");
+    println!("{}", nestedResult);
+    let mut __sn_match_subject_0: SnString = SnString::from_slice(&[0x68, 0x65, 0x6c, 0x70, 0x65, 0x72]);
+    let mut __sn_match_array_0: SnString = SnString::from_slice(&[0x68, 0x65, 0x6c, 0x70, 0x65, 0x72]);
+    let mut __sn_match_index_0: SnString = SnString::from_slice(&[0x68, 0x65, 0x6c, 0x70, 0x65, 0x72]);
     {
-    let __sn_match_subject_9: SnString = SnString::from("helper");
+    let __sn_match_subject_9: SnString = SnString::from_slice(&[0x68, 0x65, 0x6c, 0x70, 0x65, 0x72]);
     if (__sn_match_subject_9 == (__sn_match_subject_0) || __sn_match_subject_9 == (__sn_match_array_0) || __sn_match_subject_9 == (__sn_match_index_0)) {
         { let __sn_place = &mut (prefix); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
     }
 };
-    println!("{}", (prefix == 2))
-;
-    println!("{}", (parameterMatch(SnString::from(""), empty.clone())
- == SnString::from("matched")))
-;
-    println!("{}", (holder).selfMatches(SnString::from("nested"))
-)
-;
-    (((holder).leaf).text = SnString::from("after"));
-    println!("{}", ((((holder).leaf).text == SnString::from("after")) && (empty == SnString::from(""))))
-;
+    println!("{}", (prefix == 2));
+    println!("{}", (parameterMatch(SnString::from_slice(&[]), empty.clone()) == SnString::from_slice(&[0x6d, 0x61, 0x74, 0x63, 0x68, 0x65, 0x64])));
+    println!("{}", (holder).selfMatches(SnString::from_slice(&[0x6e, 0x65, 0x73, 0x74, 0x65, 0x64])));
+    (((holder).leaf).text = SnString::from_slice(&[0x61, 0x66, 0x74, 0x65, 0x72]));
+    println!("{}", ((((holder).leaf).text == SnString::from_slice(&[0x61, 0x66, 0x74, 0x65, 0x72])) && (empty == SnString::from_slice(&[]))));
 }

@@ -1,0 +1,6 @@
+struct Box =>
+  value: str
+
+fn main(): void =>
+  var box: Box = { value: "\xAF" }
+  println($"{box}")

@@ -35,6 +35,5 @@ fn fail(value: &mut i64) {
 
 fn main() {
     let mut value: i64 = (-9223372036854775807);
-    fail(&mut (value))
-;
+    fail(&mut (value));
 }

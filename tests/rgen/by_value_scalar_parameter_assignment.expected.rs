@@ -24,6 +24,8 @@ impl SnString {
 
     fn from_bytes(bytes: Vec<u8>) -> Self { Self(bytes) }
 
+    fn from_slice(bytes: &[u8]) -> Self { Self(bytes.to_vec()) }
+
     fn from_c_bytes(bytes: &[u8]) -> Self {
         let end = bytes.iter().position(|byte| *byte == 0).unwrap_or(bytes.len());
         Self(bytes[..end].to_vec())
@@ -75,6 +77,61 @@ impl From<&str> for SnString {
 impl From<String> for SnString {
     fn from(value: String) -> Self { Self(value.into_bytes()) }
 }
+
+#[cfg(unix)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::unix::ffi::OsStrExt;
+    std::env::args_os()
+        .map(|value| SnString::from_slice(value.as_os_str().as_bytes()))
+        .collect()
+}
+
+#[cfg(windows)]
+fn __sn_push_wtf8(bytes: &mut Vec<u8>, value: u32) {
+    if value <= 0x7f {
+        bytes.push(value as u8);
+    } else if value <= 0x7ff {
+        bytes.push((0xc0 | (value >> 6)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else if value <= 0xffff {
+        bytes.push((0xe0 | (value >> 12)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else {
+        bytes.push((0xf0 | (value >> 18)) as u8);
+        bytes.push((0x80 | ((value >> 12) & 0x3f)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    }
+}
+
+#[cfg(windows)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::windows::ffi::OsStrExt;
+    std::env::args_os().map(|value| {
+        let mut bytes = Vec::new();
+        let mut units = value.as_os_str().encode_wide().peekable();
+        while let Some(unit) = units.next() {
+            let scalar = if (0xd800..=0xdbff).contains(&unit) {
+                match units.peek().copied() {
+                    Some(low) if (0xdc00..=0xdfff).contains(&low) => {
+                        units.next();
+                        0x10000 + (((unit as u32 - 0xd800) << 10) |
+                                   (low as u32 - 0xdc00))
+                    }
+                    _ => unit as u32,
+                }
+            } else {
+                unit as u32
+            };
+            __sn_push_wtf8(&mut bytes, scalar);
+        }
+        SnString::from_bytes(bytes)
+    }).collect()
+}
+
+#[cfg(not(any(unix, windows)))]
+compile_error!("Sindarin Rust argv byte transport supports Unix and Windows targets");
 
 impl std::fmt::Debug for SnString {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -213,8 +270,7 @@ impl ScalarAssignments {
     }
     fn assignUint(&self, mut value: u64, untouched: u64) -> u64 {
         { value = __sn_checked_0((value).checked_add(7), "Runtime error: integer overflow in addition"); value };
-        return __sn_checked_0((__sn_checked_0((value).checked_add(untouched), "Runtime error: integer overflow in addition")).checked_add(((self).marker as u64)
- ), "Runtime error: integer overflow in addition");
+        return __sn_checked_0((__sn_checked_0((value).checked_add(untouched), "Runtime error: integer overflow in addition")).checked_add(((self).marker as u64)), "Runtime error: integer overflow in addition");
     }
     fn assignFloat(&self, mut value: f32, untouched: f32) -> f32 {
         let mut assigned: f32 = { value = (value + 1.5); value };
@@ -236,8 +292,7 @@ fn assignBool(mut value: bool, untouched: bool) -> bool {
 }
 
 fn assignInt(mut value: i64, calls: &mut i64, untouched: i64) -> i64 {
-    { value = observeInt(&mut *(calls), __sn_checked_0((value).checked_add(2), "Runtime error: integer overflow in addition"))
-; value };
+    { value = observeInt(&mut *(calls), __sn_checked_0((value).checked_add(2), "Runtime error: integer overflow in addition")); value };
     return __sn_checked_0((value).checked_add(untouched), "Runtime error: integer overflow in addition");
 }
 
@@ -277,53 +332,27 @@ fn main() {
     let mut doubleCaller: f64 = 3.0;
     let mut calls: i64 = 0;
     let mut ops: ScalarAssignments = ScalarAssignments { marker: 1 };
-    let mut boolResult: bool = assignBool(boolCaller, true)
-;
-    let mut intResult: i64 = assignInt(intCaller, &mut (calls), 1)
-;
-    let mut longResult: i64 = assignLong(longCaller, 1)
-;
+    let mut boolResult: bool = assignBool(boolCaller, true);
+    let mut intResult: i64 = assignInt(intCaller, &mut (calls), 1);
+    let mut longResult: i64 = assignLong(longCaller, 1);
     let mut int32Result: i32 = ScalarAssignments::assignInt32(int32Caller, 1);
     let mut byteResult: u8 = ScalarAssignments::assignByte(byteCaller, 1);
     let mut uint32Result: u32 = ScalarAssignments::assignUint32(uint32Caller, 2);
-    let mut uintResult: u64 = (ops).assignUint(uintCaller, 2)
-;
-    let mut floatResult: f32 = (ops).assignFloat(floatCaller, 0.5)
-;
-    let mut doubleResult: f64 = (ops).assignDouble(doubleCaller, 0.25)
-;
-    let mut helperResult: i64 = helperNames(1, 2, 3)
-;
+    let mut uintResult: u64 = (ops).assignUint(uintCaller, 2);
+    let mut floatResult: f32 = (ops).assignFloat(floatCaller, 0.5);
+    let mut doubleResult: f64 = (ops).assignDouble(doubleCaller, 0.25);
+    let mut helperResult: i64 = helperNames(1, 2, 3);
     let mut orderCaller: i64 = 4;
-    let mut orderResult: i64 = statementOrder(orderCaller, 2)
-;
-    println!("{}", (boolResult && (!boolCaller)))
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", intResult)); __sn_interpolated.push_str("/"); __sn_interpolated.push_str(&format!("{}", intCaller)); __sn_interpolated.push_str("/"); __sn_interpolated.push_str(&format!("{}", calls)); __sn_interpolated }
-))
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", longResult)); __sn_interpolated.push_str("/"); __sn_interpolated.push_str(&format!("{}", longCaller)); __sn_interpolated }
-))
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", int32Result)); __sn_interpolated.push_str("/"); __sn_interpolated.push_str(&format!("{}", int32Caller)); __sn_interpolated }
-))
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", byteResult)); __sn_interpolated.push_str("/"); __sn_interpolated.push_str(&format!("{}", byteCaller)); __sn_interpolated }
-))
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", uint32Result)); __sn_interpolated.push_str("/"); __sn_interpolated.push_str(&format!("{}", uint32Caller)); __sn_interpolated }
-))
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", uintResult)); __sn_interpolated.push_str("/"); __sn_interpolated.push_str(&format!("{}", uintCaller)); __sn_interpolated }
-))
-;
-    println!("{}", ((floatResult == 7.5) && (floatCaller == 2.0)))
-;
-    println!("{}", ((doubleResult == 3.25) && (doubleCaller == 3.0)))
-;
-    println!("{}", helperResult)
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", orderResult)); __sn_interpolated.push_str("/"); __sn_interpolated.push_str(&format!("{}", orderCaller)); __sn_interpolated }
-))
-;
+    let mut orderResult: i64 = statementOrder(orderCaller, 2);
+    println!("{}", (boolResult && (!boolCaller)));
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", intResult)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2f]))); __sn_interpolated.push_str(&format!("{}", intCaller)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2f]))); __sn_interpolated.push_str(&format!("{}", calls)); __sn_interpolated }));
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", longResult)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2f]))); __sn_interpolated.push_str(&format!("{}", longCaller)); __sn_interpolated }));
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", int32Result)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2f]))); __sn_interpolated.push_str(&format!("{}", int32Caller)); __sn_interpolated }));
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", byteResult)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2f]))); __sn_interpolated.push_str(&format!("{}", byteCaller)); __sn_interpolated }));
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", uint32Result)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2f]))); __sn_interpolated.push_str(&format!("{}", uint32Caller)); __sn_interpolated }));
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", uintResult)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2f]))); __sn_interpolated.push_str(&format!("{}", uintCaller)); __sn_interpolated }));
+    println!("{}", ((floatResult == 7.5) && (floatCaller == 2.0)));
+    println!("{}", ((doubleResult == 3.25) && (doubleCaller == 3.0)));
+    println!("{}", helperResult);
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", orderResult)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2f]))); __sn_interpolated.push_str(&format!("{}", orderCaller)); __sn_interpolated }));
 }

@@ -620,6 +620,13 @@ static bool rust_expr_is_array(json_object *expr)
            json_string_property_equals(type, "kind", "array");
 }
 
+static bool rust_expr_is_struct(json_object *expr)
+{
+    json_object *type = NULL;
+    return expr && json_object_object_get_ex(expr, "type", &type) &&
+           json_string_property_equals(type, "kind", "struct");
+}
+
 static bool rust_model_uses_array_text(json_object *node)
 {
     if (!node) return false;
@@ -655,7 +662,7 @@ static bool rust_model_uses_array_text(json_object *node)
                 json_object *expr = NULL;
                 json_object *part = json_object_array_get_idx(parts, i);
                 if (json_object_object_get_ex(part, "expr", &expr) &&
-                    rust_expr_is_array(expr)) return true;
+                    (rust_expr_is_array(expr) || rust_expr_is_struct(expr))) return true;
             }
         }
     }
@@ -904,14 +911,15 @@ static bool rust_lower_string_method_helper_names(json_object *model)
 static bool rust_assign_array_text_names(json_object *model)
 {
     const char *bases[] = {
-        "__SnArrayText", "__sn_array_text", "__sn_join_text",
+        "__SnArrayText", "__sn_array_text", "__sn_join_text", "__sn_struct_text",
         "__sn_integer_array_text", "__sn_float_array_text_impl",
         "__sn_float_array_text", "__sn_array_to_string", "__sn_array_join",
         "__sn_array", "__sn_separator"
     };
     const char *keys[] = {
         "rust_array_text_trait_name", "rust_array_text_method_name",
-        "rust_array_join_text_method_name", "rust_array_integer_macro_name",
+        "rust_array_join_text_method_name", "rust_struct_text_method_name",
+        "rust_array_integer_macro_name",
         "rust_array_float_macro_name", "rust_array_float_format_name",
         "rust_array_to_string_name", "rust_array_join_name",
         "rust_array_temp_name", "rust_array_separator_temp_name"

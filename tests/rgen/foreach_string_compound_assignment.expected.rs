@@ -24,6 +24,8 @@ impl SnString {
 
     fn from_bytes(bytes: Vec<u8>) -> Self { Self(bytes) }
 
+    fn from_slice(bytes: &[u8]) -> Self { Self(bytes.to_vec()) }
+
     fn from_c_bytes(bytes: &[u8]) -> Self {
         let end = bytes.iter().position(|byte| *byte == 0).unwrap_or(bytes.len());
         Self(bytes[..end].to_vec())
@@ -75,6 +77,61 @@ impl From<&str> for SnString {
 impl From<String> for SnString {
     fn from(value: String) -> Self { Self(value.into_bytes()) }
 }
+
+#[cfg(unix)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::unix::ffi::OsStrExt;
+    std::env::args_os()
+        .map(|value| SnString::from_slice(value.as_os_str().as_bytes()))
+        .collect()
+}
+
+#[cfg(windows)]
+fn __sn_push_wtf8(bytes: &mut Vec<u8>, value: u32) {
+    if value <= 0x7f {
+        bytes.push(value as u8);
+    } else if value <= 0x7ff {
+        bytes.push((0xc0 | (value >> 6)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else if value <= 0xffff {
+        bytes.push((0xe0 | (value >> 12)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else {
+        bytes.push((0xf0 | (value >> 18)) as u8);
+        bytes.push((0x80 | ((value >> 12) & 0x3f)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    }
+}
+
+#[cfg(windows)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::windows::ffi::OsStrExt;
+    std::env::args_os().map(|value| {
+        let mut bytes = Vec::new();
+        let mut units = value.as_os_str().encode_wide().peekable();
+        while let Some(unit) = units.next() {
+            let scalar = if (0xd800..=0xdbff).contains(&unit) {
+                match units.peek().copied() {
+                    Some(low) if (0xdc00..=0xdfff).contains(&low) => {
+                        units.next();
+                        0x10000 + (((unit as u32 - 0xd800) << 10) |
+                                   (low as u32 - 0xdc00))
+                    }
+                    _ => unit as u32,
+                }
+            } else {
+                unit as u32
+            };
+            __sn_push_wtf8(&mut bytes, scalar);
+        }
+        SnString::from_bytes(bytes)
+    }).collect()
+}
+
+#[cfg(not(any(unix, windows)))]
+compile_error!("Sindarin Rust argv byte transport supports Unix and Windows targets");
 
 impl std::fmt::Debug for SnString {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -219,23 +276,17 @@ fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
 
 fn suffix(calls: &mut i64) -> SnString {
     { let __sn_rhs = 1; let __sn_place = &mut (*(calls)); let __sn_next = __sn_checked_0((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };
-    return { let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str("!"); __sn_interpolated.push_str(&format!("{}", *(calls))); __sn_interpolated }
-;
+    return { let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x21]))); __sn_interpolated.push_str(&format!("{}", *(calls))); __sn_interpolated };
 }
 
 fn main() {
-    let mut names: Vec<SnString> = vec![SnString::from("alpha"), SnString::from("beta"), SnString::from("gamma")];
+    let mut names: Vec<SnString> = vec![SnString::from_slice(&[0x61, 0x6c, 0x70, 0x68, 0x61]), SnString::from_slice(&[0x62, 0x65, 0x74, 0x61]), SnString::from_slice(&[0x67, 0x61, 0x6d, 0x6d, 0x61])];
     let mut calls: i64 = 0;
     let mut index: i64 = 0;
     for mut __sn_string_place in (names).iter().cloned() {
-        let mut appended: SnString = { let (__sn_string_part, __sn_string_place) = ((suffix(&mut (calls))
-).clone(), &mut (__sn_string_place)); __sn_string_place.push_str(&__sn_string_part); (*__sn_string_place).clone() };
-        __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(appended)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&(__sn_string_place)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&((names)[__sn_index((names).len(), index)])); __sn_interpolated }
-))
-;
+        let mut appended: SnString = { let (__sn_string_part, __sn_string_place) = ((suffix(&mut (calls))).clone(), &mut (__sn_string_place)); __sn_string_place.push_str(&__sn_string_part); (*__sn_string_place).clone() };
+        __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(appended)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&(__sn_string_place)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&((names)[__sn_index((names).len(), index)])); __sn_interpolated }));
         { let __sn_rhs = 1; let __sn_place = &mut (index); let __sn_next = __sn_checked_0((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };
     }
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str("source="); __sn_interpolated.push_str(&((names)[__sn_index((names).len(), 0)])); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&((names)[__sn_index((names).len(), 1)])); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&((names)[__sn_index((names).len(), 2)])); __sn_interpolated.push_str(" calls="); __sn_interpolated.push_str(&format!("{}", calls)); __sn_interpolated }
-))
-;
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x3d]))); __sn_interpolated.push_str(&((names)[__sn_index((names).len(), 0)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&((names)[__sn_index((names).len(), 1)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&((names)[__sn_index((names).len(), 2)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20, 0x63, 0x61, 0x6c, 0x6c, 0x73, 0x3d]))); __sn_interpolated.push_str(&format!("{}", calls)); __sn_interpolated }));
 }

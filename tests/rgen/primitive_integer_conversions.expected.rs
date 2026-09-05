@@ -24,6 +24,8 @@ impl SnString {
 
     fn from_bytes(bytes: Vec<u8>) -> Self { Self(bytes) }
 
+    fn from_slice(bytes: &[u8]) -> Self { Self(bytes.to_vec()) }
+
     fn from_c_bytes(bytes: &[u8]) -> Self {
         let end = bytes.iter().position(|byte| *byte == 0).unwrap_or(bytes.len());
         Self(bytes[..end].to_vec())
@@ -75,6 +77,61 @@ impl From<&str> for SnString {
 impl From<String> for SnString {
     fn from(value: String) -> Self { Self(value.into_bytes()) }
 }
+
+#[cfg(unix)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::unix::ffi::OsStrExt;
+    std::env::args_os()
+        .map(|value| SnString::from_slice(value.as_os_str().as_bytes()))
+        .collect()
+}
+
+#[cfg(windows)]
+fn __sn_push_wtf8(bytes: &mut Vec<u8>, value: u32) {
+    if value <= 0x7f {
+        bytes.push(value as u8);
+    } else if value <= 0x7ff {
+        bytes.push((0xc0 | (value >> 6)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else if value <= 0xffff {
+        bytes.push((0xe0 | (value >> 12)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else {
+        bytes.push((0xf0 | (value >> 18)) as u8);
+        bytes.push((0x80 | ((value >> 12) & 0x3f)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    }
+}
+
+#[cfg(windows)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::windows::ffi::OsStrExt;
+    std::env::args_os().map(|value| {
+        let mut bytes = Vec::new();
+        let mut units = value.as_os_str().encode_wide().peekable();
+        while let Some(unit) = units.next() {
+            let scalar = if (0xd800..=0xdbff).contains(&unit) {
+                match units.peek().copied() {
+                    Some(low) if (0xdc00..=0xdfff).contains(&low) => {
+                        units.next();
+                        0x10000 + (((unit as u32 - 0xd800) << 10) |
+                                   (low as u32 - 0xdc00))
+                    }
+                    _ => unit as u32,
+                }
+            } else {
+                unit as u32
+            };
+            __sn_push_wtf8(&mut bytes, scalar);
+        }
+        SnString::from_bytes(bytes)
+    }).collect()
+}
+
+#[cfg(not(any(unix, windows)))]
+compile_error!("Sindarin Rust argv byte transport supports Unix and Windows targets");
 
 impl std::fmt::Debug for SnString {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -201,31 +258,19 @@ fn bumpAndReturn(counter: &mut i64) -> i64 {
 
 fn main() {
     let mut negative: i64 = (-1);
-    let mut as_long: i64 = (negative as i64)
-;
-    let mut as_uint: u64 = (negative as u64)
-;
-    let mut as_byte: u8 = (negative as u8)
-;
+    let mut as_long: i64 = (negative as i64);
+    let mut as_uint: u64 = (negative as u64);
+    let mut as_byte: u8 = (negative as u8);
     let mut half_uint: u64 = 9223372036854775807;
     let mut max_uint: u64 = __sn_checked_0((__sn_checked_0((half_uint).checked_mul(2), "Runtime error: integer overflow in multiplication")).checked_add(1), "Runtime error: integer overflow in addition");
     let mut long_value: i64 = 42;
-    let mut as_int: i64 = (long_value as i64)
-;
+    let mut as_int: i64 = (long_value as i64);
     let mut byte_value: u8 = 200;
-    let mut widened: i64 = (byte_value as i64)
-;
-    let mut true_value: i64 = (true as i64)
-;
-    let mut false_value: i64 = (false as i64)
-;
+    let mut widened: i64 = (byte_value as i64);
+    let mut true_value: i64 = (true as i64);
+    let mut false_value: i64 = (false as i64);
     let mut counter: i64 = 0;
-    let mut called_byte: u8 = (bumpAndReturn(&mut (counter))
- as u8)
-;
-    let mut called_value: i64 = (called_byte as i64)
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", (((((((as_long == (-1)) && (as_uint == max_uint)) && (as_byte == 255)) && (as_int == 42)) && (widened == 200)) && (true_value == 1)) && (false_value == 0)))); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", ((counter == 1) && (called_value == 255)))); __sn_interpolated }
-))
-;
+    let mut called_byte: u8 = (bumpAndReturn(&mut (counter)) as u8);
+    let mut called_value: i64 = (called_byte as i64);
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", (((((((as_long == (-1)) && (as_uint == max_uint)) && (as_byte == 255)) && (as_int == 42)) && (widened == 200)) && (true_value == 1)) && (false_value == 0)))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", ((counter == 1) && (called_value == 255)))); __sn_interpolated }));
 }

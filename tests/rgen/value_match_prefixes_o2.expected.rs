@@ -24,6 +24,8 @@ impl SnString {
 
     fn from_bytes(bytes: Vec<u8>) -> Self { Self(bytes) }
 
+    fn from_slice(bytes: &[u8]) -> Self { Self(bytes.to_vec()) }
+
     fn from_c_bytes(bytes: &[u8]) -> Self {
         let end = bytes.iter().position(|byte| *byte == 0).unwrap_or(bytes.len());
         Self(bytes[..end].to_vec())
@@ -75,6 +77,61 @@ impl From<&str> for SnString {
 impl From<String> for SnString {
     fn from(value: String) -> Self { Self(value.into_bytes()) }
 }
+
+#[cfg(unix)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::unix::ffi::OsStrExt;
+    std::env::args_os()
+        .map(|value| SnString::from_slice(value.as_os_str().as_bytes()))
+        .collect()
+}
+
+#[cfg(windows)]
+fn __sn_push_wtf8(bytes: &mut Vec<u8>, value: u32) {
+    if value <= 0x7f {
+        bytes.push(value as u8);
+    } else if value <= 0x7ff {
+        bytes.push((0xc0 | (value >> 6)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else if value <= 0xffff {
+        bytes.push((0xe0 | (value >> 12)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else {
+        bytes.push((0xf0 | (value >> 18)) as u8);
+        bytes.push((0x80 | ((value >> 12) & 0x3f)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    }
+}
+
+#[cfg(windows)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::windows::ffi::OsStrExt;
+    std::env::args_os().map(|value| {
+        let mut bytes = Vec::new();
+        let mut units = value.as_os_str().encode_wide().peekable();
+        while let Some(unit) = units.next() {
+            let scalar = if (0xd800..=0xdbff).contains(&unit) {
+                match units.peek().copied() {
+                    Some(low) if (0xdc00..=0xdfff).contains(&low) => {
+                        units.next();
+                        0x10000 + (((unit as u32 - 0xd800) << 10) |
+                                   (low as u32 - 0xdc00))
+                    }
+                    _ => unit as u32,
+                }
+            } else {
+                unit as u32
+            };
+            __sn_push_wtf8(&mut bytes, scalar);
+        }
+        SnString::from_bytes(bytes)
+    }).collect()
+}
+
+#[cfg(not(any(unix, windows)))]
+compile_error!("Sindarin Rust argv byte transport supports Unix and Windows targets");
 
 impl std::fmt::Debug for SnString {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -173,31 +230,25 @@ struct Prefixes {
 
 impl Prefixes {
     fn staticMark(calls: &mut i64, order: &mut i64, marker: i64) -> i64 {
-        return markInt(&mut *(calls), &mut *(order), marker, 0)
-;
+        return markInt(&mut *(calls), &mut *(order), marker, 0);
     }
     fn instanceMark(&self, calls: &mut i64, order: &mut i64, marker: i64) -> i64 {
-        return markInt(&mut *(calls), &mut *(order), marker, (self).marker)
-;
+        return markInt(&mut *(calls), &mut *(order), marker, (self).marker);
     }
     fn chooseBool(value: bool, calls: &mut i64, order: &mut i64) -> bool {
         return match (value) {
          true => {
              { let __sn_previous = *(calls); *(calls) += 1; __sn_previous };
              (*(order) = ((*(order) * 10) + 1));
-             markInt(&mut *(calls), &mut *(order), 2, 0)
- ;
-             (markBool(&mut *(calls), &mut *(order), 3, true)
- )
+             markInt(&mut *(calls), &mut *(order), 2, 0);
+             (markBool(&mut *(calls), &mut *(order), 3, true))
          },
          false => {
-             markInt(&mut *(calls), &mut *(order), 4, 0)
- ;
+             markInt(&mut *(calls), &mut *(order), 4, 0);
              (false)
          },
          _ => {
-             markInt(&mut *(calls), &mut *(order), 5, 0)
- ;
+             markInt(&mut *(calls), &mut *(order), 5, 0);
              (false)
          },
      };
@@ -206,14 +257,11 @@ impl Prefixes {
         return {
      let __sn_match_subject_0: f64 = value;
      if (__sn_match_subject_0 == 1.5) {
-         markInt(&mut *(calls), &mut *(order), 4, 0)
- ;
-         (markDouble(&mut *(calls), &mut *(order), 5, 2.5)
-  as f64)
+         markInt(&mut *(calls), &mut *(order), 4, 0);
+         (markDouble(&mut *(calls), &mut *(order), 5, 2.5) as f64)
      }
      else {
-         markInt(&mut *(calls), &mut *(order), 6, 0)
- ;
+         markInt(&mut *(calls), &mut *(order), 6, 0);
          (3.5 as f64)
      }
  };
@@ -250,41 +298,31 @@ fn acceptInt(value: i64) -> i64 {
 
 fn chooseInt(value: i64, calls: &mut i64, order: &mut i64) -> i64 {
     let mut prefixes: Prefixes = Prefixes { marker: 0 };
-    return match (markInt(&mut *(calls), &mut *(order), 1, value)
-  as i64) {
+    return match (markInt(&mut *(calls), &mut *(order), 1, value) as i64) {
          1 => {
-             markInt(&mut *(calls), &mut *(order), 7, 0)
- ;
+             markInt(&mut *(calls), &mut *(order), 7, 0);
              (10 as i64)
          },
          2 => {
-             markInt(&mut *(calls), &mut *(order), 2, 0)
- ;
+             markInt(&mut *(calls), &mut *(order), 2, 0);
              Prefixes::staticMark(&mut *(calls), &mut *(order), 3);
-             (prefixes).instanceMark(&mut *(calls), &mut *(order), 4)
- ;
+             (prefixes).instanceMark(&mut *(calls), &mut *(order), 4);
              match (true) {
          true => {
-             markInt(&mut *(calls), &mut *(order), 5, 0)
- ;
+             markInt(&mut *(calls), &mut *(order), 5, 0);
          },
          _ => {
-             markInt(&mut *(calls), &mut *(order), 9, 0)
- ;
+             markInt(&mut *(calls), &mut *(order), 9, 0);
          },
      };
-             (markInt(&mut *(calls), &mut *(order), 6, 20)
-  as i64)
+             (markInt(&mut *(calls), &mut *(order), 6, 20) as i64)
          },
          2 => {
-             markInt(&mut *(calls), &mut *(order), 7, 0)
- ;
-             (markInt(&mut *(calls), &mut *(order), 8, 30)
-  as i64)
+             markInt(&mut *(calls), &mut *(order), 7, 0);
+             (markInt(&mut *(calls), &mut *(order), 8, 30) as i64)
          },
          _ => {
-             markInt(&mut *(calls), &mut *(order), 9, 0)
- ;
+             markInt(&mut *(calls), &mut *(order), 9, 0);
              (40 as i64)
          },
      };
@@ -294,8 +332,7 @@ fn scalarFamilies(calls: &mut i64) -> bool {
     let mut order: i64 = 0;
     let mut longResult: i64 = match (1 as u8) {
         1 => {
-            markInt(&mut *(calls), &mut (order), 1, 0)
-;
+            markInt(&mut *(calls), &mut (order), 1, 0);
             (2 as i64)
         },
         _ => {
@@ -304,8 +341,7 @@ fn scalarFamilies(calls: &mut i64) -> bool {
     };
     let mut int32Result: i32 = match (2 as u64) {
         2 => {
-            markInt(&mut *(calls), &mut (order), 2, 0)
-;
+            markInt(&mut *(calls), &mut (order), 2, 0);
             (3 as i32)
         },
         _ => {
@@ -314,8 +350,7 @@ fn scalarFamilies(calls: &mut i64) -> bool {
     };
     let mut uint32Result: u32 = match (3 as i32) {
         3 => {
-            markInt(&mut *(calls), &mut (order), 3, 0)
-;
+            markInt(&mut *(calls), &mut (order), 3, 0);
             (4 as u32)
         },
         _ => {
@@ -324,8 +359,7 @@ fn scalarFamilies(calls: &mut i64) -> bool {
     };
     let mut uintResult: u64 = match (4 as u32) {
         4 => {
-            markInt(&mut *(calls), &mut (order), 4, 0)
-;
+            markInt(&mut *(calls), &mut (order), 4, 0);
             (5 as u64)
         },
         _ => {
@@ -334,8 +368,7 @@ fn scalarFamilies(calls: &mut i64) -> bool {
     };
     let mut byteResult: u8 = match (5 as i64) {
         5 => {
-            markInt(&mut *(calls), &mut (order), 5, 0)
-;
+            markInt(&mut *(calls), &mut (order), 5, 0);
             (6 as u8)
         },
         _ => {
@@ -345,8 +378,7 @@ fn scalarFamilies(calls: &mut i64) -> bool {
     let mut floatResult: f32 = {
     let __sn_match_subject_1: f32 = 6.0;
     if (__sn_match_subject_1 == 6.0) {
-        markInt(&mut *(calls), &mut (order), 6, 0)
-;
+        markInt(&mut *(calls), &mut (order), 6, 0);
         (7.0 as f32)
     }
     else {
@@ -359,92 +391,69 @@ fn scalarFamilies(calls: &mut i64) -> bool {
 fn main() {
     let mut calls: i64 = 0;
     let mut order: i64 = 0;
-    let mut selected: i64 = chooseInt(2, &mut (calls), &mut (order))
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", selected)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", calls)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", order)); __sn_interpolated }
-))
-;
+    let mut selected: i64 = chooseInt(2, &mut (calls), &mut (order));
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", selected)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", calls)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", order)); __sn_interpolated }));
     (calls = 0);
     (order = 0);
     let mut boolResult: bool = Prefixes::chooseBool(true, &mut (calls), &mut (order));
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", boolResult)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", calls)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", order)); __sn_interpolated }
-))
-;
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", boolResult)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", calls)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", order)); __sn_interpolated }));
     (calls = 0);
     (order = 0);
     let mut prefixes: Prefixes = Prefixes { marker: 0 };
-    let mut doubleResult: f64 = (prefixes).chooseDouble(1.5, &mut (calls), &mut (order))
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{:.5}", doubleResult)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", calls)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", order)); __sn_interpolated }
-))
-;
+    let mut doubleResult: f64 = (prefixes).chooseDouble(1.5, &mut (calls), &mut (order));
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{:.5}", doubleResult)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", calls)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", order)); __sn_interpolated }));
     (calls = 0);
     (order = 0);
-    let mut borrowed: SnString = SnString::from("borrowed");
+    let mut borrowed: SnString = SnString::from_slice(&[0x62, 0x6f, 0x72, 0x72, 0x6f, 0x77, 0x65, 0x64]);
     let mut borrowedResult: SnString = {
-    let __sn_match_subject_2: SnString = markString(&mut (calls), &mut (order), 1, SnString::from("key"))
-;
-    if (__sn_match_subject_2 == SnString::from("key")) {
-        markString(&mut (calls), &mut (order), 2, SnString::from("discard-owned"))
-;
+    let __sn_match_subject_2: SnString = markString(&mut (calls), &mut (order), 1, SnString::from_slice(&[0x6b, 0x65, 0x79]));
+    if (__sn_match_subject_2 == SnString::from_slice(&[0x6b, 0x65, 0x79])) {
+        markString(&mut (calls), &mut (order), 2, SnString::from_slice(&[0x64, 0x69, 0x73, 0x63, 0x61, 0x72, 0x64, 0x2d, 0x6f, 0x77, 0x6e, 0x65, 0x64]));
         match (1 as i64) {
         1 => {
-            markInt(&mut (calls), &mut (order), 3, 0)
-;
+            markInt(&mut (calls), &mut (order), 3, 0);
         },
         _ => {
-            markInt(&mut (calls), &mut (order), 9, 0)
-;
+            markInt(&mut (calls), &mut (order), 9, 0);
         },
     };
         (borrowed.clone())
     }
-    else if (__sn_match_subject_2 == SnString::from("key")) {
-        markString(&mut (calls), &mut (order), 8, SnString::from("duplicate"))
-;
-        (SnString::from("wrong"))
+    else if (__sn_match_subject_2 == SnString::from_slice(&[0x6b, 0x65, 0x79])) {
+        markString(&mut (calls), &mut (order), 8, SnString::from_slice(&[0x64, 0x75, 0x70, 0x6c, 0x69, 0x63, 0x61, 0x74, 0x65]));
+        (SnString::from_slice(&[0x77, 0x72, 0x6f, 0x6e, 0x67]))
     }
     else {
-        markString(&mut (calls), &mut (order), 9, SnString::from("else"))
-;
-        (SnString::from("wrong"))
+        markString(&mut (calls), &mut (order), 9, SnString::from_slice(&[0x65, 0x6c, 0x73, 0x65]));
+        (SnString::from_slice(&[0x77, 0x72, 0x6f, 0x6e, 0x67]))
     }
 };
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(borrowedResult)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&(borrowed)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", calls)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", order)); __sn_interpolated }
-))
-;
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(borrowedResult)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&(borrowed)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", calls)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", order)); __sn_interpolated }));
     (calls = 0);
     (order = 0);
     let mut ownedResult: SnString = {
-    let __sn_match_subject_3: SnString = SnString::from("owned");
-    if (__sn_match_subject_3 == SnString::from("owned")) {
-        markString(&mut (calls), &mut (order), 5, SnString::from("discard-owned"))
-;
-        (markString(&mut (calls), &mut (order), 6, SnString::from("owned-final"))
-)
+    let __sn_match_subject_3: SnString = SnString::from_slice(&[0x6f, 0x77, 0x6e, 0x65, 0x64]);
+    if (__sn_match_subject_3 == SnString::from_slice(&[0x6f, 0x77, 0x6e, 0x65, 0x64])) {
+        markString(&mut (calls), &mut (order), 5, SnString::from_slice(&[0x64, 0x69, 0x73, 0x63, 0x61, 0x72, 0x64, 0x2d, 0x6f, 0x77, 0x6e, 0x65, 0x64]));
+        (markString(&mut (calls), &mut (order), 6, SnString::from_slice(&[0x6f, 0x77, 0x6e, 0x65, 0x64, 0x2d, 0x66, 0x69, 0x6e, 0x61, 0x6c])))
     }
     else {
         (borrowed.clone())
     }
 };
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(ownedResult)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&(borrowed)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", calls)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", order)); __sn_interpolated }
-))
-;
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(ownedResult)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&(borrowed)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", calls)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", order)); __sn_interpolated }));
     (calls = 0);
     (order = 0);
-    let mut argumentResult: i64 = acceptInt(70)
-;
+    let mut argumentResult: i64 = acceptInt(70);
     let mut nestedResult: i64 = match (false) {
         true => {
             (0 as i64)
         },
         _ => {
-            markInt(&mut (calls), &mut (order), 8, 0)
-;
+            markInt(&mut (calls), &mut (order), 8, 0);
             (match (1 as i64) {
         1 => {
-            markInt(&mut (calls), &mut (order), 9, 0)
-;
+            markInt(&mut (calls), &mut (order), 9, 0);
             (90 as i64)
         },
         _ => {
@@ -453,12 +462,7 @@ fn main() {
     } as i64)
         },
     };
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", argumentResult)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", nestedResult)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", calls)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", order)); __sn_interpolated }
-))
-;
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", argumentResult)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", nestedResult)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", calls)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", order)); __sn_interpolated }));
     (calls = 0);
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", scalarFamilies(&mut (calls))
-)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", calls)); __sn_interpolated }
-))
-;
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", scalarFamilies(&mut (calls)))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", calls)); __sn_interpolated }));
 }

@@ -24,6 +24,8 @@ impl SnString {
 
     fn from_bytes(bytes: Vec<u8>) -> Self { Self(bytes) }
 
+    fn from_slice(bytes: &[u8]) -> Self { Self(bytes.to_vec()) }
+
     fn from_c_bytes(bytes: &[u8]) -> Self {
         let end = bytes.iter().position(|byte| *byte == 0).unwrap_or(bytes.len());
         Self(bytes[..end].to_vec())
@@ -75,6 +77,61 @@ impl From<&str> for SnString {
 impl From<String> for SnString {
     fn from(value: String) -> Self { Self(value.into_bytes()) }
 }
+
+#[cfg(unix)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::unix::ffi::OsStrExt;
+    std::env::args_os()
+        .map(|value| SnString::from_slice(value.as_os_str().as_bytes()))
+        .collect()
+}
+
+#[cfg(windows)]
+fn __sn_push_wtf8(bytes: &mut Vec<u8>, value: u32) {
+    if value <= 0x7f {
+        bytes.push(value as u8);
+    } else if value <= 0x7ff {
+        bytes.push((0xc0 | (value >> 6)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else if value <= 0xffff {
+        bytes.push((0xe0 | (value >> 12)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else {
+        bytes.push((0xf0 | (value >> 18)) as u8);
+        bytes.push((0x80 | ((value >> 12) & 0x3f)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    }
+}
+
+#[cfg(windows)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::windows::ffi::OsStrExt;
+    std::env::args_os().map(|value| {
+        let mut bytes = Vec::new();
+        let mut units = value.as_os_str().encode_wide().peekable();
+        while let Some(unit) = units.next() {
+            let scalar = if (0xd800..=0xdbff).contains(&unit) {
+                match units.peek().copied() {
+                    Some(low) if (0xdc00..=0xdfff).contains(&low) => {
+                        units.next();
+                        0x10000 + (((unit as u32 - 0xd800) << 10) |
+                                   (low as u32 - 0xdc00))
+                    }
+                    _ => unit as u32,
+                }
+            } else {
+                unit as u32
+            };
+            __sn_push_wtf8(&mut bytes, scalar);
+        }
+        SnString::from_bytes(bytes)
+    }).collect()
+}
+
+#[cfg(not(any(unix, windows)))]
+compile_error!("Sindarin Rust argv byte transport supports Unix and Windows targets");
 
 impl std::fmt::Debug for SnString {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -205,19 +262,15 @@ fn observeResult(calls: &mut i64, value: i64) -> i64 {
 }
 
 fn choose(value: i64, subject_calls: &mut i64, result_calls: &mut i64) -> i64 {
-    return match (observeSubject(&mut *(subject_calls), value)
-  as i64) {
+    return match (observeSubject(&mut *(subject_calls), value) as i64) {
          1 | 2 => {
-             (observeResult(&mut *(result_calls), 10)
-  as i64)
+             (observeResult(&mut *(result_calls), 10) as i64)
          },
          2 | 3 => {
-             (observeResult(&mut *(result_calls), 20)
-  as i64)
+             (observeResult(&mut *(result_calls), 20) as i64)
          },
          _ => {
-             (observeResult(&mut *(result_calls), 30)
-  as i64)
+             (observeResult(&mut *(result_calls), 30) as i64)
          },
      };
 }
@@ -226,61 +279,46 @@ fn main() {
     let mut __sn_match_result: i64 = 41;
     let mut subject_calls: i64 = 0;
     let mut result_calls: i64 = 0;
-    let mut first: i64 = match (observeSubject(&mut (subject_calls), 2)
- as i64) {
+    let mut first: i64 = match (observeSubject(&mut (subject_calls), 2) as i64) {
         1 | 2 => {
-            (observeResult(&mut (result_calls), 10)
- as i64)
+            (observeResult(&mut (result_calls), 10) as i64)
         },
         2 | 3 => {
-            (observeResult(&mut (result_calls), 20)
- as i64)
+            (observeResult(&mut (result_calls), 20) as i64)
         },
         _ => {
-            (observeResult(&mut (result_calls), 30)
- as i64)
+            (observeResult(&mut (result_calls), 30) as i64)
         },
     };
-    let mut fallback: i64 = match (observeSubject(&mut (subject_calls), 99)
- as i64) {
+    let mut fallback: i64 = match (observeSubject(&mut (subject_calls), 99) as i64) {
         1 | 2 => {
-            (observeResult(&mut (result_calls), 10)
- as i64)
+            (observeResult(&mut (result_calls), 10) as i64)
         },
         2 | 3 => {
-            (observeResult(&mut (result_calls), 20)
- as i64)
+            (observeResult(&mut (result_calls), 20) as i64)
         },
         _ => {
-            (observeResult(&mut (result_calls), 30)
- as i64)
+            (observeResult(&mut (result_calls), 30) as i64)
         },
     };
-    let mut returned: i64 = choose(3, &mut (subject_calls), &mut (result_calls))
-;
+    let mut returned: i64 = choose(3, &mut (subject_calls), &mut (result_calls));
     let mut nested: i64 = match ((-9223372036854775807) as i64) {
         (-9223372036854775807) | 9223372036854775807 => {
             (match (9223372036854775807 as i64) {
         (-9223372036854775807) => {
-            (observeResult(&mut (result_calls), 40)
- as i64)
+            (observeResult(&mut (result_calls), 40) as i64)
         },
         9223372036854775807 => {
-            (observeResult(&mut (result_calls), 50)
- as i64)
+            (observeResult(&mut (result_calls), 50) as i64)
         },
         _ => {
-            (observeResult(&mut (result_calls), 60)
- as i64)
+            (observeResult(&mut (result_calls), 60) as i64)
         },
     } as i64)
         },
         _ => {
-            (observeResult(&mut (result_calls), 70)
- as i64)
+            (observeResult(&mut (result_calls), 70) as i64)
         },
     };
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", __sn_match_result)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", subject_calls)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", result_calls)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", first)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", fallback)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", returned)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", nested)); __sn_interpolated }
-))
-;
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", __sn_match_result)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", subject_calls)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", result_calls)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", first)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", fallback)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", returned)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", nested)); __sn_interpolated }));
 }

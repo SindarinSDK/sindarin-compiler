@@ -24,6 +24,8 @@ impl SnString {
 
     fn from_bytes(bytes: Vec<u8>) -> Self { Self(bytes) }
 
+    fn from_slice(bytes: &[u8]) -> Self { Self(bytes.to_vec()) }
+
     fn from_c_bytes(bytes: &[u8]) -> Self {
         let end = bytes.iter().position(|byte| *byte == 0).unwrap_or(bytes.len());
         Self(bytes[..end].to_vec())
@@ -75,6 +77,61 @@ impl From<&str> for SnString {
 impl From<String> for SnString {
     fn from(value: String) -> Self { Self(value.into_bytes()) }
 }
+
+#[cfg(unix)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::unix::ffi::OsStrExt;
+    std::env::args_os()
+        .map(|value| SnString::from_slice(value.as_os_str().as_bytes()))
+        .collect()
+}
+
+#[cfg(windows)]
+fn __sn_push_wtf8(bytes: &mut Vec<u8>, value: u32) {
+    if value <= 0x7f {
+        bytes.push(value as u8);
+    } else if value <= 0x7ff {
+        bytes.push((0xc0 | (value >> 6)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else if value <= 0xffff {
+        bytes.push((0xe0 | (value >> 12)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else {
+        bytes.push((0xf0 | (value >> 18)) as u8);
+        bytes.push((0x80 | ((value >> 12) & 0x3f)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    }
+}
+
+#[cfg(windows)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::windows::ffi::OsStrExt;
+    std::env::args_os().map(|value| {
+        let mut bytes = Vec::new();
+        let mut units = value.as_os_str().encode_wide().peekable();
+        while let Some(unit) = units.next() {
+            let scalar = if (0xd800..=0xdbff).contains(&unit) {
+                match units.peek().copied() {
+                    Some(low) if (0xdc00..=0xdfff).contains(&low) => {
+                        units.next();
+                        0x10000 + (((unit as u32 - 0xd800) << 10) |
+                                   (low as u32 - 0xdc00))
+                    }
+                    _ => unit as u32,
+                }
+            } else {
+                unit as u32
+            };
+            __sn_push_wtf8(&mut bytes, scalar);
+        }
+        SnString::from_bytes(bytes)
+    }).collect()
+}
+
+#[cfg(not(any(unix, windows)))]
+compile_error!("Sindarin Rust argv byte transport supports Unix and Windows targets");
 
 impl std::fmt::Debug for SnString {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -214,15 +271,12 @@ fn observeInt(calls: &mut i64, order: &mut i64, marker: i64, value: i64) -> i64 
 
 fn chooseDouble(subject_calls: &mut i64, body_calls: &mut i64, order: &mut i64) -> f64 {
     return {
-     let __sn_match_subject_0: f64 = observeDouble(&mut *(subject_calls), &mut *(order), 7, 9.5)
- ;
+     let __sn_match_subject_0: f64 = observeDouble(&mut *(subject_calls), &mut *(order), 7, 9.5);
      if (__sn_match_subject_0 == 9.5) {
-         (observeDouble(&mut *(body_calls), &mut *(order), 8, 42.25)
-  as f64)
+         (observeDouble(&mut *(body_calls), &mut *(order), 8, 42.25) as f64)
      }
      else {
-         (observeDouble(&mut *(body_calls), &mut *(order), 9, 0.0)
-  as f64)
+         (observeDouble(&mut *(body_calls), &mut *(order), 9, 0.0) as f64)
      }
  };
 }
@@ -235,41 +289,33 @@ fn main() {
     let mut order: i64 = 0;
     let mut selected: i64 = 0;
     {
-    let __sn_match_subject_1: f32 = observeFloat(&mut (subject_calls), &mut (order), 1, 2.5)
-;
+    let __sn_match_subject_1: f32 = observeFloat(&mut (subject_calls), &mut (order), 1, 2.5);
     if (__sn_match_subject_1 == 1.0 || __sn_match_subject_1 == 2.5 || __sn_match_subject_1 == (-2.5)) {
         (selected = 10);
-        observeInt(&mut (body_calls), &mut (order), 2, 0)
-;
+        observeInt(&mut (body_calls), &mut (order), 2, 0);
     }
     else if (__sn_match_subject_1 == 2.5) {
         (selected = 20);
-        observeInt(&mut (body_calls), &mut (order), 8, 0)
-;
+        observeInt(&mut (body_calls), &mut (order), 8, 0);
     }
     else {
         (selected = 30);
-        observeInt(&mut (body_calls), &mut (order), 9, 0)
-;
+        observeInt(&mut (body_calls), &mut (order), 9, 0);
     }
 };
     {
-    let __sn_match_subject_2: f64 = observeDouble(&mut (subject_calls), &mut (order), 3, (-4.5))
-;
+    let __sn_match_subject_2: f64 = observeDouble(&mut (subject_calls), &mut (order), 3, (-4.5));
     if (__sn_match_subject_2 == 4.5 || __sn_match_subject_2 == (-4.5) || __sn_match_subject_2 == (-1.0)) {
         { let __sn_rhs = 20; let __sn_place = &mut (selected); let __sn_next = __sn_checked_0((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };
-        observeInt(&mut (body_calls), &mut (order), 4, 0)
-;
+        observeInt(&mut (body_calls), &mut (order), 4, 0);
     }
     else if (__sn_match_subject_2 == (-4.5)) {
         (selected = 200);
-        observeInt(&mut (body_calls), &mut (order), 8, 0)
-;
+        observeInt(&mut (body_calls), &mut (order), 8, 0);
     }
     else {
         (selected = 300);
-        observeInt(&mut (body_calls), &mut (order), 9, 0)
-;
+        observeInt(&mut (body_calls), &mut (order), 9, 0);
     }
 };
     let mut nested_statement: i64 = 0;
@@ -305,19 +351,15 @@ fn main() {
     }
 };
     let mut first_value: i64 = {
-    let __sn_match_subject_8: f32 = observeFloat(&mut (subject_calls), &mut (order), 5, (-2.5))
-;
+    let __sn_match_subject_8: f32 = observeFloat(&mut (subject_calls), &mut (order), 5, (-2.5));
     if (__sn_match_subject_8 == (-2.5) || __sn_match_subject_8 == (-1.0)) {
-        (observeInt(&mut (body_calls), &mut (order), 6, 100)
- as i64)
+        (observeInt(&mut (body_calls), &mut (order), 6, 100) as i64)
     }
     else if (__sn_match_subject_8 == (-2.5)) {
-        (observeInt(&mut (body_calls), &mut (order), 8, 200)
- as i64)
+        (observeInt(&mut (body_calls), &mut (order), 8, 200) as i64)
     }
     else {
-        (observeInt(&mut (body_calls), &mut (order), 9, 300)
- as i64)
+        (observeInt(&mut (body_calls), &mut (order), 9, 300) as i64)
     }
 };
     let mut nan_value: bool = {
@@ -347,8 +389,7 @@ fn main() {
         (0.0 as f64)
     }
 };
-    let mut returned: f64 = chooseDouble(&mut (subject_calls), &mut (body_calls), &mut (order))
-;
+    let mut returned: f64 = chooseDouble(&mut (subject_calls), &mut (body_calls), &mut (order));
     let mut nested_value: i64 = {
     let __sn_match_subject_13: f32 = (-1.0);
     if (__sn_match_subject_13 == (-1.0)) {
@@ -366,7 +407,5 @@ fn main() {
         ((-1) as i64)
     }
 };
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", __sn_match_subject)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", __sn_match_result)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", subject_calls)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", body_calls)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", order)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", selected)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", nested_statement)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", nan_statement_hits)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", zero_hits)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", first_value)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", nan_value)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", (float_value == (-3.5)))); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", (double_value == 6.75))); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", (returned == 42.25))); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", nested_value)); __sn_interpolated }
-))
-;
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", __sn_match_subject)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", __sn_match_result)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", subject_calls)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", body_calls)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", order)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", selected)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", nested_statement)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", nan_statement_hits)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", zero_hits)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", first_value)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", nan_value)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", (float_value == (-3.5)))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", (double_value == 6.75))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", (returned == 42.25))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", nested_value)); __sn_interpolated }));
 }

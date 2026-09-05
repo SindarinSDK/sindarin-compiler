@@ -1,14 +1,16 @@
 #[allow(non_camel_case_types)]
 trait {{rust_ident rust_array_text_trait_name}} {
-    fn {{rust_ident rust_array_text_method_name}}(&self) -> String;
-    fn {{rust_ident rust_array_join_text_method_name}}(&self) -> String;
+    fn {{rust_ident rust_array_text_method_name}}(&self) -> SnString;
+    fn {{rust_ident rust_array_join_text_method_name}}(&self) -> SnString;
+    fn {{rust_ident rust_struct_text_method_name}}(&self) -> SnString;
 }
 
 macro_rules! {{rust_ident rust_array_integer_macro_name}} {
     ($($type:ty),+ $(,)?) => {$(
         impl {{rust_ident rust_array_text_trait_name}} for $type {
-            fn {{rust_ident rust_array_text_method_name}}(&self) -> String { self.to_string() }
-            fn {{rust_ident rust_array_join_text_method_name}}(&self) -> String { self.to_string() }
+            fn {{rust_ident rust_array_text_method_name}}(&self) -> SnString { SnString::from(self.to_string()) }
+            fn {{rust_ident rust_array_join_text_method_name}}(&self) -> SnString { SnString::from(self.to_string()) }
+            fn {{rust_ident rust_struct_text_method_name}}(&self) -> SnString { SnString::from(self.to_string()) }
         }
     )+};
 }
@@ -16,28 +18,51 @@ macro_rules! {{rust_ident rust_array_integer_macro_name}} {
 {{rust_ident rust_array_integer_macro_name}}!(i64, i32, u32);
 
 impl {{rust_ident rust_array_text_trait_name}} for u64 {
-    fn {{rust_ident rust_array_text_method_name}}(&self) -> String { (*self as i64).to_string() }
-    fn {{rust_ident rust_array_join_text_method_name}}(&self) -> String { (*self as i64).to_string() }
+    fn {{rust_ident rust_array_text_method_name}}(&self) -> SnString { SnString::from((*self as i64).to_string()) }
+    fn {{rust_ident rust_array_join_text_method_name}}(&self) -> SnString { SnString::from((*self as i64).to_string()) }
+    fn {{rust_ident rust_struct_text_method_name}}(&self) -> SnString { SnString::from((*self as i64).to_string()) }
 }
 
 impl {{rust_ident rust_array_text_trait_name}} for u8 {
-    fn {{rust_ident rust_array_text_method_name}}(&self) -> String { format!("0x{:02X}", self) }
-    fn {{rust_ident rust_array_join_text_method_name}}(&self) -> String { format!("0x{:02X}", self) }
+    fn {{rust_ident rust_array_text_method_name}}(&self) -> SnString { SnString::from(format!("0x{:02X}", self)) }
+    fn {{rust_ident rust_array_join_text_method_name}}(&self) -> SnString { SnString::from(format!("0x{:02X}", self)) }
+    fn {{rust_ident rust_struct_text_method_name}}(&self) -> SnString { SnString::from(self.to_string()) }
 }
 
 impl {{rust_ident rust_array_text_trait_name}} for bool {
-    fn {{rust_ident rust_array_text_method_name}}(&self) -> String { self.to_string() }
-    fn {{rust_ident rust_array_join_text_method_name}}(&self) -> String { self.to_string() }
+    fn {{rust_ident rust_array_text_method_name}}(&self) -> SnString { SnString::from(self.to_string()) }
+    fn {{rust_ident rust_array_join_text_method_name}}(&self) -> SnString { SnString::from(self.to_string()) }
+    fn {{rust_ident rust_struct_text_method_name}}(&self) -> SnString { SnString::from(self.to_string()) }
 }
 
 impl {{rust_ident rust_array_text_trait_name}} for char {
-    fn {{rust_ident rust_array_text_method_name}}(&self) -> String { format!("'{}'", self) }
-    fn {{rust_ident rust_array_join_text_method_name}}(&self) -> String { self.to_string() }
+    fn {{rust_ident rust_array_text_method_name}}(&self) -> SnString {
+        let mut result = SnString::from_slice(b"'");
+        result.push_char(*self);
+        result.push_str("'");
+        result
+    }
+    fn {{rust_ident rust_array_join_text_method_name}}(&self) -> SnString {
+        let mut result = SnString::new();
+        result.push_char(*self);
+        result
+    }
+    fn {{rust_ident rust_struct_text_method_name}}(&self) -> SnString {
+        self.{{rust_ident rust_array_text_method_name}}()
+    }
 }
 
-impl {{rust_ident rust_array_text_trait_name}} for String {
-    fn {{rust_ident rust_array_text_method_name}}(&self) -> String { format!("\"{}\"", self) }
-    fn {{rust_ident rust_array_join_text_method_name}}(&self) -> String { self.clone() }
+impl {{rust_ident rust_array_text_trait_name}} for SnString {
+    fn {{rust_ident rust_array_text_method_name}}(&self) -> SnString {
+        let mut result = SnString::from_slice(b"\"");
+        result.push_str(self);
+        result.push_str("\"");
+        result
+    }
+    fn {{rust_ident rust_array_join_text_method_name}}(&self) -> SnString { self.clone() }
+    fn {{rust_ident rust_struct_text_method_name}}(&self) -> SnString {
+        self.{{rust_ident rust_array_text_method_name}}()
+    }
 }
 
 fn {{rust_ident rust_array_float_format_name}}(value: f64) -> String {
@@ -65,8 +90,9 @@ fn {{rust_ident rust_array_float_format_name}}(value: f64) -> String {
 macro_rules! {{rust_ident rust_array_float_macro_name}} {
     ($($type:ty),+ $(,)?) => {$(
         impl {{rust_ident rust_array_text_trait_name}} for $type {
-            fn {{rust_ident rust_array_text_method_name}}(&self) -> String { {{rust_ident rust_array_float_format_name}}(*self as f64) }
-            fn {{rust_ident rust_array_join_text_method_name}}(&self) -> String { format!("{:.5}", self) }
+            fn {{rust_ident rust_array_text_method_name}}(&self) -> SnString { SnString::from({{rust_ident rust_array_float_format_name}}(*self as f64)) }
+            fn {{rust_ident rust_array_join_text_method_name}}(&self) -> SnString { SnString::from(format!("{:.5}", self)) }
+            fn {{rust_ident rust_struct_text_method_name}}(&self) -> SnString { SnString::from(format!("{:.5}", self)) }
         }
     )+};
 }
@@ -74,24 +100,25 @@ macro_rules! {{rust_ident rust_array_float_macro_name}} {
 {{rust_ident rust_array_float_macro_name}}!(f64, f32);
 
 impl<T: {{rust_ident rust_array_text_trait_name}}> {{rust_ident rust_array_text_trait_name}} for Vec<T> {
-    fn {{rust_ident rust_array_text_method_name}}(&self) -> String { {{rust_ident rust_array_to_string_name}}(self.as_slice()) }
+    fn {{rust_ident rust_array_text_method_name}}(&self) -> SnString { {{rust_ident rust_array_to_string_name}}(self.as_slice()) }
     // sn_array_join renders each nested-array element as "?"; recursion is
     // reserved for full array formatting (print and interpolation).
-    fn {{rust_ident rust_array_join_text_method_name}}(&self) -> String { "?".to_string() }
+    fn {{rust_ident rust_array_join_text_method_name}}(&self) -> SnString { SnString::from_slice(b"?") }
+    fn {{rust_ident rust_struct_text_method_name}}(&self) -> SnString { {{rust_ident rust_array_to_string_name}}(self.as_slice()) }
 }
 
-fn {{rust_ident rust_array_to_string_name}}<T: {{rust_ident rust_array_text_trait_name}}>(array: &[T]) -> String {
-    let mut result = String::from("[");
+fn {{rust_ident rust_array_to_string_name}}<T: {{rust_ident rust_array_text_trait_name}}>(array: &[T]) -> SnString {
+    let mut result = SnString::from_slice(b"[");
     for (index, value) in array.iter().enumerate() {
         if index != 0 { result.push_str(", "); }
         result.push_str(&value.{{rust_ident rust_array_text_method_name}}());
     }
-    result.push(']');
+    result.push_str("]");
     result
 }
 
-fn {{rust_ident rust_array_join_name}}<T: {{rust_ident rust_array_text_trait_name}}>(array: &[T], separator: &str) -> String {
-    let mut result = String::new();
+fn {{rust_ident rust_array_join_name}}<T: {{rust_ident rust_array_text_trait_name}}>(array: &[T], separator: &SnString) -> SnString {
+    let mut result = SnString::new();
     for (index, value) in array.iter().enumerate() {
         if index != 0 { result.push_str(separator); }
         result.push_str(&value.{{rust_ident rust_array_join_text_method_name}}());

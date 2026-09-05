@@ -42,13 +42,10 @@ impl Counter {
 }
 
 fn r#use(counter: Counter) -> i64 {
-    return (counter).localMath()
-;
+    return (counter).localMath();
 }
 
 fn main() {
     let mut counter: Counter = Counter { value: 1 };
-    println!("{}", r#use(counter)
-)
-;
+    println!("{}", r#use(counter));
 }

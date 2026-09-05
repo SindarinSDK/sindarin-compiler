@@ -24,6 +24,8 @@ impl SnString {
 
     fn from_bytes(bytes: Vec<u8>) -> Self { Self(bytes) }
 
+    fn from_slice(bytes: &[u8]) -> Self { Self(bytes.to_vec()) }
+
     fn from_c_bytes(bytes: &[u8]) -> Self {
         let end = bytes.iter().position(|byte| *byte == 0).unwrap_or(bytes.len());
         Self(bytes[..end].to_vec())
@@ -75,6 +77,61 @@ impl From<&str> for SnString {
 impl From<String> for SnString {
     fn from(value: String) -> Self { Self(value.into_bytes()) }
 }
+
+#[cfg(unix)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::unix::ffi::OsStrExt;
+    std::env::args_os()
+        .map(|value| SnString::from_slice(value.as_os_str().as_bytes()))
+        .collect()
+}
+
+#[cfg(windows)]
+fn __sn_push_wtf8(bytes: &mut Vec<u8>, value: u32) {
+    if value <= 0x7f {
+        bytes.push(value as u8);
+    } else if value <= 0x7ff {
+        bytes.push((0xc0 | (value >> 6)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else if value <= 0xffff {
+        bytes.push((0xe0 | (value >> 12)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else {
+        bytes.push((0xf0 | (value >> 18)) as u8);
+        bytes.push((0x80 | ((value >> 12) & 0x3f)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    }
+}
+
+#[cfg(windows)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::windows::ffi::OsStrExt;
+    std::env::args_os().map(|value| {
+        let mut bytes = Vec::new();
+        let mut units = value.as_os_str().encode_wide().peekable();
+        while let Some(unit) = units.next() {
+            let scalar = if (0xd800..=0xdbff).contains(&unit) {
+                match units.peek().copied() {
+                    Some(low) if (0xdc00..=0xdfff).contains(&low) => {
+                        units.next();
+                        0x10000 + (((unit as u32 - 0xd800) << 10) |
+                                   (low as u32 - 0xdc00))
+                    }
+                    _ => unit as u32,
+                }
+            } else {
+                unit as u32
+            };
+            __sn_push_wtf8(&mut bytes, scalar);
+        }
+        SnString::from_bytes(bytes)
+    }).collect()
+}
+
+#[cfg(not(any(unix, windows)))]
+compile_error!("Sindarin Rust argv byte transport supports Unix and Windows targets");
 
 impl std::fmt::Debug for SnString {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -227,12 +284,11 @@ impl ResultBox {
     fn memberResult(&self, calls: &mut i64) -> SnString {
         { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
         return ((self).label).to_ascii_uppercase()
- 
 ;
     }
     fn staticResult(calls: &mut i64) -> SnString {
         { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
-        return SnString::from("static");
+        return SnString::from_slice(&[0x73, 0x74, 0x61, 0x74, 0x69, 0x63]);
     }
 }
 
@@ -243,14 +299,13 @@ fn selectSubject(calls: &mut i64) -> i64 {
 
 fn ownedResult(calls: &mut i64, value: SnString) -> SnString {
     { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
-    return { let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str("<"); __sn_interpolated.push_str(&(value)); __sn_interpolated.push_str(">"); __sn_interpolated }
-;
+    return { let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3c]))); __sn_interpolated.push_str(&(value)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3e]))); __sn_interpolated };
 }
 
 fn chooseForReturn(value: bool, fallback: SnString) -> SnString {
     return match (value) {
          true => {
-             (SnString::from("returned"))
+             (SnString::from_slice(&[0x72, 0x65, 0x74, 0x75, 0x72, 0x6e, 0x65, 0x64]))
          },
          _ => {
              (fallback.clone())
@@ -259,42 +314,35 @@ fn chooseForReturn(value: bool, fallback: SnString) -> SnString {
 }
 
 fn main() {
-    let mut variableResult: SnString = SnString::from("variable");
-    let mut fallbackResult: SnString = SnString::from("fallback");
-    let mut r#box: ResultBox = ResultBox { label: SnString::from("member"), rows: vec![vec![SnString::from("zero"), SnString::from("one")], vec![SnString::from("two"), SnString::from("three")]] };
-    let mut localRows: Vec<Vec<SnString>> = vec![vec![SnString::from("local-zero")], vec![SnString::from("local-one")]];
-    let mut escapedBorrowedSource: SnString = SnString::from("borrowed\n\tquote:\" slash:\\");
-    let mut escapedRows: Vec<Vec<SnString>> = vec![vec![SnString::from("indexed\n\tquote:\" slash:\\")]];
+    let mut variableResult: SnString = SnString::from_slice(&[0x76, 0x61, 0x72, 0x69, 0x61, 0x62, 0x6c, 0x65]);
+    let mut fallbackResult: SnString = SnString::from_slice(&[0x66, 0x61, 0x6c, 0x6c, 0x62, 0x61, 0x63, 0x6b]);
+    let mut r#box: ResultBox = ResultBox { label: SnString::from_slice(&[0x6d, 0x65, 0x6d, 0x62, 0x65, 0x72]), rows: vec![vec![SnString::from_slice(&[0x7a, 0x65, 0x72, 0x6f]), SnString::from_slice(&[0x6f, 0x6e, 0x65])], vec![SnString::from_slice(&[0x74, 0x77, 0x6f]), SnString::from_slice(&[0x74, 0x68, 0x72, 0x65, 0x65])]] };
+    let mut localRows: Vec<Vec<SnString>> = vec![vec![SnString::from_slice(&[0x6c, 0x6f, 0x63, 0x61, 0x6c, 0x2d, 0x7a, 0x65, 0x72, 0x6f])], vec![SnString::from_slice(&[0x6c, 0x6f, 0x63, 0x61, 0x6c, 0x2d, 0x6f, 0x6e, 0x65])]];
+    let mut escapedBorrowedSource: SnString = SnString::from_slice(&[0x62, 0x6f, 0x72, 0x72, 0x6f, 0x77, 0x65, 0x64, 0x0a, 0x09, 0x71, 0x75, 0x6f, 0x74, 0x65, 0x3a, 0x22, 0x20, 0x73, 0x6c, 0x61, 0x73, 0x68, 0x3a, 0x5c]);
+    let mut escapedRows: Vec<Vec<SnString>> = vec![vec![SnString::from_slice(&[0x69, 0x6e, 0x64, 0x65, 0x78, 0x65, 0x64, 0x0a, 0x09, 0x71, 0x75, 0x6f, 0x74, 0x65, 0x3a, 0x22, 0x20, 0x73, 0x6c, 0x61, 0x73, 0x68, 0x3a, 0x5c])]];
     let mut subjectCalls: i64 = 0;
     let mut selectedCalls: i64 = 0;
-    let mut selected: SnString = match (selectSubject(&mut (subjectCalls))
- as i64) {
+    let mut selected: SnString = match (selectSubject(&mut (subjectCalls)) as i64) {
         1 => {
-            (ownedResult(&mut (selectedCalls), SnString::from("wrong"))
-)
+            (ownedResult(&mut (selectedCalls), SnString::from_slice(&[0x77, 0x72, 0x6f, 0x6e, 0x67])))
         },
         2 => {
-            (ownedResult(&mut (selectedCalls), SnString::from("selected"))
-)
+            (ownedResult(&mut (selectedCalls), SnString::from_slice(&[0x73, 0x65, 0x6c, 0x65, 0x63, 0x74, 0x65, 0x64])))
         },
         2 => {
-            (ownedResult(&mut (selectedCalls), SnString::from("duplicate"))
-)
+            (ownedResult(&mut (selectedCalls), SnString::from_slice(&[0x64, 0x75, 0x70, 0x6c, 0x69, 0x63, 0x61, 0x74, 0x65])))
         },
         _ => {
-            (ownedResult(&mut (selectedCalls), SnString::from("else"))
-)
+            (ownedResult(&mut (selectedCalls), SnString::from_slice(&[0x65, 0x6c, 0x73, 0x65])))
         },
     };
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(selected)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", subjectCalls)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", selectedCalls)); __sn_interpolated }
-))
-;
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(selected)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", subjectCalls)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", selectedCalls)); __sn_interpolated }));
     let mut literal: SnString = match (true) {
         true => {
-            (SnString::from("literal"))
+            (SnString::from_slice(&[0x6c, 0x69, 0x74, 0x65, 0x72, 0x61, 0x6c]))
         },
         _ => {
-            (SnString::from("wrong"))
+            (SnString::from_slice(&[0x77, 0x72, 0x6f, 0x6e, 0x67]))
         },
     };
     let mut variable: SnString = {
@@ -324,8 +372,8 @@ fn main() {
         },
     };
     let mut memberIndexed: SnString = {
-    let __sn_match_subject_2: SnString = SnString::from("key");
-    if (__sn_match_subject_2 == SnString::from("key")) {
+    let __sn_match_subject_2: SnString = SnString::from_slice(&[0x6b, 0x65, 0x79]);
+    if (__sn_match_subject_2 == SnString::from_slice(&[0x6b, 0x65, 0x79])) {
         ((((r#box).rows)[__sn_index(((r#box).rows).len(), 0)])[__sn_index((((r#box).rows)[__sn_index(((r#box).rows).len(), 0)]).len(), 1)].clone())
     }
     else {
@@ -340,15 +388,11 @@ fn main() {
             ((((r#box).rows)[__sn_index(((r#box).rows).len(), 1)])[__sn_index((((r#box).rows)[__sn_index(((r#box).rows).len(), 1)]).len(), 1)].clone())
         },
     };
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(literal)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&(variable)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&(member)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&(localIndexed)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&(memberIndexed)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&(multiIndexed)); __sn_interpolated }
-))
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(variableResult)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&((r#box).label)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&(((localRows)[__sn_index((localRows).len(), 1)])[__sn_index(((localRows)[__sn_index((localRows).len(), 1)]).len(), 0)])); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&((((r#box).rows)[__sn_index(((r#box).rows).len(), 0)])[__sn_index((((r#box).rows)[__sn_index(((r#box).rows).len(), 0)]).len(), 1)])); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&((((r#box).rows)[__sn_index(((r#box).rows).len(), 1)])[__sn_index((((r#box).rows)[__sn_index(((r#box).rows).len(), 1)]).len(), 1)])); __sn_interpolated }
-))
-;
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(literal)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&(variable)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&(member)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&(localIndexed)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&(memberIndexed)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&(multiIndexed)); __sn_interpolated }));
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(variableResult)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&((r#box).label)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&(((localRows)[__sn_index((localRows).len(), 1)])[__sn_index(((localRows)[__sn_index((localRows).len(), 1)]).len(), 0)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&((((r#box).rows)[__sn_index(((r#box).rows).len(), 0)])[__sn_index((((r#box).rows)[__sn_index(((r#box).rows).len(), 0)]).len(), 1)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&((((r#box).rows)[__sn_index(((r#box).rows).len(), 1)])[__sn_index((((r#box).rows)[__sn_index(((r#box).rows).len(), 1)]).len(), 1)])); __sn_interpolated }));
     let mut concatenated: SnString = match (10 as i64) {
         10 => {
-            ({ let mut __sn_string = SnString::new(); __sn_string.push_str(&(SnString::from("con"))); __sn_string.push_str(&(variableResult)); __sn_string })
+            ({ let mut __sn_string = SnString::new(); __sn_string.push_str(&(SnString::from_slice(&[0x63, 0x6f, 0x6e]))); __sn_string.push_str(&(variableResult)); __sn_string })
         },
         _ => {
             (fallbackResult.clone())
@@ -356,8 +400,7 @@ fn main() {
     };
     let mut interpolated: SnString = match (10 as i32) {
         10 => {
-            ({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str("inter-"); __sn_interpolated.push_str(&(variableResult)); __sn_interpolated }
-)
+            ({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x69, 0x6e, 0x74, 0x65, 0x72, 0x2d]))); __sn_interpolated.push_str(&(variableResult)); __sn_interpolated })
         },
         _ => {
             (fallbackResult.clone())
@@ -366,8 +409,7 @@ fn main() {
     let mut freeCalls: i64 = 0;
     let mut freeCalled: SnString = match (10 as u64) {
         10 => {
-            (ownedResult(&mut (freeCalls), SnString::from("free"))
-)
+            (ownedResult(&mut (freeCalls), SnString::from_slice(&[0x66, 0x72, 0x65, 0x65])))
         },
         _ => {
             (fallbackResult.clone())
@@ -385,18 +427,16 @@ fn main() {
     let mut memberCalls: i64 = 0;
     let mut memberCalled: SnString = match (10 as u8) {
         10 => {
-            ((r#box).memberResult(&mut (memberCalls))
-)
+            ((r#box).memberResult(&mut (memberCalls)))
         },
         _ => {
             (fallbackResult.clone())
         },
     };
     let mut stringMemberCalled: SnString = {
-    let __sn_match_subject_3: SnString = SnString::from("upper");
-    if (__sn_match_subject_3 == SnString::from("upper")) {
+    let __sn_match_subject_3: SnString = SnString::from_slice(&[0x75, 0x70, 0x70, 0x65, 0x72]);
+    if (__sn_match_subject_3 == SnString::from_slice(&[0x75, 0x70, 0x70, 0x65, 0x72])) {
         ((variableResult).to_ascii_uppercase()
-
 )
     }
     else {
@@ -405,63 +445,49 @@ fn main() {
 };
     let mut joined: SnString = match (3 as i64) {
         3 => {
-            ({ let __sn_array = &(((r#box).rows)[__sn_index(((r#box).rows).len(), 0)]); let __sn_separator = &(SnString::from("+")); __sn_string_join(__sn_array, __sn_separator) }
-
-)
+            ({ let __sn_join_index_0 = __sn_index(((r#box).rows).len(), 0); let __sn_separator_0 = &(SnString::from_slice(&[0x2b])); __sn_string_join((((r#box).rows)[__sn_join_index_0]).as_slice(), __sn_separator_0) })
         },
         _ => {
             (fallbackResult.clone())
         },
     };
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(concatenated)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&(interpolated)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&(freeCalled)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&(staticCalled)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&(memberCalled)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&(stringMemberCalled)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&(joined)); __sn_interpolated }
-))
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", freeCalls)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", staticCalls)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", memberCalls)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&(variableResult)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&((r#box).label)); __sn_interpolated }
-))
-;
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(concatenated)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&(interpolated)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&(freeCalled)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&(staticCalled)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&(memberCalled)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&(stringMemberCalled)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&(joined)); __sn_interpolated }));
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", freeCalls)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", staticCalls)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", memberCalls)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&(variableResult)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&((r#box).label)); __sn_interpolated }));
     let mut nestedCalls: i64 = 0;
     let mut nested: SnString = {
-    let __sn_match_subject_4: SnString = SnString::from("outer");
-    if (__sn_match_subject_4 == SnString::from("outer")) {
+    let __sn_match_subject_4: SnString = SnString::from_slice(&[0x6f, 0x75, 0x74, 0x65, 0x72]);
+    if (__sn_match_subject_4 == SnString::from_slice(&[0x6f, 0x75, 0x74, 0x65, 0x72])) {
         (match (4 as i64) {
         4 => {
-            (ownedResult(&mut (nestedCalls), SnString::from("nested"))
-)
+            (ownedResult(&mut (nestedCalls), SnString::from_slice(&[0x6e, 0x65, 0x73, 0x74, 0x65, 0x64])))
         },
         _ => {
-            (SnString::from("inner-else"))
+            (SnString::from_slice(&[0x69, 0x6e, 0x6e, 0x65, 0x72, 0x2d, 0x65, 0x6c, 0x73, 0x65]))
         },
     })
     }
     else {
-        (SnString::from("outer-else"))
+        (SnString::from_slice(&[0x6f, 0x75, 0x74, 0x65, 0x72, 0x2d, 0x65, 0x6c, 0x73, 0x65]))
     }
 };
     let mut fallbackCalls: i64 = 0;
     let mut fallback: SnString = match (99 as i64) {
         1 => {
-            (ownedResult(&mut (fallbackCalls), SnString::from("ordinary"))
-)
+            (ownedResult(&mut (fallbackCalls), SnString::from_slice(&[0x6f, 0x72, 0x64, 0x69, 0x6e, 0x61, 0x72, 0x79])))
         },
         _ => {
-            (ownedResult(&mut (fallbackCalls), SnString::from("fallback"))
-)
+            (ownedResult(&mut (fallbackCalls), SnString::from_slice(&[0x66, 0x61, 0x6c, 0x6c, 0x62, 0x61, 0x63, 0x6b])))
         },
     };
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(nested)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", nestedCalls)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&(fallback)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&format!("{}", fallbackCalls)); __sn_interpolated }
-))
-;
-    let mut returned: SnString = chooseForReturn(false, fallbackResult.clone())
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(returned)); __sn_interpolated.push_str("|"); __sn_interpolated.push_str(&(fallbackResult)); __sn_interpolated }
-))
-;
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(nested)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", nestedCalls)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&(fallback)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", fallbackCalls)); __sn_interpolated }));
+    let mut returned: SnString = chooseForReturn(false, fallbackResult.clone());
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(returned)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&(fallbackResult)); __sn_interpolated }));
     let mut escapedDirect: SnString = match (true) {
         true => {
-            (SnString::from("direct\n\tquote:\" slash:\\"))
+            (SnString::from_slice(&[0x64, 0x69, 0x72, 0x65, 0x63, 0x74, 0x0a, 0x09, 0x71, 0x75, 0x6f, 0x74, 0x65, 0x3a, 0x22, 0x20, 0x73, 0x6c, 0x61, 0x73, 0x68, 0x3a, 0x5c]))
         },
         _ => {
-            (SnString::from("wrong"))
+            (SnString::from_slice(&[0x77, 0x72, 0x6f, 0x6e, 0x67]))
         },
     };
     let mut escapedBorrowed: SnString = match (1 as i64) {
@@ -469,12 +495,12 @@ fn main() {
             (escapedBorrowedSource.clone())
         },
         _ => {
-            (SnString::from("wrong"))
+            (SnString::from_slice(&[0x77, 0x72, 0x6f, 0x6e, 0x67]))
         },
     };
     let mut escapedIndexed: SnString = match (false) {
         true => {
-            (SnString::from("wrong"))
+            (SnString::from_slice(&[0x77, 0x72, 0x6f, 0x6e, 0x67]))
         },
         _ => {
             (((escapedRows)[__sn_index((escapedRows).len(), 0)])[__sn_index(((escapedRows)[__sn_index((escapedRows).len(), 0)]).len(), 0)].clone())
@@ -483,41 +509,29 @@ fn main() {
     let mut escapedNested: SnString = match (2 as i64) {
         2 => {
             ({
-    let __sn_match_subject_5: SnString = SnString::from("nested");
-    if (__sn_match_subject_5 == SnString::from("nested")) {
-        (SnString::from("nested\n\tquote:\" slash:\\"))
+    let __sn_match_subject_5: SnString = SnString::from_slice(&[0x6e, 0x65, 0x73, 0x74, 0x65, 0x64]);
+    if (__sn_match_subject_5 == SnString::from_slice(&[0x6e, 0x65, 0x73, 0x74, 0x65, 0x64])) {
+        (SnString::from_slice(&[0x6e, 0x65, 0x73, 0x74, 0x65, 0x64, 0x0a, 0x09, 0x71, 0x75, 0x6f, 0x74, 0x65, 0x3a, 0x22, 0x20, 0x73, 0x6c, 0x61, 0x73, 0x68, 0x3a, 0x5c]))
     }
     else {
-        (SnString::from("wrong-inner"))
+        (SnString::from_slice(&[0x77, 0x72, 0x6f, 0x6e, 0x67, 0x2d, 0x69, 0x6e, 0x6e, 0x65, 0x72]))
     }
 })
         },
         _ => {
-            (SnString::from("wrong-outer"))
+            (SnString::from_slice(&[0x77, 0x72, 0x6f, 0x6e, 0x67, 0x2d, 0x6f, 0x75, 0x74, 0x65, 0x72]))
         },
     };
-    __sn_print_string(&(SnString::from("direct[")))
-;
-    __sn_print_string(&(escapedDirect))
-;
-    __sn_println_string(&(SnString::from("]")))
-;
-    __sn_print_string(&(SnString::from("borrowed[")))
-;
-    __sn_print_string(&(escapedBorrowed))
-;
-    __sn_println_string(&(SnString::from("]")))
-;
-    __sn_print_string(&(SnString::from("indexed[")))
-;
-    __sn_print_string(&(escapedIndexed))
-;
-    __sn_println_string(&(SnString::from("]")))
-;
-    __sn_print_string(&(SnString::from("nested[")))
-;
-    __sn_print_string(&(escapedNested))
-;
-    __sn_println_string(&(SnString::from("]")))
-;
+    __sn_print_string(&(SnString::from_slice(&[0x64, 0x69, 0x72, 0x65, 0x63, 0x74, 0x5b])));
+    __sn_print_string(&(escapedDirect));
+    __sn_println_string(&(SnString::from_slice(&[0x5d])));
+    __sn_print_string(&(SnString::from_slice(&[0x62, 0x6f, 0x72, 0x72, 0x6f, 0x77, 0x65, 0x64, 0x5b])));
+    __sn_print_string(&(escapedBorrowed));
+    __sn_println_string(&(SnString::from_slice(&[0x5d])));
+    __sn_print_string(&(SnString::from_slice(&[0x69, 0x6e, 0x64, 0x65, 0x78, 0x65, 0x64, 0x5b])));
+    __sn_print_string(&(escapedIndexed));
+    __sn_println_string(&(SnString::from_slice(&[0x5d])));
+    __sn_print_string(&(SnString::from_slice(&[0x6e, 0x65, 0x73, 0x74, 0x65, 0x64, 0x5b])));
+    __sn_print_string(&(escapedNested));
+    __sn_println_string(&(SnString::from_slice(&[0x5d])));
 }

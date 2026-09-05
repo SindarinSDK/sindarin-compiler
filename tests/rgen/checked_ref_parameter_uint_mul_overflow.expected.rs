@@ -36,6 +36,5 @@ fn fail(value: &mut u64) {
 fn main() {
     let mut half: u64 = 9223372036854775807;
     let mut high: u64 = __sn_checked_0((half).checked_add(1), "Runtime error: integer overflow in addition");
-    fail(&mut (high))
-;
+    fail(&mut (high));
 }

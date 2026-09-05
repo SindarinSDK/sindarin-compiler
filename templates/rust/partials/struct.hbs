@@ -4,4 +4,21 @@ struct {{rust_ident name}} {
 {{/each}}{{rbrace}}{{#if methods}}
 
 impl {{rust_ident name}} {
-{{#each methods}}{{> struct_method this}}{{/each}}{{rbrace}}{{/if}}
+{{#each methods}}{{> struct_method this}}{{/each}}{{rbrace}}{{/if}}{{#if @root.rust_uses_array_text~}}{{nl}}{{nl}}impl {{rust_ident @root.rust_array_text_trait_name}} for {{rust_ident name}} {
+    fn {{rust_ident @root.rust_array_text_method_name}}(&self) -> SnString {
+        let mut result = SnString::from_slice(b"{{name}} { ");
+{{#each fields}}{{#if @index}}        result.push_str(", ");
+{{/if}}        result.push_str("{{name}}: ");
+        result.push_str(&self.{{rust_ident name}}.{{rust_ident @root.rust_struct_text_method_name}}());
+{{/each}}        result.push_str(" }");
+        result
+    }
+
+    fn {{rust_ident @root.rust_array_join_text_method_name}}(&self) -> SnString {
+        self.{{rust_ident @root.rust_array_text_method_name}}()
+    }
+
+    fn {{rust_ident @root.rust_struct_text_method_name}}(&self) -> SnString {
+        self.{{rust_ident @root.rust_array_text_method_name}}()
+    }
+}{{/if~}}

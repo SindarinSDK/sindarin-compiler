@@ -36,6 +36,5 @@ fn main() {
     let mut half: u64 = 9223372036854775807;
     let mut max_minus_one: u64 = __sn_checked_0((half).checked_mul(2), "Runtime error: integer overflow in multiplication");
     let mut max: u64 = __sn_checked_0((max_minus_one).checked_add(1), "Runtime error: integer overflow in addition");
-    fail(&mut (max))
-;
+    fail(&mut (max));
 }

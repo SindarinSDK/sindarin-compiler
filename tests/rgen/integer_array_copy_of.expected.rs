@@ -24,6 +24,8 @@ impl SnString {
 
     fn from_bytes(bytes: Vec<u8>) -> Self { Self(bytes) }
 
+    fn from_slice(bytes: &[u8]) -> Self { Self(bytes.to_vec()) }
+
     fn from_c_bytes(bytes: &[u8]) -> Self {
         let end = bytes.iter().position(|byte| *byte == 0).unwrap_or(bytes.len());
         Self(bytes[..end].to_vec())
@@ -75,6 +77,61 @@ impl From<&str> for SnString {
 impl From<String> for SnString {
     fn from(value: String) -> Self { Self(value.into_bytes()) }
 }
+
+#[cfg(unix)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::unix::ffi::OsStrExt;
+    std::env::args_os()
+        .map(|value| SnString::from_slice(value.as_os_str().as_bytes()))
+        .collect()
+}
+
+#[cfg(windows)]
+fn __sn_push_wtf8(bytes: &mut Vec<u8>, value: u32) {
+    if value <= 0x7f {
+        bytes.push(value as u8);
+    } else if value <= 0x7ff {
+        bytes.push((0xc0 | (value >> 6)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else if value <= 0xffff {
+        bytes.push((0xe0 | (value >> 12)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else {
+        bytes.push((0xf0 | (value >> 18)) as u8);
+        bytes.push((0x80 | ((value >> 12) & 0x3f)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    }
+}
+
+#[cfg(windows)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::windows::ffi::OsStrExt;
+    std::env::args_os().map(|value| {
+        let mut bytes = Vec::new();
+        let mut units = value.as_os_str().encode_wide().peekable();
+        while let Some(unit) = units.next() {
+            let scalar = if (0xd800..=0xdbff).contains(&unit) {
+                match units.peek().copied() {
+                    Some(low) if (0xdc00..=0xdfff).contains(&low) => {
+                        units.next();
+                        0x10000 + (((unit as u32 - 0xd800) << 10) |
+                                   (low as u32 - 0xdc00))
+                    }
+                    _ => unit as u32,
+                }
+            } else {
+                unit as u32
+            };
+            __sn_push_wtf8(&mut bytes, scalar);
+        }
+        SnString::from_bytes(bytes)
+    }).collect()
+}
+
+#[cfg(not(any(unix, windows)))]
+compile_error!("Sindarin Rust argv byte transport supports Unix and Windows targets");
 
 impl std::fmt::Debug for SnString {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -194,37 +251,25 @@ fn main() {
     let mut ints_copy: Vec<i64> = (ints).clone();
     { let __sn_array_index = __sn_index((ints).len(), 0); (ints)[__sn_array_index] = 10; };
     { let __sn_array_index = __sn_index((ints_copy).len(), 2); (ints_copy)[__sn_array_index] = 30; };
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", (ints).len() as i64)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (ints)[__sn_index((ints).len(), 0)])); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", (ints)[__sn_index((ints).len(), 2)])); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (ints_copy)[__sn_index((ints_copy).len(), 0)])); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", (ints_copy)[__sn_index((ints_copy).len(), 2)])); __sn_interpolated }
-))
-;
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", (ints).len() as i64)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", (ints)[__sn_index((ints).len(), 0)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", (ints)[__sn_index((ints).len(), 2)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", (ints_copy)[__sn_index((ints_copy).len(), 0)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", (ints_copy)[__sn_index((ints_copy).len(), 2)])); __sn_interpolated }));
     let mut longs: Vec<i64> = vec![4, 5];
     let mut longs_copy: Vec<i64> = (longs).clone();
     { let __sn_array_index = __sn_index((longs).len(), 0); (longs)[__sn_array_index] = 40; };
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", (longs)[__sn_index((longs).len(), 0)])); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", (longs_copy)[__sn_index((longs_copy).len(), 0)])); __sn_interpolated }
-))
-;
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", (longs)[__sn_index((longs).len(), 0)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", (longs_copy)[__sn_index((longs_copy).len(), 0)])); __sn_interpolated }));
     let mut int32s: Vec<i32> = vec![6, 7];
     let mut int32s_copy: Vec<i32> = (int32s).clone();
     { let __sn_array_index = __sn_index((int32s).len(), 0); (int32s)[__sn_array_index] = 60; };
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", (int32s)[__sn_index((int32s).len(), 0)])); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", (int32s_copy)[__sn_index((int32s_copy).len(), 0)])); __sn_interpolated }
-))
-;
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", (int32s)[__sn_index((int32s).len(), 0)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", (int32s_copy)[__sn_index((int32s_copy).len(), 0)])); __sn_interpolated }));
     let mut uints: Vec<u64> = vec![8, 9];
     let mut uints_copy: Vec<u64> = (uints).clone();
     { let __sn_array_index = __sn_index((uints).len(), 0); (uints)[__sn_array_index] = 80; };
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", (uints)[__sn_index((uints).len(), 0)])); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", (uints_copy)[__sn_index((uints_copy).len(), 0)])); __sn_interpolated }
-))
-;
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", (uints)[__sn_index((uints).len(), 0)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", (uints_copy)[__sn_index((uints_copy).len(), 0)])); __sn_interpolated }));
     let mut uint32s: Vec<u32> = vec![10, 11];
     let mut uint32s_copy: Vec<u32> = (uint32s).clone();
     { let __sn_array_index = __sn_index((uint32s).len(), 0); (uint32s)[__sn_array_index] = 100; };
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", (uint32s)[__sn_index((uint32s).len(), 0)])); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", (uint32s_copy)[__sn_index((uint32s_copy).len(), 0)])); __sn_interpolated }
-))
-;
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", (uint32s)[__sn_index((uint32s).len(), 0)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", (uint32s_copy)[__sn_index((uint32s_copy).len(), 0)])); __sn_interpolated }));
     let mut bytes: Vec<u8> = vec![12, 13];
     let mut bytes_copy: Vec<u8> = (bytes).clone();
     { let __sn_array_index = __sn_index((bytes).len(), 0); (bytes)[__sn_array_index] = 120; };
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", (bytes)[__sn_index((bytes).len(), 0)])); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", (bytes_copy)[__sn_index((bytes_copy).len(), 0)])); __sn_interpolated }
-))
-;
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", (bytes)[__sn_index((bytes).len(), 0)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", (bytes_copy)[__sn_index((bytes_copy).len(), 0)])); __sn_interpolated }));
 }

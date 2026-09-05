@@ -157,6 +157,21 @@ def run_with_timeout(cmd: List[str], timeout: int, cwd: Optional[str] = None,
         return -1, '', str(e), None
 
 
+def run_bytes_with_timeout(cmd: List[str], timeout: int, cwd: Optional[str] = None,
+                           env: Optional[dict] = None) -> Tuple[int, bytes, str]:
+    """Run a generated program while preserving an explicitly binary oracle."""
+    try:
+        result = subprocess.run(
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+            timeout=timeout, cwd=cwd, env=env
+        )
+        return result.returncode, result.stdout, ''
+    except subprocess.TimeoutExpired:
+        return -1, b'', 'TIMEOUT'
+    except Exception as error:
+        return -1, b'', str(error)
+
+
 def parse_rustc_capture(capture_file: str) -> List[List[bytes]]:
     """Parse SN_FAKE_RUSTC_CAPTURE output into a list of argv records.
 
@@ -1047,11 +1062,26 @@ class TestRunner:
                     return ('fail', f'invalid .args sidecar in {args_file}: string contains embedded NUL', None)
             run_args = parsed
 
-        exit_code, output, timeout_marker, decode_error = run_with_timeout(
-            [exe_file] + run_args, self.run_timeout, env=self.env, merge_stderr=True
-        )
-        if decode_error:
-            return ('fail', 'subprocess output decode error', [decode_error, output])
+        output_file = os.path.splitext(test_file)[0] + '.expected'
+        expected_bytes = Path(output_file).read_bytes() if os.path.isfile(output_file) else None
+        binary_oracle = False
+        if expected_bytes is not None:
+            try:
+                expected_bytes.decode('utf-8')
+            except UnicodeDecodeError:
+                binary_oracle = True
+
+        if binary_oracle:
+            exit_code, raw_output, timeout_marker = run_bytes_with_timeout(
+                [exe_file] + run_args, self.run_timeout, env=self.env
+            )
+            output = raw_output.decode('utf-8', errors='backslashreplace')
+        else:
+            exit_code, output, timeout_marker, decode_error = run_with_timeout(
+                [exe_file] + run_args, self.run_timeout, env=self.env, merge_stderr=True
+            )
+            if decode_error:
+                return ('fail', 'subprocess output decode error', [decode_error, output])
         if timeout_marker == 'TIMEOUT':
             return ('fail', 'timeout', output.split('\n')[:20] if output else None)
         if expects_panic:
@@ -1070,8 +1100,12 @@ class TestRunner:
                 details.extend(output.split('\n')[:20])
             return ('fail', 'exit code mismatch', details)
 
-        output_file = os.path.splitext(test_file)[0] + '.expected'
-        if os.path.isfile(output_file):
+        if binary_oracle:
+            if raw_output != expected_bytes:
+                return ('fail', 'raw output mismatch',
+                        [f"expected hex: {expected_bytes.hex()}",
+                         f"got hex:      {raw_output.hex()}"])
+        elif os.path.isfile(output_file):
             with open(output_file, 'r', encoding='utf-8') as expected:
                 expected_output = expected.read().replace('\r\n', '\n').replace('\r', '\n')
             normalized_output = output.replace('\r\n', '\n').replace('\r', '\n')

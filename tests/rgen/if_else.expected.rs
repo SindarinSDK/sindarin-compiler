@@ -7,20 +7,17 @@ fn main() {
     } else {
         (true_branch = 100);
     }
-    println!("{}", true_branch)
-;
+    println!("{}", true_branch);
     let mut false_branch: i64 = 0;
     if false {
         (false_branch = 100);
     } else {
         (false_branch = 20);
     }
-    println!("{}", false_branch)
-;
+    println!("{}", false_branch);
     let mut no_else: i64 = 30;
     if false {
         (no_else = 100);
     }
-    println!("{}", no_else)
-;
+    println!("{}", no_else);
 }

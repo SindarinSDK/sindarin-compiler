@@ -24,6 +24,8 @@ impl SnString {
 
     fn from_bytes(bytes: Vec<u8>) -> Self { Self(bytes) }
 
+    fn from_slice(bytes: &[u8]) -> Self { Self(bytes.to_vec()) }
+
     fn from_c_bytes(bytes: &[u8]) -> Self {
         let end = bytes.iter().position(|byte| *byte == 0).unwrap_or(bytes.len());
         Self(bytes[..end].to_vec())
@@ -75,6 +77,61 @@ impl From<&str> for SnString {
 impl From<String> for SnString {
     fn from(value: String) -> Self { Self(value.into_bytes()) }
 }
+
+#[cfg(unix)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::unix::ffi::OsStrExt;
+    std::env::args_os()
+        .map(|value| SnString::from_slice(value.as_os_str().as_bytes()))
+        .collect()
+}
+
+#[cfg(windows)]
+fn __sn_push_wtf8(bytes: &mut Vec<u8>, value: u32) {
+    if value <= 0x7f {
+        bytes.push(value as u8);
+    } else if value <= 0x7ff {
+        bytes.push((0xc0 | (value >> 6)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else if value <= 0xffff {
+        bytes.push((0xe0 | (value >> 12)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else {
+        bytes.push((0xf0 | (value >> 18)) as u8);
+        bytes.push((0x80 | ((value >> 12) & 0x3f)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    }
+}
+
+#[cfg(windows)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::windows::ffi::OsStrExt;
+    std::env::args_os().map(|value| {
+        let mut bytes = Vec::new();
+        let mut units = value.as_os_str().encode_wide().peekable();
+        while let Some(unit) = units.next() {
+            let scalar = if (0xd800..=0xdbff).contains(&unit) {
+                match units.peek().copied() {
+                    Some(low) if (0xdc00..=0xdfff).contains(&low) => {
+                        units.next();
+                        0x10000 + (((unit as u32 - 0xd800) << 10) |
+                                   (low as u32 - 0xdc00))
+                    }
+                    _ => unit as u32,
+                }
+            } else {
+                unit as u32
+            };
+            __sn_push_wtf8(&mut bytes, scalar);
+        }
+        SnString::from_bytes(bytes)
+    }).collect()
+}
+
+#[cfg(not(any(unix, windows)))]
+compile_error!("Sindarin Rust argv byte transport supports Unix and Windows targets");
 
 impl std::fmt::Debug for SnString {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -392,17 +449,13 @@ fn main() {
     let mut float_rhs_calls: i64 = 0;
     let mut int_sources: Vec<IntSequence> = vec![IntSequence { value: 8, remaining: 2, has_next_calls: 0, next_calls: 0 }];
     {
-    let mut __sn_iter_1 = ((int_sources)[__sn_index((int_sources).len(), selectInt(&mut (iterable_calls))
-)]).iter();
+    let mut __sn_iter_1 = ((int_sources)[__sn_index((int_sources).len(), selectInt(&mut (iterable_calls)))]).iter();
     while __sn_iter_1.hasNext() {
         let mut value = __sn_iter_1.next();
         let mut original: i64 = value;
-        let mut compound: i64 = { let __sn_rhs = rhsInt(&mut (int_rhs_calls))
-; let __sn_place = &mut (value); let __sn_next = __sn_checked_0((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };
+        let mut compound: i64 = { let __sn_rhs = rhsInt(&mut (int_rhs_calls)); let __sn_place = &mut (value); let __sn_next = __sn_checked_0((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };
         let mut postfix: i64 = { let __sn_place = &mut (value); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
-        __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str("int "); __sn_interpolated.push_str(&format!("{}", original)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", compound)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", postfix)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", value)); __sn_interpolated }
-))
-;
+        __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x69, 0x6e, 0x74, 0x20]))); __sn_interpolated.push_str(&format!("{}", original)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", compound)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", postfix)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", value)); __sn_interpolated }));
         if (original == 108) {
         continue;
     }
@@ -415,9 +468,7 @@ fn main() {
         let mut value = __sn_iter_2.next();
         let mut compound: i64 = { let __sn_rhs = 3; let __sn_place = &mut (value); let __sn_next = __sn_checked_0((*__sn_place).checked_sub(__sn_rhs), "Runtime error: integer overflow in subtraction"); *__sn_place = __sn_next; __sn_next };
         let mut postfix: i64 = { let __sn_place = &mut (value); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_sub(1), "Runtime error: integer overflow in subtraction"); *__sn_place = __sn_next; __sn_previous };
-        __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str("long "); __sn_interpolated.push_str(&format!("{}", compound)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", postfix)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", value)); __sn_interpolated }
-))
-;
+        __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x6c, 0x6f, 0x6e, 0x67, 0x20]))); __sn_interpolated.push_str(&format!("{}", compound)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", postfix)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", value)); __sn_interpolated }));
     }
 }
     let mut int32s: Int32Sequence = Int32Sequence { value: 6, remaining: 2 };
@@ -427,9 +478,7 @@ fn main() {
         let mut value = __sn_iter_3.next();
         let mut compound: i32 = { let __sn_rhs = 2; let __sn_place = &mut (value); let __sn_next = __sn_checked_0((*__sn_place).checked_mul(__sn_rhs), "Runtime error: integer overflow in multiplication"); *__sn_place = __sn_next; __sn_next };
         let mut postfix: i32 = { let __sn_place = &mut (value); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
-        __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str("int32 "); __sn_interpolated.push_str(&format!("{}", compound)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", postfix)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", value)); __sn_interpolated }
-))
-;
+        __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x69, 0x6e, 0x74, 0x33, 0x32, 0x20]))); __sn_interpolated.push_str(&format!("{}", compound)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", postfix)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", value)); __sn_interpolated }));
     }
 }
     let mut bytes: ByteSequence = ByteSequence { value: 20, remaining: 2 };
@@ -439,9 +488,7 @@ fn main() {
         let mut value = __sn_iter_4.next();
         let mut compound: u8 = { let __sn_rhs = 2; let __sn_place = &mut (value); let __sn_next = __sn_checked_div_0((*__sn_place).checked_div(__sn_rhs), __sn_rhs == 0); *__sn_place = __sn_next; __sn_next };
         let mut postfix: u8 = { let __sn_place = &mut (value); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_sub(1), "Runtime error: integer overflow in subtraction"); *__sn_place = __sn_next; __sn_previous };
-        __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str("byte "); __sn_interpolated.push_str(&format!("{}", compound)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", postfix)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", value)); __sn_interpolated }
-))
-;
+        __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x62, 0x79, 0x74, 0x65, 0x20]))); __sn_interpolated.push_str(&format!("{}", compound)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", postfix)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", value)); __sn_interpolated }));
     }
 }
     let mut uint32s: Uint32Sequence = Uint32Sequence { value: 10, remaining: 2 };
@@ -451,9 +498,7 @@ fn main() {
         let mut value = __sn_iter_5.next();
         let mut compound: u32 = { let __sn_rhs = 6; let __sn_place = &mut (value); let __sn_next = __sn_checked_mod_0((*__sn_place).checked_rem(__sn_rhs), __sn_rhs == 0); *__sn_place = __sn_next; __sn_next };
         let mut postfix: u32 = { let __sn_place = &mut (value); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
-        __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str("uint32 "); __sn_interpolated.push_str(&format!("{}", compound)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", postfix)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", value)); __sn_interpolated }
-))
-;
+        __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x75, 0x69, 0x6e, 0x74, 0x33, 0x32, 0x20]))); __sn_interpolated.push_str(&format!("{}", compound)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", postfix)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", value)); __sn_interpolated }));
     }
 }
     let mut uints: UintSequence = UintSequence { value: 10, remaining: 2 };
@@ -463,9 +508,7 @@ fn main() {
         let mut value = __sn_iter_6.next();
         let mut compound: u64 = { let __sn_rhs = 3; let __sn_place = &mut (value); let __sn_next = __sn_checked_0((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };
         let mut postfix: u64 = { let __sn_place = &mut (value); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_sub(1), "Runtime error: integer overflow in subtraction"); *__sn_place = __sn_next; __sn_previous };
-        __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str("uint "); __sn_interpolated.push_str(&format!("{}", compound)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", postfix)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", value)); __sn_interpolated }
-))
-;
+        __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x75, 0x69, 0x6e, 0x74, 0x20]))); __sn_interpolated.push_str(&format!("{}", compound)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", postfix)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", value)); __sn_interpolated }));
     }
 }
     let mut floats: FloatSequence = FloatSequence { value: 4.0, remaining: 2 };
@@ -473,13 +516,10 @@ fn main() {
     let mut __sn_iter_7 = (floats).iter();
     while __sn_iter_7.hasNext() {
         let mut value = __sn_iter_7.next();
-        let mut added: f32 = { let (__sn_rhs, __sn_place) = (rhsFloat(&mut (float_rhs_calls))
-, &mut (value)); let __sn_next = *__sn_place + __sn_rhs; *__sn_place = __sn_next; __sn_next };
+        let mut added: f32 = { let (__sn_rhs, __sn_place) = (rhsFloat(&mut (float_rhs_calls)), &mut (value)); let __sn_next = *__sn_place + __sn_rhs; *__sn_place = __sn_next; __sn_next };
         let mut subtracted: f32 = { let (__sn_rhs, __sn_place) = (1.0, &mut (value)); let __sn_next = *__sn_place - __sn_rhs; *__sn_place = __sn_next; __sn_next };
         let mut postfix: f32 = { let __sn_place = &mut (value); let __sn_previous = *__sn_place; let __sn_next = __sn_previous + 1.0; *__sn_place = __sn_next; __sn_previous };
-        __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str("float "); __sn_interpolated.push_str(&format!("{}", (added == 6.0))); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", (subtracted == 5.0))); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", (postfix == 5.0))); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", (value == 6.0))); __sn_interpolated }
-))
-;
+        __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x66, 0x6c, 0x6f, 0x61, 0x74, 0x20]))); __sn_interpolated.push_str(&format!("{}", (added == 6.0))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", (subtracted == 5.0))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", (postfix == 5.0))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", (value == 6.0))); __sn_interpolated }));
     }
 }
     let mut doubles: DoubleSequence = DoubleSequence { value: 8.0, remaining: 2 };
@@ -490,9 +530,7 @@ fn main() {
         let mut multiplied: f64 = { let (__sn_rhs, __sn_place) = (0.5, &mut (value)); let __sn_next = *__sn_place * __sn_rhs; *__sn_place = __sn_next; __sn_next };
         let mut divided: f64 = { let (__sn_rhs, __sn_place) = (2.0, &mut (value)); let __sn_next = *__sn_place / __sn_rhs; *__sn_place = __sn_next; __sn_next };
         let mut postfix: f64 = { let __sn_place = &mut (value); let __sn_previous = *__sn_place; let __sn_next = __sn_previous - 1.0; *__sn_place = __sn_next; __sn_previous };
-        __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str("double "); __sn_interpolated.push_str(&format!("{}", (multiplied == 4.0))); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", (divided == 2.0))); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", (postfix == 2.0))); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", (value == 1.0))); __sn_interpolated }
-))
-;
+        __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x64, 0x6f, 0x75, 0x62, 0x6c, 0x65, 0x20]))); __sn_interpolated.push_str(&format!("{}", (multiplied == 4.0))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", (divided == 2.0))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", (postfix == 2.0))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", (value == 1.0))); __sn_interpolated }));
     }
 }
     let mut nested_outer: IntSequence = IntSequence { value: 1, remaining: 2, has_next_calls: 0, next_calls: 0 };
@@ -507,23 +545,15 @@ fn main() {
     while __sn_iter_9.hasNext() {
         let mut value = __sn_iter_9.next();
         let mut inner_postfix: u8 = { let __sn_place = &mut (value); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
-        __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str("nested inner "); __sn_interpolated.push_str(&format!("{}", inner_postfix)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", value)); __sn_interpolated }
-))
-;
+        __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x6e, 0x65, 0x73, 0x74, 0x65, 0x64, 0x20, 0x69, 0x6e, 0x6e, 0x65, 0x72, 0x20]))); __sn_interpolated.push_str(&format!("{}", inner_postfix)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", value)); __sn_interpolated }));
         break;
     }
 }
         let mut outer_postfix: i64 = { let __sn_place = &mut (value); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_sub(1), "Runtime error: integer overflow in subtraction"); *__sn_place = __sn_next; __sn_previous };
-        __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str("nested outer "); __sn_interpolated.push_str(&format!("{}", outer_compound)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", outer_postfix)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", value)); __sn_interpolated }
-))
-;
+        __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x6e, 0x65, 0x73, 0x74, 0x65, 0x64, 0x20, 0x6f, 0x75, 0x74, 0x65, 0x72, 0x20]))); __sn_interpolated.push_str(&format!("{}", outer_compound)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", outer_postfix)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", value)); __sn_interpolated }));
         continue;
     }
 }
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str("state "); __sn_interpolated.push_str(&format!("{}", iterable_calls)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", int_rhs_calls)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", float_rhs_calls)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", ((int_sources)[__sn_index((int_sources).len(), 0)]).value)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", ((int_sources)[__sn_index((int_sources).len(), 0)]).has_next_calls)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", ((int_sources)[__sn_index((int_sources).len(), 0)]).next_calls)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", (longs).value)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", (bytes).value)); __sn_interpolated }
-))
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str("helpers "); __sn_interpolated.push_str(&format!("{}", __sn_rhs)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", __sn_place)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", __sn_next)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", __sn_previous)); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", __sn_iter_0)); __sn_interpolated }
-))
-;
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x73, 0x74, 0x61, 0x74, 0x65, 0x20]))); __sn_interpolated.push_str(&format!("{}", iterable_calls)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", int_rhs_calls)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", float_rhs_calls)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", ((int_sources)[__sn_index((int_sources).len(), 0)]).value)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", ((int_sources)[__sn_index((int_sources).len(), 0)]).has_next_calls)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", ((int_sources)[__sn_index((int_sources).len(), 0)]).next_calls)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", (longs).value)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", (bytes).value)); __sn_interpolated }));
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x68, 0x65, 0x6c, 0x70, 0x65, 0x72, 0x73, 0x20]))); __sn_interpolated.push_str(&format!("{}", __sn_rhs)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", __sn_place)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", __sn_next)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", __sn_previous)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", __sn_iter_0)); __sn_interpolated }));
 }
