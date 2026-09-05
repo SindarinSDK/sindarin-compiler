@@ -33,12 +33,17 @@ def main():
     args = parser.parse_args()
     out = args.output.resolve(); out.mkdir(parents=True, exist_ok=False)
     repo = Path(__file__).resolve().parent.parent
-    ref = json.loads(Path('/tmp/sindarin-tagged-control-reference.json').read_text())
-    # Canonical shared reference schema; retain the verified Spark1 v1 layout.
-    control_cwd = ref.get('repository', {}).get('worktree') or ref.get('cwd')
-    if not control_cwd: raise SystemExit('HARNESSISSUE: reference has no repository.worktree')
-    tag = Path(control_cwd); compiler = ref['compiler']['path']
-    (out/'provenance.json').write_text(json.dumps({'reference': '/tmp/sindarin-tagged-control-reference.json', 'tag_peeled': ref['tag_peeled'], 'tag_compiler_verified_sha256': ref['compiler']['sha256'], 'rust_compiler_sha256': hashlib.sha256((repo/'bin/sn').read_bytes()).hexdigest(), 'mode': '-O0', 'inventory_only': args.inventory, 'filter': args.filter, 'control_worktree': str(tag), 'reference_schema': ref.get('schema'), 'reference_sha256': hashlib.sha256(Path('/tmp/sindarin-tagged-control-reference.json').read_bytes()).hexdigest()}, indent=2)+'\n')
+    reference = Path('/tmp/sindarin-tagged-control-reference.json')
+    ref = json.loads(reference.read_text())
+    # Spark1's canonical v1 record is intentionally read without a schema
+    # compatibility fallback.  A stale or differently shaped reference is a
+    # harness issue, not evidence about either backend.
+    tag = Path(ref['worktree'])
+    tag_peeled = ref['tag_peeled']
+    compiler = ref['compiler']['path']
+    if subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=tag, text=True).strip() != tag_peeled:
+        raise SystemExit('HARNESSISSUE: control worktree does not match tag_peeled')
+    (out/'provenance.json').write_text(json.dumps({'reference': str(reference), 'tag_peeled': tag_peeled, 'tag_compiler_verified_sha256': ref['compiler']['sha256'], 'rust_compiler_sha256': hashlib.sha256((repo/'bin/sn').read_bytes()).hexdigest(), 'mode': '-O0', 'inventory_only': args.inventory, 'filter': args.filter, 'control_worktree': str(tag), 'reference_schema': ref['schema'], 'reference_sha256': hashlib.sha256(reference.read_bytes()).hexdigest()}, indent=2)+'\n')
     smoke = out/'smoke'; (smoke/'tmp').mkdir(parents=True)
     clean = {'HOME': '/home/gavin', 'PATH': '/usr/bin:/bin', 'TMPDIR': str(smoke/'tmp')}
     executable = smoke/'program'
