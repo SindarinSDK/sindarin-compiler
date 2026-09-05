@@ -1,0 +1,3 @@
+fn main(): void =>
+  var values: str[] = {"é"}
+  println($"{values}")
