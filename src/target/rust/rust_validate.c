@@ -1314,11 +1314,14 @@ static bool rust_validate_expr(json_object *expr)
             fprintf(stderr, "Error: Rust target does not support pointer array slices yet\n");
             return false;
         }
-        if (json_object_object_get_ex(expr, "step", &step))
-        {
-            fprintf(stderr, "Error: Rust target does not support stepped array slices yet\n");
-            return false;
-        }
+        /*
+         * v0.0.83 accepts a step expression on an array slice.  The tagged C
+         * renderer deliberately keeps the slice's contiguous-copy semantics:
+         * it neither evaluates nor applies `step`.  Rust uses the same
+         * target-private model and template, so accepting it here preserves
+         * the established contract without expanding the shared frontend.
+         */
+        (void)step;
         if (!json_object_object_get_ex(expr, "array", &array) ||
             !rust_validate_expr(array)) return false;
         if (json_object_object_get_ex(expr, "start", &start) &&
