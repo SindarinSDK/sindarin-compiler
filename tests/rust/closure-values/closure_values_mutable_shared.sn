@@ -1,0 +1,32 @@
+fn makeCounter(): fn(): int =>
+  var count: int = 10
+  return fn(): int =>
+    count++
+    return count
+
+fn main(): void =>
+  var count: int = 1
+  var read: fn(): int = fn(): int => count
+  var bump: fn(): int = fn(): int =>
+    count += 2
+    return count
+  count = 5
+  println(read())
+  println(bump())
+  println(count)
+  println(count++)
+  println(read())
+  count -= 3
+  println(read())
+  if true =>
+    var count: int = 20
+    var inner: fn(): int = fn(): int =>
+      count++
+      return count
+    println(inner())
+  println(read())
+  var first: fn(): int = makeCounter()
+  var second: fn(): int = makeCounter()
+  println(first())
+  println(first())
+  println(second())

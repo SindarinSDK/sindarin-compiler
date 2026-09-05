@@ -23,6 +23,34 @@ fn __sn_array_size(size: i64) -> usize {
     size as usize
 }
 
+fn __sn_runtime_error_0(message: &'static str) -> ! {
+    eprintln!("{}", message);
+    std::process::exit(1);
+}
+
+fn __sn_checked_0<T>(value: Option<T>, message: &'static str) -> T {
+    match value {
+        Some(value) => value,
+        None => __sn_runtime_error_0(message),
+    }
+}
+
+fn __sn_checked_div_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked_0(value, if divisor_is_zero {
+        "panic: Division by zero"
+    } else {
+        "Runtime error: integer overflow in division"
+    })
+}
+
+fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked_0(value, if divisor_is_zero {
+        "panic: Modulo by zero"
+    } else {
+        "Runtime error: integer overflow in modulo"
+    })
+}
+
 struct __SnClosure<F: ?Sized>(std::rc::Rc<F>);
 impl<F: ?Sized> Clone for __SnClosure<F> {
     fn clone(&self) -> Self { Self(self.0.clone()) }
@@ -36,7 +64,7 @@ impl<F: ?Sized> PartialEq for __SnClosure<F> {
     fn eq(&self, other: &Self) -> bool { std::rc::Rc::ptr_eq(&self.0, &other.0) }
 }
 fn action(x: i64) -> i64 {
-    return (x).checked_add(1).expect("checked arithmetic failed");
+    return __sn_checked_0((x).checked_add(1), "Runtime error: integer overflow in addition");
 }
 
 fn parameter(action: __SnClosure<dyn Fn(i64) -> i64>) -> i64 {
@@ -46,26 +74,26 @@ fn parameter(action: __SnClosure<dyn Fn(i64) -> i64>) -> i64 {
 fn main() {
     println!("{}", action(1));
     if true {
-        let mut action: __SnClosure<dyn Fn(i64) -> i64> = { self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |x: i64| -> i64 { (x).checked_add(10).expect("checked arithmetic failed")})) }
+        let mut action: __SnClosure<dyn Fn(i64) -> i64> = { self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |x: i64| -> i64 { __sn_checked_0((x).checked_add(10), "Runtime error: integer overflow in addition")})) }
 ;
         println!("{}", ((action.clone()).0)(1));
         println!("{}", parameter(action.clone()));
         if true {
-        let mut action: __SnClosure<dyn Fn(i64) -> i64> = { self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |x: i64| -> i64 { (x).checked_add(20).expect("checked arithmetic failed")})) }
+        let mut action: __SnClosure<dyn Fn(i64) -> i64> = { self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |x: i64| -> i64 { __sn_checked_0((x).checked_add(20), "Runtime error: integer overflow in addition")})) }
 ;
         println!("{}", ((action.clone()).0)(1));
     }
         println!("{}", ((action.clone()).0)(1));
     }
     println!("{}", action(1));
-    let mut values: Vec<__SnClosure<dyn Fn(i64) -> i64>> = vec![{ self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |x: i64| -> i64 { (x).checked_add(30).expect("checked arithmetic failed")})) }
+    let mut values: Vec<__SnClosure<dyn Fn(i64) -> i64>> = vec![{ self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |x: i64| -> i64 { __sn_checked_0((x).checked_add(30), "Runtime error: integer overflow in addition")})) }
 ];
     for mut action in (values).iter().cloned() {
         println!("{}", ((action.clone()).0)(1));
     }
     println!("{}", action(1));
     if true {
-        let mut action: __SnClosure<dyn Fn(i64) -> i64> = { self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |x: i64| -> i64 { (x).checked_add(40).expect("checked arithmetic failed")})) }
+        let mut action: __SnClosure<dyn Fn(i64) -> i64> = { self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |x: i64| -> i64 { __sn_checked_0((x).checked_add(40), "Runtime error: integer overflow in addition")})) }
 ;
         let mut result: i64 = match (1 as i64) {
         1 => {
@@ -78,7 +106,7 @@ fn main() {
         println!("{}", result);
     }
     println!("{}", action(1));
-    let mut action: __SnClosure<dyn Fn(i64) -> i64> = { self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |x: i64| -> i64 { (x).checked_add(50).expect("checked arithmetic failed")})) }
+    let mut action: __SnClosure<dyn Fn(i64) -> i64> = { self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |x: i64| -> i64 { __sn_checked_0((x).checked_add(50), "Runtime error: integer overflow in addition")})) }
 ;
     println!("{}", ((action.clone()).0)(1));
 }

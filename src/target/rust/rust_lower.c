@@ -41,14 +41,18 @@ static void rust_lower_checked_arithmetic(json_object *node)
         return;
 
     const char *op = json_object_get_string(op_obj);
-    const char *method = NULL;
-    if (strcmp(op, "add") == 0) method = "checked_add";
-    else if (strcmp(op, "subtract") == 0) method = "checked_sub";
-    else if (strcmp(op, "multiply") == 0) method = "checked_mul";
-    else if (strcmp(op, "divide") == 0) method = "checked_div";
-    else if (strcmp(op, "modulo") == 0) method = "checked_rem";
+    const char *method = NULL, *error_name = NULL;
+    if (strcmp(op, "add") == 0) { method = "checked_add"; error_name = "addition"; }
+    else if (strcmp(op, "subtract") == 0) { method = "checked_sub"; error_name = "subtraction"; }
+    else if (strcmp(op, "multiply") == 0) { method = "checked_mul"; error_name = "multiplication"; }
+    else if (strcmp(op, "divide") == 0) { method = "checked_div"; error_name = "division"; }
+    else if (strcmp(op, "modulo") == 0) { method = "checked_rem"; error_name = "modulo"; }
     if (method)
+    {
         json_object_object_add(node, "rust_checked_method", json_object_new_string(method));
+        json_object_object_add(node, "rust_checked_operation", json_object_new_string(op));
+        json_object_object_add(node, "rust_checked_error_name", json_object_new_string(error_name));
+    }
 }
 
 /* Apply the shared mutation annotations after validation.  A checked mutation
@@ -80,14 +84,67 @@ static void rust_lower_checked_mutations(json_object *node)
          strcmp(kind, "decrement") != 0))
         return;
 
-    const char *method = NULL;
-    if (strcmp(op, "add") == 0) method = "checked_add";
-    else if (strcmp(op, "subtract") == 0) method = "checked_sub";
-    else if (strcmp(op, "multiply") == 0) method = "checked_mul";
-    else if (strcmp(op, "divide") == 0) method = "checked_div";
-    else if (strcmp(op, "modulo") == 0) method = "checked_rem";
+    const char *method = NULL, *error_name = NULL;
+    if (strcmp(op, "add") == 0) { method = "checked_add"; error_name = "addition"; }
+    else if (strcmp(op, "subtract") == 0) { method = "checked_sub"; error_name = "subtraction"; }
+    else if (strcmp(op, "multiply") == 0) { method = "checked_mul"; error_name = "multiplication"; }
+    else if (strcmp(op, "divide") == 0) { method = "checked_div"; error_name = "division"; }
+    else if (strcmp(op, "modulo") == 0) { method = "checked_rem"; error_name = "modulo"; }
     if (method)
+    {
         json_object_object_add(node, "rust_checked_method", json_object_new_string(method));
+        json_object_object_add(node, "rust_checked_operation", json_object_new_string(op));
+        json_object_object_add(node, "rust_checked_error_name", json_object_new_string(error_name));
+    }
+}
+
+/* This is deliberately a Rust-rendering concern: C retains its own established
+ * runtime implementation.  The marker lets the module include one shared Rust
+ * diagnostic helper only for generated programs that use checked arithmetic. */
+static bool rust_model_uses_checked_arithmetic(json_object *node)
+{
+    if (!node) return false;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            if (rust_model_uses_checked_arithmetic(json_object_array_get_idx(node, i)))
+                return true;
+        return false;
+    }
+    if (!json_object_is_type(node, json_type_object)) return false;
+    json_object *method = NULL;
+    if (json_object_object_get_ex(node, "rust_checked_method", &method)) return true;
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        if (rust_model_uses_checked_arithmetic(value)) return true;
+    }
+    return false;
+}
+
+static bool rust_assign_checked_helper_names(json_object *model)
+{
+    const char *bases[] = { "__sn_checked", "__sn_checked_div", "__sn_checked_mod",
+                            "__sn_runtime_error" };
+    const char *keys[] = { "rust_checked_name", "rust_checked_div_name",
+                           "rust_checked_mod_name", "rust_runtime_error_name" };
+
+    for (size_t i = 0; i < 4; i++)
+    {
+        char name[96];
+        size_t suffix = 0;
+        while (true)
+        {
+            int written = snprintf(name, sizeof(name), "%s_%zu", bases[i], suffix);
+            if (written < 0 || (size_t)written >= sizeof(name)) return false;
+            if (!rust_model_contains_string(model, name)) break;
+            if (suffix == (size_t)-1) return false;
+            suffix++;
+        }
+        json_object_object_add(model, keys[i], json_object_new_string(name));
+    }
+    return true;
 }
 
 /* Floating compound assignment and postfix mutation use the same shared

@@ -1,5 +1,33 @@
 #![allow(dead_code, unused_mut, unused_variables, unused_parens)]
 
+fn __sn_runtime_error_0(message: &'static str) -> ! {
+    eprintln!("{}", message);
+    std::process::exit(1);
+}
+
+fn __sn_checked_0<T>(value: Option<T>, message: &'static str) -> T {
+    match value {
+        Some(value) => value,
+        None => __sn_runtime_error_0(message),
+    }
+}
+
+fn __sn_checked_div_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked_0(value, if divisor_is_zero {
+        "panic: Division by zero"
+    } else {
+        "Runtime error: integer overflow in division"
+    })
+}
+
+fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked_0(value, if divisor_is_zero {
+        "panic: Modulo by zero"
+    } else {
+        "Runtime error: integer overflow in modulo"
+    })
+}
+
 #[derive(Clone, Debug, PartialEq)]
 struct Leaf {
     text: String,
@@ -49,7 +77,7 @@ fn main() {
         (statementHits = 10);
     }
     else if (__sn_match_subject_3.as_str() == (((holder).leaf).text).as_str() || __sn_match_subject_3.as_str() == (((holder).leaf).text).as_str()) {
-        { let __sn_place = &mut (statementHits); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
+        { let __sn_place = &mut (statementHits); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
     }
 };
     println!("{}", (statementHits == 1));
@@ -70,7 +98,7 @@ fn main() {
     let mut stringResult: String = {
     let __sn_match_subject_5: String = escaped.clone();
     if (__sn_match_subject_5.as_str() == (escaped).as_str()) {
-        { let __sn_place = &mut (prefix); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
+        { let __sn_place = &mut (prefix); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
         ("ok".to_string())
     }
     else {
@@ -114,7 +142,7 @@ fn main() {
     {
     let __sn_match_subject_9: String = "helper".to_string();
     if (__sn_match_subject_9.as_str() == (__sn_match_subject_0).as_str() || __sn_match_subject_9.as_str() == (__sn_match_array_0).as_str() || __sn_match_subject_9.as_str() == (__sn_match_index_0).as_str()) {
-        { let __sn_place = &mut (prefix); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
+        { let __sn_place = &mut (prefix); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
     }
 };
     println!("{}", (prefix == 2));

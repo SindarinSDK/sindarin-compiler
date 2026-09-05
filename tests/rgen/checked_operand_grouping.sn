@@ -1,0 +1,12 @@
+fn main(): void =>
+  var a: int = 2
+  var b: int = 3
+  var negative_literal: int = -2
+  var negative_sum: int = negative_literal + 3
+  var negated: int = -a + b
+  var nested: int = (a + b) * 2
+  print(negative_sum)
+  print(",")
+  print(negated)
+  print(",")
+  print(nested)

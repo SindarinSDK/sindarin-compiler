@@ -1,0 +1,27 @@
+fn {{rust_ident rust_runtime_error_name}}(message: &'static str) -> ! {
+    eprintln!("{}", message);
+    std::process::exit(1);
+}
+
+fn {{rust_ident rust_checked_name}}<T>(value: Option<T>, message: &'static str) -> T {
+    match value {
+        Some(value) => value,
+        None => {{rust_ident rust_runtime_error_name}}(message),
+    }
+}
+
+fn {{rust_ident rust_checked_div_name}}<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    {{rust_ident rust_checked_name}}(value, if divisor_is_zero {
+        "panic: Division by zero"
+    } else {
+        "Runtime error: integer overflow in division"
+    })
+}
+
+fn {{rust_ident rust_checked_mod_name}}<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    {{rust_ident rust_checked_name}}(value, if divisor_is_zero {
+        "panic: Modulo by zero"
+    } else {
+        "Runtime error: integer overflow in modulo"
+    })
+}

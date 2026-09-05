@@ -1,6 +1,14 @@
 {{#if rust_has_closures}}
 struct {{rust_ident rust_closure_handle_name}}<F: ?Sized>(std::rc::Rc<F>);
-impl<F: ?Sized> Clone for {{rust_ident rust_closure_handle_name}}<F> {
+{{#if rust_has_recursive_closures}}impl<F: ?Sized> {{rust_ident rust_closure_handle_name}}<F> {
+    fn recursive(build: impl FnOnce(std::rc::Rc<std::cell::OnceCell<std::rc::Weak<F>>>) -> std::rc::Rc<F>) -> Self {
+        let slot = std::rc::Rc::new(std::cell::OnceCell::new());
+        let callable = build(slot.clone());
+        let _ = slot.set(std::rc::Rc::downgrade(&callable));
+        Self(callable)
+    }
+}
+{{/if}}impl<F: ?Sized> Clone for {{rust_ident rust_closure_handle_name}}<F> {
     fn clone(&self) -> Self { Self(self.0.clone()) }
 }
 impl<F: ?Sized> std::fmt::Debug for {{rust_ident rust_closure_handle_name}}<F> {
