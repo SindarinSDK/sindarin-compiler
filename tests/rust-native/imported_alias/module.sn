@@ -1,0 +1,4 @@
+@source "native/triple.c"
+@include "native/triple.h"
+@alias "sn_test_triple"
+native fn triple(value: int): int

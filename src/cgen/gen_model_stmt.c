@@ -981,6 +981,34 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                 {
                     json_object_object_add(obj, "value",
                         json_object_new_string(stmt->as.pragma.value));
+                    /* Keep the declaring file's directory for target-local
+                     * resolution of quoted @include values. Rendering remains
+                     * unchanged unless a target explicitly consumes it. */
+                    if (stmt->as.pragma.pragma_type == PRAGMA_INCLUDE &&
+                        stmt->token && stmt->token->filename)
+                    {
+                        const char *filename = stmt->token->filename;
+                        const char *last = strrchr(filename, '/');
+#ifdef _WIN32
+                        const char *backslash = strrchr(filename, '\\');
+                        if (backslash && (!last || backslash > last)) last = backslash;
+#endif
+                        if (last)
+                        {
+                            size_t length = (size_t)(last - filename);
+                            char directory[PATH_MAX];
+                            if (length < sizeof(directory))
+                            {
+                                memcpy(directory, filename, length);
+                                directory[length] = '\0';
+                                json_object_object_add(obj, "source_dir",
+                                    json_object_new_string(directory));
+                            }
+                        }
+                        else
+                            json_object_object_add(obj, "source_dir",
+                                json_object_new_string("."));
+                    }
                 }
             }
             break;

@@ -1,0 +1,8 @@
+extern "C" {
+    #[link_name = {{rust_string_literal c_link_symbol}}]
+    fn {{rust_native_extern_name}}({{#each params}}{{#if @index}}, {{/if}}{{rust_type type}}{{/each}}){{#unless (eq return_type.kind "void")}} -> {{rust_type return_type}}{{/unless}};
+}
+
+fn {{rust_ident rust_callable_name}}({{#each params}}{{#if @index}}, {{/if}}{{rust_ident name}}: {{rust_type type}}{{/each}}){{#unless (eq return_type.kind "void")}} -> {{rust_type return_type}}{{/unless}} {
+    unsafe { {{rust_native_extern_name}}({{#each params}}{{#if @index}}, {{/if}}{{rust_ident name}}{{/each}}) }
+}{{nl}}

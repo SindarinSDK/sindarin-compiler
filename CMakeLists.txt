@@ -197,6 +197,9 @@ set(SN_BACKEND_SOURCES
     src/target/c/c_target.c
     src/target/rust/rust_target.c
     src/target/rust/rust_render.c
+    src/target/rust/rust_native_plan.c
+    src/target/rust/rust_native_render.c
+    src/target/rust/rust_native_build.c
 )
 
 set(SN_PACKAGE_SOURCES

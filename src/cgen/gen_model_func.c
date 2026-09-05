@@ -445,6 +445,17 @@ json_object *gen_model_function(Arena *arena, FunctionStmt *func, SymbolTable *s
 
     json_object *obj = json_object_new_object();
 
+    /* Preserve the source-level callable identity even when the established C
+     * model name below is replaced by an imported bodyless native @alias. */
+    if (g_model_namespace_prefix != NULL && func->is_native &&
+        func->c_alias && func->body_count == 0)
+    {
+        char callable[512];
+        snprintf(callable, sizeof(callable), "%s__%.*s",
+                 g_model_namespace_prefix, func->name.length, func->name.start);
+        json_object_object_add(obj, "source_callable_name",
+                               json_object_new_string(callable));
+    }
     /* Prefix function name with namespace if inside a namespaced import.
      * Exception: native functions with @alias use the alias as-is (they link
      * to external C symbols like sin, compress, etc.) */

@@ -10,7 +10,8 @@
     {
       "kind": "pragma",
       "pragma_type": "include",
-      "value": "\"math.h\""
+      "value": "\"math.h\"",
+      "source_dir": "tests\/mgen"
     }
   ],
   "imports": [],

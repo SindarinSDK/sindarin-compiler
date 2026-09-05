@@ -92,7 +92,10 @@ void cc_sidecar_build_plan_free(CCSidecarBuildPlan *plan)
     if (!plan) return;
     free(plan->sdk_root);
     free(plan->runtime_archive);
+    free(plan->compiler_command);
+    free(plan->c_standard);
     free(plan->mode_cflags);
+    free(plan->configured_compile_options);
     free_strings(plan->include_paths, plan->include_path_count);
     free_strings(plan->library_search_paths, plan->library_search_path_count);
     free_strings(plan->runtime_search_paths, plan->runtime_search_path_count);
@@ -261,6 +264,11 @@ static bool resolve_environment(const CCBackendConfig *config,
     char filtered_mode_cflags[1024];
 
     plan->backend = detect_backend(config->cc);
+    plan->compiler_command = copy_string(config->cc);
+    plan->c_standard = copy_string(config->std);
+    plan->configured_compile_options = copy_string(config->cflags);
+    if (!plan->compiler_command || !plan->c_standard ||
+        !plan->configured_compile_options) return false;
     plan->sdk_root = copy_string(get_sdk_root(request->compiler_dir));
     if (!plan->sdk_root) return false;
 

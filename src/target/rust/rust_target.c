@@ -1,5 +1,6 @@
 #include "target/target.h"
 #include "target/rust/rust_render.h"
+#include "target/rust/rust_native.h"
 #include "cgen/gen_model.h"
 #include "debug.h"
 #include <ctype.h>
@@ -147,17 +148,32 @@ static bool rust_check_toolchain(const CompilerOptions *options)
 static bool rust_emit(CompilerOptions *options, Module *module,
                       TargetEmitMode mode, GeneratedFileSet *result)
 {
-    (void)mode;
     json_object *model = gen_model_build(&options->arena, module,
                                           &options->symbol_table,
                                           options->arithmetic_mode);
     if (!model) return false;
+    RustNativePlan *native_plan = NULL;
+    if (!rust_native_partition_model(model, options, &native_plan))
+    {
+        json_object_put(model);
+        return false;
+    }
+    if (mode == TARGET_EMIT_SINGLE && rust_native_plan_has_work(native_plan))
+    {
+        fprintf(stderr,
+                "Error: --emit-rust cannot represent native C bodies, headers, sources, or link options; build the Rust target executable instead\n");
+        rust_native_plan_free(native_plan);
+        json_object_put(model);
+        return false;
+    }
+    result->target_data = native_plan;
+    result->free_target_data = rust_native_plan_free;
     if (!rust_prepare_by_value_scalar_parameter_mutations(model))
     {
         json_object_put(model);
         return false;
     }
-    if (!rust_validate_model(model, options->arithmetic_mode))
+    if (!rust_validate_model(model, options->arithmetic_mode, native_plan))
     {
         json_object_put(model);
         return false;
@@ -205,12 +221,15 @@ static bool rust_emit(CompilerOptions *options, Module *module,
         free(code);
         return false;
     }
-    return true;
+    return rust_native_emit_support(native_plan, result, options->compiler_dir);
 }
 
 static bool rust_build(const CompilerOptions *options, const char *build_dir,
                        const GeneratedFileSet *files)
 {
+    RustNativePlan *native_plan = files->target_data;
+    if (rust_native_plan_has_work(native_plan))
+        return rust_native_build(options, build_dir, files, native_plan);
     if (files->primary_file < 0) return false;
     char source_path[PATH_MAX];
     snprintf(source_path, sizeof(source_path), "%s/%s", build_dir,

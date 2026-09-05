@@ -1,0 +1,5 @@
+import "imported_alias/module" as scalar
+
+fn main(): void =>
+  assert(scalar.triple(14) == 42)
+  println("rust imported native alias ok")
