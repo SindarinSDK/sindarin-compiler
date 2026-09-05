@@ -1,0 +1,12 @@
+fn main(): void =>
+  var byte_value: byte = 5b
+  byte_value += 2
+  println(byte_value)
+
+  var int_value: int = 5
+  int_value += 2b
+  println(int_value)
+
+  var int32_value: int32 = 6i32
+  int32_value *= 8
+  println(int32_value)

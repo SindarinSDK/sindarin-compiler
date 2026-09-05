@@ -1595,6 +1595,9 @@ static bool rust_validate_expr(json_object *expr)
             return false;
         }
         bool checked_ref_parameter = rust_checked_scalar_ref_parameter(expr, target);
+        bool mixed_integer =
+            rust_integer_type(target_kind) && rust_integer_type(value_kind) &&
+            strcmp(target_kind, value_kind) != 0;
         bool wrapping_integer =
             (strcmp(target_kind, "byte") == 0 ||
              strcmp(target_kind, "uint32") == 0 ||
@@ -1607,11 +1610,8 @@ static bool rust_validate_expr(json_object *expr)
             strcmp(target_kind, value_kind) == 0 &&
             json_string_property_equals(
                 expr, "mutation_arithmetic_mode", "unchecked");
-        if ((strcmp(target_kind, "int") != 0 && strcmp(target_kind, "long") != 0 &&
-             strcmp(target_kind, "int32") != 0 && strcmp(target_kind, "uint") != 0 &&
-             strcmp(target_kind, "uint32") != 0 && strcmp(target_kind, "byte") != 0) ||
-            strcmp(target_kind, value_kind) != 0 ||
-            (!wrapping_integer && !unchecked_signed_integer &&
+        if (!rust_integer_type(target_kind) || !rust_integer_type(value_kind) ||
+            (!mixed_integer && !wrapping_integer && !unchecked_signed_integer &&
              !json_string_property_equals(expr, "mutation_arithmetic_mode", "checked")) ||
             (!json_string_property_equals(expr, "mutation_storage", "local") &&
              !checked_ref_parameter &&

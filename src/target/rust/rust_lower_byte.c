@@ -54,6 +54,46 @@ static bool rust_wrapping_compound_op(json_object *node, const char *op)
            (strcmp(op, "divide") == 0 || strcmp(op, "modulo") == 0);
 }
 
+static bool rust_fixed_integral_kind(const char *kind)
+{
+    return kind && (strcmp(kind, "byte") == 0 || strcmp(kind, "int32") == 0 ||
+                    strcmp(kind, "uint32") == 0 || strcmp(kind, "int") == 0 ||
+                    strcmp(kind, "long") == 0 || strcmp(kind, "uint") == 0);
+}
+
+static const char *rust_integral_promotion_type(const char *left,
+                                                 const char *right,
+                                                 const char *op)
+{
+    bool shift = op && (strcmp(op, "shl") == 0 || strcmp(op, "shr") == 0);
+    bool left_64 = strcmp(left, "int") == 0 || strcmp(left, "long") == 0 ||
+                   strcmp(left, "uint") == 0;
+    bool left_unsigned = strcmp(left, "uint32") == 0 || strcmp(left, "uint") == 0;
+    if (shift || strcmp(left, right) == 0)
+    {
+        if (strcmp(left, "byte") == 0) return "i32";
+        if (left_64) return left_unsigned ? "u64" : "i64";
+        return left_unsigned ? "u32" : "i32";
+    }
+
+    bool right_64 = strcmp(right, "int") == 0 || strcmp(right, "long") == 0 ||
+                    strcmp(right, "uint") == 0;
+    bool right_unsigned =
+        strcmp(right, "uint32") == 0 || strcmp(right, "uint") == 0;
+    if (strcmp(left, "byte") == 0)
+        left_unsigned = false;
+    if (strcmp(right, "byte") == 0)
+        right_unsigned = false;
+    if (left_64 || right_64)
+    {
+        if ((left_64 && left_unsigned) || (right_64 && right_unsigned))
+            return "u64";
+        return "i64";
+    }
+    if (left_unsigned || right_unsigned) return "u32";
+    return "i32";
+}
+
 static void rust_lower_byte_arithmetic(json_object *node)
 {
     if (!node) return;
@@ -158,7 +198,30 @@ static void rust_lower_byte_arithmetic(json_object *node)
     {
         json_object_object_get_ex(node, "target", &place);
         const char *place_kind = rust_wrapping_expr_type(place);
-        if (place_kind &&
+        json_object *value = NULL;
+        json_object_object_get_ex(node, "value", &value);
+        const char *value_kind = rust_wrapping_expr_type(value);
+        if (rust_fixed_integral_kind(place_kind) &&
+            rust_fixed_integral_kind(value_kind) &&
+            strcmp(place_kind, value_kind) != 0)
+        {
+            const char *promotion =
+                rust_integral_promotion_type(place_kind, value_kind, op);
+            json_object_object_add(node, "rust_mixed_integral_compound",
+                                   json_object_new_boolean(true));
+            json_object_object_add(node, "rust_mixed_integral_type",
+                                   json_object_new_string(promotion));
+            json_object_object_add(
+                node, "rust_mixed_integral_unsigned",
+                json_object_new_boolean(promotion[0] == 'u'));
+            json_object_object_add(
+                node, "rust_mixed_integral_wrapping",
+                json_object_new_boolean(
+                    promotion[0] == 'u' ||
+                    json_string_property_equals(
+                        node, "mutation_arithmetic_mode", "unchecked")));
+        }
+        else if (place_kind &&
             (strcmp(place_kind, "byte") == 0 || strcmp(place_kind, "uint") == 0 ||
              strcmp(place_kind, "uint32") == 0) &&
             rust_wrapping_compound_op(node, op))
