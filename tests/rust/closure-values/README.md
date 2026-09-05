@@ -11,3 +11,8 @@ identity, mutable value snapshots, and shared mutable owned strings. The error
 case preserves the Rust diagnostic for floating-point `%=`. Plain `.expected`
 files are runtime output oracles; `.expected.rs` files are exact Rust emission
 oracles. This directory is not part of the C/default test runner.
+
+Owned array cases preserve the tagged distinction between independent mutable
+`array_copy` snapshots and `is_ref` array reassignment slots. Direct captured
+index assignment remains in the tagged rejection corpus because its unchanged
+C control does not produce an executable.

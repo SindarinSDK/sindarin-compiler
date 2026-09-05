@@ -35,6 +35,18 @@ static bool rust_closure_string_type(json_object *type)
     return json_string_property_equals(type, "kind", "string");
 }
 
+static bool rust_closure_array_type(json_object *type)
+{
+    return json_string_property_equals(type, "kind", "array");
+}
+
+static bool rust_closure_mutating_array_method(const char *name)
+{
+    return name && (strcmp(name, "push") == 0 || strcmp(name, "pop") == 0 ||
+        strcmp(name, "insert") == 0 || strcmp(name, "remove") == 0 ||
+        strcmp(name, "reverse") == 0 || strcmp(name, "clear") == 0);
+}
+
 static bool rust_closure_owned_type(json_object *type)
 {
     if (!rust_type_supported(type)) return false;
@@ -98,6 +110,7 @@ typedef struct RustClosureBinding {
     const char *name;
     json_object *declaration;
     int id;
+    int array_capture_id;
     int lambda_depth;
     bool capture;
     struct RustClosureBinding *next;
@@ -106,6 +119,7 @@ typedef struct RustClosureBinding {
 typedef struct {
     RustClosureBinding *bindings;
     int next_id;
+    int next_array_capture_id;
     int lambda_depth;
     json_object *model;
     json_object *return_type;
@@ -135,7 +149,9 @@ static bool rust_closure_bind(RustClosureScope *scope, json_object *node,
     RustClosureBinding *b = malloc(sizeof(*b));
     if (!b) return false;
     *b = (RustClosureBinding){name, node, id < 0 ? scope->next_id++ : id,
-                             scope->lambda_depth, capture, scope->bindings};
+        capture && rust_closure_array_type(rust_closure_property(node, "type"))
+            ? scope->next_array_capture_id++ : -1,
+        scope->lambda_depth, capture, scope->bindings};
     scope->bindings = b;
     if (!capture && json_string_property_equals(node, "kind", "var_decl") &&
         json_boolean_property(node, "is_captured") &&
@@ -143,6 +159,9 @@ static bool rust_closure_bind(RustClosureScope *scope, json_object *node,
         json_string_property_equals(node, "mem_qual", "default"))
         json_object_object_add(node, "rust_shared_cell", json_object_new_boolean(true));
     json_object_object_add(node, "rust_binding_id", json_object_new_int(b->id));
+    if (b->array_capture_id >= 0)
+        json_object_object_add(node, "rust_array_capture_id",
+                               json_object_new_int(b->array_capture_id));
     return true;
 }
 
@@ -185,17 +204,26 @@ static bool rust_closure_walk_lambda(RustClosureScope *scope, json_object *node)
             continue;
         }
         json_object *cap_type = rust_closure_property(cap, "type");
+        bool array_candidate = rust_closure_array_type(cap_type);
         if (json_boolean_property(cap, "is_ref") &&
-            !rust_closure_scalar_type(cap_type) && !rust_closure_string_type(cap_type))
+            !rust_closure_scalar_type(cap_type) && !rust_closure_string_type(cap_type) &&
+            !array_candidate)
             return rust_closure_error("shared mutable closure captures");
         RustClosureBinding *b = rust_closure_lookup(scope, json_string_property(cap, "name"));
         if (!b) return rust_closure_error("unresolved or recursive closure captures");
         if (b->lambda_depth != scope->lambda_depth)
             return rust_closure_error("missing transitive closure captures");
-        bool owned_candidate = rust_closure_string_type(cap_type);
+        bool owned_candidate = rust_closure_string_type(cap_type) || array_candidate;
         if (owned_candidate)
             json_object_object_add(b->declaration, "rust_owned_capture_candidate",
                                    json_object_new_boolean(true));
+        if (array_candidate && json_boolean_property(cap, "is_ref"))
+        {
+            json_object_object_add(b->declaration, "rust_shared_cell",
+                                   json_object_new_boolean(true));
+            json_object_object_add(b->declaration, "rust_shared_owned_cell",
+                                   json_object_new_boolean(true));
+        }
         if (json_string_property_equals(b->declaration, "mem_qual", "as_ref") ||
             (json_boolean_property(b->declaration, "is_captured") &&
              !json_boolean_property(b->declaration, "rust_shared_cell")))
@@ -225,6 +253,9 @@ static bool rust_closure_walk_lambda(RustClosureScope *scope, json_object *node)
         if (owned_candidate)
             json_object_object_add(cap, "rust_owned_capture_candidate",
                                    json_object_new_boolean(true));
+        if (array_candidate && b->array_capture_id >= 0)
+            json_object_object_add(cap, "rust_array_source_capture_id",
+                                   json_object_new_int(b->array_capture_id));
         if (!shared && json_boolean_property(b->declaration, "rust_shared_cell"))
             json_object_object_add(cap, "rust_snapshot_cell_source", json_object_new_boolean(true));
         if (json_string_property_equals(b->declaration, "rust_capture_mode", "self"))
@@ -366,6 +397,8 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
                 if (json_boolean_property(b->declaration, "rust_shared_owned_cell"))
                     json_object_object_add(node, "rust_shared_owned_cell", json_object_new_boolean(true));
             }
+            if (json_boolean_property(b->declaration, "rust_array_snapshot_cell"))
+                json_object_object_add(node, "rust_array_snapshot_cell", json_object_new_boolean(true));
             if (json_string_property_equals(b->declaration, "rust_capture_mode", "self"))
                 json_object_object_add(node, "rust_self_read", json_object_new_boolean(true));
             if ((b->capture || json_boolean_property(b->declaration, "rust_shared_cell")) &&
@@ -381,6 +414,15 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
             json_object_object_add(node, "rust_named_function_value", json_object_new_boolean(true));
         }
         return true;
+    }
+    if (kind && strcmp(kind, "array_access") == 0)
+    {
+        RustClosureBinding *array = rust_closure_place(scope, node);
+        json_object *element_type = rust_closure_property(node, "type");
+        if (array &&
+            (array->capture || json_boolean_property(array->declaration, "rust_shared_cell")) &&
+            !rust_closure_scalar_type(element_type))
+            json_object_object_add(node, "rust_needs_clone", json_object_new_boolean(true));
     }
     RustClosureBinding *place = NULL;
     if (kind && strcmp(kind, "assign") == 0)
@@ -401,6 +443,9 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
         if (borrowed && borrowed->capture)
             return rust_closure_error("mutable access to snapshot closure captures");
     }
+    if (kind && strcmp(kind, "index_assign") == 0 && place && place->capture &&
+        rust_closure_array_type(rust_closure_property(place->declaration, "type")))
+        return rust_closure_error("mutable access to snapshot closure captures");
     bool shared_owned = place && rust_closure_string_type(
         rust_closure_property(place->declaration, "type")) &&
         json_boolean_property(place->declaration, "rust_owned_capture_candidate");
@@ -469,9 +514,28 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
             !json_boolean_property(node, "is_fn_field_call"))
         {
             RustClosureBinding *b = rust_closure_place(scope, rust_closure_property(callee, "object"));
-            if (b && b->capture &&
-                !rust_closure_string_type(rust_closure_property(b->declaration, "type")))
-                return rust_closure_error("method calls on snapshot closure captures");
+            if (b && b->capture)
+            {
+                json_object *binding_type = rust_closure_property(b->declaration, "type");
+                if (rust_closure_array_type(binding_type))
+                {
+                    const char *method = json_string_property(callee, "member_name");
+                    if (rust_closure_mutating_array_method(method))
+                    {
+                        if (strcmp(method, "push") != 0)
+                            return rust_closure_error("this mutable array snapshot method");
+                        if (!json_boolean_property(b->declaration, "rust_shared_cell"))
+                            json_object_object_add(b->declaration, "rust_array_snapshot_cell",
+                                                   json_object_new_boolean(true));
+                        json_object_object_add(node, "rust_array_cell_mutation",
+                                               json_object_new_boolean(true));
+                        json_object_object_add(node, "rust_array_cell_name",
+                                               json_object_new_string(b->name));
+                    }
+                }
+                else if (!rust_closure_string_type(binding_type))
+                    return rust_closure_error("method calls on snapshot closure captures");
+            }
             if (b && !b->capture && scope->lambda_depth > 0 &&
                 !json_string_property(b->declaration, "kind"))
                 return rust_closure_error("method calls on closure parameters");
@@ -572,6 +636,60 @@ static void rust_closure_propagate_owned_cells(json_object *node, const bool *id
     }
 }
 
+static void rust_closure_collect_array_cell_ids(json_object *node, bool *ids, size_t count)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array))
+    {
+        for (size_t i = 0; i < rust_closure_length(node); i++)
+            rust_closure_collect_array_cell_ids(json_object_array_get_idx(node, i), ids, count);
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
+    json_object *id = rust_closure_property(node, "rust_array_capture_id");
+    if (id && json_boolean_property(node, "rust_array_snapshot_cell"))
+    {
+        int value = json_object_get_int(id);
+        if (value >= 0 && (size_t)value < count) ids[value] = true;
+    }
+    json_object_object_foreach(node, key, value)
+    {
+        if (strncmp(key, "rust_", 5) != 0)
+            rust_closure_collect_array_cell_ids(value, ids, count);
+    }
+}
+
+static void rust_closure_propagate_array_cells(json_object *node, const bool *ids, size_t count)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array))
+    {
+        for (size_t i = 0; i < rust_closure_length(node); i++)
+            rust_closure_propagate_array_cells(json_object_array_get_idx(node, i), ids, count);
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
+    json_object *id = rust_closure_property(node, "rust_array_capture_id");
+    if (id)
+    {
+        int value = json_object_get_int(id);
+        if (value >= 0 && (size_t)value < count && ids[value])
+            json_object_object_add(node, "rust_array_snapshot_cell", json_object_new_boolean(true));
+    }
+    json_object *source = rust_closure_property(node, "rust_array_source_capture_id");
+    if (source)
+    {
+        int value = json_object_get_int(source);
+        if (value >= 0 && (size_t)value < count && ids[value])
+            json_object_object_add(node, "rust_array_source_cell", json_object_new_boolean(true));
+    }
+    json_object_object_foreach(node, key, value)
+    {
+        if (strncmp(key, "rust_", 5) != 0)
+            rust_closure_propagate_array_cells(value, ids, count);
+    }
+}
+
 static bool rust_validate_closures(json_object *model)
 {
     RustClosureScope scope = {.model = model};
@@ -623,6 +741,13 @@ static bool rust_validate_closures(json_object *model)
     rust_closure_collect_owned_cell_ids(model, owned_cells, binding_count);
     rust_closure_propagate_owned_cells(model, owned_cells, binding_count);
     free(owned_cells);
+    size_t array_capture_count = (size_t)scope.next_array_capture_id;
+    bool *array_cells = calloc(array_capture_count ? array_capture_count : 1,
+                               sizeof(*array_cells));
+    if (!array_cells) return false;
+    rust_closure_collect_array_cell_ids(model, array_cells, array_capture_count);
+    rust_closure_propagate_array_cells(model, array_cells, array_capture_count);
+    free(array_cells);
     return true;
 }
 

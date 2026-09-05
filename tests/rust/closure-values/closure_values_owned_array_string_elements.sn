@@ -1,0 +1,10 @@
+fn makeCollector(): fn(str): str =>
+  var values: str[] = {"first"}
+  return fn(value: str): str =>
+    values.push(value)
+    return values[values.length - 1]
+
+fn main(): void =>
+  var collect: fn(str): str = makeCollector()
+  println(collect("second"))
+  println(collect("third"))
