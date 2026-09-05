@@ -1,5 +1,33 @@
 #![allow(dead_code, unused_mut, unused_variables, unused_parens)]
 
+fn __sn_runtime_error_0(message: &'static str) -> ! {
+    eprintln!("{}", message);
+    std::process::exit(1);
+}
+
+fn __sn_checked_0<T>(value: Option<T>, message: &'static str) -> T {
+    match value {
+        Some(value) => value,
+        None => __sn_runtime_error_0(message),
+    }
+}
+
+fn __sn_checked_div_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked_0(value, if divisor_is_zero {
+        "panic: Division by zero"
+    } else {
+        "Runtime error: integer overflow in division"
+    })
+}
+
+fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked_0(value, if divisor_is_zero {
+        "panic: Modulo by zero"
+    } else {
+        "Runtime error: integer overflow in modulo"
+    })
+}
+
 struct __SnClosure<F: ?Sized>(std::rc::Rc<F>);
 impl<F: ?Sized> Clone for __SnClosure<F> {
     fn clone(&self) -> Self { Self(self.0.clone()) }
@@ -32,7 +60,7 @@ fn main() {
     let mut u32: u32 = 2;
     let mut u: u64 = 3;
     let mut f: f32 = 4.0;
-    let mut snapshot: __SnClosure<dyn Fn() -> ()> = { let (i32, u32, u, f, ) = (i32.clone(), u32.clone(), u.clone(), f.clone(), ); self::__SnClosure::<dyn Fn() -> ()>(std::rc::Rc::new(move || -> () { let mut i32 = i32; let mut u32 = u32; let mut u = u; let mut f = f; { let __sn_rhs = 1; let __sn_place = &mut (i32); let __sn_next = (*__sn_place).checked_add(__sn_rhs).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_next };{ let __sn_rhs = 1; let __sn_place = &mut (u32); let __sn_next = (*__sn_place).checked_add(__sn_rhs).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_next };{ let __sn_rhs = 1; let __sn_place = &mut (u); let __sn_next = (*__sn_place).checked_add(__sn_rhs).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_next };{ let (__sn_rhs, __sn_place) = (1.0, &mut (f)); let __sn_next = *__sn_place + __sn_rhs; *__sn_place = __sn_next; __sn_next };println!("{}", i32.clone());println!("{}", u32.clone());println!("{}", u.clone());println!("{}", (f.clone() == 5.0));})) }
+    let mut snapshot: __SnClosure<dyn Fn() -> ()> = { let (i32, u32, u, f, ) = (i32.clone(), u32.clone(), u.clone(), f.clone(), ); self::__SnClosure::<dyn Fn() -> ()>(std::rc::Rc::new(move || -> () { let mut i32 = i32; let mut u32 = u32; let mut u = u; let mut f = f; { let __sn_rhs = 1; let __sn_place = &mut (i32); let __sn_next = __sn_checked_0((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };{ let __sn_rhs = 1; let __sn_place = &mut (u32); let __sn_next = __sn_checked_0((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };{ let __sn_rhs = 1; let __sn_place = &mut (u); let __sn_next = __sn_checked_0((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };{ let (__sn_rhs, __sn_place) = (1.0, &mut (f)); let __sn_next = *__sn_place + __sn_rhs; *__sn_place = __sn_next; __sn_next };println!("{}", i32.clone());println!("{}", u32.clone());println!("{}", u.clone());println!("{}", (f.clone() == 5.0));})) }
 ;
     ((snapshot.clone()).0)();
     ((snapshot.clone()).0)();
