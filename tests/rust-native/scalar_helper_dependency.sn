@@ -1,0 +1,11 @@
+fn plusOne(value: int): int =>
+  return value + 1
+
+fn twicePlusOne(value: int): int =>
+  return plusOne(plusOne(value))
+
+native fn throughNative(value: int): int =>
+  return twicePlusOne(value)
+
+fn main(): void =>
+  println(throughNative(40))
