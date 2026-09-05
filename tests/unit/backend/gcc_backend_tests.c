@@ -6,6 +6,7 @@
 #include <string.h>
 #include <assert.h>
 #include "../test_harness.h"
+#include "../cc_sidecar.h"
 #include "../gcc_backend.h"
 #include "../compiler.h"
 #include "../debug.h"
@@ -233,6 +234,67 @@ static void test_compiler_dir_handles_basename(void)
 /* ============================================================================
  * Pragma Source Validation Tests
  * ============================================================================ */
+
+static void test_sidecar_plan_resolves_native_link_inputs(void)
+{
+    CCBackendConfig config;
+    cc_backend_init_config(&config);
+
+    const char *link_libraries[] = {"sidecar_plan_probe"};
+    CCSidecarBuildRequest request = {
+        .build_dir = ".sn/build/c/sidecar_plan_probe",
+        .compiler_dir = "bin",
+        .link_libraries = link_libraries,
+        .link_library_count = 1,
+    };
+    CCSidecarBuildPlan plan;
+
+    assert(cc_sidecar_build(&config, &request, &plan));
+    assert(plan.backend == detect_backend(config.cc));
+    assert(plan.object_file_count == 0);
+    assert(plan.include_path_count >= 4);
+    assert(strcmp(plan.include_paths[0], request.build_dir) == 0);
+    assert(strstr(plan.include_paths[1], "include") != NULL);
+    assert(strstr(plan.include_paths[1], "minimal") != NULL);
+    assert(strstr(plan.include_paths[2], "platform") != NULL);
+    assert(strstr(plan.runtime_archive, "libsn_runtime_min.a") != NULL);
+    assert(strcmp(plan.mode_cflags, config.release_cflags) == 0);
+    assert(plan.requested_link_option_count == 1);
+    assert(strcmp(plan.requested_link_options[0], "-lsidecar_plan_probe") == 0);
+    assert(strcmp(plan.link_library_options, " -lsidecar_plan_probe") == 0);
+    assert(strcmp(plan.configured_libraries, config.ldlibs) == 0);
+    assert(strcmp(plan.configured_linker_options, config.ldflags) == 0);
+
+    /* This repository has installed package dependencies from make setup. */
+    assert(plan.package_compile_options[0] != '\0');
+    assert(plan.package_link_options[0] != '\0');
+
+    cc_sidecar_build_plan_free(&plan);
+    assert(plan.object_files == NULL);
+    assert(plan.runtime_archive == NULL);
+    assert(plan.object_file_count == 0);
+}
+
+static void test_sidecar_plan_preserves_mode_precedence(void)
+{
+    CCBackendConfig config;
+    cc_backend_init_config(&config);
+    CCSidecarBuildRequest request = {
+        .build_dir = ".sn/build/c/sidecar_mode_probe",
+        .compiler_dir = "bin",
+        .debug_mode = true,
+    };
+    CCSidecarBuildPlan plan;
+
+    assert(cc_sidecar_build(&config, &request, &plan));
+    assert(strcmp(plan.mode_cflags, config.debug_cflags) == 0);
+    cc_sidecar_build_plan_free(&plan);
+
+    request.profile_mode = true;
+    assert(cc_sidecar_build(&config, &request, &plan));
+    assert(strcmp(plan.mode_cflags, config.profile_cflags) == 0);
+    cc_sidecar_build_plan_free(&plan);
+}
 
 /* ============================================================================
  * Config Load Tests
@@ -551,6 +613,8 @@ void test_gcc_backend_main(void)
     TEST_RUN("compiler_dir_special_chars", test_compiler_dir_special_chars);
 
     TEST_SECTION("GCC Backend - Pragma Validation");
+    TEST_RUN("sidecar_plan_resolves_native_link_inputs", test_sidecar_plan_resolves_native_link_inputs);
+    TEST_RUN("sidecar_plan_preserves_mode_precedence", test_sidecar_plan_preserves_mode_precedence);
 
     TEST_SECTION("GCC Backend - Config Load");
     TEST_RUN("load_config_no_crash", test_load_config_no_crash);

@@ -189,6 +189,7 @@ set(SN_CGEN_SOURCES
 )
 
 set(SN_BACKEND_SOURCES
+    src/cc_sidecar.c
     src/gcc_backend.c
     src/gcc_backend_config.c
     src/gcc_backend_pkgconfig.c

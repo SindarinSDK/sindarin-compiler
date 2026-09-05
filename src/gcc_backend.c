@@ -1,6 +1,6 @@
 #include "gcc_backend.h"
+#include "cc_sidecar.h"
 #include "gcc_backend_config.h"
-#include "gcc_backend_pkgconfig.h"
 #include "debug.h"
 #include "package.h"
 #include <stdio.h>
@@ -107,7 +107,7 @@ static LdlibsEntry cfg_ldlibs_table[MAX_LDLIBS_ENTRIES];
 static int cfg_ldlibs_count = 0;
 
 /* Return config-driven link flags for a library, or NULL if not in table */
-static const char *get_ldlibs_for_lib(const char *lib)
+const char *cc_backend_get_link_library_options(const char *lib)
 {
     for (int i = 0; i < cfg_ldlibs_count; i++)
     {
@@ -623,80 +623,29 @@ bool gcc_compile_modular(const CCBackendConfig *config, const char *build_dir,
                           char **link_libs, int link_lib_count,
                           char **pragma_sources, char **pragma_dirs, int pragma_count)
 {
-    char lib_dir[PATH_MAX];
-    char include_dir[PATH_MAX];
-    char deps_include_dir[PATH_MAX];
-    char deps_lib_dir[PATH_MAX];
-    char runtime_lib[PATH_MAX];
-    char command[8192];
-    char filtered_mode_cflags[1024];
+    CCSidecarBuildRequest request = {
+        .build_dir = build_dir,
+        .compiler_dir = compiler_dir,
+        .generated_sources = c_files,
+        .generated_source_count = c_file_count,
+        .native_sources = (const char *const *)pragma_sources,
+        .native_source_dirs = (const char *const *)pragma_dirs,
+        .native_source_count = pragma_count,
+        .link_libraries = (const char *const *)link_libs,
+        .link_library_count = link_lib_count,
+        .verbose = verbose,
+        .debug_mode = debug_mode,
+        .profile_mode = profile_mode,
+    };
+    CCSidecarBuildPlan plan;
+    if (!cc_sidecar_build(config, &request, &plan)) return false;
 
-    BackendType backend = detect_backend(config->cc);
-    const char *sdk_root = get_sdk_root(compiler_dir);
-
-    snprintf(lib_dir, sizeof(lib_dir), "%s" SN_PATH_SEP_STR "%s", sdk_root, backend_lib_subdir(backend));
-    snprintf(include_dir, sizeof(include_dir),
-        "%s" SN_PATH_SEP_STR "include" SN_PATH_SEP_STR "minimal\" "
-        "-I\"%s" SN_PATH_SEP_STR "include" SN_PATH_SEP_STR "platform\" "
-        "-I\"%s" SN_PATH_SEP_STR "include",
-        sdk_root, sdk_root, sdk_root);
-
-    deps_include_dir[0] = '\0';
-    deps_lib_dir[0] = '\0';
-    snprintf(deps_include_dir, sizeof(deps_include_dir), "%s" SN_PATH_SEP_STR "deps" SN_PATH_SEP_STR "include", sdk_root);
-    if (access(deps_include_dir, R_OK) == 0)
-    {
-        snprintf(deps_lib_dir, sizeof(deps_lib_dir), "%s" SN_PATH_SEP_STR "deps" SN_PATH_SEP_STR "lib", sdk_root);
-    }
-    else
-    {
-        deps_include_dir[0] = '\0';
-    }
-
-    normalize_path_separators(lib_dir);
-    normalize_path_separators(include_dir);
-    if (deps_include_dir[0]) normalize_path_separators(deps_include_dir);
-    if (deps_lib_dir[0]) normalize_path_separators(deps_lib_dir);
-
-    snprintf(runtime_lib, sizeof(runtime_lib), "%s" SN_PATH_SEP_STR "libsn_runtime_min.a", lib_dir);
-
-    if (backend != BACKEND_MSVC && access(runtime_lib, R_OK) != 0)
-    {
-        fprintf(stderr, "Error: Runtime library not found: %s\n", runtime_lib);
-        fprintf(stderr, "The '%s' backend runtime is not built.\n", backend_name(backend));
-        fprintf(stderr, "Run 'make build' to build the runtime.\n");
-        return false;
-    }
-
-    const char *mode_cflags = profile_mode ? config->profile_cflags
-                            : debug_mode  ? config->debug_cflags
-                            :               config->release_cflags;
-    if (backend == BACKEND_TINYCC)
-    {
-        mode_cflags = filter_tinycc_flags(mode_cflags, filtered_mode_cflags, sizeof(filtered_mode_cflags));
-    }
-
-    char deps_include_opt[PATH_MAX + 8];
     char deps_lib_opt[PATH_MAX * 2 + 32];
-    if (deps_include_dir[0])
-        snprintf(deps_include_opt, sizeof(deps_include_opt), "-I\"%s\"", deps_include_dir);
-    else
-        deps_include_opt[0] = '\0';
-    if (deps_lib_dir[0])
-        snprintf(deps_lib_opt, sizeof(deps_lib_opt), "-L\"%s\" -Wl,-rpath,\"%s\"", deps_lib_dir, deps_lib_dir);
+    if (plan.library_search_path_count > 0 && plan.runtime_search_path_count > 0)
+        snprintf(deps_lib_opt, sizeof(deps_lib_opt), "-L\"%s\" -Wl,-rpath,\"%s\"",
+                 plan.library_search_paths[0], plan.runtime_search_paths[0]);
     else
         deps_lib_opt[0] = '\0';
-
-    char pkg_include_opt[16384];
-    char pkg_lib_opt[16384];
-    build_package_lib_paths(pkg_include_opt, sizeof(pkg_include_opt),
-                            pkg_lib_opt, sizeof(pkg_lib_opt));
-
-    if (verbose && pkg_include_opt[0])
-    {
-        DEBUG_INFO("Package includes: %s", pkg_include_opt);
-        DEBUG_INFO("Package libs: %s", pkg_lib_opt);
-    }
 
     char error_file[PATH_MAX];
 #ifdef _WIN32
@@ -714,131 +663,8 @@ bool gcc_compile_modular(const CCBackendConfig *config, const char *build_dir,
 #endif
 
     const char *cc_quote = (strchr(config->cc, ' ') != NULL) ? "\"" : "";
-
-    /* ---- Step 1: Compile each .c file to .o ---- */
-    char *obj_files[512];
-    int obj_count = 0;
-
-    for (int i = 0; i < c_file_count && obj_count < 510; i++)
-    {
-        char c_path[PATH_MAX];
-        char o_path[PATH_MAX];
-        snprintf(c_path, sizeof(c_path), "%s" SN_PATH_SEP_STR "%s", build_dir, c_files[i]);
-        snprintf(o_path, sizeof(o_path), "%s" SN_PATH_SEP_STR "%.*s.o", build_dir,
-                 (int)(strlen(c_files[i]) - 2), c_files[i]);
-
-        snprintf(command, sizeof(command),
-            "%s%s%s -c %s -Werror=implicit-function-declaration -std=%s -D_GNU_SOURCE %s "
-            "-I\"%s\" -I\"%s\" %s %s "
-            "\"%s\" -o \"%s\" 2>\"%s\"",
-            cc_quote, config->cc, cc_quote, mode_cflags, config->std, config->cflags,
-            build_dir, include_dir, deps_include_opt, pkg_include_opt,
-            c_path, o_path, error_file);
-
-        if (!run_compile_cmd(command, error_file, verbose))
-        {
-            fprintf(stderr, "Error: failed to compile %s\n", c_files[i]);
-            for (int j = 0; j < obj_count; j++) free(obj_files[j]);
-            return false;
-        }
-
-        obj_files[obj_count] = strdup(o_path);
-        obj_count++;
-    }
-
-    /* ---- Step 2: Compile pragma source files ---- */
-    for (int i = 0; i < pragma_count && obj_count < 510; i++)
-    {
-        const char *src = pragma_sources[i];
-        const char *source_dir = pragma_dirs[i];
-
-        /* Unquote if needed */
-        size_t len = strlen(src);
-        char unquoted[PATH_MAX];
-        if (len >= 2 && src[0] == '"' && src[len - 1] == '"')
-        {
-            strncpy(unquoted, src + 1, len - 2);
-            unquoted[len - 2] = '\0';
-            src = unquoted;
-        }
-
-        /* Resolve full path */
-        char full_path[PATH_MAX];
-#ifdef _WIN32
-        if (src[0] == '/' || (src[0] && src[1] == ':'))
-#else
-        if (src[0] == '/')
-#endif
-        {
-            strncpy(full_path, src, sizeof(full_path) - 1);
-            full_path[sizeof(full_path) - 1] = '\0';
-        }
-        else
-        {
-            snprintf(full_path, sizeof(full_path), "%s/%s", source_dir, src);
-        }
-
-        /* Derive .o output path in build_dir */
-        const char *base = strrchr(full_path, '/');
-#ifdef _WIN32
-        const char *base_bs = strrchr(full_path, '\\');
-        if (base_bs && (!base || base_bs > base)) base = base_bs;
-#endif
-        base = base ? base + 1 : full_path;
-        char o_path[PATH_MAX];
-        const char *dot = strrchr(base, '.');
-        int blen = dot ? (int)(dot - base) : (int)strlen(base);
-        snprintf(o_path, sizeof(o_path), "%s" SN_PATH_SEP_STR "pragma_%.*s.o", build_dir, blen, base);
-
-        snprintf(command, sizeof(command),
-            "%s%s%s -c %s -Werror=implicit-function-declaration -std=%s -D_GNU_SOURCE %s "
-            "-include \"%s/sn_types.h\" "
-            "-I\"%s\" -I\"%s\" %s %s "
-            "\"%s\" -o \"%s\" 2>\"%s\"",
-            cc_quote, config->cc, cc_quote, mode_cflags, config->std, config->cflags,
-            build_dir,
-            build_dir, include_dir, deps_include_opt, pkg_include_opt,
-            full_path, o_path, error_file);
-
-        if (!run_compile_cmd(command, error_file, verbose))
-        {
-            fprintf(stderr, "Error: failed to compile pragma source %s\n", full_path);
-            for (int j = 0; j < obj_count; j++) free(obj_files[j]);
-            return false;
-        }
-
-        obj_files[obj_count] = strdup(o_path);
-        obj_count++;
-    }
-
-    /* ---- Step 3: Link all .o files ---- */
-    char extra_libs[PATH_MAX];
-    extra_libs[0] = '\0';
-    if (link_libs && link_lib_count > 0)
-    {
-        int offset = 0;
-        for (int i = 0; i < link_lib_count && offset < (int)sizeof(extra_libs) - 8; i++)
-        {
-            const char *lib = link_libs[i];
-            const char *override = get_ldlibs_for_lib(lib);
-            if (override)
-            {
-                /* SN_LDLIBS_<name> is a full replacement — empty means suppress */
-                if (override[0])
-                {
-                    int written = snprintf(extra_libs + offset, sizeof(extra_libs) - offset, " %s", override);
-                    if (written > 0) offset += written;
-                }
-            }
-            else
-            {
-                /* No config entry: default to -l<name> with platform lib name translation */
-                const char *translated = translate_lib_name(lib);
-                int written = snprintf(extra_libs + offset, sizeof(extra_libs) - offset, " -l%s", translated);
-                if (written > 0) offset += written;
-            }
-        }
-    }
+    char **obj_files = plan.object_files;
+    int obj_count = plan.object_file_count;
 
     /* Build the link command with all .o files, deduplicating any
      * entries that resolve to the same path (defensive measure against
@@ -854,7 +680,7 @@ bool gcc_compile_modular(const CCBackendConfig *config, const char *build_dir,
     if (!all_objs)
     {
         fprintf(stderr, "Error: out of memory building link command\n");
-        for (int j = 0; j < obj_count; j++) free(obj_files[j]);
+        cc_sidecar_build_plan_free(&plan);
         return false;
     }
     all_objs[0] = '\0';
@@ -883,17 +709,18 @@ bool gcc_compile_modular(const CCBackendConfig *config, const char *build_dir,
     /* The link command can easily exceed the fixed 8 KB 'command' buffer
      * once all_objs is large — allocate a sufficiently sized buffer. */
     size_t link_cmd_size = all_objs_size
-        + strlen(config->cc) + strlen(mode_cflags) + strlen(config->std)
-        + strlen(config->cflags) + strlen(runtime_lib) + strlen(deps_lib_opt)
-        + strlen(pkg_lib_opt) + strlen(extra_libs) + strlen(config->ldlibs)
-        + strlen(config->ldflags) + strlen(exe_path) + strlen(error_file) + 512;
+        + strlen(config->cc) + strlen(plan.mode_cflags) + strlen(config->std)
+        + strlen(config->cflags) + strlen(plan.runtime_archive) + strlen(deps_lib_opt)
+        + strlen(plan.package_link_options) + strlen(plan.link_library_options)
+        + strlen(plan.configured_libraries) + strlen(plan.configured_linker_options)
+        + strlen(exe_path) + strlen(error_file) + 512;
 
     char *link_command = malloc(link_cmd_size);
     if (!link_command)
     {
         fprintf(stderr, "Error: out of memory building link command\n");
         free(all_objs);
-        for (int j = 0; j < obj_count; j++) free(obj_files[j]);
+        cc_sidecar_build_plan_free(&plan);
         return false;
     }
 
@@ -901,9 +728,10 @@ bool gcc_compile_modular(const CCBackendConfig *config, const char *build_dir,
         "%s%s%s %s -w -Werror=implicit-function-declaration -std=%s -D_GNU_SOURCE %s "
         "%s \"%s\" "
         "%s %s%s %s %s -o \"%s\" 2>\"%s\"",
-        cc_quote, config->cc, cc_quote, mode_cflags, config->std, config->cflags,
-        all_objs, runtime_lib,
-        deps_lib_opt, pkg_lib_opt, extra_libs, config->ldlibs, config->ldflags,
+        cc_quote, config->cc, cc_quote, plan.mode_cflags, config->std, config->cflags,
+        all_objs, plan.runtime_archive,
+        deps_lib_opt, plan.package_link_options, plan.link_library_options,
+        plan.configured_libraries, plan.configured_linker_options,
         exe_path, error_file);
 
     bool link_ok = run_compile_cmd(link_command, error_file, verbose);
@@ -911,8 +739,7 @@ bool gcc_compile_modular(const CCBackendConfig *config, const char *build_dir,
     free(link_command);
     free(all_objs);
 
-    /* Free obj_files */
-    for (int i = 0; i < obj_count; i++) free(obj_files[i]);
+    cc_sidecar_build_plan_free(&plan);
 
     if (!link_ok)
     {

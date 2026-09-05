@@ -1,0 +1,4 @@
+@source "test_native_source_compile_failure.c"
+
+fn main(): void =>
+  println("unreachable")
