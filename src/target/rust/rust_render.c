@@ -41,7 +41,7 @@ static char *rust_type(json_object *type)
     if (strcmp(kind, "bool") == 0) return strdup("bool");
     if (strcmp(kind, "char") == 0) return strdup("char");
     if (strcmp(kind, "byte") == 0) return strdup("u8");
-    if (strcmp(kind, "string") == 0) return strdup("String");
+    if (strcmp(kind, "string") == 0) return strdup("SnString");
     if (strcmp(kind, "array") == 0)
     {
         json_object *element_type = NULL;
@@ -234,9 +234,9 @@ static char *helper_rust_literal(json_object **params, int param_count, hbs_opti
         char *quoted = quote_rust_model_string(
             value_obj ? json_object_get_string(value_obj) : "");
         if (!quoted) return NULL;
-        size_t length = strlen(quoted) + sizeof(".to_string()") + 1;
+        size_t length = strlen(quoted) + sizeof("SnString::from()") + 1;
         char *result = malloc(length);
-        if (result) snprintf(result, length, "%s.to_string()", quoted);
+        if (result) snprintf(result, length, "SnString::from(%s)", quoted);
         free(quoted);
         return result;
     }
@@ -268,7 +268,7 @@ static char *helper_rust_default(json_object **params, int param_count, hbs_opti
     if (!kind) return strdup("()");
     if (strcmp(kind, "bool") == 0) return strdup("false");
     if (strcmp(kind, "char") == 0) return strdup("'\\0'");
-    if (strcmp(kind, "string") == 0) return strdup("String::new()");
+    if (strcmp(kind, "string") == 0) return strdup("SnString::new()");
     if (strcmp(kind, "array") == 0) return strdup("Vec::new()");
     if (strcmp(kind, "void") == 0) return strdup("()");
     if (strcmp(kind, "double") == 0 || strcmp(kind, "float") == 0) return strdup("0.0");
