@@ -1,0 +1,17 @@
+@source "native_ref_dispose_order.sn.c"
+
+native struct Tracker as ref =>
+  id: int
+
+  @alias "tracker_dispose"
+  native fn dispose(): void
+
+native fn tracker_create(id: int): Tracker
+
+fn exercise(): void =>
+  var value: Tracker = tracker_create(1)
+  println("inside")
+
+fn main(): void =>
+  exercise()
+  println("after")

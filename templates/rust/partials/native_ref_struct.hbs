@@ -49,6 +49,7 @@ impl Drop for {{rust_ident name}} {
             (*self.0).__rc__ -= 1;
             if (*self.0).__rc__ == 0 {
 {{#each methods}}{{#if rust_native_dispose_method}}                {{rust_ident rust_native_extern_name}}(self.0);
+                {{rust_ident @root.rust_native_fflush_extern_name}}(std::ptr::null_mut());
 {{/if}}{{/each}}                {{rust_ident @root.rust_native_free_extern_name}}(self.0.cast());
             }
         }

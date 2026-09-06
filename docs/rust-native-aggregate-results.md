@@ -59,9 +59,25 @@ decision. Native char fields, non-scalar fields, parameterized native methods,
 native value/packed structs, callbacks, struct-by-value ABI, and cross-thread
 handles also remain required work.
 
-The focused repository gates contain 12 unchanged tagged native fixtures, 22
+The focused repository gates contain 12 unchanged tagged native fixtures, 23
 native extras, 7 native diagnostics, and 1 imported-origin fixture. Composing
 the strict native fixture-count workflow requires those exact counts. The only
 call-validation change is the declaration-level admission for the annotated
 native reference method family; resolved native method-call forms remain
 rejected and are not claimed by this slice.
+
+## Disposal output ordering correction
+
+The independent `native_ref_dispose_order.sn` probe is preserved byte-for-byte
+at SHA-256
+`f4a3a6d1453431a8fab32a4836293ae1da594bb510dea512958eca9a2c4075ce`;
+its sidecar is
+`909135975fab2378d69310ad78b7fd6d7433998643ef13caba1dac04f6f9921c`.
+Rust already dropped the last handle at the tagged lexical endpoint, but the C
+`dispose` callback's `printf` remained buffered while Rust writes went directly
+to stdout. The zero-count drop path now flushes C streams immediately after the
+dispose callback. Fresh pinned-tag O0/O1/O2 evidence is in
+`/tmp/sindarin-s2-tag-dispose-order-KIA94u`, preceded by the required smoke in
+`/tmp/sindarin-s2-tag-smoke-Ypkmeb`. The committed C/Rust O0/O1/O2 and Rust
+debug matrix expects `inside`, `dispose`, then `after` without changing the
+source or oracle order.

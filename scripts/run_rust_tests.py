@@ -634,6 +634,7 @@ class TestRunner:
                 'tests/rust-native/native_as_ref_char_temp_collision.sn',
                 'tests/rust-native/native_as_ref_same_place.sn',
                 'tests/rust-native/native_flush_parameter_collision.sn',
+                'tests/rust-native/native_ref_dispose_order.sn',
                 'tests/rust-native/native_string_escape.sn',
             ])
         raw_fixtures = {}
