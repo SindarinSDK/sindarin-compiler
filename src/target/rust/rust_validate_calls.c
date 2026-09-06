@@ -692,7 +692,6 @@ static bool rust_validate_call(json_object *expr)
         if (json_object_object_get_ex(callee, "object", &receiver))
         {
             size_t count = json_object_array_length(args);
-            size_t direct_aliases = 0;
             for (size_t i = 0; i < count; i++)
             {
                 json_object *arg = json_object_array_get_idx(args, i);
@@ -700,9 +699,7 @@ static bool rust_validate_call(json_object *expr)
                                           "rust_default_array_ref_arg") &&
                     rust_call_place_has_prefix(arg, receiver))
                 {
-                    if (rust_direct_receiver_array_alias(receiver, arg))
-                        direct_aliases++;
-                    else
+                    if (!rust_direct_receiver_array_alias(receiver, arg))
                     {
                         rust_validation_reported_error = true;
                         fprintf(stderr,
@@ -710,13 +707,6 @@ static bool rust_validate_call(json_object *expr)
                         return false;
                     }
                 }
-            }
-            if (direct_aliases > 1)
-            {
-                rust_validation_reported_error = true;
-                fprintf(stderr,
-                        "Error: Rust target does not support an instance receiver aliasing multiple mutable default-array arguments yet\n");
-                return false;
             }
         }
     }
