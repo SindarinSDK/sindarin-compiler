@@ -615,22 +615,24 @@ static json_object *rust_default_array_function(json_object *functions,
     return NULL;
 }
 
-static void rust_rename_variable_uses(json_object *node, const char *old_name,
-                                      const char *new_name)
+static void rust_rename_binding_uses(json_object *node, int64_t binding_id,
+                                     const char *new_name)
 {
     if (!node) return;
     if (json_object_is_type(node, json_type_array))
     {
         size_t count = json_object_array_length(node);
         for (size_t i = 0; i < count; i++)
-            rust_rename_variable_uses(
-                json_object_array_get_idx(node, i), old_name, new_name);
+            rust_rename_binding_uses(
+                json_object_array_get_idx(node, i), binding_id, new_name);
         return;
     }
     if (!json_object_is_type(node, json_type_object)) return;
 
-    if (json_string_property_equals(node, "kind", "variable") &&
-        json_string_property_equals(node, "name", old_name))
+    json_object *node_binding = NULL, *name = NULL;
+    if (json_object_object_get_ex(node, "rust_binding_id", &node_binding) &&
+        json_object_get_int64(node_binding) == binding_id &&
+        json_object_object_get_ex(node, "name", &name))
     {
         json_object_object_del(node, "name");
         json_object_object_add(node, "name", json_object_new_string(new_name));
@@ -638,9 +640,64 @@ static void rust_rename_variable_uses(json_object *node, const char *old_name,
     json_object_object_foreach(node, key, value)
     {
         (void)key;
-        rust_rename_variable_uses(value, old_name, new_name);
+        rust_rename_binding_uses(value, binding_id, new_name);
     }
 }
+
+static bool rust_array_alias_pattern_matches(json_object *function,
+                                             const char *origin,
+                                             const size_t *canonical,
+                                             size_t count)
+{
+    if (!json_string_property_equals(
+            function, "rust_array_alias_origin", origin)) return false;
+    json_object *pattern = NULL;
+    if (!json_object_object_get_ex(
+            function, "rust_array_alias_pattern", &pattern) ||
+        !json_object_is_type(pattern, json_type_array) ||
+        json_object_array_length(pattern) != count) return false;
+    for (size_t i = 0; i < count; i++)
+        if ((size_t)json_object_get_int64(
+                json_object_array_get_idx(pattern, i)) != canonical[i])
+            return false;
+    return true;
+}
+
+static json_object *rust_array_alias_specialization(json_object *functions,
+                                                     const char *origin,
+                                                     const size_t *canonical,
+                                                     size_t count)
+{
+    size_t function_count = json_object_array_length(functions);
+    for (size_t i = 0; i < function_count; i++)
+    {
+        json_object *function = json_object_array_get_idx(functions, i);
+        if (rust_array_alias_pattern_matches(
+                function, origin, canonical, count)) return function;
+    }
+    return NULL;
+}
+
+static bool rust_coalesce_array_alias_args(json_object *call,
+                                           json_object *args,
+                                           const size_t *canonical,
+                                           size_t count)
+{
+    json_object *kept_args = json_object_new_array();
+    if (!kept_args) return false;
+    for (size_t i = 0; i < count; i++)
+        if (canonical[i] == i)
+            json_object_array_add(
+                kept_args, json_object_get(json_object_array_get_idx(args, i)));
+    json_object_object_del(call, "args");
+    json_object_object_add(call, "args", kept_args);
+    return true;
+}
+
+static bool rust_specialize_default_array_alias_calls(json_object *model,
+                                                      json_object *functions,
+                                                      json_object *node,
+                                                      size_t *next_id);
 
 /* Rust cannot construct two simultaneous &mut Vec references for one source
  * array handle.  For a direct call whose duplicate arguments are the same
@@ -712,6 +769,30 @@ static bool rust_specialize_default_array_alias_call(json_object *model,
         return true;
     }
 
+    /* A recursive or mutually recursive body can rediscover the same alias
+     * partition. Reuse the specialization already registered for that
+     * function/pattern so recursive lowering terminates without reintroducing
+     * overlapping mutable references. */
+    json_object *existing = rust_array_alias_specialization(
+        functions, callee_name, canonical, count);
+    if (existing)
+    {
+        const char *existing_name = json_string_property(existing, "name");
+        if (!existing_name ||
+            !rust_coalesce_array_alias_args(call, args, canonical, count))
+        {
+            free(canonical);
+            return false;
+        }
+        json_object_object_del(callee, "name");
+        json_object_object_add(callee, "name",
+                               json_object_new_string(existing_name));
+        json_object_object_add(call, "rust_array_alias_specialized",
+                               json_object_new_boolean(true));
+        free(canonical);
+        return true;
+    }
+
     json_object *specialized = NULL;
     if (json_object_deep_copy(function, &specialized, NULL) != 0 || !specialized)
     {
@@ -735,21 +816,22 @@ static bool rust_specialize_default_array_alias_call(json_object *model,
             specialized_params, canonical[i]);
         const char *from_name = json_string_property(from, "name");
         const char *to_name = json_string_property(to, "name");
-        if (!from_name || !to_name)
+        json_object *from_binding = NULL;
+        if (!from_name || !to_name ||
+            !json_object_object_get_ex(
+                from, "rust_binding_id", &from_binding))
         {
             json_object_put(specialized);
             free(canonical);
             return false;
         }
-        rust_rename_variable_uses(body, from_name, to_name);
+        rust_rename_binding_uses(
+            body, json_object_get_int64(from_binding), to_name);
     }
 
     json_object *kept_params = json_object_new_array();
-    json_object *kept_args = json_object_new_array();
-    if (!kept_params || !kept_args)
+    if (!kept_params)
     {
-        if (kept_params) json_object_put(kept_params);
-        if (kept_args) json_object_put(kept_args);
         json_object_put(specialized);
         free(canonical);
         return false;
@@ -759,13 +841,15 @@ static bool rust_specialize_default_array_alias_call(json_object *model,
         if (canonical[i] != i) continue;
         json_object_array_add(
             kept_params, json_object_get(json_object_array_get_idx(specialized_params, i)));
-        json_object_array_add(
-            kept_args, json_object_get(json_object_array_get_idx(args, i)));
     }
     json_object_object_del(specialized, "params");
     json_object_object_add(specialized, "params", kept_params);
-    json_object_object_del(call, "args");
-    json_object_object_add(call, "args", kept_args);
+    if (!rust_coalesce_array_alias_args(call, args, canonical, count))
+    {
+        json_object_put(specialized);
+        free(canonical);
+        return false;
+    }
 
     char specialized_name[96];
     do
@@ -778,13 +862,27 @@ static bool rust_specialize_default_array_alias_call(json_object *model,
     json_object_object_del(specialized, "name");
     json_object_object_add(specialized, "name",
                            json_object_new_string(specialized_name));
+    json_object_object_add(specialized, "rust_array_alias_origin",
+                           json_object_new_string(callee_name));
+    json_object *pattern = json_object_new_array();
+    if (!pattern)
+    {
+        json_object_put(specialized);
+        free(canonical);
+        return false;
+    }
+    for (size_t i = 0; i < count; i++)
+        json_object_array_add(pattern, json_object_new_int64((int64_t)canonical[i]));
+    json_object_object_add(specialized, "rust_array_alias_pattern", pattern);
     json_object_object_del(callee, "name");
     json_object_object_add(callee, "name", json_object_new_string(specialized_name));
     json_object_object_add(call, "rust_array_alias_specialized",
                            json_object_new_boolean(true));
     json_object_array_add(functions, specialized);
+    bool ok = rust_specialize_default_array_alias_calls(
+        model, functions, body, next_id);
     free(canonical);
-    return true;
+    return ok;
 }
 
 static bool rust_specialize_default_array_alias_calls(json_object *model,
