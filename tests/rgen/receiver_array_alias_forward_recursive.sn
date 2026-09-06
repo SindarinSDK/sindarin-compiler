@@ -1,0 +1,21 @@
+struct Relay =>
+  values: int[]
+
+  fn relay(values: int[], depth: int): int =>
+    if depth == 0 =>
+      values.push(40)
+      return values.length
+    if depth == 2 =>
+      var values: int[] = {9}
+      values.push(10)
+      println($"shadow:{values.length}:{values[0]}:{values[1]}")
+    return self.step(values, depth)
+
+  fn step(values: int[], depth: int): int =>
+    self.values.push(depth)
+    return self.relay(values, depth - 1)
+
+fn main(): void =>
+  var relay: Relay = { values: {1} }
+  println(relay.relay(relay.values, 2))
+  println($"final:{relay.values.length}:{relay.values[0]}:{relay.values[1]}:{relay.values[2]}:{relay.values[3]}")

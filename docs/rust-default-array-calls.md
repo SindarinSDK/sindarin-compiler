@@ -21,11 +21,27 @@ is memoized by its source function and formal-alias partition before its body is
 visited, which both propagates aliases through forwarders and terminates for
 recursive or mutually recursive calls.
 
+Direct array fields of a stable instance receiver are the corresponding
+bounded receiver-alias cases. Rust-private lowering clones the method under a
+collision-free name, replaces each aliased formal by its `self.field`, and
+removes those arguments at the call site. The resulting call takes only the
+receiver borrow, so method mutations and formal reads retain their source array
+identities without cloning or overlapping mutable references. Binding IDs keep
+same-spelled nested locals independent. The complete formal-to-field pattern is
+memoized before the clone body is visited, allowing aliases to propagate through
+method forwarders and recursive or mutually recursive forwarding calls.
+
 Stable array places have no source-visible evaluation of their own. Other
 arguments are evaluated once in their original relative order before any array
 borrow when a later argument could read an earlier array. This includes calls
 with multiple distinct arrays and calls whose duplicate array formals have been
 coalesced.
+
+The `receiver_array_alias_multiple` fixture covers distinct receiver fields,
+two parameters bound to the same field, direct calls, and a method forwarder.
+The `receiver_array_alias_forward_recursive` fixture covers binding-safe lexical
+shadowing and mutually recursive method forwarding. Both compare unchanged
+tagged C and Rust execution at `-O0`, `-O1`, and `-O2`.
 
 The focused `default_array_multiple_distinct` and
 `default_array_multiple_same` fixtures cover distinct arrays, duplicate local
@@ -38,8 +54,8 @@ Rust executions are compared at `-O0`, `-O1`, and `-O2`.
 
 This bounded representation does not infer runtime aliasing between different
 place expressions. Produced/indexed array places, sibling references derived
-from the same aggregate, and overlap between an instance receiver and an array
-argument retain their separately owned representation work. Mutable array
-parameter rebinding also requires a handle representation rather than formal
-coalescing. No C model, template, runtime, source fixture, or language rule is
-changed by this Rust-private lowering.
+from the same aggregate beyond direct receiver fields, and broader
+receiver/argument overlap retain their separately owned representation work.
+Mutable array parameter rebinding also requires a handle representation rather
+than formal coalescing. No C model, template, runtime, source fixture, or
+language rule is changed by this Rust-private lowering.

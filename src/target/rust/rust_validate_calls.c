@@ -118,19 +118,49 @@ static bool rust_validate_shared_default_array_arguments(json_object *args)
  * `bag.method(bag.values)`, and the tagged call may mutate through either
  * handle. Keep that genuine alias case as a targeted boundary instead of
  * allowing it to escape as a rustc diagnostic. */
+static bool rust_call_places_equal(json_object *left, json_object *right)
+{
+    const char *left_kind = json_string_property(left, "kind");
+    const char *right_kind = json_string_property(right, "kind");
+    if (!left_kind || !right_kind || strcmp(left_kind, right_kind) != 0)
+        return false;
+    if (strcmp(left_kind, "variable") == 0)
+    {
+        const char *left_name = json_string_property(left, "name");
+        const char *right_name = json_string_property(right, "name");
+        return left_name && right_name && strcmp(left_name, right_name) == 0;
+    }
+    if (strcmp(left_kind, "member") == 0)
+    {
+        json_object *left_object = NULL, *right_object = NULL;
+        const char *left_member = json_string_property(left, "member_name");
+        const char *right_member = json_string_property(right, "member_name");
+        return left_member && right_member &&
+            strcmp(left_member, right_member) == 0 &&
+            json_object_object_get_ex(left, "object", &left_object) &&
+            json_object_object_get_ex(right, "object", &right_object) &&
+            rust_call_places_equal(left_object, right_object);
+    }
+    if (strcmp(left_kind, "array_access") == 0)
+    {
+        json_object *left_array = NULL, *right_array = NULL;
+        json_object *left_index = NULL, *right_index = NULL;
+        return json_object_object_get_ex(left, "array", &left_array) &&
+            json_object_object_get_ex(right, "array", &right_array) &&
+            json_object_object_get_ex(left, "index", &left_index) &&
+            json_object_object_get_ex(right, "index", &right_index) &&
+            rust_call_places_equal(left_array, right_array) &&
+            json_object_equal(left_index, right_index);
+    }
+    return false;
+}
+
 static bool rust_call_place_has_prefix(json_object *place,
                                        json_object *prefix)
 {
     if (!json_object_is_type(place, json_type_object) ||
         !json_object_is_type(prefix, json_type_object)) return false;
-    if (json_string_property_equals(place, "kind", "variable") &&
-        json_string_property_equals(prefix, "kind", "variable"))
-    {
-        const char *place_name = json_string_property(place, "name");
-        const char *prefix_name = json_string_property(prefix, "name");
-        return place_name && prefix_name &&
-            strcmp(place_name, prefix_name) == 0;
-    }
+    if (rust_call_places_equal(place, prefix)) return true;
 
     json_object *parent = NULL;
     if (json_string_property_equals(place, "kind", "member") &&
@@ -140,6 +170,30 @@ static bool rust_call_place_has_prefix(json_object *place,
         json_object_object_get_ex(place, "array", &parent))
         return rust_call_place_has_prefix(parent, prefix);
     return false;
+}
+
+/* A direct field of a stable instance receiver can be transported through a
+ * Rust-private method specialization: the duplicate array formal is replaced
+ * by `self.field`, so Rust forms only the receiver borrow.  Keep this admission
+ * deliberately narrower than the prefix test; nested/indexed/produced places
+ * need their own representation-aware transport. */
+static bool rust_direct_receiver_array_alias(json_object *receiver,
+                                             json_object *arg)
+{
+    if (!json_string_property_equals(receiver, "kind", "variable") ||
+        !json_string_property_equals(arg, "kind", "member")) return false;
+    json_object *receiver_type = NULL, *arg_object = NULL;
+    if (!json_object_object_get_ex(receiver, "type", &receiver_type) ||
+        !json_string_property_equals(receiver_type, "kind", "struct") ||
+        json_boolean_property(receiver_type, "is_native") ||
+        json_boolean_property(receiver_type, "pass_self_by_ref")) return false;
+    if (!json_object_object_get_ex(arg, "object", &arg_object) ||
+        !json_string_property_equals(arg_object, "kind", "variable"))
+        return false;
+    const char *receiver_name = json_string_property(receiver, "name");
+    const char *arg_object_name = json_string_property(arg_object, "name");
+    return receiver_name && arg_object_name &&
+        strcmp(receiver_name, arg_object_name) == 0;
 }
 
 static bool rust_primitive_conversion_member(const char *type_kind, const char *name)
@@ -645,10 +699,13 @@ static bool rust_validate_call(json_object *expr)
                                           "rust_default_array_ref_arg") &&
                     rust_call_place_has_prefix(arg, receiver))
                 {
-                    rust_validation_reported_error = true;
-                    fprintf(stderr,
-                            "Error: Rust target does not support an instance receiver aliasing a mutable default-array argument yet\n");
-                    return false;
+                    if (!rust_direct_receiver_array_alias(receiver, arg))
+                    {
+                        rust_validation_reported_error = true;
+                        fprintf(stderr,
+                                "Error: Rust target does not support an instance receiver aliasing a mutable default-array argument yet\n");
+                        return false;
+                    }
                 }
             }
         }
