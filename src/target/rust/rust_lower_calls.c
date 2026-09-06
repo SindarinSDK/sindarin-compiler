@@ -575,6 +575,245 @@ static bool rust_deferred_default_array_place(json_object *expr)
     return false;
 }
 
+static bool rust_same_default_array_place(json_object *left, json_object *right)
+{
+    const char *left_kind = json_string_property(left, "kind");
+    const char *right_kind = json_string_property(right, "kind");
+    if (!left_kind || !right_kind || strcmp(left_kind, right_kind) != 0)
+        return false;
+    if (strcmp(left_kind, "variable") == 0)
+    {
+        const char *left_name = json_string_property(left, "name");
+        const char *right_name = json_string_property(right, "name");
+        return left_name && right_name && strcmp(left_name, right_name) == 0;
+    }
+    if (strcmp(left_kind, "member") == 0)
+    {
+        const char *left_name = json_string_property(left, "member_name");
+        const char *right_name = json_string_property(right, "member_name");
+        json_object *left_object = NULL, *right_object = NULL;
+        return left_name && right_name && strcmp(left_name, right_name) == 0 &&
+            json_object_object_get_ex(left, "object", &left_object) &&
+            json_object_object_get_ex(right, "object", &right_object) &&
+            rust_same_default_array_place(left_object, right_object);
+    }
+    return false;
+}
+
+static json_object *rust_default_array_function(json_object *functions,
+                                                const char *name)
+{
+    size_t count = json_object_array_length(functions);
+    for (size_t i = 0; i < count; i++)
+    {
+        json_object *function = json_object_array_get_idx(functions, i);
+        if (!json_boolean_property(function, "is_native") &&
+            json_boolean_property(function, "has_body") &&
+            json_string_property_equals(function, "name", name))
+            return function;
+    }
+    return NULL;
+}
+
+static void rust_rename_variable_uses(json_object *node, const char *old_name,
+                                      const char *new_name)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            rust_rename_variable_uses(
+                json_object_array_get_idx(node, i), old_name, new_name);
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
+
+    if (json_string_property_equals(node, "kind", "variable") &&
+        json_string_property_equals(node, "name", old_name))
+    {
+        json_object_object_del(node, "name");
+        json_object_object_add(node, "name", json_object_new_string(new_name));
+    }
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        rust_rename_variable_uses(value, old_name, new_name);
+    }
+}
+
+/* Rust cannot construct two simultaneous &mut Vec references for one source
+ * array handle.  For a direct call whose duplicate arguments are the same
+ * stable place, emit a private specialization with those formal parameters
+ * coalesced.  The specialized body uses one mutable borrow, so sequential
+ * mutations through either source formal retain tagged shared-handle identity
+ * without an unsafe alias or a semantic clone. */
+static bool rust_specialize_default_array_alias_call(json_object *model,
+                                                     json_object *functions,
+                                                     json_object *call,
+                                                     size_t *next_id)
+{
+    if (!json_string_property_equals(call, "kind", "call") ||
+        json_boolean_property(call, "is_closure_call") ||
+        json_boolean_property(call, "is_fn_field_call") ||
+        json_boolean_property(call, "rust_array_alias_specialized"))
+        return true;
+
+    json_object *callee = NULL, *args = NULL;
+    if (!json_object_object_get_ex(call, "callee", &callee) ||
+        !json_string_property_equals(callee, "kind", "variable") ||
+        !json_object_object_get_ex(call, "args", &args) ||
+        !json_object_is_type(args, json_type_array)) return true;
+
+    const char *callee_name = json_string_property(callee, "name");
+    json_object *function = callee_name
+        ? rust_default_array_function(functions, callee_name) : NULL;
+    json_object *params = NULL;
+    if (!function || !json_object_object_get_ex(function, "params", &params) ||
+        !json_object_is_type(params, json_type_array)) return true;
+
+    size_t count = json_object_array_length(args);
+    if (count < 2 || json_object_array_length(params) != count) return true;
+    size_t *canonical = malloc(count * sizeof(*canonical));
+    if (!canonical) return false;
+
+    bool has_duplicate = false;
+    for (size_t i = 0; i < count; i++)
+    {
+        canonical[i] = i;
+        json_object *arg = json_object_array_get_idx(args, i);
+        if (!json_boolean_property(arg, "rust_default_array_ref_arg")) continue;
+        json_object *param = json_object_array_get_idx(params, i);
+        if (!json_boolean_property(param, "rust_default_array_ref"))
+        {
+            free(canonical);
+            return true;
+        }
+        if (!rust_deferred_default_array_place(arg))
+        {
+            free(canonical);
+            return true;
+        }
+        for (size_t j = 0; j < i; j++)
+        {
+            json_object *earlier = json_object_array_get_idx(args, j);
+            if (json_boolean_property(earlier, "rust_default_array_ref_arg") &&
+                rust_same_default_array_place(earlier, arg))
+            {
+                canonical[i] = canonical[j];
+                has_duplicate = true;
+                break;
+            }
+        }
+    }
+    if (!has_duplicate)
+    {
+        free(canonical);
+        return true;
+    }
+
+    json_object *specialized = NULL;
+    if (json_object_deep_copy(function, &specialized, NULL) != 0 || !specialized)
+    {
+        free(canonical);
+        return false;
+    }
+    json_object *specialized_params = NULL, *body = NULL;
+    if (!json_object_object_get_ex(specialized, "params", &specialized_params) ||
+        !json_object_object_get_ex(specialized, "body", &body))
+    {
+        json_object_put(specialized);
+        free(canonical);
+        return false;
+    }
+
+    for (size_t i = 0; i < count; i++)
+    {
+        if (canonical[i] == i) continue;
+        json_object *from = json_object_array_get_idx(specialized_params, i);
+        json_object *to = json_object_array_get_idx(
+            specialized_params, canonical[i]);
+        const char *from_name = json_string_property(from, "name");
+        const char *to_name = json_string_property(to, "name");
+        if (!from_name || !to_name)
+        {
+            json_object_put(specialized);
+            free(canonical);
+            return false;
+        }
+        rust_rename_variable_uses(body, from_name, to_name);
+    }
+
+    json_object *kept_params = json_object_new_array();
+    json_object *kept_args = json_object_new_array();
+    if (!kept_params || !kept_args)
+    {
+        if (kept_params) json_object_put(kept_params);
+        if (kept_args) json_object_put(kept_args);
+        json_object_put(specialized);
+        free(canonical);
+        return false;
+    }
+    for (size_t i = 0; i < count; i++)
+    {
+        if (canonical[i] != i) continue;
+        json_object_array_add(
+            kept_params, json_object_get(json_object_array_get_idx(specialized_params, i)));
+        json_object_array_add(
+            kept_args, json_object_get(json_object_array_get_idx(args, i)));
+    }
+    json_object_object_del(specialized, "params");
+    json_object_object_add(specialized, "params", kept_params);
+    json_object_object_del(call, "args");
+    json_object_object_add(call, "args", kept_args);
+
+    char specialized_name[96];
+    do
+    {
+        size_t id = (*next_id)++;
+        snprintf(specialized_name, sizeof(specialized_name),
+                 "__sn_array_alias_call_%zu", id);
+    }
+    while (rust_call_model_contains_string(model, specialized_name));
+    json_object_object_del(specialized, "name");
+    json_object_object_add(specialized, "name",
+                           json_object_new_string(specialized_name));
+    json_object_object_del(callee, "name");
+    json_object_object_add(callee, "name", json_object_new_string(specialized_name));
+    json_object_object_add(call, "rust_array_alias_specialized",
+                           json_object_new_boolean(true));
+    json_object_array_add(functions, specialized);
+    free(canonical);
+    return true;
+}
+
+static bool rust_specialize_default_array_alias_calls(json_object *model,
+                                                      json_object *functions,
+                                                      json_object *node,
+                                                      size_t *next_id)
+{
+    if (!node) return true;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            if (!rust_specialize_default_array_alias_calls(
+                    model, functions, json_object_array_get_idx(node, i),
+                    next_id)) return false;
+        return true;
+    }
+    if (!json_object_is_type(node, json_type_object)) return true;
+
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        if (!rust_specialize_default_array_alias_calls(
+                model, functions, value, next_id)) return false;
+    }
+    return rust_specialize_default_array_alias_call(
+        model, functions, node, next_id);
+}
+
 static void rust_lower_default_array_late_reads(json_object *model,
                                                 json_object *node,
                                                 size_t *next_id)
@@ -602,25 +841,34 @@ static void rust_lower_default_array_late_reads(json_object *model,
         !json_object_is_type(args, json_type_array)) return;
 
     size_t count = json_object_array_length(args);
-    size_t array_index = count;
+    size_t first_array_index = count;
     for (size_t i = 0; i < count; i++)
     {
         json_object *arg = json_object_array_get_idx(args, i);
         if (!json_boolean_property(arg, "rust_default_array_ref_arg")) continue;
-        if (array_index != count || !rust_deferred_default_array_place(arg))
-            return;
-        array_index = i;
+        if (!rust_deferred_default_array_place(arg)) return;
+        if (first_array_index == count) first_array_index = i;
     }
-    if (array_index == count || array_index + 1 >= count) return;
+    if (first_array_index == count) return;
+    bool has_later_value = false;
+    for (size_t i = first_array_index + 1; i < count; i++)
+    {
+        json_object *arg = json_object_array_get_idx(args, i);
+        if (!json_boolean_property(arg, "rust_default_array_ref_arg"))
+        {
+            has_later_value = true;
+            break;
+        }
+    }
+    if (!has_later_value) return;
 
     /* Borrowed siblings need alias-aware place handling rather than a value
      * temporary.  Leave those calls to that representation-specific path. */
     for (size_t i = 0; i < count; i++)
     {
-        if (i == array_index) continue;
         json_object *arg = json_object_array_get_idx(args, i);
-        if (json_boolean_property(arg, "rust_default_array_ref_arg") ||
-            json_boolean_property(arg, "is_ref_arg") ||
+        if (json_boolean_property(arg, "rust_default_array_ref_arg")) continue;
+        if (json_boolean_property(arg, "is_ref_arg") ||
             json_boolean_property(arg, "is_borrow_tmp")) return;
     }
 
@@ -628,8 +876,8 @@ static void rust_lower_default_array_late_reads(json_object *model,
      * call would move it after the pre-evaluated later arguments. */
     for (size_t i = 0; i < count; i++)
     {
-        if (i == array_index) continue;
         json_object *arg = json_object_array_get_idx(args, i);
+        if (json_boolean_property(arg, "rust_default_array_ref_arg")) continue;
         char arg_name[80];
         do
         {
@@ -667,8 +915,14 @@ static void rust_lower_instance_method_clones(json_object *model)
     }
 }
 
-static void rust_lower_calls(json_object *model)
+static bool rust_lower_calls(json_object *model)
 {
+    json_object *functions = NULL;
+    if (!json_object_object_get_ex(model, "functions", &functions) ||
+        !json_object_is_type(functions, json_type_array)) return false;
+    size_t array_alias_id = 0;
+    if (!rust_specialize_default_array_alias_calls(
+            model, functions, model, &array_alias_id)) return false;
     rust_lower_array_searches(model);
     rust_lower_instance_method_clones(model);
     size_t resolved_call_id = 0;
@@ -677,4 +931,5 @@ static void rust_lower_calls(json_object *model)
     rust_lower_default_array_ref_indices(model, model, &array_arg_id);
     size_t array_late_read_id = 0;
     rust_lower_default_array_late_reads(model, model, &array_late_read_id);
+    return true;
 }
