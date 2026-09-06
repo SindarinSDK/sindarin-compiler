@@ -233,6 +233,7 @@ typedef struct RustLocalBindingScope
 {
     const char *name;
     struct RustLocalBindingScope *parent;
+    bool iterator_binding;
 } RustLocalBindingScope;
 
 static bool rust_name_is_shadowed(RustLocalBindingScope *scope,
@@ -240,6 +241,13 @@ static bool rust_name_is_shadowed(RustLocalBindingScope *scope,
 {
     for (; scope; scope = scope->parent)
         if (scope->name && name && strcmp(scope->name, name) == 0) return true;
+    return false;
+}
+
+static bool rust_in_iterator_binding_scope(RustLocalBindingScope *scope)
+{
+    for (; scope; scope = scope->parent)
+        if (scope->iterator_binding) return true;
     return false;
 }
 
@@ -411,16 +419,26 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
                  strcmp(param_kind, "double") == 0 ||
                  strcmp(param_kind, "byte") == 0 ||
                  strcmp(param_kind, "uint32") == 0 ||
-                 strcmp(param_kind, "uint") == 0))
+                 strcmp(param_kind, "uint") == 0 ||
+                 strcmp(param_kind, "int") == 0 ||
+                 strcmp(param_kind, "long") == 0 ||
+                 strcmp(param_kind, "int32") == 0) &&
+                (!rust_in_iterator_binding_scope(scope) ||
+                 (strcmp(param_kind, "int") != 0 &&
+                  strcmp(param_kind, "long") != 0 &&
+                  strcmp(param_kind, "int32") != 0)))
             {
                 bool wrapping_parameter = strcmp(param_kind, "byte") == 0 ||
                     strcmp(param_kind, "uint32") == 0 ||
                     strcmp(param_kind, "uint") == 0;
+                bool checked_parameter = strcmp(param_kind, "int") == 0 ||
+                    strcmp(param_kind, "long") == 0 ||
+                    strcmp(param_kind, "int32") == 0;
                 if (!op || (strcmp(op, "add") != 0 &&
                             strcmp(op, "subtract") != 0 &&
                             strcmp(op, "multiply") != 0 &&
                             strcmp(op, "divide") != 0 &&
-                            (!wrapping_parameter ||
+                            ((!wrapping_parameter && !checked_parameter) ||
                              (strcmp(op, "modulo") != 0 &&
                               strcmp(op, "bitand") != 0 &&
                               strcmp(op, "bitor") != 0 &&
@@ -431,7 +449,9 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
                     fprintf(stderr, "%s",
                         wrapping_parameter
                             ? "Error: Rust target supports by-value wrapping-integer compound assignment only for +=, -=, *=, /=, %=, &=, |=, ^=, <<=, and >>=\n"
-                            : "Error: Rust target supports floating-point compound assignment only for +=, -=, *=, and /=\n");
+                            : checked_parameter
+                                ? "Error: Rust target supports checked by-value integer compound assignment only for +=, -=, *=, /=, %=, &=, |=, ^=, <<=, and >>=\n"
+                                : "Error: Rust target supports floating-point compound assignment only for +=, -=, *=, and /=\n");
                     return false;
                 }
                 if (!json_object_object_get_ex(node, "value", &value) ||
@@ -442,21 +462,26 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
                     fprintf(stderr, "%s",
                         wrapping_parameter
                             ? "Error: Rust target requires by-value wrapping-integer compound assignment to use same-type operands\n"
-                            : "Error: Rust target currently supports floating-point compound assignment only between same-type float or double operands\n");
+                            : checked_parameter
+                                ? "Error: Rust target requires checked by-value integer compound assignment to use same-type operands\n"
+                                : "Error: Rust target currently supports floating-point compound assignment only between same-type float or double operands\n");
                     return false;
                 }
                 if (rust_rhs_mutates_or_forwards_parameter(value, target_name))
                 {
                     fprintf(stderr,
                             "Error: Rust target does not support %s compound assignment of by-value parameter '%s' when its RHS mutates or forwards the same parameter as ref\n",
-                            wrapping_parameter ? "wrapping-integer" : "floating-point", target_name);
+                            wrapping_parameter ? "wrapping-integer" :
+                                checked_parameter ? "checked integer" : "floating-point",
+                            target_name);
                     return false;
                 }
                 json_object_object_add(param, "rust_by_value_mutated",
                                        json_object_new_boolean(true));
                 json_object_object_add(node,
                     wrapping_parameter ? "rust_by_value_wrapping_parameter_mutation" :
-                                         "rust_by_value_floating_parameter_mutation",
+                        checked_parameter ? "rust_by_value_checked_parameter_mutation" :
+                                            "rust_by_value_floating_parameter_mutation",
                     json_object_new_boolean(true));
             }
         }
@@ -503,7 +528,7 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
             !rust_prepare_parameter_mutations_in_node(iterable, params, scope))
             return false;
         const char *binding_name = json_string_property(node, "iterator_name");
-        RustLocalBindingScope binding = {binding_name, scope};
+        RustLocalBindingScope binding = {binding_name, scope, true};
         return !json_object_object_get_ex(node, "body", &body) ||
             rust_prepare_parameter_mutations_in_node(
                 body, params, binding_name ? &binding : scope);
@@ -515,7 +540,7 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
             !rust_prepare_parameter_mutations_in_node(init, params, scope))
             return false;
         const char *binding_name = json_string_property(init, "name");
-        RustLocalBindingScope binding = {binding_name, scope};
+        RustLocalBindingScope binding = {binding_name, scope, false};
         RustLocalBindingScope *loop_scope = binding_name ? &binding : scope;
         if (json_object_object_get_ex(node, "condition", &condition) &&
             !rust_prepare_parameter_mutations_in_node(
@@ -1639,6 +1664,8 @@ static bool rust_validate_expr(json_object *expr)
             !json_string_property_equals(target, "parameter_mem_qual", "as_ref") &&
             !json_boolean_property(
                 expr, "rust_by_value_wrapping_parameter_mutation") &&
+            !json_boolean_property(
+                expr, "rust_by_value_checked_parameter_mutation") &&
             !iterator_binding_mutation)
         {
             fprintf(stderr,
@@ -1668,6 +1695,8 @@ static bool rust_validate_expr(json_object *expr)
              !checked_ref_parameter &&
              !json_boolean_property(
                  expr, "rust_by_value_wrapping_parameter_mutation") &&
+             !json_boolean_property(
+                 expr, "rust_by_value_checked_parameter_mutation") &&
              !iterator_binding_mutation))
         {
             fprintf(stderr,
