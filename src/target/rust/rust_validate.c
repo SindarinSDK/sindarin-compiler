@@ -233,7 +233,6 @@ typedef struct RustLocalBindingScope
 {
     const char *name;
     struct RustLocalBindingScope *parent;
-    bool iterator_binding;
 } RustLocalBindingScope;
 
 static bool rust_name_is_shadowed(RustLocalBindingScope *scope,
@@ -241,13 +240,6 @@ static bool rust_name_is_shadowed(RustLocalBindingScope *scope,
 {
     for (; scope; scope = scope->parent)
         if (scope->name && name && strcmp(scope->name, name) == 0) return true;
-    return false;
-}
-
-static bool rust_in_iterator_binding_scope(RustLocalBindingScope *scope)
-{
-    for (; scope; scope = scope->parent)
-        if (scope->iterator_binding) return true;
     return false;
 }
 
@@ -422,11 +414,7 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
                  strcmp(param_kind, "uint") == 0 ||
                  strcmp(param_kind, "int") == 0 ||
                  strcmp(param_kind, "long") == 0 ||
-                 strcmp(param_kind, "int32") == 0) &&
-                (!rust_in_iterator_binding_scope(scope) ||
-                 (strcmp(param_kind, "int") != 0 &&
-                  strcmp(param_kind, "long") != 0 &&
-                  strcmp(param_kind, "int32") != 0)))
+                 strcmp(param_kind, "int32") == 0))
             {
                 bool wrapping_parameter = strcmp(param_kind, "byte") == 0 ||
                     strcmp(param_kind, "uint32") == 0 ||
@@ -528,7 +516,7 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
             !rust_prepare_parameter_mutations_in_node(iterable, params, scope))
             return false;
         const char *binding_name = json_string_property(node, "iterator_name");
-        RustLocalBindingScope binding = {binding_name, scope, true};
+        RustLocalBindingScope binding = {binding_name, scope};
         return !json_object_object_get_ex(node, "body", &body) ||
             rust_prepare_parameter_mutations_in_node(
                 body, params, binding_name ? &binding : scope);
@@ -540,7 +528,7 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
             !rust_prepare_parameter_mutations_in_node(init, params, scope))
             return false;
         const char *binding_name = json_string_property(init, "name");
-        RustLocalBindingScope binding = {binding_name, scope, false};
+        RustLocalBindingScope binding = {binding_name, scope};
         RustLocalBindingScope *loop_scope = binding_name ? &binding : scope;
         if (json_object_object_get_ex(node, "condition", &condition) &&
             !rust_prepare_parameter_mutations_in_node(

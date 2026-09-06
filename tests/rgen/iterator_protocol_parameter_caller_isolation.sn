@@ -1,0 +1,24 @@
+struct IntIterator =>
+  remaining: int
+
+  fn iter(): IntIterator =>
+    return self
+
+  fn hasNext(): bool =>
+    return self.remaining > 0
+
+  fn next(): int =>
+    self.remaining -= 1
+    return self.remaining
+
+fn mutate(parameter: int): int =>
+  var source: IntIterator = { remaining: 2 }
+  for value in source =>
+    value += 1
+    parameter += value
+  return parameter
+
+fn main(): void =>
+  var caller: int = 3
+  println(mutate(caller))
+  println(caller)
