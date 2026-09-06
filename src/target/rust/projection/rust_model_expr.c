@@ -2033,8 +2033,7 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                                         expr->as.call.callee->as.variable.name)
                                     : NULL;
                                 default_array_callee = callee_sym &&
-                                    callee_sym->is_function &&
-                                    !callee_sym->is_native;
+                                    callee_sym->is_function;
                             }
                             else if (resolved_method)
                             {
@@ -2043,7 +2042,10 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                             bool default_array_ref = arg_type &&
                                 arg_type->kind == TYPE_ARRAY &&
                                 default_array_callee &&
-                                param_is_default && !rust_g_in_thread_spawn_call;
+                                (param_is_default ||
+                                 (callee_native && pmq && i < pmq_count &&
+                                  pmq[i] == MEM_AS_VAL)) &&
+                                !rust_g_in_thread_spawn_call;
                             if (default_array_ref)
                             {
                                 json_object_object_add(arg,

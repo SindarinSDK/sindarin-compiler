@@ -75,21 +75,43 @@ static bool native_scalar_type(json_object *type, bool allow_void)
         native_scalar_kind(base_kind, false);
 }
 
-static bool native_byte_array_type(json_object *type)
+static bool native_primitive_array_type(json_object *type)
 {
     const char *kind = native_string(type, "kind");
     json_object *element_type = NULL;
     return kind && strcmp(kind, "array") == 0 &&
         json_object_object_get_ex(type, "element_type", &element_type) &&
-        native_string(element_type, "kind") &&
-        strcmp(native_string(element_type, "kind"), "byte") == 0;
+        native_scalar_kind(native_string(element_type, "kind"), false);
+}
+
+static int native_primitive_array_tag(json_object *type)
+{
+    json_object *element_type = NULL;
+    if (!native_primitive_array_type(type) ||
+        !json_object_object_get_ex(type, "element_type", &element_type)) return 0;
+    const char *kind = native_string(element_type, "kind");
+    if (!kind) return 0;
+    if (strcmp(kind, "int") == 0 || strcmp(kind, "long") == 0) return 1;
+    if (strcmp(kind, "double") == 0 || strcmp(kind, "float") == 0) return 2;
+    if (strcmp(kind, "bool") == 0) return 4;
+    if (strcmp(kind, "char") == 0) return 5;
+    if (strcmp(kind, "byte") == 0) return 6;
+    return 0;
+}
+
+static void annotate_native_array_type(json_object *type)
+{
+    if (!native_primitive_array_type(type)) return;
+    json_object_object_add(type, "rust_native_array_tag",
+                           json_object_new_int(native_primitive_array_tag(type)));
 }
 
 static bool native_result_type(json_object *type)
 {
     const char *kind = native_string(type, "kind");
     return native_scalar_type(type, true) ||
-        (kind && strcmp(kind, "string") == 0) || native_byte_array_type(type);
+        (kind && strcmp(kind, "string") == 0) ||
+        native_primitive_array_type(type);
 }
 
 static bool native_parameter_type(json_object *type, const char *mem)
@@ -98,7 +120,8 @@ static bool native_parameter_type(json_object *type, const char *mem)
     if (mem && strcmp(mem, "as_ref") == 0)
         return kind && native_scalar_kind(kind, false);
     return native_scalar_type(type, false) ||
-        (kind && strcmp(kind, "string") == 0);
+        (kind && strcmp(kind, "string") == 0) ||
+        native_primitive_array_type(type);
 }
 
 static bool native_body_has_unsupported_construct_impl(json_object *node,
@@ -166,7 +189,7 @@ static bool validate_native_function(json_object *function)
     {
         const char *kind = native_string(return_type, "kind");
         fprintf(stderr,
-                "Error: Rust target native function '%s' has unsupported result type '%s'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double\n",
+                "Error: Rust target native function '%s' has unsupported result type '%s'; the native bridge supports owned strings and primitive arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double\n",
                 name ? name : "<anonymous>", kind ? kind : "unknown");
         return false;
     }
@@ -182,11 +205,13 @@ static bool validate_native_function(json_object *function)
             if (!json_object_object_get_ex(param, "type", &type) ||
                 !native_parameter_type(type, mem) ||
                 (mem && strcmp(mem, "default") != 0 &&
-                        strcmp(mem, "as_ref") != 0) ||
+                        strcmp(mem, "as_ref") != 0 &&
+                        !(strcmp(mem, "as_val") == 0 &&
+                          native_primitive_array_type(type))) ||
                 (sync && strcmp(sync, "none") != 0))
             {
                 fprintf(stderr,
-                        "Error: Rust target native function '%s' parameter '%s' must be an unsynchronized string, default-qualified raw pointer, or default/as-ref native scalar\n",
+                        "Error: Rust target native function '%s' parameter '%s' must be an unsynchronized string or primitive array, default-qualified raw pointer, or default/as-ref native scalar\n",
                         name ? name : "<anonymous>",
                         native_string(param, "name") ? native_string(param, "name") : "<anonymous>");
                 return false;
@@ -517,6 +542,31 @@ static char *unique_private_name(json_object *functions, json_object *structs,
         free(candidate);
     }
     return NULL;
+}
+
+static void annotate_native_array_local_name(json_object *param,
+                                             json_object *functions,
+                                             json_object *structs,
+                                             json_object *globals,
+                                             const char *property,
+                                             const char *role,
+                                             size_t function_index,
+                                             size_t param_index)
+{
+    char candidate[160];
+    for (size_t suffix = 0; suffix < SIZE_MAX; suffix++)
+    {
+        int written = snprintf(candidate, sizeof(candidate),
+                               "__sn_native_%s_%zu_%zu_%zu", role,
+                               function_index, param_index, suffix);
+        if (written < 0 || (size_t)written >= sizeof(candidate)) return;
+        if (!model_name_in_use(functions, structs, globals, candidate))
+        {
+            json_object_object_add(param, property,
+                                   json_object_new_string(candidate));
+            return;
+        }
+    }
 }
 
 static bool add_native_initializer(json_object *functions,
@@ -893,8 +943,27 @@ static bool native_function_uses_managed_abi(json_object *function)
     {
         const char *kind = native_string(type, "kind");
         if ((kind && strcmp(kind, "string") == 0) ||
-            native_byte_array_type(type)) return true;
+            native_primitive_array_type(type)) return true;
     }
+    if (!json_object_object_get_ex(function, "params", &params)) return false;
+    size_t count = json_object_array_length(params);
+    for (size_t i = 0; i < count; i++)
+    {
+        json_object *param = json_object_array_get_idx(params, i);
+        if (json_object_object_get_ex(param, "type", &type) &&
+            ((native_string(type, "kind") &&
+              strcmp(native_string(type, "kind"), "string") == 0) ||
+             native_primitive_array_type(type))) return true;
+    }
+    return false;
+}
+
+static bool native_function_uses_string_abi(json_object *function)
+{
+    json_object *type = NULL, *params = NULL;
+    if (json_object_object_get_ex(function, "return_type", &type) &&
+        native_string(type, "kind") &&
+        strcmp(native_string(type, "kind"), "string") == 0) return true;
     if (!json_object_object_get_ex(function, "params", &params)) return false;
     size_t count = json_object_array_length(params);
     for (size_t i = 0; i < count; i++)
@@ -935,6 +1004,7 @@ bool rust_native_partition_model(json_object *rust_model,
     size_t native_count = 0;
     bool has_managed_abi = false;
     bool has_string_parameter = false;
+    bool has_string_abi = false;
     json_object_object_get_ex(rust_model, "structs", &structs);
     if (json_object_object_get_ex(rust_model, "functions", &functions))
     {
@@ -948,6 +1018,8 @@ bool rust_native_partition_model(json_object *rust_model,
                 has_managed_abi = true;
             if (native_function_has_string_parameter(function))
                 has_string_parameter = true;
+            if (native_function_uses_string_abi(function))
+                has_string_abi = true;
             native_count++;
         }
     }
@@ -1000,6 +1072,7 @@ bool rust_native_partition_model(json_object *rust_model,
     char *rust_initializer_name = NULL;
     char *rust_fflush_name = NULL;
     char *rust_native_array_type_name = NULL;
+    char *rust_native_malloc_name = NULL;
     char *rust_native_free_name = NULL;
     char *rust_native_take_string_name = NULL;
     char *rust_native_take_array_name = NULL;
@@ -1041,6 +1114,8 @@ bool rust_native_partition_model(json_object *rust_model,
     {
         rust_native_array_type_name = unique_private_name(
             functions, structs, globals, "__SnNativeArray");
+        rust_native_malloc_name = unique_private_name(
+            functions, structs, globals, "__sn_native_malloc");
         rust_native_free_name = unique_private_name(
             functions, structs, globals, "__sn_native_free");
         rust_native_take_string_name = unique_private_name(
@@ -1054,12 +1129,14 @@ bool rust_native_partition_model(json_object *rust_model,
             rust_native_retained_strings_name = unique_private_name(
                 functions, structs, globals, "__SN_NATIVE_RETAINED_STRINGS");
         }
-        if (!rust_native_array_type_name || !rust_native_free_name ||
-            !rust_native_take_string_name || !rust_native_take_array_name ||
+        if (!rust_native_array_type_name || !rust_native_malloc_name ||
+            !rust_native_free_name || !rust_native_take_string_name ||
+            !rust_native_take_array_name ||
             (has_string_parameter && (!rust_native_retain_string_name ||
                                       !rust_native_retained_strings_name)))
         {
             free(rust_native_array_type_name);
+            free(rust_native_malloc_name);
             free(rust_native_free_name);
             free(rust_native_take_string_name);
             free(rust_native_take_array_name);
@@ -1152,6 +1229,7 @@ bool rust_native_partition_model(json_object *rust_model,
                 free(rust_initializer_name);
                 free(rust_fflush_name);
                 free(rust_native_array_type_name);
+                free(rust_native_malloc_name);
                 free(rust_native_free_name);
                 free(rust_native_take_string_name);
                 free(rust_native_take_array_name);
@@ -1242,6 +1320,37 @@ bool rust_native_partition_model(json_object *rust_model,
                     char_index++;
                 }
             }
+            json_object *return_type = NULL;
+            if (json_object_object_get_ex(function, "return_type", &return_type))
+                annotate_native_array_type(return_type);
+            if (json_object_object_get_ex(function, "params", &params))
+            {
+                size_t param_count = json_object_array_length(params);
+                for (size_t p = 0; p < param_count; p++)
+                {
+                    json_object *param = json_object_array_get_idx(params, p);
+                    json_object *param_type = NULL;
+                    if (json_object_object_get_ex(param, "type", &param_type))
+                    {
+                        annotate_native_array_type(param_type);
+                        if (native_primitive_array_type(param_type))
+                        {
+                            annotate_native_array_local_name(
+                                param, functions, structs, globals,
+                                "rust_native_array_arg_name", "array_arg",
+                                native_index, p);
+                            annotate_native_array_local_name(
+                                param, functions, structs, globals,
+                                "rust_native_array_values_name", "array_values",
+                                native_index, p);
+                            annotate_native_array_local_name(
+                                param, functions, structs, globals,
+                                "rust_native_array_result_name", "array_result",
+                                native_index, p);
+                        }
+                    }
+                }
+            }
             json_object_object_del(function, "body");
             json_object_object_add(function, "body", json_object_new_array());
             json_object_object_add(function, "has_body", json_object_new_boolean(false));
@@ -1262,8 +1371,13 @@ bool rust_native_partition_model(json_object *rust_model,
     {
         json_object_object_add(rust_model, "rust_native_managed_abi",
                                json_object_new_boolean(true));
+        if (has_string_abi)
+            json_object_object_add(rust_model, "rust_native_string_abi",
+                                   json_object_new_boolean(true));
         json_object_object_add(rust_model, "rust_native_array_type_name",
                                json_object_new_string(rust_native_array_type_name));
+        json_object_object_add(rust_model, "rust_native_malloc_extern_name",
+                               json_object_new_string(rust_native_malloc_name));
         json_object_object_add(rust_model, "rust_native_free_extern_name",
                                json_object_new_string(rust_native_free_name));
         json_object_object_add(rust_model, "rust_native_take_string_name",
@@ -1315,6 +1429,7 @@ bool rust_native_partition_model(json_object *rust_model,
     free(rust_initializer_name);
     free(rust_fflush_name);
     free(rust_native_array_type_name);
+    free(rust_native_malloc_name);
     free(rust_native_free_name);
     free(rust_native_take_string_name);
     free(rust_native_take_array_name);

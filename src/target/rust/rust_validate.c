@@ -2869,7 +2869,9 @@ static bool rust_validate_model_impl(json_object *model,
                           (native && json_string_property_equals(
                               param_type, "kind", "char")))) ||
                         (has_param_type && strcmp(mem_qual, "as_val") == 0 &&
-                         rust_heap_free_named_struct_type(param_type));
+                         (rust_heap_free_named_struct_type(param_type) ||
+                          (native && json_string_property_equals(
+                              param_type, "kind", "array"))));
                     if (!has_param_type ||
                         !rust_type_supported(param_type) ||
                         !mem_qual_supported ||
