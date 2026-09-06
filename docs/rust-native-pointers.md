@@ -21,7 +21,9 @@ existing fixed-width Rust ABI types.
 Every Rust wrapper evaluates the native call once, stores the result, flushes
 C output, and then returns or converts that stored result. This preserves
 source order when C native bodies and Rust functions both print. The generated
-flush binding uses the existing collision-free private-name allocator.
+flush binding uses the private-name allocator across module symbols and every
+function parameter, so a tagged-valid parameter such as
+`__sn_native_fflush_0` cannot shadow the generated extern binding.
 
 The former `*int` signature rejection is covered as a compiled and executed
 positive. Its negative fixture now records the narrower managed `*str`
@@ -67,11 +69,24 @@ shape and the per-call flush without changing the source. The focused O0 run
 that first established corrected mixed C/Rust output order is
 `/tmp/sindarin-s2-pointer-flush-kSRbRf`.
 
-Focused repository validation on the final source tree passed with zero skips:
-6 unchanged tagged native C/Rust tests, 11 Rust-native extra tests (including
-the new pointer ABI matrix at O0/O1/O2/debug), 2 native rejection tests, 1
-imported-origin test, and all 12 Rust toolchain/artifact lifecycle cases. The
-literal `make build && make test` gate passed 1608 unit, 107 C-generation, 79
+The branch was composed with main
+`90a0cdd7ca3c493f1110ae0ef7bd2fdf20046d3d` before the parameter-hygiene
+correction. The reviewer's byte-identical collision probe is committed as
+`native_flush_parameter_collision.sn`. Its generated-source evidence is in
+`/tmp/sindarin-s2-pointer-hygiene-generated-VHB1vw`: the source parameter
+retains `__sn_native_fflush_0` and the extern/call use
+`__sn_native_fflush_1`. The strict C/Rust matrix in
+`/tmp/sindarin-s2-pointer-hygiene-matrix-Bvvmye` covers this probe and the
+three unchanged tagged raw-pointer fixtures under default, checked, and
+unchecked arithmetic at O0, O1, and O2. All 36 paired cases compiled, ran,
+matched their oracles, and matched each other without output normalization.
+
+Focused repository validation after the main composition passed with zero
+skips: 6 unchanged tagged native C/Rust tests, 12 Rust-native extra tests
+(including the pointer and parameter-hygiene ABI matrices at O0/O1/O2/debug),
+2 native rejection tests, 1 imported-origin test, and all 12 Rust
+toolchain/artifact lifecycle cases. Before this bounded correction, the literal
+`make build && make test` gate passed 1608 unit, 107 C-generation, 79
 model-generation, 1141 integration, 58 integration-error, 224 exploratory,
 and 11 exploratory-error tests.
 
