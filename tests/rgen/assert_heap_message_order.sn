@@ -1,0 +1,13 @@
+fn check(calls: int as ref): bool =>
+  println("condition")
+  calls++
+  return false
+
+fn explain(calls: int as ref): str =>
+  println("message")
+  calls++
+  return "bad"
+
+fn main(): void =>
+  var calls: int = 0
+  assert(check(calls), explain(calls))
