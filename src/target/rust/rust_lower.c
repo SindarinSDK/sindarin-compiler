@@ -1,5 +1,19 @@
 /* Shared indexed-place lowering is defined below, after the model-wide name
  * scan, but call lowering also uses it for mutable default-array arguments. */
+static void rust_cleanup_length_reads(json_object *place)
+{
+    if (!place || !json_object_is_type(place, json_type_object)) return;
+    json_object *parent = NULL;
+    if (json_string_property_equals(place, "kind", "array_access")) {
+        json_object_object_add(place, "rust_cleanup_length_read", json_object_new_boolean(true));
+        json_object_object_get_ex(place, "array", &parent);
+    } else if (json_string_property_equals(place, "kind", "member") ||
+               json_string_property_equals(place, "kind", "member_access")) {
+        json_object_object_get_ex(place, "object", &parent);
+    }
+    if (parent) rust_cleanup_length_reads(parent);
+}
+
 static bool rust_collect_place_indices(json_object *model, json_object *place,
                                        json_object *bindings, size_t *next_id);
 
@@ -1132,16 +1146,14 @@ static bool rust_assign_array_join_index_names(
     return rust_assign_array_join_place_index_names(model, receiver, next_id);
 }
 
-/* Member assignment evaluates its value before its destination place.  When
- * that place contains an indexed projection, rendering the projection twice
- * (once for len() and once for indexing) both duplicates work and asks Rust
- * for overlapping immutable/mutable borrows.  Record each raw index in
- * root-to-leaf order, then let the place renderer normalize it while holding
- * one short mutable borrow of that projection's owner. */
-static bool rust_collect_place_indices(json_object *model,
+/* Prepare indexed places without retaining a mutable borrow across index
+ * calls. Tagged array-field cleanup repeats the place for cleanup, store and
+ * result, including parent re-evaluation for negative-index lengths. Ordinary
+ * call-site place lowering retains its existing single-projection mode. */
+static bool rust_collect_place_indices_mode(json_object *model,
                                        json_object *place,
                                        json_object *bindings,
-                                       size_t *next_id)
+                                       size_t *next_id, bool tagged_cleanup)
 {
     if (!place || !json_object_is_type(place, json_type_object)) return true;
 
@@ -1152,7 +1164,7 @@ static bool rust_collect_place_indices(json_object *model,
     {
         json_object *object = NULL;
         if (json_object_object_get_ex(place, "object", &object))
-            return rust_collect_place_indices(model, object, bindings, next_id);
+            return rust_collect_place_indices_mode(model, object, bindings, next_id, tagged_cleanup);
         return true;
     }
 
@@ -1162,7 +1174,7 @@ static bool rust_collect_place_indices(json_object *model,
     if (!json_object_object_get_ex(place, "array", &array) ||
         !json_object_object_get_ex(place, "index", &index))
         return false;
-    if (!rust_collect_place_indices(model, array, bindings, next_id))
+    if (!rust_collect_place_indices_mode(model, array, bindings, next_id, tagged_cleanup))
         return false;
 
     char raw_name[80], owner_name[80], index_name[80];
@@ -1198,8 +1210,31 @@ static bool rust_collect_place_indices(json_object *model,
     json_object_object_add(binding, "rust_place_raw_index_name",
                            json_object_new_string(raw_name));
     json_object_object_add(binding, "index", json_object_get(index));
+    if (tagged_cleanup) {
+        /* C re-evaluates the parent array for len() on a negative index.
+         * Prepare that read separately; no mutable place survives callbacks. */
+        json_object *length_place = NULL, *length_bindings = json_object_new_array();
+        json_object_deep_copy(array, &length_place, NULL);
+        if (!rust_collect_place_indices_mode(model, length_place, length_bindings, next_id, true)) {
+            json_object_put(length_place);
+            json_object_put(length_bindings);
+            json_object_put(binding);
+            return false;
+        }
+        rust_cleanup_length_reads(length_place);
+        json_object_object_add(binding, "rust_cleanup_length_bindings", length_bindings);
+        json_object_object_add(binding, "rust_cleanup_length_place", length_place);
+        json_object_object_add(binding, "rust_cleanup_index_name", json_object_new_string(index_name));
+        json_object_object_add(place, "rust_place_raw_index_name", json_object_new_string(index_name));
+    }
     json_object_array_add(bindings, binding);
     return true;
+}
+
+static bool rust_collect_place_indices(json_object *model, json_object *place,
+                                       json_object *bindings, size_t *next_id)
+{
+    return rust_collect_place_indices_mode(model, place, bindings, next_id, false);
 }
 
 static bool rust_lower_member_assignment_places(json_object *model,
@@ -1231,7 +1266,8 @@ static bool rust_lower_member_assignment_places(json_object *model,
 
     json_object *bindings = json_object_new_array();
     if (!bindings) return false;
-    if (!rust_collect_place_indices(model, object, bindings, next_id))
+    bool tagged_cleanup = json_string_property_equals(node, "field_cleanup", "cleanup_arr");
+    if (!rust_collect_place_indices_mode(model, object, bindings, next_id, tagged_cleanup))
     {
         json_object_put(bindings);
         return false;
@@ -1265,6 +1301,8 @@ static bool rust_lower_member_assignment_places(json_object *model,
     json_object_object_add(node, "rust_place_value_name",
                            json_object_new_string(value_name));
     json_object_object_add(node, "rust_place_index_bindings", bindings);
+    if (tagged_cleanup)
+        json_object_object_add(node, "rust_tagged_array_cleanup", json_object_new_boolean(true));
     return true;
 }
 

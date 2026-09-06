@@ -1,0 +1,12 @@
+fn mutate(data: int[]): int =>
+  data.push(9)
+  return 0
+
+fn work(data: int[], ignored: int): int =>
+  return data.length
+
+fn main(): void =>
+  var data: int[] = {1}
+  var result: int = & work(data, mutate(data))
+  println(result !)
+  println(data.length)

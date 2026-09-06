@@ -31,11 +31,14 @@ RustVariableFacts rust_variable_facts(const Expr *expr)
 
 static void record_variable_facts(Arena *arena, Expr *expr, SymbolTable *table)
 {
-    Symbol *sym = symbol_table_lookup_symbol(table, expr->as.variable.name);
+    Symbol *sym = symbol_table_lookup_symbol(table, expr->type == EXPR_ASSIGN ? expr->as.assign.name : expr->as.variable.name);
     RustFactEntry *entry = arena_alloc(arena, sizeof(*entry));
     entry->expr = expr;
     entry->facts = (RustVariableFacts){0};
     if (sym) {
+        entry->facts.known = true;
+        entry->facts.is_global = sym->kind != SYMBOL_PARAM &&
+            sym->declaration_scope_depth <= rust_g_prescan_function_entry_depth;
         entry->facts.sync_modifier = sym->sync_mod;
         entry->facts.param_mem_qualifier = sym->mem_qual;
         entry->facts.is_parameter = sym->kind == SYMBOL_PARAM;
@@ -130,10 +133,24 @@ static void prescan_expr(Arena *arena, Expr *expr, SymbolTable *table, int lambd
         symbol_table_pop_scope(table);
         break;
     }
+    case EXPR_THREAD_SPAWN:
+        prescan_expr(arena, expr->as.thread_spawn.call, table, lambda_scope_depth);
+        break;
+    case EXPR_THREAD_SYNC:
+        prescan_expr(arena, expr->as.thread_sync.handle, table, lambda_scope_depth);
+        break;
+    case EXPR_THREAD_DETACH:
+        prescan_expr(arena, expr->as.thread_detach.handle, table, lambda_scope_depth);
+        break;
+    case EXPR_SYNC_LIST:
+        for (int i = 0; i < expr->as.sync_list.element_count; i++)
+            prescan_expr(arena, expr->as.sync_list.elements[i], table, lambda_scope_depth);
+        break;
     case EXPR_VARIABLE:
         record_variable_facts(arena, expr, table);
         break;
     case EXPR_ASSIGN:
+        record_variable_facts(arena, expr, table);
         prescan_expr(arena, expr->as.assign.value, table, lambda_scope_depth);
         /* Assignment target is mutated — needs promotion if it's an outer variable */
         if (lambda_scope_depth >= 0 && expr->expr_type && prescan_needs_ref(expr->expr_type)) {
