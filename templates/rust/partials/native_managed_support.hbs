@@ -10,31 +10,76 @@ struct {{rust_ident rust_native_array_type_name}} {
 }
 
 extern "C" {
+    #[link_name = "malloc"]
+    fn {{rust_ident rust_native_malloc_extern_name}}(_: usize) -> *mut std::ffi::c_void;
     #[link_name = "free"]
     fn {{rust_ident rust_native_free_extern_name}}(_: *mut std::ffi::c_void);
 }
 
-unsafe fn {{rust_ident rust_native_take_string_name}}(value: *mut std::ffi::c_char) -> SnString {
+impl {{rust_ident rust_native_array_type_name}} {
+    unsafe fn from_slice<T: Copy>(value: &[T], tag: std::ffi::c_int) -> Self {
+        let cap = value.len().max(4);
+        let byte_count = cap.checked_mul(std::mem::size_of::<T>())
+            .expect("native array allocation size overflow");
+        let data = {{rust_ident rust_native_malloc_extern_name}}(byte_count);
+        assert!(!data.is_null(), "native array argument allocation failed");
+        std::ptr::copy_nonoverlapping(value.as_ptr(), data.cast::<T>(), value.len());
+        Self {
+            data,
+            len: value.len() as i64,
+            cap: cap as i64,
+            elem_size: std::mem::size_of::<T>(),
+            elem_release: None,
+            elem_copy: None,
+            elem_tag: tag,
+        }
+    }
+
+    unsafe fn copy_out<T: Copy>(&self, _tag: std::ffi::c_int) -> Vec<T> {
+        assert!(self.len >= 0, "native array length must be nonnegative");
+        assert!(self.cap >= self.len, "native array capacity must cover its length");
+        assert!(self.elem_size == std::mem::size_of::<T>(), "native array element size mismatch");
+        assert!(self.elem_release.is_none(), "native primitive arrays cannot own managed elements");
+        assert!(self.elem_copy.is_none(), "native primitive arrays cannot copy managed elements");
+        if self.len == 0 { return Vec::new(); }
+        assert!(!self.data.is_null(), "nonempty native array data must not be nil");
+        std::slice::from_raw_parts(self.data.cast::<T>(), self.len as usize).to_vec()
+    }
+
+    unsafe fn release_data(&mut self) {
+        {{rust_ident rust_native_free_extern_name}}(self.data);
+        self.data = std::ptr::null_mut();
+        self.len = 0;
+        self.cap = 0;
+    }
+
+    unsafe fn take<T: Copy>(value: *mut Self, tag: std::ffi::c_int) -> Vec<T> {
+        if value.is_null() { return Vec::new(); }
+        let native = &mut *value;
+        let result = native.copy_out::<T>(tag);
+        native.release_data();
+        {{rust_ident rust_native_free_extern_name}}(value.cast());
+        result
+    }
+}
+
+impl Drop for {{rust_ident rust_native_array_type_name}} {
+    fn drop(&mut self) {
+        if !self.data.is_null() {
+            unsafe { {{rust_ident rust_native_free_extern_name}}(self.data); }
+            self.data = std::ptr::null_mut();
+        }
+    }
+}
+
+{{#if rust_native_string_abi}}unsafe fn {{rust_ident rust_native_take_string_name}}(value: *mut std::ffi::c_char) -> SnString {
     if value.is_null() { return SnString::new(); }
     let result = SnString::from_slice(std::ffi::CStr::from_ptr(value).to_bytes());
     {{rust_ident rust_native_free_extern_name}}(value.cast());
     result
 }
+{{/if}}
 
 unsafe fn {{rust_ident rust_native_take_array_name}}(value: *mut {{rust_ident rust_native_array_type_name}}) -> Vec<u8> {
-    if value.is_null() { return Vec::new(); }
-    let native = &*value;
-    assert!(native.len >= 0, "native byte array length must be nonnegative");
-    assert!(native.cap >= native.len, "native byte array capacity must cover its length");
-    assert!(native.elem_size == 1, "native byte array element size must be one byte");
-    assert!(native.elem_release.is_none(), "native byte arrays cannot own managed elements");
-    let result = if native.len == 0 {
-        Vec::new()
-    } else {
-        assert!(!native.data.is_null(), "nonempty native byte array data must not be nil");
-        std::slice::from_raw_parts(native.data.cast::<u8>(), native.len as usize).to_vec()
-    };
-    {{rust_ident rust_native_free_extern_name}}(native.data);
-    {{rust_ident rust_native_free_extern_name}}(value.cast());
-    result
+    {{rust_ident rust_native_array_type_name}}::take::<u8>(value, 6)
 }

@@ -1,0 +1,17 @@
+@source "scalar_primitive_array_hygiene.sn.c"
+
+struct __SnNativeArray_0 =>
+  value: int
+
+native fn collide(
+  __sn_native_array_arg_0_0_0: int[],
+  __sn_native_malloc_0: int,
+  __sn_native_free_0: int
+): int
+
+fn main(): void =>
+  var values: int[] = {1}
+  var ordinary: __SnNativeArray_0 = { value: 4 }
+  println(collide(values, 2, 3) == 10)
+  println(values.length == 2 && values[0] == 5 && values[1] == 6)
+  println(ordinary.value == 4)

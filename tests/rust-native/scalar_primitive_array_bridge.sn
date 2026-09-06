@@ -1,0 +1,125 @@
+@source "scalar_primitive_array_bridge.sn.c"
+
+native fn mutate_int(values: int[]): void
+native fn mutate_long(values: long[]): void
+native fn mutate_int32(values: int32[]): void
+native fn mutate_uint(values: uint[]): void
+native fn mutate_uint32(values: uint32[]): void
+native fn mutate_byte(values: byte[]): void
+native fn mutate_bool(values: bool[]): void
+native fn mutate_char(values: char[]): void
+native fn mutate_float(values: float[]): void
+native fn mutate_double(values: double[]): void
+native fn mutate_int_as_val(values: int[] as val): void
+@alias "mutate_int"
+native fn mutate_int_alias(values: int[]): void
+
+native fn make_int(): int[]
+native fn make_long(): long[]
+native fn make_int32(): int32[]
+native fn make_uint(): uint[]
+native fn make_uint32(): uint32[]
+native fn make_bool(): bool[]
+native fn make_char(): char[]
+native fn make_float(): float[]
+native fn make_double(): double[]
+@alias "make_int"
+native fn make_int_alias(): int[]
+native fn mutate_ordered(values: int[], marker: int): int
+native fn observe_empty(values: int[]): int
+native fn make_empty_int(): int[]
+
+struct Bag =>
+  values: int[]
+
+fn ordered_values(): int[] =>
+  println("array")
+  return {1}
+
+fn ordered_marker(): int =>
+  println("marker")
+  return 9
+
+fn selected_index(): int =>
+  println("index")
+  return 0
+
+fn main(): void =>
+  var ints: int[] = {1, 2}
+  var longs: long[] = {1, 2}
+  var int32s: int32[] = {1i32, 2i32}
+  var uints: uint[] = {1u, 2u}
+  var uint32s: uint32[] = {1u32, 2u32}
+  var bytes: byte[] = {1b, 2b}
+  var bools: bool[] = {false, false}
+  var chars: char[] = {'a', 'b'}
+  var floats: float[] = {1.0f, 2.0f}
+  var doubles: double[] = {1.0, 2.0}
+
+  mutate_int(ints)
+  mutate_long(longs)
+  mutate_int32(int32s)
+  mutate_uint(uints)
+  mutate_uint32(uint32s)
+  mutate_byte(bytes)
+  mutate_bool(bools)
+  mutate_char(chars)
+  mutate_float(floats)
+  mutate_double(doubles)
+
+  println(ints.length == 3 && ints[0] == 11 && ints[2] == 12)
+  println(longs.length == 3 && longs[0] == 21 && longs[2] == 22)
+  println(int32s.length == 3 && int32s[0] == 31i32 && int32s[2] == 32i32)
+  println(uints.length == 3 && uints[0] == 41u && uints[2] == 42u)
+  println(uint32s.length == 3 && uint32s[0] == 51u32 && uint32s[2] == 52u32)
+  println(bytes.length == 3 && bytes[0] == 71b && bytes[2] == 72b)
+  println(bools.length == 3 && bools[0] && bools[2])
+  println(chars.length == 3 && chars[0] == 'x' && chars[2] == 'z')
+  println(floats.length == 3 && floats[0] == 6.5f && floats[2] == 7.5f)
+  println(doubles.length == 3 && doubles[0] == 8.5 && doubles[2] == 9.5)
+
+  var as_value: int[] = {3, 4}
+  mutate_int_as_val(as_value)
+  println(as_value.length == 3 && as_value[0] == 61 && as_value[2] == 62)
+
+  var aliased_values: int[] = {1, 2}
+  mutate_int_alias(aliased_values)
+  println(aliased_values.length == 3 && aliased_values[0] == 11)
+
+  var made_ints: int[] = make_int()
+  var made_longs: long[] = make_long()
+  var made_int32s: int32[] = make_int32()
+  var made_uints: uint[] = make_uint()
+  var made_uint32s: uint32[] = make_uint32()
+  var made_bools: bool[] = make_bool()
+  var made_chars: char[] = make_char()
+  var made_floats: float[] = make_float()
+  var made_doubles: double[] = make_double()
+
+  println(made_ints.length == 2 && made_ints[0] == 101 && made_ints[1] == 102)
+  println(made_longs.length == 2 && made_longs[0] == 201 && made_longs[1] == 202)
+  println(made_int32s.length == 2 && made_int32s[0] == 301i32 && made_int32s[1] == 302i32)
+  println(made_uints.length == 2 && made_uints[0] == 401u && made_uints[1] == 402u)
+  println(made_uint32s.length == 2 && made_uint32s[0] == 501u32 && made_uint32s[1] == 502u32)
+  println(made_bools.length == 2 && made_bools[0] && !made_bools[1])
+  println(made_chars.length == 2 && made_chars[0] == 'q' && made_chars[1] == 'r')
+  println(made_floats.length == 2 && made_floats[0] == 11.5f && made_floats[1] == 12.5f)
+  println(made_doubles.length == 2 && made_doubles[0] == 21.5 && made_doubles[1] == 22.5)
+
+  var aliased_result: int[] = make_int_alias()
+  println(aliased_result.length == 2 && aliased_result[1] == 102)
+
+  println(mutate_ordered(ordered_values(), ordered_marker()) == 10)
+
+  var empty: int[] = {}
+  println(observe_empty(empty) == 0 && empty.length == 0)
+  var empty_result: int[] = make_empty_int()
+  println(empty_result.length == 0)
+
+  var bag: Bag = { values: {1, 2} }
+  mutate_int(bag.values)
+  println(bag.values.length == 3 && bag.values[0] == 11)
+
+  var rows: int[][] = {{1, 2}}
+  mutate_int(rows[selected_index()])
+  println(rows[0].length == 3 && rows[0][0] == 11)

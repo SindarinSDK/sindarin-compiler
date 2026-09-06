@@ -1,0 +1,4 @@
+native fn unsupported(values: str[]): int
+
+fn main(): void =>
+  println(unsupported({"value"}))
