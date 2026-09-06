@@ -21,18 +21,24 @@ jobs:
             sn_cc: gcc
             sn_cflags: ''
             sn_release_cflags: ''
+            rust_target: ''
+            rust_flags: ''
 
           - os: windows-latest
             exe_ext: '.exe'
             sn_cc: clang
             sn_cflags: '--target=x86_64-w64-mingw32 -fuse-ld=lld -rtlib=compiler-rt -unwindlib=none'
             sn_release_cflags: '-O3'
+            rust_target: 'x86_64-pc-windows-gnu'
+            rust_flags: '--target=x86_64-pc-windows-gnu -C linker=clang'
 
           - os: macos-latest
             exe_ext: ''
             sn_cc: clang
             sn_cflags: ''
             sn_release_cflags: ''
+            rust_target: ''
+            rust_flags: ''
 
     steps:
       - name: Checkout repository
@@ -82,6 +88,9 @@ jobs:
         run: |
           rustup toolchain install 1.93.1 --profile minimal
           rustup default 1.93.1
+          if [ -n "${{ matrix.rust_target }}" ]; then
+            rustup target add --toolchain 1.93.1 "${{ matrix.rust_target }}"
+          fi
           rustc --version --verbose
 
       - name: Setup libs
@@ -108,6 +117,7 @@ jobs:
           SN_CC: ${{ matrix.sn_cc }}
           SN_CFLAGS: ${{ matrix.sn_cflags }}
           SN_RELEASE_CFLAGS: ${{ matrix.sn_release_cflags }}
+          SN_RUSTFLAGS: ${{ matrix.rust_flags }}
           SN_EXCLUDE_TESTS: ''
           PYTHONUNBUFFERED: '1'
         run: |

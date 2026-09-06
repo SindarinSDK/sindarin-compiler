@@ -14,12 +14,18 @@ NATIVE_FLUSH_SOURCE = ROOT / "tests/rust-native/scalar_initializer_timing.sn"
 NATIVE_FLUSH_EXPECTED = NEWLINE.join(
     [b"initializer", b"body-before-native", b"42", b"43", b""]
 )
+NATIVE_OUTPUT_SOURCE = ROOT / "tests/integration/test_interop_opaque.sn"
+NATIVE_OUTPUT_ORACLE = ROOT / "tests/integration/test_interop_opaque.expected"
 DIAGNOSTIC_SOURCE = ROOT / "tests/rgen/int_checked_overflow.sn"
 DIAGNOSTIC_STDERR = b"Runtime error: integer overflow in addition" + NEWLINE
 FIXTURE_HASHES = {
     NATIVE_FLUSH_SOURCE: "a0a0a69df8bc02392a56363bb00340d279ea157646e5ddd4015aced17caa1a5a",
     ROOT / "tests/rust-native/scalar_initializer_timing.expected":
         "17af02e5b7cffb2526f9f17cb22efe9c4c08dff2a636493abc8cf6319644f3c4",
+    NATIVE_OUTPUT_SOURCE:
+        "0cb0084c0221ef7f0e0fb899ae483a368d8289b3a3eb89d236092bd306fb9bab",
+    NATIVE_OUTPUT_ORACLE:
+        "af6f37b47303ec93247985f06afc0d54589a6250c05ab7ca732b1da62faaf367",
     DIAGNOSTIC_SOURCE: "c2cdf6192628c189c74e593d35ffb65f57a100b1251f8a87eb0a267d8983a8f7",
 }
 
@@ -80,6 +86,28 @@ def main():
         if native_outputs["c"] != native_outputs["rust"]:
             raise AssertionError("native flush: exact C/Rust stdout mismatch")
 
+        # This tagged-valid source prints from Rust-lowered functions immediately
+        # before and after native C bodies that also print. Exact stream equality
+        # therefore detects a missing or late fflush(NULL) at the ABI boundary.
+        native_output_expected = NATIVE_OUTPUT_ORACLE.read_bytes().replace(
+            b"\n", NEWLINE)
+        native_body_outputs = {}
+        for target in ("c", "rust"):
+            executable = temp / f"native-output-{target}{EXE_SUFFIX}"
+            compile_target(compiler, NATIVE_OUTPUT_SOURCE, target, executable)
+            result, argv = invoke([executable])
+            require_status(f"native output {target} run", result, argv, 0)
+            if result.stderr:
+                raise AssertionError(
+                    f"native output {target}: unexpected stderr {result.stderr.hex()}")
+            if result.stdout != native_output_expected:
+                raise AssertionError(
+                    f"native output {target}: stdout={result.stdout.hex()}, "
+                    f"expected={native_output_expected.hex()}")
+            native_body_outputs[target] = result.stdout
+        if native_body_outputs["c"] != native_body_outputs["rust"]:
+            raise AssertionError("native output: exact C/Rust stdout mismatch")
+
         diagnostic_streams = {}
         for target in ("c", "rust"):
             executable = temp / f"diagnostic-{target}{EXE_SUFFIX}"
@@ -99,6 +127,7 @@ def main():
             raise AssertionError("checked diagnostic: exact C/Rust stderr mismatch")
 
     print("PASS native initializer/body/return printing and C flush: 2 target executions")
+    print("PASS native C output ordered between Rust writes: 2 target executions")
     print("PASS checked diagnostic stderr/status: 2 target executions")
 
 

@@ -122,11 +122,30 @@ def mismatch_diagnostic(source, target, opt, compiler, executable,
         for key in ("SN_CC", "SN_CFLAGS", "SN_RELEASE_CFLAGS", "SN_LDFLAGS",
                     "SN_LDLIBS", "SN_RUSTC", "SN_RUSTFLAGS")
     }
-    config_path = ROOT / "etc" / ("sn.windows.cfg" if os.name == "nt" else
-                                  "sn.darwin.cfg" if os.uname().sysname == "Darwin" else
-                                  "sn.linux.cfg")
+    config_path = compiler.parent / ("sn.windows.cfg" if os.name == "nt" else
+                                     "sn.darwin.cfg" if os.uname().sysname == "Darwin" else
+                                     "sn.linux.cfg")
     dlls = sorted(str(path) for parent in (compiler.parent, executable.parent)
                   for path in parent.glob("*.dll")) if os.name == "nt" else []
+    generated = []
+    if target == "c":
+        build_root = ROOT / ".sn" / "build"
+        build_dirs = sorted(build_root.glob(f"{source.stem}_*"),
+                            key=lambda path: path.stat().st_mtime_ns, reverse=True)
+        if build_dirs:
+            for artifact in sorted(build_dirs[0].glob("*.c")):
+                data = artifact.read_bytes()
+                entrypoints = [line for line in data.splitlines()
+                               if b" main(" in line or line.startswith(b"int main(")]
+                output_calls = [line for line in data.splitlines()
+                                if b"sn_print" in line or b"fflush(stdout)" in line]
+                generated.append({
+                    "path": str(artifact),
+                    "sha256": hashlib.sha256(data).hexdigest(),
+                    "size": len(data),
+                    "entrypoint_hex": [line.hex() for line in entrypoints],
+                    "output_calls_hex": [line.hex() for line in output_calls],
+                })
     return "\n".join([
         f"source={source.relative_to(ROOT)} target={target} opt=O{opt}",
         f"compiler={compiler} exists={compiler.is_file()}",
@@ -142,6 +161,9 @@ def mismatch_diagnostic(source, target, opt, compiler, executable,
         f"run_stderr_hex={run_result.stderr.hex()}",
         f"config_env={config!r}",
         f"config_path={config_path} exists={config_path.is_file()}",
+        f"config_sha256="
+        f"{hashlib.sha256(config_path.read_bytes()).hexdigest() if config_path.is_file() else '<missing>'}",
+        f"generated_c={generated!r}",
         f"runtime_dlls={dlls!r}",
         f"PATH={os.environ.get('PATH', '<unset>')}",
     ])
@@ -164,9 +186,11 @@ def main():
                 outputs = {}
                 for target in ("c", "rust"):
                     executable = temp / f"{source.stem}-{target}-O{opt}{EXE_SUFFIX}"
+                    keep_generated = (("--keep-generated",)
+                                      if os.name == "nt" and target == "c" else ())
                     compile_result, compile_argv = checked(
                         [compiler, source.relative_to(ROOT), "--target", target,
-                         f"-O{opt}", "--no-install", "-l", "1", "-o", executable])
+                         f"-O{opt}", *keep_generated, "--no-install", "-l", "1", "-o", executable])
                     run_result, run_argv = checked([executable])
                     outputs[target] = run_result.stdout
                     target_expected = (WINDOWS_C_TEXT_STDOUT[source]

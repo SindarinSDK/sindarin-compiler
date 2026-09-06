@@ -313,6 +313,12 @@ def format_subprocess_failure(stdout: str, stderr: str) -> str:
     return f'stdout:\n{stdout.strip() or "<empty>"}\nstderr:\n{stderr.strip() or "<empty>"}'
 
 
+def console_safe(value: str) -> str:
+    """Escape only characters the active console encoding cannot display."""
+    encoding = getattr(sys.stdout, 'encoding', None) or 'utf-8'
+    return value.encode(encoding, errors='backslashreplace').decode(encoding)
+
+
 def append_shell_fragment(existing: str, fragment: str) -> str:
     """Append a raw shell fragment without altering any inherited content."""
     return f'{existing} {fragment}' if existing else fragment
@@ -1338,7 +1344,7 @@ class TestRunner:
         print(f"  {result['name']:45} {Colors.RED}FAIL{Colors.NC} ({result['reason']})")
         if result.get('details'):
             for line in result['details']:
-                print(f"    {line}")
+                print(f"    {console_safe(line)}")
 
     @staticmethod
     def _format_elapsed(elapsed: float) -> str:
@@ -1370,7 +1376,7 @@ class TestRunner:
             print(f"{Colors.RED}FAIL{Colors.NC} ({reason}){time_str}")
             if details:
                 for line in details[:50]:
-                    print(f"    {line}")
+                    print(f"    {console_safe(line)}")
 
 
     def _run_rgen_test_internal(self, test_file: str, expected_file: str,
