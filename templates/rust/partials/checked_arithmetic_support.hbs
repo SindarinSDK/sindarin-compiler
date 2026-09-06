@@ -1,6 +1,12 @@
 fn {{rust_ident rust_runtime_error_name}}(message: &'static str) -> ! {
+{{#if @root.rust_windows_text_output}}
+    __sn_write_stderr_bytes(message.as_bytes());
+    __sn_write_stderr_bytes(b"\n");
+    std::process::exit(1);
+{{else}}
     eprintln!("{}", message);
     std::process::exit(1);
+{{/if}}
 }
 
 fn {{rust_ident rust_checked_name}}<T>(value: Option<T>, message: &'static str) -> T {

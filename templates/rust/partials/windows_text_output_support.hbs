@@ -1,0 +1,33 @@
+fn __sn_write_windows_text<W: std::io::Write>(writer: &mut W, bytes: &[u8]) {
+    let mut start = 0usize;
+    for (index, byte) in bytes.iter().enumerate() {
+        if *byte == b'\n' {
+            writer.write_all(&bytes[start..index]).expect("failed to write output");
+            writer.write_all(b"\r\n").expect("failed to write output newline");
+            start = index + 1;
+        }
+    }
+    writer.write_all(&bytes[start..]).expect("failed to write output");
+    writer.flush().expect("failed to flush output");
+}
+
+fn __sn_write_stdout_bytes(bytes: &[u8]) {
+    __sn_write_windows_text(&mut std::io::stdout().lock(), bytes);
+}
+
+fn __sn_write_stderr_bytes(bytes: &[u8]) {
+    __sn_write_windows_text(&mut std::io::stderr().lock(), bytes);
+}
+
+fn __sn_print_format(arguments: std::fmt::Arguments<'_>) {
+    let mut rendered = String::new();
+    std::fmt::write(&mut rendered, arguments).expect("failed to format output");
+    __sn_write_stdout_bytes(rendered.as_bytes());
+}
+
+fn __sn_println_format(arguments: std::fmt::Arguments<'_>) {
+    let mut rendered = String::new();
+    std::fmt::write(&mut rendered, arguments).expect("failed to format output");
+    rendered.push('\n');
+    __sn_write_stdout_bytes(rendered.as_bytes());
+}

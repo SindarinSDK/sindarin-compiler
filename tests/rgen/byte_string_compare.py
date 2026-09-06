@@ -43,9 +43,9 @@ PARITY_CASES = {
     ROOT / "tests/rgen/invalid_utf8_result.sn": bytes.fromhex("af0a"),
 }
 
-# Windows keeps the C target's stdout in text mode, so its line terminators are
-# CRLF. The Rust target writes SnString bytes directly and retains LF. Keep
-# exact target-specific raw oracles instead of normalizing either byte stream.
+# Windows keeps the tagged C target's stdout in text mode, so its line
+# terminators are CRLF. The Rust output adapter must reproduce that precise
+# bytewise LF transport while preserving every non-LF byte.
 WINDOWS_C_TEXT_STDOUT = {
     PROBES / "split_empty_utf8.sn": bytes.fromhex(
         "6469726563743d3cc37ca93e0d0a"
@@ -88,7 +88,7 @@ UNIX_ARGV_EXPECTED = bytes.fromhex("af0ac3a90a706c61696e0a")
 # Windows starts from a UTF-16 command line. An unpaired low surrogate is
 # transported by the Rust boundary as its explicit WTF-8 byte sequence.
 WINDOWS_ARGV = ["\udcaf", "é", "plain"]
-WINDOWS_ARGV_EXPECTED = bytes.fromhex("edb2af0ac3a90a706c61696e0a")
+WINDOWS_ARGV_EXPECTED = bytes.fromhex("edb2af0d0ac3a90d0a706c61696e0d0a")
 EXE_SUFFIX = ".exe" if os.name == "nt" else ""
 
 
@@ -170,7 +170,7 @@ def main():
                     run_result, run_argv = checked([executable])
                     outputs[target] = run_result.stdout
                     target_expected = (WINDOWS_C_TEXT_STDOUT[source]
-                                       if os.name == "nt" and target == "c" else expected)
+                                       if os.name == "nt" else expected)
                     if outputs[target] != target_expected:
                         raise AssertionError(
                             f"{source.name} {target} O{opt}: "
@@ -180,10 +180,10 @@ def main():
                                 compile_result, compile_argv, run_result, run_argv))
                     target_executions += 1
                 pairs += 1
-                if os.name != "nt" and outputs["c"] != outputs["rust"]:
+                if outputs["c"] != outputs["rust"]:
                     raise AssertionError(f"{source.name} O{opt}: raw target mismatch")
             if os.name == "nt":
-                print(f"PASS {source.stem}: Windows C CRLF/Rust LF exact raw oracles "
+                print(f"PASS {source.stem}: Windows C/Rust text-mode exact raw bytes "
                       "O0/O1/O2", flush=True)
             else:
                 print(f"PASS {source.stem}: Unix C/Rust O0/O1/O2 raw bytes", flush=True)
@@ -201,7 +201,7 @@ def main():
         if os.name == "nt":
             print("PASS raw_argv: Windows Rust O0/O1/O2 UTF-16/WTF-8 argument transport",
                   flush=True)
-            print(f"PASS: {pairs} platform-specific C/Rust output pairs "
+            print(f"PASS: {pairs} Windows C/Rust raw-output pairs "
                   f"({target_executions} target executions) + 3 Rust-only Windows "
                   "UTF-16/WTF-8 argv executions")
         else:

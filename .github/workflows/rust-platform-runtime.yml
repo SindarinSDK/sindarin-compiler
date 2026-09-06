@@ -141,9 +141,11 @@ jobs:
             python3 scripts/run_rust_tests.py rust-native-origin --verbose \
               --require-count 1 --fail-on-skip
           echo "Unix byte coverage requires 30 raw-output C/Rust pairs (60 target executions) plus 3 Rust-only raw-byte argv executions."
-          echo "Windows byte coverage uses 30 exact target-specific output pairs (C CRLF, Rust LF) plus 3 Rust-only UTF-16/WTF-8 argv executions."
+          echo "Windows byte coverage requires 30 exact C/Rust text-mode raw-output pairs plus 3 Rust-only UTF-16/WTF-8 argv executions."
           run_gate "platform-specific raw byte-string behavior" \
             python3 tests/rgen/byte_string_compare.py
+          run_gate "exact Rust/C text output, native flush, and diagnostics" \
+            python3 tests/rgen/windows_text_transport_compare.py
           run_gate "indexed member Rust runtime composition" \
             python3 scripts/run_rust_tests.py rgen --filter indexed_member_assignment \
               --verbose --require-count 1 --fail-on-skip
