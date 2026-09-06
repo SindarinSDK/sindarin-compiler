@@ -188,6 +188,16 @@ fn __sn_byte_array_to_string(values: &[u8]) -> SnString {
     SnString::from_c_bytes(values)
 }
 
+fn __sn_byte_array_to_hex(values: &[u8]) -> SnString {
+    const HEX: &[u8; 16] = b"0123456789abcdef";
+    let mut result = Vec::with_capacity(values.len().saturating_mul(2));
+    for value in values {
+        result.push(HEX[(value >> 4) as usize]);
+        result.push(HEX[(value & 0x0f) as usize]);
+    }
+    SnString::from_bytes(result)
+}
+
 fn __sn_string_to_bytes(value: &SnString) -> Vec<u8> { value.as_bytes().to_vec() }
 
 fn __sn_string_append(value: &SnString, suffix: &SnString) -> SnString {

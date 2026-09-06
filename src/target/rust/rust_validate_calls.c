@@ -8,7 +8,8 @@ static bool rust_array_method_supported(const char *name)
            strcmp(name, "reverse") == 0 || strcmp(name, "clear") == 0 ||
            strcmp(name, "clone") == 0 || strcmp(name, "contains") == 0 ||
            strcmp(name, "indexOf") == 0 || strcmp(name, "concat") == 0 ||
-           strcmp(name, "join") == 0 || strcmp(name, "toString") == 0;
+           strcmp(name, "join") == 0 || strcmp(name, "toString") == 0 ||
+           strcmp(name, "toHex") == 0;
 }
 
 static bool rust_array_text_element_supported(json_object *type)
@@ -588,7 +589,7 @@ static bool rust_validate_call(json_object *expr)
                     return false;
                 }
             }
-            if (strcmp(method, "toString") == 0)
+            if (strcmp(method, "toString") == 0 || strcmp(method, "toHex") == 0)
             {
                 json_object *element_type = NULL;
                 const char *element_kind = NULL;
@@ -597,8 +598,8 @@ static bool rust_validate_call(json_object *expr)
                     strcmp(element_kind, "byte") != 0)
                 {
                     fprintf(stderr,
-                            "Error: Rust target does not support array method 'toString' for %s elements yet\n",
-                            element_kind ? element_kind : "<unknown>");
+                            "Error: Rust target does not support array method '%s' for %s elements yet\n",
+                            method, element_kind ? element_kind : "<unknown>");
                     return false;
                 }
             }

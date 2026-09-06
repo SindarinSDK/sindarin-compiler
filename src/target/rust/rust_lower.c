@@ -838,7 +838,8 @@ static bool rust_model_uses_array_text(json_object *node)
             rust_expr_is_array(object))
         {
             const char *method = json_string_property(callee, "member_name");
-            if (method && strcmp(method, "toString") == 0) return true;
+            if (method && (strcmp(method, "toString") == 0 ||
+                           strcmp(method, "toHex") == 0)) return true;
             if (method && strcmp(method, "join") == 0)
             {
                 json_object *array_type = NULL, *element_type = NULL;

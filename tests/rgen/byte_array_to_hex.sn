@@ -1,0 +1,17 @@
+fn produce(calls: int as ref): byte[] =>
+  calls += 1
+  return {15b}
+
+fn main(): void =>
+  var __sn_array: byte[] = {0b, 1b, 15b, 16b, 171b, 255b}
+  println(__sn_array.toHex())
+  __sn_array.push(0b)
+  __sn_array.push(15b)
+  println(__sn_array.toHex())
+  var empty: byte[] = {}
+  print("empty=<")
+  print(empty.toHex())
+  println(">")
+  var calls: int = 0
+  println(produce(calls).toHex())
+  println(calls)
