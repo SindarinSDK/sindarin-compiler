@@ -1,11 +1,11 @@
 # Rust native managed primitive arrays
 
-This dependent Rust-only slice starts at the reviewed native pointer and
-managed byte transport head `b3a3cd1b3c40ae2d9c7efcb42a665876d30fd0b2`
-and includes its whitespace correction at
-`788d7b840b6bfff9e262c82955afb5c5ca407b67`. It reuses the byte-backed
-`SnString` representation already composed into that parent; it adds no second
-string representation and performs no text conversion.
+This dependent Rust-only slice now starts at the current-main PR 143
+composition `0b14d9455cc6935bf31e7feba5bf5dbd224a96d5`, whose base is main
+`9598f10e2a6e63031b06c404a8c1e352715b3e7a`. It therefore retains the native
+pointer identity, character alias, string lifetime, and helper-hygiene fixes
+while reusing main's byte-backed `SnString`. It adds no second string
+representation and performs no text conversion.
 
 The native bridge accepts default and `as val` primitive array parameters and
 owned primitive array results for `int`, `long`, `int32`, `uint`, `uint32`,
@@ -34,9 +34,9 @@ forces source collisions with the projected array type, `malloc`, `free`, and
 array-argument temporary names.
 
 The authoritative tag control is peeled `v0.0.83` commit
-`79c20bdb8314aff3c778471ceab20bb8f9ca8d62`. The final control smoke is
-`/tmp/sindarin-s2-tag-smoke-03DB0W`. The strict differential matrix is
-`/tmp/sindarin-s2-managed-array-final-matrix-wzu9jE`: all nine
+`79c20bdb8314aff3c778471ceab20bb8f9ca8d62`. The composition control smoke is
+`/tmp/sindarin-s2-tag-smoke-Ute943`. The strict differential matrix is
+`/tmp/sindarin-s2-managed-array-main9598-matrix-Ce0RZs`: all nine
 default/checked/unchecked by O0/O1/O2 pairs compile and run on both the tagged
 C compiler and this Rust branch, match the committed oracle, and match each
 other byte-for-byte. The source, sidecar, and output hashes are recorded inside
@@ -46,10 +46,15 @@ the tagged executable exits through `SIGSEGV` after generated C frees the
 caller's array handle and leaves it dangling. It is neither admitted as defined
 parity nor treated as a Rust exception.
 
-Focused final gates pass with no skips: 8 tagged native cases, 15 native extra
-cases, 4 native diagnostics, 1 imported-origin case, all 12 Rust toolchain and
-artifact-lifecycle cases, 36 promoted closure cases, and the closure diagnostic
-case.
+The retained PR 143 behavior was rechecked after the template composition in
+`/tmp/sindarin-s2-managed-pr143-matrix-FsrGmw`: all 36 tag/Rust pairs and all
+72 runs pass with exact stdout and stderr across the same modes. Focused gates
+pass with no skips: 8 tagged native fixtures, 19 native extra fixtures, 4
+native diagnostics, 1 imported-origin fixture, all 12 Rust toolchain and
+artifact-lifecycle cases, 36 promoted closure cases plus the closure
+diagnostic, and 63 compiled raw-byte string executions. Composing PR 144's
+strict fixture-count workflow on this dependent slice requires counts of 8
+tagged and 19 extra fixtures.
 
 Managed string/nested/struct/function arrays, native structs and struct
 results, callbacks, SDK packages that require those representations, and
