@@ -143,6 +143,18 @@ static void rust_concurrency_numeric_cell(json_object *node, const char *prefix)
     json_object_object_add(node, "rust_cell_inner", inner);
 }
 
+/* Find the storage owner without evaluating any part of an indexed place. */
+static json_object *rust_concurrency_place_root(json_object *place)
+{
+    const char *kind = json_string_property(place, "kind");
+    json_object *parent = NULL;
+    if (kind && strcmp(kind, "array_access") == 0)
+        json_object_object_get_ex(place, "array", &parent);
+    else if (kind && (strcmp(kind, "member") == 0 || strcmp(kind, "member_access") == 0))
+        json_object_object_get_ex(place, "object", &parent);
+    return parent ? rust_concurrency_place_root(parent) : place;
+}
+
 static void rust_concurrency_annotate(json_object *node, const char *prefix,
                                      const char *join_name, json_object *model)
 {
@@ -235,6 +247,24 @@ static void rust_concurrency_annotate(json_object *node, const char *prefix,
             json_object_object_del(object, "rust_cell");
             json_object_object_add(object, "rust_cell_guard", json_object_new_boolean(true));
             json_object_object_add(node, "rust_cell_bindings", rust_concurrency_bind_args(node, prefix));
+        }
+    }
+
+    if (strcmp(kind, "member_assign") == 0 && json_string_property(node, "rust_place_value_name")) {
+        json_object *place = NULL;
+        json_object_object_get_ex(node, "object", &place);
+        json_object *owner = rust_concurrency_place_root(place);
+        if (json_boolean_property(owner, "rust_cell")) {
+            /* RHS and raw indices run first, without a guard. The place
+             * renderer then indexes the real owned Vec under one short lock. */
+            char guard[256]; snprintf(guard, sizeof(guard), "%splace_guard", prefix);
+            rust_concurrency_string(node, "rust_place_cell_owner", json_string_property(owner, "name"));
+            rust_concurrency_string(node, "rust_place_cell_guard", guard);
+            rust_concurrency_string(owner, "name", guard);
+            json_object_object_del(owner, "rust_cell");
+            json_object_object_del(owner, "rust_global");
+            json_object_object_del(owner, "rust_thread_ref_owner");
+            json_object_object_add(owner, "rust_cell_guard", json_object_new_boolean(true));
         }
     }
 

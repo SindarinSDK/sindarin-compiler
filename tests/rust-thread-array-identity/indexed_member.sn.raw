@@ -1,0 +1,12 @@
+struct Item =>
+  value: int = 0
+
+fn update(items: Item[]): int =>
+  items[0].value = 7
+  return items[0].value
+
+fn main(): void =>
+  var items: Item[] = { Item { value: 1 } }
+  var result: int = & update(items)
+  println(result !)
+  println(items[0].value)

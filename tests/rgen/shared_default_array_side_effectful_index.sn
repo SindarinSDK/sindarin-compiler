@@ -1,6 +1,9 @@
 struct Bag =>
   values: int[]
 
+struct Shelf =>
+  bags: Bag[]
+
 fn nextIndex(calls: int as ref): int =>
   calls++
   return 0
@@ -13,3 +16,6 @@ fn main(): void =>
   bags.push(Bag { values: {1} })
   var calls: int = 0
   println(observe(bags[nextIndex(calls)].values))
+  var shelves: Shelf[] = { Shelf { bags: bags } }
+  println(observe(shelves[nextIndex(calls)].bags[nextIndex(calls)].values))
+  println(calls)

@@ -15,6 +15,7 @@ def main():
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--reference', type=Path, default=Path('/tmp/sindarin-tagged-control-reference.json'))
     parser.add_argument('--filter')
+    parser.add_argument('--optimization', action='append', choices=['O0', 'O1', 'O2'], help='Selected optimization levels; default O0/O2')
     args = parser.parse_args()
     repo = Path(__file__).resolve().parent.parent
     out = args.output.resolve()
@@ -22,12 +23,13 @@ def main():
     ref, tag, tag_sha, compiler, reference = read_reference(args.reference)
     if subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=tag, text=True).strip() != tag_sha:
         raise SystemExit('HARNESSISSUE: tagged worktree identity mismatch')
+    opts = ['-'+opt for opt in args.optimization] if args.optimization else ['-O0', '-O2']
     head = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=repo, text=True).strip()
     provenance = {'head': head, 'compiler': str(repo/'bin/sn'),
                   'compiler_sha256': hashlib.sha256((repo/'bin/sn').read_bytes()).hexdigest(),
                   'reference_path': str(args.reference), 'reference': reference,
                   'reference_sha256': hashlib.sha256(args.reference.read_bytes()).hexdigest(),
-                  'tag': tag_sha, 'modes': ['default', 'checked', 'unchecked'], 'optimization': ['-O0', '-O2']}
+                  'tag': tag_sha, 'modes': ['default', 'checked', 'unchecked'], 'optimization': opts}
     (out/'provenance.json').write_text(json.dumps(provenance, indent=2)+'\n')
 
     def run(source, cwd, cc, directory, flags, rust=False):
@@ -67,7 +69,7 @@ def main():
             source = out/original.name.removesuffix('.raw')
             source.write_bytes(committed)
         for mode in ('default', 'checked', 'unchecked'):
-            for opt in ('-O0', '-O2'):
+            for opt in opts:
                 directory = out/(original.name+'-'+mode+opt)
                 flags = [opt]+([] if mode == 'default' else ['--'+mode])
                 row = {'source': str(relative), 'sha256': hashlib.sha256(committed).hexdigest(), 'mode': mode, 'opt': opt}
