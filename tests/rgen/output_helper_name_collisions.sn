@@ -1,0 +1,6 @@
+fn main(): void =>
+  var __sn_c_stdout: int = 1
+  var __sn_c_fwrite: int = 2
+  var __sn_stdout_stream: int = 4
+  var __sn_stdout_write: int = 8
+  println(__sn_c_stdout + __sn_c_fwrite + __sn_stdout_stream + __sn_stdout_write)

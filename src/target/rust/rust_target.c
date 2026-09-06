@@ -198,6 +198,12 @@ static bool rust_emit(CompilerOptions *options, Module *module,
         json_object_put(model);
         return false;
     }
+    if (!rust_configure_output_transport(model))
+    {
+        fprintf(stderr, "Error: Rust target could not assign hygienic output transport names\n");
+        json_object_put(model);
+        return false;
+    }
     if (!rust_lower_string_method_helper_names(model))
     {
         fprintf(stderr, "Error: Rust target could not assign hygienic string helper names\n");

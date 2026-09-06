@@ -1,5 +1,60 @@
 #![allow(dead_code, unused_mut, unused_variables, unused_parens)]
 
+unsafe extern "C" {
+    #[cfg(not(windows))]
+    #[cfg_attr(target_vendor = "apple", link_name = "__stdoutp")]
+    #[cfg_attr(not(target_vendor = "apple"), link_name = "stdout")]
+    static mut __sn_c_stdout: *mut std::ffi::c_void;
+
+    #[cfg(windows)]
+    #[link_name = "__acrt_iob_func"]
+    fn __sn_c_stdout(index: u32) -> *mut std::ffi::c_void;
+
+    #[link_name = "fwrite"]
+    fn __sn_c_fwrite(
+        data: *const std::ffi::c_void,
+        size: usize,
+        count: usize,
+        stream: *mut std::ffi::c_void,
+    ) -> usize;
+}
+
+fn __sn_stdout_stream() -> *mut std::ffi::c_void {
+    unsafe {
+        #[cfg(windows)]
+        { __sn_c_stdout(1) }
+        #[cfg(not(windows))]
+        { __sn_c_stdout }
+    }
+}
+
+fn __sn_stdout_write(bytes: &[u8]) {
+    if bytes.is_empty() { return; }
+    let written = unsafe {
+        __sn_c_fwrite(
+            bytes.as_ptr().cast(), 1, bytes.len(),
+            __sn_stdout_stream())
+    };
+    if written != bytes.len() { panic!("failed to write stdout"); }
+}
+
+macro_rules! print {
+    ($($arg:tt)*) => {
+        let rendered = format!($($arg)*);
+        __sn_stdout_write(rendered.as_bytes());
+    };
+}
+
+macro_rules! println {
+    () => { __sn_stdout_write(b"\n") };
+    ($($arg:tt)*) => {
+        let mut rendered = format!($($arg)*);
+        rendered.push('\n');
+        __sn_stdout_write(rendered.as_bytes());
+    };
+}
+
+
 #[derive(Clone, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 struct SnString(Vec<u8>);
 
@@ -157,22 +212,22 @@ fn __sn_find_bytes(haystack: &[u8], needle: &[u8]) -> Option<usize> {
 }
 
 fn __sn_write_bytes(bytes: &[u8]) {
-    use std::io::Write;
-    std::io::stdout().lock().write_all(bytes).expect("failed to write stdout");
+    __sn_stdout_write(bytes);
 }
 
 fn __sn_print_string(value: &SnString) { __sn_write_bytes(value.as_bytes()); }
 
 fn __sn_println_string(value: &SnString) {
-    __sn_write_bytes(value.as_bytes());
-    __sn_write_bytes(b"\n");
+    let mut line = Vec::with_capacity(value.len() + 1);
+    line.extend_from_slice(value.as_bytes());
+    line.push(b'\n');
+    __sn_write_bytes(&line);
 }
 
 fn __sn_print_char(value: char) { __sn_write_bytes(&[value as u32 as u8]); }
 
 fn __sn_println_char(value: char) {
-    __sn_print_char(value);
-    __sn_write_bytes(b"\n");
+    __sn_write_bytes(&[value as u32 as u8, b'\n']);
 }
 
 fn __sn_string_join(values: &[SnString], delimiter: &SnString) -> SnString {

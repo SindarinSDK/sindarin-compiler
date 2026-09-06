@@ -155,22 +155,37 @@ fn __sn_find_bytes(haystack: &[u8], needle: &[u8]) -> Option<usize> {
 }
 
 fn __sn_write_bytes(bytes: &[u8]) {
+{{#if @root.rust_uses_c_stdout}}
+    {{rust_ident @root.rust_stdout_write_name}}(bytes);
+{{else}}
     use std::io::Write;
     std::io::stdout().lock().write_all(bytes).expect("failed to write stdout");
+{{/if}}
 }
 
 fn __sn_print_string(value: &SnString) { __sn_write_bytes(value.as_bytes()); }
 
 fn __sn_println_string(value: &SnString) {
+{{#if @root.rust_uses_c_stdout}}
+    let mut line = Vec::with_capacity(value.len() + 1);
+    line.extend_from_slice(value.as_bytes());
+    line.push(b'\n');
+    __sn_write_bytes(&line);
+{{else}}
     __sn_write_bytes(value.as_bytes());
     __sn_write_bytes(b"\n");
+{{/if}}
 }
 
 fn __sn_print_char(value: char) { __sn_write_bytes(&[value as u32 as u8]); }
 
 fn __sn_println_char(value: char) {
+{{#if @root.rust_uses_c_stdout}}
+    __sn_write_bytes(&[value as u32 as u8, b'\n']);
+{{else}}
     __sn_print_char(value);
     __sn_write_bytes(b"\n");
+{{/if}}
 }
 
 fn __sn_string_join(values: &[SnString], delimiter: &SnString) -> SnString {

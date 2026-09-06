@@ -1,0 +1,53 @@
+unsafe extern "C" {
+    #[cfg(not(windows))]
+    #[cfg_attr(target_vendor = "apple", link_name = "__stdoutp")]
+    #[cfg_attr(not(target_vendor = "apple"), link_name = "stdout")]
+    static mut {{rust_ident rust_c_stdout_name}}: *mut std::ffi::c_void;
+
+    #[cfg(windows)]
+    #[link_name = "__acrt_iob_func"]
+    fn {{rust_ident rust_c_stdout_name}}(index: u32) -> *mut std::ffi::c_void;
+
+    #[link_name = "fwrite"]
+    fn {{rust_ident rust_c_fwrite_name}}(
+        data: *const std::ffi::c_void,
+        size: usize,
+        count: usize,
+        stream: *mut std::ffi::c_void,
+    ) -> usize;
+}
+
+fn {{rust_ident rust_stdout_stream_name}}() -> *mut std::ffi::c_void {
+    unsafe {
+        #[cfg(windows)]
+        { {{rust_ident rust_c_stdout_name}}(1) }
+        #[cfg(not(windows))]
+        { {{rust_ident rust_c_stdout_name}} }
+    }
+}
+
+fn {{rust_ident rust_stdout_write_name}}(bytes: &[u8]) {
+    if bytes.is_empty() { return; }
+    let written = unsafe {
+        {{rust_ident rust_c_fwrite_name}}(
+            bytes.as_ptr().cast(), 1, bytes.len(),
+            {{rust_ident rust_stdout_stream_name}}())
+    };
+    if written != bytes.len() { panic!("failed to write stdout"); }
+}
+
+macro_rules! print {
+    ($($arg:tt)*) => {
+        let rendered = format!($($arg)*);
+        {{rust_ident rust_stdout_write_name}}(rendered.as_bytes());
+    };
+}
+
+macro_rules! println {
+    () => { {{rust_ident rust_stdout_write_name}}(b"\n") };
+    ($($arg:tt)*) => {
+        let mut rendered = format!($($arg)*);
+        rendered.push('\n');
+        {{rust_ident rust_stdout_write_name}}(rendered.as_bytes());
+    };
+}

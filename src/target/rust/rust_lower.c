@@ -993,6 +993,56 @@ static bool rust_allocate_helper_name(json_object *model, const char *base,
     return false;
 }
 
+static bool rust_model_uses_output(json_object *node)
+{
+    if (!node) return false;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            if (rust_model_uses_output(json_object_array_get_idx(node, i)))
+                return true;
+        return false;
+    }
+    if (!json_object_is_type(node, json_type_object)) return false;
+    if (json_string_property_equals(node, "kind", "builtin_print") ||
+        json_string_property_equals(node, "kind", "builtin_println"))
+        return true;
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        if (rust_model_uses_output(value)) return true;
+    }
+    return false;
+}
+
+/* Use the platform C stdout stream for every Sindarin builtin output call.
+ * This preserves the tagged backend's terminal/pipe buffering and shares the
+ * same stream with native printf/puts/fflush calls. Rust item names remain
+ * private and collision-free; link_name selects the stable CRT symbols. */
+static bool rust_configure_output_transport(json_object *model)
+{
+    if (!rust_model_uses_output(model)) return true;
+    const char *bases[] = {
+        "__sn_c_stdout", "__sn_c_fwrite",
+        "__sn_stdout_stream", "__sn_stdout_write"
+    };
+    const char *keys[] = {
+        "rust_c_stdout_name", "rust_c_fwrite_name",
+        "rust_stdout_stream_name", "rust_stdout_write_name"
+    };
+    json_object_object_add(model, "rust_uses_c_stdout",
+                           json_object_new_boolean(true));
+    for (size_t i = 0; i < 4; i++)
+    {
+        char name[96];
+        if (!rust_allocate_helper_name(model, bases[i], name, sizeof(name)))
+            return false;
+        json_object_object_add(model, keys[i], json_object_new_string(name));
+    }
+    return true;
+}
+
 /* Assertions bind their operands before branching so each source expression is
  * evaluated exactly once and in source order.  Those bindings live in the same
  * lexical namespace as source locals, so assign every assertion collision-free
