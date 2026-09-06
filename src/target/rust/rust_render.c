@@ -49,9 +49,11 @@ static char *rust_type(json_object *type)
             return strdup("Vec<()>");
         char *element = rust_type(element_type);
         if (!element) return NULL;
-        size_t length = strlen(element) + sizeof("Vec<>");
+        const char *format = json_string_property(type, "rust_nested_array_handle")
+            ? "std::sync::Arc<std::sync::Mutex<Vec<%s>>>" : "Vec<%s>";
+        size_t length = strlen(element) + strlen(format) + 1;
         char *result = malloc(length);
-        if (result) snprintf(result, length, "Vec<%s>", element);
+        if (result) snprintf(result, length, format, element);
         free(element);
         return result;
     }

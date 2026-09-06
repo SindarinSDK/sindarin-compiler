@@ -147,6 +147,7 @@ static bool rust_check_toolchain(const CompilerOptions *options)
 #include "rust_concurrency.c"
 #include "rust_thread_arrays.c"
 #include "rust_thread_refs.c"
+#include "rust_nested_arrays.c"
 
 static bool rust_emit(CompilerOptions *options, Module *module,
                       TargetEmitMode mode, GeneratedFileSet *result)
@@ -176,6 +177,7 @@ static bool rust_emit(CompilerOptions *options, Module *module,
         json_object_put(model);
         return false;
     }
+    if (!rust_prepare_nested_array_owners(model)) { json_object_put(model); return false; }
     if (!rust_prepare_thread_references(model)) { json_object_put(model); return false; }
     if (!rust_validate_model(model, options->arithmetic_mode, native_plan))
     {

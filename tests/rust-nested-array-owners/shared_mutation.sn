@@ -1,0 +1,13 @@
+fn mutate(items: int[]): void =>
+  items[0] = 9
+
+fn main(): void =>
+  var seed: int[] = {1, 2}
+  var values: int[][2] = seed
+  mutate(seed)
+  mutate(values[1])
+  values[0][1] = 6
+  println($"{values[0][0]},{values[1][0]},{seed[0]}")
+  println($"{values[0][1]},{values[1][1]},{seed[1]}")
+  values.pop()
+  values.pop()

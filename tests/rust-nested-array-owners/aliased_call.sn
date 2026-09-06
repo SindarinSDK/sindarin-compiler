@@ -1,0 +1,13 @@
+fn mutate(first: int[], second: int[]): void =>
+  first[0] = second[1] + 5
+  second[1] = first[0] + 1
+
+fn main(): void =>
+  var seed: int[] = {1, 2}
+  var values: int[][2] = seed
+  mutate(values[0], values[1])
+  var copied: int[] = seed
+  copied[0] = 20
+  println($"{seed[0]},{seed[1]},{values[0][0]},{values[1][1]},{copied[0]}")
+  values.pop()
+  values.pop()
