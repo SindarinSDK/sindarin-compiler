@@ -71,6 +71,32 @@ static bool native_scalar_type(json_object *type, bool allow_void)
         native_scalar_kind(base_kind, false);
 }
 
+static bool native_byte_array_type(json_object *type)
+{
+    const char *kind = native_string(type, "kind");
+    json_object *element_type = NULL;
+    return kind && strcmp(kind, "array") == 0 &&
+        json_object_object_get_ex(type, "element_type", &element_type) &&
+        native_string(element_type, "kind") &&
+        strcmp(native_string(element_type, "kind"), "byte") == 0;
+}
+
+static bool native_result_type(json_object *type)
+{
+    const char *kind = native_string(type, "kind");
+    return native_scalar_type(type, true) ||
+        (kind && strcmp(kind, "string") == 0) || native_byte_array_type(type);
+}
+
+static bool native_parameter_type(json_object *type, const char *mem)
+{
+    const char *kind = native_string(type, "kind");
+    if (mem && strcmp(mem, "as_ref") == 0)
+        return kind && native_scalar_kind(kind, false);
+    return native_scalar_type(type, false) ||
+        (kind && strcmp(kind, "string") == 0);
+}
+
 static bool native_body_has_unsupported_construct_impl(json_object *node,
                                                         bool direct_callee)
 {
@@ -88,10 +114,6 @@ static bool native_body_has_unsupported_construct_impl(json_object *node,
     const char *kind = native_string(node, "kind");
     if ((kind && (strcmp(kind, "lambda") == 0 ||
                   strcmp(kind, "closure_call") == 0 ||
-                  strcmp(kind, "array_literal") == 0 ||
-                  strcmp(kind, "sized_array") == 0 ||
-                  strcmp(kind, "array_access") == 0 ||
-                  strcmp(kind, "array_slice") == 0 ||
                   strcmp(kind, "struct_literal") == 0 ||
                   strcmp(kind, "thread_spawn") == 0 ||
                   strcmp(kind, "thread_sync") == 0 ||
@@ -104,8 +126,7 @@ static bool native_body_has_unsupported_construct_impl(json_object *node,
     if (json_object_object_get_ex(node, "type", &type))
     {
         const char *type_kind = native_string(type, "kind");
-        if (type_kind && (strcmp(type_kind, "array") == 0 ||
-                          strcmp(type_kind, "struct") == 0 ||
+        if (type_kind && (strcmp(type_kind, "struct") == 0 ||
                           (strcmp(type_kind, "function") == 0 && !direct_callee)))
             return true;
     }
@@ -137,11 +158,11 @@ static bool validate_native_function(json_object *function)
         return false;
     }
     if (!json_object_object_get_ex(function, "return_type", &return_type) ||
-        !native_scalar_type(return_type, true))
+        !native_result_type(return_type))
     {
         const char *kind = native_string(return_type, "kind");
         fprintf(stderr,
-                "Error: Rust target native function '%s' has unsupported result type '%s'; the native bridge supports raw pointers plus void, bool, char, int, long, int32, uint, uint32, byte, float, and double\n",
+                "Error: Rust target native function '%s' has unsupported result type '%s'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double\n",
                 name ? name : "<anonymous>", kind ? kind : "unknown");
         return false;
     }
@@ -155,12 +176,13 @@ static bool validate_native_function(json_object *function)
             const char *mem = native_string(param, "mem_qual");
             const char *sync = native_string(param, "sync_mod");
             if (!json_object_object_get_ex(param, "type", &type) ||
-                !native_scalar_type(type, false) ||
-                (mem && strcmp(mem, "default") != 0) ||
+                !native_parameter_type(type, mem) ||
+                (mem && strcmp(mem, "default") != 0 &&
+                        strcmp(mem, "as_ref") != 0) ||
                 (sync && strcmp(sync, "none") != 0))
             {
                 fprintf(stderr,
-                        "Error: Rust target native function '%s' parameter '%s' must be an unsynchronized, default-qualified native scalar or raw pointer\n",
+                        "Error: Rust target native function '%s' parameter '%s' must be an unsynchronized string, default-qualified raw pointer, or default/as-ref native scalar\n",
                         name ? name : "<anonymous>",
                         native_string(param, "name") ? native_string(param, "name") : "<anonymous>");
                 return false;
@@ -171,7 +193,7 @@ static bool validate_native_function(json_object *function)
         native_body_has_unsupported_construct(body))
     {
         fprintf(stderr,
-                "Error: Rust target native function '%s' body uses a closure, thread, array, or struct construct outside the native bridge\n",
+                "Error: Rust target native function '%s' body uses a closure, thread, or struct construct outside the native bridge\n",
                 name ? name : "<anonymous>");
         return false;
     }
@@ -432,11 +454,12 @@ static json_object *native_assignment_statement(const char *target,
     return statement;
 }
 
-static bool model_name_in_use(json_object *functions, json_object *globals,
+static bool model_name_in_use(json_object *functions, json_object *structs,
+                              json_object *globals,
                               const char *candidate)
 {
-    json_object *collections[] = {functions, globals};
-    for (size_t collection = 0; collection < 2; collection++)
+    json_object *collections[] = {functions, structs, globals};
+    for (size_t collection = 0; collection < 3; collection++)
     {
         json_object *items = collections[collection];
         size_t count = items ? json_object_array_length(items) : 0;
@@ -461,7 +484,8 @@ static bool model_name_in_use(json_object *functions, json_object *globals,
     return false;
 }
 
-static char *unique_private_name(json_object *functions, json_object *globals,
+static char *unique_private_name(json_object *functions, json_object *structs,
+                                 json_object *globals,
                                  const char *stem)
 {
     for (size_t suffix = 0; suffix < SIZE_MAX; suffix++)
@@ -471,7 +495,8 @@ static char *unique_private_name(json_object *functions, json_object *globals,
         char *candidate = malloc((size_t)needed + 1);
         if (!candidate) return NULL;
         snprintf(candidate, (size_t)needed + 1, "%s_%zu", stem, suffix);
-        if (!model_name_in_use(functions, globals, candidate)) return candidate;
+        if (!model_name_in_use(functions, structs, globals, candidate))
+            return candidate;
         free(candidate);
     }
     return NULL;
@@ -682,7 +707,7 @@ static bool project_native_model(json_object *model,
     free(selected_globals);
     char *initializer_name = NULL;
     if (has_deferred_global)
-        initializer_name = unique_private_name(functions, globals,
+        initializer_name = unique_private_name(functions, structs, globals,
                                                "__rust_native_initialize");
     if (has_deferred_global && (!initializer_name ||
         !add_native_initializer(native_functions, native_globals,
@@ -844,6 +869,27 @@ static void remove_private_helper_functions(json_object *rust_model,
     json_object_object_add(rust_model, "functions", remaining);
 }
 
+static bool native_function_uses_managed_abi(json_object *function)
+{
+    json_object *type = NULL, *params = NULL;
+    if (json_object_object_get_ex(function, "return_type", &type))
+    {
+        const char *kind = native_string(type, "kind");
+        if ((kind && strcmp(kind, "string") == 0) ||
+            native_byte_array_type(type)) return true;
+    }
+    if (!json_object_object_get_ex(function, "params", &params)) return false;
+    size_t count = json_object_array_length(params);
+    for (size_t i = 0; i < count; i++)
+    {
+        json_object *param = json_object_array_get_idx(params, i);
+        if (json_object_object_get_ex(param, "type", &type) &&
+            native_string(type, "kind") &&
+            strcmp(native_string(type, "kind"), "string") == 0) return true;
+    }
+    return false;
+}
+
 bool rust_native_partition_model(json_object *rust_model,
                                  const CompilerOptions *options,
                                  RustNativePlan **out_plan)
@@ -852,8 +898,10 @@ bool rust_native_partition_model(json_object *rust_model,
     *out_plan = NULL;
     if (!rust_model || !options) return false;
 
-    json_object *functions = NULL;
+    json_object *functions = NULL, *structs = NULL;
     size_t native_count = 0;
+    bool has_managed_abi = false;
+    json_object_object_get_ex(rust_model, "structs", &structs);
     if (json_object_object_get_ex(rust_model, "functions", &functions))
     {
         size_t count = json_object_array_length(functions);
@@ -862,6 +910,8 @@ bool rust_native_partition_model(json_object *rust_model,
             json_object *function = json_object_array_get_idx(functions, i);
             if (!native_bool(function, "is_native")) continue;
             if (!validate_native_function(function)) return false;
+            if (native_function_uses_managed_abi(function))
+                has_managed_abi = true;
             native_count++;
         }
     }
@@ -913,11 +963,15 @@ bool rust_native_partition_model(json_object *rust_model,
     char *initializer_symbol = NULL;
     char *rust_initializer_name = NULL;
     char *rust_fflush_name = NULL;
+    char *rust_native_array_type_name = NULL;
+    char *rust_native_free_name = NULL;
+    char *rust_native_take_string_name = NULL;
+    char *rust_native_take_array_name = NULL;
     json_object *globals = NULL;
     json_object_object_get_ex(rust_model, "globals", &globals);
     if (native_count || initializer_name)
         rust_fflush_name = unique_private_name(
-            functions, globals, "__sn_native_fflush");
+            functions, structs, globals, "__sn_native_fflush");
     if ((native_count || initializer_name) && !rust_fflush_name)
     {
         json_object_put(selected_function_names);
@@ -930,7 +984,7 @@ bool rust_native_partition_model(json_object *rust_model,
     {
         initializer_symbol = malloc(strlen(initializer_name) + 7);
         rust_initializer_name = unique_private_name(
-            functions, globals, "__sn_native_initializer");
+            functions, structs, globals, "__sn_native_initializer");
         if (!initializer_symbol || !rust_initializer_name)
         {
             free(initializer_symbol);
@@ -944,6 +998,33 @@ bool rust_native_partition_model(json_object *rust_model,
         }
         snprintf(initializer_symbol, strlen(initializer_name) + 7,
                  "__sn__%s", initializer_name);
+    }
+    if (has_managed_abi)
+    {
+        rust_native_array_type_name = unique_private_name(
+            functions, structs, globals, "__SnNativeArray");
+        rust_native_free_name = unique_private_name(
+            functions, structs, globals, "__sn_native_free");
+        rust_native_take_string_name = unique_private_name(
+            functions, structs, globals, "__sn_native_take_string");
+        rust_native_take_array_name = unique_private_name(
+            functions, structs, globals, "__sn_native_take_byte_array");
+        if (!rust_native_array_type_name || !rust_native_free_name ||
+            !rust_native_take_string_name || !rust_native_take_array_name)
+        {
+            free(rust_native_array_type_name);
+            free(rust_native_free_name);
+            free(rust_native_take_string_name);
+            free(rust_native_take_array_name);
+            free(initializer_symbol);
+            free(rust_initializer_name);
+            free(rust_fflush_name);
+            json_object_put(selected_function_names);
+            json_object_put(selected_global_names);
+            free(initializer_name);
+            rust_native_plan_free(plan);
+            return false;
+        }
     }
 
     /* Finish all fallible owned-plan allocation before touching rust_model, so
@@ -971,6 +1052,10 @@ bool rust_native_partition_model(json_object *rust_model,
                 free(initializer_symbol);
                 free(rust_initializer_name);
                 free(rust_fflush_name);
+                free(rust_native_array_type_name);
+                free(rust_native_free_name);
+                free(rust_native_take_string_name);
+                free(rust_native_take_array_name);
                 free(initializer_name);
                 rust_native_plan_free(plan);
                 return false;
@@ -1017,6 +1102,19 @@ bool rust_native_partition_model(json_object *rust_model,
         json_object_object_add(rust_model, "rust_native_fflush_extern_name",
                                json_object_new_string(rust_fflush_name));
     }
+    if (has_managed_abi)
+    {
+        json_object_object_add(rust_model, "rust_native_managed_abi",
+                               json_object_new_boolean(true));
+        json_object_object_add(rust_model, "rust_native_array_type_name",
+                               json_object_new_string(rust_native_array_type_name));
+        json_object_object_add(rust_model, "rust_native_free_extern_name",
+                               json_object_new_string(rust_native_free_name));
+        json_object_object_add(rust_model, "rust_native_take_string_name",
+                               json_object_new_string(rust_native_take_string_name));
+        json_object_object_add(rust_model, "rust_native_take_array_name",
+                               json_object_new_string(rust_native_take_array_name));
+    }
     if (initializer_name)
     {
         json_object *remaining_functions = NULL;
@@ -1051,6 +1149,10 @@ bool rust_native_partition_model(json_object *rust_model,
     free(initializer_symbol);
     free(rust_initializer_name);
     free(rust_fflush_name);
+    free(rust_native_array_type_name);
+    free(rust_native_free_name);
+    free(rust_native_take_string_name);
+    free(rust_native_take_array_name);
     free(initializer_name);
     restore_source_callable_names(rust_model);
 
