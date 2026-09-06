@@ -4,12 +4,12 @@ fn observe(calls: int as ref, value: char): char =>
 
 fn main(): void =>
   var calls: int = 0
-  var selected: int = match observe(calls, '\x ff ') =>
+  var selected: int = match observe(calls, '\xff') =>
     'a' => 0
-    '\x ff '  => 42
+    '\xff' => 42
     else => -1
-  var result: char = match '\x ff '  =>
-    '\x ff '  => 'z'
+  var result: char = match '\xff' =>
+    '\xff' => 'z'
     else => 'x'
   println(selected)
   println(calls)
