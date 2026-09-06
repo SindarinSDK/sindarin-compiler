@@ -1,0 +1,25 @@
+fn nextFloat(trace: int as ref, marker: int, value: float): float =>
+  trace = trace * 10 + marker
+  return value
+
+fn narrowResult(trace: int as ref): float =>
+  return nextFloat(trace, 4, 1.25f) * 2.0
+
+fn takeFloat(value: float): float =>
+  return value
+
+struct FloatBox =>
+  value: float = 0.0f
+
+fn main(): void =>
+  var trace: int = 0
+  var stored: float = nextFloat(trace, 1, 1.25f) * 2.0
+  stored = nextFloat(trace, 2, 1.25f) * 3.0
+  var argument: float = takeFloat(nextFloat(trace, 3, 1.25f) * 4.0)
+  var result: float = narrowResult(trace)
+  var box: FloatBox = { value: 0.0f }
+  box.value = nextFloat(trace, 5, 1.25f) * 5.0
+  var values: float[] = {0.0f}
+  values[0] = nextFloat(trace, 6, 1.25f) * 6.0
+  println($"{stored:.5f}/{argument:.5f}/{result:.5f}/{box.value:.5f}/{values[0]:.5f}")
+  println(trace)

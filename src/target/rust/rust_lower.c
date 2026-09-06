@@ -73,12 +73,126 @@ static const char *rust_numeric_widening_type(const char *from, const char *to)
          strcmp(from, "uint32") == 0 || strcmp(from, "uint") == 0))
         return "f64";
     if (strcmp(to, "float") == 0 &&
-        (strcmp(from, "int32") == 0 || strcmp(from, "uint32") == 0))
+        (strcmp(from, "double") == 0 || strcmp(from, "int32") == 0 ||
+         strcmp(from, "uint32") == 0))
         return "f32";
     if (strcmp(from, "byte") == 0 && rust_numeric_integral_kind(to) &&
         strcmp(to, "byte") != 0)
         return rust_numeric_type_name(to);
     return NULL;
+}
+
+static bool rust_context_infers_float_literal(json_object *expr)
+{
+    const char *kind = json_string_property(expr, "kind");
+    if (!kind) return false;
+    if (strcmp(kind, "literal") == 0) return true;
+    if (strcmp(kind, "unary") == 0)
+    {
+        json_object *operand = NULL;
+        return json_object_object_get_ex(expr, "operand", &operand) &&
+               rust_context_infers_float_literal(operand);
+    }
+    return false;
+}
+
+static void rust_set_numeric_boundary(json_object *expr, json_object *expected_type)
+{
+    json_object *actual_type = NULL;
+    if (!expr || !expected_type ||
+        !json_object_object_get_ex(expr, "type", &actual_type))
+        return;
+    const char *actual_kind = json_string_property(actual_type, "kind");
+    const char *expected_kind = json_string_property(expected_type, "kind");
+    if (actual_kind && expected_kind && strcmp(actual_kind, "double") == 0 &&
+        strcmp(expected_kind, "float") == 0 &&
+        !rust_context_infers_float_literal(expr))
+        json_object_object_add(expr, "rust_numeric_boundary_type",
+                               json_object_new_string("f32"));
+}
+
+/* Rust requires explicit scalar conversions at typed receiving boundaries,
+ * while tagged C applies its usual assignment, argument, and return
+ * conversions. Keep mixed arithmetic at its type-checked common width, then
+ * convert the completed expression exactly once where its value is received.
+ * The active result type follows nested functions and lambdas independently. */
+static void rust_lower_numeric_boundaries(json_object *node,
+                                          json_object *active_return_type)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            rust_lower_numeric_boundaries(json_object_array_get_idx(node, i),
+                                          active_return_type);
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
+
+    json_object *return_type = NULL, *body = NULL, *body_stmts = NULL;
+    json_object *nested_return_type = active_return_type;
+    if (json_object_object_get_ex(node, "return_type", &return_type) &&
+        (json_object_object_get_ex(node, "body", &body) ||
+         json_object_object_get_ex(node, "body_stmts", &body_stmts)))
+        nested_return_type = return_type;
+
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        rust_lower_numeric_boundaries(value, nested_return_type);
+    }
+
+    const char *kind = json_string_property(node, "kind");
+    if (!kind) return;
+
+    if (strcmp(kind, "return") == 0)
+    {
+        json_object *value = NULL;
+        if (json_object_object_get_ex(node, "value", &value))
+            rust_set_numeric_boundary(value, active_return_type);
+        return;
+    }
+
+    if (strcmp(kind, "lambda") == 0)
+    {
+        if (return_type && json_object_object_get_ex(node, "body", &body))
+            rust_set_numeric_boundary(body, return_type);
+        return;
+    }
+
+    if (strcmp(kind, "assign") == 0 || strcmp(kind, "member_assign") == 0 ||
+        strcmp(kind, "index_assign") == 0)
+    {
+        json_object *value = NULL, *target_type = NULL;
+        if (json_object_object_get_ex(node, "value", &value) &&
+            json_object_object_get_ex(node, "type", &target_type))
+            rust_set_numeric_boundary(value, target_type);
+        return;
+    }
+
+    if (strcmp(kind, "call") == 0)
+    {
+        json_object *callee = NULL, *callee_type = NULL;
+        json_object *param_types = NULL, *args = NULL;
+        if (!json_object_object_get_ex(node, "callee", &callee) ||
+            !json_object_object_get_ex(callee, "type", &callee_type) ||
+            !json_object_object_get_ex(callee_type, "param_types", &param_types) ||
+            !json_object_is_type(param_types, json_type_array) ||
+            !json_object_object_get_ex(node, "args", &args) ||
+            !json_object_is_type(args, json_type_array))
+            return;
+        size_t arg_count = json_object_array_length(args);
+        size_t param_count = json_object_array_length(param_types);
+        size_t count = arg_count < param_count ? arg_count : param_count;
+        for (size_t i = 0; i < count; i++)
+        {
+            json_object *arg = json_object_array_get_idx(args, i);
+            if (!json_boolean_property(arg, "is_ref_arg"))
+                rust_set_numeric_boundary(arg,
+                                          json_object_array_get_idx(param_types, i));
+        }
+    }
 }
 
 /* Rust has no implicit numeric conversions for binary operators.  Preserve
@@ -116,7 +230,12 @@ static void rust_lower_numeric_promotions(json_object *node)
             const char *cast_type = rust_numeric_widening_type(
                 json_string_property(initializer_type, "kind"),
                 json_string_property(type, "kind"));
-            if (cast_type)
+            if (cast_type &&
+                !(strcmp(cast_type, "f32") == 0 &&
+                  json_string_property(initializer_type, "kind") &&
+                  strcmp(json_string_property(initializer_type, "kind"),
+                         "double") == 0 &&
+                  rust_context_infers_float_literal(initializer)))
                 json_object_object_add(node, "rust_numeric_initializer_type",
                                        json_object_new_string(cast_type));
         }
