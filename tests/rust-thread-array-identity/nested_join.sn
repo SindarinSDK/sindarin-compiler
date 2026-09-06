@@ -1,0 +1,15 @@
+fn bump(data: int[]): int =>
+  data.push(9)
+  return 1
+
+fn reenter(data: int[]): int =>
+  var inner: int = & bump(data)
+  inner !
+  data.push(10)
+  return data.length
+
+fn main(): void =>
+  var data: int[] = {1}
+  var result: int = & reenter(data)
+  println(result !)
+  println(data.length)

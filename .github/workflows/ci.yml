@@ -171,6 +171,10 @@ jobs:
         shell: bash
         run: make test-rust-closures
 
+      - name: Run Rust concurrency tests
+        shell: bash
+        run: make test-rust-concurrency
+
       #------------------------------------------------------------------------
       # Upload Artifacts
       #------------------------------------------------------------------------

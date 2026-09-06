@@ -1,0 +1,347 @@
+[
+  {
+    "path": "tests/exploratory/test_limitation_fn_param.sn",
+    "sha256": "ad7777150a64e424eaaef8506e6304b80a360e72d6bd0cebaa30ca1265702367",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/0",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/0/tag",
+    "diagnostics": [
+      "error[E0277]: expected a `Fn(i64)` closure, found `__SnClosure<dyn Fn(i64) -> i64>`",
+      "error: aborting due to 1 previous error; 1 warning emitted"
+    ]
+  },
+  {
+    "path": "tests/exploratory/test_limitation_lambda_param.sn",
+    "sha256": "b938109eea736ef53c30ac0130d1504fd2de365f94917a6a8b79c49f1b5f6224",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/1",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/1/tag",
+    "diagnostics": [
+      "error[E0277]: `Rc<dyn Fn(i64) -> i64>` cannot be sent between threads safely",
+      "error: aborting due to 1 previous error; 1 warning emitted"
+    ]
+  },
+  {
+    "path": "tests/exploratory/test_sync_byte_threading.sn",
+    "sha256": "dd5889c2b5df1771f91c94e690447c3da9e20a26849bcc4c6b79111784fe4740",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/5",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/5/tag",
+    "diagnostics": [
+      "error[E0368]: binary assignment operation `+=` cannot be applied to type `char`",
+      "error: aborting due to 1 previous error; 12 warnings emitted"
+    ]
+  },
+  {
+    "path": "tests/exploratory/test_sync_proxy_multi_thread.sn",
+    "sha256": "e87bc9f4a5cf97ce33f4aa8daa3a1229bb368f6ef87e73db90bf7322611dcba9",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/7",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/7/tag",
+    "diagnostics": [
+      "Error: Rust target does not support native C source/include pragmas yet"
+    ]
+  },
+  {
+    "path": "tests/exploratory/test_sync_proxy_two_requests_sleep.sn",
+    "sha256": "3e21c6456f3b4a64f688a0814acfe3981c7c503db19aebac66794689b2b5cd83",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/9",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/9/tag",
+    "diagnostics": [
+      "Error: Rust target does not support native C source/include pragmas yet"
+    ]
+  },
+  {
+    "path": "tests/exploratory/test_thread_with_lambda.sn",
+    "sha256": "355e2892b9ba6ab9d27c0c1059ef71cf84697cc328fb7a0ad46a9a0b632c0a59",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/25",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/25/tag",
+    "diagnostics": [
+      "error[E0277]: expected a `Fn(i64)` closure, found `__SnClosure<dyn Fn(i64) -> i64>`",
+      "error: aborting due to 1 previous error; 1 warning emitted"
+    ]
+  },
+  {
+    "path": "tests/exploratory/test_while_true_nested_if_loop.sn",
+    "sha256": "d08cbfb7f2b043b2bec19528278e1b33ded0910fe14d87698a777f57f91fdcf6",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/26",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/26/tag",
+    "diagnostics": [
+      "Error: Rust target does not support native C source/include pragmas yet"
+    ]
+  },
+  {
+    "path": "tests/integration/test_as_ref_params.sn",
+    "sha256": "2276baf8a1cfcf04d24613cbc7c5cd56596644384ac1dc89bb398aaacd10c08a",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/27",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/27/tag",
+    "diagnostics": [
+      "Error: Rust target encountered an unsupported construct in function 'test_basic_as_ref'"
+    ]
+  },
+  {
+    "path": "tests/integration/test_deep_module_chain.sn",
+    "sha256": "f2a7af4ac7960cd512893545a5c62ec74cea9f43b4387774e74c2bfd3af7c514",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/28",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/28/tag",
+    "diagnostics": [
+      "Error: Rust target encountered an unsupported construct in function 'test_basic_level_ids'"
+    ]
+  },
+  {
+    "path": "tests/integration/test_lambda_closure_thread_spawn.sn",
+    "sha256": "2a9df5385e4f582ee790b0808352d4ab055a1b34b898ee4facc6367343d37cc3",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/31",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/31/tag",
+    "diagnostics": [
+      "error[E0277]: `Rc<dyn Fn() -> i64>` cannot be sent between threads safely",
+      "error: aborting due to 1 previous error; 2 warnings emitted"
+    ]
+  },
+  {
+    "path": "tests/integration/test_lock_return.sn",
+    "sha256": "e7fd04e8c67e527292425f0d68d0ada0ab3415f297bab5fdde486b1871d03669",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/34",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/34/tag",
+    "diagnostics": [
+      "Error: Rust target encountered an unsupported construct in function 'main'"
+    ]
+  },
+  {
+    "path": "tests/integration/test_module_array_swap_leak.sn",
+    "sha256": "e9485d7a3fc801ae45b043c2c678e801e6c25cc7bd118d347dc393fc28bfdb91",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/36",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/36/tag",
+    "diagnostics": [
+      "Error: Rust target does not support native C source/include pragmas yet"
+    ]
+  },
+  {
+    "path": "tests/integration/test_pass_self_to_function.sn",
+    "sha256": "dd88a972cda459bcc3f403dbc02dd78fca4c53fad9e74ada7963d09156e6faec",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/37",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/37/tag",
+    "diagnostics": [
+      "Error: Rust target currently supports only plain value struct 'Worker'"
+    ]
+  },
+  {
+    "path": "tests/integration/test_return_ref_param.sn",
+    "sha256": "334a96ac5383e9db35b45fd4f10ff8b65967c3b18879eddf05aff80a81f44802",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/38",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/38/tag",
+    "diagnostics": [
+      "Error: Rust target currently supports only plain value struct 'Tensor'"
+    ]
+  },
+  {
+    "path": "tests/integration/test_static_import.sn",
+    "sha256": "3719288ac31bc3b519d1f24519cf16f0fee83d8e11b4a5145a869f85af15e2ae",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/39",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/39/tag",
+    "diagnostics": [
+      "Error: Rust target encountered an unsupported construct in function 'main'"
+    ]
+  },
+  {
+    "path": "tests/integration/test_sync_proxy_double_exchange.sn",
+    "sha256": "39c0f176c0fa612ea6cf4e58b8f358b37dab5c05b064ba996be6cb6e30a18505",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/41",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/41/tag",
+    "diagnostics": [
+      "Error: Rust target does not support native C source/include pragmas yet"
+    ]
+  },
+  {
+    "path": "tests/integration/test_thread_array_spawn_loop.sn",
+    "sha256": "8d4071254cb0091d4728e7e650867da4193a2b35877bc1ff5452c1039049307a",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/46",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/46/tag",
+    "diagnostics": [
+      "error[E0425]: cannot find value `__sn_concurrency0_handle_handles` in this scope",
+      "error[E0425]: cannot find value `__sn_concurrency0_handle_handles` in this scope"
+    ]
+  },
+  {
+    "path": "tests/integration/test_thread_array_struct.sn",
+    "sha256": "7c2e4598ce83ced8cf91681d9587c602cfc02f338af6889115841c3adb528b6f",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/47",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/47/tag",
+    "diagnostics": [
+      "error[E0425]: cannot find value `__sn_concurrency0_handle_results` in this scope",
+      "error[E0308]: mismatched types"
+    ]
+  },
+  {
+    "path": "tests/integration/test_thread_as_ref_spawn.sn",
+    "sha256": "ab816fe12aad51788bc251d4eb00e497d7006de169d372df464865b60bac1c87",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/49",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/49/tag",
+    "diagnostics": [
+      "error[E0596]: cannot borrow `__sn_concurrency0_arg0` as mutable, as it is not declared as mutable",
+      "error[E0596]: cannot borrow `__sn_concurrency0_arg0` as mutable, as it is not declared as mutable"
+    ]
+  },
+  {
+    "path": "tests/integration/test_thread_cond_array3d.sn",
+    "sha256": "486ca483458cabaf45646c634a191bdfd808aae6e8dc9c010b8467ca43ce6dcf",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/51",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/51/tag",
+    "equal_raw": false
+  },
+  {
+    "path": "tests/integration/test_thread_detach_struct_array.sn",
+    "sha256": "13b7f24db9cf66c05959950262d71320b059e5041a77b4aa0c2754975d472117",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/59",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/59/tag",
+    "diagnostics": [
+      "Error: Rust target does not support a parameter of function 'processTable'"
+    ]
+  },
+  {
+    "path": "tests/integration/test_thread_native_fn_struct_return.sn",
+    "sha256": "44a97ed57b51a318b37774bd44b9100c67241b0ea3b44d9f486309eda7757aa6",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/64",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/64/tag",
+    "diagnostics": [
+      "Error: Rust target does not support native C source/include pragmas yet"
+    ]
+  },
+  {
+    "path": "tests/integration/test_thread_panic_propagate.sn",
+    "sha256": "bd30fcea8645c43374581e59501a53a475c00fe184523f245df2c8bcce657cc4",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/66",
+    "tag_compile": 0,
+    "tag_run": 1,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/66/tag",
+    "diagnostics": [
+      "error[E0689]: can't call method `checked_div` on ambiguous numeric type `{integer}`",
+      "error: aborting due to 1 previous error; 1 warning emitted"
+    ]
+  },
+  {
+    "path": "tests/integration/test_thread_spawn_self_method.sn",
+    "sha256": "baf59ba4360d8a42be8aeaa80da09c39872fcf922872da1c7087b83959a9624d",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/67",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/67/tag",
+    "diagnostics": [
+      "error[E0521]: borrowed data escapes outside of method",
+      "error: aborting due to 1 previous error; 1 warning emitted"
+    ]
+  },
+  {
+    "path": "tests/integration/test_thread_struct_array_field.sn",
+    "sha256": "8c7f562be3d48d26abfbe388ea672faae1d4caacff23ec391e7c14fb159abee2",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/68",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/68/tag",
+    "diagnostics": [
+      "Error: Rust target does not support a parameter of function 'processTable'"
+    ]
+  },
+  {
+    "path": "tests/integration/test_thread_struct_param.sn",
+    "sha256": "b52080ea09c2ab342d732bcee93f0af56f3ba75b9c2ef26863c5c4efb3fb1785",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/69",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/69/tag",
+    "diagnostics": [
+      "Error: Rust target does not support a parameter of function 'processConfig'"
+    ]
+  },
+  {
+    "path": "tests/integration/test_thread_struct_return_types.sn",
+    "sha256": "4107ecec3bc70eba14b449f78df723b47809739b3e050c23eaa5ffb98e705df8",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/71",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/71/tag",
+    "diagnostics": [
+      "Error: Rust target does not support native C source/include pragmas yet"
+    ]
+  },
+  {
+    "path": "tests/integration/test_using_dispose.sn",
+    "sha256": "fcb74cb95db8d5174e7cc90a8630bc70a84de1411e47aea4c9efa26e09c1eee1",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/73",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/73/tag",
+    "diagnostics": [
+      "Error: Rust target encountered an unsupported construct in function 'test_basic_using'"
+    ]
+  }
+]
