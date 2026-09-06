@@ -1,0 +1,15 @@
+fn main(): void =>
+  var i_max: int32 = 2147483647i32
+  println(i_max + 1i32)
+
+  var u32_max: uint32 = 4294967295u32
+  var u32_one: uint32 = 1u32
+  println(u32_max + 1u32)
+  println(0u32 - 1u32)
+  println(65536u32 * 65536u32)
+  println(-u32_one)
+
+  var u_half: uint = 9223372036854775807u
+  var u_max: uint = u_half * 2u + 1u
+  println(u_max + 1u)
+  println(0u - 1u)

@@ -336,7 +336,8 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
         root_name = json_string_property(root, "name");
         json_object *param = rust_name_is_shadowed(scope, root_name)
             ? NULL : rust_find_parameter(params, root_name);
-        if (param && json_string_property_equals(param, "mem_qual", "default"))
+        if (param && json_string_property_equals(param, "mem_qual", "default") &&
+            !json_boolean_property(param, "rust_default_array_ref"))
         {
             fprintf(stderr,
                     "Error: Rust target does not support direct assignment through %s targets rooted in by-value parameter '%s'\n",
@@ -407,15 +408,30 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
             if (json_object_object_get_ex(param, "type", &param_type) &&
                 (param_kind = json_string_property(param_type, "kind")) &&
                 (strcmp(param_kind, "float") == 0 ||
-                 strcmp(param_kind, "double") == 0))
+                 strcmp(param_kind, "double") == 0 ||
+                 strcmp(param_kind, "byte") == 0 ||
+                 strcmp(param_kind, "uint32") == 0 ||
+                 strcmp(param_kind, "uint") == 0))
             {
+                bool wrapping_parameter = strcmp(param_kind, "byte") == 0 ||
+                    strcmp(param_kind, "uint32") == 0 ||
+                    strcmp(param_kind, "uint") == 0;
                 if (!op || (strcmp(op, "add") != 0 &&
                             strcmp(op, "subtract") != 0 &&
                             strcmp(op, "multiply") != 0 &&
-                            strcmp(op, "divide") != 0))
+                            strcmp(op, "divide") != 0 &&
+                            (!wrapping_parameter ||
+                             (strcmp(op, "modulo") != 0 &&
+                              strcmp(op, "bitand") != 0 &&
+                              strcmp(op, "bitor") != 0 &&
+                              strcmp(op, "bitxor") != 0 &&
+                              strcmp(op, "shl") != 0 &&
+                              strcmp(op, "shr") != 0))))
                 {
-                    fprintf(stderr,
-                            "Error: Rust target supports floating-point compound assignment only for +=, -=, *=, and /=\n");
+                    fprintf(stderr, "%s",
+                        wrapping_parameter
+                            ? "Error: Rust target supports by-value wrapping-integer compound assignment only for +=, -=, *=, /=, %=, &=, |=, ^=, <<=, and >>=\n"
+                            : "Error: Rust target supports floating-point compound assignment only for +=, -=, *=, and /=\n");
                     return false;
                 }
                 if (!json_object_object_get_ex(node, "value", &value) ||
@@ -423,21 +439,24 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
                     !(value_kind = json_string_property(value_type, "kind")) ||
                     strcmp(param_kind, value_kind) != 0)
                 {
-                    fprintf(stderr,
-                            "Error: Rust target currently supports floating-point compound assignment only between same-type float or double operands\n");
+                    fprintf(stderr, "%s",
+                        wrapping_parameter
+                            ? "Error: Rust target requires by-value wrapping-integer compound assignment to use same-type operands\n"
+                            : "Error: Rust target currently supports floating-point compound assignment only between same-type float or double operands\n");
                     return false;
                 }
                 if (rust_rhs_mutates_or_forwards_parameter(value, target_name))
                 {
                     fprintf(stderr,
-                            "Error: Rust target does not support floating-point compound assignment of by-value parameter '%s' when its RHS mutates or forwards the same parameter as ref\n",
-                            target_name);
+                            "Error: Rust target does not support %s compound assignment of by-value parameter '%s' when its RHS mutates or forwards the same parameter as ref\n",
+                            wrapping_parameter ? "wrapping-integer" : "floating-point", target_name);
                     return false;
                 }
                 json_object_object_add(param, "rust_by_value_mutated",
                                        json_object_new_boolean(true));
-                json_object_object_add(
-                    node, "rust_by_value_floating_parameter_mutation",
+                json_object_object_add(node,
+                    wrapping_parameter ? "rust_by_value_wrapping_parameter_mutation" :
+                                         "rust_by_value_floating_parameter_mutation",
                     json_object_new_boolean(true));
             }
         }
@@ -459,12 +478,19 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
             json_object_object_get_ex(param, "type", &param_type) &&
             (param_kind = json_string_property(param_type, "kind")) &&
             (strcmp(param_kind, "float") == 0 ||
-             strcmp(param_kind, "double") == 0))
+             strcmp(param_kind, "double") == 0 ||
+             strcmp(param_kind, "byte") == 0 ||
+             strcmp(param_kind, "uint32") == 0 ||
+             strcmp(param_kind, "uint") == 0))
         {
             json_object_object_add(param, "rust_by_value_mutated",
                                    json_object_new_boolean(true));
-            json_object_object_add(
-                node, "rust_by_value_floating_parameter_mutation",
+            json_object_object_add(node,
+                (strcmp(param_kind, "byte") == 0 ||
+                 strcmp(param_kind, "uint32") == 0 ||
+                 strcmp(param_kind, "uint") == 0) ?
+                    "rust_by_value_wrapping_parameter_mutation" :
+                    "rust_by_value_floating_parameter_mutation",
                 json_object_new_boolean(true));
         }
     }
@@ -1359,11 +1385,14 @@ static bool rust_validate_expr(json_object *expr)
             fprintf(stderr, "Error: Rust target does not support pointer array slices yet\n");
             return false;
         }
-        if (json_object_object_get_ex(expr, "step", &step))
-        {
-            fprintf(stderr, "Error: Rust target does not support stepped array slices yet\n");
-            return false;
-        }
+        /*
+         * v0.0.83 accepts a step expression on an array slice.  The tagged C
+         * renderer deliberately keeps the slice's contiguous-copy semantics:
+         * it neither evaluates nor applies `step`.  Rust uses the same
+         * target-private model and template, so accepting it here preserves
+         * the established contract without expanding the shared frontend.
+         */
+        (void)step;
         if (!json_object_object_get_ex(expr, "array", &array) ||
             !rust_validate_expr(array)) return false;
         if (json_object_object_get_ex(expr, "start", &start) &&
@@ -1608,6 +1637,8 @@ static bool rust_validate_expr(json_object *expr)
         }
         if (json_string_property_equals(expr, "mutation_storage", "parameter") &&
             !json_string_property_equals(target, "parameter_mem_qual", "as_ref") &&
+            !json_boolean_property(
+                expr, "rust_by_value_wrapping_parameter_mutation") &&
             !iterator_binding_mutation)
         {
             fprintf(stderr,
@@ -1615,13 +1646,29 @@ static bool rust_validate_expr(json_object *expr)
             return false;
         }
         bool checked_ref_parameter = rust_checked_scalar_ref_parameter(expr, target);
-        if ((strcmp(target_kind, "int") != 0 && strcmp(target_kind, "long") != 0 &&
-             strcmp(target_kind, "int32") != 0 && strcmp(target_kind, "uint") != 0 &&
-             strcmp(target_kind, "uint32") != 0 && strcmp(target_kind, "byte") != 0) ||
-            strcmp(target_kind, value_kind) != 0 ||
-            !json_string_property_equals(expr, "mutation_arithmetic_mode", "checked") ||
+        bool mixed_integer =
+            rust_integer_type(target_kind) && rust_integer_type(value_kind) &&
+            strcmp(target_kind, value_kind) != 0;
+        bool wrapping_integer =
+            (strcmp(target_kind, "byte") == 0 ||
+             strcmp(target_kind, "uint32") == 0 ||
+             strcmp(target_kind, "uint") == 0) &&
+            strcmp(target_kind, value_kind) == 0;
+        bool unchecked_signed_integer =
+            (strcmp(target_kind, "int") == 0 ||
+             strcmp(target_kind, "long") == 0 ||
+             strcmp(target_kind, "int32") == 0) &&
+            strcmp(target_kind, value_kind) == 0 &&
+            json_string_property_equals(
+                expr, "mutation_arithmetic_mode", "unchecked");
+        if (!rust_integer_type(target_kind) || !rust_integer_type(value_kind) ||
+            (!mixed_integer && !wrapping_integer && !unchecked_signed_integer &&
+             !json_string_property_equals(expr, "mutation_arithmetic_mode", "checked")) ||
             (!json_string_property_equals(expr, "mutation_storage", "local") &&
-             !checked_ref_parameter && !iterator_binding_mutation))
+             !checked_ref_parameter &&
+             !json_boolean_property(
+                 expr, "rust_by_value_wrapping_parameter_mutation") &&
+             !iterator_binding_mutation))
         {
             fprintf(stderr,
                     "Error: Rust target currently supports numeric compound assignment only between same-type integral operands\n");
@@ -1676,6 +1723,8 @@ static bool rust_validate_expr(json_object *expr)
             if (!json_string_property_equals(child, "parameter_mem_qual", "as_ref") &&
                 !json_boolean_property(
                     expr, "rust_by_value_floating_parameter_mutation") &&
+                !json_boolean_property(
+                    expr, "rust_by_value_wrapping_parameter_mutation") &&
                 !iterator_binding_mutation)
             {
                 fprintf(stderr,
@@ -1705,7 +1754,10 @@ static bool rust_validate_expr(json_object *expr)
         }
         if (!json_string_property_equals(expr, "mutation_arithmetic_mode", "checked"))
         {
-            if (iterator_binding_mutation)
+            if (iterator_binding_mutation &&
+                strcmp(operand_type_kind, "byte") != 0 &&
+                strcmp(operand_type_kind, "uint32") != 0 &&
+                strcmp(operand_type_kind, "uint") != 0)
             {
                 fprintf(stderr,
                         "Error: Rust target supports integer iterator-protocol increment/decrement only with checked arithmetic\n");
@@ -1715,6 +1767,8 @@ static bool rust_validate_expr(json_object *expr)
         }
         if (!json_string_property_equals(expr, "mutation_storage", "local") &&
             !rust_checked_scalar_ref_parameter(expr, child) &&
+            !json_boolean_property(
+                expr, "rust_by_value_wrapping_parameter_mutation") &&
             !iterator_binding_mutation)
         {
             fprintf(stderr,

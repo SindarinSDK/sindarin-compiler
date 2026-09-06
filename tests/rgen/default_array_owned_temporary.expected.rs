@@ -23,7 +23,7 @@ fn __sn_array_size(size: i64) -> usize {
     size as usize
 }
 
-fn observe(values: Vec<i64>) -> i64 {
+fn observe(values: &mut Vec<i64>) -> i64 {
     return (values).len() as i64;
 }
 
@@ -32,6 +32,6 @@ fn makeValues() -> Vec<i64> {
 }
 
 fn main() {
-    println!("{}", observe(vec![1, 2, 3]));
-    println!("{}", observe(makeValues()));
+    println!("{}", observe(&mut (vec![1, 2, 3])));
+    println!("{}", observe(&mut (makeValues())));
 }

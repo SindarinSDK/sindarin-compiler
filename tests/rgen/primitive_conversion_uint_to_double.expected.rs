@@ -39,8 +39,8 @@ fn main() {
     let mut representative: u64 = 42;
     let mut exact: u64 = 9007199254740991;
     let mut half: u64 = 9223372036854775807;
-    let mut max_minus_one: u64 = __sn_checked_0((half).checked_mul(2), "Runtime error: integer overflow in multiplication");
-    let mut max: u64 = __sn_checked_0((max_minus_one).checked_add(1), "Runtime error: integer overflow in addition");
+    let mut max_minus_one: u64 = { let (__sn_byte_left, __sn_byte_right): (u64, u64) = (half, 2); __sn_byte_left.wrapping_mul(__sn_byte_right) };
+    let mut max: u64 = { let (__sn_byte_left, __sn_byte_right): (u64, u64) = (max_minus_one, 1); __sn_byte_left.wrapping_add(__sn_byte_right) };
     let mut counter: i64 = 0;
     let mut called: f64 = (bumpAndReturn(&mut (counter)) as f64);
     println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", ((((((zero as f64) == 0.0) && ((one as f64) == 1.0)) && ((representative as f64) == 42.0)) && ((exact as f64) == 9007199254740991.0)) && ((max as f64) == ((half as f64) * 2.0))))); __sn_interpolated.push_str(" "); __sn_interpolated.push_str(&format!("{}", ((counter == 1) && (called == 42.0)))); __sn_interpolated });

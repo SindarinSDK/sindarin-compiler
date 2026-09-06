@@ -669,10 +669,17 @@ json_object *rust_gen_model_function(Arena *arena, FunctionStmt *func, SymbolTab
         }
         /* Composite val-type struct with MEM_DEFAULT on non-native callee:
          * passed by pointer (same as 'as ref'), body must dereference. */
-        if (func->params[i].mem_qualifier == MEM_DEFAULT && !func->is_native &&
+        bool default_array_ref =
+            func->params[i].mem_qualifier == MEM_DEFAULT && !func->is_native &&
+            func->params[i].type && func->params[i].type->kind == TYPE_ARRAY &&
+            !(func->name.length == 4 &&
+              strncmp(func->name.start, "main", 4) == 0);
+        bool default_composite_ref =
+            func->params[i].mem_qualifier == MEM_DEFAULT && !func->is_native &&
             func->params[i].type && func->params[i].type->kind == TYPE_STRUCT &&
             !func->params[i].type->as.struct_type.pass_self_by_ref &&
-            rust_gen_model_type_has_heap_fields(func->params[i].type))
+            rust_gen_model_type_has_heap_fields(func->params[i].type);
+        if (default_array_ref || default_composite_ref)
         {
             if (rust_g_as_ref_param_count % 8 == 0) {
                 char **nv = arena_alloc(arena, (rust_g_as_ref_param_count + 8) * sizeof(char *));
