@@ -456,6 +456,19 @@ static bool model_name_in_use(json_object *functions, json_object *globals,
                                  (strncmp(link_symbol, "__sn__", 6) == 0 &&
                                   strcmp(link_symbol + 6, candidate) == 0))))
                 return true;
+            json_object *params = NULL;
+            if (collection == 0 &&
+                json_object_object_get_ex(item, "params", &params))
+            {
+                size_t param_count = json_object_array_length(params);
+                for (size_t p = 0; p < param_count; p++)
+                {
+                    const char *param_name = native_string(
+                        json_object_array_get_idx(params, p), "name");
+                    if (param_name && strcmp(param_name, candidate) == 0)
+                        return true;
+                }
+            }
         }
     }
     return false;

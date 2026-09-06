@@ -606,6 +606,8 @@ class TestRunner:
             ]
         else:
             test_files = sorted(glob.glob(pattern, recursive=True))
+        if test_type == 'rust-native-extra':
+            test_files.append('tests/rust-native/native_flush_parameter_collision.sn')
         raw_fixtures = {}
         if test_type == 'rust-native-extra':
             try:
