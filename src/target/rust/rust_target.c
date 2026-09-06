@@ -208,6 +208,13 @@ static bool rust_emit(CompilerOptions *options, Module *module,
         json_object_put(model);
         return false;
     }
+    size_t sized_array_temp_id = 0;
+    if (!rust_lower_sized_array_temp_names(model, model, &sized_array_temp_id))
+    {
+        fprintf(stderr, "Error: Rust target could not assign hygienic sized-array temporary names\n");
+        json_object_put(model);
+        return false;
+    }
     if (!rust_assign_array_text_names(model))
     {
         fprintf(stderr, "Error: Rust target could not assign hygienic array text helper names\n");
