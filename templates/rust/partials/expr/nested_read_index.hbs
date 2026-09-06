@@ -1,0 +1,1 @@
+{ let {{rust_ident rust_temp_previous}} = {{> expr index}}; if {{rust_ident rust_temp_previous}} < 0 { __sn_index(({{> expr array}}).len(), {{rust_ident rust_temp_previous}}) } else { {{rust_ident rust_temp_previous}} as usize } }{{~!-- trim partial EOF --~}}

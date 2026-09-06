@@ -1,0 +1,25 @@
+struct Holder =>
+  items: int[] = {}
+
+fn selected(): int =>
+  println("index")
+  return -1
+
+fn replacement(rows: int[][]): int =>
+  println("rhs")
+  return rows[0][0] + 30
+
+fn change(holders: Holder[]): int =>
+  var before: int = holders[selected()].items[-1]
+  var rows: int[][2] = holders[0].items
+  rows[1][0] = replacement(rows)
+  var after: int = holders[0].items[0]
+  rows.pop()
+  rows.pop()
+  return before + after
+
+fn main(): void =>
+  var holders: Holder[] = { Holder { items: {1, 2} } }
+  var result: int = & change(holders)
+  println(result !)
+  println(holders[0].items[0])

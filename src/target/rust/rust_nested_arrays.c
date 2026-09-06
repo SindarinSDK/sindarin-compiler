@@ -311,6 +311,11 @@ static bool rust_nested_array_walk(json_object *node, json_object *model, json_o
         json_object_object_get_ex(node, "array", &array);
         json_object_object_get_ex(array, "type", &type);
         json_object_object_get_ex(type, "element_type", &element);
+        /* The tagged read only asks the parent for its length for a negative
+         * index. In particular, a positive inner read must not evaluate an
+         * owner-backed member/index expression again merely to get its len. */
+        if (json_boolean_property(array, "rust_nested_array_read"))
+            json_object_object_add(node, "rust_nested_parent_read", json_object_new_boolean(true));
         if (json_boolean_property(element, "rust_nested_array_handle")) {
             json_object_object_add(node, "type", json_object_get(element));
             json_object_object_add(node, "rust_nested_array_read", json_object_new_boolean(true));
