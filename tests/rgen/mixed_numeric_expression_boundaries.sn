@@ -1,0 +1,40 @@
+fn nextInt(calls: int as ref): int =>
+  calls++
+  return 5
+
+fn nextDouble(calls: int as ref): double =>
+  calls++
+  return 2.5
+
+fn markChar(trace: int as ref): char =>
+  trace = trace * 10 + 1
+  return 'A'
+
+fn markDouble(trace: int as ref): double =>
+  trace = trace * 10 + 2
+  return 65.5
+
+fn main(): void =>
+  var calls: int = 0
+  var sum: double = nextInt(calls) + nextDouble(calls)
+  println(sum)
+  println(calls)
+
+  var comparison: bool = nextInt(calls) > nextDouble(calls)
+  println(comparison)
+  println(calls)
+  println(5 <= 5.5)
+  println(5 >= 5.5)
+  println(5 != 5.5)
+  println(5 % 2.5)
+
+  var widened: double = nextInt(calls)
+  println(widened)
+  println(calls)
+
+  calls = 0
+  println(markChar(calls) == markDouble(calls))
+  println(calls)
+  calls = 0
+  println(markChar(calls) + markDouble(calls))
+  println(calls)

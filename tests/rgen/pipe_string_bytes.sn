@@ -1,0 +1,13 @@
+fn makeBinary(calls: int as ref): str =>
+  calls++
+  return "a\xAF\r\nb\x80\n"
+
+fn main(): void =>
+  var calls: int = 0
+  var lines: str[] = makeBinary(calls).splitLines()
+  var first: byte[] = lines[0].toBytes()
+  var second: byte[] = lines[1].toBytes()
+  println($"{calls}:{lines.length}")
+  println($"{first.length}:{first[0]}:{first[1]}")
+  println($"{second.length}:{second[0]}:{second[1]}")
+  println(lines[0].length)

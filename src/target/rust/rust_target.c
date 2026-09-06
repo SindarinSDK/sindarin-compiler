@@ -180,6 +180,7 @@ static bool rust_emit(CompilerOptions *options, Module *module,
     }
     rust_lower_closures(model);
     rust_lower_byte_arithmetic(model);
+    rust_lower_numeric_promotions(model);
     rust_lower_checked_arithmetic(model);
     rust_lower_checked_mutations(model);
     if (rust_model_uses_checked_arithmetic(model))
@@ -193,6 +194,12 @@ static bool rust_emit(CompilerOptions *options, Module *module,
     if (!rust_lower_calls(model))
     {
         fprintf(stderr, "Error: Rust target could not lower default-array call aliases\n");
+        json_object_put(model);
+        return false;
+    }
+    if (!rust_lower_assert_temp_names(model, model))
+    {
+        fprintf(stderr, "Error: Rust target could not assign hygienic assertion temporary names\n");
         json_object_put(model);
         return false;
     }

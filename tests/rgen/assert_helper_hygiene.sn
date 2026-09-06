@@ -1,0 +1,3 @@
+fn main(): void =>
+  var __sn_assert_condition: str = "collision"
+  assert(false, __sn_assert_condition)
