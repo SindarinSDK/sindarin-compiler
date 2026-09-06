@@ -1,6 +1,80 @@
 /* Ordinary nested sized arrays store handles to their initializer arrays.
  * Keep this projection separate from closure/thread transport: using Arc here
  * retains identity without imposing Send/Sync bounds on source callables. */
+static json_object *rust_nested_struct(json_object *model, const char *name)
+{
+    json_object *structs = NULL;
+    json_object_object_get_ex(model, "structs", &structs);
+    for (size_t i = 0; name && structs && i < json_object_array_length(structs); i++) {
+        json_object *decl = json_object_array_get_idx(structs, i);
+        if (json_string_property_equals(decl, "name", name)) return decl;
+    }
+    return NULL;
+}
+
+static json_object *rust_nested_field(json_object *model, json_object *place)
+{
+    json_object *object = NULL, *type = NULL, *fields = NULL;
+    json_object_object_get_ex(place, "object", &object);
+    json_object_object_get_ex(object, "type", &type);
+    json_object *decl = rust_nested_struct(model, json_string_property(type, "name"));
+    json_object_object_get_ex(decl, "fields", &fields);
+    const char *name = json_string_property(place, "member_name");
+    if (!name) name = json_string_property(place, "field_name");
+    for (size_t i = 0; name && fields && i < json_object_array_length(fields); i++) {
+        json_object *field = json_object_array_get_idx(fields, i);
+        if (json_string_property_equals(field, "name", name)) return field;
+    }
+    return NULL;
+}
+
+static void rust_nested_field_projections(json_object *node, json_object *model)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array)) {
+        for (size_t i = 0; i < json_object_array_length(node); i++) rust_nested_field_projections(json_object_array_get_idx(node, i), model);
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
+    json_object_object_foreach(node, key, value) {
+        if (strcmp(key, "type")) rust_nested_field_projections(value, model);
+    }
+    json_object *field = rust_nested_field(model, node);
+    if (field && json_boolean_property(field, "rust_nested_field_owner")) {
+        if (json_string_property_equals(node, "kind", "member")) {
+            json_object *type = NULL;
+            json_object_object_get_ex(field, "type", &type);
+            json_object_object_add(node, "type", json_object_get(type));
+            json_object_object_add(node, "rust_nested_array_read", json_object_new_boolean(true));
+        }
+        if (json_string_property_equals(node, "kind", "member_assign"))
+            json_object_object_add(node, "rust_nested_field_assignment", json_object_new_boolean(true));
+    }
+    if (json_string_property_equals(node, "kind", "struct_literal")) {
+        json_object *decl = rust_nested_struct(model, json_string_property(node, "struct_name"));
+        json_object *fields = NULL, *values = NULL;
+        json_object_object_get_ex(decl, "fields", &fields);
+        json_object_object_get_ex(node, "fields", &values);
+        for (size_t i = 0; values && i < json_object_array_length(values); i++) {
+            json_object *value = json_object_array_get_idx(values, i);
+            for (size_t f = 0; fields && f < json_object_array_length(fields); f++) {
+                json_object *field = json_object_array_get_idx(fields, f);
+                if (json_boolean_property(field, "rust_nested_field_owner") &&
+                    json_string_property_equals(field, "name", json_string_property(value, "name")))
+                    json_object_object_add(value, "rust_nested_field_owner", json_object_new_boolean(true));
+            }
+        }
+    }
+}
+
+static bool rust_nested_array_elements_have_handles(json_object *type)
+{
+    json_object *element = NULL;
+    if (!json_object_object_get_ex(type, "element_type", &element)) return false;
+    return json_boolean_property(element, "rust_nested_array_handle") ||
+        rust_nested_array_elements_have_handles(element);
+}
+
 static json_object *rust_nested_array_specialization(json_object *model,
     json_object *functions, json_object *fn, json_object *args,
     RustThreadRefBinding *scope, bool *changed)
@@ -23,8 +97,12 @@ static json_object *rust_nested_array_specialization(json_object *model,
         RustThreadRefBinding *binding = rust_thread_ref_lookup(scope, json_string_property(arg, "name"));
         bool selected = (binding && json_boolean_property(binding->declaration, "rust_nested_array_storage")) ||
             json_boolean_property(arg, "rust_nested_array_read");
-        mask[i] = selected && json_boolean_property(json_object_array_get_idx(params, i), "rust_default_array_ref") ? '1' : '0';
-        owns |= mask[i] == '1';
+        json_object *type = NULL;
+        json_object_object_get_ex(arg, "type", &type);
+        bool transport = rust_nested_array_elements_have_handles(type);
+        bool owner = selected && json_boolean_property(json_object_array_get_idx(params, i), "rust_default_array_ref");
+        mask[i] = owner ? (transport ? '3' : '1') : (transport ? '2' : '0');
+        owns |= mask[i] != '0';
     }
     if (!owns) { free(mask); return original; }
     for (size_t i = 0; i < json_object_array_length(functions); i++) {
@@ -44,10 +122,19 @@ static json_object *rust_nested_array_specialization(json_object *model,
     json_object_object_add(copy, "rust_nested_array_base", json_object_new_string(base));
     json_object_object_add(copy, "rust_nested_array_mask", json_object_new_string(mask));
     json_object_object_get_ex(copy, "params", &params);
-    for (size_t i = 0; i < count; i++) if (mask[i] == '1') {
+    for (size_t i = 0; i < count; i++) if (mask[i] != '0') {
         json_object *param = json_object_array_get_idx(params, i);
-        json_object_object_add(param, "rust_nested_array_param", json_object_new_boolean(true));
-        json_object_object_add(param, "rust_nested_array_storage", json_object_new_boolean(true));
+        if (mask[i] == '1' || mask[i] == '3') {
+            json_object_object_add(param, "rust_nested_array_param", json_object_new_boolean(true));
+            json_object_object_add(param, "rust_nested_array_storage", json_object_new_boolean(true));
+        }
+        if (mask[i] == '2' || mask[i] == '3') {
+            json_object *type = NULL, *projected = NULL;
+            json_object_object_get_ex(json_object_array_get_idx(args, i), "type", &type);
+            json_object_deep_copy(type, &projected, NULL);
+            json_object_object_del(projected, "rust_nested_array_handle");
+            json_object_object_add(param, "type", projected);
+        }
     }
     free(mask);
     json_object_array_add(functions, copy);
@@ -82,12 +169,25 @@ static bool rust_nested_array_walk(json_object *node, json_object *model, json_o
         json_object_object_get_ex(init, "element_type", &element);
         json_object_object_get_ex(init, "default_value", &value);
         if (json_string_property_equals(init, "kind", "sized_array") &&
-            json_string_property_equals(element, "kind", "array") &&
-            json_string_property_equals(value, "kind", "variable")) {
+            json_string_property_equals(element, "kind", "array")) {
             RustThreadRefBinding *seed = rust_thread_ref_lookup(scope, json_string_property(value, "name"));
-            if (seed) {
+            json_object *field = rust_nested_field(model, value);
+            if (field) {
+                if (!json_boolean_property(field, "rust_nested_field_owner")) *changed = true;
+                json_object_object_add(field, "rust_nested_field_owner", json_object_new_boolean(true));
+                json_object *field_type = NULL, *object = NULL, *object_type = NULL;
+                json_object_object_get_ex(field, "type", &field_type);
+                json_object_object_add(field_type, "rust_nested_array_handle", json_object_new_boolean(true));
+                json_object_object_get_ex(value, "object", &object);
+                json_object_object_get_ex(object, "type", &object_type);
+                json_object *decl = rust_nested_struct(model, json_string_property(object_type, "name"));
+                json_object_object_add(decl, "rust_nested_field_owners", json_object_new_boolean(true));
+            }
+            if (seed || field) {
+                if (seed) {
                 if (!json_boolean_property(seed->declaration, "rust_nested_array_storage")) *changed = true;
                 json_object_object_add(seed->declaration, "rust_nested_array_storage", json_object_new_boolean(true));
+                }
                 json_object_object_add(value, "rust_nested_array_owner", json_object_new_boolean(true));
                 json_object_object_get_ex(node, "type", &type);
                 json_object_object_get_ex(type, "element_type", &inner);
@@ -144,11 +244,15 @@ static bool rust_nested_array_walk(json_object *node, json_object *model, json_o
         if (json_boolean_property(element, "rust_nested_array_handle")) {
             json_object_object_add(node, "type", json_object_get(element));
             json_object_object_add(node, "rust_nested_array_read", json_object_new_boolean(true));
+            json_object_object_del(node, "rust_mutable_array_place");
         }
     }
     if (json_string_property_equals(node, "kind", "index_assign")) {
         json_object *array = NULL;
         json_object_object_get_ex(node, "array", &array);
+        if (json_string_property_equals(array, "kind", "array_access") &&
+            !json_boolean_property(array, "rust_nested_array_read"))
+            json_object_object_add(array, "rust_mutable_array_place", json_object_new_boolean(true));
         if (json_boolean_property(array, "rust_nested_array_read")) {
             json_object_object_add(array, "rust_nested_array_owner", json_object_new_boolean(true));
             json_object_object_add(node, "rust_nested_index_assign", json_object_new_boolean(true));
@@ -162,6 +266,7 @@ static bool rust_prepare_nested_array_owners(json_object *model)
     bool changed;
     do {
         changed = false;
+        rust_nested_field_projections(model, model);
         json_object *functions = NULL;
         json_object_object_get_ex(model, "functions", &functions);
         for (size_t f = 0; functions && f < json_object_array_length(functions); f++) {

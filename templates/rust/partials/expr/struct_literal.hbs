@@ -1,1 +1,1 @@
-{{rust_ident struct_name}} { {{#each fields}}{{#if @index}}, {{/if}}{{rust_ident name}}: {{> expr value}}{{rust_clone_suffix value source_is_borrow}}{{/each}} }
+{{rust_ident struct_name}} { {{#each fields}}{{#if @index}}, {{/if}}{{rust_ident name}}: {{#if rust_nested_field_owner}}std::sync::Arc::new(std::sync::Mutex::new({{/if}}{{> expr value}}{{rust_clone_suffix value source_is_borrow}}{{#if rust_nested_field_owner}})){{/if}}{{/each}} }

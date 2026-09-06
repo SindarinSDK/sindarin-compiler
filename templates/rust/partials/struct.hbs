@@ -1,7 +1,21 @@
-#[derive(Clone{{#unless has_heap_fields}}, Copy{{/unless}}, Debug, PartialEq)]
+{{#unless rust_nested_field_owners}}#[derive(Clone{{#unless has_heap_fields}}, Copy{{/unless}}, Debug, PartialEq)]{{/unless}}
 struct {{rust_ident name}} {
 {{#each fields}}    {{rust_ident name}}: {{rust_type type}},
 {{/each}}{{rbrace}}{{#if methods}}
 
 impl {{rust_ident name}} {
-{{#each methods}}{{> struct_method this}}{{/each}}{{rbrace}}{{/if}}
+{{#each methods}}{{> struct_method this}}{{/each}}{{rbrace}}{{/if}}{{#if rust_nested_field_owners}}
+impl Clone for {{rust_ident name}} {
+    fn clone(&self) -> Self { Self { {{#each fields}}{{rust_ident name}}: {{#if rust_nested_field_owner}}std::sync::Arc::new(std::sync::Mutex::new(self.{{rust_ident name}}.lock().unwrap_or_else(|e| e.into_inner()).clone())){{else}}self.{{rust_ident name}}.clone(){{/if}}, {{/each}} } }
+}
+impl std::fmt::Debug for {{rust_ident name}} {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut value = f.debug_struct("{{name}}");
+        {{#each fields}}{{#if rust_nested_field_owner}}let field = self.{{rust_ident name}}.lock().unwrap_or_else(|e| e.into_inner()).clone(); value.field("{{name}}", &field);{{else}}value.field("{{name}}", &self.{{rust_ident name}});{{/if}}{{/each}}
+        value.finish()
+    }
+}
+impl PartialEq for {{rust_ident name}} {
+    fn eq(&self, other: &Self) -> bool { true {{#each fields}}&& {{#if rust_nested_field_owner}}{ let left = self.{{rust_ident name}}.lock().unwrap_or_else(|e| e.into_inner()).clone(); let right = other.{{rust_ident name}}.lock().unwrap_or_else(|e| e.into_inner()).clone(); left == right }{{else}}(self.{{rust_ident name}} == other.{{rust_ident name}}){{/if}} {{/each}} }
+}
+{{/if}}

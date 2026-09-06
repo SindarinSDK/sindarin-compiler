@@ -1,0 +1,18 @@
+struct Holder =>
+  items: int[] = {}
+
+fn change(rows: int[][]): void =>
+  rows[1][0] = 8
+
+fn main(): void =>
+  var holder: Holder = { items: {1, 2} }
+  var copied: Holder = holder
+  copied.items[0] = 4
+  println($"{holder.items[0]},{copied.items[0]}")
+  var rows: int[][2] = holder.items
+  change(rows)
+  println($"{holder.items[0]},{rows[0][0]},{rows[1][0]}")
+  holder.items[1] = 9
+  println($"{holder.items[1]},{rows[0][1]},{rows[1][1]}")
+  rows.pop()
+  rows.pop()
