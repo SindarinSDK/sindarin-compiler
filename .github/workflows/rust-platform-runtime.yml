@@ -131,12 +131,21 @@ jobs:
             fi
           }
 
-          run_gate "tagged native C/Rust parity" make test-rust-native-tagged
-          run_gate "native scalar ABI and raw bool/char fixture" make test-rust-native-extra
-          run_gate "imported native alias origin" make test-rust-native-origin
-          echo "The byte gate contains 60 paired C/Rust executions and 3 qualified Rust-only raw-argv executions; no C argv parity is claimed."
-          run_gate "raw byte-string behavior" make test-rgen-byte-strings
+          run_gate "tagged native C/Rust parity (3 fixtures)" \
+            python3 scripts/run_rust_tests.py rust-native-tagged --verbose \
+              --require-count 3 --fail-on-skip
+          run_gate "native scalar ABI and raw bool/char fixture (10 fixtures)" \
+            python3 scripts/run_rust_tests.py rust-native-extra --verbose \
+              --require-count 10 --fail-on-skip
+          run_gate "imported native alias origin (1 fixture)" \
+            python3 scripts/run_rust_tests.py rust-native-origin --verbose \
+              --require-count 1 --fail-on-skip
+          echo "Unix byte coverage requires 30 raw-output C/Rust pairs (60 target executions) plus 3 Rust-only raw-byte argv executions."
+          echo "Windows byte coverage uses 30 exact target-specific output pairs (C CRLF, Rust LF) plus 3 Rust-only UTF-16/WTF-8 argv executions."
+          run_gate "platform-specific raw byte-string behavior" \
+            python3 tests/rgen/byte_string_compare.py
           run_gate "indexed member Rust runtime composition" \
-            python3 scripts/run_rust_tests.py rgen --filter indexed_member_assignment --verbose
+            python3 scripts/run_rust_tests.py rgen --filter indexed_member_assignment \
+              --verbose --require-count 1 --fail-on-skip
 
           exit "$overall_rc"

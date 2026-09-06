@@ -386,7 +386,8 @@ PROMOTED_CLOSURE_NEGATIVES = {
 class TestRunner:
     def __init__(self, compiler: str, compile_timeout: int = 10,
                  run_timeout: int = 30, excluded_tests: List[str] = None,
-                 verbose: bool = False, parallel: int = 1, filter_pattern: str = None):
+                 verbose: bool = False, parallel: int = 1, filter_pattern: str = None,
+                 required_count: Optional[int] = None, fail_on_skip: bool = False):
         self.compiler = compiler
         self.compile_timeout = compile_timeout
         self.run_timeout = run_timeout
@@ -394,6 +395,8 @@ class TestRunner:
         self.verbose = verbose
         self.parallel = parallel
         self.filter_pattern = filter_pattern
+        self.required_count = required_count
+        self.fail_on_skip = fail_on_skip
         self.temp_dir = None
         self._progress_lock = threading.Lock()
         self._completed_count = 0
@@ -637,6 +640,11 @@ class TestRunner:
         if self.filter_pattern:
             test_files = [f for f in test_files if self.filter_pattern in os.path.basename(f)]
 
+        if self.required_count is not None and len(test_files) != self.required_count:
+            print(f"{Colors.RED}FAIL{Colors.NC}: required {self.required_count} fixtures, "
+                  f"found {len(test_files)}")
+            return False, time.perf_counter() - suite_start
+
         if not test_files:
             print(f"No test files found matching: {pattern}")
             return True, 0.0
@@ -717,7 +725,10 @@ class TestRunner:
               f"{Colors.YELLOW}{skipped} skipped{Colors.NC}"
               f"  ({self._format_elapsed(suite_elapsed)})")
 
-        return failed == 0, suite_elapsed
+        if self.fail_on_skip and skipped:
+            print(f"{Colors.RED}FAIL{Colors.NC}: strict suite does not permit skipped fixtures")
+
+        return failed == 0 and not (self.fail_on_skip and skipped), suite_elapsed
 
     def run_rust_toolchain_tests(self) -> Tuple[bool, float]:
         """Run the Rust toolchain and Rust generated-artifact lifecycle suite.
@@ -1676,8 +1687,15 @@ def main():
     parser.add_argument('--no-cleanup', action='store_true',
                        help='Skip cleanup of orphaned temp directories')
     parser.add_argument('--filter', '-f', help='Only run tests matching this substring')
+    parser.add_argument('--require-count', type=int,
+                        help='Fail unless fixture discovery finds exactly this many tests')
+    parser.add_argument('--fail-on-skip', action='store_true',
+                        help='Fail if any discovered test is skipped')
 
     args = parser.parse_args()
+
+    if args.require_count is not None and args.require_count < 0:
+        parser.error('--require-count must be non-negative')
 
     # Setup signal handlers for graceful cleanup
     setup_signal_handlers()
@@ -1724,7 +1742,8 @@ def main():
     total_elapsed = 0.0
 
     with TestRunner(compiler, args.timeout, args.run_timeout,
-                    excluded, args.verbose, args.parallel, args.filter) as runner:
+                    excluded, args.verbose, args.parallel, args.filter,
+                    args.require_count, args.fail_on_skip) as runner:
         if args.test_type == 'all':
             for test_type in ['rgen', 'rgen-errors', 'rust-native-tagged',
                               'rust-native-extra', 'rust-native-origin',
