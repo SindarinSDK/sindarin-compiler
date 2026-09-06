@@ -1,5 +1,5 @@
 extern "C" {
-    #[link_name = {{rust_string_literal c_link_symbol}}]
+    #[link_name = {{rust_source_string_literal c_link_symbol}}]
     fn {{rust_native_extern_name}}({{#each params}}{{#if @index}}, {{/if}}_: {{#if (eq type.kind "char")}}std::ffi::c_char{{else}}{{rust_type type}}{{/if}}{{/each}}){{#unless (eq return_type.kind "void")}} -> {{#if (eq return_type.kind "char")}}std::ffi::c_char{{else}}{{rust_type return_type}}{{/if}}{{/unless}};
 }
 

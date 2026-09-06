@@ -1,0 +1,26 @@
+fn carry(value: str): str => value
+
+fn main(): void =>
+  var afterNul: byte[] = {65, 0, 66, 255}
+  var afterNulText: str = afterNul.toString()
+  print("afterNul=<")
+  print(afterNulText)
+  print($">/{afterNulText.length}\n")
+
+  var beforeNul: byte[] = {65, 255, 0, 66}
+  var beforeNulText: str = beforeNul.toString()
+  print("beforeNul=<")
+  print(beforeNulText)
+  print($">/{beforeNulText.length}\n")
+
+  var noNul: byte[] = {65, 255}
+  var noNulText: str = noNul.toString()
+  print("noNul=<")
+  print(noNulText)
+  print($">/{noNulText.length}\n")
+
+  var transported: str = carry(beforeNulText)
+  var concatenated: str = transported + "!"
+  print("concat=<")
+  print(concatenated)
+  print($">/{concatenated.length}\n")

@@ -1,30 +1,30 @@
-fn __sn_string_substring(value: &str, start: i64, end: i64) -> String {
+fn __sn_string_substring(value: &SnString, start: i64, end: i64) -> SnString {
     let length = value.len() as i64;
     let start = start.max(0);
     let end = end.min(length);
-    if start >= end {
-        return String::new();
-    }
-    value.get(start as usize..end as usize)
-        .expect("substring index is not a UTF-8 boundary")
-        .to_string()
+    if start >= end { return SnString::new(); }
+    SnString::from_bytes(value.as_bytes()[start as usize..end as usize].to_vec())
 }
 
-fn __sn_string_replace(value: &str, old: &str, new: &str) -> String {
-    if old.is_empty() {
-        value.to_string()
-    } else {
-        value.replace(old, new)
+fn __sn_string_replace(value: &SnString, old: &SnString, new: &SnString) -> SnString {
+    if old.is_empty() { return value.clone(); }
+    let mut result = SnString::new();
+    let mut remaining = value.as_bytes();
+    while let Some(index) = __sn_find_bytes(remaining, old.as_bytes()) {
+        result.0.extend_from_slice(&remaining[..index]);
+        result.push_str(new);
+        remaining = &remaining[index + old.len()..];
     }
+    result.0.extend_from_slice(remaining);
+    result
 }
 
-fn __sn_string_char_at(value: &str, index: i64) -> char {
-    if index < 0 {
-        return '\0';
-    }
+fn __sn_string_char_at(value: &SnString, index: i64) -> char {
+    if index < 0 { return '\0'; }
     value.as_bytes().get(index as usize).copied().map(char::from).unwrap_or('\0')
 }
 
-fn __sn_string_index_of(value: &str, needle: &str) -> i64 {
-    value.find(needle).map(|index| index as i64).unwrap_or(-1)
+fn __sn_string_index_of(value: &SnString, needle: &SnString) -> i64 {
+    __sn_find_bytes(value.as_bytes(), needle.as_bytes())
+        .map(|index| index as i64).unwrap_or(-1)
 }
