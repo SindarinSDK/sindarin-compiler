@@ -1,0 +1,142 @@
+name: Rust Platform Runtime
+
+on:
+  pull_request:
+    branches: [main, master, develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  runtime:
+    name: Rust runtime (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            exe_ext: ''
+            sn_cc: gcc
+            sn_cflags: ''
+            sn_release_cflags: ''
+
+          - os: windows-latest
+            exe_ext: '.exe'
+            sn_cc: clang
+            sn_cflags: '--target=x86_64-w64-mingw32 -fuse-ld=lld -rtlib=compiler-rt -unwindlib=none'
+            sn_release_cflags: '-O3'
+
+          - os: macos-latest
+            exe_ext: ''
+            sn_cc: clang
+            sn_cflags: ''
+            sn_release_cflags: ''
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup prerequisites (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential python3
+
+      - name: Setup prerequisites (macOS)
+        if: runner.os == 'macOS'
+        run: brew install python3
+
+      - name: Remove system LLVM (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          if (Test-Path "C:\Program Files\LLVM") {
+            Write-Host "Removing system LLVM to avoid conflicts..."
+            Remove-Item -Path "C:\Program Files\LLVM" -Recurse -Force
+          }
+
+      - name: Install LLVM-MinGW (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $version = "20241217"
+          $url = "https://github.com/mstorsjo/llvm-mingw/releases/download/$version/llvm-mingw-$version-ucrt-x86_64.zip"
+          $zipPath = "$env:TEMP\llvm-mingw.zip"
+          $extractPath = "C:\llvm-mingw"
+
+          Invoke-WebRequest -Uri $url -OutFile $zipPath
+          Expand-Archive -Path $zipPath -DestinationPath $extractPath -Force
+
+          $llvmDir = Get-ChildItem -Path $extractPath -Directory | Select-Object -First 1
+          $binPath = Join-Path $llvmDir.FullName "bin"
+          echo "$binPath" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Install Make and Ninja (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: choco install make ninja -y
+
+      - name: Pin Rust toolchain
+        run: |
+          rustup toolchain install 1.93.1 --profile minimal
+          rustup default 1.93.1
+          rustc --version --verbose
+
+      - name: Setup libs
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: make setup
+
+      - name: Build
+        shell: bash
+        run: make build
+
+      - name: Verify compiler output
+        shell: bash
+        run: |
+          if [ ! -f "bin/sn${{ matrix.exe_ext }}" ]; then
+            echo "ERROR: bin/sn${{ matrix.exe_ext }} not found"
+            exit 1
+          fi
+
+      - name: Run bounded Rust runtime gates
+        shell: bash
+        env:
+          SN_CC: ${{ matrix.sn_cc }}
+          SN_CFLAGS: ${{ matrix.sn_cflags }}
+          SN_RELEASE_CFLAGS: ${{ matrix.sn_release_cflags }}
+          SN_EXCLUDE_TESTS: ''
+          PYTHONUNBUFFERED: '1'
+        run: |
+          overall_rc=0
+
+          run_gate() {
+            gate_name="$1"
+            shift
+            echo "::group::$gate_name"
+            if "$@"; then
+              gate_rc=0
+            else
+              gate_rc=$?
+            fi
+            echo "::endgroup::"
+            if [ "$gate_rc" -eq 0 ]; then
+              echo "- PASS: $gate_name" >> "$GITHUB_STEP_SUMMARY"
+            else
+              echo "- FAIL: $gate_name (exit $gate_rc)" >> "$GITHUB_STEP_SUMMARY"
+              overall_rc=1
+            fi
+          }
+
+          run_gate "tagged native C/Rust parity" make test-rust-native-tagged
+          run_gate "native scalar ABI and raw bool/char fixture" make test-rust-native-extra
+          run_gate "imported native alias origin" make test-rust-native-origin
+          echo "The byte gate contains 60 paired C/Rust executions and 3 qualified Rust-only raw-argv executions; no C argv parity is claimed."
+          run_gate "raw byte-string behavior" make test-rgen-byte-strings
+          run_gate "indexed member Rust runtime composition" \
+            python3 scripts/run_rust_tests.py rgen --filter indexed_member_assignment --verbose
+
+          exit "$overall_rc"
