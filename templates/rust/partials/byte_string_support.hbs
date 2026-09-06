@@ -155,8 +155,12 @@ fn __sn_find_bytes(haystack: &[u8], needle: &[u8]) -> Option<usize> {
 }
 
 fn __sn_write_bytes(bytes: &[u8]) {
+{{#if @root.rust_windows_text_output}}
+    __sn_write_stdout_bytes(bytes);
+{{else}}
     use std::io::Write;
     std::io::stdout().lock().write_all(bytes).expect("failed to write stdout");
+{{/if}}
 }
 
 fn __sn_print_string(value: &SnString) { __sn_write_bytes(value.as_bytes()); }

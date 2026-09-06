@@ -257,6 +257,13 @@ static bool rust_emit(CompilerOptions *options, Module *module,
         json_object_object_add(model, "rust_uses_reflection", json_object_new_boolean(true));
     if (uses_array_text || rust_model_uses_byte_strings(model))
         json_object_object_add(model, "rust_uses_byte_strings", json_object_new_boolean(true));
+#ifdef _WIN32
+    /* The tagged C runtime writes stdout/stderr through Windows text streams.
+     * Mark Windows-hosted Rust generation so its private output adapter emits
+     * the same bytewise LF -> CRLF transport without changing other bytes. */
+    json_object_object_add(model, "rust_windows_text_output",
+                           json_object_new_boolean(true));
+#endif
     if (rust_model_uses_string_helpers(model))
         json_object_object_add(model, "rust_uses_string_helpers", json_object_new_boolean(true));
     if (rust_model_uses_split_helpers(model))
