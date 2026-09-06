@@ -8,7 +8,8 @@ terminated with signal 11. It is not included among clean parity comparisons.
 Raw evidence: /tmp/sn-nested-f10-fresh-4ga44x0w.
 
 Current implementation is a private projection for selected local initializer
-owners and ordinary direct function parameters. Global storage, method/closure
+owners and private specializations of ordinary direct functions. Existing
+non-owner callers retain their original function signatures and borrowing. Global storage, method/closure
 transport, arbitrary produced initializer places, outer-container forwarding,
 and composition with thread-specific owner transport need separate evidence.
 No rejection is considered a resolution of those required boundaries.
