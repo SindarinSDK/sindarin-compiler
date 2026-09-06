@@ -15,6 +15,31 @@ static bool rust_type_supported(json_object *type)
     const char *kind = json_object_get_string(kind_obj);
     if (!kind) return false;
     if (strcmp(kind, "function") == 0) return rust_closure_type_supported(type);
+    if (strcmp(kind, "pointer") == 0)
+    {
+        json_object *base_type = NULL;
+        if (!json_object_object_get_ex(type, "base_type", &base_type))
+            return false;
+        json_object *base_kind_object = NULL;
+        if (!json_object_object_get_ex(base_type, "kind", &base_kind_object))
+            return false;
+        const char *base_kind = json_object_get_string(base_kind_object);
+        if (!base_kind) return false;
+        if (strcmp(base_kind, "pointer") == 0)
+            return rust_type_supported(base_type);
+        return strcmp(base_kind, "void") == 0 ||
+            strcmp(base_kind, "opaque") == 0 ||
+            strcmp(base_kind, "int") == 0 ||
+            strcmp(base_kind, "long") == 0 ||
+            strcmp(base_kind, "int32") == 0 ||
+            strcmp(base_kind, "uint") == 0 ||
+            strcmp(base_kind, "uint32") == 0 ||
+            strcmp(base_kind, "double") == 0 ||
+            strcmp(base_kind, "float") == 0 ||
+            strcmp(base_kind, "bool") == 0 ||
+            strcmp(base_kind, "char") == 0 ||
+            strcmp(base_kind, "byte") == 0;
+    }
     if (strcmp(kind, "array") == 0)
     {
         json_object *element_type = NULL;
@@ -28,6 +53,26 @@ static bool rust_type_supported(json_object *type)
         strcmp(kind, "bool") == 0 || strcmp(kind, "char") == 0 ||
         strcmp(kind, "byte") == 0 || strcmp(kind, "string") == 0 ||
         strcmp(kind, "struct") == 0;
+}
+
+static bool rust_opaque_type_declarations_supported(json_object *model)
+{
+    json_object *declarations = NULL;
+    if (!json_object_object_get_ex(model, "type_decls", &declarations))
+        return true;
+    size_t count = json_object_array_length(declarations);
+    for (size_t i = 0; i < count; i++)
+    {
+        json_object *declaration = json_object_array_get_idx(declarations, i);
+        json_object *type = NULL;
+        json_object *kind = NULL;
+        if (!json_object_object_get_ex(declaration, "type", &type) ||
+            !json_object_object_get_ex(type, "kind", &kind) ||
+            !json_object_get_string(kind) ||
+            strcmp(json_object_get_string(kind), "opaque") != 0)
+            return false;
+    }
+    return true;
 }
 
 static const char *json_string_property(json_object *object, const char *key)
@@ -1987,6 +2032,18 @@ static bool rust_bool_match_literal_pattern(json_object *pattern)
            json_object_is_type(value, json_type_boolean);
 }
 
+static bool rust_char_match_literal_pattern(json_object *pattern)
+{
+    json_object *type = NULL, *value = NULL;
+    return json_object_is_type(pattern, json_type_object) &&
+           json_object_object_get_ex(pattern, "type", &type) &&
+           json_string_property_equals(type, "kind", "char") &&
+           json_string_property_equals(pattern, "kind", "literal") &&
+           json_string_property_equals(pattern, "value_kind", "char") &&
+           json_object_object_get_ex(pattern, "value", &value) &&
+           json_object_is_type(value, json_type_int);
+}
+
 /* The shared optimizer folds recursively literal-only string concatenations
  * from -O1 onward.  Recognize that same bounded constant form here and attach
  * its content to the pattern, so Rust admission and rendering do not depend
@@ -2263,11 +2320,12 @@ static bool rust_validate_statement_match(json_object *expr)
     bool subject_is_bool = json_string_property_equals(subject_type, "kind", "bool");
     bool subject_is_float = rust_float_type(subject_kind);
     bool subject_is_string = json_string_property_equals(subject_type, "kind", "string");
+    bool subject_is_char = json_string_property_equals(subject_type, "kind", "char");
     if (!subject_is_integral && !subject_is_bool && !subject_is_float &&
-        !subject_is_string)
+        !subject_is_string && !subject_is_char)
     {
         return rust_report_match_error(
-            "supports statement match only with bool, integral, float, double, or string subjects");
+            "supports statement match only with bool, char, integral, float, double, or string subjects");
     }
     if (!rust_validate_expr(subject)) return false;
 
@@ -2321,6 +2379,9 @@ static bool rust_validate_statement_match(json_object *expr)
                 if (subject_is_bool && !rust_bool_match_literal_pattern(pattern))
                     return rust_report_match_error(
                         "supports statement match only with boolean literal patterns");
+                if (subject_is_char && !rust_char_match_literal_pattern(pattern))
+                    return rust_report_match_error(
+                        "supports statement match only with character literal patterns");
                 if (subject_is_float)
                 {
                     RustFloatMatchPatternStatus status =
@@ -2697,7 +2758,8 @@ static bool rust_validate_model_impl(json_object *model,
     if (!array_is_empty(model, "globals")) unsupported = "global variables";
     else if (!rust_validate_closures(model)) return false;
     else if (!array_is_empty(model, "threads")) unsupported = "threads";
-    else if (!array_is_empty(model, "type_decls")) unsupported = "type declarations";
+    else if (!rust_opaque_type_declarations_supported(model))
+        unsupported = "non-opaque type declarations";
 
     json_object *pragmas = NULL;
     if (!unsupported && json_object_object_get_ex(model, "pragmas", &pragmas))

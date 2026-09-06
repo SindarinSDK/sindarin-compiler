@@ -1,0 +1,6 @@
+@source "native_flush_parameter_collision.sn.c"
+
+native fn identity(__sn_native_fflush_0: int): int
+
+fn main(): void =>
+  println(identity(7))

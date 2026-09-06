@@ -1,0 +1,30 @@
+fn observeSubject(calls: int as ref, order: int as ref, value: char): char =>
+  calls++
+  order = order * 10 + 1
+  return value
+
+fn main(): void =>
+  var subject_calls: int = 0
+  var order: int = 0
+  var selected: int = 0
+  match observeSubject(subject_calls, order, 'b') =>
+    'a' =>
+      selected = 10
+      order = order * 10 + 2
+    'b' =>
+      selected = 20
+      order = order * 10 + 3
+    else =>
+      selected = 30
+      order = order * 10 + 4
+
+  var fallback: int = 0
+  match 'z' =>
+    'a' => fallback = 1
+    else => fallback = 7
+
+  var unchanged: int = 11
+  match 'z' =>
+    'a' => unchanged = 99
+
+  println($"{subject_calls},{order},{selected},{fallback},{unchanged}")
