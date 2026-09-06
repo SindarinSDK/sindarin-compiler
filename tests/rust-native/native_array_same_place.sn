@@ -1,0 +1,8 @@
+@source "native_array_same_place.sn.c"
+
+native fn mutate_pair(first: int[], second: int[]): void
+
+fn main(): void =>
+  var values: int[] = {1, 2}
+  mutate_pair(values, values)
+  println($"{values[0]},{values[1]}")

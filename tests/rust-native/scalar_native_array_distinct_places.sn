@@ -1,0 +1,10 @@
+@source "scalar_native_array_distinct_places.sn.c"
+
+native fn mutate_pair(first: int[], second: int[]): void
+
+fn main(): void =>
+  var first: int[] = {1, 2}
+  var second: int[] = {3, 4}
+  mutate_pair(first, second)
+  println($"{first[0]},{first[1]}")
+  println($"{second[0]},{second[1]}")

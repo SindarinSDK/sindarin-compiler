@@ -1347,6 +1347,48 @@ bool rust_native_partition_model(json_object *rust_model,
                                 param, functions, structs, globals,
                                 "rust_native_array_result_name", "array_result",
                                 native_index, p);
+                            json_object *prior_arrays = json_object_new_array();
+                            for (size_t q = 0; q < p; q++)
+                            {
+                                json_object *previous =
+                                    json_object_array_get_idx(params, q);
+                                json_object *previous_type = NULL;
+                                json_object *element_type = NULL;
+                                json_object *previous_element_type = NULL;
+                                if (!json_object_object_get_ex(
+                                        previous, "type", &previous_type) ||
+                                    !native_primitive_array_type(previous_type) ||
+                                    !json_object_object_get_ex(
+                                        param_type, "element_type", &element_type) ||
+                                    !json_object_object_get_ex(
+                                        previous_type, "element_type",
+                                        &previous_element_type) ||
+                                    strcmp(native_string(element_type, "kind"),
+                                           native_string(previous_element_type,
+                                                         "kind")) != 0)
+                                    continue;
+                                json_object *alias = json_object_new_object();
+                                json_object_object_add(
+                                    alias, "name", json_object_new_string(
+                                        native_string(previous, "name")));
+                                json_object_object_add(
+                                    alias, "rust_native_array_arg_name",
+                                    json_object_new_string(native_string(
+                                        previous,
+                                        "rust_native_array_arg_name")));
+                                json_object_array_add(prior_arrays, alias);
+                            }
+                            if (json_object_array_length(prior_arrays) > 0)
+                            {
+                                json_object_object_add(
+                                    param, "rust_native_array_has_prior",
+                                    json_object_new_boolean(true));
+                                json_object_object_add(
+                                    param, "rust_native_array_prior_params",
+                                    prior_arrays);
+                            }
+                            else
+                                json_object_put(prior_arrays);
                         }
                     }
                 }

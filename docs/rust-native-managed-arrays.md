@@ -33,6 +33,23 @@ and indexed places, and once-only source-order evaluation. The hygiene fixture
 forces source collisions with the projected array type, `malloc`, `free`, and
 array-argument temporary names.
 
+`tests/rust-native/native_array_same_place.sn` preserves the independent
+reviewer's source and sidecar byte-for-byte. It passes one `int[]` place twice
+to a native function. Rust evaluates both argument places in source order,
+uses raw pointers only to identify the source places, and redirects both C
+arguments to one staged `SnArray`. The first occurrence performs the single
+copy-back. This preserves C address identity and mutations without constructing
+overlapping Rust mutable references. Distinct source arrays retain independent
+staging and ordered copy-back.
+
+The review correction is verified against the pinned tag after smoke
+`/tmp/sindarin-s2-tag-smoke-gp25ev`. The unchanged review source and the
+distinct-place control produce their committed output at O0/O1/O2 in
+`/tmp/sindarin-s2-tag-managed-identity-okY8tL` (six tag pairs). The corrected
+Rust review source also passes O0/O1/O2 in
+`/tmp/sindarin-s2-managed-alias-fix-RnlCry`; the focused native suite exercises
+both fixtures in its full ABI matrix.
+
 The authoritative tag control is peeled `v0.0.83` commit
 `79c20bdb8314aff3c778471ceab20bb8f9ca8d62`. The composition control smoke is
 `/tmp/sindarin-s2-tag-smoke-Ute943`. The strict differential matrix is
@@ -49,12 +66,12 @@ parity nor treated as a Rust exception.
 The retained PR 143 behavior was rechecked after the template composition in
 `/tmp/sindarin-s2-managed-pr143-matrix-FsrGmw`: all 36 tag/Rust pairs and all
 72 runs pass with exact stdout and stderr across the same modes. Focused gates
-pass with no skips: 8 tagged native fixtures, 19 native extra fixtures, 4
+pass with no skips: 8 tagged native fixtures, 21 native extra fixtures, 4
 native diagnostics, 1 imported-origin fixture, all 12 Rust toolchain and
 artifact-lifecycle cases, 36 promoted closure cases plus the closure
 diagnostic, and 63 compiled raw-byte string executions. Composing PR 144's
 strict fixture-count workflow on this dependent slice requires counts of 8
-tagged and 19 extra fixtures.
+tagged and 21 extra fixtures.
 
 Managed string/nested/struct/function arrays, native structs and struct
 results, callbacks, SDK packages that require those representations, and
