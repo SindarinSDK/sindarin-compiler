@@ -394,6 +394,8 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
             if (b->lambda_depth != scope->lambda_depth)
                 return rust_closure_error("missing transitive closure captures");
             json_object_object_add(node, "rust_binding_id", json_object_new_int(b->id));
+            if (b->array_capture_id >= 0)
+                json_object_object_add(node, "rust_array_capture_id", json_object_new_int(b->array_capture_id));
             if (b->capture && !json_boolean_property(node, "rust_capture_mutation_place"))
                 json_object_object_add(node, "rust_needs_clone", json_object_new_boolean(true));
             if (json_boolean_property(b->declaration, "rust_shared_cell"))
@@ -449,6 +451,7 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
             return rust_closure_error("mutable access to snapshot closure captures");
     }
     if (kind && strcmp(kind, "index_assign") == 0 && place && place->capture &&
+        !json_boolean_property(node, "rust_nested_index_assign") &&
         rust_closure_array_type(rust_closure_property(place->declaration, "type")))
         return rust_closure_error("mutable access to snapshot closure captures");
     bool struct_snapshot = place && place->capture && rust_closure_struct_type(
@@ -520,7 +523,8 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
     if (place && (place->capture || place->lambda_depth < scope->lambda_depth) &&
         !json_boolean_property(place->declaration, "rust_shared_cell") &&
         !json_boolean_property(place->declaration, "rust_scalar_snapshot") &&
-        !json_boolean_property(place->declaration, "rust_mutable_owned_snapshot"))
+        !json_boolean_property(place->declaration, "rust_mutable_owned_snapshot") &&
+        !json_boolean_property(node, "rust_nested_index_assign"))
         return rust_closure_error("mutable access to snapshot closure captures");
     if (kind && strcmp(kind, "call") == 0)
     {

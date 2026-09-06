@@ -1,0 +1,12 @@
+fn make(): int[] =>
+  return {1, 2}
+
+fn main(): void =>
+  var rows: int[][2] = make()
+  var copied: int[][] = rows
+  rows[0][0] = 7
+  println($"{rows[0][0]},{rows[1][0]},{copied[0][0]}")
+  rows.pop()
+  rows.pop()
+  copied.pop()
+  copied.pop()

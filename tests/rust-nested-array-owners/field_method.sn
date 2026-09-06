@@ -1,0 +1,13 @@
+struct Holder =>
+  items: int[] = {}
+
+  fn set(value: int): void =>
+    self.items[0] = value
+
+fn main(): void =>
+  var holder: Holder = { items: {1, 2} }
+  var rows: int[][2] = holder.items
+  holder.set(12)
+  println($"{holder.items[0]},{rows[0][0]},{rows[1][0]}")
+  rows.pop()
+  rows.pop()

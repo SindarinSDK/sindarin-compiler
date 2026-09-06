@@ -1,0 +1,11 @@
+fn main(): void =>
+  var seed: int[] = {1, 2}
+  var rows: int[][2] = seed
+  var action: fn(): void = fn(): void =>
+    rows[0][0] = 15
+    while rows.length > 0 =>
+      rows.pop()
+  action()
+  println($"{seed[0]},{rows.length}")
+  while rows.length > 0 =>
+    rows.pop()
