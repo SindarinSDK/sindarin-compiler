@@ -14,6 +14,13 @@ mutation visibility without cloning the array and without constructing unsafe
 overlapping mutable references. The source function remains available with its
 ordinary signature for non-aliasing calls.
 
+Specialization follows the Rust-private binding identities assigned during
+validation, so a nested declaration that shadows a formal keeps its independent
+binding. Newly specialized bodies are processed recursively. A specialization
+is memoized by its source function and formal-alias partition before its body is
+visited, which both propagates aliases through forwarders and terminates for
+recursive or mutually recursive calls.
+
 Stable array places have no source-visible evaluation of their own. Other
 arguments are evaluated once in their original relative order before any array
 borrow when a later argument could read an earlier array. This includes calls
@@ -24,8 +31,10 @@ The focused `default_array_multiple_distinct` and
 `default_array_multiple_same` fixtures cover distinct arrays, duplicate local
 and member places, mixed duplicate and distinct arguments, mutation visibility,
 a side-effectful scalar between array arguments, a later same-array length read,
-and private-name collision. Their tagged C and generated Rust executions are
-compared at `-O0`, `-O1`, and `-O2`.
+and private-name collision. The forwarder fixtures cover transitive local and
+member aliases, and the shadow fixture proves that specialization does not cross
+a nested binding with the same source spelling. Their tagged C and generated
+Rust executions are compared at `-O0`, `-O1`, and `-O2`.
 
 This bounded representation does not infer runtime aliasing between different
 place expressions. Produced/indexed array places, sibling references derived

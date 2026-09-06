@@ -1,0 +1,11 @@
+fn appendRecursive(first: int[], second: int[], remaining: int): int =>
+  if remaining == 0 =>
+    second.push(first.length)
+    return second.length
+  first.push(remaining)
+  return appendRecursive(first, second, remaining - 1)
+
+fn main(): void =>
+  var values: int[] = {1}
+  println(appendRecursive(values, values, 2))
+  println($"{values.length}:{values[1]}:{values[2]}:{values[3]}")

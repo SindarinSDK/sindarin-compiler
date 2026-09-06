@@ -92,7 +92,7 @@ fn main() {
     println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", (shared).len() as i64)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (shared)[__sn_index((shared).len(), 1)])); __sn_interpolated });
     println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", (distinct).len() as i64)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", (distinct)[__sn_index((distinct).len(), 1)])); __sn_interpolated });
     let mut bag: Bag = Bag { values: vec![1] };
-    println!("{}", __sn_array_alias_call_3(&mut ((bag).values)));
+    println!("{}", __sn_array_alias_call_1(&mut ((bag).values)));
     println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", ((bag).values).len() as i64)); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", ((bag).values)[__sn_index(((bag).values).len(), 1)])); __sn_interpolated.push_str(":"); __sn_interpolated.push_str(&format!("{}", ((bag).values)[__sn_index(((bag).values).len(), 2)])); __sn_interpolated });
 }
 
@@ -108,11 +108,4 @@ fn __sn_array_alias_call_2(first: &mut Vec<i64>, marker: i64, third: &mut Vec<i6
     println!("{}", (first).len() as i64);
     (third).push((first).len() as i64);
     return __sn_checked_0((__sn_checked_0((__sn_checked_0(((first).len() as i64).checked_mul(100), "Runtime error: integer overflow in multiplication")).checked_add(__sn_checked_0(((first).len() as i64).checked_mul(10), "Runtime error: integer overflow in multiplication")), "Runtime error: integer overflow in addition")).checked_add((third).len() as i64), "Runtime error: integer overflow in addition");
-}
-
-fn __sn_array_alias_call_3(first: &mut Vec<i64>) -> i64 {
-    (first).push(2);
-    println!("{}", (first).len() as i64);
-    (first).push(3);
-    return (first).len() as i64;
 }

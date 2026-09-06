@@ -1,0 +1,15 @@
+struct Bag =>
+  values: int[]
+
+fn mutate(first: int[], second: int[]): int =>
+  first.push(2)
+  second.push(first.length)
+  return first.length
+
+fn forward(left: int[], right: int[]): int =>
+  return mutate(left, right)
+
+fn main(): void =>
+  var bag: Bag = { values: {1} }
+  println(forward(bag.values, bag.values))
+  println($"{bag.values.length}:{bag.values[1]}:{bag.values[2]}")

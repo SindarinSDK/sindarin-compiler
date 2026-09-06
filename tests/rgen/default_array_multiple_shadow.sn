@@ -1,0 +1,12 @@
+fn mutate(first: int[], second: int[]): int =>
+  if true =>
+    var second: int[] = {9}
+    second.push(10)
+    println($"inner:{second.length}:{second[0]}:{second[1]}")
+  first.push(2)
+  return first.length
+
+fn main(): void =>
+  var values: int[] = {1}
+  println(mutate(values, values))
+  println($"outer:{values.length}:{values[0]}:{values[1]}")
