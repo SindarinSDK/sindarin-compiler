@@ -1,0 +1,33 @@
+@source "scalar_native_ref_struct_result.sn.c"
+
+native struct Tracker as ref =>
+  id: int
+
+  @alias "tracker_dispose"
+  native fn dispose(): void
+
+  @alias "tracker_get_id"
+  native fn getId(): int
+
+native fn tracker_create(id: int): Tracker
+native fn tracker_same(first: Tracker, second: Tracker): bool
+native fn tracker_alive_count(): int
+
+struct Holder =>
+  value: Tracker
+
+fn exercise(): void =>
+  var first: Tracker = tracker_create(7)
+  var copy: Tracker = first
+  println(tracker_same(first, copy))
+
+  var holder: Holder = { value: first }
+  println(tracker_same(holder.value, copy))
+
+  var values: Tracker[] = {first}
+  println(tracker_same(values[0], holder.value))
+  println(values[0].getId())
+
+fn main(): void =>
+  exercise()
+  println(tracker_alive_count())

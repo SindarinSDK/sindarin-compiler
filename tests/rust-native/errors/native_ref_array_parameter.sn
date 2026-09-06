@@ -1,0 +1,11 @@
+native struct Tracker as ref =>
+  id: int
+
+  @alias "tracker_dispose"
+  native fn dispose(): void
+
+native fn consume(values: Tracker[]): void
+
+fn main(): void =>
+  var values: Tracker[] = {}
+  consume(values)

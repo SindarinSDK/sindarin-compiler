@@ -1,0 +1,4 @@
+extern "C" {
+    #[link_name = "free"]
+    fn {{rust_ident rust_native_free_extern_name}}(_: *mut std::ffi::c_void);
+}

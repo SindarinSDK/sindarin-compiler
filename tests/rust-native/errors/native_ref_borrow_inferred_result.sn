@@ -1,0 +1,13 @@
+native struct Tracker as ref =>
+  id: int
+
+  @alias "tracker_dispose"
+  native fn dispose(): void
+
+native fn tracker_create(id: int): Tracker
+native fn identity(value: Tracker): Tracker
+
+fn main(): void =>
+  var value: Tracker = tracker_create(1)
+  var alias: Tracker = identity(value)
+  println(alias.id)

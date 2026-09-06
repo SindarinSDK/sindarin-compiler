@@ -1,4 +1,4 @@
-#[derive(Clone{{#unless has_heap_fields}}, Copy{{/unless}}, Debug, PartialEq)]
+{{#if rust_native_ref_bridge}}{{> native_ref_struct this}}{{else}}#[derive(Clone{{#unless has_heap_fields}}, Copy{{/unless}}, Debug, PartialEq)]
 struct {{rust_ident name}} {
 {{#each fields}}    {{rust_ident name}}: {{rust_type type}},
 {{/each}}{{rbrace}}{{#if methods}}
@@ -22,3 +22,4 @@ impl {{rust_ident name}} {
         self.{{rust_ident @root.rust_array_text_method_name}}()
     }
 }{{/if~}}
+{{/if}}

@@ -629,10 +629,12 @@ static bool rust_validate_structs(json_object *model)
             return false;
         }
 
-        if (json_boolean_property(structure, "is_native") ||
+        if ((json_boolean_property(structure, "is_native") &&
+             !json_boolean_property(structure, "rust_native_ref_bridge")) ||
             json_boolean_property(structure, "is_packed") ||
             json_boolean_property(structure, "is_serializable") ||
-            (mem_mode && strcmp(mem_mode, "val") != 0))
+            (mem_mode && strcmp(mem_mode, "val") != 0 &&
+             !json_boolean_property(structure, "rust_native_ref_bridge")))
         {
             fprintf(stderr,
                     "Error: Rust target currently supports only plain value struct '%s'\n",
@@ -1781,6 +1783,19 @@ static bool rust_validate_expr(json_object *expr)
         return json_object_object_get_ex(expr, "value", &child) && rust_validate_expr(child);
     if (strcmp(kind, "call") == 0)
         return rust_validate_call(expr);
+    if (strcmp(kind, "builtin_assert") == 0)
+    {
+        json_object *args = NULL;
+        if (!json_object_object_get_ex(expr, "args", &args) ||
+            !json_object_is_type(args, json_type_array) ||
+            json_object_array_length(args) != 2 ||
+            !rust_validate_expr_array(args)) return false;
+        json_object_object_add(expr, "rust_assert_condition",
+            json_object_get(json_object_array_get_idx(args, 0)));
+        json_object_object_add(expr, "rust_assert_message",
+            json_object_get(json_object_array_get_idx(args, 1)));
+        return true;
+    }
     if (strcmp(kind, "builtin_print") == 0 || strcmp(kind, "builtin_println") == 0)
     {
         json_object *args = NULL;

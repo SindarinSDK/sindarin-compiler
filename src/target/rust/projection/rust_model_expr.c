@@ -1971,6 +1971,22 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                                 json_object_new_string(arg_type->as.struct_type.name));
                         }
                     }
+                    /* A native reference-struct parameter receives one owned
+                     * handle credit in tagged C. Preserve that credit for a
+                     * borrowed Rust place by cloning the handle; owned call
+                     * results continue to transfer their existing credit. */
+                    {
+                        Expr *arg_expr = expr->as.call.arguments[i];
+                        Type *arg_type = arg_expr ? arg_expr->expr_type : NULL;
+                        Type *callee_type = expr->as.call.callee->expr_type;
+                        if (callee_type && callee_type->kind == TYPE_FUNCTION &&
+                            callee_type->as.function.is_native && arg_type &&
+                            arg_type->kind == TYPE_STRUCT &&
+                            arg_type->as.struct_type.pass_self_by_ref &&
+                            rust_ownership_kind(arg_expr) == RUST_OWNERSHIP_BORROW)
+                            json_object_object_add(arg, "is_copy_arg",
+                                                   json_object_new_boolean(true));
+                    }
                     /* Interface-typed params accept void *: pass &arg for val-type struct args */
                     if (callee_param_types && i < callee_param_count &&
                         callee_param_types[i] && callee_param_types[i]->kind == TYPE_INTERFACE)

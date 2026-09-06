@@ -1,0 +1,1 @@
+Error: Rust target native function 'consume' parameter 'values' must be an unsynchronized string or primitive array, default-qualified raw pointer, or default/as-ref native scalar

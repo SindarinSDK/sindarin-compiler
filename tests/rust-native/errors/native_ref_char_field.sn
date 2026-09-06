@@ -1,0 +1,8 @@
+native struct NativeChar as ref =>
+  value: char
+
+  @alias "native_char_dispose"
+  native fn dispose(): void
+
+fn main(): void =>
+  println("unreachable")

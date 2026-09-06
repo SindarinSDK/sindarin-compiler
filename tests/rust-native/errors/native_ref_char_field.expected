@@ -1,0 +1,1 @@
+Error: Rust target native reference struct 'NativeChar' field 'value' must use a scalar value with an established C ABI

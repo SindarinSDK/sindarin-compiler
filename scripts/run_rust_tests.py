@@ -620,6 +620,10 @@ class TestRunner:
                 'tests/integration/test_inline_pointer_passing.sn',
                 'tests/integration/test_pointer_unwrap.sn',
                 'tests/integration/test_interop_pointers.sn',
+                'tests/integration/test_refcount_chain_in_struct_literal.sn',
+                'tests/integration/test_struct_return_array_leak.sn',
+                'tests/integration/test_struct_rvalue_member_leak.sn',
+                'tests/integration/test_struct_rvalue_member_leak_contexts.sn',
             ]
         else:
             test_files = sorted(glob.glob(pattern, recursive=True))

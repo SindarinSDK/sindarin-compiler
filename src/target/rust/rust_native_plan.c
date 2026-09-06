@@ -84,6 +84,14 @@ static bool native_primitive_array_type(json_object *type)
         native_scalar_kind(native_string(element_type, "kind"), false);
 }
 
+static bool native_ref_struct_type(json_object *type)
+{
+    return native_string(type, "kind") &&
+        strcmp(native_string(type, "kind"), "struct") == 0 &&
+        native_bool(type, "is_native") &&
+        native_bool(type, "pass_self_by_ref");
+}
+
 static int native_primitive_array_tag(json_object *type)
 {
     json_object *element_type = NULL;
@@ -111,7 +119,7 @@ static bool native_result_type(json_object *type)
     const char *kind = native_string(type, "kind");
     return native_scalar_type(type, true) ||
         (kind && strcmp(kind, "string") == 0) ||
-        native_primitive_array_type(type);
+        native_primitive_array_type(type) || native_ref_struct_type(type);
 }
 
 static bool native_parameter_type(json_object *type, const char *mem)
@@ -121,7 +129,67 @@ static bool native_parameter_type(json_object *type, const char *mem)
         return kind && native_scalar_kind(kind, false);
     return native_scalar_type(type, false) ||
         (kind && strcmp(kind, "string") == 0) ||
-        native_primitive_array_type(type);
+        native_primitive_array_type(type) || native_ref_struct_type(type);
+}
+
+static bool validate_native_ref_structs(json_object *structs)
+{
+    size_t count = structs ? json_object_array_length(structs) : 0;
+    for (size_t i = 0; i < count; i++)
+    {
+        json_object *structure = json_object_array_get_idx(structs, i);
+        if (!native_bool(structure, "is_native") ||
+            !native_bool(structure, "pass_self_by_ref")) continue;
+
+        const char *name = native_string(structure, "name");
+        json_object *fields = NULL;
+        size_t field_count = json_object_object_get_ex(structure, "fields", &fields)
+            ? json_object_array_length(fields) : 0;
+        for (size_t f = 0; f < field_count; f++)
+        {
+            json_object *field = json_object_array_get_idx(fields, f);
+            json_object *type = NULL;
+            if (!json_object_object_get_ex(field, "type", &type) ||
+                !native_scalar_type(type, false) ||
+                native_string(type, "kind") == NULL ||
+                strcmp(native_string(type, "kind"), "pointer") == 0 ||
+                strcmp(native_string(type, "kind"), "char") == 0)
+            {
+                fprintf(stderr,
+                        "Error: Rust target native reference struct '%s' field '%s' must use a scalar value with an established C ABI\n",
+                        name ? name : "<anonymous>",
+                        native_string(field, "name") ? native_string(field, "name") : "<anonymous>");
+                return false;
+            }
+        }
+
+        json_object *methods = NULL;
+        size_t method_count = json_object_object_get_ex(structure, "methods", &methods)
+            ? json_object_array_length(methods) : 0;
+        for (size_t m = 0; m < method_count; m++)
+        {
+            json_object *method = json_object_array_get_idx(methods, m);
+            json_object *return_type = NULL, *params = NULL;
+            size_t param_count = json_object_object_get_ex(method, "params", &params)
+                ? json_object_array_length(params) : 0;
+            if (!native_bool(method, "is_native") ||
+                native_bool(method, "is_static") ||
+                !native_string(method, "c_alias") ||
+                !json_object_object_get_ex(method, "return_type", &return_type) ||
+                !native_scalar_type(return_type, true) ||
+                (native_string(return_type, "kind") &&
+                 strcmp(native_string(return_type, "kind"), "char") == 0) ||
+                param_count != 0)
+            {
+                fprintf(stderr,
+                        "Error: Rust target native reference struct method '%s.%s' must be an aliased native instance method with no parameters and a scalar or void result\n",
+                        name ? name : "<anonymous>",
+                        native_string(method, "name") ? native_string(method, "name") : "<anonymous>");
+                return false;
+            }
+        }
+    }
+    return true;
 }
 
 static bool native_body_has_unsupported_construct_impl(json_object *node,
@@ -542,6 +610,80 @@ static char *unique_private_name(json_object *functions, json_object *structs,
         free(candidate);
     }
     return NULL;
+}
+
+static json_object *native_ref_struct_for_type(json_object *structs,
+                                               json_object *type)
+{
+    const char *name = native_string(type, "name");
+    size_t count = structs ? json_object_array_length(structs) : 0;
+    for (size_t i = 0; name && i < count; i++)
+    {
+        json_object *structure = json_object_array_get_idx(structs, i);
+        if (native_string(structure, "name") &&
+            strcmp(native_string(structure, "name"), name) == 0 &&
+            native_bool(structure, "rust_native_ref_bridge"))
+            return structure;
+    }
+    return NULL;
+}
+
+static void annotate_native_ref_type(json_object *structs, json_object *type)
+{
+    if (!native_ref_struct_type(type)) return;
+    json_object *structure = native_ref_struct_for_type(structs, type);
+    const char *raw_name = native_string(structure, "rust_native_raw_name");
+    if (raw_name)
+        json_object_object_add(type, "rust_native_raw_name",
+                               json_object_new_string(raw_name));
+}
+
+static bool annotate_native_ref_structs(json_object *functions,
+                                        json_object *structs,
+                                        json_object *globals)
+{
+    size_t count = structs ? json_object_array_length(structs) : 0;
+    for (size_t i = 0; i < count; i++)
+    {
+        json_object *structure = json_object_array_get_idx(structs, i);
+        if (!native_bool(structure, "is_native") ||
+            !native_bool(structure, "pass_self_by_ref")) continue;
+
+        char stem[96];
+        snprintf(stem, sizeof(stem), "__SnNativeRef_%zu", i);
+        char *raw_name = unique_private_name(functions, structs, globals, stem);
+        if (!raw_name) return false;
+        json_object_object_add(structure, "rust_native_ref_bridge",
+                               json_object_new_boolean(true));
+        json_object_object_add(structure, "rust_native_raw_name",
+                               json_object_new_string(raw_name));
+        free(raw_name);
+
+        json_object *methods = NULL;
+        size_t method_count = json_object_object_get_ex(structure, "methods", &methods)
+            ? json_object_array_length(methods) : 0;
+        for (size_t m = 0; m < method_count; m++)
+        {
+            json_object *method = json_object_array_get_idx(methods, m);
+            snprintf(stem, sizeof(stem), "__sn_native_ref_method_%zu_%zu", i, m);
+            char *extern_name = unique_private_name(
+                functions, structs, globals, stem);
+            if (!extern_name) return false;
+            json_object_object_add(method, "rust_native_ref_method",
+                                   json_object_new_boolean(true));
+            json_object_object_add(method, "rust_native_extern_name",
+                                   json_object_new_string(extern_name));
+            json_object_object_add(method, "c_link_symbol",
+                                   json_object_new_string(
+                                       native_string(method, "c_alias")));
+            if (native_string(method, "name") &&
+                strcmp(native_string(method, "name"), "dispose") == 0)
+                json_object_object_add(method, "rust_native_dispose_method",
+                                       json_object_new_boolean(true));
+            free(extern_name);
+        }
+    }
+    return true;
 }
 
 static void annotate_native_array_local_name(json_object *param,
@@ -1006,6 +1148,19 @@ bool rust_native_partition_model(json_object *rust_model,
     bool has_string_parameter = false;
     bool has_string_abi = false;
     json_object_object_get_ex(rust_model, "structs", &structs);
+    if (!validate_native_ref_structs(structs)) return false;
+    bool has_native_ref_abi = false;
+    size_t struct_count = structs ? json_object_array_length(structs) : 0;
+    for (size_t i = 0; i < struct_count; i++)
+    {
+        json_object *structure = json_object_array_get_idx(structs, i);
+        if (native_bool(structure, "is_native") &&
+            native_bool(structure, "pass_self_by_ref"))
+        {
+            has_native_ref_abi = true;
+            break;
+        }
+    }
     if (json_object_object_get_ex(rust_model, "functions", &functions))
     {
         size_t count = json_object_array_length(functions);
@@ -1080,6 +1235,14 @@ bool rust_native_partition_model(json_object *rust_model,
     char *rust_native_retained_strings_name = NULL;
     json_object *globals = NULL;
     json_object_object_get_ex(rust_model, "globals", &globals);
+    if (!annotate_native_ref_structs(functions, structs, globals))
+    {
+        json_object_put(selected_function_names);
+        json_object_put(selected_global_names);
+        free(initializer_name);
+        rust_native_plan_free(plan);
+        return false;
+    }
     if (native_count || initializer_name)
         rust_fflush_name = unique_private_name(
             functions, structs, globals, "__sn_native_fflush");
@@ -1142,6 +1305,22 @@ bool rust_native_partition_model(json_object *rust_model,
             free(rust_native_take_array_name);
             free(rust_native_retain_string_name);
             free(rust_native_retained_strings_name);
+            free(initializer_symbol);
+            free(rust_initializer_name);
+            free(rust_fflush_name);
+            json_object_put(selected_function_names);
+            json_object_put(selected_global_names);
+            free(initializer_name);
+            rust_native_plan_free(plan);
+            return false;
+        }
+    }
+    else if (has_native_ref_abi)
+    {
+        rust_native_free_name = unique_private_name(
+            functions, structs, globals, "__sn_native_free");
+        if (!rust_native_free_name)
+        {
             free(initializer_symbol);
             free(rust_initializer_name);
             free(rust_fflush_name);
@@ -1322,7 +1501,10 @@ bool rust_native_partition_model(json_object *rust_model,
             }
             json_object *return_type = NULL;
             if (json_object_object_get_ex(function, "return_type", &return_type))
+            {
                 annotate_native_array_type(return_type);
+                annotate_native_ref_type(structs, return_type);
+            }
             if (json_object_object_get_ex(function, "params", &params))
             {
                 size_t param_count = json_object_array_length(params);
@@ -1333,6 +1515,7 @@ bool rust_native_partition_model(json_object *rust_model,
                     if (json_object_object_get_ex(param, "type", &param_type))
                     {
                         annotate_native_array_type(param_type);
+                        annotate_native_ref_type(structs, param_type);
                         if (native_primitive_array_type(param_type))
                         {
                             annotate_native_array_local_name(
@@ -1435,6 +1618,14 @@ bool rust_native_partition_model(json_object *rust_model,
                                    json_object_new_string(
                                        rust_native_retained_strings_name));
         }
+    }
+    if (has_native_ref_abi)
+    {
+        json_object_object_add(rust_model, "rust_native_ref_abi",
+                               json_object_new_boolean(true));
+        if (!has_managed_abi)
+            json_object_object_add(rust_model, "rust_native_free_extern_name",
+                                   json_object_new_string(rust_native_free_name));
     }
     if (initializer_name)
     {

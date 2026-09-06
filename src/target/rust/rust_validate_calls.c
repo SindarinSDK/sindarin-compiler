@@ -406,6 +406,11 @@ static bool rust_validate_struct_methods(json_object *model)
             bool is_static = json_boolean_property(method, "is_static");
             if (json_boolean_property(method, "is_native"))
             {
+                if (json_boolean_property(structure,
+                                          "rust_native_ref_bridge") &&
+                    json_boolean_property(method,
+                                          "rust_native_ref_method"))
+                    continue;
                 fprintf(stderr,
                         "Error: Rust target supports only non-native methods on plain value struct '%s'\n",
                         struct_name ? struct_name : "<anonymous>");
