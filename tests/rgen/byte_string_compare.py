@@ -92,7 +92,7 @@ WINDOWS_ARGV_EXPECTED = bytes.fromhex("edb2af0ac3a90a706c61696e0a")
 EXE_SUFFIX = ".exe" if os.name == "nt" else ""
 
 
-def checked(command):
+def completed(command):
     if os.name == "nt":
         argv = [os.fsdecode(item) if isinstance(item, bytes) else os.fspath(item)
                 for item in command]
@@ -100,10 +100,51 @@ def checked(command):
         argv = [item if isinstance(item, bytes) else os.fsencode(item) for item in command]
     result = subprocess.run(argv, cwd=ROOT,
                             capture_output=True, timeout=120)
+    return result, argv
+
+
+def checked(command):
+    result, argv = completed(command)
     if result.returncode:
-        raise RuntimeError(f"{command}: exit {result.returncode}\n"
-                           + result.stderr.decode(errors="backslashreplace"))
-    return result.stdout
+        raise RuntimeError(
+            f"command={argv!r}\n"
+            f"status={result.returncode}\n"
+            f"stdout_hex={result.stdout.hex()}\n"
+            f"stderr_hex={result.stderr.hex()}\n"
+            f"stderr_display={result.stderr.decode(errors='backslashreplace')}")
+    return result, argv
+
+
+def mismatch_diagnostic(source, target, opt, compiler, executable,
+                        compile_result, compile_argv, run_result, run_argv):
+    config = {
+        key: os.environ.get(key, "<unset>")
+        for key in ("SN_CC", "SN_CFLAGS", "SN_RELEASE_CFLAGS", "SN_LDFLAGS",
+                    "SN_LDLIBS", "SN_RUSTC", "SN_RUSTFLAGS")
+    }
+    config_path = ROOT / "etc" / ("sn.windows.cfg" if os.name == "nt" else
+                                  "sn.darwin.cfg" if os.uname().sysname == "Darwin" else
+                                  "sn.linux.cfg")
+    dlls = sorted(str(path) for parent in (compiler.parent, executable.parent)
+                  for path in parent.glob("*.dll")) if os.name == "nt" else []
+    return "\n".join([
+        f"source={source.relative_to(ROOT)} target={target} opt=O{opt}",
+        f"compiler={compiler} exists={compiler.is_file()}",
+        f"executable={executable} exists={executable.is_file()} "
+        f"size={executable.stat().st_size if executable.is_file() else '<missing>'}",
+        f"compile_argv={compile_argv!r}",
+        f"compile_status={compile_result.returncode}",
+        f"compile_stdout_hex={compile_result.stdout.hex()}",
+        f"compile_stderr_hex={compile_result.stderr.hex()}",
+        f"run_argv={run_argv!r}",
+        f"run_status={run_result.returncode}",
+        f"run_stdout_hex={run_result.stdout.hex()}",
+        f"run_stderr_hex={run_result.stderr.hex()}",
+        f"config_env={config!r}",
+        f"config_path={config_path} exists={config_path.is_file()}",
+        f"runtime_dlls={dlls!r}",
+        f"PATH={os.environ.get('PATH', '<unset>')}",
+    ])
 
 
 def main():
@@ -123,15 +164,20 @@ def main():
                 outputs = {}
                 for target in ("c", "rust"):
                     executable = temp / f"{source.stem}-{target}-O{opt}{EXE_SUFFIX}"
-                    checked([compiler, source.relative_to(ROOT), "--target", target,
-                             f"-O{opt}", "--no-install", "-l", "1", "-o", executable])
-                    outputs[target] = checked([executable])
+                    compile_result, compile_argv = checked(
+                        [compiler, source.relative_to(ROOT), "--target", target,
+                         f"-O{opt}", "--no-install", "-l", "1", "-o", executable])
+                    run_result, run_argv = checked([executable])
+                    outputs[target] = run_result.stdout
                     target_expected = (WINDOWS_C_TEXT_STDOUT[source]
                                        if os.name == "nt" and target == "c" else expected)
                     if outputs[target] != target_expected:
                         raise AssertionError(
                             f"{source.name} {target} O{opt}: "
-                            f"{outputs[target].hex()} != {target_expected.hex()}")
+                            f"{outputs[target].hex()} != {target_expected.hex()}\n" +
+                            mismatch_diagnostic(
+                                source, target, opt, compiler, executable,
+                                compile_result, compile_argv, run_result, run_argv))
                     target_executions += 1
                 pairs += 1
                 if os.name != "nt" and outputs["c"] != outputs["rust"]:
@@ -148,7 +194,7 @@ def main():
             executable = temp / f"raw-argv-rust-O{opt}{EXE_SUFFIX}"
             checked([compiler, ARGV_SOURCE.relative_to(ROOT), "--target", "rust",
                      f"-O{opt}", "--no-install", "-l", "1", "-o", executable])
-            output = checked([executable, *argv_values])
+            output = checked([executable, *argv_values])[0].stdout
             if output != argv_expected:
                 raise AssertionError(
                     f"raw_argv.sn rust O{opt}: {output.hex()} != {argv_expected.hex()}")
