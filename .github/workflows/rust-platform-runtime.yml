@@ -131,12 +131,12 @@ jobs:
             fi
           }
 
-          run_gate "tagged native C/Rust parity (3 fixtures)" \
+          run_gate "tagged native C/Rust parity (6 fixtures)" \
             python3 scripts/run_rust_tests.py rust-native-tagged --verbose \
-              --require-count 3 --fail-on-skip
-          run_gate "native scalar ABI and raw bool/char fixture (10 fixtures)" \
+              --require-count 6 --fail-on-skip
+          run_gate "native scalar ABI and raw bool/char fixture (12 fixtures)" \
             python3 scripts/run_rust_tests.py rust-native-extra --verbose \
-              --require-count 10 --fail-on-skip
+              --require-count 12 --fail-on-skip
           run_gate "imported native alias origin (1 fixture)" \
             python3 scripts/run_rust_tests.py rust-native-origin --verbose \
               --require-count 1 --fail-on-skip

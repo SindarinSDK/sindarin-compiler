@@ -3,6 +3,10 @@
 {{#if rust_native_initializer}}extern "C" {
     #[link_name = {{rust_source_string_literal rust_native_initializer_symbol}}]
     fn {{rust_ident rust_native_initializer_extern_name}}();
+}
+
+{{/if}}
+{{#if rust_native_flush}}extern "C" {
     #[link_name = "fflush"]
     fn {{rust_ident rust_native_fflush_extern_name}}(_: *mut std::ffi::c_void) -> std::ffi::c_int;
 }
