@@ -16,10 +16,12 @@ representation. Lowering:
   source string;
 - binds an immediately indexed split result before evaluating the index, so an
   effectful receiver is not rendered twice; and
-- evaluates an assertion condition and message once in source order before
-  either continuing or emitting the tagged failure message and exiting with
-  status 1, using model-wide collision-free names for every Rust assertion
-  binding.
+- evaluates each assertion operand once using model-wide collision-free Rust
+  bindings; heap-producing messages are bound before the condition to mirror
+  the tagged ownership lowering, while the non-heap path retains its existing
+  condition-then-message lowering; and
+- emits the tagged failure message as raw bytes followed by one newline before
+  exiting with status 1.
 
 All annotations and rendering changes are under `src/target/rust` and
 `templates/rust`. The C model, templates, runtime, tagged sources, and existing
