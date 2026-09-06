@@ -55,6 +55,10 @@ fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
 struct Bag {
     values: Vec<i64>,
 }
+#[derive(Clone, Debug, PartialEq)]
+struct Shelf {
+    bags: Vec<Bag>,
+}
 
 fn nextIndex(calls: &mut i64) -> i64 {
     { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
@@ -69,5 +73,8 @@ fn main() {
     let mut bags: Vec<Bag> = vec![];
     (bags).push(Bag { values: vec![1] });
     let mut calls: i64 = 0;
-    println!("{}", observe({ let __sn_array_arg_index_0 = nextIndex(&mut (calls)); let __sn_array_arg_index_0 = __sn_index((bags).len(), __sn_array_arg_index_0); &mut (((bags)[__sn_array_arg_index_0]).values) }));
+    println!("{}", observe({ let __sn_place_raw_index_0 = nextIndex(&mut (calls)); &mut (({ let __sn_place_owner_0 = &mut (bags); let __sn_place_index_0 = __sn_index(__sn_place_owner_0.len(), __sn_place_raw_index_0); &mut __sn_place_owner_0[__sn_place_index_0] }).values) }));
+    let mut shelves: Vec<Shelf> = vec![Shelf { bags: bags.clone() }];
+    println!("{}", observe({ let __sn_place_raw_index_1 = nextIndex(&mut (calls)); let __sn_place_raw_index_2 = nextIndex(&mut (calls)); &mut (({ let __sn_place_owner_2 = &mut (({ let __sn_place_owner_1 = &mut (shelves); let __sn_place_index_1 = __sn_index(__sn_place_owner_1.len(), __sn_place_raw_index_1); &mut __sn_place_owner_1[__sn_place_index_1] }).bags); let __sn_place_index_2 = __sn_index(__sn_place_owner_2.len(), __sn_place_raw_index_2); &mut __sn_place_owner_2[__sn_place_index_2] }).values) }));
+    println!("{}", calls);
 }
