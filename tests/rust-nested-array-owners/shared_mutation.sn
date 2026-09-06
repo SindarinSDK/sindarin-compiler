@@ -4,6 +4,11 @@ fn mutate(items: int[]): void =>
 fn main(): void =>
   var seed: int[] = {1, 2}
   var values: int[][2] = seed
+  var other: int[] = {3, 4}
+  mutate(other)
+  other = {5, 6}
+  println(other[0])
+  mutate({3, 4})
   mutate(seed)
   mutate(values[1])
   values[0][1] = 6

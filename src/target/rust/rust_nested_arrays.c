@@ -41,6 +41,11 @@ static bool rust_nested_array_walk(json_object *node, json_object *functions, Ru
             }
         }
     }
+    if (json_string_property_equals(node, "kind", "assign")) {
+        RustThreadRefBinding *binding = rust_thread_ref_lookup(scope, json_string_property(node, "target"));
+        if (binding && json_boolean_property(binding->declaration, "rust_nested_array_storage"))
+            json_object_object_add(node, "rust_nested_array_storage", json_object_new_boolean(true));
+    }
     if (json_string_property_equals(node, "kind", "variable")) {
         RustThreadRefBinding *binding = rust_thread_ref_lookup(scope, json_string_property(node, "name"));
         if (binding) {
@@ -50,6 +55,10 @@ static bool rust_nested_array_walk(json_object *node, json_object *functions, Ru
             if (json_boolean_property(binding->declaration, "rust_nested_array_storage"))
                 json_object_object_add(node, "rust_cell", json_object_new_boolean(true));
         }
+    }
+    json_object_object_foreach(node, key, value) {
+        if (!strcmp(key, "type")) continue;
+        if (!rust_nested_array_walk(value, functions, scope, changed)) return false;
     }
     if (json_string_property_equals(node, "kind", "call")) {
         json_object *callee = NULL, *args = NULL;
@@ -70,6 +79,15 @@ static bool rust_nested_array_walk(json_object *node, json_object *functions, Ru
                     json_object_object_add(param, "rust_nested_array_storage", json_object_new_boolean(true));
                     *changed = true;
                 }
+                if (!binding && !selected && json_boolean_property(param, "rust_nested_array_param") &&
+                    !json_boolean_property(arg, "rust_nested_array_temporary")) {
+                    json_object *value = NULL;
+                    json_object_object_del(arg, "rust_default_array_ref_arg");
+                    json_object_object_del(arg, "is_ref_arg");
+                    json_object_deep_copy(arg, &value, NULL);
+                    json_object_object_add(arg, "rust_nested_array_temporary", json_object_new_boolean(true));
+                    json_object_object_add(arg, "rust_nested_array_value", value);
+                }
                 if ((binding || selected) && json_boolean_property(param, "rust_nested_array_param")) {
                     if (binding) {
                         if (!selected) *changed = true;
@@ -81,10 +99,6 @@ static bool rust_nested_array_walk(json_object *node, json_object *functions, Ru
                 }
             }
         }
-    }
-    json_object_object_foreach(node, key, value) {
-        if (!strcmp(key, "type")) continue;
-        if (!rust_nested_array_walk(value, functions, scope, changed)) return false;
     }
     if (json_string_property_equals(node, "kind", "array_access")) {
         json_object *array = NULL, *type = NULL, *element = NULL;

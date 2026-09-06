@@ -87,6 +87,7 @@ static bool rust_shared_default_array_argument(json_object *arg)
         !json_boolean_property(arg, "rust_thread_captured_argument") &&
         !json_boolean_property(arg, "rust_thread_ref_owner") &&
         !json_boolean_property(arg, "rust_nested_array_owner") &&
+        !json_boolean_property(arg, "rust_nested_array_temporary") &&
         !json_boolean_property(arg, "rust_thread_array_temporary") &&
         !rust_owned_default_array_temporary(arg) &&
         !json_boolean_property(arg, "is_ref_arg") &&
