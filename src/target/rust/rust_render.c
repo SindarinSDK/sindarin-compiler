@@ -41,6 +41,31 @@ static char *rust_type(json_object *type)
     if (strcmp(kind, "bool") == 0) return strdup("bool");
     if (strcmp(kind, "char") == 0) return strdup("char");
     if (strcmp(kind, "byte") == 0) return strdup("u8");
+    if (strcmp(kind, "opaque") == 0)
+        return strdup("*mut std::ffi::c_void");
+    if (strcmp(kind, "pointer") == 0)
+    {
+        json_object *base_type = NULL;
+        if (!json_object_object_get_ex(type, "base_type", &base_type))
+            return strdup("*mut std::ffi::c_void");
+        const char *base_kind = json_kind(base_type);
+        char *base = NULL;
+        /* A source char occupies one byte across the native ABI, while a
+         * Rust char occupies four. Raw *char transport must therefore use
+         * c_char even though scalar bridge calls convert char values. */
+        if (base_kind && strcmp(base_kind, "char") == 0)
+            base = strdup("std::ffi::c_char");
+        else if (base_kind && strcmp(base_kind, "void") == 0)
+            base = strdup("std::ffi::c_void");
+        else
+            base = rust_type(base_type);
+        if (!base) return NULL;
+        size_t length = strlen(base) + sizeof("*mut ");
+        char *result = malloc(length);
+        if (result) snprintf(result, length, "*mut %s", base);
+        free(base);
+        return result;
+    }
     if (strcmp(kind, "string") == 0) return strdup("String");
     if (strcmp(kind, "array") == 0)
     {
@@ -248,7 +273,7 @@ static char *helper_rust_literal(json_object **params, int param_count, hbs_opti
         snprintf(literal, sizeof(literal), "'\\u{%x}'", value);
         return strdup(literal);
     }
-    if (strcmp(kind, "nil") == 0) return strdup("None");
+    if (strcmp(kind, "nil") == 0) return strdup("std::ptr::null_mut()");
     return strdup(value_obj ? json_object_get_string(value_obj) : "0");
 }
 
@@ -270,6 +295,8 @@ static char *helper_rust_default(json_object **params, int param_count, hbs_opti
     if (strcmp(kind, "char") == 0) return strdup("'\\0'");
     if (strcmp(kind, "string") == 0) return strdup("String::new()");
     if (strcmp(kind, "array") == 0) return strdup("Vec::new()");
+    if (strcmp(kind, "pointer") == 0 || strcmp(kind, "opaque") == 0)
+        return strdup("std::ptr::null_mut()");
     if (strcmp(kind, "void") == 0) return strdup("()");
     if (strcmp(kind, "double") == 0 || strcmp(kind, "float") == 0) return strdup("0.0");
     return strdup("0");

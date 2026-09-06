@@ -15,6 +15,31 @@ static bool rust_type_supported(json_object *type)
     const char *kind = json_object_get_string(kind_obj);
     if (!kind) return false;
     if (strcmp(kind, "function") == 0) return rust_closure_type_supported(type);
+    if (strcmp(kind, "pointer") == 0)
+    {
+        json_object *base_type = NULL;
+        if (!json_object_object_get_ex(type, "base_type", &base_type))
+            return false;
+        json_object *base_kind_object = NULL;
+        if (!json_object_object_get_ex(base_type, "kind", &base_kind_object))
+            return false;
+        const char *base_kind = json_object_get_string(base_kind_object);
+        if (!base_kind) return false;
+        if (strcmp(base_kind, "pointer") == 0)
+            return rust_type_supported(base_type);
+        return strcmp(base_kind, "void") == 0 ||
+            strcmp(base_kind, "opaque") == 0 ||
+            strcmp(base_kind, "int") == 0 ||
+            strcmp(base_kind, "long") == 0 ||
+            strcmp(base_kind, "int32") == 0 ||
+            strcmp(base_kind, "uint") == 0 ||
+            strcmp(base_kind, "uint32") == 0 ||
+            strcmp(base_kind, "double") == 0 ||
+            strcmp(base_kind, "float") == 0 ||
+            strcmp(base_kind, "bool") == 0 ||
+            strcmp(base_kind, "char") == 0 ||
+            strcmp(base_kind, "byte") == 0;
+    }
     if (strcmp(kind, "array") == 0)
     {
         json_object *element_type = NULL;
@@ -28,6 +53,26 @@ static bool rust_type_supported(json_object *type)
         strcmp(kind, "bool") == 0 || strcmp(kind, "char") == 0 ||
         strcmp(kind, "byte") == 0 || strcmp(kind, "string") == 0 ||
         strcmp(kind, "struct") == 0;
+}
+
+static bool rust_opaque_type_declarations_supported(json_object *model)
+{
+    json_object *declarations = NULL;
+    if (!json_object_object_get_ex(model, "type_decls", &declarations))
+        return true;
+    size_t count = json_object_array_length(declarations);
+    for (size_t i = 0; i < count; i++)
+    {
+        json_object *declaration = json_object_array_get_idx(declarations, i);
+        json_object *type = NULL;
+        json_object *kind = NULL;
+        if (!json_object_object_get_ex(declaration, "type", &type) ||
+            !json_object_object_get_ex(type, "kind", &kind) ||
+            !json_object_get_string(kind) ||
+            strcmp(json_object_get_string(kind), "opaque") != 0)
+            return false;
+    }
+    return true;
 }
 
 static const char *json_string_property(json_object *object, const char *key)
@@ -2713,7 +2758,8 @@ static bool rust_validate_model_impl(json_object *model,
     if (!array_is_empty(model, "globals")) unsupported = "global variables";
     else if (!rust_validate_closures(model)) return false;
     else if (!array_is_empty(model, "threads")) unsupported = "threads";
-    else if (!array_is_empty(model, "type_decls")) unsupported = "type declarations";
+    else if (!rust_opaque_type_declarations_supported(model))
+        unsupported = "non-opaque type declarations";
 
     json_object *pragmas = NULL;
     if (!unsupported && json_object_object_get_ex(model, "pragmas", &pragmas))

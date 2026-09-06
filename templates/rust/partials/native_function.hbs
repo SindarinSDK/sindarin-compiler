@@ -4,5 +4,9 @@ extern "C" {
 }
 
 fn {{rust_ident rust_callable_name}}({{#each params}}{{#if @index}}, {{/if}}{{rust_ident name}}: {{rust_type type}}{{/each}}){{#unless (eq return_type.kind "void")}} -> {{rust_type return_type}}{{/unless}} {
-    unsafe { {{#if (eq return_type.kind "char")}}char::from_u32(({{/if}}{{rust_native_extern_name}}({{#each params}}{{#if @index}}, {{/if}}{{#if (eq type.kind "char")}}({{rust_ident name}} as u32 as u8) as std::ffi::c_char{{else}}{{rust_ident name}}{{/if}}{{/each}}){{#if (eq return_type.kind "char")}} as u8) as u32).expect("C char result is always an 8-bit Sindarin char"){{/if}} }
+    unsafe {
+        let __sn_native_result = {{rust_native_extern_name}}({{#each params}}{{#if @index}}, {{/if}}{{#if (eq type.kind "char")}}({{rust_ident name}} as u32 as u8) as std::ffi::c_char{{else}}{{rust_ident name}}{{/if}}{{/each}});
+        {{rust_ident @root.rust_native_fflush_extern_name}}(std::ptr::null_mut());
+        {{#if (eq return_type.kind "char")}}char::from_u32((__sn_native_result as u8) as u32).expect("C char result is always an 8-bit Sindarin char"){{else}}__sn_native_result{{/if}}
+    }
 }{{nl}}
