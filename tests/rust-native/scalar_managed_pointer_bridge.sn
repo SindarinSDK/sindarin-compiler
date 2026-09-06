@@ -1,0 +1,27 @@
+@source "scalar_managed_pointer_bridge.sn.c"
+
+native fn owned_bytes(label: str): str
+native fn owned_array(): byte[]
+native fn mutate_values(number: int as ref, fraction: double as ref, letter: char as ref, flag: bool as ref): void
+native fn char_bits(value: char): byte
+
+fn main(): void =>
+  var value: str = owned_bytes("request")
+  print(value)
+  print("\n")
+
+  var values: byte[] = owned_array()
+  println(values.length == 3)
+  println(values[0] == 0b)
+  println(values[1] == 127b)
+  println(values[2] == 255b)
+
+  var number: int = 4
+  var fraction: double = 8.0
+  var letter: char = 'A'
+  var flag: bool = false
+  mutate_values(number, fraction, letter, flag)
+  println(number == 9)
+  println(fraction == 4.0)
+  println(char_bits(letter) == 255b)
+  println(flag)
