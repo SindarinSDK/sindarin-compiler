@@ -33,9 +33,16 @@ static bool rust_byte_promoted_binary(json_object *node, const char *op)
 
 static bool rust_byte_comparison_op(const char *op)
 {
-    return op && (strcmp(op, "eq") == 0 || strcmp(op, "ne") == 0 ||
-                  strcmp(op, "lt") == 0 || strcmp(op, "le") == 0 ||
-                  strcmp(op, "gt") == 0 || strcmp(op, "ge") == 0);
+    return op && (strcmp(op, "eq") == 0 || strcmp(op, "neq") == 0 ||
+                  strcmp(op, "lt") == 0 || strcmp(op, "lte") == 0 ||
+                  strcmp(op, "gt") == 0 || strcmp(op, "gte") == 0);
+}
+
+static bool rust_mixed_integral_binary_op(const char *op)
+{
+    return op && (strcmp(op, "add") == 0 || strcmp(op, "subtract") == 0 ||
+                  strcmp(op, "multiply") == 0 || strcmp(op, "divide") == 0 ||
+                  strcmp(op, "modulo") == 0 || rust_byte_comparison_op(op));
 }
 
 static void rust_mark_promoted_child(json_object *child, bool observed)
@@ -126,6 +133,17 @@ static bool rust_fixed_integral_kind(const char *kind)
                     strcmp(kind, "long") == 0 || strcmp(kind, "uint") == 0);
 }
 
+static const char *rust_integral_kind_type(const char *kind)
+{
+    if (!kind) return NULL;
+    if (strcmp(kind, "byte") == 0) return "u8";
+    if (strcmp(kind, "int32") == 0) return "i32";
+    if (strcmp(kind, "uint32") == 0) return "u32";
+    if (strcmp(kind, "int") == 0 || strcmp(kind, "long") == 0) return "i64";
+    if (strcmp(kind, "uint") == 0) return "u64";
+    return NULL;
+}
+
 static const char *rust_integral_promotion_type(const char *left,
                                                  const char *right,
                                                  const char *op)
@@ -196,6 +214,62 @@ static void rust_lower_byte_arithmetic(json_object *node)
         json_object_object_get_ex(node, "right", &right);
         rust_mark_unsigned_literal_unary_narrowed(left);
         rust_mark_unsigned_literal_unary_narrowed(right);
+    }
+
+    /* Rust does not apply C's integer promotions across distinct storage
+     * widths.  Select the tagged operation width here, after child byte
+     * lowering, and let the partial evaluate/cast each operand exactly once.
+     * Checked arithmetic follows the modeled result width; checked strict
+     * comparisons retain the tagged helper's left-operand width. */
+    if (strcmp(kind, "binary") == 0 && rust_mixed_integral_binary_op(op))
+    {
+        json_object *left = NULL, *right = NULL;
+        json_object_object_get_ex(node, "left", &left);
+        json_object_object_get_ex(node, "right", &right);
+        const char *left_kind = rust_wrapping_expr_type(left);
+        const char *right_kind = rust_wrapping_expr_type(right);
+        const char *left_rust = rust_integral_kind_type(left_kind);
+        const char *right_rust = rust_integral_kind_type(right_kind);
+        if (rust_fixed_integral_kind(left_kind) &&
+            rust_fixed_integral_kind(right_kind) && left_rust && right_rust &&
+            strcmp(left_rust, right_rust) != 0 &&
+            !rust_unsigned_literal_unary(left) &&
+            !rust_unsigned_literal_unary(right))
+        {
+            bool comparison = rust_byte_comparison_op(op);
+            bool checked = json_string_property_equals(
+                node, "arithmetic_mode", "checked");
+            const char *promotion = NULL;
+            if (comparison && checked &&
+                (strcmp(op, "lt") == 0 || strcmp(op, "gt") == 0))
+                promotion = left_rust;
+            else if (!comparison && checked)
+                promotion = rust_integral_kind_type(type_kind);
+            else
+                promotion = rust_integral_promotion_type(
+                    left_kind, right_kind, op);
+            if (promotion)
+            {
+                json_object_object_add(node, "rust_mixed_integral_binary",
+                                       json_object_new_boolean(true));
+                json_object_object_add(node, "rust_mixed_integral_type",
+                                       json_object_new_string(promotion));
+                if (comparison)
+                    json_object_object_add(
+                        node, "rust_mixed_integral_comparison",
+                        json_object_new_boolean(true));
+                else if ((type_kind &&
+                          (strcmp(type_kind, "byte") == 0 ||
+                           strcmp(type_kind, "int32") == 0 ||
+                           strcmp(type_kind, "uint32") == 0 ||
+                           strcmp(type_kind, "uint") == 0)) ||
+                         promotion[0] == 'u')
+                    json_object_object_add(
+                        node, "rust_mixed_integral_wrapping",
+                        json_object_new_boolean(true));
+                return;
+            }
+        }
     }
 
     if (strcmp(kind, "binary") == 0 && byte_type &&
@@ -296,6 +370,10 @@ static void rust_lower_byte_arithmetic(json_object *node)
         if (!json_object_object_get_ex(node, "initializer", &value))
             json_object_object_get_ex(node, "value", &value);
         rust_mark_unsigned_literal_unary_narrowed(value);
+        if (strcmp(kind, "var_decl") == 0 &&
+            rust_fixed_integral_kind(type_kind) &&
+            strcmp(type_kind, "byte") != 0)
+            rust_mark_promoted_child(value, true);
     }
 
     if (strcmp(kind, "call") == 0 || strcmp(kind, "static_call") == 0 ||
