@@ -24,9 +24,10 @@ static bool rust_integer_expr_needs_type(json_object *expr)
 
 static bool rust_numeric_integral_kind(const char *kind)
 {
-    return kind && (strcmp(kind, "byte") == 0 || strcmp(kind, "int32") == 0 ||
-                    strcmp(kind, "uint32") == 0 || strcmp(kind, "int") == 0 ||
-                    strcmp(kind, "long") == 0 || strcmp(kind, "uint") == 0);
+    return kind && (strcmp(kind, "byte") == 0 || strcmp(kind, "char") == 0 ||
+                    strcmp(kind, "int32") == 0 || strcmp(kind, "uint32") == 0 ||
+                    strcmp(kind, "int") == 0 || strcmp(kind, "long") == 0 ||
+                    strcmp(kind, "uint") == 0);
 }
 
 static bool rust_numeric_floating_kind(const char *kind)
@@ -53,6 +54,7 @@ static const char *rust_numeric_type_name(const char *kind)
 {
     if (!kind) return NULL;
     if (strcmp(kind, "byte") == 0) return "u8";
+    if (strcmp(kind, "char") == 0) return "u8";
     if (strcmp(kind, "int32") == 0) return "i32";
     if (strcmp(kind, "uint32") == 0) return "u32";
     if (strcmp(kind, "int") == 0 || strcmp(kind, "long") == 0) return "i64";
@@ -150,6 +152,12 @@ static void rust_lower_numeric_promotions(json_object *node)
     if (!common_type) return;
     json_object_object_add(node, "rust_numeric_binary_type",
                            json_object_new_string(common_type));
+    if (strcmp(left_kind, "char") == 0)
+        json_object_object_add(node, "rust_numeric_left_codepoint",
+                               json_object_new_boolean(true));
+    if (strcmp(right_kind, "char") == 0)
+        json_object_object_add(node, "rust_numeric_right_codepoint",
+                               json_object_new_boolean(true));
 }
 
 /* Annotate target-neutral binary nodes with the Rust checked-arithmetic method

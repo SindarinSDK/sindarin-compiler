@@ -38,6 +38,16 @@ fn nextDouble(calls: &mut i64) -> f64 {
     return 2.5;
 }
 
+fn markChar(trace: &mut i64) -> char {
+    (*(trace) = __sn_checked_0((__sn_checked_0((*(trace)).checked_mul(10), "Runtime error: integer overflow in multiplication")).checked_add(1), "Runtime error: integer overflow in addition"));
+    return '\u{41}';
+}
+
+fn markDouble(trace: &mut i64) -> f64 {
+    (*(trace) = __sn_checked_0((__sn_checked_0((*(trace)).checked_mul(10), "Runtime error: integer overflow in multiplication")).checked_add(2), "Runtime error: integer overflow in addition"));
+    return 65.5;
+}
+
 fn main() {
     let mut calls: i64 = 0;
     let mut sum: f64 = (((nextInt(&mut (calls))) as f64) + ((nextDouble(&mut (calls))) as f64));
@@ -52,5 +62,11 @@ fn main() {
     println!("{:.5}", (((5) as f64) % ((2.5) as f64)));
     let mut widened: f64 = ((nextInt(&mut (calls))) as f64);
     println!("{:.5}", widened);
+    println!("{}", calls);
+    (calls = 0);
+    println!("{}", ((((markChar(&mut (calls))) as u32) as f64) == ((markDouble(&mut (calls))) as f64)));
+    println!("{}", calls);
+    (calls = 0);
+    println!("{:.5}", ((((markChar(&mut (calls))) as u32) as f64) + ((markDouble(&mut (calls))) as f64)));
     println!("{}", calls);
 }
