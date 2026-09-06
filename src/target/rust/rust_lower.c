@@ -22,6 +22,144 @@ static bool rust_integer_expr_needs_type(json_object *expr)
     return false;
 }
 
+static bool rust_numeric_integral_kind(const char *kind)
+{
+    return kind && (strcmp(kind, "byte") == 0 || strcmp(kind, "char") == 0 ||
+                    strcmp(kind, "int32") == 0 || strcmp(kind, "uint32") == 0 ||
+                    strcmp(kind, "int") == 0 || strcmp(kind, "long") == 0 ||
+                    strcmp(kind, "uint") == 0);
+}
+
+static bool rust_numeric_floating_kind(const char *kind)
+{
+    return kind && (strcmp(kind, "float") == 0 || strcmp(kind, "double") == 0);
+}
+
+static bool rust_numeric_binary_op(const char *op)
+{
+    return op && (strcmp(op, "add") == 0 || strcmp(op, "subtract") == 0 ||
+                  strcmp(op, "multiply") == 0 || strcmp(op, "divide") == 0 ||
+                  strcmp(op, "modulo") == 0 || strcmp(op, "eq") == 0 ||
+                  strcmp(op, "neq") == 0 || strcmp(op, "lt") == 0 ||
+                  strcmp(op, "lte") == 0 || strcmp(op, "gt") == 0 ||
+                  strcmp(op, "gte") == 0);
+}
+
+static bool rust_numeric_checked_left_typed_op(const char *op)
+{
+    return op && (strcmp(op, "lt") == 0 || strcmp(op, "gt") == 0);
+}
+
+static const char *rust_numeric_type_name(const char *kind)
+{
+    if (!kind) return NULL;
+    if (strcmp(kind, "byte") == 0) return "u8";
+    if (strcmp(kind, "char") == 0) return "u8";
+    if (strcmp(kind, "int32") == 0) return "i32";
+    if (strcmp(kind, "uint32") == 0) return "u32";
+    if (strcmp(kind, "int") == 0 || strcmp(kind, "long") == 0) return "i64";
+    if (strcmp(kind, "uint") == 0) return "u64";
+    if (strcmp(kind, "float") == 0) return "f32";
+    if (strcmp(kind, "double") == 0) return "f64";
+    return NULL;
+}
+
+static const char *rust_numeric_widening_type(const char *from, const char *to)
+{
+    if (!from || !to || strcmp(from, to) == 0) return NULL;
+    if (strcmp(to, "double") == 0 &&
+        (strcmp(from, "int") == 0 || strcmp(from, "long") == 0 ||
+         strcmp(from, "float") == 0 || strcmp(from, "int32") == 0 ||
+         strcmp(from, "uint32") == 0 || strcmp(from, "uint") == 0))
+        return "f64";
+    if (strcmp(to, "float") == 0 &&
+        (strcmp(from, "int32") == 0 || strcmp(from, "uint32") == 0))
+        return "f32";
+    return NULL;
+}
+
+/* Rust has no implicit numeric conversions for binary operators.  Preserve
+ * Sindarin's C-style mixed floating arithmetic and comparisons using the
+ * already type-checked operand model.  Checked strict relational operators
+ * use the tagged runtime helper selected from the left operand type, while
+ * other comparisons and arithmetic use C's common floating type.  The
+ * template casts each operand expression once, so evaluation order and the
+ * target-local byte/unsigned lowering nested below this node stay intact. */
+static void rust_lower_numeric_promotions(json_object *node)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            rust_lower_numeric_promotions(json_object_array_get_idx(node, i));
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
+
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        rust_lower_numeric_promotions(value);
+    }
+
+    if (json_string_property_equals(node, "kind", "var_decl"))
+    {
+        json_object *type = NULL, *initializer = NULL, *initializer_type = NULL;
+        if (json_object_object_get_ex(node, "type", &type) &&
+            json_object_object_get_ex(node, "initializer", &initializer) &&
+            json_object_object_get_ex(initializer, "type", &initializer_type))
+        {
+            const char *cast_type = rust_numeric_widening_type(
+                json_string_property(initializer_type, "kind"),
+                json_string_property(type, "kind"));
+            if (cast_type)
+                json_object_object_add(node, "rust_numeric_initializer_type",
+                                       json_object_new_string(cast_type));
+        }
+        return;
+    }
+
+    if (!json_string_property_equals(node, "kind", "binary")) return;
+    const char *op = json_string_property(node, "op");
+    if (!rust_numeric_binary_op(op)) return;
+
+    json_object *left = NULL, *right = NULL, *left_type = NULL, *right_type = NULL;
+    if (!json_object_object_get_ex(node, "left", &left) ||
+        !json_object_object_get_ex(node, "right", &right) ||
+        !json_object_object_get_ex(left, "type", &left_type) ||
+        !json_object_object_get_ex(right, "type", &right_type))
+        return;
+
+    const char *left_kind = json_string_property(left_type, "kind");
+    const char *right_kind = json_string_property(right_type, "kind");
+    bool left_numeric = rust_numeric_integral_kind(left_kind) ||
+                        rust_numeric_floating_kind(left_kind);
+    bool right_numeric = rust_numeric_integral_kind(right_kind) ||
+                         rust_numeric_floating_kind(right_kind);
+    if (!left_numeric || !right_numeric ||
+        (!rust_numeric_floating_kind(left_kind) &&
+         !rust_numeric_floating_kind(right_kind)) ||
+        strcmp(left_kind, right_kind) == 0)
+        return;
+
+    const char *mode = json_string_property(node, "arithmetic_mode");
+    const char *common_type =
+        rust_numeric_checked_left_typed_op(op) && mode && strcmp(mode, "checked") == 0
+            ? rust_numeric_type_name(left_kind)
+            : (strcmp(left_kind, "double") == 0 || strcmp(right_kind, "double") == 0
+                   ? "f64" : "f32");
+    if (!common_type) return;
+    json_object_object_add(node, "rust_numeric_binary_type",
+                           json_object_new_string(common_type));
+    if (strcmp(left_kind, "char") == 0)
+        json_object_object_add(node, "rust_numeric_left_codepoint",
+                               json_object_new_boolean(true));
+    if (strcmp(right_kind, "char") == 0)
+        json_object_object_add(node, "rust_numeric_right_codepoint",
+                               json_object_new_boolean(true));
+}
+
 /* Annotate target-neutral binary nodes with the Rust checked-arithmetic method
  * selected by this backend. Templates remain declarative and other targets do
  * not need to understand Rust's checked_* APIs. */
