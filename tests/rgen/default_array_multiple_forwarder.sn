@@ -1,0 +1,12 @@
+fn mutate(first: int[], second: int[]): int =>
+  first.push(2)
+  second.push(first.length)
+  return first.length * 10 + second.length
+
+fn forward(left: int[], right: int[]): int =>
+  return mutate(left, right)
+
+fn main(): void =>
+  var values: int[] = {1}
+  println(forward(values, values))
+  println($"{values.length}:{values[1]}:{values[2]}")

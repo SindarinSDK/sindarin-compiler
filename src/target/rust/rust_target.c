@@ -191,7 +191,12 @@ static bool rust_emit(CompilerOptions *options, Module *module,
     }
     rust_lower_floating_mutations(model);
     rust_lower_strings(model);
-    rust_lower_calls(model);
+    if (!rust_lower_calls(model))
+    {
+        fprintf(stderr, "Error: Rust target could not lower default-array call aliases\n");
+        json_object_put(model);
+        return false;
+    }
     if (!rust_lower_assert_temp_names(model, model))
     {
         fprintf(stderr, "Error: Rust target could not assign hygienic assertion temporary names\n");

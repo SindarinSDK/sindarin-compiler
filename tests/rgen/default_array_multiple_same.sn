@@ -1,0 +1,39 @@
+struct Bag =>
+  values: int[]
+
+fn __sn_array_alias_call_0(): void =>
+  println("source helper")
+
+fn mutateAlias(first: int[], second: int[]): int =>
+  first.push(2)
+  println(second.length)
+  second.push(3)
+  return first.length
+
+fn mark(calls: int as ref): int =>
+  calls++
+  println($"mark:{calls}")
+  return 4
+
+fn mutateMixed(first: int[], marker: int, second: int[], third: int[]): int =>
+  first.push(marker)
+  println(second.length)
+  third.push(first.length)
+  return first.length * 100 + second.length * 10 + third.length
+
+fn main(): void =>
+  var values: int[] = {1}
+  println(mutateAlias(values, values))
+  println($"{values.length}:{values[1]}:{values[2]}")
+
+  var calls: int = 0
+  var shared: int[] = {5}
+  var distinct: int[] = {8}
+  println(mutateMixed(shared, mark(calls), shared, distinct))
+  println(calls)
+  println($"{shared.length}:{shared[1]}")
+  println($"{distinct.length}:{distinct[1]}")
+
+  var bag: Bag = { values: {1} }
+  println(mutateAlias(bag.values, bag.values))
+  println($"{bag.values.length}:{bag.values[1]}:{bag.values[2]}")

@@ -1,0 +1,19 @@
+fn mutatePair(first: int[], second: int[]): int =>
+  first.push(second.length)
+  second.push(first.length)
+  return first.length * 10 + second.length
+
+fn observeAfterArrays(first: int[], second: int[], seen: int): void =>
+  first.push(seen)
+  second.push(first.length)
+  println($"{seen}:{first.length}:{second.length}")
+
+fn main(): void =>
+  var first: int[] = {1}
+  var second: int[] = {7, 8}
+  println(mutatePair(first, second))
+  println($"{first.length}:{first[1]}")
+  println($"{second.length}:{second[2]}")
+  observeAfterArrays(first, second, first.length)
+  println($"{first.length}:{first[2]}")
+  println($"{second.length}:{second[3]}")
