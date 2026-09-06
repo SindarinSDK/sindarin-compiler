@@ -1,0 +1,9 @@
+@source "native_string_escape.sn.c"
+
+native fn remember(value: str): void
+native fn saved_first(): char
+
+fn main(): void =>
+  var value: str = "hello"
+  remember(value)
+  println(saved_first())

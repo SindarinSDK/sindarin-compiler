@@ -15,6 +15,9 @@
 typedef struct {
     char *rust_callable_name;
     char *c_link_symbol;
+    char *rust_result_name;
+    char **rust_param_temp_names;
+    size_t param_count;
 } RustNativeDeclaration;
 
 struct RustNativePlan {
@@ -903,6 +906,22 @@ static bool native_function_uses_managed_abi(json_object *function)
     return false;
 }
 
+static bool native_function_has_string_parameter(json_object *function)
+{
+    json_object *params = NULL;
+    if (!json_object_object_get_ex(function, "params", &params)) return false;
+    size_t count = json_object_array_length(params);
+    for (size_t i = 0; i < count; i++)
+    {
+        json_object *param = json_object_array_get_idx(params, i);
+        json_object *type = NULL;
+        if (json_object_object_get_ex(param, "type", &type) &&
+            native_string(type, "kind") &&
+            strcmp(native_string(type, "kind"), "string") == 0) return true;
+    }
+    return false;
+}
+
 bool rust_native_partition_model(json_object *rust_model,
                                  const CompilerOptions *options,
                                  RustNativePlan **out_plan)
@@ -914,6 +933,7 @@ bool rust_native_partition_model(json_object *rust_model,
     json_object *functions = NULL, *structs = NULL;
     size_t native_count = 0;
     bool has_managed_abi = false;
+    bool has_string_parameter = false;
     json_object_object_get_ex(rust_model, "structs", &structs);
     if (json_object_object_get_ex(rust_model, "functions", &functions))
     {
@@ -925,6 +945,8 @@ bool rust_native_partition_model(json_object *rust_model,
             if (!validate_native_function(function)) return false;
             if (native_function_uses_managed_abi(function))
                 has_managed_abi = true;
+            if (native_function_has_string_parameter(function))
+                has_string_parameter = true;
             native_count++;
         }
     }
@@ -980,6 +1002,8 @@ bool rust_native_partition_model(json_object *rust_model,
     char *rust_native_free_name = NULL;
     char *rust_native_take_string_name = NULL;
     char *rust_native_take_array_name = NULL;
+    char *rust_native_retain_string_name = NULL;
+    char *rust_native_retained_strings_name = NULL;
     json_object *globals = NULL;
     json_object_object_get_ex(rust_model, "globals", &globals);
     if (native_count || initializer_name)
@@ -1022,13 +1046,24 @@ bool rust_native_partition_model(json_object *rust_model,
             functions, structs, globals, "__sn_native_take_string");
         rust_native_take_array_name = unique_private_name(
             functions, structs, globals, "__sn_native_take_byte_array");
+        if (has_string_parameter)
+        {
+            rust_native_retain_string_name = unique_private_name(
+                functions, structs, globals, "__sn_native_retain_string");
+            rust_native_retained_strings_name = unique_private_name(
+                functions, structs, globals, "__SN_NATIVE_RETAINED_STRINGS");
+        }
         if (!rust_native_array_type_name || !rust_native_free_name ||
-            !rust_native_take_string_name || !rust_native_take_array_name)
+            !rust_native_take_string_name || !rust_native_take_array_name ||
+            (has_string_parameter && (!rust_native_retain_string_name ||
+                                      !rust_native_retained_strings_name)))
         {
             free(rust_native_array_type_name);
             free(rust_native_free_name);
             free(rust_native_take_string_name);
             free(rust_native_take_array_name);
+            free(rust_native_retain_string_name);
+            free(rust_native_retained_strings_name);
             free(initializer_symbol);
             free(rust_initializer_name);
             free(rust_fflush_name);
@@ -1057,8 +1092,50 @@ bool rust_native_partition_model(json_object *rust_model,
                 ? alias : name;
             plan->declarations[native_index].rust_callable_name = strdup(name ? name : "");
             plan->declarations[native_index].c_link_symbol = strdup(symbol ? symbol : "");
+            plan->declarations[native_index].rust_result_name = unique_private_name(
+                functions, structs, globals, "__sn_native_result");
+            json_object *params = NULL;
+            size_t param_count = json_object_object_get_ex(function, "params", &params)
+                ? json_object_array_length(params) : 0;
+            plan->declarations[native_index].param_count = param_count;
+            if (param_count)
+                plan->declarations[native_index].rust_param_temp_names =
+                    calloc(param_count, sizeof(char *));
+            bool param_names_ok = !param_count ||
+                plan->declarations[native_index].rust_param_temp_names;
+            for (size_t p = 0; p < param_count; p++)
+            {
+                json_object *param = json_object_array_get_idx(params, p);
+                json_object *type = NULL;
+                const char *kind = json_object_object_get_ex(param, "type", &type)
+                    ? native_string(type, "kind") : NULL;
+                const char *stem = kind && strcmp(kind, "string") == 0
+                    ? "__sn_native_bytes" :
+                    (kind && strcmp(kind, "char") == 0 &&
+                     native_string(param, "mem_qual") &&
+                     strcmp(native_string(param, "mem_qual"), "as_ref") == 0)
+                        ? "__sn_native_char" : NULL;
+                if (!stem) continue;
+                char indexed_stem[96];
+                int written = snprintf(indexed_stem, sizeof(indexed_stem),
+                                       "%s_%zu", stem, p);
+                if (written < 0 || (size_t)written >= sizeof(indexed_stem))
+                {
+                    param_names_ok = false;
+                    break;
+                }
+                plan->declarations[native_index].rust_param_temp_names[p] =
+                    unique_private_name(functions, structs, globals, indexed_stem);
+                if (!plan->declarations[native_index].rust_param_temp_names[p])
+                {
+                    param_names_ok = false;
+                    break;
+                }
+            }
             if (!plan->declarations[native_index].rust_callable_name ||
-                !plan->declarations[native_index].c_link_symbol)
+                !plan->declarations[native_index].c_link_symbol ||
+                !plan->declarations[native_index].rust_result_name ||
+                !param_names_ok)
             {
                 json_object_put(selected_function_names);
                 json_object_put(selected_global_names);
@@ -1069,6 +1146,8 @@ bool rust_native_partition_model(json_object *rust_model,
                 free(rust_native_free_name);
                 free(rust_native_take_string_name);
                 free(rust_native_take_array_name);
+                free(rust_native_retain_string_name);
+                free(rust_native_retained_strings_name);
                 free(initializer_name);
                 rust_native_plan_free(plan);
                 return false;
@@ -1099,6 +1178,25 @@ bool rust_native_partition_model(json_object *rust_model,
                                    json_object_new_string(name));
             json_object_object_add(function, "c_link_symbol",
                                    json_object_new_string(symbol));
+            RustNativeDeclaration *declaration =
+                &plan->declarations[native_index];
+            json_object_object_add(function, "rust_native_result_name",
+                                   json_object_new_string(
+                                       declaration->rust_result_name));
+            json_object *params = NULL;
+            if (json_object_object_get_ex(function, "params", &params))
+            {
+                size_t param_count = json_object_array_length(params);
+                for (size_t p = 0; p < param_count &&
+                                   p < declaration->param_count; p++)
+                {
+                    if (!declaration->rust_param_temp_names[p]) continue;
+                    json_object_object_add(json_object_array_get_idx(params, p),
+                                           "rust_native_temp_name",
+                                           json_object_new_string(
+                                               declaration->rust_param_temp_names[p]));
+                }
+            }
             json_object_object_del(function, "body");
             json_object_object_add(function, "body", json_object_new_array());
             json_object_object_add(function, "has_body", json_object_new_boolean(false));
@@ -1127,6 +1225,15 @@ bool rust_native_partition_model(json_object *rust_model,
                                json_object_new_string(rust_native_take_string_name));
         json_object_object_add(rust_model, "rust_native_take_array_name",
                                json_object_new_string(rust_native_take_array_name));
+        if (rust_native_retain_string_name)
+        {
+            json_object_object_add(rust_model, "rust_native_retain_string_name",
+                                   json_object_new_string(
+                                       rust_native_retain_string_name));
+            json_object_object_add(rust_model, "rust_native_retained_strings_name",
+                                   json_object_new_string(
+                                       rust_native_retained_strings_name));
+        }
     }
     if (initializer_name)
     {
@@ -1166,6 +1273,8 @@ bool rust_native_partition_model(json_object *rust_model,
     free(rust_native_free_name);
     free(rust_native_take_string_name);
     free(rust_native_take_array_name);
+    free(rust_native_retain_string_name);
+    free(rust_native_retained_strings_name);
     free(initializer_name);
     restore_source_callable_names(rust_model);
 
@@ -1207,6 +1316,10 @@ void rust_native_plan_free(void *opaque)
     {
         free(plan->declarations[i].rust_callable_name);
         free(plan->declarations[i].c_link_symbol);
+        free(plan->declarations[i].rust_result_name);
+        for (size_t p = 0; p < plan->declarations[i].param_count; p++)
+            free(plan->declarations[i].rust_param_temp_names[p]);
+        free(plan->declarations[i].rust_param_temp_names);
     }
     free(plan->declarations);
     free(plan);
