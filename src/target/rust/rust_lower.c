@@ -1183,6 +1183,59 @@ static bool rust_lower_iterator_temp_names(json_object *model, json_object *node
     return true;
 }
 
+/* Sized-array rendering evaluates the size once for allocation and again for
+ * every fill-loop condition, matching the tagged C lowering.  Those loop
+ * locals remain in scope while both source expressions render, so allocate
+ * them against the complete projected model rather than spelling fixed names
+ * in the template.  Descending before assigning the current pair also keeps
+ * nested sized arrays distinct. */
+static bool rust_lower_sized_array_temp_names(json_object *model,
+                                              json_object *node,
+                                              size_t *next_id)
+{
+    if (!node) return true;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            if (!rust_lower_sized_array_temp_names(
+                    model, json_object_array_get_idx(node, i), next_id))
+                return false;
+        return true;
+    }
+    if (!json_object_is_type(node, json_type_object)) return true;
+
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        if (!rust_lower_sized_array_temp_names(model, value, next_id)) return false;
+    }
+
+    if (!json_string_property_equals(node, "kind", "sized_array")) return true;
+
+    char array_name[80], index_name[80];
+    do
+    {
+        if (*next_id == (size_t)-1) return false;
+        size_t id = (*next_id)++;
+        int array_written = snprintf(array_name, sizeof(array_name),
+                                     "__sn_sized_array_%zu", id);
+        int index_written = snprintf(index_name, sizeof(index_name),
+                                     "__sn_sized_index_%zu", id);
+        if (array_written < 0 || (size_t)array_written >= sizeof(array_name) ||
+            index_written < 0 || (size_t)index_written >= sizeof(index_name))
+            return false;
+    }
+    while (rust_model_contains_string(model, array_name) ||
+           rust_model_contains_string(model, index_name));
+
+    json_object_object_add(node, "rust_sized_array_name",
+                           json_object_new_string(array_name));
+    json_object_object_add(node, "rust_sized_index_name",
+                           json_object_new_string(index_name));
+    return true;
+}
+
 /* Lowered match templates introduce locals that remain in scope while arm
  * bodies render.  Assign every such match its own spellings, absent from
  * the complete model, so source declarations and references cannot be
