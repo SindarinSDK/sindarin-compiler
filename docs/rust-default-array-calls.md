@@ -21,6 +21,15 @@ is memoized by its source function and formal-alias partition before its body is
 visited, which both propagates aliases through forwarders and terminates for
 recursive or mutually recursive calls.
 
+A direct array field of a stable instance receiver is the corresponding
+bounded receiver-alias case. Rust-private lowering clones the method under a
+collision-free name, replaces uses of the one aliased formal by `self.field`,
+and removes that argument at the call site. The resulting call takes only the
+receiver borrow, so method mutations and formal reads retain one source array
+identity without cloning or overlapping mutable references. Binding IDs keep a
+same-spelled nested local independent. Indexed receivers, nested fields, and
+more than one receiver-aliased array argument remain outside this admission.
+
 Stable array places have no source-visible evaluation of their own. Other
 arguments are evaluated once in their original relative order before any array
 borrow when a later argument could read an earlier array. This includes calls
@@ -38,8 +47,8 @@ Rust executions are compared at `-O0`, `-O1`, and `-O2`.
 
 This bounded representation does not infer runtime aliasing between different
 place expressions. Produced/indexed array places, sibling references derived
-from the same aggregate, and overlap between an instance receiver and an array
-argument retain their separately owned representation work. Mutable array
-parameter rebinding also requires a handle representation rather than formal
-coalescing. No C model, template, runtime, source fixture, or language rule is
-changed by this Rust-private lowering.
+from the same aggregate beyond the direct receiver-field case, and broader
+receiver/argument overlap retain their separately owned representation work.
+Mutable array parameter rebinding also requires a handle representation rather
+than formal coalescing. No C model, template, runtime, source fixture, or
+language rule is changed by this Rust-private lowering.

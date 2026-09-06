@@ -711,6 +711,237 @@ static void rust_rename_binding_uses(json_object *node, int64_t binding_id,
     }
 }
 
+static void rust_mark_binding_receiver_field(json_object *node,
+                                             int64_t binding_id,
+                                             const char *field_name)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            rust_mark_binding_receiver_field(
+                json_object_array_get_idx(node, i), binding_id, field_name);
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
+
+    json_object *node_binding = NULL;
+    if (json_string_property_equals(node, "kind", "variable") &&
+        json_object_object_get_ex(node, "rust_binding_id", &node_binding) &&
+        json_object_get_int64(node_binding) == binding_id)
+        json_object_object_add(node, "rust_receiver_alias_field",
+                               json_object_new_string(field_name));
+
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        rust_mark_binding_receiver_field(value, binding_id, field_name);
+    }
+}
+
+static json_object *rust_receiver_structure(json_object *model,
+                                            json_object *receiver)
+{
+    json_object *type = NULL, *base_type = NULL;
+    if (!json_object_object_get_ex(receiver, "type", &type)) return NULL;
+    if (json_string_property_equals(type, "kind", "pointer"))
+    {
+        if (!json_object_object_get_ex(type, "base_type", &base_type)) return NULL;
+        type = base_type;
+    }
+    if (!json_string_property_equals(type, "kind", "struct")) return NULL;
+    return rust_find_struct(model, json_string_property(type, "name"));
+}
+
+static json_object *rust_receiver_array_alias_specialization(
+    json_object *methods, const char *origin, const char *field_name,
+    size_t param_index)
+{
+    size_t count = json_object_array_length(methods);
+    for (size_t i = 0; i < count; i++)
+    {
+        json_object *method = json_object_array_get_idx(methods, i);
+        json_object *stored_index = NULL;
+        if (json_string_property_equals(
+                method, "rust_receiver_array_alias_origin", origin) &&
+            json_string_property_equals(
+                method, "rust_receiver_array_alias_field", field_name) &&
+            json_object_object_get_ex(
+                method, "rust_receiver_array_alias_param", &stored_index) &&
+            (size_t)json_object_get_int64(stored_index) == param_index)
+            return method;
+    }
+    return NULL;
+}
+
+static bool rust_remove_array_item(json_object *owner, const char *key,
+                                   json_object *items, size_t removed)
+{
+    json_object *kept = json_object_new_array();
+    if (!kept) return false;
+    size_t count = json_object_array_length(items);
+    for (size_t i = 0; i < count; i++)
+        if (i != removed)
+            json_object_array_add(
+                kept, json_object_get(json_object_array_get_idx(items, i)));
+    json_object_object_del(owner, key);
+    json_object_object_add(owner, key, kept);
+    return true;
+}
+
+static bool rust_specialize_receiver_array_alias_calls(json_object *model,
+                                                       json_object *node,
+                                                       size_t *next_id);
+
+/* A stable `bag.method(bag.field)` call cannot be represented by simultaneous
+ * `&mut bag` and `&mut bag.field`. Clone the method privately, replace the one
+ * aliased formal's resolved uses with `self.field`, and omit that argument.
+ * The receiver is then the sole mutable borrow and both source handles retain
+ * their shared mutation identity. */
+static bool rust_specialize_receiver_array_alias_call(json_object *model,
+                                                      json_object *call,
+                                                      size_t *next_id)
+{
+    if (!json_string_property_equals(call, "kind", "call") ||
+        json_boolean_property(call, "rust_receiver_array_alias_specialized"))
+        return true;
+
+    json_object *callee = NULL, *receiver = NULL, *args = NULL;
+    if (!json_object_object_get_ex(call, "callee", &callee) ||
+        !json_string_property_equals(callee, "kind", "member") ||
+        !json_object_object_get_ex(callee, "object", &receiver) ||
+        !json_string_property_equals(receiver, "kind", "variable") ||
+        !json_object_object_get_ex(call, "args", &args) ||
+        !json_object_is_type(args, json_type_array)) return true;
+
+    size_t alias_index = SIZE_MAX;
+    const char *field_name = NULL;
+    size_t arg_count = json_object_array_length(args);
+    for (size_t i = 0; i < arg_count; i++)
+    {
+        json_object *arg = json_object_array_get_idx(args, i);
+        if (!json_boolean_property(arg, "rust_default_array_ref_arg") ||
+            !rust_direct_receiver_array_alias(receiver, arg)) continue;
+        if (alias_index != SIZE_MAX) return false;
+        alias_index = i;
+        field_name = json_string_property(arg, "member_name");
+    }
+    if (alias_index == SIZE_MAX) return true;
+    if (!field_name) return false;
+
+    json_object *structure = rust_receiver_structure(model, receiver);
+    json_object *methods = NULL;
+    const char *origin = json_string_property(callee, "member_name");
+    if (!structure || !origin ||
+        !json_object_object_get_ex(structure, "methods", &methods) ||
+        !json_object_is_type(methods, json_type_array)) return false;
+    json_object *method = rust_find_resolved_method(structure, origin, false);
+    json_object *params = NULL, *body = NULL;
+    if (!method || json_boolean_property(method, "is_native") ||
+        !json_object_object_get_ex(method, "params", &params) ||
+        !json_object_is_type(params, json_type_array) ||
+        json_object_array_length(params) != arg_count ||
+        !json_object_object_get_ex(method, "body", &body)) return false;
+
+    json_object *specialized = rust_receiver_array_alias_specialization(
+        methods, origin, field_name, alias_index);
+    const char *specialized_name = specialized
+        ? json_string_property(specialized, "name") : NULL;
+    if (!specialized)
+    {
+        if (json_object_deep_copy(method, &specialized, NULL) != 0 ||
+            !specialized) return false;
+        json_object *specialized_params = NULL, *specialized_body = NULL;
+        if (!json_object_object_get_ex(
+                specialized, "params", &specialized_params) ||
+            !json_object_object_get_ex(
+                specialized, "body", &specialized_body))
+        {
+            json_object_put(specialized);
+            return false;
+        }
+        json_object *removed_param = json_object_array_get_idx(
+            specialized_params, alias_index);
+        json_object *binding = NULL;
+        if (!json_object_object_get_ex(
+                removed_param, "rust_binding_id", &binding))
+        {
+            json_object_put(specialized);
+            return false;
+        }
+        rust_mark_binding_receiver_field(
+            specialized_body, json_object_get_int64(binding), field_name);
+        if (!rust_remove_array_item(
+                specialized, "params", specialized_params, alias_index))
+        {
+            json_object_put(specialized);
+            return false;
+        }
+
+        char name[96];
+        do
+        {
+            size_t id = (*next_id)++;
+            snprintf(name, sizeof(name),
+                     "__sn_receiver_array_alias_%zu", id);
+        }
+        while (rust_call_model_contains_string(model, name));
+        json_object_object_del(specialized, "name");
+        json_object_object_add(specialized, "name", json_object_new_string(name));
+        json_object_object_add(specialized, "rust_receiver_array_alias_origin",
+                               json_object_new_string(origin));
+        json_object_object_add(specialized, "rust_receiver_array_alias_field",
+                               json_object_new_string(field_name));
+        json_object_object_add(specialized, "rust_receiver_array_alias_param",
+                               json_object_new_int64((int64_t)alias_index));
+        json_object_array_add(methods, specialized);
+        specialized_name = json_string_property(specialized, "name");
+        if (!rust_specialize_receiver_array_alias_calls(
+                model, specialized_body, next_id)) return false;
+    }
+    if (!specialized_name ||
+        !rust_remove_array_item(call, "args", args, alias_index)) return false;
+
+    json_object *callee_type = NULL, *param_types = NULL;
+    if (json_object_object_get_ex(callee, "type", &callee_type) &&
+        json_object_object_get_ex(callee_type, "param_types", &param_types) &&
+        json_object_is_type(param_types, json_type_array) &&
+        json_object_array_length(param_types) == arg_count &&
+        !rust_remove_array_item(
+            callee_type, "param_types", param_types, alias_index)) return false;
+    json_object_object_del(callee, "member_name");
+    json_object_object_add(callee, "member_name",
+                           json_object_new_string(specialized_name));
+    json_object_object_add(call, "rust_receiver_array_alias_specialized",
+                           json_object_new_boolean(true));
+    return true;
+}
+
+static bool rust_specialize_receiver_array_alias_calls(json_object *model,
+                                                       json_object *node,
+                                                       size_t *next_id)
+{
+    if (!node) return true;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            if (!rust_specialize_receiver_array_alias_calls(
+                    model, json_object_array_get_idx(node, i), next_id))
+                return false;
+        return true;
+    }
+    if (!json_object_is_type(node, json_type_object)) return true;
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        if (!rust_specialize_receiver_array_alias_calls(
+                model, value, next_id)) return false;
+    }
+    return rust_specialize_receiver_array_alias_call(model, node, next_id);
+}
+
 static bool rust_array_alias_pattern_matches(json_object *function,
                                              const char *origin,
                                              const size_t *canonical,
@@ -1086,6 +1317,9 @@ static bool rust_lower_calls(json_object *model)
     json_object *functions = NULL;
     if (!json_object_object_get_ex(model, "functions", &functions) ||
         !json_object_is_type(functions, json_type_array)) return false;
+    size_t receiver_array_alias_id = 0;
+    if (!rust_specialize_receiver_array_alias_calls(
+            model, model, &receiver_array_alias_id)) return false;
     size_t array_alias_id = 0;
     if (!rust_specialize_default_array_alias_calls(
             model, functions, model, &array_alias_id)) return false;
