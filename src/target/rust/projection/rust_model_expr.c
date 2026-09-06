@@ -2499,6 +2499,15 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
             json_object *args = json_object_new_array();
             {
                 StructMethod *m = expr->as.static_call.resolved_method;
+                if (m)
+                {
+                    json_object *param_types = json_object_new_array();
+                    for (int i = 0; i < m->param_count; i++)
+                        json_object_array_add(param_types,
+                            rust_gen_model_type(arena, m->params[i].type));
+                    json_object_object_add(obj, "rust_resolved_param_types",
+                                           param_types);
+                }
                 for (int i = 0; i < expr->as.static_call.arg_count; i++)
                 {
                     json_object *arg = rust_gen_model_expr(arena, expr->as.static_call.arguments[i], symbol_table, arithmetic_mode);

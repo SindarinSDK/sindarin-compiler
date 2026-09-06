@@ -171,13 +171,19 @@ static void rust_lower_numeric_boundaries(json_object *node,
         return;
     }
 
-    if (strcmp(kind, "call") == 0)
+    if (strcmp(kind, "call") == 0 || strcmp(kind, "static_call") == 0)
     {
         json_object *callee = NULL, *callee_type = NULL;
         json_object *param_types = NULL, *args = NULL;
-        if (!json_object_object_get_ex(node, "callee", &callee) ||
-            !json_object_object_get_ex(callee, "type", &callee_type) ||
-            !json_object_object_get_ex(callee_type, "param_types", &param_types) ||
+        if (strcmp(kind, "call") == 0 &&
+            (!json_object_object_get_ex(node, "callee", &callee) ||
+             !json_object_object_get_ex(callee, "type", &callee_type) ||
+             !json_object_object_get_ex(callee_type, "param_types", &param_types)))
+            return;
+        if (strcmp(kind, "static_call") == 0 &&
+            !json_object_object_get_ex(node, "rust_resolved_param_types", &param_types))
+            return;
+        if (!param_types ||
             !json_object_is_type(param_types, json_type_array) ||
             !json_object_object_get_ex(node, "args", &args) ||
             !json_object_is_type(args, json_type_array))

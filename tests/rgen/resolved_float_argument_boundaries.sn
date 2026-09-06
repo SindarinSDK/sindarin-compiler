@@ -1,0 +1,17 @@
+fn nextFloat(trace: int as ref, marker: int, value: float): float =>
+  trace = trace * 10 + marker
+  return value
+
+struct Receiver =>
+  static fn takeStatic(value: float): float =>
+    return value
+
+  fn takeInstance(value: float): float =>
+    return value
+
+fn main(): void =>
+  var trace: int = 0
+  var receiver: Receiver = {}
+  println($"{Receiver.takeStatic(nextFloat(trace, 1, 1.25f) * 2.0):.5f}")
+  println($"{receiver.takeInstance(nextFloat(trace, 2, 1.25f) * 3.0):.5f}")
+  println(trace)
