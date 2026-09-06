@@ -1,0 +1,1 @@
+Error: Rust target native function 'unsupported' has unsupported result type 'array'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double

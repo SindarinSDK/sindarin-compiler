@@ -1,0 +1,4 @@
+native fn unsupported(): int[]
+
+fn main(): void =>
+  println(unsupported().length)
