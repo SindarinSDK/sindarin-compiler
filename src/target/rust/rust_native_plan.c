@@ -16,6 +16,7 @@ typedef struct {
     char *rust_callable_name;
     char *c_link_symbol;
     char *rust_result_name;
+    char *rust_char_values_name;
     char **rust_param_temp_names;
     size_t param_count;
 } RustNativeDeclaration;
@@ -1103,6 +1104,7 @@ bool rust_native_partition_model(json_object *rust_model,
                     calloc(param_count, sizeof(char *));
             bool param_names_ok = !param_count ||
                 plan->declarations[native_index].rust_param_temp_names;
+            bool has_char_ref = false;
             for (size_t p = 0; p < param_count; p++)
             {
                 json_object *param = json_object_array_get_idx(params, p);
@@ -1116,6 +1118,7 @@ bool rust_native_partition_model(json_object *rust_model,
                      strcmp(native_string(param, "mem_qual"), "as_ref") == 0)
                         ? "__sn_native_char" : NULL;
                 if (!stem) continue;
+                if (kind && strcmp(kind, "char") == 0) has_char_ref = true;
                 char indexed_stem[96];
                 int written = snprintf(indexed_stem, sizeof(indexed_stem),
                                        "%s_%zu", stem, p);
@@ -1132,9 +1135,15 @@ bool rust_native_partition_model(json_object *rust_model,
                     break;
                 }
             }
+            if (has_char_ref)
+                plan->declarations[native_index].rust_char_values_name =
+                    unique_private_name(functions, structs, globals,
+                                        "__sn_native_char_values");
             if (!plan->declarations[native_index].rust_callable_name ||
                 !plan->declarations[native_index].c_link_symbol ||
                 !plan->declarations[native_index].rust_result_name ||
+                (has_char_ref &&
+                 !plan->declarations[native_index].rust_char_values_name) ||
                 !param_names_ok)
             {
                 json_object_put(selected_function_names);
@@ -1183,18 +1192,54 @@ bool rust_native_partition_model(json_object *rust_model,
             json_object_object_add(function, "rust_native_result_name",
                                    json_object_new_string(
                                        declaration->rust_result_name));
+            if (declaration->rust_char_values_name)
+                json_object_object_add(function, "rust_native_char_values_name",
+                                       json_object_new_string(
+                                           declaration->rust_char_values_name));
             json_object *params = NULL;
             if (json_object_object_get_ex(function, "params", &params))
             {
                 size_t param_count = json_object_array_length(params);
+                size_t char_index = 0;
                 for (size_t p = 0; p < param_count &&
                                    p < declaration->param_count; p++)
                 {
+                    json_object *param = json_object_array_get_idx(params, p);
                     if (!declaration->rust_param_temp_names[p]) continue;
-                    json_object_object_add(json_object_array_get_idx(params, p),
+                    json_object_object_add(param,
                                            "rust_native_temp_name",
                                            json_object_new_string(
                                                declaration->rust_param_temp_names[p]));
+                    json_object *type = NULL;
+                    const char *kind = json_object_object_get_ex(param, "type", &type)
+                        ? native_string(type, "kind") : NULL;
+                    if (!kind || strcmp(kind, "char") != 0 ||
+                        !native_string(param, "mem_qual") ||
+                        strcmp(native_string(param, "mem_qual"), "as_ref") != 0)
+                        continue;
+                    json_object_object_add(param, "rust_native_char_ref",
+                                           json_object_new_boolean(true));
+                    json_object_object_add(param, "rust_native_char_index",
+                                           json_object_new_int64(
+                                               (int64_t)char_index));
+                    json_object_object_add(param, "rust_native_char_not_first",
+                                           json_object_new_boolean(char_index > 0));
+                    json_object *prior = json_object_new_array();
+                    for (size_t q = 0; q < p; q++)
+                    {
+                        json_object *previous = json_object_array_get_idx(params, q);
+                        if (!native_bool(previous, "rust_native_char_ref")) continue;
+                        json_object *alias = json_object_new_object();
+                        json_object_object_add(alias, "name",
+                            json_object_new_string(native_string(previous, "name")));
+                        json_object_object_add(alias, "rust_native_temp_name",
+                            json_object_new_string(native_string(
+                                previous, "rust_native_temp_name")));
+                        json_object_array_add(prior, alias);
+                    }
+                    json_object_object_add(param, "rust_native_char_prior_params",
+                                           prior);
+                    char_index++;
                 }
             }
             json_object_object_del(function, "body");
@@ -1317,6 +1362,7 @@ void rust_native_plan_free(void *opaque)
         free(plan->declarations[i].rust_callable_name);
         free(plan->declarations[i].c_link_symbol);
         free(plan->declarations[i].rust_result_name);
+        free(plan->declarations[i].rust_char_values_name);
         for (size_t p = 0; p < plan->declarations[i].param_count; p++)
             free(plan->declarations[i].rust_param_temp_names[p]);
         free(plan->declarations[i].rust_param_temp_names);

@@ -81,13 +81,17 @@ three unchanged tagged raw-pointer fixtures under default, checked, and
 unchecked arithmetic at O0, O1, and O2. All 36 paired cases compiled, ran,
 matched their oracles, and matched each other without output normalization.
 
-The PR 143 review correction adds three byte-identical tagged-valid probes.
+The PR 143 review correction adds four byte-identical tagged-valid probes.
 Native scalar `as ref` wrapper parameters are private raw pointers, so two
 arguments may designate the same source place without creating overlapping
 Rust `&mut` borrows; the C call still receives the same address twice and each
-operand is evaluated once by the existing call lowering. Character conversion
-temporaries and the stored native result are allocated against every source
-parameter in the module before rendering. A source parameter named
+operand is evaluated once by the existing call lowering. Character `as ref`
+arguments use a wrapper-local conversion array whose slots are keyed by the
+raw source-place address. Repeated arguments therefore pass the same converted
+address to C, observe sibling mutations during the call, and read the final
+shared value during writeback. Conversion slots and the stored native result
+are allocated against every source parameter in the module before rendering.
+A source parameter named
 `__sn_native_char_0` therefore remains unchanged while the temporary advances
 to a free spelling.
 
@@ -100,17 +104,19 @@ decoding, a temporary dangling pointer, or an ASAN leak. Native callbacks and
 cross-thread use remain a later family; the Rust target does not admit those
 forms here.
 
-The final correction smoke is `/tmp/sindarin-s2-tag-smoke-UPJubs`. The strict
-matrix `/tmp/sindarin-s2-pr143-review-matrix-rIVDUv` covers
-`native_as_ref_same_place.sn`, `native_as_ref_char_temp_collision.sn`, and
-`native_string_escape.sn` under default, checked, and unchecked arithmetic at
-O0, O1, and O2. All 27 tag and 27 Rust compiles produced executables, all 54
+The final correction smoke is `/tmp/sindarin-s2-tag-smoke-Ramvvs`. The strict
+matrix `/tmp/sindarin-s2-pr143-char-alias-matrix-KGgBYA` covers
+`native_as_ref_char_same_place.sn`, `native_as_ref_same_place.sn`,
+`native_as_ref_char_temp_collision.sn`, and `native_string_escape.sn` under
+default, checked, and unchecked arithmetic at O0, O1, and O2. All 36 tag and
+36 Rust compiles produced executables, all 72
 runs returned zero, and every expected-output, stdout-pair, and stderr-pair
 comparison returned zero without normalization. The source SHA-256 values are
+`0404006526194aaffdb54699ea780f701103e74fe696e61eb68ed13ee9a42333`,
 `6edfa5a3e6f1c2dbf9e48a584bfb50625dfe9bb34c23492ffae9ae5c484b5a6f`,
 `973bd2dad246980c291934cc58166056fb7f137b149f540ced6d606b3cb58a8f`,
 and `afed582e900902c37b977832e535f34097d68751ecfa1aac8c0725eb017662b5`.
-The repository gates pass 16 Rust-native extra tests, including O0/O1/O2 and
+The repository gates pass 17 Rust-native extra tests, including O0/O1/O2 and
 debug/ASAN for each correction probe; 8 unchanged tagged native tests; 4
 native rejection tests; 1 imported-origin test; 12 Rust toolchain lifecycle
 tests; and 36 closure positives plus the closure rejection test. The formatter
