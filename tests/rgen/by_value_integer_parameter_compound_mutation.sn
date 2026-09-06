@@ -1,0 +1,7 @@
+fn halve(value: int): int =>
+  value /= 2
+  return value
+
+fn main(): void =>
+  var caller: int = 9
+  println($"{halve(caller)}/{caller}")
