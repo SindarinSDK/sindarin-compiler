@@ -1,0 +1,12 @@
+fn make(): fn(): int =>
+  var value: int = 10
+  var action: fn(): int = fn(): int =>
+    value = value + 1
+    return value
+  return action
+fn main(): void =>
+  var action: fn(): int = make()
+  var result: int = & action()
+  result !
+  println(result)
+  println(action())

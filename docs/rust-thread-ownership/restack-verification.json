@@ -1,0 +1,95 @@
+{
+  "alias_manifest": "array-alias-verification.json",
+  "reference_preservation": [
+    {
+      "source": "/home/gavin/code/sindarin/sindarin-rust-thread-ownership-restack/tests/rust-thread-ownership/concurrent_references.sn",
+      "sha256": "95c98871d5d84a8dea95db164d8ff255933e3901d2110a8ed60512f5b507ce7e",
+      "fixture_commit": "824195cdb54e8ab91386427996aa5a02fc47917a",
+      "git_blob": "c9725e61d03bdcb3e30f585727a294ecd1856b84",
+      "tag": {
+        "compile": 0,
+        "executable": true,
+        "run": 0
+      },
+      "rust": {
+        "compile": 0,
+        "executable": true,
+        "run": 0
+      },
+      "expected_exit": 0,
+      "equal": true
+    },
+    {
+      "source": "/home/gavin/code/sindarin/sindarin-rust-thread-ownership-restack/tests/rust-thread-ownership/reference_aliases.sn",
+      "sha256": "963c8b2c9e2249cd17400c12b53aed442d00dc96666b8a0aad4c7408c6ae8a42",
+      "fixture_commit": "824195cdb54e8ab91386427996aa5a02fc47917a",
+      "git_blob": "cca2370bf019b18fac6b709b75eb5ef144dbf582",
+      "tag": {
+        "compile": 0,
+        "executable": true,
+        "run": 0
+      },
+      "rust": {
+        "compile": 0,
+        "executable": true,
+        "run": 0
+      },
+      "expected_exit": 0,
+      "equal": true
+    },
+    {
+      "source": "/home/gavin/code/sindarin/sindarin-rust-thread-ownership-restack/tests/rust-thread-ownership/sync_reference.sn",
+      "sha256": "57cd181135b2b4c3c158d2ad40f2b359f643ccff5dd1e7e90a018434c5d46045",
+      "fixture_commit": "824195cdb54e8ab91386427996aa5a02fc47917a",
+      "git_blob": "a1a0e7dce7ff7fa43c3c34a7e137b2a06cfc511f",
+      "tag": {
+        "compile": 0,
+        "executable": true,
+        "run": 0
+      },
+      "rust": {
+        "compile": 0,
+        "executable": true,
+        "run": 0
+      },
+      "expected_exit": 0,
+      "equal": true
+    }
+  ],
+  "reference_provenance": {
+    "reference": "/tmp/sindarin-tagged-control-reference.json",
+    "tag_peeled": "79c20bdb8314aff3c778471ceab20bb8f9ca8d62",
+    "tag_compiler_verified_sha256": "b8c32932c385d9ae6692dff82bacb20c94eddef5379410efb5a26bdbae9f7789",
+    "rust_compiler_sha256": "5ef3212567ffc5a7441941659b87a42f60dc454fbe9ee24eadaed5ab270cc765",
+    "mode": "-O0",
+    "inventory_only": false,
+    "filter": "reference",
+    "control_worktree": "/home/gavin/code/sindarin/review-rust-diagnostic-tag79c20b",
+    "reference_schema": "sindarin-tagged-control-reference/v1",
+    "reference_sha256": "8dec424d359c4537de4a0d3414d1c32d7081aac42a2e6b223e40c68f3460bd47"
+  },
+  "rust_gates": {
+    "concurrency": [
+      8,
+      0
+    ],
+    "promoted": [
+      7,
+      0
+    ],
+    "concurrency_errors": [
+      1,
+      0
+    ],
+    "closures": [
+      29,
+      0
+    ],
+    "closure_errors": [
+      1,
+      0
+    ]
+  },
+  "raw_evidence": "/tmp/sn-ownership-restack-evidence",
+  "golden_changes": "Five Rust-only generation expectations add capture support and explicit operand types; runtime .expected files unchanged."
+}

@@ -1,0 +1,10 @@
+sync var rhs: int = 1
+sync var value: int = 2
+fn calculate(): int =>
+  return 9
+fn main(): void =>
+  rhs += 3
+  value = rhs + value
+  var handle: int = & calculate()
+  handle !
+  println($"{rhs}, {value}, {handle}")

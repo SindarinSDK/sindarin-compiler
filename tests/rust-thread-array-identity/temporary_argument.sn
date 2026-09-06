@@ -1,0 +1,7 @@
+fn mutate(data: int[]): int =>
+  data.push(9)
+  return data.length * 100 + data[1]
+
+fn main(): void =>
+  var result: int = & mutate({1})
+  println(result !)
