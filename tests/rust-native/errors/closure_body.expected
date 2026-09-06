@@ -1,1 +1,1 @@
-Error: Rust target native function 'unsupported' body uses a closure, thread, array, or struct construct outside the native bridge
+Error: Rust target native function 'unsupported' body uses a closure, thread, or struct construct outside the native bridge

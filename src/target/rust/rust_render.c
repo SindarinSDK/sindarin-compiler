@@ -66,7 +66,7 @@ static char *rust_type(json_object *type)
         free(base);
         return result;
     }
-    if (strcmp(kind, "string") == 0) return strdup("String");
+    if (strcmp(kind, "string") == 0) return strdup("SnString");
     if (strcmp(kind, "array") == 0)
     {
         json_object *element_type = NULL;
@@ -131,14 +131,14 @@ static char *helper_rust_ident(json_object **params, int param_count, hbs_option
     return escaped;
 }
 
-static char *quote_rust_string(const char *value, char quote)
+static char *quote_rust_source_string(const char *value)
 {
     if (!value) value = "";
     size_t capacity = strlen(value) * 4 + 3;
     char *result = malloc(capacity);
     if (!result) return NULL;
     size_t out = 0;
-    result[out++] = quote;
+    result[out++] = '"';
     for (const unsigned char *p = (const unsigned char *)value; *p; p++)
     {
         switch (*p)
@@ -147,35 +147,29 @@ static char *quote_rust_string(const char *value, char quote)
             case '\n': result[out++] = '\\'; result[out++] = 'n'; break;
             case '\r': result[out++] = '\\'; result[out++] = 'r'; break;
             case '\t': result[out++] = '\\'; result[out++] = 't'; break;
-            case '"':
-                if (quote == '"') result[out++] = '\\';
-                result[out++] = '"';
-                break;
-            case '\'':
-                if (quote == '\'') result[out++] = '\\';
-                result[out++] = '\'';
-                break;
+            case '"': result[out++] = '\\'; result[out++] = '"'; break;
             default:
                 if (*p < 0x20)
-                    out += (size_t)snprintf(result + out, capacity - out, "\\u{%x}", *p);
+                    out += (size_t)snprintf(result + out, capacity - out,
+                                           "\\u{%x}", *p);
                 else
                     result[out++] = (char)*p;
         }
     }
-    result[out++] = quote;
+    result[out++] = '"';
     result[out] = '\0';
     return result;
 }
 
 /* String values in the shared render model are escaped for direct insertion
- * into C string literals. Decode that representation before quoting it as a
- * Rust literal; otherwise source escapes such as \n and \\ become literal
- * backslash sequences in generated Rust. */
-static char *decode_model_c_string(const char *value)
+ * into C string literals. Decode that representation into an explicit byte
+ * sequence. Rust source must be UTF-8, so arbitrary Sindarin string bytes can
+ * never be copied into a Rust string token. */
+static unsigned char *decode_model_c_string(const char *value, size_t *decoded_length)
 {
     if (!value) value = "";
     size_t length = strlen(value);
-    char *decoded = malloc(length + 1);
+    unsigned char *decoded = malloc(length + 1);
     if (!decoded) return NULL;
 
     size_t out = 0;
@@ -183,7 +177,7 @@ static char *decode_model_c_string(const char *value)
     {
         if (value[i] != '\\' || i + 1 >= length)
         {
-            decoded[out++] = value[i];
+            decoded[out++] = (unsigned char)value[i];
             continue;
         }
 
@@ -218,27 +212,42 @@ static char *decode_model_c_string(const char *value)
                         break;
                     }
                 }
-                decoded[out++] = '\\';
-                decoded[out++] = escaped;
+                decoded[out++] = (unsigned char)'\\';
+                decoded[out++] = (unsigned char)escaped;
                 break;
             }
             default:
-                decoded[out++] = '\\';
-                decoded[out++] = escaped;
+                decoded[out++] = (unsigned char)'\\';
+                decoded[out++] = (unsigned char)escaped;
                 break;
         }
     }
-    decoded[out] = '\0';
+    *decoded_length = out;
     return decoded;
 }
 
-static char *quote_rust_model_string(const char *value)
+static char *rust_model_string_expr(const char *value)
 {
-    char *decoded = decode_model_c_string(value);
+    size_t decoded_length = 0;
+    unsigned char *decoded = decode_model_c_string(value, &decoded_length);
     if (!decoded) return NULL;
-    char *quoted = quote_rust_string(decoded, '"');
+
+    const char *prefix = "SnString::from_slice(&[";
+    const char *suffix = "])";
+    size_t capacity = strlen(prefix) + strlen(suffix) + decoded_length * 6 + 1;
+    char *result = malloc(capacity);
+    if (!result)
+    {
+        free(decoded);
+        return NULL;
+    }
+    size_t out = (size_t)snprintf(result, capacity, "%s", prefix);
+    for (size_t i = 0; i < decoded_length; i++)
+        out += (size_t)snprintf(result + out, capacity - out,
+                               "%s0x%02x", i ? ", " : "", decoded[i]);
+    snprintf(result + out, capacity - out, "%s", suffix);
     free(decoded);
-    return quoted;
+    return result;
 }
 
 static char *helper_rust_literal(json_object **params, int param_count, hbs_options_t *options)
@@ -256,14 +265,9 @@ static char *helper_rust_literal(json_object **params, int param_count, hbs_opti
         return strdup(value_obj && json_object_get_boolean(value_obj) ? "true" : "false");
     if (strcmp(kind, "string") == 0)
     {
-        char *quoted = quote_rust_model_string(
+        char *expression = rust_model_string_expr(
             value_obj ? json_object_get_string(value_obj) : "");
-        if (!quoted) return NULL;
-        size_t length = strlen(quoted) + sizeof(".to_string()") + 1;
-        char *result = malloc(length);
-        if (result) snprintf(result, length, "%s.to_string()", quoted);
-        free(quoted);
-        return result;
+        return expression;
     }
     if (strcmp(kind, "char") == 0)
     {
@@ -283,7 +287,21 @@ static char *helper_rust_string_literal(json_object **params, int param_count,
     (void)options;
     const char *value = param_count > 0 && params[0]
         ? json_object_get_string(params[0]) : "";
-    return quote_rust_model_string(value);
+    return rust_model_string_expr(value);
+}
+
+/* Rust metadata attributes require a source string token, not a Sindarin
+ * string value. Native link symbols are compiler-owned ASCII identifiers, so
+ * keep this code-generation boundary distinct from byte-backed SnString
+ * literals. */
+static char *helper_rust_source_string_literal(json_object **params,
+                                               int param_count,
+                                               hbs_options_t *options)
+{
+    (void)options;
+    const char *value = param_count > 0 && params[0]
+        ? json_object_get_string(params[0]) : "";
+    return quote_rust_source_string(value);
 }
 
 static char *helper_rust_default(json_object **params, int param_count, hbs_options_t *options)
@@ -293,7 +311,7 @@ static char *helper_rust_default(json_object **params, int param_count, hbs_opti
     if (!kind) return strdup("()");
     if (strcmp(kind, "bool") == 0) return strdup("false");
     if (strcmp(kind, "char") == 0) return strdup("'\\0'");
-    if (strcmp(kind, "string") == 0) return strdup("String::new()");
+    if (strcmp(kind, "string") == 0) return strdup("SnString::new()");
     if (strcmp(kind, "array") == 0) return strdup("Vec::new()");
     if (strcmp(kind, "pointer") == 0 || strcmp(kind, "opaque") == 0)
         return strdup("std::ptr::null_mut()");
@@ -328,6 +346,45 @@ static char *helper_rust_clone_suffix(json_object **params, int param_count,
     return strdup("");
 }
 
+static char *helper_rust_print_prefix(json_object **params, int param_count,
+                                      hbs_options_t *options)
+{
+    (void)options;
+    const char *kind = param_count > 0 ? json_kind(params[0]) : NULL;
+    if (kind && strcmp(kind, "string") == 0) return strdup("__sn_print_string(&(");
+    if (kind && strcmp(kind, "char") == 0) return strdup("__sn_print_char(");
+    if (kind && (strcmp(kind, "double") == 0 || strcmp(kind, "float") == 0))
+        return strdup("print!(\"{:.5}\", ");
+    if (kind && strcmp(kind, "byte") == 0) return strdup("print!(\"0x{:02X}\", (");
+    if (kind && strcmp(kind, "uint") == 0) return strdup("print!(\"{}\", (");
+    return strdup("print!(\"{}\", ");
+}
+
+static char *helper_rust_print_suffix(json_object **params, int param_count,
+                                      hbs_options_t *options)
+{
+    (void)options;
+    const char *kind = param_count > 0 ? json_kind(params[0]) : NULL;
+    if (kind && strcmp(kind, "string") == 0) return strdup("))");
+    if (kind && strcmp(kind, "byte") == 0) return strdup(" as u32))");
+    if (kind && strcmp(kind, "uint") == 0) return strdup(" as i64))");
+    return strdup(")");
+}
+
+static char *helper_rust_println_prefix(json_object **params, int param_count,
+                                        hbs_options_t *options)
+{
+    (void)options;
+    const char *kind = param_count > 0 ? json_kind(params[0]) : NULL;
+    if (kind && strcmp(kind, "string") == 0) return strdup("__sn_println_string(&(");
+    if (kind && strcmp(kind, "char") == 0) return strdup("__sn_println_char(");
+    if (kind && (strcmp(kind, "double") == 0 || strcmp(kind, "float") == 0))
+        return strdup("println!(\"{:.5}\", ");
+    if (kind && strcmp(kind, "byte") == 0) return strdup("println!(\"0x{:02X}\", (");
+    if (kind && strcmp(kind, "uint") == 0) return strdup("println!(\"{}\", (");
+    return strdup("println!(\"{}\", ");
+}
+
 static char *helper_newline(json_object **params, int param_count, hbs_options_t *options)
 {
     (void)params;
@@ -352,9 +409,14 @@ static void register_rust_helpers(hbs_env_t *env)
     hbs_register_helper(env, "rust_ident", helper_rust_ident);
     hbs_register_helper(env, "rust_literal", helper_rust_literal);
     hbs_register_helper(env, "rust_string_literal", helper_rust_string_literal);
+    hbs_register_helper(env, "rust_source_string_literal",
+                        helper_rust_source_string_literal);
     hbs_register_helper(env, "rust_default", helper_rust_default);
     hbs_register_helper(env, "rust_unary", helper_rust_unary);
     hbs_register_helper(env, "rust_clone_suffix", helper_rust_clone_suffix);
+    hbs_register_helper(env, "rust_print_prefix", helper_rust_print_prefix);
+    hbs_register_helper(env, "rust_print_suffix", helper_rust_print_suffix);
+    hbs_register_helper(env, "rust_println_prefix", helper_rust_println_prefix);
     hbs_register_helper(env, "nl", helper_newline);
     hbs_register_helper(env, "rbrace", helper_right_brace);
 }

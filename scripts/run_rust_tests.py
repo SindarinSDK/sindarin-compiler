@@ -158,6 +158,21 @@ def run_with_timeout(cmd: List[str], timeout: int, cwd: Optional[str] = None,
         return -1, '', str(e), None
 
 
+def run_bytes_with_timeout(cmd: List[str], timeout: int, cwd: Optional[str] = None,
+                           env: Optional[dict] = None) -> Tuple[int, bytes, str]:
+    """Run a generated program while preserving an explicitly binary oracle."""
+    try:
+        result = subprocess.run(
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+            timeout=timeout, cwd=cwd, env=env
+        )
+        return result.returncode, result.stdout, ''
+    except subprocess.TimeoutExpired:
+        return -1, b'', 'TIMEOUT'
+    except Exception as error:
+        return -1, b'', str(error)
+
+
 def parse_rustc_capture(capture_file: str) -> List[List[bytes]]:
     """Parse SN_FAKE_RUSTC_CAPTURE output into a list of argv records.
 
@@ -603,11 +618,18 @@ class TestRunner:
                 'tests/integration/test_interop_opaque.sn',
                 'tests/integration/test_opaque_types.sn',
                 'tests/integration/test_inline_pointer_passing.sn',
+                'tests/integration/test_pointer_unwrap.sn',
+                'tests/integration/test_interop_pointers.sn',
             ]
         else:
             test_files = sorted(glob.glob(pattern, recursive=True))
         if test_type == 'rust-native-extra':
-            test_files.append('tests/rust-native/native_flush_parameter_collision.sn')
+            test_files.extend([
+                'tests/rust-native/native_as_ref_char_temp_collision.sn',
+                'tests/rust-native/native_as_ref_same_place.sn',
+                'tests/rust-native/native_flush_parameter_collision.sn',
+                'tests/rust-native/native_string_escape.sn',
+            ])
         raw_fixtures = {}
         if test_type == 'rust-native-extra':
             try:
@@ -1440,11 +1462,26 @@ class TestRunner:
                     return ('fail', f'invalid .args sidecar in {args_file}: string contains embedded NUL', None)
             run_args = parsed
 
-        exit_code, output, timeout_marker, decode_error = run_with_timeout(
-            [exe_file] + run_args, self.run_timeout, env=self.env, merge_stderr=True
-        )
-        if decode_error:
-            return ('fail', 'subprocess output decode error', [decode_error, output])
+        output_file = os.path.splitext(test_file)[0] + '.expected'
+        expected_bytes = Path(output_file).read_bytes() if os.path.isfile(output_file) else None
+        binary_oracle = False
+        if expected_bytes is not None:
+            try:
+                expected_bytes.decode('utf-8')
+            except UnicodeDecodeError:
+                binary_oracle = True
+
+        if binary_oracle:
+            exit_code, raw_output, timeout_marker = run_bytes_with_timeout(
+                [exe_file] + run_args, self.run_timeout, env=self.env
+            )
+            output = raw_output.decode('utf-8', errors='backslashreplace')
+        else:
+            exit_code, output, timeout_marker, decode_error = run_with_timeout(
+                [exe_file] + run_args, self.run_timeout, env=self.env, merge_stderr=True
+            )
+            if decode_error:
+                return ('fail', 'subprocess output decode error', [decode_error, output])
         if timeout_marker == 'TIMEOUT':
             return ('fail', 'timeout', output.split('\n')[:20] if output else None)
         if expects_panic:
@@ -1463,8 +1500,12 @@ class TestRunner:
                 details.extend(output.split('\n')[:20])
             return ('fail', 'exit code mismatch', details)
 
-        output_file = os.path.splitext(test_file)[0] + '.expected'
-        if os.path.isfile(output_file):
+        if binary_oracle:
+            if raw_output != expected_bytes:
+                return ('fail', 'raw output mismatch',
+                        [f"expected hex: {expected_bytes.hex()}",
+                         f"got hex:      {raw_output.hex()}"])
+        elif os.path.isfile(output_file):
             with open(output_file, 'r', encoding='utf-8') as expected:
                 expected_output = expected.read().replace('\r\n', '\n').replace('\r', '\n')
             normalized_output = output.replace('\r\n', '\n').replace('\r', '\n')
@@ -1548,8 +1589,13 @@ class TestRunner:
         """Compile and execute a post-tag Rust-native fixture with its oracle."""
         if not os.path.isfile(expected_file):
             return ('skip', 'no .expected', None)
-        with open(expected_file, 'r', encoding='utf-8') as expected:
-            wanted = expected.read().replace('\r\n', '\n').replace('\r', '\n')
+        wanted_bytes = Path(expected_file).read_bytes()
+        try:
+            wanted = wanted_bytes.decode('utf-8').replace('\r\n', '\n').replace('\r', '\n')
+            binary_oracle = False
+        except UnicodeDecodeError:
+            wanted = ''
+            binary_oracle = True
         base = fixture_base or os.path.splitext(test_file)[0]
         expected_exit = 0
         exit_file = base + '.exit-code'
@@ -1578,11 +1624,17 @@ class TestRunner:
                 if exit_code != 0:
                     return ('fail', f'{label} compile error',
                             stderr.split('\n')[:50] if stderr else None)
-                exit_code, output, timeout_marker, decode_error = run_with_timeout(
-                    [target_exe], self.run_timeout, env=self.env, merge_stderr=True)
-                if decode_error:
-                    return ('fail', f'{label} run output decode error',
-                            [decode_error, output])
+                if binary_oracle:
+                    exit_code, raw_output, timeout_marker = run_bytes_with_timeout(
+                        [target_exe], self.run_timeout, env=self.env)
+                    output = raw_output.decode('utf-8', errors='backslashreplace')
+                    decode_error = None
+                else:
+                    exit_code, output, timeout_marker, decode_error = run_with_timeout(
+                        [target_exe], self.run_timeout, env=self.env, merge_stderr=True)
+                    if decode_error:
+                        return ('fail', f'{label} run output decode error',
+                                [decode_error, output])
                 if timeout_marker == 'TIMEOUT':
                     return ('fail', f'{label} run timeout',
                             output.split('\n')[:20] if output else None)
@@ -1590,10 +1642,12 @@ class TestRunner:
                     return ('fail', f'{label} run exit code: {exit_code}',
                             [f'expected: {expected_exit}',
                              *(output.split('\n')[:20] if output else [])])
-                outputs[target] = output.replace('\r\n', '\n').replace('\r', '\n')
-                if outputs[target] != wanted:
+                outputs[target] = (raw_output if binary_oracle else
+                                   output.replace('\r\n', '\n').replace('\r', '\n'))
+                if outputs[target] != (wanted_bytes if binary_oracle else wanted):
                     return ('fail', f'{label} output mismatch',
-                            [f'expected: {wanted!r}', f'got:      {outputs[target]!r}'])
+                            [f'expected: {(wanted_bytes if binary_oracle else wanted)!r}',
+                             f'got:      {outputs[target]!r}'])
             if len(outputs) == 2 and outputs['c'] != outputs['rust']:
                 return ('fail', f'{mode_name} C/Rust output mismatch',
                         [f"C:    {outputs['c']!r}", f"Rust: {outputs['rust']!r}"])

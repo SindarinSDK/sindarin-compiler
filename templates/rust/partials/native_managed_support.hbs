@@ -1,0 +1,55 @@
+#[repr(C)]
+struct {{rust_ident rust_native_array_type_name}} {
+    data: *mut std::ffi::c_void,
+    len: i64,
+    cap: i64,
+    elem_size: usize,
+    elem_release: Option<unsafe extern "C" fn(*mut std::ffi::c_void)>,
+    elem_copy: Option<unsafe extern "C" fn(*const std::ffi::c_void, *mut std::ffi::c_void)>,
+    elem_tag: std::ffi::c_int,
+}
+
+extern "C" {
+    #[link_name = "free"]
+    fn {{rust_ident rust_native_free_extern_name}}(_: *mut std::ffi::c_void);
+}
+
+unsafe fn {{rust_ident rust_native_take_string_name}}(value: *mut std::ffi::c_char) -> SnString {
+    if value.is_null() { return SnString::new(); }
+    let result = SnString::from_slice(std::ffi::CStr::from_ptr(value).to_bytes());
+    {{rust_ident rust_native_free_extern_name}}(value.cast());
+    result
+}
+
+unsafe fn {{rust_ident rust_native_take_array_name}}(value: *mut {{rust_ident rust_native_array_type_name}}) -> Vec<u8> {
+    if value.is_null() { return Vec::new(); }
+    let native = &*value;
+    assert!(native.len >= 0, "native byte array length must be nonnegative");
+    assert!(native.cap >= native.len, "native byte array capacity must cover its length");
+    assert!(native.elem_size == 1, "native byte array element size must be one byte");
+    assert!(native.elem_release.is_none(), "native byte arrays cannot own managed elements");
+    let result = if native.len == 0 {
+        Vec::new()
+    } else {
+        assert!(!native.data.is_null(), "nonempty native byte array data must not be nil");
+        std::slice::from_raw_parts(native.data.cast::<u8>(), native.len as usize).to_vec()
+    };
+    {{rust_ident rust_native_free_extern_name}}(native.data);
+    {{rust_ident rust_native_free_extern_name}}(value.cast());
+    result
+}{{#if rust_native_retain_string_name}}{{nl}}{{nl}}
+thread_local! {
+    static {{rust_ident rust_native_retained_strings_name}}: std::cell::RefCell<Vec<Box<[u8]>>> =
+        const { std::cell::RefCell::new(Vec::new()) };
+}
+
+fn {{rust_ident rust_native_retain_string_name}}(value: SnString) -> *const std::ffi::c_char {
+    let mut bytes = value.as_bytes().to_vec();
+    bytes.push(0);
+    let bytes = bytes.into_boxed_slice();
+    let pointer = bytes.as_ptr().cast();
+    {{rust_ident rust_native_retained_strings_name}}.with(|retained| {
+        retained.borrow_mut().push(bytes);
+    });
+    pointer
+}{{/if}}
