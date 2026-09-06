@@ -1,0 +1,15 @@
+struct Holder =>
+  items: int[] = {}
+
+fn change(holders: Holder[]): int =>
+  var rows: int[][2] = holders[0].items
+  rows[1][0] = 29
+  rows.pop()
+  rows.pop()
+  return holders[0].items[0]
+
+fn main(): void =>
+  var holders: Holder[] = { Holder { items: {1, 2} } }
+  var result: int = & change(holders)
+  println(result !)
+  println(holders[0].items[0])

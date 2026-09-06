@@ -1,0 +1,13 @@
+struct Holder =>
+  items: int[] = {}
+
+fn change(rows: int[][]): void =>
+  rows[1][0] = 27
+
+fn main(): void =>
+  var holders: Holder[] = { Holder { items: {1, 2} } }
+  var rows: int[][2] = holders[0].items
+  change(rows)
+  println($"{holders[0].items[0]},{rows[0][0]},{rows[1][0]}")
+  rows.pop()
+  rows.pop()

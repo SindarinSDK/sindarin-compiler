@@ -152,6 +152,16 @@ static json_object *rust_nested_array_specialization(json_object *model,
     return copy;
 }
 
+static void rust_nested_mutable_place(json_object *place)
+{
+    if (!json_string_property_equals(place, "kind", "array_access") ||
+        json_boolean_property(place, "rust_nested_array_read")) return;
+    json_object_object_add(place, "rust_mutable_array_place", json_object_new_boolean(true));
+    json_object *array = NULL;
+    json_object_object_get_ex(place, "array", &array);
+    rust_nested_mutable_place(array);
+}
+
 static bool rust_nested_array_walk(json_object *node, json_object *model, json_object *functions, RustThreadRefBinding *scope,
                                    bool *changed)
 {
@@ -216,6 +226,18 @@ static bool rust_nested_array_walk(json_object *node, json_object *model, json_o
             }
             json_object_object_get_ex(node, "type", &type);
             json_object_object_get_ex(type, "element_type", &inner);
+            json_object *source_type = NULL;
+            if (seed) json_object_object_get_ex(seed->declaration, "type", &source_type);
+            else if (field) json_object_object_get_ex(field, "type", &source_type);
+            else json_object_object_get_ex(value, "type", &source_type);
+            if (source_type && json_string_property_equals(source_type, "kind", "array")) {
+                json_object *projected = NULL;
+                json_object_deep_copy(source_type, &projected, NULL);
+                json_object_object_add(projected, "rust_nested_array_handle", json_object_new_boolean(true));
+                if (!json_object_equal(inner, projected)) *changed = true;
+                json_object_object_add(type, "element_type", projected);
+                inner = projected;
+            }
             if (inner) {
                 if (!json_boolean_property(inner, "rust_nested_array_handle")) *changed = true;
                 json_object_object_add(inner, "rust_nested_array_handle", json_object_new_boolean(true));
@@ -224,8 +246,11 @@ static bool rust_nested_array_walk(json_object *node, json_object *model, json_o
     }
     if (json_string_property_equals(node, "kind", "assign")) {
         RustThreadRefBinding *binding = rust_thread_ref_lookup(scope, json_string_property(node, "target"));
-        if (binding && json_boolean_property(binding->declaration, "rust_nested_array_storage"))
+        if (binding && json_boolean_property(binding->declaration, "rust_nested_array_storage")) {
             json_object_object_add(node, "rust_nested_array_storage", json_object_new_boolean(true));
+            if (json_boolean_property(binding->declaration, "rust_nested_global_declaration"))
+                json_object_object_add(node, "rust_nested_global_assignment", json_object_new_boolean(true));
+        }
     }
     if (json_string_property_equals(node, "kind", "variable")) {
         RustThreadRefBinding *binding = rust_thread_ref_lookup(scope, json_string_property(node, "name"));
@@ -233,8 +258,13 @@ static bool rust_nested_array_walk(json_object *node, json_object *model, json_o
             json_object *type = NULL;
             json_object_object_get_ex(binding->declaration, "type", &type);
             if (type) json_object_object_add(node, "type", json_object_get(type));
-            if (json_boolean_property(binding->declaration, "rust_nested_array_storage"))
-                json_object_object_add(node, "rust_cell", json_object_new_boolean(true));
+            if (json_boolean_property(binding->declaration, "rust_nested_array_storage")) {
+                if (json_boolean_property(binding->declaration, "rust_nested_global_declaration")) {
+                    json_object_object_add(node, "rust_nested_global_read", json_object_new_boolean(true));
+                    json_object_object_add(node, "rust_nested_array_read", json_object_new_boolean(true));
+                    json_object_object_del(node, "rust_cell");
+                } else json_object_object_add(node, "rust_cell", json_object_new_boolean(true));
+            }
         }
     }
     json_object_object_foreach(node, key, value) {
@@ -290,9 +320,7 @@ static bool rust_nested_array_walk(json_object *node, json_object *model, json_o
     if (json_string_property_equals(node, "kind", "index_assign")) {
         json_object *array = NULL;
         json_object_object_get_ex(node, "array", &array);
-        if (json_string_property_equals(array, "kind", "array_access") &&
-            !json_boolean_property(array, "rust_nested_array_read"))
-            json_object_object_add(array, "rust_mutable_array_place", json_object_new_boolean(true));
+        rust_nested_mutable_place(array);
         if (json_boolean_property(array, "rust_nested_array_read")) {
             json_object_object_add(array, "rust_nested_array_owner", json_object_new_boolean(true));
             json_object_object_add(node, "rust_nested_index_assign", json_object_new_boolean(true));
@@ -308,6 +336,15 @@ static bool rust_nested_array_callable(json_object *fn, json_object *model,
     json_object_object_get_ex(fn, "params", &params);
     json_object_object_get_ex(fn, "body", &body);
     RustThreadRefBinding *scope = NULL;
+    json_object *globals = NULL;
+    json_object_object_get_ex(model, "globals", &globals);
+    for (size_t i = 0; globals && i < json_object_array_length(globals); i++) {
+        json_object *global = json_object_array_get_idx(globals, i);
+        json_object_object_add(global, "rust_nested_global_declaration", json_object_new_boolean(true));
+        RustThreadRefBinding *binding = malloc(sizeof(*binding));
+        if (!binding) return false;
+        *binding = (RustThreadRefBinding){json_string_property(global, "name"), global, scope}; scope = binding;
+    }
     for (size_t i = 0; params && i < json_object_array_length(params); i++) {
         json_object *param = json_object_array_get_idx(params, i);
         RustThreadRefBinding *binding = malloc(sizeof(*binding));

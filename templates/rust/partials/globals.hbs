@@ -1,2 +1,3 @@
-{{#each globals}}static {{rust_ident name}}: std::sync::LazyLock<{{rust_ident rust_cell_type}}<{{rust_type type}}>> = std::sync::LazyLock::new(|| {{rust_ident rust_cell_type}}::new({{#if initializer}}{{> expr initializer}}{{else}}{{rust_default type}}{{/if}}));
-{{/each}}
+{{#each globals}}{{#if rust_nested_array_storage}}static {{rust_ident name}}: std::sync::LazyLock<std::sync::Mutex<std::sync::Arc<std::sync::Mutex<{{rust_type type}}>>>> = std::sync::LazyLock::new(|| std::sync::Mutex::new(std::sync::Arc::new(std::sync::Mutex::new({{#if initializer}}{{> expr initializer}}{{else}}{{rust_default type}}{{/if}}))));
+{{else}}static {{rust_ident name}}: std::sync::LazyLock<{{rust_ident rust_cell_type}}<{{rust_type type}}>> = std::sync::LazyLock::new(|| {{rust_ident rust_cell_type}}::new({{#if initializer}}{{> expr initializer}}{{else}}{{rust_default type}}{{/if}}));
+{{/if}}{{/each}}

@@ -1,0 +1,13 @@
+fn change(cubes: int[][][]): void =>
+  cubes[0][1][0] = 21
+
+fn main(): void =>
+  var seed: int[] = {1, 2}
+  var rows: int[][2] = seed
+  var cubes: int[][][2] = rows
+  change(cubes)
+  println($"{seed[0]},{rows[0][0]},{cubes[1][0][0]}")
+  cubes.pop()
+  cubes.pop()
+  rows.pop()
+  rows.pop()

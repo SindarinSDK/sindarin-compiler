@@ -256,6 +256,11 @@ static bool rust_emit(CompilerOptions *options, Module *module,
                                json_object_new_boolean(true));
 
     rust_lower_concurrency(model);
+    if (json_boolean_property(model, "rust_nested_field_projection_failed")) {
+        fprintf(stderr, "Error: failed to construct the Rust nested field owner projection\n");
+        json_object_put(model);
+        return false;
+    }
     rust_lower_thread_arrays(model);
 
     char template_dir[1024];

@@ -1,0 +1,13 @@
+var seed: int[] = {1, 2}
+
+fn change(rows: int[][]): void =>
+  rows[1][0] = 23
+
+fn main(): void =>
+  var rows: int[][2] = seed
+  change(rows)
+  println($"{seed[0]},{rows[0][0]},{rows[1][0]}")
+  rows.pop()
+  rows.pop()
+  seed = {5, 6}
+  println(seed[0])

@@ -250,6 +250,30 @@ static void rust_concurrency_annotate(json_object *node, const char *prefix,
         }
     }
 
+    if (strcmp(kind, "member") == 0 && json_boolean_property(node, "rust_nested_array_read")) {
+        json_object *object = NULL;
+        json_object_object_get_ex(node, "object", &object);
+        json_object *owner = rust_concurrency_place_root(object);
+        if (owner && json_boolean_property(owner, "rust_cell")) {
+            json_object *bindings = json_object_new_array();
+            size_t next_id = 0;
+            if (rust_collect_place_indices_mode(model, object, bindings, &next_id, true)) {
+                rust_concurrency_string(node, "rust_nested_field_container", json_string_property(owner, "name"));
+                char guard[256]; snprintf(guard, sizeof(guard), "%snested_field_guard", prefix);
+                rust_concurrency_string(node, "rust_nested_field_guard", guard);
+                json_object_object_add(node, "rust_nested_field_indices", bindings);
+                rust_concurrency_string(owner, "name", guard);
+                json_object_object_del(owner, "rust_cell");
+                json_object_object_del(owner, "rust_global");
+                json_object_object_del(owner, "rust_thread_ref_owner");
+                json_object_object_add(owner, "rust_cell_guard", json_object_new_boolean(true));
+            } else {
+                json_object_put(bindings);
+                json_object_object_add(model, "rust_nested_field_projection_failed", json_object_new_boolean(true));
+            }
+        }
+    }
+
     if (strcmp(kind, "member_assign") == 0 && json_string_property(node, "rust_place_value_name")) {
         json_object *place = NULL;
         json_object_object_get_ex(node, "object", &place);
