@@ -1,0 +1,40 @@
+struct Buckets =>
+  left: int[]
+  right: int[]
+
+  fn mix(first: int[], second: int[]): int =>
+    first.push(2)
+    self.right.push(first.length)
+    second.push(self.left.length)
+    return self.left.length * 1000 + self.right.length * 100 + first.length * 10 + second.length
+
+  fn route(first: int[], second: int[]): int =>
+    return self.mix(first, second)
+
+  fn touch(first: int[], second: int[]): int =>
+    first.push(4)
+    second.push(first.length)
+    self.left.push(second.length)
+    return self.left.length * 100 + first.length * 10 + second.length
+
+fn main(): void =>
+  var direct: Buckets = {
+    left: {1},
+    right: {10}
+  }
+  println(direct.mix(direct.left, direct.right))
+  println($"direct:{direct.left.length}:{direct.right.length}:{direct.left[1]}:{direct.right[1]}:{direct.right[2]}")
+
+  var forwarded: Buckets = {
+    left: {1},
+    right: {10}
+  }
+  println(forwarded.route(forwarded.left, forwarded.right))
+  println($"forwarded:{forwarded.left.length}:{forwarded.right.length}:{forwarded.left[1]}:{forwarded.right[1]}:{forwarded.right[2]}")
+
+  var same: Buckets = {
+    left: {1},
+    right: {10}
+  }
+  println(same.touch(same.left, same.left))
+  println($"same:{same.left.length}:{same.left[1]}:{same.left[2]}:{same.left[3]}")
