@@ -1987,6 +1987,18 @@ static bool rust_bool_match_literal_pattern(json_object *pattern)
            json_object_is_type(value, json_type_boolean);
 }
 
+static bool rust_char_match_literal_pattern(json_object *pattern)
+{
+    json_object *type = NULL, *value = NULL;
+    return json_object_is_type(pattern, json_type_object) &&
+           json_object_object_get_ex(pattern, "type", &type) &&
+           json_string_property_equals(type, "kind", "char") &&
+           json_string_property_equals(pattern, "kind", "literal") &&
+           json_string_property_equals(pattern, "value_kind", "char") &&
+           json_object_object_get_ex(pattern, "value", &value) &&
+           json_object_is_type(value, json_type_int);
+}
+
 /* The shared optimizer folds recursively literal-only string concatenations
  * from -O1 onward.  Recognize that same bounded constant form here and attach
  * its content to the pattern, so Rust admission and rendering do not depend
@@ -2263,11 +2275,12 @@ static bool rust_validate_statement_match(json_object *expr)
     bool subject_is_bool = json_string_property_equals(subject_type, "kind", "bool");
     bool subject_is_float = rust_float_type(subject_kind);
     bool subject_is_string = json_string_property_equals(subject_type, "kind", "string");
+    bool subject_is_char = json_string_property_equals(subject_type, "kind", "char");
     if (!subject_is_integral && !subject_is_bool && !subject_is_float &&
-        !subject_is_string)
+        !subject_is_string && !subject_is_char)
     {
         return rust_report_match_error(
-            "supports statement match only with bool, integral, float, double, or string subjects");
+            "supports statement match only with bool, char, integral, float, double, or string subjects");
     }
     if (!rust_validate_expr(subject)) return false;
 
@@ -2321,6 +2334,9 @@ static bool rust_validate_statement_match(json_object *expr)
                 if (subject_is_bool && !rust_bool_match_literal_pattern(pattern))
                     return rust_report_match_error(
                         "supports statement match only with boolean literal patterns");
+                if (subject_is_char && !rust_char_match_literal_pattern(pattern))
+                    return rust_report_match_error(
+                        "supports statement match only with character literal patterns");
                 if (subject_is_float)
                 {
                     RustFloatMatchPatternStatus status =
