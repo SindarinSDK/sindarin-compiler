@@ -75,6 +75,9 @@ static const char *rust_numeric_widening_type(const char *from, const char *to)
     if (strcmp(to, "float") == 0 &&
         (strcmp(from, "int32") == 0 || strcmp(from, "uint32") == 0))
         return "f32";
+    if (strcmp(from, "byte") == 0 && rust_numeric_integral_kind(to) &&
+        strcmp(to, "byte") != 0)
+        return rust_numeric_type_name(to);
     return NULL;
 }
 
