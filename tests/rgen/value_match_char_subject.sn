@@ -1,0 +1,16 @@
+fn observe(calls: int as ref, value: char): char =>
+  calls += 1
+  return value
+
+fn main(): void =>
+  var calls: int = 0
+  var selected: int = match observe(calls, '\x ff ') =>
+    'a' => 0
+    '\x ff '  => 42
+    else => -1
+  var result: char = match '\x ff '  =>
+    '\x ff '  => 'z'
+    else => 'x'
+  println(selected)
+  println(calls)
+  println(result)

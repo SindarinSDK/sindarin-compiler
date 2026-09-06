@@ -2440,10 +2440,11 @@ static bool rust_validate_value_match(json_object *expr)
     bool subject_is_bool = json_string_property_equals(subject_type, "kind", "bool");
     bool subject_is_float = rust_float_type(subject_kind);
     bool subject_is_string = json_string_property_equals(subject_type, "kind", "string");
+    bool subject_is_char = json_string_property_equals(subject_type, "kind", "char");
     if (!subject_is_integral && !subject_is_bool && !subject_is_float &&
-        !subject_is_string)
+        !subject_is_string && !subject_is_char)
         return rust_report_match_error(
-            "supports value match only with bool, integral, float, double, or string subjects");
+            "supports value match only with bool, char, integral, float, double, or string subjects");
 
     size_t else_count = 0;
     size_t ordinary_count = 0;
@@ -2490,6 +2491,9 @@ static bool rust_validate_value_match(json_object *expr)
                 if (subject_is_bool && !rust_bool_match_literal_pattern(pattern))
                     return rust_report_match_error(
                         "supports value match only with boolean literal patterns");
+                if (subject_is_char && !rust_char_match_literal_pattern(pattern))
+                    return rust_report_match_error(
+                        "supports value match only with character literal patterns");
                 if (subject_is_float)
                 {
                     RustFloatMatchPatternStatus status =
@@ -2517,9 +2521,9 @@ static bool rust_validate_value_match(json_object *expr)
     if (!result_kind ||
         (!rust_match_integral_type(result_kind) &&
          !rust_float_type(result_kind) && strcmp(result_kind, "bool") != 0 &&
-         strcmp(result_kind, "string") != 0))
+         strcmp(result_kind, "string") != 0 && strcmp(result_kind, "char") != 0))
         return rust_report_match_error(
-            "supports value match results only for exact str or heap-free scalar bool, int, long, int32, uint32, uint, byte, float, or double");
+            "supports value match results only for exact str or heap-free scalar bool, char, int, long, int32, uint32, uint, byte, float, or double");
 
     for (size_t i = 0; i < arm_count; i++)
     {
