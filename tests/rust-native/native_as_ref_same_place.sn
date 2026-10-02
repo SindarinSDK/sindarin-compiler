@@ -1,0 +1,8 @@
+@source "native_as_ref_same_place.sn.c"
+
+native fn bump_pair(first: int as ref, second: int as ref): void
+
+fn main(): void =>
+  var value: int = 1
+  bump_pair(value, value)
+  println(value)

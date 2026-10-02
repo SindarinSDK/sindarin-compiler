@@ -153,12 +153,12 @@ jobs:
             fi
           }
 
-          run_gate "tagged native C/Rust parity (6 fixtures)" \
+          run_gate "tagged native C/Rust parity (8 fixtures)" \
             python3 scripts/run_rust_tests.py rust-native-tagged --verbose \
-              --require-count 6 --fail-on-skip
-          run_gate "native scalar ABI and raw bool/char fixture (12 fixtures)" \
+              --require-count 8 --fail-on-skip
+          run_gate "native scalar and managed ABI fixtures (17 fixtures)" \
             python3 scripts/run_rust_tests.py rust-native-extra --verbose \
-              --require-count 12 --fail-on-skip
+              --require-count 17 --fail-on-skip
           run_gate "imported native alias origin (1 fixture)" \
             python3 scripts/run_rust_tests.py rust-native-origin --verbose \
               --require-count 1 --fail-on-skip
@@ -182,6 +182,9 @@ jobs:
           run_gate "thread ownership and array identity (23 sources, all optimization/arithmetic modes)" \
             make test-rust-parity-thread-ownership
 
+          run_gate "native managed results and scalar references (7 sources, all optimization/arithmetic modes)" \
+            make test-rust-parity-native-managed
+
           exit "$overall_rc"
 
       - name: Retain failed runtime diagnostics
@@ -194,5 +197,6 @@ jobs:
             .sn/rust-parity-core.json
             .sn/rust-parity-concurrency.json
             .sn/rust-parity-thread-ownership.json
+            .sn/rust-parity-native-managed.json
           if-no-files-found: ignore
           retention-days: 7

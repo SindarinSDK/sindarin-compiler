@@ -539,3 +539,36 @@ The reference-packaging correction passes full local C/Rust suites with
 unchanged counts and zero skips, plus all 207 ownership, 51 concurrency and
 30 core pairs and formatting. Evidence: `pr142-atomic-ref-c.log`,
 `pr142-atomic-ref-rust.log`, `pr142-atomic-ref-all-mode-pairs.json`.
+
+
+## PR143 native composition: local verification
+
+The original PR143 head `1bf1b153` is composed onto verified main `432983b3`.
+Two template conflicts preserve current numeric promotion and byte/platform
+helpers while admitting the new native managed support. All 316 existing
+Rust source-generation snapshots remain unchanged. The native struct rejection
+continues to fail admission; only its obsolete list of unsupported constructs
+was corrected after native array expressions became supported.
+
+Fresh full C suites pass: 1610 unit, 107 generation, 79 model, 1141 integration,
+58 integration negatives, 224 exploratory and 11 exploratory negatives, with
+no skips. Fresh Rust suites pass: 316 generation, 172 negatives; native
+8 tagged/17 extra/1 origin/4 negatives; closures 36/1; concurrency 10/7/1;
+and 12 toolchain cases, with no skips.
+
+The new native gate compares seven source-identical PR fixtures across all nine
+optimization/arithmetic combinations: 63 exact raw-stream pairs. Existing core
+30, concurrency 51 and ownership/array 207 pairs pass. Raw-byte 63 executions,
+native transport 6 executions and simulated Windows helper checks also pass.
+Evidence: `rust-parity-evidence/pr143-local-*` and `pr143-source-hashes.json`.
+
+Added an explicit Windows binary oracle for the invalid UTF-8 managed result;
+the harness must check its exact CRLF bytes and C/Rust agreement. This remains
+pending actual hosted Windows validation. Native fixture counts in CI are
+updated to require 8 tagged and 17 extra cases; the new 63-pair gate is required
+on all three platforms. Review also repairs cleanup if allocating private
+parameter temporary names fails, without changing normal emitted behavior.
+
+This composition still needs refresh against the verified receiver integration,
+fresh combined tests, publication and hosted CI before merging. It does not
+complete native structs, callbacks, buffer/SDK or general ownership parity.
