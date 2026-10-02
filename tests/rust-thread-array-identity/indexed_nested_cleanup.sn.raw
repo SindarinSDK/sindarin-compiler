@@ -1,0 +1,49 @@
+struct Bag =>
+  values: int[] = {}
+
+struct Holder =>
+  bags: Bag[] = {}
+
+  fn replacement(): int[] =>
+    println("rhs")
+    self.bags.push(Bag { values: {3} })
+    return {7, 8}
+
+  fn selectedIndex(): int =>
+    println("index")
+    return - 1
+
+  fn replaceSelected(): void =>
+    self.bags[self.selectedIndex()].values = self.replacement()
+
+struct Shelf =>
+  rows: Holder[] = {}
+
+  fn nestedReplacement(): int[] =>
+    println("nested rhs")
+    self.rows.push(Holder { bags: { Bag { values: {3} } } })
+    return {9, 10}
+
+  fn rowIndex(): int =>
+    println("row index")
+    return - 1
+
+  fn bagIndex(): int =>
+    println("bag index")
+    return - 1
+
+  fn replaceNested(): void =>
+    self.rows[self.rowIndex()].bags[self.bagIndex()].values = self.nestedReplacement()
+
+fn main(): void =>
+  var holder: Holder = { bags: { Bag { values: {1, 2} } } }
+  holder.replaceSelected()
+  println(holder.bags[0].values[0])
+  println(holder.bags[0].values[1])
+  println(holder.bags[1].values[0])
+  println(holder.bags[1].values[1])
+  var shelf: Shelf = { rows: { Holder { bags: { Bag { values: {4, 5} } } } } }
+  shelf.replaceNested()
+  println(shelf.rows[0].bags[0].values[0])
+  println(shelf.rows[1].bags[0].values[0])
+  println(shelf.rows[1].bags[0].values[1])

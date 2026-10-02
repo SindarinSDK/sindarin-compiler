@@ -1,5 +1,7 @@
 rhs
 index
+index
+index
 1
 2
 7
@@ -7,6 +9,13 @@ index
 nested rhs
 row index
 bag index
+row index
+row index
+bag index
+row index
+row index
+bag index
+row index
 4
 9
 10

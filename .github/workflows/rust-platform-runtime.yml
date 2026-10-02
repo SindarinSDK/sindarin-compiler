@@ -179,6 +179,8 @@ jobs:
             make test-rust-parity-core
           run_gate "concurrency C/Rust differential coverage (17 sources, O0/O1/O2)" \
             make test-rust-parity-concurrency
+          run_gate "thread ownership and array identity (23 sources, all optimization/arithmetic modes)" \
+            make test-rust-parity-thread-ownership
 
           exit "$overall_rc"
 
@@ -191,5 +193,6 @@ jobs:
             .sn/rust-runtime-diagnostics/
             .sn/rust-parity-core.json
             .sn/rust-parity-concurrency.json
+            .sn/rust-parity-thread-ownership.json
           if-no-files-found: ignore
           retention-days: 7

@@ -1,0 +1,13 @@
+fn update(a: int as ref, b: int as ref): int =>
+  a = a + 1
+  b = b + 2
+  return a + b
+fn forward(value: int as ref): int =>
+  return update(value, value)
+fn main(): void =>
+  var value: int as ref = 5
+  var result: int = & forward(value)
+  result !
+  println($"{value}, {result}")
+  println(update(value, value))
+  println(value)

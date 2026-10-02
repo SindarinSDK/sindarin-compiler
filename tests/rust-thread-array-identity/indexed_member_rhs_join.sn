@@ -1,0 +1,19 @@
+struct Item =>
+  values: int[] = {}
+fn append(items: Item[]): int =>
+  items.push(Item { values: {2} })
+  return 1
+fn rhs(items: Item[]): int[] =>
+  var worker: int = & append(items)
+  worker !
+  println("rhs")
+  return {7}
+fn update(items: Item[]): int =>
+  items[-1].values = rhs(items)
+  return items[1].values[0]
+fn main(): void =>
+  var items: Item[] = { Item { values: {1} } }
+  var result: int = & update(items)
+  println(result !)
+  println(items[1].values[0])
+  println(items.length)
