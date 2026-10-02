@@ -173,10 +173,12 @@ jobs:
               --verbose --require-count 1 --fail-on-skip
           run_gate "Windows text helper logic" \
             python3 tests/rgen/windows_text_helpers.py
-          run_gate "complete Rust generation, diagnostics, native, closure and toolchain suites" \
+          run_gate "complete Rust generation, diagnostics, native, closure, concurrency and toolchain suites" \
             python3 scripts/run_rust_tests.py all --verbose --fail-on-skip
           run_gate "core C/Rust differential coverage at O0/O1/O2" \
             make test-rust-parity-core
+          run_gate "concurrency C/Rust differential coverage (17 sources, O0/O1/O2)" \
+            make test-rust-parity-concurrency
 
           exit "$overall_rc"
 
@@ -188,5 +190,6 @@ jobs:
           path: |
             .sn/rust-runtime-diagnostics/
             .sn/rust-parity-core.json
+            .sn/rust-parity-concurrency.json
           if-no-files-found: ignore
           retention-days: 7

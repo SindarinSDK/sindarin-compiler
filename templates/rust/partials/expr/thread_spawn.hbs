@@ -1,0 +1,1 @@
+{ {{#each rust_spawn_bindings}}let {{#if rust_mutable_binding}}mut {{/if}}{{rust_ident name}} = ({{> expr value}}).clone(); {{/each}}{{rust_ident rust_join_type}}::spawn(move || {{> expr call}}) }

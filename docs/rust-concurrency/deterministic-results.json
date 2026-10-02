@@ -1,0 +1,267 @@
+{
+  "optimization": "-O0",
+  "normalization": "none",
+  "tag_ldlibs": "-lm -pthread -latomic",
+  "compiler_hashes": {
+    "tag": "2f4f7715bb6e6bf78a0e899947f6585db52b44a2baaffd11e7cb45cc0e259ed2",
+    "rust": "16642d235beac6a169e0947d8113dd87c4b9afe32d20964ba6a901b3a320b3f6"
+  },
+  "compiler_paths": {
+    "tag": "/home/gavin/code/sindarin/sindarin-restore-tagged-c-baseline/bin/sn",
+    "rust": "/home/gavin/code/sindarin/sindarin-rust-concurrency/bin/sn"
+  },
+  "results": [
+    {
+      "path": "tests/rust-concurrency/argument_order.sn",
+      "sha256": "f1b6c1e2572adb6a76b1e614fbd2d0a93164ff19da501d8d3ae4c816465a15af",
+      "kind": "execution",
+      "tag": {
+        "compile": 0,
+        "run": 0,
+        "output_sha256": "ca42e9377ab1138678f64e9cf709bd8dbfa80c0aa0a50101d882e8b847f99d88"
+      },
+      "rust": {
+        "compile": 0,
+        "run": 0,
+        "output_sha256": "ca42e9377ab1138678f64e9cf709bd8dbfa80c0aa0a50101d882e8b847f99d88"
+      },
+      "equal": true
+    },
+    {
+      "path": "tests/rust-concurrency/global_initialization.sn",
+      "sha256": "8f6a1217add631a8f4b24c4202a53bff84c9712b26d389c8a056a52045885ba1",
+      "kind": "execution",
+      "tag": {
+        "compile": 0,
+        "run": 0,
+        "output_sha256": "283ccc29e3d0ccedf15aabe417c36211377035fdba1489f857e0a65a8bce7497"
+      },
+      "rust": {
+        "compile": 0,
+        "run": 0,
+        "output_sha256": "283ccc29e3d0ccedf15aabe417c36211377035fdba1489f857e0a65a8bce7497"
+      },
+      "equal": true
+    },
+    {
+      "path": "tests/rust-concurrency/global_places.sn",
+      "sha256": "508336e0e023a9adb7fbe52f45061367a51c68a521175b4f162512aedf50e838",
+      "kind": "execution",
+      "tag": {
+        "compile": 0,
+        "run": 0,
+        "output_sha256": "e30d3d847f83072d35f955045657b28ae1cc0aea255f04cecc8d8ce8a0c8e04b"
+      },
+      "rust": {
+        "compile": 0,
+        "run": 0,
+        "output_sha256": "e30d3d847f83072d35f955045657b28ae1cc0aea255f04cecc8d8ce8a0c8e04b"
+      },
+      "equal": true
+    },
+    {
+      "path": "tests/rust-concurrency/hygiene.sn",
+      "sha256": "3d05b5ddc2a89dd2fccebd82ec86dca22d63b59365d6d11a3f462d2c5ef3a965",
+      "kind": "execution",
+      "tag": {
+        "compile": 0,
+        "run": 0,
+        "output_sha256": "a4c39efd7bbbb3fe962ea3855226a0b7306b9cda59ebd3cf5871e435f0829001"
+      },
+      "rust": {
+        "compile": 0,
+        "run": 0,
+        "output_sha256": "a4c39efd7bbbb3fe962ea3855226a0b7306b9cda59ebd3cf5871e435f0829001"
+      },
+      "equal": true
+    },
+    {
+      "path": "tests/rust-concurrency/join_visibility.sn",
+      "sha256": "e2c6108fe7c2da523bbe62517a7166b0f07ec4aaa801e0e0e94553319bc6f324",
+      "kind": "execution",
+      "tag": {
+        "compile": 0,
+        "run": 0,
+        "output_sha256": "1f5e152e6db94e74ca296288de07a0fd5bfa3de844b83e361d503480a073a7ec"
+      },
+      "rust": {
+        "compile": 0,
+        "run": 0,
+        "output_sha256": "1f5e152e6db94e74ca296288de07a0fd5bfa3de844b83e361d503480a073a7ec"
+      },
+      "equal": true
+    },
+    {
+      "path": "tests/rust-concurrency/lock_return.sn",
+      "sha256": "28831e8905f87710cb2f082a55b7afb5fa81b2c406c1e277eefb96e3ba563b94",
+      "kind": "execution",
+      "tag": {
+        "compile": 0,
+        "run": 0,
+        "output_sha256": "ebcacb9ff7ecaabda2197a53c6e317eb236423ffe03bb933ea85ad01bed4e669"
+      },
+      "rust": {
+        "compile": 0,
+        "run": 0,
+        "output_sha256": "ebcacb9ff7ecaabda2197a53c6e317eb236423ffe03bb933ea85ad01bed4e669"
+      },
+      "equal": true
+    },
+    {
+      "path": "tests/rust-concurrency/owned_arguments.sn",
+      "sha256": "34526154ad96815a23540a6a28ba78d8a2856629d100f0ec8da2cb685f9a2616",
+      "kind": "execution",
+      "tag": {
+        "compile": 0,
+        "run": 0,
+        "output_sha256": "7b51cc7f5df5af1598da922843324522a1331933f4375703c511d65c24852644"
+      },
+      "rust": {
+        "compile": 0,
+        "run": 0,
+        "output_sha256": "7b51cc7f5df5af1598da922843324522a1331933f4375703c511d65c24852644"
+      },
+      "equal": true
+    },
+    {
+      "path": "tests/rust-concurrency/scope_join.sn",
+      "sha256": "8a98bd0bf05a8a2e6a4a0ea4274cf86060ce086af7737a84df5298a060435a29",
+      "kind": "execution",
+      "tag": {
+        "compile": 0,
+        "run": 0,
+        "output_sha256": "9ef551ab533f4c174b948edef57529435318cb87fedea5a3ea2718eaa45d3a66"
+      },
+      "rust": {
+        "compile": 0,
+        "run": 0,
+        "output_sha256": "9ef551ab533f4c174b948edef57529435318cb87fedea5a3ea2718eaa45d3a66"
+      },
+      "equal": true
+    },
+    {
+      "path": "tests/rgen/concurrency-promoted/floating_compound_sync_local.sn",
+      "sha256": "3948f62d05f827c8c040b7bc2397b1eb91d3d2fa2f70e0a55331cd607597c8b8",
+      "kind": "execution",
+      "tag": {
+        "compile": 0,
+        "run": 0,
+        "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "rust": {
+        "compile": 0,
+        "run": 0,
+        "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "equal": true
+    },
+    {
+      "path": "tests/rgen/concurrency-promoted/floating_postfix_sync_local.sn",
+      "sha256": "552cd1a858c49a3f2e4bd215ae86d38b87ac6c6af9b1ed9a53a2d0d9f46fef97",
+      "kind": "execution",
+      "tag": {
+        "compile": 0,
+        "run": 0,
+        "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "rust": {
+        "compile": 0,
+        "run": 0,
+        "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "equal": true
+    },
+    {
+      "path": "tests/rgen/concurrency-promoted/import_pure_unsupported_global.sn",
+      "sha256": "00765c633d4868e6e1ca2d72022eb5f062e0c9f55fbd00bf157ae81c6a06c2ff",
+      "kind": "execution",
+      "tag": {
+        "compile": 0,
+        "run": 0,
+        "output_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      "rust": {
+        "compile": 0,
+        "run": 0,
+        "output_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      "equal": true
+    },
+    {
+      "path": "tests/rgen/concurrency-promoted/statement_match_unsupported_body.sn",
+      "sha256": "ebb5a73b5cf9d08281f6b776af0f43c9635e4c77edd3a9ce21f90bd049dd4d53",
+      "kind": "execution",
+      "tag": {
+        "compile": 0,
+        "run": 0,
+        "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "rust": {
+        "compile": 0,
+        "run": 0,
+        "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "equal": true
+    },
+    {
+      "path": "tests/rgen/concurrency-promoted/sync_local_compound_mutation.sn",
+      "sha256": "1a82cff59e38fb23b4a8b454cbfbfc719052cd5d6b09dacde950b53759473879",
+      "kind": "execution",
+      "tag": {
+        "compile": 0,
+        "run": 0,
+        "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "rust": {
+        "compile": 0,
+        "run": 0,
+        "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "equal": true
+    },
+    {
+      "path": "tests/rgen/concurrency-promoted/sync_local_decrement_mutation.sn",
+      "sha256": "87c6654ca354c0ea41b3aa483ef471f6530eb3e9bc1c74896b99225aae857b34",
+      "kind": "execution",
+      "tag": {
+        "compile": 0,
+        "run": 0,
+        "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "rust": {
+        "compile": 0,
+        "run": 0,
+        "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "equal": true
+    },
+    {
+      "path": "tests/rgen/concurrency-promoted/sync_local_increment_mutation.sn",
+      "sha256": "80c6e21df8e1495fa575dd2d7cbd2efdfd6a2311dae4205f629f6c4655eeb0bb",
+      "kind": "execution",
+      "tag": {
+        "compile": 0,
+        "run": 0,
+        "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "rust": {
+        "compile": 0,
+        "run": 0,
+        "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "equal": true
+    },
+    {
+      "path": "tests/rust-concurrency/errors/pending_reassign.sn",
+      "sha256": "44a6a920e543aedfdad07aabc846065f3cf70fa883760498a20c7195bd596737",
+      "kind": "negative",
+      "tag": {
+        "compile": 1
+      },
+      "rust": {
+        "compile": 1
+      },
+      "equal": true
+    }
+  ]
+}

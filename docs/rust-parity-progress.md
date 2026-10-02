@@ -55,7 +55,7 @@ coverage and remove redundant skipped entries when equivalence is verified.
 - [ ] Concurrency/globals/synchronization: reconcile PR127, PR133, PR134, PR142.
 - [ ] Native managed transport, pointers, structs, callbacks and SDK: reconcile PR143 and remaining gaps.
 - [ ] Remaining string, numeric, matching, reflection, module and type features inventoried and completed.
-- [ ] Platform runtime gates: PR144 Windows failures resolved; Linux/macOS/Windows green on final head.
+- [x] Platform runtime gates: PR144 Windows failures resolved; Linux/macOS/Windows green on integrated main.
 - [ ] Automated differential coverage of behavior, raw streams, status, order, mutation and lifetimes across modes.
 - [x] C baseline sanitizer failure explained/resolved within established language semantics.
 - [ ] Full integrated suites pass without unexplained failures or hidden skips.
@@ -433,3 +433,43 @@ Local full C/Rust suites and core 30 pairs pass after initialization, with no
 skips and unchanged counts; formatting passes. Logs: `parameter-init-c.log`
 and `parameter-init-rust.log`. Runtime CI `37046329688` passed all three systems
 at the preceding revision; the unit initialization needs fresh hosted checks.
+
+## PR144 integrated and verified; PR127 composed locally
+
+PR144 merged as `9614ecadc37864f33228b77952ea185546e541c5`, after all six
+compiler/runtime jobs passed at exact head `9b8a03b0`. Main's Compiler
+`37047915370` and Runtime `37047915440` also pass all three platforms.
+`pr144-main-ci-green.json` records exact revision, run and job URLs/results.
+
+PR127 head `fa0e708f` is composed with that main locally. Resolve conflicts by
+retaining current arithmetic casts, assertion dispatch, opaque type admission,
+byte-string and Windows output support, then adding private concurrency lowering.
+The 316 existing Rust snapshots stay unchanged and pass. Verify all seven
+promoted source SHA-256 hashes before refreshing only the 17 new positive
+snapshots; unchanged runtime expectations then pass. Full C counts stay
+1610/107/79/1141/58/224/11. Rust: 316 generation, 172 remaining negatives,
+native 6/12/1/2, closures 36/1, concurrency 10/7/1, toolchain 12, all passing
+with zero skips (`pr127-local-c.log`, `pr127-local-rust.log`).
+
+Default-toolchain differential controls pass 48 of 51 pairs; the floating
+postfix source fails C linking at all three levels on this AArch64 GCC worker
+(`__atomic_feraiseexcept`). Retain those failed controls separately as
+`pr127-default-toolchain-pairs.json`. With the explicit recorded C-only Linux
+link supplement `-lpthread -lm -latomic`, all 51 pairs pass. The new
+`make test-rust-parity-concurrency` requires exactly 17 sources, records that
+flag and raw streams in `pr127-all-mode-pairs.json`, and runs on every runtime
+CI platform. Missing fixture-count checks fail before execution. The `all`
+Rust runner now includes concurrency suites instead of silently omitting them.
+Hosted verification of the composed PR is required before its merge.
+
+C-only triage of the 132 previously compile-admitted Rust negatives now executes
+O0/O1/O2 controls. 118 exit zero at O0; 117 at O1/O2. 117 sources exit zero
+at all modes, including 46 with no output; silent execution does not establish
+observable semantics. Thirteen sources crash on this worker, one has nonzero
+normal exit, and one compiles at O0 but fails after optimization. Raw statuses
+and streams are in `c-execution-inventory.json`. These are classification
+inputs, not completed Rust parity or automatically proven C defects.
+
+Final local core 30 pairs, raw-byte 63 executions, transport six executions,
+Windows helper simulation and formatting pass after the composed changes.
+Evidence: `pr127-bytes.log`, `pr127-transport.log`, `pr127-windows-helpers.log`.

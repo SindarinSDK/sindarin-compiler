@@ -1,1 +1,1 @@
-{{> expr expr}};
+{{#if is_fire_and_forget_thread}}({{> expr expr}}).detach();{{else}}{{> expr expr}};{{/if}}

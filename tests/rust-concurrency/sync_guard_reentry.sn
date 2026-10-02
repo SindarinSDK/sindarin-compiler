@@ -1,0 +1,21 @@
+sync var value: int = 1
+sync var rhs_calls: int = 0
+
+fn worker(): int =>
+  value += 1
+  return 2
+
+fn joined_rhs(): int =>
+  rhs_calls += 1
+  var result: int = & worker()
+  return result !
+
+fn observe(result: int): int =>
+  value += 1
+  println(value)
+  return result
+
+fn main(): void =>
+  println(observe(value += joined_rhs()))
+  println(value)
+  println(rhs_calls)
