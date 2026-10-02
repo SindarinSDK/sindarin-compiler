@@ -1,0 +1,74 @@
+Compiler: /home/gavin/code/sindarin/sindarin-rust-parity-completion/bin/sn
+Platform: Linux
+Parallel: 20 workers
+
+Unit Tests
+============================================================
+Results: [0;32m1608 passed[0m, [0;31m0 failed[0m  (total: 10.98ms)
+------------------------------------------------------------
+Unit tests passed  (13ms)
+
+Code Generation Tests
+============================================================
+  Running 107 tests with 20 workers...
+                                                            
+------------------------------------------------------------
+Results: 107 passed, 0 failed, 0 skipped  (427ms)
+
+Model Generation Tests
+============================================================
+  Running 79 tests with 20 workers...
+                                                            
+------------------------------------------------------------
+Results: 79 passed, 0 failed, 0 skipped  (49ms)
+
+Integration Tests
+============================================================
+  Running 1141 tests with 20 workers...
+                                                            
+------------------------------------------------------------
+Results: 1141 passed, 0 failed, 0 skipped  (4.79s)
+
+Integration Error Tests
+============================================================
+  Running 58 tests with 20 workers...
+                                                            
+------------------------------------------------------------
+Results: 58 passed, 0 failed, 0 skipped  (26ms)
+
+Exploratory Tests
+============================================================
+  Running 224 tests with 20 workers...
+                                                              test_limitation_closure_array                 FAIL (exit code: 1)  (190ms)
+    =================================================================
+    ==2736664==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x503000000090 at pc 0xec102f2c5124 bp 0xec102bdfe5b0 sp 0xec102bdfdd90
+    WRITE of size 8 at 0x503000000090 thread T1
+        #0 0xec102f2c5120 in memcpy ../../../../src/libsanitizer/sanitizer_common/sanitizer_common_interceptors_memintrinsics.inc:115
+        #1 0x403df0 in sn_array_push_safe (/tmp/sn_test_5u0oh_6k/test_114_test_limitation_closure_array+0x403df0) (BuildId: b0b9966adc693a0ea3aa095649619f61bc9531e5)
+        #2 0x403b58 in __lambda_0__ .sn/build/test_limitation_closure_array_2736445/main.c:158
+        #3 0x402054 in __sn__run_closure .sn/build/test_limitation_closure_array_2736445/main.c:8
+        #4 0x4021c4 in __thread_wrapper_0__ .sn/build/test_limitation_closure_array_2736445/main.c:20
+        #5 0xec102f23f3d0 in asan_thread_start ../../../../src/libsanitizer/asan/asan_interceptors.cpp:234
+        #6 0xec102eff5828 in start_thread nptl/pthread_create.c:447
+        #7 0xec102f05ba08 in thread_start ../sysdeps/unix/sysv/linux/aarch64/clone3.S:76
+    
+    0x503000000090 is located 0 bytes after 32-byte region [0x503000000070,0x503000000090)
+    freed by thread T3 here:
+        #0 0xec102f2c646c in realloc ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:85
+        #1 0x403e20 in sn_array_push_safe (/tmp/sn_test_5u0oh_6k/test_114_test_limitation_closure_array+0x403e20) (BuildId: b0b9966adc693a0ea3aa095649619f61bc9531e5)
+        #2 0x403b58 in __lambda_0__ .sn/build/test_limitation_closure_array_2736445/main.c:158
+        #3 0x402054 in __sn__run_closure .sn/build/test_limitation_closure_array_2736445/main.c:8
+        #4 0x40274c in __thread_wrapper_2__ .sn/build/test_limitation_closure_array_2736445/main.c:46
+        #5 0xec102f23f3d0 in asan_thread_start ../../../../src/libsanitizer/asan/asan_interceptors.cpp:234
+
+------------------------------------------------------------
+Results: 223 passed, 1 failed, 0 skipped  (9.46s)
+
+Exploratory Error Tests
+============================================================
+  Running 11 tests with 20 workers...
+                                                            
+------------------------------------------------------------
+Results: 11 passed, 0 failed, 0 skipped  (9ms)
+
+Some tests failed!  (total: 14.78s)
