@@ -394,3 +394,24 @@ six executions and formatting pass. Logs: `atomic-pointer-c.log` and
 `atomic-pointer-rust.log`. Preserve the new-toolchain Windows runtime success
 and C compile failure logs for review; the next hosted revision must verify the
 C fix before integration.
+
+## Synchronized C array teardown correction
+
+At `c39d8cc2`, Runtime CI `37044970841` passes all three operating systems.
+Compiler CI `37044971073` passes Linux/macOS; Windows now accepts the corrected
+atomic pointer declarations but rejects global array teardown in the unchanged
+`test_sync_var_array` fixture: `_Atomic(SnArray *) *` cannot be passed to the
+ordinary `SnArray **` cleanup helper. Preserve that exact failed job log as
+`pr144-windows-atomic-cleanup-failure.log`.
+
+For synchronized global arrays, both C module templates now load the pointer
+value and call the existing `sn_array_free` helper; ordinary global cleanup is
+unchanged. This avoids aliasing atomic storage through an ordinary pointer.
+The original fixture passes strict incompatible-pointer diagnostics and exact
+output checks at O0/O1/O2 on the worker's GCC toolchain;
+`atomic-cleanup-controls.json` records commands and raw streams. Clang is not
+installed on this worker, so the hosted Windows Clang 22 check remains required.
+
+Full local C and Rust suites pass with their unchanged counts and zero skips;
+core 30 C/Rust pairs and formatting pass. Logs: `atomic-cleanup-c.log` and
+`atomic-cleanup-rust.log`. Hosted results for this fix are still pending.

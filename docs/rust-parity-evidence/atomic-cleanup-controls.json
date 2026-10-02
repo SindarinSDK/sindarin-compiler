@@ -1,0 +1,58 @@
+{
+  "scope": "C synchronized pointer cleanup; strict diagnostics and unchanged output control, not Rust parity",
+  "compiler_sha256": "688cc92fd0f780e511da47fd13104194e9274bf755125406fbc5ca7e02fd8434",
+  "source_sha256": "03f71721354473781c860ea2bc88a0d6ab0882e33286f9a9d42c6647ea64f908",
+  "cases": [
+    {
+      "optimization": "0",
+      "command": [
+        "/home/gavin/code/sindarin/sindarin-rust-parity-completion/bin/sn",
+        "tests/integration/test_sync_var_array.sn",
+        "-o",
+        "/tmp/sindarin-atomic-cleanup-o0",
+        "-O0"
+      ],
+      "SN_CFLAGS": "-Werror=incompatible-pointer-types",
+      "compile_status": 0,
+      "compile_stdout_hex": "52656d6f76696e67206f727068616e6564207061636b6167653a20727573742d72756e74696d652d646961676e6f73746963730a5061636b6167652073796e6368726f6e697a6174696f6e20636f6d706c6574652e0a",
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f73796e635f7661725f61727261792e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f73696e646172696e2d61746f6d69632d636c65616e75702d6f30202837322e31204b42290a",
+      "status": 0,
+      "stdout_hex": "6974656d733a20340a6d6573736167653a20646f6e650a",
+      "stderr_hex": ""
+    },
+    {
+      "optimization": "1",
+      "command": [
+        "/home/gavin/code/sindarin/sindarin-rust-parity-completion/bin/sn",
+        "tests/integration/test_sync_var_array.sn",
+        "-o",
+        "/tmp/sindarin-atomic-cleanup-o1",
+        "-O1"
+      ],
+      "SN_CFLAGS": "-Werror=incompatible-pointer-types",
+      "compile_status": 0,
+      "compile_stdout_hex": "",
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f73796e635f7661725f61727261792e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f73696e646172696e2d61746f6d69632d636c65616e75702d6f31202837322e31204b42290a",
+      "status": 0,
+      "stdout_hex": "6974656d733a20340a6d6573736167653a20646f6e650a",
+      "stderr_hex": ""
+    },
+    {
+      "optimization": "2",
+      "command": [
+        "/home/gavin/code/sindarin/sindarin-rust-parity-completion/bin/sn",
+        "tests/integration/test_sync_var_array.sn",
+        "-o",
+        "/tmp/sindarin-atomic-cleanup-o2",
+        "-O2"
+      ],
+      "SN_CFLAGS": "-Werror=incompatible-pointer-types",
+      "compile_status": 0,
+      "compile_stdout_hex": "",
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f73796e635f7661725f61727261792e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f73696e646172696e2d61746f6d69632d636c65616e75702d6f32202837322e31204b42290a",
+      "status": 0,
+      "stdout_hex": "6974656d733a20340a6d6573736167653a20646f6e650a",
+      "stderr_hex": ""
+    }
+  ]
+}
