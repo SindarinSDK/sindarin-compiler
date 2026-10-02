@@ -1,0 +1,26 @@
+{
+  "source": "tests\\rust-native\\scalar_initializer_timing.sn",
+  "source_sha256": "a0a0a69df8bc02392a56363bb00340d279ea157646e5ddd4015aced17caa1a5a",
+  "compile_argv": [
+    "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+    "tests\\rust-native\\scalar_initializer_timing.sn",
+    "--target",
+    "c",
+    "-O0",
+    "--no-install",
+    "--keep-generated",
+    "-l",
+    "1",
+    "-o",
+    "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-text-transport-3zo1tb40\\native-flush-c.exe"
+  ],
+  "compile_status": 0,
+  "compile_stdout_hex": "",
+  "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c727573742d6e61746976655c7363616c61725f696e697469616c697a65725f74696d696e672e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d746578742d7472616e73706f72742d337a6f31746234305c6e61746976652d666c7573682d632e65786520283139302e30204b42290d0a",
+  "run_argv": [
+    "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-text-transport-3zo1tb40\\native-flush-c.exe"
+  ],
+  "run_status": 0,
+  "run_stdout_hex": "696e697469616c697a65720d0a",
+  "run_stderr_hex": ""
+}

@@ -1,0 +1,1807 @@
+﻿2026-10-02T17:51:45.0971642Z Current runner version: '2.337.0'
+2026-10-02T17:51:45.0997838Z ##[group]Runner Image Provisioner
+2026-10-02T17:51:45.0998689Z Hosted Compute Agent
+2026-10-02T17:51:45.0999405Z Version: 20260901.588
+2026-10-02T17:51:45.1000002Z Commit: f88ec8081b781fac6c440065ac7ff9e710ce3d0b
+2026-10-02T17:51:45.1000668Z Build Date: 2026-09-01T19:56:44Z
+2026-10-02T17:51:45.1001276Z Worker ID: {5c07cb01-fc5d-4477-83da-5670df3959a7}
+2026-10-02T17:51:45.1001953Z Azure Region: westus
+2026-10-02T17:51:45.1002454Z ##[endgroup]
+2026-10-02T17:51:45.1003903Z ##[group]Operating System
+2026-10-02T17:51:45.1005122Z Microsoft Windows Server 2025
+2026-10-02T17:51:45.1005741Z 10.0.26100
+2026-10-02T17:51:45.1006294Z Datacenter
+2026-10-02T17:51:45.1006764Z ##[endgroup]
+2026-10-02T17:51:45.1007247Z ##[group]Runner Image
+2026-10-02T17:51:45.1007794Z Image: windows-2025-vs2026
+2026-10-02T17:51:45.1008364Z Version: 20260925.250.1
+2026-10-02T17:51:45.1009773Z Included Software: https://github.com/actions/runner-images/blob/win25-vs2026/20260925.250/images/windows/Windows2025-VS2026-Readme.md
+2026-10-02T17:51:45.1011337Z Image Release: https://github.com/actions/runner-images/releases/tag/win25-vs2026%2F20260925.250
+2026-10-02T17:51:45.1012326Z ##[endgroup]
+2026-10-02T17:51:45.1013441Z ##[group]GITHUB_TOKEN Permissions
+2026-10-02T17:51:45.1015431Z Contents: read
+2026-10-02T17:51:45.1015987Z Metadata: read
+2026-10-02T17:51:45.1016501Z ##[endgroup]
+2026-10-02T17:51:45.1018598Z Secret source: Actions
+2026-10-02T17:51:45.1019476Z Cache mode: write
+2026-10-02T17:51:45.1020146Z Prepare workflow directory
+2026-10-02T17:51:45.1395656Z Prepare all required actions
+2026-10-02T17:51:45.1467948Z Getting action download info
+2026-10-02T17:51:45.5303152Z Download action repository 'actions/checkout@v7' (SHA:3d3c42e5aac5ba805825da76410c181273ba90b1)
+2026-10-02T17:51:45.6604353Z Download action repository 'actions/upload-artifact@v7' (SHA:043fb46d1a93c77aae656e7c1c64a875d1fc6a0a)
+2026-10-02T17:51:45.8841599Z Complete job name: Rust runtime (windows-latest)
+2026-10-02T17:51:46.0686675Z ##[group]Run actions/checkout@v7
+2026-10-02T17:51:46.0687928Z with:
+2026-10-02T17:51:46.0688597Z   repository: SindarinSDK/sindarin-compiler
+2026-10-02T17:51:46.0695477Z   token: ***
+2026-10-02T17:51:46.0696058Z   ssh-strict: true
+2026-10-02T17:51:46.0696651Z   ssh-user: git
+2026-10-02T17:51:46.0697259Z   persist-credentials: true
+2026-10-02T17:51:46.0698206Z   clean: true
+2026-10-02T17:51:46.0698835Z   sparse-checkout-cone-mode: true
+2026-10-02T17:51:46.0699785Z   fetch-depth: 1
+2026-10-02T17:51:46.0700386Z   fetch-tags: false
+2026-10-02T17:51:46.0701015Z   show-progress: true
+2026-10-02T17:51:46.0701640Z   lfs: false
+2026-10-02T17:51:46.0702199Z   submodules: false
+2026-10-02T17:51:46.0702813Z   set-safe-directory: true
+2026-10-02T17:51:46.0703565Z   allow-unsafe-pr-checkout: false
+2026-10-02T17:51:46.0704385Z ##[endgroup]
+2026-10-02T17:51:46.2312576Z Syncing repository: SindarinSDK/sindarin-compiler
+2026-10-02T17:51:46.2314939Z ##[group]Getting Git version info
+2026-10-02T17:51:46.2315773Z Working directory is 'D:\a\sindarin-compiler\sindarin-compiler'
+2026-10-02T17:51:46.3323922Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-10-02T17:51:46.7473155Z git version 2.55.0.windows.5
+2026-10-02T17:51:46.7518723Z ##[endgroup]
+2026-10-02T17:51:46.7535654Z Temporarily overriding HOME='D:\a\_temp\beb50821-4a93-446a-b192-af7c69a798af' before making global git config changes
+2026-10-02T17:51:46.7538046Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-02T17:51:46.7546276Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\sindarin-compiler\sindarin-compiler
+2026-10-02T17:51:46.8225447Z Deleting the contents of 'D:\a\sindarin-compiler\sindarin-compiler'
+2026-10-02T17:51:46.8230644Z ##[group]Determining repository object format
+2026-10-02T17:51:46.8233055Z ##[endgroup]
+2026-10-02T17:51:46.8234807Z ##[group]Initializing the repository
+2026-10-02T17:51:46.8242581Z [command]"C:\Program Files\Git\bin\git.exe" init D:\a\sindarin-compiler\sindarin-compiler
+2026-10-02T17:51:46.9125962Z Initialized empty Git repository in D:/a/sindarin-compiler/sindarin-compiler/.git/
+2026-10-02T17:51:46.9167966Z [command]"C:\Program Files\Git\bin\git.exe" remote add origin https://github.com/SindarinSDK/sindarin-compiler
+2026-10-02T17:51:46.9795152Z ##[endgroup]
+2026-10-02T17:51:46.9797058Z ##[group]Disabling automatic garbage collection
+2026-10-02T17:51:46.9804168Z [command]"C:\Program Files\Git\bin\git.exe" config --local gc.auto 0
+2026-10-02T17:51:47.0104868Z ##[endgroup]
+2026-10-02T17:51:47.0107553Z ##[group]Setting up auth
+2026-10-02T17:51:47.0109481Z Removing SSH command configuration
+2026-10-02T17:51:47.0117277Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-10-02T17:51:47.0419877Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-10-02T17:51:48.5615838Z Removing HTTP extra header
+2026-10-02T17:51:48.5624773Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-02T17:51:48.5928999Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-10-02T17:51:49.1347741Z Removing includeIf entries pointing to credentials config files
+2026-10-02T17:51:49.1363675Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-02T17:51:49.1666325Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-10-02T17:51:49.7587014Z [command]"C:\Program Files\Git\bin\git.exe" config --file D:\a\_temp\git-credentials-7b3875df-1a30-4492-9f74-6766113594b2.config http.https://github.com/.extraheader "AUTHORIZATION: basic ***"
+2026-10-02T17:51:49.7905686Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:D:/a/sindarin-compiler/sindarin-compiler/.git.path D:\a\_temp\git-credentials-7b3875df-1a30-4492-9f74-6766113594b2.config
+2026-10-02T17:51:49.8227010Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:D:/a/sindarin-compiler/sindarin-compiler/.git/worktrees/*.path D:\a\_temp\git-credentials-7b3875df-1a30-4492-9f74-6766113594b2.config
+2026-10-02T17:51:49.8588487Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-7b3875df-1a30-4492-9f74-6766113594b2.config
+2026-10-02T17:51:49.8895570Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-7b3875df-1a30-4492-9f74-6766113594b2.config
+2026-10-02T17:51:49.9207061Z ##[endgroup]
+2026-10-02T17:51:49.9207726Z ##[group]Fetching the repository
+2026-10-02T17:51:49.9225336Z [command]"C:\Program Files\Git\bin\git.exe" -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +d50f8f1baec22f04be2084d65401392cbfc3f4a2:refs/remotes/pull/144/merge
+2026-10-02T17:51:51.4184581Z From https://github.com/SindarinSDK/sindarin-compiler
+2026-10-02T17:51:51.4185921Z  * [new ref]         d50f8f1baec22f04be2084d65401392cbfc3f4a2 -> pull/144/merge
+2026-10-02T17:51:51.4226683Z ##[endgroup]
+2026-10-02T17:51:51.4227380Z ##[group]Determining the checkout info
+2026-10-02T17:51:51.4228202Z ##[endgroup]
+2026-10-02T17:51:51.4238232Z [command]"C:\Program Files\Git\bin\git.exe" sparse-checkout disable
+2026-10-02T17:51:51.4689587Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all extensions.worktreeConfig
+2026-10-02T17:51:51.4998930Z ##[group]Checking out the ref
+2026-10-02T17:51:51.5008987Z [command]"C:\Program Files\Git\bin\git.exe" checkout --progress --force refs/remotes/pull/144/merge
+2026-10-02T17:51:52.5580953Z Updating files:  69% (4327/6213)
+2026-10-02T17:51:52.5721711Z Updating files:  70% (4350/6213)
+2026-10-02T17:51:52.5863312Z Updating files:  71% (4412/6213)
+2026-10-02T17:51:52.6006120Z Updating files:  72% (4474/6213)
+2026-10-02T17:51:52.6151572Z Updating files:  73% (4536/6213)
+2026-10-02T17:51:52.6287939Z Updating files:  74% (4598/6213)
+2026-10-02T17:51:52.6417662Z Updating files:  75% (4660/6213)
+2026-10-02T17:51:52.6570566Z Updating files:  76% (4722/6213)
+2026-10-02T17:51:52.6708782Z Updating files:  77% (4785/6213)
+2026-10-02T17:51:52.6843738Z Updating files:  78% (4847/6213)
+2026-10-02T17:51:52.6980250Z Updating files:  79% (4909/6213)
+2026-10-02T17:51:52.7107433Z Updating files:  80% (4971/6213)
+2026-10-02T17:51:52.7234209Z Updating files:  81% (5033/6213)
+2026-10-02T17:51:52.7375572Z Updating files:  82% (5095/6213)
+2026-10-02T17:51:52.7509891Z Updating files:  83% (5157/6213)
+2026-10-02T17:51:52.7651851Z Updating files:  84% (5219/6213)
+2026-10-02T17:51:52.7783619Z Updating files:  85% (5282/6213)
+2026-10-02T17:51:52.7921596Z Updating files:  86% (5344/6213)
+2026-10-02T17:51:52.8043303Z Updating files:  87% (5406/6213)
+2026-10-02T17:51:52.8186723Z Updating files:  88% (5468/6213)
+2026-10-02T17:51:52.8323153Z Updating files:  89% (5530/6213)
+2026-10-02T17:51:52.8464313Z Updating files:  90% (5592/6213)
+2026-10-02T17:51:52.8609226Z Updating files:  91% (5654/6213)
+2026-10-02T17:51:52.8748923Z Updating files:  92% (5716/6213)
+2026-10-02T17:51:52.8884913Z Updating files:  93% (5779/6213)
+2026-10-02T17:51:52.9028318Z Updating files:  94% (5841/6213)
+2026-10-02T17:51:52.9163328Z Updating files:  95% (5903/6213)
+2026-10-02T17:51:52.9309799Z Updating files:  96% (5965/6213)
+2026-10-02T17:51:52.9476469Z Updating files:  97% (6027/6213)
+2026-10-02T17:51:52.9661331Z Updating files:  98% (6089/6213)
+2026-10-02T17:51:52.9840559Z Updating files:  99% (6151/6213)
+2026-10-02T17:51:52.9841093Z Updating files: 100% (6213/6213)
+2026-10-02T17:51:52.9841532Z Updating files: 100% (6213/6213), done.
+2026-10-02T17:51:52.9999734Z Note: switching to 'refs/remotes/pull/144/merge'.
+2026-10-02T17:51:53.0000019Z 
+2026-10-02T17:51:53.0001382Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-02T17:51:53.0002455Z changes and commit them, and you can discard any commits you make in this
+2026-10-02T17:51:53.0002930Z state without impacting any branches by switching back to a branch.
+2026-10-02T17:51:53.0003222Z 
+2026-10-02T17:51:53.0003412Z If you want to create a new branch to retain commits you create, you may
+2026-10-02T17:51:53.0003865Z do so (now or later) by using -c with the switch command. Example:
+2026-10-02T17:51:53.0004119Z 
+2026-10-02T17:51:53.0004249Z   git switch -c <new-branch-name>
+2026-10-02T17:51:53.0004765Z 
+2026-10-02T17:51:53.0004870Z Or undo this operation with:
+2026-10-02T17:51:53.0005043Z 
+2026-10-02T17:51:53.0005134Z   git switch -
+2026-10-02T17:51:53.0005249Z 
+2026-10-02T17:51:53.0005451Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-02T17:51:53.0005756Z 
+2026-10-02T17:51:53.0006086Z HEAD is now at d50f8f1 Merge eb916370957241d2c6dbf151f71cb9e7d6e79faf into a03421325a4a5785eec1645633d68ff99fc00126
+2026-10-02T17:51:53.0131214Z ##[endgroup]
+2026-10-02T17:51:53.0558219Z [command]"C:\Program Files\Git\bin\git.exe" log -1 --format=%H
+2026-10-02T17:51:53.0844488Z d50f8f1baec22f04be2084d65401392cbfc3f4a2
+2026-10-02T17:51:53.1366566Z ##[group]Run # LLVM 19's ASan cannot decode the Windows 11 24H2 CRT prologue.
+2026-10-02T17:51:53.1367278Z [36;1m# LLVM 19's ASan cannot decode the Windows 11 24H2 CRT prologue.[0m
+2026-10-02T17:51:53.1367656Z [36;1m$version = "20260616"[0m
+2026-10-02T17:51:53.1368220Z [36;1m$url = "https://github.com/mstorsjo/llvm-mingw/releases/download/$version/llvm-mingw-$version-ucrt-x86_64.zip"[0m
+2026-10-02T17:51:53.1369033Z [36;1m$zipPath = "$env:TEMP\llvm-mingw.zip"[0m
+2026-10-02T17:51:53.1369445Z [36;1m$extractPath = Join-Path $env:GITHUB_WORKSPACE ".sn\toolchains\llvm-mingw"[0m
+2026-10-02T17:51:53.1369837Z [36;1m[0m
+2026-10-02T17:51:53.1370072Z [36;1mInvoke-WebRequest -Uri $url -OutFile $zipPath[0m
+2026-10-02T17:51:53.1370548Z [36;1m$expectedHash = "b9b68a4d276e16fa25802aaba458e4638f64b3884c290aaccdc2d87083b6ca35"[0m
+2026-10-02T17:51:53.1371192Z [36;1mif ((Get-FileHash $zipPath -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expectedHash) {[0m
+2026-10-02T17:51:53.1371726Z [36;1m  throw "LLVM-MinGW archive SHA-256 mismatch"[0m
+2026-10-02T17:51:53.1372149Z [36;1m}[0m
+2026-10-02T17:51:53.1372690Z [36;1mExpand-Archive -Path $zipPath -DestinationPath $extractPath -Force[0m
+2026-10-02T17:51:53.1373087Z [36;1m[0m
+2026-10-02T17:51:53.1373647Z [36;1m$llvmDir = Get-ChildItem -Path $extractPath -Directory | Select-Object -First 1[0m
+2026-10-02T17:51:53.1374123Z [36;1m$binPath = Join-Path $llvmDir.FullName "bin"[0m
+2026-10-02T17:51:53.1374560Z [36;1mecho "$binPath" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append[0m
+2026-10-02T17:51:53.1980627Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-02T17:51:53.1981113Z ##[endgroup]
+2026-10-02T17:52:13.6263725Z ##[group]Run choco install make ninja -y
+2026-10-02T17:52:13.6264310Z [36;1mchoco install make ninja -y[0m
+2026-10-02T17:52:13.6359985Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-02T17:52:13.6360347Z ##[endgroup]
+2026-10-02T17:52:16.9332628Z Chocolatey v2.7.4
+2026-10-02T17:52:17.2054910Z Installing the following packages:
+2026-10-02T17:52:17.2060755Z make;ninja
+2026-10-02T17:52:17.2064220Z By installing, you accept licenses for the packages.
+2026-10-02T17:52:20.4247505Z Downloading package from source 'https://community.chocolatey.org/api/v2/'
+2026-10-02T17:52:20.5405595Z 
+2026-10-02T17:52:20.5406427Z Progress: Downloading make 4.4.1... %
+2026-10-02T17:52:20.5407011Z Progress: Downloading make 4.4.1... 1%
+2026-10-02T17:52:20.5409805Z Progress: Downloading make 4.4.1... 1%
+2026-10-02T17:52:20.5410467Z Progress: Downloading make 4.4.1... 1%
+2026-10-02T17:52:20.5411499Z Progress: Downloading make 4.4.1... 2%
+2026-10-02T17:52:20.5412275Z Progress: Downloading make 4.4.1... 2%
+2026-10-02T17:52:20.5412803Z Progress: Downloading make 4.4.1... 2%
+2026-10-02T17:52:20.5415795Z Progress: Downloading make 4.4.1... 3%
+2026-10-02T17:52:20.5416479Z Progress: Downloading make 4.4.1... 3%
+2026-10-02T17:52:20.5417196Z Progress: Downloading make 4.4.1... 3%
+2026-10-02T17:52:20.5417651Z Progress: Downloading make 4.4.1... 4%
+2026-10-02T17:52:20.5418099Z Progress: Downloading make 4.4.1... 4%
+2026-10-02T17:52:20.5418531Z Progress: Downloading make 4.4.1... 4%
+2026-10-02T17:52:20.5418968Z Progress: Downloading make 4.4.1... 5%
+2026-10-02T17:52:20.5419419Z Progress: Downloading make 4.4.1... 5%
+2026-10-02T17:52:20.5419876Z Progress: Downloading make 4.4.1... 5%
+2026-10-02T17:52:20.5420335Z Progress: Downloading make 4.4.1... 6%
+2026-10-02T17:52:20.5420766Z Progress: Downloading make 4.4.1... 6%
+2026-10-02T17:52:20.5421205Z Progress: Downloading make 4.4.1... 6%
+2026-10-02T17:52:20.5421842Z Progress: Downloading make 4.4.1... 7%
+2026-10-02T17:52:20.5422329Z Progress: Downloading make 4.4.1... 7%
+2026-10-02T17:52:20.5422780Z Progress: Downloading make 4.4.1... 7%
+2026-10-02T17:52:20.5423206Z Progress: Downloading make 4.4.1... 8%
+2026-10-02T17:52:20.5423638Z Progress: Downloading make 4.4.1... 8%
+2026-10-02T17:52:20.5424077Z Progress: Downloading make 4.4.1... 8%
+2026-10-02T17:52:20.5424508Z Progress: Downloading make 4.4.1... 9%
+2026-10-02T17:52:20.5424925Z Progress: Downloading make 4.4.1... 9%
+2026-10-02T17:52:20.5425354Z Progress: Downloading make 4.4.1... 9%
+2026-10-02T17:52:20.5425768Z Progress: Downloading make 4.4.1... 10%
+2026-10-02T17:52:20.5426191Z Progress: Downloading make 4.4.1... 10%
+2026-10-02T17:52:20.5426609Z Progress: Downloading make 4.4.1... 10%
+2026-10-02T17:52:20.5427835Z Progress: Downloading make 4.4.1... 11%
+2026-10-02T17:52:20.5428792Z Progress: Downloading make 4.4.1... 11%
+2026-10-02T17:52:20.5429285Z Progress: Downloading make 4.4.1... 11%
+2026-10-02T17:52:20.5429750Z Progress: Downloading make 4.4.1... 12%
+2026-10-02T17:52:20.5430233Z Progress: Downloading make 4.4.1... 12%
+2026-10-02T17:52:20.5430671Z Progress: Downloading make 4.4.1... 12%
+2026-10-02T17:52:20.5431795Z Progress: Downloading make 4.4.1... 13%
+2026-10-02T17:52:20.5432391Z Progress: Downloading make 4.4.1... 13%
+2026-10-02T17:52:20.5432898Z Progress: Downloading make 4.4.1... 13%
+2026-10-02T17:52:20.5433370Z Progress: Downloading make 4.4.1... 14%
+2026-10-02T17:52:20.5434091Z Progress: Downloading make 4.4.1... 15%
+2026-10-02T17:52:20.5434572Z Progress: Downloading make 4.4.1... 16%
+2026-10-02T17:52:20.5435008Z Progress: Downloading make 4.4.1... 17%
+2026-10-02T17:52:20.5435446Z Progress: Downloading make 4.4.1... 18%
+2026-10-02T17:52:20.5435900Z Progress: Downloading make 4.4.1... 19%
+2026-10-02T17:52:20.5436382Z Progress: Downloading make 4.4.1... 20%
+2026-10-02T17:52:20.5436863Z Progress: Downloading make 4.4.1... 21%
+2026-10-02T17:52:20.5437325Z Progress: Downloading make 4.4.1... 22%
+2026-10-02T17:52:20.5440300Z Progress: Downloading make 4.4.1... 23%
+2026-10-02T17:52:20.5440908Z Progress: Downloading make 4.4.1... 24%
+2026-10-02T17:52:20.5441399Z Progress: Downloading make 4.4.1... 25%
+2026-10-02T17:52:20.5441870Z Progress: Downloading make 4.4.1... 26%
+2026-10-02T17:52:20.5442337Z Progress: Downloading make 4.4.1... 27%
+2026-10-02T17:52:20.5442817Z Progress: Downloading make 4.4.1... 28%
+2026-10-02T17:52:20.5443288Z Progress: Downloading make 4.4.1... 29%
+2026-10-02T17:52:20.5443751Z Progress: Downloading make 4.4.1... 30%
+2026-10-02T17:52:20.5444179Z Progress: Downloading make 4.4.1... 31%
+2026-10-02T17:52:20.5444617Z Progress: Downloading make 4.4.1... 32%
+2026-10-02T17:52:20.5445061Z Progress: Downloading make 4.4.1... 33%
+2026-10-02T17:52:20.5445534Z Progress: Downloading make 4.4.1... 34%
+2026-10-02T17:52:20.5445964Z Progress: Downloading make 4.4.1... 36%
+2026-10-02T17:52:20.5446411Z Progress: Downloading make 4.4.1... 37%
+2026-10-02T17:52:20.5446822Z Progress: Downloading make 4.4.1... 38%
+2026-10-02T17:52:20.5447254Z Progress: Downloading make 4.4.1... 39%
+2026-10-02T17:52:20.5447773Z Progress: Downloading make 4.4.1... 40%
+2026-10-02T17:52:20.5448201Z Progress: Downloading make 4.4.1... 41%
+2026-10-02T17:52:20.5448637Z Progress: Downloading make 4.4.1... 42%
+2026-10-02T17:52:20.5449055Z Progress: Downloading make 4.4.1... 43%
+2026-10-02T17:52:20.5449514Z Progress: Downloading make 4.4.1... 44%
+2026-10-02T17:52:20.5449984Z Progress: Downloading make 4.4.1... 44%
+2026-10-02T17:52:20.5450459Z Progress: Downloading make 4.4.1... 45%
+2026-10-02T17:52:20.5450923Z Progress: Downloading make 4.4.1... 46%
+2026-10-02T17:52:20.5451392Z Progress: Downloading make 4.4.1... 47%
+2026-10-02T17:52:20.5452087Z Progress: Downloading make 4.4.1... 48%
+2026-10-02T17:52:20.5453076Z Progress: Downloading make 4.4.1... 49%
+2026-10-02T17:52:20.5454714Z Progress: Downloading make 4.4.1... 50%
+2026-10-02T17:52:20.5455971Z Progress: Downloading make 4.4.1... 51%
+2026-10-02T17:52:20.5456833Z Progress: Downloading make 4.4.1... 52%
+2026-10-02T17:52:20.5458397Z Progress: Downloading make 4.4.1... 53%
+2026-10-02T17:52:20.5458959Z Progress: Downloading make 4.4.1... 55%
+2026-10-02T17:52:20.5460011Z Progress: Downloading make 4.4.1... 57%
+2026-10-02T17:52:20.5460704Z Progress: Downloading make 4.4.1... 59%
+2026-10-02T17:52:20.5461447Z Progress: Downloading make 4.4.1... 61%
+2026-10-02T17:52:20.5461927Z Progress: Downloading make 4.4.1... 63%
+2026-10-02T17:52:20.5462823Z Progress: Downloading make 4.4.1... 65%
+2026-10-02T17:52:20.5463356Z Progress: Downloading make 4.4.1... 67%
+2026-10-02T17:52:20.5464070Z Progress: Downloading make 4.4.1... 69%
+2026-10-02T17:52:20.5464603Z Progress: Downloading make 4.4.1... 71%
+2026-10-02T17:52:20.5466142Z Progress: Downloading make 4.4.1... 73%
+2026-10-02T17:52:20.5466646Z Progress: Downloading make 4.4.1... 75%
+2026-10-02T17:52:20.5467120Z Progress: Downloading make 4.4.1... 76%
+2026-10-02T17:52:20.5467608Z Progress: Downloading make 4.4.1... 78%
+2026-10-02T17:52:20.5468094Z Progress: Downloading make 4.4.1... 80%
+2026-10-02T17:52:20.5468579Z Progress: Downloading make 4.4.1... 82%
+2026-10-02T17:52:20.5469065Z Progress: Downloading make 4.4.1... 84%
+2026-10-02T17:52:20.5469543Z Progress: Downloading make 4.4.1... 86%
+2026-10-02T17:52:20.5470020Z Progress: Downloading make 4.4.1... 88%
+2026-10-02T17:52:20.5470486Z Progress: Downloading make 4.4.1... 90%
+2026-10-02T17:52:20.5471024Z Progress: Downloading make 4.4.1... 92%
+2026-10-02T17:52:20.5471518Z Progress: Downloading make 4.4.1... 94%
+2026-10-02T17:52:20.5472352Z Progress: Downloading make 4.4.1... 96%
+2026-10-02T17:52:20.5472813Z Progress: Downloading make 4.4.1... 98%
+2026-10-02T17:52:20.5473272Z Progress: Downloading make 4.4.1... 100%
+2026-10-02T17:52:20.8749266Z 
+2026-10-02T17:52:20.8749729Z make v4.4.1 [Approved]
+2026-10-02T17:52:20.9070318Z make package files install completed. Performing other installation steps.
+2026-10-02T17:52:21.9255940Z  ShimGen has successfully created a shim for make.exe
+2026-10-02T17:52:21.9790766Z  The install of make was successful.
+2026-10-02T17:52:21.9793429Z   Deployed to 'C:\ProgramData\chocolatey\lib\make'
+2026-10-02T17:52:22.1144312Z ninja v1.13.2 already installed.
+2026-10-02T17:52:22.1144811Z  Use --force to reinstall, specify a version to install, or try upgrade.
+2026-10-02T17:52:22.1231919Z 
+2026-10-02T17:52:22.1232264Z Chocolatey installed 1/2 packages. 
+2026-10-02T17:52:22.1232846Z  See the log for details (C:\ProgramData\chocolatey\logs\chocolatey.log).
+2026-10-02T17:52:22.1235740Z 
+2026-10-02T17:52:22.1239234Z Warnings:
+2026-10-02T17:52:22.1244659Z  - ninja - ninja v1.13.2 already installed.
+2026-10-02T17:52:22.1245166Z  Use --force to reinstall, specify a version to install, or try upgrade.
+2026-10-02T17:52:22.2780796Z ##[group]Run rustup toolchain install 1.93.1 --profile minimal
+2026-10-02T17:52:22.2781330Z [36;1mrustup toolchain install 1.93.1 --profile minimal[0m
+2026-10-02T17:52:22.2781658Z [36;1mrustup default 1.93.1[0m
+2026-10-02T17:52:22.2781939Z [36;1mif [ -n "x86_64-pc-windows-gnullvm" ]; then[0m
+2026-10-02T17:52:22.2782345Z [36;1m  rustup target add --toolchain 1.93.1 "x86_64-pc-windows-gnullvm"[0m
+2026-10-02T17:52:22.2782706Z [36;1mfi[0m
+2026-10-02T17:52:22.2782894Z [36;1mrustc --version --verbose[0m
+2026-10-02T17:52:22.2783201Z [36;1mif [ "$RUNNER_OS" = "Windows" ]; then clang --version; fi[0m
+2026-10-02T17:52:22.2802381Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-10-02T17:52:22.2802785Z ##[endgroup]
+2026-10-02T17:52:23.2888194Z info: syncing channel updates for 1.93.1-x86_64-pc-windows-msvc
+2026-10-02T17:52:23.8667009Z info: latest update on 2026-02-12 for version 1.93.1 (01f6ddf75 2026-02-11)
+2026-10-02T17:52:23.8778406Z info: downloading 3 components
+2026-10-02T17:52:32.2571311Z 
+2026-10-02T17:52:32.2872920Z   1.93.1-x86_64-pc-windows-msvc installed - rustc 1.93.1 (01f6ddf75 2026-02-11)
+2026-10-02T17:52:32.2873522Z 
+2026-10-02T17:52:32.3224111Z info: using existing install for 1.93.1-x86_64-pc-windows-msvc
+2026-10-02T17:52:32.3299545Z info: default toolchain set to 1.93.1-x86_64-pc-windows-msvc
+2026-10-02T17:52:32.3300025Z 
+2026-10-02T17:52:32.3500356Z   1.93.1-x86_64-pc-windows-msvc unchanged - rustc 1.93.1 (01f6ddf75 2026-02-11)
+2026-10-02T17:52:32.3500741Z 
+2026-10-02T17:52:32.4318315Z info: downloading component rust-std
+2026-10-02T17:52:36.3074181Z rustc 1.93.1 (01f6ddf75 2026-02-11)
+2026-10-02T17:52:36.3074648Z binary: rustc
+2026-10-02T17:52:36.3075044Z commit-hash: 01f6ddf7588f42ae2d7eb0a2f21d44e8e96674cf
+2026-10-02T17:52:36.3075536Z commit-date: 2026-02-11
+2026-10-02T17:52:36.3075868Z host: x86_64-pc-windows-msvc
+2026-10-02T17:52:36.3076120Z release: 1.93.1
+2026-10-02T17:52:36.3077931Z LLVM version: 21.1.8
+2026-10-02T17:52:36.3785979Z clang version 22.1.8 (https://github.com/llvm/llvm-project.git ca7933e47d3a3451d81e72ac174dcb5aa28b59d1)
+2026-10-02T17:52:36.3786904Z Target: x86_64-w64-windows-gnu
+2026-10-02T17:52:36.3787300Z Thread model: posix
+2026-10-02T17:52:36.3788183Z InstalledDir: D:/a/sindarin-compiler/sindarin-compiler/.sn/toolchains/llvm-mingw/llvm-mingw-20260616-ucrt-x86_64/bin
+2026-10-02T17:52:36.3789846Z Configuration file: D:/a/sindarin-compiler/sindarin-compiler/.sn/toolchains/llvm-mingw/llvm-mingw-20260616-ucrt-x86_64/bin/x86_64-w64-windows-gnu.cfg
+2026-10-02T17:52:36.4065701Z ##[group]Run make setup
+2026-10-02T17:52:36.4066020Z [36;1mmake setup[0m
+2026-10-02T17:52:36.4082888Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-10-02T17:52:36.4083289Z env:
+2026-10-02T17:52:36.4086304Z   GH_TOKEN: ***
+2026-10-02T17:52:36.4086514Z   SN_SKIP_PREREQS: 1
+2026-10-02T17:52:36.4086717Z ##[endgroup]
+2026-10-02T17:52:36.5131992Z Setting up build dependencies for Windows...
+2026-10-02T17:52:38.4537985Z 
+2026-10-02T17:52:38.4555485Z ========================================
+2026-10-02T17:52:38.4563762Z     Sindarin Compiler Installer
+2026-10-02T17:52:38.4572134Z ========================================
+2026-10-02T17:52:38.4576376Z 
+2026-10-02T17:52:38.4716071Z [*] Using prerequisites supplied by caller (SN_SKIP_PREREQS=1)
+2026-10-02T17:52:38.4758066Z [*] Fetching latest version...
+2026-10-02T17:52:39.0437920Z [+] Found release: v0.0.83
+2026-10-02T17:52:39.0739935Z [*] Downloading sindarin-0.0.83-windows-x64.zip...
+2026-10-02T17:52:51.4740491Z [+] Download complete
+2026-10-02T17:52:51.4861345Z [*] Extracting to C:\Users\runneradmin\.sn...
+2026-10-02T17:52:54.5228910Z [*] Flattening nested directory structure...
+2026-10-02T17:52:54.5320007Z [+] Extraction complete
+2026-10-02T17:52:54.5400846Z [*] Configuring PATH...
+2026-10-02T17:52:54.5421202Z [*] GitHub Actions detected, registering in GITHUB_PATH...
+2026-10-02T17:52:54.5493179Z [+] Added C:\Users\runneradmin\.sn\bin to GITHUB_PATH
+2026-10-02T17:52:54.5498763Z 
+2026-10-02T17:52:54.5509876Z [+] Sindarin compiler installed successfully!
+2026-10-02T17:52:54.5515667Z 
+2026-10-02T17:52:54.5525298Z   Installed to: C:\Users\runneradmin\.sn
+2026-10-02T17:52:54.5535331Z   Version:      v0.0.83
+2026-10-02T17:52:54.5539803Z 
+2026-10-02T17:52:54.5549811Z   ============================================
+2026-10-02T17:52:54.5560116Z   IMPORTANT: Please restart your terminal
+2026-10-02T17:52:54.5568201Z   for PATH changes to take effect.
+2026-10-02T17:52:54.5576705Z   ============================================
+2026-10-02T17:52:54.5580810Z 
+2026-10-02T17:52:54.5589411Z   After restarting, you can compile Sindarin programs:
+2026-10-02T17:52:54.5598006Z     sn myprogram.sn -o myprogram.exe
+2026-10-02T17:52:54.5601929Z 
+2026-10-02T17:52:54.6432666Z Installing dependencies from sn.yaml...
+2026-10-02T17:52:55.1370722Z   sindarin-pkg-libs (main) ... [1;36mdone[0m
+2026-10-02T17:52:55.1371168Z     running install script...
+2026-10-02T17:52:55.5826040Z sindarin-pkg-libs - native library installer
+2026-10-02T17:52:55.5837629Z ========================================
+2026-10-02T17:52:55.5895480Z Detected: windows (x64)
+2026-10-02T17:52:55.5909172Z Package version: v0.0.18
+2026-10-02T17:52:55.5995328Z Downloading sindarin-pkg-libs v0.0.18 for windows-x64...
+2026-10-02T17:53:10.8178595Z Extracting to D:\a\sindarin-compiler\sindarin-compiler\.sn\sindarin-pkg-libs\libs\windows...
+2026-10-02T17:53:25.9716036Z Successfully installed sindarin-pkg-libs v0.0.18 to D:\a\sindarin-compiler\sindarin-compiler\.sn\sindarin-pkg-libs\libs\windows
+2026-10-02T17:53:25.9770858Z 
+2026-10-02T17:53:25.9785368Z Installation complete!
+2026-10-02T17:53:26.0325479Z Pre-built libraries ready!
+2026-10-02T17:53:26.0592019Z Run 'make build' to build the compiler.
+2026-10-02T17:53:26.0853288Z ##[group]Run $toolchainRoot = Join-Path $env:GITHUB_WORKSPACE ".sn\toolchains\llvm-mingw"
+2026-10-02T17:53:26.0854199Z [36;1m$toolchainRoot = Join-Path $env:GITHUB_WORKSPACE ".sn\toolchains\llvm-mingw"[0m
+2026-10-02T17:53:26.0854795Z [36;1m$toolchain = Get-ChildItem $toolchainRoot -Directory | Select-Object -First 1[0m
+2026-10-02T17:53:26.0855304Z [36;1m$expected = Join-Path $toolchain.FullName "bin\clang.exe"[0m
+2026-10-02T17:53:26.0855702Z [36;1m$selected = (Get-Command clang.exe).Source[0m
+2026-10-02T17:53:26.0856186Z [36;1mif ($selected -ne $expected) { throw "Expected pinned clang $expected, selected $selected" }[0m
+2026-10-02T17:53:26.0856649Z [36;1mclang --version[0m
+2026-10-02T17:53:26.0934150Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-02T17:53:26.0934523Z ##[endgroup]
+2026-10-02T17:53:26.5436338Z clang version 22.1.8 (https://github.com/llvm/llvm-project.git ca7933e47d3a3451d81e72ac174dcb5aa28b59d1)
+2026-10-02T17:53:26.5437667Z Target: x86_64-w64-windows-gnu
+2026-10-02T17:53:26.5438095Z Thread model: posix
+2026-10-02T17:53:26.5438973Z InstalledDir: D:/a/sindarin-compiler/sindarin-compiler/.sn/toolchains/llvm-mingw/llvm-mingw-20260616-ucrt-x86_64/bin
+2026-10-02T17:53:26.5441344Z Configuration file: D:/a/sindarin-compiler/sindarin-compiler/.sn/toolchains/llvm-mingw/llvm-mingw-20260616-ucrt-x86_64/bin/x86_64-w64-windows-gnu.cfg
+2026-10-02T17:53:26.6196125Z ##[group]Run make build
+2026-10-02T17:53:26.6196572Z [36;1mmake build[0m
+2026-10-02T17:53:26.6221080Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-10-02T17:53:26.6221772Z ##[endgroup]
+2026-10-02T17:53:26.8001194Z Building Sindarin compiler...
+2026-10-02T17:53:26.8258545Z Platform: windows
+2026-10-02T17:53:26.8516843Z Generator: Ninja
+2026-10-02T17:53:26.8536841Z cmake -S . -B build -G "Ninja" \
+2026-10-02T17:53:26.8537520Z 	-DCMAKE_BUILD_TYPE=Release \
+2026-10-02T17:53:26.8537798Z 	-DCMAKE_C_COMPILER=clang
+2026-10-02T17:53:29.2687291Z -- The C compiler identification is Clang 22.1.8
+2026-10-02T17:53:29.6965133Z -- Detecting C compiler ABI info
+2026-10-02T17:53:30.3479855Z -- Detecting C compiler ABI info - done
+2026-10-02T17:53:30.3814181Z -- Check for working C compiler: D:/a/sindarin-compiler/sindarin-compiler/.sn/toolchains/llvm-mingw/llvm-mingw-20260616-ucrt-x86_64/bin/clang.exe - skipped
+2026-10-02T17:53:30.3827803Z -- Detecting C compile features
+2026-10-02T17:53:30.3842414Z -- Detecting C compile features - done
+2026-10-02T17:53:30.4964688Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/sn.linux.cfg
+2026-10-02T17:53:30.4969696Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/sn.darwin.cfg
+2026-10-02T17:53:30.4976580Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/sn.windows.cfg
+2026-10-02T17:53:30.4992619Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/runtime/sn_arith.h
+2026-10-02T17:53:30.4998211Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/runtime/sn_array.h
+2026-10-02T17:53:30.5004940Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/runtime/sn_byte.h
+2026-10-02T17:53:30.5009818Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/runtime/sn_conv.h
+2026-10-02T17:53:30.5015178Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/runtime/sn_core.h
+2026-10-02T17:53:30.5020426Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/runtime/sn_minimal.h
+2026-10-02T17:53:30.5025641Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/runtime/sn_reflect.h
+2026-10-02T17:53:30.5034492Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/runtime/sn_serial.h
+2026-10-02T17:53:30.5041872Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/runtime/sn_string.h
+2026-10-02T17:53:30.5047740Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/runtime/sn_thread.h
+2026-10-02T17:53:30.5053183Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/minimal/sn_arith.h
+2026-10-02T17:53:30.5058535Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/minimal/sn_array.h
+2026-10-02T17:53:30.5063934Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/minimal/sn_byte.h
+2026-10-02T17:53:30.5069312Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/minimal/sn_conv.h
+2026-10-02T17:53:30.5074468Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/minimal/sn_core.h
+2026-10-02T17:53:30.5079881Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/minimal/sn_minimal.h
+2026-10-02T17:53:30.5084835Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/minimal/sn_reflect.h
+2026-10-02T17:53:30.5092166Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/minimal/sn_serial.h
+2026-10-02T17:53:30.5097549Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/minimal/sn_string.h
+2026-10-02T17:53:30.5103113Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/minimal/sn_thread.h
+2026-10-02T17:53:30.5110418Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/platform/compat_dirent.h
+2026-10-02T17:53:30.5116244Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/platform/compat_io.h
+2026-10-02T17:53:30.5124693Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/platform/compat_net.h
+2026-10-02T17:53:30.5127531Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/platform/compat_pthread.h
+2026-10-02T17:53:30.5132986Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/platform/compat_time.h
+2026-10-02T17:53:30.5139319Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/platform/compat_windows.h
+2026-10-02T17:53:30.5147282Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/platform/platform.h
+2026-10-02T17:53:30.5360842Z -- Found libs submodule: D:/a/sindarin-compiler/sindarin-compiler/.sn/sindarin-pkg-libs/libs/windows
+2026-10-02T17:53:30.5361727Z --   Copying zlib headers...
+2026-10-02T17:53:30.5362325Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/zlib.h
+2026-10-02T17:53:30.5370061Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/zconf.h
+2026-10-02T17:53:30.5375949Z --   Copying yyjson headers...
+2026-10-02T17:53:30.5377866Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/yyjson.h
+2026-10-02T17:53:30.5387863Z --   Copying json-c headers...
+2026-10-02T17:53:30.5389422Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/json-c
+2026-10-02T17:53:30.5395731Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/json-c/arraylist.h
+2026-10-02T17:53:30.5400842Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/json-c/debug.h
+2026-10-02T17:53:30.5405716Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/json-c/json.h
+2026-10-02T17:53:30.5410762Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/json-c/json_config.h
+2026-10-02T17:53:30.5416240Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/json-c/json_c_version.h
+2026-10-02T17:53:30.5421162Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/json-c/json_inttypes.h
+2026-10-02T17:53:30.5426518Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/json-c/json_object.h
+2026-10-02T17:53:30.5436705Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/json-c/json_object_iterator.h
+2026-10-02T17:53:30.5442217Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/json-c/json_patch.h
+2026-10-02T17:53:30.5447315Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/json-c/json_pointer.h
+2026-10-02T17:53:30.5453573Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/json-c/json_tokener.h
+2026-10-02T17:53:30.5458755Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/json-c/json_types.h
+2026-10-02T17:53:30.5463872Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/json-c/json_util.h
+2026-10-02T17:53:30.5468526Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/json-c/json_visit.h
+2026-10-02T17:53:30.5474235Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/json-c/linkhash.h
+2026-10-02T17:53:30.5479420Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/json-c/printbuf.h
+2026-10-02T17:53:30.5484637Z --   Copying libxml2 headers...
+2026-10-02T17:53:30.5486206Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml
+2026-10-02T17:53:30.5492247Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/c14n.h
+2026-10-02T17:53:30.5497812Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/catalog.h
+2026-10-02T17:53:30.5502947Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/chvalid.h
+2026-10-02T17:53:30.5508422Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/debugXML.h
+2026-10-02T17:53:30.5514603Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/dict.h
+2026-10-02T17:53:30.5520609Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/encoding.h
+2026-10-02T17:53:30.5525256Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/entities.h
+2026-10-02T17:53:30.5532929Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/globals.h
+2026-10-02T17:53:30.5538096Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/hash.h
+2026-10-02T17:53:30.5543475Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/HTMLparser.h
+2026-10-02T17:53:30.5548808Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/HTMLtree.h
+2026-10-02T17:53:30.5554462Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/list.h
+2026-10-02T17:53:30.5559540Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/nanoftp.h
+2026-10-02T17:53:30.5564426Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/nanohttp.h
+2026-10-02T17:53:30.5569298Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/parser.h
+2026-10-02T17:53:30.5576600Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/parserInternals.h
+2026-10-02T17:53:30.5582614Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/pattern.h
+2026-10-02T17:53:30.5587483Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/relaxng.h
+2026-10-02T17:53:30.5593159Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/SAX.h
+2026-10-02T17:53:30.5598100Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/SAX2.h
+2026-10-02T17:53:30.5603412Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/schemasInternals.h
+2026-10-02T17:53:30.5609531Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/schematron.h
+2026-10-02T17:53:30.5615494Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/threads.h
+2026-10-02T17:53:30.5620414Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/tree.h
+2026-10-02T17:53:30.5626208Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/uri.h
+2026-10-02T17:53:30.5631259Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/valid.h
+2026-10-02T17:53:30.5636919Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/xinclude.h
+2026-10-02T17:53:30.5642225Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/xlink.h
+2026-10-02T17:53:30.5647716Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/xmlautomata.h
+2026-10-02T17:53:30.5653440Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/xmlerror.h
+2026-10-02T17:53:30.5659472Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/xmlexports.h
+2026-10-02T17:53:30.5664726Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/xmlIO.h
+2026-10-02T17:53:30.5670621Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/xmlmemory.h
+2026-10-02T17:53:30.5676348Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/xmlmodule.h
+2026-10-02T17:53:30.5681566Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/xmlreader.h
+2026-10-02T17:53:30.5686977Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/xmlregexp.h
+2026-10-02T17:53:30.5691828Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/xmlsave.h
+2026-10-02T17:53:30.5697100Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/xmlschemas.h
+2026-10-02T17:53:30.5702602Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/xmlschemastypes.h
+2026-10-02T17:53:30.5712457Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/xmlstring.h
+2026-10-02T17:53:30.5718288Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/xmlunicode.h
+2026-10-02T17:53:30.5723023Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/xmlversion.h
+2026-10-02T17:53:30.5728896Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/xmlwriter.h
+2026-10-02T17:53:30.5735029Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/xpath.h
+2026-10-02T17:53:30.5740682Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/xpathInternals.h
+2026-10-02T17:53:30.5746447Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/xpointer.h
+2026-10-02T17:53:30.5751523Z --   Copying libyaml headers...
+2026-10-02T17:53:30.5753625Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/yaml.h
+2026-10-02T17:53:30.5759388Z --   Copying openssl headers...
+2026-10-02T17:53:30.5760971Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl
+2026-10-02T17:53:30.5768362Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/aes.h
+2026-10-02T17:53:30.5774064Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/asn1.h
+2026-10-02T17:53:30.5780301Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/asn1err.h
+2026-10-02T17:53:30.5785731Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/asn1t.h
+2026-10-02T17:53:30.5792417Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/async.h
+2026-10-02T17:53:30.5797308Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/asyncerr.h
+2026-10-02T17:53:30.5802108Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/bio.h
+2026-10-02T17:53:30.5811837Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/bioerr.h
+2026-10-02T17:53:30.5816719Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/blowfish.h
+2026-10-02T17:53:30.5821945Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/bn.h
+2026-10-02T17:53:30.5827791Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/bnerr.h
+2026-10-02T17:53:30.5833960Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/buffer.h
+2026-10-02T17:53:30.5838886Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/buffererr.h
+2026-10-02T17:53:30.5844259Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/byteorder.h
+2026-10-02T17:53:30.5849720Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/camellia.h
+2026-10-02T17:53:30.5855045Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/cast.h
+2026-10-02T17:53:30.5860000Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/cmac.h
+2026-10-02T17:53:30.5864903Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/cmp.h
+2026-10-02T17:53:30.5871056Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/cmperr.h
+2026-10-02T17:53:30.5876567Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/cmp_util.h
+2026-10-02T17:53:30.5881354Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/cms.h
+2026-10-02T17:53:30.5887438Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/cmserr.h
+2026-10-02T17:53:30.5893081Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/comp.h
+2026-10-02T17:53:30.5898418Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/comperr.h
+2026-10-02T17:53:30.5903834Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/conf.h
+2026-10-02T17:53:30.5909236Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/conferr.h
+2026-10-02T17:53:30.5914940Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/configuration.h
+2026-10-02T17:53:30.5919943Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/conftypes.h
+2026-10-02T17:53:30.5924865Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/conf_api.h
+2026-10-02T17:53:30.5930123Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/core.h
+2026-10-02T17:53:30.5935708Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/core_dispatch.h
+2026-10-02T17:53:30.5941776Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/core_names.h
+2026-10-02T17:53:30.5947659Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/core_object.h
+2026-10-02T17:53:30.5952603Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/crmf.h
+2026-10-02T17:53:30.5958888Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/crmferr.h
+2026-10-02T17:53:30.5963692Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/crypto.h
+2026-10-02T17:53:30.5969411Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/cryptoerr.h
+2026-10-02T17:53:30.5974640Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/cryptoerr_legacy.h
+2026-10-02T17:53:30.5981840Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/ct.h
+2026-10-02T17:53:30.5987531Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/cterr.h
+2026-10-02T17:53:30.5995635Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/decoder.h
+2026-10-02T17:53:30.6001191Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/decodererr.h
+2026-10-02T17:53:30.6006240Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/des.h
+2026-10-02T17:53:30.6011492Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/dh.h
+2026-10-02T17:53:30.6017727Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/dherr.h
+2026-10-02T17:53:30.6023088Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/dsa.h
+2026-10-02T17:53:30.6028386Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/dsaerr.h
+2026-10-02T17:53:30.6033460Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/dtls1.h
+2026-10-02T17:53:30.6039427Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/ebcdic.h
+2026-10-02T17:53:30.6044261Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/ec.h
+2026-10-02T17:53:30.6050619Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/ecdh.h
+2026-10-02T17:53:30.6056070Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/ecdsa.h
+2026-10-02T17:53:30.6061666Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/ecerr.h
+2026-10-02T17:53:30.6066577Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/encoder.h
+2026-10-02T17:53:30.6072474Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/encodererr.h
+2026-10-02T17:53:30.6077871Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/engine.h
+2026-10-02T17:53:30.6084090Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/engineerr.h
+2026-10-02T17:53:30.6089443Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/err.h
+2026-10-02T17:53:30.6095899Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/ess.h
+2026-10-02T17:53:30.6100750Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/esserr.h
+2026-10-02T17:53:30.6109271Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/evp.h
+2026-10-02T17:53:30.6116264Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/evperr.h
+2026-10-02T17:53:30.6121768Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/e_os2.h
+2026-10-02T17:53:30.6127100Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/e_ostime.h
+2026-10-02T17:53:30.6132736Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/fipskey.h
+2026-10-02T17:53:30.6138043Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/fips_names.h
+2026-10-02T17:53:30.6143259Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/hmac.h
+2026-10-02T17:53:30.6148839Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/hpke.h
+2026-10-02T17:53:30.6154134Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/http.h
+2026-10-02T17:53:30.6159437Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/httperr.h
+2026-10-02T17:53:30.6164348Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/idea.h
+2026-10-02T17:53:30.6169848Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/indicator.h
+2026-10-02T17:53:30.6174841Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/kdf.h
+2026-10-02T17:53:30.6180310Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/kdferr.h
+2026-10-02T17:53:30.6185075Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/lhash.h
+2026-10-02T17:53:30.6191560Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/macros.h
+2026-10-02T17:53:30.6196959Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/md2.h
+2026-10-02T17:53:30.6201957Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/md4.h
+2026-10-02T17:53:30.6207341Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/md5.h
+2026-10-02T17:53:30.6212883Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/mdc2.h
+2026-10-02T17:53:30.6218066Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/ml_kem.h
+2026-10-02T17:53:30.6225607Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/modes.h
+2026-10-02T17:53:30.6232301Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/objects.h
+2026-10-02T17:53:30.6238774Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/objectserr.h
+2026-10-02T17:53:30.6244786Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/obj_mac.h
+2026-10-02T17:53:30.6260591Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/ocsp.h
+2026-10-02T17:53:30.6266897Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/ocsperr.h
+2026-10-02T17:53:30.6272338Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/opensslconf.h
+2026-10-02T17:53:30.6277748Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/opensslv.h
+2026-10-02T17:53:30.6282880Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/ossl_typ.h
+2026-10-02T17:53:30.6288684Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/params.h
+2026-10-02T17:53:30.6294563Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/param_build.h
+2026-10-02T17:53:30.6300554Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/pem.h
+2026-10-02T17:53:30.6306244Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/pem2.h
+2026-10-02T17:53:30.6311637Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/pemerr.h
+2026-10-02T17:53:30.6316934Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/pkcs12.h
+2026-10-02T17:53:30.6322835Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/pkcs12err.h
+2026-10-02T17:53:30.6328595Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/pkcs7.h
+2026-10-02T17:53:30.6335137Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/pkcs7err.h
+2026-10-02T17:53:30.6340750Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/proverr.h
+2026-10-02T17:53:30.6348934Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/provider.h
+2026-10-02T17:53:30.6354108Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/prov_ssl.h
+2026-10-02T17:53:30.6359084Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/quic.h
+2026-10-02T17:53:30.6364094Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/rand.h
+2026-10-02T17:53:30.6369709Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/randerr.h
+2026-10-02T17:53:30.6374592Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/rc2.h
+2026-10-02T17:53:30.6380072Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/rc4.h
+2026-10-02T17:53:30.6385374Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/rc5.h
+2026-10-02T17:53:30.6390914Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/ripemd.h
+2026-10-02T17:53:30.6395820Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/rsa.h
+2026-10-02T17:53:30.6401586Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/rsaerr.h
+2026-10-02T17:53:30.6407276Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/safestack.h
+2026-10-02T17:53:30.6416972Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/seed.h
+2026-10-02T17:53:30.6421905Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/self_test.h
+2026-10-02T17:53:30.6427786Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/sha.h
+2026-10-02T17:53:30.6433154Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/srp.h
+2026-10-02T17:53:30.6438738Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/srtp.h
+2026-10-02T17:53:30.6444094Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/ssl.h
+2026-10-02T17:53:30.6451513Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/ssl2.h
+2026-10-02T17:53:30.6456451Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/ssl3.h
+2026-10-02T17:53:30.6462210Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/sslerr.h
+2026-10-02T17:53:30.6472100Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/sslerr_legacy.h
+2026-10-02T17:53:30.6477789Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/stack.h
+2026-10-02T17:53:30.6483085Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/store.h
+2026-10-02T17:53:30.6489032Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/storeerr.h
+2026-10-02T17:53:30.6493962Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/symhacks.h
+2026-10-02T17:53:30.6498909Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/thread.h
+2026-10-02T17:53:30.6504182Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/tls1.h
+2026-10-02T17:53:30.6510841Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/trace.h
+2026-10-02T17:53:30.6516303Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/ts.h
+2026-10-02T17:53:30.6521978Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/tserr.h
+2026-10-02T17:53:30.6527067Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/txt_db.h
+2026-10-02T17:53:30.6532466Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/types.h
+2026-10-02T17:53:30.6537895Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/ui.h
+2026-10-02T17:53:30.6544301Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/uierr.h
+2026-10-02T17:53:30.6549853Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/whrlpool.h
+2026-10-02T17:53:30.6554853Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/x509.h
+2026-10-02T17:53:30.6561943Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/x509err.h
+2026-10-02T17:53:30.6568011Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/x509v3.h
+2026-10-02T17:53:30.6575274Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/x509v3err.h
+2026-10-02T17:53:30.6580286Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/x509_acert.h
+2026-10-02T17:53:30.6586006Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/x509_vfy.h
+2026-10-02T17:53:30.6595621Z --   Copying libssh headers...
+2026-10-02T17:53:30.6597398Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libssh
+2026-10-02T17:53:30.6605544Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libssh/callbacks.h
+2026-10-02T17:53:30.6612918Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libssh/legacy.h
+2026-10-02T17:53:30.6618406Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libssh/libssh.h
+2026-10-02T17:53:30.6624597Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libssh/libsshpp.hpp
+2026-10-02T17:53:30.6630141Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libssh/libssh_version.h
+2026-10-02T17:53:30.6635453Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libssh/server.h
+2026-10-02T17:53:30.6640712Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libssh/sftp.h
+2026-10-02T17:53:30.6652185Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libssh/sftpserver.h
+2026-10-02T17:53:30.6657078Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libssh/ssh2.h
+2026-10-02T17:53:30.6662011Z --   Copying libgit2 headers...
+2026-10-02T17:53:30.6663730Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2.h
+2026-10-02T17:53:30.6669108Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2
+2026-10-02T17:53:30.6675614Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/annotated_commit.h
+2026-10-02T17:53:30.6681061Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/apply.h
+2026-10-02T17:53:30.6686436Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/attr.h
+2026-10-02T17:53:30.6692402Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/blame.h
+2026-10-02T17:53:30.6697592Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/blob.h
+2026-10-02T17:53:30.6703282Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/branch.h
+2026-10-02T17:53:30.6709511Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/buffer.h
+2026-10-02T17:53:30.6717852Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/cert.h
+2026-10-02T17:53:30.6724544Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/checkout.h
+2026-10-02T17:53:30.6730636Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/cherrypick.h
+2026-10-02T17:53:30.6735739Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/clone.h
+2026-10-02T17:53:30.6740912Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/commit.h
+2026-10-02T17:53:30.6746786Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/common.h
+2026-10-02T17:53:30.6752564Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/config.h
+2026-10-02T17:53:30.6758234Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/credential.h
+2026-10-02T17:53:30.6763941Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/credential_helpers.h
+2026-10-02T17:53:30.6769400Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/cred_helpers.h
+2026-10-02T17:53:30.6774456Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/deprecated.h
+2026-10-02T17:53:30.6780525Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/describe.h
+2026-10-02T17:53:30.6785893Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/diff.h
+2026-10-02T17:53:30.6792287Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/email.h
+2026-10-02T17:53:30.6797208Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/errors.h
+2026-10-02T17:53:30.6802905Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/experimental.h
+2026-10-02T17:53:30.6807939Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/filter.h
+2026-10-02T17:53:30.6813275Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/global.h
+2026-10-02T17:53:30.6818114Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/graph.h
+2026-10-02T17:53:30.6823438Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/ignore.h
+2026-10-02T17:53:30.6828877Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/index.h
+2026-10-02T17:53:30.6834436Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/indexer.h
+2026-10-02T17:53:30.6839887Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/mailmap.h
+2026-10-02T17:53:30.6845138Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/merge.h
+2026-10-02T17:53:30.6851071Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/message.h
+2026-10-02T17:53:30.6856084Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/net.h
+2026-10-02T17:53:30.6860866Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/notes.h
+2026-10-02T17:53:30.6866778Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/object.h
+2026-10-02T17:53:30.6872605Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/odb.h
+2026-10-02T17:53:30.6878246Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/odb_backend.h
+2026-10-02T17:53:30.6884769Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/oid.h
+2026-10-02T17:53:30.6890222Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/oidarray.h
+2026-10-02T17:53:30.6898720Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/pack.h
+2026-10-02T17:53:30.6905447Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/patch.h
+2026-10-02T17:53:30.6911622Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/pathspec.h
+2026-10-02T17:53:30.6916852Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/proxy.h
+2026-10-02T17:53:30.6922333Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/rebase.h
+2026-10-02T17:53:30.6927858Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/refdb.h
+2026-10-02T17:53:30.6932986Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/reflog.h
+2026-10-02T17:53:30.6938398Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/refs.h
+2026-10-02T17:53:30.6944829Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/refspec.h
+2026-10-02T17:53:30.6949766Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/remote.h
+2026-10-02T17:53:30.6956097Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/repository.h
+2026-10-02T17:53:30.6962542Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/reset.h
+2026-10-02T17:53:30.6968420Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/revert.h
+2026-10-02T17:53:30.6973491Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/revparse.h
+2026-10-02T17:53:30.6978374Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/revwalk.h
+2026-10-02T17:53:30.6984392Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/signature.h
+2026-10-02T17:53:30.6989632Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/stash.h
+2026-10-02T17:53:30.6995037Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/status.h
+2026-10-02T17:53:30.7000602Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/stdint.h
+2026-10-02T17:53:30.7006480Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/strarray.h
+2026-10-02T17:53:30.7014996Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/submodule.h
+2026-10-02T17:53:30.7021210Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys
+2026-10-02T17:53:30.7027883Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/alloc.h
+2026-10-02T17:53:30.7033058Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/commit.h
+2026-10-02T17:53:30.7038508Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/commit_graph.h
+2026-10-02T17:53:30.7044243Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/config.h
+2026-10-02T17:53:30.7049676Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/cred.h
+2026-10-02T17:53:30.7054407Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/credential.h
+2026-10-02T17:53:30.7059584Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/diff.h
+2026-10-02T17:53:30.7367421Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/email.h
+2026-10-02T17:53:30.7372512Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/errors.h
+2026-10-02T17:53:30.7433819Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/filter.h
+2026-10-02T17:53:30.7435370Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/hashsig.h
+2026-10-02T17:53:30.7436568Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/index.h
+2026-10-02T17:53:30.7437704Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/mempack.h
+2026-10-02T17:53:30.7438871Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/merge.h
+2026-10-02T17:53:30.7440550Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/midx.h
+2026-10-02T17:53:30.7441746Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/odb_backend.h
+2026-10-02T17:53:30.7443241Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/openssl.h
+2026-10-02T17:53:30.7444356Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/path.h
+2026-10-02T17:53:30.7445932Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/refdb_backend.h
+2026-10-02T17:53:30.7447508Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/refs.h
+2026-10-02T17:53:30.7448588Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/remote.h
+2026-10-02T17:53:30.7449687Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/repository.h
+2026-10-02T17:53:30.7450746Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/stream.h
+2026-10-02T17:53:30.7451625Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/transport.h
+2026-10-02T17:53:30.7456978Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/tag.h
+2026-10-02T17:53:30.7462071Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/trace.h
+2026-10-02T17:53:30.7467860Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/transaction.h
+2026-10-02T17:53:30.7472822Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/transport.h
+2026-10-02T17:53:30.7477977Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/tree.h
+2026-10-02T17:53:30.7483637Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/types.h
+2026-10-02T17:53:30.7489900Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/version.h
+2026-10-02T17:53:30.7494812Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/worktree.h
+2026-10-02T17:53:30.7500270Z --   Copying curl headers...
+2026-10-02T17:53:30.7501963Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/curl
+2026-10-02T17:53:30.7508088Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/curl/curl.h
+2026-10-02T17:53:30.7516719Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/curl/curlver.h
+2026-10-02T17:53:30.7521613Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/curl/easy.h
+2026-10-02T17:53:30.7526520Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/curl/header.h
+2026-10-02T17:53:30.7531468Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/curl/mprintf.h
+2026-10-02T17:53:30.7537280Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/curl/multi.h
+2026-10-02T17:53:30.7543177Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/curl/options.h
+2026-10-02T17:53:30.7550767Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/curl/stdcheaders.h
+2026-10-02T17:53:30.7556264Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/curl/system.h
+2026-10-02T17:53:30.7561498Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/curl/typecheck-gcc.h
+2026-10-02T17:53:30.7567754Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/curl/urlapi.h
+2026-10-02T17:53:30.7573203Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/curl/websockets.h
+2026-10-02T17:53:30.7589636Z --   Copying library: D:/a/sindarin-compiler/sindarin-compiler/.sn/sindarin-pkg-libs/libs/windows/lib/libzlib.a
+2026-10-02T17:53:30.7590933Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/lib/libzlib.a
+2026-10-02T17:53:30.7598958Z --   Copying library: D:/a/sindarin-compiler/sindarin-compiler/.sn/sindarin-pkg-libs/libs/windows/lib/libzs.a
+2026-10-02T17:53:30.7600201Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/lib/libzs.a
+2026-10-02T17:53:30.7607663Z --   Copying library: D:/a/sindarin-compiler/sindarin-compiler/.sn/sindarin-pkg-libs/libs/windows/lib/libyyjson.a
+2026-10-02T17:53:30.7608709Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/lib/libyyjson.a
+2026-10-02T17:53:30.7620609Z --   Copying library: D:/a/sindarin-compiler/sindarin-compiler/.sn/sindarin-pkg-libs/libs/windows/lib/libxml2.a
+2026-10-02T17:53:30.7621603Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/lib/libxml2.a
+2026-10-02T17:53:30.7654910Z --   Copying library: D:/a/sindarin-compiler/sindarin-compiler/.sn/sindarin-pkg-libs/libs/windows/lib/libyaml.a
+2026-10-02T17:53:30.7656045Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/lib/libyaml.a
+2026-10-02T17:53:30.7664632Z --   Copying library: D:/a/sindarin-compiler/sindarin-compiler/.sn/sindarin-pkg-libs/libs/windows/lib/libcrypto.a
+2026-10-02T17:53:30.7665647Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/lib/libcrypto.a
+2026-10-02T17:53:30.7829406Z --   Copying library: D:/a/sindarin-compiler/sindarin-compiler/.sn/sindarin-pkg-libs/libs/windows/lib/libssl.a
+2026-10-02T17:53:30.7831203Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/lib/libssl.a
+2026-10-02T17:53:30.7865641Z --   Copying library: D:/a/sindarin-compiler/sindarin-compiler/.sn/sindarin-pkg-libs/libs/windows/lib/libssh.a
+2026-10-02T17:53:30.7866682Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/lib/libssh.a
+2026-10-02T17:53:30.7884552Z --   Copying library: D:/a/sindarin-compiler/sindarin-compiler/.sn/sindarin-pkg-libs/libs/windows/lib/libssh2.a
+2026-10-02T17:53:30.7885706Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/lib/libssh2.a
+2026-10-02T17:53:30.7897405Z --   Copying library: D:/a/sindarin-compiler/sindarin-compiler/.sn/sindarin-pkg-libs/libs/windows/lib/libgit2.a
+2026-10-02T17:53:30.7898401Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/lib/libgit2.a
+2026-10-02T17:53:30.7936470Z --   Copying library: D:/a/sindarin-compiler/sindarin-compiler/.sn/sindarin-pkg-libs/libs/windows/lib/libhttp_parser.a
+2026-10-02T17:53:30.7937690Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/lib/libhttp_parser.a
+2026-10-02T17:53:30.7944272Z --   Copying library: D:/a/sindarin-compiler/sindarin-compiler/.sn/sindarin-pkg-libs/libs/windows/lib/libpcre2-8.a
+2026-10-02T17:53:30.7945605Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/lib/libpcre2-8.a
+2026-10-02T17:53:30.7968068Z --   Copying library: D:/a/sindarin-compiler/sindarin-compiler/.sn/sindarin-pkg-libs/libs/windows/lib/libssh2.a
+2026-10-02T17:53:30.7969132Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/lib/libssh2.a
+2026-10-02T17:53:30.7970799Z --   Copying library: D:/a/sindarin-compiler/sindarin-compiler/.sn/sindarin-pkg-libs/libs/windows/lib/libcurl.a
+2026-10-02T17:53:30.7972535Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/lib/libcurl.a
+2026-10-02T17:53:30.7997753Z --   Dependencies copied to: D:/a/sindarin-compiler/sindarin-compiler/bin/deps
+2026-10-02T17:53:30.7998947Z -- Using zlib archive: D:/a/sindarin-compiler/sindarin-compiler/.sn/sindarin-pkg-libs/libs/windows/lib/libzlib.a
+2026-10-02T17:53:30.8000197Z -- Found sindarin-template (handlebars)
+2026-10-02T17:53:30.8010567Z -- Found libcurl - enabling auto-update feature
+2026-10-02T17:53:30.8012680Z -- Found libgit2 and libyaml - enabling package manager
+2026-10-02T17:53:30.8307580Z -- 
+2026-10-02T17:53:30.8308040Z -- Sindarin Compiler Build Configuration:
+2026-10-02T17:53:30.8308551Z --   Version:      1.0.0
+2026-10-02T17:53:30.8309090Z --   Platform:     Windows
+2026-10-02T17:53:30.8309418Z --   Compiler:     Clang 22.1.8
+2026-10-02T17:53:30.8309722Z --   Build Type:   Release
+2026-10-02T17:53:30.8309997Z --   Debug:        OFF
+2026-10-02T17:53:30.8310249Z --   ASAN:         OFF
+2026-10-02T17:53:30.8310950Z --   Output:       D:/a/sindarin-compiler/sindarin-compiler/bin
+2026-10-02T17:53:30.8311396Z -- 
+2026-10-02T17:53:30.8312944Z -- Configuring done (2.3s)
+2026-10-02T17:53:30.9444600Z -- Generating done (0.1s)
+2026-10-02T17:53:30.9457631Z -- Build files have been written to: D:/a/sindarin-compiler/sindarin-compiler/build
+2026-10-02T17:53:30.9660000Z cmake --build build
+2026-10-02T17:53:31.0324719Z [0/2] Re-checking globbed directories...
+2026-10-02T17:53:31.2010653Z [1/232] Building C object CMakeFiles/sn_fake_rustc.dir/tests/fixtures/fake_rustc.c.obj
+2026-10-02T17:53:31.2529656Z [2/232] Building C object CMakeFiles/sn_runtime_min.dir/src/runtime/sn_byte.c.obj
+2026-10-02T17:53:31.2771394Z [3/232] Synchronizing runtime headers
+2026-10-02T17:53:31.2968720Z [4/232] Building C object CMakeFiles/sn_runtime_min.dir/src/runtime/sn_string.c.obj
+2026-10-02T17:53:31.3352609Z [5/232] Building C object CMakeFiles/sn_runtime_min.dir/src/runtime/sn_array.c.obj
+2026-10-02T17:53:31.4207552Z [6/232] Copying templates to bin/templates
+2026-10-02T17:53:31.4384031Z [7/232] Building C object CMakeFiles/sn.dir/src/arena.c.obj
+2026-10-02T17:53:31.4731331Z [8/232] Building C object CMakeFiles/sn.dir/src/file.c.obj
+2026-10-02T17:53:31.4955492Z [9/232] Building C object CMakeFiles/sn.dir/src/token.c.obj
+2026-10-02T17:53:31.5485030Z [10/232] Building C object CMakeFiles/sn.dir/src/debug.c.obj
+2026-10-02T17:53:31.6187499Z [11/232] Linking C executable bin\sn_fake_rustc.exe
+2026-10-02T17:53:31.6485387Z [12/232] Building C object CMakeFiles/sn.dir/src/diagnostic.c.obj
+2026-10-02T17:53:31.6791543Z [13/232] Building C object CMakeFiles/sn.dir/src/compiler.c.obj
+2026-10-02T17:53:31.8266895Z [14/232] Building C object CMakeFiles/sn.dir/src/lexer.c.obj
+2026-10-02T17:53:31.8322587Z [15/232] Building C object CMakeFiles/sn.dir/src/lexer/lexer_util.c.obj
+2026-10-02T17:53:31.8527890Z [16/232] Building C object CMakeFiles/sn.dir/src/ast.c.obj
+2026-10-02T17:53:31.9897306Z [17/232] Building C object CMakeFiles/sn.dir/src/lexer/lexer_scan.c.obj
+2026-10-02T17:53:32.0524905Z [18/232] Building C object CMakeFiles/sn.dir/src/ast/ast_stmt.c.obj
+2026-10-02T17:53:32.0864892Z [19/232] Building C object CMakeFiles/sn.dir/src/ast/ast_expr.c.obj
+2026-10-02T17:53:32.0976240Z [20/232] Building C object CMakeFiles/sn.dir/src/ast/ast_type.c.obj
+2026-10-02T17:53:32.1974405Z [21/232] Building C object CMakeFiles/sn.dir/src/main.c.obj
+2026-10-02T17:53:32.3904065Z [22/232] Building C object CMakeFiles/sn.dir/src/parser/util/parser_util.c.obj
+2026-10-02T17:53:32.4012820Z [23/232] Building C object CMakeFiles/sn.dir/src/ast/ast_print.c.obj
+2026-10-02T17:53:32.4167351Z [24/232] Building C object CMakeFiles/sn.dir/src/parser/expr/parser_expr_interpol.c.obj
+2026-10-02T17:53:32.4302706Z [25/232] Building C object CMakeFiles/sn.dir/src/parser.c.obj
+2026-10-02T17:53:32.4359404Z [26/232] Building C object CMakeFiles/sn.dir/src/parser/expr/parser_expr.c.obj
+2026-10-02T17:53:32.5561602Z [27/232] Building C object CMakeFiles/sn.dir/src/parser/expr/parser_expr_lambda.c.obj
+2026-10-02T17:53:32.5601525Z [28/232] Building C object CMakeFiles/sn.dir/src/parser/expr/parser_expr_struct.c.obj
+2026-10-02T17:53:32.5731561Z [29/232] Building C object CMakeFiles/sn.dir/src/parser/expr/parser_expr_match.c.obj
+2026-10-02T17:53:32.7110639Z [30/232] Building C object CMakeFiles/sn.dir/src/parser/stmt/parser_stmt.c.obj
+2026-10-02T17:53:32.7319548Z [31/232] Building C object CMakeFiles/sn.dir/src/symbol_table.c.obj
+2026-10-02T17:53:32.7383019Z [32/232] Building C object CMakeFiles/sn.dir/src/parser/stmt/parser_stmt_control.c.obj
+2026-10-02T17:53:32.8501510Z [33/232] Building C object CMakeFiles/sn.dir/src/parser/stmt/parser_stmt_decl.c.obj
+2026-10-02T17:53:32.8766731Z [34/232] Building C object CMakeFiles/sn.dir/src/symbol_table/symbol_table_core.c.obj
+2026-10-02T17:53:32.9055246Z [35/232] Building C object CMakeFiles/sn.dir/src/symbol_table/symbol_table_thread.c.obj
+2026-10-02T17:53:32.9329406Z [36/232] Building C object CMakeFiles/sn.dir/src/type_checker.c.obj
+2026-10-02T17:53:32.9361978Z [37/232] Building C object CMakeFiles/sn.dir/src/symbol_table/symbol_table_namespace.c.obj
+2026-10-02T17:53:33.0970158Z [38/232] Building C object CMakeFiles/sn.dir/src/type_checker/util/type_checker_util_escape.c.obj
+2026-10-02T17:53:33.1057319Z [39/232] Building C object CMakeFiles/sn.dir/src/type_checker/util/type_checker_util.c.obj
+2026-10-02T17:53:33.1153090Z [40/232] Building C object CMakeFiles/sn.dir/src/type_checker/util/type_checker_util_struct.c.obj
+2026-10-02T17:53:33.1249118Z [41/232] Building C object CMakeFiles/sn.dir/src/type_checker/util/type_checker_util_suggest.c.obj
+2026-10-02T17:53:33.1565786Z [42/232] Building C object CMakeFiles/sn.dir/src/formatter.c.obj
+2026-10-02T17:53:33.2676559Z [43/232] Building C object CMakeFiles/sn.dir/src/type_checker/type_checker_generics.c.obj
+2026-10-02T17:53:33.2699493Z [44/232] Building C object CMakeFiles/sn.dir/src/type_checker/util/type_checker_util_layout.c.obj
+2026-10-02T17:53:33.2770358Z [45/232] Building C object CMakeFiles/sn.dir/src/type_checker/expr/type_checker_expr.c.obj
+2026-10-02T17:53:33.3219364Z [46/232] Building C object CMakeFiles/sn.dir/src/type_checker/expr/type_checker_expr_assign.c.obj
+2026-10-02T17:53:33.3334828Z [47/232] Building C object CMakeFiles/sn.dir/src/type_checker/expr/type_checker_expr_ops.c.obj
+2026-10-02T17:53:33.3856708Z [48/232] Building C object CMakeFiles/sn.dir/src/type_checker/expr/type_checker_expr_member.c.obj
+2026-10-02T17:53:33.3964590Z [49/232] Building C object CMakeFiles/sn.dir/src/type_checker/expr/type_checker_expr_basic.c.obj
+2026-10-02T17:53:33.4077995Z [50/232] Building C object CMakeFiles/sn.dir/src/type_checker/expr/type_checker_expr_thread.c.obj
+2026-10-02T17:53:33.4140890Z [51/232] Building C object CMakeFiles/sn.dir/src/type_checker/expr/type_checker_expr_cast.c.obj
+2026-10-02T17:53:33.5275802Z [52/232] Building C object CMakeFiles/sn.dir/src/type_checker/expr/call/type_checker_expr_call.c.obj
+2026-10-02T17:53:33.5340023Z [53/232] Building C object CMakeFiles/sn.dir/src/type_checker/expr/type_checker_expr_struct.c.obj
+2026-10-02T17:53:33.5384662Z [54/232] Building C object CMakeFiles/sn.dir/src/type_checker/expr/type_checker_expr_access.c.obj
+2026-10-02T17:53:33.5425817Z [55/232] Building C object CMakeFiles/sn.dir/src/type_checker/expr/type_checker_expr_misc.c.obj
+2026-10-02T17:53:33.5477485Z [56/232] Building C object CMakeFiles/sn.dir/src/type_checker/expr/type_checker_expr_array.c.obj
+2026-10-02T17:53:33.6751275Z [57/232] Building C object CMakeFiles/sn.dir/src/type_checker/expr/type_checker_expr_lambda.c.obj
+2026-10-02T17:53:33.6783865Z [58/232] Building C object CMakeFiles/sn.dir/src/type_checker/expr/call/type_checker_expr_call_long.c.obj
+2026-10-02T17:53:33.6836421Z [59/232] Building C object CMakeFiles/sn.dir/src/type_checker/expr/call/type_checker_expr_call_char.c.obj
+2026-10-02T17:53:33.6870334Z [60/232] Building C object CMakeFiles/sn.dir/src/type_checker/expr/call/type_checker_expr_call_int.c.obj
+2026-10-02T17:53:33.7179913Z [61/232] Building C object CMakeFiles/sn.dir/src/type_checker/expr/call/type_checker_expr_call_array.c.obj
+2026-10-02T17:53:33.8038815Z [62/232] Building C object CMakeFiles/sn.dir/src/type_checker/expr/call/type_checker_expr_call_uint.c.obj
+2026-10-02T17:53:33.8113849Z [63/232] Building C object CMakeFiles/sn.dir/src/type_checker/expr/call/type_checker_expr_call_double.c.obj
+2026-10-02T17:53:33.8154888Z [64/232] Building C object CMakeFiles/sn.dir/src/type_checker/expr/call/type_checker_expr_call_byte.c.obj
+2026-10-02T17:53:33.8160381Z [65/232] Building C object CMakeFiles/sn.dir/src/type_checker/expr/call/type_checker_expr_call_bool.c.obj
+2026-10-02T17:53:33.8249509Z [66/232] Building C object CMakeFiles/sn.dir/src/type_checker/expr/call/type_checker_expr_call_core.c.obj
+2026-10-02T17:53:33.9565750Z [67/232] Building C object CMakeFiles/sn.dir/src/type_checker/expr/call/type_checker_expr_call_string.c.obj
+2026-10-02T17:53:33.9582396Z [68/232] Building C object CMakeFiles/sn.dir/src/type_checker/stmt/type_checker_stmt_var.c.obj
+2026-10-02T17:53:33.9612915Z [69/232] Building C object CMakeFiles/sn.dir/src/type_checker/stmt/type_checker_stmt.c.obj
+2026-10-02T17:53:33.9664750Z [70/232] Building C object CMakeFiles/sn.dir/src/type_checker/stmt/type_checker_stmt_var_util.c.obj
+2026-10-02T17:53:34.0582987Z [71/232] Building C object CMakeFiles/sn.dir/src/type_checker/stmt/type_checker_stmt_control.c.obj
+2026-10-02T17:53:34.0713279Z [72/232] Building C object CMakeFiles/sn.dir/src/type_checker/stmt/type_checker_stmt_func.c.obj
+2026-10-02T17:53:34.1082295Z [73/232] Building C object CMakeFiles/sn.dir/src/type_checker/stmt/type_checker_stmt_interface.c.obj
+2026-10-02T17:53:34.1153422Z [74/232] Building C object CMakeFiles/sn.dir/src/type_checker/stmt/type_checker_stmt_import_ns.c.obj
+2026-10-02T17:53:34.1154989Z [75/232] Building C object CMakeFiles/sn.dir/src/type_checker/stmt/type_checker_stmt_import.c.obj
+2026-10-02T17:53:34.1704670Z [76/232] Building C object CMakeFiles/sn.dir/src/type_checker/stmt/type_checker_stmt_struct.c.obj
+2026-10-02T17:53:34.2371405Z [77/232] Building C object CMakeFiles/sn.dir/src/optimizer/optimizer_tail_call.c.obj
+2026-10-02T17:53:34.2441545Z [78/232] Building C object CMakeFiles/sn.dir/src/optimizer.c.obj
+2026-10-02T17:53:34.2630093Z [79/232] Building C object CMakeFiles/sn.dir/src/type_checker/stmt/type_checker_stmt_import_ns_util.c.obj
+2026-10-02T17:53:34.2873198Z [80/232] Building C object CMakeFiles/sn.dir/src/optimizer/optimizer_string.c.obj
+2026-10-02T17:53:34.2988664Z [81/232] Building C object CMakeFiles/sn.dir/src/optimizer/optimizer_util.c.obj
+2026-10-02T17:53:34.4828316Z [82/232] Building C object CMakeFiles/sn.dir/src/cgen/gen_model_type.c.obj
+2026-10-02T17:53:34.5023428Z [83/232] Building C object CMakeFiles/sn.dir/src/cgen/gen_model_stmt.c.obj
+2026-10-02T17:53:34.5157644Z [84/232] Building C object CMakeFiles/sn.dir/src/cgen/gen_model.c.obj
+2026-10-02T17:53:34.5859177Z [85/232] Building C object CMakeFiles/sn.dir/src/cgen/gen_model_chain_flatten.c.obj
+2026-10-02T17:53:34.6963578Z [86/232] Building C object CMakeFiles/sn.dir/src/cgen/gen_model_render_common.c.obj
+2026-10-02T17:53:34.7037044Z [87/232] Building C object CMakeFiles/sn.dir/src/cgen/gen_model_func.c.obj
+2026-10-02T17:53:34.7158153Z [88/232] Building C object CMakeFiles/sn.dir/src/cgen/gen_model_struct.c.obj
+2026-10-02T17:53:34.7996593Z [89/232] Building C object CMakeFiles/sn.dir/src/cgen/gen_model_split.c.obj
+2026-10-02T17:53:34.8064540Z [90/232] Building C object CMakeFiles/sn.dir/src/cgen/ownership.c.obj
+2026-10-02T17:53:34.8278900Z [91/232] Building C object CMakeFiles/sn.dir/src/cgen/gen_model_render_modular.c.obj
+2026-10-02T17:53:34.8452685Z [92/232] Building C object CMakeFiles/sn.dir/src/cgen/gen_model_expr.c.obj
+2026-10-02T17:53:34.8782991Z [93/232] Building C object CMakeFiles/sn.dir/src/cgen/c/gen_model_render_min_c.c.obj
+2026-10-02T17:53:35.0751791Z [94/232] Building C object CMakeFiles/sn.dir/src/target/target.c.obj
+2026-10-02T17:53:35.2521622Z [95/232] Building C object CMakeFiles/sn.dir/src/target/rust/rust_render.c.obj
+2026-10-02T17:53:35.8629620Z [96/232] Building C object CMakeFiles/sn.dir/src/target/rust/rust_native_plan.c.obj
+2026-10-02T17:53:35.9070131Z [97/232] Building C object CMakeFiles/sn.dir/src/gcc_backend.c.obj
+2026-10-02T17:53:35.9166619Z [98/232] Building C object CMakeFiles/sn.dir/src/gcc_backend_config.c.obj
+2026-10-02T17:53:36.0408838Z [99/232] Building C object CMakeFiles/sn.dir/src/gcc_backend_pkgconfig.c.obj
+2026-10-02T17:53:36.0616148Z [100/232] Building C object CMakeFiles/sn.dir/src/target/rust/rust_native_render.c.obj
+2026-10-02T17:53:36.1065436Z [101/232] Building C object CMakeFiles/sn.dir/src/target/rust/rust_native_build.c.obj
+2026-10-02T17:53:36.2238441Z [102/232] Building C object CMakeFiles/sn.dir/src/target/rust/projection/rust_model.c.obj
+2026-10-02T17:53:36.3194687Z [103/232] Building C object CMakeFiles/sn.dir/src/target/rust/projection/rust_model_stmt.c.obj
+2026-10-02T17:53:36.4029121Z [104/232] Building C object CMakeFiles/sn.dir/src/target/rust/cc_sidecar.c.obj
+2026-10-02T17:53:36.4592482Z [105/232] Building C object CMakeFiles/sn.dir/src/target/rust/projection/rust_model_func.c.obj
+2026-10-02T17:53:36.5453361Z [106/232] Building C object CMakeFiles/sn.dir/src/target/rust/projection/rust_model_struct.c.obj
+2026-10-02T17:53:36.5903524Z [107/232] Building C object CMakeFiles/sn.dir/src/target/rust/projection/rust_model_type.c.obj
+2026-10-02T17:53:36.6323479Z [108/232] Building C object CMakeFiles/sn.dir/src/target/rust/projection/rust_ownership.c.obj
+2026-10-02T17:53:36.7037195Z [109/232] Building C object CMakeFiles/sn.dir/src/target/rust/projection/rust_model_expr.c.obj
+2026-10-02T17:53:36.7351170Z [110/232] Building C object CMakeFiles/sn.dir/src/runtime/sn_array.c.obj
+2026-10-02T17:53:36.7447303Z [111/232] Building C object CMakeFiles/sn.dir/src/runtime/sn_string.c.obj
+2026-10-02T17:53:36.8095575Z [112/232] Building C object CMakeFiles/sn.dir/src/runtime/sn_byte.c.obj
+2026-10-02T17:53:36.8325322Z [113/232] Building C object CMakeFiles/sn.dir/src/target/rust/rust_target.c.obj
+2026-10-02T17:53:36.9377096Z [114/232] Building C object CMakeFiles/sn.dir/src/package/package_yaml.c.obj
+2026-10-02T17:53:36.9493169Z [115/232] Building C object CMakeFiles/sn.dir/src/package.c.obj
+2026-10-02T17:53:37.0961870Z [116/232] Building C object CMakeFiles/tests.dir/src/arena.c.obj
+2026-10-02T17:53:37.1131458Z [117/232] Building C object CMakeFiles/tests.dir/src/file.c.obj
+2026-10-02T17:53:37.1200103Z [118/232] Building C object CMakeFiles/tests.dir/src/token.c.obj
+2026-10-02T17:53:37.2785108Z [119/232] Building C object CMakeFiles/tests.dir/src/debug.c.obj
+2026-10-02T17:53:37.3628848Z [120/232] Building C object CMakeFiles/tests.dir/src/compiler.c.obj
+2026-10-02T17:53:37.3838739Z [121/232] Building C object CMakeFiles/tests.dir/src/diagnostic.c.obj
+2026-10-02T17:53:37.5808720Z [122/232] Building C object CMakeFiles/tests.dir/src/lexer/lexer_util.c.obj
+2026-10-02T17:53:37.6388753Z [123/232] Building C object CMakeFiles/tests.dir/src/lexer.c.obj
+2026-10-02T17:53:37.6628209Z [124/232] Building C object CMakeFiles/sn.dir/src/package/package_git.c.obj
+2026-10-02T17:53:37.8427632Z [125/232] Building C object CMakeFiles/tests.dir/src/ast.c.obj
+2026-10-02T17:53:37.9283414Z [126/232] Building C object CMakeFiles/tests.dir/src/lexer/lexer_scan.c.obj
+2026-10-02T17:53:37.9517420Z [127/232] Building C object CMakeFiles/sn.dir/src/package/lfs/package_lfs.c.obj
+2026-10-02T17:53:38.0168617Z [128/232] Building C object CMakeFiles/tests.dir/src/ast/ast_type.c.obj
+2026-10-02T17:53:38.1171279Z [129/232] Building C object CMakeFiles/tests.dir/src/ast/ast_expr.c.obj
+2026-10-02T17:53:38.1287649Z [130/232] Building C object CMakeFiles/tests.dir/src/ast/ast_stmt.c.obj
+2026-10-02T17:53:38.3287893Z [131/232] Building C object CMakeFiles/tests.dir/src/ast/ast_print.c.obj
+2026-10-02T17:53:38.3967676Z [132/232] Building C object CMakeFiles/tests.dir/src/parser/util/parser_util.c.obj
+2026-10-02T17:53:38.4891041Z [133/232] Building C object CMakeFiles/tests.dir/src/parser/expr/parser_expr.c.obj
+2026-10-02T17:53:38.5044261Z [134/232] Building C object CMakeFiles/tests.dir/src/parser.c.obj
+2026-10-02T17:53:38.5285664Z [135/232] Building C object CMakeFiles/tests.dir/src/parser/expr/parser_expr_interpol.c.obj
+2026-10-02T17:53:38.6434811Z [136/232] Building C object CMakeFiles/tests.dir/src/parser/expr/parser_expr_match.c.obj
+2026-10-02T17:53:38.6508611Z [137/232] Building C object CMakeFiles/tests.dir/src/parser/expr/parser_expr_struct.c.obj
+2026-10-02T17:53:38.6556913Z [138/232] Building C object CMakeFiles/tests.dir/src/parser/expr/parser_expr_lambda.c.obj
+2026-10-02T17:53:38.7928551Z [139/232] Building C object CMakeFiles/tests.dir/src/parser/stmt/parser_stmt.c.obj
+2026-10-02T17:53:38.8239525Z [140/232] Building C object CMakeFiles/tests.dir/src/symbol_table.c.obj
+2026-10-02T17:53:38.8361724Z [141/232] Building C object CMakeFiles/tests.dir/src/parser/stmt/parser_stmt_control.c.obj
+2026-10-02T17:53:38.8614231Z [142/232] Building C object CMakeFiles/tests.dir/src/formatter.c.obj
+2026-10-02T17:53:39.0440794Z [143/232] Building C object CMakeFiles/tests.dir/src/parser/stmt/parser_stmt_decl.c.obj
+2026-10-02T17:53:39.0509060Z [144/232] Building C object CMakeFiles/tests.dir/src/symbol_table/symbol_table_thread.c.obj
+2026-10-02T17:53:39.0535982Z [145/232] Building C object CMakeFiles/tests.dir/src/type_checker.c.obj
+2026-10-02T17:53:39.0599294Z [146/232] Building C object CMakeFiles/tests.dir/src/symbol_table/symbol_table_namespace.c.obj
+2026-10-02T17:53:39.0663403Z [147/232] Building C object CMakeFiles/tests.dir/src/symbol_table/symbol_table_core.c.obj
+2026-10-02T17:53:39.2395766Z [148/232] Building C object CMakeFiles/tests.dir/src/type_checker/util/type_checker_util_suggest.c.obj
+2026-10-02T17:53:39.2597627Z [149/232] Building C object CMakeFiles/tests.dir/src/type_checker/util/type_checker_util.c.obj
+2026-10-02T17:53:39.2688107Z [150/232] Building C object CMakeFiles/tests.dir/src/type_checker/util/type_checker_util_escape.c.obj
+2026-10-02T17:53:39.3393214Z [151/232] Building C object CMakeFiles/tests.dir/src/type_checker/util/type_checker_util_struct.c.obj
+2026-10-02T17:53:39.3884848Z [152/232] Building C object CMakeFiles/tests.dir/src/type_checker/util/type_checker_util_layout.c.obj
+2026-10-02T17:53:39.4252291Z [153/232] Building C object CMakeFiles/tests.dir/src/type_checker/expr/type_checker_expr.c.obj
+2026-10-02T17:53:39.4321011Z [154/232] Building C object CMakeFiles/tests.dir/src/type_checker/type_checker_generics.c.obj
+2026-10-02T17:53:39.4647091Z [155/232] Building C object CMakeFiles/tests.dir/src/type_checker/expr/type_checker_expr_ops.c.obj
+2026-10-02T17:53:39.5621231Z [156/232] Building C object CMakeFiles/tests.dir/src/type_checker/expr/type_checker_expr_assign.c.obj
+2026-10-02T17:53:39.5962259Z [157/232] Building C object CMakeFiles/tests.dir/src/type_checker/expr/type_checker_expr_basic.c.obj
+2026-10-02T17:53:39.5983330Z [158/232] Building C object CMakeFiles/tests.dir/src/type_checker/expr/type_checker_expr_member.c.obj
+2026-10-02T17:53:39.6051394Z [159/232] Building C object CMakeFiles/tests.dir/src/type_checker/expr/type_checker_expr_thread.c.obj
+2026-10-02T17:53:39.7198788Z [160/232] Building C object CMakeFiles/tests.dir/src/type_checker/expr/type_checker_expr_cast.c.obj
+2026-10-02T17:53:39.7569817Z [161/232] Building C object CMakeFiles/tests.dir/src/type_checker/expr/type_checker_expr_misc.c.obj
+2026-10-02T17:53:39.7656470Z [162/232] Building C object CMakeFiles/tests.dir/src/type_checker/expr/type_checker_expr_access.c.obj
+2026-10-02T17:53:39.7751528Z [163/232] Building C object CMakeFiles/tests.dir/src/type_checker/expr/type_checker_expr_array.c.obj
+2026-10-02T17:53:39.7805560Z [164/232] Building C object CMakeFiles/tests.dir/src/type_checker/expr/type_checker_expr_struct.c.obj
+2026-10-02T17:53:39.8884549Z [165/232] Building C object CMakeFiles/tests.dir/src/type_checker/expr/call/type_checker_expr_call.c.obj
+2026-10-02T17:53:39.9285477Z [166/232] Building C object CMakeFiles/tests.dir/src/type_checker/expr/type_checker_expr_lambda.c.obj
+2026-10-02T17:53:39.9442519Z [167/232] Building C object CMakeFiles/tests.dir/src/type_checker/expr/call/type_checker_expr_call_array.c.obj
+2026-10-02T17:53:40.0045285Z [168/232] Building C object CMakeFiles/tests.dir/src/type_checker/expr/call/type_checker_expr_call_char.c.obj
+2026-10-02T17:53:40.0110664Z [169/232] Building C object CMakeFiles/tests.dir/src/type_checker/expr/call/type_checker_expr_call_core.c.obj
+2026-10-02T17:53:40.0548733Z [170/232] Building C object CMakeFiles/tests.dir/src/type_checker/expr/call/type_checker_expr_call_int.c.obj
+2026-10-02T17:53:40.0637281Z [171/232] Building C object CMakeFiles/tests.dir/src/type_checker/expr/call/type_checker_expr_call_long.c.obj
+2026-10-02T17:53:40.0718905Z [172/232] Building C object CMakeFiles/tests.dir/src/type_checker/expr/call/type_checker_expr_call_double.c.obj
+2026-10-02T17:53:40.1549337Z [173/232] Building C object CMakeFiles/tests.dir/src/type_checker/expr/call/type_checker_expr_call_uint.c.obj
+2026-10-02T17:53:40.1731525Z [174/232] Building C object CMakeFiles/tests.dir/src/type_checker/expr/call/type_checker_expr_call_byte.c.obj
+2026-10-02T17:53:40.1860162Z [175/232] Building C object CMakeFiles/tests.dir/src/type_checker/expr/call/type_checker_expr_call_bool.c.obj
+2026-10-02T17:53:40.2190636Z [176/232] Building C object CMakeFiles/tests.dir/src/type_checker/expr/call/type_checker_expr_call_string.c.obj
+2026-10-02T17:53:40.2604352Z [177/232] Building C object CMakeFiles/tests.dir/src/type_checker/stmt/type_checker_stmt.c.obj
+2026-10-02T17:53:40.3097736Z [178/232] Building C object CMakeFiles/tests.dir/src/type_checker/stmt/type_checker_stmt_var.c.obj
+2026-10-02T17:53:40.3381166Z [179/232] Building C object CMakeFiles/tests.dir/src/type_checker/stmt/type_checker_stmt_var_util.c.obj
+2026-10-02T17:53:40.3846071Z [180/232] Building C object CMakeFiles/tests.dir/src/type_checker/stmt/type_checker_stmt_func.c.obj
+2026-10-02T17:53:40.4156657Z [181/232] Building C object CMakeFiles/tests.dir/src/type_checker/stmt/type_checker_stmt_control.c.obj
+2026-10-02T17:53:40.5107969Z [182/232] Building C object CMakeFiles/tests.dir/src/type_checker/stmt/type_checker_stmt_struct.c.obj
+2026-10-02T17:53:40.5152170Z [183/232] Building C object CMakeFiles/tests.dir/src/type_checker/stmt/type_checker_stmt_interface.c.obj
+2026-10-02T17:53:40.5311966Z [184/232] Building C object CMakeFiles/tests.dir/src/type_checker/stmt/type_checker_stmt_import.c.obj
+2026-10-02T17:53:40.5798348Z [185/232] Building C object CMakeFiles/tests.dir/src/type_checker/stmt/type_checker_stmt_import_ns.c.obj
+2026-10-02T17:53:40.6442622Z [186/232] Building C object CMakeFiles/tests.dir/src/type_checker/stmt/type_checker_stmt_import_ns_util.c.obj
+2026-10-02T17:53:40.6744388Z [187/232] Building C object CMakeFiles/tests.dir/src/optimizer.c.obj
+2026-10-02T17:53:40.6850621Z [188/232] Building C object CMakeFiles/tests.dir/src/optimizer/optimizer_tail_call.c.obj
+2026-10-02T17:53:40.7406229Z [189/232] Building C object CMakeFiles/tests.dir/src/optimizer/optimizer_util.c.obj
+2026-10-02T17:53:40.7607854Z [190/232] Building C object CMakeFiles/tests.dir/src/optimizer/optimizer_string.c.obj
+2026-10-02T17:53:40.9386733Z [191/232] Building C object CMakeFiles/tests.dir/src/cgen/gen_model_type.c.obj
+2026-10-02T17:53:40.9591957Z [192/232] Building C object CMakeFiles/tests.dir/src/cgen/gen_model_stmt.c.obj
+2026-10-02T17:53:40.9678618Z [193/232] Building C object CMakeFiles/tests.dir/src/cgen/gen_model.c.obj
+2026-10-02T17:53:41.1041936Z [194/232] Building C object CMakeFiles/tests.dir/src/cgen/gen_model_chain_flatten.c.obj
+2026-10-02T17:53:41.1940294Z [195/232] Building C object CMakeFiles/tests.dir/src/cgen/gen_model_render_common.c.obj
+2026-10-02T17:53:41.2011451Z [196/232] Building C object CMakeFiles/tests.dir/src/cgen/gen_model_struct.c.obj
+2026-10-02T17:53:41.2129557Z [197/232] Building C object CMakeFiles/tests.dir/src/cgen/gen_model_func.c.obj
+2026-10-02T17:53:41.3659505Z [198/232] Building C object CMakeFiles/tests.dir/src/cgen/ownership.c.obj
+2026-10-02T17:53:41.3707650Z [199/232] Building C object CMakeFiles/tests.dir/src/cgen/gen_model_render_modular.c.obj
+2026-10-02T17:53:41.3781292Z [200/232] Building C object CMakeFiles/tests.dir/src/cgen/gen_model_expr.c.obj
+2026-10-02T17:53:41.3928383Z [201/232] Building C object CMakeFiles/tests.dir/src/cgen/c/gen_model_render_min_c.c.obj
+2026-10-02T17:53:41.4281882Z [202/232] Building C object CMakeFiles/tests.dir/src/cgen/gen_model_split.c.obj
+2026-10-02T17:53:41.7015388Z [203/232] Building C object CMakeFiles/tests.dir/src/target/target.c.obj
+2026-10-02T17:53:42.1103040Z [204/232] Building C object CMakeFiles/tests.dir/src/target/rust/rust_render.c.obj
+2026-10-02T17:53:42.5675379Z [205/232] Building C object CMakeFiles/tests.dir/src/gcc_backend_config.c.obj
+2026-10-02T17:53:42.5797056Z [206/232] Building C object CMakeFiles/tests.dir/src/gcc_backend_pkgconfig.c.obj
+2026-10-02T17:53:42.5889833Z [207/232] Building C object CMakeFiles/tests.dir/src/gcc_backend.c.obj
+2026-10-02T17:53:42.8272654Z [208/232] Building C object CMakeFiles/tests.dir/src/target/rust/rust_native_render.c.obj
+2026-10-02T17:53:42.8465698Z [209/232] Building C object CMakeFiles/tests.dir/src/target/rust/rust_native_build.c.obj
+2026-10-02T17:53:43.0492349Z [210/232] Building C object CMakeFiles/tests.dir/src/target/rust/rust_native_plan.c.obj
+2026-10-02T17:53:43.2246027Z [211/232] Building C object CMakeFiles/tests.dir/src/target/rust/projection/rust_model.c.obj
+2026-10-02T17:53:43.4007318Z [212/232] Building C object CMakeFiles/tests.dir/src/target/rust/cc_sidecar.c.obj
+2026-10-02T17:53:43.4243355Z [213/232] Building C object CMakeFiles/tests.dir/src/target/rust/projection/rust_model_stmt.c.obj
+2026-10-02T17:53:43.5533342Z [214/232] Building C object CMakeFiles/tests.dir/src/target/rust/projection/rust_model_expr.c.obj
+2026-10-02T17:53:43.5599914Z [215/232] Building C object CMakeFiles/tests.dir/src/target/rust/rust_target.c.obj
+2026-10-02T17:53:43.5722155Z [216/232] Building C object CMakeFiles/tests.dir/src/target/rust/projection/rust_model_func.c.obj
+2026-10-02T17:53:43.6898690Z [217/232] Building C object CMakeFiles/tests.dir/src/target/rust/projection/rust_model_type.c.obj
+2026-10-02T17:53:43.6962244Z [218/232] Building C object CMakeFiles/tests.dir/src/target/rust/projection/rust_model_struct.c.obj
+2026-10-02T17:53:43.7529098Z [219/232] Building C object CMakeFiles/tests.dir/src/target/rust/projection/rust_ownership.c.obj
+2026-10-02T17:53:43.7908522Z [220/232] Building C object CMakeFiles/tests.dir/src/runtime/sn_array.c.obj
+2026-10-02T17:53:43.8121910Z [221/232] Building C object CMakeFiles/tests.dir/src/runtime/sn_string.c.obj
+2026-10-02T17:53:43.8415444Z [222/232] Building C object CMakeFiles/tests.dir/src/runtime/sn_byte.c.obj
+2026-10-02T17:53:43.9943333Z [223/232] Building C object CMakeFiles/tests.dir/src/package/package_yaml.c.obj
+2026-10-02T17:53:43.9984644Z [224/232] Building C object CMakeFiles/tests.dir/src/package.c.obj
+2026-10-02T17:53:44.3909818Z [225/232] Linking C static library bin\lib\clang\libsn_runtime_min.a
+2026-10-02T17:53:44.5729594Z [226/232] Building C object CMakeFiles/tests.dir/src/package/package_git.c.obj
+2026-10-02T17:53:44.7005009Z [227/232] Building C object CMakeFiles/tests.dir/src/package/lfs/package_lfs.c.obj
+2026-10-02T17:53:45.4949180Z [228/232] Building C object CMakeFiles/tests.dir/tests/unit/_all_.c.obj
+2026-10-02T17:53:50.8489348Z [229/232] Linking C executable bin\sn.exe
+2026-10-02T17:53:55.7283616Z [230/232] Linking C executable bin\tests.exe
+2026-10-02T17:53:55.9027561Z [231/232] Staging compiler artifacts in bin
+2026-10-02T17:53:55.9352569Z 
+2026-10-02T17:53:55.9616241Z Build complete!
+2026-10-02T17:53:55.9863823Z Compiler: bin/sn.exe
+2026-10-02T17:53:56.0109656Z ##[group]Run if [ ! -f "bin/sn.exe" ]; then
+2026-10-02T17:53:56.0110068Z [36;1mif [ ! -f "bin/sn.exe" ]; then[0m
+2026-10-02T17:53:56.0110591Z [36;1m  echo "ERROR: bin/sn.exe not found"[0m
+2026-10-02T17:53:56.0110873Z [36;1m  exit 1[0m
+2026-10-02T17:53:56.0111058Z [36;1mfi[0m
+2026-10-02T17:53:56.0128708Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-10-02T17:53:56.0129117Z ##[endgroup]
+2026-10-02T17:53:56.0712729Z ##[group]Run overall_rc=0
+2026-10-02T17:53:56.0713106Z [36;1moverall_rc=0[0m
+2026-10-02T17:53:56.0713315Z [36;1m[0m
+2026-10-02T17:53:56.0713488Z [36;1mrun_gate() {[0m
+2026-10-02T17:53:56.0713700Z [36;1m  gate_name="$1"[0m
+2026-10-02T17:53:56.0713908Z [36;1m  shift[0m
+2026-10-02T17:53:56.0714102Z [36;1m  echo "::group::$gate_name"[0m
+2026-10-02T17:53:56.0714356Z [36;1m  if "$@"; then[0m
+2026-10-02T17:53:56.0714571Z [36;1m    gate_rc=0[0m
+2026-10-02T17:53:56.0714769Z [36;1m  else[0m
+2026-10-02T17:53:56.0714949Z [36;1m    gate_rc=$?[0m
+2026-10-02T17:53:56.0715152Z [36;1m  fi[0m
+2026-10-02T17:53:56.0715736Z [36;1m  echo "::endgroup::"[0m
+2026-10-02T17:53:56.0716000Z [36;1m  if [ "$gate_rc" -eq 0 ]; then[0m
+2026-10-02T17:53:56.0716327Z [36;1m    echo "- PASS: $gate_name" >> "$GITHUB_STEP_SUMMARY"[0m
+2026-10-02T17:53:56.0716640Z [36;1m  else[0m
+2026-10-02T17:53:56.0716978Z [36;1m    echo "- FAIL: $gate_name (exit $gate_rc)" >> "$GITHUB_STEP_SUMMARY"[0m
+2026-10-02T17:53:56.0717340Z [36;1m    overall_rc=1[0m
+2026-10-02T17:53:56.0717543Z [36;1m  fi[0m
+2026-10-02T17:53:56.0717712Z [36;1m}[0m
+2026-10-02T17:53:56.0717875Z [36;1m[0m
+2026-10-02T17:53:56.0718118Z [36;1mrun_gate "tagged native C/Rust parity (6 fixtures)" \[0m
+2026-10-02T17:53:56.0718561Z [36;1m  python3 scripts/run_rust_tests.py rust-native-tagged --verbose \[0m
+2026-10-02T17:53:56.0718967Z [36;1m    --require-count 6 --fail-on-skip[0m
+2026-10-02T17:53:56.0719354Z [36;1mrun_gate "native scalar ABI and raw bool/char fixture (12 fixtures)" \[0m
+2026-10-02T17:53:56.0719833Z [36;1m  python3 scripts/run_rust_tests.py rust-native-extra --verbose \[0m
+2026-10-02T17:53:56.0720238Z [36;1m    --require-count 12 --fail-on-skip[0m
+2026-10-02T17:53:56.0720584Z [36;1mrun_gate "imported native alias origin (1 fixture)" \[0m
+2026-10-02T17:53:56.0721011Z [36;1m  python3 scripts/run_rust_tests.py rust-native-origin --verbose \[0m
+2026-10-02T17:53:56.0721401Z [36;1m    --require-count 1 --fail-on-skip[0m
+2026-10-02T17:53:56.0721987Z [36;1mecho "Unix byte coverage requires 30 raw-output C/Rust pairs (60 target executions) plus 3 Rust-only raw-byte argv executions."[0m
+2026-10-02T17:53:56.0722866Z [36;1mecho "Windows byte coverage requires 30 exact C/Rust text-mode raw-output pairs plus 3 Rust-only UTF-16/WTF-8 argv executions."[0m
+2026-10-02T17:53:56.0723524Z [36;1mrun_gate "platform-specific raw byte-string behavior" \[0m
+2026-10-02T17:53:56.0723921Z [36;1m  python3 tests/rgen/byte_string_compare.py[0m
+2026-10-02T17:53:56.0724327Z [36;1mrun_gate "exact Rust/C text output, native flush, and diagnostics" \[0m
+2026-10-02T17:53:56.0724779Z [36;1m  python3 tests/rgen/windows_text_transport_compare.py[0m
+2026-10-02T17:53:56.0725168Z [36;1mrun_gate "indexed member Rust runtime composition" \[0m
+2026-10-02T17:53:56.0725634Z [36;1m  python3 scripts/run_rust_tests.py rgen --filter indexed_member_assignment \[0m
+2026-10-02T17:53:56.0726092Z [36;1m    --verbose --require-count 1 --fail-on-skip[0m
+2026-10-02T17:53:56.0726414Z [36;1mrun_gate "Windows text helper logic" \[0m
+2026-10-02T17:53:56.0726728Z [36;1m  python3 tests/rgen/windows_text_helpers.py[0m
+2026-10-02T17:53:56.0727196Z [36;1mrun_gate "complete Rust generation, diagnostics, native, closure and toolchain suites" \[0m
+2026-10-02T17:53:56.0727744Z [36;1m  python3 scripts/run_rust_tests.py all --verbose --fail-on-skip[0m
+2026-10-02T17:53:56.0728193Z [36;1mrun_gate "core C/Rust differential coverage at O0/O1/O2" \[0m
+2026-10-02T17:53:56.0728542Z [36;1m  make test-rust-parity-core[0m
+2026-10-02T17:53:56.0728791Z [36;1m[0m
+2026-10-02T17:53:56.0728969Z [36;1mexit "$overall_rc"[0m
+2026-10-02T17:53:56.0746548Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-10-02T17:53:56.0746947Z env:
+2026-10-02T17:53:56.0747127Z   SN_CC: clang
+2026-10-02T17:53:56.0749285Z   SN_CFLAGS: --target=x86_64-w64-mingw32 -fuse-ld=lld -rtlib=compiler-rt -unwindlib=none
+2026-10-02T17:53:56.0749796Z   SN_RELEASE_CFLAGS: -O3 -fwrapv
+2026-10-02T17:53:56.0750139Z   SN_RUSTFLAGS: --target=x86_64-pc-windows-gnullvm -C linker=clang
+2026-10-02T17:53:56.0750496Z   SN_EXCLUDE_TESTS: 
+2026-10-02T17:53:56.0750697Z   PYTHONUNBUFFERED: 1
+2026-10-02T17:53:56.0750903Z ##[endgroup]
+2026-10-02T17:53:56.1202831Z ##[group]tagged native C/Rust parity (6 fixtures)
+2026-10-02T17:53:57.7880110Z Compiler: D:\a\sindarin-compiler\sindarin-compiler\bin\sn.exe
+2026-10-02T17:53:57.7880691Z Platform: Windows
+2026-10-02T17:53:57.7880981Z Parallel: 4 workers
+2026-10-02T17:53:57.7890071Z 
+2026-10-02T17:53:57.7890448Z Tagged Native Scalar/Source/Link Parity Tests
+2026-10-02T17:53:57.7902992Z ============================================================
+2026-10-02T17:53:57.7934761Z   Running 6 tests with 4 workers...
+2026-10-02T17:54:00.0966734Z 
+2026-10-02T17:54:00.0967428Z                                                             
+2026-10-02T17:54:00.0967827Z 
+2026-10-02T17:54:00.0968796Z ------------------------------------------------------------
+2026-10-02T17:54:00.0969171Z Results: 6 passed, 0 failed, 0 skipped  (2.31s)
+2026-10-02T17:54:00.1009416Z 
+2026-10-02T17:54:00.1009656Z All tests passed!  (total: 2.31s)
+2026-10-02T17:54:00.1241480Z ##[endgroup]
+2026-10-02T17:54:00.1374884Z ##[group]native scalar ABI and raw bool/char fixture (12 fixtures)
+2026-10-02T17:54:00.2851889Z Compiler: D:\a\sindarin-compiler\sindarin-compiler\bin\sn.exe
+2026-10-02T17:54:00.2852292Z Platform: Windows
+2026-10-02T17:54:00.2852503Z Parallel: 4 workers
+2026-10-02T17:54:00.2860630Z 
+2026-10-02T17:54:00.2860901Z Post-Tag Rust Native Extra Coverage
+2026-10-02T17:54:00.2861568Z ============================================================
+2026-10-02T17:54:00.2924458Z   Running 12 tests with 4 workers...
+2026-10-02T17:54:09.7493195Z 
+2026-10-02T17:54:09.7493782Z                                                             
+2026-10-02T17:54:09.7494165Z 
+2026-10-02T17:54:09.7494394Z ------------------------------------------------------------
+2026-10-02T17:54:09.7494944Z Results: 12 passed, 0 failed, 0 skipped  (9.46s)
+2026-10-02T17:54:09.7885594Z 
+2026-10-02T17:54:09.7886183Z All tests passed!  (total: 9.46s)
+2026-10-02T17:54:09.8028487Z ##[endgroup]
+2026-10-02T17:54:09.8034283Z ##[group]imported native alias origin (1 fixture)
+2026-10-02T17:54:09.9585323Z Compiler: D:\a\sindarin-compiler\sindarin-compiler\bin\sn.exe
+2026-10-02T17:54:09.9585989Z Platform: Windows
+2026-10-02T17:54:09.9586315Z Parallel: 4 workers
+2026-10-02T17:54:09.9594916Z 
+2026-10-02T17:54:09.9595281Z Rust Native Imported-Origin Extra Coverage
+2026-10-02T17:54:09.9595785Z ============================================================
+2026-10-02T17:54:09.9599914Z   Running 1 tests with 4 workers...
+2026-10-02T17:54:10.5186266Z 
+2026-10-02T17:54:10.5187014Z                                                             
+2026-10-02T17:54:10.5187601Z 
+2026-10-02T17:54:10.5187837Z ------------------------------------------------------------
+2026-10-02T17:54:10.5188235Z Results: 1 passed, 0 failed, 0 skipped  (559ms)
+2026-10-02T17:54:10.5197147Z 
+2026-10-02T17:54:10.5197378Z All tests passed!  (total: 559ms)
+2026-10-02T17:54:10.5336408Z ##[endgroup]
+2026-10-02T17:54:10.5341416Z Unix byte coverage requires 30 raw-output C/Rust pairs (60 target executions) plus 3 Rust-only raw-byte argv executions.
+2026-10-02T17:54:10.5342614Z Windows byte coverage requires 30 exact C/Rust text-mode raw-output pairs plus 3 Rust-only UTF-16/WTF-8 argv executions.
+2026-10-02T17:54:10.5343543Z ##[group]platform-specific raw byte-string behavior
+2026-10-02T17:54:13.0024360Z PASS array_text_utf8: Windows C/Rust text-mode exact raw bytes O0/O1/O2
+2026-10-02T17:54:15.7381533Z PASS byte_array_to_string: Windows C/Rust text-mode exact raw bytes O0/O1/O2
+2026-10-02T17:54:18.6206220Z PASS split_empty_utf8: Windows C/Rust text-mode exact raw bytes O0/O1/O2
+2026-10-02T17:54:21.2326226Z PASS string_apis: Windows C/Rust text-mode exact raw bytes O0/O1/O2
+2026-10-02T17:54:23.4916225Z PASS struct_text_bytes: Windows C/Rust text-mode exact raw bytes O0/O1/O2
+2026-10-02T17:54:25.5419752Z PASS invalid_utf8_concat: Windows C/Rust text-mode exact raw bytes O0/O1/O2
+2026-10-02T17:54:27.6299554Z PASS invalid_utf8_interpolation: Windows C/Rust text-mode exact raw bytes O0/O1/O2
+2026-10-02T17:54:29.7571089Z PASS invalid_utf8_literal: Windows C/Rust text-mode exact raw bytes O0/O1/O2
+2026-10-02T17:54:31.7498215Z PASS invalid_utf8_pattern: Windows C/Rust text-mode exact raw bytes O0/O1/O2
+2026-10-02T17:54:33.7262813Z PASS invalid_utf8_result: Windows C/Rust text-mode exact raw bytes O0/O1/O2
+2026-10-02T17:54:35.3932927Z PASS raw_argv: Windows Rust O0/O1/O2 UTF-16/WTF-8 argument transport
+2026-10-02T17:54:35.3933817Z PASS: 30 Windows C/Rust raw-output pairs (60 target executions) + 3 Rust-only Windows UTF-16/WTF-8 argv executions
+2026-10-02T17:54:35.4444771Z ##[endgroup]
+2026-10-02T17:54:35.4449229Z ##[group]exact Rust/C text output, native flush, and diagnostics
+2026-10-02T17:54:37.8186459Z PASS native initializer/body/return printing and C flush: 2 target executions
+2026-10-02T17:54:37.8187109Z PASS native C output ordered between Rust writes: 2 target executions
+2026-10-02T17:54:37.8187622Z PASS checked diagnostic stderr/status: 2 target executions
+2026-10-02T17:54:37.8274532Z ##[endgroup]
+2026-10-02T17:54:37.8279228Z ##[group]indexed member Rust runtime composition
+2026-10-02T17:54:37.9751943Z Compiler: D:\a\sindarin-compiler\sindarin-compiler\bin\sn.exe
+2026-10-02T17:54:37.9752740Z Platform: Windows
+2026-10-02T17:54:37.9753135Z Parallel: 4 workers
+2026-10-02T17:54:37.9761920Z 
+2026-10-02T17:54:37.9762248Z Rust Generation Tests
+2026-10-02T17:54:37.9762687Z ============================================================
+2026-10-02T17:54:37.9804289Z   Running 1 tests with 4 workers...
+2026-10-02T17:54:38.6604965Z 
+2026-10-02T17:54:38.6607092Z                                                             
+2026-10-02T17:54:38.6607366Z 
+2026-10-02T17:54:38.6607524Z ------------------------------------------------------------
+2026-10-02T17:54:38.6607876Z Results: 1 passed, 0 failed, 0 skipped  (684ms)
+2026-10-02T17:54:38.6616406Z 
+2026-10-02T17:54:38.6616646Z All tests passed!  (total: 684ms)
+2026-10-02T17:54:38.6750727Z ##[endgroup]
+2026-10-02T17:54:38.6755168Z ##[group]Windows text helper logic
+2026-10-02T17:54:40.5367221Z PASS Windows helper logic: scalar formatting, LF/CRLF, raw bytes, stderr
+2026-10-02T17:54:40.5462343Z ##[endgroup]
+2026-10-02T17:54:40.5467067Z ##[group]complete Rust generation, diagnostics, native, closure and toolchain suites
+2026-10-02T17:54:40.7194583Z Compiler: D:\a\sindarin-compiler\sindarin-compiler\bin\sn.exe
+2026-10-02T17:54:40.7195284Z Platform: Windows
+2026-10-02T17:54:40.7195983Z Parallel: 4 workers
+2026-10-02T17:54:40.7204514Z 
+2026-10-02T17:54:40.7204836Z Rust Generation Tests
+2026-10-02T17:54:40.7205242Z ============================================================
+2026-10-02T17:54:40.7355987Z   Running 316 tests with 4 workers...
+2026-10-02T17:55:46.3107346Z 
+2026-10-02T17:55:46.3146382Z                                                             
+2026-10-02T17:55:46.3146793Z 
+2026-10-02T17:55:46.3147006Z ------------------------------------------------------------
+2026-10-02T17:55:46.3147604Z Results: 316 passed, 0 failed, 0 skipped  (65.59s)
+2026-10-02T17:55:46.3217565Z 
+2026-10-02T17:55:46.3218323Z Rust Generation Error Tests
+2026-10-02T17:55:46.3218790Z ============================================================
+2026-10-02T17:55:46.3275634Z   Running 179 tests with 4 workers...
+2026-10-02T17:55:47.4158052Z 
+2026-10-02T17:55:47.4174826Z                                                             
+2026-10-02T17:55:47.4175420Z 
+2026-10-02T17:55:47.4175567Z ------------------------------------------------------------
+2026-10-02T17:55:47.4175936Z Results: 179 passed, 0 failed, 0 skipped  (1.10s)
+2026-10-02T17:55:47.4178612Z 
+2026-10-02T17:55:47.4178913Z Tagged Native Scalar/Source/Link Parity Tests
+2026-10-02T17:55:47.4179550Z ============================================================
+2026-10-02T17:55:47.4182082Z   Running 6 tests with 4 workers...
+2026-10-02T17:55:49.6766893Z 
+2026-10-02T17:55:49.6767542Z                                                             
+2026-10-02T17:55:49.6767961Z 
+2026-10-02T17:55:49.6768173Z ------------------------------------------------------------
+2026-10-02T17:55:49.6768779Z Results: 6 passed, 0 failed, 0 skipped  (2.26s)
+2026-10-02T17:55:49.6769150Z 
+2026-10-02T17:55:49.6769315Z Post-Tag Rust Native Extra Coverage
+2026-10-02T17:55:49.6769741Z ============================================================
+2026-10-02T17:55:49.6779329Z   Running 12 tests with 4 workers...
+2026-10-02T17:55:58.8636960Z 
+2026-10-02T17:55:58.8637486Z                                                             
+2026-10-02T17:55:58.8637927Z 
+2026-10-02T17:55:58.8638134Z ------------------------------------------------------------
+2026-10-02T17:55:58.8638746Z Results: 12 passed, 0 failed, 0 skipped  (9.19s)
+2026-10-02T17:55:58.8639137Z 
+2026-10-02T17:55:58.8639364Z Rust Native Imported-Origin Extra Coverage
+2026-10-02T17:55:58.8639919Z ============================================================
+2026-10-02T17:55:58.8643585Z   Running 1 tests with 4 workers...
+2026-10-02T17:55:59.4084760Z 
+2026-10-02T17:55:59.4085374Z                                                             
+2026-10-02T17:55:59.4085821Z 
+2026-10-02T17:55:59.4086030Z ------------------------------------------------------------
+2026-10-02T17:55:59.4086403Z Results: 1 passed, 0 failed, 0 skipped  (545ms)
+2026-10-02T17:55:59.4086632Z 
+2026-10-02T17:55:59.4086723Z Rust Native Scalar Error Tests
+2026-10-02T17:55:59.4086990Z ============================================================
+2026-10-02T17:55:59.4088670Z   Running 2 tests with 4 workers...
+2026-10-02T17:55:59.4845949Z 
+2026-10-02T17:55:59.4847144Z                                                             
+2026-10-02T17:55:59.4847597Z 
+2026-10-02T17:55:59.4847848Z ------------------------------------------------------------
+2026-10-02T17:55:59.4848438Z Results: 2 passed, 0 failed, 0 skipped  (76ms)
+2026-10-02T17:55:59.4848795Z 
+2026-10-02T17:55:59.4848947Z Rust Closure Value Tests
+2026-10-02T17:55:59.4849346Z ============================================================
+2026-10-02T17:55:59.4861367Z   Running 36 tests with 4 workers...
+2026-10-02T17:56:07.9917141Z 
+2026-10-02T17:56:07.9918704Z                                                             
+2026-10-02T17:56:07.9919129Z 
+2026-10-02T17:56:07.9919354Z ------------------------------------------------------------
+2026-10-02T17:56:07.9920178Z Results: 36 passed, 0 failed, 0 skipped  (8.51s)
+2026-10-02T17:56:07.9920428Z 
+2026-10-02T17:56:07.9920519Z Rust Closure Value Error Tests
+2026-10-02T17:56:07.9920772Z ============================================================
+2026-10-02T17:56:07.9922338Z   Running 1 tests with 4 workers...
+2026-10-02T17:56:08.0063518Z 
+2026-10-02T17:56:08.0063851Z                                                             
+2026-10-02T17:56:08.0064653Z 
+2026-10-02T17:56:08.0064900Z ------------------------------------------------------------
+2026-10-02T17:56:08.0065525Z Results: 1 passed, 0 failed, 0 skipped  (14ms)
+2026-10-02T17:56:08.0065898Z 
+2026-10-02T17:56:08.0066084Z Rust Toolchain and Artifact Lifecycle Tests
+2026-10-02T17:56:08.0066604Z ============================================================
+2026-10-02T17:56:08.0608234Z   subprocess_utf8_boundary                      PASS  (53ms)
+2026-10-02T17:56:09.0935209Z   rustc_invocation_records                      PASS  (1.03s)
+2026-10-02T17:56:09.1478422Z   pure_rust_has_no_c_dependency                 PASS  (54ms)
+2026-10-02T17:56:09.1636354Z   native_emit_requires_bundle                   PASS  (16ms)
+2026-10-02T17:56:10.2525976Z   native_c_link_driver_contract                 PASS  (1.09s)
+2026-10-02T17:56:10.7875850Z   native_debug_sanitizer_link                   PASS  (535ms)
+2026-10-02T17:56:11.7261152Z   native_compile_and_link_failures              PASS  (938ms)
+2026-10-02T17:56:11.7466003Z   missing_rustc                                 PASS  (20ms)
+2026-10-02T17:56:11.7753695Z   failing_rustc                                 PASS  (29ms)
+2026-10-02T17:56:11.8938533Z   failing_rustc_build                           PASS  (118ms)
+2026-10-02T17:56:12.0031993Z   rust_generated_artifact_lifecycle             PASS  (109ms)
+2026-10-02T17:56:13.7401785Z   rust_native_artifact_lifecycle                PASS  (1.74s)
+2026-10-02T17:56:13.7538394Z 
+2026-10-02T17:56:13.7539206Z ------------------------------------------------------------
+2026-10-02T17:56:13.7539869Z Results: 12 passed, 0 failed  (5.75s)
+2026-10-02T17:56:14.0443892Z 
+2026-10-02T17:56:14.0444488Z All tests passed!  (total: 93.02s)
+2026-10-02T17:56:14.0583539Z ##[endgroup]
+2026-10-02T17:56:14.0591059Z ##[group]core C/Rust differential coverage at O0/O1/O2
+2026-10-02T17:56:14.1783980Z Building Sindarin compiler...
+2026-10-02T17:56:14.2021127Z Platform: windows
+2026-10-02T17:56:14.2255394Z Generator: Ninja
+2026-10-02T17:56:14.2272352Z cmake -S . -B build -G "Ninja" \
+2026-10-02T17:56:14.2272857Z 	-DCMAKE_BUILD_TYPE=Release \
+2026-10-02T17:56:14.2273658Z 	-DCMAKE_C_COMPILER=clang
+2026-10-02T17:56:14.4477176Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/sn.linux.cfg
+2026-10-02T17:56:14.4478635Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/sn.darwin.cfg
+2026-10-02T17:56:14.4480723Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/sn.windows.cfg
+2026-10-02T17:56:14.4502356Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/runtime/sn_arith.h
+2026-10-02T17:56:14.4507868Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/runtime/sn_array.h
+2026-10-02T17:56:14.4513044Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/runtime/sn_byte.h
+2026-10-02T17:56:14.4517892Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/runtime/sn_conv.h
+2026-10-02T17:56:14.4523370Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/runtime/sn_core.h
+2026-10-02T17:56:14.4528109Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/runtime/sn_minimal.h
+2026-10-02T17:56:14.4532727Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/runtime/sn_reflect.h
+2026-10-02T17:56:14.4537035Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/runtime/sn_serial.h
+2026-10-02T17:56:14.4542366Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/runtime/sn_string.h
+2026-10-02T17:56:14.4546944Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/runtime/sn_thread.h
+2026-10-02T17:56:14.4551570Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/minimal/sn_arith.h
+2026-10-02T17:56:14.4555796Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/minimal/sn_array.h
+2026-10-02T17:56:14.4560411Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/minimal/sn_byte.h
+2026-10-02T17:56:14.4565068Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/minimal/sn_conv.h
+2026-10-02T17:56:14.4569854Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/minimal/sn_core.h
+2026-10-02T17:56:14.4574098Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/minimal/sn_minimal.h
+2026-10-02T17:56:14.4578376Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/minimal/sn_reflect.h
+2026-10-02T17:56:14.4583114Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/minimal/sn_serial.h
+2026-10-02T17:56:14.4588110Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/minimal/sn_string.h
+2026-10-02T17:56:14.4592333Z -- Installing: D:/a/sindarin-compiler/sindarin-compiler/bin/include/minimal/sn_thread.h
+2026-10-02T17:56:14.4598505Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/include/platform/compat_dirent.h
+2026-10-02T17:56:14.4600556Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/include/platform/compat_io.h
+2026-10-02T17:56:14.4601991Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/include/platform/compat_net.h
+2026-10-02T17:56:14.4603302Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/include/platform/compat_pthread.h
+2026-10-02T17:56:14.4604747Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/include/platform/compat_time.h
+2026-10-02T17:56:14.4606272Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/include/platform/compat_windows.h
+2026-10-02T17:56:14.4608005Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/include/platform/platform.h
+2026-10-02T17:56:14.4642273Z -- Found libs submodule: D:/a/sindarin-compiler/sindarin-compiler/.sn/sindarin-pkg-libs/libs/windows
+2026-10-02T17:56:14.4643353Z --   Copying zlib headers...
+2026-10-02T17:56:14.4644189Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/zlib.h
+2026-10-02T17:56:14.4647023Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/zconf.h
+2026-10-02T17:56:14.4647515Z --   Copying yyjson headers...
+2026-10-02T17:56:14.4649496Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/yyjson.h
+2026-10-02T17:56:14.4649953Z --   Copying json-c headers...
+2026-10-02T17:56:14.4651779Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/json-c
+2026-10-02T17:56:14.4653654Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/json-c/arraylist.h
+2026-10-02T17:56:14.4654970Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/json-c/debug.h
+2026-10-02T17:56:14.4656409Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/json-c/json.h
+2026-10-02T17:56:14.4657534Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/json-c/json_config.h
+2026-10-02T17:56:14.4659025Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/json-c/json_c_version.h
+2026-10-02T17:56:14.4660170Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/json-c/json_inttypes.h
+2026-10-02T17:56:14.4661566Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/json-c/json_object.h
+2026-10-02T17:56:14.4663195Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/json-c/json_object_iterator.h
+2026-10-02T17:56:14.4664697Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/json-c/json_patch.h
+2026-10-02T17:56:14.4665808Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/json-c/json_pointer.h
+2026-10-02T17:56:14.4667723Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/json-c/json_tokener.h
+2026-10-02T17:56:14.4668799Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/json-c/json_types.h
+2026-10-02T17:56:14.4670186Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/json-c/json_util.h
+2026-10-02T17:56:14.4671311Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/json-c/json_visit.h
+2026-10-02T17:56:14.4672745Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/json-c/linkhash.h
+2026-10-02T17:56:14.4673844Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/json-c/printbuf.h
+2026-10-02T17:56:14.4674858Z --   Copying libxml2 headers...
+2026-10-02T17:56:14.4676487Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml
+2026-10-02T17:56:14.4678809Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/c14n.h
+2026-10-02T17:56:14.4679989Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/catalog.h
+2026-10-02T17:56:14.4681452Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/chvalid.h
+2026-10-02T17:56:14.4683451Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/debugXML.h
+2026-10-02T17:56:14.4684693Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/dict.h
+2026-10-02T17:56:14.4686033Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/encoding.h
+2026-10-02T17:56:14.4687515Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/entities.h
+2026-10-02T17:56:14.4688778Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/globals.h
+2026-10-02T17:56:14.4690254Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/hash.h
+2026-10-02T17:56:14.4691348Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/HTMLparser.h
+2026-10-02T17:56:14.4692747Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/HTMLtree.h
+2026-10-02T17:56:14.4693775Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/list.h
+2026-10-02T17:56:14.4695226Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/nanoftp.h
+2026-10-02T17:56:14.4696363Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/nanohttp.h
+2026-10-02T17:56:14.4697809Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/parser.h
+2026-10-02T17:56:14.4699326Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/parserInternals.h
+2026-10-02T17:56:14.4700797Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/pattern.h
+2026-10-02T17:56:14.4701941Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/relaxng.h
+2026-10-02T17:56:14.4703387Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/SAX.h
+2026-10-02T17:56:14.4704446Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/SAX2.h
+2026-10-02T17:56:14.4706375Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/schemasInternals.h
+2026-10-02T17:56:14.4707481Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/schematron.h
+2026-10-02T17:56:14.4708874Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/threads.h
+2026-10-02T17:56:14.4709949Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/tree.h
+2026-10-02T17:56:14.4711380Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/uri.h
+2026-10-02T17:56:14.4712594Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/valid.h
+2026-10-02T17:56:14.4714475Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/xinclude.h
+2026-10-02T17:56:14.4715575Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/xlink.h
+2026-10-02T17:56:14.4717025Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/xmlautomata.h
+2026-10-02T17:56:14.4718094Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/xmlerror.h
+2026-10-02T17:56:14.4719504Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/xmlexports.h
+2026-10-02T17:56:14.4720597Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/xmlIO.h
+2026-10-02T17:56:14.4722367Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/xmlmemory.h
+2026-10-02T17:56:14.4723071Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/xmlmodule.h
+2026-10-02T17:56:14.4724674Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/xmlreader.h
+2026-10-02T17:56:14.4725543Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/xmlregexp.h
+2026-10-02T17:56:14.4726986Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/xmlsave.h
+2026-10-02T17:56:14.4728604Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/xmlschemas.h
+2026-10-02T17:56:14.4729543Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/xmlschemastypes.h
+2026-10-02T17:56:14.4731582Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/xmlstring.h
+2026-10-02T17:56:14.4732667Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/xmlunicode.h
+2026-10-02T17:56:14.4734076Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/xmlversion.h
+2026-10-02T17:56:14.4735156Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/xmlwriter.h
+2026-10-02T17:56:14.4736563Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/xpath.h
+2026-10-02T17:56:14.4737764Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/xpathInternals.h
+2026-10-02T17:56:14.4739158Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libxml/xpointer.h
+2026-10-02T17:56:14.4739677Z --   Copying libyaml headers...
+2026-10-02T17:56:14.4741381Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/yaml.h
+2026-10-02T17:56:14.4741919Z --   Copying openssl headers...
+2026-10-02T17:56:14.4743764Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl
+2026-10-02T17:56:14.4746430Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/aes.h
+2026-10-02T17:56:14.4747633Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/asn1.h
+2026-10-02T17:56:14.4749085Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/asn1err.h
+2026-10-02T17:56:14.4750223Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/asn1t.h
+2026-10-02T17:56:14.4751957Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/async.h
+2026-10-02T17:56:14.4753099Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/asyncerr.h
+2026-10-02T17:56:14.4754490Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/bio.h
+2026-10-02T17:56:14.4755602Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/bioerr.h
+2026-10-02T17:56:14.4757013Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/blowfish.h
+2026-10-02T17:56:14.4758108Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/bn.h
+2026-10-02T17:56:14.4759510Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/bnerr.h
+2026-10-02T17:56:14.4760703Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/buffer.h
+2026-10-02T17:56:14.4762175Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/buffererr.h
+2026-10-02T17:56:14.4763062Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/byteorder.h
+2026-10-02T17:56:14.4764678Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/camellia.h
+2026-10-02T17:56:14.4765773Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/cast.h
+2026-10-02T17:56:14.4767178Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/cmac.h
+2026-10-02T17:56:14.4768408Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/cmp.h
+2026-10-02T17:56:14.4769863Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/cmperr.h
+2026-10-02T17:56:14.4771159Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/cmp_util.h
+2026-10-02T17:56:14.4772586Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/cms.h
+2026-10-02T17:56:14.4773933Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/cmserr.h
+2026-10-02T17:56:14.4775188Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/comp.h
+2026-10-02T17:56:14.4776875Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/comperr.h
+2026-10-02T17:56:14.4777561Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/conf.h
+2026-10-02T17:56:14.4779223Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/conferr.h
+2026-10-02T17:56:14.4780343Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/configuration.h
+2026-10-02T17:56:14.4781736Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/conftypes.h
+2026-10-02T17:56:14.4783203Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/conf_api.h
+2026-10-02T17:56:14.4784458Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/core.h
+2026-10-02T17:56:14.4785949Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/core_dispatch.h
+2026-10-02T17:56:14.4787121Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/core_names.h
+2026-10-02T17:56:14.4788737Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/core_object.h
+2026-10-02T17:56:14.4789880Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/crmf.h
+2026-10-02T17:56:14.4791875Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/crmferr.h
+2026-10-02T17:56:14.4793019Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/crypto.h
+2026-10-02T17:56:14.4794437Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/cryptoerr.h
+2026-10-02T17:56:14.4795640Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/cryptoerr_legacy.h
+2026-10-02T17:56:14.4797081Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/ct.h
+2026-10-02T17:56:14.4798267Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/cterr.h
+2026-10-02T17:56:14.4799761Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/decoder.h
+2026-10-02T17:56:14.4800962Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/decodererr.h
+2026-10-02T17:56:14.4802354Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/des.h
+2026-10-02T17:56:14.4803265Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/dh.h
+2026-10-02T17:56:14.4804850Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/dherr.h
+2026-10-02T17:56:14.4805937Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/dsa.h
+2026-10-02T17:56:14.4807375Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/dsaerr.h
+2026-10-02T17:56:14.4808531Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/dtls1.h
+2026-10-02T17:56:14.4810078Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/ebcdic.h
+2026-10-02T17:56:14.4811416Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/ec.h
+2026-10-02T17:56:14.4812856Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/ecdh.h
+2026-10-02T17:56:14.4813953Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/ecdsa.h
+2026-10-02T17:56:14.4815395Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/ecerr.h
+2026-10-02T17:56:14.4816508Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/encoder.h
+2026-10-02T17:56:14.4818057Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/encodererr.h
+2026-10-02T17:56:14.4819388Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/engine.h
+2026-10-02T17:56:14.4820647Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/engineerr.h
+2026-10-02T17:56:14.4822970Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/err.h
+2026-10-02T17:56:14.4824328Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/ess.h
+2026-10-02T17:56:14.4824985Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/esserr.h
+2026-10-02T17:56:14.4826518Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/evp.h
+2026-10-02T17:56:14.4827565Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/evperr.h
+2026-10-02T17:56:14.4828961Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/e_os2.h
+2026-10-02T17:56:14.4830083Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/e_ostime.h
+2026-10-02T17:56:14.4831656Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/fipskey.h
+2026-10-02T17:56:14.4833021Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/fips_names.h
+2026-10-02T17:56:14.4834071Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/hmac.h
+2026-10-02T17:56:14.4835472Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/hpke.h
+2026-10-02T17:56:14.4836564Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/http.h
+2026-10-02T17:56:14.4837976Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/httperr.h
+2026-10-02T17:56:14.4839024Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/idea.h
+2026-10-02T17:56:14.4840442Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/indicator.h
+2026-10-02T17:56:14.4841447Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/kdf.h
+2026-10-02T17:56:14.4843074Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/kdferr.h
+2026-10-02T17:56:14.4843763Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/lhash.h
+2026-10-02T17:56:14.4845421Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/macros.h
+2026-10-02T17:56:14.4846478Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/md2.h
+2026-10-02T17:56:14.4847858Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/md4.h
+2026-10-02T17:56:14.4848930Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/md5.h
+2026-10-02T17:56:14.4850321Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/mdc2.h
+2026-10-02T17:56:14.4851497Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/ml_kem.h
+2026-10-02T17:56:14.4853092Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/modes.h
+2026-10-02T17:56:14.4854163Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/objects.h
+2026-10-02T17:56:14.4855576Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/objectserr.h
+2026-10-02T17:56:14.4856610Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/obj_mac.h
+2026-10-02T17:56:14.4858155Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/ocsp.h
+2026-10-02T17:56:14.4858876Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/ocsperr.h
+2026-10-02T17:56:14.4860424Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/opensslconf.h
+2026-10-02T17:56:14.4861473Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/opensslv.h
+2026-10-02T17:56:14.4862994Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/ossl_typ.h
+2026-10-02T17:56:14.4864345Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/params.h
+2026-10-02T17:56:14.4865558Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/param_build.h
+2026-10-02T17:56:14.4866834Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/pem.h
+2026-10-02T17:56:14.4868265Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/pem2.h
+2026-10-02T17:56:14.4869346Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/pemerr.h
+2026-10-02T17:56:14.4870732Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/pkcs12.h
+2026-10-02T17:56:14.4872053Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/pkcs12err.h
+2026-10-02T17:56:14.4873461Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/pkcs7.h
+2026-10-02T17:56:14.4874556Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/pkcs7err.h
+2026-10-02T17:56:14.4875970Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/proverr.h
+2026-10-02T17:56:14.4877070Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/provider.h
+2026-10-02T17:56:14.4878741Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/prov_ssl.h
+2026-10-02T17:56:14.4879898Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/quic.h
+2026-10-02T17:56:14.4881281Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/rand.h
+2026-10-02T17:56:14.4882373Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/randerr.h
+2026-10-02T17:56:14.4883743Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/rc2.h
+2026-10-02T17:56:14.4884821Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/rc4.h
+2026-10-02T17:56:14.4886219Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/rc5.h
+2026-10-02T17:56:14.4887323Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/ripemd.h
+2026-10-02T17:56:14.4888691Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/rsa.h
+2026-10-02T17:56:14.4889775Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/rsaerr.h
+2026-10-02T17:56:14.4891244Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/safestack.h
+2026-10-02T17:56:14.4892647Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/seed.h
+2026-10-02T17:56:14.4894120Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/self_test.h
+2026-10-02T17:56:14.4895146Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/sha.h
+2026-10-02T17:56:14.4896565Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/srp.h
+2026-10-02T17:56:14.4897761Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/srtp.h
+2026-10-02T17:56:14.4899235Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/ssl.h
+2026-10-02T17:56:14.4900264Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/ssl2.h
+2026-10-02T17:56:14.4901638Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/ssl3.h
+2026-10-02T17:56:14.4902778Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/sslerr.h
+2026-10-02T17:56:14.4904235Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/sslerr_legacy.h
+2026-10-02T17:56:14.4905290Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/stack.h
+2026-10-02T17:56:14.4906747Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/store.h
+2026-10-02T17:56:14.4908202Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/storeerr.h
+2026-10-02T17:56:14.4909387Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/symhacks.h
+2026-10-02T17:56:14.4910779Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/thread.h
+2026-10-02T17:56:14.4911924Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/tls1.h
+2026-10-02T17:56:14.4913702Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/trace.h
+2026-10-02T17:56:14.4914773Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/ts.h
+2026-10-02T17:56:14.4916166Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/tserr.h
+2026-10-02T17:56:14.4917260Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/txt_db.h
+2026-10-02T17:56:14.4918820Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/types.h
+2026-10-02T17:56:14.4919565Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/ui.h
+2026-10-02T17:56:14.4921111Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/uierr.h
+2026-10-02T17:56:14.4922233Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/whrlpool.h
+2026-10-02T17:56:14.4923606Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/x509.h
+2026-10-02T17:56:14.4924751Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/x509err.h
+2026-10-02T17:56:14.4926159Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/x509v3.h
+2026-10-02T17:56:14.4927331Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/x509v3err.h
+2026-10-02T17:56:14.4928780Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/x509_acert.h
+2026-10-02T17:56:14.4929843Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/openssl/x509_vfy.h
+2026-10-02T17:56:14.4931864Z --   Copying libssh headers...
+2026-10-02T17:56:14.4933727Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libssh
+2026-10-02T17:56:14.4935540Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libssh/callbacks.h
+2026-10-02T17:56:14.4936825Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libssh/legacy.h
+2026-10-02T17:56:14.4938225Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libssh/libssh.h
+2026-10-02T17:56:14.4939149Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libssh/libsshpp.hpp
+2026-10-02T17:56:14.4940729Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libssh/libssh_version.h
+2026-10-02T17:56:14.4941781Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libssh/server.h
+2026-10-02T17:56:14.4943197Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libssh/sftp.h
+2026-10-02T17:56:14.4944318Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libssh/sftpserver.h
+2026-10-02T17:56:14.4945715Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/libssh/ssh2.h
+2026-10-02T17:56:14.4946328Z --   Copying libgit2 headers...
+2026-10-02T17:56:14.4947995Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2.h
+2026-10-02T17:56:14.4949494Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2
+2026-10-02T17:56:14.4952056Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/annotated_commit.h
+2026-10-02T17:56:14.4953417Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/apply.h
+2026-10-02T17:56:14.4954602Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/attr.h
+2026-10-02T17:56:14.4955984Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/blame.h
+2026-10-02T17:56:14.4957253Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/blob.h
+2026-10-02T17:56:14.4958530Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/branch.h
+2026-10-02T17:56:14.4959833Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/buffer.h
+2026-10-02T17:56:14.4961267Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/cert.h
+2026-10-02T17:56:14.4962364Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/checkout.h
+2026-10-02T17:56:14.4963769Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/cherrypick.h
+2026-10-02T17:56:14.4964851Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/clone.h
+2026-10-02T17:56:14.4966257Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/commit.h
+2026-10-02T17:56:14.4967326Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/common.h
+2026-10-02T17:56:14.4968761Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/config.h
+2026-10-02T17:56:14.4969870Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/credential.h
+2026-10-02T17:56:14.4971319Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/credential_helpers.h
+2026-10-02T17:56:14.4972349Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/cred_helpers.h
+2026-10-02T17:56:14.4974510Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/deprecated.h
+2026-10-02T17:56:14.4975655Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/describe.h
+2026-10-02T17:56:14.4977024Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/diff.h
+2026-10-02T17:56:14.4978145Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/email.h
+2026-10-02T17:56:14.4979570Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/errors.h
+2026-10-02T17:56:14.4980671Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/experimental.h
+2026-10-02T17:56:14.4982271Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/filter.h
+2026-10-02T17:56:14.4983307Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/global.h
+2026-10-02T17:56:14.4984724Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/graph.h
+2026-10-02T17:56:14.4985789Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/ignore.h
+2026-10-02T17:56:14.4987222Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/index.h
+2026-10-02T17:56:14.4988493Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/indexer.h
+2026-10-02T17:56:14.4989785Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/mailmap.h
+2026-10-02T17:56:14.4990882Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/merge.h
+2026-10-02T17:56:14.4992403Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/message.h
+2026-10-02T17:56:14.4993876Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/net.h
+2026-10-02T17:56:14.4995004Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/notes.h
+2026-10-02T17:56:14.4996397Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/object.h
+2026-10-02T17:56:14.4997474Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/odb.h
+2026-10-02T17:56:14.4999071Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/odb_backend.h
+2026-10-02T17:56:14.5000031Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/oid.h
+2026-10-02T17:56:14.5001399Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/oidarray.h
+2026-10-02T17:56:14.5002877Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/pack.h
+2026-10-02T17:56:14.5003623Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/patch.h
+2026-10-02T17:56:14.5005229Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/pathspec.h
+2026-10-02T17:56:14.5006257Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/proxy.h
+2026-10-02T17:56:14.5007641Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/rebase.h
+2026-10-02T17:56:14.5008673Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/refdb.h
+2026-10-02T17:56:14.5010334Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/reflog.h
+2026-10-02T17:56:14.5011681Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/refs.h
+2026-10-02T17:56:14.5012791Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/refspec.h
+2026-10-02T17:56:14.5014328Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/remote.h
+2026-10-02T17:56:14.5015089Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/repository.h
+2026-10-02T17:56:14.5016581Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/reset.h
+2026-10-02T17:56:14.5017638Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/revert.h
+2026-10-02T17:56:14.5019184Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/revparse.h
+2026-10-02T17:56:14.5020221Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/revwalk.h
+2026-10-02T17:56:14.5021640Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/signature.h
+2026-10-02T17:56:14.5022675Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/stash.h
+2026-10-02T17:56:14.5024132Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/status.h
+2026-10-02T17:56:14.5025241Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/stdint.h
+2026-10-02T17:56:14.5026614Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/strarray.h
+2026-10-02T17:56:14.5027709Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/submodule.h
+2026-10-02T17:56:14.5029239Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys
+2026-10-02T17:56:14.5031039Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/alloc.h
+2026-10-02T17:56:14.5032416Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/commit.h
+2026-10-02T17:56:14.5033524Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/commit_graph.h
+2026-10-02T17:56:14.5035170Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/config.h
+2026-10-02T17:56:14.5036195Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/cred.h
+2026-10-02T17:56:14.5037665Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/credential.h
+2026-10-02T17:56:14.5038685Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/diff.h
+2026-10-02T17:56:14.5040098Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/email.h
+2026-10-02T17:56:14.5041187Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/errors.h
+2026-10-02T17:56:14.5042577Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/filter.h
+2026-10-02T17:56:14.5043627Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/hashsig.h
+2026-10-02T17:56:14.5045048Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/index.h
+2026-10-02T17:56:14.5046504Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/mempack.h
+2026-10-02T17:56:14.5047646Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/merge.h
+2026-10-02T17:56:14.5048956Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/midx.h
+2026-10-02T17:56:14.5050206Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/odb_backend.h
+2026-10-02T17:56:14.5051882Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/openssl.h
+2026-10-02T17:56:14.5052964Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/path.h
+2026-10-02T17:56:14.5054572Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/refdb_backend.h
+2026-10-02T17:56:14.5055277Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/refs.h
+2026-10-02T17:56:14.5056836Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/remote.h
+2026-10-02T17:56:14.5057940Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/repository.h
+2026-10-02T17:56:14.5059340Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/stream.h
+2026-10-02T17:56:14.5060410Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/sys/transport.h
+2026-10-02T17:56:14.5061786Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/tag.h
+2026-10-02T17:56:14.5062855Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/trace.h
+2026-10-02T17:56:14.5064351Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/transaction.h
+2026-10-02T17:56:14.5065422Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/transport.h
+2026-10-02T17:56:14.5066779Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/tree.h
+2026-10-02T17:56:14.5067867Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/types.h
+2026-10-02T17:56:14.5069256Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/version.h
+2026-10-02T17:56:14.5070452Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/git2/worktree.h
+2026-10-02T17:56:14.5071746Z --   Copying curl headers...
+2026-10-02T17:56:14.5073136Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/curl
+2026-10-02T17:56:14.5075054Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/curl/curl.h
+2026-10-02T17:56:14.5076354Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/curl/curlver.h
+2026-10-02T17:56:14.5077432Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/curl/easy.h
+2026-10-02T17:56:14.5078830Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/curl/header.h
+2026-10-02T17:56:14.5079948Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/curl/mprintf.h
+2026-10-02T17:56:14.5081417Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/curl/multi.h
+2026-10-02T17:56:14.5082506Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/curl/options.h
+2026-10-02T17:56:14.5083932Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/curl/stdcheaders.h
+2026-10-02T17:56:14.5085377Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/curl/system.h
+2026-10-02T17:56:14.5086455Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/curl/typecheck-gcc.h
+2026-10-02T17:56:14.5087822Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/curl/urlapi.h
+2026-10-02T17:56:14.5088922Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/include/curl/websockets.h
+2026-10-02T17:56:14.5100890Z --   Copying library: D:/a/sindarin-compiler/sindarin-compiler/.sn/sindarin-pkg-libs/libs/windows/lib/libzlib.a
+2026-10-02T17:56:14.5101958Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/lib/libzlib.a
+2026-10-02T17:56:14.5103157Z --   Copying library: D:/a/sindarin-compiler/sindarin-compiler/.sn/sindarin-pkg-libs/libs/windows/lib/libzs.a
+2026-10-02T17:56:14.5104380Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/lib/libzs.a
+2026-10-02T17:56:14.5105438Z --   Copying library: D:/a/sindarin-compiler/sindarin-compiler/.sn/sindarin-pkg-libs/libs/windows/lib/libyyjson.a
+2026-10-02T17:56:14.5106853Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/lib/libyyjson.a
+2026-10-02T17:56:14.5107610Z --   Copying library: D:/a/sindarin-compiler/sindarin-compiler/.sn/sindarin-pkg-libs/libs/windows/lib/libxml2.a
+2026-10-02T17:56:14.5109015Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/lib/libxml2.a
+2026-10-02T17:56:14.5109689Z --   Copying library: D:/a/sindarin-compiler/sindarin-compiler/.sn/sindarin-pkg-libs/libs/windows/lib/libyaml.a
+2026-10-02T17:56:14.5110995Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/lib/libyaml.a
+2026-10-02T17:56:14.5112441Z --   Copying library: D:/a/sindarin-compiler/sindarin-compiler/.sn/sindarin-pkg-libs/libs/windows/lib/libcrypto.a
+2026-10-02T17:56:14.5113610Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/lib/libcrypto.a
+2026-10-02T17:56:14.5114801Z --   Copying library: D:/a/sindarin-compiler/sindarin-compiler/.sn/sindarin-pkg-libs/libs/windows/lib/libssl.a
+2026-10-02T17:56:14.5115965Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/lib/libssl.a
+2026-10-02T17:56:14.5117034Z --   Copying library: D:/a/sindarin-compiler/sindarin-compiler/.sn/sindarin-pkg-libs/libs/windows/lib/libssh.a
+2026-10-02T17:56:14.5118352Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/lib/libssh.a
+2026-10-02T17:56:14.5119000Z --   Copying library: D:/a/sindarin-compiler/sindarin-compiler/.sn/sindarin-pkg-libs/libs/windows/lib/libssh2.a
+2026-10-02T17:56:14.5120445Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/lib/libssh2.a
+2026-10-02T17:56:14.5121089Z --   Copying library: D:/a/sindarin-compiler/sindarin-compiler/.sn/sindarin-pkg-libs/libs/windows/lib/libgit2.a
+2026-10-02T17:56:14.5122447Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/lib/libgit2.a
+2026-10-02T17:56:14.5123106Z --   Copying library: D:/a/sindarin-compiler/sindarin-compiler/.sn/sindarin-pkg-libs/libs/windows/lib/libhttp_parser.a
+2026-10-02T17:56:14.5124535Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/lib/libhttp_parser.a
+2026-10-02T17:56:14.5125206Z --   Copying library: D:/a/sindarin-compiler/sindarin-compiler/.sn/sindarin-pkg-libs/libs/windows/lib/libpcre2-8.a
+2026-10-02T17:56:14.5126601Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/lib/libpcre2-8.a
+2026-10-02T17:56:14.5127633Z --   Copying library: D:/a/sindarin-compiler/sindarin-compiler/.sn/sindarin-pkg-libs/libs/windows/lib/libssh2.a
+2026-10-02T17:56:14.5128882Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/lib/libssh2.a
+2026-10-02T17:56:14.5129992Z --   Copying library: D:/a/sindarin-compiler/sindarin-compiler/.sn/sindarin-pkg-libs/libs/windows/lib/libcurl.a
+2026-10-02T17:56:14.5131280Z -- Up-to-date: D:/a/sindarin-compiler/sindarin-compiler/bin/deps/lib/libcurl.a
+2026-10-02T17:56:14.5132668Z --   Dependencies copied to: D:/a/sindarin-compiler/sindarin-compiler/bin/deps
+2026-10-02T17:56:14.5133309Z -- Using zlib archive: D:/a/sindarin-compiler/sindarin-compiler/.sn/sindarin-pkg-libs/libs/windows/lib/libzlib.a
+2026-10-02T17:56:14.5133846Z -- Found sindarin-template (handlebars)
+2026-10-02T17:56:14.5143223Z -- Found libcurl - enabling auto-update feature
+2026-10-02T17:56:14.5144349Z -- Found libgit2 and libyaml - enabling package manager
+2026-10-02T17:56:14.5207549Z -- 
+2026-10-02T17:56:14.5208079Z -- Sindarin Compiler Build Configuration:
+2026-10-02T17:56:14.5208646Z --   Version:      1.0.0
+2026-10-02T17:56:14.5208897Z --   Platform:     Windows
+2026-10-02T17:56:14.5209125Z --   Compiler:     Clang 22.1.8
+2026-10-02T17:56:14.5209358Z --   Build Type:   Release
+2026-10-02T17:56:14.5209736Z --   Debug:        OFF
+2026-10-02T17:56:14.5209994Z --   ASAN:         OFF
+2026-10-02T17:56:14.5210570Z --   Output:       D:/a/sindarin-compiler/sindarin-compiler/bin
+2026-10-02T17:56:14.5210972Z -- 
+2026-10-02T17:56:14.5213515Z -- Configuring done (0.2s)
+2026-10-02T17:56:14.5989959Z -- Generating done (0.1s)
+2026-10-02T17:56:14.6001346Z -- Build files have been written to: D:/a/sindarin-compiler/sindarin-compiler/build
+2026-10-02T17:56:14.6095349Z cmake --build build
+2026-10-02T17:56:14.6802110Z [0/2] Re-checking globbed directories...
+2026-10-02T17:56:14.7626854Z [1/3] Synchronizing runtime headers
+2026-10-02T17:56:14.9169062Z [2/3] Staging compiler artifacts in bin
+2026-10-02T17:56:14.9474708Z 
+2026-10-02T17:56:14.9712123Z Build complete!
+2026-10-02T17:56:14.9961904Z Compiler: bin/sn.exe
+2026-10-02T17:56:16.0765979Z PASS tests\rgen\by_value_scalar_parameter_assignment.sn -O0
+2026-10-02T17:56:17.0912124Z PASS tests\rgen\by_value_scalar_parameter_assignment.sn -O1
+2026-10-02T17:56:18.0418843Z PASS tests\rgen\by_value_scalar_parameter_assignment.sn -O2
+2026-10-02T17:56:18.9795245Z PASS tests\rgen\by_value_scalar_parameter_assignment_unchecked.sn -O0
+2026-10-02T17:56:19.9394824Z PASS tests\rgen\by_value_scalar_parameter_assignment_unchecked.sn -O1
+2026-10-02T17:56:20.8696750Z PASS tests\rgen\by_value_scalar_parameter_assignment_unchecked.sn -O2
+2026-10-02T17:56:21.8835532Z PASS tests\rgen\checked_numeric_mutations.sn -O0
+2026-10-02T17:56:22.9098404Z PASS tests\rgen\checked_numeric_mutations.sn -O1
+2026-10-02T17:56:23.9059829Z PASS tests\rgen\checked_numeric_mutations.sn -O2
+2026-10-02T17:56:25.2821261Z PASS tests\rgen\iterator_protocol_numeric_mutations.sn -O0
+2026-10-02T17:56:26.6820426Z PASS tests\rgen\iterator_protocol_numeric_mutations.sn -O1
+2026-10-02T17:56:28.0128020Z PASS tests\rgen\iterator_protocol_numeric_mutations.sn -O2
+2026-10-02T17:56:29.1300100Z PASS tests\rgen\resolved_callable_methods.sn -O0
+2026-10-02T17:56:30.2280480Z PASS tests\rgen\resolved_callable_methods.sn -O1
+2026-10-02T17:56:31.3122775Z PASS tests\rgen\resolved_callable_methods.sn -O2
+2026-10-02T17:56:32.0163379Z PASS tests\rgen\receiver_array_alias.sn -O0
+2026-10-02T17:56:32.7239147Z PASS tests\rgen\receiver_array_alias.sn -O1
+2026-10-02T17:56:33.4254422Z PASS tests\rgen\receiver_array_alias.sn -O2
+2026-10-02T17:56:34.3096730Z PASS tests\rgen\receiver_array_alias_forward_recursive.sn -O0
+2026-10-02T17:56:35.2065839Z PASS tests\rgen\receiver_array_alias_forward_recursive.sn -O1
+2026-10-02T17:56:36.0707242Z PASS tests\rgen\receiver_array_alias_forward_recursive.sn -O2
+2026-10-02T17:56:37.0159429Z PASS tests\rgen\receiver_array_alias_identity.sn -O0
+2026-10-02T17:56:37.9744141Z PASS tests\rgen\receiver_array_alias_identity.sn -O1
+2026-10-02T17:56:38.9107745Z PASS tests\rgen\receiver_array_alias_identity.sn -O2
+2026-10-02T17:56:39.6295715Z PASS tests\rgen\receiver_array_alias_minimal.sn -O0
+2026-10-02T17:56:40.3367196Z PASS tests\rgen\receiver_array_alias_minimal.sn -O1
+2026-10-02T17:56:41.0315008Z PASS tests\rgen\receiver_array_alias_minimal.sn -O2
+2026-10-02T17:56:42.0465736Z PASS tests\rgen\receiver_array_alias_multiple.sn -O0
+2026-10-02T17:56:43.1130651Z PASS tests\rgen\receiver_array_alias_multiple.sn -O1
+2026-10-02T17:56:44.1477408Z PASS tests\rgen\receiver_array_alias_multiple.sn -O2
+2026-10-02T17:56:44.2192658Z ##[endgroup]
+2026-10-02T17:56:44.2485130Z Post job cleanup.
+2026-10-02T17:56:44.4659552Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-10-02T17:56:44.5056753Z git version 2.55.0.windows.5
+2026-10-02T17:56:44.5130005Z Temporarily overriding HOME='D:\a\_temp\23767af9-9117-42ed-b3b3-d1d4824b642b' before making global git config changes
+2026-10-02T17:56:44.5131558Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-02T17:56:44.5142552Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\sindarin-compiler\sindarin-compiler
+2026-10-02T17:56:44.5496660Z Removing SSH command configuration
+2026-10-02T17:56:44.5509067Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-10-02T17:56:44.5833956Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-10-02T17:56:45.2221779Z Removing HTTP extra header
+2026-10-02T17:56:45.2232225Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-02T17:56:45.2551741Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-10-02T17:56:45.9520425Z Removing includeIf entries pointing to credentials config files
+2026-10-02T17:56:45.9533056Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-02T17:56:45.9830337Z includeif.gitdir:D:/a/sindarin-compiler/sindarin-compiler/.git.path
+2026-10-02T17:56:45.9831929Z includeif.gitdir:D:/a/sindarin-compiler/sindarin-compiler/.git/worktrees/*.path
+2026-10-02T17:56:45.9832693Z includeif.gitdir:/github/workspace/.git.path
+2026-10-02T17:56:45.9833327Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-02T17:56:45.9874129Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/sindarin-compiler/sindarin-compiler/.git.path
+2026-10-02T17:56:46.0168068Z D:\a\_temp\git-credentials-7b3875df-1a30-4492-9f74-6766113594b2.config
+2026-10-02T17:56:46.0223994Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/sindarin-compiler/sindarin-compiler/.git.path D\:\\a\\_temp\\git\-credentials\-7b3875df\-1a30\-4492\-9f74\-6766113594b2\.config
+2026-10-02T17:56:46.0618975Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/sindarin-compiler/sindarin-compiler/.git/worktrees/*.path
+2026-10-02T17:56:46.0886092Z D:\a\_temp\git-credentials-7b3875df-1a30-4492-9f74-6766113594b2.config
+2026-10-02T17:56:46.0929865Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/sindarin-compiler/sindarin-compiler/.git/worktrees/*.path D\:\\a\\_temp\\git\-credentials\-7b3875df\-1a30\-4492\-9f74\-6766113594b2\.config
+2026-10-02T17:56:46.1229475Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-10-02T17:56:46.1493329Z /github/runner_temp/git-credentials-7b3875df-1a30-4492-9f74-6766113594b2.config
+2026-10-02T17:56:46.1532595Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:/github/workspace/.git.path \/github\/runner_temp\/git\-credentials\-7b3875df\-1a30\-4492\-9f74\-6766113594b2\.config
+2026-10-02T17:56:46.1841868Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-02T17:56:46.2106168Z /github/runner_temp/git-credentials-7b3875df-1a30-4492-9f74-6766113594b2.config
+2026-10-02T17:56:46.2150073Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-7b3875df\-1a30\-4492\-9f74\-6766113594b2\.config
+2026-10-02T17:56:46.2454916Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-10-02T17:56:46.8054107Z Removing credentials config 'D:\a\_temp\git-credentials-7b3875df-1a30-4492-9f74-6766113594b2.config'
+2026-10-02T17:56:46.8252341Z Cleaning up orphan processes
+2026-10-02T17:56:46.8455193Z Terminate orphan process: pid (2136) (vctip)

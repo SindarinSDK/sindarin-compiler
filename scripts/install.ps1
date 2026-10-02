@@ -206,8 +206,13 @@ function Main {
     Write-Host ""
 
     try {
-        # Step 1: Install prerequisites (build tools)
-        Invoke-Prereqs
+        # CI can supply a pinned toolchain before bootstrapping the compiler.
+        # Keep normal installs unchanged; an explicit opt-out avoids replacing it.
+        if ($env:SN_SKIP_PREREQS -eq "1") {
+            Write-Status "Using prerequisites supplied by caller (SN_SKIP_PREREQS=1)"
+        } else {
+            Invoke-Prereqs
+        }
 
         # Step 2: Get latest version from S3
         $tagName = Get-LatestVersion

@@ -75,7 +75,7 @@ static void test_ast_create_function_stmt()
 
     Token name = create_dummy_token(&arena, "func");
     Token *loc = ast_clone_token(&arena, &name);
-    Parameter params[1];
+    Parameter params[1] = {0};
     params[0].name = create_dummy_token(&arena, "p");
     params[0].type = ast_create_primitive_type(&arena, TYPE_INT);
     Type *ret = ast_create_primitive_type(&arena, TYPE_VOID);

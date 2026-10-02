@@ -9,6 +9,7 @@ stdout/stderr must agree. Never counts two failed compilations as parity.
 import argparse
 import hashlib
 import json
+import os
 from pathlib import Path
 import subprocess
 import tempfile
@@ -30,7 +31,8 @@ def run(command, timeout):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("fixtures", nargs="+", type=Path)
-    parser.add_argument("--compiler", type=Path, default=Path("bin/sn"))
+    parser.add_argument("--compiler", type=Path,
+                        default=Path("bin/sn.exe" if os.name == "nt" else "bin/sn"))
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--compile-timeout", type=int, default=120)
     parser.add_argument("--run-timeout", type=int, default=30)

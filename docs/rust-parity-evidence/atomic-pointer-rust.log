@@ -1,0 +1,79 @@
+Compiler: /home/gavin/code/sindarin/sindarin-rust-parity-completion/bin/sn
+Platform: Linux
+Parallel: 20 workers
+
+Rust Generation Tests
+============================================================
+  Running 316 tests with 20 workers...
+                                                            
+------------------------------------------------------------
+Results: 316 passed, 0 failed, 0 skipped  (4.66s)
+
+Rust Generation Error Tests
+============================================================
+  Running 179 tests with 20 workers...
+                                                            
+------------------------------------------------------------
+Results: 179 passed, 0 failed, 0 skipped  (70ms)
+
+Tagged Native Scalar/Source/Link Parity Tests
+============================================================
+  Running 6 tests with 20 workers...
+                                                            
+------------------------------------------------------------
+Results: 6 passed, 0 failed, 0 skipped  (365ms)
+
+Post-Tag Rust Native Extra Coverage
+============================================================
+  Running 12 tests with 20 workers...
+                                                            
+------------------------------------------------------------
+Results: 12 passed, 0 failed, 0 skipped  (1.40s)
+
+Rust Native Imported-Origin Extra Coverage
+============================================================
+  Running 1 tests with 20 workers...
+                                                            
+------------------------------------------------------------
+Results: 1 passed, 0 failed, 0 skipped  (202ms)
+
+Rust Native Scalar Error Tests
+============================================================
+  Running 2 tests with 20 workers...
+                                                            
+------------------------------------------------------------
+Results: 2 passed, 0 failed, 0 skipped  (45ms)
+
+Rust Closure Value Tests
+============================================================
+  Running 36 tests with 20 workers...
+                                                            
+------------------------------------------------------------
+Results: 36 passed, 0 failed, 0 skipped  (620ms)
+
+Rust Closure Value Error Tests
+============================================================
+  Running 1 tests with 20 workers...
+                                                            
+------------------------------------------------------------
+Results: 1 passed, 0 failed, 0 skipped  (2ms)
+
+Rust Toolchain and Artifact Lifecycle Tests
+============================================================
+  subprocess_utf8_boundary                      PASS  (26ms)
+  rustc_invocation_records                      PASS  (21ms)
+  pure_rust_has_no_c_dependency                 PASS  (4ms)
+  native_emit_requires_bundle                   PASS  (2ms)
+  native_c_link_driver_contract                 PASS  (270ms)
+  native_debug_sanitizer_link                   PASS  (302ms)
+  native_compile_and_link_failures              PASS  (305ms)
+  missing_rustc                                 PASS  (2ms)
+  failing_rustc                                 PASS  (2ms)
+  failing_rustc_build                           PASS  (13ms)
+  rust_generated_artifact_lifecycle             PASS  (9ms)
+  rust_native_artifact_lifecycle                PASS  (634ms)
+
+------------------------------------------------------------
+Results: 12 passed, 0 failed  (1.60s)
+
+All tests passed!  (total: 8.96s)

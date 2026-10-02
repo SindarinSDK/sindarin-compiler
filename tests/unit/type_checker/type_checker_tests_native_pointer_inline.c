@@ -31,7 +31,7 @@ static void test_inline_pointer_passing_allowed(void)
     setup_test_token(&use_ptr_tok, TOKEN_IDENTIFIER, "use_ptr", 2, "test.sn", &arena);
     Token ptr_param_tok;
     setup_test_token(&ptr_param_tok, TOKEN_IDENTIFIER, "ptr", 2, "test.sn", &arena);
-    Parameter use_ptr_params[1];
+    Parameter use_ptr_params[1] = {0};
     use_ptr_params[0].name = ptr_param_tok;
     use_ptr_params[0].type = ptr_int_type;
     Stmt *use_ptr_decl = ast_create_function_stmt(&arena, use_ptr_tok, use_ptr_params, 1, void_type, NULL, 0, &use_ptr_tok);
@@ -94,7 +94,7 @@ static void test_inline_nil_passing_allowed(void)
     setup_test_token(&use_ptr_tok, TOKEN_IDENTIFIER, "use_ptr", 1, "test.sn", &arena);
     Token ptr_param_tok;
     setup_test_token(&ptr_param_tok, TOKEN_IDENTIFIER, "ptr", 1, "test.sn", &arena);
-    Parameter use_ptr_params[1];
+    Parameter use_ptr_params[1] = {0};
     use_ptr_params[0].name = ptr_param_tok;
     use_ptr_params[0].type = ptr_int_type;
     Stmt *use_ptr_decl = ast_create_function_stmt(&arena, use_ptr_tok, use_ptr_params, 1, void_type, NULL, 0, &use_ptr_tok);

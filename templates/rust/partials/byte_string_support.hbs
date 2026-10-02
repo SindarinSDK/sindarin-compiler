@@ -155,8 +155,13 @@ fn __sn_find_bytes(haystack: &[u8], needle: &[u8]) -> Option<usize> {
 }
 
 fn __sn_write_bytes(bytes: &[u8]) {
+    #[cfg(windows)]
+    crate::{{rust_ident @root.rust_windows_stdout_name}}(bytes);
+    #[cfg(not(windows))]
+    {
     use std::io::Write;
     std::io::stdout().lock().write_all(bytes).expect("failed to write stdout");
+    }
 }
 
 fn __sn_print_string(value: &SnString) { __sn_write_bytes(value.as_bytes()); }

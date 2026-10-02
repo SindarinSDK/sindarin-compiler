@@ -428,7 +428,16 @@ Platform-specific differences are handled via environment variables:
 | Platform | `SN_CC` | `SN_CFLAGS` | Notes |
 |----------|---------|-------------|-------|
 | Linux    | `gcc`   | (none)      | |
-| macOS    | `clang` | (none)      | Excludes `test_thread_panic_propagate` |
+| macOS    | `clang` | (none)      | |
 | Windows  | `clang` | `--target=x86_64-w64-mingw32 -fuse-ld=lld -rtlib=compiler-rt -unwindlib=none` | Requires LLVM-MinGW |
 
 See `.github/workflows/ci.yml` for the full configuration.
+
+The Rust Platform Runtime workflow additionally runs all Rust suites and the
+C/Rust differential core at O0/O1/O2 on all three platforms. Windows uses
+Rust's `x86_64-pc-windows-gnullvm` target with pinned LLVM-MinGW 20260616
+(LLVM 22.1.8), downloaded into the checkout's `.sn/toolchains` directory and
+verified by SHA-256. Its newer AddressSanitizer recognizes the Windows 11 24H2
+CRT instructions unsupported by LLVM 19. Debug ABI gates keep address checks;
+unsupported Windows leak detection is disabled. Exact raw-byte transport and
+native-output ordering have dedicated checks alongside generated-source tests.

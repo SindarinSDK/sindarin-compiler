@@ -223,7 +223,7 @@ test-rust-toolchain: build
 # Keep this separate from historical Rust-only admission/snapshot fixtures.
 .PHONY: test-rust-parity-core
 test-rust-parity-core: build
-	@$(PYTHON) scripts/check_rust_parity.py --output .sn/rust-parity-core.json \
+	@$(PYTHON) scripts/check_rust_parity.py --compiler $(SN) --output .sn/rust-parity-core.json \
 		tests/rgen/by_value_scalar_parameter_assignment.sn \
 		tests/rgen/by_value_scalar_parameter_assignment_unchecked.sn \
 		tests/rgen/checked_numeric_mutations.sn \

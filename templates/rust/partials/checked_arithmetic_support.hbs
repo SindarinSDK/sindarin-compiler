@@ -1,4 +1,10 @@
 fn {{rust_ident rust_runtime_error_name}}(message: &'static str) -> ! {
+    #[cfg(windows)]
+    {
+    crate::{{rust_ident @root.rust_windows_stderr_name}}(message.as_bytes());
+    crate::{{rust_ident @root.rust_windows_stderr_name}}(b"\n");
+    }
+    #[cfg(not(windows))]
     eprintln!("{}", message);
     std::process::exit(1);
 }

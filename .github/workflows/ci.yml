@@ -39,7 +39,7 @@ jobs:
             runtime_dir: clang
             sn_cc: clang
             sn_cflags: '--target=x86_64-w64-mingw32 -fuse-ld=lld -rtlib=compiler-rt -unwindlib=none'
-            sn_release_cflags: '-O3'
+            sn_release_cflags: '-O3 -fwrapv'
             sn_exclude_tests: ''
 
           - os: macos-latest
@@ -48,7 +48,7 @@ jobs:
             runtime_dir: gcc
             sn_cc: clang
             sn_cflags: ''
-            sn_exclude_tests: 'test_thread_panic_propagate test_limitation_closure_array'
+            sn_exclude_tests: ''
 
     steps:
       - name: Checkout repository
@@ -67,26 +67,22 @@ jobs:
         if: runner.os == 'macOS'
         run: brew install python3
 
-      - name: Remove system LLVM (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          if (Test-Path "C:\Program Files\LLVM") {
-            Write-Host "Removing system LLVM to avoid conflicts..."
-            Remove-Item -Path "C:\Program Files\LLVM" -Recurse -Force
-          }
-
       - name: Install LLVM-MinGW (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          $version = "20241217"
+          # LLVM 19's ASan cannot decode the Windows 11 24H2 CRT prologue.
+          $version = "20260616"
           $url = "https://github.com/mstorsjo/llvm-mingw/releases/download/$version/llvm-mingw-$version-ucrt-x86_64.zip"
           $zipPath = "$env:TEMP\llvm-mingw.zip"
-          $extractPath = "C:\llvm-mingw"
+          $extractPath = Join-Path $env:GITHUB_WORKSPACE ".sn\toolchains\llvm-mingw"
 
           Write-Host "Downloading LLVM-MinGW $version..."
           Invoke-WebRequest -Uri $url -OutFile $zipPath
+          $expectedHash = "b9b68a4d276e16fa25802aaba458e4638f64b3884c290aaccdc2d87083b6ca35"
+          if ((Get-FileHash $zipPath -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expectedHash) {
+            throw "LLVM-MinGW archive SHA-256 mismatch"
+          }
 
           Write-Host "Extracting to $extractPath..."
           Expand-Archive -Path $zipPath -DestinationPath $extractPath -Force
@@ -115,7 +111,19 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
+          SN_SKIP_PREREQS: ${{ runner.os == 'Windows' && '1' || '' }}
         run: make setup
+
+      - name: Verify pinned Windows compiler after setup
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $toolchainRoot = Join-Path $env:GITHUB_WORKSPACE ".sn\toolchains\llvm-mingw"
+          $toolchain = Get-ChildItem $toolchainRoot -Directory | Select-Object -First 1
+          $expected = Join-Path $toolchain.FullName "bin\clang.exe"
+          $selected = (Get-Command clang.exe).Source
+          if ($selected -ne $expected) { throw "Expected pinned clang $expected, selected $selected" }
+          clang --version
 
       - name: Build
         shell: bash
