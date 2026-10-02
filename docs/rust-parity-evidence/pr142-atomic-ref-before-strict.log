@@ -1,0 +1,14 @@
+[1mCompiling[0m tests/rust-thread-ownership/sync_reference.sn...
+  Parsing... [1;36mdone[0m
+  Type checking... [1;36mdone[0m
+  Code generation... [1;36mdone[0m
+  Linking...
+.sn/build/sync_reference_3846154/main.c: In function ‘main’:
+.sn/build/sync_reference_3846154/main.c:35:24: error: assignment to ‘long long int *’ from incompatible pointer type ‘_Atomic long long int *’ [-Werror=incompatible-pointer-types]
+   35 |         __args__->arg0 = &__sn__value;
+      |                        ^
+cc1: some warnings being treated as errors
+Error: failed to compile main.c
+ [1;31mfailed[0m
+
+[1;31mCompilation failed[0m
