@@ -46,3 +46,6 @@ CMakeLists.txt text eol=lf
 *.a binary
 *.dll binary
 *.so binary
+
+# Preserve exact reviewer probe bytes on every checkout platform.
+*.sn.raw -text

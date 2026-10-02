@@ -88,3 +88,24 @@ value receiver failed C compilation. These are unresolved observations, not
 positive parity, C-defect claims, or reasons to alter C/frontend semantics.
 The accepted nested case uses the tagged-valid `self` receiver form. All those
 attempts had a passing fresh control first.
+
+## Current-main completion verification
+
+The completion composition includes verified main `432983b3`, incorporating
+PR142/PR133 ownership and the synchronized C reference-address ABI correction.
+It preserves current byte strings, Windows output, numeric casts, default array
+references, indexed cleanup and array text rendering. Shared thread-field getters
+are used for array-text rendering of a receiver-backed struct. All seven new
+receiver fixture files retain the original PR134 source bytes.
+
+`make test-rust-parity-thread-receivers` requires exactly ten sources: seven
+receiver/aggregate controls and the three unchanged integration sources
+`test_thread_spawn_self_method`, `test_thread_struct_param`, and
+`test_pass_self_to_function`. It executes all at O0/O1/O2 with default, checked
+and unchecked arithmetic (90 C/Rust pairs), retaining raw output/status and
+source/compiler identities. Runtime CI executes that gate on every platform,
+alongside the 30 core, 51 concurrency and 207 ownership/array pairs.
+
+The complete local C and Rust suites pass with zero skips; no existing snapshot,
+source fixture or runtime oracle needs changing. Historical results and the
+unresolved observations above remain separate from these current controls.

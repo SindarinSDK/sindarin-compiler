@@ -439,7 +439,9 @@ three platforms. The concurrency gate records an explicit C-only `-latomic`
 supplement on Linux for GCC floating atomic postfix; normal compiler link
 configuration is unchanged. The 23-source thread ownership/array gate additionally
 runs default, checked and unchecked arithmetic at O0/O1/O2 (207 pairs),
-including exact `.sn.raw` sources without reformatting. Windows uses
+including exact `.sn.raw` sources without reformatting or checkout line-ending
+conversion. The ten-source receiver/aggregate gate runs the same nine modes
+(90 pairs). Windows uses
 Rust's `x86_64-pc-windows-gnullvm` target with pinned LLVM-MinGW 20260616
 (LLVM 22.1.8), downloaded into the checkout's `.sn/toolchains` directory and
 verified by SHA-256. Its newer AddressSanitizer recognizes the Windows 11 24H2

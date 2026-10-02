@@ -539,3 +539,45 @@ The reference-packaging correction passes full local C/Rust suites with
 unchanged counts and zero skips, plus all 207 ownership, 51 concurrency and
 30 core pairs and formatting. Evidence: `pr142-atomic-ref-c.log`,
 `pr142-atomic-ref-rust.log`, `pr142-atomic-ref-all-mode-pairs.json`.
+
+## Ownership integrated and reconciled; PR134 receiver composition
+
+At exact PR142 head `0ae8d944`, Compiler `37051924804` and Runtime
+`37051924762` pass all three platforms, verifying the C atomic-reference
+ABI correction. PR142 merges as `432983b307b729c0cb4c11db9dfa39a0b5e2c32e`.
+Main Compiler `37053036970` and Runtime `37053036854` also pass all six jobs;
+exact URLs/statuses are in `pr142-main-ci-green.json`. PR133 targets the old
+concurrency branch, so it remains open despite its entire head `50906e5f` being
+an ancestor of integrated main. Close it as incorporated through PR142 after
+confirming that ancestry and identical tested source tree; no useful work is
+discarded. Only PR134 and PR143 remain open.
+
+Compose PR134 head `699fcd14` with integrated main, retaining current default
+array references, numeric casts, Windows output, byte strings, indexed cleanup
+and array-text rendering. Shared receiver fields use getters when rendered as
+array text. All seven receiver source files match the original PR bytes. No
+existing generated snapshot or runtime oracle changes. The new receiver gate
+requires ten sources (seven controls plus three unchanged integration fixtures)
+and passes all 90 default/checked/unchecked O0/O1/O2 C/Rust pairs. Existing
+30/51/207 gates also pass on the refreshed composition: 378 pairs total.
+
+Fresh full C counts are 1610/107/79/1141/58/224/11; Rust counts remain
+316/172, native 6/12/1/2, closures 36/1, concurrency 10/7/1 and toolchain 12,
+all passing with zero skips. Raw-byte 63 executions, transport six executions,
+Windows helper simulation and formatting pass. Evidence is `pr134-c.log`,
+`pr134-rust.log`, `pr134-thread-receivers-pairs.json`,
+`pr134-thread-ownership-pairs.json`, `pr134-concurrency-pairs.json` and
+`pr134-{bytes,transport,windows-helpers}.log`. Hosted validation is pending.
+
+One earlier local gate failed when another Make invocation synchronized runtime
+headers during C compilation (`sn_string.h` temporarily absent). Preserve its
+failed JSON as `pr134-local-concurrent-build-failure.json`; run builds and
+dependent gates sequentially after that diagnosis. The successful final run
+refreshes the complete combined revision and does not count the failed control.
+
+The previous hosted Windows report shows Git converted all three `.sn.raw`
+probe files from LF to CRLF; their hashes exactly match that conversion. C/Rust
+pairs used identical files within each platform, but these were not the exact
+committed raw bytes across platforms. Add `*.sn.raw -text` so future Windows
+checkouts preserve the original bytes without source edits or reformatting.
+Per-platform report hashes must be checked against the originals again.
