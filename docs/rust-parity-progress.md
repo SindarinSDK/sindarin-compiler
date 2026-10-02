@@ -168,3 +168,50 @@ pass; evidence: `sizeof-pointer-pairs.json`. A draft pointer-expression test was
 rejected by both shared frontends because ordinary functions cannot declare
 pointer variables/returns; it was replaced by legal type-form coverage, not
 counted as a backend gap or parity result.
+
+## Reconciled local baseline
+
+All eight formerly positive admission failures were independently compiled through
+C and Rust emission: identical shared-frontend errors. Their sources now execute
+as explicit `shared_frontend_*` rejection tests, not passing feature claims.
+Historical snapshots/output sidecars are retained under
+`docs/restoration/post-tag-fixtures/tests/rgen`. Seven source files are byte
+identical; the import fixture changes only its relative fixture path to account
+for relocation. `shared-frontend-rejections.json` records original identities
+and both target diagnostics.
+
+Two default-mode overflow fixtures contain unused arithmetic eliminated by the
+shared optimizer. C and Rust both exit zero with empty streams. Archived their
+obsolete panic/snapshot expectations and refreshed the active snapshots without
+changing sources or optimizer settings (`default-dce.json`). Other checked
+overflow fixtures remain active. The Rust-only `resolved_calls` snapshot was
+refreshed only after its original runtime oracle passed at all three levels;
+it is still not C parity evidence. Two obsolete diagnostic messages now match
+the remaining native-aggregate and array-contains boundaries.
+
+Three as-ref negatives exposed missing Rust validation of explicit references
+to literals/computed values and fields rooted in temporary structs. C either
+fails native compilation or dereferences an invalid pointer for these sources;
+the shared call checker already states that explicit as-ref arguments require
+a variable/field. Added the missing target-local storage check to ordinary and
+static calls, preserving explicit temporary-borrow metadata for operators.
+Sources/expected rejection texts are unchanged. Raw controls are recorded in
+`reference-argument-controls.json`; invalid C executions are not parity oracles.
+
+The five skipped historical closure negatives are byte-identical to active
+positive closure tests. Archived the duplicate rejection copies and removed the
+harness skip list. `closure-promotion-identity.json` maps every archived source
+to its executed positive counterpart and SHA-256. No feature was excluded.
+
+Replaced the racy C exploratory fixture with the existing synchronized historical
+regression and its PASS oracle. It explicitly locks shared closure-array mutation
+and asserts distinct returned lengths 4,5,6. The original source remains verbatim
+in `unsynchronized-closure-array.sn.txt`; the initial sanitizer trace remains in
+the baseline log. This repairs a test violating documented synchronization rules,
+not compiler/runtime semantics, and is an explicit change to the restored corpus.
+
+Fresh local gates: Rust generation 315; negatives 179; native tagged/extra/origin/
+negative 6/12/1/2; closure positive/negative 36/1; toolchain 12. All pass, zero
+failures and zero skips. C unit/cgen/model/integration/integration-negative/
+exploratory/exploratory-negative: 1608/107/79/1141/58/224/11, all pass with no
+skips. Formatting passes. Logs: `reconciled-rust.log`, `reconciled-c.log`.

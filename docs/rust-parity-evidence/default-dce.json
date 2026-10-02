@@ -1,0 +1,34 @@
+[
+  {
+    "fixture": "int_checked_overflow",
+    "mode": "compiler default",
+    "targets": {
+      "c": {
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": ""
+      },
+      "rust": {
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": ""
+      }
+    }
+  },
+  {
+    "fixture": "long_checked_div_min_neg_one",
+    "mode": "compiler default",
+    "targets": {
+      "c": {
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": ""
+      },
+      "rust": {
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": ""
+      }
+    }
+  }
+]

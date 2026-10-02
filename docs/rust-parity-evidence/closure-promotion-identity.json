@@ -1,0 +1,27 @@
+[
+  {
+    "historical": "docs/restoration/post-tag-fixtures/tests/rgen/errors/closure_values_array_method_mutation.sn",
+    "active": "tests/rust/closure-values/closure_values_array_method_mutation.sn",
+    "sha256": "9f4f4bbe7a65e27f1992ee9add0004848ff8442d6e69eb4e0f788e4f6c6534b5"
+  },
+  {
+    "historical": "docs/restoration/post-tag-fixtures/tests/rgen/errors/closure_values_owned_mutation.sn",
+    "active": "tests/rust/closure-values/closure_values_owned_mutation.sn",
+    "sha256": "26355b839d83c22903a1ee5194f03891a19a2a0f36669b66bf5be24233da02d7"
+  },
+  {
+    "historical": "docs/restoration/post-tag-fixtures/tests/rgen/errors/closure_values_recursive.sn",
+    "active": "tests/rust/closure-values/closure_values_recursive.sn",
+    "sha256": "6ef657fe119896a66967aa781a5ecb35ef7c404441fe250ea03bf483d4be0f86"
+  },
+  {
+    "historical": "docs/restoration/post-tag-fixtures/tests/rgen/errors/closure_values_shared_scalar.sn",
+    "active": "tests/rust/closure-values/closure_values_shared_scalar.sn",
+    "sha256": "560b5e6609b6b64951e58a781eded1a87710e41b66eb2262cf96d263a5f28763"
+  },
+  {
+    "historical": "docs/restoration/post-tag-fixtures/tests/rgen/errors/closure_values_snapshot_float_mutation.sn",
+    "active": "tests/rust/closure-values/closure_values_snapshot_float_mutation.sn",
+    "sha256": "1ef6b53debf316b251670c2500e67ca04f43c37edf73765d60f5de40c4778798"
+  }
+]

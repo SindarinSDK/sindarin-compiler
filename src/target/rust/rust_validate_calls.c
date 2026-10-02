@@ -536,11 +536,39 @@ static bool rust_validate_struct_methods(json_object *model)
     return true;
 }
 
+static bool rust_explicit_ref_storage(json_object *arg)
+{
+    if (json_string_property_equals(arg, "kind", "variable") ||
+        json_string_property_equals(arg, "kind", "array_access")) return true;
+    json_object *object = NULL;
+    return json_string_property_equals(arg, "kind", "member") &&
+        json_object_object_get_ex(arg, "object", &object) &&
+        rust_explicit_ref_storage(object);
+}
+
+static bool rust_validate_explicit_ref_arguments(json_object *args)
+{
+    if (!args) return true;
+    for (size_t i = 0; i < json_object_array_length(args); i++)
+    {
+        json_object *arg = json_object_array_get_idx(args, i);
+        if (json_boolean_property(arg, "is_ref_arg") &&
+            !json_boolean_property(arg, "is_borrow_tmp") &&
+            !rust_explicit_ref_storage(arg))
+        {
+            rust_validation_reported_error = true;
+            fprintf(stderr, "Error: 'as ref' parameter requires a variable or field, not a literal or expression\n");
+            return false;
+        }
+    }
+    return true;
+}
+
 static bool rust_validate_static_call(json_object *expr)
 {
     json_object *args = NULL;
     json_object_object_get_ex(expr, "args", &args);
-    return rust_validate_expr_array(args) &&
+    return rust_validate_explicit_ref_arguments(args) && rust_validate_expr_array(args) &&
         rust_validate_shared_default_array_arguments(args);
 }
 
@@ -684,6 +712,7 @@ static bool rust_validate_call(json_object *expr)
     }
     else if (strcmp(callee_kind_name, "variable") != 0) return false;
     json_object_object_get_ex(expr, "args", &args);
+    if (!rust_validate_explicit_ref_arguments(args)) return false;
     if (!rust_validate_expr_array(args)) return false;
 
     if (strcmp(callee_kind_name, "member") == 0)

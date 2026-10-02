@@ -1,0 +1,481 @@
+{
+  "compiler": "/home/gavin/code/sindarin/sindarin-rust-parity-completion/bin/sn",
+  "compiler_sha256": "b23cbdc5ca7454f55d4f9729db47e6fac311deb2b15726108383ca705116860c",
+  "cases": [
+    {
+      "source": "tests/rgen/errors/instance_as_ref_method_computed_argument.sn",
+      "source_sha256": "9fe29943b1b70beba755cedc9d22f23325c0224c1dfa48b831fd777a67456077",
+      "optimization": "-O0",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-completion/bin/sn",
+              "tests/rgen/errors/instance_as_ref_method_computed_argument.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-sf41rvqp/case-0--O0-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f696e7374616e63655f61735f7265665f6d6574686f645f636f6d70757465645f617267756d656e742e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d73663431727671702f636173652d302d2d4f302d632e657865202836382e38204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-sf41rvqp/case-0--O0-c.exe"
+            ],
+            "status": -11,
+            "stdout_hex": "",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-completion/bin/sn",
+              "tests/rgen/errors/instance_as_ref_method_computed_argument.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-sf41rvqp/case-0--O0-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f696e7374616e63655f61735f7265665f6d6574686f645f636f6d70757465645f617267756d656e742e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d73663431727671702f636173652d302d2d4f302d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-sf41rvqp/case-0--O0-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/instance_as_ref_method_computed_argument.sn",
+      "source_sha256": "9fe29943b1b70beba755cedc9d22f23325c0224c1dfa48b831fd777a67456077",
+      "optimization": "-O1",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-completion/bin/sn",
+              "tests/rgen/errors/instance_as_ref_method_computed_argument.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-sf41rvqp/case-0--O1-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f696e7374616e63655f61735f7265665f6d6574686f645f636f6d70757465645f617267756d656e742e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d73663431727671702f636173652d302d2d4f312d632e657865202836382e38204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-sf41rvqp/case-0--O1-c.exe"
+            ],
+            "status": -11,
+            "stdout_hex": "",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-completion/bin/sn",
+              "tests/rgen/errors/instance_as_ref_method_computed_argument.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-sf41rvqp/case-0--O1-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f696e7374616e63655f61735f7265665f6d6574686f645f636f6d70757465645f617267756d656e742e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d73663431727671702f636173652d302d2d4f312d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-sf41rvqp/case-0--O1-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/instance_as_ref_method_computed_argument.sn",
+      "source_sha256": "9fe29943b1b70beba755cedc9d22f23325c0224c1dfa48b831fd777a67456077",
+      "optimization": "-O2",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-completion/bin/sn",
+              "tests/rgen/errors/instance_as_ref_method_computed_argument.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-sf41rvqp/case-0--O2-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f696e7374616e63655f61735f7265665f6d6574686f645f636f6d70757465645f617267756d656e742e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d73663431727671702f636173652d302d2d4f322d632e657865202836382e38204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-sf41rvqp/case-0--O2-c.exe"
+            ],
+            "status": -11,
+            "stdout_hex": "",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-completion/bin/sn",
+              "tests/rgen/errors/instance_as_ref_method_computed_argument.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-sf41rvqp/case-0--O2-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f696e7374616e63655f61735f7265665f6d6574686f645f636f6d70757465645f617267756d656e742e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d73663431727671702f636173652d302d2d4f322d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-sf41rvqp/case-0--O2-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/static_as_ref_method_literal_argument.sn",
+      "source_sha256": "ef9f0ae4a30ba20fe3e28e1ab3198f9a97e824a124e63d0000b6ac19152076c7",
+      "optimization": "-O0",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-completion/bin/sn",
+              "tests/rgen/errors/static_as_ref_method_literal_argument.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-sf41rvqp/case-1--O0-c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f7374617469635f61735f7265665f6d6574686f645f6c69746572616c5f617267756d656e742e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e0a2e736e2f6275696c642f7374617469635f61735f7265665f6d6574686f645f6c69746572616c5f617267756d656e745f323834333236362f6d61696e2e633a20496e2066756e6374696f6e20e280986d61696ee280993a0a2e736e2f6275696c642f7374617469635f61735f7265665f6d6574686f645f6c69746572616c5f617267756d656e745f323834333236362f6d61696e2e633a31343a32333a206572726f723a206c76616c756520726571756972656420617320756e61727920e2809826e28099206f706572616e640a2020203134207c20202020205f5f736e5f5f5265664f70735f62756d702826314c4c293b0a2020202020207c20202020202020202020202020202020202020202020205e0a4572726f723a206661696c656420746f20636f6d70696c65206d61696e2e630a201b5b313b33316d6661696c65641b5b306d0a0a1b5b313b33316d436f6d70696c6174696f6e206661696c65641b5b306d0a"
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-completion/bin/sn",
+              "tests/rgen/errors/static_as_ref_method_literal_argument.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-sf41rvqp/case-1--O0-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f7374617469635f61735f7265665f6d6574686f645f6c69746572616c5f617267756d656e742e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d73663431727671702f636173652d312d2d4f302d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-sf41rvqp/case-1--O0-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/static_as_ref_method_literal_argument.sn",
+      "source_sha256": "ef9f0ae4a30ba20fe3e28e1ab3198f9a97e824a124e63d0000b6ac19152076c7",
+      "optimization": "-O1",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-completion/bin/sn",
+              "tests/rgen/errors/static_as_ref_method_literal_argument.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-sf41rvqp/case-1--O1-c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f7374617469635f61735f7265665f6d6574686f645f6c69746572616c5f617267756d656e742e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e0a2e736e2f6275696c642f7374617469635f61735f7265665f6d6574686f645f6c69746572616c5f617267756d656e745f323834333333302f6d61696e2e633a20496e2066756e6374696f6e20e280986d61696ee280993a0a2e736e2f6275696c642f7374617469635f61735f7265665f6d6574686f645f6c69746572616c5f617267756d656e745f323834333333302f6d61696e2e633a31343a32333a206572726f723a206c76616c756520726571756972656420617320756e61727920e2809826e28099206f706572616e640a2020203134207c20202020205f5f736e5f5f5265664f70735f62756d702826314c4c293b0a2020202020207c20202020202020202020202020202020202020202020205e0a4572726f723a206661696c656420746f20636f6d70696c65206d61696e2e630a201b5b313b33316d6661696c65641b5b306d0a0a1b5b313b33316d436f6d70696c6174696f6e206661696c65641b5b306d0a"
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-completion/bin/sn",
+              "tests/rgen/errors/static_as_ref_method_literal_argument.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-sf41rvqp/case-1--O1-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f7374617469635f61735f7265665f6d6574686f645f6c69746572616c5f617267756d656e742e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d73663431727671702f636173652d312d2d4f312d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-sf41rvqp/case-1--O1-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/static_as_ref_method_literal_argument.sn",
+      "source_sha256": "ef9f0ae4a30ba20fe3e28e1ab3198f9a97e824a124e63d0000b6ac19152076c7",
+      "optimization": "-O2",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-completion/bin/sn",
+              "tests/rgen/errors/static_as_ref_method_literal_argument.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-sf41rvqp/case-1--O2-c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f7374617469635f61735f7265665f6d6574686f645f6c69746572616c5f617267756d656e742e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e0a2e736e2f6275696c642f7374617469635f61735f7265665f6d6574686f645f6c69746572616c5f617267756d656e745f323834343037322f6d61696e2e633a20496e2066756e6374696f6e20e280986d61696ee280993a0a2e736e2f6275696c642f7374617469635f61735f7265665f6d6574686f645f6c69746572616c5f617267756d656e745f323834343037322f6d61696e2e633a31343a32333a206572726f723a206c76616c756520726571756972656420617320756e61727920e2809826e28099206f706572616e640a2020203134207c20202020205f5f736e5f5f5265664f70735f62756d702826314c4c293b0a2020202020207c20202020202020202020202020202020202020202020205e0a4572726f723a206661696c656420746f20636f6d70696c65206d61696e2e630a201b5b313b33316d6661696c65641b5b306d0a0a1b5b313b33316d436f6d70696c6174696f6e206661696c65641b5b306d0a"
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-completion/bin/sn",
+              "tests/rgen/errors/static_as_ref_method_literal_argument.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-sf41rvqp/case-1--O2-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f7374617469635f61735f7265665f6d6574686f645f6c69746572616c5f617267756d656e742e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d73663431727671702f636173652d312d2d4f322d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-sf41rvqp/case-1--O2-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/static_as_ref_method_temporary_field_argument.sn",
+      "source_sha256": "57c78cd61fc511823a981c5a69edb62c2ba850d6c8c62cabc6323b56b2e92617",
+      "optimization": "-O0",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-completion/bin/sn",
+              "tests/rgen/errors/static_as_ref_method_temporary_field_argument.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-sf41rvqp/case-2--O0-c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f7374617469635f61735f7265665f6d6574686f645f74656d706f726172795f6669656c645f617267756d656e742e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e0a2e736e2f6275696c642f7374617469635f61735f7265665f6d6574686f645f74656d706f726172795f6669656c645f617267756d656e745f323834353132362f6d61696e2e633a20496e2066756e6374696f6e20e280986d61696ee280993a0a2e736e2f6275696c642f7374617469635f61735f7265665f6d6574686f645f74656d706f726172795f6669656c645f617267756d656e745f323834353132362f6d61696e2e633a32303a32333a206572726f723a206c76616c756520726571756972656420617320756e61727920e2809826e28099206f706572616e640a2020203230207c20202020205f5f736e5f5f5265664f70735f62756d7028265f5f736e5f5f6d616b65426f7828292e5f5f736e5f5f76616c7565293b0a2020202020207c20202020202020202020202020202020202020202020205e0a4572726f723a206661696c656420746f20636f6d70696c65206d61696e2e630a201b5b313b33316d6661696c65641b5b306d0a0a1b5b313b33316d436f6d70696c6174696f6e206661696c65641b5b306d0a"
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-completion/bin/sn",
+              "tests/rgen/errors/static_as_ref_method_temporary_field_argument.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-sf41rvqp/case-2--O0-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f7374617469635f61735f7265665f6d6574686f645f74656d706f726172795f6669656c645f617267756d656e742e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a2066756e6374696f6e20606d616b65426f78602073686f756c642068617665206120736e616b652063617365206e616d650a20202d2d3e202e736e2f6275696c642f727573742f7374617469635f61735f7265665f6d6574686f645f74656d706f726172795f6669656c645f617267756d656e745f323834353333382f6d61696e2e72733a34353a340a2020207c0a3435207c20666e206d616b65426f782829202d3e20426f78207b0a2020207c202020205e5e5e5e5e5e5e2068656c703a20636f6e7665727420746865206964656e74696669657220746f20736e616b6520636173653a20606d616b655f626f78600a2020207c0a2020203d206e6f74653a2060235b7761726e286e6f6e5f736e616b655f63617365295d60202870617274206f662060235b7761726e286e6f6e7374616e646172645f7374796c65295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d73663431727671702f636173652d322d2d4f302d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-sf41rvqp/case-2--O0-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/static_as_ref_method_temporary_field_argument.sn",
+      "source_sha256": "57c78cd61fc511823a981c5a69edb62c2ba850d6c8c62cabc6323b56b2e92617",
+      "optimization": "-O1",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-completion/bin/sn",
+              "tests/rgen/errors/static_as_ref_method_temporary_field_argument.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-sf41rvqp/case-2--O1-c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f7374617469635f61735f7265665f6d6574686f645f74656d706f726172795f6669656c645f617267756d656e742e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e0a2e736e2f6275696c642f7374617469635f61735f7265665f6d6574686f645f74656d706f726172795f6669656c645f617267756d656e745f323834363432392f6d61696e2e633a20496e2066756e6374696f6e20e280986d61696ee280993a0a2e736e2f6275696c642f7374617469635f61735f7265665f6d6574686f645f74656d706f726172795f6669656c645f617267756d656e745f323834363432392f6d61696e2e633a32303a32333a206572726f723a206c76616c756520726571756972656420617320756e61727920e2809826e28099206f706572616e640a2020203230207c20202020205f5f736e5f5f5265664f70735f62756d7028265f5f736e5f5f6d616b65426f7828292e5f5f736e5f5f76616c7565293b0a2020202020207c20202020202020202020202020202020202020202020205e0a4572726f723a206661696c656420746f20636f6d70696c65206d61696e2e630a201b5b313b33316d6661696c65641b5b306d0a0a1b5b313b33316d436f6d70696c6174696f6e206661696c65641b5b306d0a"
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-completion/bin/sn",
+              "tests/rgen/errors/static_as_ref_method_temporary_field_argument.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-sf41rvqp/case-2--O1-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f7374617469635f61735f7265665f6d6574686f645f74656d706f726172795f6669656c645f617267756d656e742e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a2066756e6374696f6e20606d616b65426f78602073686f756c642068617665206120736e616b652063617365206e616d650a20202d2d3e202e736e2f6275696c642f727573742f7374617469635f61735f7265665f6d6574686f645f74656d706f726172795f6669656c645f617267756d656e745f323834363537342f6d61696e2e72733a34353a340a2020207c0a3435207c20666e206d616b65426f782829202d3e20426f78207b0a2020207c202020205e5e5e5e5e5e5e2068656c703a20636f6e7665727420746865206964656e74696669657220746f20736e616b6520636173653a20606d616b655f626f78600a2020207c0a2020203d206e6f74653a2060235b7761726e286e6f6e5f736e616b655f63617365295d60202870617274206f662060235b7761726e286e6f6e7374616e646172645f7374796c65295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d73663431727671702f636173652d322d2d4f312d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-sf41rvqp/case-2--O1-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/static_as_ref_method_temporary_field_argument.sn",
+      "source_sha256": "57c78cd61fc511823a981c5a69edb62c2ba850d6c8c62cabc6323b56b2e92617",
+      "optimization": "-O2",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-completion/bin/sn",
+              "tests/rgen/errors/static_as_ref_method_temporary_field_argument.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-sf41rvqp/case-2--O2-c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f7374617469635f61735f7265665f6d6574686f645f74656d706f726172795f6669656c645f617267756d656e742e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e0a2e736e2f6275696c642f7374617469635f61735f7265665f6d6574686f645f74656d706f726172795f6669656c645f617267756d656e745f323834373733352f6d61696e2e633a20496e2066756e6374696f6e20e280986d61696ee280993a0a2e736e2f6275696c642f7374617469635f61735f7265665f6d6574686f645f74656d706f726172795f6669656c645f617267756d656e745f323834373733352f6d61696e2e633a32303a32333a206572726f723a206c76616c756520726571756972656420617320756e61727920e2809826e28099206f706572616e640a2020203230207c20202020205f5f736e5f5f5265664f70735f62756d7028265f5f736e5f5f6d616b65426f7828292e5f5f736e5f5f76616c7565293b0a2020202020207c20202020202020202020202020202020202020202020205e0a4572726f723a206661696c656420746f20636f6d70696c65206d61696e2e630a201b5b313b33316d6661696c65641b5b306d0a0a1b5b313b33316d436f6d70696c6174696f6e206661696c65641b5b306d0a"
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-completion/bin/sn",
+              "tests/rgen/errors/static_as_ref_method_temporary_field_argument.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-sf41rvqp/case-2--O2-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f7374617469635f61735f7265665f6d6574686f645f74656d706f726172795f6669656c645f617267756d656e742e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a2066756e6374696f6e20606d616b65426f78602073686f756c642068617665206120736e616b652063617365206e616d650a20202d2d3e202e736e2f6275696c642f727573742f7374617469635f61735f7265665f6d6574686f645f74656d706f726172795f6669656c645f617267756d656e745f323834373838372f6d61696e2e72733a31373a340a2020207c0a3137207c20666e206d616b65426f782829202d3e20426f78207b0a2020207c202020205e5e5e5e5e5e5e2068656c703a20636f6e7665727420746865206964656e74696669657220746f20736e616b6520636173653a20606d616b655f626f78600a2020207c0a2020203d206e6f74653a2060235b7761726e286e6f6e5f736e616b655f63617365295d60202870617274206f662060235b7761726e286e6f6e7374616e646172645f7374796c65295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d73663431727671702f636173652d322d2d4f322d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-sf41rvqp/case-2--O2-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": false
+    }
+  ],
+  "passed": false
+}

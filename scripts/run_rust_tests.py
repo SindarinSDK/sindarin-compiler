@@ -372,17 +372,6 @@ TEST_CONFIGS = {
         'Rust Closure Value Error Tests'),
 }
 
-# These tagged files record the Rust backend's former rejection.  Keep them
-# byte-for-byte for corpus identity; their promoted success coverage lives in
-# tests/rust/closure-values and is exercised by this runner below.
-PROMOTED_CLOSURE_NEGATIVES = {
-    'closure_values_array_method_mutation',
-    'closure_values_owned_mutation',
-    'closure_values_recursive',
-    'closure_values_shared_scalar',
-    'closure_values_snapshot_float_mutation',
-}
-
 class TestRunner:
     def __init__(self, compiler: str, compile_timeout: int = 10,
                  run_timeout: int = 30, excluded_tests: List[str] = None,
@@ -517,16 +506,7 @@ class TestRunner:
         exe_file = test_info['exe_file']
 
         # Check if test is excluded
-        if (test_type == 'rgen-errors' and
-                test_name in PROMOTED_CLOSURE_NEGATIVES):
-            result = {
-                'test_name': test_name,
-                'status': 'skip',
-                'reason': 'promoted to Rust-private closure regression',
-                'details': None,
-                'elapsed': 0.0
-            }
-        elif test_name in self.excluded_tests:
+        if test_name in self.excluded_tests:
             result = {
                 'test_name': test_name,
                 'status': 'skip',

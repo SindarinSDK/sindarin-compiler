@@ -1,1 +1,1 @@
-Error: Rust target currently supports only plain value struct 'NativePoint'
+Error: Rust target native function 'compare' body uses a closure, thread, array, or struct construct outside the native bridge

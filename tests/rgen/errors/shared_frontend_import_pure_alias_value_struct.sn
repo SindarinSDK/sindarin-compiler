@@ -1,4 +1,4 @@
-import "import_fixtures/rust_pure_geometry" as geo
+import "../import_fixtures/rust_pure_geometry" as geo
 
 fn main(): void =>
   var point: geo.Point = geo.origin()
