@@ -1,0 +1,23 @@
+Compiler: /home/gavin/code/sindarin/sindarin-rust-parity-completion/bin/sn
+Platform: Linux
+Parallel: 20 workers
+
+Rust Toolchain and Artifact Lifecycle Tests
+============================================================
+  subprocess_utf8_boundary                      PASS  (19ms)
+  rustc_invocation_records                      PASS  (26ms)
+  pure_rust_has_no_c_dependency                 PASS  (5ms)
+  native_emit_requires_bundle                   PASS  (2ms)
+  native_c_link_driver_contract                 PASS  (331ms)
+  native_debug_sanitizer_link                   PASS  (277ms)
+  native_compile_and_link_failures              PASS  (254ms)
+  missing_rustc                                 PASS  (2ms)
+  failing_rustc                                 PASS  (3ms)
+  failing_rustc_build                           PASS  (11ms)
+  rust_generated_artifact_lifecycle             PASS  (9ms)
+  rust_native_artifact_lifecycle                PASS  (532ms)
+
+------------------------------------------------------------
+Results: 12 passed, 0 failed  (1.47s)
+
+All tests passed!  (total: 1.47s)

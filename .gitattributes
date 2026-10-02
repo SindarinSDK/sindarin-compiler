@@ -17,6 +17,12 @@ tests/rust-native/scalar_bool_char.sn.raw -text
 *.expected.c text eol=lf
 *.expected.json text eol=lf
 *.expected.rs text eol=lf
+# Explicit Windows binary stream oracles must retain their CRLF bytes.
+tests/rgen/*.windows.expected -text
+
+# Captured verification logs retain their original transport bytes.
+docs/rust-parity-evidence/**/*.log -text
+docs/rust-parity-evidence/*.log -text
 
 # Scripts
 *.sh text eol=lf

@@ -178,7 +178,21 @@ static bool run_compile_cmd(const char *command, const char *error_file, bool ve
     if (verbose)
         DEBUG_INFO("Executing: %s", command);
 
+#ifdef _WIN32
+    /* Keep cmd.exe's outer command wrapper separate from a quoted compiler
+     * path, including the capture driver used by platform toolchain tests. */
+    size_t length = strlen(command);
+    char *wrapped = malloc(length + 3);
+    if (!wrapped) return false;
+    wrapped[0] = '"';
+    memcpy(wrapped + 1, command, length);
+    wrapped[length + 1] = '"';
+    wrapped[length + 2] = '\0';
+    int result = system(wrapped);
+    free(wrapped);
+#else
     int result = system(command);
+#endif
     if (result != 0)
     {
         FILE *errfile = fopen(error_file, "r");

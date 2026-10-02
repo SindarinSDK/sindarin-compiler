@@ -287,3 +287,50 @@ every supported platform, and also triggers on pushes to main. Removed the
 obsolete macOS exclusion for the repaired synchronized closure-array test. The
 existing macOS thread-panic exclusion remains explicit unfinished platform work.
 Fresh hosted checks must verify this follow-up before PR144 can merge.
+
+## Expanded hosted gates and portable toolchain checks
+
+At `7bcc1609`, Compiler CI `37039769279` passes all three platforms. Runtime
+CI `37039769263` passes Linux. On macOS every runtime, generation and diagnostic
+suite passes except the link-driver harness, whose GNU --defsym markers are
+invalid for Apple ld. Windows now passes all 30 exact raw-byte C/Rust pairs plus
+three UTF-16/WTF-8 argv executions and all six native/text/diagnostic transport
+executions. This confirms the C path fix and Windows output behavior on the
+actual host, rather than the Unix helper simulation.
+
+Expanded Windows checks expose LLVM 19 AddressSanitizer startup crashes on a
+CRT instruction (`44 0f b6 1a`), three Unix-only binary output oracles, the
+explicit unfinished Windows C-driver capture case, and the core gate's missing
+.exe compiler suffix. Raw failing logs are retained as
+`pr144-macos-expanded.log` and `pr144-windows-expanded.log`.
+
+Use portable library-search marker arguments in link-driver checks, assert the
+platform's actual configured @link sequence, and execute Windows capture through
+a Python-backed .cmd driver whose path has spaces, quotes and ampersands.
+Preserve configured target flags, pin exact forwarding/order and run the linked
+executable. Wrap Windows sidecar compilation with cmd.exe's outer command quotes.
+Forced final-link failure now executes on Windows too; it is no longer silently
+omitted inside a passing aggregate case.
+
+Windows binary oracles are explicit immutable `.windows.expected` files, using
+the exact bytes already verified against unchanged C at all three modes. Their
+CRLF is preserved through Git checkout; runtime bytes remain unnormalized.
+The differential script and Make target choose the platform executable suffix.
+Captured evidence logs now retain original transport bytes through Git.
+
+Pin LLVM-MinGW 20260616 (LLVM 22.1.8) and its published SHA-256 in both workflows,
+extracting it under the checkout's `.sn/toolchains`. Remove the system-LLVM
+deletion step; only the project toolchain needs selection. Upstream LLVM commit
+ce4618a9c405bd8a9c1e096eb45e9ca83d3891f1 explicitly fixes the observed Windows
+11 24H2 interception instruction:
+https://github.com/llvm/llvm-project/commit/ce4618a9c405bd8a9c1e096eb45e9ca83d3891f1
+Release and digest:
+https://github.com/mstorsjo/llvm-mingw/releases/tag/20260616
+Hosted debug execution remains required; sanitizers are retained. Windows C
+release flags retain -O3 with -fwrapv to preserve the configured wrapping contract.
+
+Remove the last macOS test exclusion and execute thread-panic propagation. Local
+focused C test passes, complete Rust suites retain the 316/179/native/closure/
+toolchain counts with zero skips, and the differential core passes all 30 pairs.
+Logs: `platform-portable-rust.log`, `platform-portable-toolchain.log`; fresh
+three-platform CI must verify this repair before integration.

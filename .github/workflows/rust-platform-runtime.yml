@@ -30,7 +30,7 @@ jobs:
             exe_ext: '.exe'
             sn_cc: clang
             sn_cflags: '--target=x86_64-w64-mingw32 -fuse-ld=lld -rtlib=compiler-rt -unwindlib=none'
-            sn_release_cflags: '-O3'
+            sn_release_cflags: '-O3 -fwrapv'
             rust_target: 'x86_64-pc-windows-gnullvm'
             rust_flags: '--target=x86_64-pc-windows-gnullvm -C linker=clang'
 
@@ -56,25 +56,21 @@ jobs:
         if: runner.os == 'macOS'
         run: brew install python3
 
-      - name: Remove system LLVM (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          if (Test-Path "C:\Program Files\LLVM") {
-            Write-Host "Removing system LLVM to avoid conflicts..."
-            Remove-Item -Path "C:\Program Files\LLVM" -Recurse -Force
-          }
-
       - name: Install LLVM-MinGW (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          $version = "20241217"
+          # LLVM 19's ASan cannot decode the Windows 11 24H2 CRT prologue.
+          $version = "20260616"
           $url = "https://github.com/mstorsjo/llvm-mingw/releases/download/$version/llvm-mingw-$version-ucrt-x86_64.zip"
           $zipPath = "$env:TEMP\llvm-mingw.zip"
-          $extractPath = "C:\llvm-mingw"
+          $extractPath = Join-Path $env:GITHUB_WORKSPACE ".sn\toolchains\llvm-mingw"
 
           Invoke-WebRequest -Uri $url -OutFile $zipPath
+          $expectedHash = "b9b68a4d276e16fa25802aaba458e4638f64b3884c290aaccdc2d87083b6ca35"
+          if ((Get-FileHash $zipPath -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expectedHash) {
+            throw "LLVM-MinGW archive SHA-256 mismatch"
+          }
           Expand-Archive -Path $zipPath -DestinationPath $extractPath -Force
 
           $llvmDir = Get-ChildItem -Path $extractPath -Directory | Select-Object -First 1
@@ -95,6 +91,7 @@ jobs:
             rustup target add --toolchain 1.93.1 "${{ matrix.rust_target }}"
           fi
           rustc --version --verbose
+          if [ "$RUNNER_OS" = "Windows" ]; then clang --version; fi
 
       - name: Setup libs
         shell: bash
