@@ -1,0 +1,23 @@
+struct Bag =>
+  values: int[]
+
+  fn __sn_receiver_array_alias_0(): int =>
+    return 77
+
+  fn mutateBoth(values: int[]): int =>
+    if true =>
+      var values: int[] = {9}
+      values.push(10)
+      println($"inner:{values.length}:{values[0]}:{values[1]}")
+    self.values.push(2)
+    values.push(self.values.length)
+    return self.values.length * 10 + values.length
+
+fn main(): void =>
+  var bag: Bag = { values: {1} }
+  var other: int[] = {8}
+  println(bag.__sn_receiver_array_alias_0())
+  println(bag.mutateBoth(other))
+  println($"distinct:{bag.values.length}:{bag.values[1]}:{other.length}:{other[1]}")
+  println(bag.mutateBoth(bag.values))
+  println($"alias:{bag.values.length}:{bag.values[2]}:{bag.values[3]}")

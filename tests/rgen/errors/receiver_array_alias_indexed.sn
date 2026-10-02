@@ -1,0 +1,10 @@
+struct Bag =>
+  values: int[]
+
+  fn observe(values: int[]): int =>
+    self.values.push(9)
+    return values.length
+
+fn main(): void =>
+  var bags: Bag[] = { Bag { values: {1} } }
+  println(bags[0].observe(bags[0].values))
