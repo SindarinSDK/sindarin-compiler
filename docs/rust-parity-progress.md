@@ -415,3 +415,21 @@ installed on this worker, so the hosted Windows Clang 22 check remains required.
 Full local C and Rust suites pass with their unchanged counts and zero skips;
 core 30 C/Rust pairs and formatting pass. Logs: `atomic-cleanup-c.log` and
 `atomic-cleanup-rust.log`. Hosted results for this fix are still pending.
+
+## Native-pointer unit fixture initialization
+
+At `650faaa9`, Windows compiler CI `37046329604` passes all 1141 integration
+tests, verifying synchronized pointer declarations and cleanup on Clang 22.
+The unit executable instead asserts in `test_inline_pointer_passing_allowed`: its
+stack `Parameter` array initializes only name/type, leaving `mem_qualifier` and
+`sync_modifier` indeterminate. The log shows spurious as-ref diagnostics for the
+unqualified native pointer argument. Initialize both arrays in that inline
+fixture to zero (MEM_DEFAULT/SYNC_NONE), plus the sole remaining uninitialized
+stack Parameter array in the AST unit fixture. Existing assertions and production
+checker semantics stay unchanged. Preserve the failed job log as
+`pr144-windows-uninitialized-parameter-failure.log`.
+
+Local full C/Rust suites and core 30 pairs pass after initialization, with no
+skips and unchanged counts; formatting passes. Logs: `parameter-init-c.log`
+and `parameter-init-rust.log`. Runtime CI `37046329688` passed all three systems
+at the preceding revision; the unit initialization needs fresh hosted checks.
