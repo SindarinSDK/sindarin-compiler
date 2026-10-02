@@ -122,3 +122,23 @@ all three optimization levels: heap-owning operator arguments are emitted as
 values where C expects pointers. Rust executes it successfully. Do not claim it
 as C parity evidence or change C semantics merely to satisfy this Rust fixture.
 Its snapshot remains unresolved separately from the real iterator gap.
+
+## Obsolete rejection fixtures promoted
+
+Four former negatives now compile and execute identically with C and Rust at
+O0/O1/O2: opaque declaration alongside generic identity, string-to-int admission,
+string append as a value-match result, and append as an expression prefix.
+Moved their byte-identical sources into rgen, recorded C stdout as the runtime
+oracle and generated Rust snapshots. The conversion fixture only checks
+admission (its result is unused), not the runtime conversion value.
+All 12 pairs pass; `promoted-positive-pairs.json` retains the original paths and
+source hashes. Full Rust run after promotion: rgen 309 pass/11 fail/0 skip;
+negatives 167 pass/6 fail/5 explicit promotion skips. Native, closure and toolchain
+counts remain passing and unchanged. Remaining negative failures are three old
+messages and three reference-argument cases requiring C-admission classification.
+
+The C exploratory sanitizer failure is consistent with the documented contract:
+`docs/threading.md` requires locks when threads mutate shared arrays. Its current
+source spawns three closures that push into the same array without locks. It
+cannot provide a defined C behavior oracle; final regression-gate treatment
+still requires an explicit, documented resolution rather than hiding the failure.
