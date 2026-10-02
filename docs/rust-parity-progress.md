@@ -215,3 +215,35 @@ negative 6/12/1/2; closure positive/negative 36/1; toolchain 12. All pass, zero
 failures and zero skips. C unit/cgen/model/integration/integration-negative/
 exploratory/exploratory-negative: 1608/107/79/1141/58/224/11, all pass with no
 skips. Formatting passes. Logs: `reconciled-rust.log`, `reconciled-c.log`.
+
+## Main baseline published and platform PR repair
+
+Baseline corrections pushed directly to main at
+`a03421325a4a5785eec1645633d68ff99fc00126`; Compiler CI run `37034635319`
+passes on Linux, macOS and Windows. PR150's merge run `37033394816` also passes
+on all three platforms. The synchronized exploratory test and every active
+Rust suite pass locally; this is baseline health, not full language parity.
+
+PR144 is composed onto that main in the isolated branch. Its prior Windows
+runtime logs identify missing libgcc/libgcc_eh, a missing hashlib import,
+host-dependent generated-source mismatches, and a C native-output mismatch.
+The repaired workflow selects x86_64-pc-windows-gnullvm with existing LLVM-MinGW:
+Rust's official platform documentation specifies UCRT, LLVM tools/libraries,
+Windows extern-C calling conventions and LLVM-MinGW compatibility:
+https://doc.rust-lang.org/rustc/platform-support/windows-gnullvm.html
+Hosted verification is still required; changing the triple alone is not proof.
+
+Windows output support now emits portable Rust cfg(windows) functions/macros.
+Generation is host-independent and the actual Rust target selects text behavior.
+All 351 active Rust snapshots were regenerated; source fixtures and runtime
+oracles remain unchanged. Full local Rust suites pass with the published
+baseline counts and zero skips. Full C suites pass with the published counts.
+Raw-byte comparisons (63 executions), text/native/diagnostic transport (six
+executions), and Windows helper logic pass. The helper test forces only the
+platform-independent adapter cfg on Unix; it is not Windows ABI/OS evidence.
+
+The C Windows output discrepancy remains a required gate. Runtime failures now
+retain executable, generated C and raw streams under .sn/rust-runtime-diagnostics
+and upload those artifacts. An intentional mismatch verified that diagnostic
+retention actually works, including Unix byte-valued subprocess argv. No C
+output oracle was weakened or normalized to accommodate the discrepancy.

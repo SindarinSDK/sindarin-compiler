@@ -3,6 +3,9 @@
 
 # Source files - always LF (multiline string literals depend on this)
 *.sn text eol=lf
+# This formatter-exempt fixture is staged byte-for-byte after its manifest
+# hash is verified. It must not pass through checkout line-ending conversion.
+tests/rust-native/scalar_bool_char.sn.raw -text
 *.c text eol=lf
 *.h text eol=lf
 

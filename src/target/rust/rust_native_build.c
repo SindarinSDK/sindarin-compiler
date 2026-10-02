@@ -195,6 +195,34 @@ static bool append_link_arg(NativeBuffer *command, const char *argument)
     return ok;
 }
 
+static int run_rust_native_command(const char *command)
+{
+#ifdef _WIN32
+    /* system() dispatches through cmd.exe /c. When the command itself starts
+     * with a quoted executable, cmd.exe consumes that opening quote as its
+     * command-line wrapper and leaves rustc" as the command name. Keep the
+     * complete Rust-private link invocation inside a second pair of quotes,
+     * matching the pure-Rust driver boundary in rust_target.c. */
+    size_t length = strlen(command);
+    char *wrapped = malloc(length + 3);
+    if (!wrapped)
+    {
+        fprintf(stderr,
+                "Error: failed to allocate buffer for Rust native rustc invocation\n");
+        return -1;
+    }
+    wrapped[0] = '"';
+    memcpy(wrapped + 1, command, length);
+    wrapped[length + 1] = '"';
+    wrapped[length + 2] = '\0';
+    int status = system(wrapped);
+    free(wrapped);
+    return status;
+#else
+    return system(command);
+#endif
+}
+
 static bool path_has_c_extension(const char *path)
 {
     size_t length = path ? strlen(path) : 0;
@@ -334,7 +362,7 @@ bool rust_native_build(const CompilerOptions *options, const char *build_dir,
         return false;
     }
     if (options->verbose) DEBUG_INFO("Executing: %s", command.data);
-    int status = system(command.data);
+    int status = run_rust_native_command(command.data);
     free(command.data);
     if (status != 0)
     {
