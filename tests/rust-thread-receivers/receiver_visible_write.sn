@@ -1,0 +1,14 @@
+struct Counter =>
+  value: int
+  fn read(): int =>
+    return self.value
+  fn update(amount: int): int =>
+    self.value = self.read() + amount
+    return self.read()
+  fn run(): int =>
+    var result: int = & self.update(7)
+    return result !
+fn main(): void =>
+  var counter: Counter = { value: 5 }
+  println(counter.run())
+  println(counter.value)
