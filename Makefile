@@ -258,6 +258,16 @@ test-rust-parity-thread-ownership: build
 		--output .sn/rust-parity-thread-ownership.json \
 		tests/rust-thread-ownership/*.sn tests/rust-thread-array-identity/*.sn*
 
+.PHONY: test-rust-parity-thread-receivers
+test-rust-parity-thread-receivers: build
+	@$(PYTHON) scripts/check_rust_parity.py --compiler $(SN) --require-count 10 \
+		--arithmetic-mode default --arithmetic-mode checked --arithmetic-mode unchecked \
+		--output .sn/rust-parity-thread-receivers.json \
+		tests/rust-thread-receivers/*.sn \
+		tests/integration/test_thread_spawn_self_method.sn \
+		tests/integration/test_thread_struct_param.sn \
+		tests/integration/test_pass_self_to_function.sn
+
 #------------------------------------------------------------------------------
 # install - Install to ~/.sn/ (global user installation)
 #------------------------------------------------------------------------------
