@@ -581,3 +581,8 @@ pairs used identical files within each platform, but these were not the exact
 committed raw bytes across platforms. Add `*.sn.raw -text` so future Windows
 checkouts preserve the original bytes without source edits or reformatting.
 Per-platform report hashes must be checked against the originals again.
+
+Simulated Windows-style Git checkout (`core.autocrlf=true`, `core.eol=crlf`,
+`cat-file --filters`) now preserves exact bytes for all three raw sources.
+Runtime CI retains parity JSON on successful as well as failed runs, enabling
+verification of source identities and raw streams even when every gate passes.

@@ -186,8 +186,8 @@ jobs:
 
           exit "$overall_rc"
 
-      - name: Retain failed runtime diagnostics
-        if: failure()
+      - name: Retain runtime parity evidence
+        if: always()
         uses: actions/upload-artifact@v7
         with:
           name: rust-runtime-diagnostics-${{ matrix.os }}
