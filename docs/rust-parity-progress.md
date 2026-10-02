@@ -70,3 +70,23 @@ PR descriptions and historical focused gates are not final-head verification.
 Current main CI does not execute the complete Rust suite.
 
 PR150 is being composed locally first. No remote merge has occurred in this goal.
+
+## Local integration results
+
+PR150 head `a53de135e1e0c4a980ae23aff6c093aa9daf3e32` fast-forwarded
+into the isolated branch. Rebuild succeeds. Full Rust suite: 300 generation passes,
+16 generation failures; all other suite totals unchanged. The 29 failing
+case/reason pairs match the baseline (durations are not part of the comparison).
+Five receiver fixtures pass in 15 source-identical C/Rust pairs at O0/O1/O2, with
+zero compile/run statuses and identical raw stdout/stderr. Evidence:
+`pr150-rust.log` and `pr150-receiver-pairs.json`. Remote PR remains open.
+
+Corrected three obsolete statement-match rejection messages to include the already
+implemented char subject. No source fixture, runtime oracle or compiler behavior
+changed. Focused `rgen-errors --filter statement_match_` passes; see
+`statement-match-negatives.log`. This removes three stale test failures, not three
+language gaps. The next full negative run is required after further changes.
+
+Raw harness logs deliberately retain terminal progress carriage returns and
+trailing spaces; whitespace checks apply to source/docs edits, excluding these
+unmodified captured logs. They also retain failure traces and statuses.
