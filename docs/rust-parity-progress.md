@@ -513,3 +513,29 @@ Post-PR127 main Compiler `37049464036` and Runtime `37049464061` finish
 with all six jobs successful at `cbaf22b8`; exact job/run URLs and results
 are retained in `pr127-main-ci-green.json`. Main has the identical source tree
 to the tested foundation head `2bf57b91`.
+
+## PR142 Windows synchronized reference ABI correction
+
+At `8382f357`, Compiler CI `37050270047` passes all platforms; Runtime
+`37050270094` passes Linux/macOS and fails Windows. The retained hosted
+report records 198/207 ownership pairs passing. All nine failures are the
+unchanged `sync_reference.sn`: Clang 22 rejects assigning an
+`_Atomic(long long) *` address to the thread argument record's ordinary
+`long long *` parameter ABI. Rust compiles/runs successfully, but failed C
+controls do not count as parity. Preserve the Windows raw log and JSON as
+`pr142-windows-atomic-ref-failure.log` and `.json`.
+
+Reproduce C's incompatibility on the GCC worker with
+`-Werror=incompatible-pointer-types -Werror=discarded-qualifiers`; preserve
+that before-fix log. Both direct and closure thread argument-packaging branches
+now convert reference addresses through `void *` to the existing parameter ABI.
+Pointer identity, function signatures, source semantics and runtime oracles
+remain unchanged; no warning flags are disabled. The source passes all nine
+strict-diagnostic C/Rust pairs after the correction. Complete local suites and
+207/51/30 gates are rerun; hosted verification is still required.
+Unrelated receiver integration stays paused until this revision is green.
+
+The reference-packaging correction passes full local C/Rust suites with
+unchanged counts and zero skips, plus all 207 ownership, 51 concurrency and
+30 core pairs and formatting. Evidence: `pr142-atomic-ref-c.log`,
+`pr142-atomic-ref-rust.log`, `pr142-atomic-ref-all-mode-pairs.json`.
