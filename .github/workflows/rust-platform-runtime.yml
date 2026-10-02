@@ -97,7 +97,19 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
+          SN_SKIP_PREREQS: ${{ runner.os == 'Windows' && '1' || '' }}
         run: make setup
+
+      - name: Verify pinned Windows compiler after setup
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $toolchainRoot = Join-Path $env:GITHUB_WORKSPACE ".sn\toolchains\llvm-mingw"
+          $toolchain = Get-ChildItem $toolchainRoot -Directory | Select-Object -First 1
+          $expected = Join-Path $toolchain.FullName "bin\clang.exe"
+          $selected = (Get-Command clang.exe).Source
+          if ($selected -ne $expected) { throw "Expected pinned clang $expected, selected $selected" }
+          clang --version
 
       - name: Build
         shell: bash

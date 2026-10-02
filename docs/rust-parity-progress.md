@@ -334,3 +334,35 @@ focused C test passes, complete Rust suites retain the 316/179/native/closure/
 toolchain counts with zero skips, and the differential core passes all 30 pairs.
 Logs: `platform-portable-rust.log`, `platform-portable-toolchain.log`; fresh
 three-platform CI must verify this repair before integration.
+
+## Bootstrap toolchain override diagnosed
+
+At `2a7aeef4`, Compiler CI `37041533438` passes all platforms, including the
+previously excluded macOS thread-panic test. Runtime CI `37041533439` passes
+Linux/macOS. Windows passes all 316 generation cases, 179 negatives, native
+tagged/origin/negative suites, closures 36/1, C-driver capture, forced native
+compile/link failure, all raw-byte/transport probes, and all 30 differential
+core pairs. Only debug executions fail in the sanitizer startup instruction.
+Preserve the complete Windows log as `pr144-windows-bootstrap-override.log`
+and actual hosted raw core results as `pr144-windows-core.json`.
+
+The job prints Clang 22.1.8 before setup but Clang 19.1.6 at build time. The
+bootstrap `make setup` invokes `install.ps1`, whose prerequisite installer
+downloads LLVM-MinGW 20241217 again and prepends it through GITHUB_PATH. Thus
+the previous run did not execute debug programs with the configured new compiler.
+Do not claim that upgrading the pin failed to fix LLVM or that new sanitizer
+execution passed.
+
+Add an explicit SN_SKIP_PREREQS=1 bootstrap option; normal installations still
+install prerequisites. Both Windows jobs already provision the pinned compiler
+and build tools, so they opt out of replacing them during bootstrap. After setup,
+assert that Get-Command clang.exe resolves to the project toolchain's exact path,
+then record its version before building. Hosted verification must establish the
+compiler selection and every debug execution on the new revision.
+
+Compile-admission inventory at `2a7aeef4`: all 179 active Rust-negative sources
+were independently compiled through C at O0. 132 compile successfully; 47 fail
+or reject. This is an investigation list, not 132 proven runtime gaps or parity
+results. No program was executed, so runtime validity remains unclassified.
+`c-admission-inventory.json` records source/compiler identities, commands, raw
+compile streams, statuses and the current Rust rejection oracle.
