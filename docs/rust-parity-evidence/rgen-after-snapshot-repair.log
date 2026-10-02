@@ -1,0 +1,308 @@
+Compiler: /home/gavin/code/sindarin/sindarin-rust-parity-completion/bin/sn
+Platform: Linux
+Parallel: 20 workers
+
+Rust Generation Tests
+============================================================
+  Running 316 tests with 20 workers...
+                                                              as_ref_method_field_arguments                 FAIL (Rust emission error)  (4ms)
+    [1mCompiling[0m tests/rgen/as_ref_method_field_arguments.sn...
+      Parsing... [1;36mdone[0m
+      Type checking...
+      [1;31merror[0m: 'as ref' parameter requires a variable or field, not a literal or expression
+        [1;34m-->[0m tests/rgen/as_ref_method_field_arguments.sn:22:1
+              freeBump(direct.value)
+            [1;31m^[0m
+    
+    
+      [1;31merror[0m: 'as ref' parameter requires a variable or field, not a literal or expression
+        [1;34m-->[0m tests/rgen/as_ref_method_field_arguments.sn:23:1
+              freeBump(nested.box.value)
+            [1;31m^[0m
+    
+      Type checking [1;31mfailed[0m
+    
+    [1;31mCompilation failed[0m: 2 errors
+    
+  checked_ref_parameter_byte_mutations          FAIL (Rust emission error)  (2ms)
+    [1mCompiling[0m tests/rgen/checked_ref_parameter_byte_mutations.sn...
+      Parsing... [1;36mdone[0m
+      Type checking...
+      [1;31merror[0m: 'as ref' parameter requires a variable or field, not a literal or expression
+        [1;34m-->[0m tests/rgen/checked_ref_parameter_byte_mutations.sn:73:1
+              freeBump(direct.value)
+            [1;31m^[0m
+    
+    
+      [1;31merror[0m: 'as ref' parameter requires a variable or field, not a literal or expression
+        [1;34m-->[0m tests/rgen/checked_ref_parameter_byte_mutations.sn:74:1
+              freeBump(nested.box.value)
+            [1;31m^[0m
+    
+    
+      [1;31merror[0m: 'as ref' parameter requires a variable or field, not a literal or expression
+        [1;34m-->[0m interpolated:1:1
+            struct Box =>
+            [1;31m^[0m
+    
+    
+      [1;31merror[0m: Invalid expression in interpolated string part
+        [1;34m-->[0m tests/rgen/checked_ref_parameter_byte_mutations.sn:80:1
+              println($"{freeOps(free_value)} {free_value} {RefOps.staticOps(static_value)} {static_value} {ops.instancePostfix(postfix_value)} {postfix_value} {forwardStatic(forwarded_static)} {forwarded_static} {forwardInstance(forwarded_instance)} {forwarded_instance} {maxBoundary(maximum)} {minBoundary(minimum)} {read(direct.value)} {direct.value} {nested.box.value}")
+            [1;31m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+    
+    
+      [1;31merror[0m: Invalid argument in function call
+        [1;34m-->[0m tests/rgen/checked_ref_parameter_byte_mutations.sn:80:1
+              println($"{freeOps(free_value)} {free_value} {RefOps.staticOps(static_value)} {static_value} {ops.instancePostfix(postfix_value)} {postfix_value} {forwardStatic(forwarded_static)} {forwarded_static} {forwardInstance(forwarded_instance)} {forwarded_instance} {maxBoundary(maximum)} {minBoundary(minimum)} {read(direct.value)} {direct.value} {nested.box.value}")
+            [1;31m^[0m
+    
+      Type checking [1;31mfailed[0m
+    
+    [1;31mCompilation failed[0m: 5 errors
+    
+  checked_ref_parameter_int32_mutations         FAIL (Rust emission error)  (1ms)
+    [1mCompiling[0m tests/rgen/checked_ref_parameter_int32_mutations.sn...
+      Parsing... [1;36mdone[0m
+      Type checking...
+      [1;31merror[0m: 'as ref' parameter requires a variable or field, not a literal or expression
+        [1;34m-->[0m tests/rgen/checked_ref_parameter_int32_mutations.sn:86:1
+              freeBump(direct.value)
+            [1;31m^[0m
+    
+    
+      [1;31merror[0m: 'as ref' parameter requires a variable or field, not a literal or expression
+        [1;34m-->[0m tests/rgen/checked_ref_parameter_int32_mutations.sn:87:1
+              freeBump(nested.box.value)
+            [1;31m^[0m
+    
+    
+      [1;31merror[0m: 'as ref' parameter requires a variable or field, not a literal or expression
+        [1;34m-->[0m tests/rgen/checked_ref_parameter_int32_mutations.sn:92:1
+              println(read(direct.value))
+            [1;31m^[0m
+    
+    
+      [1;31merror[0m: Invalid argument in function call
+        [1;34m-->[0m tests/rgen/checked_ref_parameter_int32_mutations.sn:92:1
+              println(read(direct.value))
+            [1;31m^[0m
+    
+      Type checking [1;31mfailed[0m
+    
+    [1;31mCompilation failed[0m: 4 errors
+    
+  checked_ref_parameter_uint32_mutations        FAIL (Rust emission error)  (2ms)
+    [1mCompiling[0m tests/rgen/checked_ref_parameter_uint32_mutations.sn...
+      Parsing... [1;36mdone[0m
+      Type checking...
+      [1;31merror[0m: 'as ref' parameter requires a variable or field, not a literal or expression
+        [1;34m-->[0m tests/rgen/checked_ref_parameter_uint32_mutations.sn:78:1
+              freeBump(direct.value)
+            [1;31m^[0m
+    
+    
+      [1;31merror[0m: 'as ref' parameter requires a variable or field, not a literal or expression
+        [1;34m-->[0m tests/rgen/checked_ref_parameter_uint32_mutations.sn:79:1
+              freeBump(nested.box.value)
+            [1;31m^[0m
+    
+    
+      [1;31merror[0m: 'as ref' parameter requires a variable or field, not a literal or expression
+        [1;34m-->[0m interpolated:1:1
+            struct Box =>
+            [1;31m^[0m
+    
+    
+      [1;31merror[0m: Invalid expression in interpolated string part
+        [1;34m-->[0m tests/rgen/checked_ref_parameter_uint32_mutations.sn:85:1
+              println($"{freeOps(free_value)} {free_value} {RefOps.staticOps(static_value)} {static_value} {ops.instancePostfix(postfix_value)} {postfix_value} {forwardStatic(forwarded_static)} {forwarded_static} {forwardInstance(forwarded_instance)} {forwarded_instance} {maxBoundary(maximum)} {minBoundary(minimum)} {assignAndRead(assigned)} {assigned} {read(direct.value)} {direct.value} {nested.box.value}")
+            [1;31m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+    
+    
+      [1;31merror[0m: Invalid argument in function call
+        [1;34m-->[0m tests/rgen/checked_ref_parameter_uint32_mutations.sn:85:1
+              println($"{freeOps(free_value)} {free_value} {RefOps.staticOps(static_value)} {static_value} {ops.instancePostfix(postfix_value)} {postfix_value} {forwardStatic(forwarded_static)} {forwarded_static} {forwardInstance(forwarded_instance)} {forwarded_instance} {maxBoundary(maximum)} {minBoundary(minimum)} {assignAndRead(assigned)} {assigned} {read(direct.value)} {direct.value} {nested.box.value}")
+            [1;31m^[0m
+    
+      Type checking [1;31mfailed[0m
+    
+    [1;31mCompilation failed[0m: 5 errors
+    
+  checked_ref_parameter_uint_mutations          FAIL (Rust emission error)  (2ms)
+    [1mCompiling[0m tests/rgen/checked_ref_parameter_uint_mutations.sn...
+      Parsing... [1;36mdone[0m
+      Type checking...
+      [1;31merror[0m: 'as ref' parameter requires a variable or field, not a literal or expression
+        [1;34m-->[0m tests/rgen/checked_ref_parameter_uint_mutations.sn:82:1
+              freeBump(direct.value)
+            [1;31m^[0m
+    
+    
+      [1;31merror[0m: 'as ref' parameter requires a variable or field, not a literal or expression
+        [1;34m-->[0m tests/rgen/checked_ref_parameter_uint_mutations.sn:83:1
+              freeBump(nested.box.value)
+            [1;31m^[0m
+    
+    
+      [1;31merror[0m: 'as ref' parameter requires a variable or field, not a literal or expression
+        [1;34m-->[0m interpolated:1:1
+            struct Box =>
+            [1;31m^[0m
+    
+    
+      [1;31merror[0m: Invalid expression in interpolated string part
+        [1;34m-->[0m tests/rgen/checked_ref_parameter_uint_mutations.sn:89:1
+              println($"{freeOps(free_value)} {free_value} {RefOps.staticOps(static_value)} {static_value} {ops.instancePostfix(postfix_value)} {postfix_value} {forwardStatic(forwarded_static)} {forwarded_static} {forwardInstance(forwarded_instance)} {forwarded_instance} {maxBoundary(maximum) == max} {maximum == max} {minBoundary(minimum)} {assignAndRead(assigned, high) == high} {assigned == high} {read(direct.value)} {direct.value} {nested.box.value}")
+            [1;31m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+    
+    
+      [1;31merror[0m: Invalid argument in function call
+        [1;34m-->[0m tests/rgen/checked_ref_parameter_uint_mutations.sn:89:1
+              println($"{freeOps(free_value)} {free_value} {RefOps.staticOps(static_value)} {static_value} {ops.instancePostfix(postfix_value)} {postfix_value} {forwardStatic(forwarded_static)} {forwarded_static} {forwardInstance(forwarded_instance)} {forwarded_instance} {maxBoundary(maximum) == max} {maximum == max} {minBoundary(minimum)} {assignAndRead(assigned, high) == high} {assigned == high} {read(direct.value)} {direct.value} {nested.box.value}")
+            [1;31m^[0m
+    
+      Type checking [1;31mfailed[0m
+    
+    [1;31mCompilation failed[0m: 5 errors
+    
+  floating_as_ref_parameter                     FAIL (Rust emission error)  (3ms)
+    [1mCompiling[0m tests/rgen/floating_as_ref_parameter.sn...
+      Parsing... [1;36mdone[0m
+      Type checking...
+      [1;31merror[0m: 'as ref' parameter requires a variable or field, not a literal or expression
+        [1;34m-->[0m tests/rgen/floating_as_ref_parameter.sn:66:1
+              println(writeDouble(freeValues.precise) == 2.25 && freeValues.precise == 4.5)
+            [1;31m^[0m
+    
+    
+      [1;31merror[0m: Invalid operand in binary expression
+        [1;34m-->[0m tests/rgen/floating_as_ref_parameter.sn:66:1
+              println(writeDouble(freeValues.precise) == 2.25 && freeValues.precise == 4.5)
+            [1;31m^^[0m
+    
+    
+      [1;31merror[0m: Invalid operand in binary expression
+        [1;34m-->[0m tests/rgen/floating_as_ref_parameter.sn:66:1
+              println(writeDouble(freeValues.precise) == 2.25 && freeValues.precise == 4.5)
+            [1;31m^^[0m
+    
+    
+      [1;31merror[0m: Invalid argument in function call
+        [1;34m-->[0m tests/rgen/floating_as_ref_parameter.sn:66:1
+              println(writeDouble(freeValues.precise) == 2.25 && freeValues.precise == 4.5)
+            [1;31m^[0m
+    
+      Type checking [1;31mfailed[0m
+    
+    [1;31mCompilation failed[0m: 4 errors
+    
+  floating_ref_parameter_mutations              FAIL (Rust emission error)  (2ms)
+    [1mCompiling[0m tests/rgen/floating_ref_parameter_mutations.sn...
+      Parsing... [1;36mdone[0m
+      Type checking...
+      [1;31merror[0m: 'as ref' parameter requires a variable or field, not a literal or expression
+        [1;34m-->[0m tests/rgen/floating_ref_parameter_mutations.sn:161:1
+              var freeDoubleOk: bool = freeDouble(direct.precise, calls)
+            [1;31m^[0m
+    
+    
+      [1;31merror[0m: 'as ref' parameter requires a variable or field, not a literal or expression
+        [1;34m-->[0m tests/rgen/floating_ref_parameter_mutations.sn:175:1
+              var forwardFreeFloatOk: bool = forwardFreeFloat(forwarded.single, calls)
+            [1;31m^[0m
+    
+      Type checking [1;31mfailed[0m
+    
+    [1;31mCompilation failed[0m: 2 errors
+    
+  import_pure_alias_value_struct                FAIL (Rust emission error)  (4ms)
+    [1mCompiling[0m tests/rgen/import_pure_alias_value_struct.sn...
+      Parsing... [1;36mdone[0m
+      Type checking...
+      [1;31merror[0m: Initializer type does not match variable type
+        [1;34m-->[0m tests/rgen/import_pure_alias_value_struct.sn:4:1
+              var point: geo.Point = geo.origin()
+            [1;31m^^^^^[0m
+    
+      Type checking [1;31mfailed[0m
+    
+    [1;31mCompilation failed[0m: 1 error
+    
+  int_checked_overflow                          FAIL (Rust code mismatch)  (7ms)
+      line 6:
+        expected:     let mut overflow: i64 = (max).checked_add(one).expect("checked arithmetic failed");
+        got:      }
+      line 7:
+        expected: }
+        got:      
+      line 8:
+        expected: 
+        got:      <missing>
+  long_checked_div_min_neg_one                  FAIL (Rust code mismatch)  (3ms)
+      line 3:
+        expected: fn main() {
+        got:      fn __sn_runtime_error_0(message: &'static str) -> ! {
+      line 4:
+        expected:     let mut base: i64 = (-9223372036854775807);
+        got:          eprintln!("{}", message);
+      line 5:
+        expected:     let mut one: i64 = 1;
+        got:          std::process::exit(1);
+      line 6:
+        expected:     let mut minimum: i64 = (base).checked_sub(one).expect("checked arithmetic failed");
+        got:      }
+      line 7:
+        expected:     let mut negative_one: i64 = (-1);
+        got:      
+      line 8:
+        expected:     let mut overflow: i64 = (minimum).checked_div(negative_one).expect("checked arithmetic failed");
+        got:      fn __sn_checked_0<T>(value: Option<T>, message: &'static str) -> T {
+      line 9:
+        expected: }
+        got:          match value {
+      line 10:
+        expected: 
+        got:              Some(value) => value,
+      line 11:
+        expected: <missing>
+        got:              None => __sn_runtime_error_0(message),
+      line 12:
+        expected: <missing>
+        got:          }
+  resolved_calls                                FAIL (Rust code mismatch)  (56ms)
+      line 3:
+        expected: fn __sn_index(length: usize, index: i64) -> usize {
+        got:      #[derive(Clone, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+      line 4:
+        expected:     let resolved = if index < 0 { length as i64 + index } else { index };
+        got:      struct SnString(Vec<u8>);
+      line 5:
+        expected:     if resolved < 0 || resolved >= length as i64 {
+        got:      
+      line 6:
+        expected:         panic!("array index out of bounds: {index}");
+        got:      trait SnBytes {
+      line 7:
+        expected:     }
+        got:          fn sn_bytes(&self) -> &[u8];
+      line 8:
+        expected:     resolved as usize
+        got:      }
+      line 9:
+        expected: }
+        got:      
+      line 10:
+        expected: 
+        got:      impl SnBytes for SnString {
+      line 11:
+        expected: fn __sn_insert_index(length: usize, index: i64) -> usize {
+        got:          fn sn_bytes(&self) -> &[u8] { &self.0 }
+      line 12:
+        expected:     let resolved = if index < 0 { length as i64 + index } else { index };
+        got:      }
+
+------------------------------------------------------------
+Results: 305 passed, 11 failed, 0 skipped  (4.53s)
+
+Some tests failed!  (total: 4.53s)

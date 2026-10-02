@@ -1771,15 +1771,9 @@ static bool rust_validate_expr(json_object *expr)
         }
         if (!json_string_property_equals(expr, "mutation_arithmetic_mode", "checked"))
         {
-            if (iterator_binding_mutation &&
-                strcmp(operand_type_kind, "byte") != 0 &&
-                strcmp(operand_type_kind, "uint32") != 0 &&
-                strcmp(operand_type_kind, "uint") != 0)
-            {
-                fprintf(stderr,
-                        "Error: Rust target supports integer iterator-protocol increment/decrement only with checked arithmetic\n");
-                return false;
-            }
+            /* Iterator bindings are mutable local copies of next() results.
+             * Their unchecked postfix operations use the same lowering as
+             * ordinary locals; the iterator's state is not the mutation place. */
             return rust_validate_expr(child);
         }
         if (!json_string_property_equals(expr, "mutation_storage", "local") &&

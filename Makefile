@@ -219,6 +219,22 @@ test-rust-closures: build
 test-rust-toolchain: build
 	@$(PYTHON) scripts/run_rust_tests.py rust-toolchain --verbose
 
+# Positive, source-identical C/Rust checks at every source optimization level.
+# Keep this separate from historical Rust-only admission/snapshot fixtures.
+.PHONY: test-rust-parity-core
+test-rust-parity-core: build
+	@$(PYTHON) scripts/check_rust_parity.py --output .sn/rust-parity-core.json \
+		tests/rgen/by_value_scalar_parameter_assignment.sn \
+		tests/rgen/by_value_scalar_parameter_assignment_unchecked.sn \
+		tests/rgen/checked_numeric_mutations.sn \
+		tests/rgen/iterator_protocol_numeric_mutations.sn \
+		tests/rgen/resolved_callable_methods.sn \
+		tests/rgen/receiver_array_alias.sn \
+		tests/rgen/receiver_array_alias_forward_recursive.sn \
+		tests/rgen/receiver_array_alias_identity.sn \
+		tests/rgen/receiver_array_alias_minimal.sn \
+		tests/rgen/receiver_array_alias_multiple.sn
+
 #------------------------------------------------------------------------------
 # install - Install to ~/.sn/ (global user installation)
 #------------------------------------------------------------------------------

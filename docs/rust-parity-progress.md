@@ -90,3 +90,35 @@ language gaps. The next full negative run is required after further changes.
 Raw harness logs deliberately retain terminal progress carriage returns and
 trailing spaces; whitespace checks apply to source/docs edits, excluding these
 unmodified captured logs. They also retain failure traces and statuses.
+
+## Iterator unchecked-mode repair and differential gate
+
+Added `scripts/check_rust_parity.py` and `make test-rust-parity-core`. The gate
+requires an explicit nonempty fixture selection, existing sources/compiler,
+successful compilation and zero runtime status on both targets. It compares raw
+stdout/stderr and records compiler/source SHA-256 hashes, commands, statuses and
+raw streams in JSON. Missing artifacts, timeouts and failed controls fail the
+gate; special `.args`/`.exit`/`.panic` contracts are explicitly rejected rather
+than silently ignored. This positive gate complements, not replaces, negatives
+and independent runtime expectations.
+
+Differential testing exposed Rust rejection of signed iterator-binding postfix
+mutation in unchecked O2. Removed the obsolete checked-only validation guard:
+these bindings are mutable local copies and existing local lowering applies.
+The same unchanged comprehensive iterator source now matches C at O0/O1/O2.
+All six neighboring iterator negative tests pass. No C/shared production changed.
+
+Refreshed five stale generated-Rust snapshots only after paired execution checks:
+by-value scalar assignment (checked and unchecked fixture), numeric mutations,
+iterator mutations and resolved callable methods. Existing sources and runtime
+expectations are unchanged. The rgen runner verifies those expectations after
+snapshot matching: now 305 passes, 11 failures, no skips. The core differential
+gate passes all 30 pairs (60 executions), covering those five fixtures plus the
+five receiver-alias fixtures at each optimization level. Evidence is
+`core-after-iterator.json` and `rgen-after-snapshot-repair.log`.
+
+The separate `resolved_calls.sn` historical Rust fixture fails C compilation at
+all three optimization levels: heap-owning operator arguments are emitted as
+values where C expects pointers. Rust executes it successfully. Do not claim it
+as C parity evidence or change C semantics merely to satisfy this Rust fixture.
+Its snapshot remains unresolved separately from the real iterator gap.
