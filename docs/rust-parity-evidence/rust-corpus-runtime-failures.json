@@ -1,0 +1,522 @@
+[
+  {
+    "suite": "integration",
+    "name": "test_array_literal_arg_leak",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_as_ref_array_return",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_as_ref_for_in_self_return",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_as_ref_on_ref_struct_param",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_as_ref_params",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_as_ref_queue_drain",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_as_ref_return_passthrough",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_as_ref_struct_lit_owned_field",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_as_ref_struct_param",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_assert",
+    "reason": "output mismatch"
+  },
+  {
+    "suite": "integration",
+    "name": "test_buffer_unwrap",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_builtin_interfaces",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_byte_encoding",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_char_methods",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_composite_borrow_mutation",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_composite_temp_arg",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_compound_assignment",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_constrained_generics",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_exit",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_generic_multi_param_iter",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_generic_static_call",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_generics_functions",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_generics_nested_inference",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_import_fn_field_chained",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_interfaces",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_interop_callback",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_interop_comprehensive",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_interop_edge_cases",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_interop_types",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_iterator_protocol",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_lambda_capture_outlives_scope",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_lambda_capture_struct",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_lambda_val_struct_str_field",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_lambda_val_struct_str_interp",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_match_return_arms",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_module_array_swap_leak",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_native_callback_typedef",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_native_ref_field_pass_chain",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_native_ref_field_return",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_native_ref_method_forward_twice",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_native_ref_self_assign",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_native_resource_lifecycle",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_native_struct_ref_array_pass",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_native_struct_ref_loop_cleanup",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_nested_array_copy",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_nil_array",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_nil_compare_struct",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_nil_pointer_slice",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_nil_string",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_qsort_callback",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_refcount_arg_leak",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_refcount_chain_in_struct_literal",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_return_ref_param",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_return_self",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_scope_byte_var",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_self_method_forward_after_train",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_serializable",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_serializable_decode_struct_literal_loop",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_serializable_double_int_json",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_serializable_encoder_cleanup",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_serializable_long",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_serializable_push_ownership",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_serializable_return_nested_array",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_sized_array_syntax",
+    "reason": "output mismatch"
+  },
+  {
+    "suite": "integration",
+    "name": "test_sizeof",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_static_import",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_str_return_as_arg_leak",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_struct_array_concat",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_struct_as_ref",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_struct_as_ref_chain",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_struct_codegen_validation",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_struct_heap_alloc",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_struct_native_c_interop",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_struct_native_defaults",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_struct_packed",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_struct_return_array_leak",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_struct_rvalue_member_leak",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_struct_rvalue_member_leak_contexts",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_struct_self_method_call",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_struct_sizeof_equality",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_struct_stack_alloc",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_sync_byte_char",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_thread_native_fn_struct_return",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_thread_panic_propagate",
+    "reason": "output mismatch"
+  },
+  {
+    "suite": "integration",
+    "name": "test_thread_struct_return_types",
+    "reason": "compile error"
+  },
+  {
+    "suite": "integration",
+    "name": "test_val_struct_shared_array",
+    "reason": "compile error"
+  },
+  {
+    "suite": "explore",
+    "name": "test_array_mutation_lambda",
+    "reason": "compile error"
+  },
+  {
+    "suite": "explore",
+    "name": "test_as_val_array_copy",
+    "reason": "compile error"
+  },
+  {
+    "suite": "explore",
+    "name": "test_byte_array",
+    "reason": "compile error"
+  },
+  {
+    "suite": "explore",
+    "name": "test_byte_primitives",
+    "reason": "compile error"
+  },
+  {
+    "suite": "explore",
+    "name": "test_gcc_edge_arrays",
+    "reason": "compile error"
+  },
+  {
+    "suite": "explore",
+    "name": "test_gcc_edge_interop",
+    "reason": "compile error"
+  },
+  {
+    "suite": "explore",
+    "name": "test_gcc_edge_structs",
+    "reason": "compile error"
+  },
+  {
+    "suite": "explore",
+    "name": "test_match_as_val_ref",
+    "reason": "compile error"
+  },
+  {
+    "suite": "explore",
+    "name": "test_match_memory",
+    "reason": "compile error"
+  },
+  {
+    "suite": "explore",
+    "name": "test_match_native",
+    "reason": "compile error"
+  },
+  {
+    "suite": "explore",
+    "name": "test_match_primitives",
+    "reason": "compile error"
+  },
+  {
+    "suite": "explore",
+    "name": "test_mixed_numeric_types",
+    "reason": "compile error"
+  },
+  {
+    "suite": "explore",
+    "name": "test_pointer_slice_bounds",
+    "reason": "compile error"
+  },
+  {
+    "suite": "explore",
+    "name": "test_str_comprehensive",
+    "reason": "compile error"
+  },
+  {
+    "suite": "explore",
+    "name": "test_struct_config",
+    "reason": "compile error"
+  },
+  {
+    "suite": "explore",
+    "name": "test_struct_self_method_call",
+    "reason": "compile error"
+  },
+  {
+    "suite": "explore",
+    "name": "test_struct_zlib_style",
+    "reason": "compile error"
+  },
+  {
+    "suite": "explore",
+    "name": "test_sync_byte_threading",
+    "reason": "compile error"
+  }
+]

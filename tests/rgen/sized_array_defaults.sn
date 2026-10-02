@@ -1,0 +1,25 @@
+fn bound(calls: int as ref): int =>
+  calls += 1
+  return 3
+
+fn nextValue(calls: int as ref): int =>
+  calls += 1
+  return calls
+
+fn main(): void =>
+  var boundCalls: int = 0
+  var defaultCalls: int = 0
+  var values: int[bound(boundCalls)] = nextValue(defaultCalls)
+  println($"{boundCalls}:{defaultCalls}:{values[0]}:{values[1]}:{values[2]}")
+  var empty: int[0] = nextValue(defaultCalls)
+  println(defaultCalls == 3)
+  var __sn_sized_values: int = 7
+  var __sn_sized_index: int = 3
+  var collision: int[2] = __sn_sized_values + __sn_sized_index
+  println($"{collision[0]}:{collision[1]}")
+  var number: int = 2
+  var fractions: double[2] = number
+  println($"{fractions[0]}:{fractions[1]}")
+  var word: str = "hello"
+  var words: str[2] = word
+  println($"{words[0]}:{words[1]}")

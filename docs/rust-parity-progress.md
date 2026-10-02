@@ -611,3 +611,54 @@ The new reflection gate and report retention are required on every hosted
 runtime platform. This local increment is not yet published; it must refresh
 against native integration and pass combined checks before a direct main push.
 Other reflection types and the broader language gaps remain required work.
+
+
+## PR queue reconciled and broader C-corpus triage
+
+Receiver main `227fd27a` passes all six post-merge CI jobs, recorded in
+`pr134-main-ci-green.json`. Native PR143 head `55f71bcf` passes all six jobs;
+its Windows artifacts verify every source hash and all 441 pairs, including
+nine invalid-UTF-8 managed-result pairs against the exact CRLF oracle. Evidence:
+`pr143-head-ci-green.json`, `pr143-windows-report-verification.json` and
+`pr143-windows-native-managed-green.json`. PR143 merges as `9683f657`.
+The open PR queue is empty; post-merge CI `37058052765`/`37058052661` is running.
+
+On tested native head `55f71bcf`, the 1365 unchanged positive C integration and
+exploratory sources have 1264 successful Rust O0 executable compiles. Running
+all sources through the existing C-suite harness with only the compiler target
+changed yields 1055/1141 integration and 206/224 exploratory passes, zero skips.
+The 104 failures are 101 admission/compilation failures plus three output-oracle
+failures: ignored sized-array defaults, and merged stdout/stderr order in assert
+and thread-panic programs. This is useful triage, not complete optimization or
+cross-platform parity. Raw admission records, commands, source/compiler hashes
+and test logs are in `rust-corpus-*` evidence. Callbacks/native structs, composite
+qualifiers, closures, numeric conversions, matching and array methods dominate
+remaining failures; the existing Rust-negative inventory also remains required.
+
+## Sized-array defaults: local semantic repair
+
+Rust's sized allocation ignored the modeled default expression. A defaulted
+allocation now follows the unchanged C statement-expression loop: evaluate the
+initial capacity, reevaluate the bound for every check, and evaluate/copy the
+default for each element. Defaults are validated instead of silently ignored.
+Temporary vector/index names avoid every source identifier in the model;
+allowed numeric widening is explicit. Existing nondefault allocation lowering
+and existing positive snapshots are unchanged.
+
+The unchanged C fixture `test_sized_array_syntax.sn` and a new independent
+oracle cover int/bool/string initialization, repeated bound/default effects,
+zero elements, temporary-name collisions and widening. Together with the
+source-identical reflection control they pass 27 exact C/Rust pairs across all
+optimization/arithmetic modes. Full C suites pass unchanged counts; Rust
+319 generation/171 negatives and all other suites pass without skips. Formatting
+passes. Evidence: `sized-default-*`.
+
+An initially selected neighboring Rust-only fixture `array_values.sn` does not
+compile through C: `sn_array_remove` returns void but the fixture stores its
+result. Preserve its nine failed C controls in
+`sized-default-rejected-c-neighbor.json`; it receives no parity credit. The final
+positive gate uses an independently verified C-valid neighboring source.
+A first new snapshot was emitted with default O2 instead of the harness's O0;
+only that new snapshot was corrected after all-mode paired execution checks.
+No existing golden was refreshed. This local increment still requires composition
+with native main and fresh tests before direct-main publication.

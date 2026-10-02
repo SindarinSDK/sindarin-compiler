@@ -187,6 +187,9 @@ jobs:
           run_gate "reflection metadata and sized arrays (4 sources, all optimization/arithmetic modes)" \
             make test-rust-parity-reflection
 
+          run_gate "sized-array defaults and evaluation effects (3 sources, all optimization/arithmetic modes)" \
+            make test-rust-parity-sized-defaults
+
           exit "$overall_rc"
 
       - name: Retain runtime parity evidence
@@ -201,5 +204,6 @@ jobs:
             .sn/rust-parity-thread-ownership.json
             .sn/rust-parity-thread-receivers.json
             .sn/rust-parity-reflection.json
+            .sn/rust-parity-sized-defaults.json
           if-no-files-found: ignore
           retention-days: 7

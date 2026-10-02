@@ -1,0 +1,29 @@
+{
+  "revision": "55f71bcfffb0077dd2b2ddeadb36d7dcfec9953f",
+  "run": 37056586866,
+  "windows_reports": [
+    {
+      "gate": "core",
+      "pairs": 30
+    },
+    {
+      "gate": "concurrency",
+      "pairs": 51
+    },
+    {
+      "gate": "thread-ownership",
+      "pairs": 207
+    },
+    {
+      "gate": "thread-receivers",
+      "pairs": 90
+    },
+    {
+      "gate": "native-managed",
+      "pairs": 63
+    }
+  ],
+  "managed_binary_pairs": 9,
+  "managed_binary_stdout_hex": "41ff420d0a747275650d0a747275650d0a747275650d0a747275650d0a747275650d0a747275650d0a747275650d0a747275650d0a",
+  "windows_oracle_sha256": "2c884c6ce940d41d2096209fe704af07c64545df95090d7c90d95d2b891f405b"
+}

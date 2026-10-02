@@ -203,6 +203,12 @@ static bool rust_emit(CompilerOptions *options, Module *module,
         json_object_put(model);
         return false;
     }
+    if (!rust_lower_sized_default_names(model, model))
+    {
+        fprintf(stderr, "Error: Rust target could not assign hygienic sized-array names\n");
+        json_object_put(model);
+        return false;
+    }
     if (!rust_lower_assert_temp_names(model, model))
     {
         fprintf(stderr, "Error: Rust target could not assign hygienic assertion temporary names\n");

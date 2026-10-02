@@ -421,3 +421,12 @@ test-rust-parity-reflection: build
 		tests/integration/test_typeof.sn \
 		--require-count 4 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-reflection.json
+
+.PHONY: test-rust-parity-sized-defaults
+test-rust-parity-sized-defaults: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/integration/test_sized_array_syntax.sn \
+		tests/rgen/sized_array_defaults.sn \
+		tests/rgen/typeof_sized_array.sn \
+		--require-count 3 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-sized-defaults.json

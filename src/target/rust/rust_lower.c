@@ -1026,6 +1026,51 @@ static bool rust_assign_windows_text_names(json_object *model)
     return true;
 }
 
+/* Sized defaults follow the C loop: allocate from the initial size, then
+ * reevaluate the bound and default for each element. Names must not hide source
+ * bindings used by either expression. */
+static bool rust_lower_sized_default_names(json_object *model, json_object *node)
+{
+    if (!node) return true;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            if (!rust_lower_sized_default_names(
+                    model, json_object_array_get_idx(node, i))) return false;
+        return true;
+    }
+    if (!json_object_is_type(node, json_type_object)) return true;
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        if (!rust_lower_sized_default_names(model, value)) return false;
+    }
+    json_object *default_value = NULL;
+    if (!json_string_property_equals(node, "kind", "sized_array") ||
+        !json_object_object_get_ex(node, "default_value", &default_value)) return true;
+    const char *bases[] = {"__sn_sized_values", "__sn_sized_index"};
+    const char *keys[] = {"rust_sized_values_name", "rust_sized_index_name"};
+    for (size_t i = 0; i < 2; i++)
+    {
+        char name[96];
+        if (!rust_allocate_helper_name(model, bases[i], name, sizeof(name)))
+            return false;
+        json_object_object_add(node, keys[i], json_object_new_string(name));
+    }
+    json_object *element_type = NULL, *default_type = NULL;
+    if (json_object_object_get_ex(node, "element_type", &element_type) &&
+        json_object_object_get_ex(default_value, "type", &default_type))
+    {
+        const char *cast = rust_numeric_widening_type(
+            json_string_property(default_type, "kind"),
+            json_string_property(element_type, "kind"));
+        if (cast) json_object_object_add(node, "rust_sized_default_cast",
+                                         json_object_new_string(cast));
+    }
+    return true;
+}
+
 /* Assertions bind their operands before branching so each source expression is
  * evaluated exactly once and in source order.  Those bindings live in the same
  * lexical namespace as source locals, so assign every assertion collision-free

@@ -1405,8 +1405,11 @@ static bool rust_validate_expr(json_object *expr)
             !json_object_object_get_ex(expr, "size", &size) ||
             !rust_type_supported(element_type)) return false;
         const char *element_kind = json_string_property(element_type, "kind");
+        json_object *default_value = NULL;
         return element_kind && strcmp(element_kind, "struct") != 0 &&
-               rust_validate_expr(size);
+               rust_validate_expr(size) &&
+               (!json_object_object_get_ex(expr, "default_value", &default_value) ||
+                rust_validate_expr(default_value));
     }
     if (strcmp(kind, "array_access") == 0)
     {
