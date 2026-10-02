@@ -118,16 +118,9 @@ static bool rust_typeof_type_supported(json_object *type)
         strcmp(kind, "string") == 0;
 }
 
-static bool rust_validate_typeof_operand(json_object *expr,
-                                         json_object *reflected_type)
+static bool rust_validate_typeof_operand(json_object *reflected_type)
 {
     const char *kind = json_string_property(reflected_type, "kind");
-    if (json_boolean_property(expr, "reflected_is_sized_array"))
-    {
-        fprintf(stderr,
-                "Error: Rust target does not support typeOf for sized-array operands\n");
-        return false;
-    }
     if (kind && strcmp(kind, "void") == 0)
     {
         fprintf(stderr,
@@ -1262,7 +1255,7 @@ static bool rust_validate_expr(json_object *expr)
     {
         json_object *reflected_type = NULL;
         if (json_object_object_get_ex(expr, "reflected_type", &reflected_type))
-            return rust_validate_typeof_operand(expr, reflected_type);
+            return rust_validate_typeof_operand(reflected_type);
         return true;
     }
     if (strcmp(kind, "variable") == 0) return rust_validate_function_value(expr);
@@ -1282,7 +1275,7 @@ static bool rust_validate_expr(json_object *expr)
                     "Error: Rust target does not support typeOf for this operand type yet\n");
             return false;
         }
-        if (!rust_validate_typeof_operand(expr, reflected_type)) return false;
+        if (!rust_validate_typeof_operand(reflected_type)) return false;
         /* typeOf is compile-time and non-evaluating.  Its operand is omitted
          * from the shared expression model; validate only the resolved type. */
         return true;

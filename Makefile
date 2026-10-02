@@ -411,3 +411,13 @@ help:
 	@echo ""
 	@echo "Platform: $(PLATFORM)"
 	@echo "Preset: $(PRESET)"
+
+.PHONY: test-rust-parity-reflection
+test-rust-parity-reflection: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/rgen/typeof_sized_array.sn \
+		tests/rgen/typeof_sized_array_contract.sn \
+		tests/rgen/typeof_metadata.sn \
+		tests/integration/test_typeof.sn \
+		--require-count 4 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-reflection.json

@@ -184,6 +184,9 @@ jobs:
           run_gate "thread receiver and aggregate ownership (10 sources, all optimization/arithmetic modes)" \
             make test-rust-parity-thread-receivers
 
+          run_gate "reflection metadata and sized arrays (4 sources, all optimization/arithmetic modes)" \
+            make test-rust-parity-reflection
+
           exit "$overall_rc"
 
       - name: Retain runtime parity evidence
@@ -197,5 +200,6 @@ jobs:
             .sn/rust-parity-concurrency.json
             .sn/rust-parity-thread-ownership.json
             .sn/rust-parity-thread-receivers.json
+            .sn/rust-parity-reflection.json
           if-no-files-found: ignore
           retention-days: 7

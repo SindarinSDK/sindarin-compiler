@@ -586,3 +586,28 @@ Simulated Windows-style Git checkout (`core.autocrlf=true`, `core.eol=crlf`,
 `cat-file --filters`) now preserves exact bytes for all three raw sources.
 Runtime CI retains parity JSON on successful as well as failed runs, enabling
 verification of source identities and raw streams even when every gate passes.
+
+
+## Sized-array reflection: local feature completion
+
+Remove the Rust-only `typeOf` sized-array admission guard; existing reflection
+metadata lowering already implements the C contract. Preserve resolved-type
+validation and compile-time, non-evaluating behavior. Promote the original
+three-line negative into a source-identical positive, add an independent output
+oracle and generated snapshot, and remove its obsolete rejection expectation.
+A second positive observes zero-length/int/string sized arrays, type identity
+against dynamic arrays and an effectful operand which must remain unevaluated.
+No existing positive snapshot or output oracle changes.
+
+Full local C suites remain 1610/107/79/1141/58/224/11; Rust generation is
+318 and negatives 171, all passing without skips. Native counts at this base
+remain 6/12/1/2; PR143's 8/17/1/4 update will be composed after its CI passes.
+Existing closure/concurrency/toolchain suites pass. Four reflection sources
+pass 36 C/Rust pairs under all optimization/arithmetic combinations, including
+byte-exact independent Linux oracles for both new positives. Formatting passes.
+Evidence: `rust-parity-evidence/reflection-sized-array-*`.
+
+The new reflection gate and report retention are required on every hosted
+runtime platform. This local increment is not yet published; it must refresh
+against native integration and pass combined checks before a direct main push.
+Other reflection types and the broader language gaps remain required work.

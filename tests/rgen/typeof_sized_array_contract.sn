@@ -1,0 +1,17 @@
+fn makeValues(counter: int as ref): int[] =>
+  counter += 1
+  var values: int[3]
+  return values
+
+fn main(): void =>
+  var numbers: int[3]
+  var words: str[2]
+  var empty: int[0]
+  var dynamic: int[] = {1}
+  var info: TypeInfo = typeOf(numbers)
+  println($"{info.name}:{info.fieldCount}:{info.typeId == typeOf(dynamic).typeId}")
+  println($"{typeOf(words).name}:{typeOf(words).fieldCount}:{typeOf(words).typeId == info.typeId}")
+  println($"{typeOf(empty).name}:{typeOf(empty).fieldCount}:{typeOf(empty).typeId == info.typeId}")
+  var counter: int = 0
+  var unevaluated: TypeInfo = typeOf(makeValues(counter))
+  println($"{counter}:{unevaluated.name}:{unevaluated.fieldCount}")
