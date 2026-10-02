@@ -142,3 +142,29 @@ The C exploratory sanitizer failure is consistent with the documented contract:
 source spawns three closures that push into the same array without locks. It
 cannot provide a defined C behavior oracle; final regression-gate treatment
 still requires an explicit, documented resolution rather than hiding the failure.
+
+## Working strategy (user update)
+
+Verified existing PRs may be merged; new changes may be committed and pushed
+directly to main after required local tests pass. Refresh and verify the combined
+revision before each update. Monitor every resulting CI run and prioritize any
+failure immediately, pausing unrelated integration until green. Preserve useful
+work before closing superseded PRs. No routine approval is required.
+
+PR150 merged remotely as `6605f87f502382b74e100b0280d2bcf59c991ab0`.
+Post-merge Compiler run: `37033394816`; Ubuntu passed at the latest observation,
+macOS and Windows still running. No local follow-up commits have been pushed.
+
+## Pointer and opaque sizeof
+
+C's `helper_c_sizeof_min` emits `sizeof(void *)` for pointers and opaque types.
+Rust now emits `std::mem::size_of::<*mut std::ffi::c_void>() as i64`, resolving
+size on the compilation target rather than hard-coding the host layout. Existing
+scalar/managed-handle rendering is unchanged. Promoted two unchanged former
+negative sources, and added an observable type-size fixture covering primitive,
+opaque, nested-char and string pointees. The five sizeof rgen tests and six
+remaining sizeof negatives pass. Nine source-identical C/Rust pairs at O0/O1/O2
+pass; evidence: `sizeof-pointer-pairs.json`. A draft pointer-expression test was
+rejected by both shared frontends because ordinary functions cannot declare
+pointer variables/returns; it was replaced by legal type-form coverage, not
+counted as a backend gap or parity result.

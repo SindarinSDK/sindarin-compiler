@@ -1,0 +1,9 @@
+type Handle = opaque
+
+fn main(): void =>
+  var pointer_size: int = sizeof(*int)
+  println(pointer_size)
+  println(pointer_size == sizeof(Handle))
+  println(pointer_size == sizeof(*Handle))
+  println(pointer_size == sizeof(* * char))
+  println(pointer_size == sizeof(*str))

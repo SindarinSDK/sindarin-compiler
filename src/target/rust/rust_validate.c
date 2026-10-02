@@ -1272,6 +1272,13 @@ static bool rust_validate_expr(json_object *expr)
             return false;
         }
 
+        /* C renders both kinds as sizeof(void *), independent of the pointee.
+         * Resolve the size in the generated target, not on the compiler host. */
+        if (strcmp(target_kind, "pointer") == 0 || strcmp(target_kind, "opaque") == 0)
+        {
+            json_object_object_add(expr, "rust_sizeof_pointer", json_object_new_boolean(true));
+            return true;
+        }
         int bytes = rust_fixed_sizeof_bytes(target_kind);
         if (bytes < 0)
         {

@@ -1,1 +1,1 @@
-{{rust_sizeof_bytes}}i64
+{{#if rust_sizeof_pointer}}(std::mem::size_of::<*mut std::ffi::c_void>() as i64){{else}}{{rust_sizeof_bytes}}i64{{/if}}
