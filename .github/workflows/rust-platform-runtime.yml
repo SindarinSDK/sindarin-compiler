@@ -181,6 +181,8 @@ jobs:
             make test-rust-parity-concurrency
           run_gate "thread ownership and array identity (23 sources, all optimization/arithmetic modes)" \
             make test-rust-parity-thread-ownership
+          run_gate "thread receiver and aggregate ownership (10 sources, all optimization/arithmetic modes)" \
+            make test-rust-parity-thread-receivers
 
           exit "$overall_rc"
 
@@ -194,5 +196,6 @@ jobs:
             .sn/rust-parity-core.json
             .sn/rust-parity-concurrency.json
             .sn/rust-parity-thread-ownership.json
+            .sn/rust-parity-thread-receivers.json
           if-no-files-found: ignore
           retention-days: 7
