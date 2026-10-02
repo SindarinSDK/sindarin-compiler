@@ -586,3 +586,59 @@ Simulated Windows-style Git checkout (`core.autocrlf=true`, `core.eol=crlf`,
 `cat-file --filters`) now preserves exact bytes for all three raw sources.
 Runtime CI retains parity JSON on successful as well as failed runs, enabling
 verification of source identities and raw streams even when every gate passes.
+
+
+## PR143 native composition: local verification
+
+The original PR143 head `1bf1b153` is composed onto verified main `432983b3`.
+Two template conflicts preserve current numeric promotion and byte/platform
+helpers while admitting the new native managed support. All 316 existing
+Rust source-generation snapshots remain unchanged. The native struct rejection
+continues to fail admission; only its obsolete list of unsupported constructs
+was corrected after native array expressions became supported.
+
+Fresh full C suites pass: 1610 unit, 107 generation, 79 model, 1141 integration,
+58 integration negatives, 224 exploratory and 11 exploratory negatives, with
+no skips. Fresh Rust suites pass: 316 generation, 172 negatives; native
+8 tagged/17 extra/1 origin/4 negatives; closures 36/1; concurrency 10/7/1;
+and 12 toolchain cases, with no skips.
+
+The new native gate compares seven source-identical PR fixtures across all nine
+optimization/arithmetic combinations: 63 exact raw-stream pairs. Existing core
+30, concurrency 51 and ownership/array 207 pairs pass. Raw-byte 63 executions,
+native transport 6 executions and simulated Windows helper checks also pass.
+Evidence: `rust-parity-evidence/pr143-local-*` and `pr143-source-hashes.json`.
+
+Added an explicit Windows binary oracle for the invalid UTF-8 managed result;
+the harness must check its exact CRLF bytes and C/Rust agreement. This remains
+pending actual hosted Windows validation. Native fixture counts in CI are
+updated to require 8 tagged and 17 extra cases; the new 63-pair gate is required
+on all three platforms. Review also repairs cleanup if allocating private
+parameter temporary names fails, without changing normal emitted behavior.
+
+This composition still needs refresh against the verified receiver integration,
+fresh combined tests, publication and hosted CI before merging. It does not
+complete native structs, callbacks, buffer/SDK or general ownership parity.
+
+
+## PR134 integrated receiver verification
+
+Exact head `01e71f5c` passes Compiler `37054754769` and Runtime
+`37054754799`, all six jobs. Downloaded Windows JSON verifies 30 core,
+51 concurrency, 207 ownership/array and 90 receiver pairs, all successful;
+every source hash matches the worker original, including all three raw fixtures.
+See `pr134-windows-report-verification.json` and the retained Windows ownership
+report. PR134 is merged as `227fd27aa08932ccad6540d450f1370aa3423151`.
+Post-merge Compiler `37056043226` and Runtime `37056043183` are running.
+Only PR143 remains open; its local composition is refreshed against this main
+and must pass combined tests before publication.
+
+
+PR143 refreshed onto receiver main `227fd27a`: the complete C/Rust suite
+counts above remain green without skips. All 441 differential pairs pass:
+30 core + 51 concurrency + 207 ownership/array + 90 receiver + 63 native,
+with exact statuses and raw stdout/stderr. Byte-string, native transport and
+Windows helper checks pass. Only workflow artifact paths and appended ledger
+entries conflicted; all receiver and native gates and evidence are retained.
+Fresh combined evidence is `rust-parity-evidence/pr143-integrated-*`.
+Hosted three-platform validation is required before this PR can merge.
