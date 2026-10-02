@@ -21,6 +21,22 @@ impl<T> Drop for __sn_concurrency0_Join<T> {
     }
 }
 
+// Arc owns capture identity. Reads clone under the lock and release it before
+// evaluating the next source operand; mutable operations borrow the same cell.
+struct __sn_concurrency0_Capture<T>(std::sync::Mutex<T>, std::sync::Mutex<()>);
+impl<T> __sn_concurrency0_Capture<T> {
+    fn new(value: T) -> Self { Self(std::sync::Mutex::new(value), std::sync::Mutex::new(())) }
+    fn lock(&self) -> std::sync::LockResult<std::sync::MutexGuard<'_, T>> { self.0.lock() }
+    fn guard(&self) -> std::sync::MutexGuard<'_, ()> { self.1.lock().unwrap_or_else(|e| e.into_inner()) }
+    fn borrow_mut(&self) -> std::sync::MutexGuard<'_, T> { self.0.lock().unwrap_or_else(|e| e.into_inner()) }
+    fn set(&self, value: T) { *self.borrow_mut() = value; }
+    fn replace(&self, value: T) -> T { std::mem::replace(&mut *self.borrow_mut(), value) }
+}
+impl<T: Clone> __sn_concurrency0_Capture<T> {
+    fn borrow(&self) -> T { self.borrow_mut().clone() }
+    fn get(&self) -> T { self.borrow() }
+}
+
 #[cfg(windows)]
 fn __sn_write_windows_text<W: std::io::Write>(writer: &mut W, bytes: &[u8]) {
     let mut start = 0usize;
@@ -323,19 +339,19 @@ fn __sn_array_size(size: i64) -> usize {
     size as usize
 }
 
-fn combine(a: SnString, b: &mut Vec<i64>) -> SnString {
-    return { let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(a)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a, 0x20]))); __sn_interpolated.push_str(&format!("{}", (b)[__sn_index((b).len(), 0)])); __sn_interpolated };
+fn combine(a: SnString, b: std::sync::Arc<__sn_concurrency0_Capture<Vec<i64>>>) -> SnString {
+    return { let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(a)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a, 0x20]))); __sn_interpolated.push_str(&format!("{}", ({ let value = b.lock().unwrap_or_else(|e| e.into_inner()).clone(); value })[__sn_index(({ let value = b.lock().unwrap_or_else(|e| e.into_inner()).clone(); value }).len(), 0)])); __sn_interpolated };
 }
 
 fn launch() -> SnString {
     let mut name: SnString = SnString::from_slice(&[0x6b, 0x65, 0x70, 0x74]);
-    let mut data: Vec<i64> = vec![42];
-    let mut result: SnString = SnString::new(); let mut __sn_concurrency0_handle_result: Option<__sn_concurrency0_Join<SnString>> = Some({ let __sn_concurrency0_arg0 = (name.clone()).clone(); let mut __sn_concurrency0_arg1 = (data).clone(); __sn_concurrency0_Join::spawn(move || combine(__sn_concurrency0_arg0.clone(), &mut (__sn_concurrency0_arg1))) }
+    let mut data = std::sync::Arc::new(__sn_concurrency0_Capture::new(vec![42]));
+    let mut result: SnString = SnString::new(); let mut __sn_concurrency0_handle_result: Option<__sn_concurrency0_Join<SnString>> = Some({ let __sn_concurrency0_arg0 = (name.clone()).clone(); let __sn_concurrency0_arg1 = (data.clone()).clone(); __sn_concurrency0_Join::spawn(move || combine(__sn_concurrency0_arg0.clone(), __sn_concurrency0_arg1.clone())) }
 );
     { if let Some(__sn_concurrency0_handle) = __sn_concurrency0_handle_result.take() { result = __sn_concurrency0_handle.join(); } result.clone() }
 ;
     (name = SnString::from_slice(&[0x63, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x64]));
-    (data = vec![99]);
+    { data = std::sync::Arc::new(__sn_concurrency0_Capture::new(vec![99])); data.get() };
     return result;
 }
 

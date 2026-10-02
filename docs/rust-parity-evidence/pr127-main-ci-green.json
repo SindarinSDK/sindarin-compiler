@@ -1,0 +1,56 @@
+{
+  "compiler": {
+    "id": 37049464036,
+    "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37049464036",
+    "head_sha": "cbaf22b852292496aa26841b11cdd978808a7032",
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "id": 110978923347,
+        "name": "Build (macos-latest)",
+        "conclusion": "success",
+        "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37049464036/job/110978923347"
+      },
+      {
+        "id": 110978923615,
+        "name": "Build (ubuntu-latest)",
+        "conclusion": "success",
+        "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37049464036/job/110978923615"
+      },
+      {
+        "id": 110978923683,
+        "name": "Build (windows-latest)",
+        "conclusion": "success",
+        "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37049464036/job/110978923683"
+      }
+    ]
+  },
+  "runtime": {
+    "id": 37049464061,
+    "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37049464061",
+    "head_sha": "cbaf22b852292496aa26841b11cdd978808a7032",
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "id": 110978925683,
+        "name": "Rust runtime (windows-latest)",
+        "conclusion": "success",
+        "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37049464061/job/110978925683"
+      },
+      {
+        "id": 110978926073,
+        "name": "Rust runtime (ubuntu-latest)",
+        "conclusion": "success",
+        "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37049464061/job/110978926073"
+      },
+      {
+        "id": 110978926165,
+        "name": "Rust runtime (macos-latest)",
+        "conclusion": "success",
+        "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37049464061/job/110978926165"
+      }
+    ]
+  }
+}

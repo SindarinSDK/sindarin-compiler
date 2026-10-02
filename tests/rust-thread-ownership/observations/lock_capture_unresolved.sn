@@ -1,0 +1,11 @@
+sync var gate: int = 0
+fn main(): void =>
+  var count: int = 0
+  var action: fn(): int = fn(): int =>
+    lock (gate) =>
+      count = count + 1
+      return count
+  var a: int = & action()
+  var b: int = & action()
+  [a, b] !
+  println($"{count}, {a + b}")

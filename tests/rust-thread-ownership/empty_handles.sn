@@ -1,0 +1,4 @@
+fn main(): void =>
+  var handles: int[] = {}
+  handles !
+  println(handles.length)

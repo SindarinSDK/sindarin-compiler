@@ -77,6 +77,9 @@ static json_object *rust_concurrency_bind_args(json_object *call, const char *pr
             json_object_object_add(read, "is_ref_arg", json_object_new_boolean(true));
             json_object_object_del(read, "rust_thread_default_array_arg");
         }
+        json_object_object_del(read, "rust_named_function_value");
+        json_object_object_del(read, "rust_direct_callee");
+        json_object_object_del(read, "rust_self_read");
         json_object_array_put_idx(args, i, read);
     }
     return bindings;
@@ -140,6 +143,18 @@ static void rust_concurrency_numeric_cell(json_object *node, const char *prefix)
     json_object_object_add(node, "rust_cell_inner", inner);
 }
 
+/* Find the storage owner without evaluating any part of an indexed place. */
+static json_object *rust_concurrency_place_root(json_object *place)
+{
+    const char *kind = json_string_property(place, "kind");
+    json_object *parent = NULL;
+    if (kind && strcmp(kind, "array_access") == 0)
+        json_object_object_get_ex(place, "array", &parent);
+    else if (kind && (strcmp(kind, "member") == 0 || strcmp(kind, "member_access") == 0))
+        json_object_object_get_ex(place, "object", &parent);
+    return parent ? rust_concurrency_place_root(parent) : place;
+}
+
 static void rust_concurrency_annotate(json_object *node, const char *prefix,
                                      const char *join_name, json_object *model)
 {
@@ -156,6 +171,20 @@ static void rust_concurrency_annotate(json_object *node, const char *prefix,
     }
     const char *kind = json_string_property(node, "kind");
     if (!kind) return;
+    if (strcmp(kind, "function") == 0 && json_boolean_property(model, "rust_thread_ownership"))
+        json_object_object_add(node, "rust_thread_ownership", json_object_new_boolean(true));
+    if (json_boolean_property(node, "rust_thread_array_read"))
+        json_object_object_add(node, "rust_cell", json_object_new_boolean(true));
+    if (json_boolean_property(node, "rust_thread_array_temporary")) {
+        json_object *value = NULL;
+        json_object_object_del(node, "rust_thread_array_temporary");
+        json_object_deep_copy(node, &value, NULL);
+        rust_concurrency_string(node, "kind", "rust_thread_array_owner");
+        json_object_object_add(node, "rust_thread_array_value", value);
+        kind = json_string_property(node, "kind");
+    }
+    if (json_boolean_property(node, "rust_thread_ref_owner"))
+        json_object_object_del(node, "is_ref_arg");
     const char *temps[] = {"value", "rhs", "previous", "handle", "gate"};
     for (size_t i = 0; i < sizeof(temps) / sizeof(temps[0]); i++) {
         char key[64], name[192];
@@ -180,8 +209,31 @@ static void rust_concurrency_annotate(json_object *node, const char *prefix,
     if (strcmp(kind, "thread_spawn") == 0) {
         rust_concurrency_string(node, "rust_join_type", join_name);
         json_object *call = NULL;
-        if (json_object_object_get_ex(node, "call", &call))
-            json_object_object_add(node, "rust_spawn_bindings", rust_concurrency_bind_args(call, prefix));
+        if (json_object_object_get_ex(node, "call", &call)) {
+            json_object *bindings = json_object_new_array();
+            if (json_boolean_property(call, "rust_closure_call")) {
+                json_object *callee = NULL, *read = NULL;
+                json_object_object_get_ex(call, "callee", &callee);
+                json_object *binding = json_object_new_object();
+                char name[256]; snprintf(name, sizeof(name), "%scallable", prefix);
+                rust_concurrency_string(binding, "name", name);
+                json_object_object_add(binding, "value", json_object_get(callee));
+                json_object_array_add(bindings, binding);
+                json_object_deep_copy(callee, &read, NULL);
+                rust_concurrency_string(read, "kind", "variable");
+                rust_concurrency_string(read, "name", name);
+                json_object_object_del(read, "rust_global");
+                json_object_object_del(read, "rust_cell");
+                json_object_object_del(read, "rust_named_function_value");
+                json_object_object_add(read, "rust_function_read", json_object_new_boolean(true));
+                json_object_object_add(call, "callee", read);
+            }
+            json_object *arguments = rust_concurrency_bind_args(call, prefix);
+            for (size_t i = 0; i < json_object_array_length(arguments); i++)
+                json_object_array_add(bindings, json_object_get(json_object_array_get_idx(arguments, i)));
+            json_object_put(arguments);
+            json_object_object_add(node, "rust_spawn_bindings", bindings);
+        }
     }
     if (rust_is_mutating_array_call(node)) {
         json_object *callee = NULL, *object = NULL;
@@ -195,6 +247,24 @@ static void rust_concurrency_annotate(json_object *node, const char *prefix,
             json_object_object_del(object, "rust_cell");
             json_object_object_add(object, "rust_cell_guard", json_object_new_boolean(true));
             json_object_object_add(node, "rust_cell_bindings", rust_concurrency_bind_args(node, prefix));
+        }
+    }
+
+    if (strcmp(kind, "member_assign") == 0 && json_string_property(node, "rust_place_value_name")) {
+        json_object *place = NULL;
+        json_object_object_get_ex(node, "object", &place);
+        json_object *owner = rust_concurrency_place_root(place);
+        if (json_boolean_property(owner, "rust_cell")) {
+            /* RHS and raw indices run first, without a guard. The place
+             * renderer then indexes the real owned Vec under one short lock. */
+            char guard[256]; snprintf(guard, sizeof(guard), "%splace_guard", prefix);
+            rust_concurrency_string(node, "rust_place_cell_owner", json_string_property(owner, "name"));
+            rust_concurrency_string(node, "rust_place_cell_guard", guard);
+            rust_concurrency_string(owner, "name", guard);
+            json_object_object_del(owner, "rust_cell");
+            json_object_object_del(owner, "rust_global");
+            json_object_object_del(owner, "rust_thread_ref_owner");
+            json_object_object_add(owner, "rust_cell_guard", json_object_new_boolean(true));
         }
     }
 
@@ -280,12 +350,16 @@ static void rust_lower_concurrency(json_object *model)
     unsigned int index = 0;
     do { snprintf(prefix, sizeof(prefix), "__sn_concurrency%u_", index++); }
     while (rust_concurrency_prefix_used(model, prefix));
+    rust_concurrency_string(model, "rust_concurrency_prefix", prefix);
     snprintf(join_name, sizeof(join_name), "%sJoin", prefix);
     json_object *declared_globals = NULL;
     if (json_object_object_get_ex(model, "globals", &declared_globals))
         for (size_t i = 0; i < json_object_array_length(declared_globals); i++)
             json_object_object_add(json_object_array_get_idx(declared_globals, i),
                 "rust_global", json_object_new_boolean(true));
+    json_object_object_add(model, "rust_thread_ownership", json_object_new_boolean(!array_is_empty(model, "threads")));
+    char capture_name[160]; snprintf(capture_name, sizeof(capture_name), "%sCapture", prefix);
+    rust_concurrency_string(model, "rust_thread_capture_cell", capture_name);
     rust_concurrency_annotate(model, prefix, join_name, model);
     rust_concurrency_string(model, "rust_join_type", join_name);
     char cell_type[160];

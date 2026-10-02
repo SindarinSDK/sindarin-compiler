@@ -1,0 +1,14 @@
+fn append(data: int[], alias: int[]): int =>
+  data.push(9)
+  return alias.length
+
+fn main(): void =>
+  var data: int[] = {1}
+  var alias: int[] = data
+  var result: int = & append(data, alias)
+  println(result !)
+  println(data.length)
+  println(alias.length)
+  data = {7}
+  println(data.length)
+  println(alias.length)

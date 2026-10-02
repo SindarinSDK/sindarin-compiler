@@ -1,0 +1,12 @@
+var disposed: int = 0
+struct Resource =>
+  value: int
+  fn dispose(): void =>
+    disposed = disposed + 1
+fn early(): int =>
+  using resource = Resource { value: 7 } =>
+    return resource.value
+  return 0
+fn main(): void =>
+  println(early())
+  println(disposed)

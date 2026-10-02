@@ -1,10 +1,10 @@
 {{#if rust_has_closures}}
-struct {{rust_ident rust_closure_handle_name}}<F: ?Sized>(std::rc::Rc<F>);
+struct {{rust_ident rust_closure_handle_name}}<F: ?Sized>({{> closure_owner}}<F>);
 {{#if rust_has_recursive_closures}}impl<F: ?Sized> {{rust_ident rust_closure_handle_name}}<F> {
-    fn recursive(build: impl FnOnce(std::rc::Rc<std::cell::OnceCell<std::rc::Weak<F>>>) -> std::rc::Rc<F>) -> Self {
-        let slot = std::rc::Rc::new(std::cell::OnceCell::new());
+    fn recursive(build: impl FnOnce({{> closure_owner}}<{{> closure_once}}<{{> closure_weak}}<F>>>) -> {{> closure_owner}}<F>) -> Self {
+        let slot = {{> closure_owner}}::new({{> closure_once}}::new());
         let callable = build(slot.clone());
-        let _ = slot.set(std::rc::Rc::downgrade(&callable));
+        let _ = slot.set({{> closure_owner}}::downgrade(&callable));
         Self(callable)
     }
 }
@@ -17,6 +17,6 @@ impl<F: ?Sized> std::fmt::Debug for {{rust_ident rust_closure_handle_name}}<F> {
     }
 }
 impl<F: ?Sized> PartialEq for {{rust_ident rust_closure_handle_name}}<F> {
-    fn eq(&self, other: &Self) -> bool { std::rc::Rc::ptr_eq(&self.0, &other.0) }
+    fn eq(&self, other: &Self) -> bool { {{> closure_owner}}::ptr_eq(&self.0, &other.0) }
 }
 {{/if~}}

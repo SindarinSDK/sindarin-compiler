@@ -1,0 +1,222 @@
+[
+  {
+    "source": "/home/gavin/code/sindarin/review-rust-diagnostic-tag79c20b/tests/exploratory/test_sync_byte_threading.sn",
+    "sha256": "dd5889c2b5df1771f91c94e690447c3da9e20a26849bcc4c6b79111784fe4740",
+    "rust": {
+      "compile": 1,
+      "executable": false
+    },
+    "scope": "Rust-only inventory, not parity",
+    "diagnostics": [
+      "error[E0368]: binary assignment operation `+=` cannot be applied to type `char`",
+      "error: aborting due to 1 previous error; 13 warnings emitted",
+      "Error: rustc failed to build generated source"
+    ]
+  },
+  {
+    "source": "/home/gavin/code/sindarin/review-rust-diagnostic-tag79c20b/tests/exploratory/test_sync_proxy_multi_thread.sn",
+    "sha256": "e87bc9f4a5cf97ce33f4aa8daa3a1229bb368f6ef87e73db90bf7322611dcba9",
+    "rust": {
+      "compile": 1,
+      "executable": false
+    },
+    "scope": "Rust-only inventory, not parity",
+    "diagnostics": [
+      "Error: Rust target does not support native C source/include pragmas yet"
+    ]
+  },
+  {
+    "source": "/home/gavin/code/sindarin/review-rust-diagnostic-tag79c20b/tests/exploratory/test_sync_proxy_two_requests_sleep.sn",
+    "sha256": "3e21c6456f3b4a64f688a0814acfe3981c7c503db19aebac66794689b2b5cd83",
+    "rust": {
+      "compile": 1,
+      "executable": false
+    },
+    "scope": "Rust-only inventory, not parity",
+    "diagnostics": [
+      "Error: Rust target does not support native C source/include pragmas yet"
+    ]
+  },
+  {
+    "source": "/home/gavin/code/sindarin/review-rust-diagnostic-tag79c20b/tests/exploratory/test_while_true_nested_if_loop.sn",
+    "sha256": "d08cbfb7f2b043b2bec19528278e1b33ded0910fe14d87698a777f57f91fdcf6",
+    "rust": {
+      "compile": 1,
+      "executable": false
+    },
+    "scope": "Rust-only inventory, not parity",
+    "diagnostics": [
+      "Error: Rust target does not support native C source/include pragmas yet"
+    ]
+  },
+  {
+    "source": "/home/gavin/code/sindarin/review-rust-diagnostic-tag79c20b/tests/integration/test_as_ref_params.sn",
+    "sha256": "2276baf8a1cfcf04d24613cbc7c5cd56596644384ac1dc89bb398aaacd10c08a",
+    "rust": {
+      "compile": 1,
+      "executable": false
+    },
+    "scope": "Rust-only inventory, not parity",
+    "diagnostics": [
+      "Error: Rust target encountered an unsupported construct in function 'test_basic_as_ref'"
+    ]
+  },
+  {
+    "source": "/home/gavin/code/sindarin/review-rust-diagnostic-tag79c20b/tests/integration/test_deep_module_chain.sn",
+    "sha256": "f2a7af4ac7960cd512893545a5c62ec74cea9f43b4387774e74c2bfd3af7c514",
+    "rust": {
+      "compile": 1,
+      "executable": false
+    },
+    "scope": "Rust-only inventory, not parity",
+    "diagnostics": [
+      "Error: Rust target encountered an unsupported construct in function 'test_basic_level_ids'"
+    ]
+  },
+  {
+    "source": "/home/gavin/code/sindarin/review-rust-diagnostic-tag79c20b/tests/integration/test_lock_return.sn",
+    "sha256": "e7fd04e8c67e527292425f0d68d0ada0ab3415f297bab5fdde486b1871d03669",
+    "rust": {
+      "compile": 1,
+      "executable": false
+    },
+    "scope": "Rust-only inventory, not parity",
+    "diagnostics": [
+      "Error: Rust target encountered an unsupported construct in function 'main'"
+    ]
+  },
+  {
+    "source": "/home/gavin/code/sindarin/review-rust-diagnostic-tag79c20b/tests/integration/test_module_array_swap_leak.sn",
+    "sha256": "e9485d7a3fc801ae45b043c2c678e801e6c25cc7bd118d347dc393fc28bfdb91",
+    "rust": {
+      "compile": 1,
+      "executable": false
+    },
+    "scope": "Rust-only inventory, not parity",
+    "diagnostics": [
+      "Error: Rust target does not support native C source/include pragmas yet"
+    ]
+  },
+  {
+    "source": "/home/gavin/code/sindarin/review-rust-diagnostic-tag79c20b/tests/integration/test_pass_self_to_function.sn",
+    "sha256": "dd88a972cda459bcc3f403dbc02dd78fca4c53fad9e74ada7963d09156e6faec",
+    "rust": {
+      "compile": 1,
+      "executable": false
+    },
+    "scope": "Rust-only inventory, not parity",
+    "diagnostics": [
+      "Error: Rust target currently supports only plain value struct 'Worker'"
+    ]
+  },
+  {
+    "source": "/home/gavin/code/sindarin/review-rust-diagnostic-tag79c20b/tests/integration/test_return_ref_param.sn",
+    "sha256": "334a96ac5383e9db35b45fd4f10ff8b65967c3b18879eddf05aff80a81f44802",
+    "rust": {
+      "compile": 1,
+      "executable": false
+    },
+    "scope": "Rust-only inventory, not parity",
+    "diagnostics": [
+      "Error: Rust target currently supports only plain value struct 'Tensor'"
+    ]
+  },
+  {
+    "source": "/home/gavin/code/sindarin/review-rust-diagnostic-tag79c20b/tests/integration/test_static_import.sn",
+    "sha256": "3719288ac31bc3b519d1f24519cf16f0fee83d8e11b4a5145a869f85af15e2ae",
+    "rust": {
+      "compile": 1,
+      "executable": false
+    },
+    "scope": "Rust-only inventory, not parity",
+    "diagnostics": [
+      "Error: Rust target encountered an unsupported construct in function 'main'"
+    ]
+  },
+  {
+    "source": "/home/gavin/code/sindarin/review-rust-diagnostic-tag79c20b/tests/integration/test_sync_proxy_double_exchange.sn",
+    "sha256": "39c0f176c0fa612ea6cf4e58b8f358b37dab5c05b064ba996be6cb6e30a18505",
+    "rust": {
+      "compile": 1,
+      "executable": false
+    },
+    "scope": "Rust-only inventory, not parity",
+    "diagnostics": [
+      "Error: Rust target does not support native C source/include pragmas yet"
+    ]
+  },
+  {
+    "source": "/home/gavin/code/sindarin/review-rust-diagnostic-tag79c20b/tests/integration/test_thread_detach_struct_array.sn",
+    "sha256": "13b7f24db9cf66c05959950262d71320b059e5041a77b4aa0c2754975d472117",
+    "rust": {
+      "compile": 1,
+      "executable": false
+    },
+    "scope": "Rust-only inventory, not parity",
+    "diagnostics": [
+      "Error: Rust target does not support a parameter of function 'processTable'"
+    ]
+  },
+  {
+    "source": "/home/gavin/code/sindarin/review-rust-diagnostic-tag79c20b/tests/integration/test_thread_native_fn_struct_return.sn",
+    "sha256": "44a97ed57b51a318b37774bd44b9100c67241b0ea3b44d9f486309eda7757aa6",
+    "rust": {
+      "compile": 1,
+      "executable": false
+    },
+    "scope": "Rust-only inventory, not parity",
+    "diagnostics": [
+      "Error: Rust target does not support native C source/include pragmas yet"
+    ]
+  },
+  {
+    "source": "/home/gavin/code/sindarin/review-rust-diagnostic-tag79c20b/tests/integration/test_thread_spawn_self_method.sn",
+    "sha256": "baf59ba4360d8a42be8aeaa80da09c39872fcf922872da1c7087b83959a9624d",
+    "rust": {
+      "compile": 1,
+      "executable": false
+    },
+    "scope": "Rust-only inventory, not parity",
+    "diagnostics": [
+      "error[E0521]: borrowed data escapes outside of method",
+      "error: aborting due to 1 previous error; 2 warnings emitted",
+      "Error: rustc failed to build generated source"
+    ]
+  },
+  {
+    "source": "/home/gavin/code/sindarin/review-rust-diagnostic-tag79c20b/tests/integration/test_thread_struct_array_field.sn",
+    "sha256": "8c7f562be3d48d26abfbe388ea672faae1d4caacff23ec391e7c14fb159abee2",
+    "rust": {
+      "compile": 1,
+      "executable": false
+    },
+    "scope": "Rust-only inventory, not parity",
+    "diagnostics": [
+      "Error: Rust target does not support a parameter of function 'processTable'"
+    ]
+  },
+  {
+    "source": "/home/gavin/code/sindarin/review-rust-diagnostic-tag79c20b/tests/integration/test_thread_struct_param.sn",
+    "sha256": "b52080ea09c2ab342d732bcee93f0af56f3ba75b9c2ef26863c5c4efb3fb1785",
+    "rust": {
+      "compile": 1,
+      "executable": false
+    },
+    "scope": "Rust-only inventory, not parity",
+    "diagnostics": [
+      "Error: Rust target does not support a parameter of function 'processConfig'"
+    ]
+  },
+  {
+    "source": "/home/gavin/code/sindarin/review-rust-diagnostic-tag79c20b/tests/integration/test_thread_struct_return_types.sn",
+    "sha256": "4107ecec3bc70eba14b449f78df723b47809739b3e050c23eaa5ffb98e705df8",
+    "rust": {
+      "compile": 1,
+      "executable": false
+    },
+    "scope": "Rust-only inventory, not parity",
+    "diagnostics": [
+      "Error: Rust target does not support native C source/include pragmas yet"
+    ]
+  }
+]

@@ -39,6 +39,9 @@ def main():
     parser.add_argument("--c-ldlibs", help="Explicit supplemental C toolchain library flags; recorded verbatim")
     parser.add_argument("--require-count", type=int,
                         help="Fail unless this many existing source fixtures are supplied")
+    parser.add_argument("--arithmetic-mode", action="append",
+                        choices=("default", "checked", "unchecked"),
+                        help="Arithmetic modes to execute; default: default mode only")
     args = parser.parse_args()
     if args.require_count is not None and len(args.fixtures) != args.require_count:
         parser.error(f"expected {args.require_count} fixtures, got {len(args.fixtures)}")
@@ -46,45 +49,52 @@ def main():
     if not compiler.is_file():
         parser.error(f"compiler does not exist: {compiler}")
     for fixture in args.fixtures:
-        if not fixture.is_file() or fixture.suffix != ".sn":
-            parser.error(f"expected an existing .sn fixture: {fixture}")
+        if not fixture.is_file() or not (fixture.suffix == ".sn" or fixture.name.endswith(".sn.raw")):
+            parser.error(f"expected an existing .sn or .sn.raw fixture: {fixture}")
         # Fixtures with custom invocation or expected failure belong to their
         # dedicated harness until this gate can enforce their complete contract.
         for suffix in (".args", ".exit", ".panic"):
-            if fixture.with_suffix(suffix).exists():
-                parser.error(f"unsupported execution sidecar: {fixture.with_suffix(suffix)}")
+            bases = [fixture]
+            if fixture.name.endswith(".sn.raw"):
+                bases.append(fixture.with_suffix(""))
+            for base in bases:
+                if base.with_suffix(suffix).exists():
+                    parser.error(f"unsupported execution sidecar: {base.with_suffix(suffix)}")
     report = {"compiler": str(compiler),
               "compiler_sha256": hashlib.sha256(compiler.read_bytes()).hexdigest(),
               "c_ldlibs": args.c_ldlibs,
+              "arithmetic_modes": args.arithmetic_mode or ["default"],
               "environment": {name: os.environ.get(name) for name in
                               ("SN_CC", "SN_CFLAGS", "SN_RELEASE_CFLAGS", "SN_LDLIBS", "SN_RUSTFLAGS")},
               "cases": []}
     with tempfile.TemporaryDirectory(prefix="sn-differential-") as directory:
         for index, fixture in enumerate(args.fixtures):
-            for optimization in ("-O0", "-O1", "-O2"):
-                case = {"source": str(fixture), "source_sha256": hashlib.sha256(
-                    fixture.read_bytes()).hexdigest(), "optimization": optimization,
-                    "targets": {}}
-                for target in ("c", "rust"):
-                    executable = Path(directory) / f"case-{index}-{optimization}-{target}.exe"
-                    env = os.environ.copy()
-                    if target == "c" and args.c_ldlibs is not None:
-                        env["SN_LDLIBS"] = args.c_ldlibs
-                    build = run([str(compiler), str(fixture), "--target", target,
-                                 optimization, "--no-install", "-o", str(executable)],
-                                args.compile_timeout, env=env)
-                    result = {"compile": build}
-                    if build["status"] == 0 and executable.is_file():
-                        result["run"] = run([str(executable)], args.run_timeout)
-                    case["targets"][target] = result
-                c = case["targets"]["c"].get("run")
-                rust = case["targets"]["rust"].get("run")
-                case["passed"] = bool(c and rust and c["status"] == rust["status"] == 0
-                                      and c["stdout_hex"] == rust["stdout_hex"]
-                                      and c["stderr_hex"] == rust["stderr_hex"])
-                report["cases"].append(case)
-                print(f'{"PASS" if case["passed"] else "FAIL"} {fixture} {optimization}',
-                      flush=True)
+            for mode in args.arithmetic_mode or ["default"]:
+                for optimization in ("-O0", "-O1", "-O2"):
+                    case = {"source": str(fixture), "source_sha256": hashlib.sha256(
+                        fixture.read_bytes()).hexdigest(), "optimization": optimization, "arithmetic_mode": mode,
+                        "targets": {}}
+                    for target in ("c", "rust"):
+                        executable = Path(directory) / f"case-{index}-{optimization}-{mode}-{target}.exe"
+                        env = os.environ.copy()
+                        if target == "c" and args.c_ldlibs is not None:
+                            env["SN_LDLIBS"] = args.c_ldlibs
+                        build = run([str(compiler), str(fixture), "--target", target,
+                                     optimization, *([] if mode == "default" else ["--" + mode]),
+                                     "--no-install", "-o", str(executable)],
+                                    args.compile_timeout, env=env)
+                        result = {"compile": build}
+                        if build["status"] == 0 and executable.is_file():
+                            result["run"] = run([str(executable)], args.run_timeout)
+                        case["targets"][target] = result
+                    c = case["targets"]["c"].get("run")
+                    rust = case["targets"]["rust"].get("run")
+                    case["passed"] = bool(c and rust and c["status"] == rust["status"] == 0
+                                          and c["stdout_hex"] == rust["stdout_hex"]
+                                          and c["stderr_hex"] == rust["stderr_hex"])
+                    report["cases"].append(case)
+                    print(f'{"PASS" if case["passed"] else "FAIL"} {fixture} {optimization} {mode}',
+                          flush=True)
     report["passed"] = all(case["passed"] for case in report["cases"])
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2) + "\n")

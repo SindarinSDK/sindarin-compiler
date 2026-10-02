@@ -1,0 +1,295 @@
+[
+  {
+    "source": "/home/gavin/code/sindarin/review-rust-diagnostic-tag79c20b/tests/integration/test_lambda_closure_thread_spawn.sn",
+    "sha256": "2a9df5385e4f582ee790b0808352d4ab055a1b34b898ee4facc6367343d37cc3",
+    "tag": {
+      "compile": 0,
+      "executable": true,
+      "run": 0
+    },
+    "rust": {
+      "compile": 0,
+      "executable": true,
+      "run": 0
+    },
+    "expected_exit": 0,
+    "equal": true,
+    "tag_fixture_stdout_oracle": true
+  },
+  {
+    "source": "/home/gavin/code/sindarin/review-rust-diagnostic-tag79c20b/tests/exploratory/test_limitation_fn_param.sn",
+    "sha256": "ad7777150a64e424eaaef8506e6304b80a360e72d6bd0cebaa30ca1265702367",
+    "tag": {
+      "compile": 0,
+      "executable": true,
+      "run": 0
+    },
+    "rust": {
+      "compile": 0,
+      "executable": true,
+      "run": 0
+    },
+    "expected_exit": 0,
+    "equal": true
+  },
+  {
+    "source": "/home/gavin/code/sindarin/review-rust-diagnostic-tag79c20b/tests/exploratory/test_limitation_lambda_param.sn",
+    "sha256": "b938109eea736ef53c30ac0130d1504fd2de365f94917a6a8b79c49f1b5f6224",
+    "tag": {
+      "compile": 0,
+      "executable": true,
+      "run": 0
+    },
+    "rust": {
+      "compile": 0,
+      "executable": true,
+      "run": 0
+    },
+    "expected_exit": 0,
+    "equal": true
+  },
+  {
+    "source": "/home/gavin/code/sindarin/review-rust-diagnostic-tag79c20b/tests/exploratory/test_thread_with_lambda.sn",
+    "sha256": "355e2892b9ba6ab9d27c0c1059ef71cf84697cc328fb7a0ad46a9a0b632c0a59",
+    "tag": {
+      "compile": 0,
+      "executable": true,
+      "run": 0
+    },
+    "rust": {
+      "compile": 0,
+      "executable": true,
+      "run": 0
+    },
+    "expected_exit": 0,
+    "equal": true
+  },
+  {
+    "source": "/home/gavin/code/sindarin/review-rust-diagnostic-tag79c20b/tests/integration/test_thread_array_spawn_loop.sn",
+    "sha256": "8d4071254cb0091d4728e7e650867da4193a2b35877bc1ff5452c1039049307a",
+    "tag": {
+      "compile": 0,
+      "executable": true,
+      "run": 0
+    },
+    "rust": {
+      "compile": 0,
+      "executable": true,
+      "run": 0
+    },
+    "expected_exit": 0,
+    "equal": true,
+    "tag_fixture_stdout_oracle": true
+  },
+  {
+    "source": "/home/gavin/code/sindarin/review-rust-diagnostic-tag79c20b/tests/integration/test_thread_array_struct.sn",
+    "sha256": "7c2e4598ce83ced8cf91681d9587c602cfc02f338af6889115841c3adb528b6f",
+    "tag": {
+      "compile": 0,
+      "executable": true,
+      "run": 0
+    },
+    "rust": {
+      "compile": 0,
+      "executable": true,
+      "run": 0
+    },
+    "expected_exit": 0,
+    "equal": true,
+    "tag_fixture_stdout_oracle": true
+  },
+  {
+    "source": "/home/gavin/code/sindarin/review-rust-diagnostic-tag79c20b/tests/integration/test_thread_panic_propagate.sn",
+    "sha256": "bd30fcea8645c43374581e59501a53a475c00fe184523f245df2c8bcce657cc4",
+    "tag": {
+      "compile": 0,
+      "executable": true,
+      "run": 1
+    },
+    "rust": {
+      "compile": 0,
+      "executable": true,
+      "run": 1
+    },
+    "expected_exit": 1,
+    "equal": true
+  },
+  {
+    "source": "/home/gavin/code/sindarin/review-rust-diagnostic-tag79c20b/tests/integration/test_thread_as_ref_spawn.sn",
+    "sha256": "ab816fe12aad51788bc251d4eb00e497d7006de169d372df464865b60bac1c87",
+    "tag": {
+      "compile": 0,
+      "executable": true,
+      "run": 0
+    },
+    "rust": {
+      "compile": 0,
+      "executable": true,
+      "run": 0
+    },
+    "expected_exit": 0,
+    "equal": true,
+    "tag_fixture_stdout_oracle": true
+  },
+  {
+    "source": "/home/gavin/code/sindarin/review-rust-diagnostic-tag79c20b/tests/integration/test_using_dispose.sn",
+    "sha256": "fcb74cb95db8d5174e7cc90a8630bc70a84de1411e47aea4c9efa26e09c1eee1",
+    "tag": {
+      "compile": 0,
+      "executable": true,
+      "run": 0
+    },
+    "rust": {
+      "compile": 0,
+      "executable": true,
+      "run": 0
+    },
+    "expected_exit": 0,
+    "equal": true,
+    "tag_fixture_stdout_oracle": true
+  },
+  {
+    "source": "/home/gavin/code/sindarin/sindarin-rust-thread-ownership/tests/rust-thread-ownership/concurrent_references.sn",
+    "sha256": "d2d683620ed1cffce6343b1a6ec64ca5410518e39e5f89bc3e71c5f6b342c9d2",
+    "tag": {
+      "compile": 0,
+      "executable": true,
+      "run": 0
+    },
+    "rust": {
+      "compile": 0,
+      "executable": true,
+      "run": 0
+    },
+    "expected_exit": 0,
+    "equal": true
+  },
+  {
+    "source": "/home/gavin/code/sindarin/sindarin-rust-thread-ownership/tests/rust-thread-ownership/empty_handles.sn",
+    "sha256": "7c659c47fbbe2568f23cafc18ff4e32cfa1ad22940535820d4c71efddf882ec6",
+    "tag": {
+      "compile": 0,
+      "executable": true,
+      "run": 0
+    },
+    "rust": {
+      "compile": 0,
+      "executable": true,
+      "run": 0
+    },
+    "expected_exit": 0,
+    "equal": true
+  },
+  {
+    "source": "/home/gavin/code/sindarin/sindarin-rust-thread-ownership/tests/rust-thread-ownership/escaped_capture.sn",
+    "sha256": "092166f1f920e964579bc41b9f807e9a7c34c4104f4edeccfbc1f8105d2b3ec3",
+    "tag": {
+      "compile": 0,
+      "executable": true,
+      "run": 0
+    },
+    "rust": {
+      "compile": 0,
+      "executable": true,
+      "run": 0
+    },
+    "expected_exit": 0,
+    "equal": true
+  },
+  {
+    "source": "/home/gavin/code/sindarin/sindarin-rust-thread-ownership/tests/rust-thread-ownership/recursive.sn",
+    "sha256": "cb3b8a41a48f5ffe13a66eff4e2fc9efa6fce3da4da15dff90ec70d708f3022e",
+    "tag": {
+      "compile": 0,
+      "executable": true,
+      "run": 0
+    },
+    "rust": {
+      "compile": 0,
+      "executable": true,
+      "run": 0
+    },
+    "expected_exit": 0,
+    "equal": true
+  },
+  {
+    "source": "/home/gavin/code/sindarin/sindarin-rust-thread-ownership/tests/rust-thread-ownership/reference_aliases.sn",
+    "sha256": "7dafb8a32e86356c6f5b8ee2679807efedacbbe8321d906375855c221df30c7c",
+    "tag": {
+      "compile": 0,
+      "executable": true,
+      "run": 0
+    },
+    "rust": {
+      "compile": 0,
+      "executable": true,
+      "run": 0
+    },
+    "expected_exit": 0,
+    "equal": true
+  },
+  {
+    "source": "/home/gavin/code/sindarin/sindarin-rust-thread-ownership/tests/rust-thread-ownership/shared_array.sn",
+    "sha256": "baf157aa91ff825b75be21dde4ff0fa496ad9fb4f5357344218917785f552172",
+    "tag": {
+      "compile": 0,
+      "executable": true,
+      "run": 0
+    },
+    "rust": {
+      "compile": 0,
+      "executable": true,
+      "run": 0
+    },
+    "expected_exit": 0,
+    "equal": true
+  },
+  {
+    "source": "/home/gavin/code/sindarin/sindarin-rust-thread-ownership/tests/rust-thread-ownership/shared_scalar.sn",
+    "sha256": "6bcca4206947150b32889a116d7256e0ab63abba17892817b86c7134ae266d9f",
+    "tag": {
+      "compile": 0,
+      "executable": true,
+      "run": 0
+    },
+    "rust": {
+      "compile": 0,
+      "executable": true,
+      "run": 0
+    },
+    "expected_exit": 0,
+    "equal": true
+  },
+  {
+    "source": "/home/gavin/code/sindarin/sindarin-rust-thread-ownership/tests/rust-thread-ownership/sync_reference.sn",
+    "sha256": "3f225934db9b5d0e69a37420215d5c7ddcce7b89f51d2bbc1d0125071e521fa7",
+    "tag": {
+      "compile": 0,
+      "executable": true,
+      "run": 0
+    },
+    "rust": {
+      "compile": 0,
+      "executable": true,
+      "run": 0
+    },
+    "expected_exit": 0,
+    "equal": true
+  },
+  {
+    "source": "/home/gavin/code/sindarin/sindarin-rust-thread-ownership/tests/rust-thread-ownership/using_return.sn",
+    "sha256": "b381f93726fc21bf46d5d62e9f8f465e098d900675395d24b83e0a176813e08e",
+    "tag": {
+      "compile": 0,
+      "executable": true,
+      "run": 0
+    },
+    "rust": {
+      "compile": 0,
+      "executable": true,
+      "run": 0
+    },
+    "expected_exit": 0,
+    "equal": true
+  }
+]

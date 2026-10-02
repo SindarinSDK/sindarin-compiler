@@ -1,0 +1,13 @@
+sync var gate: int = 0
+fn increment(value: int as ref): int =>
+  var result: int = 0
+  lock (gate) =>
+    value = value + 1
+    result = value
+  return result
+fn main(): void =>
+  var count: int as ref = 0
+  var a: int = & increment(count)
+  var b: int = & increment(count)
+  [a, b] !
+  println($"{count}, {a + b}")

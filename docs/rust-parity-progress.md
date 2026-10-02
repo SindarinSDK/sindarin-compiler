@@ -473,3 +473,43 @@ inputs, not completed Rust parity or automatically proven C defects.
 Final local core 30 pairs, raw-byte 63 executions, transport six executions,
 Windows helper simulation and formatting pass after the composed changes.
 Evidence: `pr127-bytes.log`, `pr127-transport.log`, `pr127-windows-helpers.log`.
+
+## PR127 integrated; shared thread ownership and array identity composed
+
+PR127 passes all six hosted checks at `2bf57b91` and merges as
+`cbaf22b852292496aa26841b11cdd978808a7032`. Post-merge Compiler
+`37049464036` and Runtime `37049464061` must complete before the next
+publication. The new `all` concurrency suites and 51-pair gate execute on
+main instead of remaining only historical PR evidence.
+
+PR142 head `8ffabb4b` contains current PR133 head `50906e5f` and old PR127
+head `fa0e708f`; composing PR142 preserves that work by ancestry. Prepare it
+in a separate worktree based on updated foundation `2bf57b91`, with a symlink
+to existing project-local libraries and no host installations. Conflict resolution
+retains current Windows output and declaration casts, then adds thread owner,
+reference and array companion support. All 316 existing Rust generation tests,
+172 negatives and closure/native/toolchain suites pass. Seven new concurrency
+snapshots change with ownership helper composition; refresh those only after
+their original C/Rust controls and runtime oracles pass.
+
+All 11 ownership sources match at O0/O1/O2. The expanded gate requires 23
+root-level fixture files (11 ownership plus 12 array-identity files, three of
+which are preserved `.sn.raw` originals). It compiles original paths directly,
+without staging or formatting, and executes default/checked/unchecked arithmetic
+at all three optimization levels: all 207 pairs pass. Raw streams, modes,
+commands and source/compiler hashes are retained in `pr142-thread-all-mode-pairs.json`.
+All 51 foundation pairs also pass (`pr142-concurrency-pairs.json`), with the
+explicit Linux C-only libatomic supplement retained and recorded.
+
+Full C counts remain 1610/107/79/1141/58/224/11; full Rust counts remain
+316/172, native 6/12/1/2, closures 36/1, concurrency 10/7/1, toolchain 12.
+All pass with zero skips. Core 30 pairs, raw bytes 63 executions, transport
+six executions, Windows helper simulation and formatting pass. Logs are
+`pr142-local-c.log`, `pr142-local-rust.log`, `pr142-bytes.log`,
+`pr142-transport.log` and `pr142-windows-helpers.log`. Hosted checks of the
+combined PR142 revision are still required before integration.
+
+Post-PR127 main Compiler `37049464036` and Runtime `37049464061` finish
+with all six jobs successful at `cbaf22b8`; exact job/run URLs and results
+are retained in `pr127-main-ci-green.json`. Main has the identical source tree
+to the tested foundation head `2bf57b91`.

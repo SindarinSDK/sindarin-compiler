@@ -251,6 +251,13 @@ test-rust-parity-concurrency: build
 		$(RUST_CONCURRENCY_C_LINK_ARGS) --output .sn/rust-parity-concurrency.json \
 		tests/rust-concurrency/*.sn tests/rgen/concurrency-promoted/*.sn
 
+.PHONY: test-rust-parity-thread-ownership
+test-rust-parity-thread-ownership: build
+	@$(PYTHON) scripts/check_rust_parity.py --compiler $(SN) --require-count 23 \
+		--arithmetic-mode default --arithmetic-mode checked --arithmetic-mode unchecked \
+		--output .sn/rust-parity-thread-ownership.json \
+		tests/rust-thread-ownership/*.sn tests/rust-thread-array-identity/*.sn*
+
 #------------------------------------------------------------------------------
 # install - Install to ~/.sn/ (global user installation)
 #------------------------------------------------------------------------------
