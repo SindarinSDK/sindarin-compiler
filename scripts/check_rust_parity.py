@@ -15,9 +15,9 @@ import subprocess
 import tempfile
 
 
-def run(command, timeout):
+def run(command, timeout, env=None):
     try:
-        result = subprocess.run(command, capture_output=True, timeout=timeout)
+        result = subprocess.run(command, capture_output=True, timeout=timeout, env=env)
         return {"command": command, "status": result.returncode,
                 "stdout_hex": result.stdout.hex(), "stderr_hex": result.stderr.hex()}
     except subprocess.TimeoutExpired as error:
@@ -36,7 +36,12 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--compile-timeout", type=int, default=120)
     parser.add_argument("--run-timeout", type=int, default=30)
+    parser.add_argument("--c-ldlibs", help="Explicit supplemental C toolchain library flags; recorded verbatim")
+    parser.add_argument("--require-count", type=int,
+                        help="Fail unless this many existing source fixtures are supplied")
     args = parser.parse_args()
+    if args.require_count is not None and len(args.fixtures) != args.require_count:
+        parser.error(f"expected {args.require_count} fixtures, got {len(args.fixtures)}")
     compiler = args.compiler.resolve()
     if not compiler.is_file():
         parser.error(f"compiler does not exist: {compiler}")
@@ -50,6 +55,9 @@ def main():
                 parser.error(f"unsupported execution sidecar: {fixture.with_suffix(suffix)}")
     report = {"compiler": str(compiler),
               "compiler_sha256": hashlib.sha256(compiler.read_bytes()).hexdigest(),
+              "c_ldlibs": args.c_ldlibs,
+              "environment": {name: os.environ.get(name) for name in
+                              ("SN_CC", "SN_CFLAGS", "SN_RELEASE_CFLAGS", "SN_LDLIBS", "SN_RUSTFLAGS")},
               "cases": []}
     with tempfile.TemporaryDirectory(prefix="sn-differential-") as directory:
         for index, fixture in enumerate(args.fixtures):
@@ -59,9 +67,12 @@ def main():
                     "targets": {}}
                 for target in ("c", "rust"):
                     executable = Path(directory) / f"case-{index}-{optimization}-{target}.exe"
+                    env = os.environ.copy()
+                    if target == "c" and args.c_ldlibs is not None:
+                        env["SN_LDLIBS"] = args.c_ldlibs
                     build = run([str(compiler), str(fixture), "--target", target,
                                  optimization, "--no-install", "-o", str(executable)],
-                                args.compile_timeout)
+                                args.compile_timeout, env=env)
                     result = {"compile": build}
                     if build["status"] == 0 and executable.is_file():
                         result["run"] = run([str(executable)], args.run_timeout)

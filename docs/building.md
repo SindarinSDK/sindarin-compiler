@@ -434,7 +434,10 @@ Platform-specific differences are handled via environment variables:
 See `.github/workflows/ci.yml` for the full configuration.
 
 The Rust Platform Runtime workflow additionally runs all Rust suites and the
-C/Rust differential core at O0/O1/O2 on all three platforms. Windows uses
+C/Rust differential core and 17-source concurrency gate at O0/O1/O2 on all
+three platforms. The concurrency gate records an explicit C-only `-latomic`
+supplement on Linux for GCC floating atomic postfix; normal compiler link
+configuration is unchanged. Windows uses
 Rust's `x86_64-pc-windows-gnullvm` target with pinned LLVM-MinGW 20260616
 (LLVM 22.1.8), downloaded into the checkout's `.sn/toolchains` directory and
 verified by SHA-256. Its newer AddressSanitizer recognizes the Windows 11 24H2

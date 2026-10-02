@@ -1,0 +1,2 @@
+{{#each globals}}static {{rust_ident name}}: std::sync::LazyLock<{{rust_ident rust_cell_type}}<{{rust_type type}}>> = std::sync::LazyLock::new(|| {{rust_ident rust_cell_type}}::new({{#if initializer}}{{> expr initializer}}{{else}}{{rust_default type}}{{/if}}));
+{{/each}}

@@ -1,0 +1,1 @@
+{{#if (eq type.kind "struct")}}{{rust_ident type.name}} { {{#each fields}}{{rust_ident name}}: {{> expr value}}, {{/each}} }{{else}}{{rust_default type}}{{/if}}

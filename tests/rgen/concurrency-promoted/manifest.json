@@ -1,0 +1,51 @@
+[
+  {
+    "from": "tests/rgen/errors/floating_compound_sync_local.sn",
+    "to": "tests/rgen/concurrency-promoted/floating_compound_sync_local.sn",
+    "sha256": "3948f62d05f827c8c040b7bc2397b1eb91d3d2fa2f70e0a55331cd607597c8b8",
+    "previous_rejection": "Error: Rust target does not support compound assignment for sync variables\n",
+    "reason": "Rust-private concurrency implementation now admits this tagged-language construct; verified with both tagged C and Rust execution by scripts/test_rust_concurrency.py."
+  },
+  {
+    "from": "tests/rgen/errors/floating_postfix_sync_local.sn",
+    "to": "tests/rgen/concurrency-promoted/floating_postfix_sync_local.sn",
+    "sha256": "552cd1a858c49a3f2e4bd215ae86d38b87ac6c6af9b1ed9a53a2d0d9f46fef97",
+    "previous_rejection": "Error: Rust target does not support increment/decrement of sync variables\n",
+    "reason": "Rust-private concurrency implementation now admits this tagged-language construct; verified with both tagged C and Rust execution by scripts/test_rust_concurrency.py."
+  },
+  {
+    "from": "tests/rgen/errors/import_pure_unsupported_global.sn",
+    "to": "tests/rgen/concurrency-promoted/import_pure_unsupported_global.sn",
+    "sha256": "00765c633d4868e6e1ca2d72022eb5f062e0c9f55fbd00bf157ae81c6a06c2ff",
+    "previous_rejection": "Error: Rust target does not support global variables yet\n",
+    "reason": "Rust-private concurrency implementation now admits this tagged-language construct; verified with both tagged C and Rust execution by scripts/test_rust_concurrency.py."
+  },
+  {
+    "from": "tests/rgen/errors/statement_match_unsupported_body.sn",
+    "to": "tests/rgen/concurrency-promoted/statement_match_unsupported_body.sn",
+    "sha256": "ebb5a73b5cf9d08281f6b776af0f43c9635e4c77edd3a9ce21f90bd049dd4d53",
+    "previous_rejection": "Error: Rust target encountered an unsupported construct in function 'main'\n",
+    "reason": "Rust-private concurrency implementation now admits this tagged-language construct; verified with both tagged C and Rust execution by scripts/test_rust_concurrency.py."
+  },
+  {
+    "from": "tests/rgen/errors/sync_local_compound_mutation.sn",
+    "to": "tests/rgen/concurrency-promoted/sync_local_compound_mutation.sn",
+    "sha256": "1a82cff59e38fb23b4a8b454cbfbfc719052cd5d6b09dacde950b53759473879",
+    "previous_rejection": "Error: Rust target does not support compound assignment for sync variables\n",
+    "reason": "Rust-private concurrency implementation now admits this tagged-language construct; verified with both tagged C and Rust execution by scripts/test_rust_concurrency.py."
+  },
+  {
+    "from": "tests/rgen/errors/sync_local_decrement_mutation.sn",
+    "to": "tests/rgen/concurrency-promoted/sync_local_decrement_mutation.sn",
+    "sha256": "87c6654ca354c0ea41b3aa483ef471f6530eb3e9bc1c74896b99225aae857b34",
+    "previous_rejection": "Error: Rust target does not support increment/decrement of sync variables\n",
+    "reason": "Rust-private concurrency implementation now admits this tagged-language construct; verified with both tagged C and Rust execution by scripts/test_rust_concurrency.py."
+  },
+  {
+    "from": "tests/rgen/errors/sync_local_increment_mutation.sn",
+    "to": "tests/rgen/concurrency-promoted/sync_local_increment_mutation.sn",
+    "sha256": "80c6e21df8e1495fa575dd2d7cbd2efdfd6a2311dae4205f629f6c4655eeb0bb",
+    "previous_rejection": "Error: Rust target does not support increment/decrement of sync variables\n",
+    "reason": "Rust-private concurrency implementation now admits this tagged-language construct; verified with both tagged C and Rust execution by scripts/test_rust_concurrency.py."
+  }
+]

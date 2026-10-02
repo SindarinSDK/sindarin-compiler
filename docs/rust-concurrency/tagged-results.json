@@ -1,0 +1,974 @@
+[
+  {
+    "path": "tests/exploratory/test_limitation_fn_param.sn",
+    "sha256": "ad7777150a64e424eaaef8506e6304b80a360e72d6bd0cebaa30ca1265702367",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/0",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/0/tag",
+    "diagnostics": [
+      "error[E0277]: expected a `Fn(i64)` closure, found `__SnClosure<dyn Fn(i64) -> i64>`",
+      "error: aborting due to 1 previous error; 1 warning emitted"
+    ],
+    "tag_output_sha256": "bf24325cd27b27403c7b8053820193dcce360f640f7f394742b660ce5fe3cd4e"
+  },
+  {
+    "path": "tests/exploratory/test_limitation_lambda_param.sn",
+    "sha256": "b938109eea736ef53c30ac0130d1504fd2de365f94917a6a8b79c49f1b5f6224",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/1",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/1/tag",
+    "diagnostics": [
+      "error[E0277]: `Rc<dyn Fn(i64) -> i64>` cannot be sent between threads safely",
+      "error: aborting due to 1 previous error; 1 warning emitted"
+    ],
+    "tag_output_sha256": "bf24325cd27b27403c7b8053820193dcce360f640f7f394742b660ce5fe3cd4e"
+  },
+  {
+    "path": "tests/exploratory/test_limitation_nested_spawn.sn",
+    "sha256": "9ac5c03b5b154d583df042c1eeba754e06f4e68cfea699a80b4b04d907948d82",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/2",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/2/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "d8f9e817e28829008e3dd60d19198b70cfd53c06f172461256c6b35e40e7e5aa",
+    "tag_output_sha256": "d8f9e817e28829008e3dd60d19198b70cfd53c06f172461256c6b35e40e7e5aa"
+  },
+  {
+    "path": "tests/exploratory/test_limitation_nested_spawn_complex.sn",
+    "sha256": "f555b78252f140c2483ffc18cddbacb82cb980af29aba1c5f5ecdeb2f3764aa0",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/3",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/3/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "9482b596f183b4460f0c2db71cb6dfe3ed9b020e26204820aa18575abd723528",
+    "tag_output_sha256": "9482b596f183b4460f0c2db71cb6dfe3ed9b020e26204820aa18575abd723528"
+  },
+  {
+    "path": "tests/exploratory/test_limitation_nested_spawn_shared.sn",
+    "sha256": "f7e195d2bdf3c93008b2711ba410406201e62574e89f3b1ebf5a557c30ff5324",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/4",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/4/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "6105473c20967b7e97d7bd7c960da74c0bb61cff0d6e80faadbbf3e55767f82b",
+    "tag_output_sha256": "6105473c20967b7e97d7bd7c960da74c0bb61cff0d6e80faadbbf3e55767f82b"
+  },
+  {
+    "path": "tests/exploratory/test_sync_byte_threading.sn",
+    "sha256": "dd5889c2b5df1771f91c94e690447c3da9e20a26849bcc4c6b79111784fe4740",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/5",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/5/tag",
+    "diagnostics": [
+      "error[E0368]: binary assignment operation `+=` cannot be applied to type `char`",
+      "error: aborting due to 1 previous error; 12 warnings emitted"
+    ],
+    "tag_output_sha256": "dafbcef21df68aa46e01c3e69d8457e739ca2ba3e60f0d349f597ceb77a943cd"
+  },
+  {
+    "path": "tests/exploratory/test_sync_compound_threading.sn",
+    "sha256": "376d560ade27e851a9106414ccfe5110f4ec481badb54d5b6ac466abcf6b6059",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/6",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/6/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "5c8c52c5ece50ea3b8c7b668a445b01937e7243bba4fe2a3e112b9cb3b2d375b",
+    "tag_output_sha256": "5c8c52c5ece50ea3b8c7b668a445b01937e7243bba4fe2a3e112b9cb3b2d375b"
+  },
+  {
+    "path": "tests/exploratory/test_sync_proxy_multi_thread.sn",
+    "sha256": "e87bc9f4a5cf97ce33f4aa8daa3a1229bb368f6ef87e73db90bf7322611dcba9",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/7",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/7/tag",
+    "diagnostics": [
+      "Error: Rust target does not support native C source/include pragmas yet"
+    ],
+    "tag_output_sha256": "c4565f49d6c6d9b5f7a46dc1c1c57a7531a30f9f553b95d1bf1d8587d2bf80f3"
+  },
+  {
+    "path": "tests/exploratory/test_sync_proxy_two_requests.sn",
+    "sha256": "a21783fc83d7b67bb18e2fe833421942e08bfa1e3899b568d347c1757e9da68e",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/8",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/8/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "87ea1afe18a1055f546d322ffe9c57cb4fc211e869d84383c3dd60c44b3ead86",
+    "tag_output_sha256": "87ea1afe18a1055f546d322ffe9c57cb4fc211e869d84383c3dd60c44b3ead86"
+  },
+  {
+    "path": "tests/exploratory/test_sync_proxy_two_requests_sleep.sn",
+    "sha256": "3e21c6456f3b4a64f688a0814acfe3981c7c503db19aebac66794689b2b5cd83",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/9",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/9/tag",
+    "diagnostics": [
+      "Error: Rust target does not support native C source/include pragmas yet"
+    ],
+    "tag_output_sha256": "87441edf882a4844e907656f66f3e45dd3082fbcc23fb6bb98ecc5b0faa248b0"
+  },
+  {
+    "path": "tests/exploratory/test_sync_thread_counter.sn",
+    "sha256": "cd9f7dbd4b49df5c66589104d071d3202f3f70aa3ad72f554cc8ef1c43f7ad8d",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/10",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/10/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "aaa55f7724ee6a7ce8260f9ad7c01ac92b929c3ab0081b73a56301a22de1db3d",
+    "tag_output_sha256": "aaa55f7724ee6a7ce8260f9ad7c01ac92b929c3ab0081b73a56301a22de1db3d"
+  },
+  {
+    "path": "tests/exploratory/test_thread_array_sync.sn",
+    "sha256": "217698e11459b571684ebb73185033a58ef7cf53f8029eafe200ff6e9e6efd91",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/11",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/11/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "0b2a04baf2fb45f9efd2e31510ab7e39fb025c310306add1783aa174e9e2881d",
+    "tag_output_sha256": "0b2a04baf2fb45f9efd2e31510ab7e39fb025c310306add1783aa174e9e2881d"
+  },
+  {
+    "path": "tests/exploratory/test_thread_complex_data.sn",
+    "sha256": "30abfcc27235434ec362c8fcf71b912cb52f9c3e9a4924fbfde03b25710b525d",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/12",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/12/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "76b4b4a09d0b9793305155deeee017aff1e10fdbd5b600aff6224b66b048e23d",
+    "tag_output_sha256": "76b4b4a09d0b9793305155deeee017aff1e10fdbd5b600aff6224b66b048e23d"
+  },
+  {
+    "path": "tests/exploratory/test_thread_many_concurrent.sn",
+    "sha256": "587c5d257ce0d168ec619665c430decb24410272cc84652ce70d68531953f6e4",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/13",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/13/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "74d2255ed14944bf49bb7b28433e08cddb4b1b1c04e1f688b9218e85fb8939b5",
+    "tag_output_sha256": "74d2255ed14944bf49bb7b28433e08cddb4b1b1c04e1f688b9218e85fb8939b5"
+  },
+  {
+    "path": "tests/exploratory/test_thread_multiple_spawns.sn",
+    "sha256": "f84597b03cb1507f8d7e305337f79ff92913a3a8471947601aeff70f7db7a8f6",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/14",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/14/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "1def07dbe06eeb097aafec8a40329937cd20c93a83634b8221ea2b41a894310c",
+    "tag_output_sha256": "1def07dbe06eeb097aafec8a40329937cd20c93a83634b8221ea2b41a894310c"
+  },
+  {
+    "path": "tests/exploratory/test_thread_nested_spawn.sn",
+    "sha256": "80a08fd847361250db8522a9af7cd98329a58fad6f1902c489dce288e0b5fa48",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/15",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/15/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "fd319c33f7e4c65cfb065b8ab44149dc4b835a54f068a28d6dc0c927fc305a87",
+    "tag_output_sha256": "fd319c33f7e4c65cfb065b8ab44149dc4b835a54f068a28d6dc0c927fc305a87"
+  },
+  {
+    "path": "tests/exploratory/test_thread_private_mode.sn",
+    "sha256": "99ee2bec8d4525d992015eef982c2f89dbcccc1095af23e6342072510510c81e",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/16",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/16/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "11d09e9a113aba40c0bf6d1037fad6cfd13abfbbfff0278b6057b7b25881cae8",
+    "tag_output_sha256": "11d09e9a113aba40c0bf6d1037fad6cfd13abfbbfff0278b6057b7b25881cae8"
+  },
+  {
+    "path": "tests/exploratory/test_thread_race_conditions.sn",
+    "sha256": "3ac67e73a2db0a1be6bf1a644c8b45d30226a7b096e8538f2bd32b03ece1eaea",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/17",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/17/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "9fb5772c34d8f57db0b7ef329d3f56350b1decdec7d2facf36cdffdeafb72df4",
+    "tag_output_sha256": "9fb5772c34d8f57db0b7ef329d3f56350b1decdec7d2facf36cdffdeafb72df4"
+  },
+  {
+    "path": "tests/exploratory/test_thread_recursion.sn",
+    "sha256": "9f5998f2b98af0daee8a7bf01e4b3c37568dd148da25f5b2cfff4056e897d2ef",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/18",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/18/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "1f14aaf8a5bd491ba63971d17489632851e246118ab5108a29dbeb5b95e68efa",
+    "tag_output_sha256": "1f14aaf8a5bd491ba63971d17489632851e246118ab5108a29dbeb5b95e68efa"
+  },
+  {
+    "path": "tests/exploratory/test_thread_shared_mode.sn",
+    "sha256": "1ad7f25dbe0c4b3540133e0b959b181944470f9e794f1877187c826e30abaaa1",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/19",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/19/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "e0eb4530c16964774b59e2de1b6ac833f39b04680957066453e9020ee2333d0e",
+    "tag_output_sha256": "e0eb4530c16964774b59e2de1b6ac833f39b04680957066453e9020ee2333d0e"
+  },
+  {
+    "path": "tests/exploratory/test_thread_spawn_simple.sn",
+    "sha256": "dc20cc8e468bb479339909e011e7f1dadc8be764df6d3fa09cdcfb2b300be378",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/20",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/20/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "bf24325cd27b27403c7b8053820193dcce360f640f7f394742b660ce5fe3cd4e",
+    "tag_output_sha256": "bf24325cd27b27403c7b8053820193dcce360f640f7f394742b660ce5fe3cd4e"
+  },
+  {
+    "path": "tests/exploratory/test_thread_string_return.sn",
+    "sha256": "d8aaf2aebb3ffc972689771b23aa2683216820093bf865e3de6fda145a716d60",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/21",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/21/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "e2f0d8f3cdcbddba8ce95cc56affdf88b99a6ddb2f127df3306eb2a1f2ac5653",
+    "tag_output_sha256": "e2f0d8f3cdcbddba8ce95cc56affdf88b99a6ddb2f127df3306eb2a1f2ac5653"
+  },
+  {
+    "path": "tests/exploratory/test_thread_sync_inline.sn",
+    "sha256": "bd129c5ef195743ab2a4401f20d87c59d66cf3d92da3dab5b78383d94cab8d9f",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/22",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/22/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "8a4f9bd8adff778f489bb21903b5b83e9172e76d07748e3045707646a0ac82fc",
+    "tag_output_sha256": "8a4f9bd8adff778f489bb21903b5b83e9172e76d07748e3045707646a0ac82fc"
+  },
+  {
+    "path": "tests/exploratory/test_thread_void_spawn.sn",
+    "sha256": "27ad47a2e0b4a32943efe0d410bd398eb0130a95969667dd5e17a8e1ed38cc88",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/23",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/23/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "804dc5e864670ac58cdc090468e2b0d2c3274b24de807c6e9a7febd280d106d3",
+    "tag_output_sha256": "804dc5e864670ac58cdc090468e2b0d2c3274b24de807c6e9a7febd280d106d3"
+  },
+  {
+    "path": "tests/exploratory/test_thread_with_args.sn",
+    "sha256": "6f9dcbb0698d826d4e4de4875219af180638d249e248a12f41bedc69cdc5d29a",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/24",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/24/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "bf24325cd27b27403c7b8053820193dcce360f640f7f394742b660ce5fe3cd4e",
+    "tag_output_sha256": "bf24325cd27b27403c7b8053820193dcce360f640f7f394742b660ce5fe3cd4e"
+  },
+  {
+    "path": "tests/exploratory/test_thread_with_lambda.sn",
+    "sha256": "355e2892b9ba6ab9d27c0c1059ef71cf84697cc328fb7a0ad46a9a0b632c0a59",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/25",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/25/tag",
+    "diagnostics": [
+      "error[E0277]: expected a `Fn(i64)` closure, found `__SnClosure<dyn Fn(i64) -> i64>`",
+      "error: aborting due to 1 previous error; 1 warning emitted"
+    ],
+    "tag_output_sha256": "cedf4b9e4304a2d06e78e91c29707bfc9d5a3179865dc96bf8b9ea8f523a5a48"
+  },
+  {
+    "path": "tests/exploratory/test_while_true_nested_if_loop.sn",
+    "sha256": "d08cbfb7f2b043b2bec19528278e1b33ded0910fe14d87698a777f57f91fdcf6",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/26",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/26/tag",
+    "diagnostics": [
+      "Error: Rust target does not support native C source/include pragmas yet"
+    ],
+    "tag_output_sha256": "e2a727814774ef5a51b67a2db7d1f1801eac8cb46fe7e3aa395dd3352fb76a52"
+  },
+  {
+    "path": "tests/integration/test_as_ref_params.sn",
+    "sha256": "2276baf8a1cfcf04d24613cbc7c5cd56596644384ac1dc89bb398aaacd10c08a",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/27",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/27/tag",
+    "diagnostics": [
+      "Error: Rust target encountered an unsupported construct in function 'test_basic_as_ref'"
+    ],
+    "tag_output_sha256": "cc195daf71041933df2f033462d60ca31b23e1ca034ac280417a32face126613"
+  },
+  {
+    "path": "tests/integration/test_deep_module_chain.sn",
+    "sha256": "f2a7af4ac7960cd512893545a5c62ec74cea9f43b4387774e74c2bfd3af7c514",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/28",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/28/tag",
+    "diagnostics": [
+      "Error: Rust target encountered an unsupported construct in function 'test_basic_level_ids'"
+    ],
+    "tag_output_sha256": "791d2f93b8532a2263d710e13a1c211c02ef651ddbd81c9e2381e104c87498c8"
+  },
+  {
+    "path": "tests/integration/test_import_diamond.sn",
+    "sha256": "1ee88a53036b564f319c471be9753e70f977ed113b30b565197377a0a5210443",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/29",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/29/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "95327513c56a437758d6e397ee4e04a34dfdb54167eba15c55bc2bc01af6768f",
+    "tag_output_sha256": "95327513c56a437758d6e397ee4e04a34dfdb54167eba15c55bc2bc01af6768f"
+  },
+  {
+    "path": "tests/integration/test_import_module_collision.sn",
+    "sha256": "fcbefeb155a30bc8c95b60ed63c59a126b8f7db8eed00d19190f2fca48dba060",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/30",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/30/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "4a1123d62290a7bb29e5b889f79e4e76492d7de19883765541b935973340a0cd",
+    "tag_output_sha256": "4a1123d62290a7bb29e5b889f79e4e76492d7de19883765541b935973340a0cd"
+  },
+  {
+    "path": "tests/integration/test_lambda_closure_thread_spawn.sn",
+    "sha256": "2a9df5385e4f582ee790b0808352d4ab055a1b34b898ee4facc6367343d37cc3",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/31",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/31/tag",
+    "diagnostics": [
+      "error[E0277]: `Rc<dyn Fn() -> i64>` cannot be sent between threads safely",
+      "error: aborting due to 1 previous error; 2 warnings emitted"
+    ],
+    "tag_output_sha256": "efd31a3c67280b05e721bd2c180d2bd4b2cb517ea3fe4b6639690b76b906db27"
+  },
+  {
+    "path": "tests/integration/test_lambda_multiline_arg.sn",
+    "sha256": "9e28f852f654c3fa72bfc458a84801e767f1bc284da7710912056850c8677057",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/32",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/32/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "07f5c292d0050d135905c96c67ccf4be63d12d72e009a2dd3f9a03c0c1a11a99",
+    "tag_output_sha256": "07f5c292d0050d135905c96c67ccf4be63d12d72e009a2dd3f9a03c0c1a11a99"
+  },
+  {
+    "path": "tests/integration/test_lock_block.sn",
+    "sha256": "646eea895e92cc7054d6126a5f29024ce74149b8f014bb2be103b39c596614c2",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/33",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/33/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "c7a13f069d3512a216440650e91ec42a296f51d163a861098da5e50453b9aa15",
+    "tag_output_sha256": "c7a13f069d3512a216440650e91ec42a296f51d163a861098da5e50453b9aa15"
+  },
+  {
+    "path": "tests/integration/test_lock_return.sn",
+    "sha256": "e7fd04e8c67e527292425f0d68d0ada0ab3415f297bab5fdde486b1871d03669",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/34",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/34/tag",
+    "diagnostics": [
+      "Error: Rust target encountered an unsupported construct in function 'main'"
+    ],
+    "tag_output_sha256": "c26de83abdc9496cd1301470918ec39ecca1cf389ef0ae1c6504da1800d1c431"
+  },
+  {
+    "path": "tests/integration/test_minimal_chain.sn",
+    "sha256": "ad5db85401ece570c364f252a55540bf87c2373f7d04715439356d2d8ce19cb4",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/35",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/35/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "c9d04c9565fc665c80681fb1d829938026871f66e14f501e08531df66938a789",
+    "tag_output_sha256": "c9d04c9565fc665c80681fb1d829938026871f66e14f501e08531df66938a789"
+  },
+  {
+    "path": "tests/integration/test_module_array_swap_leak.sn",
+    "sha256": "e9485d7a3fc801ae45b043c2c678e801e6c25cc7bd118d347dc393fc28bfdb91",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/36",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/36/tag",
+    "diagnostics": [
+      "Error: Rust target does not support native C source/include pragmas yet"
+    ],
+    "tag_output_sha256": "40bedfbd7b0a142c7a837d01b1754cd0283de62ef21e9ff617efb7c2cecccde3"
+  },
+  {
+    "path": "tests/integration/test_pass_self_to_function.sn",
+    "sha256": "dd88a972cda459bcc3f403dbc02dd78fca4c53fad9e74ada7963d09156e6faec",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/37",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/37/tag",
+    "diagnostics": [
+      "Error: Rust target currently supports only plain value struct 'Worker'"
+    ],
+    "tag_output_sha256": "d1464f4ac76cfc2dbf3f7b256816fc020cb9b8c56f9be27d6442fc54cf7f9b51"
+  },
+  {
+    "path": "tests/integration/test_return_ref_param.sn",
+    "sha256": "334a96ac5383e9db35b45fd4f10ff8b65967c3b18879eddf05aff80a81f44802",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/38",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/38/tag",
+    "diagnostics": [
+      "Error: Rust target currently supports only plain value struct 'Tensor'"
+    ],
+    "tag_output_sha256": "d7abde0693bd5c442fc0c9d926c554f4520726f83597dc60e5aeb9cf1544dd53"
+  },
+  {
+    "path": "tests/integration/test_static_import.sn",
+    "sha256": "3719288ac31bc3b519d1f24519cf16f0fee83d8e11b4a5145a869f85af15e2ae",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/39",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/39/tag",
+    "diagnostics": [
+      "Error: Rust target encountered an unsupported construct in function 'main'"
+    ],
+    "tag_output_sha256": "755abc94152a3b3c3ba3b62727f206ce5b2c146cac487230e3f6f56b3ac6eed3"
+  },
+  {
+    "path": "tests/integration/test_sync_compound_assign.sn",
+    "sha256": "03559b37c831eb431a9f34b1a162bfeb6a7a070bd9c3ea9c88b68723d61847e1",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/40",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/40/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "1662ecde30fdfb0aa53c2e8d6a890751585f6a8101af56037a00496ab1027999",
+    "tag_output_sha256": "1662ecde30fdfb0aa53c2e8d6a890751585f6a8101af56037a00496ab1027999"
+  },
+  {
+    "path": "tests/integration/test_sync_proxy_double_exchange.sn",
+    "sha256": "39c0f176c0fa612ea6cf4e58b8f358b37dab5c05b064ba996be6cb6e30a18505",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/41",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/41/tag",
+    "diagnostics": [
+      "Error: Rust target does not support native C source/include pragmas yet"
+    ],
+    "tag_output_sha256": "ab9a1417e58973427e21fdec234aa0d56b76a82dd3b8b0e63643f88737e31a97"
+  },
+  {
+    "path": "tests/integration/test_sync_var_array.sn",
+    "sha256": "03f71721354473781c860ea2bc88a0d6ab0882e33286f9a9d42c6647ea64f908",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/42",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/42/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "eb061be2d3a2a2ff94329bbe995858c6b48f81831db1f6f663d3c6116657a70f",
+    "tag_output_sha256": "eb061be2d3a2a2ff94329bbe995858c6b48f81831db1f6f663d3c6116657a70f"
+  },
+  {
+    "path": "tests/integration/test_sync_variable.sn",
+    "sha256": "8cfd85af94de2d310639035028bf368997160a977eb9ae72ced51b2a4e91d377",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/43",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/43/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "f483d36abf7c1eb4fbf562cf27b36925188280733c9acd2785ad6271299dc3bf",
+    "tag_output_sha256": "f483d36abf7c1eb4fbf562cf27b36925188280733c9acd2785ad6271299dc3bf"
+  },
+  {
+    "path": "tests/integration/test_thread_arena_default.sn",
+    "sha256": "db4bcddd1a962078dc87767549ba68139da63819566c09e88e387a3b30c1dd1b",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/44",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/44/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "fef306d919bdd8beceabe837bb6a7d8d1a92a14a9842c7dfc9901537c2d61da5",
+    "tag_output_sha256": "fef306d919bdd8beceabe837bb6a7d8d1a92a14a9842c7dfc9901537c2d61da5"
+  },
+  {
+    "path": "tests/integration/test_thread_array_spawn.sn",
+    "sha256": "8617e495da43cb87ab7d53602484937c64caf25392f11c9ce466d2e1afbf883d",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/45",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/45/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "1220641a0dfbf95a3f33e75435dca7f625d6669fe809530745494e71ff0c1d51",
+    "tag_output_sha256": "1220641a0dfbf95a3f33e75435dca7f625d6669fe809530745494e71ff0c1d51"
+  },
+  {
+    "path": "tests/integration/test_thread_array_spawn_loop.sn",
+    "sha256": "8d4071254cb0091d4728e7e650867da4193a2b35877bc1ff5452c1039049307a",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/46",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/46/tag",
+    "diagnostics": [
+      "error[E0425]: cannot find value `__sn_concurrency0_handle_handles` in this scope",
+      "error[E0425]: cannot find value `__sn_concurrency0_handle_handles` in this scope"
+    ],
+    "tag_output_sha256": "b5cc18d99416b6a3d5c6ecb7cdd22b04cb2a50bd21ccb0eef10a7d298bc2797d"
+  },
+  {
+    "path": "tests/integration/test_thread_array_struct.sn",
+    "sha256": "7c2e4598ce83ced8cf91681d9587c602cfc02f338af6889115841c3adb528b6f",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/47",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/47/tag",
+    "diagnostics": [
+      "error[E0425]: cannot find value `__sn_concurrency0_handle_results` in this scope",
+      "error[E0308]: mismatched types"
+    ],
+    "tag_output_sha256": "05d76fc58561e48d6db67b3082738a290b46445022dac6c5d10f7ebbcb4a6f26"
+  },
+  {
+    "path": "tests/integration/test_thread_array_sync.sn",
+    "sha256": "955c4eae03bf7cbd4aa4e320b28188d47e4aeeff1f321ba96fdbce7c92534b3a",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/48",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/48/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "dce44632b68aff7d08263f29960fa3677814bdf69a147e83c70c5aeb526b0f84",
+    "tag_output_sha256": "dce44632b68aff7d08263f29960fa3677814bdf69a147e83c70c5aeb526b0f84"
+  },
+  {
+    "path": "tests/integration/test_thread_as_ref_spawn.sn",
+    "sha256": "ab816fe12aad51788bc251d4eb00e497d7006de169d372df464865b60bac1c87",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/49",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/49/tag",
+    "diagnostics": [
+      "error[E0596]: cannot borrow `__sn_concurrency0_arg0` as mutable, as it is not declared as mutable",
+      "error[E0596]: cannot borrow `__sn_concurrency0_arg0` as mutable, as it is not declared as mutable"
+    ],
+    "tag_output_sha256": "319b438150e3daf2725ab14c7f38ba4d36d06e850f205a1efd4358a48247744f"
+  },
+  {
+    "path": "tests/integration/test_thread_basic_spawn_sync.sn",
+    "sha256": "c4102dc21bcf60f0c2bb5ca99ebef018bae00c3187d47ec78c1d68defbfbe1d7",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/50",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/50/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "9f79d8a5144cbe239ce11315c488bf0e9c7d3b72ac8e57ddd91d704d6e3bb547",
+    "tag_output_sha256": "9f79d8a5144cbe239ce11315c488bf0e9c7d3b72ac8e57ddd91d704d6e3bb547"
+  },
+  {
+    "path": "tests/integration/test_thread_cond_array3d.sn",
+    "sha256": "486ca483458cabaf45646c634a191bdfd808aae6e8dc9c010b8467ca43ce6dcf",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/51",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/51/tag",
+    "equal_raw": false,
+    "rust_output_sha256": "05319b58baec5d955f18f51e4a0a1a9e1898bae21d75504785b6c8185628df94",
+    "tag_output_sha256": "492b91054bf4231620009e5f85e98682881b6e5e9f2701424def838ddb348a0e"
+  },
+  {
+    "path": "tests/integration/test_thread_cond_primitives.sn",
+    "sha256": "96cb8c321b2e635cf4b8b520e41b8f7b72178555a6080d64d9001e6666d2d001",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/52",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/52/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "3e7dea38280016e6d3f91ee26dde7ff29d8e9bc07db60d9759cd2eb6ff04af89",
+    "tag_output_sha256": "3e7dea38280016e6d3f91ee26dde7ff29d8e9bc07db60d9759cd2eb6ff04af89"
+  },
+  {
+    "path": "tests/integration/test_thread_cond_string.sn",
+    "sha256": "151d2ee27c60e799caabbe6e2d5cefb196e87ca198711254e9461887ad2f6b4b",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/53",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/53/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "d7a3803650d3d090a8a5207ccd0a27bb2085cde163e2d1a8b65bcbbdf6063101",
+    "tag_output_sha256": "d7a3803650d3d090a8a5207ccd0a27bb2085cde163e2d1a8b65bcbbdf6063101"
+  },
+  {
+    "path": "tests/integration/test_thread_cond_struct.sn",
+    "sha256": "f0d62ab632c91e07b7491c27b358d41df52c1a7b645540dc1f37f158f4538144",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/54",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/54/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "d1413b59242492db10a6722988fb2a5c47450ffe7da8891964643f87f0d174e6",
+    "tag_output_sha256": "d1413b59242492db10a6722988fb2a5c47450ffe7da8891964643f87f0d174e6"
+  },
+  {
+    "path": "tests/integration/test_thread_conditional_spawn.sn",
+    "sha256": "6b04ebd8e10220d3c86d406875f54fd6c291a536a06004973584b4e6f21b9ff4",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/55",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/55/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "c90c7f5f6e8a693a7d3b84b2e25346c396d8d109431781691436509ce7a65665",
+    "tag_output_sha256": "c90c7f5f6e8a693a7d3b84b2e25346c396d8d109431781691436509ce7a65665"
+  },
+  {
+    "path": "tests/integration/test_thread_conditional_struct.sn",
+    "sha256": "00e07385311124a1694d74137880b1dd283c2bd320eac551e1aa9470181c15ec",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/56",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/56/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "cc081eeb827769e9ba370a6598cc5ebd6090ecb96f8d9d4cab62ce26fcedba8a",
+    "tag_output_sha256": "cc081eeb827769e9ba370a6598cc5ebd6090ecb96f8d9d4cab62ce26fcedba8a"
+  },
+  {
+    "path": "tests/integration/test_thread_detach_basic.sn",
+    "sha256": "c4531582bb16ca208de908e2ef32b5116e384b27e875bade7058254eae2de7ed",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/57",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/57/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "ed81f2fe0ccba73415fb438fb9e1b7b6300665b3104420243070688ebe883ed1",
+    "tag_output_sha256": "ed81f2fe0ccba73415fb438fb9e1b7b6300665b3104420243070688ebe883ed1"
+  },
+  {
+    "path": "tests/integration/test_thread_detach_loop.sn",
+    "sha256": "09b1277eac7a367f9d66946daa4b0c4c9c60bb998140c49ac16de98de22a7359",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/58",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/58/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "36bcbef8d3b0593ce647a109b6b0555297829ac2cf02c0a588bc4bf08a9e173a",
+    "tag_output_sha256": "36bcbef8d3b0593ce647a109b6b0555297829ac2cf02c0a588bc4bf08a9e173a"
+  },
+  {
+    "path": "tests/integration/test_thread_detach_struct_array.sn",
+    "sha256": "13b7f24db9cf66c05959950262d71320b059e5041a77b4aa0c2754975d472117",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/59",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/59/tag",
+    "diagnostics": [
+      "Error: Rust target does not support a parameter of function 'processTable'"
+    ],
+    "tag_output_sha256": "2b05ebb5350db465e2a1ccdf134ed07c59915e0cca0cd24c0c662bb2ab5f775d"
+  },
+  {
+    "path": "tests/integration/test_thread_fire_and_forget.sn",
+    "sha256": "de709c35e685e54be88173a75e44ffcf4ad2769c5c8a6ed0d2239ffffc371da4",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/60",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/60/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "3c4625fbb989ffe1336b33789e2f1cb9451f51aec08a55842b589f6f29d9cc1d",
+    "tag_output_sha256": "3c4625fbb989ffe1336b33789e2f1cb9451f51aec08a55842b589f6f29d9cc1d"
+  },
+  {
+    "path": "tests/integration/test_thread_immediate_reassign.sn",
+    "sha256": "cb614f17d9ca54b290c529f0468cb401aabc9dcd7d7e96669f927e2608ff0db4",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/61",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/61/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "3dcbf641128cd97fc78189537b053c54b8cda07fc02ddd25384ed0af05d5f73f",
+    "tag_output_sha256": "3dcbf641128cd97fc78189537b053c54b8cda07fc02ddd25384ed0af05d5f73f"
+  },
+  {
+    "path": "tests/integration/test_thread_inline_spawn_sync.sn",
+    "sha256": "ae793601970456659796bbc968b9996106d0b192c3045436005892b240a204b6",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/62",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/62/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "f7d5eb0f2374be5b96641ad32a4ffc194ed99e9fe665ac47b96ddb84c766a96c",
+    "tag_output_sha256": "f7d5eb0f2374be5b96641ad32a4ffc194ed99e9fe665ac47b96ddb84c766a96c"
+  },
+  {
+    "path": "tests/integration/test_thread_multiple_spawn.sn",
+    "sha256": "1f1bfcadb4b753b6ba7decf7a5f67d2209f5dacbfd23d5246534200607fb9ad1",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/63",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/63/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "14b4b0c721ae74060541281e9b1ea6976dd0b638d7d94e5ac9fb1d6ef1a28a40",
+    "tag_output_sha256": "14b4b0c721ae74060541281e9b1ea6976dd0b638d7d94e5ac9fb1d6ef1a28a40"
+  },
+  {
+    "path": "tests/integration/test_thread_native_fn_struct_return.sn",
+    "sha256": "44a97ed57b51a318b37774bd44b9100c67241b0ea3b44d9f486309eda7757aa6",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/64",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/64/tag",
+    "diagnostics": [
+      "Error: Rust target does not support native C source/include pragmas yet"
+    ],
+    "tag_output_sha256": "4e9d35fdb0b1791c85aead5149bc2449ccd02e8fe3b9712f3542454b6de7872e"
+  },
+  {
+    "path": "tests/integration/test_thread_original_approach.sn",
+    "sha256": "0bae605768b35505da38bcb5eb27b9a7ebe9c24a9710cff8e3052197a4305820",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/65",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/65/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "2252198d4dcca9e3c42ef73b2aa69872960cbde4c00f0b8991774acd3be58ff1",
+    "tag_output_sha256": "2252198d4dcca9e3c42ef73b2aa69872960cbde4c00f0b8991774acd3be58ff1"
+  },
+  {
+    "path": "tests/integration/test_thread_panic_propagate.sn",
+    "sha256": "bd30fcea8645c43374581e59501a53a475c00fe184523f245df2c8bcce657cc4",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/66",
+    "tag_compile": 0,
+    "tag_run": 1,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/66/tag",
+    "diagnostics": [
+      "error[E0689]: can't call method `checked_div` on ambiguous numeric type `{integer}`",
+      "error: aborting due to 1 previous error; 1 warning emitted"
+    ],
+    "tag_output_sha256": "d6e85073227f60ff05d5795a9af50488f2ec4752b01bdd66b8decbbbdbdb4f85"
+  },
+  {
+    "path": "tests/integration/test_thread_spawn_self_method.sn",
+    "sha256": "baf59ba4360d8a42be8aeaa80da09c39872fcf922872da1c7087b83959a9624d",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/67",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/67/tag",
+    "diagnostics": [
+      "error[E0521]: borrowed data escapes outside of method",
+      "error: aborting due to 1 previous error; 1 warning emitted"
+    ],
+    "tag_output_sha256": "9324d197ea8b2e32d42134b2bcec535ca438f94a9b87a1ef4a194f9166b5f198"
+  },
+  {
+    "path": "tests/integration/test_thread_struct_array_field.sn",
+    "sha256": "8c7f562be3d48d26abfbe388ea672faae1d4caacff23ec391e7c14fb159abee2",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/68",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/68/tag",
+    "diagnostics": [
+      "Error: Rust target does not support a parameter of function 'processTable'"
+    ],
+    "tag_output_sha256": "b38543601124e12ee5c81d1981398c9469242af123aec88f42e7300cf01dd993"
+  },
+  {
+    "path": "tests/integration/test_thread_struct_param.sn",
+    "sha256": "b52080ea09c2ab342d732bcee93f0af56f3ba75b9c2ef26863c5c4efb3fb1785",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/69",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/69/tag",
+    "diagnostics": [
+      "Error: Rust target does not support a parameter of function 'processConfig'"
+    ],
+    "tag_output_sha256": "8fa101441567be53ed027ffd6d053626ab17300c21b083bcc9b21557278fbd15"
+  },
+  {
+    "path": "tests/integration/test_thread_struct_return.sn",
+    "sha256": "1c2a637c2324b26809add4d49fcdcb83033be0e2b282887df78077ef7e0b3a76",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/70",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/70/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "d8556053d73ee2c6f8f11d40169f72adb8d30abaf339544828f811851eb5049b",
+    "tag_output_sha256": "d8556053d73ee2c6f8f11d40169f72adb8d30abaf339544828f811851eb5049b"
+  },
+  {
+    "path": "tests/integration/test_thread_struct_return_types.sn",
+    "sha256": "4107ecec3bc70eba14b449f78df723b47809739b3e050c23eaa5ffb98e705df8",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/71",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/71/tag",
+    "diagnostics": [
+      "Error: Rust target does not support native C source/include pragmas yet"
+    ],
+    "tag_output_sha256": "cfda186b04f70ad39decabcb8a5ffc305dfb8dd4397fc807462b96b88f9bbf5c"
+  },
+  {
+    "path": "tests/integration/test_thread_sync_in_expr.sn",
+    "sha256": "cbe4162b216df1f5a16e211c6ee24573a19ef5b53ba73802ed8ce1aca9e4107a",
+    "compile": 0,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/72",
+    "run": 0,
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/72/tag",
+    "equal_raw": true,
+    "rust_output_sha256": "15cbd741d0f723d9ff616f1d1dfd22e215126cb53ddda5e128014bd87e9d7f9f",
+    "tag_output_sha256": "15cbd741d0f723d9ff616f1d1dfd22e215126cb53ddda5e128014bd87e9d7f9f"
+  },
+  {
+    "path": "tests/integration/test_using_dispose.sn",
+    "sha256": "fcb74cb95db8d5174e7cc90a8630bc70a84de1411e47aea4c9efa26e09c1eee1",
+    "compile": 1,
+    "evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog-final/73",
+    "tag_compile": 0,
+    "tag_run": 0,
+    "tag_evidence": "/tmp/sindarin-rust-concurrency-evidence/catalog/73/tag",
+    "diagnostics": [
+      "Error: Rust target encountered an unsupported construct in function 'test_basic_using'"
+    ],
+    "tag_output_sha256": "11a6f413bc741e11a0e47c7dc55b942d691fa80a2418933b377e53f5aae87592"
+  }
+]

@@ -12,7 +12,7 @@
 #------------------------------------------------------------------------------
 .PHONY: all build rebuild run clean test help
 .PHONY: test-unit test-cgen test-rgen test-rgen-byte-strings test-mgen test-integration test-integration-errors
-.PHONY: test-explore test-explore-errors test-rust-closures test-rust-native-tagged test-rust-native-extra test-rust-native-origin test-rust-native-errors test-rust-toolchain
+.PHONY: test-explore test-explore-errors test-rust-closures test-rust-concurrency test-rust-native-tagged test-rust-native-extra test-rust-native-origin test-rust-native-errors test-rust-toolchain
 .PHONY: configure install package setup hooks
 
 #------------------------------------------------------------------------------
@@ -216,6 +216,11 @@ test-rust-closures: build
 	@$(PYTHON) scripts/run_rust_tests.py rust-closure-values --verbose
 	@$(PYTHON) scripts/run_rust_tests.py rust-closure-values-errors --verbose
 
+test-rust-concurrency: build
+	@$(PYTHON) scripts/run_rust_tests.py rust-concurrency --verbose
+	@$(PYTHON) scripts/run_rust_tests.py rust-concurrency-promoted --verbose
+	@$(PYTHON) scripts/run_rust_tests.py rust-concurrency-errors --verbose
+
 test-rust-toolchain: build
 	@$(PYTHON) scripts/run_rust_tests.py rust-toolchain --verbose
 
@@ -234,6 +239,17 @@ test-rust-parity-core: build
 		tests/rgen/receiver_array_alias_identity.sn \
 		tests/rgen/receiver_array_alias_minimal.sn \
 		tests/rgen/receiver_array_alias_multiple.sn
+
+# GCC floating atomic postfix needs libatomic on the Linux toolchain. This is
+# an explicit, recorded gate-only override; normal compiler configuration stays unchanged.
+ifeq ($(PLATFORM),linux)
+RUST_CONCURRENCY_C_LINK_ARGS ?= --c-ldlibs "-lpthread -lm -latomic"
+endif
+.PHONY: test-rust-parity-concurrency
+test-rust-parity-concurrency: build
+	@$(PYTHON) scripts/check_rust_parity.py --compiler $(SN) --require-count 17 \
+		$(RUST_CONCURRENCY_C_LINK_ARGS) --output .sn/rust-parity-concurrency.json \
+		tests/rust-concurrency/*.sn tests/rgen/concurrency-promoted/*.sn
 
 #------------------------------------------------------------------------------
 # install - Install to ~/.sn/ (global user installation)
@@ -352,6 +368,7 @@ help:
 	@echo "  make test-explore           Run exploratory tests"
 	@echo "  make test-explore-errors    Run exploratory error tests"
 	@echo "  make test-rust-closures     Run promoted Rust closure-value tests"
+	@echo "  make test-rust-concurrency  Run Rust concurrency and promoted concurrency tests"
 	@echo "  make test-rust-toolchain    Run Rust toolchain and shared artifact lifecycle tests"
 	@echo ""
 	@echo "Distribution Targets:"
