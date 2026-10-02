@@ -1,0 +1,18 @@
+fn __sn_write_windows_text(): int =>
+  return 1
+
+fn __sn_write_stdout_bytes(): int =>
+  return 2
+
+fn __sn_write_stderr_bytes(): int =>
+  return 3
+
+fn __sn_print_format(): int =>
+  return 4
+
+fn __sn_println_format(): int =>
+  return 5
+
+fn main(): void =>
+  var __sn_print_format_1: int = 6
+  println($"sum:{__sn_write_windows_text() + __sn_write_stdout_bytes() + __sn_write_stderr_bytes() + __sn_print_format() + __sn_println_format() + __sn_print_format_1}")

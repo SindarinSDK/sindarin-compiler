@@ -52,8 +52,49 @@ static void test_gen_model_split_native_externs(void)
     json_object_put(model);
 }
 
+static void test_gen_model_split_windows_entry_path(void)
+{
+    json_object *model = gen_model_split_test_model();
+    json_object *functions = NULL;
+    assert(json_object_object_get_ex(model, "functions", &functions));
+    json_object *main_fn = json_object_new_object();
+    json_object_object_add(main_fn, "name", json_object_new_string("main"));
+    json_object_object_add(main_fn, "source_file", json_object_new_string("C:/project/main.sn"));
+    json_object_array_add(functions, main_fn);
+
+    ModularModel *split = gen_model_split(model, "C:\\project\\main.sn");
+    assert(split != NULL);
+    assert(split->impl_count == 1);
+    json_object *main_functions = NULL;
+    assert(json_object_object_get_ex(split->impl_models[0], "functions", &main_functions));
+    assert(json_object_array_length(main_functions) == 1);
+    assert(strcmp(split->impl_names[0], "main") == 0);
+    modular_model_free(split);
+    json_object_put(model);
+}
+
+static void test_gen_model_split_windows_external_path(void)
+{
+    json_object *model = gen_model_split_test_model();
+    json_object *functions = NULL;
+    assert(json_object_object_get_ex(model, "functions", &functions));
+    json_object *fn = json_object_new_object();
+    json_object_object_add(fn, "name", json_object_new_string("helper"));
+    json_object_object_add(fn, "source_file", json_object_new_string("D:/library/helper.sn"));
+    json_object_array_add(functions, fn);
+
+    ModularModel *split = gen_model_split(model, "C:\\project\\main.sn");
+    assert(split != NULL);
+    assert(split->impl_count == 2);
+    assert(strcmp(split->impl_names[1], "module_D__library_helper") == 0);
+    modular_model_free(split);
+    json_object_put(model);
+}
+
 void test_gen_model_split_main(void)
 {
     TEST_SECTION("Modular Model Ownership");
     TEST_RUN("gen_model_split_native_externs", test_gen_model_split_native_externs);
+    TEST_RUN("gen_model_split_windows_entry_path", test_gen_model_split_windows_entry_path);
+    TEST_RUN("gen_model_split_windows_external_path", test_gen_model_split_windows_external_path);
 }

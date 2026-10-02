@@ -993,6 +993,25 @@ static bool rust_allocate_helper_name(json_object *model, const char *base,
     return false;
 }
 
+static bool rust_assign_windows_text_names(json_object *model)
+{
+    const struct { const char *property; const char *base; } helpers[] = {
+        {"rust_windows_write_text_name", "__sn_write_windows_text"},
+        {"rust_windows_stdout_name", "__sn_write_stdout_bytes"},
+        {"rust_windows_stderr_name", "__sn_write_stderr_bytes"},
+        {"rust_windows_print_name", "__sn_print_format"},
+        {"rust_windows_println_name", "__sn_println_format"},
+    };
+    for (size_t i = 0; i < sizeof(helpers) / sizeof(helpers[0]); i++)
+    {
+        char name[96];
+        if (!rust_allocate_helper_name(model, helpers[i].base, name, sizeof(name)))
+            return false;
+        json_object_object_add(model, helpers[i].property, json_object_new_string(name));
+    }
+    return true;
+}
+
 /* Assertions bind their operands before branching so each source expression is
  * evaluated exactly once and in source order.  Those bindings live in the same
  * lexical namespace as source locals, so assign every assertion collision-free

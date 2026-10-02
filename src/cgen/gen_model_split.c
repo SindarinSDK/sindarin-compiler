@@ -40,7 +40,7 @@ static char *module_slug_from_path(const char *path, const char *entry_dir)
     /* Replace path separators and dots with underscores */
     for (size_t i = 0; i < len; i++)
     {
-        if (slug[i] == '/' || slug[i] == '\\' || slug[i] == '.')
+        if (slug[i] == '/' || slug[i] == '\\' || slug[i] == '.' || slug[i] == ':')
             slug[i] = '_';
     }
     return slug;
@@ -101,6 +101,19 @@ ModularModel *gen_model_split(json_object *model, const char *entry_file)
 
     ModularModel *m = calloc(1, sizeof(ModularModel));
     if (!m) return NULL;
+
+    /* Model source_file values use forward slashes on every platform. Match
+     * that representation before choosing the main translation unit, or a
+     * Windows CLI path can route main into an imported module and omit it. */
+    char *normalized_entry = strdup(entry_file);
+    if (!normalized_entry)
+    {
+        free(m);
+        return NULL;
+    }
+    for (char *p = normalized_entry; *p; p++)
+        if (*p == '\\') *p = '/';
+    entry_file = normalized_entry;
 
     /* Compute the directory of the entry file for relative path derivation */
     char *entry_dir = dir_of(entry_file);
@@ -402,6 +415,7 @@ ModularModel *gen_model_split(json_object *model, const char *entry_file)
     }
 
     free(entry_dir);
+    free(normalized_entry);
     return m;
 }
 

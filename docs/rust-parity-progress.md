@@ -48,8 +48,8 @@ coverage and remove redundant skipped entries when equivalence is verified.
 
 ## Completion checklist
 
-- [ ] Current full Rust baseline failures classified and resolved without altering C oracles.
-- [ ] Receiver alias forwarding: PR150 (`a53de135`) integrated and reverified.
+- [x] Current full Rust baseline failures classified and resolved without altering C oracles.
+- [x] Receiver alias forwarding: PR150 (`a53de135`) integrated and reverified.
 - [ ] General array identity, indexed/nested ownership, dynamic aliases and rebinding.
 - [ ] Remaining closure captures, callable contexts and reference lifetimes.
 - [ ] Concurrency/globals/synchronization: reconcile PR127, PR133, PR134, PR142.
@@ -57,7 +57,7 @@ coverage and remove redundant skipped entries when equivalence is verified.
 - [ ] Remaining string, numeric, matching, reflection, module and type features inventoried and completed.
 - [ ] Platform runtime gates: PR144 Windows failures resolved; Linux/macOS/Windows green on final head.
 - [ ] Automated differential coverage of behavior, raw streams, status, order, mutation and lifetimes across modes.
-- [ ] C baseline sanitizer failure explained/resolved within established language semantics.
+- [x] C baseline sanitizer failure explained/resolved within established language semantics.
 - [ ] Full integrated suites pass without unexplained failures or hidden skips.
 - [ ] All changes merged into main; accurate architecture/usage/coverage docs and final evidence report.
 
@@ -247,3 +247,43 @@ retain executable, generated C and raw streams under .sn/rust-runtime-diagnostic
 and upload those artifacts. An intentional mismatch verified that diagnostic
 retention actually works, including Unix byte-valued subprocess argv. No C
 output oracle was weakened or normalized to accommodate the discrepancy.
+
+## Windows C control diagnosis and helper namespace repair
+
+At PR144 revision `8af63b45`, Compiler CI `37037991223` passes on all three
+platforms; runtime CI `37037990533` passes Linux/macOS but fails Windows.
+Retained Windows generated C explains the missing output: the split model routes
+the source's main function into an imported translation unit because model paths
+contain forward slashes but the Windows invocation uses backslashes. The emitted
+entry point has only deferred initialization and fflush. This is a C path-routing
+bug, not a passing C behavior oracle. Preserve the failing job log and generated
+C/stream metadata under `rust-parity-evidence/pr144-windows-before-path-fix/`.
+
+Normalize the splitter's entry path to the model representation. Also sanitize
+drive-letter colons in imported-module filenames; Windows otherwise rejects the
+staged raw fixture object path. Two portable model-splitting regressions cover
+main routing and external drive paths. Windows native debug executions retain
+address sanitization with detect_leaks=0 because LeakSanitizer is unsupported;
+non-Windows leak settings are unchanged.
+
+Allocate Windows output helper names against the complete source model, including
+previously allocated names, rather than reserving spellings legal in Sindarin.
+The new `windows_output_helper_hygiene` source defines all five original helper
+names and a suffix local. It matches C at O0/O1/O2. The forced Windows helper
+test now checks the actual generated program, including the collision fixture,
+exact LF/CRLF conversion, raw bytes and checked-error stderr/status. The argv
+adapters are removed only in that Unix simulation; real target argv tests remain.
+
+Local full C suites pass: 1610 unit, 107 cgen, 79 model, 1141 integration,
+58 integration-negative, 224 exploratory, 11 exploratory-negative. Full Rust:
+316 generation, 179 negative, native 6/12/1/2, closures 36/1, toolchain 12;
+all pass with zero skips. Raw-byte 63 executions, native/text/diagnostic six
+executions, core 30 C/Rust pairs, helper logic, formatting and source whitespace
+checks pass. Logs: `platform-path-c.log`, `platform-path-rust.log`; core results
+in `platform-path-core.json` and hygiene pairs in `windows-hygiene-pairs.json`.
+
+The runtime workflow now runs complete Rust suites and the differential core on
+every supported platform, and also triggers on pushes to main. Removed the
+obsolete macOS exclusion for the repaired synchronized closure-array test. The
+existing macOS thread-panic exclusion remains explicit unfinished platform work.
+Fresh hosted checks must verify this follow-up before PR144 can merge.

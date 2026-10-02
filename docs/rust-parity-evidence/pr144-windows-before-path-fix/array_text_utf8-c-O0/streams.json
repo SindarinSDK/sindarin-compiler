@@ -1,0 +1,26 @@
+{
+  "source": "tests\\rgen\\byte_string_probes\\array_text_utf8.sn",
+  "source_sha256": "f1ee008f839f2595332b779500962ad25b53222ae99eea0ebd4c3d9bd489ddb5",
+  "compile_argv": [
+    "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+    "tests\\rgen\\byte_string_probes\\array_text_utf8.sn",
+    "--target",
+    "c",
+    "-O0",
+    "--keep-generated",
+    "--no-install",
+    "-l",
+    "1",
+    "-o",
+    "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-byte-strings-1wpu914o\\array_text_utf8-c-O0.exe"
+  ],
+  "compile_status": 0,
+  "compile_stdout_hex": "",
+  "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c7267656e5c627974655f737472696e675f70726f6265735c61727261795f746578745f757466382e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d627974652d737472696e67732d317770753931346f5c61727261795f746578745f757466382d632d4f302e657865202838322e35204b42290d0a",
+  "run_argv": [
+    "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-byte-strings-1wpu914o\\array_text_utf8-c-O0.exe"
+  ],
+  "run_status": 0,
+  "run_stdout_hex": "",
+  "run_stderr_hex": ""
+}

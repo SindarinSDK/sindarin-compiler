@@ -399,9 +399,9 @@ class TestRunner:
 
         # Setup environment
         self.env = os.environ.copy()
-        # Set ASAN options to avoid leak detection issues
+        # Windows ASan supports address checks but not LeakSanitizer.
         if 'ASAN_OPTIONS' not in self.env:
-            self.env['ASAN_OPTIONS'] = 'detect_leaks=1'
+            self.env['ASAN_OPTIONS'] = 'detect_leaks=0' if is_windows() else 'detect_leaks=1'
 
         # Add library paths for runtime linking
         if is_windows():

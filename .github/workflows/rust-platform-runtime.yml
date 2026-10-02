@@ -1,6 +1,8 @@
 name: Rust Platform Runtime
 
 on:
+  push:
+    branches: [main]
   pull_request:
     branches: [main, master, develop]
   workflow_dispatch:
@@ -112,7 +114,7 @@ jobs:
             exit 1
           fi
 
-      - name: Run bounded Rust runtime gates
+      - name: Run Rust suites and runtime parity gates
         shell: bash
         env:
           SN_CC: ${{ matrix.sn_cc }}
@@ -162,6 +164,10 @@ jobs:
               --verbose --require-count 1 --fail-on-skip
           run_gate "Windows text helper logic" \
             python3 tests/rgen/windows_text_helpers.py
+          run_gate "complete Rust generation, diagnostics, native, closure and toolchain suites" \
+            python3 scripts/run_rust_tests.py all --verbose --fail-on-skip
+          run_gate "core C/Rust differential coverage at O0/O1/O2" \
+            make test-rust-parity-core
 
           exit "$overall_rc"
 
@@ -170,6 +176,8 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: rust-runtime-diagnostics-${{ matrix.os }}
-          path: .sn/rust-runtime-diagnostics/
+          path: |
+            .sn/rust-runtime-diagnostics/
+            .sn/rust-parity-core.json
           if-no-files-found: ignore
           retention-days: 7
