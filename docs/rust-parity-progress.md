@@ -366,3 +366,31 @@ or reject. This is an investigation list, not 132 proven runtime gaps or parity
 results. No program was executed, so runtime validity remains unclassified.
 `c-admission-inventory.json` records source/compiler identities, commands, raw
 compile streams, statuses and the current Rust rejection oracle.
+
+## Full runtime gates green; synchronized C declaration correction
+
+At `eb916370`, Runtime CI `37043572081` passes all Linux/macOS/Windows jobs,
+including complete Rust suites, all debug ABI/sanitizer controls, driver capture,
+forced link failures, raw-byte/transport checks and the 30-pair differential core.
+Windows records Clang 22.1.8 both after setup and at build. This verifies the
+bootstrap selection repair and actual sanitizer execution, not only a tool pin.
+
+Compiler CI `37043572176` passes Linux/macOS but finds one Windows integration
+failure under Clang 22: `test_sync_var_array`. C templates emitted `_Atomic char *`
+and `_Atomic SnArray *`, qualifying the pointee rather than the pointer handle;
+assignment and array runtime arguments then have incompatible pointer types.
+Emit `_Atomic(<complete C type>)` in definitions, extern declarations and the
+ordinary synchronized local declaration route. Existing scalar spellings change
+equivalently from `_Atomic long long` to `_Atomic(long long)`; refreshed only
+the two affected C snapshots after checking their generated diff. Fixture sources
+and runtime expectations stay unchanged. C remains the default target.
+
+The original synchronized array/string integration source produces exactly
+`items: 4` and `message: done` at O0/O1/O2. Evidence:
+`atomic-pointer-controls.json`. Full local C suites retain the 1610/107/79/1141/
+58/224/11 passing counts; complete Rust suites retain 316/179/native/closures/
+toolchain counts, with no skips. Core 30 pairs, raw-byte 63 executions, transport
+six executions and formatting pass. Logs: `atomic-pointer-c.log` and
+`atomic-pointer-rust.log`. Preserve the new-toolchain Windows runtime success
+and C compile failure logs for review; the next hosted revision must verify the
+C fix before integration.

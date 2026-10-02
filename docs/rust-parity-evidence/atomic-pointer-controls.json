@@ -1,0 +1,65 @@
+{
+  "source": "tests/integration/test_sync_var_array.sn",
+  "source_sha256": "03f71721354473781c860ea2bc88a0d6ab0882e33286f9a9d42c6647ea64f908",
+  "compiler_sha256": "688cc92fd0f780e511da47fd13104194e9274bf755125406fbc5ca7e02fd8434",
+  "scope": "Unchanged C fixture and runtime oracle; not Rust parity evidence.",
+  "cases": [
+    {
+      "optimization": "-O0",
+      "command": [
+        "/home/gavin/code/sindarin/sindarin-rust-parity-completion/bin/sn",
+        "tests/integration/test_sync_var_array.sn",
+        "--target",
+        "c",
+        "-O0",
+        "--no-install",
+        "-o",
+        "/tmp/sn-sync-pointer-types-i620y73r/case-0"
+      ],
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f73796e635f7661725f61727261792e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d73796e632d706f696e7465722d74797065732d69363230793733722f636173652d30202837322e31204b42290a",
+      "run_status": 0,
+      "stdout_hex": "6974656d733a20340a6d6573736167653a20646f6e650a",
+      "stderr_hex": "",
+      "passed": true
+    },
+    {
+      "optimization": "-O1",
+      "command": [
+        "/home/gavin/code/sindarin/sindarin-rust-parity-completion/bin/sn",
+        "tests/integration/test_sync_var_array.sn",
+        "--target",
+        "c",
+        "-O1",
+        "--no-install",
+        "-o",
+        "/tmp/sn-sync-pointer-types-i620y73r/case-1"
+      ],
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f73796e635f7661725f61727261792e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d73796e632d706f696e7465722d74797065732d69363230793733722f636173652d31202837322e31204b42290a",
+      "run_status": 0,
+      "stdout_hex": "6974656d733a20340a6d6573736167653a20646f6e650a",
+      "stderr_hex": "",
+      "passed": true
+    },
+    {
+      "optimization": "-O2",
+      "command": [
+        "/home/gavin/code/sindarin/sindarin-rust-parity-completion/bin/sn",
+        "tests/integration/test_sync_var_array.sn",
+        "--target",
+        "c",
+        "-O2",
+        "--no-install",
+        "-o",
+        "/tmp/sn-sync-pointer-types-i620y73r/case-2"
+      ],
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f73796e635f7661725f61727261792e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d73796e632d706f696e7465722d74797065732d69363230793733722f636173652d32202837322e31204b42290a",
+      "run_status": 0,
+      "stdout_hex": "6974656d733a20340a6d6573736167653a20646f6e650a",
+      "stderr_hex": "",
+      "passed": true
+    }
+  ]
+}
