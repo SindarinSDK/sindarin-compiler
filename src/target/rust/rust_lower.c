@@ -1067,6 +1067,69 @@ static bool rust_allocate_helper_name(json_object *model, const char *base,
     return false;
 }
 
+/* C floating-array equality compares contiguous object bytes, including NaN
+ * payloads and signed zero. Its byte count uses the left runtime element width.
+ * Do not borrow a stable left variable until the other operand has run: a
+ * default-array callback can mutate the same array before sn_array_equals. */
+static bool rust_lower_float_array_equality(json_object *model, json_object *node)
+{
+    if (!node) return true;
+    if (json_object_is_type(node, json_type_array))
+    {
+        for (size_t i = 0; i < json_object_array_length(node); i++)
+            if (!rust_lower_float_array_equality(model, json_object_array_get_idx(node, i)))
+                return false;
+        return true;
+    }
+    if (!json_object_is_type(node, json_type_object)) return true;
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        if (!rust_lower_float_array_equality(model, value)) return false;
+    }
+    if (!json_string_property_equals(node, "kind", "binary") ||
+        (!json_string_property_equals(node, "op", "eq") &&
+         !json_string_property_equals(node, "op", "neq"))) return true;
+    json_object *left = NULL, *right = NULL, *left_type = NULL, *right_type = NULL;
+    json_object *left_element = NULL, *right_element = NULL;
+    if (!json_object_object_get_ex(node, "left", &left) ||
+        !json_object_object_get_ex(node, "right", &right) ||
+        !json_object_object_get_ex(left, "type", &left_type) ||
+        !json_object_object_get_ex(right, "type", &right_type) ||
+        !json_string_property_equals(left_type, "kind", "array") ||
+        !json_string_property_equals(right_type, "kind", "array") ||
+        !json_object_object_get_ex(left_type, "element_type", &left_element) ||
+        !json_object_object_get_ex(right_type, "element_type", &right_element) ||
+        !rust_numeric_floating_kind(json_string_property(left_element, "kind")) ||
+        !rust_numeric_floating_kind(json_string_property(right_element, "kind"))) return true;
+    json_object_object_add(node, "rust_float_array_equality", json_object_new_boolean(true));
+    json_object_object_add(node, "rust_float_array_equality_left_type",
+        json_object_new_string(rust_numeric_type_name(json_string_property(left_element, "kind"))));
+    json_object_object_add(node, "rust_float_array_equality_right_type",
+        json_object_new_string(rust_numeric_type_name(json_string_property(right_element, "kind"))));
+    /* C materializes a literal on the right before evaluating the left. Pure
+     * variable/member places also need no borrow until operand effects finish. */
+    json_object *place = left;
+    while (json_string_property_equals(place, "kind", "member"))
+    {
+        json_object *object = NULL;
+        if (!json_object_object_get_ex(place, "object", &object)) break;
+        place = object;
+    }
+    if (json_boolean_property(right, "is_arr_temp") ||
+        json_string_property_equals(place, "kind", "variable"))
+        json_object_object_add(node, "rust_float_equality_defer_left", json_object_new_boolean(true));
+    const char *bases[] = {"__sn_float_eq_left", "__sn_float_eq_right"};
+    const char *keys[] = {"rust_float_eq_left_name", "rust_float_eq_right_name"};
+    for (size_t i = 0; i < 2; i++)
+    {
+        char name[96];
+        if (!rust_allocate_helper_name(model, bases[i], name, sizeof(name))) return false;
+        json_object_object_add(node, keys[i], json_object_new_string(name));
+    }
+    return true;
+}
+
 static bool rust_assign_windows_text_names(json_object *model)
 {
     const struct { const char *property; const char *base; } helpers[] = {

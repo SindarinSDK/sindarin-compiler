@@ -1,0 +1,33 @@
+fn main(): void =>
+  var positive: float[] = {0.0f}
+  var negative: float[] = {-0.0f}
+  println(positive == negative)
+  println(positive != negative)
+  println(positive == positive)
+  var zero: float = 0.0f
+  var nan: float = zero / zero
+  var first: float[] = {nan}
+  var second: float[] = {nan}
+  println(first == second)
+  println(first == first)
+  println(first != second)
+  var positiveWide: double[] = {0.0}
+  var negativeWide: double[] = {-0.0}
+  println(positiveWide == negativeWide)
+  println(positiveWide != negativeWide)
+  var wideZero: double = 0.0
+  var wideNan: double = wideZero / wideZero
+  var wideFirst: double[] = {wideNan}
+  var wideSecond: double[] = {wideNan}
+  println(wideFirst == wideSecond)
+  println(wideFirst != wideSecond)
+  println(wideFirst == wideFirst)
+  var ordinary: float[] = {1.0f, 2.0f}
+  var different: float[] = {1.0f, 3.0f}
+  var shorter: float[] = {1.0f}
+  var empty: float[] = {}
+  println(ordinary == different)
+  println(ordinary != different)
+  println(ordinary == shorter)
+  println(empty == empty)
+  println(empty != shorter)

@@ -222,6 +222,12 @@ static bool rust_emit(CompilerOptions *options, Module *module,
         json_object_put(model);
         return false;
     }
+    if (!rust_lower_float_array_equality(model, model))
+    {
+        fprintf(stderr, "Error: Rust target could not lower floating-array equality\n");
+        json_object_put(model);
+        return false;
+    }
     rust_lower_interpolation_formats(model);
     rust_lower_for_continues(model);
     rust_lower_scalar_ref_parameters(model);

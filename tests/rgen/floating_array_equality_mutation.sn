@@ -1,0 +1,24 @@
+struct FloatingBag =>
+  values: float[] = {}
+
+fn appendAndSnapshot(values: float[], calls: int as ref): float[] =>
+  calls++
+  values.push(0.0f)
+  return copyOf(values)
+
+fn main(): void =>
+  var calls: int = 0
+  var values: float[] = {0.0f}
+  println(values == appendAndSnapshot(values, calls))
+  println(values.length)
+  println(calls)
+  println(appendAndSnapshot(values, calls) == values)
+  println(values.length)
+  println(calls)
+  println(values != appendAndSnapshot(values, calls))
+  println(values.length)
+  println(calls)
+  var bag: FloatingBag = { values: {0.0f} }
+  println(bag.values == appendAndSnapshot(bag.values, calls))
+  println(bag.values.length)
+  println(calls)

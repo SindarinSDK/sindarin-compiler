@@ -1,0 +1,11 @@
+fn main(): void =>
+  var narrow: float[] = {0.0f, 1.875f}
+  var wide: double[] = {1.0, 1000.0}
+  println(narrow == wide)
+  println(narrow != wide)
+  var emptyNarrow: float[] = {}
+  var emptyWide: double[] = {}
+  println(emptyNarrow == emptyWide)
+  println(emptyWide == emptyNarrow)
+  println(narrow == emptyWide)
+  println(emptyWide != narrow)

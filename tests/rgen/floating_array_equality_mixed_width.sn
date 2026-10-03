@@ -1,0 +1,15 @@
+fn main(): void =>
+  var narrow: float[] = {0.0f, 0.0f}
+  var wide: double[] = {0.0, 1000.0}
+  println(narrow == wide)
+  println(narrow != wide)
+  var emptyNarrow: float[] = {}
+  var emptyWide: double[] = {}
+  println(emptyNarrow == emptyWide)
+  println(emptyWide == emptyNarrow)
+  println(narrow == emptyWide)
+  println(emptyWide != narrow)
+  var oneNarrow: float[] = {0.0f}
+  var oneWide: double[] = {0.0}
+  println(oneNarrow == oneWide)
+  println(oneNarrow != oneWide)

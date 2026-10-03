@@ -746,7 +746,7 @@ if(EXISTS "${SINDARIN_LIBS_DIR}/lib" AND EXISTS "${SINDARIN_LIBS_DIR}/include")
 
     # Copy templates to bin/ for runtime access (re-copies when any .hbs file changes)
     file(GLOB_RECURSE C_TEMPLATES "${CMAKE_SOURCE_DIR}/templates/c/*.hbs")
-    file(GLOB_RECURSE RUST_TEMPLATES "${CMAKE_SOURCE_DIR}/templates/rust/*.hbs")
+    file(GLOB_RECURSE RUST_TEMPLATES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/templates/rust/*.hbs")
     set(ALL_TEMPLATES ${C_TEMPLATES} ${RUST_TEMPLATES})
     if(ALL_TEMPLATES)
         add_custom_command(

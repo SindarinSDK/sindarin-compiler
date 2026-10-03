@@ -1,0 +1,57 @@
+struct FloatingBag =>
+  values: float[] = {}
+
+fn equalFloat(left: float[], right: float[]): bool =>
+  return left == right
+
+fn equalDouble(left: double[], right: double[]): bool =>
+  return left == right
+
+fn makeZero(calls: int as ref): float[] =>
+  calls++
+  return {0.0f}
+
+fn makeNegativeZero(calls: int as ref): float[] =>
+  calls++
+  return {-0.0f}
+
+fn orderedZero(calls: int as ref, digit: int): float =>
+  calls = calls * 10 + digit
+  return 0.0f
+
+fn main(): void =>
+  var positive: float[] = {0.0f}
+  var negative: float[] = {-0.0f}
+  println(equalFloat(positive, negative))
+  var positiveWide: double[] = {0.0}
+  var negativeWide: double[] = {-0.0}
+  println(equalDouble(positiveWide, negativeWide))
+  var calls: int = 0
+  println(makeZero(calls) == negative)
+  println(calls)
+  println(positive != makeNegativeZero(calls))
+  println(calls)
+  println(makeZero(calls) == makeNegativeZero(calls))
+  println(calls)
+  var compare: fn(): bool = fn(): bool => positive == negative
+  println(compare())
+  var first: FloatingBag = { values: positive }
+  var second: FloatingBag = { values: negative }
+  println(first.values == second.values)
+  var nested: float[][] = {positive, negative}
+  println(nested[0] == nested[1])
+  var __sn_float_eq_left: float[] = {0.0f}
+  var __sn_float_eq_right: float[] = {-0.0f}
+  println(__sn_float_eq_left == __sn_float_eq_right)
+  calls = 0
+  println({orderedZero(calls, 1)} == {orderedZero(calls, 2)})
+  println(calls)
+  calls = 0
+  println({orderedZero(calls, 1)} != {orderedZero(calls, 2)})
+  println(calls)
+  println({1.5f} == {1.5f})
+  println({0.0f} == {-0.0f})
+  println({1.5f} != {1.5f})
+  println({1.5} == {1.5})
+  println({0.0} == {-0.0})
+  println(positive == {0.0f})

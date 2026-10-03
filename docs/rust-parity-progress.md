@@ -7,18 +7,20 @@ head counts, not the language specification or the historical evidence itself.
 
 ## Current verified status: 2026-10-03
 
-Main `133c1452` passes Linux/macOS/Windows Compiler and Rust Runtime CI,
-including 711 exact C/Rust positive pairs and 39 diagnostic/order cases. All
+Main `ee3879f5` passes Linux/macOS/Windows Compiler and Rust Runtime CI,
+including 792 exact C/Rust positive pairs and 39 diagnostic/order cases. All
 existing PR work is reconciled; the open queue is empty. C remains the default
 target. Sized-array reflection/defaults, buffered output, mixed integral
-conversions and scalar float/double conversion/mutation are integrated.
+conversions, scalar float/double conversion/mutation and tested floating-array
+argument representation/order are integrated.
 
 Full parity is still incomplete. The broader unchanged C-positive corpus has
 95 Rust admission/compilation gaps, and remaining Rust-negative, ownership,
 native/SDK and language families need implementation and full mode/platform
-validation. Fresh local controls also expose a behavior mismatch in the existing
-floating array-search fixture, outside that 95-source compilation denominator.
-Indexed compound assignment is the next confirmed unchanged corpus rejection.
+validation. The observed floating array-search mismatch is repaired. Fresh local
+controls expose a separate floating-array equality mismatch for signed zero and
+copied NaN values, outside that 95-source compilation denominator. Indexed
+compound assignment remains a confirmed unchanged corpus rejection.
 Exact CI/report links and follow-up diagnosis follow below.
 
 ## Baseline: 2026-10-02
@@ -1095,3 +1097,83 @@ behavior families remain required work; this increment does not prove full
 floating-array or whole-language parity. Indexed compound assignment is the next
 confirmed corpus gap. Evidence: `rust-parity-evidence/floating-arrays-*`.
 Publication and exact-revision hosted verification are pending.
+
+
+## Floating arrays main: hosted verification, 2026-10-03
+
+Exact direct-main `ee3879f5313a1093c5f5952c0a252b26d1fbb824` passes all six
+jobs in [Compiler CI 37125552626](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37125552626)
+and [Rust Runtime CI 37125552621](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37125552621).
+All twelve downloaded reports pass on every platform: 792 positive pairs and
+39 diagnostic/order cases per system, 2,493 hosted cases total. Every source
+hash matches its committed source. All 81 floating-array cases additionally
+match independent checked/unchecked output oracles on both targets, applying
+Windows CRT newline transport to the expected bytes. Complete hosted C/Rust
+suite logs verify the local counts above with zero failures or skips.
+Evidence: `floating-arrays-main-ci-green.json`. The open PR queue is empty.
+
+The next local behavior diagnosis remains a failure and earns no parity credit.
+A new C-valid signed-zero/NaN equality source compiles and exits zero through both
+targets in all nine controls, but their outputs differ each time. C outputs
+false/true/true/false/true for float signed-zero arrays, copied float NaN arrays,
+self float NaN arrays, double signed-zero arrays and copied double NaN arrays.
+Rust outputs true/false/false/true/false. Tagged `sn_array_equals` uses pointer
+identity, lengths and a contiguous raw byte comparison; Rust currently falls
+through to numerical vector equality. This is separate from the repaired array
+method argument representation and the 95-source compilation denominator.
+Mixed-width array equality needs the left runtime element width and contiguous
+byte-prefix behavior, not numerical conversion or per-item prefix comparison;
+out-of-object/uninitialized reads do not establish defined parity. Exact local
+source/report and implementation notes are retained in
+`.sn/floating-array-equality-before.json`, `.sn/floating-array-equality-probe.sn`
+and `.sn/floating-array-equality-notes.md` for the next increment. Indexed numeric
+mutation notes are retained in `.sn/indexed-numeric-implementation-notes.md`.
+The full parity goal remains active.
+
+
+## Floating-array equality: implementation and remaining ownership gap, 2026-10-03
+
+This increment replaces Rust vector numerical equality/inequality for float and
+double arrays with contiguous native-byte comparison. Signed zero remains
+distinct and copied NaN objects compare equal, matching tagged C. Equal element
+counts are required, and mixed widths use the left array byte count. The mixed
+width control uses zero bytes and works independently of endianness; it proves
+that C compares a contiguous prefix rather than corresponding item prefixes.
+Narrow right-hand storage beyond the available object is never executed or
+credited as defined parity.
+
+Typed slice bindings fix element widths for standalone array literals and keep
+temporary operands alive through the comparison. A right array literal
+runs before the left, matching the C template's explicit materialization;
+independent trace oracles check 21 for both equality and inequality. Stable
+variable/member reads wait until the other operand completes, permitting the
+RHS callback to mutate the same local array or struct field. Temporary names
+are reserved against the whole model and a source fixture tests collisions.
+Four unchanged C-valid fixtures cover default/checked/unchecked arithmetic at
+O0/O1/O2: 36 positive pairs with independent output expectations, default float
+and double parameters, function returns, closure captures, struct fields and
+nested array access.
+
+A separate unchanged C-valid probe returns a borrowed default-array parameter
+directly. C succeeds; Rust still cannot return its mutable vector reference as
+an owned vector. The source and before/final diagnostics are retained and earn
+no parity credit. The successful mutation fixture uses explicit copyOf in both
+targets, preserving an independent observable test of mutation visibility.
+General array identity/returned aliases, nil versus allocated-empty arrays and
+mixed-width array parameter transport remain required work. This increment
+does not claim full floating-array parity or alter the 95-source original
+corpus compilation denominator. Indexed numeric mutation remains next.
+
+CMake now discovers added Rust templates as dependencies, so later edits are
+staged by the normal build. Every staged Rust template is byte-identical to its
+source before final validation. No historical Rust snapshot or existing C
+source/oracle was changed. Final local required checks pass: C unit 1610,
+cgen 107, model 79, integration 1141/58, exploratory 224/11; Rust generation
+340, negatives 165, native 8/19/1/4, closures 36/1, concurrency 10/7/1 and
+toolchain 12, all with zero failures or skips. Raw bytes (63 executions),
+transport (6 executions), helper simulation and formatting also pass.
+All 13 gates pass: 828 positive pairs and 39 diagnostic/order cases (867 total).
+The original 1365 source hashes are unchanged; broader Rust corpus sampling
+remains 1060+210 successful executions and the same 81+14 compile failures.
+Exact-revision hosted verification follows publication. Evidence:
+rust-parity-evidence/floating-array-equality-*.

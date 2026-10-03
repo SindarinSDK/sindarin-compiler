@@ -1,0 +1,8 @@
+fn main(): void =>
+  var positive: float[] = {0.0f}
+  println({1.5f} == {1.5f})
+  println({0.0f} == {-0.0f})
+  println({1.5f} != {1.5f})
+  println({1.5} == {1.5})
+  println({0.0} == {-0.0})
+  println(positive == {0.0f})

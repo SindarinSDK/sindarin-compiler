@@ -1,0 +1,18 @@
+fn main(): void =>
+  var positive: float[] = {0.0f}
+  var negative: float[] = {-0.0f}
+  println(positive == negative)
+  var zero: float = 0.0f
+  var nan: float = zero / zero
+  var first: float[] = {nan}
+  var second: float[] = {nan}
+  println(first == second)
+  println(first == first)
+  var positiveWide: double[] = {0.0}
+  var negativeWide: double[] = {-0.0}
+  println(positiveWide == negativeWide)
+  var wideZero: double = 0.0
+  var wideNan: double = wideZero / wideZero
+  var wideFirst: double[] = {wideNan}
+  var wideSecond: double[] = {wideNan}
+  println(wideFirst == wideSecond)

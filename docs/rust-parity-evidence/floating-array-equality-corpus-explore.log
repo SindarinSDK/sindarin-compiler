@@ -1,0 +1,179 @@
+Compiler: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/.sn/rust-corpus-compiler
+Platform: Linux
+Parallel: 20 workers
+
+Exploratory Tests
+============================================================
+  Running 224 tests with 20 workers...
+                                                              test_array_mutation_lambda                    FAIL (compile error)  (71ms)
+    [1mCompiling[0m tests/exploratory/test_array_mutation_lambda.sn...
+      Parsing... [1;36mdone[0m
+      Type checking... [1;36mdone[0m
+      Code generation...Error: Rust target does not support mutable access to snapshot closure captures yet
+     [1;31mfailed[0m
+    
+    
+  test_as_val_array_copy                        FAIL (compile error)  (56ms)
+    [1mCompiling[0m tests/exploratory/test_as_val_array_copy.sn...
+      Parsing... [1;36mdone[0m
+      Type checking...
+      [1;33mwarning[0m: Assigning str/array variable to another variable shares ownership. Consider using copyOf() to avoid potential double-free
+        [1;34m-->[0m tests/exploratory/test_as_val_array_copy.sn:21:1
+              var copy: int[] as val = source
+            [1;33m^^^^[0m
+    
+    
+      [1;33mwarning[0m: Assigning str/array variable to another variable shares ownership. Consider using copyOf() to avoid potential double-free
+        [1;34m-->[0m tests/exploratory/test_as_val_array_copy.sn:30:1
+              var working: int[] as val = data
+            [1;33m^^^^^^^[0m
+    
+      Type checking [1;36mdone[0m
+      Code generation...Error: Rust target does not support a parameter of function 'modify_array'
+     [1;31mfailed[0m
+    
+    
+  test_gcc_edge_interop                         FAIL (compile error)  (76ms)
+    [1mCompiling[0m tests/exploratory/test_gcc_edge_interop.sn...
+      Parsing... [1;36mdone[0m
+      Type checking... [1;36mdone[0m
+      Code generation...Error: Rust target native function 'compute_result' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double
+     [1;31mfailed[0m
+    
+    
+  test_gcc_edge_structs                         FAIL (compile error)  (87ms)
+    [1mCompiling[0m tests/exploratory/test_gcc_edge_structs.sn...
+      Parsing... [1;36mdone[0m
+      Type checking... [1;36mdone[0m
+      Code generation...Error: Rust target does not support a parameter of function 'modify_struct'
+     [1;31mfailed[0m
+    
+    
+  test_match_as_val_ref                         FAIL (compile error)  (54ms)
+    [1mCompiling[0m tests/exploratory/test_match_as_val_ref.sn...
+      Parsing... [1;36mdone[0m
+      Type checking... [1;36mdone[0m
+      Code generation...Error: Rust target native function 'init_point' parameter 'p' must be an unsynchronized string, default-qualified raw pointer, or default/as-ref native scalar
+     [1;31mfailed[0m
+    
+    
+  test_match_memory                             FAIL (compile error)  (82ms)
+    [1mCompiling[0m tests/exploratory/test_match_memory.sn...
+      Parsing... [1;36mdone[0m
+      Type checking... [1;36mdone[0m
+      Code generation...Error: Rust target requires every value match arm prefix to be an expression statement
+     [1;31mfailed[0m
+    
+    
+  test_match_native                             FAIL (compile error)  (69ms)
+    [1mCompiling[0m tests/exploratory/test_match_native.sn...
+      Parsing... [1;36mdone[0m
+      Type checking... [1;36mdone[0m
+      Code generation...Error: Rust target supports value match only with bool, integral, float, double, or string subjects
+     [1;31mfailed[0m
+    
+    
+  test_match_primitives                         FAIL (compile error)  (68ms)
+    [1mCompiling[0m tests/exploratory/test_match_primitives.sn...
+      Parsing... [1;36mdone[0m
+      Type checking... [1;36mdone[0m
+      Code generation...Error: Rust target supports value match only with bool, integral, float, double, or string subjects
+     [1;31mfailed[0m
+    
+    
+  test_pointer_slice_bounds                     FAIL (compile error)  (89ms)
+    [1mCompiling[0m tests/exploratory/test_pointer_slice_bounds.sn...
+      Parsing... [1;36mdone[0m
+      Type checking... [1;36mdone[0m
+      Code generation...Error: Rust target encountered an unsupported construct in function 'test_correct_bounds'
+     [1;31mfailed[0m
+    
+    
+  test_str_comprehensive                        FAIL (compile error)  (81ms)
+    [1mCompiling[0m tests/exploratory/test_str_comprehensive.sn...
+      Parsing... [1;36mdone[0m
+      Type checking... [1;36mdone[0m
+      Code generation...Error: Rust target does not support method calls on closure parameters yet
+     [1;31mfailed[0m
+    
+    
+  test_struct_config                            FAIL (compile error)  (102ms)
+    [1mCompiling[0m tests/exploratory/test_struct_config.sn...
+      Parsing... [1;36mdone[0m
+      Type checking... [1;36mdone[0m
+      Code generation...Error: Rust target does not support a parameter of function 'apply_server_config'
+     [1;31mfailed[0m
+    
+    
+  test_struct_self_method_call                  FAIL (compile error)  (76ms)
+    [1mCompiling[0m tests/exploratory/test_struct_self_method_call.sn...
+      Parsing... [1;36mdone[0m
+      Type checking... [1;36mdone[0m
+      Code generation...Error: Rust target does not support a parameter of method 'Range.overlaps'
+     [1;31mfailed[0m
+    
+    
+  test_struct_zlib_style                        FAIL (compile error)  (69ms)
+    [1mCompiling[0m tests/exploratory/test_struct_zlib_style.sn...
+      Parsing... [1;36mdone[0m
+      Type checking... [1;36mdone[0m
+      Code generation...Error: Rust target native function 'stream_init' parameter 'strm' must be an unsynchronized string, default-qualified raw pointer, or default/as-ref native scalar
+     [1;31mfailed[0m
+    
+    
+  test_sync_byte_threading                      FAIL (compile error)  (233ms)
+    [1mCompiling[0m tests/exploratory/test_sync_byte_threading.sn...
+      Parsing... [1;36mdone[0m
+      Type checking... [1;36mdone[0m
+      Code generation... [1;36mdone[0m
+      Linking...warning: type `__sn_concurrency0_Cell` should have an upper camel case name
+     --> .sn/build/rust/test_sync_byte_threading_3123376/main.rs:3:8
+      |
+    3 | struct __sn_concurrency0_Cell<T> {
+      |        ^^^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper camel case: `SnConcurrency0Cell`
+      |
+      = note: `#[warn(non_camel_case_types)]` (part of `#[warn(nonstandard_style)]`) on by default
+    
+    warning: type `__sn_concurrency0_Join` should have an upper camel case name
+      --> .sn/build/rust/test_sync_byte_threading_3123376/main.rs:13:8
+       |
+    13 | struct __sn_concurrency0_Join<T>(Option<std::thread::JoinHandle<T>>);
+       |        ^^^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper camel case: `SnConcurrency0Join`
+    
+    warning: type `__sn_concurrency0_Capture` should have an upper camel case name
+      --> .sn/build/rust/test_sync_byte_threading_3123376/main.rs:36:8
+       |
+    36 | struct __sn_concurrency0_Capture<T>(std::sync::Mutex<T>, std::sync::Mutex<()>);
+       |        ^^^^^^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper camel case: `SnConcurrency0Capture`
+    
+    warning: unused macro definition: `print`
+       --> .sn/build/rust/test_sync_byte_threading_3123376/main.rs:134:14
+        |
+    134 | macro_rules! print {
+        |              ^^^^^
+        |
+        = note: `#[warn(unused_macros)]` (part of `#[warn(unused)]`) on by default
+    
+    warning: unused macro definition: `println`
+       --> .sn/build/rust/test_sync_byte_threading_3123376/main.rs:138:14
+        |
+    138 | macro_rules! println {
+        |              ^^^^^^^
+    
+    warning: unnecessary braces around function argument
+       --> .sn/build/rust/test_sync_byte_threading_3123376/main.rs:379:106
+        |
+    379 | ...<__sn_concurrency0_Join<i64>> = Some({ __sn_concurrency0_Join::spawn(move || increment_byte()) }
+        |                                         ^^                                                       ^^
+        |
+        = note: `#[warn(unused_braces)]` (part of `#[warn(unused)]`) on by default
+    help: remove these braces
+        |
+    379 -     let mut b0: i64 = 0; let mut __sn_concurrency0_handle_b0: Option<__sn_concurrency0_Join<i64>> = Some({ __sn_concurrency0_Join::spawn(move || increment_byte()) }
+    379 +     let mut b0: i64 = 0; let mut __sn_concurrency0_handle_b0: Option<__sn_concurrency0_Join<i64>> = Some(__sn_concurrency0_Join::spawn(move || increment_byte())
+        |
+
+------------------------------------------------------------
+Results: 210 passed, 14 failed, 0 skipped  (4.68s)
+
+Some tests failed!  (total: 4.68s)

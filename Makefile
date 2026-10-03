@@ -499,3 +499,13 @@ test-rust-parity-floating-arrays: build
 		tests/rust-native/scalar_float_array_representation.sn \
 		--require-count 9 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-floating-arrays.json
+
+.PHONY: test-rust-parity-floating-equality
+test-rust-parity-floating-equality: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/rgen/floating_array_equality_representation.sn \
+		tests/rgen/floating_array_equality_mixed_width.sn \
+		tests/rgen/floating_array_equality_contexts.sn \
+		tests/rgen/floating_array_equality_mutation.sn \
+		--require-count 4 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-floating-equality.json

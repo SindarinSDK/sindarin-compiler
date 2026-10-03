@@ -205,6 +205,9 @@ jobs:
           run_gate "floating array argument representation and mutation (81 positive pairs)" \
             make test-rust-parity-floating-arrays
 
+          run_gate "floating array byte equality (36 positive pairs)" \
+            make test-rust-parity-floating-equality
+
           exit "$overall_rc"
 
       - name: Retain runtime parity evidence
@@ -226,5 +229,6 @@ jobs:
             .sn/rust-parity-mixed-integral-diagnostics.json
             .sn/rust-parity-float-conversions.json
             .sn/rust-parity-floating-arrays.json
+            .sn/rust-parity-floating-equality.json
           if-no-files-found: ignore
           retention-days: 7
