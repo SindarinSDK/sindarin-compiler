@@ -214,6 +214,9 @@ jobs:
           run_gate "captured array indexed writes and callback visibility (45 positive pairs)" \
             make test-rust-parity-capture-index
 
+          run_gate "synchronized character mutation and wraparound (45 positive pairs)" \
+            make test-rust-parity-sync-character
+
           exit "$overall_rc"
 
       - name: Retain runtime parity evidence
@@ -238,5 +241,6 @@ jobs:
             .sn/rust-parity-floating-equality.json
             .sn/rust-parity-numeric-places.json
             .sn/rust-parity-capture-index.json
+            .sn/rust-parity-sync-character.json
           if-no-files-found: ignore
           retention-days: 7

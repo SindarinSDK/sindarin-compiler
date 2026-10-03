@@ -1371,7 +1371,61 @@ Whole-parameter rebinding and expression-body borrowed-return probes crash in
 C and are not admitted as positive tests. Nil versus allocated-empty arrays,
 mixed-width transport, general ownership/native/SDK support, the 94 corpus
 compilation gaps and previously recorded language/concurrency gaps remain open.
-Exact-revision hosted verification is pending publication. Evidence:
+Exact-revision hosted verification is recorded below. Evidence:
 [capture-index-validation.json](rust-parity-evidence/capture-index-validation.json),
 [capture-index-pairs.json](rust-parity-evidence/capture-index-pairs.json), and
 [capture-index-asan.json](rust-parity-evidence/capture-index-asan.json).
+
+
+## Captured array indexed writes main: hosted verification, 2026-10-03
+
+Main revision `39acf61e0e559c9077a36e24ce2526cb25d5b7eb` passes all six jobs:
+[Compiler CI](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37145744604)
+and [Rust Platform Runtime](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37145744660).
+Linux, macOS and Windows each retain 15 passing reports with 1065 cases,
+including all 45 new cases checked against independent raw output expectations
+(CRLF on Windows). Artifact source hashes match unchanged repository sources.
+Full hosted C/Rust suite counts pass without failures or skips. The open PR
+queue is empty. This increment does not resolve the remaining 94 original
+corpus compilation gaps or the broader ownership/transport work. Evidence:
+[capture-index-main-ci-green.json](rust-parity-evidence/capture-index-main-ci-green.json).
+
+
+## Synchronized character stepping: local verification, 2026-10-03
+
+Rust mutex-backed character increment/decrement now changes the character's
+8-bit language value with wrapping addition/subtraction and restores a Rust
+character for storage. The existing mutex/gate scope and postfix result path
+remain intact: local atomics return the previous value; tagged global sync
+postfix expressions reread the updated value after releasing their guards,
+as in C. C remains the default target; C/shared production code, original
+sources and expectations, and every historical Rust snapshot remain unchanged.
+
+The unchanged integration/test_sync_byte_char and
+exploratory/test_sync_byte_threading programs now pass all nine optimization /
+arithmetic combinations. Three new sources independently observe local and
+global postfix results, zero/maximum wraparound, unchanged byte stepping and
+500 increments across five joined threads. All 45 new gate cases match explicit
+output expectations. The source fixtures use zero/decrement and ASCII values
+because a separate shared formatter defect splits hexadecimal character
+escapes; that defect is retained as a follow-up without changing the formatter.
+
+Required local validation passes: Rust generation 364 and negatives 158,
+native 8/19/1/4, closures 36/1, concurrency 10/7/1, toolchain 12; C unit 1610,
+generation 107, model 79, integration 1141/58 and exploratory 224/11. After the
+final boundary fixture adjustment, all three strict snapshot/runtime checks
+and the complete 45-case gate passed again. All 16 reports pass: 1071 positive
+pairs and 39 diagnostic/order cases, 1110 total. Raw-byte 63 executions,
+transport 6, Windows helper simulation and formatting pass. Template bytes
+match staged files; template hashes are retained alongside the compiler hash.
+
+All 1365 original source hashes are unchanged. Broad Rust corpus results are
+now 1062 integration and 211 exploratory successes, with 79 and 13 compilation
+gaps respectively. The two removed failures are exactly the two synchronized
+character sources, with no new runtime failures or skips. The goal remains
+active: 92 original compilation gaps and the broader ownership, array/callable
+transport, native/SDK and language/concurrency gaps still require completion.
+Hosted verification for this next revision is pending publication. Evidence:
+[sync-character-validation.json](rust-parity-evidence/sync-character-validation.json),
+[sync-character-pairs.json](rust-parity-evidence/sync-character-pairs.json), and
+[sync-character-formatter-defect.json](rust-parity-evidence/sync-character-formatter-defect.json).

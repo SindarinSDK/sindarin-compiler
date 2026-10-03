@@ -543,3 +543,14 @@ test-rust-parity-capture-index: build
 		tests/rgen/capture_array_index_widths.sn \
 		--require-count 5 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-capture-index.json
+
+.PHONY: test-rust-parity-sync-character
+test-rust-parity-sync-character: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/integration/test_sync_byte_char.sn \
+		tests/exploratory/test_sync_byte_threading.sn \
+		tests/rgen/sync_character_global_postfix.sn \
+		tests/rgen/sync_character_local_wrap.sn \
+		tests/rgen/sync_character_thread_wrap.sn \
+		--require-count 5 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-sync-character.json

@@ -1,0 +1,13 @@
+fn main(): void =>
+  sync var value: char = '\0'
+  value--
+  var last: char = value
+  println(value++ == last)
+  println(value == '\0')
+  println(value-- == '\0')
+  println(value == last)
+  sync var byteValue: byte = 255
+  println(byteValue++)
+  println(byteValue)
+  println(byteValue--)
+  println(byteValue)

@@ -1,0 +1,9 @@
+{
+  "base_revision": "39acf61e0e559c9077a36e24ce2526cb25d5b7eb",
+  "before": "fn main(): void =>\n  var value: char = '\\xFF'\n  println(value == '\\xFF')\n",
+  "after": "fn main(): void =>\n  var value: char = '\\xFF'\n  println(value == '\\xFF')\n",
+  "status": 0,
+  "stdout_hex": "416c6c2066696c657320616c726561647920666f726d61747465642e0a",
+  "stderr_hex": "",
+  "scope": "Shared formatter defect; no runtime parity credit and no shared formatter edit in this increment."
+}

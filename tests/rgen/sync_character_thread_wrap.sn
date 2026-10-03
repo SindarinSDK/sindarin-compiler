@@ -1,0 +1,15 @@
+sync var value: char = 'A'
+
+fn step(): int =>
+  for var index: int = 0; index < 100; index++ =>
+    value++
+  return 100
+
+fn main(): void =>
+  var a: int = & step()
+  var b: int = & step()
+  var c: int = & step()
+  var d: int = & step()
+  var e: int = & step()
+  println(a !+b !+c !+d !+e !)
+  println(value == '5')

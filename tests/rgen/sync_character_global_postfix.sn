@@ -1,0 +1,13 @@
+sync var value: char = 'A'
+sync var wrap: char = '\0'
+
+fn main(): void =>
+  println(value++ == 'B')
+  println(value == 'B')
+  println(value-- == 'A')
+  println(value == 'A')
+  var last: char = wrap--
+  println(wrap++ == '\0')
+  println(wrap == '\0')
+  println(wrap-- == last)
+  println(wrap == last)
