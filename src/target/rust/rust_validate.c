@@ -1262,6 +1262,12 @@ static bool rust_numeric_computed_mutation(json_object *node)
 
 static bool rust_string_method_supported(const char *name);
 
+static bool rust_byte_encoding_method_supported(const char *name)
+{
+    return name && (strcmp(name, "toString") == 0 || strcmp(name, "toStringLatin1") == 0 ||
+        strcmp(name, "toHex") == 0 || strcmp(name, "toBase64") == 0);
+}
+
 static bool rust_character_method_supported(const char *name)
 {
     return name && (strcmp(name, "toString") == 0 || strcmp(name, "toInt") == 0 ||

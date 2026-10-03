@@ -1123,6 +1123,8 @@ static bool rust_lower_ctype_calls(json_object *model)
     return true;
 }
 
+#include "rust_lower_byte_encoding.c"
+
 /* C floating-array equality compares contiguous object bytes, including NaN
  * payloads and signed zero. Its byte count uses the left runtime element width.
  * Do not borrow a stable left variable until the other operand has run: a

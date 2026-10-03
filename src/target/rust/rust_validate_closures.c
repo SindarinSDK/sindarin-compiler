@@ -261,6 +261,14 @@ static bool rust_closure_walk_lambda(RustClosureScope *scope, json_object *node)
         if (array_candidate && b->array_capture_id >= 0)
             json_object_object_add(cap, "rust_array_source_capture_id",
                                    json_object_new_int(b->array_capture_id));
+        if (!shared && array_candidate &&
+            (json_string_property_equals(b->declaration, "sync_mod", "atomic") ||
+             json_boolean_property(b->declaration, "rust_atomic_snapshot_value")))
+        {
+            json_object_object_add(cap, "rust_atomic_snapshot_value", json_object_new_boolean(true));
+            if (!b->capture)
+                json_object_object_add(cap, "rust_atomic_snapshot_source", json_object_new_boolean(true));
+        }
         if (!shared && json_boolean_property(b->declaration, "rust_shared_cell"))
             json_object_object_add(cap, "rust_snapshot_cell_source", json_object_new_boolean(true));
         if (json_string_property_equals(b->declaration, "rust_capture_mode", "self"))
@@ -394,6 +402,8 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
             if (b->lambda_depth != scope->lambda_depth)
                 return rust_closure_error("missing transitive closure captures");
             json_object_object_add(node, "rust_binding_id", json_object_new_int(b->id));
+            if (b->capture && json_boolean_property(b->declaration, "rust_atomic_snapshot_value"))
+                json_object_object_del(node, "rust_cell");
             if (b->array_capture_id >= 0)
                 json_object_object_add(node, "rust_array_capture_id", json_object_new_int(b->array_capture_id));
             if (b->capture && !json_boolean_property(node, "rust_capture_mutation_place"))
@@ -571,7 +581,10 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
             bool scalar_read = (json_string_property_equals(receiver_type, "kind", "char") &&
                 rust_character_method_supported(method_name)) ||
                 (json_string_property_equals(receiver_type, "kind", "string") &&
-                 rust_string_method_supported(method_name));
+                 rust_string_method_supported(method_name)) ||
+                (json_string_property_equals(receiver_type, "kind", "array") &&
+                 json_string_property_equals(rust_closure_property(receiver_type, "element_type"), "kind", "byte") &&
+                 rust_byte_encoding_method_supported(method_name));
             RustClosureBinding *b = rust_closure_place(scope, rust_closure_property(callee, "object"));
             if (b && b->capture)
             {

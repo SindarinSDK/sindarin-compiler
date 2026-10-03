@@ -1,0 +1,99 @@
+{
+  "environment": {
+    "SN_CFLAGS": "-O1 -g -fsanitize=address -fno-omit-frame-pointer",
+    "SN_LDLIBS": "-fsanitize=address",
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1"
+  },
+  "cases": [
+    {
+      "source": "tests/rgen/byte_encoding_latin1_nul.sn",
+      "source_text": "fn main(): void =>\n  var start: byte[] = {0b, 65b, 255b}\n  var middle: byte[] = {65b, 0b, 255b}\n  var high: byte[] = {233b, 255b}\n  println(start.toStringLatin1().length)\n  println(middle.toStringLatin1())\n  println(high.toStringLatin1().length)\n  println(high.toStringLatin1())\n  var empty: byte[] = {}\n  println(empty.toStringLatin1().length)\n",
+      "source_sha256": "0c0476d0224ddadba0cc18ac1aad2cf99980d8cd7bf7e6b1dc1fd5c0fffb32be",
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f627974655f656e636f64696e675f6c6174696e315f6e756c2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202e736e2f627974655f656e636f64696e675f6c6174696e315f6e756c2d66696e616c2d6173616e202839302e30204b42290a",
+      "status": 0,
+      "stdout_hex": "300a410a340ac3a9c3bf0a300a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/rgen/byte_encoding_parameters.sn",
+      "source_text": "struct Payload =>\n  bytes: byte[]\n\nfn hex(bytes: byte[]): str =>\n  return bytes.toHex()\n\nfn main(): void =>\n  var bytes: byte[] = {1b, 2b, 255b}\n  println(hex(bytes))\n  var encode: fn(byte[]): str = fn(value: byte[]): str => value.toBase64()\n  println(encode(bytes))\n  var payload: Payload = { bytes: {65b, 233b} }\n  println(payload.bytes.toStringLatin1())\n  sync var shared: byte[] = {77b, 97b, 110b}\n  var captured: fn(): str = fn(): str => shared.toHex()\n  println(captured())\n",
+      "source_sha256": "d39086cad098b26aa36a7ab049681513294b91839a0738dc243113f9e0e69d39",
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f627974655f656e636f64696e675f706172616d65746572732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202e736e2f627974655f656e636f64696e675f706172616d65746572732d66696e616c2d6173616e202839332e35204b42290a",
+      "status": 0,
+      "stdout_hex": "3031303266660a41514c2f0a41c3a90a3464363136650a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/rgen/byte_encoding_sync_capture_state.sn",
+      "source_text": "fn main(): void =>\n  sync var bytes: byte[] = {77b, 97b, 110b}\n  var first: fn(): str = fn(): str => bytes.toHex()\n  var outer: fn(): str = fn(): str =>\n    var inner: fn(): str = fn(): str => bytes.toHex()\n    return inner()\n  bytes[0] = 66b\n  println(first())\n  println(outer())\n  println(bytes.toHex())\n  var second: fn(): str = fn(): str => bytes.toHex()\n  println(second())\n  var mutate: fn(): str = fn(): str =>\n    bytes[0] = 67b\n    return bytes.toHex()\n  println(mutate())\n  println(mutate())\n  println(bytes.toHex())\n",
+      "source_sha256": "547368e05b7bbde550988181542cdb542ecb3dbf62277037794f764da764f8d9",
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f627974655f656e636f64696e675f73796e635f636170747572655f73746174652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202e736e2f627974655f656e636f64696e675f73796e635f636170747572655f73746174652d66696e616c2d6173616e202839372e38204b42290a",
+      "status": 0,
+      "stdout_hex": "3464363136650a3464363136650a3432363136650a3432363136650a3433363136650a3433363136650a3432363136650a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/rgen/byte_encoding_latin1_domain.sn",
+      "source_text": "fn main(): void =>\n  var bytes: byte[] = {}\n  for value in 1..256 =>\n    bytes.push(value.toByte())\n  print(bytes.toStringLatin1())\n",
+      "source_sha256": "528b63fcdb17329dd6cc11be4b22c4ac2a3104eb09d7e56043030c414cd385fc",
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f627974655f656e636f64696e675f6c6174696e315f646f6d61696e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202e736e2f627974655f656e636f64696e675f6c6174696e315f646f6d61696e2d66696e616c2d6173616e202838372e35204b42290a",
+      "status": 0,
+      "stdout_hex": "0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7fc280c281c282c283c284c285c286c287c288c289c28ac28bc28cc28dc28ec28fc290c291c292c293c294c295c296c297c298c299c29ac29bc29cc29dc29ec29fc2a0c2a1c2a2c2a3c2a4c2a5c2a6c2a7c2a8c2a9c2aac2abc2acc2adc2aec2afc2b0c2b1c2b2c2b3c2b4c2b5c2b6c2b7c2b8c2b9c2bac2bbc2bcc2bdc2bec2bfc380c381c382c383c384c385c386c387c388c389c38ac38bc38cc38dc38ec38fc390c391c392c393c394c395c396c397c398c399c39ac39bc39cc39dc39ec39fc3a0c3a1c3a2c3a3c3a4c3a5c3a6c3a7c3a8c3a9c3aac3abc3acc3adc3aec3afc3b0c3b1c3b2c3b3c3b4c3b5c3b6c3b7c3b8c3b9c3bac3bbc3bcc3bdc3bec3bf",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/rgen/byte_encoding_domain.sn",
+      "source_text": "fn main(): void =>\n  var bytes: byte[] = {}\n  for value in 0..256 =>\n    bytes.push(value.toByte())\n  println(bytes.toHex())\n  println(bytes.toBase64())\n",
+      "source_sha256": "7b4ce4185509bb2b2f8678508ba47d816b9e6cf3dcc43fafdbb52148b9aaa5e0",
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f627974655f656e636f64696e675f646f6d61696e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202e736e2f627974655f656e636f64696e675f646f6d61696e2d66696e616c2d6173616e202838362e30204b42290a",
+      "status": 0,
+      "stdout_hex": "30303031303230333034303530363037303830393061306230633064306530663130313131323133313431353136313731383139316131623163316431653166323032313232323332343235323632373238323932613262326332643265326633303331333233333334333533363337333833393361336233633364336533663430343134323433343434353436343734383439346134623463346434653466353035313532353335343535353635373538353935613562356335643565356636303631363236333634363536363637363836393661366236633664366536663730373137323733373437353736373737383739376137623763376437653766383038313832383338343835383638373838383938613862386338643865386639303931393239333934393539363937393839393961396239633964396539666130613161326133613461356136613761386139616161626163616461656166623062316232623362346235623662376238623962616262626362646265626663306331633263336334633563366337633863396361636263636364636563666430643164326433643464356436643764386439646164626463646464656466653065316532653365346535653665376538653965616562656365646565656666306631663266336634663566366637663866396661666266636664666566660a41414543417751464267634943516f4c4441304f4478415245684d554652595847426b6147787764486838674953496a4a43556d4a7967704b6973734c5334764d4445794d7a51314e6a63344f546f375044302b50304242516b4e4552555a4853456c4b5330784e546b395155564a54564656575631685a576c746358563566594746695932526c5a6d646f615770726247317562334278636e4e3064585a3365486c3665337839666e2b4167594b44684957476834694a696f754d6a5936506b4a47536b3553566c7065596d5a71626e4a32656e3643686f714f6b7061616e714b6d717136797472712b7773624b7a744c573274376935757275387662362f774d484377385446787366497963724c7a4d334f7a3944523074505531646258324e6e6132397a6433742f6734654c6a354f586d352b6a70367576733765377638504879382f5431397666342b6672372f50332b2f773d3d0a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/rgen/byte_encoding_receivers.sn",
+      "source_text": "fn __sn_byte_encoding(): int => 17\nfn __sn_byte_encoding_0(): int => 23\n\nfn make(calls: int as ref): byte[] =>\n  calls += 1\n  return {77b, 97b, 110b}\n\nfn main(): void =>\n  println(__sn_byte_encoding())\n  println(__sn_byte_encoding_0())\n  var calls: int = 0\n  println(make(calls).toHex())\n  println(calls)\n  println(make(calls).toBase64())\n  println(calls)\n  println(make(calls).toStringLatin1())\n  println(calls)\n  var captured: byte[] = {77b, 97b, 110b}\n  var encode: fn(): str = fn(): str => captured.toBase64()\n  println(encode())\n",
+      "source_sha256": "2d2021874342e08e11cc95c7179e7e72ad1beb8d9e2555aba6321ea3b16c74fa",
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f627974655f656e636f64696e675f7265636569766572732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202e736e2f627974655f656e636f64696e675f7265636569766572732d66696e616c2d6173616e202839322e38204b42290a",
+      "status": 0,
+      "stdout_hex": "31370a32330a3464363136650a310a545746750a320a4d616e0a330a545746750a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/rust-native/byte_encoding_object_view.sn",
+      "source_text": "@source \"byte_encoding_reference.c\"\n\nnative fn byte_encoding_int_prefix(value: int, count: int): str\n\nnative fn produce(): byte[] =>\n  var values: int[] = {513, 1027}\n  return values\n\nfn hex(values: byte[]): str =>\n  return values.toHex()\n\nfn base64(values: byte[]): str =>\n  return values.toBase64()\n\nfn main(): void =>\n  var values: int[] = {513, 1027}\n  println(hex(values))\n  println(byte_encoding_int_prefix(513, 2))\n  println(base64(values))\n  var returned: byte[] = produce()\n  println(returned.toHex())\n  println(returned.toBase64())\n  println(returned[0])\n  println(returned[1])\n",
+      "source_sha256": "c3c40f46d0af762395f3f925d32eea3109b3fb4fd8cdc5a914cc7a2a5c82b4e4",
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f627974655f656e636f64696e675f6f626a6563745f766965772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202e736e2f627974655f656e636f64696e675f6f626a6563745f766965772d66696e616c2d6173616e202839302e34204b42290a",
+      "status": 0,
+      "stdout_hex": "303130320a303130320a4151493d0a303130320a4151493d0a307830310a307830320a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/integration/test_byte_encoding.sn",
+      "source_text": "# Test byte array extension methods: toString, toStringLatin1, toHex, toBase64\n\nfn main(): int =>\n  # Test toHex() with \"Hello\" (ASCII bytes: H=72, e=101, l=108, l=108, o=111)\n  var hello: byte[] = {72, 101, 108, 108, 111}\n  var hex: str = hello.toHex()\n  print(\"Hex of Hello: \")\n  print(hex)\n  print(\"\\n\")\n\n  # Test toString() with ASCII bytes\n  var str_result: str = hello.toString()\n  print(\"toString of Hello: \")\n  print(str_result)\n  print(\"\\n\")\n\n  # Test toBase64() with \"Hello\"\n  var b64: str = hello.toBase64()\n  print(\"Base64 of Hello: \")\n  print(b64)\n  print(\"\\n\")\n\n  # Test toBase64() with \"Man\" (classic base64 example: M=77, a=97, n=110)\n  var man: byte[] = {77, 97, 110}\n  print(\"Base64 of Man: \")\n  print(man.toBase64())\n  print(\"\\n\")\n\n  # Test toBase64() with \"Ma\" (2 bytes - needs 1 padding)\n  var ma: byte[] = {77, 97}\n  print(\"Base64 of Ma: \")\n  print(ma.toBase64())\n  print(\"\\n\")\n\n  # Test toBase64() with \"M\" (1 byte - needs 2 padding)\n  var m: byte[] = {77}\n  print(\"Base64 of M: \")\n  print(m.toBase64())\n  print(\"\\n\")\n\n  # Test toHex with single byte (171 = 0xAB)\n  var single: byte[] = {171}\n  print(\"Hex of 0xAB: \")\n  print(single.toHex())\n  print(\"\\n\")\n\n  # Test toHex with empty array\n  var empty: byte[] = {}\n  print(\"Hex of empty: '\")\n  print(empty.toHex())\n  print(\"'\\n\")\n\n  # Test toBase64 with empty array\n  print(\"Base64 of empty: '\")\n  print(empty.toBase64())\n  print(\"'\\n\")\n\n  # Test toStringLatin1 with high bytes (Latin-1 specific)\n  # c=99, a=97, f=102, \u00e9=233 (0xE9) in Latin-1\n  var latin1_bytes: byte[] = {99, 97, 102, 233}\n  var latin1_str: str = latin1_bytes.toStringLatin1()\n  print(\"Latin1 string: \")\n  print(latin1_str)\n  print(\"\\n\")\n\n  # Test toHex with known PNG header bytes (137, 80, 78, 71 = 89504e47)\n  var png_header: byte[] = {137, 80, 78, 71}\n  print(\"PNG header hex: \")\n  print(png_header.toHex())\n  print(\"\\n\")\n\n  print(\"All byte encoding tests completed!\\n\")\n  return 0\n",
+      "source_sha256": "faf4b816b86911a1c42de535798b90817bbf9d7f6fc03359ffdb35780f29e17d",
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f627974655f656e636f64696e672e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202e736e2f746573745f627974655f656e636f64696e672d66696e616c2d6173616e202839382e39204b42290a",
+      "status": 0,
+      "stdout_hex": "486578206f662048656c6c6f3a20343836353663366336660a746f537472696e67206f662048656c6c6f3a2048656c6c6f0a426173653634206f662048656c6c6f3a20534756736247383d0a426173653634206f66204d616e3a20545746750a426173653634206f66204d613a205457453d0a426173653634206f66204d3a2054513d3d0a486578206f6620307841423a2061620a486578206f6620656d7074793a2027270a426173653634206f6620656d7074793a2027270a4c6174696e3120737472696e673a20636166c3a90a504e4720686561646572206865783a2038393530346534370a416c6c206279746520656e636f64696e6720746573747320636f6d706c65746564210a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/rgen/array_join_hygiene.sn",
+      "source_text": "fn __sn_array_join(): int => 11\nfn __sn_array_join_0(): int => 21\n\nstruct JoinBag =>\n  values: int[] = {}\n\n  fn mutateSeparator(): str =>\n    self.values.push(3)\n    return \"-\"\n\n  fn render(): str => self.values.join(self.mutateSeparator())\n\nfn produceNested(calls: int as ref): JoinBag[][] =>\n  calls++\n  return {{ JoinBag { values: {4, 5} } }}\n\nfn main(): void =>\n  var __sn_array: int[] = {1, 2, 3}\n  var __sn_array_0: int[] = {4}\n  var __sn_separator: str = \"-\"\n  var __sn_separator_0: str = \",\"\n  println(__sn_array.join(__sn_separator))\n  println(__sn_array_0.join(__sn_separator_0))\n  println(__sn_array_join())\n  println(__sn_array_join_0())\n  var negative: int = -1\n  var unsigned: uint[] = {0u, 42u, 9223372036854775807u, negative.toUint()}\n  println(unsigned.join(\",\"))\n  println(unsigned)\n  var bag: JoinBag = { values: {1, 2} }\n  println(bag.render())\n  println(bag.values)\n  var __sn_join_index_0: int = 41\n  var receiverIndexCalls: int = 0\n  var nested: JoinBag[][] = {{ JoinBag { values: {1, 2} } }}\n  println(nested[receiverIndexCalls++][0].values.join(nested[0][0].mutateSeparator()))\n  println(receiverIndexCalls)\n  println(nested[0][0].values)\n  println(__sn_join_index_0)\n  var __sn_join_owner_0: int = 42\n  var producerCalls: int = 0\n  println(produceNested(producerCalls)[0][0].values.join(\"/\"))\n  println(producerCalls)\n  println(__sn_join_owner_0)\n  var bytes: byte[] = {65b, 0b, 66b, 255b}\n  var byteText: str = bytes.toString()\n  println(byteText)\n  println(byteText.length)\n",
+      "source_sha256": "4a0c589989b6183fadbee4d000963d7f06a4137417627f4ae56362629291c51a",
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f61727261795f6a6f696e5f68796769656e652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202e736e2f61727261795f6a6f696e5f68796769656e652d66696e616c2d6173616e20283130302e31204b42290a",
+      "status": 0,
+      "stdout_hex": "312d322d330a340a31310a32310a302c34322c393232333337323033363835343737353830372c2d310a5b302c2034322c20393232333337323033363835343737353830372c202d315d0a312d322d330a5b312c20322c20335d0a312d322d330a310a5b312c20322c20335d0a34310a342f350a310a34320a410a310a",
+      "stderr_hex": ""
+    }
+  ]
+}

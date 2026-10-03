@@ -1,0 +1,18 @@
+fn main(): void =>
+  sync var bytes: byte[] = {77b, 97b, 110b}
+  var first: fn(): str = fn(): str => bytes.toHex()
+  var outer: fn(): str = fn(): str =>
+    var inner: fn(): str = fn(): str => bytes.toHex()
+    return inner()
+  bytes[0] = 66b
+  println(first())
+  println(outer())
+  println(bytes.toHex())
+  var second: fn(): str = fn(): str => bytes.toHex()
+  println(second())
+  var mutate: fn(): str = fn(): str =>
+    bytes[0] = 67b
+    return bytes.toHex()
+  println(mutate())
+  println(mutate())
+  println(bytes.toHex())

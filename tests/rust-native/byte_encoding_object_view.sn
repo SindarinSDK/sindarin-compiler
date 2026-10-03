@@ -1,0 +1,24 @@
+@source "byte_encoding_reference.c"
+
+native fn byte_encoding_int_prefix(value: int, count: int): str
+
+native fn produce(): byte[] =>
+  var values: int[] = {513, 1027}
+  return values
+
+fn hex(values: byte[]): str =>
+  return values.toHex()
+
+fn base64(values: byte[]): str =>
+  return values.toBase64()
+
+fn main(): void =>
+  var values: int[] = {513, 1027}
+  println(hex(values))
+  println(byte_encoding_int_prefix(513, 2))
+  println(base64(values))
+  var returned: byte[] = produce()
+  println(returned.toHex())
+  println(returned.toBase64())
+  println(returned[0])
+  println(returned[1])

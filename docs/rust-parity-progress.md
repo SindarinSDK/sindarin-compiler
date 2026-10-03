@@ -7,18 +7,20 @@ head counts, not the language specification or the historical evidence itself.
 
 ## Current verified status: 2026-10-03
 
-Main `3e784b74034b64c59210d76e43691797c50f4fb5` passes all six
-Linux/macOS/Windows Compiler and Rust Runtime jobs, including 1071 exact C/Rust
-positive pairs and 39 diagnostic/order cases. All existing PR work is
-reconciled; the open queue is empty. C remains the default target. Captured-array
-indexed writes and synchronized character wrapping are integrated, alongside
-the previously verified reflection, output, numeric and floating-array work.
+Last fully verified main `d62390dfb2f6f1da11dcc8a78ca3c477f63d91fe` passes all six
+Linux/macOS/Windows Compiler and Rust Runtime jobs. Each platform's 17 runtime
+reports verifies 1182 cases: 1143 exact C/Rust positive pairs and 39
+diagnostic/order cases, including 72 new independent character/CRT checks.
+The PR queue is empty, and C remains the default target. Character methods,
+C locale string casing/trimming/classification, captured-array indexed writes
+and synchronized character wrapping are integrated alongside earlier parity
+work.
 
-The next character/CRT increment passes complete local C/Rust suites and 1182
-cases (1143 positive pairs plus 39 diagnostic/order cases), including 72 new
-independent output checks. The unchanged original corpus has 90 remaining Rust
-compilation gaps, down from 92, with no new runtime failures or skips. Hosted
-verification of this increment follows after the tested changes reach main.
+The unchanged original corpus has 90 remaining Rust compilation gaps, down
+from 92, with no new runtime failures or skips. Complete local and hosted C/Rust
+suites pass. The new character/CRT cases include all 256 byte values checked
+against native C in the C and environment locales, preserving target C `char`
+signedness and raw string bytes.
 
 Full parity remains incomplete. Broader array/callable identity, mutation and
 lifetimes, native/SDK and language families still need implementation and full
@@ -1492,3 +1494,91 @@ Evidence: [ctype-validation.json](rust-parity-evidence/ctype-validation.json),
 [ctype-string-before.json](rust-parity-evidence/ctype-string-before.json),
 [ctype-asan.json](rust-parity-evidence/ctype-asan.json), and
 [ctype-string-match-c-asan.json](rust-parity-evidence/ctype-string-match-c-asan.json).
+
+## Character/CRT main: hosted verification, 2026-10-03
+
+Main revision `d62390dfb2f6f1da11dcc8a78ca3c477f63d91fe` passes all six jobs:
+[Compiler CI 37150991352](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37150991352)
+and [Rust Runtime CI 37150991322](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37150991322).
+Downloaded Linux, macOS and Windows artifacts verify all 17 reports and 1182
+cases per platform, including all 72 independent new raw-output oracles and
+Windows CRLF behavior. Source hashes match the committed sources; all reports
+on each platform use one compiler binary. Full hosted suite counts pass without
+failures or skips. The original corpus still has 90 compilation gaps; broader
+ownership/native/language work remains. Evidence:
+[ctype-main-ci-green.json](rust-parity-evidence/ctype-main-ci-green.json).
+
+The next byte-encoding characterization identifies missing `toHex`, `toBase64`
+and `toStringLatin1` methods. Five programs pass 45 C runs against independent
+raw-byte oracles and ASAN; parameter/member/shared-capture probes add 18 C runs
+and two ASAN successes. A C-defined integral-array-to-byte-array read exposes
+object representation rather than numeric element narrowing. These baseline
+probes are preparation for the next increment and do not count as Rust parity.
+
+
+## Byte-array encoding: local validation, 2026-10-03
+
+Rust now emits `toHex`, `toBase64`, `toStringLatin1` and `toString` for byte
+arrays. Hex is lowercase, Base64 preserves standard padding, Latin-1 converts
+nonzero bytes to UTF-8, and string methods stop at the first NUL as restored C
+does. Receiver evaluation occurs once. Runtime helpers use names reserved
+against the complete model, including deliberate user-name collisions.
+
+Readonly default encoder parameters retain the concrete scalar representation.
+The C-valid `int[]` to `byte[]` call reads the first logical-length bytes of the
+integer storage; narrowing each integer would produce different bytes. Rust
+uses native-endian integer object bytes without adding unsafe code. The proof
+excludes callbacks and other mutable array operations; it does not solve the
+general array/callable aliasing ABI. Native returned byte arrays also accept
+wider unmanaged scalar storage and read its byte prefix rather than panicking
+on a non-unit element size. Managed elements and dynamic header mutation remain
+required ownership work.
+
+Synchronized array captures copy the array while holding its lock, release that
+lock, and use an ordinary captured snapshot. Nested captures propagate the
+snapshot representation. Indexed writes within a captured closure persist
+across its calls while leaving the outer synchronized array unchanged.
+
+`make test-rust-parity-byte-encoding` verifies nine sources in 81 source-identical
+pairs across O0/O1/O2 and default/checked/unchecked arithmetic. Independent
+Python oracles check all 256 byte values, Base64, Latin-1/control bytes, NUL,
+receiver effects, closure state, and integer object prefixes. The native C
+reference independently checks the prefix ABI. Windows checks require the
+actual CRT CRLF translation. All nine C programs pass ASAN with leak detection.
+Six new generated-source/runtime regressions are added. Only the historical
+`array_join_hygiene` Rust snapshot changes, after its unchanged source and output
+passed all nine differential cases and C ASAN.
+
+| Local gate | Result |
+|---|---:|
+| Rust generation / negative | 374 / 158 passing, no skips |
+| Native tagged / extra / origin / negative | 8 / 19 / 1 / 4 passing |
+| Closures positive / negative | 36 / 1 passing |
+| Concurrency positive / negative / promoted | 10 / 7 / 1 passing |
+| Rust toolchain | 12 passing |
+| C unit / cgen / model | 1610 / 107 / 79 passing |
+| C integration / negative / exploratory / exploratory negative | 1141 / 58 / 224 / 11 passing |
+| Differential reports | 18 reports, 1263 cases: 1224 positive + 39 diagnostic/order |
+| Raw-byte transport / Windows transport / helper simulation | 63 / 6 executions, helper passing |
+| Original source hashes | 1365 unchanged |
+| Original Rust integration / exploratory | 1064 / 212 passing; 77 / 12 compilation gaps |
+
+The original `test_byte_encoding` now passes. The remaining original corpus has
+89 compilation gaps, with no new runtime failures or skips. Required hosted CI
+will be verified on the exact direct-main revision after this local increment.
+The PR queue is empty; C remains the default target and C production, sources
+and oracles are unchanged.
+
+Excluded characterization is retained explicitly: eight other scalar-array
+conversions are rejected by the shared frontend in these contexts, and named
+array-function-value probes crash restored C under ASAN. These are not positive
+parity results. The shared formatter truncates very long literal lines; the new
+domain fixtures use short loops instead. Broader array identity/mutation,
+callbacks, ownership/lifetimes, native/SDK and other language gaps remain part
+of the full goal.
+
+Evidence: [byte-encoding-validation.json](rust-parity-evidence/byte-encoding-validation.json),
+[byte-encoding-pairs.json](rust-parity-evidence/byte-encoding-pairs.json),
+[byte-encoding-asan.json](rust-parity-evidence/byte-encoding-asan.json),
+[byte-encoding-type-admission.json](rust-parity-evidence/byte-encoding-type-admission.json),
+and [byte-encoding-excluded-callables-asan.json](rust-parity-evidence/byte-encoding-excluded-callables-asan.json).

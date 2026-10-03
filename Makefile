@@ -569,3 +569,19 @@ test-rust-parity-ctype: build
 		--require-count 8 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-ctype.json
 	@$(PYTHON) scripts/check_rust_ctype_oracles.py .sn/rust-parity-ctype.json
+
+.PHONY: test-rust-parity-byte-encoding
+test-rust-parity-byte-encoding: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/integration/test_byte_encoding.sn \
+		tests/rgen/byte_encoding_domain.sn \
+		tests/rgen/byte_encoding_latin1_domain.sn \
+		tests/rgen/byte_encoding_latin1_nul.sn \
+		tests/rgen/byte_encoding_receivers.sn \
+		tests/rgen/byte_encoding_parameters.sn \
+		tests/rgen/byte_encoding_sync_capture_state.sn \
+		tests/rgen/array_join_hygiene.sn \
+		tests/rust-native/byte_encoding_object_view.sn \
+		--require-count 9 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-byte-encoding.json
+	@$(PYTHON) scripts/check_rust_byte_encoding_oracles.py .sn/rust-parity-byte-encoding.json

@@ -204,6 +204,12 @@ static bool rust_emit(CompilerOptions *options, Module *module,
         json_object_put(model);
         return false;
     }
+    if (!rust_lower_byte_encoding(model))
+    {
+        fprintf(stderr, "Error: Rust target could not assign byte encoding runtime names\n");
+        json_object_put(model);
+        return false;
+    }
     if (!rust_lower_ctype_calls(model))
     {
         fprintf(stderr, "Error: Rust target could not assign character runtime helper names\n");

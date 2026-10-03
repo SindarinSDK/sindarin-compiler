@@ -26,7 +26,8 @@ unsafe fn {{rust_ident rust_native_take_array_name}}(value: *mut {{rust_ident ru
     let native = &*value;
     assert!(native.len >= 0, "native byte array length must be nonnegative");
     assert!(native.cap >= native.len, "native byte array capacity must cover its length");
-    assert!(native.elem_size == 1, "native byte array element size must be one byte");
+    // C reads a byte array as the first len bytes, including wider scalar storage.
+    assert!(native.elem_size >= 1, "native byte array element size must be positive");
     assert!(native.elem_release.is_none(), "native byte arrays cannot own managed elements");
     let result = if native.len == 0 {
         Vec::new()

@@ -1,0 +1,5 @@
+fn main(): void =>
+  var bytes: byte[] = {}
+  for value in 1..256 =>
+    bytes.push(value.toByte())
+  print(bytes.toStringLatin1())

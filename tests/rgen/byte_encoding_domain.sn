@@ -1,0 +1,6 @@
+fn main(): void =>
+  var bytes: byte[] = {}
+  for value in 0..256 =>
+    bytes.push(value.toByte())
+  println(bytes.toHex())
+  println(bytes.toBase64())

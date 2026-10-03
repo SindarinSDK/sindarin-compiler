@@ -1,0 +1,16 @@
+struct Payload =>
+  bytes: byte[]
+
+fn hex(bytes: byte[]): str =>
+  return bytes.toHex()
+
+fn main(): void =>
+  var bytes: byte[] = {1b, 2b, 255b}
+  println(hex(bytes))
+  var encode: fn(byte[]): str = fn(value: byte[]): str => value.toBase64()
+  println(encode(bytes))
+  var payload: Payload = { bytes: {65b, 233b} }
+  println(payload.bytes.toStringLatin1())
+  sync var shared: byte[] = {77b, 97b, 110b}
+  var captured: fn(): str = fn(): str => shared.toHex()
+  println(captured())

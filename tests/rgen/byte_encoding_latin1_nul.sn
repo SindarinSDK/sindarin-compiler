@@ -1,0 +1,10 @@
+fn main(): void =>
+  var start: byte[] = {0b, 65b, 255b}
+  var middle: byte[] = {65b, 0b, 255b}
+  var high: byte[] = {233b, 255b}
+  println(start.toStringLatin1().length)
+  println(middle.toStringLatin1())
+  println(high.toStringLatin1().length)
+  println(high.toStringLatin1())
+  var empty: byte[] = {}
+  println(empty.toStringLatin1().length)

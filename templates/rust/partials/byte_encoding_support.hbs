@@ -1,0 +1,81 @@
+mod {{rust_ident rust_byte_encoding_module}} {
+    use std::borrow::Cow;
+    pub(super) trait Scalar: Sized {
+        fn append_object_bytes(&self, output: &mut Vec<u8>, limit: usize);
+        fn prefix(values: &[Self]) -> Cow<'_, [u8]> {
+            let mut output = Vec::with_capacity(values.len());
+            for value in values {
+                let remaining = values.len() - output.len();
+                if remaining == 0 { break; }
+                value.append_object_bytes(&mut output, remaining);
+            }
+            Cow::Owned(output)
+        }
+    }
+    macro_rules! scalar {
+        ($($kind:ty),*) => { $(impl Scalar for $kind {
+            fn append_object_bytes(&self, output: &mut Vec<u8>, limit: usize) {
+                let bytes = self.to_ne_bytes();
+                output.extend_from_slice(&bytes[..bytes.len().min(limit)]);
+            }
+        })* };
+    }
+    scalar!(i64);
+    impl Scalar for u8 {
+        fn append_object_bytes(&self, output: &mut Vec<u8>, _: usize) { output.push(*self); }
+        fn prefix(values: &[Self]) -> Cow<'_, [u8]> { Cow::Borrowed(values) }
+    }
+    pub(super) trait Array {
+        fn bytes(&self) -> Cow<'_, [u8]>;
+        fn len(&self) -> usize;
+    }
+    impl<T: Scalar> Array for Vec<T> {
+        fn bytes(&self) -> Cow<'_, [u8]> { T::prefix(self.as_slice()) }
+        fn len(&self) -> usize { Vec::len(self) }
+    }
+    impl<A: Array + ?Sized> Array for &A {
+        fn bytes(&self) -> Cow<'_, [u8]> { Array::bytes(&**self) }
+        fn len(&self) -> usize { Array::len(&**self) }
+    }
+    impl<A: Array + ?Sized> Array for &mut A {
+        fn bytes(&self) -> Cow<'_, [u8]> { Array::bytes(&**self) }
+        fn len(&self) -> usize { Array::len(&**self) }
+    }
+    pub(super) fn string<A: Array + ?Sized>(value: &A) -> super::SnString {
+        super::SnString::from_c_bytes(&value.bytes())
+    }
+    pub(super) fn hex<A: Array + ?Sized>(value: &A) -> super::SnString {
+        let bytes = value.bytes();
+        let digits = b"0123456789abcdef";
+        let mut output = Vec::with_capacity(bytes.len() * 2);
+        for byte in bytes.iter().copied() {
+            output.push(digits[(byte >> 4) as usize]);
+            output.push(digits[(byte & 15) as usize]);
+        }
+        super::SnString::from_bytes(output)
+    }
+    pub(super) fn base64<A: Array + ?Sized>(value: &A) -> super::SnString {
+        let bytes = value.bytes();
+        let alphabet = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+        let mut output = Vec::with_capacity(bytes.len().div_ceil(3) * 4);
+        for group in bytes.chunks(3) {
+            let first = group[0];
+            let second = group.get(1).copied().unwrap_or(0);
+            let third = group.get(2).copied().unwrap_or(0);
+            output.push(alphabet[(first >> 2) as usize]);
+            output.push(alphabet[(((first & 3) << 4) | (second >> 4)) as usize]);
+            output.push(if group.len() > 1 { alphabet[(((second & 15) << 2) | (third >> 6)) as usize] } else { b'=' });
+            output.push(if group.len() > 2 { alphabet[(third & 63) as usize] } else { b'=' });
+        }
+        super::SnString::from_bytes(output)
+    }
+    pub(super) fn latin1<A: Array + ?Sized>(value: &A) -> super::SnString {
+        let bytes = value.bytes();
+        let mut output = Vec::new();
+        for byte in bytes.iter().copied().take_while(|byte| *byte != 0) {
+            if byte < 128 { output.push(byte); }
+            else { output.push(0xc0 | (byte >> 6)); output.push(0x80 | (byte & 0x3f)); }
+        }
+        super::SnString::from_bytes(output)
+    }
+}

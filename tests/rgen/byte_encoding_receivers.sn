@@ -1,0 +1,20 @@
+fn __sn_byte_encoding(): int => 17
+fn __sn_byte_encoding_0(): int => 23
+
+fn make(calls: int as ref): byte[] =>
+  calls += 1
+  return {77b, 97b, 110b}
+
+fn main(): void =>
+  println(__sn_byte_encoding())
+  println(__sn_byte_encoding_0())
+  var calls: int = 0
+  println(make(calls).toHex())
+  println(calls)
+  println(make(calls).toBase64())
+  println(calls)
+  println(make(calls).toStringLatin1())
+  println(calls)
+  var captured: byte[] = {77b, 97b, 110b}
+  var encode: fn(): str = fn(): str => captured.toBase64()
+  println(encode())

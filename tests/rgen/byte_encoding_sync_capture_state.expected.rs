@@ -1,5 +1,15 @@
 #![allow(dead_code, unused_mut, unused_variables, unused_parens)]
 
+struct __sn_concurrency0_Cell<T> {
+    value: std::sync::Mutex<T>,
+    gate: std::sync::Mutex<()>,
+}
+impl<T> __sn_concurrency0_Cell<T> {
+    fn new(value: T) -> Self { Self { value: std::sync::Mutex::new(value), gate: std::sync::Mutex::new(()) } }
+    fn lock(&self) -> std::sync::LockResult<std::sync::MutexGuard<'_, T>> { self.value.lock() }
+    fn guard(&self) -> std::sync::MutexGuard<'_, ()> { self.gate.lock().unwrap_or_else(|e| e.into_inner()) }
+}
+
 extern "C" {
     #[link_name = "fwrite"]
     fn __sn_stdio_fwrite(_: *const std::ffi::c_void, _: usize, _: usize, _: *mut std::ffi::c_void) -> usize;
@@ -417,240 +427,36 @@ fn __sn_array_size(size: i64) -> usize {
     size as usize
 }
 
-fn __sn_runtime_error_0(message: &'static str) -> ! {
-    crate::__sn_write_stderr_bytes(&[message.as_bytes(), b"\n"].concat());
-    crate::__sn_stdio_exit(1);
+struct __SnClosure<F: ?Sized>(std::rc::Rc<F>);
+impl<F: ?Sized> Clone for __SnClosure<F> {
+    fn clone(&self) -> Self { Self(self.0.clone()) }
 }
-
-fn __sn_checked_0<T>(value: Option<T>, message: &'static str) -> T {
-    match value {
-        Some(value) => value,
-        None => __sn_runtime_error_0(message),
+impl<F: ?Sized> std::fmt::Debug for __SnClosure<F> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("<function>")
     }
 }
-
-fn __sn_checked_div_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
-    __sn_checked_0(value, if divisor_is_zero {
-        "panic: Division by zero"
-    } else {
-        "Runtime error: integer overflow in division"
-    })
+impl<F: ?Sized> PartialEq for __SnClosure<F> {
+    fn eq(&self, other: &Self) -> bool { std::rc::Rc::ptr_eq(&self.0, &other.0) }
 }
-
-fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
-    __sn_checked_0(value, if divisor_is_zero {
-        "panic: Modulo by zero"
-    } else {
-        "Runtime error: integer overflow in modulo"
-    })
-}
-
-#[allow(non_camel_case_types)]
-trait __SnArrayText_0 {
-    fn __sn_array_text_0(&self) -> SnString;
-    fn __sn_join_text_0(&self) -> SnString;
-    fn __sn_struct_text_0(&self) -> SnString;
-}
-
-macro_rules! __sn_integer_array_text_0 {
-    ($($type:ty),+ $(,)?) => {$(
-        impl __SnArrayText_0 for $type {
-            fn __sn_array_text_0(&self) -> SnString { SnString::from(self.to_string()) }
-            fn __sn_join_text_0(&self) -> SnString { SnString::from(self.to_string()) }
-            fn __sn_struct_text_0(&self) -> SnString { SnString::from(self.to_string()) }
-        }
-    )+};
-}
-
-__sn_integer_array_text_0!(i64, i32, u32);
-
-impl __SnArrayText_0 for u64 {
-    fn __sn_array_text_0(&self) -> SnString { SnString::from((*self as i64).to_string()) }
-    fn __sn_join_text_0(&self) -> SnString { SnString::from((*self as i64).to_string()) }
-    fn __sn_struct_text_0(&self) -> SnString { SnString::from((*self as i64).to_string()) }
-}
-
-impl __SnArrayText_0 for u8 {
-    fn __sn_array_text_0(&self) -> SnString { SnString::from(format!("0x{:02X}", self)) }
-    fn __sn_join_text_0(&self) -> SnString { SnString::from(format!("0x{:02X}", self)) }
-    fn __sn_struct_text_0(&self) -> SnString { SnString::from(self.to_string()) }
-}
-
-impl __SnArrayText_0 for bool {
-    fn __sn_array_text_0(&self) -> SnString { SnString::from(self.to_string()) }
-    fn __sn_join_text_0(&self) -> SnString { SnString::from(self.to_string()) }
-    fn __sn_struct_text_0(&self) -> SnString { SnString::from(self.to_string()) }
-}
-
-impl __SnArrayText_0 for char {
-    fn __sn_array_text_0(&self) -> SnString {
-        let mut result = SnString::from_slice(b"'");
-        result.push_char(*self);
-        result.push_str("'");
-        result
-    }
-    fn __sn_join_text_0(&self) -> SnString {
-        let mut result = SnString::new();
-        result.push_char(*self);
-        result
-    }
-    fn __sn_struct_text_0(&self) -> SnString {
-        self.__sn_array_text_0()
-    }
-}
-
-impl __SnArrayText_0 for SnString {
-    fn __sn_array_text_0(&self) -> SnString {
-        let mut result = SnString::from_slice(b"\"");
-        result.push_str(self);
-        result.push_str("\"");
-        result
-    }
-    fn __sn_join_text_0(&self) -> SnString { self.clone() }
-    fn __sn_struct_text_0(&self) -> SnString {
-        self.__sn_array_text_0()
-    }
-}
-
-fn __sn_float_array_text_0(value: f64) -> String {
-    if value.is_nan() { return "nan".to_string(); }
-    if value == f64::INFINITY { return "inf".to_string(); }
-    if value == f64::NEG_INFINITY { return "-inf".to_string(); }
-
-    let scientific = format!("{:.5e}", value);
-    let (mantissa, exponent_text) = scientific.split_once('e').unwrap();
-    let exponent: i32 = exponent_text.parse().unwrap();
-    if exponent < -4 || exponent >= 6 {
-        let mantissa = mantissa.trim_end_matches('0').trim_end_matches('.');
-        return format!("{}e{:+03}", mantissa, exponent);
-    }
-
-    let precision = (5 - exponent).max(0) as usize;
-    let fixed = format!("{:.*}", precision, value);
-    if fixed.contains('.') {
-        fixed.trim_end_matches('0').trim_end_matches('.').to_string()
-    } else {
-        fixed
-    }
-}
-
-macro_rules! __sn_float_array_text_impl_0 {
-    ($($type:ty),+ $(,)?) => {$(
-        impl __SnArrayText_0 for $type {
-            fn __sn_array_text_0(&self) -> SnString { SnString::from(__sn_float_array_text_0(*self as f64)) }
-            fn __sn_join_text_0(&self) -> SnString { SnString::from(format!("{:.5}", self)) }
-            fn __sn_struct_text_0(&self) -> SnString { SnString::from(format!("{:.5}", self)) }
-        }
-    )+};
-}
-
-__sn_float_array_text_impl_0!(f64, f32);
-
-impl<T: __SnArrayText_0> __SnArrayText_0 for Vec<T> {
-    fn __sn_array_text_0(&self) -> SnString { __sn_array_to_string_0(self.as_slice()) }
-    // sn_array_join renders each nested-array element as "?"; recursion is
-    // reserved for full array formatting (print and interpolation).
-    fn __sn_join_text_0(&self) -> SnString { SnString::from_slice(b"?") }
-    fn __sn_struct_text_0(&self) -> SnString { __sn_array_to_string_0(self.as_slice()) }
-}
-
-fn __sn_array_to_string_0<T: __SnArrayText_0>(array: &[T]) -> SnString {
-    let mut result = SnString::from_slice(b"[");
-    for (index, value) in array.iter().enumerate() {
-        if index != 0 { result.push_str(", "); }
-        result.push_str(&value.__sn_array_text_0());
-    }
-    result.push_str("]");
-    result
-}
-
-fn __sn_array_join_1<T: __SnArrayText_0>(array: &[T], separator: &SnString) -> SnString {
-    let mut result = SnString::new();
-    for (index, value) in array.iter().enumerate() {
-        if index != 0 { result.push_str(separator); }
-        result.push_str(&value.__sn_join_text_0());
-    }
-    result
-}
-
-
-#[derive(Clone, Debug, PartialEq)]
-struct JoinBag {
-    values: Vec<i64>,
-}
-
-impl JoinBag {
-    fn mutateSeparator(&mut self) -> SnString {
-        ((self).values).push(3);
-        return SnString::from_slice(&[0x2d]);
-    }
-    fn render(&mut self) -> SnString {
-        return { let __sn_separator_1 = &((self).mutateSeparator()); __sn_array_join_1(((self).values).as_slice(), __sn_separator_1) };
-    }
-}
-
-impl __SnArrayText_0 for JoinBag {
-    fn __sn_array_text_0(&self) -> SnString {
-        let mut result = SnString::from_slice(b"JoinBag { ");
-        result.push_str("values: ");
-        result.push_str(&self.values.__sn_struct_text_0());
-        result.push_str(" }");
-        result
-    }
-
-    fn __sn_join_text_0(&self) -> SnString {
-        self.__sn_array_text_0()
-    }
-
-    fn __sn_struct_text_0(&self) -> SnString {
-        self.__sn_array_text_0()
-    }
-}
-
-fn __sn_array_join() -> i64 {
-    return 11;
-}
-
-fn __sn_array_join_0() -> i64 {
-    return 21;
-}
-
-fn produceNested(calls: &mut i64) -> Vec<Vec<JoinBag>> {
-    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
-    return vec![vec![JoinBag { values: vec![4, 5] }]];
-}
-
 fn main() {
     let __sn_stdio_guard = __SnStdioGuard;
-    let mut __sn_array: Vec<i64> = vec![1, 2, 3];
-    let mut __sn_array_0: Vec<i64> = vec![4];
-    let mut __sn_separator: SnString = SnString::from_slice(&[0x2d]);
-    let mut __sn_separator_0: SnString = SnString::from_slice(&[0x2c]);
-    __sn_println_string(&({ let __sn_separator_1 = &(__sn_separator); __sn_array_join_1((__sn_array).as_slice(), __sn_separator_1) }));
-    __sn_println_string(&({ let __sn_separator_1 = &(__sn_separator_0); __sn_array_join_1((__sn_array_0).as_slice(), __sn_separator_1) }));
-    println!("{}", __sn_array_join());
-    println!("{}", __sn_array_join_0());
-    let mut negative: i64 = (-1);
-    let mut unsigned: Vec<u64> = vec![0, 42, 9223372036854775807, (negative as u64)];
-    __sn_println_string(&({ let __sn_separator_1 = &(SnString::from_slice(&[0x2c])); __sn_array_join_1((unsigned).as_slice(), __sn_separator_1) }));
-    __sn_println_string(&__sn_array_to_string_0(&(unsigned)));
-    let mut bag: JoinBag = JoinBag { values: vec![1, 2] };
-    __sn_println_string(&((bag).render()));
-    __sn_println_string(&__sn_array_to_string_0(&((bag).values)));
-    let mut __sn_join_index_0: i64 = 41;
-    let mut receiverIndexCalls: i64 = 0;
-    let mut nested: Vec<Vec<JoinBag>> = vec![vec![JoinBag { values: vec![1, 2] }]];
-    __sn_println_string(&({ let __sn_join_raw_index_3 = { let __sn_place = &mut (receiverIndexCalls); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous }; let __sn_join_raw_index_4 = 0; let __sn_separator_1 = &({ let __sn_join_raw_index_1 = 0; let __sn_join_raw_index_2 = 0; let __sn_join_index_1 = __sn_index((nested).len(), __sn_join_raw_index_1); let __sn_join_index_2 = __sn_index(((nested)[__sn_join_index_1]).len(), __sn_join_raw_index_2); (((nested)[__sn_join_index_1])[__sn_join_index_2]).mutateSeparator() }); let __sn_join_index_3 = __sn_index((nested).len(), __sn_join_raw_index_3); let __sn_join_index_4 = __sn_index(((nested)[__sn_join_index_3]).len(), __sn_join_raw_index_4); __sn_array_join_1(((((nested)[__sn_join_index_3])[__sn_join_index_4]).values).as_slice(), __sn_separator_1) }));
-    println!("{}", receiverIndexCalls);
-    __sn_println_string(&__sn_array_to_string_0(&((((nested)[__sn_index((nested).len(), 0)])[__sn_index(((nested)[__sn_index((nested).len(), 0)]).len(), 0)]).values)));
-    println!("{}", __sn_join_index_0);
-    let mut __sn_join_owner_0: i64 = 42;
-    let mut producerCalls: i64 = 0;
-    __sn_println_string(&({ let __sn_join_owner_1 = produceNested(&mut (producerCalls)); let __sn_join_raw_index_5 = 0; let __sn_join_raw_index_6 = 0; let __sn_separator_1 = &(SnString::from_slice(&[0x2f])); let __sn_join_index_5 = __sn_index((__sn_join_owner_1).len(), __sn_join_raw_index_5); let __sn_join_index_6 = __sn_index(((__sn_join_owner_1)[__sn_join_index_5]).len(), __sn_join_raw_index_6); __sn_array_join_1(((((__sn_join_owner_1)[__sn_join_index_5])[__sn_join_index_6]).values).as_slice(), __sn_separator_1) }));
-    println!("{}", producerCalls);
-    println!("{}", __sn_join_owner_0);
-    let mut bytes: Vec<u8> = vec![65, 0, 66, 255];
-    let mut byteText: SnString = __sn_byte_encoding::string(&(bytes));
-    __sn_println_string(&(byteText));
-    println!("{}", (byteText).len() as i64);
+    let bytes: __sn_concurrency0_Cell<Vec<u8>> = __sn_concurrency0_Cell::new(vec![77, 97, 110]);
+    let mut first: __SnClosure<dyn Fn() -> SnString> = { let (bytes, ) = ({ let value = bytes.lock().unwrap_or_else(|e| e.into_inner()).clone(); value }, ); self::__SnClosure::<dyn Fn() -> SnString>(std::rc::Rc::new(move || -> SnString { __sn_byte_encoding::hex(&(bytes.clone()))})) }
+;
+    let mut outer: __SnClosure<dyn Fn() -> SnString> = { let (bytes, ) = ({ let value = bytes.lock().unwrap_or_else(|e| e.into_inner()).clone(); value }, ); self::__SnClosure::<dyn Fn() -> SnString>(std::rc::Rc::new(move || -> SnString { let mut inner: __SnClosure<dyn Fn() -> SnString> = { let (bytes, ) = (bytes.clone(), ); self::__SnClosure::<dyn Fn() -> SnString>(std::rc::Rc::new(move || -> SnString { __sn_byte_encoding::hex(&(bytes.clone()))})) }
+;return ((inner.clone()).0)();})) }
+;
+    { let __sn_concurrency0_operand_index = (0).clone(); let __sn_concurrency0_operand_value = (66).clone(); let mut __sn_concurrency0_value_guard = bytes.lock().unwrap_or_else(|e| e.into_inner()); { let __sn_array_index = __sn_index(((*__sn_concurrency0_value_guard)).len(), __sn_concurrency0_operand_index); ((*__sn_concurrency0_value_guard))[__sn_array_index] = __sn_concurrency0_operand_value; } };
+    __sn_println_string(&(((first.clone()).0)()));
+    __sn_println_string(&(((outer.clone()).0)()));
+    __sn_println_string(&(__sn_byte_encoding::hex(&({ let value = bytes.lock().unwrap_or_else(|e| e.into_inner()).clone(); value }))));
+    let mut second: __SnClosure<dyn Fn() -> SnString> = { let (bytes, ) = ({ let value = bytes.lock().unwrap_or_else(|e| e.into_inner()).clone(); value }, ); self::__SnClosure::<dyn Fn() -> SnString>(std::rc::Rc::new(move || -> SnString { __sn_byte_encoding::hex(&(bytes.clone()))})) }
+;
+    __sn_println_string(&(((second.clone()).0)()));
+    let mut mutate: __SnClosure<dyn Fn() -> SnString> = { let (bytes, ) = (std::rc::Rc::new(std::cell::RefCell::new({ let value = bytes.lock().unwrap_or_else(|e| e.into_inner()).clone(); value })), ); self::__SnClosure::<dyn Fn() -> SnString>(std::rc::Rc::new(move || -> SnString { { let __sn_capture_index_value = ((67) as u8); let __sn_place_raw_index_0 = 0; let __sn_place_index_0 = if __sn_place_raw_index_0 < 0 { __sn_place_raw_index_0 + (bytes.borrow().clone()).len() as i64 } else { __sn_place_raw_index_0 }; { let __sn_capture_index_place = &mut ((bytes.borrow_mut())[__sn_place_index_0 as usize]); *__sn_capture_index_place = __sn_capture_index_value; } __sn_capture_index_value };return __sn_byte_encoding::hex(&(bytes.borrow().clone()));})) }
+;
+    __sn_println_string(&(((mutate.clone()).0)()));
+    __sn_println_string(&(((mutate.clone()).0)()));
+    __sn_println_string(&(__sn_byte_encoding::hex(&({ let value = bytes.lock().unwrap_or_else(|e| e.into_inner()).clone(); value }))));
 }
