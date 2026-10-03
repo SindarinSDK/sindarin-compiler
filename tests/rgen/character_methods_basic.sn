@@ -1,0 +1,20 @@
+fn main(): void =>
+  println('a'.toString())
+  println('x'.toUpper().toString())
+  println('Z'.toLower().toString())
+  println('A'.toInt())
+  println('5'.isDigit())
+  println('a'.isDigit())
+  println('x'.isAlpha())
+  println('9'.isAlpha())
+  println(' '.isWhitespace())
+  println('z'.isWhitespace())
+  println('A'.isAlnum())
+  println('3'.isAlnum())
+  println('@'.isAlnum())
+  println('\0'.toString().length)
+  sync var last: char = '\0'
+  last--
+  println(last.toString().length)
+  println(last.toUpper() == last)
+  println(last.toLower() == last)

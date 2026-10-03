@@ -1260,6 +1260,16 @@ static bool rust_numeric_computed_mutation(json_object *node)
          strcmp(op, "shl") == 0 || strcmp(op, "shr") == 0);
 }
 
+static bool rust_string_method_supported(const char *name);
+
+static bool rust_character_method_supported(const char *name)
+{
+    return name && (strcmp(name, "toString") == 0 || strcmp(name, "toInt") == 0 ||
+        strcmp(name, "toUpper") == 0 || strcmp(name, "toLower") == 0 ||
+        strcmp(name, "isDigit") == 0 || strcmp(name, "isAlpha") == 0 ||
+        strcmp(name, "isWhitespace") == 0 || strcmp(name, "isAlnum") == 0);
+}
+
 #include "rust_validate_closures.c"
 #include "rust_validate_calls.c"
 

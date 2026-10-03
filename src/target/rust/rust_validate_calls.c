@@ -596,6 +596,13 @@ static bool rust_validate_call(json_object *expr)
             !json_object_object_get_ex(object, "type", &object_type) ||
             !(object_type_kind = json_string_property(object_type, "kind"))) return false;
         const char *method = json_string_property(callee, "member_name");
+        if (strcmp(object_type_kind, "char") == 0 && rust_character_method_supported(method))
+        {
+            json_object_object_get_ex(expr, "args", &args);
+            if (!args || json_object_array_length(args) != 0 || !rust_validate_expr(object)) return false;
+            json_object_object_add(expr, "rust_character_method", json_object_new_string(method));
+            return true;
+        }
         if (rust_primitive_conversion_member(object_type_kind, method))
         {
             json_object_object_get_ex(expr, "args", &args);

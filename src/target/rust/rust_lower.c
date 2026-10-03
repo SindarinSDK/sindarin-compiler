@@ -1067,6 +1067,62 @@ static bool rust_allocate_helper_name(json_object *model, const char *base,
     return false;
 }
 
+/* C character classification and string casing/whitespace follow the CRT's
+ * locale and byte domain. Keep their symbols in a reserved private module. */
+static void rust_annotate_ctype_calls(json_object *node, const char *module_name, bool *used)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array))
+    {
+        for (size_t i = 0; i < json_object_array_length(node); i++)
+            rust_annotate_ctype_calls(json_object_array_get_idx(node, i), module_name, used);
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
+    json_object_object_foreach(node, key, value)
+    {
+        if (strncmp(key, "rust_", 5) != 0) rust_annotate_ctype_calls(value, module_name, used);
+    }
+    const char *method = json_string_property(node, "rust_character_method");
+    bool character = method != NULL;
+    if (!method) method = json_string_property(node, "rust_string_method");
+    const char *function = NULL;
+    if (method)
+    {
+        if (strcmp(method, "toUpper") == 0) function = character ? "upper" : "string_upper";
+        else if (strcmp(method, "toLower") == 0) function = character ? "lower" : "string_lower";
+        else if (strcmp(method, "toString") == 0 && character) function = "string";
+        else if (strcmp(method, "toInt") == 0 && character) function = "integer";
+        else if (strcmp(method, "isDigit") == 0 && character) function = "digit";
+        else if (strcmp(method, "isAlpha") == 0 && character) function = "alpha";
+        else if (strcmp(method, "isWhitespace") == 0 && character) function = "space";
+        else if (strcmp(method, "isAlnum") == 0 && character) function = "alnum";
+        else if (strcmp(method, "trim") == 0 && !character) function = "string_trim";
+        else if (strcmp(method, "isBlank") == 0 && !character) function = "string_blank";
+    }
+    if (function)
+    {
+        *used = true;
+        json_object_object_add(node, "rust_ctype_module_name", json_object_new_string(module_name));
+        json_object_object_add(node, "rust_ctype_function", json_object_new_string(function));
+        json_object_object_add(node, "rust_ctype_string", json_object_new_boolean(!character));
+    }
+}
+
+static bool rust_lower_ctype_calls(json_object *model)
+{
+    char module_name[96];
+    if (!rust_allocate_helper_name(model, "__sn_ctype", module_name, sizeof(module_name))) return false;
+    bool used = false;
+    rust_annotate_ctype_calls(model, module_name, &used);
+    if (used)
+    {
+        json_object_object_add(model, "rust_uses_ctype", json_object_new_boolean(true));
+        json_object_object_add(model, "rust_ctype_module_name", json_object_new_string(module_name));
+    }
+    return true;
+}
+
 /* C floating-array equality compares contiguous object bytes, including NaN
  * payloads and signed zero. Its byte count uses the left runtime element width.
  * Do not borrow a stable left variable until the other operand has run: a

@@ -566,6 +566,12 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
         if (json_string_property_equals(callee, "kind", "member") &&
             !json_boolean_property(node, "is_fn_field_call"))
         {
+            json_object *receiver_type = rust_closure_property(rust_closure_property(callee, "object"), "type");
+            const char *method_name = json_string_property(callee, "member_name");
+            bool scalar_read = (json_string_property_equals(receiver_type, "kind", "char") &&
+                rust_character_method_supported(method_name)) ||
+                (json_string_property_equals(receiver_type, "kind", "string") &&
+                 rust_string_method_supported(method_name));
             RustClosureBinding *b = rust_closure_place(scope, rust_closure_property(callee, "object"));
             if (b && b->capture)
             {
@@ -600,10 +606,10 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
                             return rust_closure_error("this nested mutable array snapshot method");
                     }
                 }
-                else if (!rust_closure_string_type(binding_type))
+                else if (!rust_closure_string_type(binding_type) && !scalar_read)
                     return rust_closure_error("method calls on snapshot closure captures");
             }
-            if (b && !b->capture && scope->lambda_depth > 0 &&
+            if (b && !scalar_read && !b->capture && scope->lambda_depth > 0 &&
                 !json_string_property(b->declaration, "kind"))
                 return rust_closure_error("method calls on closure parameters");
         }

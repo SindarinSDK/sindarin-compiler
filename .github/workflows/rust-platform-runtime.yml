@@ -217,6 +217,9 @@ jobs:
           run_gate "synchronized character mutation and wraparound (45 positive pairs)" \
             make test-rust-parity-sync-character
 
+          run_gate "character methods and C locale string semantics (72 positive pairs)" \
+            make test-rust-parity-ctype
+
           exit "$overall_rc"
 
       - name: Retain runtime parity evidence
@@ -242,5 +245,6 @@ jobs:
             .sn/rust-parity-numeric-places.json
             .sn/rust-parity-capture-index.json
             .sn/rust-parity-sync-character.json
+            .sn/rust-parity-ctype.json
           if-no-files-found: ignore
           retention-days: 7

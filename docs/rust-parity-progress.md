@@ -7,22 +7,23 @@ head counts, not the language specification or the historical evidence itself.
 
 ## Current verified status: 2026-10-03
 
-Main `7c7482e1` passes Linux/macOS/Windows Compiler and Rust Runtime CI,
-including 981 exact C/Rust positive pairs and 39 diagnostic/order cases. All
-existing PR work is reconciled; the open queue is empty. C remains the default
-target. Sized-array reflection/defaults, buffered output, mixed integral
-conversions, scalar float/double conversion/mutation and tested floating-array
-argument representation/order and bytewise equality are integrated.
+Main `3e784b74034b64c59210d76e43691797c50f4fb5` passes all six
+Linux/macOS/Windows Compiler and Rust Runtime jobs, including 1071 exact C/Rust
+positive pairs and 39 diagnostic/order cases. All existing PR work is
+reconciled; the open queue is empty. C remains the default target. Captured-array
+indexed writes and synchronized character wrapping are integrated, alongside
+the previously verified reflection, output, numeric and floating-array work.
 
-Full parity is still incomplete. The broader unchanged C-positive corpus has
-94 Rust admission/compilation gaps, and remaining Rust-negative, ownership,
-native/SDK and language families need implementation and full mode/platform
-validation. Tested floating-array search, storage, insertion order and equality
-gaps are repaired. A separate C-valid probe still exposes a borrowed default-array
-return compilation gap, outside the 95-source compilation denominator. Indexed
-compound assignment is repaired with 153 new positive pairs, verified on all
-three platforms. The full evidence contains 981 positive pairs and 39
-diagnostic/order cases per platform.
+The next character/CRT increment passes complete local C/Rust suites and 1182
+cases (1143 positive pairs plus 39 diagnostic/order cases), including 72 new
+independent output checks. The unchanged original corpus has 90 remaining Rust
+compilation gaps, down from 92, with no new runtime failures or skips. Hosted
+verification of this increment follows after the tested changes reach main.
+
+Full parity remains incomplete. Broader array/callable identity, mutation and
+lifetimes, native/SDK and language families still need implementation and full
+mode/platform validation. C-side undefined probes and observed leaks remain
+explicit evidence limitations; they are not counted as successful parity.
 Exact CI/report links and follow-up diagnosis follow below.
 
 ## Baseline: 2026-10-02
@@ -1425,7 +1426,69 @@ gaps respectively. The two removed failures are exactly the two synchronized
 character sources, with no new runtime failures or skips. The goal remains
 active: 92 original compilation gaps and the broader ownership, array/callable
 transport, native/SDK and language/concurrency gaps still require completion.
-Hosted verification for this next revision is pending publication. Evidence:
+Exact-revision hosted verification is recorded below. Evidence:
 [sync-character-validation.json](rust-parity-evidence/sync-character-validation.json),
 [sync-character-pairs.json](rust-parity-evidence/sync-character-pairs.json), and
 [sync-character-formatter-defect.json](rust-parity-evidence/sync-character-formatter-defect.json).
+
+
+## Synchronized character stepping main: hosted verification, 2026-10-03
+
+Main revision `3e784b74034b64c59210d76e43691797c50f4fb5` passes all six jobs:
+[Compiler CI](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37147557568)
+and [Rust Platform Runtime](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37147557541).
+Each Linux/macOS/Windows artifact set has 16 passing reports with 1110 cases,
+including all 45 synchronized-character cases checked against explicit output
+expectations (CRLF on Windows). All source hashes match the repository; complete
+hosted C/Rust suites have their required counts, zero failures and zero skips.
+The original corpus still has exactly 92 compilation gaps and no new admitted
+runtime failures. The full parity goal remains active. Evidence:
+[sync-character-main-ci-green.json](rust-parity-evidence/sync-character-main-ci-green.json).
+
+## Character methods and CRT string semantics: local verification, 2026-10-03
+
+Rust now emits all eight C character methods: `toString`, `toInt`, `toUpper`,
+`toLower`, `isDigit`, `isAlpha`, `isWhitespace`, and `isAlnum`. A reserved private
+module calls the platform CRT with unsigned byte inputs. Integer conversion
+uses the platform C `char` signedness; string conversion preserves one raw byte
+and returns an empty string for NUL. Receivers execute once, including named
+callbacks, closure parameters/captures and array/struct members.
+
+String casing, `trim()` and `isBlank()` use the same active C locale. The
+unchanged C probe exposed Rust retaining vertical tabs during trim; it now
+agrees with C. `splitWhitespace()` retains C's separate space/tab/LF/CR rule.
+The native reference checks all 256 byte values in both required C and
+environment locales. Missing locale selection fails its independent oracle;
+this does not claim coverage of every locale available on other hosts.
+
+The new eight-source gate runs 72 independent raw-output/status checks across
+O0/O1/O2 and default/checked/unchecked arithmetic. It includes unchanged
+`test_char_methods` and `test_str_comprehensive`, four new Rust snapshot/runtime
+fixtures, unchanged `string_operations`, and the native C reference. Five
+selected existing Rust snapshots were reviewed for helper-module and call
+changes; existing sources and output expectations remain unchanged.
+
+Complete local validation passes: Rust generation 368, negatives 158,
+native 8/19/1/4, closures 36/1, concurrency 10/7/1 and toolchain 12; C unit 1610,
+cgen 107, model 79, integration 1141/58 and exploratory 224/11. Raw byte/text
+transport, Windows helper logic and formatting pass. All 17 reports contain
+1182 passing cases: 1143 positive pairs and 39 diagnostic/order checks.
+The original corpus now passes 1063 integration and 212 exploratory sources,
+with 78 and 12 compilation gaps, no new runtime failures or skips, and all
+1365 original source hashes unchanged. The full goal remains active.
+
+C expression-bodied closure chains exposed a stack-use-after-scope, confirmed
+by ASAN. Positive closure probes use explicit intermediates; the undefined
+original probes are retained as diagnostic evidence. The C string fixture also
+exposes a 314-byte leak from temporary split results; its leak failure is
+retained, and a separate address-only run passes with leak detection disabled.
+Three existing Rust string-match fixtures crash in restored C on a null
+reference argument, so their snapshots remain Rust runtime coverage and do not
+count toward differential parity. C emission, C runtime, original sources and
+existing output oracles were not changed to hide these defects.
+
+Evidence: [ctype-validation.json](rust-parity-evidence/ctype-validation.json),
+[ctype-pairs.json](rust-parity-evidence/ctype-pairs.json),
+[ctype-string-before.json](rust-parity-evidence/ctype-string-before.json),
+[ctype-asan.json](rust-parity-evidence/ctype-asan.json), and
+[ctype-string-match-c-asan.json](rust-parity-evidence/ctype-string-match-c-asan.json).

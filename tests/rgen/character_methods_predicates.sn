@@ -1,0 +1,14 @@
+fn main(): int =>
+  if !'9'.isDigit() || 'a'.isDigit() =>
+    return 1
+  if !'a'.isAlpha() || '9'.isAlpha() =>
+    return 2
+  if !' '.isWhitespace() || 'a'.isWhitespace() =>
+    return 3
+  if !'a'.isAlnum() || !'9'.isAlnum() || '@'.isAlnum() =>
+    return 4
+  if 'a'.toUpper() != 'A' || 'Z'.toLower() != 'z' =>
+    return 5
+  if 'A'.toInt() != 65 =>
+    return 6
+  return 0

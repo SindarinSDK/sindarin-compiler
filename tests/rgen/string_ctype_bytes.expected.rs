@@ -357,6 +357,29 @@ mod __sn_ctype {
 }
 
 
+fn __sn_index(length: usize, index: i64) -> usize {
+    let resolved = if index < 0 { length as i64 + index } else { index };
+    if resolved < 0 || resolved >= length as i64 {
+        panic!("array index out of bounds: {index}");
+    }
+    resolved as usize
+}
+
+fn __sn_insert_index(length: usize, index: i64) -> usize {
+    let resolved = if index < 0 { length as i64 + index } else { index };
+    if resolved < 0 || resolved > length as i64 {
+        panic!("array insert index out of bounds: {index}");
+    }
+    resolved as usize
+}
+
+fn __sn_array_size(size: i64) -> usize {
+    if size < 0 {
+        panic!("array size cannot be negative: {size}");
+    }
+    size as usize
+}
+
 fn __sn_string_substring(value: &SnString, start: i64, end: i64) -> SnString {
     let length = value.len() as i64;
     let start = start.max(0);
@@ -389,49 +412,123 @@ fn __sn_string_index_of(value: &SnString, needle: &SnString) -> i64 {
 }
 
 
-fn decorate(value: SnString) -> SnString {
-    return { let mut __sn_string = SnString::new(); __sn_string.push_str(&(value)); __sn_string.push_str(&(SnString::from_slice(&[0x21]))); __sn_string };
+fn __sn_string_split(value: &SnString, delimiter: &SnString) -> Vec<SnString> {
+    if value.is_empty() { return Vec::new(); }
+    if delimiter.is_empty() {
+        return value.as_bytes().iter()
+            .map(|byte| SnString::from_bytes(vec![*byte])).collect();
+    }
+    let mut result = Vec::new();
+    let mut remaining = value.as_bytes();
+    while !remaining.is_empty() {
+        if let Some(index) = __sn_find_bytes(remaining, delimiter.as_bytes()) {
+            result.push(SnString::from_bytes(remaining[..index].to_vec()));
+            remaining = &remaining[index + delimiter.len()..];
+            if remaining.is_empty() { result.push(SnString::new()); }
+        } else {
+            result.push(SnString::from_bytes(remaining.to_vec()));
+            break;
+        }
+    }
+    result
 }
 
+fn __sn_string_split_limit(value: &SnString, delimiter: &SnString,
+                                      limit: i64) -> Vec<SnString> {
+    if value.is_empty() || limit <= 0 { return Vec::new(); }
+    if delimiter.is_empty() {
+        return value.as_bytes().iter().take(limit as usize)
+            .map(|byte| SnString::from_bytes(vec![*byte])).collect();
+    }
+    let mut result = Vec::new();
+    let mut remaining = value.as_bytes();
+    while !remaining.is_empty() {
+        if result.len() >= (limit - 1) as usize {
+            result.push(SnString::from_bytes(remaining.to_vec()));
+            return result;
+        }
+        if let Some(index) = __sn_find_bytes(remaining, delimiter.as_bytes()) {
+            result.push(SnString::from_bytes(remaining[..index].to_vec()));
+            remaining = &remaining[index + delimiter.len()..];
+            if remaining.is_empty() { result.push(SnString::new()); }
+        } else {
+            result.push(SnString::from_bytes(remaining.to_vec()));
+            break;
+        }
+    }
+    result
+}
+
+fn __sn_string_split_lines(value: &SnString) -> Vec<SnString> {
+    let mut result = Vec::new();
+    let bytes = value.as_bytes();
+    let mut start = 0;
+    while start < bytes.len() {
+        let mut end = start;
+        while end < bytes.len() && bytes[end] != b'\n' && bytes[end] != b'\r' { end += 1; }
+        result.push(SnString::from_bytes(bytes[start..end].to_vec()));
+        start = end;
+        if start < bytes.len() && bytes[start] == b'\r'
+            && start + 1 < bytes.len() && bytes[start + 1] == b'\n' { start += 2; }
+        else if start < bytes.len() { start += 1; }
+    }
+    result
+}
+
+fn __sn_string_split_whitespace(value: &SnString) -> Vec<SnString> {
+    let bytes = value.as_bytes();
+    let mut result = Vec::new();
+    let mut start = 0;
+    while start < bytes.len() {
+        while start < bytes.len()
+            && matches!(bytes[start], b' ' | b'\t' | b'\n' | b'\r') { start += 1; }
+        if start == bytes.len() { break; }
+        let mut end = start;
+        while end < bytes.len()
+            && !matches!(bytes[end], b' ' | b'\t' | b'\n' | b'\r') { end += 1; }
+        result.push(SnString::from_bytes(bytes[start..end].to_vec()));
+        start = end;
+    }
+    result
+}
+
+fn __sn_string_is_blank(value: &SnString) -> bool {
+    value.as_bytes().iter().all(|byte| matches!(*byte, b'\t'..=b'\r' | b' '))
+}
+
+
+struct __SnClosure<F: ?Sized>(std::rc::Rc<F>);
+impl<F: ?Sized> Clone for __SnClosure<F> {
+    fn clone(&self) -> Self { Self(self.0.clone()) }
+}
+impl<F: ?Sized> std::fmt::Debug for __SnClosure<F> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("<function>")
+    }
+}
+impl<F: ?Sized> PartialEq for __SnClosure<F> {
+    fn eq(&self, other: &Self) -> bool { std::rc::Rc::ptr_eq(&self.0, &other.0) }
+}
 fn main() {
     let __sn_stdio_guard = __SnStdioGuard;
-    let mut source: SnString = SnString::from_slice(&[0x20, 0x20, 0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x57, 0x6f, 0x72, 0x6c, 0x64, 0x20, 0x20]);
-    let mut assigned: SnString = source.clone();
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x61, 0x73, 0x73, 0x69, 0x67, 0x6e, 0x65, 0x64, 0x43, 0x6f, 0x70, 0x79, 0x3d]))); __sn_interpolated.push_str(&(assigned)); __sn_interpolated }));
-    (assigned = SnString::from_slice(&[0x63, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x64]));
-    let mut explicit_copy: SnString = (source).clone();
-    { let (__sn_string_part, __sn_string_place) = ((SnString::from_slice(&[0x20, 0x63, 0x6f, 0x70, 0x79])).clone(), &mut (explicit_copy)); __sn_string_place.push_str(&__sn_string_part); (*__sn_string_place).clone() };
-    let mut decorated: SnString = decorate(source.clone());
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x3d]))); __sn_interpolated.push_str(&(source)); __sn_interpolated }));
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x61, 0x73, 0x73, 0x69, 0x67, 0x6e, 0x65, 0x64, 0x3d]))); __sn_interpolated.push_str(&(assigned)); __sn_interpolated }));
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x63, 0x6f, 0x70, 0x79, 0x3d]))); __sn_interpolated.push_str(&(explicit_copy)); __sn_interpolated }));
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x64, 0x65, 0x63, 0x6f, 0x72, 0x61, 0x74, 0x65, 0x64, 0x3d]))); __sn_interpolated.push_str(&(decorated)); __sn_interpolated }));
-    let mut hello: SnString = __sn_ctype::string_trim(&(source));
-    let mut joined: SnString = { let mut __sn_string = SnString::new(); __sn_string.push_str(&(hello)); __sn_string.push_str(&(SnString::from_slice(&[0x20, 0x66, 0x72, 0x6f, 0x6d]))); __sn_string.push_str(&(SnString::from_slice(&[0x20, 0x52, 0x75, 0x73, 0x74]))); __sn_string }
+    println!("{}", (__sn_ctype::string_trim(&(SnString::from_slice(&[0x0b, 0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x0b]))) == SnString::from_slice(&[0x48, 0x65, 0x6c, 0x6c, 0x6f])));
+    println!("{}", (__sn_ctype::string_trim(&(SnString::from_slice(&[0x0c, 0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x0c]))) == SnString::from_slice(&[0x48, 0x65, 0x6c, 0x6c, 0x6f])));
+    println!("{}", __sn_ctype::string_blank(&(SnString::from_slice(&[0x0b, 0x0c]))));
+    println!("{}", (__sn_ctype::string_upper(&(SnString::from_slice(&[0x0b, 0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x0c]))) == SnString::from_slice(&[0x0b, 0x48, 0x45, 0x4c, 0x4c, 0x4f, 0x0c])));
+    __sn_println_string(&(__sn_ctype::string_lower(&(SnString::from_slice(&[0x41, 0x42, 0x43])))));
+    println!("{}", (__sn_string_split_whitespace(&(SnString::from_slice(&[0x61, 0x0b, 0x62])))
+).len() as i64);
+    println!("{}", (__sn_string_split_whitespace(&(SnString::from_slice(&[0x61, 0x0c, 0x62])))
+).len() as i64);
+    println!("{}", (__sn_string_split_whitespace(&(SnString::from_slice(&[0x61, 0x20, 0x62, 0x09, 0x63, 0x0d, 0x64, 0x0a, 0x65])))
+).len() as i64);
+    println!("{}", (__sn_ctype::string_trim(&(SnString::from_slice(&[])))).len() as i64);
+    println!("{}", __sn_ctype::string_blank(&(SnString::from_slice(&[]))));
+    let mut captured: SnString = SnString::from_slice(&[0x0b, 0x78, 0x0c]);
+    let mut upper: __SnClosure<dyn Fn() -> SnString> = { let (captured, ) = (captured.clone(), ); self::__SnClosure::<dyn Fn() -> SnString>(std::rc::Rc::new(move || -> SnString { let mut trimmed: SnString = __sn_ctype::string_trim(&(captured.clone()));return __sn_ctype::string_upper(&(trimmed));})) }
 ;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x6a, 0x6f, 0x69, 0x6e, 0x65, 0x64, 0x3d]))); __sn_interpolated.push_str(&(joined)); __sn_interpolated }));
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x6c, 0x65, 0x6e, 0x67, 0x74, 0x68, 0x3d]))); __sn_interpolated.push_str(&format!("{}", (hello).len() as i64)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2f]))); __sn_interpolated.push_str(&format!("{}", (hello).len() as i64)); __sn_interpolated }));
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x65, 0x71, 0x75, 0x61, 0x6c, 0x3d]))); __sn_interpolated.push_str(&format!("{}", (hello == SnString::from_slice(&[0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x57, 0x6f, 0x72, 0x6c, 0x64])))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2f]))); __sn_interpolated.push_str(&format!("{}", (hello != source))); __sn_interpolated }));
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x63, 0x6f, 0x6e, 0x74, 0x61, 0x69, 0x6e, 0x73, 0x3d]))); __sn_interpolated.push_str(&format!("{}", (hello).contains(&(SnString::from_slice(&[0x6c, 0x6f, 0x20, 0x57, 0x6f])))
-)); __sn_interpolated }));
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x73, 0x74, 0x61, 0x72, 0x74, 0x73, 0x3d]))); __sn_interpolated.push_str(&format!("{}", (hello).starts_with(&(SnString::from_slice(&[0x48, 0x65, 0x6c, 0x6c])))
-)); __sn_interpolated }));
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x65, 0x6e, 0x64, 0x73, 0x3d]))); __sn_interpolated.push_str(&format!("{}", (hello).ends_with(&(SnString::from_slice(&[0x57, 0x6f, 0x72, 0x6c, 0x64])))
-)); __sn_interpolated }));
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x75, 0x70, 0x70, 0x65, 0x72, 0x3d]))); __sn_interpolated.push_str(&(__sn_ctype::string_upper(&(hello)))); __sn_interpolated }));
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x6c, 0x6f, 0x77, 0x65, 0x72, 0x3d]))); __sn_interpolated.push_str(&(__sn_ctype::string_lower(&(hello)))); __sn_interpolated }));
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x73, 0x75, 0x62, 0x73, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x3d]))); __sn_interpolated.push_str(&(__sn_string_substring(&(hello), 6, 11)
-)); __sn_interpolated }));
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x72, 0x65, 0x70, 0x6c, 0x61, 0x63, 0x65, 0x3d]))); __sn_interpolated.push_str(&(__sn_string_replace(&(hello), &(SnString::from_slice(&[0x57, 0x6f, 0x72, 0x6c, 0x64])), &(SnString::from_slice(&[0x52, 0x75, 0x73, 0x74])))
-)); __sn_interpolated }));
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x65, 0x6d, 0x70, 0x74, 0x79, 0x52, 0x65, 0x70, 0x6c, 0x61, 0x63, 0x65, 0x3d]))); __sn_interpolated.push_str(&(__sn_string_replace(&(hello), &(SnString::from_slice(&[])), &(SnString::from_slice(&[0x69, 0x67, 0x6e, 0x6f, 0x72, 0x65, 0x64])))
-)); __sn_interpolated }));
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x63, 0x68, 0x61, 0x72, 0x3d]))); __sn_interpolated.push_char(__sn_string_char_at(&(hello), 1)
-); __sn_interpolated }));
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x69, 0x6e, 0x64, 0x65, 0x78, 0x3d]))); __sn_interpolated.push_str(&format!("{}", __sn_string_index_of(&(hello), &(SnString::from_slice(&[0x57, 0x6f, 0x72, 0x6c, 0x64])))
-)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2f]))); __sn_interpolated.push_str(&format!("{}", __sn_string_index_of(&(hello), &(SnString::from_slice(&[0x6d, 0x69, 0x73, 0x73, 0x69, 0x6e, 0x67])))
-)); __sn_interpolated }));
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x63, 0x68, 0x61, 0x69, 0x6e, 0x3d]))); __sn_interpolated.push_str(&(__sn_string_replace(&(__sn_ctype::string_lower(&(__sn_ctype::string_trim(&(source))))), &(SnString::from_slice(&[0x77, 0x6f, 0x72, 0x6c, 0x64])), &(SnString::from_slice(&[0x72, 0x75, 0x73, 0x74])))
-)); __sn_interpolated }));
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x41, 0x67, 0x61, 0x69, 0x6e, 0x3d]))); __sn_interpolated.push_str(&(source)); __sn_interpolated }));
+    __sn_println_string(&(((upper.clone()).0)()));
+    let mut blank: __SnClosure<dyn Fn(SnString) -> bool> = { self::__SnClosure::<dyn Fn(SnString) -> bool>(std::rc::Rc::new(move |value: SnString| -> bool { __sn_ctype::string_blank(&(value))})) }
+;
+    println!("{}", ((blank.clone()).0)(SnString::from_slice(&[0x0b])));
 }

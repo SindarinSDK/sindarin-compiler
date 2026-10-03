@@ -554,3 +554,18 @@ test-rust-parity-sync-character: build
 		tests/rgen/sync_character_thread_wrap.sn \
 		--require-count 5 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-sync-character.json
+
+.PHONY: test-rust-parity-ctype
+test-rust-parity-ctype: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/integration/test_char_methods.sn \
+		tests/exploratory/test_str_comprehensive.sn \
+		tests/rgen/character_methods_basic.sn \
+		tests/rgen/character_methods_receivers.sn \
+		tests/rgen/character_methods_predicates.sn \
+		tests/rgen/string_ctype_bytes.sn \
+		tests/rgen/string_operations.sn \
+		tests/rust-native/character_ctype_locale.sn \
+		--require-count 8 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-ctype.json
+	@$(PYTHON) scripts/check_rust_ctype_oracles.py .sn/rust-parity-ctype.json

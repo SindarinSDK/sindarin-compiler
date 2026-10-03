@@ -1,0 +1,34 @@
+struct Letter =>
+  value: char
+
+fn sample(calls: int as ref): char =>
+  calls += 1
+  return 'x'
+
+fn __sn_ctype(value: char): char =>
+  return value
+
+fn main(): void =>
+  var calls: int = 0
+  println(sample(calls).toUpper().toString())
+  println(calls)
+  println(sample(calls).isAlpha())
+  println(calls)
+  var captured: char = 'a'
+  var convert: fn(): str = fn(): str =>
+    var converted: char = captured.toUpper()
+    return converted.toString()
+  println(convert())
+  var classify: fn(char): bool = fn(value: char): bool => value.isDigit()
+  println(classify('7'))
+  var letters: char[] = {'a', 'B'}
+  var fromArray: fn(): str = fn(): str =>
+    var converted: char = letters[0].toUpper()
+    return converted.toString()
+  println(fromArray())
+  var letter: Letter = { value: 'Z' }
+  var fromField: fn(): str = fn(): str =>
+    var converted: char = letter.value.toLower()
+    return converted.toString()
+  println(fromField())
+  println(__sn_ctype('b').toUpper().toString())

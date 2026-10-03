@@ -311,6 +311,52 @@ fn __sn_string_to_double(value: &SnString) -> f64 {
 }
 
 
+mod __sn_ctype {
+    use std::ffi::c_int;
+    unsafe extern "C" {
+        #[link_name = "toupper"] fn crt_upper(value: c_int) -> c_int;
+        #[link_name = "tolower"] fn crt_lower(value: c_int) -> c_int;
+        #[link_name = "isdigit"] fn crt_digit(value: c_int) -> c_int;
+        #[link_name = "isalpha"] fn crt_alpha(value: c_int) -> c_int;
+        #[link_name = "isspace"] fn crt_space(value: c_int) -> c_int;
+        #[link_name = "isalnum"] fn crt_alnum(value: c_int) -> c_int;
+    }
+    fn byte(value: char) -> u8 { value as u32 as u8 }
+    fn upper_byte(value: u8) -> u8 { unsafe { crt_upper(value as c_int) as u8 } }
+    fn lower_byte(value: u8) -> u8 { unsafe { crt_lower(value as c_int) as u8 } }
+    fn space_byte(value: u8) -> bool { unsafe { crt_space(value as c_int) != 0 } }
+    pub(super) fn upper(value: char) -> char { upper_byte(byte(value)) as char }
+    pub(super) fn lower(value: char) -> char { lower_byte(byte(value)) as char }
+    pub(super) fn integer(value: char) -> i64 { byte(value) as std::ffi::c_char as i64 }
+    pub(super) fn digit(value: char) -> bool { unsafe { crt_digit(byte(value) as c_int) != 0 } }
+    pub(super) fn alpha(value: char) -> bool { unsafe { crt_alpha(byte(value) as c_int) != 0 } }
+    pub(super) fn space(value: char) -> bool { space_byte(byte(value)) }
+    pub(super) fn alnum(value: char) -> bool { unsafe { crt_alnum(byte(value) as c_int) != 0 } }
+    pub(super) fn string(value: char) -> super::SnString {
+        let value = byte(value);
+        if value == 0 { super::SnString::new() }
+        else { super::SnString::from_slice(&[value]) }
+    }
+    pub(super) fn string_upper(value: &super::SnString) -> super::SnString {
+        super::SnString::from_bytes(value.as_bytes().iter().copied().map(upper_byte).collect())
+    }
+    pub(super) fn string_lower(value: &super::SnString) -> super::SnString {
+        super::SnString::from_bytes(value.as_bytes().iter().copied().map(lower_byte).collect())
+    }
+    pub(super) fn string_trim(value: &super::SnString) -> super::SnString {
+        let bytes = value.as_bytes();
+        let mut start = 0;
+        let mut end = bytes.len();
+        while start < end && space_byte(bytes[start]) { start += 1; }
+        while end > start && space_byte(bytes[end - 1]) { end -= 1; }
+        super::SnString::from_slice(&bytes[start..end])
+    }
+    pub(super) fn string_blank(value: &super::SnString) -> bool {
+        value.as_bytes().iter().copied().all(space_byte)
+    }
+}
+
+
 struct __SnClosure<F: ?Sized>(std::rc::Rc<F>);
 impl<F: ?Sized> Clone for __SnClosure<F> {
     fn clone(&self) -> Self { Self(self.0.clone()) }
@@ -329,8 +375,7 @@ fn main() {
     __sn_println_string(&(value.borrow().clone()));
     let mut read: __SnClosure<dyn Fn() -> SnString> = { let (value, ) = (value.clone(), ); self::__SnClosure::<dyn Fn() -> SnString>(std::rc::Rc::new(move || -> SnString { value.borrow().clone().clone()})) }
 ;
-    let mut first: __SnClosure<dyn Fn() -> SnString> = { let (value, ) = (value.clone(), ); self::__SnClosure::<dyn Fn() -> SnString>(std::rc::Rc::new(move || -> SnString { { let (__sn_value, __sn_cell) = ({ let mut __sn_string = SnString::new(); __sn_string.push_str(&(value.borrow().clone())); __sn_string.push_str(&(SnString::from_slice(&[0x2d, 0x73, 0x65, 0x74]))); __sn_string }, &value); __sn_cell.replace(__sn_value.clone()); __sn_value };{ let (__sn_string_part, __sn_cell) = ((SnString::from_slice(&[0x2d, 0x61, 0x70, 0x70, 0x65, 0x6e, 0x64])).clone(), &value); let mut __sn_string_place = __sn_cell.borrow_mut(); __sn_string_place.push_str(&__sn_string_part); (*__sn_string_place).clone() };return (value.borrow().clone()).to_ascii_uppercase()
-;})) }
+    let mut first: __SnClosure<dyn Fn() -> SnString> = { let (value, ) = (value.clone(), ); self::__SnClosure::<dyn Fn() -> SnString>(std::rc::Rc::new(move || -> SnString { { let (__sn_value, __sn_cell) = ({ let mut __sn_string = SnString::new(); __sn_string.push_str(&(value.borrow().clone())); __sn_string.push_str(&(SnString::from_slice(&[0x2d, 0x73, 0x65, 0x74]))); __sn_string }, &value); __sn_cell.replace(__sn_value.clone()); __sn_value };{ let (__sn_string_part, __sn_cell) = ((SnString::from_slice(&[0x2d, 0x61, 0x70, 0x70, 0x65, 0x6e, 0x64])).clone(), &value); let mut __sn_string_place = __sn_cell.borrow_mut(); __sn_string_place.push_str(&__sn_string_part); (*__sn_string_place).clone() };return __sn_ctype::string_upper(&(value.borrow().clone()));})) }
 ;
     let mut second: __SnClosure<dyn Fn() -> SnString> = { let (value, ) = (value.clone(), ); self::__SnClosure::<dyn Fn() -> SnString>(std::rc::Rc::new(move || -> SnString { { let (__sn_string_part, __sn_cell) = ((SnString::from_slice(&[0x2d, 0x73, 0x69, 0x62, 0x6c, 0x69, 0x6e, 0x67])).clone(), &value); let mut __sn_string_place = __sn_cell.borrow_mut(); __sn_string_place.push_str(&__sn_string_part); (*__sn_string_place).clone() };return value.borrow().clone();})) }
 ;

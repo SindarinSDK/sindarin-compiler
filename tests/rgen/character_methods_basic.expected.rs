@@ -1,5 +1,15 @@
 #![allow(dead_code, unused_mut, unused_variables, unused_parens)]
 
+struct __sn_concurrency0_Cell<T> {
+    value: std::sync::Mutex<T>,
+    gate: std::sync::Mutex<()>,
+}
+impl<T> __sn_concurrency0_Cell<T> {
+    fn new(value: T) -> Self { Self { value: std::sync::Mutex::new(value), gate: std::sync::Mutex::new(()) } }
+    fn lock(&self) -> std::sync::LockResult<std::sync::MutexGuard<'_, T>> { self.value.lock() }
+    fn guard(&self) -> std::sync::MutexGuard<'_, ()> { self.gate.lock().unwrap_or_else(|e| e.into_inner()) }
+}
+
 extern "C" {
     #[link_name = "fwrite"]
     fn __sn_stdio_fwrite(_: *const std::ffi::c_void, _: usize, _: usize, _: *mut std::ffi::c_void) -> usize;
@@ -357,81 +367,25 @@ mod __sn_ctype {
 }
 
 
-fn __sn_string_substring(value: &SnString, start: i64, end: i64) -> SnString {
-    let length = value.len() as i64;
-    let start = start.max(0);
-    let end = end.min(length);
-    if start >= end { return SnString::new(); }
-    SnString::from_bytes(value.as_bytes()[start as usize..end as usize].to_vec())
-}
-
-fn __sn_string_replace(value: &SnString, old: &SnString, new: &SnString) -> SnString {
-    if old.is_empty() { return value.clone(); }
-    let mut result = SnString::new();
-    let mut remaining = value.as_bytes();
-    while let Some(index) = __sn_find_bytes(remaining, old.as_bytes()) {
-        result.0.extend_from_slice(&remaining[..index]);
-        result.push_str(new);
-        remaining = &remaining[index + old.len()..];
-    }
-    result.0.extend_from_slice(remaining);
-    result
-}
-
-fn __sn_string_char_at(value: &SnString, index: i64) -> char {
-    if index < 0 { return '\0'; }
-    value.as_bytes().get(index as usize).copied().map(char::from).unwrap_or('\0')
-}
-
-fn __sn_string_index_of(value: &SnString, needle: &SnString) -> i64 {
-    __sn_find_bytes(value.as_bytes(), needle.as_bytes())
-        .map(|index| index as i64).unwrap_or(-1)
-}
-
-
-fn decorate(value: SnString) -> SnString {
-    return { let mut __sn_string = SnString::new(); __sn_string.push_str(&(value)); __sn_string.push_str(&(SnString::from_slice(&[0x21]))); __sn_string };
-}
-
 fn main() {
     let __sn_stdio_guard = __SnStdioGuard;
-    let mut source: SnString = SnString::from_slice(&[0x20, 0x20, 0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x57, 0x6f, 0x72, 0x6c, 0x64, 0x20, 0x20]);
-    let mut assigned: SnString = source.clone();
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x61, 0x73, 0x73, 0x69, 0x67, 0x6e, 0x65, 0x64, 0x43, 0x6f, 0x70, 0x79, 0x3d]))); __sn_interpolated.push_str(&(assigned)); __sn_interpolated }));
-    (assigned = SnString::from_slice(&[0x63, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x64]));
-    let mut explicit_copy: SnString = (source).clone();
-    { let (__sn_string_part, __sn_string_place) = ((SnString::from_slice(&[0x20, 0x63, 0x6f, 0x70, 0x79])).clone(), &mut (explicit_copy)); __sn_string_place.push_str(&__sn_string_part); (*__sn_string_place).clone() };
-    let mut decorated: SnString = decorate(source.clone());
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x3d]))); __sn_interpolated.push_str(&(source)); __sn_interpolated }));
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x61, 0x73, 0x73, 0x69, 0x67, 0x6e, 0x65, 0x64, 0x3d]))); __sn_interpolated.push_str(&(assigned)); __sn_interpolated }));
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x63, 0x6f, 0x70, 0x79, 0x3d]))); __sn_interpolated.push_str(&(explicit_copy)); __sn_interpolated }));
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x64, 0x65, 0x63, 0x6f, 0x72, 0x61, 0x74, 0x65, 0x64, 0x3d]))); __sn_interpolated.push_str(&(decorated)); __sn_interpolated }));
-    let mut hello: SnString = __sn_ctype::string_trim(&(source));
-    let mut joined: SnString = { let mut __sn_string = SnString::new(); __sn_string.push_str(&(hello)); __sn_string.push_str(&(SnString::from_slice(&[0x20, 0x66, 0x72, 0x6f, 0x6d]))); __sn_string.push_str(&(SnString::from_slice(&[0x20, 0x52, 0x75, 0x73, 0x74]))); __sn_string }
-;
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x6a, 0x6f, 0x69, 0x6e, 0x65, 0x64, 0x3d]))); __sn_interpolated.push_str(&(joined)); __sn_interpolated }));
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x6c, 0x65, 0x6e, 0x67, 0x74, 0x68, 0x3d]))); __sn_interpolated.push_str(&format!("{}", (hello).len() as i64)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2f]))); __sn_interpolated.push_str(&format!("{}", (hello).len() as i64)); __sn_interpolated }));
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x65, 0x71, 0x75, 0x61, 0x6c, 0x3d]))); __sn_interpolated.push_str(&format!("{}", (hello == SnString::from_slice(&[0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x57, 0x6f, 0x72, 0x6c, 0x64])))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2f]))); __sn_interpolated.push_str(&format!("{}", (hello != source))); __sn_interpolated }));
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x63, 0x6f, 0x6e, 0x74, 0x61, 0x69, 0x6e, 0x73, 0x3d]))); __sn_interpolated.push_str(&format!("{}", (hello).contains(&(SnString::from_slice(&[0x6c, 0x6f, 0x20, 0x57, 0x6f])))
-)); __sn_interpolated }));
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x73, 0x74, 0x61, 0x72, 0x74, 0x73, 0x3d]))); __sn_interpolated.push_str(&format!("{}", (hello).starts_with(&(SnString::from_slice(&[0x48, 0x65, 0x6c, 0x6c])))
-)); __sn_interpolated }));
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x65, 0x6e, 0x64, 0x73, 0x3d]))); __sn_interpolated.push_str(&format!("{}", (hello).ends_with(&(SnString::from_slice(&[0x57, 0x6f, 0x72, 0x6c, 0x64])))
-)); __sn_interpolated }));
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x75, 0x70, 0x70, 0x65, 0x72, 0x3d]))); __sn_interpolated.push_str(&(__sn_ctype::string_upper(&(hello)))); __sn_interpolated }));
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x6c, 0x6f, 0x77, 0x65, 0x72, 0x3d]))); __sn_interpolated.push_str(&(__sn_ctype::string_lower(&(hello)))); __sn_interpolated }));
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x73, 0x75, 0x62, 0x73, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x3d]))); __sn_interpolated.push_str(&(__sn_string_substring(&(hello), 6, 11)
-)); __sn_interpolated }));
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x72, 0x65, 0x70, 0x6c, 0x61, 0x63, 0x65, 0x3d]))); __sn_interpolated.push_str(&(__sn_string_replace(&(hello), &(SnString::from_slice(&[0x57, 0x6f, 0x72, 0x6c, 0x64])), &(SnString::from_slice(&[0x52, 0x75, 0x73, 0x74])))
-)); __sn_interpolated }));
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x65, 0x6d, 0x70, 0x74, 0x79, 0x52, 0x65, 0x70, 0x6c, 0x61, 0x63, 0x65, 0x3d]))); __sn_interpolated.push_str(&(__sn_string_replace(&(hello), &(SnString::from_slice(&[])), &(SnString::from_slice(&[0x69, 0x67, 0x6e, 0x6f, 0x72, 0x65, 0x64])))
-)); __sn_interpolated }));
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x63, 0x68, 0x61, 0x72, 0x3d]))); __sn_interpolated.push_char(__sn_string_char_at(&(hello), 1)
-); __sn_interpolated }));
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x69, 0x6e, 0x64, 0x65, 0x78, 0x3d]))); __sn_interpolated.push_str(&format!("{}", __sn_string_index_of(&(hello), &(SnString::from_slice(&[0x57, 0x6f, 0x72, 0x6c, 0x64])))
-)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2f]))); __sn_interpolated.push_str(&format!("{}", __sn_string_index_of(&(hello), &(SnString::from_slice(&[0x6d, 0x69, 0x73, 0x73, 0x69, 0x6e, 0x67])))
-)); __sn_interpolated }));
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x63, 0x68, 0x61, 0x69, 0x6e, 0x3d]))); __sn_interpolated.push_str(&(__sn_string_replace(&(__sn_ctype::string_lower(&(__sn_ctype::string_trim(&(source))))), &(SnString::from_slice(&[0x77, 0x6f, 0x72, 0x6c, 0x64])), &(SnString::from_slice(&[0x72, 0x75, 0x73, 0x74])))
-)); __sn_interpolated }));
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x41, 0x67, 0x61, 0x69, 0x6e, 0x3d]))); __sn_interpolated.push_str(&(source)); __sn_interpolated }));
+    __sn_println_string(&(__sn_ctype::string('\u{61}')));
+    __sn_println_string(&(__sn_ctype::string(__sn_ctype::upper('\u{78}'))));
+    __sn_println_string(&(__sn_ctype::string(__sn_ctype::lower('\u{5a}'))));
+    println!("{}", __sn_ctype::integer('\u{41}'));
+    println!("{}", __sn_ctype::digit('\u{35}'));
+    println!("{}", __sn_ctype::digit('\u{61}'));
+    println!("{}", __sn_ctype::alpha('\u{78}'));
+    println!("{}", __sn_ctype::alpha('\u{39}'));
+    println!("{}", __sn_ctype::space('\u{20}'));
+    println!("{}", __sn_ctype::space('\u{7a}'));
+    println!("{}", __sn_ctype::alnum('\u{41}'));
+    println!("{}", __sn_ctype::alnum('\u{33}'));
+    println!("{}", __sn_ctype::alnum('\u{40}'));
+    println!("{}", (__sn_ctype::string('\u{0}')).len() as i64);
+    let last: __sn_concurrency0_Cell<char> = __sn_concurrency0_Cell::new('\u{0}');
+    { let __sn_concurrency0_gate = last.guard(); let mut __sn_concurrency0_value = last.lock().unwrap_or_else(|e| e.into_inner()); let __sn_concurrency0_previous = *__sn_concurrency0_value; *__sn_concurrency0_value = ((*__sn_concurrency0_value as u32 as u8).wrapping_sub(1)) as char; __sn_concurrency0_previous };
+    println!("{}", (__sn_ctype::string({ let value = last.lock().unwrap_or_else(|e| e.into_inner()).clone(); value })).len() as i64);
+    println!("{}", (__sn_ctype::upper({ let value = last.lock().unwrap_or_else(|e| e.into_inner()).clone(); value }) == { let value = last.lock().unwrap_or_else(|e| e.into_inner()).clone(); value }));
+    println!("{}", (__sn_ctype::lower({ let value = last.lock().unwrap_or_else(|e| e.into_inner()).clone(); value }) == { let value = last.lock().unwrap_or_else(|e| e.into_inner()).clone(); value }));
 }

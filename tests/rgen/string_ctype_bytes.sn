@@ -1,0 +1,18 @@
+fn main(): void =>
+  println("\x0BHello\x0B".trim() == "Hello")
+  println("\x0CHello\x0C".trim() == "Hello")
+  println("\x0B\x0C".isBlank())
+  println("\x0Bhello\x0C".toUpper() == "\x0BHELLO\x0C")
+  println("ABC".toLower())
+  println("a\x0Bb".splitWhitespace().length)
+  println("a\x0Cb".splitWhitespace().length)
+  println("a b\tc\rd\ne".splitWhitespace().length)
+  println("".trim().length)
+  println("".isBlank())
+  var captured: str = "\x0Bx\x0C"
+  var upper: fn(): str = fn(): str =>
+    var trimmed: str = captured.trim()
+    return trimmed.toUpper()
+  println(upper())
+  var blank: fn(str): bool = fn(value: str): bool => value.isBlank()
+  println(blank("\x0B"))

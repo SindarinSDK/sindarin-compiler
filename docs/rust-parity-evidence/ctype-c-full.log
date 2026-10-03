@@ -1,0 +1,65 @@
+Compiler: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn
+Platform: Linux
+Parallel: 20 workers
+
+Unit Tests
+============================================================
+Results: 1610 passed, 0 failed  (total: 10.78ms)
+------------------------------------------------------------
+Unit tests passed  (14ms)
+
+Code Generation Tests
+============================================================
+  Running 107 tests with 20 workers...
+
+
+
+------------------------------------------------------------
+Results: 107 passed, 0 failed, 0 skipped  (463ms)
+
+Model Generation Tests
+============================================================
+  Running 79 tests with 20 workers...
+
+
+
+------------------------------------------------------------
+Results: 79 passed, 0 failed, 0 skipped  (47ms)
+
+Integration Tests
+============================================================
+  Running 1141 tests with 20 workers...
+
+
+
+------------------------------------------------------------
+Results: 1141 passed, 0 failed, 0 skipped  (6.05s)
+
+Integration Error Tests
+============================================================
+  Running 58 tests with 20 workers...
+
+
+
+------------------------------------------------------------
+Results: 58 passed, 0 failed, 0 skipped  (26ms)
+
+Exploratory Tests
+============================================================
+  Running 224 tests with 20 workers...
+
+
+
+------------------------------------------------------------
+Results: 224 passed, 0 failed, 0 skipped  (9.75s)
+
+Exploratory Error Tests
+============================================================
+  Running 11 tests with 20 workers...
+
+
+
+------------------------------------------------------------
+Results: 11 passed, 0 failed, 0 skipped  (6ms)
+
+All tests passed!  (total: 16.35s)

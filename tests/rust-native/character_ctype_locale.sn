@@ -1,0 +1,52 @@
+@source "character_ctype_locale.sn.c"
+
+native fn ctype_value(value: int): char
+native fn ctype_reference(value: int, operation: int): int
+native fn ctype_locale(value: int): bool
+
+fn verify(): bool =>
+  var index: int = 0
+  while index < 256 =>
+    var value: char = ctype_value(index)
+    if value.toInt() != ctype_reference(index, 0) =>
+      return false
+    if value.toUpper().toInt() != ctype_reference(index, 1) =>
+      return false
+    if value.toLower().toInt() != ctype_reference(index, 2) =>
+      return false
+    if value.isDigit() != (ctype_reference(index, 3) != 0) =>
+      return false
+    if value.isAlpha() != (ctype_reference(index, 4) != 0) =>
+      return false
+    if value.isWhitespace() != (ctype_reference(index, 5) != 0) =>
+      return false
+    if value.isAlnum() != (ctype_reference(index, 6) != 0) =>
+      return false
+    var text: str = value.toString()
+    if index == 0 =>
+      if text.length != 0 || !text.isBlank() || text.trim().length != 0 =>
+        return false
+    else =>
+      if text.length != 1 =>
+        return false
+      if text.toUpper().charAt(0).toInt() != ctype_reference(index, 1) =>
+        return false
+      if text.toLower().charAt(0).toInt() != ctype_reference(index, 2) =>
+        return false
+      var whitespace: bool = ctype_reference(index, 5) != 0
+      if text.isBlank() != whitespace =>
+        return false
+      if whitespace =>
+        if text.trim().length != 0 =>
+          return false
+      else =>
+        if text.trim() != text =>
+          return false
+    index += 1
+  return true
+
+fn main(): void =>
+  println(ctype_locale(0))
+  println(verify())
+  println(ctype_locale(1))
+  println(verify())

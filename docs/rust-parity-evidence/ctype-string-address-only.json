@@ -1,0 +1,10 @@
+{
+  "source": "tests/rgen/string_ctype_bytes.sn",
+  "environment": {
+    "ASAN_OPTIONS": "detect_leaks=0"
+  },
+  "status": 0,
+  "stdout_hex": "747275650a747275650a747275650a747275650a6162630a310a310a350a300a747275650a580a747275650a",
+  "stderr_hex": "",
+  "scope": "Address errors only; original 314-byte C split-result leak retained in character-method-asan.json."
+}

@@ -1,0 +1,441 @@
+{
+  "base_revision": "3e784b74034b64c59210d76e43691797c50f4fb5",
+  "compiler_sha256": "14df30551e442ce90bc689821b4e0caf0545489f2807721561bc3d300fc93cbc",
+  "positive_pairs": 1143,
+  "diagnostic_order_cases": 39,
+  "total_cases": 1182,
+  "gates": [
+    {
+      "name": "core",
+      "cases": 30,
+      "sha256": "3b55e09bb40f4e3de5691aff75bc7907e2cf987f1a5278a2b14193b33ae03517"
+    },
+    {
+      "name": "concurrency",
+      "cases": 51,
+      "sha256": "c41000727bfa9a7a05666be239bff02cd7df98cd09fe55a607a85d36abafdd28"
+    },
+    {
+      "name": "thread-ownership",
+      "cases": 207,
+      "sha256": "51734aa40a7b8927aab78ae6abe61a737e0ffebc64a5917e6ea2dbad8614902a"
+    },
+    {
+      "name": "thread-receivers",
+      "cases": 90,
+      "sha256": "2b6747d7b94f14988dde8cd2e7d2b80d5766146a86388fd82468cfbd3347e696"
+    },
+    {
+      "name": "reflection",
+      "cases": 36,
+      "sha256": "23f79617234bb3f6b2730601c49f130a162dc1c251301477d53830068ee03717"
+    },
+    {
+      "name": "sized-defaults",
+      "cases": 27,
+      "sha256": "3d97437dbb57c82d038a7a4d7e00f6cb4bedd7b00a809318e566274e61b87ee4"
+    },
+    {
+      "name": "native-managed",
+      "cases": 63,
+      "sha256": "c42f2b759363c3616b3dbd54427e29aad5e45bdb1e318205742768b77854e7bd"
+    },
+    {
+      "name": "stdio-order",
+      "cases": 30,
+      "sha256": "e15b43489ea95229fbe07849ceab12fca20034642f4a378a224683a8bf007d94"
+    },
+    {
+      "name": "mixed-integral",
+      "cases": 90,
+      "sha256": "664940361da757c61171e4154158f014aac5e45d0152b76340858971965c477f"
+    },
+    {
+      "name": "mixed-integral-diagnostics",
+      "cases": 9,
+      "sha256": "2c8eba10178999cb0e421825f3bc37c6983c0af0da07d666eeb9f6448115eb3a"
+    },
+    {
+      "name": "float-conversions",
+      "cases": 117,
+      "sha256": "b0eeedadd6ed32d323d54714a0fadd8c022ec4295a84d5ff4718dce7854cc8bc"
+    },
+    {
+      "name": "floating-arrays",
+      "cases": 81,
+      "sha256": "cd23bed82d1ac9e29c5e4f13aac4706f296d1bb8b79fdfb4f7c0af899f538142"
+    },
+    {
+      "name": "floating-equality",
+      "cases": 36,
+      "sha256": "e03d3873292e3716c53b974db10131b2178b9a80ac3093902592dc635602e303"
+    },
+    {
+      "name": "numeric-places",
+      "cases": 153,
+      "sha256": "6af6513de22ac84d2a22fff4e946157f5417e9a7ca1d752cd1ab4ff71a29be5d"
+    },
+    {
+      "name": "capture-index",
+      "cases": 45,
+      "sha256": "0499efcd808b1eb335d2179844d02f27079ff99b3e851b943e87af3ae19c92bc"
+    },
+    {
+      "name": "sync-character",
+      "cases": 45,
+      "sha256": "c3454fb91b4e3d386fc758cdbafe1f3fff34f37c8f40c3d82f55c23722a1ef3f"
+    },
+    {
+      "name": "ctype",
+      "cases": 72,
+      "sha256": "eff983f0afa94512020e2afccd168b5e51f4c8581c4078d7965c8449105c1f31"
+    }
+  ],
+  "original_oracles": {
+    "tests/integration/test_char_methods.sn": "toString 'a': a\ntoUpper 'x': X\ntoLower 'Z': z\ntoInt 'A': 65\nisDigit '5': true\nisDigit 'a': false\nisAlpha 'x': true\nisAlpha '9': false\nisWhitespace ' ': true\nisWhitespace 'z': false\nisAlnum 'A': true\nisAlnum '3': true\nisAlnum '@': false\n'a'.toUpper().toString(): A\n",
+    "tests/exploratory/test_str_comprehensive.sn": "=== str Comprehensive Type Test ===\n\n1. Literals and variables\n   PASS\n2. String interpolation\n   PASS\n3. Comparison operations\n   PASS\n4. Concatenation\n   PASS\n5. Arrays\n   PASS\n6. Array equality\n   PASS\n7. 2D arrays\n   PASS\n11. Lambdas\n   PASS\n12. Functions\n   PASS\n13. Control flow\n   PASS\n14. Edge cases\n   PASS\n15. String methods\n   PASS\n\n=== All str tests passed! ===\n"
+  },
+  "logs": [
+    {
+      "name": "build-2",
+      "raw_log_sha256": "9daf43fc779c0462dc36abec9417949d2e48b015e4b30c4c863796829ed931ae",
+      "normalized_log_sha256": "6244e9600c55d33442d80d8716378998ff82065a3a57d413250ebc023a95c918"
+    },
+    {
+      "name": "rust-full",
+      "raw_log_sha256": "557769da8aa6c9185c52bd139ac83dd6c3d9bea0b0823110d9e415695bddf937",
+      "normalized_log_sha256": "93e561371a596c4d316c7b539b31b999ce13605ce3fbef6871d9232d69eeeb9a",
+      "passed_counts": [
+        368,
+        158,
+        8,
+        19,
+        1,
+        4,
+        36,
+        1,
+        10,
+        7,
+        1,
+        12
+      ]
+    },
+    {
+      "name": "c-full",
+      "raw_log_sha256": "ba4f417a501e82c8b9f6c02e2b8cdc3d3ad6f481d6360d206efe4592d07503e0",
+      "normalized_log_sha256": "681ad11d3620fad87534763db46196c7ed486eb737ec73a7843a76d6467cb441",
+      "passed_counts": [
+        1610,
+        107,
+        79,
+        1141,
+        58,
+        224,
+        11
+      ]
+    },
+    {
+      "name": "corpus-integration",
+      "raw_log_sha256": "ee87cf4c43dfbd0da8f6c0894b813be264aca7128994f0a73817ec92c8f066bb",
+      "normalized_log_sha256": "b19cd1a52c4af7160e95637ec7c5e14270c5febe1fb6736461e8244bb27ae59e"
+    },
+    {
+      "name": "corpus-explore",
+      "raw_log_sha256": "1af6ebc58ca4d587883734618099b9c0d5be0b0f1ac5a49d03ea7d37e533bf51",
+      "normalized_log_sha256": "2ba6befa0f76c9690861a141fe7db54b61b9d9f2c118df809973b75726a15262"
+    },
+    {
+      "name": "byte",
+      "raw_log_sha256": "971a43d81a4d4a176d4aceff2aa18d25efe2df369a8d05a75dfb2470b030e8a9",
+      "normalized_log_sha256": "971a43d81a4d4a176d4aceff2aa18d25efe2df369a8d05a75dfb2470b030e8a9"
+    },
+    {
+      "name": "transport",
+      "raw_log_sha256": "9d1f137619f0add0f0e3a01419654e7f12ffe613e0175c7031316ffe56c8c9ee",
+      "normalized_log_sha256": "9d1f137619f0add0f0e3a01419654e7f12ffe613e0175c7031316ffe56c8c9ee"
+    },
+    {
+      "name": "helper",
+      "raw_log_sha256": "628ce6147ceaa1887966b6df6ff1f63582712e6666a5b64c7f52e28604cc6994",
+      "normalized_log_sha256": "628ce6147ceaa1887966b6df6ff1f63582712e6666a5b64c7f52e28604cc6994"
+    },
+    {
+      "name": "format",
+      "raw_log_sha256": "4c6a090a362bd87c11ee02cfbc700375a0d72d42c9b4387a9b7b0bbf45af7e2b",
+      "normalized_log_sha256": "4c6a090a362bd87c11ee02cfbc700375a0d72d42c9b4387a9b7b0bbf45af7e2b"
+    },
+    {
+      "name": "existing-gates",
+      "raw_log_sha256": "868b7b63a4df16657d8de328766fa909755015d8b0d13ec51fd7481824670728",
+      "normalized_log_sha256": "868b7b63a4df16657d8de328766fa909755015d8b0d13ec51fd7481824670728"
+    },
+    {
+      "name": "gate",
+      "raw_log_sha256": "d0a4f7d4e1b7e9877d2a03033593fe7184ea845084a8f473f6b10c05e151ff44",
+      "normalized_log_sha256": "d0a4f7d4e1b7e9877d2a03033593fe7184ea845084a8f473f6b10c05e151ff44"
+    }
+  ],
+  "rust_template_sha256": {
+    "templates/rust/module.hbs": "92ea885d3b5ed9a9f33c170d2dbd30798a65ad76a7a3518743ace43800741dc5",
+    "templates/rust/partials/expr.hbs": "722a1589f55e1ca75cb1042f739917328b3ae6020d5cf49c19d9e9ce374d4bd7",
+    "templates/rust/partials/closure_weak.hbs": "1ac2ce2fcd9a9ac50ccd8daf4049abd7f26729a5409cdc08b5306888fbdfbc6b",
+    "templates/rust/partials/closure_owner.hbs": "b3eaacee340463ae45aba6a4a9b26963ae4ac5fedd06029a7d5f236884f719c2",
+    "templates/rust/partials/native_managed_support.hbs": "e208f772c483f2a64cb622ae0626dbdc002f94256f5b0f80f2e3ecb62904bef1",
+    "templates/rust/partials/closure_support.hbs": "52b2dd85c39de31531f09b0c53690ef102e885c7747ae7be36e22d3512bc93b6",
+    "templates/rust/partials/expr_rust_float_array_insert.hbs": "355b8e8d050dc718f871835ec7deb1d7b2eacdfa905c14cecc9d166c3a0b27bb",
+    "templates/rust/partials/closure_once.hbs": "a2abdf2465096c5bb666daf77fced719b5d65e2e1bd06e01fcbe6740dae60c8a",
+    "templates/rust/partials/reflection_support.hbs": "02c25e2ac45dbf91a8bd3a717058965353329efcf149a01ea8207aeed5d4af9a",
+    "templates/rust/partials/expr_rust_float_array_storage.hbs": "efcb66b7ba4bf115efbba421f33909460336caf132e17085fdda0d54cf03542a",
+    "templates/rust/partials/struct.hbs": "ca7dcdccac9885a461987c8f96a786c32da76680cd02e1fae5d5ce7232433e90",
+    "templates/rust/partials/native_function.hbs": "d408cf0adc9cab98b366f0172d4204e959565f6ea5859f9893072a609061840b",
+    "templates/rust/partials/checked_arithmetic_support.hbs": "40d32a2ed252fa0a3d586ab395c73efcfc9ab9e4a8babed2f4280eeb042f3755",
+    "templates/rust/partials/stmt.hbs": "a02d68df9dd8a7eb0f61b140a0ebdde49e7277d64e3a9a714a5de2c5dfd5f6d0",
+    "templates/rust/partials/ctype_support.hbs": "b5c77344c797d45426b0cabb38b4beebff3e29a4f3480917b07865c7c13a2e91",
+    "templates/rust/partials/thread_array_support.hbs": "5045ba5ef29b69be2ccb8457c49ea95b8ad9638805fa1d3a571b1c19cd6f3bfd",
+    "templates/rust/partials/stdio_support.hbs": "50b9eff95316067be76e73435177717e8883e1e793536e8f2d3f2030eb727c60",
+    "templates/rust/partials/byte_string_support.hbs": "afcdb4d469a3755e2788c375306d6e1dc174304b0c5c253db7ef6d93b3329544",
+    "templates/rust/partials/thread_field_support.hbs": "d191156251fb36aa7998b4eea4001569d9fe7aa1890c47dd008e1059c5098c1e",
+    "templates/rust/partials/windows_text_output_support.hbs": "d33b99ed686a36d5b09400f1b566ac55da3061337f95db97708da2d04ae7d5be",
+    "templates/rust/partials/expr_rust_float_array_equality.hbs": "ae665f2f13bfc1d6e93b479181a6aefebdbd94e78722e75ddc69c6372291862c",
+    "templates/rust/partials/array_text_support.hbs": "672142d7974551f0084a3ea026f47ca33201c6ef6f2e6159e5d40349f9e5b7b7",
+    "templates/rust/partials/string_split_support.hbs": "e96aa2e5fbbf965d93ee3af04587fd1c7e71eef2127773a8ac5dcf1092b00f1f",
+    "templates/rust/partials/capture_cell.hbs": "2f4ece59a59fc6720b0d11c864c3da28583f95520278b7d6dcb41fa4def8fb16",
+    "templates/rust/partials/array_support.hbs": "08b0a4d08d5cc14d508619cdeb0769deccca4bc39f027259680b699cecaa0b58",
+    "templates/rust/partials/globals.hbs": "ce52d996829fd51e37539cee474852ab0b34194f02fc59bfd7de5f94e87159c6",
+    "templates/rust/partials/string_format_support.hbs": "522b8f2a353cf47cbfa425ee09b804f38b27ec05e4636e901e5e5d2c1fbd4895",
+    "templates/rust/partials/string_support.hbs": "1b3b581cd430f7b12e4da4d9ce0122379b09c6bacfff4bed72fdeb097b15d36e",
+    "templates/rust/partials/struct_method.hbs": "e739131ab56fcb21a5943c5cfdbbb5bb059e05d81c8d999e13b3215ca6c6873a",
+    "templates/rust/partials/thread_capture_support.hbs": "37b33ae5179d0d443131d1bf930ab55ffa7cfe3546bbeabaf8ab0256cf7a0a9e",
+    "templates/rust/partials/capture_owned_cell.hbs": "d65845c53a730aff1bb7866237b103e57a2090eefc3cb316e5733f5d3549adfc",
+    "templates/rust/partials/cell_support.hbs": "a95efde54da7a93a7968ce10eaa4e76aa27e9b51e0fb957c4375908f211abe58",
+    "templates/rust/partials/thread_support.hbs": "29a5d5c52ef5ad385ae45cb0c3a64e63a33ddf009aa9830b2310fcac3450bce8",
+    "templates/rust/partials/expr_uncast.hbs": "00127dd60784f6051e27a93ff6fb33893a360cf6ef0793f1eb19b9ea0f9350b6",
+    "templates/rust/partials/expr_rust_float_array_search.hbs": "f98bd491c5951ea023be573747d88c879b241625baece0ee0537489bc09f4cb7",
+    "templates/rust/partials/numeric_owner_bindings.hbs": "7091d49dd62f2670a961983f7bbdfc1426726ab098078e31fe74e5fb3263c5bd",
+    "templates/rust/partials/function.hbs": "6701307cd544966d7dc3f29923f3097eebc1e351e7433784cb4376ff524e70d6",
+    "templates/rust/partials/stmt/expr.hbs": "89342d9c7d5c9b8a7de6e21160381ee4e9f692a7250a8e0769abfa09e62daf9e",
+    "templates/rust/partials/stmt/block.hbs": "26aedce790cac1dbee557a7e11c90dac13d4dcef6c6ba871f40ee1d2ea2b5273",
+    "templates/rust/partials/stmt/for_each.hbs": "dccef9784030e243e4d40fc234fbc26a12582be023032bf3dcb0b7e66eb40cb6",
+    "templates/rust/partials/stmt/if.hbs": "a11b5c9787b3146b73f0f713402ec908f5d681eb806378d03df5d8945087621e",
+    "templates/rust/partials/stmt/var_decl.hbs": "edd85de841a6dd24542390efa954b29ecabb75347671047860b3d85dbf3439c7",
+    "templates/rust/partials/stmt/using.hbs": "b32bd1279313a821ea603cddedb1feee1b067f7d9d2886163ebb60216feee0a4",
+    "templates/rust/partials/stmt/lock.hbs": "d523fd4ffbd56f51450bc7faa6d9a15ca524d584ca9a66a4c3b728e8a50806c9",
+    "templates/rust/partials/stmt/for_each_iter.hbs": "abcfbbb056fa373f184bc653e0b2833ada824dffd4649542342104e2b751278f",
+    "templates/rust/partials/stmt/for.hbs": "bf64fe9842277b918472273a1ab52e2b3f6198bdc5c4bb18567e90a2432de4f1",
+    "templates/rust/partials/stmt/while.hbs": "015c3997572951fd8feaa82cda9cce384fc440694217552b53631587934d40ea",
+    "templates/rust/partials/stmt/return.hbs": "2054b305c3b3ffa0ec5c5ff24de2953a69b71f36b735da48691f63c8645499cb",
+    "templates/rust/partials/expr/literal.hbs": "dc9ad80d6d992a07f234db17efc3b52459b9f5a6f94333a01fdbec42db0761e7",
+    "templates/rust/partials/expr/range.hbs": "514f23b959e919bacc1ced21f793329df08b5ca655c398eb35f552bb7d473657",
+    "templates/rust/partials/expr/closure_read.hbs": "36c26292ec29cb2d9981e1a7b1976f9d900b1d26db98289b05c2b311fbb29779",
+    "templates/rust/partials/expr/variable.hbs": "8c0f802a2992dfa074641062b93dceed85c47c4c4a08b4dd2fa94d17be9f9fb2",
+    "templates/rust/partials/expr/rust_numeric_place_mutation.hbs": "3778c0216ea956d022f18d4c6f1fc55793fc5de7c95ad721cb1719f5862ed74e",
+    "templates/rust/partials/expr/static_call.hbs": "e267c76af2814c97a2457972eafbf5acd0b4123ed3eb95f0e387f0083c0fc872",
+    "templates/rust/partials/expr/rust_wrapping_binary.hbs": "4ef98f9e0767cbd9e5efb9177f0e4db9d406a84901f81ae090c634c32a0e2211",
+    "templates/rust/partials/expr/decrement.hbs": "2a806a67410700ccdeb0f4796942e9fa0803af71e5278e3ea6c29ac2ff5882a2",
+    "templates/rust/partials/expr/thread_default.hbs": "f2d552c3c3a30f3b9fd8da5948d0c4d3e595ef6edce877a79921ecc93653d993",
+    "templates/rust/partials/expr/rust_mixed_integral_binary.hbs": "bfa0bb0c67244f75a2f8a74336e64f936ce265e94a8b8a943b65e7dbf57cfb4d",
+    "templates/rust/partials/expr/builtin_length.hbs": "394aaf6ce622c2594192ffa0cb66f4a7ea9b36f97960dede4258093bb6d3621f",
+    "templates/rust/partials/expr/struct_literal.hbs": "aa5d30603898834a25339bf46f746db7fce1df93b864e5445210c4030ed10c99",
+    "templates/rust/partials/expr/rust_byte_promoted_comparison.hbs": "25efe7eee7bf8e679ac6c8116338ca3cce5b8676c868e7ec66761d38798149e0",
+    "templates/rust/partials/expr/call.hbs": "f10006c530c50b38be7fcc32824708ab6b4d6dc780a0b3d74e624f8de7cbe8c1",
+    "templates/rust/partials/expr/closure_write.hbs": "98e5ffac5c3ea4f2ec0a9ac2d88051eee454a8885ac5a40482585d2e8ef9c33e",
+    "templates/rust/partials/expr/builtin_print.hbs": "c9c44d43db14994e8633d3e9aef8aec59688c2312f2ff64661f49e5164a58842",
+    "templates/rust/partials/expr/builtin_println.hbs": "b6234697f100216f8d71b6606f41717d6d531777a1c4a3d5376432cc1cc8c9c7",
+    "templates/rust/partials/expr/builtin_assert.hbs": "2f0e80643e8075b52b003a055597c5fe07f74aaf734195f23bcaee386a9f15cc",
+    "templates/rust/partials/expr/rust_wrapping_unary.hbs": "b7816e2a5720fb21cc2a412be6f45c87de40e9e6b8d5158f463c26a7e3a1f5ad",
+    "templates/rust/partials/expr/binary.hbs": "fbccf3b878346711653cd24728dc2220f69e4314ddb0c75cbce02641df5cd164",
+    "templates/rust/partials/expr/interpolated_string.hbs": "241ec4f17716573494a90de107f109775968faf3fe210907d6cc43c89081fe9a",
+    "templates/rust/partials/expr/borrow_inferred_call.hbs": "dd8a3125ea577af52fd63bb09da543a9481bae22b430262f49e4bf60104c9276",
+    "templates/rust/partials/expr/array_access.hbs": "a824b849af3d53eecc38c7e5982ba7d01c680384b314746fce549a6d0f70b9d0",
+    "templates/rust/partials/expr/tagged_array_field_cleanup.hbs": "18f456c691cd4ebcf25a2f4bc8c28b30e19c37c5389e8d16b8233fc936c4738b",
+    "templates/rust/partials/expr/default_array_ref_arg.hbs": "0b137c05ad328f690823e8f64425cd096a3a0ee86ed976ad8556d89bde34361f",
+    "templates/rust/partials/expr/array_join_place_indices.hbs": "56d2bd76d7cb7cc82757c596bd8b21c0336812cd262779ac635c526bae3b67f1",
+    "templates/rust/partials/expr/direct_variable.hbs": "968afb4edfae642cbab747d84f9ffa7edf9afd2c21b6a35604a04321f53058a0",
+    "templates/rust/partials/expr/typeof.hbs": "daed06edfedccb407bc42e0419e31159b01b905644a02326d047197db869ae0b",
+    "templates/rust/partials/expr/str_concat_multi.hbs": "3998853467144b1176d8b30ab1d5838f98063cc70486471bbce4d10e46dad8d7",
+    "templates/rust/partials/expr/thread_detach.hbs": "8c302413e9a2467402e961bb30029afa3cb737eb5ddd46fd93ce200568e03cdd",
+    "templates/rust/partials/expr/sizeof.hbs": "a25c12a2c9dbd12fc5e9f36ff1b4e287a16e993449d5fe2b17d4a76c49b88bbf",
+    "templates/rust/partials/expr/array_slice.hbs": "55f0469e2f87fcee1f7941e41e0ca9a10adb1b9bc6c1e37d03e40c436227b7bf",
+    "templates/rust/partials/expr/lambda.hbs": "40990a20cb97828f23a27ed45e6d41d3e21ebce8dd450aa8ca20fd77b0547367",
+    "templates/rust/partials/expr/copy_of.hbs": "d5f929ebef667c933b59ffc2c0fc1d254c080aaab6746959db742aaccd3d153a",
+    "templates/rust/partials/expr/rust_unchecked_integral_compound.hbs": "ca5bc12c3a0299c7e6719df1fb027e17f741a9b36e1ba1650d3b329d77c9c585",
+    "templates/rust/partials/expr/string_call.hbs": "b98ccf38daa2cbc669660ff09c8e1c13fdb91de2599582abc5b751a612960db5",
+    "templates/rust/partials/expr/tagged_place_steps.hbs": "ee8fcd9f8a4714510a8750916d83bc9c46e39acae2c466b5e615dd7b57814271",
+    "templates/rust/partials/expr/direct_assign.hbs": "a7d6effed716fd4cc7890e2d3a7d019d92a4da19eb70c7458d3a396eef68db96",
+    "templates/rust/partials/expr/array_join_place_raw_indices.hbs": "660fa034bc0ba0f1406d8271b2db9ecf893d1f5de90e9182b7891cf314178675",
+    "templates/rust/partials/expr/resolved_call_prefix.hbs": "bba6aed99ce5e4b9ff144b24d4f212a258ad6496bd081e588b7551de46409754",
+    "templates/rust/partials/expr/sized_array.hbs": "50a4e0a843159774f27114e338d67983aa1582b2a15e8a6d67b3e8d98740b49b",
+    "templates/rust/partials/expr/match_array_receiver.hbs": "82a219fe90ec536dd9a49634f50ca2e1f3e3d974990b5d43aaa97d3e5e584661",
+    "templates/rust/partials/expr/direct_call.hbs": "d4fbfc0e89c9bb5c39197e12c7ee55708e8123d21cc853a8bcf453409793be50",
+    "templates/rust/partials/expr/rust_byte_promoted.hbs": "7c2bcfca30ce670fb489addc431039cd011553559ebede7fa6b3957fbd090b8e",
+    "templates/rust/partials/expr/array_call.hbs": "594591e3f1f1d13a3b71da0e03f990eca62981aba827dd612fc4d4c8ee6d1e26",
+    "templates/rust/partials/expr/closure_call.hbs": "e356beba380640f0d42007b91db16f72d86fc17b86f45b0f50bc3525f49cc53e",
+    "templates/rust/partials/expr/method_call.hbs": "fec9da88bdc69474394b25b1745183420ad988a4f56c2f59088bce4462132f00",
+    "templates/rust/partials/expr/increment.hbs": "52b6e69067b12d49173ae13812eca01764bd16ce6b9c2969106f3da68ea1fe5e",
+    "templates/rust/partials/expr/assign.hbs": "41cc209890df95cdf8a566b295d0d917e65c03e01832f6793f5550785565c00d",
+    "templates/rust/partials/expr/rust_wrapping_compound_assign.hbs": "31e405b5b0af93484d1f8e9057793644956ae7517bbdd8716b9a07e02172a7d0",
+    "templates/rust/partials/expr/member_assign.hbs": "a0439ce123c2129f64401a9d561bb9018cc1ed200d1496d019f4cee07355ef07",
+    "templates/rust/partials/expr/thread_spawn.hbs": "6f7038bc6cac06eed92403ed29dd78b0750b17b9f0888218aae9c78fdcc92ed4",
+    "templates/rust/partials/expr/match.hbs": "7ac1595be94e25c583d4db2141bb6427a710eff4d363c1f691b3559e5cb62528",
+    "templates/rust/partials/expr/array_literal.hbs": "61de4501ce8177424ec56be4bd3ba0db02ce60f7c0792acd6204c9d4ed6811f2",
+    "templates/rust/partials/expr/member.hbs": "2cc1b486c76ecaaeaccadcda0a6922aebe89b0c291863fa5f56b60d9c3b96bd6",
+    "templates/rust/partials/expr/index_assign.hbs": "09e03b976dd317ba933ef616517838bc5f7947c7714a265ce8367353aeb58d4f",
+    "templates/rust/partials/expr/compound_assign.hbs": "e2a60c87d66afa8d1bfc88a3fb74fb9c456ca31ade18726fc4c3dbea9ca8e6c1",
+    "templates/rust/partials/expr/rust_wrapping_increment.hbs": "08c3cb00cb71108fc1692e46d4f447c46f9cf741c5fb1980324492ac7d645e9b",
+    "templates/rust/partials/expr/cell_operation.hbs": "6e7513a1c4f871ee286ac0334b94483de27ad504ef51caed7312b8a733bd1d9a",
+    "templates/rust/partials/expr/unary.hbs": "e9e948fc6f1887a83273fa70d02980ce55660bc6f461cd536ab27b11292c51b1",
+    "templates/rust/partials/expr/thread_sync.hbs": "c6b0df1b35fd5525dfc7b9c8482f69a86051c7d74d4e464d16a58351bf13a72e",
+    "templates/rust/partials/expr/resolved_call_arg.hbs": "a2b8d25b785b0a3d7e49a48b273bf10541c39bcde4529c56bf2458b600ddcced",
+    "templates/rust/partials/expr/rust_mixed_integral_compound.hbs": "b6d63ba1b184bdf55a4b2c51f834956f8fdce8b5052a414e3aa4a30de5f7d0f2",
+    "templates/rust/partials/expr/rust_wrapping_decrement.hbs": "f0dfc0aca7575c64192ed35e3853d64fb9258920965cc60b6224b86eadebb80e",
+    "templates/rust/partials/expr/resolved_call_arg_binding.hbs": "cf4cc5d7d0fe8590a7dd444d09d1db883a6d8426e0b2087bdfe7842f2fbdb2e7",
+    "templates/rust/partials/expr/receiver_mutation.hbs": "38964011073bf5ee972b9dfcfe92fe84bb34e6abfb14a602e7749e35ffe7e1fe"
+  },
+  "independent_new_oracle_cases": 72,
+  "corpus": {
+    "integration": {
+      "passed": 1063,
+      "compile_failures": 78,
+      "runtime_failures": 0,
+      "skips": 0,
+      "removed_gap": "test_char_methods",
+      "remaining_failed_sources": [
+        "test_array_literal_arg_leak",
+        "test_as_ref_array_return",
+        "test_as_ref_for_in_self_return",
+        "test_as_ref_on_ref_struct_param",
+        "test_as_ref_params",
+        "test_as_ref_queue_drain",
+        "test_as_ref_return_passthrough",
+        "test_as_ref_struct_lit_owned_field",
+        "test_as_ref_struct_param",
+        "test_buffer_unwrap",
+        "test_builtin_interfaces",
+        "test_byte_encoding",
+        "test_composite_borrow_mutation",
+        "test_composite_temp_arg",
+        "test_constrained_generics",
+        "test_exit",
+        "test_generic_multi_param_iter",
+        "test_generic_static_call",
+        "test_generics_functions",
+        "test_generics_nested_inference",
+        "test_import_fn_field_chained",
+        "test_interfaces",
+        "test_interop_callback",
+        "test_interop_comprehensive",
+        "test_interop_edge_cases",
+        "test_iterator_protocol",
+        "test_lambda_capture_outlives_scope",
+        "test_lambda_capture_struct",
+        "test_lambda_val_struct_str_field",
+        "test_lambda_val_struct_str_interp",
+        "test_match_return_arms",
+        "test_module_array_swap_leak",
+        "test_native_callback_typedef",
+        "test_native_ref_field_pass_chain",
+        "test_native_ref_field_return",
+        "test_native_ref_method_forward_twice",
+        "test_native_ref_self_assign",
+        "test_native_resource_lifecycle",
+        "test_native_struct_ref_array_pass",
+        "test_native_struct_ref_loop_cleanup",
+        "test_nested_array_copy",
+        "test_nil_array",
+        "test_nil_compare_struct",
+        "test_nil_pointer_slice",
+        "test_nil_string",
+        "test_qsort_callback",
+        "test_refcount_arg_leak",
+        "test_refcount_chain_in_struct_literal",
+        "test_return_ref_param",
+        "test_return_self",
+        "test_self_method_forward_after_train",
+        "test_serializable",
+        "test_serializable_decode_struct_literal_loop",
+        "test_serializable_double_int_json",
+        "test_serializable_encoder_cleanup",
+        "test_serializable_long",
+        "test_serializable_push_ownership",
+        "test_serializable_return_nested_array",
+        "test_sizeof",
+        "test_static_import",
+        "test_str_return_as_arg_leak",
+        "test_struct_array_concat",
+        "test_struct_as_ref",
+        "test_struct_as_ref_chain",
+        "test_struct_codegen_validation",
+        "test_struct_heap_alloc",
+        "test_struct_native_c_interop",
+        "test_struct_native_defaults",
+        "test_struct_packed",
+        "test_struct_return_array_leak",
+        "test_struct_rvalue_member_leak",
+        "test_struct_rvalue_member_leak_contexts",
+        "test_struct_self_method_call",
+        "test_struct_sizeof_equality",
+        "test_struct_stack_alloc",
+        "test_thread_native_fn_struct_return",
+        "test_thread_struct_return_types",
+        "test_val_struct_shared_array"
+      ]
+    },
+    "explore": {
+      "passed": 212,
+      "compile_failures": 12,
+      "runtime_failures": 0,
+      "skips": 0,
+      "removed_gap": "test_str_comprehensive",
+      "remaining_failed_sources": [
+        "test_array_mutation_lambda",
+        "test_as_val_array_copy",
+        "test_gcc_edge_interop",
+        "test_gcc_edge_structs",
+        "test_match_as_val_ref",
+        "test_match_memory",
+        "test_match_native",
+        "test_match_primitives",
+        "test_pointer_slice_bounds",
+        "test_struct_config",
+        "test_struct_self_method_call",
+        "test_struct_zlib_style"
+      ]
+    }
+  },
+  "unchanged_original_source_hashes": 1365,
+  "reviewed_existing_snapshot_updates": [
+    {
+      "path": "tests/rgen/string_operations.expected.rs",
+      "sha256": "9f7e7b3ae621ec108fbb0ba1b9311b2d4b83c4fc128411c5934329f57f3dd18c",
+      "previous_sha256": "b30d1dcbd8db2c17a6240d5c53d6eaa78eae4dd71707e72fe807d3173613bf6d"
+    },
+    {
+      "path": "tests/rgen/string_match_results_o0.expected.rs",
+      "sha256": "563ae91af875762c87dfed2d54155aebe4f7ad95756d44e3ae8a7cb71440af69",
+      "previous_sha256": "c58944157c9b6495339cdcb2f962bf16f2154b6255c74026e8b286eb43db6062"
+    },
+    {
+      "path": "tests/rgen/string_match_results_o1.expected.rs",
+      "sha256": "563ae91af875762c87dfed2d54155aebe4f7ad95756d44e3ae8a7cb71440af69",
+      "previous_sha256": "c58944157c9b6495339cdcb2f962bf16f2154b6255c74026e8b286eb43db6062"
+    },
+    {
+      "path": "tests/rgen/string_match_results_o2.expected.rs",
+      "sha256": "617d14430c4be094795fbab3b7ed85493f81c6f3be00384d2ee947cbaa42041f",
+      "previous_sha256": "c749c4b256c51345cebb373bd784bd62734c65a9eef9f011240cf4be73d6afe8"
+    },
+    {
+      "path": "tests/rust/closure-values/closure_values_owned_string_visibility.expected.rs",
+      "sha256": "4ced758d9671489dcfdfbbed2ffe4c31d519cb22eec4c179175e939462e0685a",
+      "previous_sha256": "f29ae540064285d44adca48f23d76c6290660d32d1b9da7918ac6df0417f492f"
+    }
+  ],
+  "snapshot_note": "Five selected Rust snapshots add the reserved CRT helper module and redirect casing/trim calls. Existing .sn sources and output oracles are unchanged. String match fixtures remain Rust-only coverage: restored C crashes on its member-call reference argument (ASAN retained), so they do not count as differential parity.",
+  "limitations": [
+    "Default supported C ABI char signedness is checked through std::ffi::c_char and the native reference; custom compiler flags changing char signedness are outside this evidence.",
+    "Both C and environment locales must be available. The gate checks the active CRT against a native C reference; no claim that every host installs every locale.",
+    "C expression-bodied closure method chains take addresses of expired statement-expression temporaries; these probes are excluded from positive parity and their stack-use-after-scope evidence is retained.",
+    "C splitWhitespace temporaries leak 314 bytes in string_ctype_bytes; leak failure retained. Its address-only run passes with detect_leaks=0, not a leak-free claim.",
+    "90 original compilation gaps and broader array/closure ownership, native/SDK, diagnostic and language gaps remain."
+  ]
+}
