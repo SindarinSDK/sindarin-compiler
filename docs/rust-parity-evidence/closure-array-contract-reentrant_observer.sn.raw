@@ -1,0 +1,13 @@
+fn main(): void =>
+  var values: int[] = {10}
+  var reset: fn(): void = fn(): void =>
+    values = {10}
+  var observe: fn(): int = fn(): int => values[0]
+  var action: fn(int[], fn(): int): int = fn(array: int[], observer: fn(): int): int =>
+    array[0] = 12
+    println(observer())
+    array[0] = 14
+    return observer()
+  reset()
+  println(action(values, observe))
+  println(values[0])

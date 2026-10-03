@@ -532,3 +532,14 @@ test-rust-parity-numeric-places: build
 		tests/rust-numeric-places/numeric_place_thread_parameters.sn \
 		--require-count 17 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-numeric-places.json
+
+.PHONY: test-rust-parity-capture-index
+test-rust-parity-capture-index: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/rgen/capture_array_index_nested.sn \
+		tests/rgen/capture_array_index_result.sn \
+		tests/rgen/capture_array_index_shared.sn \
+		tests/rgen/capture_array_index_state.sn \
+		tests/rgen/capture_array_index_widths.sn \
+		--require-count 5 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-capture-index.json

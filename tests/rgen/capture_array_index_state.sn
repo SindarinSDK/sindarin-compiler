@@ -1,0 +1,14 @@
+fn main(): void =>
+  var values: int[] = {10, 20}
+  var first: fn(): int = fn(): int =>
+    values[-1] = values[0] + values[-1]
+    return values[-1]
+  var second: fn(): int = fn(): int =>
+    values[0] = values[0] + 1
+    return values[0]
+  println(first())
+  println(second())
+  println(first())
+  println(second())
+  println(values[0])
+  println(values[-1])

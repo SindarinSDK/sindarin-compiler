@@ -1,0 +1,8 @@
+fn main(): void =>
+  var action: fn(int[], int[]): int = fn(left: int[], right: int[]): int =>
+    left[0] = left[0] + 2
+    right[0] = right[0] * 3
+    return left[0]
+  var values: int[] = {10}
+  println(action(values, values))
+  println(values[0])

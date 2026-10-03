@@ -1,0 +1,154 @@
+{
+  "revision": "cb189c3d3cdbec5b9ad15f2b8d8f3bc6f5bbe83c",
+  "failure": "Undefined C nested member access through an atomic struct; no parity credit.",
+  "platforms": [
+    {
+      "name": "linux",
+      "defined_positive_and_diagnostic_cases": 1011,
+      "invalid_atomic_cases": []
+    },
+    {
+      "name": "macos",
+      "defined_positive_and_diagnostic_cases": 1011,
+      "invalid_atomic_cases": [
+        {
+          "source": "tests/rgen/nonfloating_nested_sync_local_postfix.sn",
+          "optimization": "-O0",
+          "mode": "default",
+          "c_compile_status": 1,
+          "rust_compile_status": 0
+        },
+        {
+          "source": "tests/rgen/nonfloating_nested_sync_local_postfix.sn",
+          "optimization": "-O1",
+          "mode": "default",
+          "c_compile_status": 1,
+          "rust_compile_status": 0
+        },
+        {
+          "source": "tests/rgen/nonfloating_nested_sync_local_postfix.sn",
+          "optimization": "-O2",
+          "mode": "default",
+          "c_compile_status": 1,
+          "rust_compile_status": 0
+        },
+        {
+          "source": "tests/rgen/nonfloating_nested_sync_local_postfix.sn",
+          "optimization": "-O0",
+          "mode": "checked",
+          "c_compile_status": 1,
+          "rust_compile_status": 0
+        },
+        {
+          "source": "tests/rgen/nonfloating_nested_sync_local_postfix.sn",
+          "optimization": "-O1",
+          "mode": "checked",
+          "c_compile_status": 1,
+          "rust_compile_status": 0
+        },
+        {
+          "source": "tests/rgen/nonfloating_nested_sync_local_postfix.sn",
+          "optimization": "-O2",
+          "mode": "checked",
+          "c_compile_status": 1,
+          "rust_compile_status": 0
+        },
+        {
+          "source": "tests/rgen/nonfloating_nested_sync_local_postfix.sn",
+          "optimization": "-O0",
+          "mode": "unchecked",
+          "c_compile_status": 1,
+          "rust_compile_status": 0
+        },
+        {
+          "source": "tests/rgen/nonfloating_nested_sync_local_postfix.sn",
+          "optimization": "-O1",
+          "mode": "unchecked",
+          "c_compile_status": 1,
+          "rust_compile_status": 0
+        },
+        {
+          "source": "tests/rgen/nonfloating_nested_sync_local_postfix.sn",
+          "optimization": "-O2",
+          "mode": "unchecked",
+          "c_compile_status": 1,
+          "rust_compile_status": 0
+        }
+      ]
+    },
+    {
+      "name": "windows",
+      "defined_positive_and_diagnostic_cases": 1011,
+      "invalid_atomic_cases": [
+        {
+          "source": "tests\\rgen\\nonfloating_nested_sync_local_postfix.sn",
+          "optimization": "-O0",
+          "mode": "default",
+          "c_compile_status": 1,
+          "rust_compile_status": 0
+        },
+        {
+          "source": "tests\\rgen\\nonfloating_nested_sync_local_postfix.sn",
+          "optimization": "-O1",
+          "mode": "default",
+          "c_compile_status": 1,
+          "rust_compile_status": 0
+        },
+        {
+          "source": "tests\\rgen\\nonfloating_nested_sync_local_postfix.sn",
+          "optimization": "-O2",
+          "mode": "default",
+          "c_compile_status": 1,
+          "rust_compile_status": 0
+        },
+        {
+          "source": "tests\\rgen\\nonfloating_nested_sync_local_postfix.sn",
+          "optimization": "-O0",
+          "mode": "checked",
+          "c_compile_status": 1,
+          "rust_compile_status": 0
+        },
+        {
+          "source": "tests\\rgen\\nonfloating_nested_sync_local_postfix.sn",
+          "optimization": "-O1",
+          "mode": "checked",
+          "c_compile_status": 1,
+          "rust_compile_status": 0
+        },
+        {
+          "source": "tests\\rgen\\nonfloating_nested_sync_local_postfix.sn",
+          "optimization": "-O2",
+          "mode": "checked",
+          "c_compile_status": 1,
+          "rust_compile_status": 0
+        },
+        {
+          "source": "tests\\rgen\\nonfloating_nested_sync_local_postfix.sn",
+          "optimization": "-O0",
+          "mode": "unchecked",
+          "c_compile_status": 1,
+          "rust_compile_status": 0
+        },
+        {
+          "source": "tests\\rgen\\nonfloating_nested_sync_local_postfix.sn",
+          "optimization": "-O1",
+          "mode": "unchecked",
+          "c_compile_status": 1,
+          "rust_compile_status": 0
+        },
+        {
+          "source": "tests\\rgen\\nonfloating_nested_sync_local_postfix.sn",
+          "optimization": "-O2",
+          "mode": "unchecked",
+          "c_compile_status": 1,
+          "rust_compile_status": 0
+        }
+      ]
+    }
+  ],
+  "compiler_run": 37135375894,
+  "runtime_run": 37135375862,
+  "repair_revision": "7c7482e17896d0675a8d8c87e5780c505d548491",
+  "repair_compiler_run": 37136604460,
+  "repair_runtime_run": 37136604428
+}

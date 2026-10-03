@@ -1,0 +1,8 @@
+fn main(): void =>
+  var values: int[] = {10}
+  var action: fn(): int = fn(): int =>
+    var current: int = values[0]
+    return values[0] = current + 2
+  println(action())
+  println(action())
+  println(values[0])

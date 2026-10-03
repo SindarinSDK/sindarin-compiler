@@ -1,0 +1,7 @@
+fn main(): void =>
+  var action: fn(int[]): int[] = fn(values: int[]): int[] => values
+  var values: int[] = {10}
+  var copy: int[] = action(values)
+  copy[0] = 20
+  println(values[0])
+  println(copy[0])

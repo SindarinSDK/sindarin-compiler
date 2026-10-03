@@ -7,23 +7,22 @@ head counts, not the language specification or the historical evidence itself.
 
 ## Current verified status: 2026-10-03
 
-Last hosted-green main `d26b391f` passes Linux/macOS/Windows Compiler and Rust Runtime CI,
-including 828 exact C/Rust positive pairs and 39 diagnostic/order cases. All
+Main `7c7482e1` passes Linux/macOS/Windows Compiler and Rust Runtime CI,
+including 981 exact C/Rust positive pairs and 39 diagnostic/order cases. All
 existing PR work is reconciled; the open queue is empty. C remains the default
 target. Sized-array reflection/defaults, buffered output, mixed integral
 conversions, scalar float/double conversion/mutation and tested floating-array
 argument representation/order and bytewise equality are integrated.
 
 Full parity is still incomplete. The broader unchanged C-positive corpus has
-94 Rust admission/compilation gaps in the locally verified numeric-place increment,
-and remaining Rust-negative, ownership,
+94 Rust admission/compilation gaps, and remaining Rust-negative, ownership,
 native/SDK and language families need implementation and full mode/platform
 validation. Tested floating-array search, storage, insertion order and equality
 gaps are repaired. A separate C-valid probe still exposes a borrowed default-array
 return compilation gap, outside the 95-source compilation denominator. Indexed
-compound assignment is repaired locally with 153 new positive pairs. The full
-local evidence now contains 981 positive pairs and 39 diagnostic/order cases;
-exact-revision hosted verification follows the direct main push.
+compound assignment is repaired with 153 new positive pairs, verified on all
+three platforms. The full evidence contains 981 positive pairs and 39
+diagnostic/order cases per platform.
 Exact CI/report links and follow-up diagnosis follow below.
 
 ## Baseline: 2026-10-02
@@ -1276,8 +1275,7 @@ unchecked precedence failure in a proposed enclosing compound expression;
 original sources/reports are retained, and the valid owner-timing control uses
 postfix. General returned-array identity, nil/empty and cross-width transport,
 character arithmetic, broader mutable struct/closure lifetimes, native/SDK and
-remaining language/concurrency gaps still require completion. Exact-revision
-hosted verification is pending this increment's push.
+remaining language/concurrency gaps still require completion. Exact-revision hosted verification for the repaired increment is recorded below.
 
 
 ### Immediate CI repair for atomic-struct classification
@@ -1297,9 +1295,83 @@ positive pairs across all modes. The full Rust suite adds this observer, for
 356 generation passes and 158 diagnostic passes; C/shared production and old
 Rust snapshots remain unchanged. The first CI failure report is retained in
 [atomic struct CI evidence](rust-parity-evidence/numeric-places-atomic-struct-ci-failure.json).
-Corrected exact-revision hosted verification follows the repair push.
+Corrected exact-revision hosted verification is green and recorded below.
 
 The underlying C atomic-struct emission defect and retained unchecked compound
 precedence defect remain follow-up work. Their acceptance or rejection is not
 counted as verified behavior; resolve their language contract deliberately
 before any future parity credit.
+
+
+### Corrected main verification: `7c7482e1`
+
+The immediate repair is integrated on main as
+`7c7482e17896d0675a8d8c87e5780c505d548491`. All six exact-revision jobs pass:
+[Compiler CI](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37136604460)
+and [Rust Runtime CI](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37136604428).
+All 14 retained differential reports on each platform pass: 1,020 cases,
+comprising 981 positive pairs and 39 diagnostic/order cases. Source hashes,
+compiler consistency within each platform, raw output/status and 153
+independent new mode-aware output oracles per platform are verified, including
+Windows CRLF transport. Full hosted suite counts match the local 356/158 Rust
+and unchanged C counts, with zero failures or skips. The PR queue is empty,
+and origin/main matches the verified head.
+
+[Exact hosted evidence](rust-parity-evidence/numeric-places-main-ci-green.json)
+records the runs, job links, report hashes and complete suite summaries. The
+first failed CI report remains retained; the original atomic-struct probe earns
+no parity credit. The goal remains active: 94 original corpus compilation gaps
+and the remaining ownership, nil/empty, native/SDK, callable, language and
+concurrency families still require implementation and verification.
+
+
+## Captured array indexed writes: local verification, 2026-10-03
+
+Rust now supports scalar indexed assignment into captured array snapshots,
+including nested arrays and shared array variables. The snapshot belongs to
+one closure, retains changes across calls, and stays independent of sibling
+closures and the original array. Shared captures use their existing shared
+storage. Reads before the first write receive the same storage annotation as
+later reads. RHS expressions and callback-bearing indices finish before the
+short mutable borrow used for the final store. Assignment expressions return
+the stored scalar value; float/narrow integer storage follows C expression
+widths, while characters keep Rust's character representation. Temporary names
+are reserved against the entire model.
+
+Five new unchanged C-valid sources have independent output expectations and
+45 positive C/Rust pairs across O0/O1/O2 and default/checked/unchecked arithmetic.
+They observe sibling isolation, nested negative indices, shared callback
+visibility, reads preceding writes, consumed assignment results, scalar widths
+and temporary-name collisions. All historical Rust snapshots and all C sources,
+expectations and production code remain unchanged. The write-only original
+closure_values_array_mutation negative is also C-invalid because C's capture
+collector misses that access; it stays negative and receives no parity credit.
+
+Required local checks pass with zero failures/skips: Rust generation 361 and
+negative generation 158; native 8/19/1/4, closures 36/1, concurrency 10/7/1,
+toolchain 12; C unit 1610, generation 107, model 79, integration 1141/58 and
+exploratory 224/11. All 15 differential reports pass: 1026 positive pairs and
+39 diagnostic/order cases, 1065 total. Raw-byte 63 executions, transport 6,
+Windows helper simulation and formatting pass. Staged templates match their
+source bytes. The original 1365 source hashes are unchanged; broader Rust
+integration/explore results remain 1061/210 successes and 80/14 compilation
+gaps, with no admitted runtime failures.
+
+Additional lifetime diagnosis is qualified: four C fixtures pass AddressSanitizer
+and LeakSanitizer. Shared-array replacement reports an existing 88-byte C leak.
+The original failed report is retained. All five address-only checks pass with
+`ASAN_OPTIONS=detect_leaks=0`; this does not establish leak-free C ownership.
+No C baseline change or suppressed failure receives parity credit.
+
+The goal remains active. Default callable array parameters still need caller
+mutation, duplicate-alias and reentrant observer behavior. Named default array
+parameter returns preserve C pointer identity, while borrowed array-field
+returns use copies; treating every borrowed return as a clone is incorrect.
+Whole-parameter rebinding and expression-body borrowed-return probes crash in
+C and are not admitted as positive tests. Nil versus allocated-empty arrays,
+mixed-width transport, general ownership/native/SDK support, the 94 corpus
+compilation gaps and previously recorded language/concurrency gaps remain open.
+Exact-revision hosted verification is pending publication. Evidence:
+[capture-index-validation.json](rust-parity-evidence/capture-index-validation.json),
+[capture-index-pairs.json](rust-parity-evidence/capture-index-pairs.json), and
+[capture-index-asan.json](rust-parity-evidence/capture-index-asan.json).

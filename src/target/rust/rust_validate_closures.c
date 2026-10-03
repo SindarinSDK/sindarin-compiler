@@ -394,6 +394,8 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
             if (b->lambda_depth != scope->lambda_depth)
                 return rust_closure_error("missing transitive closure captures");
             json_object_object_add(node, "rust_binding_id", json_object_new_int(b->id));
+            if (b->array_capture_id >= 0)
+                json_object_object_add(node, "rust_array_capture_id", json_object_new_int(b->array_capture_id));
             if (b->capture && !json_boolean_property(node, "rust_capture_mutation_place"))
                 json_object_object_add(node, "rust_needs_clone", json_object_new_boolean(true));
             if (json_boolean_property(b->declaration, "rust_shared_cell"))
@@ -448,9 +450,15 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
         if (borrowed && borrowed->capture)
             return rust_closure_error("mutable access to snapshot closure captures");
     }
-    if (kind && strcmp(kind, "index_assign") == 0 && place && place->capture &&
-        rust_closure_array_type(rust_closure_property(place->declaration, "type")))
-        return rust_closure_error("mutable access to snapshot closure captures");
+    bool captured_index = kind && strcmp(kind, "index_assign") == 0 && place &&
+        place->capture && rust_closure_array_type(rust_closure_property(place->declaration, "type")) &&
+        rust_closure_scalar_type(rust_closure_property(node, "type"));
+    if (captured_index)
+    {
+        if (!json_boolean_property(place->declaration, "rust_shared_cell"))
+            json_object_object_add(place->declaration, "rust_array_snapshot_cell", json_object_new_boolean(true));
+        json_object_object_add(node, "rust_capture_index_assign", json_object_new_boolean(true));
+    }
     bool numeric_array_capture = place && place->capture &&
         rust_closure_array_type(rust_closure_property(place->declaration, "type")) &&
         rust_numeric_computed_mutation(node);
@@ -522,7 +530,7 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
         if (json_boolean_property(place->declaration, "rust_shared_owned_cell"))
             json_object_object_add(node, "rust_shared_owned_cell", json_object_new_boolean(true));
     }
-    if (place && !numeric_array_capture && (place->capture || place->lambda_depth < scope->lambda_depth) &&
+    if (place && !numeric_array_capture && !captured_index && (place->capture || place->lambda_depth < scope->lambda_depth) &&
         !json_boolean_property(place->declaration, "rust_shared_cell") &&
         !json_boolean_property(place->declaration, "rust_scalar_snapshot") &&
         !json_boolean_property(place->declaration, "rust_mutable_owned_snapshot"))

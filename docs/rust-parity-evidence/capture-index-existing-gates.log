@@ -1,0 +1,12 @@
+core 0
+concurrency 0
+sized-defaults 0
+reflection 0
+thread-receivers 0
+stdio-order 0
+native-managed 0
+float-conversions 0
+mixed-integral 0
+floating-arrays 0
+thread-ownership 0
+floating-equality 0

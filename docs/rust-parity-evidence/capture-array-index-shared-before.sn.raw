@@ -1,0 +1,16 @@
+fn main(): void =>
+  var values: int[] = {10, 20}
+  var reset: fn(): void = fn(): void =>
+    values = {10, 20}
+  var observe: fn(): int = fn(): int => values[0]
+  var action: fn(): int = fn(): int =>
+    var next: int = observe() + 2
+    values[0] = next
+    return values[0]
+  reset()
+  println(action())
+  println(observe())
+  println(action())
+  println(values[0])
+  reset()
+  println(observe())

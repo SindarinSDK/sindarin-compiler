@@ -176,6 +176,53 @@ static bool rust_lower_numeric_places_walk(json_object *model, json_object *node
         json_string_property_equals(literal_type, "kind", "uint") &&
         literal_value && literal_value[0] == '-')
         json_object_object_add(node, "rust_unsigned_encoded_literal", json_object_new_boolean(true));
+    if (json_boolean_property(node, "rust_capture_index_assign"))
+    {
+        /* Resolve callback-bearing values and indices before borrowing the
+         * captured storage. The final store contains only resolved indices. */
+        json_object *array = NULL, *index = NULL, *type = NULL, *value = NULL;
+        json_object_object_get_ex(node, "array", &array);
+        json_object_object_get_ex(node, "index", &index);
+        json_object_object_get_ex(node, "type", &type);
+        json_object_object_get_ex(node, "value", &value);
+        json_object *store = json_object_new_object(), *rhs = NULL;
+        json_object_object_add(store, "kind", json_object_new_string("array_access"));
+        json_object_object_add(store, "array", json_object_get(array));
+        json_object_object_add(store, "index", json_object_get(index));
+        json_object_object_add(store, "type", json_object_get(type));
+        json_object *copy = NULL, *indices = json_object_new_array();
+        json_object_deep_copy(store, &copy, NULL);
+        json_object_put(store);
+        if (!rust_collect_place_indices_mode(model, copy, indices, next_id, true)) return false;
+        rust_numeric_place_projection(copy, true);
+        json_object *root = copy;
+        while (json_string_property_equals(root, "kind", "array_access"))
+        {
+            json_object *parent = NULL;
+            json_object_object_get_ex(root, "array", &parent);
+            root = parent;
+        }
+        json_object_object_add(root, "rust_numeric_place_array_cell", json_object_new_boolean(true));
+        json_object_object_add(node, "rust_capture_index_store", copy);
+        json_object_object_add(node, "rust_capture_index_indices", indices);
+        json_object_deep_copy(value, &rhs, NULL);
+        rust_float_array_c_values(rhs);
+        rust_numeric_c_values(rhs);
+        rust_lower_float_conversions(model, rhs, NULL);
+        json_object_object_add(node, "rust_capture_index_rhs", rhs);
+        const char *storage = rust_numeric_type_name(json_string_property(type, "kind"));
+        if (storage && !json_string_property_equals(type, "kind", "char"))
+            json_object_object_add(node, "rust_capture_index_storage_type", json_object_new_string(storage));
+        const char *bases[] = {"__sn_capture_index_value", "__sn_capture_index_place"};
+        const char *keys[] = {"rust_capture_index_value_name", "rust_capture_index_place_name"};
+        for (size_t i = 0; i < 2; i++)
+        {
+            char name[96];
+            if (!rust_allocate_helper_name(model, bases[i], name, sizeof(name))) return false;
+            json_object_object_add(node, keys[i], json_object_new_string(name));
+        }
+        return true;
+    }
     if (!json_boolean_property(node, "rust_numeric_computed_mutation")) return true;
 
     bool compound = json_string_property_equals(node, "kind", "compound_assign");

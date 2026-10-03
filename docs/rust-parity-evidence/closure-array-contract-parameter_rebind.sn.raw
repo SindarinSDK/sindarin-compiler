@@ -1,0 +1,8 @@
+fn main(): void =>
+  var action: fn(int[]): int = fn(values: int[]): int =>
+    values = {100}
+    values[0] = 200
+    return values[0]
+  var values: int[] = {10}
+  println(action(values))
+  println(values[0])

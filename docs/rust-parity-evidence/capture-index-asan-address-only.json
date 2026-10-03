@@ -1,0 +1,37 @@
+[
+  {
+    "source": "tests/rgen/capture_array_index_nested.sn",
+    "status": 0,
+    "stdout_hex": "35300a36300a34300a",
+    "stderr_hex": "",
+    "ASAN_OPTIONS": "detect_leaks=0"
+  },
+  {
+    "source": "tests/rgen/capture_array_index_result.sn",
+    "status": 0,
+    "stdout_hex": "31320a31340a31300a",
+    "stderr_hex": "",
+    "ASAN_OPTIONS": "detect_leaks=0"
+  },
+  {
+    "source": "tests/rgen/capture_array_index_shared.sn",
+    "status": 0,
+    "stdout_hex": "31300a31320a31320a31320a31340a31340a31300a",
+    "stderr_hex": "",
+    "ASAN_OPTIONS": "detect_leaks=0"
+  },
+  {
+    "source": "tests/rgen/capture_array_index_state.sn",
+    "status": 0,
+    "stdout_hex": "33300a31310a34300a31320a31300a32300a",
+    "stderr_hex": "",
+    "ASAN_OPTIONS": "detect_leaks=0"
+  },
+  {
+    "source": "tests/rgen/capture_array_index_widths.sn",
+    "status": 0,
+    "stdout_hex": "302e35303030300a330a747275650a7a0a350a312e30303030300a350a66616c73650a7a0a350a302e30303030300a310a66616c73650a610a",
+    "stderr_hex": "",
+    "ASAN_OPTIONS": "detect_leaks=0"
+  }
+]

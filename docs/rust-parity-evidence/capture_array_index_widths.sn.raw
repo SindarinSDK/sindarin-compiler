@@ -1,0 +1,23 @@
+fn main(): void =>
+  var floats: float[] = {0.0f}
+  var narrow: int32[] = {1}
+  var flags: bool[] = {false}
+  var chars: char[] = {'a'}
+  var __sn_capture_index_value: int = 2
+  var __sn_capture_index_place: int = 3
+  var action: fn(): void = fn(): void =>
+    floats[0] = floats[0] + 0.5
+    narrow[0] = narrow[0] + 2
+    flags[0] = !flags[0]
+    chars[0] = 'z'
+    println(floats[0])
+    println(narrow[0])
+    println(flags[0])
+    println(chars[0])
+    println(__sn_capture_index_value + __sn_capture_index_place)
+  action()
+  action()
+  println(floats[0])
+  println(narrow[0])
+  println(flags[0])
+  println(chars[0])
