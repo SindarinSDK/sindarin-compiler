@@ -12,24 +12,20 @@ fn {{rust_ident @root.rust_windows_write_text_name}}<W: std::io::Write>(writer: 
     writer.flush().expect("failed to flush output");
 }
 
-#[cfg(windows)]
 fn {{rust_ident @root.rust_windows_stdout_name}}(bytes: &[u8]) {
-    {{rust_ident @root.rust_windows_write_text_name}}(&mut std::io::stdout().lock(), bytes);
+    {{rust_ident @root.rust_stdio_write_name}}(bytes, false);
 }
 
-#[cfg(windows)]
 fn {{rust_ident @root.rust_windows_stderr_name}}(bytes: &[u8]) {
-    {{rust_ident @root.rust_windows_write_text_name}}(&mut std::io::stderr().lock(), bytes);
+    {{rust_ident @root.rust_stdio_write_name}}(bytes, true);
 }
 
-#[cfg(windows)]
 fn {{rust_ident @root.rust_windows_print_name}}(arguments: std::fmt::Arguments<'_>) {
     let mut rendered = std::string::String::new();
     std::fmt::write(&mut rendered, arguments).expect("failed to format output");
     {{rust_ident @root.rust_windows_stdout_name}}(rendered.as_bytes());
 }
 
-#[cfg(windows)]
 fn {{rust_ident @root.rust_windows_println_name}}(arguments: std::fmt::Arguments<'_>) {
     let mut rendered = std::string::String::new();
     std::fmt::write(&mut rendered, arguments).expect("failed to format output");
@@ -37,12 +33,10 @@ fn {{rust_ident @root.rust_windows_println_name}}(arguments: std::fmt::Arguments
     {{rust_ident @root.rust_windows_stdout_name}}(rendered.as_bytes());
 }
 
-#[cfg(windows)]
 macro_rules! print {
     ($($arg:tt)*) => { crate::{{rust_ident @root.rust_windows_print_name}}(format_args!($($arg)*)) };
 }
 
-#[cfg(windows)]
 macro_rules! println {
     () => { crate::{{rust_ident @root.rust_windows_println_name}}(format_args!("")) };
     ($($arg:tt)*) => { crate::{{rust_ident @root.rust_windows_println_name}}(format_args!($($arg)*)) };

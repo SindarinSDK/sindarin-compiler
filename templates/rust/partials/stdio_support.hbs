@@ -1,0 +1,44 @@
+extern "C" {
+    #[link_name = "fwrite"]
+    fn {{rust_ident rust_stdio_fwrite_name}}(_: *const std::ffi::c_void, _: usize, _: usize, _: *mut std::ffi::c_void) -> usize;
+    #[link_name = "fflush"]
+    fn {{rust_ident rust_stdio_fflush_name}}(_: *mut std::ffi::c_void) -> std::ffi::c_int;
+    #[link_name = "exit"]
+    fn {{rust_ident rust_stdio_exit_extern_name}}(_: std::ffi::c_int) -> !;
+    #[cfg(windows)]
+    #[link_name = "__acrt_iob_func"]
+    fn {{rust_ident rust_stdio_iob_name}}(_: u32) -> *mut std::ffi::c_void;
+    #[cfg(target_os = "macos")]
+    #[link_name = "__stdoutp"]
+    static mut {{rust_ident rust_stdio_stdout_name}}: *mut std::ffi::c_void;
+    #[cfg(target_os = "macos")]
+    #[link_name = "__stderrp"]
+    static mut {{rust_ident rust_stdio_stderr_name}}: *mut std::ffi::c_void;
+    #[cfg(all(not(windows), not(target_os = "macos")))]
+    #[link_name = "stdout"]
+    static mut {{rust_ident rust_stdio_stdout_name}}: *mut std::ffi::c_void;
+    #[cfg(all(not(windows), not(target_os = "macos")))]
+    #[link_name = "stderr"]
+    static mut {{rust_ident rust_stdio_stderr_name}}: *mut std::ffi::c_void;
+}
+
+fn {{rust_ident rust_stdio_write_name}}(bytes: &[u8], stderr: bool) {
+    unsafe {
+        #[cfg(windows)]
+        let stream = {{rust_ident rust_stdio_iob_name}}(if stderr { 2 } else { 1 });
+        #[cfg(not(windows))]
+        let stream = if stderr { {{rust_ident rust_stdio_stderr_name}} } else { {{rust_ident rust_stdio_stdout_name}} };
+        {{rust_ident rust_stdio_fwrite_name}}(bytes.as_ptr().cast(), 1, bytes.len(), stream);
+    }
+}
+
+fn {{rust_ident rust_stdio_exit_name}}(status: i32) -> ! {
+    unsafe { {{rust_ident rust_stdio_exit_extern_name}}(status) }
+}
+
+struct {{rust_ident rust_stdio_guard_type_name}};
+impl Drop for {{rust_ident rust_stdio_guard_type_name}} {
+    fn drop(&mut self) {
+        unsafe { {{rust_ident rust_stdio_fflush_name}}(std::ptr::null_mut()); }
+    }
+}

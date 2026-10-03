@@ -155,27 +155,19 @@ fn __sn_find_bytes(haystack: &[u8], needle: &[u8]) -> Option<usize> {
 }
 
 fn __sn_write_bytes(bytes: &[u8]) {
-    #[cfg(windows)]
     crate::{{rust_ident @root.rust_windows_stdout_name}}(bytes);
-    #[cfg(not(windows))]
-    {
-    use std::io::Write;
-    std::io::stdout().lock().write_all(bytes).expect("failed to write stdout");
-    }
 }
 
 fn __sn_print_string(value: &SnString) { __sn_write_bytes(value.as_bytes()); }
 
 fn __sn_println_string(value: &SnString) {
-    __sn_write_bytes(value.as_bytes());
-    __sn_write_bytes(b"\n");
+    __sn_write_bytes(&[value.as_bytes(), b"\n"].concat());
 }
 
 fn __sn_print_char(value: char) { __sn_write_bytes(&[value as u32 as u8]); }
 
 fn __sn_println_char(value: char) {
-    __sn_print_char(value);
-    __sn_write_bytes(b"\n");
+    __sn_write_bytes(&[value as u32 as u8, b'\n']);
 }
 
 fn __sn_string_join(values: &[SnString], delimiter: &SnString) -> SnString {

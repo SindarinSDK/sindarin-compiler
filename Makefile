@@ -443,3 +443,7 @@ test-rust-parity-native-managed: build
 		tests/rust-native/native_string_escape.sn \
 		--require-count 7 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-native-managed.json
+
+.PHONY: test-rust-parity-stdio-order
+test-rust-parity-stdio-order: build
+	@$(PYTHON) tests/rgen/stdio_order_compare.py

@@ -1,0 +1,34 @@
+{
+  "revision": "40365381e93f65f5f912bb248f5aa40bd07685ed",
+  "run": 37114404042,
+  "reports": [
+    {
+      "gate": "core",
+      "pairs": 30
+    },
+    {
+      "gate": "concurrency",
+      "pairs": 51
+    },
+    {
+      "gate": "thread-ownership",
+      "pairs": 207
+    },
+    {
+      "gate": "thread-receivers",
+      "pairs": 90
+    },
+    {
+      "gate": "native-managed",
+      "pairs": 63
+    },
+    {
+      "gate": "reflection",
+      "pairs": 36
+    },
+    {
+      "gate": "sized-defaults",
+      "pairs": 27
+    }
+  ]
+}

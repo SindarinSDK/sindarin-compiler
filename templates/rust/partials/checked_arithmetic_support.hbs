@@ -1,12 +1,6 @@
 fn {{rust_ident rust_runtime_error_name}}(message: &'static str) -> ! {
-    #[cfg(windows)]
-    {
-    crate::{{rust_ident @root.rust_windows_stderr_name}}(message.as_bytes());
-    crate::{{rust_ident @root.rust_windows_stderr_name}}(b"\n");
-    }
-    #[cfg(not(windows))]
-    eprintln!("{}", message);
-    std::process::exit(1);
+    crate::{{rust_ident @root.rust_windows_stderr_name}}(&[message.as_bytes(), b"\n"].concat());
+    crate::{{rust_ident @root.rust_stdio_exit_name}}(1);
 }
 
 fn {{rust_ident rust_checked_name}}<T>(value: Option<T>, message: &'static str) -> T {

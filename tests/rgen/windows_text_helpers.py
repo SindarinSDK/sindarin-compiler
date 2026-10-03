@@ -31,6 +31,23 @@ def main():
         error_helper = re.search(r"fn (\w+)\(message: &'static str\) -> !", emitted)
         if not error_helper:
             raise AssertionError("missing generated checked error helper")
+        # A forced cfg cannot supply the Windows CRT. Substitute only its
+        # transport entry with the platform-independent adapter under test;
+        # actual CRT buffering, imports and stream ordering remain hosted gates.
+        adapter = re.search(r"fn (\w+)<W: std::io::Write>", emitted)
+        if not adapter:
+            raise AssertionError("missing generated text adapter")
+        stdio = re.compile(r"fn (\w+)\(bytes: &\[u8\], stderr: bool\) \{.*?\n\}\n", re.S)
+        def simulated_stdio(match):
+            name = match.group(1)
+            writer = adapter.group(1)
+            return (f"fn {name}(bytes: &[u8], stderr: bool) {{\n"
+                    f"    if stderr {{ {writer}(&mut std::io::stderr().lock(), bytes); }}\n"
+                    f"    else {{ {writer}(&mut std::io::stdout().lock(), bytes); }}\n"
+                    "}\n")
+        emitted, replacements = stdio.subn(simulated_stdio, emitted)
+        if replacements != 1:
+            raise AssertionError("missing or ambiguous CRT transport entry")
         source = emitted.replace("fn main()", "fn __sn_original_main()", 1) + r'''
 fn main() {
     __sn_original_main();

@@ -1,5 +1,51 @@
 #![allow(dead_code, unused_mut, unused_variables, unused_parens)]
 
+extern "C" {
+    #[link_name = "fwrite"]
+    fn __sn_stdio_fwrite(_: *const std::ffi::c_void, _: usize, _: usize, _: *mut std::ffi::c_void) -> usize;
+    #[link_name = "fflush"]
+    fn __sn_stdio_fflush(_: *mut std::ffi::c_void) -> std::ffi::c_int;
+    #[link_name = "exit"]
+    fn __sn_stdio_c_exit(_: std::ffi::c_int) -> !;
+    #[cfg(windows)]
+    #[link_name = "__acrt_iob_func"]
+    fn __sn_stdio_iob(_: u32) -> *mut std::ffi::c_void;
+    #[cfg(target_os = "macos")]
+    #[link_name = "__stdoutp"]
+    static mut __sn_stdio_stdout: *mut std::ffi::c_void;
+    #[cfg(target_os = "macos")]
+    #[link_name = "__stderrp"]
+    static mut __sn_stdio_stderr: *mut std::ffi::c_void;
+    #[cfg(all(not(windows), not(target_os = "macos")))]
+    #[link_name = "stdout"]
+    static mut __sn_stdio_stdout: *mut std::ffi::c_void;
+    #[cfg(all(not(windows), not(target_os = "macos")))]
+    #[link_name = "stderr"]
+    static mut __sn_stdio_stderr: *mut std::ffi::c_void;
+}
+
+fn __sn_stdio_write(bytes: &[u8], stderr: bool) {
+    unsafe {
+        #[cfg(windows)]
+        let stream = __sn_stdio_iob(if stderr { 2 } else { 1 });
+        #[cfg(not(windows))]
+        let stream = if stderr { __sn_stdio_stderr } else { __sn_stdio_stdout };
+        __sn_stdio_fwrite(bytes.as_ptr().cast(), 1, bytes.len(), stream);
+    }
+}
+
+fn __sn_stdio_exit(status: i32) -> ! {
+    unsafe { __sn_stdio_c_exit(status) }
+}
+
+struct __SnStdioGuard;
+impl Drop for __SnStdioGuard {
+    fn drop(&mut self) {
+        unsafe { __sn_stdio_fflush(std::ptr::null_mut()); }
+    }
+}
+
+
 #[cfg(windows)]
 fn __sn_write_windows_text<W: std::io::Write>(writer: &mut W, bytes: &[u8]) {
     let mut start = 0usize;
@@ -14,24 +60,20 @@ fn __sn_write_windows_text<W: std::io::Write>(writer: &mut W, bytes: &[u8]) {
     writer.flush().expect("failed to flush output");
 }
 
-#[cfg(windows)]
 fn __sn_write_stdout_bytes(bytes: &[u8]) {
-    __sn_write_windows_text(&mut std::io::stdout().lock(), bytes);
+    __sn_stdio_write(bytes, false);
 }
 
-#[cfg(windows)]
 fn __sn_write_stderr_bytes(bytes: &[u8]) {
-    __sn_write_windows_text(&mut std::io::stderr().lock(), bytes);
+    __sn_stdio_write(bytes, true);
 }
 
-#[cfg(windows)]
 fn __sn_print_format(arguments: std::fmt::Arguments<'_>) {
     let mut rendered = std::string::String::new();
     std::fmt::write(&mut rendered, arguments).expect("failed to format output");
     __sn_write_stdout_bytes(rendered.as_bytes());
 }
 
-#[cfg(windows)]
 fn __sn_println_format(arguments: std::fmt::Arguments<'_>) {
     let mut rendered = std::string::String::new();
     std::fmt::write(&mut rendered, arguments).expect("failed to format output");
@@ -39,12 +81,10 @@ fn __sn_println_format(arguments: std::fmt::Arguments<'_>) {
     __sn_write_stdout_bytes(rendered.as_bytes());
 }
 
-#[cfg(windows)]
 macro_rules! print {
     ($($arg:tt)*) => { crate::__sn_print_format(format_args!($($arg)*)) };
 }
 
-#[cfg(windows)]
 macro_rules! println {
     () => { crate::__sn_println_format(format_args!("")) };
     ($($arg:tt)*) => { crate::__sn_println_format(format_args!($($arg)*)) };
@@ -87,6 +127,7 @@ impl<F: ?Sized> PartialEq for __SnClosure<F> {
     fn eq(&self, other: &Self) -> bool { std::rc::Rc::ptr_eq(&self.0, &other.0) }
 }
 fn main() {
+    let __sn_stdio_guard = __SnStdioGuard;
     let mut values: Vec<i64> = vec![1];
     let mut action: __SnClosure<dyn Fn() -> ()> = { let (values, ) = (std::rc::Rc::new(std::cell::RefCell::new(values.clone())), ); self::__SnClosure::<dyn Fn() -> ()>(std::rc::Rc::new(move || -> () { { let __sn_array_value = 2; values.borrow_mut().push(__sn_array_value); };})) }
 ;

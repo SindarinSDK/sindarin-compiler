@@ -1,5 +1,51 @@
 #![allow(dead_code, unused_mut, unused_variables, unused_parens)]
 
+extern "C" {
+    #[link_name = "fwrite"]
+    fn __sn_stdio_fwrite(_: *const std::ffi::c_void, _: usize, _: usize, _: *mut std::ffi::c_void) -> usize;
+    #[link_name = "fflush"]
+    fn __sn_stdio_fflush(_: *mut std::ffi::c_void) -> std::ffi::c_int;
+    #[link_name = "exit"]
+    fn __sn_stdio_c_exit(_: std::ffi::c_int) -> !;
+    #[cfg(windows)]
+    #[link_name = "__acrt_iob_func"]
+    fn __sn_stdio_iob(_: u32) -> *mut std::ffi::c_void;
+    #[cfg(target_os = "macos")]
+    #[link_name = "__stdoutp"]
+    static mut __sn_stdio_stdout: *mut std::ffi::c_void;
+    #[cfg(target_os = "macos")]
+    #[link_name = "__stderrp"]
+    static mut __sn_stdio_stderr: *mut std::ffi::c_void;
+    #[cfg(all(not(windows), not(target_os = "macos")))]
+    #[link_name = "stdout"]
+    static mut __sn_stdio_stdout: *mut std::ffi::c_void;
+    #[cfg(all(not(windows), not(target_os = "macos")))]
+    #[link_name = "stderr"]
+    static mut __sn_stdio_stderr: *mut std::ffi::c_void;
+}
+
+fn __sn_stdio_write(bytes: &[u8], stderr: bool) {
+    unsafe {
+        #[cfg(windows)]
+        let stream = __sn_stdio_iob(if stderr { 2 } else { 1 });
+        #[cfg(not(windows))]
+        let stream = if stderr { __sn_stdio_stderr } else { __sn_stdio_stdout };
+        __sn_stdio_fwrite(bytes.as_ptr().cast(), 1, bytes.len(), stream);
+    }
+}
+
+fn __sn_stdio_exit(status: i32) -> ! {
+    unsafe { __sn_stdio_c_exit(status) }
+}
+
+struct __SnStdioGuard;
+impl Drop for __SnStdioGuard {
+    fn drop(&mut self) {
+        unsafe { __sn_stdio_fflush(std::ptr::null_mut()); }
+    }
+}
+
+
 #[cfg(windows)]
 fn __sn_write_windows_text<W: std::io::Write>(writer: &mut W, bytes: &[u8]) {
     let mut start = 0usize;
@@ -14,24 +60,20 @@ fn __sn_write_windows_text<W: std::io::Write>(writer: &mut W, bytes: &[u8]) {
     writer.flush().expect("failed to flush output");
 }
 
-#[cfg(windows)]
 fn __sn_write_stdout_bytes(bytes: &[u8]) {
-    __sn_write_windows_text(&mut std::io::stdout().lock(), bytes);
+    __sn_stdio_write(bytes, false);
 }
 
-#[cfg(windows)]
 fn __sn_write_stderr_bytes(bytes: &[u8]) {
-    __sn_write_windows_text(&mut std::io::stderr().lock(), bytes);
+    __sn_stdio_write(bytes, true);
 }
 
-#[cfg(windows)]
 fn __sn_print_format(arguments: std::fmt::Arguments<'_>) {
     let mut rendered = std::string::String::new();
     std::fmt::write(&mut rendered, arguments).expect("failed to format output");
     __sn_write_stdout_bytes(rendered.as_bytes());
 }
 
-#[cfg(windows)]
 fn __sn_println_format(arguments: std::fmt::Arguments<'_>) {
     let mut rendered = std::string::String::new();
     std::fmt::write(&mut rendered, arguments).expect("failed to format output");
@@ -39,12 +81,10 @@ fn __sn_println_format(arguments: std::fmt::Arguments<'_>) {
     __sn_write_stdout_bytes(rendered.as_bytes());
 }
 
-#[cfg(windows)]
 macro_rules! print {
     ($($arg:tt)*) => { crate::__sn_print_format(format_args!($($arg)*)) };
 }
 
-#[cfg(windows)]
 macro_rules! println {
     () => { crate::__sn_println_format(format_args!("")) };
     ($($arg:tt)*) => { crate::__sn_println_format(format_args!($($arg)*)) };
@@ -208,27 +248,19 @@ fn __sn_find_bytes(haystack: &[u8], needle: &[u8]) -> Option<usize> {
 }
 
 fn __sn_write_bytes(bytes: &[u8]) {
-    #[cfg(windows)]
     crate::__sn_write_stdout_bytes(bytes);
-    #[cfg(not(windows))]
-    {
-    use std::io::Write;
-    std::io::stdout().lock().write_all(bytes).expect("failed to write stdout");
-    }
 }
 
 fn __sn_print_string(value: &SnString) { __sn_write_bytes(value.as_bytes()); }
 
 fn __sn_println_string(value: &SnString) {
-    __sn_write_bytes(value.as_bytes());
-    __sn_write_bytes(b"\n");
+    __sn_write_bytes(&[value.as_bytes(), b"\n"].concat());
 }
 
 fn __sn_print_char(value: char) { __sn_write_bytes(&[value as u32 as u8]); }
 
 fn __sn_println_char(value: char) {
-    __sn_print_char(value);
-    __sn_write_bytes(b"\n");
+    __sn_write_bytes(&[value as u32 as u8, b'\n']);
 }
 
 fn __sn_string_join(values: &[SnString], delimiter: &SnString) -> SnString {
@@ -303,14 +335,8 @@ fn __sn_array_size(size: i64) -> usize {
 }
 
 fn __sn_runtime_error_0(message: &'static str) -> ! {
-    #[cfg(windows)]
-    {
-    crate::__sn_write_stderr_bytes(message.as_bytes());
-    crate::__sn_write_stderr_bytes(b"\n");
-    }
-    #[cfg(not(windows))]
-    eprintln!("{}", message);
-    std::process::exit(1);
+    crate::__sn_write_stderr_bytes(&[message.as_bytes(), b"\n"].concat());
+    crate::__sn_stdio_exit(1);
 }
 
 fn __sn_checked_0<T>(value: Option<T>, message: &'static str) -> T {
@@ -376,6 +402,7 @@ fn chooseForReturn(value: bool, fallback: SnString) -> SnString {
 }
 
 fn main() {
+    let __sn_stdio_guard = __SnStdioGuard;
     let mut variableResult: SnString = SnString::from_slice(&[0x76, 0x61, 0x72, 0x69, 0x61, 0x62, 0x6c, 0x65]);
     let mut fallbackResult: SnString = SnString::from_slice(&[0x66, 0x61, 0x6c, 0x6c, 0x62, 0x61, 0x63, 0x6b]);
     let mut r#box: ResultBox = ResultBox { label: SnString::from_slice(&[0x6d, 0x65, 0x6d, 0x62, 0x65, 0x72]), rows: vec![vec![SnString::from_slice(&[0x7a, 0x65, 0x72, 0x6f]), SnString::from_slice(&[0x6f, 0x6e, 0x65])], vec![SnString::from_slice(&[0x74, 0x77, 0x6f]), SnString::from_slice(&[0x74, 0x68, 0x72, 0x65, 0x65])]] };

@@ -193,6 +193,9 @@ jobs:
           run_gate "native managed results and scalar references (7 sources, all optimization/arithmetic modes)" \
             make test-rust-parity-native-managed
 
+          run_gate "C diagnostic statuses and stdout/stderr order (30 paired cases, 120 executions)" \
+            make test-rust-parity-stdio-order
+
           exit "$overall_rc"
 
       - name: Retain runtime parity evidence
@@ -209,5 +212,6 @@ jobs:
             .sn/rust-parity-thread-receivers.json
             .sn/rust-parity-reflection.json
             .sn/rust-parity-sized-defaults.json
+            .sn/rust-parity-stdio-order.json
           if-no-files-found: ignore
           retention-days: 7

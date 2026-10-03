@@ -1,0 +1,21 @@
+struct __SnStdioGuard =>
+  value: int
+
+fn __sn_stdio_fwrite(): int => return 1
+fn __sn_stdio_fflush(): int => return 2
+fn __sn_stdio_c_exit(): int => return 3
+fn __sn_stdio_iob(): int => return 4
+fn __sn_stdio_write(): int => return 5
+fn __sn_stdio_exit(): int => return 6
+fn __sn_stdio_stdout(): int => return 7
+fn __sn_stdio_stderr(): int => return 8
+
+fn main(): void =>
+  var __sn_stdio_guard: int = 10
+  var guard: __SnStdioGuard = { value: 9 }
+  var total: int = __sn_stdio_fwrite() + __sn_stdio_fflush()
+  total += __sn_stdio_c_exit() + __sn_stdio_iob()
+  total += __sn_stdio_write() + __sn_stdio_exit()
+  total += __sn_stdio_stdout() + __sn_stdio_stderr()
+  println(total + guard.value + __sn_stdio_guard)
+  return

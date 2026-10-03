@@ -1015,6 +1015,16 @@ static bool rust_assign_windows_text_names(json_object *model)
         {"rust_windows_stderr_name", "__sn_write_stderr_bytes"},
         {"rust_windows_print_name", "__sn_print_format"},
         {"rust_windows_println_name", "__sn_println_format"},
+        {"rust_stdio_fwrite_name", "__sn_stdio_fwrite"},
+        {"rust_stdio_fflush_name", "__sn_stdio_fflush"},
+        {"rust_stdio_exit_extern_name", "__sn_stdio_c_exit"},
+        {"rust_stdio_iob_name", "__sn_stdio_iob"},
+        {"rust_stdio_stdout_name", "__sn_stdio_stdout"},
+        {"rust_stdio_stderr_name", "__sn_stdio_stderr"},
+        {"rust_stdio_write_name", "__sn_stdio_write"},
+        {"rust_stdio_exit_name", "__sn_stdio_exit"},
+        {"rust_stdio_guard_type_name", "__SnStdioGuard"},
+        {"rust_stdio_guard_binding_name", "__sn_stdio_guard"},
     };
     for (size_t i = 0; i < sizeof(helpers) / sizeof(helpers[0]); i++)
     {

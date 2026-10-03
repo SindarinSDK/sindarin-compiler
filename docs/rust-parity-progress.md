@@ -5,6 +5,21 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Current verified status: 2026-10-03
+
+Main `40365381` passes Linux/macOS/Windows Compiler and Rust Runtime CI,
+including 504 exact C/Rust positive pairs. All existing PR work is reconciled;
+the open queue is empty. C remains the default target. Sized-array reflection
+and default initialization are now integrated. Full parity is still incomplete:
+the broader unchanged C-positive corpus has 101 Rust admission/compilation gaps,
+and remaining Rust-negative, ownership, native/SDK and language families need
+implementation and full mode/platform validation.
+
+The next local increment repairs buffered diagnostic stream order. Its complete
+suites and 504 positive + 30 diagnostic/order cases pass; actual hosted ABI and
+runtime validation is required after direct-main publication. Details and exact
+CI/report links follow below.
+
 ## Baseline: 2026-10-02
 
 Remote main verified as `4dba66c151133f83bf4e11a5b0c12c414384bb6a`.
@@ -743,3 +758,61 @@ The increment is authorized for direct-main push with hosted runtime CI required
 on all platforms. The PR queue is empty and native main's CI is fully green.
 Remaining native/closure/array/language work and the two observed diagnostic
 stream-order gaps still prevent claiming overall parity completion.
+
+
+## Buffered C text output and diagnostics: verified local repair
+
+Main `40365381` passes all six jobs in Compiler `37114404046` and Runtime
+`37114404042`. Retained Windows JSON verifies all 504 positive pairs and every
+source hash, including the raw fixtures; evidence is
+`reflection-default-main-ci-green.json` and
+`reflection-default-windows-verification.json`.
+
+Rust output now uses the C runtime's buffered stdout/stderr with opaque stream
+pointers and `fwrite`. Scalar formatting still uses the existing Rust formatter;
+byte strings/characters retain raw bytes. Each newline write is assembled before
+writing, and native bodies share the same stream buffers. A main guard flushes
+on normal/early return; explicit exits use C's exit path. All new helper/type/
+guard names are allocated against the complete source model. The C backend,
+language inputs and C runtime oracles remain unchanged.
+
+The macOS stream imports follow [Apple's stdio declarations](https://github.com/apple-oss-distributions/Libc/blob/main/include/_stdio.h).
+Windows uses its CRT accessor and existing matched
+[gnullvm/UCRT toolchain](https://doc.rust-lang.org/rustc/platform-support/windows-gnullvm.html).
+The forced-Windows helper test simulates only the formatting/text adapter;
+actual CRT import, buffering and text translation must pass hosted Windows CI.
+
+All 372 pre-change generation/closure/concurrency snapshots are compared against
+the exact baseline compiler/oracles and a deterministic normalization of only
+reviewed I/O sites. Every other byte of normalized generated code agrees before
+refreshing these snapshots. Evidence: `stdio-snapshot-review.json`, `.py` and
+`.log`. The new hygiene positive exercises source names matching every stdio
+helper, the guard type and its local binding. It adds a fresh source/runtime
+oracle and snapshot.
+
+The old `assert_heap_message_order.expected` reflected Rust's earlier merged
+stream order. Nine unchanged C/Rust controls first prove C's actual
+`bad/message/condition` order, separate raw streams and status 1; only then is
+that obsolete Rust oracle corrected. No source or C oracle is edited. The new
+stdio gate requires 30 paired cases (120 separate/merged target executions):
+assert and heap-message order across all nine modes, hygiene across nine, and
+thread panic at all three checked optimization levels. Before-change evidence
+retains all 18 originally attempted cases. Unchecked division by zero is
+undefined in C, as established in `rust-numeric-divzero-optimizer.md`; those
+controls receive no parity credit and cannot supply a deterministic panic oracle.
+
+Complete local C suites pass 1610/107/79/1141/58/224/11. Rust passes 320/171,
+native 8/17/1/4, closures 36/1, concurrency 10/7/1 and toolchain 12, zero skips.
+All 504 existing positive pairs, the 30 diagnostic/order cases, raw-byte 63
+executions, native transport 6 executions and helper/format checks pass.
+Evidence: `rust-parity-evidence/stdio-*`.
+
+The broader unchanged C-positive corpus now passes 1058 integration and 206
+exploratory Rust oracle checks: all three observed runtime output failures are
+resolved, while 83 + 18 compilation/admission failures remain required work.
+Those corpus runs use the existing harness's O0/debug policy and are not a
+substitute for full mode/platform differential verification. An earlier corpus
+attempt used a missing temporary compiler wrapper; its setup failure was
+identified before any result was counted, and the corrected run uses a
+project-local wrapper. This increment is ready for direct main publication;
+verification of the resulting exact hosted revision is still required.
