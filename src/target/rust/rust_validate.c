@@ -96,6 +96,15 @@ static bool json_string_property_equals(json_object *object, const char *key,
     return value && strcmp(value, wanted) == 0;
 }
 
+static bool rust_float_conversion_pair(json_object *left, json_object *right)
+{
+    return (json_string_property_equals(left, "kind", "float") &&
+            json_string_property_equals(right, "kind", "double")) ||
+           (json_string_property_equals(left, "kind", "double") &&
+            json_string_property_equals(right, "kind", "float"));
+}
+
+
 static bool rust_typeof_type_supported(json_object *type)
 {
     const char *kind = json_string_property(type, "kind");
@@ -362,7 +371,8 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
             if (!json_object_object_get_ex(node, "value", &value)) return false;
             if (!json_object_object_get_ex(value, "type", &value_type) ||
                 !(value_kind = json_string_property(value_type, "kind")) ||
-                strcmp(type_kind, value_kind) != 0)
+                (strcmp(type_kind, value_kind) != 0 &&
+                 !rust_float_conversion_pair(type, value_type)))
             {
                 fprintf(stderr,
                         "Error: Rust target requires direct assignment of by-value parameter '%s' to use the exact same scalar type; cannot assign '%s' to '%s'\n",
@@ -439,14 +449,15 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
                 if (!json_object_object_get_ex(node, "value", &value) ||
                     !json_object_object_get_ex(value, "type", &value_type) ||
                     !(value_kind = json_string_property(value_type, "kind")) ||
-                    strcmp(param_kind, value_kind) != 0)
+                    (strcmp(param_kind, value_kind) != 0 &&
+                     !rust_float_conversion_pair(param_type, value_type)))
                 {
                     fprintf(stderr, "%s",
                         wrapping_parameter
                             ? "Error: Rust target requires by-value wrapping-integer compound assignment to use same-type operands\n"
                             : checked_parameter
                                 ? "Error: Rust target requires checked by-value integer compound assignment to use same-type operands\n"
-                                : "Error: Rust target currently supports floating-point compound assignment only between same-type float or double operands\n");
+                                : "Error: Rust target currently supports floating-point compound assignment only between float or double operands\n");
                     return false;
                 }
                 if (rust_rhs_mutates_or_forwards_parameter(value, target_name))
@@ -1631,11 +1642,10 @@ static bool rust_validate_expr(json_object *expr)
         if (target_floating || value_floating)
         {
             const char *op = json_string_property(expr, "op");
-            if (!target_floating || !value_floating ||
-                strcmp(target_kind, value_kind) != 0)
+            if (!target_floating || !value_floating)
             {
                 fprintf(stderr,
-                        "Error: Rust target currently supports floating-point compound assignment only between same-type float or double operands\n");
+                        "Error: Rust target currently supports floating-point compound assignment only between float or double operands\n");
                 return false;
             }
             if (!op || (strcmp(op, "add") != 0 &&

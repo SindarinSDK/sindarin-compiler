@@ -1,0 +1,18 @@
+native fn narrowNative(value: float): float =>
+  return value
+
+native fn wideNative(value: double): double =>
+  return value
+
+fn nextDouble(calls: int as ref): double =>
+  calls++
+  return 16777217.0
+
+fn main(): void =>
+  var calls: int = 0
+  println(narrowNative(nextDouble(calls)))
+  var value: float = 1.5f
+  println(wideNative(value))
+  var stored: float = wideNative(nextDouble(calls))
+  println(stored)
+  println(calls)

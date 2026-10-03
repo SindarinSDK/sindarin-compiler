@@ -1,0 +1,24 @@
+struct FloatMethods =>
+  marker: int = 0
+
+  static fn accept(value: float): double =>
+    return value
+
+  fn acceptWide(value: double): float =>
+    return value
+
+fn main(): void =>
+  var number: double = 16777217.0
+  var small: float = 1.5f
+  println(FloatMethods.accept(number))
+  var methods: FloatMethods = {}
+  println(methods.acceptWide(small))
+  var expression: fn(double): float = fn(value: double): float => value
+  println(expression(number))
+  var block: fn(float): double = fn(value: float): double =>
+    return value
+  println(block(small))
+  var floatArgument: fn(float): float = fn(value: float): float => value
+  println(floatArgument(number))
+  var doubleArgument: fn(double): double = fn(value: double): double => value
+  println(doubleArgument(small))

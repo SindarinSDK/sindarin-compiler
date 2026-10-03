@@ -464,3 +464,23 @@ test-rust-parity-mixed-integral: build
 		--require-count 10 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-mixed-integral.json
 	@$(PYTHON) tests/rgen/mixed_integral_diagnostics_compare.py
+
+.PHONY: test-rust-parity-float-conversions
+test-rust-parity-float-conversions: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/integration/test_interop_types.sn \
+		tests/rgen/float_conversion_boundaries.sn \
+		tests/rgen/float_callable_conversions.sn \
+		tests/rgen/float_mutation_precision.sn \
+		tests/rgen/by_value_parameter_direct_assignment_mixed_float_double.sn \
+		tests/rgen/floating_as_ref_parameter_mixed_type_mutation.sn \
+		tests/rgen/floating_compound_mixed_float_double.sn \
+		tests/rgen/iterator_protocol_mixed_float_double_mutation.sn \
+		tests/rgen/closure_values_mixed_argument.sn \
+		tests/rust-native/scalar_float_conversions.sn \
+		tests/integration/test_float_arithmetic.sn \
+		tests/integration/test_op_double_arith.sn \
+		tests/rust-float-sync/float_cell_conversions.sn \
+		$(RUST_CONCURRENCY_C_LINK_ARGS) \
+		--require-count 13 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-float-conversions.json

@@ -873,7 +873,8 @@ static bool rust_validate_closure_cell_mutation(json_object *expr)
     if (compound)
     {
         json_object *value = rust_closure_property(expr, "value");
-        if (!rust_closure_same_type(type, rust_closure_property(value, "type")))
+        if (!rust_closure_same_type(type, rust_closure_property(value, "type")) &&
+            !rust_float_conversion_pair(type, rust_closure_property(value, "type")))
             return rust_closure_error("mixed-type shared scalar mutation");
         if (!rust_validate_expr(value)) return false;
     }
@@ -894,7 +895,8 @@ static bool rust_validate_closure_snapshot_mutation(json_object *expr)
     if (compound)
     {
         json_object *value = rust_closure_property(expr, "value");
-        if (!rust_closure_same_type(type, rust_closure_property(value, "type")))
+        if (!rust_closure_same_type(type, rust_closure_property(value, "type")) &&
+            !rust_float_conversion_pair(type, rust_closure_property(value, "type")))
             return rust_closure_error("mixed-type mutable scalar snapshot operation");
         if (rust_float_type(kind))
         {
@@ -1033,8 +1035,9 @@ static RustValidationResult rust_validate_closure_call(json_object *expr)
         json_object *arg = json_object_array_get_idx(args, i);
         json_object *actual = rust_closure_property(arg, "type");
         json_object *wanted = json_object_array_get_idx(params, i);
-        /* The shared checker equates float and double, but Rust Fn does not. */
-        if (!rust_closure_same_type(actual, wanted) ||
+        /* C converts value arguments at the signature boundary. */
+        if ((!rust_closure_same_type(actual, wanted) &&
+             !rust_float_conversion_pair(actual, wanted)) ||
             json_boolean_property(arg, "is_ref_arg"))
         {
             rust_closure_error("mixed-type or reference closure arguments");

@@ -1,0 +1,24 @@
+sync var global_value: float = 16777217.0
+
+fn main(): void =>
+  print($"{global_value}\n")
+  global_value = 16777216.0
+  global_value += 1.00000001
+  print($"{global_value == 16777218.0f}\n")
+  sync var value: float = 16777216.0
+  value += 1.00000001
+  print($"{value == 16777218.0f}\n")
+  value = 16777217.0
+  print($"{value}\n")
+  value -= 1.00000001
+  print($"{value == 16777215.0f}\n")
+  value = 4.0
+  value *= 1.5
+  value /= 2.0
+  print($"{value}\n")
+  sync var wide: double = 1.0f
+  wide += 0.5f
+  wide *= 2.0f
+  wide /= 3.0f
+  wide -= 0.5f
+  print($"{wide}\n")

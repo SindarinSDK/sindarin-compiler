@@ -1,0 +1,209 @@
+#![allow(dead_code, unused_mut, unused_variables, unused_parens)]
+
+extern "C" {
+    #[link_name = "fwrite"]
+    fn __sn_stdio_fwrite(_: *const std::ffi::c_void, _: usize, _: usize, _: *mut std::ffi::c_void) -> usize;
+    #[link_name = "fflush"]
+    fn __sn_stdio_fflush(_: *mut std::ffi::c_void) -> std::ffi::c_int;
+    #[link_name = "exit"]
+    fn __sn_stdio_c_exit(_: std::ffi::c_int) -> !;
+    #[cfg(windows)]
+    #[link_name = "__acrt_iob_func"]
+    fn __sn_stdio_iob(_: u32) -> *mut std::ffi::c_void;
+    #[cfg(target_os = "macos")]
+    #[link_name = "__stdoutp"]
+    static mut __sn_stdio_stdout: *mut std::ffi::c_void;
+    #[cfg(target_os = "macos")]
+    #[link_name = "__stderrp"]
+    static mut __sn_stdio_stderr: *mut std::ffi::c_void;
+    #[cfg(all(not(windows), not(target_os = "macos")))]
+    #[link_name = "stdout"]
+    static mut __sn_stdio_stdout: *mut std::ffi::c_void;
+    #[cfg(all(not(windows), not(target_os = "macos")))]
+    #[link_name = "stderr"]
+    static mut __sn_stdio_stderr: *mut std::ffi::c_void;
+}
+
+fn __sn_stdio_write(bytes: &[u8], stderr: bool) {
+    unsafe {
+        #[cfg(windows)]
+        let stream = __sn_stdio_iob(if stderr { 2 } else { 1 });
+        #[cfg(not(windows))]
+        let stream = if stderr { __sn_stdio_stderr } else { __sn_stdio_stdout };
+        __sn_stdio_fwrite(bytes.as_ptr().cast(), 1, bytes.len(), stream);
+    }
+}
+
+fn __sn_stdio_exit(status: i32) -> ! {
+    unsafe { __sn_stdio_c_exit(status) }
+}
+
+struct __SnStdioGuard;
+impl Drop for __SnStdioGuard {
+    fn drop(&mut self) {
+        unsafe { __sn_stdio_fflush(std::ptr::null_mut()); }
+    }
+}
+
+
+#[cfg(windows)]
+fn __sn_write_windows_text<W: std::io::Write>(writer: &mut W, bytes: &[u8]) {
+    let mut start = 0usize;
+    for (index, byte) in bytes.iter().enumerate() {
+        if *byte == b'\n' {
+            writer.write_all(&bytes[start..index]).expect("failed to write output");
+            writer.write_all(b"\r\n").expect("failed to write output newline");
+            start = index + 1;
+        }
+    }
+    writer.write_all(&bytes[start..]).expect("failed to write output");
+    writer.flush().expect("failed to flush output");
+}
+
+fn __sn_write_stdout_bytes(bytes: &[u8]) {
+    __sn_stdio_write(bytes, false);
+}
+
+fn __sn_write_stderr_bytes(bytes: &[u8]) {
+    __sn_stdio_write(bytes, true);
+}
+
+fn __sn_print_format(arguments: std::fmt::Arguments<'_>) {
+    let mut rendered = std::string::String::new();
+    std::fmt::write(&mut rendered, arguments).expect("failed to format output");
+    __sn_write_stdout_bytes(rendered.as_bytes());
+}
+
+fn __sn_println_format(arguments: std::fmt::Arguments<'_>) {
+    let mut rendered = std::string::String::new();
+    std::fmt::write(&mut rendered, arguments).expect("failed to format output");
+    rendered.push('\n');
+    __sn_write_stdout_bytes(rendered.as_bytes());
+}
+
+macro_rules! print {
+    ($($arg:tt)*) => { crate::__sn_print_format(format_args!($($arg)*)) };
+}
+
+macro_rules! println {
+    () => { crate::__sn_println_format(format_args!("")) };
+    ($($arg:tt)*) => { crate::__sn_println_format(format_args!($($arg)*)) };
+}
+
+
+fn __sn_runtime_error_0(message: &'static str) -> ! {
+    crate::__sn_write_stderr_bytes(&[message.as_bytes(), b"\n"].concat());
+    crate::__sn_stdio_exit(1);
+}
+
+fn __sn_checked_0<T>(value: Option<T>, message: &'static str) -> T {
+    match value {
+        Some(value) => value,
+        None => __sn_runtime_error_0(message),
+    }
+}
+
+fn __sn_checked_div_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked_0(value, if divisor_is_zero {
+        "panic: Division by zero"
+    } else {
+        "Runtime error: integer overflow in division"
+    })
+}
+
+fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
+    __sn_checked_0(value, if divisor_is_zero {
+        "panic: Modulo by zero"
+    } else {
+        "Runtime error: integer overflow in modulo"
+    })
+}
+
+struct __SnClosure<F: ?Sized>(std::rc::Rc<F>);
+impl<F: ?Sized> Clone for __SnClosure<F> {
+    fn clone(&self) -> Self { Self(self.0.clone()) }
+}
+impl<F: ?Sized> std::fmt::Debug for __SnClosure<F> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("<function>")
+    }
+}
+impl<F: ?Sized> PartialEq for __SnClosure<F> {
+    fn eq(&self, other: &Self) -> bool { std::rc::Rc::ptr_eq(&self.0, &other.0) }
+}
+#[derive(Clone, Copy, Debug, PartialEq)]
+struct FloatPlace {
+    value: f32,
+}
+#[derive(Clone, Copy, Debug, PartialEq)]
+struct PrecisionIterator {
+    remaining: i64,
+}
+
+impl PrecisionIterator {
+    fn iter(&self) -> PrecisionIterator {
+        return self.clone();
+    }
+    fn hasNext(&self) -> bool {
+        return ((self).remaining > 0);
+    }
+    fn next(&mut self) -> f32 {
+        { let __sn_rhs = 1; let __sn_place = &mut ((self).remaining); let __sn_next = __sn_checked_0((*__sn_place).checked_sub(__sn_rhs), "Runtime error: integer overflow in subtraction"); *__sn_place = __sn_next; __sn_next };
+        return 16777216.0;
+    }
+}
+
+fn rhs(calls: &mut i64) -> f64 {
+    { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
+    return 1.0000000099999999;
+}
+
+fn mutateRef(value: &mut f32, calls: &mut i64) {
+    { let (__sn_rhs, __sn_place) = (rhs(&mut *(calls)), &mut (*(value))); let __sn_next = (((*__sn_place) as f64) + (__sn_rhs as f64)) as f32; *__sn_place = __sn_next; __sn_next };
+}
+
+fn mutateValue(mut value: f32, increment: f64) -> f32 {
+    { let (__sn_rhs, __sn_place) = (increment, &mut (value)); let __sn_next = (((*__sn_place) as f64) + (__sn_rhs as f64)) as f32; *__sn_place = __sn_next; __sn_next };
+    return value;
+}
+
+fn main() {
+    let __sn_stdio_guard = __SnStdioGuard;
+    let mut calls: i64 = 0;
+    let mut value: f32 = 16777216.0;
+    { let (__sn_rhs, __sn_place) = (rhs(&mut (calls)), &mut (value)); let __sn_next = (((*__sn_place) as f64) + (__sn_rhs as f64)) as f32; *__sn_place = __sn_next; __sn_next };
+    println!("{}", (((value) as f64) == ((16777218.0) as f64)));
+    println!("{}", calls);
+    (value = 16777216.0);
+    { let (__sn_rhs, __sn_place) = ((-1.0000000099999999), &mut (value)); let __sn_next = (((*__sn_place) as f64) - (__sn_rhs as f64)) as f32; *__sn_place = __sn_next; __sn_next };
+    println!("{}", (((value) as f64) == ((16777218.0) as f64)));
+    (value = 1.5);
+    { let (__sn_rhs, __sn_place) = (1.0000000499999999, &mut (value)); let __sn_next = (((*__sn_place) as f64) * (__sn_rhs as f64)) as f32; *__sn_place = __sn_next; __sn_next };
+    println!("{}", (((value) as f32) > ((1.5) as f32)));
+    (value = 1.5);
+    { let (__sn_rhs, __sn_place) = (1.0000000499999999, &mut (value)); let __sn_next = (((*__sn_place) as f64) / (__sn_rhs as f64)) as f32; *__sn_place = __sn_next; __sn_next };
+    println!("{}", (((value) as f32) < ((1.5) as f32)));
+    (value = 16777216.0);
+    mutateRef(&mut (value), &mut (calls));
+    println!("{}", (((value) as f64) == ((16777218.0) as f64)));
+    println!("{}", calls);
+    println!("{}", (((mutateValue(16777216.0, 1.0000000099999999)) as f64) == ((16777218.0) as f64)));
+    let mut place: FloatPlace = FloatPlace { value: 16777216.0 };
+    { let (__sn_rhs, __sn_place) = (rhs(&mut (calls)), &mut ((place).value)); let __sn_next = (((*__sn_place) as f64) + (__sn_rhs as f64)) as f32; *__sn_place = __sn_next; __sn_next };
+    println!("{}", ((((place).value) as f64) == ((16777218.0) as f64)));
+    println!("{}", calls);
+    let mut captured: f32 = 16777216.0;
+    let mut action: __SnClosure<dyn Fn() -> f32> = { let (captured, ) = (captured.clone(), ); self::__SnClosure::<dyn Fn() -> f32>(std::rc::Rc::new(move || -> f32 { let mut captured = captured; { let (__sn_rhs, __sn_place) = (1.0000000099999999, &mut (captured)); let __sn_next = (((*__sn_place) as f64) + (__sn_rhs as f64)) as f32; *__sn_place = __sn_next; __sn_next };return captured.clone();})) }
+;
+    println!("{}", (((((action.clone()).0)()) as f64) == ((16777218.0) as f64)));
+    println!("{}", (((((action.clone()).0)()) as f64) == ((16777220.0) as f64)));
+    let mut iterator: PrecisionIterator = PrecisionIterator { remaining: 1 };
+    {
+    let mut __sn_iter_0 = (iterator).iter();
+    while __sn_iter_0.hasNext() {
+        let mut current = __sn_iter_0.next();
+        { let (__sn_rhs, __sn_place) = (1.0000000099999999, &mut (current)); let __sn_next = (((*__sn_place) as f64) + (__sn_rhs as f64)) as f32; *__sn_place = __sn_next; __sn_next };
+        println!("{}", (((current) as f64) == ((16777218.0) as f64)));
+    }
+}
+}

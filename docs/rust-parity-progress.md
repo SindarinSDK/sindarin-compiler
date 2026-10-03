@@ -7,18 +7,22 @@ head counts, not the language specification or the historical evidence itself.
 
 ## Current verified status: 2026-10-03
 
-Main `ec797a75` passes Linux/macOS/Windows Compiler and Rust Runtime CI,
-including 504 exact C/Rust positive pairs and 30 diagnostic/order cases. All existing PR work is reconciled;
-the open queue is empty. C remains the default target. Sized-array reflection
-and default initialization are now integrated. Full parity is still incomplete:
-the broader unchanged C-positive corpus has 101 Rust admission/compilation gaps on this verified main,
-and remaining Rust-negative, ownership, native/SDK and language families need
-implementation and full mode/platform validation.
+Main `bfc0cb99` passes Linux/macOS/Windows Compiler and Rust Runtime CI,
+including 594 exact C/Rust positive pairs and 39 diagnostic/order cases. All
+existing PR work is reconciled; the open queue is empty. C remains the default
+target. Sized-array reflection/defaults, buffered output and mixed integral
+conversions are integrated. Full parity is still incomplete: the broader
+unchanged C-positive corpus has 96 Rust admission/compilation gaps, and remaining
+Rust-negative, ownership, native/SDK and language families need implementation
+and full mode/platform validation.
 
-The next local increment repairs mixed-integer binary and storage conversions.
-Local corpus checks reduce the remaining compilation gaps to 96. Complete
-cross-platform validation is required after direct-main publication. Details
-and exact CI/report links follow below.
+The next local increment implements float/double conversion at scalar storage,
+call and return boundaries, and mixed floating compound mutation. The unchanged
+`test_interop_types.sn` now passes all nine C/Rust controls. Full local suites
+pass; the expanded gate requires 117 new pairs, including observable synchronized
+cell updates. The unchanged broader corpus now has 95 compilation gaps. This
+increment still requires publication and hosted verification; the main status
+above remains the last verified hosted checkpoint. Details follow below.
 
 ## Baseline: 2026-10-02
 
@@ -898,3 +902,87 @@ lifetime/native/language coverage still prevent completing the goal.
 Evidence: `rust-parity-evidence/mixed-integral-*`. The final gate is required in
 all three platform runtime CI jobs and retains both positive and diagnostic JSON
 reports. Hosted verification of the new direct-main revision remains required.
+
+
+## Mixed integral increment published and verified on all platforms
+
+Exact direct-main `bfc0cb99401c275ce5ac693f21def057e28d64a2` passes all six jobs in
+[Compiler run 37118541456](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37118541456)
+and [Runtime run 37118541472](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37118541472).
+All ten downloaded reports pass on every platform: 594 positive pairs and 39
+diagnostic/order cases each, 1,899 total. Every source hash matches this checkout,
+including the new diagnostic fixtures and raw fixtures. Windows raw diagnostic
+statuses and buffered order pass as well as the positive numeric conversions.
+Evidence: `mixed-integral-main-ci-green.json`. The PR queue remains empty.
+
+The next unchanged corpus source, `test_interop_types.sn`, passes nine C controls
+but fails Rust compilation at its float initializer: the emitted expression has
+type f64 and storage has type f32. C's emitted `sn_mul_double` result converts
+at float storage. Preserve that boundary when implementing the next increment;
+do not silently change arithmetic precision. The remaining 96 corpus failures
+are all admission/compilation failures in the recorded O0/debug policy.
+
+
+## Float/double conversion increment: local verification, 2026-10-03
+
+Starting from main `bfc0cb99`, the unchanged `test_interop_types.sn` passes all
+nine C controls but Rust rejects its `float fmul = fa * 2.0` initializer. C emits
+`float fmul = sn_mul_double(fa, 2.0)`: double arithmetic precedes conversion to
+float storage. Target-local Rust lowering now preserves that order instead of
+rounding operands early. No shared checker, C renderer/runtime or default-target
+selection changes are included.
+
+Explicit floating boundaries cover declarations, assignment results, fields,
+struct literals/defaults, array elements/literals/defaults, ordinary and resolved
+method arguments, scalar native arguments, function/closure value arguments,
+and expression/block returns. Existing ownership and reference annotations are
+retained; borrowed arguments are not replaced with temporary cast values. Mixed
+float/double `+=`, `-=`, `*=`, `/=` compute in double before converting to the
+place's width. Local/direct-field, by-value/as-ref parameter, iterator binding,
+mutable scalar snapshot and synchronized local/global cell observations are
+included. Existing same-parameter RHS mutation/ref-forwarding guards remain.
+Thread-spawn argument conversion and additional floating ownership shapes are
+not established by this increment.
+
+Five old rejection sources are moved unchanged to positive generation tests:
+`by_value_parameter_direct_assignment_mixed_float_double`,
+`floating_as_ref_parameter_mixed_type_mutation`,
+`floating_compound_mixed_float_double`,
+`iterator_protocol_mixed_float_double_mutation`, and
+`closure_values_mixed_argument`. Each has nine successful C/Rust controls. Empty
+output in three promotions proves admission only; adjacent precision and caller
+mutation observations provide behavior evidence. One remaining by-value RHS
+hazard expectation now identifies its actual safety guard. Floating/integer
+rejections retain unchanged sources and accurate diagnostics; none earns parity
+credit.
+
+New independently checked output oracles observe 16,777,217 narrowing to
+16,777,216, single evaluation counts and storage/result conversions. The
+precision adversary starts at float 16,777,216 and adds double 1.00000001:
+C and Rust store 16,777,218, while prematurely narrowing the RHS would produce
+16,777,216. Snapshot closure reset behavior follows C: the second invocation
+does not accumulate the first invocation's local mutation. A native scalar
+fixture observes both ABI widths and one call per argument. The synchronized
+fixture observes global/local conversions and all four compound operators in
+both operand-width directions. The Linux gate records the established explicit
+`-lpthread -lm -latomic` override; compiler configuration is unchanged.
+
+`make test-rust-parity-float-conversions` requires thirteen sources across
+O0/O1/O2 and default/checked/unchecked arithmetic: 117 positive pairs. Together
+with existing gates this requires 711 positive pairs plus 39 diagnostic/order
+cases per platform. Full local C counts are 1610/107/79/1141/58/224/11. Rust
+counts are generation 332, negative 166, native 8/18/1/4, closures 36/1,
+concurrency 10/7/1, and toolchain 12, all with zero failures or skips. Existing
+Rust snapshots remain unchanged; only eight new positive snapshots are added.
+
+The unchanged original 1,365-source corpus passes 1,060 integration and 210
+exploratory executions; 81 integration and 14 exploratory sources still fail
+Rust compilation, with no admitted runtime failures in this O0 sample. These
+95 gaps and unverified mode/platform/feature families remain required work.
+Float array search has a separate C bytewise needle-representation contract;
+its mixed-width guard is retained pending observable representation evidence.
+This increment does not establish full floating or whole-language parity.
+
+Evidence: `rust-parity-evidence/float-conversions-*`. Hosted results for this
+increment must be tied to its exact published revision; preceding mixed-integer
+main CI evidence is included in this commit.

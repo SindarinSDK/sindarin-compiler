@@ -1,0 +1,846 @@
+{
+  "revision": "bfc0cb99401c275ce5ac693f21def057e28d64a2",
+  "reports": [
+    {
+      "platform": "linux",
+      "gates": [
+        {
+          "gate": "rust-parity-concurrency",
+          "cases": 51,
+          "artifact_sha256": "9cb4f31e054a798d6eb86c4e6dcb28dd534abb9b9ce64fad945048b0644cac79"
+        },
+        {
+          "gate": "rust-parity-core",
+          "cases": 30,
+          "artifact_sha256": "b524e69561a74a0b89f6e2cd23ef6bde3d7f0e9aeb3a4a9fdaf3dd1dc0b1679f"
+        },
+        {
+          "gate": "rust-parity-mixed-integral-diagnostics",
+          "cases": 9,
+          "artifact_sha256": "5c33977c99dd396ba591312f746257be2429eee7f2bf103ff9a63f1717f885a6"
+        },
+        {
+          "gate": "rust-parity-mixed-integral",
+          "cases": 90,
+          "artifact_sha256": "04c7dcafe83b88242652b1aa6f73bd26d6e7df80c65e340918d591af32f93ec1"
+        },
+        {
+          "gate": "rust-parity-native-managed",
+          "cases": 63,
+          "artifact_sha256": "576b7056a9d4332f6acc4d90ffb9570eef89aeebb33fba24777ab121be0eb8aa"
+        },
+        {
+          "gate": "rust-parity-reflection",
+          "cases": 36,
+          "artifact_sha256": "873954aa42623e5a2f9a44d4a9aa3245ebefb7644849df79bae6f3ae403307a6"
+        },
+        {
+          "gate": "rust-parity-sized-defaults",
+          "cases": 27,
+          "artifact_sha256": "66a9ba15bc5f7b5300be83f982308f5021d1b352922c04a86fd098b714cad19e"
+        },
+        {
+          "gate": "rust-parity-stdio-order",
+          "cases": 30,
+          "artifact_sha256": "77c5ae9a271d203f5be783c40a73e3c4675e4d14411244ba0fd3992df75b4770"
+        },
+        {
+          "gate": "rust-parity-thread-ownership",
+          "cases": 207,
+          "artifact_sha256": "725f7deef0e80320bbf388f7be02a7cfbffa7e12ca75e4ae08ac58418b0c6e1b"
+        },
+        {
+          "gate": "rust-parity-thread-receivers",
+          "cases": 90,
+          "artifact_sha256": "b25c2721e2767c695234f0dded52a7fbed0169bd1daf91d307df4e129bed34f0"
+        }
+      ]
+    },
+    {
+      "platform": "macos",
+      "gates": [
+        {
+          "gate": "rust-parity-concurrency",
+          "cases": 51,
+          "artifact_sha256": "794dc7f4bc784ffadb1e81f8bcd5d486a3292e2b7fb51e9d6df0db0b3152817d"
+        },
+        {
+          "gate": "rust-parity-core",
+          "cases": 30,
+          "artifact_sha256": "19688319e474bcdc3165eb121a4ac7635f83b7e9de8a8222d248568371c8517f"
+        },
+        {
+          "gate": "rust-parity-mixed-integral-diagnostics",
+          "cases": 9,
+          "artifact_sha256": "03b7b9a3291eb986edbdf9095ed81addfddc0459ddcf0765cec1445399c4950e"
+        },
+        {
+          "gate": "rust-parity-mixed-integral",
+          "cases": 90,
+          "artifact_sha256": "e1305e1a4b5b214bc8047369c515e3565ffa1d3f2b38d326e450d90de3cb78bf"
+        },
+        {
+          "gate": "rust-parity-native-managed",
+          "cases": 63,
+          "artifact_sha256": "337583709ddbad2976d0e004ec2819a697cd448594c84e7d190ad8c1df14b071"
+        },
+        {
+          "gate": "rust-parity-reflection",
+          "cases": 36,
+          "artifact_sha256": "cd6298877362397dd1a38aeb9c26cc36a4e8c48f8e94e9c9011088ea37fba978"
+        },
+        {
+          "gate": "rust-parity-sized-defaults",
+          "cases": 27,
+          "artifact_sha256": "02731d2e67c71e80dec45afab35ca74416aec1368120954f2c7c80956fff4523"
+        },
+        {
+          "gate": "rust-parity-stdio-order",
+          "cases": 30,
+          "artifact_sha256": "679384b2b58bacfdcf960fc32c4ac06405a91a0c1e3f1bcf0e100c99e1dd3653"
+        },
+        {
+          "gate": "rust-parity-thread-ownership",
+          "cases": 207,
+          "artifact_sha256": "7922d0970f44873509f514defb5df621bef312b925af0c3784293e6d59a3df2c"
+        },
+        {
+          "gate": "rust-parity-thread-receivers",
+          "cases": 90,
+          "artifact_sha256": "7abd077a876649e1808a9f7e501ffc68e8fad82e8fe5d1fb13953c6525db2039"
+        }
+      ]
+    },
+    {
+      "platform": "windows",
+      "gates": [
+        {
+          "gate": "rust-parity-concurrency",
+          "cases": 51,
+          "artifact_sha256": "4010598434f2369186e3ddc61a97809f22a18182e76dbff64bb962cce79d3e7a"
+        },
+        {
+          "gate": "rust-parity-core",
+          "cases": 30,
+          "artifact_sha256": "20cd9380c4367cd58c39eea576c23153c61964be3c1d26a6098fea9aaff6aa46"
+        },
+        {
+          "gate": "rust-parity-mixed-integral-diagnostics",
+          "cases": 9,
+          "artifact_sha256": "9ae45edafb92d8157d5e676f153621d059abc393657fa10e7b87d8c8a121ae58"
+        },
+        {
+          "gate": "rust-parity-mixed-integral",
+          "cases": 90,
+          "artifact_sha256": "b0981a0b9e6a971e854d7cf732abf342d4764706df872b4f882a4ccb2281ce39"
+        },
+        {
+          "gate": "rust-parity-native-managed",
+          "cases": 63,
+          "artifact_sha256": "2ab2c1a613c3de61c7483ea5b5ef8852031057b877ae570e172157858ee2d945"
+        },
+        {
+          "gate": "rust-parity-reflection",
+          "cases": 36,
+          "artifact_sha256": "a85f5d9ca9f7d2705be9abae648c9d8896e14feedaddfba451703d2dd97bd890"
+        },
+        {
+          "gate": "rust-parity-sized-defaults",
+          "cases": 27,
+          "artifact_sha256": "e2f062e7e6e8a9cbdb249664fecb67fc53e4a2d4aac10f9f6cc02187c593bef2"
+        },
+        {
+          "gate": "rust-parity-stdio-order",
+          "cases": 30,
+          "artifact_sha256": "71608175b37a4fe2a3f7eb0dffe6033ce5f37ada7994035b246e3596a16b2fd1"
+        },
+        {
+          "gate": "rust-parity-thread-ownership",
+          "cases": 207,
+          "artifact_sha256": "1f64d5b38c4c48facbb02b7b038f1597ee71391f9c4c35337877265405f867ee"
+        },
+        {
+          "gate": "rust-parity-thread-receivers",
+          "cases": 90,
+          "artifact_sha256": "c21ab8740aec90c270708e3f7baca194d0a845c9a1557afafbb2d4e0c5918da4"
+        }
+      ]
+    }
+  ],
+  "compiler": {
+    "conclusion": "success",
+    "headSha": "bfc0cb99401c275ce5ac693f21def057e28d64a2",
+    "jobs": [
+      {
+        "completedAt": "2026-10-03T11:08:51Z",
+        "conclusion": "success",
+        "databaseId": 111189954967,
+        "name": "Build (macos-latest)",
+        "startedAt": "2026-10-03T11:05:44Z",
+        "status": "completed",
+        "steps": [
+          {
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Checkout repository",
+            "number": 2,
+            "status": "completed"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Setup Prerequisites (Linux)",
+            "number": 3,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Setup Prerequisites (macOS)",
+            "number": 4,
+            "status": "completed"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Install LLVM-MinGW (Windows)",
+            "number": 5,
+            "status": "completed"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Install Make and Ninja (Windows)",
+            "number": 6,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Pin Rust toolchain",
+            "number": 7,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Setup libs",
+            "number": 8,
+            "status": "completed"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Verify pinned Windows compiler after setup",
+            "number": 9,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Build",
+            "number": 10,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Verify build outputs",
+            "number": 11,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Check formatting",
+            "number": 12,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run all tests",
+            "number": 13,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run promoted Rust closure tests",
+            "number": 14,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run Rust concurrency tests",
+            "number": 15,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Upload build artifacts",
+            "number": 16,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Checkout repository",
+            "number": 32,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 33,
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37118541456/job/111189954967"
+      },
+      {
+        "completedAt": "2026-10-03T11:07:42Z",
+        "conclusion": "success",
+        "databaseId": 111189955085,
+        "name": "Build (ubuntu-latest)",
+        "startedAt": "2026-10-03T11:05:39Z",
+        "status": "completed",
+        "steps": [
+          {
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Checkout repository",
+            "number": 2,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Setup Prerequisites (Linux)",
+            "number": 3,
+            "status": "completed"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Setup Prerequisites (macOS)",
+            "number": 4,
+            "status": "completed"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Install LLVM-MinGW (Windows)",
+            "number": 5,
+            "status": "completed"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Install Make and Ninja (Windows)",
+            "number": 6,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Pin Rust toolchain",
+            "number": 7,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Setup libs",
+            "number": 8,
+            "status": "completed"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Verify pinned Windows compiler after setup",
+            "number": 9,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Build",
+            "number": 10,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Verify build outputs",
+            "number": 11,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Check formatting",
+            "number": 12,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run all tests",
+            "number": 13,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run promoted Rust closure tests",
+            "number": 14,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run Rust concurrency tests",
+            "number": 15,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Upload build artifacts",
+            "number": 16,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Checkout repository",
+            "number": 32,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 33,
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37118541456/job/111189955085"
+      },
+      {
+        "completedAt": "2026-10-03T11:11:47Z",
+        "conclusion": "success",
+        "databaseId": 111189955121,
+        "name": "Build (windows-latest)",
+        "startedAt": "2026-10-03T11:05:40Z",
+        "status": "completed",
+        "steps": [
+          {
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Checkout repository",
+            "number": 2,
+            "status": "completed"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Setup Prerequisites (Linux)",
+            "number": 3,
+            "status": "completed"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Setup Prerequisites (macOS)",
+            "number": 4,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install LLVM-MinGW (Windows)",
+            "number": 5,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install Make and Ninja (Windows)",
+            "number": 6,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Pin Rust toolchain",
+            "number": 7,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Setup libs",
+            "number": 8,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Verify pinned Windows compiler after setup",
+            "number": 9,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Build",
+            "number": 10,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Verify build outputs",
+            "number": 11,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Check formatting",
+            "number": 12,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run all tests",
+            "number": 13,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run promoted Rust closure tests",
+            "number": 14,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run Rust concurrency tests",
+            "number": 15,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Upload build artifacts",
+            "number": 16,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Checkout repository",
+            "number": 32,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 33,
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37118541456/job/111189955121"
+      }
+    ],
+    "status": "completed",
+    "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37118541456"
+  },
+  "runtime": {
+    "conclusion": "success",
+    "headSha": "bfc0cb99401c275ce5ac693f21def057e28d64a2",
+    "jobs": [
+      {
+        "completedAt": "2026-10-03T11:14:48Z",
+        "conclusion": "success",
+        "databaseId": 111189954999,
+        "name": "Rust runtime (macos-latest)",
+        "startedAt": "2026-10-03T11:05:46Z",
+        "status": "completed",
+        "steps": [
+          {
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Checkout repository",
+            "number": 2,
+            "status": "completed"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Setup prerequisites (Linux)",
+            "number": 3,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Setup prerequisites (macOS)",
+            "number": 4,
+            "status": "completed"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Install LLVM-MinGW (Windows)",
+            "number": 5,
+            "status": "completed"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Install Make and Ninja (Windows)",
+            "number": 6,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Pin Rust toolchain",
+            "number": 7,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Setup libs",
+            "number": 8,
+            "status": "completed"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Verify pinned Windows compiler after setup",
+            "number": 9,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Build",
+            "number": 10,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Verify compiler output",
+            "number": 11,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run Rust suites and runtime parity gates",
+            "number": 12,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Retain runtime parity evidence",
+            "number": 13,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Checkout repository",
+            "number": 26,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 27,
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37118541472/job/111189954999"
+      },
+      {
+        "completedAt": "2026-10-03T11:09:45Z",
+        "conclusion": "success",
+        "databaseId": 111189955136,
+        "name": "Rust runtime (ubuntu-latest)",
+        "startedAt": "2026-10-03T11:05:39Z",
+        "status": "completed",
+        "steps": [
+          {
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Checkout repository",
+            "number": 2,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Setup prerequisites (Linux)",
+            "number": 3,
+            "status": "completed"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Setup prerequisites (macOS)",
+            "number": 4,
+            "status": "completed"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Install LLVM-MinGW (Windows)",
+            "number": 5,
+            "status": "completed"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Install Make and Ninja (Windows)",
+            "number": 6,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Pin Rust toolchain",
+            "number": 7,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Setup libs",
+            "number": 8,
+            "status": "completed"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Verify pinned Windows compiler after setup",
+            "number": 9,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Build",
+            "number": 10,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Verify compiler output",
+            "number": 11,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run Rust suites and runtime parity gates",
+            "number": 12,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Retain runtime parity evidence",
+            "number": 13,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Checkout repository",
+            "number": 26,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 27,
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37118541472/job/111189955136"
+      },
+      {
+        "completedAt": "2026-10-03T11:17:14Z",
+        "conclusion": "success",
+        "databaseId": 111189955152,
+        "name": "Rust runtime (windows-latest)",
+        "startedAt": "2026-10-03T11:05:39Z",
+        "status": "completed",
+        "steps": [
+          {
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Checkout repository",
+            "number": 2,
+            "status": "completed"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Setup prerequisites (Linux)",
+            "number": 3,
+            "status": "completed"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Setup prerequisites (macOS)",
+            "number": 4,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install LLVM-MinGW (Windows)",
+            "number": 5,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install Make and Ninja (Windows)",
+            "number": 6,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Pin Rust toolchain",
+            "number": 7,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Setup libs",
+            "number": 8,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Verify pinned Windows compiler after setup",
+            "number": 9,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Build",
+            "number": 10,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Verify compiler output",
+            "number": 11,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run Rust suites and runtime parity gates",
+            "number": 12,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Retain runtime parity evidence",
+            "number": 13,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Checkout repository",
+            "number": 26,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 27,
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37118541472/job/111189955152"
+      }
+    ],
+    "status": "completed",
+    "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37118541472"
+  }
+}

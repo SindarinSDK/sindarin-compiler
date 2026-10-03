@@ -1,0 +1,56 @@
+struct FloatBox =>
+  value: float
+  wide: double
+
+fn nextDouble(calls: int as ref): double =>
+  calls++
+  return 16777217.0
+
+fn narrow(value: double): float =>
+  return value
+
+fn widen(value: float): double =>
+  return value
+
+fn acceptFloat(value: float): void =>
+  println(value)
+
+fn acceptDouble(value: double): void =>
+  println(value)
+
+fn main(): void =>
+  var calls: int = 0
+  var base: float = 16777216.0
+  var delta: double = 1.0
+  var local: float = base + delta
+  println(local)
+  local = nextDouble(calls)
+  println(local)
+  println(calls)
+  println(narrow(nextDouble(calls)))
+  println(widen(base))
+  acceptFloat(nextDouble(calls))
+  acceptDouble(base)
+  println(calls)
+
+  var box: FloatBox = {
+    value: nextDouble(calls),
+    wide: base
+  }
+  println(box.value)
+  println(box.wide)
+  box.value = nextDouble(calls)
+  box.wide = base
+  println(box.value)
+  println(box.wide)
+  println(calls)
+
+  var values: float[] = {nextDouble(calls), base + delta}
+  values[1] = nextDouble(calls)
+  println(values[0])
+  println(values[1])
+  println(calls)
+  var defaults: float[2] = nextDouble(calls)
+  println(defaults[0])
+  println(defaults[1])
+  println(calls)

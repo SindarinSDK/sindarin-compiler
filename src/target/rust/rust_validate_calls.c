@@ -980,7 +980,9 @@ static bool rust_validate_method_call(json_object *expr)
         if (!json_object_is_type(arg, json_type_object) ||
             !json_object_object_get_ex(arg, "type", &arg_type) ||
             !json_object_object_get_ex(param, "type", &param_type) ||
-            !rust_resolved_types_equal(arg_type, param_type))
+            (!rust_resolved_types_equal(arg_type, param_type) &&
+             !(rust_float_conversion_pair(arg_type, param_type) &&
+               mem_qual && strcmp(mem_qual, "as_ref") != 0)))
             return rust_report_resolved_call_error(
                 "encountered incomplete or inconsistent resolved method_call argument metadata");
         if (!rust_resolved_value_type_supported(arg_type))

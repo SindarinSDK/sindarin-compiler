@@ -1,0 +1,377 @@
+{
+  "baseline_revision": "bfc0cb99401c275ce5ac693f21def057e28d64a2",
+  "compiler_sha256": "b15ae21b53b66c25b99dc9947a84b78c297eb3f26327b1f0eeba2011c02784fa",
+  "unchanged_corpus_sources": 1365,
+  "remaining_compilation_gaps": 95,
+  "corpus": [
+    {
+      "suite": "integration",
+      "passed": 1060,
+      "compile_failures": 81,
+      "runtime_failures": 0,
+      "skips": 0,
+      "exit_status": 1,
+      "failures": [
+        "test_array_literal_arg_leak",
+        "test_as_ref_array_return",
+        "test_as_ref_for_in_self_return",
+        "test_as_ref_on_ref_struct_param",
+        "test_as_ref_params",
+        "test_as_ref_queue_drain",
+        "test_as_ref_return_passthrough",
+        "test_as_ref_struct_lit_owned_field",
+        "test_as_ref_struct_param",
+        "test_buffer_unwrap",
+        "test_builtin_interfaces",
+        "test_byte_encoding",
+        "test_char_methods",
+        "test_composite_borrow_mutation",
+        "test_composite_temp_arg",
+        "test_compound_assignment",
+        "test_constrained_generics",
+        "test_exit",
+        "test_generic_multi_param_iter",
+        "test_generic_static_call",
+        "test_generics_functions",
+        "test_generics_nested_inference",
+        "test_import_fn_field_chained",
+        "test_interfaces",
+        "test_interop_callback",
+        "test_interop_comprehensive",
+        "test_interop_edge_cases",
+        "test_iterator_protocol",
+        "test_lambda_capture_outlives_scope",
+        "test_lambda_capture_struct",
+        "test_lambda_val_struct_str_field",
+        "test_lambda_val_struct_str_interp",
+        "test_match_return_arms",
+        "test_module_array_swap_leak",
+        "test_native_callback_typedef",
+        "test_native_ref_field_pass_chain",
+        "test_native_ref_field_return",
+        "test_native_ref_method_forward_twice",
+        "test_native_ref_self_assign",
+        "test_native_resource_lifecycle",
+        "test_native_struct_ref_array_pass",
+        "test_native_struct_ref_loop_cleanup",
+        "test_nested_array_copy",
+        "test_nil_array",
+        "test_nil_compare_struct",
+        "test_nil_pointer_slice",
+        "test_nil_string",
+        "test_qsort_callback",
+        "test_refcount_arg_leak",
+        "test_refcount_chain_in_struct_literal",
+        "test_return_ref_param",
+        "test_return_self",
+        "test_self_method_forward_after_train",
+        "test_serializable",
+        "test_serializable_decode_struct_literal_loop",
+        "test_serializable_double_int_json",
+        "test_serializable_encoder_cleanup",
+        "test_serializable_long",
+        "test_serializable_push_ownership",
+        "test_serializable_return_nested_array",
+        "test_sizeof",
+        "test_static_import",
+        "test_str_return_as_arg_leak",
+        "test_struct_array_concat",
+        "test_struct_as_ref",
+        "test_struct_as_ref_chain",
+        "test_struct_codegen_validation",
+        "test_struct_heap_alloc",
+        "test_struct_native_c_interop",
+        "test_struct_native_defaults",
+        "test_struct_packed",
+        "test_struct_return_array_leak",
+        "test_struct_rvalue_member_leak",
+        "test_struct_rvalue_member_leak_contexts",
+        "test_struct_self_method_call",
+        "test_struct_sizeof_equality",
+        "test_struct_stack_alloc",
+        "test_sync_byte_char",
+        "test_thread_native_fn_struct_return",
+        "test_thread_struct_return_types",
+        "test_val_struct_shared_array"
+      ],
+      "compiler": {
+        "compiler_sha256": "17537b5336042960165c3694bcf692f30191c5cafc40ab7ba5c40b2f97315ff7",
+        "scope": "Corpus run before subsequent diagnostic-only cleanup; functional float lowering unchanged."
+      },
+      "command": [
+        "python3",
+        "scripts/run_tests.py",
+        "integration",
+        "--compiler",
+        ".sn/rust-corpus-compiler",
+        "--no-cleanup",
+        "--verbose"
+      ]
+    },
+    {
+      "suite": "explore",
+      "passed": 210,
+      "compile_failures": 14,
+      "runtime_failures": 0,
+      "skips": 0,
+      "exit_status": 1,
+      "failures": [
+        "test_array_mutation_lambda",
+        "test_as_val_array_copy",
+        "test_gcc_edge_interop",
+        "test_gcc_edge_structs",
+        "test_match_as_val_ref",
+        "test_match_memory",
+        "test_match_native",
+        "test_match_primitives",
+        "test_pointer_slice_bounds",
+        "test_str_comprehensive",
+        "test_struct_config",
+        "test_struct_self_method_call",
+        "test_struct_zlib_style",
+        "test_sync_byte_threading"
+      ],
+      "compiler": {
+        "compiler_sha256": "17537b5336042960165c3694bcf692f30191c5cafc40ab7ba5c40b2f97315ff7",
+        "scope": "Corpus run before subsequent diagnostic-only cleanup; functional float lowering unchanged."
+      },
+      "command": [
+        "python3",
+        "scripts/run_tests.py",
+        "explore",
+        "--compiler",
+        ".sn/rust-corpus-compiler",
+        "--no-cleanup",
+        "--verbose"
+      ]
+    }
+  ],
+  "unchanged_existing_generation_snapshots": 331,
+  "expr_uncast_preserved_sha256": "00127dd60784f6051e27a93ff6fb33893a360cf6ef0793f1eb19b9ea0f9350b6",
+  "promotions": [
+    {
+      "source": "tests/rgen/by_value_parameter_direct_assignment_mixed_float_double.sn",
+      "old_source": "tests/rgen/errors/by_value_parameter_direct_assignment_mixed_float_double.sn",
+      "source_sha256": "748f8d4857fe8dbddc4d1ed551521160777e7db4af3e26fd9eea5c140ebe0699",
+      "baseline_blob": "271614847dbae61b2b63a4f34b107a1e8def481d"
+    },
+    {
+      "source": "tests/rgen/closure_values_mixed_argument.sn",
+      "old_source": "tests/rgen/errors/closure_values_mixed_argument.sn",
+      "source_sha256": "785660af9ef6c6193af66ea6656b77ed408bce239bb1b1010758fc87096a4b9d",
+      "baseline_blob": "adc7267d844da00d6d7a5347dd95e786c6246bd8"
+    },
+    {
+      "source": "tests/rgen/floating_as_ref_parameter_mixed_type_mutation.sn",
+      "old_source": "tests/rgen/errors/floating_as_ref_parameter_mixed_type_mutation.sn",
+      "source_sha256": "b133ce759c0f83c9debae26b272f80bbfc3b62b22272df14fac365a0dae7d8a3",
+      "baseline_blob": "37353cc659008eff6549f1180f79794de782935d"
+    },
+    {
+      "source": "tests/rgen/floating_compound_mixed_float_double.sn",
+      "old_source": "tests/rgen/errors/floating_compound_mixed_float_double.sn",
+      "source_sha256": "00ffe57fb64e67d506a7852cd8996259312f31dc602af0e9e1501904f4c785b7",
+      "baseline_blob": "09520b23ec1697adf3442cdcf5771669db307a56"
+    },
+    {
+      "source": "tests/rgen/iterator_protocol_mixed_float_double_mutation.sn",
+      "old_source": "tests/rgen/errors/iterator_protocol_mixed_float_double_mutation.sn",
+      "source_sha256": "f2b413ae1609a4546176fbc5dbda919182facadb27e5a431dbfb48e5524b5a56",
+      "baseline_blob": "04aa3da3cb327626f0f5c7e758928dcb38ebce69"
+    }
+  ],
+  "gates": [
+    {
+      "name": "core",
+      "cases": 30,
+      "evidence_sha256": "a4152852c7e79a6b51e5a9b314c8fb0559c24fc6939a586aac619285e0b90b29"
+    },
+    {
+      "name": "concurrency",
+      "cases": 51,
+      "evidence_sha256": "8d8564ce5b3c1e0c80ad05390b896d0fac234acc9831dbb3d841a091a299fc36"
+    },
+    {
+      "name": "thread-ownership",
+      "cases": 207,
+      "evidence_sha256": "6925f62e55d8b34463f6eb511ad5b876fdeb496cc9ee0232992eed9599b415c7"
+    },
+    {
+      "name": "thread-receivers",
+      "cases": 90,
+      "evidence_sha256": "237ed1cafdb02d3edb8ae18f9921fc80e4b077449e6ec008de22ee1270c15caf"
+    },
+    {
+      "name": "reflection",
+      "cases": 36,
+      "evidence_sha256": "cb3db2266736bf6a352f95429a769c598bc99af38b82282bc467632ecdc9cd45"
+    },
+    {
+      "name": "sized-defaults",
+      "cases": 27,
+      "evidence_sha256": "d4d9872b294171805cc79b2aca4e7bf55e3ff4e9d4368769177419e4ecc3839d"
+    },
+    {
+      "name": "native-managed",
+      "cases": 63,
+      "evidence_sha256": "59b790259db788d1deadca063a3c12f2dc49dd1a91551a2a3f09e17a2b5de508"
+    },
+    {
+      "name": "stdio-order",
+      "cases": 30,
+      "evidence_sha256": "a409aa3cd2d9d7eaf0d9d1745c9a2d623ed215e4a7a535a7c90cda75b5506b09"
+    },
+    {
+      "name": "mixed-integral",
+      "cases": 90,
+      "evidence_sha256": "8be985ffb714012670828f17303d08004b43b0242ccb15789e322ad71138ca78"
+    },
+    {
+      "name": "mixed-integral-diagnostics",
+      "cases": 9,
+      "evidence_sha256": "e0b478b7324d50be94b320f3d688c78002ed0a16bc992de91485bf4710e1fe92"
+    },
+    {
+      "name": "float-conversions",
+      "cases": 117,
+      "evidence_sha256": "e724306b838dd0e8e57cae234aa4528361417558c4216fcc016c175da70dd4ef"
+    }
+  ],
+  "positive_pairs": 711,
+  "diagnostic_order_cases": 39,
+  "oracle_checks": [
+    {
+      "source": "tests/integration/test_interop_types.sn",
+      "expected": "tests/integration/test_interop_types.expected",
+      "expected_sha256": "d45c178763907eb3d561f737c314a863c0e397bceed6cd182bb740ce271ded8a"
+    },
+    {
+      "source": "tests/rgen/float_conversion_boundaries.sn",
+      "expected": "tests/rgen/float_conversion_boundaries.expected",
+      "expected_sha256": "dbef1a4ab05672682af0f970f3ff1e35b98b5671974cb1b69ad9be28a0689d29"
+    },
+    {
+      "source": "tests/rgen/float_callable_conversions.sn",
+      "expected": "tests/rgen/float_callable_conversions.expected",
+      "expected_sha256": "42d1d5ca55283cca9d023fc2b7b6273cfd213568b25427a1803ce195311588df"
+    },
+    {
+      "source": "tests/rgen/float_mutation_precision.sn",
+      "expected": "tests/rgen/float_mutation_precision.expected",
+      "expected_sha256": "6f6eb79b986c3975a2162f998f0b42ac18e2d7c7cbaa2b3fe21ec05c2c6cfceb"
+    },
+    {
+      "source": "tests/rgen/by_value_parameter_direct_assignment_mixed_float_double.sn",
+      "expected": "tests/rgen/by_value_parameter_direct_assignment_mixed_float_double.expected",
+      "expected_sha256": "d4e2f505d0aa4a29edfe38c0b30747210de003531c146ce8a6b65fc6ec4a9103"
+    },
+    {
+      "source": "tests/rgen/floating_as_ref_parameter_mixed_type_mutation.sn",
+      "expected": "tests/rgen/floating_as_ref_parameter_mixed_type_mutation.expected",
+      "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "tests/rgen/floating_compound_mixed_float_double.sn",
+      "expected": "tests/rgen/floating_compound_mixed_float_double.expected",
+      "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "tests/rgen/iterator_protocol_mixed_float_double_mutation.sn",
+      "expected": "tests/rgen/iterator_protocol_mixed_float_double_mutation.expected",
+      "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "tests/rgen/closure_values_mixed_argument.sn",
+      "expected": "tests/rgen/closure_values_mixed_argument.expected",
+      "expected_sha256": "afd5617e84e167600fdee37ee84bf8a0436742336dfdc029f0b10762aaa2dd5c"
+    },
+    {
+      "source": "tests/rust-native/scalar_float_conversions.sn",
+      "expected": "tests/rust-native/scalar_float_conversions.expected",
+      "expected_sha256": "644ffdb99d5b65751c673183f42534fe56bb7de9ecbff2636c81c487a09980a6"
+    },
+    {
+      "source": "tests/integration/test_float_arithmetic.sn",
+      "expected": "tests/integration/test_float_arithmetic.expected",
+      "expected_sha256": "9c649411efdf3878098e000abc3a783ff48993faa21bec7fd67ec410299cb31f"
+    },
+    {
+      "source": "tests/integration/test_op_double_arith.sn",
+      "expected": "tests/integration/test_op_double_arith.expected",
+      "expected_sha256": "2eedae2fdf80c5d86809e045fa8e4a093908cf4ffd44fe318fa26b6fc98f949d"
+    },
+    {
+      "source": "tests/rust-float-sync/float_cell_conversions.sn",
+      "expected": "tests/rust-float-sync/float_cell_conversions.expected",
+      "expected_sha256": "b59322417825f915f4dd839fd904b1a868857442a685101cf01b3654da6277ed"
+    }
+  ],
+  "raw_logs": [
+    {
+      "path": "docs/rust-parity-evidence/float-conversions-callable-precision-final.log",
+      "sha256": "4ee66bc322bba50e8427044aebaf44d068f8507fc6abdaf56b34c32a5bbd63b4",
+      "bytes": 1656
+    },
+    {
+      "path": "docs/rust-parity-evidence/float-conversions-corpus-explore.log",
+      "sha256": "876143a30ea96d483b9db762df1861720d9666977d359ef498d2579960c1e78d",
+      "bytes": 8830
+    },
+    {
+      "path": "docs/rust-parity-evidence/float-conversions-corpus-integration.log",
+      "sha256": "d5c7dc2e53ae77cfb8db6e5606f1441a887f3cec44405b3179a9d22b6e1bc869",
+      "bytes": 45148
+    },
+    {
+      "path": "docs/rust-parity-evidence/float-conversions-final-bytes.log",
+      "sha256": "971a43d81a4d4a176d4aceff2aa18d25efe2df369a8d05a75dfb2470b030e8a9",
+      "bytes": 719
+    },
+    {
+      "path": "docs/rust-parity-evidence/float-conversions-final-c.log",
+      "sha256": "1b7192e65412f1457f8d9feb6174d907e529e11c091d6d3bef2b38a2e63f103e",
+      "bytes": 2155
+    },
+    {
+      "path": "docs/rust-parity-evidence/float-conversions-final-expanded-gate.log",
+      "sha256": "e52441108dd1aa60febab3750edb7b2cd5b37c2825e609b4edd892a34ae33f30",
+      "bytes": 7701
+    },
+    {
+      "path": "docs/rust-parity-evidence/float-conversions-final-format.log",
+      "sha256": "4c6a090a362bd87c11ee02cfbc700375a0d72d42c9b4387a9b7b0bbf45af7e2b",
+      "bytes": 29
+    },
+    {
+      "path": "docs/rust-parity-evidence/float-conversions-final-gate.log",
+      "sha256": "ae7024c0a801ae6d3abe312bc707297cf2cce0d9491ea4bd33856cb34cd22b9c",
+      "bytes": 51586
+    },
+    {
+      "path": "docs/rust-parity-evidence/float-conversions-final-gates.log",
+      "sha256": "429e3597b1dec00c61cca3b9fb27283c7733e7bdc0d9aff7d959b0312a65a998",
+      "bytes": 47397
+    },
+    {
+      "path": "docs/rust-parity-evidence/float-conversions-final-rust.log",
+      "sha256": "3f6afed31f8fac02b537b9f0be89cafa6492d8091f4dea76df061c208ddb07a2",
+      "bytes": 4426
+    },
+    {
+      "path": "docs/rust-parity-evidence/float-conversions-final-transport.log",
+      "sha256": "9d1f137619f0add0f0e3a01419654e7f12ffe613e0175c7031316ffe56c8c9ee",
+      "bytes": 207
+    },
+    {
+      "path": "docs/rust-parity-evidence/float-conversions-final-windows-helpers.log",
+      "sha256": "628ce6147ceaa1887966b6df6ff1f63582712e6666a5b64c7f52e28604cc6994",
+      "bytes": 73
+    },
+    {
+      "path": "docs/rust-parity-evidence/float-conversions-sync-final.log",
+      "sha256": "7518fc03717ae59e07b71604fe88c1cdcfd4cbb74e5aa5d56552dd93188088c4",
+      "bytes": 591
+    }
+  ],
+  "log_note": "Raw logs preserve runner control bytes, whitespace and failed exploratory probes. Intermediate failed JSON is evidence of diagnosis, not parity credit. Final reports and oracles are checked independently."
+}

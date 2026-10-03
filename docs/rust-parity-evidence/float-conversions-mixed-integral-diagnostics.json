@@ -1,0 +1,735 @@
+{
+  "compiler_sha256": "b15ae21b53b66c25b99dc9947a84b78c297eb3f26327b1f0eeba2011c02784fa",
+  "cases": [
+    {
+      "source": "tests/rgen/mixed_integral_checked_overflow.sn",
+      "source_sha256": "fb0e5195575bd025c992a0763642c4289024656838fa9c33613afee582906cdd",
+      "mode": "checked",
+      "optimization": "-O0",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/mixed_integral_checked_overflow.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_overflow-O0c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6d697865645f696e74656772616c5f636865636b65645f6f766572666c6f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6d697865642d696e74656772616c2d646961676e6f73746963732d327175697a6b79332f6d697865645f696e74656772616c5f636865636b65645f6f766572666c6f772d4f30632e657865202836382e38204b42290a"
+          },
+          "separate": {
+            "command": [
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_overflow-O0c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6265666f72650a",
+            "stderr_hex": "52756e74696d65206572726f723a20696e7465676572206f766572666c6f7720696e206164646974696f6e0a"
+          },
+          "merged": {
+            "command": [
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_overflow-O0c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "52756e74696d65206572726f723a20696e7465676572206f766572666c6f7720696e206164646974696f6e0a6265666f72650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/mixed_integral_checked_overflow.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_overflow-O0rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6d697865645f696e74656772616c5f636865636b65645f6f766572666c6f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f6d697865645f696e74656772616c5f636865636b65645f6f766572666c6f775f313934313836342f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6d697865642d696e74656772616c2d646961676e6f73746963732d327175697a6b79332f6d697865645f696e74656772616c5f636865636b65645f6f766572666c6f772d4f30727573742e6578652028332e37204d42290a"
+          },
+          "separate": {
+            "command": [
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_overflow-O0rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6265666f72650a",
+            "stderr_hex": "52756e74696d65206572726f723a20696e7465676572206f766572666c6f7720696e206164646974696f6e0a"
+          },
+          "merged": {
+            "command": [
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_overflow-O0rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "52756e74696d65206572726f723a20696e7465676572206f766572666c6f7720696e206164646974696f6e0a6265666f72650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/mixed_integral_checked_overflow.sn",
+      "source_sha256": "fb0e5195575bd025c992a0763642c4289024656838fa9c33613afee582906cdd",
+      "mode": "checked",
+      "optimization": "-O1",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/mixed_integral_checked_overflow.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_overflow-O1c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6d697865645f696e74656772616c5f636865636b65645f6f766572666c6f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6d697865642d696e74656772616c2d646961676e6f73746963732d327175697a6b79332f6d697865645f696e74656772616c5f636865636b65645f6f766572666c6f772d4f31632e657865202836382e38204b42290a"
+          },
+          "separate": {
+            "command": [
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_overflow-O1c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6265666f72650a",
+            "stderr_hex": "52756e74696d65206572726f723a20696e7465676572206f766572666c6f7720696e206164646974696f6e0a"
+          },
+          "merged": {
+            "command": [
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_overflow-O1c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "52756e74696d65206572726f723a20696e7465676572206f766572666c6f7720696e206164646974696f6e0a6265666f72650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/mixed_integral_checked_overflow.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_overflow-O1rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6d697865645f696e74656772616c5f636865636b65645f6f766572666c6f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f6d697865645f696e74656772616c5f636865636b65645f6f766572666c6f775f313934313933362f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6d697865642d696e74656772616c2d646961676e6f73746963732d327175697a6b79332f6d697865645f696e74656772616c5f636865636b65645f6f766572666c6f772d4f31727573742e6578652028332e37204d42290a"
+          },
+          "separate": {
+            "command": [
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_overflow-O1rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6265666f72650a",
+            "stderr_hex": "52756e74696d65206572726f723a20696e7465676572206f766572666c6f7720696e206164646974696f6e0a"
+          },
+          "merged": {
+            "command": [
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_overflow-O1rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "52756e74696d65206572726f723a20696e7465676572206f766572666c6f7720696e206164646974696f6e0a6265666f72650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/mixed_integral_checked_overflow.sn",
+      "source_sha256": "fb0e5195575bd025c992a0763642c4289024656838fa9c33613afee582906cdd",
+      "mode": "checked",
+      "optimization": "-O2",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/mixed_integral_checked_overflow.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_overflow-O2c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6d697865645f696e74656772616c5f636865636b65645f6f766572666c6f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6d697865642d696e74656772616c2d646961676e6f73746963732d327175697a6b79332f6d697865645f696e74656772616c5f636865636b65645f6f766572666c6f772d4f32632e657865202836382e38204b42290a"
+          },
+          "separate": {
+            "command": [
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_overflow-O2c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6265666f72650a",
+            "stderr_hex": "52756e74696d65206572726f723a20696e7465676572206f766572666c6f7720696e206164646974696f6e0a"
+          },
+          "merged": {
+            "command": [
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_overflow-O2c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "52756e74696d65206572726f723a20696e7465676572206f766572666c6f7720696e206164646974696f6e0a6265666f72650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/mixed_integral_checked_overflow.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_overflow-O2rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6d697865645f696e74656772616c5f636865636b65645f6f766572666c6f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f6d697865645f696e74656772616c5f636865636b65645f6f766572666c6f775f313934323030382f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6d697865642d696e74656772616c2d646961676e6f73746963732d327175697a6b79332f6d697865645f696e74656772616c5f636865636b65645f6f766572666c6f772d4f32727573742e6578652028332e37204d42290a"
+          },
+          "separate": {
+            "command": [
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_overflow-O2rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6265666f72650a",
+            "stderr_hex": "52756e74696d65206572726f723a20696e7465676572206f766572666c6f7720696e206164646974696f6e0a"
+          },
+          "merged": {
+            "command": [
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_overflow-O2rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "52756e74696d65206572726f723a20696e7465676572206f766572666c6f7720696e206164646974696f6e0a6265666f72650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/mixed_integral_checked_div_zero.sn",
+      "source_sha256": "dab2baa188e26d47e4102eb01c3e88f659565860051d842c3b7403e00f786807",
+      "mode": "checked",
+      "optimization": "-O0",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/mixed_integral_checked_div_zero.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_div_zero-O0c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6d697865645f696e74656772616c5f636865636b65645f6469765f7a65726f2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6d697865642d696e74656772616c2d646961676e6f73746963732d327175697a6b79332f6d697865645f696e74656772616c5f636865636b65645f6469765f7a65726f2d4f30632e657865202836382e38204b42290a"
+          },
+          "separate": {
+            "command": [
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_div_zero-O0c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6265666f72650a",
+            "stderr_hex": "70616e69633a204469766973696f6e206279207a65726f0a"
+          },
+          "merged": {
+            "command": [
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_div_zero-O0c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "70616e69633a204469766973696f6e206279207a65726f0a6265666f72650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/mixed_integral_checked_div_zero.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_div_zero-O0rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6d697865645f696e74656772616c5f636865636b65645f6469765f7a65726f2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f6d697865645f696e74656772616c5f636865636b65645f6469765f7a65726f5f313934323038302f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6d697865642d696e74656772616c2d646961676e6f73746963732d327175697a6b79332f6d697865645f696e74656772616c5f636865636b65645f6469765f7a65726f2d4f30727573742e6578652028332e37204d42290a"
+          },
+          "separate": {
+            "command": [
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_div_zero-O0rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6265666f72650a",
+            "stderr_hex": "70616e69633a204469766973696f6e206279207a65726f0a"
+          },
+          "merged": {
+            "command": [
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_div_zero-O0rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "70616e69633a204469766973696f6e206279207a65726f0a6265666f72650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/mixed_integral_checked_div_zero.sn",
+      "source_sha256": "dab2baa188e26d47e4102eb01c3e88f659565860051d842c3b7403e00f786807",
+      "mode": "checked",
+      "optimization": "-O1",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/mixed_integral_checked_div_zero.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_div_zero-O1c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6d697865645f696e74656772616c5f636865636b65645f6469765f7a65726f2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6d697865642d696e74656772616c2d646961676e6f73746963732d327175697a6b79332f6d697865645f696e74656772616c5f636865636b65645f6469765f7a65726f2d4f31632e657865202836382e38204b42290a"
+          },
+          "separate": {
+            "command": [
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_div_zero-O1c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6265666f72650a",
+            "stderr_hex": "70616e69633a204469766973696f6e206279207a65726f0a"
+          },
+          "merged": {
+            "command": [
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_div_zero-O1c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "70616e69633a204469766973696f6e206279207a65726f0a6265666f72650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/mixed_integral_checked_div_zero.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_div_zero-O1rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6d697865645f696e74656772616c5f636865636b65645f6469765f7a65726f2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f6d697865645f696e74656772616c5f636865636b65645f6469765f7a65726f5f313934323137322f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6d697865642d696e74656772616c2d646961676e6f73746963732d327175697a6b79332f6d697865645f696e74656772616c5f636865636b65645f6469765f7a65726f2d4f31727573742e6578652028332e37204d42290a"
+          },
+          "separate": {
+            "command": [
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_div_zero-O1rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6265666f72650a",
+            "stderr_hex": "70616e69633a204469766973696f6e206279207a65726f0a"
+          },
+          "merged": {
+            "command": [
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_div_zero-O1rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "70616e69633a204469766973696f6e206279207a65726f0a6265666f72650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/mixed_integral_checked_div_zero.sn",
+      "source_sha256": "dab2baa188e26d47e4102eb01c3e88f659565860051d842c3b7403e00f786807",
+      "mode": "checked",
+      "optimization": "-O2",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/mixed_integral_checked_div_zero.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_div_zero-O2c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6d697865645f696e74656772616c5f636865636b65645f6469765f7a65726f2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6d697865642d696e74656772616c2d646961676e6f73746963732d327175697a6b79332f6d697865645f696e74656772616c5f636865636b65645f6469765f7a65726f2d4f32632e657865202836382e38204b42290a"
+          },
+          "separate": {
+            "command": [
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_div_zero-O2c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6265666f72650a",
+            "stderr_hex": "70616e69633a204469766973696f6e206279207a65726f0a"
+          },
+          "merged": {
+            "command": [
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_div_zero-O2c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "70616e69633a204469766973696f6e206279207a65726f0a6265666f72650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/mixed_integral_checked_div_zero.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_div_zero-O2rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6d697865645f696e74656772616c5f636865636b65645f6469765f7a65726f2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f6d697865645f696e74656772616c5f636865636b65645f6469765f7a65726f5f313934323234342f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6d697865642d696e74656772616c2d646961676e6f73746963732d327175697a6b79332f6d697865645f696e74656772616c5f636865636b65645f6469765f7a65726f2d4f32727573742e6578652028332e37204d42290a"
+          },
+          "separate": {
+            "command": [
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_div_zero-O2rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6265666f72650a",
+            "stderr_hex": "70616e69633a204469766973696f6e206279207a65726f0a"
+          },
+          "merged": {
+            "command": [
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_div_zero-O2rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "70616e69633a204469766973696f6e206279207a65726f0a6265666f72650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/mixed_integral_checked_mod_zero.sn",
+      "source_sha256": "be60f5d6feb4262c9f11a4d3ebc94be6ddb765b57e7ab7669459e403e1b89acf",
+      "mode": "checked",
+      "optimization": "-O0",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/mixed_integral_checked_mod_zero.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_mod_zero-O0c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6d697865645f696e74656772616c5f636865636b65645f6d6f645f7a65726f2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6d697865642d696e74656772616c2d646961676e6f73746963732d327175697a6b79332f6d697865645f696e74656772616c5f636865636b65645f6d6f645f7a65726f2d4f30632e657865202836382e38204b42290a"
+          },
+          "separate": {
+            "command": [
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_mod_zero-O0c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6265666f72650a",
+            "stderr_hex": "70616e69633a204d6f64756c6f206279207a65726f0a"
+          },
+          "merged": {
+            "command": [
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_mod_zero-O0c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "70616e69633a204d6f64756c6f206279207a65726f0a6265666f72650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/mixed_integral_checked_mod_zero.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_mod_zero-O0rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6d697865645f696e74656772616c5f636865636b65645f6d6f645f7a65726f2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f6d697865645f696e74656772616c5f636865636b65645f6d6f645f7a65726f5f313934323331362f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6d697865642d696e74656772616c2d646961676e6f73746963732d327175697a6b79332f6d697865645f696e74656772616c5f636865636b65645f6d6f645f7a65726f2d4f30727573742e6578652028332e37204d42290a"
+          },
+          "separate": {
+            "command": [
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_mod_zero-O0rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6265666f72650a",
+            "stderr_hex": "70616e69633a204d6f64756c6f206279207a65726f0a"
+          },
+          "merged": {
+            "command": [
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_mod_zero-O0rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "70616e69633a204d6f64756c6f206279207a65726f0a6265666f72650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/mixed_integral_checked_mod_zero.sn",
+      "source_sha256": "be60f5d6feb4262c9f11a4d3ebc94be6ddb765b57e7ab7669459e403e1b89acf",
+      "mode": "checked",
+      "optimization": "-O1",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/mixed_integral_checked_mod_zero.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_mod_zero-O1c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6d697865645f696e74656772616c5f636865636b65645f6d6f645f7a65726f2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6d697865642d696e74656772616c2d646961676e6f73746963732d327175697a6b79332f6d697865645f696e74656772616c5f636865636b65645f6d6f645f7a65726f2d4f31632e657865202836382e38204b42290a"
+          },
+          "separate": {
+            "command": [
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_mod_zero-O1c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6265666f72650a",
+            "stderr_hex": "70616e69633a204d6f64756c6f206279207a65726f0a"
+          },
+          "merged": {
+            "command": [
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_mod_zero-O1c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "70616e69633a204d6f64756c6f206279207a65726f0a6265666f72650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/mixed_integral_checked_mod_zero.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_mod_zero-O1rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6d697865645f696e74656772616c5f636865636b65645f6d6f645f7a65726f2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f6d697865645f696e74656772616c5f636865636b65645f6d6f645f7a65726f5f313934323338382f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6d697865642d696e74656772616c2d646961676e6f73746963732d327175697a6b79332f6d697865645f696e74656772616c5f636865636b65645f6d6f645f7a65726f2d4f31727573742e6578652028332e37204d42290a"
+          },
+          "separate": {
+            "command": [
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_mod_zero-O1rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6265666f72650a",
+            "stderr_hex": "70616e69633a204d6f64756c6f206279207a65726f0a"
+          },
+          "merged": {
+            "command": [
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_mod_zero-O1rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "70616e69633a204d6f64756c6f206279207a65726f0a6265666f72650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/mixed_integral_checked_mod_zero.sn",
+      "source_sha256": "be60f5d6feb4262c9f11a4d3ebc94be6ddb765b57e7ab7669459e403e1b89acf",
+      "mode": "checked",
+      "optimization": "-O2",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/mixed_integral_checked_mod_zero.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_mod_zero-O2c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6d697865645f696e74656772616c5f636865636b65645f6d6f645f7a65726f2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6d697865642d696e74656772616c2d646961676e6f73746963732d327175697a6b79332f6d697865645f696e74656772616c5f636865636b65645f6d6f645f7a65726f2d4f32632e657865202836382e38204b42290a"
+          },
+          "separate": {
+            "command": [
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_mod_zero-O2c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6265666f72650a",
+            "stderr_hex": "70616e69633a204d6f64756c6f206279207a65726f0a"
+          },
+          "merged": {
+            "command": [
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_mod_zero-O2c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "70616e69633a204d6f64756c6f206279207a65726f0a6265666f72650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/mixed_integral_checked_mod_zero.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_mod_zero-O2rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6d697865645f696e74656772616c5f636865636b65645f6d6f645f7a65726f2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f6d697865645f696e74656772616c5f636865636b65645f6d6f645f7a65726f5f313934323436302f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6d697865642d696e74656772616c2d646961676e6f73746963732d327175697a6b79332f6d697865645f696e74656772616c5f636865636b65645f6d6f645f7a65726f2d4f32727573742e6578652028332e37204d42290a"
+          },
+          "separate": {
+            "command": [
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_mod_zero-O2rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6265666f72650a",
+            "stderr_hex": "70616e69633a204d6f64756c6f206279207a65726f0a"
+          },
+          "merged": {
+            "command": [
+              "/tmp/sn-mixed-integral-diagnostics-2quizky3/mixed_integral_checked_mod_zero-O2rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "70616e69633a204d6f64756c6f206279207a65726f0a6265666f72650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    }
+  ],
+  "passed": true
+}

@@ -1,0 +1,2375 @@
+{
+  "compiler": "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+  "compiler_sha256": "8c951d36bd5d6005bb7211dfed804215775fa00becb5a761a6ec6f00571b5f07",
+  "c_ldlibs": null,
+  "arithmetic_modes": [
+    "default",
+    "checked",
+    "unchecked"
+  ],
+  "environment": {
+    "SN_CC": null,
+    "SN_CFLAGS": null,
+    "SN_RELEASE_CFLAGS": null,
+    "SN_LDLIBS": null,
+    "SN_RUSTFLAGS": null
+  },
+  "cases": [
+    {
+      "source": "tests/rgen/float_callable_conversions.sn",
+      "source_sha256": "d219b3fd69bdbc1b9e9470e11e020476b1584db9580a14a106cb344a99fc7fbd",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/float_callable_conversions.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-0--O0-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f666c6f61745f63616c6c61626c655f636f6e76657273696f6e732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d302d2d4f302d64656661756c742d632e657865202836392e32204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-0--O0-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "31363737373231362e30303030300a312e35303030300a31363737373231362e30303030300a312e35303030300a31363737373231362e30303030300a312e35303030300a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/float_callable_conversions.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-0--O0-default-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f666c6f61745f63616c6c61626c655f636f6e76657273696f6e732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420646f6573206e6f7420737570706f7274206d697865642d74797065206f72207265666572656e636520636c6f7375726520617267756d656e7473207965740a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/float_callable_conversions.sn",
+      "source_sha256": "d219b3fd69bdbc1b9e9470e11e020476b1584db9580a14a106cb344a99fc7fbd",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/float_callable_conversions.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-0--O1-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f666c6f61745f63616c6c61626c655f636f6e76657273696f6e732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d302d2d4f312d64656661756c742d632e657865202836392e32204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-0--O1-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "31363737373231362e30303030300a312e35303030300a31363737373231362e30303030300a312e35303030300a31363737373231362e30303030300a312e35303030300a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/float_callable_conversions.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-0--O1-default-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f666c6f61745f63616c6c61626c655f636f6e76657273696f6e732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420646f6573206e6f7420737570706f7274206d697865642d74797065206f72207265666572656e636520636c6f7375726520617267756d656e7473207965740a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/float_callable_conversions.sn",
+      "source_sha256": "d219b3fd69bdbc1b9e9470e11e020476b1584db9580a14a106cb344a99fc7fbd",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/float_callable_conversions.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-0--O2-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f666c6f61745f63616c6c61626c655f636f6e76657273696f6e732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d302d2d4f322d64656661756c742d632e657865202836392e32204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-0--O2-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "31363737373231362e30303030300a312e35303030300a31363737373231362e30303030300a312e35303030300a31363737373231362e30303030300a312e35303030300a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/float_callable_conversions.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-0--O2-default-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f666c6f61745f63616c6c61626c655f636f6e76657273696f6e732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420646f6573206e6f7420737570706f7274206d697865642d74797065206f72207265666572656e636520636c6f7375726520617267756d656e7473207965740a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/float_callable_conversions.sn",
+      "source_sha256": "d219b3fd69bdbc1b9e9470e11e020476b1584db9580a14a106cb344a99fc7fbd",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/float_callable_conversions.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-0--O0-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f666c6f61745f63616c6c61626c655f636f6e76657273696f6e732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d302d2d4f302d636865636b65642d632e657865202836392e32204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-0--O0-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "31363737373231362e30303030300a312e35303030300a31363737373231362e30303030300a312e35303030300a31363737373231362e30303030300a312e35303030300a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/float_callable_conversions.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-0--O0-checked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f666c6f61745f63616c6c61626c655f636f6e76657273696f6e732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420646f6573206e6f7420737570706f7274206d697865642d74797065206f72207265666572656e636520636c6f7375726520617267756d656e7473207965740a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/float_callable_conversions.sn",
+      "source_sha256": "d219b3fd69bdbc1b9e9470e11e020476b1584db9580a14a106cb344a99fc7fbd",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/float_callable_conversions.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-0--O1-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f666c6f61745f63616c6c61626c655f636f6e76657273696f6e732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d302d2d4f312d636865636b65642d632e657865202836392e32204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-0--O1-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "31363737373231362e30303030300a312e35303030300a31363737373231362e30303030300a312e35303030300a31363737373231362e30303030300a312e35303030300a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/float_callable_conversions.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-0--O1-checked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f666c6f61745f63616c6c61626c655f636f6e76657273696f6e732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420646f6573206e6f7420737570706f7274206d697865642d74797065206f72207265666572656e636520636c6f7375726520617267756d656e7473207965740a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/float_callable_conversions.sn",
+      "source_sha256": "d219b3fd69bdbc1b9e9470e11e020476b1584db9580a14a106cb344a99fc7fbd",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/float_callable_conversions.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-0--O2-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f666c6f61745f63616c6c61626c655f636f6e76657273696f6e732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d302d2d4f322d636865636b65642d632e657865202836392e32204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-0--O2-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "31363737373231362e30303030300a312e35303030300a31363737373231362e30303030300a312e35303030300a31363737373231362e30303030300a312e35303030300a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/float_callable_conversions.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-0--O2-checked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f666c6f61745f63616c6c61626c655f636f6e76657273696f6e732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420646f6573206e6f7420737570706f7274206d697865642d74797065206f72207265666572656e636520636c6f7375726520617267756d656e7473207965740a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/float_callable_conversions.sn",
+      "source_sha256": "d219b3fd69bdbc1b9e9470e11e020476b1584db9580a14a106cb344a99fc7fbd",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/float_callable_conversions.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-0--O0-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f666c6f61745f63616c6c61626c655f636f6e76657273696f6e732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d302d2d4f302d756e636865636b65642d632e657865202836392e32204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-0--O0-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "31363737373231362e30303030300a312e35303030300a31363737373231362e30303030300a312e35303030300a31363737373231362e30303030300a312e35303030300a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/float_callable_conversions.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-0--O0-unchecked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f666c6f61745f63616c6c61626c655f636f6e76657273696f6e732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420646f6573206e6f7420737570706f7274206d697865642d74797065206f72207265666572656e636520636c6f7375726520617267756d656e7473207965740a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/float_callable_conversions.sn",
+      "source_sha256": "d219b3fd69bdbc1b9e9470e11e020476b1584db9580a14a106cb344a99fc7fbd",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/float_callable_conversions.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-0--O1-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f666c6f61745f63616c6c61626c655f636f6e76657273696f6e732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d302d2d4f312d756e636865636b65642d632e657865202836392e32204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-0--O1-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "31363737373231362e30303030300a312e35303030300a31363737373231362e30303030300a312e35303030300a31363737373231362e30303030300a312e35303030300a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/float_callable_conversions.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-0--O1-unchecked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f666c6f61745f63616c6c61626c655f636f6e76657273696f6e732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420646f6573206e6f7420737570706f7274206d697865642d74797065206f72207265666572656e636520636c6f7375726520617267756d656e7473207965740a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/float_callable_conversions.sn",
+      "source_sha256": "d219b3fd69bdbc1b9e9470e11e020476b1584db9580a14a106cb344a99fc7fbd",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/float_callable_conversions.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-0--O2-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f666c6f61745f63616c6c61626c655f636f6e76657273696f6e732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d302d2d4f322d756e636865636b65642d632e657865202836392e32204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-0--O2-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "31363737373231362e30303030300a312e35303030300a31363737373231362e30303030300a312e35303030300a31363737373231362e30303030300a312e35303030300a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/float_callable_conversions.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-0--O2-unchecked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f666c6f61745f63616c6c61626c655f636f6e76657273696f6e732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420646f6573206e6f7420737570706f7274206d697865642d74797065206f72207265666572656e636520636c6f7375726520617267756d656e7473207965740a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/by_value_parameter_direct_assignment_mixed_float_double.sn",
+      "source_sha256": "748f8d4857fe8dbddc4d1ed551521160777e7db4af3e26fd9eea5c140ebe0699",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/by_value_parameter_direct_assignment_mixed_float_double.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-1--O0-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f62795f76616c75655f706172616d657465725f6469726563745f61737369676e6d656e745f6d697865645f666c6f61745f646f75626c652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d312d2d4f302d64656661756c742d632e657865202836382e38204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-1--O0-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "322e30303030300a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/by_value_parameter_direct_assignment_mixed_float_double.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-1--O0-default-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f62795f76616c75655f706172616d657465725f6469726563745f61737369676e6d656e745f6d697865645f666c6f61745f646f75626c652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a205275737420746172676574207265717569726573206469726563742061737369676e6d656e74206f662062792d76616c756520706172616d65746572202776616c75652720746f20757365207468652065786163742073616d65207363616c617220747970653b2063616e6e6f742061737369676e2027646f75626c652720746f2027666c6f6174270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/by_value_parameter_direct_assignment_mixed_float_double.sn",
+      "source_sha256": "748f8d4857fe8dbddc4d1ed551521160777e7db4af3e26fd9eea5c140ebe0699",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/by_value_parameter_direct_assignment_mixed_float_double.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-1--O1-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f62795f76616c75655f706172616d657465725f6469726563745f61737369676e6d656e745f6d697865645f666c6f61745f646f75626c652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d312d2d4f312d64656661756c742d632e657865202836382e38204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-1--O1-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "322e30303030300a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/by_value_parameter_direct_assignment_mixed_float_double.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-1--O1-default-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f62795f76616c75655f706172616d657465725f6469726563745f61737369676e6d656e745f6d697865645f666c6f61745f646f75626c652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a205275737420746172676574207265717569726573206469726563742061737369676e6d656e74206f662062792d76616c756520706172616d65746572202776616c75652720746f20757365207468652065786163742073616d65207363616c617220747970653b2063616e6e6f742061737369676e2027646f75626c652720746f2027666c6f6174270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/by_value_parameter_direct_assignment_mixed_float_double.sn",
+      "source_sha256": "748f8d4857fe8dbddc4d1ed551521160777e7db4af3e26fd9eea5c140ebe0699",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/by_value_parameter_direct_assignment_mixed_float_double.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-1--O2-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f62795f76616c75655f706172616d657465725f6469726563745f61737369676e6d656e745f6d697865645f666c6f61745f646f75626c652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d312d2d4f322d64656661756c742d632e657865202836382e38204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-1--O2-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "322e30303030300a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/by_value_parameter_direct_assignment_mixed_float_double.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-1--O2-default-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f62795f76616c75655f706172616d657465725f6469726563745f61737369676e6d656e745f6d697865645f666c6f61745f646f75626c652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a205275737420746172676574207265717569726573206469726563742061737369676e6d656e74206f662062792d76616c756520706172616d65746572202776616c75652720746f20757365207468652065786163742073616d65207363616c617220747970653b2063616e6e6f742061737369676e2027646f75626c652720746f2027666c6f6174270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/by_value_parameter_direct_assignment_mixed_float_double.sn",
+      "source_sha256": "748f8d4857fe8dbddc4d1ed551521160777e7db4af3e26fd9eea5c140ebe0699",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/by_value_parameter_direct_assignment_mixed_float_double.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-1--O0-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f62795f76616c75655f706172616d657465725f6469726563745f61737369676e6d656e745f6d697865645f666c6f61745f646f75626c652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d312d2d4f302d636865636b65642d632e657865202836382e38204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-1--O0-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "322e30303030300a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/by_value_parameter_direct_assignment_mixed_float_double.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-1--O0-checked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f62795f76616c75655f706172616d657465725f6469726563745f61737369676e6d656e745f6d697865645f666c6f61745f646f75626c652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a205275737420746172676574207265717569726573206469726563742061737369676e6d656e74206f662062792d76616c756520706172616d65746572202776616c75652720746f20757365207468652065786163742073616d65207363616c617220747970653b2063616e6e6f742061737369676e2027646f75626c652720746f2027666c6f6174270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/by_value_parameter_direct_assignment_mixed_float_double.sn",
+      "source_sha256": "748f8d4857fe8dbddc4d1ed551521160777e7db4af3e26fd9eea5c140ebe0699",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/by_value_parameter_direct_assignment_mixed_float_double.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-1--O1-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f62795f76616c75655f706172616d657465725f6469726563745f61737369676e6d656e745f6d697865645f666c6f61745f646f75626c652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d312d2d4f312d636865636b65642d632e657865202836382e38204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-1--O1-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "322e30303030300a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/by_value_parameter_direct_assignment_mixed_float_double.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-1--O1-checked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f62795f76616c75655f706172616d657465725f6469726563745f61737369676e6d656e745f6d697865645f666c6f61745f646f75626c652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a205275737420746172676574207265717569726573206469726563742061737369676e6d656e74206f662062792d76616c756520706172616d65746572202776616c75652720746f20757365207468652065786163742073616d65207363616c617220747970653b2063616e6e6f742061737369676e2027646f75626c652720746f2027666c6f6174270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/by_value_parameter_direct_assignment_mixed_float_double.sn",
+      "source_sha256": "748f8d4857fe8dbddc4d1ed551521160777e7db4af3e26fd9eea5c140ebe0699",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/by_value_parameter_direct_assignment_mixed_float_double.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-1--O2-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f62795f76616c75655f706172616d657465725f6469726563745f61737369676e6d656e745f6d697865645f666c6f61745f646f75626c652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d312d2d4f322d636865636b65642d632e657865202836382e38204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-1--O2-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "322e30303030300a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/by_value_parameter_direct_assignment_mixed_float_double.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-1--O2-checked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f62795f76616c75655f706172616d657465725f6469726563745f61737369676e6d656e745f6d697865645f666c6f61745f646f75626c652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a205275737420746172676574207265717569726573206469726563742061737369676e6d656e74206f662062792d76616c756520706172616d65746572202776616c75652720746f20757365207468652065786163742073616d65207363616c617220747970653b2063616e6e6f742061737369676e2027646f75626c652720746f2027666c6f6174270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/by_value_parameter_direct_assignment_mixed_float_double.sn",
+      "source_sha256": "748f8d4857fe8dbddc4d1ed551521160777e7db4af3e26fd9eea5c140ebe0699",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/by_value_parameter_direct_assignment_mixed_float_double.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-1--O0-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f62795f76616c75655f706172616d657465725f6469726563745f61737369676e6d656e745f6d697865645f666c6f61745f646f75626c652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d312d2d4f302d756e636865636b65642d632e657865202836382e38204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-1--O0-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "322e30303030300a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/by_value_parameter_direct_assignment_mixed_float_double.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-1--O0-unchecked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f62795f76616c75655f706172616d657465725f6469726563745f61737369676e6d656e745f6d697865645f666c6f61745f646f75626c652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a205275737420746172676574207265717569726573206469726563742061737369676e6d656e74206f662062792d76616c756520706172616d65746572202776616c75652720746f20757365207468652065786163742073616d65207363616c617220747970653b2063616e6e6f742061737369676e2027646f75626c652720746f2027666c6f6174270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/by_value_parameter_direct_assignment_mixed_float_double.sn",
+      "source_sha256": "748f8d4857fe8dbddc4d1ed551521160777e7db4af3e26fd9eea5c140ebe0699",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/by_value_parameter_direct_assignment_mixed_float_double.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-1--O1-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f62795f76616c75655f706172616d657465725f6469726563745f61737369676e6d656e745f6d697865645f666c6f61745f646f75626c652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d312d2d4f312d756e636865636b65642d632e657865202836382e38204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-1--O1-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "322e30303030300a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/by_value_parameter_direct_assignment_mixed_float_double.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-1--O1-unchecked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f62795f76616c75655f706172616d657465725f6469726563745f61737369676e6d656e745f6d697865645f666c6f61745f646f75626c652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a205275737420746172676574207265717569726573206469726563742061737369676e6d656e74206f662062792d76616c756520706172616d65746572202776616c75652720746f20757365207468652065786163742073616d65207363616c617220747970653b2063616e6e6f742061737369676e2027646f75626c652720746f2027666c6f6174270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/by_value_parameter_direct_assignment_mixed_float_double.sn",
+      "source_sha256": "748f8d4857fe8dbddc4d1ed551521160777e7db4af3e26fd9eea5c140ebe0699",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/by_value_parameter_direct_assignment_mixed_float_double.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-1--O2-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f62795f76616c75655f706172616d657465725f6469726563745f61737369676e6d656e745f6d697865645f666c6f61745f646f75626c652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d312d2d4f322d756e636865636b65642d632e657865202836382e38204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-1--O2-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "322e30303030300a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/by_value_parameter_direct_assignment_mixed_float_double.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-1--O2-unchecked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f62795f76616c75655f706172616d657465725f6469726563745f61737369676e6d656e745f6d697865645f666c6f61745f646f75626c652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a205275737420746172676574207265717569726573206469726563742061737369676e6d656e74206f662062792d76616c756520706172616d65746572202776616c75652720746f20757365207468652065786163742073616d65207363616c617220747970653b2063616e6e6f742061737369676e2027646f75626c652720746f2027666c6f6174270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/floating_as_ref_parameter_mixed_type_mutation.sn",
+      "source_sha256": "b133ce759c0f83c9debae26b272f80bbfc3b62b22272df14fac365a0dae7d8a3",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/floating_as_ref_parameter_mixed_type_mutation.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-2--O0-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f666c6f6174696e675f61735f7265665f706172616d657465725f6d697865645f747970655f6d75746174696f6e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d322d2d4f302d64656661756c742d632e657865202836382e38204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-2--O0-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/floating_as_ref_parameter_mixed_type_mutation.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-2--O0-default-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f666c6f6174696e675f61735f7265665f706172616d657465725f6d697865645f747970655f6d75746174696f6e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a2052757374207461726765742063757272656e746c7920737570706f72747320666c6f6174696e672d706f696e7420636f6d706f756e642061737369676e6d656e74206f6e6c79206265747765656e2073616d652d7479706520666c6f6174206f7220646f75626c65206f706572616e64730a4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e2027616464446f75626c65270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/floating_as_ref_parameter_mixed_type_mutation.sn",
+      "source_sha256": "b133ce759c0f83c9debae26b272f80bbfc3b62b22272df14fac365a0dae7d8a3",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/floating_as_ref_parameter_mixed_type_mutation.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-2--O1-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f666c6f6174696e675f61735f7265665f706172616d657465725f6d697865645f747970655f6d75746174696f6e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d322d2d4f312d64656661756c742d632e657865202836382e38204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-2--O1-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/floating_as_ref_parameter_mixed_type_mutation.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-2--O1-default-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f666c6f6174696e675f61735f7265665f706172616d657465725f6d697865645f747970655f6d75746174696f6e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a2052757374207461726765742063757272656e746c7920737570706f72747320666c6f6174696e672d706f696e7420636f6d706f756e642061737369676e6d656e74206f6e6c79206265747765656e2073616d652d7479706520666c6f6174206f7220646f75626c65206f706572616e64730a4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e2027616464446f75626c65270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/floating_as_ref_parameter_mixed_type_mutation.sn",
+      "source_sha256": "b133ce759c0f83c9debae26b272f80bbfc3b62b22272df14fac365a0dae7d8a3",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/floating_as_ref_parameter_mixed_type_mutation.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-2--O2-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f666c6f6174696e675f61735f7265665f706172616d657465725f6d697865645f747970655f6d75746174696f6e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d322d2d4f322d64656661756c742d632e657865202836382e38204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-2--O2-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/floating_as_ref_parameter_mixed_type_mutation.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-2--O2-default-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f666c6f6174696e675f61735f7265665f706172616d657465725f6d697865645f747970655f6d75746174696f6e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a2052757374207461726765742063757272656e746c7920737570706f72747320666c6f6174696e672d706f696e7420636f6d706f756e642061737369676e6d656e74206f6e6c79206265747765656e2073616d652d7479706520666c6f6174206f7220646f75626c65206f706572616e64730a4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e2027616464446f75626c65270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/floating_as_ref_parameter_mixed_type_mutation.sn",
+      "source_sha256": "b133ce759c0f83c9debae26b272f80bbfc3b62b22272df14fac365a0dae7d8a3",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/floating_as_ref_parameter_mixed_type_mutation.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-2--O0-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f666c6f6174696e675f61735f7265665f706172616d657465725f6d697865645f747970655f6d75746174696f6e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d322d2d4f302d636865636b65642d632e657865202836382e38204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-2--O0-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/floating_as_ref_parameter_mixed_type_mutation.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-2--O0-checked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f666c6f6174696e675f61735f7265665f706172616d657465725f6d697865645f747970655f6d75746174696f6e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a2052757374207461726765742063757272656e746c7920737570706f72747320666c6f6174696e672d706f696e7420636f6d706f756e642061737369676e6d656e74206f6e6c79206265747765656e2073616d652d7479706520666c6f6174206f7220646f75626c65206f706572616e64730a4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e2027616464446f75626c65270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/floating_as_ref_parameter_mixed_type_mutation.sn",
+      "source_sha256": "b133ce759c0f83c9debae26b272f80bbfc3b62b22272df14fac365a0dae7d8a3",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/floating_as_ref_parameter_mixed_type_mutation.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-2--O1-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f666c6f6174696e675f61735f7265665f706172616d657465725f6d697865645f747970655f6d75746174696f6e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d322d2d4f312d636865636b65642d632e657865202836382e38204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-2--O1-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/floating_as_ref_parameter_mixed_type_mutation.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-2--O1-checked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f666c6f6174696e675f61735f7265665f706172616d657465725f6d697865645f747970655f6d75746174696f6e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a2052757374207461726765742063757272656e746c7920737570706f72747320666c6f6174696e672d706f696e7420636f6d706f756e642061737369676e6d656e74206f6e6c79206265747765656e2073616d652d7479706520666c6f6174206f7220646f75626c65206f706572616e64730a4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e2027616464446f75626c65270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/floating_as_ref_parameter_mixed_type_mutation.sn",
+      "source_sha256": "b133ce759c0f83c9debae26b272f80bbfc3b62b22272df14fac365a0dae7d8a3",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/floating_as_ref_parameter_mixed_type_mutation.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-2--O2-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f666c6f6174696e675f61735f7265665f706172616d657465725f6d697865645f747970655f6d75746174696f6e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d322d2d4f322d636865636b65642d632e657865202836382e38204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-2--O2-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/floating_as_ref_parameter_mixed_type_mutation.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-2--O2-checked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f666c6f6174696e675f61735f7265665f706172616d657465725f6d697865645f747970655f6d75746174696f6e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a2052757374207461726765742063757272656e746c7920737570706f72747320666c6f6174696e672d706f696e7420636f6d706f756e642061737369676e6d656e74206f6e6c79206265747765656e2073616d652d7479706520666c6f6174206f7220646f75626c65206f706572616e64730a4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e2027616464446f75626c65270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/floating_as_ref_parameter_mixed_type_mutation.sn",
+      "source_sha256": "b133ce759c0f83c9debae26b272f80bbfc3b62b22272df14fac365a0dae7d8a3",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/floating_as_ref_parameter_mixed_type_mutation.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-2--O0-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f666c6f6174696e675f61735f7265665f706172616d657465725f6d697865645f747970655f6d75746174696f6e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d322d2d4f302d756e636865636b65642d632e657865202836382e38204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-2--O0-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/floating_as_ref_parameter_mixed_type_mutation.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-2--O0-unchecked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f666c6f6174696e675f61735f7265665f706172616d657465725f6d697865645f747970655f6d75746174696f6e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a2052757374207461726765742063757272656e746c7920737570706f72747320666c6f6174696e672d706f696e7420636f6d706f756e642061737369676e6d656e74206f6e6c79206265747765656e2073616d652d7479706520666c6f6174206f7220646f75626c65206f706572616e64730a4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e2027616464446f75626c65270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/floating_as_ref_parameter_mixed_type_mutation.sn",
+      "source_sha256": "b133ce759c0f83c9debae26b272f80bbfc3b62b22272df14fac365a0dae7d8a3",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/floating_as_ref_parameter_mixed_type_mutation.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-2--O1-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f666c6f6174696e675f61735f7265665f706172616d657465725f6d697865645f747970655f6d75746174696f6e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d322d2d4f312d756e636865636b65642d632e657865202836382e38204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-2--O1-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/floating_as_ref_parameter_mixed_type_mutation.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-2--O1-unchecked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f666c6f6174696e675f61735f7265665f706172616d657465725f6d697865645f747970655f6d75746174696f6e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a2052757374207461726765742063757272656e746c7920737570706f72747320666c6f6174696e672d706f696e7420636f6d706f756e642061737369676e6d656e74206f6e6c79206265747765656e2073616d652d7479706520666c6f6174206f7220646f75626c65206f706572616e64730a4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e2027616464446f75626c65270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/floating_as_ref_parameter_mixed_type_mutation.sn",
+      "source_sha256": "b133ce759c0f83c9debae26b272f80bbfc3b62b22272df14fac365a0dae7d8a3",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/floating_as_ref_parameter_mixed_type_mutation.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-2--O2-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f666c6f6174696e675f61735f7265665f706172616d657465725f6d697865645f747970655f6d75746174696f6e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d322d2d4f322d756e636865636b65642d632e657865202836382e38204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-2--O2-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/floating_as_ref_parameter_mixed_type_mutation.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-2--O2-unchecked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f666c6f6174696e675f61735f7265665f706172616d657465725f6d697865645f747970655f6d75746174696f6e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a2052757374207461726765742063757272656e746c7920737570706f72747320666c6f6174696e672d706f696e7420636f6d706f756e642061737369676e6d656e74206f6e6c79206265747765656e2073616d652d7479706520666c6f6174206f7220646f75626c65206f706572616e64730a4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e2027616464446f75626c65270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/floating_compound_mixed_float_double.sn",
+      "source_sha256": "00ffe57fb64e67d506a7852cd8996259312f31dc602af0e9e1501904f4c785b7",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/floating_compound_mixed_float_double.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-3--O0-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f666c6f6174696e675f636f6d706f756e645f6d697865645f666c6f61745f646f75626c652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d332d2d4f302d64656661756c742d632e657865202836382e37204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-3--O0-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/floating_compound_mixed_float_double.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-3--O0-default-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f666c6f6174696e675f636f6d706f756e645f6d697865645f666c6f61745f646f75626c652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a2052757374207461726765742063757272656e746c7920737570706f72747320666c6f6174696e672d706f696e7420636f6d706f756e642061737369676e6d656e74206f6e6c79206265747765656e2073616d652d7479706520666c6f6174206f7220646f75626c65206f706572616e64730a4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/floating_compound_mixed_float_double.sn",
+      "source_sha256": "00ffe57fb64e67d506a7852cd8996259312f31dc602af0e9e1501904f4c785b7",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/floating_compound_mixed_float_double.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-3--O1-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f666c6f6174696e675f636f6d706f756e645f6d697865645f666c6f61745f646f75626c652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d332d2d4f312d64656661756c742d632e657865202836382e37204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-3--O1-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/floating_compound_mixed_float_double.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-3--O1-default-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f666c6f6174696e675f636f6d706f756e645f6d697865645f666c6f61745f646f75626c652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a2052757374207461726765742063757272656e746c7920737570706f72747320666c6f6174696e672d706f696e7420636f6d706f756e642061737369676e6d656e74206f6e6c79206265747765656e2073616d652d7479706520666c6f6174206f7220646f75626c65206f706572616e64730a4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/floating_compound_mixed_float_double.sn",
+      "source_sha256": "00ffe57fb64e67d506a7852cd8996259312f31dc602af0e9e1501904f4c785b7",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/floating_compound_mixed_float_double.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-3--O2-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f666c6f6174696e675f636f6d706f756e645f6d697865645f666c6f61745f646f75626c652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d332d2d4f322d64656661756c742d632e657865202836382e37204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-3--O2-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/floating_compound_mixed_float_double.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-3--O2-default-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f666c6f6174696e675f636f6d706f756e645f6d697865645f666c6f61745f646f75626c652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a2052757374207461726765742063757272656e746c7920737570706f72747320666c6f6174696e672d706f696e7420636f6d706f756e642061737369676e6d656e74206f6e6c79206265747765656e2073616d652d7479706520666c6f6174206f7220646f75626c65206f706572616e64730a4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/floating_compound_mixed_float_double.sn",
+      "source_sha256": "00ffe57fb64e67d506a7852cd8996259312f31dc602af0e9e1501904f4c785b7",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/floating_compound_mixed_float_double.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-3--O0-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f666c6f6174696e675f636f6d706f756e645f6d697865645f666c6f61745f646f75626c652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d332d2d4f302d636865636b65642d632e657865202836382e37204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-3--O0-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/floating_compound_mixed_float_double.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-3--O0-checked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f666c6f6174696e675f636f6d706f756e645f6d697865645f666c6f61745f646f75626c652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a2052757374207461726765742063757272656e746c7920737570706f72747320666c6f6174696e672d706f696e7420636f6d706f756e642061737369676e6d656e74206f6e6c79206265747765656e2073616d652d7479706520666c6f6174206f7220646f75626c65206f706572616e64730a4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/floating_compound_mixed_float_double.sn",
+      "source_sha256": "00ffe57fb64e67d506a7852cd8996259312f31dc602af0e9e1501904f4c785b7",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/floating_compound_mixed_float_double.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-3--O1-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f666c6f6174696e675f636f6d706f756e645f6d697865645f666c6f61745f646f75626c652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d332d2d4f312d636865636b65642d632e657865202836382e37204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-3--O1-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/floating_compound_mixed_float_double.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-3--O1-checked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f666c6f6174696e675f636f6d706f756e645f6d697865645f666c6f61745f646f75626c652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a2052757374207461726765742063757272656e746c7920737570706f72747320666c6f6174696e672d706f696e7420636f6d706f756e642061737369676e6d656e74206f6e6c79206265747765656e2073616d652d7479706520666c6f6174206f7220646f75626c65206f706572616e64730a4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/floating_compound_mixed_float_double.sn",
+      "source_sha256": "00ffe57fb64e67d506a7852cd8996259312f31dc602af0e9e1501904f4c785b7",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/floating_compound_mixed_float_double.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-3--O2-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f666c6f6174696e675f636f6d706f756e645f6d697865645f666c6f61745f646f75626c652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d332d2d4f322d636865636b65642d632e657865202836382e37204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-3--O2-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/floating_compound_mixed_float_double.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-3--O2-checked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f666c6f6174696e675f636f6d706f756e645f6d697865645f666c6f61745f646f75626c652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a2052757374207461726765742063757272656e746c7920737570706f72747320666c6f6174696e672d706f696e7420636f6d706f756e642061737369676e6d656e74206f6e6c79206265747765656e2073616d652d7479706520666c6f6174206f7220646f75626c65206f706572616e64730a4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/floating_compound_mixed_float_double.sn",
+      "source_sha256": "00ffe57fb64e67d506a7852cd8996259312f31dc602af0e9e1501904f4c785b7",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/floating_compound_mixed_float_double.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-3--O0-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f666c6f6174696e675f636f6d706f756e645f6d697865645f666c6f61745f646f75626c652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d332d2d4f302d756e636865636b65642d632e657865202836382e37204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-3--O0-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/floating_compound_mixed_float_double.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-3--O0-unchecked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f666c6f6174696e675f636f6d706f756e645f6d697865645f666c6f61745f646f75626c652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a2052757374207461726765742063757272656e746c7920737570706f72747320666c6f6174696e672d706f696e7420636f6d706f756e642061737369676e6d656e74206f6e6c79206265747765656e2073616d652d7479706520666c6f6174206f7220646f75626c65206f706572616e64730a4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/floating_compound_mixed_float_double.sn",
+      "source_sha256": "00ffe57fb64e67d506a7852cd8996259312f31dc602af0e9e1501904f4c785b7",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/floating_compound_mixed_float_double.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-3--O1-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f666c6f6174696e675f636f6d706f756e645f6d697865645f666c6f61745f646f75626c652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d332d2d4f312d756e636865636b65642d632e657865202836382e37204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-3--O1-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/floating_compound_mixed_float_double.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-3--O1-unchecked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f666c6f6174696e675f636f6d706f756e645f6d697865645f666c6f61745f646f75626c652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a2052757374207461726765742063757272656e746c7920737570706f72747320666c6f6174696e672d706f696e7420636f6d706f756e642061737369676e6d656e74206f6e6c79206265747765656e2073616d652d7479706520666c6f6174206f7220646f75626c65206f706572616e64730a4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/floating_compound_mixed_float_double.sn",
+      "source_sha256": "00ffe57fb64e67d506a7852cd8996259312f31dc602af0e9e1501904f4c785b7",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/floating_compound_mixed_float_double.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-3--O2-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f666c6f6174696e675f636f6d706f756e645f6d697865645f666c6f61745f646f75626c652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d332d2d4f322d756e636865636b65642d632e657865202836382e37204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-3--O2-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/floating_compound_mixed_float_double.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-3--O2-unchecked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f666c6f6174696e675f636f6d706f756e645f6d697865645f666c6f61745f646f75626c652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a2052757374207461726765742063757272656e746c7920737570706f72747320666c6f6174696e672d706f696e7420636f6d706f756e642061737369676e6d656e74206f6e6c79206265747765656e2073616d652d7479706520666c6f6174206f7220646f75626c65206f706572616e64730a4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/iterator_protocol_mixed_float_double_mutation.sn",
+      "source_sha256": "f2b413ae1609a4546176fbc5dbda919182facadb27e5a431dbfb48e5524b5a56",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/iterator_protocol_mixed_float_double_mutation.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-4--O0-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f6974657261746f725f70726f746f636f6c5f6d697865645f666c6f61745f646f75626c655f6d75746174696f6e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d342d2d4f302d64656661756c742d632e657865202836382e39204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-4--O0-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/iterator_protocol_mixed_float_double_mutation.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-4--O0-default-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f6974657261746f725f70726f746f636f6c5f6d697865645f666c6f61745f646f75626c655f6d75746174696f6e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a2052757374207461726765742063757272656e746c7920737570706f72747320666c6f6174696e672d706f696e7420636f6d706f756e642061737369676e6d656e74206f6e6c79206265747765656e2073616d652d7479706520666c6f6174206f7220646f75626c65206f706572616e64730a4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/iterator_protocol_mixed_float_double_mutation.sn",
+      "source_sha256": "f2b413ae1609a4546176fbc5dbda919182facadb27e5a431dbfb48e5524b5a56",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/iterator_protocol_mixed_float_double_mutation.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-4--O1-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f6974657261746f725f70726f746f636f6c5f6d697865645f666c6f61745f646f75626c655f6d75746174696f6e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d342d2d4f312d64656661756c742d632e657865202836382e39204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-4--O1-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/iterator_protocol_mixed_float_double_mutation.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-4--O1-default-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f6974657261746f725f70726f746f636f6c5f6d697865645f666c6f61745f646f75626c655f6d75746174696f6e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a2052757374207461726765742063757272656e746c7920737570706f72747320666c6f6174696e672d706f696e7420636f6d706f756e642061737369676e6d656e74206f6e6c79206265747765656e2073616d652d7479706520666c6f6174206f7220646f75626c65206f706572616e64730a4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/iterator_protocol_mixed_float_double_mutation.sn",
+      "source_sha256": "f2b413ae1609a4546176fbc5dbda919182facadb27e5a431dbfb48e5524b5a56",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/iterator_protocol_mixed_float_double_mutation.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-4--O2-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f6974657261746f725f70726f746f636f6c5f6d697865645f666c6f61745f646f75626c655f6d75746174696f6e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d342d2d4f322d64656661756c742d632e657865202836382e39204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-4--O2-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/iterator_protocol_mixed_float_double_mutation.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-4--O2-default-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f6974657261746f725f70726f746f636f6c5f6d697865645f666c6f61745f646f75626c655f6d75746174696f6e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a2052757374207461726765742063757272656e746c7920737570706f72747320666c6f6174696e672d706f696e7420636f6d706f756e642061737369676e6d656e74206f6e6c79206265747765656e2073616d652d7479706520666c6f6174206f7220646f75626c65206f706572616e64730a4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/iterator_protocol_mixed_float_double_mutation.sn",
+      "source_sha256": "f2b413ae1609a4546176fbc5dbda919182facadb27e5a431dbfb48e5524b5a56",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/iterator_protocol_mixed_float_double_mutation.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-4--O0-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f6974657261746f725f70726f746f636f6c5f6d697865645f666c6f61745f646f75626c655f6d75746174696f6e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d342d2d4f302d636865636b65642d632e657865202836382e39204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-4--O0-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/iterator_protocol_mixed_float_double_mutation.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-4--O0-checked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f6974657261746f725f70726f746f636f6c5f6d697865645f666c6f61745f646f75626c655f6d75746174696f6e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a2052757374207461726765742063757272656e746c7920737570706f72747320666c6f6174696e672d706f696e7420636f6d706f756e642061737369676e6d656e74206f6e6c79206265747765656e2073616d652d7479706520666c6f6174206f7220646f75626c65206f706572616e64730a4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/iterator_protocol_mixed_float_double_mutation.sn",
+      "source_sha256": "f2b413ae1609a4546176fbc5dbda919182facadb27e5a431dbfb48e5524b5a56",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/iterator_protocol_mixed_float_double_mutation.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-4--O1-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f6974657261746f725f70726f746f636f6c5f6d697865645f666c6f61745f646f75626c655f6d75746174696f6e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d342d2d4f312d636865636b65642d632e657865202836382e39204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-4--O1-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/iterator_protocol_mixed_float_double_mutation.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-4--O1-checked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f6974657261746f725f70726f746f636f6c5f6d697865645f666c6f61745f646f75626c655f6d75746174696f6e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a2052757374207461726765742063757272656e746c7920737570706f72747320666c6f6174696e672d706f696e7420636f6d706f756e642061737369676e6d656e74206f6e6c79206265747765656e2073616d652d7479706520666c6f6174206f7220646f75626c65206f706572616e64730a4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/iterator_protocol_mixed_float_double_mutation.sn",
+      "source_sha256": "f2b413ae1609a4546176fbc5dbda919182facadb27e5a431dbfb48e5524b5a56",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/iterator_protocol_mixed_float_double_mutation.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-4--O2-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f6974657261746f725f70726f746f636f6c5f6d697865645f666c6f61745f646f75626c655f6d75746174696f6e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d342d2d4f322d636865636b65642d632e657865202836382e39204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-4--O2-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/iterator_protocol_mixed_float_double_mutation.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-4--O2-checked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f6974657261746f725f70726f746f636f6c5f6d697865645f666c6f61745f646f75626c655f6d75746174696f6e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a2052757374207461726765742063757272656e746c7920737570706f72747320666c6f6174696e672d706f696e7420636f6d706f756e642061737369676e6d656e74206f6e6c79206265747765656e2073616d652d7479706520666c6f6174206f7220646f75626c65206f706572616e64730a4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/iterator_protocol_mixed_float_double_mutation.sn",
+      "source_sha256": "f2b413ae1609a4546176fbc5dbda919182facadb27e5a431dbfb48e5524b5a56",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/iterator_protocol_mixed_float_double_mutation.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-4--O0-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f6974657261746f725f70726f746f636f6c5f6d697865645f666c6f61745f646f75626c655f6d75746174696f6e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d342d2d4f302d756e636865636b65642d632e657865202836382e39204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-4--O0-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/iterator_protocol_mixed_float_double_mutation.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-4--O0-unchecked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f6974657261746f725f70726f746f636f6c5f6d697865645f666c6f61745f646f75626c655f6d75746174696f6e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a2052757374207461726765742063757272656e746c7920737570706f72747320666c6f6174696e672d706f696e7420636f6d706f756e642061737369676e6d656e74206f6e6c79206265747765656e2073616d652d7479706520666c6f6174206f7220646f75626c65206f706572616e64730a4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/iterator_protocol_mixed_float_double_mutation.sn",
+      "source_sha256": "f2b413ae1609a4546176fbc5dbda919182facadb27e5a431dbfb48e5524b5a56",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/iterator_protocol_mixed_float_double_mutation.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-4--O1-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f6974657261746f725f70726f746f636f6c5f6d697865645f666c6f61745f646f75626c655f6d75746174696f6e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d342d2d4f312d756e636865636b65642d632e657865202836382e39204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-4--O1-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/iterator_protocol_mixed_float_double_mutation.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-4--O1-unchecked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f6974657261746f725f70726f746f636f6c5f6d697865645f666c6f61745f646f75626c655f6d75746174696f6e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a2052757374207461726765742063757272656e746c7920737570706f72747320666c6f6174696e672d706f696e7420636f6d706f756e642061737369676e6d656e74206f6e6c79206265747765656e2073616d652d7479706520666c6f6174206f7220646f75626c65206f706572616e64730a4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rgen/errors/iterator_protocol_mixed_float_double_mutation.sn",
+      "source_sha256": "f2b413ae1609a4546176fbc5dbda919182facadb27e5a431dbfb48e5524b5a56",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/iterator_protocol_mixed_float_double_mutation.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-4--O2-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f6974657261746f725f70726f746f636f6c5f6d697865645f666c6f61745f646f75626c655f6d75746174696f6e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d71776a61397a34732f636173652d342d2d4f322d756e636865636b65642d632e657865202836382e39204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-qwja9z4s/case-4--O2-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              "tests/rgen/errors/iterator_protocol_mixed_float_double_mutation.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-qwja9z4s/case-4--O2-unchecked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f6974657261746f725f70726f746f636f6c5f6d697865645f666c6f61745f646f75626c655f6d75746174696f6e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a2052757374207461726765742063757272656e746c7920737570706f72747320666c6f6174696e672d706f696e7420636f6d706f756e642061737369676e6d656e74206f6e6c79206265747765656e2073616d652d7479706520666c6f6174206f7220646f75626c65206f706572616e64730a4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    }
+  ],
+  "passed": false
+}

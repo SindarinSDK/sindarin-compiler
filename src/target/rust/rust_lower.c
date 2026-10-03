@@ -90,7 +90,8 @@ static const char *rust_numeric_widening_type(const char *from, const char *to)
          strcmp(from, "uint32") == 0 || strcmp(from, "uint") == 0))
         return "f64";
     if (strcmp(to, "float") == 0 &&
-        (strcmp(from, "int32") == 0 || strcmp(from, "uint32") == 0))
+        (strcmp(from, "int32") == 0 || strcmp(from, "uint32") == 0 ||
+         strcmp(from, "double") == 0))
         return "f32";
     return NULL;
 }

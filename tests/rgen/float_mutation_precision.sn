@@ -1,0 +1,63 @@
+struct FloatPlace =>
+  value: float
+
+struct PrecisionIterator =>
+  remaining: int
+
+  fn iter(): PrecisionIterator =>
+    return self
+
+  fn hasNext(): bool =>
+    return self.remaining > 0
+
+  fn next(): float =>
+    self.remaining -= 1
+    return 16777216.0f
+
+fn rhs(calls: int as ref): double =>
+  calls++
+  return 1.00000001
+
+fn mutateRef(value: float as ref, calls: int as ref): void =>
+  value += rhs(calls)
+
+fn mutateValue(value: float, increment: double): float =>
+  value += increment
+  return value
+
+fn main(): void =>
+  var calls: int = 0
+  var value: float = 16777216.0f
+  value += rhs(calls)
+  println(value == 16777218.0)
+  println(calls)
+  value = 16777216.0f
+  value -= -1.00000001
+  println(value == 16777218.0)
+  value = 1.5f
+  value *= 1.00000005
+  println(value > 1.5)
+  value = 1.5f
+  value /= 1.00000005
+  println(value < 1.5)
+
+  value = 16777216.0f
+  mutateRef(value, calls)
+  println(value == 16777218.0)
+  println(calls)
+  println(mutateValue(16777216.0f, 1.00000001) == 16777218.0)
+  var place: FloatPlace = { value: 16777216.0f }
+  place.value += rhs(calls)
+  println(place.value == 16777218.0)
+  println(calls)
+
+  var captured: float = 16777216.0f
+  var action: fn(): float = fn(): float =>
+    captured += 1.00000001
+    return captured
+  println(action() == 16777218.0)
+  println(action() == 16777220.0)
+  var iterator: PrecisionIterator = { remaining: 1 }
+  for current in iterator =>
+    current += 1.00000001
+    println(current == 16777218.0)

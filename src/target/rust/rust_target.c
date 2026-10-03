@@ -148,6 +148,7 @@ static bool rust_check_toolchain(const CompilerOptions *options)
 #include "rust_thread_arrays.c"
 #include "rust_thread_refs.c"
 #include "rust_thread_receivers.c"
+#include "rust_lower_float.c"
 
 static bool rust_emit(CompilerOptions *options, Module *module,
                       TargetEmitMode mode, GeneratedFileSet *result)
@@ -224,6 +225,7 @@ static bool rust_emit(CompilerOptions *options, Module *module,
     rust_lower_interpolation_formats(model);
     rust_lower_for_continues(model);
     rust_lower_scalar_ref_parameters(model);
+    rust_lower_float_conversions(model, model, NULL);
     size_t place_temp_id = 0;
     if (!rust_lower_member_assignment_places(model, model, &place_temp_id))
     {

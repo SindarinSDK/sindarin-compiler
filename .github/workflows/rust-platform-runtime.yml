@@ -156,9 +156,9 @@ jobs:
           run_gate "tagged native C/Rust parity (8 fixtures)" \
             python3 scripts/run_rust_tests.py rust-native-tagged --verbose \
               --require-count 8 --fail-on-skip
-          run_gate "native scalar and managed ABI fixtures (17 fixtures)" \
+          run_gate "native scalar and managed ABI fixtures (18 fixtures)" \
             python3 scripts/run_rust_tests.py rust-native-extra --verbose \
-              --require-count 17 --fail-on-skip
+              --require-count 18 --fail-on-skip
           run_gate "imported native alias origin (1 fixture)" \
             python3 scripts/run_rust_tests.py rust-native-origin --verbose \
               --require-count 1 --fail-on-skip
@@ -199,6 +199,9 @@ jobs:
           run_gate "mixed integer conversions (90 positive pairs, 9 checked diagnostic cases)" \
             make test-rust-parity-mixed-integral
 
+          run_gate "floating storage, calls and mixed mutation precision (117 positive pairs)" \
+            make test-rust-parity-float-conversions
+
           exit "$overall_rc"
 
       - name: Retain runtime parity evidence
@@ -218,5 +221,6 @@ jobs:
             .sn/rust-parity-stdio-order.json
             .sn/rust-parity-mixed-integral.json
             .sn/rust-parity-mixed-integral-diagnostics.json
+            .sn/rust-parity-float-conversions.json
           if-no-files-found: ignore
           retention-days: 7
