@@ -312,7 +312,6 @@ fn __sn_string_to_double(value: &SnString) -> f64 {
 
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     __sn_println_string(&(SnString::from_slice(&[0x6d, 0x61, 0x74, 0x63, 0x68])));
     let mut value: i64 = match (1 as i64) {
         1 => {
@@ -324,4 +323,11 @@ fn main() {
         },
     };
     println!("{}", value);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

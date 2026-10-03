@@ -449,7 +449,6 @@ fn hex(bytes: &mut impl __sn_byte_encoding::Array) -> SnString {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut bytes: Vec<u8> = vec![1, 2, 255];
     __sn_println_string(&(hex(&mut (bytes))));
     let mut encode: __SnClosure<dyn Fn(Vec<u8>) -> SnString> = { self::__SnClosure::<dyn Fn(Vec<u8>) -> SnString>(std::rc::Rc::new(move |value: Vec<u8>| -> SnString { __sn_byte_encoding::base64(&(value))})) }
@@ -461,4 +460,11 @@ fn main() {
     let mut captured: __SnClosure<dyn Fn() -> SnString> = { let (shared, ) = ({ let value = shared.lock().unwrap_or_else(|e| e.into_inner()).clone(); value }, ); self::__SnClosure::<dyn Fn() -> SnString>(std::rc::Rc::new(move || -> SnString { __sn_byte_encoding::hex(&(shared.clone()))})) }
 ;
     __sn_println_string(&(((captured.clone()).0)()));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

@@ -33,9 +33,14 @@ with once-only argument effects, C-int narrowing, buffered streams and LIFO C
 callbacks verified in all nine modes. Language printing and native output share
 C streams, so native calls and native initialization now preserve buffering
 rather than forcing extra flushes. Explicit native flushes are unchanged.
-Normal return from void `main` still has a callback-order difference and needs a
-separate entrypoint/cleanup repair that preserves calls and function values of
-source `main`; the completion ledger retains that required work.
+The subsequent normal-return increment preserves C's stdout-only fallthrough
+flush, while early returns leave buffered streams for CRT exit callbacks.
+Native initialization, integer result narrowing, argument count and callback
+ordering are checked in 108 cases across all nine modes. No entrypoint wrapper
+or return interception is introduced; existing direct void-main recursion is
+preserved. C-invalid source-main references and C-undefined argv indexed-string
+cleanup probes receive no parity credit. The completion ledger distinguishes
+local validation from the required hosted checks and remaining ownership work.
 
 **Status (2026-09-05):** PR #111 landed at `bdb0d167930210a41ed792038f044a327bfd8575` (bounded exact-`str` match results and canonical string-byte corrections); PR #112 landed at `e64ed9b84bcf7847a2e949ecdc79429b00909016` (supported expression prefixes in value-match arms). PR #113 landed at `3f6d23c0d609a63865ea58f98e81f1951dba816b`, with ordered parents `e64ed9b84bcf7847a2e949ecdc79429b00909016` and `7249e7c1c3ff57c7f8f72abc488cb79754a0404a`, adding stable borrowed string patterns. This extraction branch is rebased onto that exact fetched `origin/main`. The behavior-preserving validator/lowering extraction is a prerequisite for separate resolved-call and closure/callback authors. It adds no admitted programs and claims no parity completion.
 C is the default target (`src/compiler.c:31` `options->target = TARGET_C`); Rust is opt-in via `--target rust` / `--emit-rust`.

@@ -96,6 +96,12 @@ fn __SnClosure() -> i64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     println!("{}", __SnClosure());
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

@@ -344,7 +344,6 @@ struct Label {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut names: Vec<SnString> = vec![SnString::from_slice(&[0x6f, 0x6e, 0x65])];
     for mut item in (names).iter().cloned() {
         (item = SnString::from_slice(&[0x74, 0x77, 0x6f]));
@@ -364,5 +363,12 @@ fn main() {
     for mut item in (labels).iter().cloned() {
         (item = Label { text: SnString::from_slice(&[0x74, 0x77, 0x6f]) });
         println!("{}", (((item).text == SnString::from_slice(&[0x74, 0x77, 0x6f])) && (((labels)[__sn_index((labels).len(), 0)]).text == SnString::from_slice(&[0x6f, 0x6e, 0x65]))));
+    }
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
     }
 }

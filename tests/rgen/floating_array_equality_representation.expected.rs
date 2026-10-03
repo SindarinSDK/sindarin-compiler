@@ -115,7 +115,6 @@ fn __sn_array_size(size: i64) -> usize {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut positive: Vec<f32> = vec![0.0];
     let mut negative: Vec<f32> = vec![(-0.0)];
     println!("{}", { let __sn_float_eq_right: &[f32] = &(negative); let __sn_float_eq_left: &[f32] = &(positive); (__sn_float_eq_left.len() == __sn_float_eq_right.len() && __sn_float_eq_left.iter().flat_map(|value| value.to_ne_bytes()).eq(__sn_float_eq_right.iter().flat_map(|value| value.to_ne_bytes()).take(__sn_float_eq_left.len() * std::mem::size_of::<f32>()))) }
@@ -164,4 +163,11 @@ fn main() {
 );
     println!("{}", { let __sn_float_eq_right_15: &[f32] = &(shorter); let __sn_float_eq_left_15: &[f32] = &(empty); !(__sn_float_eq_left_15.len() == __sn_float_eq_right_15.len() && __sn_float_eq_left_15.iter().flat_map(|value| value.to_ne_bytes()).eq(__sn_float_eq_right_15.iter().flat_map(|value| value.to_ne_bytes()).take(__sn_float_eq_left_15.len() * std::mem::size_of::<f32>()))) }
 );
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

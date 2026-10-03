@@ -1,0 +1,10 @@
+@source "builtin_exit_hooks.c"
+native fn arm_exit_hooks(): int32
+
+fn main(): void =>
+  assert(arm_exit_hooks() == 0, "stdio and atexit setup")
+  for i in 0..3 =>
+    if i == 1 =>
+      println(i)
+      return
+  println("unreachable")

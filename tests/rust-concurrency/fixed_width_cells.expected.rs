@@ -179,7 +179,6 @@ fn worker() -> i64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     std::sync::LazyLock::force(&__sn_concurrency0_global_atomic_value);
     std::sync::LazyLock::force(&__sn_concurrency0_global_byte_value);
     std::sync::LazyLock::force(&__sn_concurrency0_global_wide_value);
@@ -197,4 +196,11 @@ fn main() {
     println!("0x{:02X}", ({ let value = local.lock().unwrap_or_else(|e| e.into_inner()).clone(); value } as u32));
     { let mut __sn_concurrency0_value_guard = { (*local.lock().unwrap_or_else(|e| e.into_inner())).clone() }; let __sn_concurrency0_numeric_rhs = (2).clone(); let __sn_concurrency0_value = { { let (__sn_rhs, __sn_place) = (__sn_concurrency0_numeric_rhs, &mut (__sn_concurrency0_value_guard)); let (__sn_left, __sn_right): (i64, i64) = (*__sn_place as i64, __sn_rhs as i64); let __sn_promoted = __sn_left.wrapping_sub(__sn_right); let __sn_next = __sn_promoted as u8; *__sn_place = __sn_next; __sn_next } }; *local.lock().unwrap_or_else(|e| e.into_inner()) = __sn_concurrency0_value_guard; __sn_concurrency0_value };
     println!("0x{:02X}", ({ let value = local.lock().unwrap_or_else(|e| e.into_inner()).clone(); value } as u32));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

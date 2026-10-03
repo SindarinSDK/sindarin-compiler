@@ -453,7 +453,6 @@ fn __sn_format_scientific(value: f64, precision: usize, uppercase: bool,
 
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut value: i64 = 26;
     let mut zero: i64 = 0;
     let mut negative: i64 = (-1);
@@ -467,4 +466,11 @@ fn main() {
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x6e, 0x65, 0x67, 0x61, 0x74, 0x69, 0x76, 0x65, 0x3d]))); __sn_interpolated.push_str(&{ let __sn_value = negative; __sn_format_integer_alternate(&format!("{:x}", __sn_value), __sn_value == 0, false, false, 0, false, false) }); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2f]))); __sn_interpolated.push_str(&{ let __sn_value = narrow_negative; __sn_format_integer_alternate(&format!("{:x}", __sn_value), __sn_value == 0, false, false, 0, false, false) }); __sn_interpolated }));
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x75, 0x6e, 0x73, 0x69, 0x67, 0x6e, 0x65, 0x64, 0x3d]))); __sn_interpolated.push_str(&{ let __sn_value = unsigned; __sn_format_integer_alternate(&format!("{:X}", __sn_value), __sn_value == 0, true, false, 0, false, false) }); __sn_interpolated }));
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x73, 0x70, 0x61, 0x63, 0x65, 0x3d, 0x7c]))); __sn_interpolated.push_str(&{ let __sn_value = value; __sn_format_integer_alternate(&format!("{:x}", __sn_value), __sn_value == 0, false, false, 8, false, false) }); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

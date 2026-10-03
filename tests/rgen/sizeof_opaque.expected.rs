@@ -92,6 +92,12 @@ macro_rules! println {
 
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut bytes: i64 = (std::mem::size_of::<*mut std::ffi::c_void>() as i64);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

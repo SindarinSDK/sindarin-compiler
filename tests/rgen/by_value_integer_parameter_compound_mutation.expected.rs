@@ -317,7 +317,13 @@ fn halve(mut value: i64) -> i64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut caller: i64 = 9;
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", halve(caller))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2f]))); __sn_interpolated.push_str(&format!("{}", caller)); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

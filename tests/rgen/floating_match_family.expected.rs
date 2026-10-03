@@ -370,7 +370,6 @@ fn chooseDouble(subject_calls: &mut i64, body_calls: &mut i64, order: &mut i64) 
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut __sn_match_subject: i64 = 41;
     let mut __sn_match_result: i64 = 42;
     let mut subject_calls: i64 = 0;
@@ -497,4 +496,11 @@ fn main() {
     }
 };
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", __sn_match_subject)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", __sn_match_result)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", subject_calls)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", body_calls)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", order)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", selected)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", nested_statement)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", nan_statement_hits)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", zero_hits)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", first_value)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", nan_value)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", (float_value == (-3.5)))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", (double_value == 6.75))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", (returned == 42.25))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", nested_value)); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

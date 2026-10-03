@@ -1,0 +1,16 @@
+@source "builtin_exit_hooks.c"
+native fn arm_exit_hooks(): int32
+native fn c_exit_code(raw: str): int32
+
+fn status(calls: int as ref, code: int): int =>
+  calls++
+  println(calls)
+  return code
+
+fn main(args: str[]): int =>
+  assert(arm_exit_hooks() == 0, "stdio and atexit setup")
+  var code: int = args[1].toInt()
+  println(c_exit_code(args[1]))
+  var calls: int = 0
+  println("body")
+  return status(calls, code)

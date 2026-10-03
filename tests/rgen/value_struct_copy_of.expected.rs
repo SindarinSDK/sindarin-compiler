@@ -347,7 +347,6 @@ struct Payload {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut point: Point = Point { x: 1, y: 2 };
     let mut point_copy: Point = (point).clone();
     ((point_copy).x = 10);
@@ -363,4 +362,11 @@ fn main() {
     (((payload).point).y = 80);
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x70, 0x61, 0x79, 0x6c, 0x6f, 0x61, 0x64, 0x3d]))); __sn_interpolated.push_str(&((payload).name)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", ((payload).values)[__sn_index(((payload).values).len(), 0)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", ((payload).values)[__sn_index(((payload).values).len(), 1)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", ((payload).point).x)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", ((payload).point).y)); __sn_interpolated }));
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x70, 0x61, 0x79, 0x6c, 0x6f, 0x61, 0x64, 0x2d, 0x63, 0x6f, 0x70, 0x79, 0x3d]))); __sn_interpolated.push_str(&((payload_copy).name)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", ((payload_copy).values)[__sn_index(((payload_copy).values).len(), 0)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", ((payload_copy).values)[__sn_index(((payload_copy).values).len(), 1)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", ((payload_copy).point).x)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", ((payload_copy).point).y)); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

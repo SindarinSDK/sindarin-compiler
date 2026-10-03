@@ -368,7 +368,6 @@ mod __sn_ctype {
 
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     __sn_println_string(&(__sn_ctype::string('\u{61}')));
     __sn_println_string(&(__sn_ctype::string(__sn_ctype::upper('\u{78}'))));
     __sn_println_string(&(__sn_ctype::string(__sn_ctype::lower('\u{5a}'))));
@@ -388,4 +387,11 @@ fn main() {
     println!("{}", (__sn_ctype::string({ let value = last.lock().unwrap_or_else(|e| e.into_inner()).clone(); value })).len() as i64);
     println!("{}", (__sn_ctype::upper({ let value = last.lock().unwrap_or_else(|e| e.into_inner()).clone(); value }) == { let value = last.lock().unwrap_or_else(|e| e.into_inner()).clone(); value }));
     println!("{}", (__sn_ctype::lower({ let value = last.lock().unwrap_or_else(|e| e.into_inner()).clone(); value }) == { let value = last.lock().unwrap_or_else(|e| e.into_inner()).clone(); value }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

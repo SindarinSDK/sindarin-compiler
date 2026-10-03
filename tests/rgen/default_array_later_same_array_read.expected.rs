@@ -340,8 +340,14 @@ fn appendObserved(values: &mut Vec<i64>, observed: i64) -> i64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut values: Vec<i64> = vec![7];
     println!("{}", { let __sn_array_call_arg_0 = (values).len() as i64; appendObserved(&mut (values), __sn_array_call_arg_0) });
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", (values).len() as i64)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", (values)[__sn_index((values).len(), 1)])); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

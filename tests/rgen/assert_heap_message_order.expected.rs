@@ -352,8 +352,14 @@ fn explain(calls: &mut i64) -> SnString {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut calls: i64 = 0;
     { let __sn_assert_message = explain(&mut (calls)); let __sn_assert_condition = check(&mut (calls)); if !__sn_assert_condition { crate::__sn_write_stderr_bytes(&[__sn_assert_message.as_bytes(), b"\n"].concat()); crate::__sn_stdio_exit(1); } }
 ;
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

@@ -181,7 +181,6 @@ fn step() -> i64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     std::sync::LazyLock::force(&__sn_concurrency0_global_value);
     let mut a: i64 = 0; let mut __sn_concurrency0_handle_a: Option<__sn_concurrency0_Join<i64>> = Some({ __sn_concurrency0_Join::spawn(move || step()) }
 );
@@ -200,4 +199,11 @@ fn main() {
 ), "Runtime error: integer overflow in addition")).checked_add({ if let Some(__sn_concurrency0_handle) = __sn_concurrency0_handle_e.take() { e = __sn_concurrency0_handle.join(); } e.clone() }
 ), "Runtime error: integer overflow in addition"));
     println!("{}", ({ let value = __sn_concurrency0_global_value.lock().unwrap_or_else(|e| e.into_inner()).clone(); value } == '\u{35}'));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

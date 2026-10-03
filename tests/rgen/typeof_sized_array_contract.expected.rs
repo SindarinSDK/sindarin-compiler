@@ -387,7 +387,6 @@ fn makeValues(counter: &mut i64) -> Vec<i64> {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut numbers: Vec<i64> = vec![0; __sn_array_size(3)];
     let mut words: Vec<SnString> = vec![SnString::new(); __sn_array_size(2)];
     let mut empty: Vec<i64> = vec![0; __sn_array_size(0)];
@@ -401,4 +400,11 @@ fn main() {
     let mut unevaluated: TypeInfo = TypeInfo { name: SnString::from_slice(&[0x61, 0x72, 0x72, 0x61, 0x79]), fields: vec![], fieldCount: 0, typeId: 173583654 }
 ;
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", counter)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&((unevaluated).name)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", (unevaluated).fieldCount)); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

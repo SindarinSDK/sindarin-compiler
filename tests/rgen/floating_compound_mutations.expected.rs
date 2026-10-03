@@ -160,7 +160,6 @@ fn rhsFloat(calls: &mut i64) -> f32 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut single: f32 = 16.0;
     let mut single_add: f32 = { let (__sn_rhs, __sn_place) = (4.0, &mut (single)); let __sn_next = *__sn_place + __sn_rhs; *__sn_place = __sn_next; __sn_next };
     let mut single_subtract: f32 = { let (__sn_rhs, __sn_place) = (2.0, &mut (single)); let __sn_next = *__sn_place - __sn_rhs; *__sn_place = __sn_next; __sn_next };
@@ -203,4 +202,11 @@ fn main() {
     let mut infinity: f64 = 1.0;
     let mut infinity_result: f64 = { let (__sn_rhs, __sn_place) = (zero, &mut (infinity)); let __sn_next = *__sn_place / __sn_rhs; *__sn_place = __sn_next; __sn_next };
     println!("{}", ((infinity_result == infinity) && (infinity > 1.0)));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

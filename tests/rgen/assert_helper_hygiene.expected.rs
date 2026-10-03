@@ -312,8 +312,14 @@ fn __sn_string_to_double(value: &SnString) -> f64 {
 
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut __sn_assert_condition: SnString = SnString::from_slice(&[0x63, 0x6f, 0x6c, 0x6c, 0x69, 0x73, 0x69, 0x6f, 0x6e]);
     { let __sn_assert_condition_1 = false; let __sn_assert_message = __sn_assert_condition; if !__sn_assert_condition_1 { crate::__sn_write_stderr_bytes(&[__sn_assert_message.as_bytes(), b"\n"].concat()); crate::__sn_stdio_exit(1); } }
 ;
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

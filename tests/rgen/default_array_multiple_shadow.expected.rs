@@ -345,10 +345,16 @@ fn mutate(first: &mut Vec<i64>, second: &mut Vec<i64>) -> i64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut values: Vec<i64> = vec![1];
     println!("{}", __sn_array_alias_call_0(&mut (values)));
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x6f, 0x75, 0x74, 0x65, 0x72, 0x3a]))); __sn_interpolated.push_str(&format!("{}", (values).len() as i64)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", (values)[__sn_index((values).len(), 0)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", (values)[__sn_index((values).len(), 1)])); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }
 
 fn __sn_array_alias_call_0(first: &mut Vec<i64>) -> i64 {

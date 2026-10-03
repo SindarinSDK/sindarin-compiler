@@ -510,7 +510,6 @@ impl<F: ?Sized> PartialEq for __SnClosure<F> {
     fn eq(&self, other: &Self) -> bool { std::rc::Rc::ptr_eq(&self.0, &other.0) }
 }
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     println!("{}", (__sn_ctype::string_trim(&(SnString::from_slice(&[0x0b, 0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x0b]))) == SnString::from_slice(&[0x48, 0x65, 0x6c, 0x6c, 0x6f])));
     println!("{}", (__sn_ctype::string_trim(&(SnString::from_slice(&[0x0c, 0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x0c]))) == SnString::from_slice(&[0x48, 0x65, 0x6c, 0x6c, 0x6f])));
     println!("{}", __sn_ctype::string_blank(&(SnString::from_slice(&[0x0b, 0x0c]))));
@@ -531,4 +530,11 @@ fn main() {
     let mut blank: __SnClosure<dyn Fn(SnString) -> bool> = { self::__SnClosure::<dyn Fn(SnString) -> bool>(std::rc::Rc::new(move |value: SnString| -> bool { __sn_ctype::string_blank(&(value))})) }
 ;
     println!("{}", ((blank.clone()).0)(SnString::from_slice(&[0x0b])));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

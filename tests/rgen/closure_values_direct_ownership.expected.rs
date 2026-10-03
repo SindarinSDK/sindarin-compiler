@@ -388,7 +388,6 @@ fn identity(action: __SnClosure<dyn Fn(i64) -> i64>) -> __SnClosure<dyn Fn(i64) 
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut named: __SnClosure<dyn Fn(i64) -> i64> = self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(increment));
     let mut alias: __SnClosure<dyn Fn(i64) -> i64> = named.clone();
     let mut returned: __SnClosure<dyn Fn(i64) -> i64> = identity(alias.clone());
@@ -402,4 +401,11 @@ fn main() {
 ];
     { let __sn_array_index = __sn_index((actions).len(), 0); (actions)[__sn_array_index] = returned.clone(); };
     __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", (({ let (__sn_functions, __sn_function_index) = (&(actions), 0); __sn_functions[__sn_index(__sn_functions.len(), __sn_function_index)].clone() }).0)(7))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", ((returned.clone()).0)(8))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x0a]))); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

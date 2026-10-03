@@ -403,8 +403,14 @@ impl Relay {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut relay: Relay = Relay { values: vec![1] };
     println!("{}", (relay).__sn_receiver_array_alias_0(2));
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x66, 0x69, 0x6e, 0x61, 0x6c, 0x3a]))); __sn_interpolated.push_str(&format!("{}", ((relay).values).len() as i64)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", ((relay).values)[__sn_index(((relay).values).len(), 0)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", ((relay).values)[__sn_index(((relay).values).len(), 1)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", ((relay).values)[__sn_index(((relay).values).len(), 2)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", ((relay).values)[__sn_index(((relay).values).len(), 3)])); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

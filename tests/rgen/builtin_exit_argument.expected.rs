@@ -346,9 +346,15 @@ fn code(calls: &mut i64) -> i64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut calls: i64 = 0;
     __sn_println_string(&(SnString::from_slice(&[0x61, 0x72, 0x67, 0x75, 0x6d, 0x65, 0x6e, 0x74])));
     crate::__sn_stdio_exit((code(&mut (calls))) as std::ffi::c_int);
     __sn_println_string(&(SnString::from_slice(&[0x75, 0x6e, 0x72, 0x65, 0x61, 0x63, 0x68, 0x61, 0x62, 0x6c, 0x65])));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

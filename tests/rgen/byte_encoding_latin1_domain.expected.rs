@@ -418,10 +418,16 @@ fn __sn_array_size(size: i64) -> usize {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut bytes: Vec<u8> = vec![];
     for mut value in ((1..256).collect::<Vec<i64>>()).iter().cloned() {
         (bytes).push((value as u8));
     }
     __sn_print_string(&(__sn_byte_encoding::latin1(&(bytes))));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

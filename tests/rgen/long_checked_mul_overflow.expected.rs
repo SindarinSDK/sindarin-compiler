@@ -120,8 +120,14 @@ fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut left: i64 = 3037000500;
     let mut right: i64 = 3037000500;
     let mut overflow: i64 = __sn_checked_0((left).checked_mul(right), "Runtime error: integer overflow in multiplication");
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

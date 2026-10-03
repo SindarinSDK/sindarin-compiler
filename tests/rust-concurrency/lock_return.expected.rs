@@ -364,7 +364,6 @@ fn update(early: bool) {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     std::sync::LazyLock::force(&__sn_concurrency0_global_gate);
     std::sync::LazyLock::force(&__sn_concurrency0_global_counter);
     update(true);
@@ -375,4 +374,11 @@ fn main() {
     update(false);
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x63, 0x6f, 0x75, 0x6e, 0x74, 0x65, 0x72, 0x3a, 0x20]))); __sn_interpolated.push_str(&format!("{}", { let value = __sn_concurrency0_global_counter.lock().unwrap_or_else(|e| e.into_inner()).clone(); value })); __sn_interpolated }));
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x74, 0x77, 0x69, 0x63, 0x65, 0x3a, 0x20]))); __sn_interpolated.push_str(&format!("{}", __sn_checked_0(({ let value = __sn_concurrency0_global_counter.lock().unwrap_or_else(|e| e.into_inner()).clone(); value }).checked_add({ let value = __sn_concurrency0_global_counter.lock().unwrap_or_else(|e| e.into_inner()).clone(); value }), "Runtime error: integer overflow in addition"))); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

@@ -414,7 +414,6 @@ fn recursive(n: i64) -> i64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", (({ let (__sn_functions, __sn_function_index) = (&(arraySource()), index()); __sn_functions[__sn_index(__sn_functions.len(), __sn_function_index)].clone() }).0)(argument(1), argument(2)))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x0a]))); __sn_interpolated }));
     __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", (((fieldSource()).action.clone()).0)(argument(3), argument(4)))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x0a]))); __sn_interpolated }));
     let mut factorial: __SnClosure<dyn Fn(i64) -> i64> = { self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |x: i64| -> i64 { x.clone()})) }
@@ -424,4 +423,11 @@ fn main() {
 ;
     { copy = factorial.clone(); copy.clone() };
     __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", ((copy.clone()).0)(5))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", ((factorial.clone()).0)(4))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x0a]))); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

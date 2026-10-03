@@ -137,11 +137,17 @@ fn marked(calls: &mut i64, order: &mut i64, marker: i64, value: i64) -> Point {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut calls: i64 = 0;
     let mut order: i64 = 0;
     println!("{}", (marked(&mut (calls), &mut (order), 1, 1)).op_lt(marked(&mut (calls), &mut (order), 2, 2)));
     println!("{}", (marked(&mut (calls), &mut (order), 4, 4)).op_lt(marked(&mut (calls), &mut (order), 3, 3)));
     println!("{}", calls);
     println!("{}", order);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

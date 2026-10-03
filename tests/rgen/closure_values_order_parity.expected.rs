@@ -414,7 +414,6 @@ fn recursive(n: i64) -> i64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut selected: i64 = index();
     let mut callbacks: Vec<__SnClosure<dyn Fn(i64, i64) -> i64>> = arraySource();
     let mut first: i64 = argument(1);
@@ -431,4 +430,11 @@ fn main() {
 ;
     { copy = factorial.clone(); copy.clone() };
     __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", ((copy.clone()).0)(5))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", ((factorial.clone()).0)(4))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x0a]))); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

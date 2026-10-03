@@ -370,7 +370,6 @@ fn choose(value: bool, subject_calls: &mut i64, result_calls: &mut i64, order: &
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut __sn_match_result: bool = true;
     let mut subject_calls: i64 = 0;
     let mut result_calls: i64 = 0;
@@ -419,4 +418,11 @@ fn main() {
         },
     };
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", __sn_match_result)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", subject_calls)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", result_calls)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", order)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", first)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", fallback)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", returned)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", argument)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", nested)); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

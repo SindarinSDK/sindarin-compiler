@@ -92,9 +92,15 @@ macro_rules! println {
 
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut narrow: u32 = 0;
     let mut wide: u64 = 0;
     println!("{}", ((-(1 as i64) as u64) < (narrow as u64)));
     println!("{}", ((-(1 as i64) as u32) > (wide as u32)));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

@@ -208,7 +208,6 @@ fn shadowOrder(mut value: f64) -> f64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut calls: i64 = 0;
     let mut freeFloatCaller: f32 = 8.0;
     let mut freeDoubleCaller: f64 = 16.0;
@@ -238,4 +237,11 @@ fn main() {
     println!("{}", (((specialDoubleOne == 1.0) && (specialDoubleZero == 0.0)) && ((1.0 / specialDoubleNegativeZero) < 0.0)));
     println!("{}", helperNames(2.0, 3.0, 4.0, 5.0, 6.0));
     println!("{}", ((shadowOrder(orderCaller) == 5.0) && (orderCaller == 4.0)));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

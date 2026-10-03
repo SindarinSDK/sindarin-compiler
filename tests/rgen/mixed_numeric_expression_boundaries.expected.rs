@@ -140,7 +140,6 @@ fn markDouble(trace: &mut i64) -> f64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut calls: i64 = 0;
     let mut sum: f64 = (((nextInt(&mut (calls))) as f64) + ((nextDouble(&mut (calls))) as f64));
     println!("{:.5}", sum);
@@ -161,4 +160,11 @@ fn main() {
     (calls = 0);
     println!("{:.5}", ((((markChar(&mut (calls))) as u32) as f64) + ((markDouble(&mut (calls))) as f64)));
     println!("{}", calls);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

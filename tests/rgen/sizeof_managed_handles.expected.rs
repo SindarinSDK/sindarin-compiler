@@ -378,7 +378,6 @@ fn observe_values(counter: &mut i64) -> Vec<i64> {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut type_string: i64 = 8i64;
     let mut type_array: i64 = 8i64;
     let mut type_nested_array: i64 = 8i64;
@@ -390,4 +389,11 @@ fn main() {
     let mut counter: i64 = 0;
     let mut expression_sizes: i64 = __sn_checked_0((__sn_checked_0((__sn_checked_0((__sn_checked_0((__sn_checked_0((8i64).checked_add(8i64), "Runtime error: integer overflow in addition")).checked_add(8i64), "Runtime error: integer overflow in addition")).checked_add(8i64), "Runtime error: integer overflow in addition")).checked_add(8i64), "Runtime error: integer overflow in addition")).checked_add(8i64), "Runtime error: integer overflow in addition");
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", ((((type_string == 8) && (type_array == 8)) && (type_nested_array == 8)) && (type_struct_array == 8)))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", (expression_sizes == 48))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", (counter == 0))); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

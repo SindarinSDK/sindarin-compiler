@@ -226,6 +226,9 @@ jobs:
           run_gate "process exit statuses, buffered streams and CRT lifecycle (153 cases)" \
             make test-rust-parity-exit
 
+          run_gate "normal main return, buffered streams and CRT callbacks (108 cases)" \
+            make test-rust-parity-main-return
+
           exit "$overall_rc"
 
       - name: Retain runtime parity evidence
@@ -254,5 +257,6 @@ jobs:
             .sn/rust-parity-ctype.json
             .sn/rust-parity-byte-encoding.json
             .sn/rust-parity-exit.json
+            .sn/rust-parity-main-return.json
           if-no-files-found: ignore
           retention-days: 7

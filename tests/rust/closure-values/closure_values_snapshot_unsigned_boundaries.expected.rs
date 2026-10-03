@@ -132,7 +132,6 @@ impl<F: ?Sized> PartialEq for __SnClosure<F> {
     fn eq(&self, other: &Self) -> bool { std::rc::Rc::ptr_eq(&self.0, &other.0) }
 }
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut add32: u32 = 4294967295;
     let mut sub32: u32 = 0;
     let mut mul32: u32 = 2147483648;
@@ -153,4 +152,11 @@ fn main() {
 ;
     println!("{}", ((boundaries.clone()).0)());
     println!("{}", ((boundaries.clone()).0)());
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

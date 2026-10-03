@@ -92,7 +92,13 @@ macro_rules! println {
 
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut max: i64 = 9223372036854775807;
     let mut one: i64 = 1;
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

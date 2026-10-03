@@ -154,7 +154,6 @@ fn appendAndSnapshot(values: &mut Vec<f32>, calls: &mut i64) -> Vec<f32> {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut calls: i64 = 0;
     let mut values: Vec<f32> = vec![0.0];
     println!("{}", { let __sn_float_eq_right: &[f32] = &(appendAndSnapshot(&mut (values), &mut (calls))); let __sn_float_eq_left: &[f32] = &(values); (__sn_float_eq_left.len() == __sn_float_eq_right.len() && __sn_float_eq_left.iter().flat_map(|value| value.to_ne_bytes()).eq(__sn_float_eq_right.iter().flat_map(|value| value.to_ne_bytes()).take(__sn_float_eq_left.len() * std::mem::size_of::<f32>()))) }
@@ -174,4 +173,11 @@ fn main() {
 );
     println!("{}", ((bag).values).len() as i64);
     println!("{}", calls);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

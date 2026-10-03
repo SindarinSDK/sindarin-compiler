@@ -443,7 +443,6 @@ fn parameterValue(value: SnString) -> i64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut subject: SnString = SnString::from_slice(&[0x74, 0x6f, 0x6b, 0x65, 0x6e]);
     let mut statementCalls: i64 = 0;
     {
@@ -628,4 +627,11 @@ fn main() {
     let mut greeting: SnString = SnString::from_slice(&[0x68, 0xc3, 0xa9, 0x6c, 0x6c, 0x6f]);
     println!("{}", (Matcher::staticValue(greeting.clone()) && (greeting == SnString::from_slice(&[0x68, 0xc3, 0xa9, 0x6c, 0x6c, 0x6f]))));
     println!("{}", ((parameterValue(subject.clone()) == 7) && (subject == SnString::from_slice(&[0x74, 0x6f, 0x6b, 0x65, 0x6e]))));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

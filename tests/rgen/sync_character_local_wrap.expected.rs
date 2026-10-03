@@ -102,7 +102,6 @@ macro_rules! println {
 
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let value: __sn_concurrency0_Cell<char> = __sn_concurrency0_Cell::new('\u{0}');
     { let __sn_concurrency0_gate = value.guard(); let mut __sn_concurrency0_value = value.lock().unwrap_or_else(|e| e.into_inner()); let __sn_concurrency0_previous = *__sn_concurrency0_value; *__sn_concurrency0_value = ((*__sn_concurrency0_value as u32 as u8).wrapping_sub(1)) as char; __sn_concurrency0_previous };
     let mut last: char = { let value = value.lock().unwrap_or_else(|e| e.into_inner()).clone(); value };
@@ -115,4 +114,11 @@ fn main() {
     println!("0x{:02X}", ({ let value = byteValue.lock().unwrap_or_else(|e| e.into_inner()).clone(); value } as u32));
     println!("0x{:02X}", ({ let __sn_concurrency0_gate = byteValue.guard(); let mut __sn_concurrency0_value_guard = byteValue.lock().unwrap_or_else(|e| e.into_inner()); { let __sn_byte_place = &mut ((*__sn_concurrency0_value_guard)); let __sn_byte_previous = *__sn_byte_place; *__sn_byte_place = __sn_byte_previous.wrapping_sub(1); __sn_byte_previous } } as u32));
     println!("0x{:02X}", ({ let value = byteValue.lock().unwrap_or_else(|e| e.into_inner()).clone(); value } as u32));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

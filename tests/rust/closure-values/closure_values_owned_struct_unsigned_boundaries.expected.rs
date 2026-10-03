@@ -143,7 +143,6 @@ struct Boundaries {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut max: u32 = 4294967295;
     let mut state: Boundaries = Boundaries { add: max, subtract: 0, multiply: 2147483648, divide: max, modulo: max, increment: max, decrement: 0 };
     let mut mutate: __SnClosure<dyn Fn() -> bool> = { let (state, max, ) = (state.clone(), max.clone(), ); self::__SnClosure::<dyn Fn() -> bool>(std::rc::Rc::new(move || -> bool { let mut state = state.clone(); { let (__sn_byte_rhs, __sn_byte_place): (u32, &mut u32) = (1, &mut ((state).add)); let __sn_byte_next = (*__sn_byte_place).wrapping_add(__sn_byte_rhs); *__sn_byte_place = __sn_byte_next; __sn_byte_next };{ let (__sn_byte_rhs, __sn_byte_place): (u32, &mut u32) = (1, &mut ((state).subtract)); let __sn_byte_next = (*__sn_byte_place).wrapping_sub(__sn_byte_rhs); *__sn_byte_place = __sn_byte_next; __sn_byte_next };{ let (__sn_byte_rhs, __sn_byte_place): (u32, &mut u32) = (2, &mut ((state).multiply)); let __sn_byte_next = (*__sn_byte_place).wrapping_mul(__sn_byte_rhs); *__sn_byte_place = __sn_byte_next; __sn_byte_next };{ let (__sn_byte_rhs, __sn_byte_place): (u32, &mut u32) = (2, &mut ((state).divide)); let __sn_byte_next = *__sn_byte_place / __sn_byte_rhs; *__sn_byte_place = __sn_byte_next; __sn_byte_next };{ let (__sn_byte_rhs, __sn_byte_place): (u32, &mut u32) = (2, &mut ((state).modulo)); let __sn_byte_next = *__sn_byte_place % __sn_byte_rhs; *__sn_byte_place = __sn_byte_next; __sn_byte_next };let mut incrementBefore: u32 = { let __sn_byte_place = &mut ((state).increment); let __sn_byte_previous = *__sn_byte_place; *__sn_byte_place = __sn_byte_previous.wrapping_add(1); __sn_byte_previous };let mut decrementBefore: u32 = { let __sn_byte_place = &mut ((state).decrement); let __sn_byte_previous = *__sn_byte_place; *__sn_byte_place = __sn_byte_previous.wrapping_sub(1); __sn_byte_previous };let mut result: bool = (((state.clone()).add == 0) && ((state.clone()).subtract == max.clone()));(result = ((result && ((state.clone()).multiply == 0)) && ((state.clone()).divide == 2147483647)));(result = (result && ((state.clone()).modulo == 1)));(result = ((result && (incrementBefore == max.clone())) && ((state.clone()).increment == 0)));(result = ((result && (decrementBefore == 0)) && ((state.clone()).decrement == max.clone())));return result;})) }
@@ -151,4 +150,11 @@ fn main() {
     println!("{}", ((mutate.clone()).0)());
     println!("{}", ((mutate.clone()).0)());
     println!("{}", ((state).add == max));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

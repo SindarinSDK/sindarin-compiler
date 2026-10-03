@@ -128,6 +128,12 @@ fn right__score() -> i64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     println!("{}", __sn_checked_0((left__score()).checked_add(right__score()), "Runtime error: integer overflow in addition"));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

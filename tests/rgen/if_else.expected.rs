@@ -92,7 +92,6 @@ macro_rules! println {
 
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut true_branch: i64 = 0;
     if true {
         (true_branch = 10);
@@ -112,4 +111,11 @@ fn main() {
         (no_else = 100);
     }
     println!("{}", no_else);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

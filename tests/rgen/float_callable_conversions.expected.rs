@@ -118,7 +118,6 @@ impl FloatMethods {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut number: f64 = 16777217.0;
     let mut small: f32 = 1.5;
     println!("{:.5}", FloatMethods::accept(((number) as f32)));
@@ -136,4 +135,11 @@ fn main() {
     let mut doubleArgument: __SnClosure<dyn Fn(f64) -> f64> = { self::__SnClosure::<dyn Fn(f64) -> f64>(std::rc::Rc::new(move |value: f64| -> f64 { value.clone()})) }
 ;
     println!("{:.5}", ((doubleArgument.clone()).0)(((small) as f64).clone()));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

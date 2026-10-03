@@ -141,7 +141,6 @@ fn forwardInstance(value: &mut bool) -> bool {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut readValue: bool = true;
     let mut freeValue: bool = true;
     let mut holder: Holder = Holder { state: State { enabled: false } };
@@ -156,4 +155,11 @@ fn main() {
     println!("{}", ((!(ops).instanceToggle(&mut (instanceValue))) && instanceValue));
     println!("{}", ((!forwardStatic(&mut (forwardedStatic))) && (!forwardedStatic)));
     println!("{}", (forwardInstance(&mut (forwardedInstance)) && forwardedInstance));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

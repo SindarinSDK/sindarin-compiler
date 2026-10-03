@@ -341,7 +341,6 @@ struct Point {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut source: Vec<Point> = vec![Point { x: 1, y: 10 }, Point { x: 2, y: 20 }];
     let mut copied: Vec<Point> = (source).clone();
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", (source).len() as i64)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", (copied).len() as i64)); __sn_interpolated }));
@@ -351,4 +350,11 @@ fn main() {
     { let __sn_array_index = __sn_index((copied).len(), 1); (copied)[__sn_array_index] = Point { x: 200, y: 2000 }; };
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", ((source)[__sn_index((source).len(), 0)]).x)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", ((source)[__sn_index((source).len(), 1)]).y)); __sn_interpolated }));
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", ((copied)[__sn_index((copied).len(), 0)]).x)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", ((copied)[__sn_index((copied).len(), 1)]).y)); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

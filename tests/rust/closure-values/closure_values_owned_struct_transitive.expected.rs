@@ -137,7 +137,6 @@ struct Counter {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut state: Counter = Counter { value: 10 };
     let mut outer: __SnClosure<dyn Fn() -> __SnClosure<dyn Fn(i64) -> i64>> = { let (state, ) = (state.clone(), ); self::__SnClosure::<dyn Fn() -> __SnClosure<dyn Fn(i64) -> i64>>(std::rc::Rc::new(move || -> __SnClosure<dyn Fn(i64) -> i64> { let mut state = state.clone(); { let __sn_rhs = 1; let __sn_place = &mut ((state).value); let __sn_next = __sn_checked_0((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };return { let (state, ) = (state.clone(), ); self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |delta: i64| -> i64 { let mut state = state.clone(); { let __sn_rhs = delta; let __sn_place = &mut ((state).value); let __sn_next = __sn_checked_0((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };return (state.clone()).value;})) }
 ;})) }
@@ -148,4 +147,11 @@ fn main() {
     println!("{}", ((first.clone()).0)(3));
     println!("{}", ((second.clone()).0)(4));
     println!("{}", (state).value);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

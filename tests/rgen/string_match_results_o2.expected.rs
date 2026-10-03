@@ -419,7 +419,6 @@ fn chooseForReturn(value: bool, fallback: SnString) -> SnString {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut variableResult: SnString = SnString::from_slice(&[0x76, 0x61, 0x72, 0x69, 0x61, 0x62, 0x6c, 0x65]);
     let mut fallbackResult: SnString = SnString::from_slice(&[0x66, 0x61, 0x6c, 0x6c, 0x62, 0x61, 0x63, 0x6b]);
     let mut r#box: ResultBox = ResultBox { label: SnString::from_slice(&[0x6d, 0x65, 0x6d, 0x62, 0x65, 0x72]), rows: vec![vec![SnString::from_slice(&[0x7a, 0x65, 0x72, 0x6f]), SnString::from_slice(&[0x6f, 0x6e, 0x65])], vec![SnString::from_slice(&[0x74, 0x77, 0x6f]), SnString::from_slice(&[0x74, 0x68, 0x72, 0x65, 0x65])]] };
@@ -639,4 +638,11 @@ fn main() {
     __sn_print_string(&(SnString::from_slice(&[0x6e, 0x65, 0x73, 0x74, 0x65, 0x64, 0x5b])));
     __sn_print_string(&(escapedNested));
     __sn_println_string(&(SnString::from_slice(&[0x5d])));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

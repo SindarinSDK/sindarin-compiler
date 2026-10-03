@@ -363,7 +363,6 @@ impl Holder {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut offset: i64 = 10;
     let mut holder: Holder = Holder { action: { let (offset, ) = (offset.clone(), ); self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |value: i64| -> i64 { __sn_checked_0((value).checked_add(offset.clone()), "Runtime error: integer overflow in addition")})) }
  };
@@ -371,4 +370,11 @@ fn main() {
     ((holder).action = { self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |value: i64| -> i64 { __sn_checked_0((value).checked_add(100), "Runtime error: integer overflow in addition")})) }
 );
     __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", (holder).apply(1))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", (copied).apply(2))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x0a]))); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

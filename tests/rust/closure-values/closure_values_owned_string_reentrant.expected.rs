@@ -364,7 +364,6 @@ fn invoke(callback: __SnClosure<dyn Fn(i64) -> SnString>, depth: i64) -> SnStrin
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let trace: std::rc::Rc<std::cell::RefCell<SnString>> = std::rc::Rc::new(std::cell::RefCell::new(SnString::from_slice(&[0x72])));
     let calls: std::rc::Rc<std::cell::Cell<i64>> = std::rc::Rc::new(std::cell::Cell::new(0));
     let mut action: __SnClosure<dyn Fn(i64) -> SnString> = { let (trace, calls, ) = (trace.clone(), calls.clone(), ); self::__SnClosure::<dyn Fn(i64) -> SnString>::recursive(move |action| std::rc::Rc::new(move |depth: i64| -> SnString { { let (__sn_string_part, __sn_cell) = ((SnString::from_slice(&[0x61])).clone(), &trace); let mut __sn_string_place = __sn_cell.borrow_mut(); __sn_string_place.push_str(&__sn_string_part); (*__sn_string_place).clone() };{ let __sn_cell = &calls; let __sn_previous = __sn_cell.get(); let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); __sn_cell.set(__sn_next); __sn_previous };if (depth > 0) {
@@ -376,4 +375,11 @@ fn main() {
     __sn_println_string(&(((action.clone()).0)(1)));
     println!("{}", calls.get());
     __sn_println_string(&(trace.borrow().clone()));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

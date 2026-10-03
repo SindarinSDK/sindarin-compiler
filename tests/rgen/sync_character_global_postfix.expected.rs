@@ -105,7 +105,6 @@ macro_rules! println {
 
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     std::sync::LazyLock::force(&__sn_concurrency0_global_value);
     std::sync::LazyLock::force(&__sn_concurrency0_global_wrap);
     println!("{}", ({ let __sn_concurrency0_gate = __sn_concurrency0_global_value.guard(); let mut __sn_concurrency0_value = __sn_concurrency0_global_value.lock().unwrap_or_else(|e| e.into_inner()); let __sn_concurrency0_previous = *__sn_concurrency0_value; *__sn_concurrency0_value = ((*__sn_concurrency0_value as u32 as u8).wrapping_add(1)) as char; drop(__sn_concurrency0_value); drop(__sn_concurrency0_gate); { let value = __sn_concurrency0_global_value.lock().unwrap_or_else(|e| e.into_inner()).clone(); value } } == '\u{42}'));
@@ -117,4 +116,11 @@ fn main() {
     println!("{}", ({ let value = __sn_concurrency0_global_wrap.lock().unwrap_or_else(|e| e.into_inner()).clone(); value } == '\u{0}'));
     println!("{}", ({ let __sn_concurrency0_gate = __sn_concurrency0_global_wrap.guard(); let mut __sn_concurrency0_value = __sn_concurrency0_global_wrap.lock().unwrap_or_else(|e| e.into_inner()); let __sn_concurrency0_previous = *__sn_concurrency0_value; *__sn_concurrency0_value = ((*__sn_concurrency0_value as u32 as u8).wrapping_sub(1)) as char; drop(__sn_concurrency0_value); drop(__sn_concurrency0_gate); { let value = __sn_concurrency0_global_wrap.lock().unwrap_or_else(|e| e.into_inner()).clone(); value } } == last));
     println!("{}", ({ let value = __sn_concurrency0_global_wrap.lock().unwrap_or_else(|e| e.into_inner()).clone(); value } == last));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

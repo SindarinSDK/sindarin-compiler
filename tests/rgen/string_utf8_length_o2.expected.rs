@@ -312,7 +312,6 @@ fn __sn_string_to_double(value: &SnString) -> f64 {
 
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut ascii: SnString = SnString::from_slice(&[0x41, 0x53, 0x43, 0x49, 0x49]);
     let mut accent: SnString = SnString::from_slice(&[0xc3, 0xa9]);
     let mut world: SnString = SnString::from_slice(&[0xe4, 0xb8, 0x96, 0xe7, 0x95, 0x8c]);
@@ -320,4 +319,11 @@ fn main() {
     let mut decomposed: SnString = SnString::from_slice(&[0x65, 0xcc, 0x81]);
     let mut controls: SnString = SnString::from_slice(&[0x0a, 0x09, 0x0d, 0x1f]);
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", (ascii).len() as i64)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", (accent).len() as i64)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", (world).len() as i64)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", (emoji).len() as i64)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", (decomposed).len() as i64)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", (controls).len() as i64)); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

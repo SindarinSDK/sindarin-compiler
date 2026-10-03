@@ -143,9 +143,15 @@ fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut values: Vec<u8> = vec![255];
     for mut value in (values).iter().cloned() {
         { let (__sn_byte_rhs, __sn_byte_place): (u8, &mut u8) = (1, &mut (value)); let __sn_byte_next = (*__sn_byte_place).wrapping_add(__sn_byte_rhs); *__sn_byte_place = __sn_byte_next; __sn_byte_next };
+    }
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
     }
 }

@@ -161,7 +161,6 @@ fn observe(values: &mut Vec<i64>) -> i64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut bags: Vec<Bag> = vec![];
     (bags).push(Bag { values: vec![1] });
     let mut calls: i64 = 0;
@@ -169,4 +168,11 @@ fn main() {
     let mut shelves: Vec<Shelf> = vec![Shelf { bags: bags.clone() }];
     println!("{}", observe({ let __sn_place_raw_index_1 = nextIndex(&mut (calls)); let __sn_place_raw_index_2 = nextIndex(&mut (calls)); &mut (({ let __sn_place_owner_2 = &mut (({ let __sn_place_owner_1 = &mut (shelves); let __sn_place_index_1 = __sn_index(__sn_place_owner_1.len(), __sn_place_raw_index_1); &mut __sn_place_owner_1[__sn_place_index_1] }).bags); let __sn_place_index_2 = __sn_index(__sn_place_owner_2.len(), __sn_place_raw_index_2); &mut __sn_place_owner_2[__sn_place_index_2] }).values) }));
     println!("{}", calls);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

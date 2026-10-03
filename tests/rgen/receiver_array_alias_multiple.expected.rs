@@ -402,7 +402,6 @@ impl Buckets {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut direct: Buckets = Buckets { left: vec![1], right: vec![10] };
     println!("{}", (direct).__sn_receiver_array_alias_0());
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x64, 0x69, 0x72, 0x65, 0x63, 0x74, 0x3a]))); __sn_interpolated.push_str(&format!("{}", ((direct).left).len() as i64)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", ((direct).right).len() as i64)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", ((direct).left)[__sn_index(((direct).left).len(), 1)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", ((direct).right)[__sn_index(((direct).right).len(), 1)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", ((direct).right)[__sn_index(((direct).right).len(), 2)])); __sn_interpolated }));
@@ -412,4 +411,11 @@ fn main() {
     let mut same: Buckets = Buckets { left: vec![1], right: vec![10] };
     println!("{}", (same).__sn_receiver_array_alias_2());
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x73, 0x61, 0x6d, 0x65, 0x3a]))); __sn_interpolated.push_str(&format!("{}", ((same).left).len() as i64)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", ((same).left)[__sn_index(((same).left).len(), 1)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", ((same).left)[__sn_index(((same).left).len(), 2)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", ((same).left)[__sn_index(((same).left).len(), 3)])); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

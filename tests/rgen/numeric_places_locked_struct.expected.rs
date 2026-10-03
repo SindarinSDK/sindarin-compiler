@@ -113,7 +113,6 @@ struct Outer {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     std::sync::LazyLock::force(&__sn_concurrency0_global_gate);
     let mut outer: Outer = Outer { inner: Inner { value: 4 } };
     { let __sn_concurrency0_lock_guard = __sn_concurrency0_global_gate.guard(); {
@@ -124,4 +123,11 @@ fn main() {
 
     println!("{}", ((outer).inner).value);
     println!("{}", { let value = __sn_concurrency0_global_gate.lock().unwrap_or_else(|e| e.into_inner()).clone(); value });
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

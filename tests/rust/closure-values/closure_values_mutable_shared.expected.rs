@@ -138,7 +138,6 @@ fn makeCounter() -> __SnClosure<dyn Fn() -> i64> {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let count: std::rc::Rc<std::cell::Cell<i64>> = std::rc::Rc::new(std::cell::Cell::new(1));
     let mut read: __SnClosure<dyn Fn() -> i64> = { let (count, ) = (count.clone(), ); self::__SnClosure::<dyn Fn() -> i64>(std::rc::Rc::new(move || -> i64 { count.get().clone()})) }
 ;
@@ -164,4 +163,11 @@ fn main() {
     println!("{}", ((first.clone()).0)());
     println!("{}", ((first.clone()).0)());
     println!("{}", ((second.clone()).0)());
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

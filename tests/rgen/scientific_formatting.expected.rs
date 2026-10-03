@@ -453,7 +453,6 @@ fn __sn_format_scientific(value: f64, precision: usize, uppercase: bool,
 
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut large: f64 = 1234.5;
     let mut small: f64 = 0.00125;
     let mut negative: f64 = (-42.0);
@@ -478,4 +477,11 @@ fn main() {
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x63, 0x6f, 0x6d, 0x62, 0x69, 0x6e, 0x65, 0x64, 0x3d, 0x7c]))); __sn_interpolated.push_str(&__sn_format_scientific((large) as f64, 2, true, 14, true, true, false, true, false)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated }));
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x69, 0x6e, 0x66, 0x69, 0x6e, 0x69, 0x74, 0x79, 0x3d, 0x7c]))); __sn_interpolated.push_str(&__sn_format_scientific((infinity) as f64, 2, false, 10, false, true, false, true, false)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated }));
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x6e, 0x65, 0x67, 0x61, 0x74, 0x69, 0x76, 0x65, 0x2d, 0x69, 0x6e, 0x66, 0x69, 0x6e, 0x69, 0x74, 0x79, 0x3d, 0x7c]))); __sn_interpolated.push_str(&__sn_format_scientific((negative_infinity) as f64, 2, true, 10, true, false, false, true, false)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

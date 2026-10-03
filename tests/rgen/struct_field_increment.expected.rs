@@ -357,10 +357,16 @@ impl Counter {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut counter: Counter = Counter { value: 5 };
     let mut beforeIncrement: i64 = (counter).advance();
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x69, 0x6e, 0x63, 0x72, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x3d]))); __sn_interpolated.push_str(&format!("{}", beforeIncrement)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2d, 0x3e]))); __sn_interpolated.push_str(&format!("{}", (counter).value)); __sn_interpolated }));
     let mut beforeDecrement: i64 = (counter).previous();
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x64, 0x65, 0x63, 0x72, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x3d]))); __sn_interpolated.push_str(&format!("{}", beforeDecrement)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2d, 0x3e]))); __sn_interpolated.push_str(&format!("{}", (counter).value)); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

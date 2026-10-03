@@ -381,8 +381,14 @@ fn makeCollector() -> __SnClosure<dyn Fn(SnString) -> SnString> {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut collect: __SnClosure<dyn Fn(SnString) -> SnString> = makeCollector();
     __sn_println_string(&(((collect.clone()).0)(SnString::from_slice(&[0x73, 0x65, 0x63, 0x6f, 0x6e, 0x64]))));
     __sn_println_string(&(((collect.clone()).0)(SnString::from_slice(&[0x74, 0x68, 0x69, 0x72, 0x64]))));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

@@ -157,7 +157,6 @@ fn index(calls: &mut i64, result: i64) -> i64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut calls: i64 = 0;
     let mut rows: Vec<Vec<i64>> = vec![vec![10, 20], vec![30, 40]];
     println!("{}", { let __sn_numeric_old: i64 = { let __sn_place_raw_index_3 = index(&mut (calls), 1); let __sn_place_index_3 = if __sn_place_raw_index_3 < 0 { __sn_place_raw_index_3 + (rows).len() as i64 } else { __sn_place_raw_index_3 }; let __sn_place_raw_index_4 = index(&mut (calls), 0); let __sn_place_index_4 = if __sn_place_raw_index_4 < 0 { let __sn_place_raw_index_5 = index(&mut (calls), 1); let __sn_place_index_5 = if __sn_place_raw_index_5 < 0 { __sn_place_raw_index_5 + (rows).len() as i64 } else { __sn_place_raw_index_5 }; __sn_place_raw_index_4 + ((rows)[__sn_place_index_5 as usize]).len() as i64 } else { __sn_place_raw_index_4 }; ((rows)[__sn_place_index_3 as usize])[__sn_place_index_4 as usize] }; let __sn_numeric_rhs: i64 = (((5i128) as i64)) as i64; let __sn_numeric_next: i64 = (__sn_numeric_old as i64).wrapping_add(__sn_numeric_rhs) as i64; let __sn_place_raw_index_0 = index(&mut (calls), 1); let __sn_place_index_0 = if __sn_place_raw_index_0 < 0 { __sn_place_raw_index_0 + (rows).len() as i64 } else { __sn_place_raw_index_0 }; let __sn_place_raw_index_1 = index(&mut (calls), 0); let __sn_place_index_1 = if __sn_place_raw_index_1 < 0 { let __sn_place_raw_index_2 = index(&mut (calls), 1); let __sn_place_index_2 = if __sn_place_raw_index_2 < 0 { __sn_place_raw_index_2 + (rows).len() as i64 } else { __sn_place_raw_index_2 }; __sn_place_raw_index_1 + ((rows)[__sn_place_index_2 as usize]).len() as i64 } else { __sn_place_raw_index_1 }; let __sn_numeric_place: &mut i64 = &mut (((rows)[__sn_place_index_0 as usize])[__sn_place_index_1 as usize]); *__sn_numeric_place = __sn_numeric_next; __sn_numeric_next });
@@ -177,4 +176,11 @@ fn main() {
     println!("{}", calls);
     println!("{}", { let __sn_place_raw_index_17 = 0; let __sn_place_index_17 = if __sn_place_raw_index_17 < 0 { __sn_place_raw_index_17 + (outers).len() as i64 } else { __sn_place_raw_index_17 }; let __sn_numeric_place_4: &mut i64 = &mut ((((outers)[__sn_place_index_17 as usize]).inner).value); let __sn_numeric_old_4 = *__sn_numeric_place_4; *__sn_numeric_place_4 = (__sn_numeric_old_4 as i64).wrapping_sub(1) as i64; __sn_numeric_old_4 });
     println!("{}", (((outers)[__sn_index((outers).len(), 0)]).inner).value);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

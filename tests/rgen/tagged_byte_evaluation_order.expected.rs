@@ -126,9 +126,15 @@ fn operand(trace: &mut i64, value: u8) -> u8 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut trace: i64 = 1;
     let mut result: u8 = { let (__sn_byte_left, __sn_byte_right): (u8, u8) = (operand(&mut (trace), 255), operand(&mut (trace), 1)); __sn_byte_left.wrapping_add(__sn_byte_right) };
     println!("{}", trace);
     println!("{}", (result == 0));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

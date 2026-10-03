@@ -312,9 +312,15 @@ fn __sn_string_to_double(value: &SnString) -> f64 {
 
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     println!("{}", ((-(1 as i64) as i64) == (4294967295 as i64)));
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", -(1 as i64))); __sn_interpolated }));
     println!("{}", -(!(1 as i64) as i64));
     println!("{}", ((-(!(1 as i64) as i64) as i64) == (2 as i64)));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

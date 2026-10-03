@@ -335,7 +335,6 @@ fn __sn_array_size(size: i64) -> usize {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut names: Vec<SnString> = vec![SnString::from_slice(&[0x61, 0x6c, 0x70, 0x68, 0x61]), SnString::from_slice(&[0x62, 0x65, 0x74, 0x61])];
     let mut decorated: Vec<SnString> = vec![];
     for mut name in (names).iter().cloned() {
@@ -345,4 +344,11 @@ fn main() {
     __sn_println_string(&((names)[__sn_index((names).len(), 1)]));
     __sn_println_string(&((decorated)[__sn_index((decorated).len(), 0)]));
     __sn_println_string(&((decorated)[__sn_index((decorated).len(), 1)]));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

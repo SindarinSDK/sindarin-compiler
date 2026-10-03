@@ -159,9 +159,15 @@ fn makeFrom(item: Item) -> Item {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut items: Vec<Item> = vec![];
     (items).push(Item { value: 1 });
     println!("{}", { let __sn_resolved_receiver_3 = & (makeFrom((items)[__sn_index((items).len(), 0)])); let __sn_resolved_array_0 = &mut (items); let __sn_resolved_index_1 = __sn_index((__sn_resolved_array_0).len(), 0); let __sn_resolved_arg_2 = &mut (__sn_resolved_array_0)[__sn_resolved_index_1];(__sn_resolved_receiver_3).op_lt(__sn_resolved_arg_2) });
     println!("{}", ((items)[__sn_index((items).len(), 0)]).value);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

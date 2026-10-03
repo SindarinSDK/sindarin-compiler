@@ -1,0 +1,7 @@
+@source "builtin_exit_hooks.c"
+native fn arm_exit_hooks(): int32
+
+fn main(): int =>
+  assert(arm_exit_hooks() == 0, "stdio and atexit setup")
+  println("integer fallthrough")
+  var result: int = 0

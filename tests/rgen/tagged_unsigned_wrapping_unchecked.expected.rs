@@ -92,7 +92,6 @@ macro_rules! println {
 
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut u32_value: u32 = 4294967295;
     println!("{}", { let __sn_byte_place = &mut (u32_value); let __sn_byte_previous = *__sn_byte_place; *__sn_byte_place = __sn_byte_previous.wrapping_add(1); __sn_byte_previous });
     println!("{}", u32_value);
@@ -104,4 +103,11 @@ fn main() {
     println!("{}", (u_value as i64));
     { let (__sn_byte_rhs, __sn_byte_place): (u64, &mut u64) = (1, &mut (u_value)); let __sn_byte_next = (*__sn_byte_place).wrapping_sub(__sn_byte_rhs); *__sn_byte_place = __sn_byte_next; __sn_byte_next };
     println!("{}", (u_value as i64));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

@@ -340,10 +340,16 @@ fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut numerator: i64 = 1000;
     let mut zero: u8 = 0;
     __sn_println_string(&(SnString::from_slice(&[0x62, 0x65, 0x66, 0x6f, 0x72, 0x65])));
     println!("{}", { let (__sn_left, __sn_right): (i64, i64) = ((numerator) as i64, (zero) as i64); __sn_checked_div_0(__sn_left.checked_div(__sn_right), __sn_right == 0) }
 );
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

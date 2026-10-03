@@ -324,7 +324,13 @@ impl Stopper {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     Stopper::stop(0);
     __sn_println_string(&(SnString::from_slice(&[0x75, 0x6e, 0x72, 0x65, 0x61, 0x63, 0x68, 0x61, 0x62, 0x6c, 0x65])));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

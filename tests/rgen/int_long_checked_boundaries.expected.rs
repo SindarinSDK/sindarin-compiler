@@ -340,7 +340,6 @@ fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut int_max_minus_one: i64 = 9223372036854775806;
     let mut int_one: i64 = 1;
     let mut int_max: i64 = __sn_checked_0((int_max_minus_one).checked_add(int_one), "Runtime error: integer overflow in addition");
@@ -365,5 +364,12 @@ fn main() {
         __sn_println_string(&(SnString::from_slice(&[0x6f, 0x6b])));
     } else {
         __sn_println_string(&(SnString::from_slice(&[0x77, 0x72, 0x6f, 0x6e, 0x67])));
+    }
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
     }
 }

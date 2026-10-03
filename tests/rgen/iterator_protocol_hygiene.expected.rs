@@ -372,7 +372,6 @@ fn selectSource(calls: &mut i64) -> HygieneSource {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut __sn_iter: i64 = 41;
     let mut __sn_iter_0: i64 = 42;
     let mut evaluations: i64 = 0;
@@ -392,4 +391,11 @@ fn main() {
     }
 }
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x66, 0x69, 0x6e, 0x61, 0x6c, 0x3d]))); __sn_interpolated.push_str(&format!("{}", __sn_iter)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20, 0x63, 0x61, 0x6e, 0x64, 0x69, 0x64, 0x61, 0x74, 0x65, 0x2d, 0x66, 0x69, 0x6e, 0x61, 0x6c, 0x3d]))); __sn_interpolated.push_str(&format!("{}", __sn_iter_0)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20, 0x65, 0x76, 0x61, 0x6c, 0x75, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x3d]))); __sn_interpolated.push_str(&format!("{}", evaluations)); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

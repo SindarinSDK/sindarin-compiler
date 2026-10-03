@@ -357,6 +357,13 @@ fn main() {
         __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", (negative_bounds).len() as i64)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", (negative_bounds)[__sn_index((negative_bounds).len(), 0)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", (negative_bounds)[__sn_index((negative_bounds).len(), 2)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x0a]))); __sn_interpolated }));
         __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", (beyond_start).len() as i64)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", (before_end).len() as i64)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", (empty).len() as i64)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x0a]))); __sn_interpolated }));
         return 0;
+        unsafe {
+            #[cfg(windows)]
+            let stream = crate::__sn_stdio_iob(1);
+            #[cfg(not(windows))]
+            let stream = crate::__sn_stdio_stdout;
+            crate::__sn_stdio_fflush(stream);
+        }
         return 0;
     })() as i32);
 }

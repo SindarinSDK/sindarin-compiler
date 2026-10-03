@@ -125,8 +125,14 @@ fn zero(calls: &mut i64) -> u64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut calls: i64 = 0;
     println!("{}", ((-(1 as i64) as u32) > (zero(&mut (calls)) as u32)));
     println!("{}", calls);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

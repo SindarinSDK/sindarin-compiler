@@ -476,7 +476,6 @@ fn __sn_format_scientific(value: f64, precision: usize, uppercase: bool,
 
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut source: Vec<char> = vec!['\u{41}', '\u{9}', '\u{0}', '\u{7a}'];
     let mut copied: Vec<char> = (source).clone();
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", (source).len() as i64)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", (copied).len() as i64)); __sn_interpolated }));
@@ -486,4 +485,11 @@ fn main() {
     { let __sn_array_index = __sn_index((copied).len(), 3); (copied)[__sn_array_index] = '\u{43}'; };
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&__sn_format_character((source)[__sn_index((source).len(), 0)], 0, false)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&__sn_format_character((source)[__sn_index((source).len(), 3)], 0, false)); __sn_interpolated }));
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&__sn_format_character((copied)[__sn_index((copied).len(), 0)], 0, false)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&__sn_format_character((copied)[__sn_index((copied).len(), 3)], 0, false)); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

@@ -503,11 +503,17 @@ impl __SnArrayText_0 for Playlist {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut playlist: Playlist = Playlist { names: vec![SnString::from_slice(&[0x6f, 0x6e, 0x65]), SnString::from_slice(&[0x74, 0x77, 0x6f]), SnString::from_slice(&[0x74, 0x68, 0x72, 0x65, 0x65])], replacement: SnString::from_slice(&[0x73, 0x74, 0x6f, 0x72, 0x65, 0x64]) };
     let mut first: SnString = SnString::from_slice(&[0x66, 0x69, 0x72, 0x73, 0x74]);
     (playlist).replace(0, first.clone());
     (playlist).replaceWithStored(1);
     (playlist).replaceLast(SnString::from_slice(&[0x6c, 0x61, 0x73, 0x74]));
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x6e, 0x61, 0x6d, 0x65, 0x73, 0x3d]))); __sn_interpolated.push_str(&__sn_array_to_string_0(&((playlist).names))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3b, 0x20, 0x72, 0x65, 0x70, 0x6c, 0x61, 0x63, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x3d]))); __sn_interpolated.push_str(&((playlist).replacement)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3b, 0x20, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x3d]))); __sn_interpolated.push_str(&(first)); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

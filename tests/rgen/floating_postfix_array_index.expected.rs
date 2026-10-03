@@ -115,7 +115,13 @@ fn __sn_array_size(size: i64) -> usize {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut values: Vec<f32> = vec![1.0];
     { let __sn_place_raw_index_0 = 0; let __sn_place_index_0 = if __sn_place_raw_index_0 < 0 { __sn_place_raw_index_0 + (values).len() as i64 } else { __sn_place_raw_index_0 }; let __sn_numeric_place: &mut f32 = &mut ((values)[__sn_place_index_0 as usize]); let __sn_numeric_old = *__sn_numeric_place; *__sn_numeric_place = ((__sn_numeric_old as f32) + 1.0) as f32; __sn_numeric_old };
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

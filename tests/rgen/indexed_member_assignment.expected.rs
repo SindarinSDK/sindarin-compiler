@@ -382,7 +382,6 @@ impl Shelf {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut holder: Holder = Holder { bags: vec![Bag { values: vec![1, 2] }] };
     (holder).replaceSelected();
     println!("{}", ((((holder).bags)[__sn_index(((holder).bags).len(), 0)]).values)[__sn_index(((((holder).bags)[__sn_index(((holder).bags).len(), 0)]).values).len(), 0)]);
@@ -394,4 +393,11 @@ fn main() {
     println!("{}", ((((((shelf).rows)[__sn_index(((shelf).rows).len(), 0)]).bags)[__sn_index(((((shelf).rows)[__sn_index(((shelf).rows).len(), 0)]).bags).len(), 0)]).values)[__sn_index(((((((shelf).rows)[__sn_index(((shelf).rows).len(), 0)]).bags)[__sn_index(((((shelf).rows)[__sn_index(((shelf).rows).len(), 0)]).bags).len(), 0)]).values).len(), 0)]);
     println!("{}", ((((((shelf).rows)[__sn_index(((shelf).rows).len(), 1)]).bags)[__sn_index(((((shelf).rows)[__sn_index(((shelf).rows).len(), 1)]).bags).len(), 0)]).values)[__sn_index(((((((shelf).rows)[__sn_index(((shelf).rows).len(), 1)]).bags)[__sn_index(((((shelf).rows)[__sn_index(((shelf).rows).len(), 1)]).bags).len(), 0)]).values).len(), 0)]);
     println!("{}", ((((((shelf).rows)[__sn_index(((shelf).rows).len(), 1)]).bags)[__sn_index(((((shelf).rows)[__sn_index(((shelf).rows).len(), 1)]).bags).len(), 0)]).values)[__sn_index(((((((shelf).rows)[__sn_index(((shelf).rows).len(), 1)]).bags)[__sn_index(((((shelf).rows)[__sn_index(((shelf).rows).len(), 1)]).bags).len(), 0)]).values).len(), 1)]);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

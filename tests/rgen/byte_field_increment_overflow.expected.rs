@@ -125,7 +125,13 @@ struct Box {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut r#box: Box = Box { value: 255 };
     { let __sn_byte_place = &mut ((r#box).value); let __sn_byte_previous = *__sn_byte_place; *__sn_byte_place = __sn_byte_previous.wrapping_add(1); __sn_byte_previous };
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

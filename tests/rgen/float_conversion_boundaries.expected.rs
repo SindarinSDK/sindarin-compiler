@@ -170,7 +170,6 @@ fn acceptDouble(value: f64) {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut calls: i64 = 0;
     let mut base: f32 = ((16777216.0) as f32);
     let mut delta: f64 = 1.0;
@@ -201,4 +200,11 @@ fn main() {
     println!("{:.5}", (defaults)[__sn_index((defaults).len(), 0)]);
     println!("{:.5}", (defaults)[__sn_index((defaults).len(), 1)]);
     println!("{}", calls);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

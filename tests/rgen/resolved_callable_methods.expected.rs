@@ -397,7 +397,6 @@ fn returnComposed(dispatcher: Dispatcher, callback: __SnClosure<dyn Fn(i64) -> i
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut order: i64 = 0;
     let mut source: __SnClosure<dyn Fn(i64) -> i64> = { self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |value: i64| -> i64 { __sn_checked_0((value).checked_add(1), "Runtime error: integer overflow in addition")})) }
 ;
@@ -417,4 +416,11 @@ fn main() {
     let mut temporary: __SnClosure<dyn Fn(i64) -> i64> = Dispatcher::make(40);
     let mut temporaryApplied: i64 = Dispatcher::apply(temporary.clone(), 2);
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", ordered)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", temporaryApplied)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", order)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", ((source.clone()).0)(12))); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

@@ -160,7 +160,6 @@ fn choose(callback: __SnClosure<dyn Fn() -> i64>) -> i64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let values: std::rc::Rc<std::cell::RefCell<Vec<i64>>> = std::rc::Rc::new(std::cell::RefCell::new(vec![10, 20]));
     let mut reset: __SnClosure<dyn Fn() -> ()> = { let (values, ) = (values.clone(), ); self::__SnClosure::<dyn Fn() -> ()>(std::rc::Rc::new(move || -> () { { let (__sn_value, __sn_cell) = (vec![10, 20], &values); __sn_cell.replace(__sn_value.clone()); __sn_value };})) }
 ;
@@ -175,4 +174,11 @@ fn main() {
     println!("{}", (values.borrow().clone())[__sn_index((values.borrow().clone()).len(), 0)]);
     ((reset.clone()).0)();
     println!("{}", ((observe.clone()).0)());
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

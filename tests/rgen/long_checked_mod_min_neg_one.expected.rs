@@ -120,10 +120,16 @@ fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut base: i64 = (-9223372036854775807);
     let mut one: i64 = 1;
     let mut minimum: i64 = __sn_checked_0((base).checked_sub(one), "Runtime error: integer overflow in subtraction");
     let mut negative_one: i64 = (-1);
     let mut overflow: i64 = { let __sn_left = minimum; let __sn_right = negative_one; __sn_checked_mod_0(__sn_left.checked_rem(__sn_right), __sn_right == 0) };
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

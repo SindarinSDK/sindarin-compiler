@@ -345,7 +345,6 @@ fn bumpAndReturn(counter: &mut i64) -> i64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut negative: i64 = (-1);
     let mut as_long: i64 = (negative as i64);
     let mut as_uint: u64 = (negative as u64);
@@ -362,4 +361,11 @@ fn main() {
     let mut called_byte: u8 = (bumpAndReturn(&mut (counter)) as u8);
     let mut called_value: i64 = (called_byte as i64);
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", (((((((as_long == (-1)) && (as_uint == max_uint)) && (as_byte == 255)) && (as_int == 42)) && (widened == 200)) && (true_value == 1)) && (false_value == 0)))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", ((counter == 1) && (called_value == 255)))); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

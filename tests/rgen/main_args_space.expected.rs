@@ -335,8 +335,14 @@ fn __sn_array_size(size: i64) -> usize {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut args: Vec<SnString> = __sn_args();
     __sn_println_string(&((args)[__sn_index((args).len(), 1)]));
     __sn_println_string(&((args)[__sn_index((args).len(), 2)]));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

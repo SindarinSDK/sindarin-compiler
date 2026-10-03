@@ -369,7 +369,6 @@ fn marked(order: &mut i64, marker: i64) -> i64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut order: i64 = 0;
     let mut callback: __SnClosure<dyn Fn(i64) -> i64> = { self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |value: i64| -> i64 { __sn_checked_0((value).checked_add(1), "Runtime error: integer overflow in addition")})) }
 ;
@@ -378,4 +377,11 @@ fn main() {
     { callback = { self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |value: i64| -> i64 { __sn_checked_0((value).checked_add(100), "Runtime error: integer overflow in addition")})) }
 ; callback.clone() };
     println!("{}", ((callback.clone()).0)(1));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

@@ -471,7 +471,6 @@ fn make(calls: &mut i64) -> Vec<u8> {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     println!("{}", __sn_byte_encoding());
     println!("{}", __sn_byte_encoding_0());
     let mut calls: i64 = 0;
@@ -485,4 +484,11 @@ fn main() {
     let mut encode: __SnClosure<dyn Fn() -> SnString> = { let (captured, ) = (captured.clone(), ); self::__SnClosure::<dyn Fn() -> SnString>(std::rc::Rc::new(move || -> SnString { __sn_byte_encoding_1::base64(&(captured.clone()))})) }
 ;
     __sn_println_string(&(((encode.clone()).0)()));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

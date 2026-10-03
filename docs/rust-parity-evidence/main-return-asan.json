@@ -1,0 +1,399 @@
+{
+  "compiler_sha256": "89d7b10faede5168ea09a35342e2613a31c590d8b04903586431e9bd90ec3764",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "cases": [
+    {
+      "source": "tests/rust-native/main_return_fallthrough.sn",
+      "source_sha256": "cc03747dd8d44328deaea96cce949ae51f47c29619cc6f4d8992606abcc0db7f",
+      "arguments": [],
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rust-native/main_return_fallthrough.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-main-return-asan-sg1p2kmz/main_return_fallthrough.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f6d61696e5f72657475726e5f66616c6c7468726f7567682e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6d61696e2d72657475726e2d6173616e2d73673170326b6d7a2f6d61696e5f72657475726e5f66616c6c7468726f7567682e657865202838342e35204b42290a"
+      },
+      "run": {
+        "command": [
+          "/tmp/sn-main-return-asan-sg1p2kmz/main_return_fallthrough.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "6e61746976652d6265666f72650a626f64790a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+        "stderr_hex": "7374646572722d420a7374646572722d410a"
+      }
+    },
+    {
+      "source": "tests/rust-native/main_return_early.sn",
+      "source_sha256": "1167959737af04632d32f46c945cf053f0b364eae3d1a5b951d5ecd26d75d9d0",
+      "arguments": [],
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rust-native/main_return_early.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-main-return-asan-sg1p2kmz/main_return_early.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f6d61696e5f72657475726e5f6561726c792e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6d61696e2d72657475726e2d6173616e2d73673170326b6d7a2f6d61696e5f72657475726e5f6561726c792e657865202838372e31204b42290a"
+      },
+      "run": {
+        "command": [
+          "/tmp/sn-main-return-asan-sg1p2kmz/main_return_early.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "6e61746976652d6265666f72650a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+        "stderr_hex": "7374646572722d420a7374646572722d410a"
+      }
+    },
+    {
+      "source": "tests/rust-native/main_return_initializer.sn",
+      "source_sha256": "a6e3fb393cf11d790e523dddecb1389f726f15f7fc5afe7255b47dcea06ca5c3",
+      "arguments": [],
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rust-native/main_return_initializer.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-main-return-asan-sg1p2kmz/main_return_initializer.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f6d61696e5f72657475726e5f696e697469616c697a65722e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6d61696e2d72657475726e2d6173616e2d73673170326b6d7a2f6d61696e5f72657475726e5f696e697469616c697a65722e657865202838342e30204b42290a"
+      },
+      "run": {
+        "command": [
+          "/tmp/sn-main-return-asan-sg1p2kmz/main_return_initializer.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "6e61746976652d6265666f72650a696e697469616c697a65720a626f64790a34320a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+        "stderr_hex": "7374646572722d420a7374646572722d410a"
+      }
+    },
+    {
+      "source": "tests/rust-native/main_return_args.sn",
+      "source_sha256": "1d9388277d737cac6af9a21ece56dc657eace971a7f9bc4f344fa814a5a32f35",
+      "arguments": [
+        "argument"
+      ],
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rust-native/main_return_args.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-main-return-asan-sg1p2kmz/main_return_args.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f6d61696e5f72657475726e5f617267732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6d61696e2d72657475726e2d6173616e2d73673170326b6d7a2f6d61696e5f72657475726e5f617267732e657865202838372e33204b42290a"
+      },
+      "run": {
+        "command": [
+          "/tmp/sn-main-return-asan-sg1p2kmz/main_return_args.exe",
+          "argument"
+        ],
+        "status": 0,
+        "stdout_hex": "6e61746976652d6265666f72650a320a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+        "stderr_hex": "7374646572722d420a7374646572722d410a"
+      }
+    },
+    {
+      "source": "tests/rust-native/main_return_hygiene.sn",
+      "source_sha256": "0f2ed168826411f64397234ec43c073cc3e0ff14cc3819d1703f216f4fd3bd38",
+      "arguments": [],
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rust-native/main_return_hygiene.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-main-return-asan-sg1p2kmz/main_return_hygiene.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f6d61696e5f72657475726e5f68796769656e652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6d61696e2d72657475726e2d6173616e2d73673170326b6d7a2f6d61696e5f72657475726e5f68796769656e652e657865202838352e30204b42290a"
+      },
+      "run": {
+        "command": [
+          "/tmp/sn-main-return-asan-sg1p2kmz/main_return_hygiene.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "6e61746976652d6265666f72650a32380a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+        "stderr_hex": "7374646572722d420a7374646572722d410a"
+      }
+    },
+    {
+      "source": "tests/rust-native/main_return_integer_fallthrough.sn",
+      "source_sha256": "4b39d8d7d088e084a59341413358d3e1287b4f4d133d59bd164e3e6f88e9dc5b",
+      "arguments": [],
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rust-native/main_return_integer_fallthrough.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-main-return-asan-sg1p2kmz/main_return_integer_fallthrough.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f6d61696e5f72657475726e5f696e74656765725f66616c6c7468726f7567682e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6d61696e2d72657475726e2d6173616e2d73673170326b6d7a2f6d61696e5f72657475726e5f696e74656765725f66616c6c7468726f7567682e657865202838342e36204b42290a"
+      },
+      "run": {
+        "command": [
+          "/tmp/sn-main-return-asan-sg1p2kmz/main_return_integer_fallthrough.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "6e61746976652d6265666f72650a696e74656765722066616c6c7468726f7567680a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+        "stderr_hex": "7374646572722d420a7374646572722d410a"
+      }
+    },
+    {
+      "source": "tests/rust-native/main_return_integer.sn",
+      "source_sha256": "fc3dd85374170889fdffcbea5cb6f1b1b10a06ff10bf82b4964a56d79cb8a043",
+      "arguments": [
+        "0"
+      ],
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rust-native/main_return_integer.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-main-return-asan-sg1p2kmz/main_return_integer.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f6d61696e5f72657475726e5f696e74656765722e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6d61696e2d72657475726e2d6173616e2d73673170326b6d7a2f6d61696e5f72657475726e5f696e74656765722e657865202838372e39204b42290a"
+      },
+      "run": {
+        "command": [
+          "/tmp/sn-main-return-asan-sg1p2kmz/main_return_integer.exe",
+          "0"
+        ],
+        "status": 0,
+        "stdout_hex": "6e61746976652d6265666f72650a300a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+        "stderr_hex": "7374646572722d420a7374646572722d410a"
+      }
+    },
+    {
+      "source": "tests/rust-native/main_return_integer.sn",
+      "source_sha256": "fc3dd85374170889fdffcbea5cb6f1b1b10a06ff10bf82b4964a56d79cb8a043",
+      "arguments": [
+        "1"
+      ],
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rust-native/main_return_integer.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-main-return-asan-sg1p2kmz/main_return_integer.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f6d61696e5f72657475726e5f696e74656765722e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6d61696e2d72657475726e2d6173616e2d73673170326b6d7a2f6d61696e5f72657475726e5f696e74656765722e657865202838372e39204b42290a"
+      },
+      "run": {
+        "command": [
+          "/tmp/sn-main-return-asan-sg1p2kmz/main_return_integer.exe",
+          "1"
+        ],
+        "status": 1,
+        "stdout_hex": "6e61746976652d6265666f72650a310a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+        "stderr_hex": "7374646572722d420a7374646572722d410a"
+      }
+    },
+    {
+      "source": "tests/rust-native/main_return_integer.sn",
+      "source_sha256": "fc3dd85374170889fdffcbea5cb6f1b1b10a06ff10bf82b4964a56d79cb8a043",
+      "arguments": [
+        "255"
+      ],
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rust-native/main_return_integer.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-main-return-asan-sg1p2kmz/main_return_integer.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f6d61696e5f72657475726e5f696e74656765722e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6d61696e2d72657475726e2d6173616e2d73673170326b6d7a2f6d61696e5f72657475726e5f696e74656765722e657865202838372e39204b42290a"
+      },
+      "run": {
+        "command": [
+          "/tmp/sn-main-return-asan-sg1p2kmz/main_return_integer.exe",
+          "255"
+        ],
+        "status": 255,
+        "stdout_hex": "6e61746976652d6265666f72650a3235350a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+        "stderr_hex": "7374646572722d420a7374646572722d410a"
+      }
+    },
+    {
+      "source": "tests/rust-native/main_return_integer.sn",
+      "source_sha256": "fc3dd85374170889fdffcbea5cb6f1b1b10a06ff10bf82b4964a56d79cb8a043",
+      "arguments": [
+        "256"
+      ],
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rust-native/main_return_integer.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-main-return-asan-sg1p2kmz/main_return_integer.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f6d61696e5f72657475726e5f696e74656765722e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6d61696e2d72657475726e2d6173616e2d73673170326b6d7a2f6d61696e5f72657475726e5f696e74656765722e657865202838372e39204b42290a"
+      },
+      "run": {
+        "command": [
+          "/tmp/sn-main-return-asan-sg1p2kmz/main_return_integer.exe",
+          "256"
+        ],
+        "status": 0,
+        "stdout_hex": "6e61746976652d6265666f72650a3235360a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+        "stderr_hex": "7374646572722d420a7374646572722d410a"
+      }
+    },
+    {
+      "source": "tests/rust-native/main_return_integer.sn",
+      "source_sha256": "fc3dd85374170889fdffcbea5cb6f1b1b10a06ff10bf82b4964a56d79cb8a043",
+      "arguments": [
+        "-1"
+      ],
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rust-native/main_return_integer.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-main-return-asan-sg1p2kmz/main_return_integer.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f6d61696e5f72657475726e5f696e74656765722e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6d61696e2d72657475726e2d6173616e2d73673170326b6d7a2f6d61696e5f72657475726e5f696e74656765722e657865202838372e39204b42290a"
+      },
+      "run": {
+        "command": [
+          "/tmp/sn-main-return-asan-sg1p2kmz/main_return_integer.exe",
+          "-1"
+        ],
+        "status": 255,
+        "stdout_hex": "6e61746976652d6265666f72650a2d310a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+        "stderr_hex": "7374646572722d420a7374646572722d410a"
+      }
+    },
+    {
+      "source": "tests/rust-native/main_return_integer.sn",
+      "source_sha256": "fc3dd85374170889fdffcbea5cb6f1b1b10a06ff10bf82b4964a56d79cb8a043",
+      "arguments": [
+        "4294967297"
+      ],
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rust-native/main_return_integer.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-main-return-asan-sg1p2kmz/main_return_integer.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f6d61696e5f72657475726e5f696e74656765722e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6d61696e2d72657475726e2d6173616e2d73673170326b6d7a2f6d61696e5f72657475726e5f696e74656765722e657865202838372e39204b42290a"
+      },
+      "run": {
+        "command": [
+          "/tmp/sn-main-return-asan-sg1p2kmz/main_return_integer.exe",
+          "4294967297"
+        ],
+        "status": 1,
+        "stdout_hex": "6e61746976652d6265666f72650a310a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+        "stderr_hex": "7374646572722d420a7374646572722d410a"
+      }
+    }
+  ]
+}

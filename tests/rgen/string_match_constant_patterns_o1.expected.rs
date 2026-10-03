@@ -312,7 +312,6 @@ fn __sn_string_to_double(value: &SnString) -> f64 {
 
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut directStatement: i64 = 0;
     {
     let __sn_match_subject_0: SnString = SnString::from_slice(&[0x61, 0x6c, 0x70, 0x68, 0x61, 0x62, 0x65, 0x74]);
@@ -358,4 +357,11 @@ fn main() {
         },
     };
     println!("{}", ((((directStatement == 1) && (nestedStatement == 2)) && (directValue == 3)) && (nestedValue == 4)));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

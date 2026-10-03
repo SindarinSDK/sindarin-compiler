@@ -327,7 +327,6 @@ struct Marker {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut point: Point = Point { x: 10, y: 20 };
     println!("{}", (point).x);
     ((point).x = 30);
@@ -346,4 +345,11 @@ fn main() {
     println!("{}", ((marker).point).x);
     __sn_println_string(&((label).text));
     __sn_println_string(&(((marker).label).text));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

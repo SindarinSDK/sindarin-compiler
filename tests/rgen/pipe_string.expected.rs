@@ -466,7 +466,6 @@ fn chooseIndex() -> i64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut source: SnString = makePipe();
     let mut lines: Vec<SnString> = __sn_string_split_lines(&(source))
 ;
@@ -483,4 +482,11 @@ fn main() {
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", (__sn_array_value).len() as i64)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&((__sn_array_value)[__sn_index((__sn_array_value).len(), 0)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&((__sn_array_value)[__sn_index((__sn_array_value).len(), 1)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&((__sn_array_value)[__sn_index((__sn_array_value).len(), 2)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&((__sn_array_value)[__sn_index((__sn_array_value).len(), 3)])); __sn_interpolated }));
     println!("{}", ({ let __sn_array_value = __sn_string_split_lines(&(forward(__sn_string_value.clone())))
 ; let __sn_array_index = 2; __sn_array_value[__sn_index(__sn_array_value.len(), __sn_array_index)].clone() }).len() as i64);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

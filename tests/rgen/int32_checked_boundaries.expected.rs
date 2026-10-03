@@ -340,7 +340,6 @@ fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut add_base: i32 = 2147483646;
     let mut one: i32 = 1;
     let mut sum: i32 = { let (__sn_byte_left, __sn_byte_right): (i32, i32) = (add_base, one); __sn_byte_left.wrapping_add(__sn_byte_right) };
@@ -352,4 +351,11 @@ fn main() {
     let mut quotient: i32 = { let __sn_left = minimum; let __sn_right = one; __sn_checked_div_0(__sn_left.checked_div(__sn_right), __sn_right == 0) };
     let mut remainder: i32 = { let __sn_left = minimum; let __sn_right = one; __sn_checked_mod_0(__sn_left.checked_rem(__sn_right), __sn_right == 0) };
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", sum)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", minimum)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", product)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", quotient)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", remainder)); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

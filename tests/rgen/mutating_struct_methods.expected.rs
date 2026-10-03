@@ -362,11 +362,17 @@ impl Counter {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut counter: Counter = Counter { label: SnString::from_slice(&[0x6f, 0x6c, 0x64]), value: 5 };
     let mut label: SnString = SnString::from_slice(&[0x6e, 0x65, 0x77]);
     (counter).incrementTwice();
     (counter).rename(label.clone());
     __sn_println_string(&((counter).describe()));
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x3d]))); __sn_interpolated.push_str(&(label)); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

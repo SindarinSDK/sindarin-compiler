@@ -312,8 +312,14 @@ fn __sn_string_to_double(value: &SnString) -> f64 {
 
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     __sn_println_string(&(SnString::from_slice(&[0x70, 0x6c, 0x61, 0x69, 0x6e])));
     crate::__sn_stdio_exit((0) as std::ffi::c_int);
     __sn_println_string(&(SnString::from_slice(&[0x75, 0x6e, 0x72, 0x65, 0x61, 0x63, 0x68, 0x61, 0x62, 0x6c, 0x65])));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

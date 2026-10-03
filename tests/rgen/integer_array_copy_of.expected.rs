@@ -335,7 +335,6 @@ fn __sn_array_size(size: i64) -> usize {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut ints: Vec<i64> = vec![1, 2, 3];
     let mut ints_copy: Vec<i64> = (ints).clone();
     { let __sn_array_index = __sn_index((ints).len(), 0); (ints)[__sn_array_index] = 10; };
@@ -361,4 +360,11 @@ fn main() {
     let mut bytes_copy: Vec<u8> = (bytes).clone();
     { let __sn_array_index = __sn_index((bytes).len(), 0); (bytes)[__sn_array_index] = 120; };
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", (bytes)[__sn_index((bytes).len(), 0)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", (bytes_copy)[__sn_index((bytes_copy).len(), 0)])); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

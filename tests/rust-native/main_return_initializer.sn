@@ -1,0 +1,12 @@
+@source "builtin_exit_hooks.c"
+native fn initialize_exit_hooks(): int32
+
+var seed: int32 = initialize_exit_hooks()
+
+native fn throughNative(value: int32): int32 =>
+  return seed + value
+
+fn main(): void =>
+  println("body")
+  println(throughNative(2i32))
+  return

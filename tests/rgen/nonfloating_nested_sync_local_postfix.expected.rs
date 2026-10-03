@@ -111,8 +111,14 @@ struct Outer {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut inner: Inner = Inner { value: 1 };
     let outer: __sn_concurrency0_Cell<Outer> = __sn_concurrency0_Cell::new(Outer { inner: inner });
     { let __sn_numeric_place: &mut i64 = &mut (((outer.lock().unwrap_or_else(|e| e.into_inner())).inner).value); let __sn_numeric_old = *__sn_numeric_place; *__sn_numeric_place = (__sn_numeric_old as i64).wrapping_sub(1) as i64; __sn_numeric_old };
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

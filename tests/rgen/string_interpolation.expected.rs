@@ -487,7 +487,6 @@ impl __SnArrayText_0 for Point {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut name: SnString = SnString::from_slice(&[0x77, 0x6f, 0x72, 0x6c, 0x64]);
     let mut count: i64 = 3;
     let mut ratio: f64 = 2.5;
@@ -498,4 +497,11 @@ fn main() {
     __sn_println_string(&(message));
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x76, 0x61, 0x6c, 0x75, 0x65, 0x73, 0x3d]))); __sn_interpolated.push_str(&__sn_array_to_string_0(&(values))); __sn_interpolated }));
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x70, 0x6f, 0x69, 0x6e, 0x74, 0x3d]))); __sn_interpolated.push_str(&(point).__sn_array_text_0()); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

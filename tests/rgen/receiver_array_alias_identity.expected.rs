@@ -394,7 +394,6 @@ impl Bag {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut bag: Bag = Bag { values: vec![1] };
     let mut other: Vec<i64> = vec![8];
     println!("{}", (bag).__sn_receiver_array_alias_0());
@@ -402,4 +401,11 @@ fn main() {
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x64, 0x69, 0x73, 0x74, 0x69, 0x6e, 0x63, 0x74, 0x3a]))); __sn_interpolated.push_str(&format!("{}", ((bag).values).len() as i64)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", ((bag).values)[__sn_index(((bag).values).len(), 1)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", (other).len() as i64)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", (other)[__sn_index((other).len(), 1)])); __sn_interpolated }));
     println!("{}", (bag).__sn_receiver_array_alias_1());
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x61, 0x6c, 0x69, 0x61, 0x73, 0x3a]))); __sn_interpolated.push_str(&format!("{}", ((bag).values).len() as i64)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", ((bag).values)[__sn_index(((bag).values).len(), 2)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", ((bag).values)[__sn_index(((bag).values).len(), 3)])); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

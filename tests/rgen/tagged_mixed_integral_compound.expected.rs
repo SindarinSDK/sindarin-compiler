@@ -120,7 +120,6 @@ fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut byte_value: u8 = 5;
     { let (__sn_rhs, __sn_place) = (2, &mut (byte_value)); let (__sn_left, __sn_right): (i64, i64) = (*__sn_place as i64, __sn_rhs as i64); let __sn_promoted = __sn_checked_0(__sn_left.checked_add(__sn_right), "Runtime error: integer overflow in addition"); let __sn_next = __sn_promoted as u8; *__sn_place = __sn_next; __sn_next };
     println!("0x{:02X}", (byte_value as u32));
@@ -130,4 +129,11 @@ fn main() {
     let mut int32_value: i32 = 6;
     { let (__sn_rhs, __sn_place) = (8, &mut (int32_value)); let (__sn_left, __sn_right): (i64, i64) = (*__sn_place as i64, __sn_rhs as i64); let __sn_promoted = __sn_checked_0(__sn_left.checked_mul(__sn_right), "Runtime error: integer overflow in multiplication"); let __sn_next = __sn_promoted as i32; *__sn_place = __sn_next; __sn_next };
     println!("{}", int32_value);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

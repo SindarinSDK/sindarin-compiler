@@ -335,7 +335,6 @@ fn __sn_array_size(size: i64) -> usize {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut source: Vec<SnString> = vec![SnString::from_slice(&[0x61, 0x6c, 0x70, 0x68, 0x61]), SnString::from_slice(&[0x62, 0x65, 0x74, 0x61])];
     let mut copied: Vec<SnString> = (source).clone();
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", (source).len() as i64)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", (copied).len() as i64)); __sn_interpolated }));
@@ -344,4 +343,11 @@ fn main() {
     { let __sn_array_index = __sn_index((copied).len(), 1); (copied)[__sn_array_index] = SnString::from_slice(&[0x63, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x64, 0x2d, 0x63, 0x6f, 0x70, 0x79]); };
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&((source)[__sn_index((source).len(), 0)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&((source)[__sn_index((source).len(), 1)])); __sn_interpolated }));
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&((copied)[__sn_index((copied).len(), 0)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&((copied)[__sn_index((copied).len(), 1)])); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

@@ -96,6 +96,12 @@ fn assign(mut value: f32) -> f32 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     println!("{:.5}", assign(1.0));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

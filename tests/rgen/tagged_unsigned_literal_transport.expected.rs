@@ -348,7 +348,6 @@ fn produce() -> u32 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut stored: u32 = (-(1 as i64) as u32);
     let mut values: Vec<u32> = vec![(-(1 as i64) as u32)];
     let mut r#box: Box = Box { value: (-(1 as i64) as u32) };
@@ -366,4 +365,11 @@ fn main() {
     println!("{}", ((carry((-(1 as i64) as u32)) as i64) == (-(1 as i64) as i64)));
     print!("{}", -(1 as i64));
     __sn_println_string(&(SnString::from_slice(&[])));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

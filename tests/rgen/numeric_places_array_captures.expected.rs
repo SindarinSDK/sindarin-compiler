@@ -127,7 +127,6 @@ impl<F: ?Sized> PartialEq for __SnClosure<F> {
     fn eq(&self, other: &Self) -> bool { std::rc::Rc::ptr_eq(&self.0, &other.0) }
 }
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut values: Vec<i64> = vec![10];
     let mut action: __SnClosure<dyn Fn() -> i64> = { let (values, ) = (std::rc::Rc::new(std::cell::RefCell::new(values.clone())), ); self::__SnClosure::<dyn Fn() -> i64>(std::rc::Rc::new(move || -> i64 { { let __sn_numeric_old: i64 = { let __sn_place_raw_index_1 = 0; let __sn_place_index_1 = if __sn_place_raw_index_1 < 0 { __sn_place_raw_index_1 + (values.borrow().clone()).len() as i64 } else { __sn_place_raw_index_1 }; (values.borrow().clone())[__sn_place_index_1 as usize] }; let __sn_numeric_rhs: i64 = (((2i128) as i64)) as i64; let __sn_numeric_next: i64 = (__sn_numeric_old as i64).wrapping_add(__sn_numeric_rhs) as i64; let __sn_place_raw_index_0 = 0; let __sn_place_index_0 = if __sn_place_raw_index_0 < 0 { __sn_place_raw_index_0 + (values.borrow().clone()).len() as i64 } else { __sn_place_raw_index_0 }; let __sn_numeric_place: &mut i64 = &mut ((values.borrow_mut())[__sn_place_index_0 as usize]); *__sn_numeric_place = __sn_numeric_next; __sn_numeric_next };return { let __sn_place_raw_index_2 = 0; let __sn_place_index_2 = if __sn_place_raw_index_2 < 0 { __sn_place_raw_index_2 + (values.borrow().clone()).len() as i64 } else { __sn_place_raw_index_2 }; let __sn_numeric_place_1: &mut i64 = &mut ((values.borrow_mut())[__sn_place_index_2 as usize]); let __sn_numeric_old_1 = *__sn_numeric_place_1; *__sn_numeric_place_1 = (__sn_numeric_old_1 as i64).wrapping_add(1) as i64; __sn_numeric_old_1 };})) }
 ;
@@ -140,4 +139,11 @@ fn main() {
     println!("{:.5}", ((step.clone()).0)());
     println!("{:.5}", ((step.clone()).0)());
     println!("{:.5}", ((rows)[__sn_index((rows).len(), 0)])[__sn_index(((rows)[__sn_index((rows).len(), 0)]).len(), 0)]);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

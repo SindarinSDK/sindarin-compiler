@@ -129,8 +129,14 @@ fn twice(value: &mut i64) {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut value: i64 = 1;
     twice(&mut (value));
     println!("{}", value);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

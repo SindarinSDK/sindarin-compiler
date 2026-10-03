@@ -123,7 +123,13 @@ fn makeValues() -> Vec<i64> {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     println!("{}", observe(&mut (vec![1, 2, 3])));
     println!("{}", observe(&mut (makeValues())));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

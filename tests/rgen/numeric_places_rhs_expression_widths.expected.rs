@@ -147,7 +147,6 @@ fn narrow(value: i32) -> i32 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut zero: i32 = 0;
     let mut unsigned: Vec<u32> = vec![4294967295];
     { let __sn_numeric_old: u32 = { let __sn_place_raw_index_1 = 0; let __sn_place_index_1 = if __sn_place_raw_index_1 < 0 { __sn_place_raw_index_1 + (unsigned).len() as i64 } else { __sn_place_raw_index_1 }; (unsigned)[__sn_place_index_1 as usize] }; let __sn_numeric_rhs: u32 = ({ let (__sn_left, __sn_right): (i32, i32) = ((zero) as i32, (((2i128) as i64)) as i32); __sn_checked_0(__sn_left.checked_sub(__sn_right), "Runtime error: integer overflow in subtraction") }
@@ -161,4 +160,11 @@ fn main() {
     { let __sn_numeric_old_2: u32 = { let __sn_place_raw_index_5 = 0; let __sn_place_index_5 = if __sn_place_raw_index_5 < 0 { __sn_place_raw_index_5 + (callResult).len() as i64 } else { __sn_place_raw_index_5 }; (callResult)[__sn_place_index_5 as usize] }; let __sn_numeric_rhs_2: u32 = (narrow({ let (__sn_left, __sn_right): (i32, i32) = ((zero) as i32, (((2i128) as i64)) as i32); __sn_checked_0(__sn_left.checked_sub(__sn_right), "Runtime error: integer overflow in subtraction") }
 )) as u32; let __sn_numeric_next_2: u32 = ((__sn_numeric_old_2 as u32) / __sn_numeric_rhs_2) as u32; let __sn_place_raw_index_4 = 0; let __sn_place_index_4 = if __sn_place_raw_index_4 < 0 { __sn_place_raw_index_4 + (callResult).len() as i64 } else { __sn_place_raw_index_4 }; let __sn_numeric_place_2: &mut u32 = &mut ((callResult)[__sn_place_index_4 as usize]); *__sn_numeric_place_2 = __sn_numeric_next_2; __sn_numeric_next_2 };
     println!("{}", (callResult)[__sn_index((callResult).len(), 0)]);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

@@ -348,8 +348,14 @@ fn __sn_stdio_c_exit() -> i64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     println!("{}", __sn_checked_0((__sn_stdio_exit()).checked_add(__sn_stdio_c_exit()), "Runtime error: integer overflow in addition"));
     crate::__sn_stdio_exit_1((0) as std::ffi::c_int);
     __sn_println_string(&(SnString::from_slice(&[0x75, 0x6e, 0x72, 0x65, 0x61, 0x63, 0x68, 0x61, 0x62, 0x6c, 0x65])));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

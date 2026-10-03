@@ -163,8 +163,14 @@ fn makeAppender(seed: i64) -> __SnClosure<dyn Fn(i64) -> i64> {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut append: __SnClosure<dyn Fn(i64) -> i64> = makeAppender(1);
     println!("{}", ((append.clone()).0)(2));
     println!("{}", ((append.clone()).0)(3));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

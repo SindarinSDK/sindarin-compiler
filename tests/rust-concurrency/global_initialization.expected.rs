@@ -353,8 +353,14 @@ fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     std::sync::LazyLock::force(&__sn_concurrency0_global_first);
     std::sync::LazyLock::force(&__sn_concurrency0_global_second);
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", { let value = __sn_concurrency0_global_first.lock().unwrap_or_else(|e| e.into_inner()).clone(); value })); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c, 0x20]))); __sn_interpolated.push_str(&format!("{}", { let value = __sn_concurrency0_global_second.lock().unwrap_or_else(|e| e.into_inner()).clone(); value })); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

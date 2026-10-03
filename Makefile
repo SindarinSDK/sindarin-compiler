@@ -589,3 +589,7 @@ test-rust-parity-byte-encoding: build
 .PHONY: test-rust-parity-exit
 test-rust-parity-exit: build
 	@$(PYTHON) tests/rgen/builtin_exit_compare.py
+
+.PHONY: test-rust-parity-main-return
+test-rust-parity-main-return: build
+	@$(PYTHON) tests/rgen/main_return_compare.py

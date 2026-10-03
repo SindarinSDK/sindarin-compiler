@@ -138,11 +138,17 @@ struct Pair {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut pair: Pair = Pair { left: 1, right: 2 };
     let mut replace: __SnClosure<dyn Fn(i64) -> i64> = { let (pair, ) = (pair.clone(), ); self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |value: i64| -> i64 { let mut pair = pair.clone(); { let __sn_value = Pair { left: value, right: (pair.clone()).left }; pair = __sn_value.clone(); __sn_value };return __sn_checked_0((__sn_checked_0(((pair.clone()).left).checked_mul(10), "Runtime error: integer overflow in multiplication")).checked_add((pair.clone()).right), "Runtime error: integer overflow in addition");})) }
 ;
     println!("{}", ((replace.clone()).0)(3));
     println!("{}", ((replace.clone()).0)(4));
     println!("{}", __sn_checked_0((__sn_checked_0(((pair).left).checked_mul(10), "Runtime error: integer overflow in multiplication")).checked_add((pair).right), "Runtime error: integer overflow in addition"));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

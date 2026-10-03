@@ -361,9 +361,15 @@ impl Metric {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut metric: Metric = Metric { name: SnString::from_slice(&[0x63, 0x6f, 0x75, 0x6e, 0x74]), value: 21 };
     let mut suffix: SnString = SnString::from_slice(&[0x21]);
     __sn_println_string(&((metric).describe(suffix.clone())));
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x75, 0x6e, 0x63, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x64, 0x3d]))); __sn_interpolated.push_str(&((metric).name)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2f]))); __sn_interpolated.push_str(&(suffix)); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

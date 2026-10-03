@@ -128,8 +128,14 @@ fn mutate(mut value: u8) -> u8 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut original: u8 = 255;
     println!("{}", (mutate(original) == 4));
     println!("{}", (original == 255));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

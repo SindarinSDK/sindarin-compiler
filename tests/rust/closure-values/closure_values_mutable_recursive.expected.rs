@@ -144,7 +144,6 @@ fn invoke(action: __SnClosure<dyn Fn(i64) -> i64>, n: i64) -> i64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let calls: std::rc::Rc<std::cell::Cell<i64>> = std::rc::Rc::new(std::cell::Cell::new(0));
     let mut action: __SnClosure<dyn Fn(i64) -> i64> = { let (calls, ) = (calls.clone(), ); self::__SnClosure::<dyn Fn(i64) -> i64>::recursive(move |action| std::rc::Rc::new(move |n: i64| -> i64 { { let __sn_cell = &calls; let __sn_previous = __sn_cell.get(); let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); __sn_cell.set(__sn_next); __sn_previous };if (n < 1) {
         return 1;
@@ -155,4 +154,11 @@ fn main() {
     println!("{}", calls.get());
     println!("{}", invoke(action.clone(), 3));
     println!("{}", calls.get());
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

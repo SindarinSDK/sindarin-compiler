@@ -354,7 +354,6 @@ struct Pair {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     std::sync::LazyLock::force(&__sn_concurrency0_global_numbers);
     std::sync::LazyLock::force(&__sn_concurrency0_global_pair);
     std::sync::LazyLock::force(&__sn_concurrency0_global_text);
@@ -362,4 +361,11 @@ fn main() {
     { let __sn_concurrency0_operand_value = (8).clone(); let mut __sn_concurrency0_value_guard = __sn_concurrency0_global_pair.lock().unwrap_or_else(|e| e.into_inner()); (((*__sn_concurrency0_value_guard)).number = __sn_concurrency0_operand_value) };
     { let __sn_concurrency0_rhs = SnString::from_slice(&[0x62]); let mut __sn_concurrency0_value = __sn_concurrency0_global_text.lock().unwrap_or_else(|e| e.into_inner()); __sn_concurrency0_value.push_str(&__sn_concurrency0_rhs); __sn_concurrency0_value.clone() };
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", ({ let value = __sn_concurrency0_global_numbers.lock().unwrap_or_else(|e| e.into_inner()).clone(); value })[__sn_index(({ let value = __sn_concurrency0_global_numbers.lock().unwrap_or_else(|e| e.into_inner()).clone(); value }).len(), 1)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c, 0x20]))); __sn_interpolated.push_str(&format!("{}", ({ let value = __sn_concurrency0_global_pair.lock().unwrap_or_else(|e| e.into_inner()).clone(); value }).number)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c, 0x20]))); __sn_interpolated.push_str(&({ let value = __sn_concurrency0_global_text.lock().unwrap_or_else(|e| e.into_inner()).clone(); value })); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

@@ -120,8 +120,14 @@ fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut max: i32 = 2147483647;
     let mut two: i32 = 2;
     let mut overflow: i32 = { let (__sn_byte_left, __sn_byte_right): (i32, i32) = (max, two); __sn_byte_left.wrapping_mul(__sn_byte_right) };
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

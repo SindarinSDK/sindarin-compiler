@@ -115,7 +115,6 @@ fn __sn_array_size(size: i64) -> usize {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut left: Vec<i64> = vec![1, 2];
     let mut right: Vec<i64> = vec![3, 4];
     let mut combined: Vec<i64> = { let __sn_array_left = &(left); let __sn_array_right = &(right); [__sn_array_left.as_slice(), __sn_array_right.as_slice()].concat() };
@@ -136,4 +135,11 @@ fn main() {
     let mut flags: Vec<bool> = { let __sn_array_left = &(first_flags); let __sn_array_right = &(second_flags); [__sn_array_left.as_slice(), __sn_array_right.as_slice()].concat() };
     println!("{}", (flags)[__sn_index((flags).len(), 0)]);
     println!("{}", (flags)[__sn_index((flags).len(), 1)]);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

@@ -120,8 +120,14 @@ fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut numerator: u8 = 255;
     let mut zero: u8 = 0;
     let mut remainder: u8 = { let __sn_left = numerator; let __sn_right = zero; __sn_checked_mod_0(__sn_left.checked_rem(__sn_right), __sn_right == 0) };
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

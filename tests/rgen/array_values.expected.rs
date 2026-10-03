@@ -340,7 +340,6 @@ struct Bucket {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut values: Vec<i64> = vec![1, 2, 3];
     println!("{}", (values).len() as i64);
     println!("{}", (values).len() as i64);
@@ -378,4 +377,11 @@ fn main() {
     ((bucket_copy).items).push(7);
     println!("{}", ((bucket).items).len() as i64);
     println!("{}", ((bucket_copy).items)[__sn_index(((bucket_copy).items).len(), (-1))]);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

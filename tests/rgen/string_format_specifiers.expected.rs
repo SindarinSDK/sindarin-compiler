@@ -481,7 +481,6 @@ fn __sn_format_scientific(value: f64, precision: usize, uppercase: bool,
 
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut x: i64 = 42;
     let mut pi: f64 = 3.1415926500000002;
     let mut name: SnString = SnString::from_slice(&[0x41, 0x6c, 0x69, 0x63, 0x65]);
@@ -499,4 +498,11 @@ fn main() {
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x73, 0x69, 0x67, 0x6e, 0x65, 0x64, 0x3d]))); __sn_interpolated.push_str(&format!("{:+}", x)); __sn_interpolated }));
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x75, 0x6e, 0x73, 0x69, 0x67, 0x6e, 0x65, 0x64, 0x3d]))); __sn_interpolated.push_str(&format!("{:}", unsigned)); __sn_interpolated }));
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x6c, 0x65, 0x66, 0x74, 0x3d, 0x7c]))); __sn_interpolated.push_str(&format!("{:<5}", x)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

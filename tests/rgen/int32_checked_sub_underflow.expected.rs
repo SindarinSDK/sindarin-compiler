@@ -120,9 +120,15 @@ fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut min_base: i32 = (-2147483647);
     let mut one: i32 = 1;
     let mut minimum: i32 = { let (__sn_byte_left, __sn_byte_right): (i32, i32) = (min_base, one); __sn_byte_left.wrapping_sub(__sn_byte_right) };
     let mut underflow: i32 = { let (__sn_byte_left, __sn_byte_right): (i32, i32) = (minimum, one); __sn_byte_left.wrapping_sub(__sn_byte_right) };
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

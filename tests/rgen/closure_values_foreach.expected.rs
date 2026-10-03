@@ -164,6 +164,13 @@ fn main() {
         { callback = captured.clone(); callback.clone() };
     }
         return 0;
+        unsafe {
+            #[cfg(windows)]
+            let stream = crate::__sn_stdio_iob(1);
+            #[cfg(not(windows))]
+            let stream = crate::__sn_stdio_stdout;
+            crate::__sn_stdio_fflush(stream);
+        }
         return 0;
     })() as i32);
 }

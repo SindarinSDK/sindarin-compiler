@@ -185,7 +185,6 @@ fn orderedZero(calls: &mut i64, digit: i64) -> f32 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut positive: Vec<f32> = vec![0.0];
     let mut negative: Vec<f32> = vec![(-0.0)];
     println!("{}", equalFloat(&mut (positive), &mut (negative)));
@@ -237,4 +236,11 @@ fn main() {
 );
     println!("{}", { let __sn_float_eq_right_18: &[f32] = &(vec![0.0]); let __sn_float_eq_left_18: &[f32] = &(positive); (__sn_float_eq_left_18.len() == __sn_float_eq_right_18.len() && __sn_float_eq_left_18.iter().flat_map(|value| value.to_ne_bytes()).eq(__sn_float_eq_right_18.iter().flat_map(|value| value.to_ne_bytes()).take(__sn_float_eq_left_18.len() * std::mem::size_of::<f32>()))) }
 );
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

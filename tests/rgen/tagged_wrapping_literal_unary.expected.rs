@@ -120,7 +120,6 @@ fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut i_max: i32 = 2147483647;
     println!("{}", { let (__sn_byte_left, __sn_byte_right): (i32, i32) = (i_max, 1); __sn_byte_left.wrapping_add(__sn_byte_right) });
     let mut u32_max: u32 = 4294967295;
@@ -132,4 +131,11 @@ fn main() {
     let mut u_max: u64 = { let (__sn_byte_left, __sn_byte_right): (u64, u64) = ({ let (__sn_byte_left, __sn_byte_right): (u64, u64) = (u_half, 2); __sn_byte_left.wrapping_mul(__sn_byte_right) }, 1); __sn_byte_left.wrapping_add(__sn_byte_right) };
     println!("{}", ({ let (__sn_byte_left, __sn_byte_right): (u64, u64) = (u_max, 1); __sn_byte_left.wrapping_add(__sn_byte_right) } as i64));
     println!("{}", ({ let (__sn_byte_left, __sn_byte_right): (u64, u64) = (0, 1); __sn_byte_left.wrapping_sub(__sn_byte_right) } as i64));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

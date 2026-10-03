@@ -135,8 +135,14 @@ impl Point {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut point: Point = Point { x: 1 };
     Point::twice(&mut (point));
     println!("{}", (point).x);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

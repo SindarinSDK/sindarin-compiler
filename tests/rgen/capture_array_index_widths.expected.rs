@@ -375,7 +375,6 @@ impl<F: ?Sized> PartialEq for __SnClosure<F> {
     fn eq(&self, other: &Self) -> bool { std::rc::Rc::ptr_eq(&self.0, &other.0) }
 }
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut floats: Vec<f32> = vec![0.0];
     let mut narrow: Vec<i32> = vec![1];
     let mut flags: Vec<bool> = vec![false];
@@ -391,4 +390,11 @@ fn main() {
     println!("{}", (narrow)[__sn_index((narrow).len(), 0)]);
     println!("{}", (flags)[__sn_index((flags).len(), 0)]);
     __sn_println_char((chars)[__sn_index((chars).len(), 0)]);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

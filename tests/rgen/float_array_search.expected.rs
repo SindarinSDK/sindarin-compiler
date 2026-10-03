@@ -373,7 +373,6 @@ fn observeNeedle(calls: &mut i64, value: f32) -> f32 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut positive_zero: f32 = 0.0;
     let mut negative_zero: f32 = (-0.0);
     let mut nan: f32 = (positive_zero / positive_zero);
@@ -396,4 +395,11 @@ fn main() {
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", receiver_calls)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", needle_calls)); __sn_interpolated }));
     println!("{}", { let __sn_array = &(observeReceiver(&mut (receiver_calls))); let __sn_array_search = (observeNeedle(&mut (needle_calls), (((1.5f64)) as f32))).to_ne_bytes(); __sn_array.iter().position(|__sn_item| { let __sn_item_bytes = __sn_item.to_ne_bytes(); __sn_array_search.get(..__sn_item_bytes.len()) == Some(__sn_item_bytes.as_slice()) }).map(|__sn_index| __sn_index as i64).unwrap_or(-1) });
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", receiver_calls)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", needle_calls)); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

@@ -144,9 +144,15 @@ impl Dispatcher {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut callback: __SnClosure<dyn Fn(i64) -> i64> = { self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |value: i64| -> i64 { __sn_checked_0((value).checked_add(1), "Runtime error: integer overflow in addition")})) }
 ;
     println!("{}", { let __sn_resolved_arg_0 = ((callback.clone()).0)(2); Dispatcher::reset(&mut (callback), __sn_resolved_arg_0) });
     println!("{}", ((callback.clone()).0)(2));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

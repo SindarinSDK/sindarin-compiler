@@ -155,11 +155,17 @@ impl<F: ?Sized> PartialEq for __SnClosure<F> {
     fn eq(&self, other: &Self) -> bool { std::rc::Rc::ptr_eq(&self.0, &other.0) }
 }
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut rows: Vec<Vec<i64>> = vec![vec![1]];
     let mut action: __SnClosure<dyn Fn() -> i64> = { let (rows, ) = (std::rc::Rc::new(std::cell::RefCell::new(rows.clone())), ); self::__SnClosure::<dyn Fn() -> i64>(std::rc::Rc::new(move || -> i64 { { let __sn_array_value = 2; let __sn_nested_index = 0; let mut __sn_arrays = rows.borrow_mut(); let __sn_nested_index = __sn_index(__sn_arrays.len(), __sn_nested_index); __sn_arrays[__sn_nested_index].push(__sn_array_value); };return __sn_checked_0((__sn_checked_0((((rows.borrow().clone())[__sn_index((rows.borrow().clone()).len(), 0)].clone()).len() as i64).checked_mul(10), "Runtime error: integer overflow in multiplication")).checked_add(((rows.borrow().clone())[__sn_index((rows.borrow().clone()).len(), 0)].clone())[__sn_index(((rows.borrow().clone())[__sn_index((rows.borrow().clone()).len(), 0)].clone()).len(), 1)]), "Runtime error: integer overflow in addition");})) }
 ;
     println!("{}", ((action.clone()).0)());
     println!("{}", ((action.clone()).0)());
     println!("{}", ((rows)[__sn_index((rows).len(), 0)]).len() as i64);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

@@ -92,7 +92,13 @@ macro_rules! println {
 
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut value: f32 = 1.0;
     { let (__sn_rhs, __sn_place) = (2.0, &mut (value)); let __sn_next = (((*__sn_place) as f64) + (__sn_rhs as f64)) as f32; *__sn_place = __sn_next; __sn_next };
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

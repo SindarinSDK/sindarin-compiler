@@ -138,7 +138,6 @@ struct Point {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut point: Point = Point { x: 10, y: 20 };
     let mut read: __SnClosure<dyn Fn() -> i64> = { let (point, ) = (point.clone(), ); self::__SnClosure::<dyn Fn() -> i64>(std::rc::Rc::new(move || -> i64 { __sn_checked_0(((point.clone()).x).checked_add((point.clone()).y), "Runtime error: integer overflow in addition")})) }
 ;
@@ -154,4 +153,11 @@ fn main() {
         println!("{}", ((shadowed.clone()).0)());
     }
     println!("{}", ((read.clone()).0)());
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

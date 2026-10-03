@@ -453,10 +453,16 @@ fn __sn_format_scientific(value: f64, precision: usize, uppercase: bool,
 
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut ascii: SnString = SnString::from_slice(&[0x61, 0x62, 0x63, 0x64, 0x65, 0x66]);
     let mut unicode: SnString = SnString::from_slice(&[0xc3, 0xa9, 0x63, 0x6c, 0x61, 0x69, 0x72]);
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x70, 0x72, 0x65, 0x63, 0x69, 0x73, 0x69, 0x6f, 0x6e, 0x3d]))); __sn_interpolated.push_str(&__sn_format_string(&(ascii), 0, false, true, 3)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2f]))); __sn_interpolated.push_str(&__sn_format_string(&(ascii), 0, false, true, 0)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2f]))); __sn_interpolated.push_str(&__sn_format_string(&(ascii), 0, false, true, 20)); __sn_interpolated }));
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x77, 0x69, 0x64, 0x74, 0x68, 0x3d, 0x7c]))); __sn_interpolated.push_str(&__sn_format_string(&(ascii), 8, false, true, 3)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c, 0x2f, 0x7c]))); __sn_interpolated.push_str(&__sn_format_string(&(ascii), 8, true, true, 3)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated }));
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x62, 0x79, 0x74, 0x65, 0x73, 0x3d, 0x7c]))); __sn_interpolated.push_str(&__sn_format_string(&(unicode), 6, false, true, 2)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c, 0x2f, 0x7c]))); __sn_interpolated.push_str(&__sn_format_string(&(unicode), 6, true, true, 3)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

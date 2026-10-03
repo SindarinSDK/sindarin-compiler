@@ -400,7 +400,6 @@ fn selectSource(calls: &mut i64) -> i64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut sources: Vec<TraceSource> = vec![TraceSource { start: 7, count: 4 }];
     let mut evaluations: i64 = 0;
     let mut sum: i64 = 0;
@@ -447,4 +446,11 @@ fn main() {
         }
     }
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x6e, 0x65, 0x73, 0x74, 0x65, 0x64, 0x20, 0x6f, 0x75, 0x74, 0x65, 0x72, 0x3d]))); __sn_interpolated.push_str(&format!("{}", outer)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20, 0x65, 0x76, 0x61, 0x6c, 0x75, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x3d]))); __sn_interpolated.push_str(&format!("{}", evaluations)); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

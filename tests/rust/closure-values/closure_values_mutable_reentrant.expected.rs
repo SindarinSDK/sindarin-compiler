@@ -140,7 +140,6 @@ impl<F: ?Sized> PartialEq for __SnClosure<F> {
     fn eq(&self, other: &Self) -> bool { std::rc::Rc::ptr_eq(&self.0, &other.0) }
 }
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let count: std::rc::Rc<std::cell::Cell<i64>> = std::rc::Rc::new(std::cell::Cell::new(0));
     let mut action: __SnClosure<dyn Fn(i64) -> i64> = { let (count, ) = (count.clone(), ); self::__SnClosure::<dyn Fn(i64) -> i64>::recursive(move |action| std::rc::Rc::new(move |n: i64| -> i64 { { let __sn_cell = &count; let __sn_previous = __sn_cell.get(); let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); __sn_cell.set(__sn_next); __sn_previous };if (n > 0) {
         { let (__sn_value, __sn_cell) = (__sn_checked_0((((self::__SnClosure(action.get().expect("recursive identity initialized").upgrade().expect("recursive callable alive"))).0)(__sn_checked_0((n).checked_sub(1), "Runtime error: integer overflow in subtraction"))).checked_add(10), "Runtime error: integer overflow in addition"), &count); __sn_cell.set(__sn_value); __sn_value };
@@ -148,4 +147,11 @@ fn main() {
 ;
     println!("{}", ((action.clone()).0)(2));
     println!("{}", count.get());
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

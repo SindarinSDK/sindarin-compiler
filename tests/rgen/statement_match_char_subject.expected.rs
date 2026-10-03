@@ -312,11 +312,17 @@ fn __sn_string_to_double(value: &SnString) -> f64 {
 
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     match ('\u{61}' as char) {
         '\u{61}' => {
             __sn_println_string(&(SnString::from_slice(&[0x61])));
         },
         _ => {},
     };
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

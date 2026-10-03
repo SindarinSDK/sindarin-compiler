@@ -102,7 +102,13 @@ macro_rules! println {
 
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let value: __sn_concurrency0_Cell<f32> = __sn_concurrency0_Cell::new(1.0);
     { let __sn_concurrency0_gate = value.guard(); let mut __sn_concurrency0_value = value.lock().unwrap_or_else(|e| e.into_inner()); let __sn_concurrency0_previous = *__sn_concurrency0_value; *__sn_concurrency0_value -= 1.0; __sn_concurrency0_previous };
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

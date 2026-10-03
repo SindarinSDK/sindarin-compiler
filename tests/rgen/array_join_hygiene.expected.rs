@@ -621,7 +621,6 @@ fn produceNested(calls: &mut i64) -> Vec<Vec<JoinBag>> {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut __sn_array: Vec<i64> = vec![1, 2, 3];
     let mut __sn_array_0: Vec<i64> = vec![4];
     let mut __sn_separator: SnString = SnString::from_slice(&[0x2d]);
@@ -653,4 +652,11 @@ fn main() {
     let mut byteText: SnString = __sn_byte_encoding::string(&(bytes));
     __sn_println_string(&(byteText));
     println!("{}", (byteText).len() as i64);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

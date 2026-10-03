@@ -394,7 +394,6 @@ fn calculate() -> i64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     std::sync::LazyLock::force(&__sn_concurrency0_global_rhs);
     std::sync::LazyLock::force(&__sn_concurrency0_global_value);
     { let mut __sn_concurrency0_value_guard = { (*__sn_concurrency0_global_rhs.lock().unwrap_or_else(|e| e.into_inner())).clone() }; let __sn_concurrency0_numeric_rhs = (3).clone(); let __sn_concurrency0_value = { { let (__sn_rhs, __sn_place): (i64, &mut i64) = (__sn_concurrency0_numeric_rhs, &mut (__sn_concurrency0_value_guard)); let __sn_next = *__sn_place + __sn_rhs; *__sn_place = __sn_next; __sn_next } }; *__sn_concurrency0_global_rhs.lock().unwrap_or_else(|e| e.into_inner()) = __sn_concurrency0_value_guard; __sn_concurrency0_value };
@@ -404,4 +403,11 @@ fn main() {
     { if let Some(__sn_concurrency0_handle) = __sn_concurrency0_handle_handle.take() { handle = __sn_concurrency0_handle.join(); } handle.clone() }
 ;
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", { let value = __sn_concurrency0_global_rhs.lock().unwrap_or_else(|e| e.into_inner()).clone(); value })); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c, 0x20]))); __sn_interpolated.push_str(&format!("{}", { let value = __sn_concurrency0_global_value.lock().unwrap_or_else(|e| e.into_inner()).clone(); value })); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c, 0x20]))); __sn_interpolated.push_str(&format!("{}", handle)); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

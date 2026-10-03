@@ -505,7 +505,6 @@ fn scalarFamilies(calls: &mut i64) -> bool {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut calls: i64 = 0;
     let mut order: i64 = 0;
     let mut selected: i64 = chooseInt(2, &mut (calls), &mut (order));
@@ -582,4 +581,11 @@ fn main() {
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", argumentResult)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", nestedResult)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", calls)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", order)); __sn_interpolated }));
     (calls = 0);
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", scalarFamilies(&mut (calls)))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", calls)); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

@@ -120,7 +120,6 @@ fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut current: i64 = 0;
     let mut total: i64 = 0;
     while (current < 4) {
@@ -133,4 +132,11 @@ fn main() {
         (zero_iterations = 99);
     }
     println!("{}", zero_iterations);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

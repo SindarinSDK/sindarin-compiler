@@ -1,0 +1,7 @@
+{{indent}}unsafe {
+{{indent}}    #[cfg(windows)]
+{{indent}}    let stream = crate::{{rust_ident @root.rust_stdio_iob_name}}(1);
+{{indent}}    #[cfg(not(windows))]
+{{indent}}    let stream = crate::{{rust_ident @root.rust_stdio_stdout_name}};
+{{indent}}    crate::{{rust_ident @root.rust_stdio_fflush_name}}(stream);
+{{indent}}{{rbrace}}{{! Keep the caller responsible for the following newline. }}

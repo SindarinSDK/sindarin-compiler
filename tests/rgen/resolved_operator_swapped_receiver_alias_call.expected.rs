@@ -152,8 +152,14 @@ fn makeFrom(item: Item, transform: __SnClosure<dyn Fn(i64) -> i64>) -> Item {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut item: Item = Item { value: 1 };
     println!("{}", (makeFrom(item, self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(increment)))).op_lt(&mut (item)));
     println!("{}", (item).value);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

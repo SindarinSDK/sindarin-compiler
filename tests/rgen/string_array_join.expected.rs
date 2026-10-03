@@ -335,7 +335,6 @@ fn __sn_array_size(size: i64) -> usize {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut words: Vec<SnString> = vec![SnString::from_slice(&[0x74, 0x68, 0x65]), SnString::from_slice(&[0x71, 0x75, 0x69, 0x63, 0x6b]), SnString::from_slice(&[0x66, 0x6f, 0x78])];
     let mut separator: SnString = SnString::from_slice(&[0x20, 0x7c, 0x20]);
     __sn_println_string(&({ let __sn_separator_0 = &(separator); __sn_string_join((words).as_slice(), __sn_separator_0) }));
@@ -345,4 +344,11 @@ fn main() {
     __sn_println_string(&({ let __sn_separator_0 = &(SnString::from_slice(&[0x2c])); __sn_string_join((single).as_slice(), __sn_separator_0) }));
     let mut empty: Vec<SnString> = vec![];
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x65, 0x6d, 0x70, 0x74, 0x79, 0x3d, 0x7c]))); __sn_interpolated.push_str(&({ let __sn_separator_0 = &(SnString::from_slice(&[0x2c])); __sn_string_join((empty).as_slice(), __sn_separator_0) })); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

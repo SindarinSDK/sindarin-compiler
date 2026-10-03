@@ -114,9 +114,15 @@ impl Dispatcher {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut callback: __SnClosure<dyn Fn(i64) -> i64> = { self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |value: i64| -> i64 { value.clone()})) }
 ;
     let mut value: i64 = 1;
     println!("{}", { let __sn_resolved_arg_0 = value; Dispatcher::apply(&mut (callback), __sn_resolved_arg_0) });
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

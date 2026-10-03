@@ -156,7 +156,6 @@ fn growingIndex(values: &mut Vec<i64>, calls: &mut i64) -> i64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut calls: i64 = 0;
     let mut values: Vec<i64> = vec![2, 4];
     println!("{}", { let __sn_numeric_old: i64 = { let __sn_place_raw_index_1 = 0; let __sn_place_index_1 = if __sn_place_raw_index_1 < 0 { __sn_place_raw_index_1 + (values).len() as i64 } else { __sn_place_raw_index_1 }; (values)[__sn_place_index_1 as usize] }; let __sn_numeric_rhs: i64 = (rhs(&mut (values), &mut (calls))) as i64; let __sn_numeric_next: i64 = (__sn_numeric_old as i64).wrapping_add(__sn_numeric_rhs) as i64; let __sn_place_raw_index_0 = 0; let __sn_place_index_0 = if __sn_place_raw_index_0 < 0 { __sn_place_raw_index_0 + (values).len() as i64 } else { __sn_place_raw_index_0 }; let __sn_numeric_place: &mut i64 = &mut ((values)[__sn_place_index_0 as usize]); *__sn_numeric_place = __sn_numeric_next; __sn_numeric_next });
@@ -175,4 +174,11 @@ fn main() {
     println!("{}", (growing).len() as i64);
     println!("{}", calls);
     println!("{}", (growing)[__sn_index((growing).len(), (-1))]);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

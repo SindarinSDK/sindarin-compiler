@@ -412,7 +412,6 @@ fn owned() -> __SnClosure<dyn Fn() -> SnString> {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut add: __SnClosure<dyn Fn(i64, i64) -> i64> = { self::__SnClosure::<dyn Fn(i64, i64) -> i64>(std::rc::Rc::new(move |a: i64, b: i64| -> i64 { __sn_checked_0((a).checked_add(b), "Runtime error: integer overflow in addition")})) }
 ;
     __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", ((add.clone()).0)(2, 3))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x0a]))); __sn_interpolated }));
@@ -458,4 +457,11 @@ fn main() {
 ;
     { producerCopy = producer.clone(); producerCopy.clone() };
     __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(((producer.clone()).0)())); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&(((producerCopy.clone()).0)())); __sn_interpolated.push_str(&(SnString::from_slice(&[0x0a]))); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

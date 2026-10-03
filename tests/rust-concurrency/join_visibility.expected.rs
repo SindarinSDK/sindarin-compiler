@@ -423,7 +423,6 @@ fn worker() -> i64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     std::sync::LazyLock::force(&__sn_concurrency0_global_gate);
     std::sync::LazyLock::force(&__sn_concurrency0_global_count);
     let mut a: i64 = 0; let mut __sn_concurrency0_handle_a: Option<__sn_concurrency0_Join<i64>> = Some({ __sn_concurrency0_Join::spawn(move || worker()) }
@@ -433,4 +432,11 @@ fn main() {
     { if let Some(__sn_concurrency0_handle) = __sn_concurrency0_handle_a.take() { a = __sn_concurrency0_handle.join(); } if let Some(__sn_concurrency0_handle) = __sn_concurrency0_handle_b.take() { b = __sn_concurrency0_handle.join(); }  }
 ;
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x63, 0x6f, 0x75, 0x6e, 0x74, 0x3a, 0x20]))); __sn_interpolated.push_str(&format!("{}", { let value = __sn_concurrency0_global_count.lock().unwrap_or_else(|e| e.into_inner()).clone(); value })); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c, 0x20, 0x72, 0x65, 0x74, 0x75, 0x72, 0x6e, 0x73, 0x3a, 0x20]))); __sn_interpolated.push_str(&format!("{}", __sn_checked_0((a).checked_add(b), "Runtime error: integer overflow in addition"))); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

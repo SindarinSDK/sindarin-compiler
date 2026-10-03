@@ -398,7 +398,6 @@ fn combine(a: i64, b: i64) -> i64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     std::sync::LazyLock::force(&__sn_concurrency0_global_sequence);
     let mut result: i64 = 0; let mut __sn_concurrency0_handle_result: Option<__sn_concurrency0_Join<i64>> = Some({ let __sn_concurrency0_arg0 = (next()).clone(); let __sn_concurrency0_arg1 = (next()).clone(); __sn_concurrency0_Join::spawn(move || combine(__sn_concurrency0_arg0, __sn_concurrency0_arg1)) }
 );
@@ -409,4 +408,11 @@ fn main() {
     { if let Some(__sn_concurrency0_handle) = __sn_concurrency0_handle_result.take() { result = __sn_concurrency0_handle.join(); } result.clone() }
 ;
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x72, 0x65, 0x70, 0x65, 0x61, 0x74, 0x20, 0x6a, 0x6f, 0x69, 0x6e, 0x3a, 0x20]))); __sn_interpolated.push_str(&format!("{}", result)); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

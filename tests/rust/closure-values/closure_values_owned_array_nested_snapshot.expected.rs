@@ -127,7 +127,6 @@ impl<F: ?Sized> PartialEq for __SnClosure<F> {
     fn eq(&self, other: &Self) -> bool { std::rc::Rc::ptr_eq(&self.0, &other.0) }
 }
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut values: Vec<i64> = vec![1];
     let mut outer: __SnClosure<dyn Fn() -> __SnClosure<dyn Fn() -> i64>> = { let (values, ) = (std::rc::Rc::new(std::cell::RefCell::new(values.clone())), ); self::__SnClosure::<dyn Fn() -> __SnClosure<dyn Fn() -> i64>>(std::rc::Rc::new(move || -> __SnClosure<dyn Fn() -> i64> { { let __sn_array_value = 2; values.borrow_mut().push(__sn_array_value); };let mut inner: __SnClosure<dyn Fn() -> i64> = { let (values, ) = (values.borrow().clone(), ); self::__SnClosure::<dyn Fn() -> i64>(std::rc::Rc::new(move || -> i64 { (values.clone()).len() as i64})) }
 ;{ let __sn_array_value = 3; values.borrow_mut().push(__sn_array_value); };return inner.clone();})) }
@@ -137,4 +136,11 @@ fn main() {
     println!("{}", ((first.clone()).0)());
     println!("{}", ((second.clone()).0)());
     println!("{}", (values).len() as i64);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

@@ -143,7 +143,6 @@ fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut ints: Vec<i64> = vec![1];
     for mut item in (ints).iter().cloned() {
         (item = 2);
@@ -203,4 +202,11 @@ fn main() {
         (range_sum = __sn_checked_0((range_sum).checked_add(value), "Runtime error: integer overflow in addition"));
     }
     println!("{}", (range_sum == 8));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

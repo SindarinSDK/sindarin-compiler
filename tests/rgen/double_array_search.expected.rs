@@ -115,7 +115,6 @@ fn __sn_array_size(size: i64) -> usize {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut zero: f64 = 0.0;
     let mut negative_zero: f64 = (-0.0);
     let mut nan: f64 = (zero / zero);
@@ -126,4 +125,11 @@ fn main() {
     println!("{}", { let __sn_array_search = (negative_zero).to_ne_bytes(); let __sn_array = &(values); __sn_array.iter().position(|__sn_item| { let __sn_item_bytes = __sn_item.to_ne_bytes(); __sn_array_search.get(..__sn_item_bytes.len()) == Some(__sn_item_bytes.as_slice()) }).map(|__sn_index| __sn_index as i64).unwrap_or(-1) });
     println!("{}", { let __sn_array_search = (nan).to_ne_bytes(); let __sn_array = &(values); __sn_array.iter().any(|__sn_item| { let __sn_item_bytes = __sn_item.to_ne_bytes(); __sn_array_search.get(..__sn_item_bytes.len()) == Some(__sn_item_bytes.as_slice()) }) });
     println!("{}", { let __sn_array_search = (nan).to_ne_bytes(); let __sn_array = &(values); __sn_array.iter().position(|__sn_item| { let __sn_item_bytes = __sn_item.to_ne_bytes(); __sn_array_search.get(..__sn_item_bytes.len()) == Some(__sn_item_bytes.as_slice()) }).map(|__sn_index| __sn_index as i64).unwrap_or(-1) });
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

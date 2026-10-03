@@ -115,8 +115,14 @@ fn __sn_array_size(size: i64) -> usize {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut values: Vec<f32> = vec![1.0];
     let mut needle: f64 = 1.0;
     let mut found: bool = { let __sn_array_search = (needle).to_ne_bytes(); let __sn_array = &(values); __sn_array.iter().any(|__sn_item| { let __sn_item_bytes = __sn_item.to_ne_bytes(); __sn_array_search.get(..__sn_item_bytes.len()) == Some(__sn_item_bytes.as_slice()) }) };
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

@@ -163,7 +163,6 @@ impl<F: ?Sized> PartialEq for __SnClosure<F> {
     fn eq(&self, other: &Self) -> bool { std::rc::Rc::ptr_eq(&self.0, &other.0) }
 }
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut rows: Vec<Vec<i64>> = vec![vec![10]];
     let mut action: __SnClosure<dyn Fn(i64) -> i64> = { let (rows, ) = (std::rc::Rc::new(std::cell::RefCell::new(rows.clone())), ); self::__SnClosure::<dyn Fn(i64) -> i64>::recursive(move |action| std::rc::Rc::new(move |depth: i64| -> i64 { if (depth > 0) {
         ((self::__SnClosure(action.get().expect("recursive identity initialized").upgrade().expect("recursive callable alive"))).0)(__sn_checked_0((depth).checked_sub(1), "Runtime error: integer overflow in subtraction"));
@@ -172,4 +171,11 @@ fn main() {
     println!("{}", ((action.clone()).0)(1));
     println!("{}", ((action.clone()).0)(0));
     println!("{}", ((rows)[__sn_index((rows).len(), 0)]).len() as i64);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

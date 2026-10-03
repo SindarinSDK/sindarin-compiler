@@ -345,7 +345,6 @@ fn bumpAndReturn(counter: &mut i64) -> i64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut zero: i64 = 0;
     let mut negative: i64 = (-7);
     let mut positive: i64 = 42;
@@ -354,4 +353,11 @@ fn main() {
     let mut counter: i64 = 0;
     let mut called: f64 = (bumpAndReturn(&mut (counter)) as f64);
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", ((((((zero as f64) == 0.0) && ((negative as f64) == (-7.0))) && ((positive as f64) == 42.0)) && ((long_value as f64) == 42.0)) && ((exact_long as f64) == 9007199254740991.0)))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", ((counter == 1) && (called == (-7.0))))); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

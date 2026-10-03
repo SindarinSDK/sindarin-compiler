@@ -1,0 +1,8 @@
+@source "builtin_exit_hooks.c"
+native fn arm_exit_hooks(): int32
+
+fn main(): void =>
+  assert(arm_exit_hooks() == 0, "stdio and atexit setup")
+  var __sn_stdio_guard: int = 12
+  var __SnStdioGuard: int = 16
+  println(__sn_stdio_guard + __SnStdioGuard)

@@ -153,7 +153,6 @@ fn nextValue(calls: &mut i64) -> f64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut calls: i64 = 0;
     let mut values: Vec<f32> = vec![1.5];
     { let __sn_float_insert_value = { let __sn_float_value_bytes = (nextValue(&mut (calls))).to_ne_bytes(); let mut __sn_float_slot = [0u8; 4]; let __sn_float_count = std::cmp::min(__sn_float_slot.len(), __sn_float_value_bytes.len()); __sn_float_slot[..__sn_float_count].copy_from_slice(&__sn_float_value_bytes[..__sn_float_count]); f32::from_ne_bytes(__sn_float_slot) }; let __sn_float_insert_index = (nextIndex(&mut (calls), 0)) as i64; let __sn_float_insert_place = &mut (values); if __sn_float_insert_index >= 0 && (__sn_float_insert_index as usize) <= __sn_float_insert_place.len() { __sn_float_insert_place.insert(__sn_float_insert_index as usize, __sn_float_insert_value); } };
@@ -179,4 +178,11 @@ fn main() {
     println!("{}", { let __sn_array_search = ((wide)[__sn_index((wide).len(), 0)]).to_ne_bytes(); let __sn_array = &(wide); __sn_array.iter().any(|__sn_item| { let __sn_item_bytes = __sn_item.to_ne_bytes(); __sn_array_search.get(..__sn_item_bytes.len()) == Some(__sn_item_bytes.as_slice()) }) });
     { let __sn_float_push_value = { let __sn_float_value_bytes = ((1.5f64)).to_ne_bytes(); let mut __sn_float_slot = [0u8; 8]; let __sn_float_count = std::cmp::min(__sn_float_slot.len(), __sn_float_value_bytes.len()); __sn_float_slot[..__sn_float_count].copy_from_slice(&__sn_float_value_bytes[..__sn_float_count]); f64::from_ne_bytes(__sn_float_slot) }; (wide).push(__sn_float_push_value); };
     println!("{}", ((wide)[__sn_index((wide).len(), 1)] == 1.5));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

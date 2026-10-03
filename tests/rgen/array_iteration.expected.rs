@@ -363,7 +363,6 @@ fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut total: i64 = 0;
     {
         let mut i: i64 = 0;
@@ -398,5 +397,12 @@ fn main() {
     let mut names: Vec<SnString> = vec![SnString::from_slice(&[0x6f, 0x6e, 0x65]), SnString::from_slice(&[0x74, 0x77, 0x6f])];
     for mut name in (names).iter().cloned() {
         __sn_println_string(&(name));
+    }
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
     }
 }

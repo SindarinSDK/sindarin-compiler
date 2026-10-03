@@ -120,11 +120,17 @@ fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     println!("0x{:02X}", ({ let (__sn_byte_left, __sn_byte_right): (u8, u8) = (255, 1); __sn_byte_left.wrapping_add(__sn_byte_right) } as u32));
     println!("0x{:02X}", (-(1 as i32) as u32));
     println!("0x{:02X}", (!(1 as i32) as u32));
     println!("{}", ({ let (__sn_byte_left, __sn_byte_right): (u8, u8) = (255, 1); __sn_byte_left.wrapping_add(__sn_byte_right) } == 0));
     let mut stored: u8 = { let (__sn_byte_left, __sn_byte_right): (u8, u8) = (255, 1); __sn_byte_left.wrapping_add(__sn_byte_right) };
     println!("0x{:02X}", (stored as u32));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

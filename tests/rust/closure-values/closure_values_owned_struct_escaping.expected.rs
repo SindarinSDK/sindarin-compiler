@@ -360,8 +360,14 @@ fn makeReader() -> __SnClosure<dyn Fn() -> SnString> {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut read: __SnClosure<dyn Fn() -> SnString> = makeReader();
     __sn_println_string(&(((read.clone()).0)()));
     __sn_println_string(&(((read.clone()).0)()));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

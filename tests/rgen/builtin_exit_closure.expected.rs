@@ -324,11 +324,17 @@ impl<F: ?Sized> PartialEq for __SnClosure<F> {
     fn eq(&self, other: &Self) -> bool { std::rc::Rc::ptr_eq(&self.0, &other.0) }
 }
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut code: i64 = 0;
     let mut stop: __SnClosure<dyn Fn() -> ()> = { let (code, ) = (code.clone(), ); self::__SnClosure::<dyn Fn() -> ()>(std::rc::Rc::new(move || -> () { crate::__sn_stdio_exit((code.clone()) as std::ffi::c_int);})) }
 ;
     __sn_println_string(&(SnString::from_slice(&[0x63, 0x6c, 0x6f, 0x73, 0x75, 0x72, 0x65])));
     ((stop.clone()).0)();
     __sn_println_string(&(SnString::from_slice(&[0x75, 0x6e, 0x72, 0x65, 0x61, 0x63, 0x68, 0x61, 0x62, 0x6c, 0x65])));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

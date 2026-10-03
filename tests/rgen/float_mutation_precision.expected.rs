@@ -168,7 +168,6 @@ fn mutateValue(mut value: f32, increment: f64) -> f32 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut calls: i64 = 0;
     let mut value: f32 = 16777216.0;
     { let (__sn_rhs, __sn_place) = (rhs(&mut (calls)), &mut (value)); let __sn_next = (((*__sn_place) as f64) + (__sn_rhs as f64)) as f32; *__sn_place = __sn_next; __sn_next };
@@ -206,4 +205,11 @@ fn main() {
         println!("{}", (((current) as f64) == ((16777218.0) as f64)));
     }
 }
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

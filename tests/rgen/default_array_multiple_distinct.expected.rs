@@ -375,7 +375,6 @@ fn observeAfterArrays(first: &mut Vec<i64>, second: &mut Vec<i64>, seen: i64) {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut first: Vec<i64> = vec![1];
     let mut second: Vec<i64> = vec![7, 8];
     println!("{}", mutatePair(&mut (first), &mut (second)));
@@ -384,4 +383,11 @@ fn main() {
     { let __sn_array_call_arg_0 = (first).len() as i64; observeAfterArrays(&mut (first), &mut (second), __sn_array_call_arg_0) };
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", (first).len() as i64)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", (first)[__sn_index((first).len(), 2)])); __sn_interpolated }));
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", (second).len() as i64)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", (second)[__sn_index((second).len(), 3)])); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

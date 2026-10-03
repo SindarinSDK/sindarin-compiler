@@ -337,7 +337,6 @@ fn makeDirect(seed: SnString) -> __SnClosure<dyn Fn(SnString) -> SnString> {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut factory: __SnClosure<dyn Fn() -> __SnClosure<dyn Fn(SnString) -> SnString>> = make(SnString::from_slice(&[0x72, 0x6f, 0x6f, 0x74]));
     let mut first: __SnClosure<dyn Fn(SnString) -> SnString> = ((factory.clone()).0)();
     let mut second: __SnClosure<dyn Fn(SnString) -> SnString> = ((factory.clone()).0)();
@@ -350,4 +349,11 @@ fn main() {
     let mut direct: __SnClosure<dyn Fn(SnString) -> SnString> = makeDirect(SnString::from_slice(&[0x70, 0x61, 0x72, 0x61, 0x6d]));
     __sn_println_string(&(((direct.clone()).0)(SnString::from_slice(&[0x2d, 0x6f, 0x6e, 0x65]))));
     __sn_println_string(&(((direct.clone()).0)(SnString::from_slice(&[0x2d, 0x74, 0x77, 0x6f]))));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

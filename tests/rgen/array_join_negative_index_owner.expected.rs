@@ -516,8 +516,14 @@ impl __SnArrayText_0 for Holder {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut holder: Holder = Holder { bags: vec![Bag { values: vec![1] }, Bag { values: vec![2] }] };
     __sn_println_string(&({ let __sn_join_raw_index_0 = (-1); let __sn_separator_0 = &((holder).appendSeparator()); let __sn_join_index_0 = __sn_index(((holder).bags).len(), __sn_join_raw_index_0); __sn_array_join_0(((((holder).bags)[__sn_join_index_0]).values).as_slice(), __sn_separator_0) }));
     println!("{}", ((holder).bags).len() as i64);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

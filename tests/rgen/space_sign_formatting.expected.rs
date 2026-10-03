@@ -453,7 +453,6 @@ fn __sn_format_scientific(value: f64, precision: usize, uppercase: bool,
 
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut positive: i64 = 42;
     let mut negative: i64 = (-42);
     let mut zero_int: i64 = 0;
@@ -475,4 +474,11 @@ fn main() {
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x73, 0x63, 0x69, 0x65, 0x6e, 0x74, 0x69, 0x66, 0x69, 0x63, 0x3d, 0x7c]))); __sn_interpolated.push_str(&__sn_format_scientific((value) as f64, 2, false, 12, false, false, true, false, false)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c, 0x2f, 0x7c]))); __sn_interpolated.push_str(&__sn_format_scientific((negative_value) as f64, 2, true, 12, false, false, true, false, false)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated }));
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x73, 0x63, 0x69, 0x65, 0x6e, 0x74, 0x69, 0x66, 0x69, 0x63, 0x2d, 0x7a, 0x65, 0x72, 0x6f, 0x3d, 0x7c]))); __sn_interpolated.push_str(&__sn_format_scientific((value) as f64, 2, false, 12, false, false, true, true, false)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c, 0x2f, 0x7c]))); __sn_interpolated.push_str(&__sn_format_scientific((negative_zero) as f64, 2, false, 12, false, false, true, true, false)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated }));
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x73, 0x70, 0x65, 0x63, 0x69, 0x61, 0x6c, 0x3d, 0x7c]))); __sn_interpolated.push_str(&__sn_format_scientific((infinity) as f64, 2, false, 10, false, false, true, false, false)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c, 0x2f, 0x7c]))); __sn_interpolated.push_str(&__sn_format_scientific((nan) as f64, 2, true, 10, false, false, true, false, false)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

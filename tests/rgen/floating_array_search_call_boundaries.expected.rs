@@ -175,7 +175,6 @@ fn appendNeedle(values: &mut Vec<f32>, calls: &mut i64) -> f32 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut calls: i64 = 0;
     let mut values: Vec<f32> = vec![0.0, 16777216.0];
     let mut wide: Vec<f64> = vec![16777217.0];
@@ -199,4 +198,11 @@ fn main() {
     println!("{}", calls);
     println!("{}", (mutableValues).len() as i64);
     println!("{}", ((mutableValues)[__sn_index((mutableValues).len(), 1)] == 0.0));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

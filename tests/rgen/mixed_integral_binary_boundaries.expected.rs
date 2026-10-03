@@ -130,7 +130,6 @@ fn nextInt(calls: &mut i64) -> i64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut b: u8 = 255;
     let mut n: i64 = 1000;
     println!("{}", { let (__sn_left, __sn_right): (i64, i64) = ((b) as i64, (n) as i64); __sn_checked_0(__sn_left.checked_add(__sn_right), "Runtime error: integer overflow in addition") }
@@ -200,4 +199,11 @@ fn main() {
 );
     println!("{}", byteCalls);
     println!("{}", intCalls);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

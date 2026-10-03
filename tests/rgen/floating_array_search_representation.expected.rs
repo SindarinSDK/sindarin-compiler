@@ -115,7 +115,6 @@ fn __sn_array_size(size: i64) -> usize {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut zero: f32 = 0.0;
     let mut negativeZero: f32 = (-0.0);
     let mut value: f32 = 1.5;
@@ -133,4 +132,11 @@ fn main() {
     println!("{}", { let __sn_array_search = (needle).to_ne_bytes(); let __sn_array = &(missing); __sn_array.iter().any(|__sn_item| { let __sn_item_bytes = __sn_item.to_ne_bytes(); __sn_array_search.get(..__sn_item_bytes.len()) == Some(__sn_item_bytes.as_slice()) }) });
     println!("{}", { let __sn_array_search = ((1.5f64)).to_ne_bytes(); let __sn_array = &(missing); __sn_array.iter().any(|__sn_item| { let __sn_item_bytes = __sn_item.to_ne_bytes(); __sn_array_search.get(..__sn_item_bytes.len()) == Some(__sn_item_bytes.as_slice()) }) });
     println!("{}", { let __sn_array_search = (value).to_ne_bytes(); let __sn_array = &(missing); __sn_array.iter().any(|__sn_item| { let __sn_item_bytes = __sn_item.to_ne_bytes(); __sn_array_search.get(..__sn_item_bytes.len()) == Some(__sn_item_bytes.as_slice()) }) });
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

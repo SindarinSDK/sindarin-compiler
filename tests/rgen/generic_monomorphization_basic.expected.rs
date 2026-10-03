@@ -317,7 +317,6 @@ struct Box_int {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut number: i64 = identity_int(42);
     let mut original_word: SnString = SnString::from_slice(&[0x73, 0x69, 0x6e, 0x64, 0x61, 0x72, 0x69, 0x6e]);
     let mut word: SnString = identity_str(original_word.clone());
@@ -329,6 +328,13 @@ fn main() {
     __sn_println_string(&(original_word));
     println!("{}", (boxed).value);
     println!("{}", (boxed_copy).value);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }
 
 fn identity_int(value: i64) -> i64 {

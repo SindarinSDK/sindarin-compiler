@@ -335,7 +335,6 @@ fn __sn_array_size(size: i64) -> usize {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut values: Vec<i64> = vec![0, 1, 2, 3, 4, 5];
     let mut middle: Vec<i64> = { let __sn_array = &(values); let __sn_length = __sn_array.len() as i64; let mut __sn_start: i64 = 1; let mut __sn_end: i64 = 4; if __sn_start < 0 { __sn_start += __sn_length; } if __sn_end < 0 { __sn_end += __sn_length; } if __sn_start < 0 { __sn_start = 0; } if __sn_end > __sn_length { __sn_end = __sn_length; } if __sn_start >= __sn_end { Vec::new() } else { __sn_array[__sn_start as usize..__sn_end as usize].to_vec() } };
     (middle).push(9);
@@ -362,4 +361,11 @@ fn main() {
     let mut selected: Vec<SnString> = { let __sn_array = &(names); let __sn_length = __sn_array.len() as i64; let mut __sn_start: i64 = 1; let mut __sn_end: i64 = __sn_length; if __sn_start < 0 { __sn_start += __sn_length; } if __sn_end < 0 { __sn_end += __sn_length; } if __sn_start < 0 { __sn_start = 0; } if __sn_end > __sn_length { __sn_end = __sn_length; } if __sn_start >= __sn_end { Vec::new() } else { __sn_array[__sn_start as usize..__sn_end as usize].to_vec() } };
     { let __sn_array_index = __sn_index((names).len(), 1); (names)[__sn_array_index] = SnString::from_slice(&[0x63, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x64]); };
     __sn_println_string(&({ let __sn_separator_0 = &(SnString::from_slice(&[0x2c])); __sn_string_join((selected).as_slice(), __sn_separator_0) }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

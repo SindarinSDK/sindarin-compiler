@@ -335,7 +335,6 @@ fn __sn_array_size(size: i64) -> usize {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut mixed: Vec<i64> = { let mut __sn_array: Vec<i64> = Vec::new(); __sn_array.push(0); __sn_array.extend((1..4).collect::<Vec<i64>>()); __sn_array.push(10); __sn_array };
     println!("{}", (mixed).len() as i64);
     println!("{}", (mixed)[__sn_index((mixed).len(), 0)]);
@@ -361,4 +360,11 @@ fn main() {
     let mut copied_names: Vec<SnString> = { let mut __sn_array: Vec<SnString> = Vec::new(); __sn_array.extend((names).iter().cloned()); __sn_array.push(SnString::from_slice(&[0x67, 0x61, 0x6d, 0x6d, 0x61])); __sn_array };
     { let __sn_array_index = __sn_index((names).len(), 0); (names)[__sn_array_index] = SnString::from_slice(&[0x63, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x64]); };
     __sn_println_string(&({ let __sn_separator_0 = &(SnString::from_slice(&[0x2c])); __sn_string_join((copied_names).as_slice(), __sn_separator_0) }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

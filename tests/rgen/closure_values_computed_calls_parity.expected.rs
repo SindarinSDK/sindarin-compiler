@@ -363,10 +363,16 @@ fn argument() -> i64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut produced: __SnClosure<dyn Fn(i64) -> i64> = factory(10);
     println!("{}", ((produced.clone()).0)(argument()));
     let mut immediate: __SnClosure<dyn Fn(i64) -> i64> = { self::__SnClosure::<dyn Fn(i64) -> i64>(std::rc::Rc::new(move |n: i64| -> i64 { __sn_checked_0((n).checked_add(1), "Runtime error: integer overflow in addition")})) }
 ;
     println!("{}", ((immediate.clone()).0)(argument()));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

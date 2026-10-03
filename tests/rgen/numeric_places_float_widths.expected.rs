@@ -119,7 +119,6 @@ fn narrow(value: f32) -> f32 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut values: Vec<f32> = vec![1.0, 2.0];
     { let __sn_numeric_old: f32 = { let __sn_place_raw_index_1 = 0; let __sn_place_index_1 = if __sn_place_raw_index_1 < 0 { __sn_place_raw_index_1 + (values).len() as i64 } else { __sn_place_raw_index_1 }; (values)[__sn_place_index_1 as usize] }; let __sn_numeric_rhs: f64 = ((1.0000000600000001f64)) as f64; let __sn_numeric_next: f32 = ((__sn_numeric_old as f64) - __sn_numeric_rhs) as f32; let __sn_place_raw_index_0 = 0; let __sn_place_index_0 = if __sn_place_raw_index_0 < 0 { __sn_place_raw_index_0 + (values).len() as i64 } else { __sn_place_raw_index_0 }; let __sn_numeric_place: &mut f32 = &mut ((values)[__sn_place_index_0 as usize]); *__sn_numeric_place = __sn_numeric_next; __sn_numeric_next };
     println!("{}", (((((values)[__sn_index((values).len(), 0)]) as f32) > (((-7.0000000000000005e-08)) as f32)) && ((((values)[__sn_index((values).len(), 0)]) as f32) < (((-4.9999999999999998e-08)) as f32))));
@@ -137,4 +136,11 @@ fn main() {
     println!("{:.5}", { let __sn_place_raw_index_14 = 0; let __sn_place_index_14 = if __sn_place_raw_index_14 < 0 { __sn_place_raw_index_14 + (doubles).len() as i64 } else { __sn_place_raw_index_14 }; let __sn_numeric_place_7: &mut f64 = &mut ((doubles)[__sn_place_index_14 as usize]); let __sn_numeric_old_7 = *__sn_numeric_place_7; *__sn_numeric_place_7 = ((__sn_numeric_old_7 as f64) + 1.0) as f64; __sn_numeric_old_7 });
     println!("{:.5}", { let __sn_place_raw_index_15 = 0; let __sn_place_index_15 = if __sn_place_raw_index_15 < 0 { __sn_place_raw_index_15 + (doubles).len() as i64 } else { __sn_place_raw_index_15 }; let __sn_numeric_place_8: &mut f64 = &mut ((doubles)[__sn_place_index_15 as usize]); let __sn_numeric_old_8 = *__sn_numeric_place_8; *__sn_numeric_place_8 = ((__sn_numeric_old_8 as f64) - 1.0) as f64; __sn_numeric_old_8 });
     println!("{:.5}", (doubles)[__sn_index((doubles).len(), 0)]);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

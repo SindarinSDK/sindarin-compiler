@@ -324,7 +324,6 @@ impl<F: ?Sized> PartialEq for __SnClosure<F> {
     fn eq(&self, other: &Self) -> bool { std::rc::Rc::ptr_eq(&self.0, &other.0) }
 }
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut choose: __SnClosure<dyn Fn(SnString) -> SnString> = { self::__SnClosure::<dyn Fn(SnString) -> SnString>(std::rc::Rc::new(move |value: SnString| -> SnString { value.clone()})) }
 ;
     let mut result: SnString = match (1 as i64) {
@@ -336,4 +335,11 @@ fn main() {
         },
     };
     __sn_println_string(&(result));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

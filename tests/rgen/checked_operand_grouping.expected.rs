@@ -340,7 +340,6 @@ fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut a: i64 = 2;
     let mut b: i64 = 3;
     let mut negative_literal: i64 = (-2);
@@ -352,4 +351,11 @@ fn main() {
     print!("{}", negated);
     __sn_print_string(&(SnString::from_slice(&[0x2c])));
     print!("{}", nested);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

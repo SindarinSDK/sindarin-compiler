@@ -101,8 +101,14 @@ struct Outer {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut inner: Inner = Inner { value: 1.0 };
     let mut outer: Outer = Outer { inner: inner };
     { let __sn_numeric_old: f32 = { ((outer).inner).value }; let __sn_numeric_rhs: f64 = ((1.0f64)) as f64; let __sn_numeric_next: f32 = ((__sn_numeric_old as f64) + __sn_numeric_rhs) as f32; let __sn_numeric_place: &mut f32 = &mut (((outer).inner).value); *__sn_numeric_place = __sn_numeric_next; __sn_numeric_next };
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

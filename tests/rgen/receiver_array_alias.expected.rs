@@ -131,8 +131,14 @@ impl Bag {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut bag: Bag = Bag { values: vec![1] };
     println!("{}", (bag).__sn_receiver_array_alias_0());
     println!("{}", ((bag).values).len() as i64);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

@@ -155,7 +155,6 @@ impl<F: ?Sized> PartialEq for __SnClosure<F> {
     fn eq(&self, other: &Self) -> bool { std::rc::Rc::ptr_eq(&self.0, &other.0) }
 }
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut rows: Vec<Vec<i64>> = vec![vec![10, 20], vec![30, 40]];
     let mut action: __SnClosure<dyn Fn() -> i64> = { let (rows, ) = (std::rc::Rc::new(std::cell::RefCell::new(rows.clone())), ); self::__SnClosure::<dyn Fn() -> i64>(std::rc::Rc::new(move || -> i64 { { let __sn_capture_index_value = (({ let (__sn_left, __sn_right): (i64, i64) = ((((rows.borrow().clone())[__sn_index((rows.borrow().clone()).len(), ((0i128) as i64))].clone())[__sn_index(((rows.borrow().clone())[__sn_index((rows.borrow().clone()).len(), ((0i128) as i64))].clone()).len(), ((0i128) as i64))]) as i64, (((rows.borrow().clone())[__sn_index((rows.borrow().clone()).len(), (-((1i128) as i64)))].clone())[__sn_index(((rows.borrow().clone())[__sn_index((rows.borrow().clone()).len(), (-((1i128) as i64)))].clone()).len(), (-((1i128) as i64)))]) as i64); __sn_checked_0(__sn_left.checked_add(__sn_right), "Runtime error: integer overflow in addition") }
 ) as i64); let __sn_place_raw_index_0 = (-1); let __sn_place_index_0 = if __sn_place_raw_index_0 < 0 { __sn_place_raw_index_0 + (rows.borrow().clone()).len() as i64 } else { __sn_place_raw_index_0 }; let __sn_place_raw_index_1 = (-1); let __sn_place_index_1 = if __sn_place_raw_index_1 < 0 { let __sn_place_raw_index_2 = (-1); let __sn_place_index_2 = if __sn_place_raw_index_2 < 0 { __sn_place_raw_index_2 + (rows.borrow().clone()).len() as i64 } else { __sn_place_raw_index_2 }; __sn_place_raw_index_1 + ((rows.borrow().clone())[__sn_place_index_2 as usize]).len() as i64 } else { __sn_place_raw_index_1 }; { let __sn_capture_index_place = &mut (((rows.borrow_mut())[__sn_place_index_0 as usize])[__sn_place_index_1 as usize]); *__sn_capture_index_place = __sn_capture_index_value; } __sn_capture_index_value };return ((rows.borrow().clone())[__sn_index((rows.borrow().clone()).len(), (-1))].clone())[__sn_index(((rows.borrow().clone())[__sn_index((rows.borrow().clone()).len(), (-1))].clone()).len(), (-1))];})) }
@@ -163,4 +162,11 @@ fn main() {
     println!("{}", ((action.clone()).0)());
     println!("{}", ((action.clone()).0)());
     println!("{}", ((rows)[__sn_index((rows).len(), (-1))])[__sn_index(((rows)[__sn_index((rows).len(), (-1))]).len(), (-1))]);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

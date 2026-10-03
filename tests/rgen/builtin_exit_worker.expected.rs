@@ -355,11 +355,17 @@ fn stop() -> i64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     __sn_println_string(&(SnString::from_slice(&[0x6d, 0x61, 0x69, 0x6e])));
     let mut pending: i64 = 0; let mut __sn_concurrency0_handle_pending: Option<__sn_concurrency0_Join<i64>> = Some({ __sn_concurrency0_Join::spawn(move || stop()) }
 );
     println!("{}", { if let Some(__sn_concurrency0_handle) = __sn_concurrency0_handle_pending.take() { pending = __sn_concurrency0_handle.join(); } pending.clone() }
 );
     __sn_println_string(&(SnString::from_slice(&[0x75, 0x6e, 0x72, 0x65, 0x61, 0x63, 0x68, 0x61, 0x62, 0x6c, 0x65])));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

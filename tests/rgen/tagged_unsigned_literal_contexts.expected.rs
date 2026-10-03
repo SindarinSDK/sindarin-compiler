@@ -92,7 +92,6 @@ macro_rules! println {
 
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     println!("{}", -(1 as i64));
     println!("{}", !(1 as i64));
     let mut negated: u32 = (-(1 as i64) as u32);
@@ -105,4 +104,11 @@ fn main() {
     let mut wide_inverted: u64 = (!(1 as i64) as u64);
     println!("{}", (wide_negated as i64));
     println!("{}", (wide_inverted as i64));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

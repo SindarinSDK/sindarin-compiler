@@ -360,7 +360,6 @@ fn __sn_runtime_error_0(value: i64) -> i64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut result: i64 = __sn_checked(1);
     { let __sn_rhs = __sn_checked_0(1); let __sn_place = &mut (result); let __sn_next = __sn_checked_1((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };
     { let __sn_rhs = __sn_checked_div_0(1); let __sn_place = &mut (result); let __sn_next = __sn_checked_1((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };
@@ -368,4 +367,11 @@ fn main() {
     { let __sn_rhs = __sn_runtime_error_0(1); let __sn_place = &mut (result); let __sn_next = __sn_checked_1((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };
     print!("{}", result);
     __sn_print_string(&(SnString::from_slice(&[0x0a])));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

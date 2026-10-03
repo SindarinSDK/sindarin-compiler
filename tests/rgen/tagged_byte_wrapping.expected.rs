@@ -130,7 +130,6 @@ fn bump(value: &mut u8) -> u8 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut max: u8 = 255;
     let mut zero: u8 = 0;
     let mut one: u8 = 1;
@@ -196,4 +195,11 @@ fn main() {
     let mut __sn_byte_place: u8 = one;
     let mut hygienic_compound: u8 = { let (__sn_byte_rhs, __sn_byte_place): (u8, &mut u8) = (__sn_byte_place, &mut (__sn_byte_rhs)); let __sn_byte_next = (*__sn_byte_place).wrapping_add(__sn_byte_rhs); *__sn_byte_place = __sn_byte_next; __sn_byte_next };
     println!("{}", (hygienic_compound == 0));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

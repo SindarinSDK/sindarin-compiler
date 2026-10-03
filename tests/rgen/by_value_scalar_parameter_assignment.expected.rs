@@ -409,7 +409,6 @@ fn statementOrder(mut value: i64, delta: i64) -> i64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut boolCaller: bool = false;
     let mut intCaller: i64 = 10;
     let mut longCaller: i64 = 20;
@@ -444,4 +443,11 @@ fn main() {
     println!("{}", ((doubleResult == 3.25) && (doubleCaller == 3.0)));
     println!("{}", helperResult);
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", orderResult)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2f]))); __sn_interpolated.push_str(&format!("{}", orderCaller)); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

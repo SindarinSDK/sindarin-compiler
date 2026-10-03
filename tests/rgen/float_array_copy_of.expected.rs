@@ -335,7 +335,6 @@ fn __sn_array_size(size: i64) -> usize {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut zero: f32 = 0.0;
     let mut negative_zero: f32 = (-0.0);
     let mut nan: f32 = (zero / zero);
@@ -353,4 +352,11 @@ fn main() {
     { let __sn_array_index = __sn_index((copied).len(), 4); (copied)[__sn_array_index] = (-3.75); };
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{:.2}", (source)[__sn_index((source).len(), 0)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{:.2}", (source)[__sn_index((source).len(), 4)])); __sn_interpolated }));
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{:.2}", (copied)[__sn_index((copied).len(), 0)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{:.2}", (copied)[__sn_index((copied).len(), 4)])); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

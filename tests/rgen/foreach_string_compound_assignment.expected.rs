@@ -368,7 +368,6 @@ fn suffix(calls: &mut i64) -> SnString {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut names: Vec<SnString> = vec![SnString::from_slice(&[0x61, 0x6c, 0x70, 0x68, 0x61]), SnString::from_slice(&[0x62, 0x65, 0x74, 0x61]), SnString::from_slice(&[0x67, 0x61, 0x6d, 0x6d, 0x61])];
     let mut calls: i64 = 0;
     let mut index: i64 = 0;
@@ -378,4 +377,11 @@ fn main() {
         { let __sn_rhs = 1; let __sn_place = &mut (index); let __sn_next = __sn_checked_0((*__sn_place).checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_next };
     }
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x3d]))); __sn_interpolated.push_str(&((names)[__sn_index((names).len(), 0)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&((names)[__sn_index((names).len(), 1)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&((names)[__sn_index((names).len(), 2)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20, 0x63, 0x61, 0x6c, 0x6c, 0x73, 0x3d]))); __sn_interpolated.push_str(&format!("{}", calls)); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

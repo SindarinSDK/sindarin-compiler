@@ -130,7 +130,6 @@ fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let counter: __sn_concurrency0_Cell<i64> = __sn_concurrency0_Cell::new(0);
     match (1 as i64) {
         1 => {
@@ -141,4 +140,11 @@ fn main() {
         },
         _ => {},
     };
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

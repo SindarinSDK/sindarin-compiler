@@ -133,7 +133,6 @@ impl Point {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut point: Point = Point { x: 1 };
     let mut other: Point = Point { x: 2 };
     println!("{}", (point).offset(other));
@@ -141,4 +140,11 @@ fn main() {
     println!("{}", (point).x);
     println!("{}", (point).offset(point));
     println!("{}", (point).x);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

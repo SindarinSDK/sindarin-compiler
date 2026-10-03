@@ -148,7 +148,6 @@ fn same(first: &mut Vec<i64>, second: &mut Vec<i64>) -> i64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut values: Vec<i64> = vec![4, 8];
     println!("{}", mutate(&mut (values)));
     println!("{}", (values)[__sn_index((values).len(), 0)]);
@@ -161,6 +160,13 @@ fn main() {
     println!("{}", ((outer).inner).value);
     println!("{}", __sn_array_alias_call_0(&mut (values)));
     println!("{}", (values)[__sn_index((values).len(), 0)]);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }
 
 fn __sn_array_alias_call_0(first: &mut Vec<i64>) -> i64 {

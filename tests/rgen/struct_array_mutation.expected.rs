@@ -506,11 +506,17 @@ impl __SnArrayText_0 for Bag {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut bag: Bag = Bag { values: vec![] };
     (bag).add(1);
     (bag).addPair(2, 3);
     (bag).reverse();
     (bag).removeMiddle();
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x76, 0x61, 0x6c, 0x75, 0x65, 0x73, 0x3d]))); __sn_interpolated.push_str(&__sn_array_to_string_0(&((bag).values))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3b, 0x20, 0x73, 0x69, 0x7a, 0x65, 0x3d]))); __sn_interpolated.push_str(&format!("{}", (bag).size())); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

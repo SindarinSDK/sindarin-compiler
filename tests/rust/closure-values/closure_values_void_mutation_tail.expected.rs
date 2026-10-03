@@ -132,7 +132,6 @@ impl<F: ?Sized> PartialEq for __SnClosure<F> {
     fn eq(&self, other: &Self) -> bool { std::rc::Rc::ptr_eq(&self.0, &other.0) }
 }
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let count: std::rc::Rc<std::cell::Cell<i64>> = std::rc::Rc::new(std::cell::Cell::new(0));
     let mut add: __SnClosure<dyn Fn() -> ()> = { let (count, ) = (count.clone(), ); self::__SnClosure::<dyn Fn() -> ()>(std::rc::Rc::new(move || -> () { { let (__sn_rhs, __sn_cell) = (1, &count); let __sn_previous = __sn_cell.get(); let __sn_next = __sn_checked_0(__sn_previous.checked_add(__sn_rhs), "Runtime error: integer overflow in addition"); __sn_cell.set(__sn_next); __sn_next };})) }
 ;
@@ -141,4 +140,11 @@ fn main() {
     ((add.clone()).0)();
     ((increment.clone()).0)();
     println!("{}", count.get());
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

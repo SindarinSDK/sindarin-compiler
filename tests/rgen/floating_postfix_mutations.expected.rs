@@ -129,7 +129,6 @@ impl FloatingPostfixValues {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut single: f32 = 1.5;
     let mut single_before_increment: f32 = { let __sn_place = &mut (single); let __sn_previous = *__sn_place; let __sn_next = __sn_previous + 1.0; *__sn_place = __sn_next; __sn_previous };
     let mut single_before_decrement: f32 = { let __sn_place = &mut (single); let __sn_previous = *__sn_place; let __sn_next = __sn_previous - 1.0; *__sn_place = __sn_next; __sn_previous };
@@ -161,4 +160,11 @@ fn main() {
     let mut __sn_next: f32 = 14.0;
     let mut next_before: f32 = { let __sn_place = &mut (__sn_next); let __sn_previous = *__sn_place; let __sn_next = __sn_previous + 1.0; *__sn_place = __sn_next; __sn_previous };
     println!("{}", ((((((place_before == 10.0) && (__sn_place == 11.0)) && (previous_before == 12.0)) && (__sn_previous == 11.0)) && (next_before == 14.0)) && (__sn_next == 15.0)));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

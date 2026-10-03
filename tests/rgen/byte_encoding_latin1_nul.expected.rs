@@ -418,7 +418,6 @@ fn __sn_array_size(size: i64) -> usize {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut start: Vec<u8> = vec![0, 65, 255];
     let mut middle: Vec<u8> = vec![65, 0, 255];
     let mut high: Vec<u8> = vec![233, 255];
@@ -428,4 +427,11 @@ fn main() {
     __sn_println_string(&(__sn_byte_encoding::latin1(&(high))));
     let mut empty: Vec<u8> = vec![];
     println!("{}", (__sn_byte_encoding::latin1(&(empty))).len() as i64);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

@@ -115,7 +115,6 @@ fn __sn_array_size(size: i64) -> usize {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut narrow: Vec<f32> = vec![0.0, 0.0];
     let mut wide: Vec<f64> = vec![0.0, 1000.0];
     println!("{}", { let __sn_float_eq_right: &[f64] = &(wide); let __sn_float_eq_left: &[f32] = &(narrow); (__sn_float_eq_left.len() == __sn_float_eq_right.len() && __sn_float_eq_left.iter().flat_map(|value| value.to_ne_bytes()).eq(__sn_float_eq_right.iter().flat_map(|value| value.to_ne_bytes()).take(__sn_float_eq_left.len() * std::mem::size_of::<f32>()))) }
@@ -138,4 +137,11 @@ fn main() {
 );
     println!("{}", { let __sn_float_eq_right_7: &[f64] = &(oneWide); let __sn_float_eq_left_7: &[f32] = &(oneNarrow); !(__sn_float_eq_left_7.len() == __sn_float_eq_right_7.len() && __sn_float_eq_left_7.iter().flat_map(|value| value.to_ne_bytes()).eq(__sn_float_eq_right_7.iter().flat_map(|value| value.to_ne_bytes()).take(__sn_float_eq_left_7.len() * std::mem::size_of::<f32>()))) }
 );
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

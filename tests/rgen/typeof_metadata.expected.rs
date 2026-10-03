@@ -406,7 +406,6 @@ fn reflectedRecord() -> TypeInfo {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut integer: i64 = 1;
     let mut long_value: i64 = 2;
     let mut int32_value: i32 = 3;
@@ -459,4 +458,11 @@ fn main() {
     let mut unevaluated: TypeInfo = TypeInfo { name: SnString::from_slice(&[0x69, 0x6e, 0x74]), fields: vec![], fieldCount: 0, typeId: 367623774 }
 ;
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", counter)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&((unevaluated).name)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", 0)); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

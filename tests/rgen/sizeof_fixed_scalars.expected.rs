@@ -345,7 +345,6 @@ fn observe(counter: &mut i64) -> char {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut type_int: i64 = 8i64;
     let mut type_long: i64 = 8i64;
     let mut type_int32: i64 = 4i64;
@@ -365,4 +364,11 @@ fn main() {
     let mut types_ok: bool = ((((((((((type_int == 8) && (type_long == 8)) && (type_int32 == 4)) && (type_uint == 8)) && (type_uint32 == 4)) && (type_byte == 1)) && (type_bool == 1)) && (type_char == 1)) && (type_float == 4)) && (type_double == 8));
     let mut expressions_ok: bool = (expression_sizes == 13);
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", types_ok)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", expressions_ok)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", ((arithmetic == 12) && comparison))); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", (counter == 0))); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

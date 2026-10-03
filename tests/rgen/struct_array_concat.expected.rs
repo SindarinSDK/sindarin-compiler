@@ -341,7 +341,6 @@ struct Point {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut left: Vec<Point> = vec![Point { x: 1, y: 10 }, Point { x: 2, y: 20 }];
     let mut right: Vec<Point> = vec![Point { x: 3, y: 30 }, Point { x: 4, y: 40 }];
     let mut combined: Vec<Point> = { let __sn_array_left = &(left); let __sn_array_right = &(right); [__sn_array_left.as_slice(), __sn_array_right.as_slice()].concat() };
@@ -354,4 +353,11 @@ fn main() {
     { let __sn_array_index = __sn_index((right).len(), 1); (right)[__sn_array_index] = Point { x: 4000, y: 400 }; };
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", ((left)[__sn_index((left).len(), 0)]).x)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", ((right)[__sn_index((right).len(), 1)]).y)); __sn_interpolated }));
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", ((combined)[__sn_index((combined).len(), 0)]).x)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", ((combined)[__sn_index((combined).len(), 3)]).y)); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

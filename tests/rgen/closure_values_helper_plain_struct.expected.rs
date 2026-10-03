@@ -317,9 +317,15 @@ struct __SnClosure {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut item: __SnClosure = __SnClosure { value: 7 };
     let mut copy: __SnClosure = item;
     ((copy).value = 9);
     __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", (item).value)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", (copy).value)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x0a]))); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

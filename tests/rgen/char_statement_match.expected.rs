@@ -346,7 +346,6 @@ fn observeSubject(calls: &mut i64, order: &mut i64, value: char) -> char {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut subject_calls: i64 = 0;
     let mut order: i64 = 0;
     let mut selected: i64 = 0;
@@ -381,4 +380,11 @@ fn main() {
         _ => {},
     };
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", subject_calls)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", order)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", selected)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", fallback)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", unchanged)); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

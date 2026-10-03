@@ -161,10 +161,16 @@ fn observe(result: i64) -> i64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     std::sync::LazyLock::force(&__sn_concurrency0_global_value);
     std::sync::LazyLock::force(&__sn_concurrency0_global_rhs_calls);
     println!("{}", observe({ let mut __sn_concurrency0_value_guard = { (*__sn_concurrency0_global_value.lock().unwrap_or_else(|e| e.into_inner())).clone() }; let __sn_concurrency0_numeric_rhs = (joined_rhs()).clone(); let __sn_concurrency0_value = { { let (__sn_rhs, __sn_place): (i64, &mut i64) = (__sn_concurrency0_numeric_rhs, &mut (__sn_concurrency0_value_guard)); let __sn_next = *__sn_place + __sn_rhs; *__sn_place = __sn_next; __sn_next } }; *__sn_concurrency0_global_value.lock().unwrap_or_else(|e| e.into_inner()) = __sn_concurrency0_value_guard; __sn_concurrency0_value }));
     println!("{}", { let value = __sn_concurrency0_global_value.lock().unwrap_or_else(|e| e.into_inner()).clone(); value });
     println!("{}", { let value = __sn_concurrency0_global_rhs_calls.lock().unwrap_or_else(|e| e.into_inner()).clone(); value });
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

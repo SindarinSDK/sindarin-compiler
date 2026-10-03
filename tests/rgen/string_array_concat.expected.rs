@@ -335,7 +335,6 @@ fn __sn_array_size(size: i64) -> usize {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut left: Vec<SnString> = vec![SnString::from_slice(&[0x61, 0x6c, 0x70, 0x68, 0x61]), SnString::from_slice(&[0x62, 0x65, 0x74, 0x61])];
     let mut right: Vec<SnString> = vec![SnString::from_slice(&[0x67, 0x61, 0x6d, 0x6d, 0x61]), SnString::from_slice(&[0x64, 0x65, 0x6c, 0x74, 0x61])];
     let mut combined: Vec<SnString> = { let __sn_array_left = &(left); let __sn_array_right = &(right); [__sn_array_left.as_slice(), __sn_array_right.as_slice()].concat() };
@@ -346,4 +345,11 @@ fn main() {
     __sn_println_string(&({ let __sn_separator_0 = &(SnString::from_slice(&[0x2c])); __sn_string_join((left).as_slice(), __sn_separator_0) }));
     __sn_println_string(&({ let __sn_separator_0 = &(SnString::from_slice(&[0x2c])); __sn_string_join((right).as_slice(), __sn_separator_0) }));
     __sn_println_string(&({ let __sn_separator_0 = &(SnString::from_slice(&[0x2c])); __sn_string_join((combined).as_slice(), __sn_separator_0) }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

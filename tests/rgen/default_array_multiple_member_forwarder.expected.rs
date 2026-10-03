@@ -350,10 +350,16 @@ fn forward(left: &mut Vec<i64>, right: &mut Vec<i64>) -> i64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut bag: Bag = Bag { values: vec![1] };
     println!("{}", __sn_array_alias_call_0(&mut ((bag).values)));
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", ((bag).values).len() as i64)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", ((bag).values)[__sn_index(((bag).values).len(), 1)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", ((bag).values)[__sn_index(((bag).values).len(), 2)])); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }
 
 fn __sn_array_alias_call_0(left: &mut Vec<i64>) -> i64 {

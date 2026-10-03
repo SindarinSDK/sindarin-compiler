@@ -360,7 +360,13 @@ fn __sn_println_format() -> i64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut __sn_print_format_1: i64 = 6;
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x73, 0x75, 0x6d, 0x3a]))); __sn_interpolated.push_str(&format!("{}", __sn_checked_0((__sn_checked_0((__sn_checked_0((__sn_checked_0((__sn_checked_0((__sn_write_windows_text()).checked_add(__sn_write_stdout_bytes()), "Runtime error: integer overflow in addition")).checked_add(__sn_write_stderr_bytes()), "Runtime error: integer overflow in addition")).checked_add(__sn_print_format()), "Runtime error: integer overflow in addition")).checked_add(__sn_println_format()), "Runtime error: integer overflow in addition")).checked_add(__sn_print_format_1), "Runtime error: integer overflow in addition"))); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

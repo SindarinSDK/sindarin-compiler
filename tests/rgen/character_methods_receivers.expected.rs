@@ -435,7 +435,6 @@ fn __sn_ctype(value: char) -> char {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut calls: i64 = 0;
     __sn_println_string(&(__sn_ctype_1::string(__sn_ctype_1::upper(sample(&mut (calls))))));
     println!("{}", calls);
@@ -457,4 +456,11 @@ fn main() {
 ;
     __sn_println_string(&(((fromField.clone()).0)()));
     __sn_println_string(&(__sn_ctype_1::string(__sn_ctype_1::upper(__sn_ctype('\u{62}')))));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

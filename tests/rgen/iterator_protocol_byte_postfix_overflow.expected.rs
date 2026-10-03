@@ -139,7 +139,6 @@ impl ByteIterator {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut source: ByteIterator = ByteIterator { value: 255, remaining: 1 };
     {
     let mut __sn_iter_0 = (source).iter();
@@ -149,4 +148,11 @@ fn main() {
         { let __sn_byte_place = &mut (previous); let __sn_byte_previous = *__sn_byte_place; *__sn_byte_place = __sn_byte_previous.wrapping_add(1); __sn_byte_previous };
     }
 }
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

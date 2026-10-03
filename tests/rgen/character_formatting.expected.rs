@@ -485,7 +485,6 @@ fn __sn_format_scientific(value: f64, precision: usize, uppercase: bool,
 
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut letter: char = '\u{41}';
     let mut tab: char = '\u{9}';
     let mut nul: char = '\u{0}';
@@ -500,4 +499,11 @@ fn main() {
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x6e, 0x75, 0x6c, 0x3d, 0x7c]))); __sn_interpolated.push_str(&__sn_format_character(nul, 0, false)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated }));
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x6e, 0x75, 0x6c, 0x2d, 0x77, 0x69, 0x64, 0x74, 0x68, 0x3d, 0x7c]))); __sn_interpolated.push_str(&__sn_format_character(nul, 5, false)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated }));
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x6e, 0x75, 0x6c, 0x2d, 0x6c, 0x65, 0x66, 0x74, 0x3d, 0x7c]))); __sn_interpolated.push_str(&__sn_format_character(nul, 5, true)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

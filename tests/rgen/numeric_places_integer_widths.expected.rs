@@ -115,7 +115,6 @@ fn __sn_array_size(size: i64) -> usize {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut values: Vec<i64> = vec![10, 21, 16, 8, 17];
     println!("{}", { let __sn_numeric_old: i64 = { let __sn_place_raw_index_1 = 0; let __sn_place_index_1 = if __sn_place_raw_index_1 < 0 { __sn_place_raw_index_1 + (values).len() as i64 } else { __sn_place_raw_index_1 }; (values)[__sn_place_index_1 as usize] }; let __sn_numeric_rhs: i64 = (((5i128) as i64)) as i64; let __sn_numeric_next: i64 = (__sn_numeric_old as i64).wrapping_add(__sn_numeric_rhs) as i64; let __sn_place_raw_index_0 = 0; let __sn_place_index_0 = if __sn_place_raw_index_0 < 0 { __sn_place_raw_index_0 + (values).len() as i64 } else { __sn_place_raw_index_0 }; let __sn_numeric_place: &mut i64 = &mut ((values)[__sn_place_index_0 as usize]); *__sn_numeric_place = __sn_numeric_next; __sn_numeric_next });
     println!("{}", { let __sn_numeric_old_1: i64 = { let __sn_place_raw_index_3 = 1; let __sn_place_index_3 = if __sn_place_raw_index_3 < 0 { __sn_place_raw_index_3 + (values).len() as i64 } else { __sn_place_raw_index_3 }; (values)[__sn_place_index_3 as usize] }; let __sn_numeric_rhs_1: i64 = (((4i128) as i64)) as i64; let __sn_numeric_next_1: i64 = (__sn_numeric_old_1 as i64).wrapping_sub(__sn_numeric_rhs_1) as i64; let __sn_place_raw_index_2 = 1; let __sn_place_index_2 = if __sn_place_raw_index_2 < 0 { __sn_place_raw_index_2 + (values).len() as i64 } else { __sn_place_raw_index_2 }; let __sn_numeric_place_1: &mut i64 = &mut ((values)[__sn_place_index_2 as usize]); *__sn_numeric_place_1 = __sn_numeric_next_1; __sn_numeric_next_1 });
@@ -150,4 +149,11 @@ fn main() {
     println!("{}", ((wideUnsigned)[__sn_index((wideUnsigned).len(), 0)] as i64));
     let mut longs: Vec<i64> = vec![30];
     println!("{}", { let __sn_numeric_old_22: i64 = { let __sn_place_raw_index_40 = 0; let __sn_place_index_40 = if __sn_place_raw_index_40 < 0 { __sn_place_raw_index_40 + (longs).len() as i64 } else { __sn_place_raw_index_40 }; (longs)[__sn_place_index_40 as usize] }; let __sn_numeric_rhs_22: i64 = (((3i128) as i64)) as i64; let __sn_numeric_next_22: i64 = ((__sn_numeric_old_22 as i64) / __sn_numeric_rhs_22) as i64; let __sn_place_raw_index_39 = 0; let __sn_place_index_39 = if __sn_place_raw_index_39 < 0 { __sn_place_raw_index_39 + (longs).len() as i64 } else { __sn_place_raw_index_39 }; let __sn_numeric_place_22: &mut i64 = &mut ((longs)[__sn_place_index_39 as usize]); *__sn_numeric_place_22 = __sn_numeric_next_22; __sn_numeric_next_22 });
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

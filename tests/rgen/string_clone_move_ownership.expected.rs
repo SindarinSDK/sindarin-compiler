@@ -344,7 +344,6 @@ fn copyForCall(value: SnString) -> SnString {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut source: SnString = SnString::from_slice(&[0x73, 0x6f, 0x75, 0x72, 0x63, 0x65]);
     let mut assigned: SnString = source.clone();
     (assigned = SnString::from_slice(&[0x61, 0x73, 0x73, 0x69, 0x67, 0x6e, 0x65, 0x64]));
@@ -363,4 +362,11 @@ fn main() {
     { let __sn_array_index = __sn_index((values).len(), 0); (values)[__sn_array_index] = SnString::from_slice(&[0x61, 0x72, 0x72, 0x61, 0x79]); };
     (source = SnString::from_slice(&[0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x2d, 0x75, 0x70, 0x64, 0x61, 0x74, 0x65, 0x64]));
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x3d]))); __sn_interpolated.push_str(&(source)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3b, 0x20, 0x61, 0x73, 0x73, 0x69, 0x67, 0x6e, 0x65, 0x64, 0x3d]))); __sn_interpolated.push_str(&(assigned)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3b, 0x20, 0x72, 0x65, 0x74, 0x75, 0x72, 0x6e, 0x65, 0x64, 0x3d]))); __sn_interpolated.push_str(&(returned)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3b, 0x20, 0x6c, 0x61, 0x62, 0x65, 0x6c, 0x3d]))); __sn_interpolated.push_str(&((label).text)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3b, 0x20, 0x66, 0x69, 0x65, 0x6c, 0x64, 0x3d]))); __sn_interpolated.push_str(&(extractedField)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3b, 0x20, 0x61, 0x72, 0x72, 0x61, 0x79, 0x30, 0x3d]))); __sn_interpolated.push_str(&((values)[__sn_index((values).len(), 0)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3b, 0x20, 0x61, 0x72, 0x72, 0x61, 0x79, 0x31, 0x3d]))); __sn_interpolated.push_str(&((values)[__sn_index((values).len(), 1)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3b, 0x20, 0x65, 0x6c, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x3d]))); __sn_interpolated.push_str(&(extractedElement)); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

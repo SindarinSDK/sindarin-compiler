@@ -337,7 +337,6 @@ impl Label {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut point: Point = Point::create(3, 4);
     let mut origin: Point = Point::origin();
     let mut source: SnString = SnString::from_slice(&[0x68, 0x65, 0x6c, 0x6c, 0x6f]);
@@ -345,4 +344,11 @@ fn main() {
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x70, 0x6f, 0x69, 0x6e, 0x74, 0x3d]))); __sn_interpolated.push_str(&format!("{}", (point).x)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", (point).y)); __sn_interpolated }));
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x6f, 0x72, 0x69, 0x67, 0x69, 0x6e, 0x3d]))); __sn_interpolated.push_str(&format!("{}", (origin).x)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x2c]))); __sn_interpolated.push_str(&format!("{}", (origin).y)); __sn_interpolated }));
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x6c, 0x61, 0x62, 0x65, 0x6c, 0x3d]))); __sn_interpolated.push_str(&((label).text)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3b, 0x20, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x3d]))); __sn_interpolated.push_str(&(source)); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

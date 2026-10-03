@@ -373,7 +373,6 @@ fn nextValue(calls: &mut i64) -> i64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut boundCalls: i64 = 0;
     let mut defaultCalls: i64 = 0;
     let mut values: Vec<i64> = { let mut __sn_sized_values_1: Vec<i64> = Vec::with_capacity(__sn_array_size(bound(&mut (boundCalls)))); let mut __sn_sized_index_1: i64 = 0; while __sn_sized_index_1 < (bound(&mut (boundCalls))) { __sn_sized_values_1.push((nextValue(&mut (defaultCalls))).clone()); __sn_sized_index_1 += 1; } __sn_sized_values_1 };
@@ -390,4 +389,11 @@ fn main() {
     let mut word: SnString = SnString::from_slice(&[0x68, 0x65, 0x6c, 0x6c, 0x6f]);
     let mut words: Vec<SnString> = { let mut __sn_sized_values_5: Vec<SnString> = Vec::with_capacity(__sn_array_size(2)); let mut __sn_sized_index_5: i64 = 0; while __sn_sized_index_5 < (2) { __sn_sized_values_5.push((word).clone()); __sn_sized_index_5 += 1; } __sn_sized_values_5 };
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&((words)[__sn_index((words).len(), 0)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&((words)[__sn_index((words).len(), 1)])); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

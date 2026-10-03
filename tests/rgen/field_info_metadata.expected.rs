@@ -330,7 +330,13 @@ struct TypeInfo {
 
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut field: FieldInfo = FieldInfo { name: SnString::from_slice(&[0x63, 0x6f, 0x75, 0x6e, 0x74]), typeName: SnString::from_slice(&[0x69, 0x6e, 0x74]), typeId: 367623774 };
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&((field).name)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&((field).typeName)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", (field).typeId)); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

@@ -130,7 +130,13 @@ fn sum(a: i64, b: i64) -> i64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut pair: Pair = Pair { left: 19, right: 23 };
     println!("{}", sum((pair).left, (pair).right));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

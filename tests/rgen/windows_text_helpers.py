@@ -48,6 +48,21 @@ def main():
         emitted, replacements = stdio.subn(simulated_stdio, emitted)
         if replacements != 1:
             raise AssertionError("missing or ambiguous CRT transport entry")
+        # The original main now flushes its C stdout at fallthrough. This forced
+        # cfg simulation has no Windows CRT; the substituted byte adapter above
+        # already flushes its writer. Actual main/CRT lifecycle is checked by
+        # the hosted main-return gate, so remove exactly that main footer here.
+        footer = re.compile(
+            r"(?m)^    unsafe \{\n"
+            r"        #\[cfg\(windows\)\]\n"
+            r"        let stream = crate::\w+\(1\);\n"
+            r"        #\[cfg\(not\(windows\)\)\]\n"
+            r"        let stream = crate::\w+;\n"
+            r"        crate::\w+\(stream\);\n"
+            r"    \}\n")
+        emitted, replacements = footer.subn("", emitted)
+        if replacements != 1:
+            raise AssertionError("missing or ambiguous main CRT flush footer")
         source = emitted.replace("fn main()", "fn __sn_original_main()", 1) + r'''
 fn main() {
     __sn_original_main();

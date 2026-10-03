@@ -167,7 +167,6 @@ fn makeValues(calls: &mut i64) -> Vec<i64> {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut values: Vec<i64> = vec![1];
     let mut mutator: Mutator = Mutator { marker: 5 };
     println!("{}", (mutator).append(&mut (values)));
@@ -178,4 +177,11 @@ fn main() {
     let mut calls: i64 = 0;
     Mutator::appendStatic(&mut (makeValues(&mut (calls))), 9);
     println!("{}", calls);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

@@ -390,7 +390,6 @@ fn observe() -> i64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut calls: i64 = 0;
     let mut __sn_numeric_owner: Vec<i64> = make(&mut (calls)); println!("{}", { let __sn_numeric_old: i64 = { let __sn_place_raw_index_1 = 0; let __sn_place_index_1 = if __sn_place_raw_index_1 < 0 { __sn_place_raw_index_1 + (__sn_numeric_owner).len() as i64 } else { __sn_place_raw_index_1 }; (__sn_numeric_owner)[__sn_place_index_1 as usize] }; let __sn_numeric_rhs: i64 = (((5i128) as i64)) as i64; let __sn_numeric_next: i64 = (__sn_numeric_old as i64).wrapping_add(__sn_numeric_rhs) as i64; let __sn_place_raw_index_0 = 0; let __sn_place_index_0 = if __sn_place_raw_index_0 < 0 { __sn_place_raw_index_0 + (__sn_numeric_owner).len() as i64 } else { __sn_place_raw_index_0 }; let __sn_numeric_place: &mut i64 = &mut ((__sn_numeric_owner)[__sn_place_index_0 as usize]); *__sn_numeric_place = __sn_numeric_next; __sn_numeric_next });
     println!("{}", calls);
@@ -410,4 +409,11 @@ fn main() {
     __sn_println_string(&(SnString::from_slice(&[0x63, 0x72, 0x65, 0x61, 0x74, 0x65, 0x64])));
     println!("{}", ((callback.clone()).0)());
     println!("{}", ((callback.clone()).0)());
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

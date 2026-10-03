@@ -440,7 +440,6 @@ impl<F: ?Sized> PartialEq for __SnClosure<F> {
     fn eq(&self, other: &Self) -> bool { std::rc::Rc::ptr_eq(&self.0, &other.0) }
 }
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let bytes: __sn_concurrency0_Cell<Vec<u8>> = __sn_concurrency0_Cell::new(vec![77, 97, 110]);
     let mut first: __SnClosure<dyn Fn() -> SnString> = { let (bytes, ) = ({ let value = bytes.lock().unwrap_or_else(|e| e.into_inner()).clone(); value }, ); self::__SnClosure::<dyn Fn() -> SnString>(std::rc::Rc::new(move || -> SnString { __sn_byte_encoding::hex(&(bytes.clone()))})) }
 ;
@@ -459,4 +458,11 @@ fn main() {
     __sn_println_string(&(((mutate.clone()).0)()));
     __sn_println_string(&(((mutate.clone()).0)()));
     __sn_println_string(&(__sn_byte_encoding::hex(&({ let value = bytes.lock().unwrap_or_else(|e| e.into_inner()).clone(); value }))));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

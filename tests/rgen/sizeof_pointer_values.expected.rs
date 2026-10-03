@@ -312,11 +312,17 @@ fn __sn_string_to_double(value: &SnString) -> f64 {
 
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut pointer_size: i64 = (std::mem::size_of::<*mut std::ffi::c_void>() as i64);
     println!("{}", pointer_size);
     println!("{}", (pointer_size == (std::mem::size_of::<*mut std::ffi::c_void>() as i64)));
     println!("{}", (pointer_size == (std::mem::size_of::<*mut std::ffi::c_void>() as i64)));
     println!("{}", (pointer_size == (std::mem::size_of::<*mut std::ffi::c_void>() as i64)));
     println!("{}", (pointer_size == (std::mem::size_of::<*mut std::ffi::c_void>() as i64)));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

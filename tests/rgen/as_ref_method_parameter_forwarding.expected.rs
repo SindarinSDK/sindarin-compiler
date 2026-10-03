@@ -144,11 +144,17 @@ fn forwardInstance(value: &mut i64) -> i64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut staticValue: i64 = 1;
     let mut instanceValue: i64 = 1;
     println!("{}", forwardStatic(&mut (staticValue)));
     println!("{}", staticValue);
     println!("{}", forwardInstance(&mut (instanceValue)));
     println!("{}", instanceValue);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

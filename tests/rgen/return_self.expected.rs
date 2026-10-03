@@ -136,7 +136,6 @@ impl Point {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut original: Point = Point { x: 1, y: 2 };
     let mut snapshot: Point = (original).snapshot();
     let mut shifted: Point = (original).shiftX(4);
@@ -150,4 +149,11 @@ fn main() {
     println!("{}", (shifted).y);
     println!("{}", (original).x);
     println!("{}", (original).y);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

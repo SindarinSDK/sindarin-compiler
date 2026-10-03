@@ -139,7 +139,6 @@ impl UintIterator {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut source: UintIterator = UintIterator { value: 1, remaining: 1 };
     let mut zero: u64 = 0;
     {
@@ -151,4 +150,11 @@ fn main() {
         { let __sn_rhs = zero; let __sn_place = &mut (checked); let __sn_next = __sn_checked_div_0((*__sn_place).checked_div(__sn_rhs), __sn_rhs == 0); *__sn_place = __sn_next; __sn_next };
     }
 }
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

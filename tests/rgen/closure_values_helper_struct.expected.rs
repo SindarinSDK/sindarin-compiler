@@ -333,7 +333,6 @@ struct __SnClosure_0 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut __SnClosure_1: i64 = 20;
     let mut item: __SnClosure = __SnClosure { value: 7 };
     let mut factory: __SnClosure_2<dyn Fn() -> __SnClosure> = { let (item, ) = (item.clone(), ); self::__SnClosure_2::<dyn Fn() -> __SnClosure>(std::rc::Rc::new(move || -> __SnClosure { item.clone().clone()})) }
@@ -341,4 +340,11 @@ fn main() {
     let mut result: __SnClosure = ((factory.clone()).0)();
     ((item).value = 9);
     __sn_print_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", (result).value)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", (item).value)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", __SnClosure_1)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x0a]))); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

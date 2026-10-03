@@ -335,7 +335,6 @@ fn __sn_array_size(size: i64) -> usize {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut direct: SnString = SnString::from_slice(&[0x58, 0x1f, 0x41, 0x59]);
     let mut longGreedy: SnString = SnString::from_slice(&[0x58, 0x1f, 0x41, 0x62, 0x30, 0x39, 0x59]);
     let mut lower: SnString = SnString::from_slice(&[0x78, 0x1f, 0x61, 0x79]);
@@ -405,4 +404,11 @@ fn main() {
     __sn_println_string(&(lower));
     __sn_println_string(&(unicode));
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", (boundaries).len() as i64)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", (controls).len() as i64)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", (unicode).len() as i64)); __sn_interpolated }));
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

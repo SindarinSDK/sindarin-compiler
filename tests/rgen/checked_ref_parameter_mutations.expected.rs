@@ -164,7 +164,6 @@ fn intOps(value: &mut i64) -> i64 {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut integer: i64 = 2;
     let mut long_value: i64 = 10;
     let mut ops: RefOps = RefOps {  };
@@ -180,4 +179,11 @@ fn main() {
     println!("{}", integer);
     println!("{}", (ops).longCompound(&mut (long_value)));
     println!("{}", long_value);
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }

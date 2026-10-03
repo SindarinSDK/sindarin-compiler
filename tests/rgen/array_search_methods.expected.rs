@@ -335,7 +335,6 @@ fn __sn_array_size(size: i64) -> usize {
 }
 
 fn main() {
-    let __sn_stdio_guard = __SnStdioGuard;
     let mut numbers: Vec<i64> = vec![10, 20, 10];
     println!("{}", { let __sn_array = &(numbers); let __sn_array_search = &(20); __sn_array.contains(__sn_array_search) });
     println!("{}", { let __sn_array = &(numbers); let __sn_array_search = &(99); __sn_array.contains(__sn_array_search) });
@@ -361,4 +360,11 @@ fn main() {
     let mut empty: Vec<i64> = vec![];
     println!("{}", { let __sn_array = &(empty); let __sn_array_search = &(1); __sn_array.contains(__sn_array_search) });
     println!("{}", { let __sn_array = &(empty); let __sn_array_search = &(1); __sn_array.iter().position(|__sn_item| __sn_item == __sn_array_search).map(|__sn_index| __sn_index as i64).unwrap_or(-1) });
+    unsafe {
+        #[cfg(windows)]
+        let stream = crate::__sn_stdio_iob(1);
+        #[cfg(not(windows))]
+        let stream = crate::__sn_stdio_stdout;
+        crate::__sn_stdio_fflush(stream);
+    }
 }
