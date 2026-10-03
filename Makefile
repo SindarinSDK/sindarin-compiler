@@ -585,3 +585,7 @@ test-rust-parity-byte-encoding: build
 		--require-count 9 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-byte-encoding.json
 	@$(PYTHON) scripts/check_rust_byte_encoding_oracles.py .sn/rust-parity-byte-encoding.json
+
+.PHONY: test-rust-parity-exit
+test-rust-parity-exit: build
+	@$(PYTHON) tests/rgen/builtin_exit_compare.py

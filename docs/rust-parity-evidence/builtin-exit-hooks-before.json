@@ -1,0 +1,2897 @@
+{
+  "compiler": "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+  "compiler_sha256": "234bbccf8803d06e86e869e61c3f4890dad488ce4c41ba0cbda4d1be724b0ac9",
+  "reference_source": "#include <stdio.h>\n#include <stdlib.h>\nstatic void callback_a(void) { fputs(\"callback-A\\n\", stdout); }\nstatic void callback_b(void) { fputs(\"callback-B\\n\", stdout); }\nint arm_exit_hooks(void) {\n    int status = atexit(callback_a) + atexit(callback_b);\n    fputs(\"native-before\\n\", stdout);\n    return status;\n}\n",
+  "cases": [
+    {
+      "source": ".sn/builtin-exit-contract/status_0.sn",
+      "source_sha256": "9277247e20213bdf1ac99c2602e5a0aec610b48416086655a612228eb7f24c0e",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 0\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "expected_status": 0,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_0.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_0default-O0c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f302e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f3064656661756c742d4f3063202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_0default-O0c"
+            ],
+            "status": 0,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_0.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_0default-O0rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f302e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_0.sn",
+      "source_sha256": "9277247e20213bdf1ac99c2602e5a0aec610b48416086655a612228eb7f24c0e",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 0\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "expected_status": 0,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_0.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_0default-O1c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f302e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f3064656661756c742d4f3163202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_0default-O1c"
+            ],
+            "status": 0,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_0.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_0default-O1rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f302e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_0.sn",
+      "source_sha256": "9277247e20213bdf1ac99c2602e5a0aec610b48416086655a612228eb7f24c0e",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 0\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "expected_status": 0,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_0.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_0default-O2c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f302e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f3064656661756c742d4f3263202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_0default-O2c"
+            ],
+            "status": 0,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_0.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_0default-O2rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f302e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_0.sn",
+      "source_sha256": "9277247e20213bdf1ac99c2602e5a0aec610b48416086655a612228eb7f24c0e",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 0\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "expected_status": 0,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_0.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_0checked-O0c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f302e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f30636865636b65642d4f3063202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_0checked-O0c"
+            ],
+            "status": 0,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_0.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_0checked-O0rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f302e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_0.sn",
+      "source_sha256": "9277247e20213bdf1ac99c2602e5a0aec610b48416086655a612228eb7f24c0e",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 0\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "expected_status": 0,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_0.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_0checked-O1c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f302e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f30636865636b65642d4f3163202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_0checked-O1c"
+            ],
+            "status": 0,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_0.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_0checked-O1rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f302e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_0.sn",
+      "source_sha256": "9277247e20213bdf1ac99c2602e5a0aec610b48416086655a612228eb7f24c0e",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 0\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "expected_status": 0,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_0.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_0checked-O2c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f302e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f30636865636b65642d4f3263202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_0checked-O2c"
+            ],
+            "status": 0,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_0.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_0checked-O2rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f302e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_0.sn",
+      "source_sha256": "9277247e20213bdf1ac99c2602e5a0aec610b48416086655a612228eb7f24c0e",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 0\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "expected_status": 0,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_0.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_0unchecked-O0c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f302e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f30756e636865636b65642d4f3063202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_0unchecked-O0c"
+            ],
+            "status": 0,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_0.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_0unchecked-O0rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f302e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_0.sn",
+      "source_sha256": "9277247e20213bdf1ac99c2602e5a0aec610b48416086655a612228eb7f24c0e",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 0\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "expected_status": 0,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_0.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_0unchecked-O1c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f302e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f30756e636865636b65642d4f3163202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_0unchecked-O1c"
+            ],
+            "status": 0,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_0.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_0unchecked-O1rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f302e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_0.sn",
+      "source_sha256": "9277247e20213bdf1ac99c2602e5a0aec610b48416086655a612228eb7f24c0e",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 0\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "expected_status": 0,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_0.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_0unchecked-O2c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f302e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f30756e636865636b65642d4f3263202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_0unchecked-O2c"
+            ],
+            "status": 0,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_0.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_0unchecked-O2rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f302e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_1.sn",
+      "source_sha256": "1064e5855e1dab1de4f1ee5d1d965e59ddf8d8a918ac80f0db63d126d6f3e9c2",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 1\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "expected_status": 1,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_1.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_1default-O0c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f312e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f3164656661756c742d4f3063202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_1default-O0c"
+            ],
+            "status": 1,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_1.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_1default-O0rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f312e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_1.sn",
+      "source_sha256": "1064e5855e1dab1de4f1ee5d1d965e59ddf8d8a918ac80f0db63d126d6f3e9c2",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 1\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "expected_status": 1,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_1.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_1default-O1c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f312e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f3164656661756c742d4f3163202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_1default-O1c"
+            ],
+            "status": 1,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_1.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_1default-O1rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f312e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_1.sn",
+      "source_sha256": "1064e5855e1dab1de4f1ee5d1d965e59ddf8d8a918ac80f0db63d126d6f3e9c2",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 1\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "expected_status": 1,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_1.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_1default-O2c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f312e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f3164656661756c742d4f3263202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_1default-O2c"
+            ],
+            "status": 1,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_1.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_1default-O2rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f312e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_1.sn",
+      "source_sha256": "1064e5855e1dab1de4f1ee5d1d965e59ddf8d8a918ac80f0db63d126d6f3e9c2",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 1\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "expected_status": 1,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_1.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_1checked-O0c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f312e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f31636865636b65642d4f3063202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_1checked-O0c"
+            ],
+            "status": 1,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_1.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_1checked-O0rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f312e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_1.sn",
+      "source_sha256": "1064e5855e1dab1de4f1ee5d1d965e59ddf8d8a918ac80f0db63d126d6f3e9c2",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 1\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "expected_status": 1,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_1.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_1checked-O1c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f312e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f31636865636b65642d4f3163202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_1checked-O1c"
+            ],
+            "status": 1,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_1.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_1checked-O1rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f312e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_1.sn",
+      "source_sha256": "1064e5855e1dab1de4f1ee5d1d965e59ddf8d8a918ac80f0db63d126d6f3e9c2",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 1\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "expected_status": 1,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_1.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_1checked-O2c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f312e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f31636865636b65642d4f3263202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_1checked-O2c"
+            ],
+            "status": 1,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_1.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_1checked-O2rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f312e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_1.sn",
+      "source_sha256": "1064e5855e1dab1de4f1ee5d1d965e59ddf8d8a918ac80f0db63d126d6f3e9c2",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 1\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "expected_status": 1,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_1.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_1unchecked-O0c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f312e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f31756e636865636b65642d4f3063202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_1unchecked-O0c"
+            ],
+            "status": 1,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_1.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_1unchecked-O0rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f312e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_1.sn",
+      "source_sha256": "1064e5855e1dab1de4f1ee5d1d965e59ddf8d8a918ac80f0db63d126d6f3e9c2",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 1\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "expected_status": 1,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_1.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_1unchecked-O1c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f312e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f31756e636865636b65642d4f3163202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_1unchecked-O1c"
+            ],
+            "status": 1,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_1.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_1unchecked-O1rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f312e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_1.sn",
+      "source_sha256": "1064e5855e1dab1de4f1ee5d1d965e59ddf8d8a918ac80f0db63d126d6f3e9c2",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 1\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "expected_status": 1,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_1.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_1unchecked-O2c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f312e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f31756e636865636b65642d4f3263202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_1unchecked-O2c"
+            ],
+            "status": 1,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_1.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_1unchecked-O2rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f312e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_255.sn",
+      "source_sha256": "7df8e3f84a02a3beb500e61209fb014b33db5970d202dc091e00cbcef191735c",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 255\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "expected_status": 255,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_255.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_255default-O0c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f3235352e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f32353564656661756c742d4f3063202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_255default-O0c"
+            ],
+            "status": 255,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_255.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_255default-O0rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f3235352e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_255.sn",
+      "source_sha256": "7df8e3f84a02a3beb500e61209fb014b33db5970d202dc091e00cbcef191735c",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 255\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "expected_status": 255,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_255.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_255default-O1c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f3235352e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f32353564656661756c742d4f3163202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_255default-O1c"
+            ],
+            "status": 255,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_255.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_255default-O1rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f3235352e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_255.sn",
+      "source_sha256": "7df8e3f84a02a3beb500e61209fb014b33db5970d202dc091e00cbcef191735c",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 255\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "expected_status": 255,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_255.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_255default-O2c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f3235352e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f32353564656661756c742d4f3263202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_255default-O2c"
+            ],
+            "status": 255,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_255.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_255default-O2rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f3235352e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_255.sn",
+      "source_sha256": "7df8e3f84a02a3beb500e61209fb014b33db5970d202dc091e00cbcef191735c",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 255\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "expected_status": 255,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_255.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_255checked-O0c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f3235352e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f323535636865636b65642d4f3063202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_255checked-O0c"
+            ],
+            "status": 255,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_255.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_255checked-O0rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f3235352e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_255.sn",
+      "source_sha256": "7df8e3f84a02a3beb500e61209fb014b33db5970d202dc091e00cbcef191735c",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 255\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "expected_status": 255,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_255.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_255checked-O1c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f3235352e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f323535636865636b65642d4f3163202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_255checked-O1c"
+            ],
+            "status": 255,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_255.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_255checked-O1rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f3235352e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_255.sn",
+      "source_sha256": "7df8e3f84a02a3beb500e61209fb014b33db5970d202dc091e00cbcef191735c",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 255\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "expected_status": 255,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_255.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_255checked-O2c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f3235352e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f323535636865636b65642d4f3263202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_255checked-O2c"
+            ],
+            "status": 255,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_255.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_255checked-O2rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f3235352e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_255.sn",
+      "source_sha256": "7df8e3f84a02a3beb500e61209fb014b33db5970d202dc091e00cbcef191735c",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 255\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "expected_status": 255,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_255.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_255unchecked-O0c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f3235352e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f323535756e636865636b65642d4f3063202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_255unchecked-O0c"
+            ],
+            "status": 255,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_255.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_255unchecked-O0rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f3235352e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_255.sn",
+      "source_sha256": "7df8e3f84a02a3beb500e61209fb014b33db5970d202dc091e00cbcef191735c",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 255\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "expected_status": 255,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_255.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_255unchecked-O1c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f3235352e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f323535756e636865636b65642d4f3163202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_255unchecked-O1c"
+            ],
+            "status": 255,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_255.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_255unchecked-O1rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f3235352e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_255.sn",
+      "source_sha256": "7df8e3f84a02a3beb500e61209fb014b33db5970d202dc091e00cbcef191735c",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 255\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "expected_status": 255,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_255.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_255unchecked-O2c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f3235352e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f323535756e636865636b65642d4f3263202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_255unchecked-O2c"
+            ],
+            "status": 255,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_255.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_255unchecked-O2rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f3235352e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_256.sn",
+      "source_sha256": "a9e1158f2b5bd73f1448f087a79a3b6fbaa7a54c2f5dceba4836543feb5f01bb",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 256\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "expected_status": 0,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_256.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_256default-O0c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f3235362e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f32353664656661756c742d4f3063202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_256default-O0c"
+            ],
+            "status": 0,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_256.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_256default-O0rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f3235362e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_256.sn",
+      "source_sha256": "a9e1158f2b5bd73f1448f087a79a3b6fbaa7a54c2f5dceba4836543feb5f01bb",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 256\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "expected_status": 0,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_256.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_256default-O1c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f3235362e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f32353664656661756c742d4f3163202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_256default-O1c"
+            ],
+            "status": 0,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_256.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_256default-O1rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f3235362e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_256.sn",
+      "source_sha256": "a9e1158f2b5bd73f1448f087a79a3b6fbaa7a54c2f5dceba4836543feb5f01bb",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 256\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "expected_status": 0,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_256.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_256default-O2c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f3235362e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f32353664656661756c742d4f3263202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_256default-O2c"
+            ],
+            "status": 0,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_256.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_256default-O2rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f3235362e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_256.sn",
+      "source_sha256": "a9e1158f2b5bd73f1448f087a79a3b6fbaa7a54c2f5dceba4836543feb5f01bb",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 256\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "expected_status": 0,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_256.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_256checked-O0c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f3235362e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f323536636865636b65642d4f3063202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_256checked-O0c"
+            ],
+            "status": 0,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_256.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_256checked-O0rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f3235362e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_256.sn",
+      "source_sha256": "a9e1158f2b5bd73f1448f087a79a3b6fbaa7a54c2f5dceba4836543feb5f01bb",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 256\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "expected_status": 0,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_256.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_256checked-O1c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f3235362e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f323536636865636b65642d4f3163202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_256checked-O1c"
+            ],
+            "status": 0,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_256.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_256checked-O1rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f3235362e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_256.sn",
+      "source_sha256": "a9e1158f2b5bd73f1448f087a79a3b6fbaa7a54c2f5dceba4836543feb5f01bb",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 256\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "expected_status": 0,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_256.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_256checked-O2c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f3235362e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f323536636865636b65642d4f3263202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_256checked-O2c"
+            ],
+            "status": 0,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_256.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_256checked-O2rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f3235362e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_256.sn",
+      "source_sha256": "a9e1158f2b5bd73f1448f087a79a3b6fbaa7a54c2f5dceba4836543feb5f01bb",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 256\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "expected_status": 0,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_256.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_256unchecked-O0c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f3235362e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f323536756e636865636b65642d4f3063202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_256unchecked-O0c"
+            ],
+            "status": 0,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_256.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_256unchecked-O0rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f3235362e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_256.sn",
+      "source_sha256": "a9e1158f2b5bd73f1448f087a79a3b6fbaa7a54c2f5dceba4836543feb5f01bb",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 256\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "expected_status": 0,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_256.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_256unchecked-O1c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f3235362e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f323536756e636865636b65642d4f3163202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_256unchecked-O1c"
+            ],
+            "status": 0,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_256.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_256unchecked-O1rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f3235362e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_256.sn",
+      "source_sha256": "a9e1158f2b5bd73f1448f087a79a3b6fbaa7a54c2f5dceba4836543feb5f01bb",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 256\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "expected_status": 0,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_256.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_256unchecked-O2c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f3235362e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f323536756e636865636b65642d4f3263202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_256unchecked-O2c"
+            ],
+            "status": 0,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_256.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_256unchecked-O2rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f3235362e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_4294967297.sn",
+      "source_sha256": "7071e7515fb0633909a58338e8db658140d227f4f2e6adea6771319720f90bbc",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 4294967297\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "expected_status": 1,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_4294967297.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_4294967297default-O0c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f343239343936373239372e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f3432393439363732393764656661756c742d4f3063202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_4294967297default-O0c"
+            ],
+            "status": 1,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_4294967297.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_4294967297default-O0rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f343239343936373239372e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_4294967297.sn",
+      "source_sha256": "7071e7515fb0633909a58338e8db658140d227f4f2e6adea6771319720f90bbc",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 4294967297\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "expected_status": 1,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_4294967297.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_4294967297default-O1c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f343239343936373239372e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f3432393439363732393764656661756c742d4f3163202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_4294967297default-O1c"
+            ],
+            "status": 1,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_4294967297.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_4294967297default-O1rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f343239343936373239372e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_4294967297.sn",
+      "source_sha256": "7071e7515fb0633909a58338e8db658140d227f4f2e6adea6771319720f90bbc",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 4294967297\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "expected_status": 1,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_4294967297.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_4294967297default-O2c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f343239343936373239372e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f3432393439363732393764656661756c742d4f3263202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_4294967297default-O2c"
+            ],
+            "status": 1,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_4294967297.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_4294967297default-O2rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f343239343936373239372e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_4294967297.sn",
+      "source_sha256": "7071e7515fb0633909a58338e8db658140d227f4f2e6adea6771319720f90bbc",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 4294967297\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "expected_status": 1,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_4294967297.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_4294967297checked-O0c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f343239343936373239372e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f34323934393637323937636865636b65642d4f3063202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_4294967297checked-O0c"
+            ],
+            "status": 1,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_4294967297.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_4294967297checked-O0rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f343239343936373239372e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_4294967297.sn",
+      "source_sha256": "7071e7515fb0633909a58338e8db658140d227f4f2e6adea6771319720f90bbc",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 4294967297\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "expected_status": 1,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_4294967297.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_4294967297checked-O1c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f343239343936373239372e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f34323934393637323937636865636b65642d4f3163202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_4294967297checked-O1c"
+            ],
+            "status": 1,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_4294967297.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_4294967297checked-O1rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f343239343936373239372e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_4294967297.sn",
+      "source_sha256": "7071e7515fb0633909a58338e8db658140d227f4f2e6adea6771319720f90bbc",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 4294967297\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "expected_status": 1,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_4294967297.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_4294967297checked-O2c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f343239343936373239372e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f34323934393637323937636865636b65642d4f3263202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_4294967297checked-O2c"
+            ],
+            "status": 1,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_4294967297.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_4294967297checked-O2rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f343239343936373239372e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_4294967297.sn",
+      "source_sha256": "7071e7515fb0633909a58338e8db658140d227f4f2e6adea6771319720f90bbc",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 4294967297\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "expected_status": 1,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_4294967297.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_4294967297unchecked-O0c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f343239343936373239372e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f34323934393637323937756e636865636b65642d4f3063202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_4294967297unchecked-O0c"
+            ],
+            "status": 1,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_4294967297.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_4294967297unchecked-O0rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f343239343936373239372e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_4294967297.sn",
+      "source_sha256": "7071e7515fb0633909a58338e8db658140d227f4f2e6adea6771319720f90bbc",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 4294967297\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "expected_status": 1,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_4294967297.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_4294967297unchecked-O1c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f343239343936373239372e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f34323934393637323937756e636865636b65642d4f3163202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_4294967297unchecked-O1c"
+            ],
+            "status": 1,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_4294967297.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_4294967297unchecked-O1rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f343239343936373239372e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_4294967297.sn",
+      "source_sha256": "7071e7515fb0633909a58338e8db658140d227f4f2e6adea6771319720f90bbc",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 4294967297\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "expected_status": 1,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_4294967297.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_4294967297unchecked-O2c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f343239343936373239372e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f34323934393637323937756e636865636b65642d4f3263202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_4294967297unchecked-O2c"
+            ],
+            "status": 1,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_4294967297.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_4294967297unchecked-O2rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f343239343936373239372e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_negative_1.sn",
+      "source_sha256": "4455b28e891ad33feb279d690c788c466275bcaf0c057cecda11c117f0eb26db",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return -1\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "expected_status": 255,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_negative_1.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_negative_1default-O0c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f6e656761746976655f312e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f6e656761746976655f3164656661756c742d4f3063202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_negative_1default-O0c"
+            ],
+            "status": 255,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_negative_1.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_negative_1default-O0rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f6e656761746976655f312e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_negative_1.sn",
+      "source_sha256": "4455b28e891ad33feb279d690c788c466275bcaf0c057cecda11c117f0eb26db",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return -1\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "expected_status": 255,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_negative_1.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_negative_1default-O1c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f6e656761746976655f312e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f6e656761746976655f3164656661756c742d4f3163202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_negative_1default-O1c"
+            ],
+            "status": 255,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_negative_1.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_negative_1default-O1rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f6e656761746976655f312e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_negative_1.sn",
+      "source_sha256": "4455b28e891ad33feb279d690c788c466275bcaf0c057cecda11c117f0eb26db",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return -1\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "expected_status": 255,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_negative_1.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_negative_1default-O2c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f6e656761746976655f312e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f6e656761746976655f3164656661756c742d4f3263202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_negative_1default-O2c"
+            ],
+            "status": 255,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_negative_1.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_negative_1default-O2rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f6e656761746976655f312e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_negative_1.sn",
+      "source_sha256": "4455b28e891ad33feb279d690c788c466275bcaf0c057cecda11c117f0eb26db",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return -1\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "expected_status": 255,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_negative_1.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_negative_1checked-O0c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f6e656761746976655f312e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f6e656761746976655f31636865636b65642d4f3063202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_negative_1checked-O0c"
+            ],
+            "status": 255,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_negative_1.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_negative_1checked-O0rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f6e656761746976655f312e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_negative_1.sn",
+      "source_sha256": "4455b28e891ad33feb279d690c788c466275bcaf0c057cecda11c117f0eb26db",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return -1\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "expected_status": 255,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_negative_1.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_negative_1checked-O1c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f6e656761746976655f312e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f6e656761746976655f31636865636b65642d4f3163202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_negative_1checked-O1c"
+            ],
+            "status": 255,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_negative_1.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_negative_1checked-O1rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f6e656761746976655f312e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_negative_1.sn",
+      "source_sha256": "4455b28e891ad33feb279d690c788c466275bcaf0c057cecda11c117f0eb26db",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return -1\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "expected_status": 255,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_negative_1.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_negative_1checked-O2c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f6e656761746976655f312e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f6e656761746976655f31636865636b65642d4f3263202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_negative_1checked-O2c"
+            ],
+            "status": 255,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_negative_1.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_negative_1checked-O2rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f6e656761746976655f312e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_negative_1.sn",
+      "source_sha256": "4455b28e891ad33feb279d690c788c466275bcaf0c057cecda11c117f0eb26db",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return -1\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "expected_status": 255,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_negative_1.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_negative_1unchecked-O0c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f6e656761746976655f312e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f6e656761746976655f31756e636865636b65642d4f3063202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_negative_1unchecked-O0c"
+            ],
+            "status": 255,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_negative_1.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_negative_1unchecked-O0rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f6e656761746976655f312e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_negative_1.sn",
+      "source_sha256": "4455b28e891ad33feb279d690c788c466275bcaf0c057cecda11c117f0eb26db",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return -1\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "expected_status": 255,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_negative_1.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_negative_1unchecked-O1c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f6e656761746976655f312e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f6e656761746976655f31756e636865636b65642d4f3163202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_negative_1unchecked-O1c"
+            ],
+            "status": 255,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_negative_1.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_negative_1unchecked-O1rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f6e656761746976655f312e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    },
+    {
+      "source": ".sn/builtin-exit-contract/status_negative_1.sn",
+      "source_sha256": "4455b28e891ad33feb279d690c788c466275bcaf0c057cecda11c117f0eb26db",
+      "source_text": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return -1\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "expected_status": 255,
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_negative_1.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_negative_1unchecked-O2c"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f6e656761746976655f312e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d657869742d686f6f6b732d71677475753236392f7374617475735f6e656761746976655f31756e636865636b65642d4f3263202836392e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-exit-hooks-qgtuu269/status_negative_1unchecked-O2c"
+            ],
+            "status": 255,
+            "stdout_hex": "6e61746976652d6265666f72650a626f64790a310a63616c6c6261636b2d420a63616c6c6261636b2d410a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn",
+              ".sn/builtin-exit-contract/status_negative_1.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-exit-hooks-qgtuu269/status_negative_1unchecked-O2rust"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f7374617475735f6e656761746976655f312e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      }
+    }
+  ],
+  "note": "C reference controls for exit status, once-only argument effects, native buffered stdout and LIFO atexit callbacks. Rust currently rejects these programs; no parity credit.",
+  "c_reference_cases": 54,
+  "probe_source_text": {
+    ".sn/builtin-exit-contract/status_4294967297.sn": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 4294967297\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+    ".sn/builtin-exit-contract/status_255.sn": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 255\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+    ".sn/builtin-exit-contract/status_256.sn": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 256\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+    ".sn/builtin-exit-contract/status_negative_1.sn": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return -1\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+    ".sn/builtin-exit-contract/status_1.sn": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 1\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n",
+    ".sn/builtin-exit-contract/status_0.sn": "@source \"hooks.c\"\nnative fn arm_exit_hooks(): int32\n\nfn status(calls: int as ref): int =>\n  calls++\n  println(calls)\n  return 0\n\nfn main(): void =>\n  assert(arm_exit_hooks() == 0, \"atexit registration\")\n  var calls: int = 0\n  println(\"body\")\n  exit(status(calls))\n  println(\"unreachable\")\n"
+  }
+}

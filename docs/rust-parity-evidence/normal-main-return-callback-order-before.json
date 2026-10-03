@@ -1,0 +1,51 @@
+{
+  "source": ".sn/builtin-exit-contract/normal_return.sn",
+  "source_text": "@source \"hooks_normal_return.c\"\nnative fn initialize_exit_hooks(): int32\n\nvar seed: int32 = initialize_exit_hooks()\n\nnative fn throughNative(value: int32): int32 =>\n  return seed + value\n\nfn main(): void =>\n  println(\"body\")\n  println(throughNative(2i32))\n  return\n",
+  "reference_source": "#include <stdio.h>\n#include <stdlib.h>\nstatic void callback_a(void) { fputs(\"callback-A\\n\", stdout); fputs(\"stderr-A\\n\", stderr); }\nstatic void callback_b(void) { fputs(\"callback-B\\n\", stdout); fputs(\"stderr-B\\n\", stderr); }\nint arm_exit_hooks(void) {\n    if (setvbuf(stdout, NULL, _IOFBF, BUFSIZ) != 0) return 1;\n    if (setvbuf(stderr, NULL, _IONBF, 0) != 0) return 1;\n    int status = atexit(callback_a) + atexit(callback_b);\n    fputs(\"native-before\\n\", stdout);\n    return status;\n}\nint c_exit_code(const char *raw) { return (int)strtoll(raw, NULL, 10); }\n\nint initialize_exit_hooks(void) {\n    if (arm_exit_hooks() != 0) return 0;\n    fputs(\"initializer\\n\", stdout);\n    return 40;\n}\n",
+  "compiler_sha256": "89d7b10faede5168ea09a35342e2613a31c590d8b04903586431e9bd90ec3764",
+  "targets": {
+    "c": {
+      "compile": {
+        "command": [
+          "bin/sn",
+          ".sn/builtin-exit-contract/normal_return.sn",
+          "--target",
+          "c",
+          "-O0",
+          "--no-install",
+          "-o",
+          "/tmp/sn-normal-return-order-an22ouv9/c"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f6e6f726d616c5f72657475726e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6e6f726d616c2d72657475726e2d6f726465722d616e32326f7576392f63202836392e35204b42290a"
+      },
+      "merged": {
+        "status": 0,
+        "stdout_hex": "7374646572722d420a7374646572722d410a6e61746976652d6265666f72650a696e697469616c697a65720a626f64790a34320a63616c6c6261636b2d420a63616c6c6261636b2d410a"
+      }
+    },
+    "rust": {
+      "compile": {
+        "command": [
+          "bin/sn",
+          ".sn/builtin-exit-contract/normal_return.sn",
+          "--target",
+          "rust",
+          "-O0",
+          "--no-install",
+          "-o",
+          "/tmp/sn-normal-return-order-an22ouv9/rust"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f6275696c74696e2d657869742d636f6e74726163742f6e6f726d616c5f72657475726e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f6e6f726d616c5f72657475726e5f313536303435392f6d61696e2e72733a39343a31340a2020207c0a3934207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2066756e6374696f6e20607468726f7567684e6174697665602073686f756c642068617665206120736e616b652063617365206e616d650a2020202d2d3e202e736e2f6275696c642f727573742f6e6f726d616c5f72657475726e5f313536303435392f6d61696e2e72733a3334323a340a202020207c0a333432207c20666e207468726f7567684e61746976652876616c75653a2069333229202d3e20693332207b0a202020207c202020205e5e5e5e5e5e5e5e5e5e5e5e5e2068656c703a20636f6e7665727420746865206964656e74696669657220746f20736e616b6520636173653a20607468726f7567685f6e6174697665600a202020207c0a202020203d206e6f74653a2060235b7761726e286e6f6e5f736e616b655f63617365295d60202870617274206f662060235b7761726e286e6f6e7374616e646172645f7374796c65295d6029206f6e2062792064656661756c740a0a7761726e696e673a2032207761726e696e677320656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6e6f726d616c2d72657475726e2d6f726465722d616e32326f7576392f727573742028332e37204d42290a"
+      },
+      "merged": {
+        "status": 0,
+        "stdout_hex": "6e61746976652d6265666f72650a696e697469616c697a65720a626f64790a34320a7374646572722d420a7374646572722d410a63616c6c6261636b2d420a63616c6c6261636b2d410a"
+      }
+    }
+  },
+  "note": "Required remaining normal-main-return callback ordering; distinct from the verified builtin process-exit gate."
+}

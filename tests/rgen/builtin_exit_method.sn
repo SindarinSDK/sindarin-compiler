@@ -1,0 +1,10 @@
+struct Stopper =>
+  code: int
+  fn stop(): void =>
+    println("method")
+    exit(self.code)
+
+fn main(): void =>
+  var stop: Stopper = { code: 0 }
+  stop.stop()
+  println("unreachable")

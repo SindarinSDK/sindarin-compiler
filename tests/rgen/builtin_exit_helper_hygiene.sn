@@ -1,0 +1,7 @@
+fn __sn_stdio_exit(): int => 11
+fn __sn_stdio_c_exit(): int => 17
+
+fn main(): void =>
+  println(__sn_stdio_exit() + __sn_stdio_c_exit())
+  exit(0)
+  println("unreachable")

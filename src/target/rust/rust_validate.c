@@ -1905,6 +1905,16 @@ static bool rust_validate_expr(json_object *expr)
         return json_object_object_get_ex(expr, "value", &child) && rust_validate_expr(child);
     if (strcmp(kind, "call") == 0)
         return rust_validate_call(expr);
+    if (strcmp(kind, "builtin_exit") == 0)
+    {
+        json_object *args = NULL, *arg_type = NULL;
+        if (!json_object_object_get_ex(expr, "args", &args) ||
+            json_object_array_length(args) != 1) return false;
+        json_object *arg = json_object_array_get_idx(args, 0);
+        return json_object_object_get_ex(arg, "type", &arg_type) &&
+               json_string_property_equals(arg_type, "kind", "int") &&
+               rust_validate_expr(arg);
+    }
     if (strcmp(kind, "builtin_assert") == 0)
     {
         json_object *args = NULL;

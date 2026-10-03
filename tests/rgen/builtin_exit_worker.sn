@@ -1,0 +1,10 @@
+fn stop(): int =>
+  println("worker")
+  exit(0)
+  return 9
+
+fn main(): void =>
+  println("main")
+  var pending: int = & stop()
+  println(pending !)
+  println("unreachable")

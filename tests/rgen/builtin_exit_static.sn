@@ -1,0 +1,9 @@
+struct Stopper =>
+  dummy: int
+  static fn stop(code: int): void =>
+    println("static")
+    exit(code)
+
+fn main(): void =>
+  Stopper.stop(0)
+  println("unreachable")

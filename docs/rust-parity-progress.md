@@ -7,26 +7,33 @@ head counts, not the language specification or the historical evidence itself.
 
 ## Current verified status: 2026-10-03
 
-Last fully verified main `d62390dfb2f6f1da11dcc8a78ca3c477f63d91fe` passes all six
-Linux/macOS/Windows Compiler and Rust Runtime jobs. Each platform's 17 runtime
-reports verifies 1182 cases: 1143 exact C/Rust positive pairs and 39
-diagnostic/order cases, including 72 new independent character/CRT checks.
-The PR queue is empty, and C remains the default target. Character methods,
-C locale string casing/trimming/classification, captured-array indexed writes
-and synchronized character wrapping are integrated alongside earlier parity
-work.
+Last fully verified main `878381a7157a1ceeb221d2165f6eb24b9f006239` passes all six
+Linux/macOS/Windows Compiler and Rust Runtime jobs. Each platform's 18 runtime
+reports verifies 1263 cases: 1224 exact C/Rust positive pairs and 39
+diagnostic/order cases, including 81 independent byte-encoding checks and 72
+character/CRT checks. All source hashes and compiler provenance are verified.
+The PR queue is empty, and C remains the default target.
 
-The unchanged original corpus has 90 remaining Rust compilation gaps, down
-from 92, with no new runtime failures or skips. Complete local and hosted C/Rust
-suites pass. The new character/CRT cases include all 256 byte values checked
-against native C in the C and environment locales, preserving target C `char`
-signedness and raw string bytes.
+Byte-array `toHex`, `toBase64`, `toStringLatin1` and `toString` preserve raw bytes,
+padding, NUL boundaries and once-only receiver evaluation. Readonly integer
+array views preserve the C object-byte prefix. Native returned byte arrays
+accept wider unmanaged scalar storage. Synchronized array captures take value
+snapshots under the lock, including nested captures and persistent indexed
+writes isolated from the outer array. These changes join the earlier character,
+array-indexed-write and numeric/concurrency parity work.
+
+The unchanged original corpus has 89 remaining Rust compilation gaps, down
+from 90, with no new runtime failures or skips. Complete local and hosted C and
+dedicated Rust regression suites pass. The new byte gate covers all 256 byte
+values and native C/Python object-prefix references in all nine modes, including
+Windows raw CRT newline translation. All nine new gate sources pass C ASAN with
+leak detection.
 
 Full parity remains incomplete. Broader array/callable identity, mutation and
 lifetimes, native/SDK and language families still need implementation and full
-mode/platform validation. C-side undefined probes and observed leaks remain
-explicit evidence limitations; they are not counted as successful parity.
-Exact CI/report links and follow-up diagnosis follow below.
+mode/platform validation. Rejected or C-undefined probes remain explicit
+evidence limitations and do not count as positive parity. Exact CI/report links
+and follow-up diagnosis follow below.
 
 ## Baseline: 2026-10-02
 
@@ -1564,8 +1571,8 @@ passed all nine differential cases and C ASAN.
 | Original Rust integration / exploratory | 1064 / 212 passing; 77 / 12 compilation gaps |
 
 The original `test_byte_encoding` now passes. The remaining original corpus has
-89 compilation gaps, with no new runtime failures or skips. Required hosted CI
-will be verified on the exact direct-main revision after this local increment.
+89 compilation gaps, with no new runtime failures or skips. Hosted CI
+is verified on the exact direct-main revision in the following section.
 The PR queue is empty; C remains the default target and C production, sources
 and oracles are unchanged.
 
@@ -1582,3 +1589,86 @@ Evidence: [byte-encoding-validation.json](rust-parity-evidence/byte-encoding-val
 [byte-encoding-asan.json](rust-parity-evidence/byte-encoding-asan.json),
 [byte-encoding-type-admission.json](rust-parity-evidence/byte-encoding-type-admission.json),
 and [byte-encoding-excluded-callables-asan.json](rust-parity-evidence/byte-encoding-excluded-callables-asan.json).
+
+
+## Byte-encoding main: hosted verification, 2026-10-03
+
+Main revision `878381a7157a1ceeb221d2165f6eb24b9f006239` passes all six jobs:
+[Compiler CI 37156133811](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37156133811)
+and [Rust Runtime CI 37156133845](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37156133845).
+Downloaded Linux, macOS and Windows artifacts verify all 18 reports and 1263
+cases per platform, including 81 independent byte-encoding and 72 character/CRT
+raw-output oracles. Windows CRLF translation, source hashes and a single
+compiler binary per platform are verified. Complete hosted C and dedicated Rust
+suite counts have no failures or skips. The PR queue is empty; 89 original
+compilation gaps and broader ownership/native/language work remain. Evidence:
+[byte-encoding-main-ci-green.json](rust-parity-evidence/byte-encoding-main-ci-green.json).
+
+Follow-up C controls are prepared for the next increments: unchanged `exit()`
+status/output in nine modes; native buffered output, once-only exit arguments,
+exit-code conversion and LIFO `atexit` callbacks in 54 cases; and unchanged
+statement-return/character-value match fixtures in 18 cases. Rust rejects these
+programs, so the controls add no parity credit. An additional readonly
+same-array/two-encoder-parameter probe passes all nine C/Rust pairs; it is not
+part of the mandatory 81-case gate and does not settle general mutable aliasing.
+
+
+## Process exit and native buffered streams: local validation, 2026-10-03
+
+Rust now emits the builtin `exit(int)` through the same CRT exit bridge used by
+assertions and integer `main` results. The argument evaluates once and narrows
+to the target C `int`, matching `sn_exit(int)`. The process terminates, buffered
+C streams are flushed, and registered C exit callbacks run in LIFO order.
+Ordinary functions, methods/static methods, closures, value-match prefixes and
+worker-thread exits are checked without changing the shared frontend or C.
+
+A new native callback probe exposed an existing stream-order mismatch: Rust
+forced a flush after native calls and native global initialization, while C did
+not. Since Rust printing already uses the C streams, those extra flushes caused
+buffered stdout to appear before C's stderr callback trace. Automatic native
+flushes are removed; source-requested flushes and CRT termination retain their
+normal effect. The existing Windows transport helper's comment is corrected;
+its sources and output oracles are unchanged.
+
+`make test-rust-parity-exit` verifies 12 sources and 17 distinct invocations in
+153 independent cases across O0/O1/O2 and default/checked/unchecked arithmetic.
+Separate and merged streams require exact output, status and order: 612 target
+executions. Native C and Python C-int references check zero, one, 255, 256,
+negative one and a value wider than C `int`, without assuming that Windows and
+Unix report the same numeric OS status. Two unchanged original programs,
+`test_exit` and `test_static_import`, are included. The latter's imported string
+mutation and termination now work as well. All 12 C sources pass ASAN with leak
+detection at their required exit statuses, and callback stderr contains only
+the specified trace. Eight new Rust snapshot/runtime regressions are added;
+no historical Rust snapshot is changed.
+
+| Local gate | Result |
+|---|---:|
+| Rust generation / negative | 382 / 158 passing, no skips |
+| Native tagged / extra / origin / negative | 8 / 19 / 1 / 4 passing |
+| Closures positive / negative | 36 / 1 passing |
+| Concurrency positive / negative / promoted | 10 / 7 / 1 passing |
+| Rust toolchain | 12 passing |
+| C unit / cgen / model | 1610 / 107 / 79 passing |
+| C integration / negative / exploratory / exploratory negative | 1141 / 58 / 224 / 11 passing |
+| Differential reports | 19 reports, 1416 cases: 1224 positive + 39 diagnostic/order + 153 process-exit |
+| Raw-byte / Windows transport / helper simulation | 63 / 6 executions, helper passing |
+| Original source hashes | 1365 unchanged |
+| Original Rust integration / exploratory | 1066 / 212 passing; 75 / 12 compilation gaps |
+
+There are now 87 original compilation gaps, with no new runtime failures or
+skips. The exact direct-main revision still requires hosted verification after
+this local increment. C remains the default target and the PR queue is empty.
+
+Full parity remains incomplete. A separate C-valid normal return from void
+`main` still flushes stdout before C exit-callback stderr in Rust; its source
+and raw trace are retained as required follow-up, not positive parity. The
+entrypoint repair must preserve source-level calls, recursion and function
+values of `main` along with cleanup/return behavior. Broader array/reference
+identity, callbacks, native/SDK, matching, nil and other language work remains.
+
+Evidence: [builtin-exit-validation.json](rust-parity-evidence/builtin-exit-validation.json),
+[builtin-exit-pairs.json](rust-parity-evidence/builtin-exit-pairs.json),
+[builtin-exit-asan.json](rust-parity-evidence/builtin-exit-asan.json),
+[builtin-exit-native-order-before.json](rust-parity-evidence/builtin-exit-native-order-before.json),
+and [normal-main-return-callback-order-before.json](rust-parity-evidence/normal-main-return-callback-order-before.json).

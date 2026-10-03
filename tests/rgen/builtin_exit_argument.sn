@@ -1,0 +1,10 @@
+fn code(calls: int as ref): int =>
+  calls++
+  println(calls)
+  return 1
+
+fn main(): void =>
+  var calls: int = 0
+  println("argument")
+  exit(code(calls))
+  println("unreachable")

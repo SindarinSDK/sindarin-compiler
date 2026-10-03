@@ -223,6 +223,9 @@ jobs:
           run_gate "byte encodings and native object views (81 positive pairs)" \
             make test-rust-parity-byte-encoding
 
+          run_gate "process exit statuses, buffered streams and CRT lifecycle (153 cases)" \
+            make test-rust-parity-exit
+
           exit "$overall_rc"
 
       - name: Retain runtime parity evidence
@@ -250,5 +253,6 @@ jobs:
             .sn/rust-parity-sync-character.json
             .sn/rust-parity-ctype.json
             .sn/rust-parity-byte-encoding.json
+            .sn/rust-parity-exit.json
           if-no-files-found: ignore
           retention-days: 7

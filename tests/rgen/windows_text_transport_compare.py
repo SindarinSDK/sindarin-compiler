@@ -92,7 +92,8 @@ def main():
 
         # This tagged-valid source prints from Rust-lowered functions immediately
         # before and after native C bodies that also print. Exact stream equality
-        # therefore detects a missing or late fflush(NULL) at the ABI boundary.
+        # checks that both language and native writes use the same C stream.
+        # ABI calls must not add flushes that alter redirected stderr ordering.
         native_output_expected = NATIVE_OUTPUT_ORACLE.read_bytes().replace(
             b"\n", NEWLINE)
         native_body_outputs = {}

@@ -1,0 +1,6 @@
+fn main(): void =>
+  var code: int = 0
+  var stop: fn(): void = fn(): void => exit(code)
+  println("closure")
+  stop()
+  println("unreachable")
