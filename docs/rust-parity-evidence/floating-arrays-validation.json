@@ -1,0 +1,840 @@
+{
+  "baseline_revision": "133c145225521d1f9f3d127b9fc3f890499b7eb9",
+  "compiler_sha256": "ebee5ca51c0651f467e7631dcd262b4813fafa829938a310b172f1d361da9fcc",
+  "positive_pairs": 792,
+  "diagnostic_order_cases": 39,
+  "unchanged_corpus_sources": 1365,
+  "remaining_compilation_gaps": 95,
+  "gates": [
+    {
+      "name": "core",
+      "cases": 30,
+      "evidence_sha256": "b181c2258dcc18d8de3adccadb1ebd819aff4918a5f9368491118673eb870bcd"
+    },
+    {
+      "name": "concurrency",
+      "cases": 51,
+      "evidence_sha256": "f08f673a889ba82fa18bc31f04fe931568dc97e590ec4ce8e69dc34481a55402"
+    },
+    {
+      "name": "thread-ownership",
+      "cases": 207,
+      "evidence_sha256": "70ae90b186939e42d7e9f40d434366a6b8c341250ae619441eb6c2322de9a4af"
+    },
+    {
+      "name": "thread-receivers",
+      "cases": 90,
+      "evidence_sha256": "f711d5ea4fb6eb7de8cda18fdbc1e88a04887006819e7067ce9df0f571658108"
+    },
+    {
+      "name": "reflection",
+      "cases": 36,
+      "evidence_sha256": "0197bacfba15edc4b0313a348e98ea3ec50e63c166b545f38aa87441aa3bcff8"
+    },
+    {
+      "name": "sized-defaults",
+      "cases": 27,
+      "evidence_sha256": "0d9bd42c1e00ca0711d873d89ac9c48fe5f4fd031d6f441a248acb8d5284e8e5"
+    },
+    {
+      "name": "native-managed",
+      "cases": 63,
+      "evidence_sha256": "c11da08764cac86b484f0744cff479f6ba41a5118b7f4ded2c619f10b3ff89fb"
+    },
+    {
+      "name": "stdio-order",
+      "cases": 30,
+      "evidence_sha256": "785ffaac9d0385ead7798991c07243792105ae9f8a94df0e65b8f6241f61f8fd"
+    },
+    {
+      "name": "mixed-integral",
+      "cases": 90,
+      "evidence_sha256": "44f19abb374ddf76f31bfe632e24a0adb1180e7d2a7a2f37799a00290a41842e"
+    },
+    {
+      "name": "mixed-integral-diagnostics",
+      "cases": 9,
+      "evidence_sha256": "122ded3b85b2aaf2d6a9e0110df404b01ecf9ec4d805a2d3e3794998b9705605"
+    },
+    {
+      "name": "float-conversions",
+      "cases": 117,
+      "evidence_sha256": "52130fb891a309d3359a45b5163ae4fb589c04286ab489ed2d09c261bb51ad07"
+    },
+    {
+      "name": "floating-arrays",
+      "cases": 81,
+      "evidence_sha256": "9f0a7150ea7be47973b21409501c833c970683eb879ec90b0d4f59e545998b6c"
+    }
+  ],
+  "corpus": [
+    {
+      "suite": "integration",
+      "passed": 1060,
+      "compile_failures": 81,
+      "runtime_failures": 0,
+      "skips": 0,
+      "exit_status": 1,
+      "compiler_sha256": "ebee5ca51c0651f467e7631dcd262b4813fafa829938a310b172f1d361da9fcc",
+      "failures": [
+        "test_array_literal_arg_leak",
+        "test_as_ref_array_return",
+        "test_as_ref_for_in_self_return",
+        "test_as_ref_on_ref_struct_param",
+        "test_as_ref_params",
+        "test_as_ref_queue_drain",
+        "test_as_ref_return_passthrough",
+        "test_as_ref_struct_lit_owned_field",
+        "test_as_ref_struct_param",
+        "test_buffer_unwrap",
+        "test_builtin_interfaces",
+        "test_byte_encoding",
+        "test_char_methods",
+        "test_composite_borrow_mutation",
+        "test_composite_temp_arg",
+        "test_compound_assignment",
+        "test_constrained_generics",
+        "test_exit",
+        "test_generic_multi_param_iter",
+        "test_generic_static_call",
+        "test_generics_functions",
+        "test_generics_nested_inference",
+        "test_import_fn_field_chained",
+        "test_interfaces",
+        "test_interop_callback",
+        "test_interop_comprehensive",
+        "test_interop_edge_cases",
+        "test_iterator_protocol",
+        "test_lambda_capture_outlives_scope",
+        "test_lambda_capture_struct",
+        "test_lambda_val_struct_str_field",
+        "test_lambda_val_struct_str_interp",
+        "test_match_return_arms",
+        "test_module_array_swap_leak",
+        "test_native_callback_typedef",
+        "test_native_ref_field_pass_chain",
+        "test_native_ref_field_return",
+        "test_native_ref_method_forward_twice",
+        "test_native_ref_self_assign",
+        "test_native_resource_lifecycle",
+        "test_native_struct_ref_array_pass",
+        "test_native_struct_ref_loop_cleanup",
+        "test_nested_array_copy",
+        "test_nil_array",
+        "test_nil_compare_struct",
+        "test_nil_pointer_slice",
+        "test_nil_string",
+        "test_qsort_callback",
+        "test_refcount_arg_leak",
+        "test_refcount_chain_in_struct_literal",
+        "test_return_ref_param",
+        "test_return_self",
+        "test_self_method_forward_after_train",
+        "test_serializable",
+        "test_serializable_decode_struct_literal_loop",
+        "test_serializable_double_int_json",
+        "test_serializable_encoder_cleanup",
+        "test_serializable_long",
+        "test_serializable_push_ownership",
+        "test_serializable_return_nested_array",
+        "test_sizeof",
+        "test_static_import",
+        "test_str_return_as_arg_leak",
+        "test_struct_array_concat",
+        "test_struct_as_ref",
+        "test_struct_as_ref_chain",
+        "test_struct_codegen_validation",
+        "test_struct_heap_alloc",
+        "test_struct_native_c_interop",
+        "test_struct_native_defaults",
+        "test_struct_packed",
+        "test_struct_return_array_leak",
+        "test_struct_rvalue_member_leak",
+        "test_struct_rvalue_member_leak_contexts",
+        "test_struct_self_method_call",
+        "test_struct_sizeof_equality",
+        "test_struct_stack_alloc",
+        "test_sync_byte_char",
+        "test_thread_native_fn_struct_return",
+        "test_thread_struct_return_types",
+        "test_val_struct_shared_array"
+      ]
+    },
+    {
+      "suite": "explore",
+      "passed": 210,
+      "compile_failures": 14,
+      "runtime_failures": 0,
+      "skips": 0,
+      "exit_status": 1,
+      "compiler_sha256": "ebee5ca51c0651f467e7631dcd262b4813fafa829938a310b172f1d361da9fcc",
+      "failures": [
+        "test_array_mutation_lambda",
+        "test_as_val_array_copy",
+        "test_gcc_edge_interop",
+        "test_gcc_edge_structs",
+        "test_match_as_val_ref",
+        "test_match_memory",
+        "test_match_native",
+        "test_match_primitives",
+        "test_pointer_slice_bounds",
+        "test_str_comprehensive",
+        "test_struct_config",
+        "test_struct_self_method_call",
+        "test_struct_zlib_style",
+        "test_sync_byte_threading"
+      ]
+    }
+  ],
+  "promotion": {
+    "source": "tests/rgen/float_array_search_double_needle.sn",
+    "old_source": "tests/rgen/errors/float_array_search_double_needle.sn",
+    "source_sha256": "3ebee6e9773531ea70d177cd7c1231610b32310e7fc660567258feae3b1a0c04"
+  },
+  "reviewed_historical_snapshots": [
+    {
+      "path": "tests/rgen/float_array_search.expected.rs",
+      "before_sha256": "66b0859f5f303ba1adf598e2b6778825cacca63b8991d90c5f925fb371cf238a",
+      "after_sha256": "b02ba6fff58552ddd95177e01b08138146ef204caaaac5982b611d8fcd1722ac",
+      "review": "Only floating array argument rendering and byte search operations change; source-identical C/Rust controls establish behavior."
+    },
+    {
+      "path": "tests/rgen/double_array_search.expected.rs",
+      "before_sha256": "019e2f1aaf8a9f0b4153c8424387dd326412be44d306c5f6ad45a8dcbfbc2be0",
+      "after_sha256": "dd9c1881bdfd05796cd620b101b5aa6fc89158344e01eb356bd16377cfe9bb2a",
+      "review": "Only floating array argument rendering and byte search operations change; source-identical C/Rust controls establish behavior."
+    }
+  ],
+  "unchanged_historical_snapshots": 337,
+  "raw_logs": [
+    {
+      "path": "docs/rust-parity-evidence/floating-arrays-final-bytes.log",
+      "bytes": 719,
+      "sha256": "971a43d81a4d4a176d4aceff2aa18d25efe2df369a8d05a75dfb2470b030e8a9"
+    },
+    {
+      "path": "docs/rust-parity-evidence/floating-arrays-final-rust.log",
+      "bytes": 4428,
+      "sha256": "1e3bf5f16dcf58b5fb77b64ce0e3f249724107ad7bb1143513badd9a324b3de0"
+    },
+    {
+      "path": "docs/rust-parity-evidence/floating-arrays-final-c.log",
+      "bytes": 2157,
+      "sha256": "231e4daa47d876416641c4a1475e46400a6af15c15bf7c478631e1b846a6ae3e"
+    },
+    {
+      "path": "docs/rust-parity-evidence/floating-arrays-corpus-explore.log",
+      "bytes": 8838,
+      "sha256": "9d5a1cf0c6588bd25a099599d55ff2e5dea21761e465a6980a59723f849b80c6"
+    },
+    {
+      "path": "docs/rust-parity-evidence/floating-arrays-final-transport.log",
+      "bytes": 207,
+      "sha256": "9d1f137619f0add0f0e3a01419654e7f12ffe613e0175c7031316ffe56c8c9ee"
+    },
+    {
+      "path": "docs/rust-parity-evidence/floating-arrays-final-gates.log",
+      "bytes": 53343,
+      "sha256": "f53db3712eca2685d6d3ec6018ad23ce01b7b875809f54e4ac62af23df1563b6"
+    },
+    {
+      "path": "docs/rust-parity-evidence/floating-arrays-final-windows-helpers.log",
+      "bytes": 73,
+      "sha256": "628ce6147ceaa1887966b6df6ff1f63582712e6666a5b64c7f52e28604cc6994"
+    },
+    {
+      "path": "docs/rust-parity-evidence/floating-arrays-final-build.log",
+      "bytes": 1571,
+      "sha256": "42273e3ae7f003200e18cf0bcf7dc2e31e91a2cb64cb3b5220004003b86e7f91"
+    },
+    {
+      "path": "docs/rust-parity-evidence/floating-arrays-final-gate.log",
+      "bytes": 5355,
+      "sha256": "a5587fa2ee3afc1a77ff315a94850325684e3aa063d935fb1348635eaebfabec"
+    },
+    {
+      "path": "docs/rust-parity-evidence/floating-arrays-final-format.log",
+      "bytes": 29,
+      "sha256": "4c6a090a362bd87c11ee02cfbc700375a0d72d42c9b4387a9b7b0bbf45af7e2b"
+    },
+    {
+      "path": "docs/rust-parity-evidence/floating-arrays-corpus-integration.log",
+      "bytes": 45165,
+      "sha256": "f041f1265fff6eba8950ebe08168ccc8e6d96e2f9824ce9f832c8aa81aaaca35"
+    }
+  ],
+  "floating_oracle_cases": [
+    {
+      "source": "tests/rgen/float_array_search.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "expected": "tests/rgen/float_array_search.expected",
+      "expected_sha256": "db093222e9dfb469af7000c98391048e51c6241715f80790b97ec39bb330de36"
+    },
+    {
+      "source": "tests/rgen/float_array_search.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "expected": "tests/rgen/float_array_search.expected",
+      "expected_sha256": "db093222e9dfb469af7000c98391048e51c6241715f80790b97ec39bb330de36"
+    },
+    {
+      "source": "tests/rgen/float_array_search.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "expected": "tests/rgen/float_array_search.expected",
+      "expected_sha256": "db093222e9dfb469af7000c98391048e51c6241715f80790b97ec39bb330de36"
+    },
+    {
+      "source": "tests/rgen/float_array_search.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "expected": "tests/rgen/float_array_search.expected",
+      "expected_sha256": "db093222e9dfb469af7000c98391048e51c6241715f80790b97ec39bb330de36"
+    },
+    {
+      "source": "tests/rgen/float_array_search.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "expected": "tests/rgen/float_array_search.expected",
+      "expected_sha256": "db093222e9dfb469af7000c98391048e51c6241715f80790b97ec39bb330de36"
+    },
+    {
+      "source": "tests/rgen/float_array_search.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "expected": "tests/rgen/float_array_search.expected",
+      "expected_sha256": "db093222e9dfb469af7000c98391048e51c6241715f80790b97ec39bb330de36"
+    },
+    {
+      "source": "tests/rgen/float_array_search.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "expected": "tests/rgen/float_array_search.expected",
+      "expected_sha256": "db093222e9dfb469af7000c98391048e51c6241715f80790b97ec39bb330de36"
+    },
+    {
+      "source": "tests/rgen/float_array_search.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "expected": "tests/rgen/float_array_search.expected",
+      "expected_sha256": "db093222e9dfb469af7000c98391048e51c6241715f80790b97ec39bb330de36"
+    },
+    {
+      "source": "tests/rgen/float_array_search.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "expected": "tests/rgen/float_array_search.expected",
+      "expected_sha256": "db093222e9dfb469af7000c98391048e51c6241715f80790b97ec39bb330de36"
+    },
+    {
+      "source": "tests/rgen/double_array_search.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "expected": "tests/rgen/double_array_search.expected",
+      "expected_sha256": "712bb342bdd1a9edc3e206d8c553bc3469c91b90d03a7e87ade29177cff7e7f3"
+    },
+    {
+      "source": "tests/rgen/double_array_search.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "expected": "tests/rgen/double_array_search.expected",
+      "expected_sha256": "712bb342bdd1a9edc3e206d8c553bc3469c91b90d03a7e87ade29177cff7e7f3"
+    },
+    {
+      "source": "tests/rgen/double_array_search.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "expected": "tests/rgen/double_array_search.expected",
+      "expected_sha256": "712bb342bdd1a9edc3e206d8c553bc3469c91b90d03a7e87ade29177cff7e7f3"
+    },
+    {
+      "source": "tests/rgen/double_array_search.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "expected": "tests/rgen/double_array_search.expected",
+      "expected_sha256": "712bb342bdd1a9edc3e206d8c553bc3469c91b90d03a7e87ade29177cff7e7f3"
+    },
+    {
+      "source": "tests/rgen/double_array_search.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "expected": "tests/rgen/double_array_search.expected",
+      "expected_sha256": "712bb342bdd1a9edc3e206d8c553bc3469c91b90d03a7e87ade29177cff7e7f3"
+    },
+    {
+      "source": "tests/rgen/double_array_search.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "expected": "tests/rgen/double_array_search.expected",
+      "expected_sha256": "712bb342bdd1a9edc3e206d8c553bc3469c91b90d03a7e87ade29177cff7e7f3"
+    },
+    {
+      "source": "tests/rgen/double_array_search.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "expected": "tests/rgen/double_array_search.expected",
+      "expected_sha256": "712bb342bdd1a9edc3e206d8c553bc3469c91b90d03a7e87ade29177cff7e7f3"
+    },
+    {
+      "source": "tests/rgen/double_array_search.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "expected": "tests/rgen/double_array_search.expected",
+      "expected_sha256": "712bb342bdd1a9edc3e206d8c553bc3469c91b90d03a7e87ade29177cff7e7f3"
+    },
+    {
+      "source": "tests/rgen/double_array_search.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "expected": "tests/rgen/double_array_search.expected",
+      "expected_sha256": "712bb342bdd1a9edc3e206d8c553bc3469c91b90d03a7e87ade29177cff7e7f3"
+    },
+    {
+      "source": "tests/rgen/float_array_search_double_needle.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "expected": "tests/rgen/float_array_search_double_needle.expected",
+      "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "tests/rgen/float_array_search_double_needle.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "expected": "tests/rgen/float_array_search_double_needle.expected",
+      "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "tests/rgen/float_array_search_double_needle.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "expected": "tests/rgen/float_array_search_double_needle.expected",
+      "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "tests/rgen/float_array_search_double_needle.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "expected": "tests/rgen/float_array_search_double_needle.expected",
+      "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "tests/rgen/float_array_search_double_needle.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "expected": "tests/rgen/float_array_search_double_needle.expected",
+      "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "tests/rgen/float_array_search_double_needle.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "expected": "tests/rgen/float_array_search_double_needle.expected",
+      "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "tests/rgen/float_array_search_double_needle.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "expected": "tests/rgen/float_array_search_double_needle.expected",
+      "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "tests/rgen/float_array_search_double_needle.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "expected": "tests/rgen/float_array_search_double_needle.expected",
+      "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "tests/rgen/float_array_search_double_needle.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "expected": "tests/rgen/float_array_search_double_needle.expected",
+      "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "tests/rgen/floating_array_search_representation.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "expected": "tests/rgen/floating_array_search_representation.expected",
+      "expected_sha256": "681c0a80ff97d22939a027eeec017a8ca0b3ccc4d8eee8d01599b3b8c569dc43"
+    },
+    {
+      "source": "tests/rgen/floating_array_search_representation.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "expected": "tests/rgen/floating_array_search_representation.expected",
+      "expected_sha256": "681c0a80ff97d22939a027eeec017a8ca0b3ccc4d8eee8d01599b3b8c569dc43"
+    },
+    {
+      "source": "tests/rgen/floating_array_search_representation.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "expected": "tests/rgen/floating_array_search_representation.expected",
+      "expected_sha256": "681c0a80ff97d22939a027eeec017a8ca0b3ccc4d8eee8d01599b3b8c569dc43"
+    },
+    {
+      "source": "tests/rgen/floating_array_search_representation.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "expected": "tests/rgen/floating_array_search_representation.expected",
+      "expected_sha256": "681c0a80ff97d22939a027eeec017a8ca0b3ccc4d8eee8d01599b3b8c569dc43"
+    },
+    {
+      "source": "tests/rgen/floating_array_search_representation.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "expected": "tests/rgen/floating_array_search_representation.expected",
+      "expected_sha256": "681c0a80ff97d22939a027eeec017a8ca0b3ccc4d8eee8d01599b3b8c569dc43"
+    },
+    {
+      "source": "tests/rgen/floating_array_search_representation.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "expected": "tests/rgen/floating_array_search_representation.expected",
+      "expected_sha256": "681c0a80ff97d22939a027eeec017a8ca0b3ccc4d8eee8d01599b3b8c569dc43"
+    },
+    {
+      "source": "tests/rgen/floating_array_search_representation.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "expected": "tests/rgen/floating_array_search_representation.expected",
+      "expected_sha256": "681c0a80ff97d22939a027eeec017a8ca0b3ccc4d8eee8d01599b3b8c569dc43"
+    },
+    {
+      "source": "tests/rgen/floating_array_search_representation.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "expected": "tests/rgen/floating_array_search_representation.expected",
+      "expected_sha256": "681c0a80ff97d22939a027eeec017a8ca0b3ccc4d8eee8d01599b3b8c569dc43"
+    },
+    {
+      "source": "tests/rgen/floating_array_search_representation.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "expected": "tests/rgen/floating_array_search_representation.expected",
+      "expected_sha256": "681c0a80ff97d22939a027eeec017a8ca0b3ccc4d8eee8d01599b3b8c569dc43"
+    },
+    {
+      "source": "tests/rgen/floating_array_search_call_boundaries.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "expected": "tests/rgen/floating_array_search_call_boundaries.expected",
+      "expected_sha256": "906f84c43f243584019dd7413c442aa2948cf4b74b48af8f76f62f545a7e70e1"
+    },
+    {
+      "source": "tests/rgen/floating_array_search_call_boundaries.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "expected": "tests/rgen/floating_array_search_call_boundaries.expected",
+      "expected_sha256": "906f84c43f243584019dd7413c442aa2948cf4b74b48af8f76f62f545a7e70e1"
+    },
+    {
+      "source": "tests/rgen/floating_array_search_call_boundaries.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "expected": "tests/rgen/floating_array_search_call_boundaries.expected",
+      "expected_sha256": "906f84c43f243584019dd7413c442aa2948cf4b74b48af8f76f62f545a7e70e1"
+    },
+    {
+      "source": "tests/rgen/floating_array_search_call_boundaries.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "expected": "tests/rgen/floating_array_search_call_boundaries.expected",
+      "expected_sha256": "906f84c43f243584019dd7413c442aa2948cf4b74b48af8f76f62f545a7e70e1"
+    },
+    {
+      "source": "tests/rgen/floating_array_search_call_boundaries.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "expected": "tests/rgen/floating_array_search_call_boundaries.expected",
+      "expected_sha256": "906f84c43f243584019dd7413c442aa2948cf4b74b48af8f76f62f545a7e70e1"
+    },
+    {
+      "source": "tests/rgen/floating_array_search_call_boundaries.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "expected": "tests/rgen/floating_array_search_call_boundaries.expected",
+      "expected_sha256": "906f84c43f243584019dd7413c442aa2948cf4b74b48af8f76f62f545a7e70e1"
+    },
+    {
+      "source": "tests/rgen/floating_array_search_call_boundaries.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "expected": "tests/rgen/floating_array_search_call_boundaries.expected",
+      "expected_sha256": "906f84c43f243584019dd7413c442aa2948cf4b74b48af8f76f62f545a7e70e1"
+    },
+    {
+      "source": "tests/rgen/floating_array_search_call_boundaries.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "expected": "tests/rgen/floating_array_search_call_boundaries.expected",
+      "expected_sha256": "906f84c43f243584019dd7413c442aa2948cf4b74b48af8f76f62f545a7e70e1"
+    },
+    {
+      "source": "tests/rgen/floating_array_search_call_boundaries.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "expected": "tests/rgen/floating_array_search_call_boundaries.expected",
+      "expected_sha256": "906f84c43f243584019dd7413c442aa2948cf4b74b48af8f76f62f545a7e70e1"
+    },
+    {
+      "source": "tests/rgen/floating_array_storage_bytes.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "expected": "tests/rgen/floating_array_storage_bytes.expected",
+      "expected_sha256": "2c4b7922748a3a30ee6837dc80921cd23d29281986a087ee28d06ca4ef809093"
+    },
+    {
+      "source": "tests/rgen/floating_array_storage_bytes.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "expected": "tests/rgen/floating_array_storage_bytes.expected",
+      "expected_sha256": "2c4b7922748a3a30ee6837dc80921cd23d29281986a087ee28d06ca4ef809093"
+    },
+    {
+      "source": "tests/rgen/floating_array_storage_bytes.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "expected": "tests/rgen/floating_array_storage_bytes.expected",
+      "expected_sha256": "2c4b7922748a3a30ee6837dc80921cd23d29281986a087ee28d06ca4ef809093"
+    },
+    {
+      "source": "tests/rgen/floating_array_storage_bytes.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "expected": "tests/rgen/floating_array_storage_bytes.expected",
+      "expected_sha256": "2c4b7922748a3a30ee6837dc80921cd23d29281986a087ee28d06ca4ef809093"
+    },
+    {
+      "source": "tests/rgen/floating_array_storage_bytes.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "expected": "tests/rgen/floating_array_storage_bytes.expected",
+      "expected_sha256": "2c4b7922748a3a30ee6837dc80921cd23d29281986a087ee28d06ca4ef809093"
+    },
+    {
+      "source": "tests/rgen/floating_array_storage_bytes.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "expected": "tests/rgen/floating_array_storage_bytes.expected",
+      "expected_sha256": "2c4b7922748a3a30ee6837dc80921cd23d29281986a087ee28d06ca4ef809093"
+    },
+    {
+      "source": "tests/rgen/floating_array_storage_bytes.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "expected": "tests/rgen/floating_array_storage_bytes.expected",
+      "expected_sha256": "2c4b7922748a3a30ee6837dc80921cd23d29281986a087ee28d06ca4ef809093"
+    },
+    {
+      "source": "tests/rgen/floating_array_storage_bytes.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "expected": "tests/rgen/floating_array_storage_bytes.expected",
+      "expected_sha256": "2c4b7922748a3a30ee6837dc80921cd23d29281986a087ee28d06ca4ef809093"
+    },
+    {
+      "source": "tests/rgen/floating_array_storage_bytes.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "expected": "tests/rgen/floating_array_storage_bytes.expected",
+      "expected_sha256": "2c4b7922748a3a30ee6837dc80921cd23d29281986a087ee28d06ca4ef809093"
+    },
+    {
+      "source": "tests/rust-float-search/floating_search_expression_widths.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "expected": "tests/rust-float-search/floating_search_expression_widths.expected",
+      "expected_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    {
+      "source": "tests/rust-float-search/floating_search_expression_widths.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "expected": "tests/rust-float-search/floating_search_expression_widths.expected",
+      "expected_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    {
+      "source": "tests/rust-float-search/floating_search_expression_widths.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "expected": "tests/rust-float-search/floating_search_expression_widths.expected.unchecked",
+      "expected_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "source": "tests/rust-float-search/floating_search_expression_widths.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "expected": "tests/rust-float-search/floating_search_expression_widths.expected",
+      "expected_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    {
+      "source": "tests/rust-float-search/floating_search_expression_widths.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "expected": "tests/rust-float-search/floating_search_expression_widths.expected",
+      "expected_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    {
+      "source": "tests/rust-float-search/floating_search_expression_widths.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "expected": "tests/rust-float-search/floating_search_expression_widths.expected",
+      "expected_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    {
+      "source": "tests/rust-float-search/floating_search_expression_widths.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "expected": "tests/rust-float-search/floating_search_expression_widths.expected.unchecked",
+      "expected_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "source": "tests/rust-float-search/floating_search_expression_widths.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "expected": "tests/rust-float-search/floating_search_expression_widths.expected.unchecked",
+      "expected_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "source": "tests/rust-float-search/floating_search_expression_widths.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "expected": "tests/rust-float-search/floating_search_expression_widths.expected.unchecked",
+      "expected_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "source": "tests/rust-float-search/floating_array_capture_snapshots.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "expected": "tests/rust-float-search/floating_array_capture_snapshots.expected",
+      "expected_sha256": "e9fc4118db5bbd27d8044bb1a8f09c714a86c92f77f0a53d9bfbadd968023b14"
+    },
+    {
+      "source": "tests/rust-float-search/floating_array_capture_snapshots.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "expected": "tests/rust-float-search/floating_array_capture_snapshots.expected",
+      "expected_sha256": "e9fc4118db5bbd27d8044bb1a8f09c714a86c92f77f0a53d9bfbadd968023b14"
+    },
+    {
+      "source": "tests/rust-float-search/floating_array_capture_snapshots.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "expected": "tests/rust-float-search/floating_array_capture_snapshots.expected",
+      "expected_sha256": "e9fc4118db5bbd27d8044bb1a8f09c714a86c92f77f0a53d9bfbadd968023b14"
+    },
+    {
+      "source": "tests/rust-float-search/floating_array_capture_snapshots.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "expected": "tests/rust-float-search/floating_array_capture_snapshots.expected",
+      "expected_sha256": "e9fc4118db5bbd27d8044bb1a8f09c714a86c92f77f0a53d9bfbadd968023b14"
+    },
+    {
+      "source": "tests/rust-float-search/floating_array_capture_snapshots.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "expected": "tests/rust-float-search/floating_array_capture_snapshots.expected",
+      "expected_sha256": "e9fc4118db5bbd27d8044bb1a8f09c714a86c92f77f0a53d9bfbadd968023b14"
+    },
+    {
+      "source": "tests/rust-float-search/floating_array_capture_snapshots.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "expected": "tests/rust-float-search/floating_array_capture_snapshots.expected",
+      "expected_sha256": "e9fc4118db5bbd27d8044bb1a8f09c714a86c92f77f0a53d9bfbadd968023b14"
+    },
+    {
+      "source": "tests/rust-float-search/floating_array_capture_snapshots.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "expected": "tests/rust-float-search/floating_array_capture_snapshots.expected",
+      "expected_sha256": "e9fc4118db5bbd27d8044bb1a8f09c714a86c92f77f0a53d9bfbadd968023b14"
+    },
+    {
+      "source": "tests/rust-float-search/floating_array_capture_snapshots.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "expected": "tests/rust-float-search/floating_array_capture_snapshots.expected",
+      "expected_sha256": "e9fc4118db5bbd27d8044bb1a8f09c714a86c92f77f0a53d9bfbadd968023b14"
+    },
+    {
+      "source": "tests/rust-float-search/floating_array_capture_snapshots.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "expected": "tests/rust-float-search/floating_array_capture_snapshots.expected",
+      "expected_sha256": "e9fc4118db5bbd27d8044bb1a8f09c714a86c92f77f0a53d9bfbadd968023b14"
+    },
+    {
+      "source": "tests/rust-native/scalar_float_array_representation.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "expected": "tests/rust-native/scalar_float_array_representation.expected",
+      "expected_sha256": "f65c75045bf4f04005d1d13285a0da66724f7d7345cdbe7bdb6da19e0294a1e0"
+    },
+    {
+      "source": "tests/rust-native/scalar_float_array_representation.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "expected": "tests/rust-native/scalar_float_array_representation.expected",
+      "expected_sha256": "f65c75045bf4f04005d1d13285a0da66724f7d7345cdbe7bdb6da19e0294a1e0"
+    },
+    {
+      "source": "tests/rust-native/scalar_float_array_representation.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "expected": "tests/rust-native/scalar_float_array_representation.expected",
+      "expected_sha256": "f65c75045bf4f04005d1d13285a0da66724f7d7345cdbe7bdb6da19e0294a1e0"
+    },
+    {
+      "source": "tests/rust-native/scalar_float_array_representation.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "expected": "tests/rust-native/scalar_float_array_representation.expected",
+      "expected_sha256": "f65c75045bf4f04005d1d13285a0da66724f7d7345cdbe7bdb6da19e0294a1e0"
+    },
+    {
+      "source": "tests/rust-native/scalar_float_array_representation.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "expected": "tests/rust-native/scalar_float_array_representation.expected",
+      "expected_sha256": "f65c75045bf4f04005d1d13285a0da66724f7d7345cdbe7bdb6da19e0294a1e0"
+    },
+    {
+      "source": "tests/rust-native/scalar_float_array_representation.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "expected": "tests/rust-native/scalar_float_array_representation.expected",
+      "expected_sha256": "f65c75045bf4f04005d1d13285a0da66724f7d7345cdbe7bdb6da19e0294a1e0"
+    },
+    {
+      "source": "tests/rust-native/scalar_float_array_representation.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "expected": "tests/rust-native/scalar_float_array_representation.expected",
+      "expected_sha256": "f65c75045bf4f04005d1d13285a0da66724f7d7345cdbe7bdb6da19e0294a1e0"
+    },
+    {
+      "source": "tests/rust-native/scalar_float_array_representation.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "expected": "tests/rust-native/scalar_float_array_representation.expected",
+      "expected_sha256": "f65c75045bf4f04005d1d13285a0da66724f7d7345cdbe7bdb6da19e0294a1e0"
+    },
+    {
+      "source": "tests/rust-native/scalar_float_array_representation.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "expected": "tests/rust-native/scalar_float_array_representation.expected",
+      "expected_sha256": "f65c75045bf4f04005d1d13285a0da66724f7d7345cdbe7bdb6da19e0294a1e0"
+    }
+  ],
+  "probe_notes": {
+    "float-search-storage-first": "The first insertion probe used reversed source arguments and was rejected by both frontends; not parity credit. Correct source ordering has independent positive controls.",
+    "float-shared-array-representation-probe": "Excluded indexed read from the unchanged outer array beyond its extent after a captured-array mutation. C completion does not prove defined parity. Replaced by observations inside the capture and valid outer length/search.",
+    "float-search-boundaries-first": "Retained diagnosed push representation mismatch; reconstructed pre-repair source hash is verified in floating-arrays-call-boundaries-before.sn.raw."
+  }
+}

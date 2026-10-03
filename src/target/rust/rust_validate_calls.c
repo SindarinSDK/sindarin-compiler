@@ -633,16 +633,16 @@ static bool rust_validate_call(json_object *expr)
                             method, element_kind ? element_kind : "<unknown>");
                     return false;
                 }
-                if (strcmp(element_kind, "float") == 0 &&
+                if ((strcmp(element_kind, "float") == 0 || strcmp(element_kind, "double") == 0) &&
                     (!json_object_object_get_ex(expr, "args", &args) ||
                      json_object_array_length(args) != 1 ||
                      !(arg = json_object_array_get_idx(args, 0)) ||
                      !json_object_object_get_ex(arg, "type", &arg_type) ||
                      !(arg_kind = json_string_property(arg_type, "kind")) ||
-                     strcmp(arg_kind, "float") != 0))
+                     (strcmp(arg_kind, "float") != 0 && strcmp(arg_kind, "double") != 0)))
                 {
                     fprintf(stderr,
-                            "Error: Rust target requires array method '%s' on float[] to receive an exact float argument; got %s\n",
+                            "Error: Rust target requires floating array method '%s' to receive a float or double argument; got %s\n",
                             method, arg_kind ? arg_kind : "<unknown>");
                     return false;
                 }

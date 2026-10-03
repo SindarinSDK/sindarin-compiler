@@ -116,14 +116,21 @@ fn __sn_array_size(size: i64) -> usize {
 
 fn main() {
     let __sn_stdio_guard = __SnStdioGuard;
-    let mut zero: f64 = 0.0;
-    let mut negative_zero: f64 = (-0.0);
-    let mut nan: f64 = (zero / zero);
-    let mut values: Vec<f64> = vec![zero, 1.5, nan, 1.5];
-    println!("{}", { let __sn_array_search = ((1.5f64)).to_ne_bytes(); let __sn_array = &(values); __sn_array.iter().any(|__sn_item| { let __sn_item_bytes = __sn_item.to_ne_bytes(); __sn_array_search.get(..__sn_item_bytes.len()) == Some(__sn_item_bytes.as_slice()) }) });
+    let mut zero: f32 = 0.0;
+    let mut negativeZero: f32 = (-0.0);
+    let mut value: f32 = 1.5;
+    let mut copiedNan: f32 = (zero / zero);
+    let mut values: Vec<f32> = vec![zero, value, negativeZero, copiedNan];
+    let mut needle: f64 = 1.5;
+    println!("{}", { let __sn_array_search = (needle).to_ne_bytes(); let __sn_array = &(values); __sn_array.iter().position(|__sn_item| { let __sn_item_bytes = __sn_item.to_ne_bytes(); __sn_array_search.get(..__sn_item_bytes.len()) == Some(__sn_item_bytes.as_slice()) }).map(|__sn_index| __sn_index as i64).unwrap_or(-1) });
     println!("{}", { let __sn_array_search = ((1.5f64)).to_ne_bytes(); let __sn_array = &(values); __sn_array.iter().position(|__sn_item| { let __sn_item_bytes = __sn_item.to_ne_bytes(); __sn_array_search.get(..__sn_item_bytes.len()) == Some(__sn_item_bytes.as_slice()) }).map(|__sn_index| __sn_index as i64).unwrap_or(-1) });
-    println!("{}", { let __sn_array_search = (negative_zero).to_ne_bytes(); let __sn_array = &(values); __sn_array.iter().any(|__sn_item| { let __sn_item_bytes = __sn_item.to_ne_bytes(); __sn_array_search.get(..__sn_item_bytes.len()) == Some(__sn_item_bytes.as_slice()) }) });
-    println!("{}", { let __sn_array_search = (negative_zero).to_ne_bytes(); let __sn_array = &(values); __sn_array.iter().position(|__sn_item| { let __sn_item_bytes = __sn_item.to_ne_bytes(); __sn_array_search.get(..__sn_item_bytes.len()) == Some(__sn_item_bytes.as_slice()) }).map(|__sn_index| __sn_index as i64).unwrap_or(-1) });
-    println!("{}", { let __sn_array_search = (nan).to_ne_bytes(); let __sn_array = &(values); __sn_array.iter().any(|__sn_item| { let __sn_item_bytes = __sn_item.to_ne_bytes(); __sn_array_search.get(..__sn_item_bytes.len()) == Some(__sn_item_bytes.as_slice()) }) });
-    println!("{}", { let __sn_array_search = (nan).to_ne_bytes(); let __sn_array = &(values); __sn_array.iter().position(|__sn_item| { let __sn_item_bytes = __sn_item.to_ne_bytes(); __sn_array_search.get(..__sn_item_bytes.len()) == Some(__sn_item_bytes.as_slice()) }).map(|__sn_index| __sn_index as i64).unwrap_or(-1) });
+    println!("{}", { let __sn_array_search = (value).to_ne_bytes(); let __sn_array = &(values); __sn_array.iter().position(|__sn_item| { let __sn_item_bytes = __sn_item.to_ne_bytes(); __sn_array_search.get(..__sn_item_bytes.len()) == Some(__sn_item_bytes.as_slice()) }).map(|__sn_index| __sn_index as i64).unwrap_or(-1) });
+    println!("{}", { let __sn_array_search = ((-(0.0f64))).to_ne_bytes(); let __sn_array = &(values); __sn_array.iter().position(|__sn_item| { let __sn_item_bytes = __sn_item.to_ne_bytes(); __sn_array_search.get(..__sn_item_bytes.len()) == Some(__sn_item_bytes.as_slice()) }).map(|__sn_index| __sn_index as i64).unwrap_or(-1) });
+    println!("{}", { let __sn_array_search = (negativeZero).to_ne_bytes(); let __sn_array = &(values); __sn_array.iter().position(|__sn_item| { let __sn_item_bytes = __sn_item.to_ne_bytes(); __sn_array_search.get(..__sn_item_bytes.len()) == Some(__sn_item_bytes.as_slice()) }).map(|__sn_index| __sn_index as i64).unwrap_or(-1) });
+    println!("{}", { let __sn_array_search = (copiedNan).to_ne_bytes(); let __sn_array = &(values); __sn_array.iter().position(|__sn_item| { let __sn_item_bytes = __sn_item.to_ne_bytes(); __sn_array_search.get(..__sn_item_bytes.len()) == Some(__sn_item_bytes.as_slice()) }).map(|__sn_index| __sn_index as i64).unwrap_or(-1) });
+    println!("{}", { let __sn_array_search = ((9.5f64)).to_ne_bytes(); let __sn_array = &(values); __sn_array.iter().any(|__sn_item| { let __sn_item_bytes = __sn_item.to_ne_bytes(); __sn_array_search.get(..__sn_item_bytes.len()) == Some(__sn_item_bytes.as_slice()) }) });
+    let mut missing: Vec<f32> = vec![value];
+    println!("{}", { let __sn_array_search = (needle).to_ne_bytes(); let __sn_array = &(missing); __sn_array.iter().any(|__sn_item| { let __sn_item_bytes = __sn_item.to_ne_bytes(); __sn_array_search.get(..__sn_item_bytes.len()) == Some(__sn_item_bytes.as_slice()) }) });
+    println!("{}", { let __sn_array_search = ((1.5f64)).to_ne_bytes(); let __sn_array = &(missing); __sn_array.iter().any(|__sn_item| { let __sn_item_bytes = __sn_item.to_ne_bytes(); __sn_array_search.get(..__sn_item_bytes.len()) == Some(__sn_item_bytes.as_slice()) }) });
+    println!("{}", { let __sn_array_search = (value).to_ne_bytes(); let __sn_array = &(missing); __sn_array.iter().any(|__sn_item| { let __sn_item_bytes = __sn_item.to_ne_bytes(); __sn_array_search.get(..__sn_item_bytes.len()) == Some(__sn_item_bytes.as_slice()) }) });
 }

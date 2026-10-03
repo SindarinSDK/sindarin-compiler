@@ -1,0 +1,18 @@
+fn main(): void =>
+  var zero: float = 0.0f
+  var negativeZero: float = -0.0f
+  var value: float = 1.5f
+  var copiedNan: float = zero / zero
+  var values: float[] = {zero, value, negativeZero, copiedNan}
+  var needle: double = 1.5
+  println(values.indexOf(needle))
+  println(values.indexOf(1.5f))
+  println(values.indexOf(value))
+  println(values.indexOf(-0.0f))
+  println(values.indexOf(negativeZero))
+  println(values.indexOf(copiedNan))
+  println(values.contains(9.5f))
+  var missing: float[] = {value}
+  println(missing.contains(needle))
+  println(missing.contains(1.5f))
+  println(missing.contains(value))

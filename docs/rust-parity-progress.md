@@ -7,22 +7,19 @@ head counts, not the language specification or the historical evidence itself.
 
 ## Current verified status: 2026-10-03
 
-Main `bfc0cb99` passes Linux/macOS/Windows Compiler and Rust Runtime CI,
-including 594 exact C/Rust positive pairs and 39 diagnostic/order cases. All
+Main `133c1452` passes Linux/macOS/Windows Compiler and Rust Runtime CI,
+including 711 exact C/Rust positive pairs and 39 diagnostic/order cases. All
 existing PR work is reconciled; the open queue is empty. C remains the default
-target. Sized-array reflection/defaults, buffered output and mixed integral
-conversions are integrated. Full parity is still incomplete: the broader
-unchanged C-positive corpus has 96 Rust admission/compilation gaps, and remaining
-Rust-negative, ownership, native/SDK and language families need implementation
-and full mode/platform validation.
+target. Sized-array reflection/defaults, buffered output, mixed integral
+conversions and scalar float/double conversion/mutation are integrated.
 
-The next local increment implements float/double conversion at scalar storage,
-call and return boundaries, and mixed floating compound mutation. The unchanged
-`test_interop_types.sn` now passes all nine C/Rust controls. Full local suites
-pass; the expanded gate requires 117 new pairs, including observable synchronized
-cell updates. The unchanged broader corpus now has 95 compilation gaps. This
-increment still requires publication and hosted verification; the main status
-above remains the last verified hosted checkpoint. Details follow below.
+Full parity is still incomplete. The broader unchanged C-positive corpus has
+95 Rust admission/compilation gaps, and remaining Rust-negative, ownership,
+native/SDK and language families need implementation and full mode/platform
+validation. Fresh local controls also expose a behavior mismatch in the existing
+floating array-search fixture, outside that 95-source compilation denominator.
+Indexed compound assignment is the next confirmed unchanged corpus rejection.
+Exact CI/report links and follow-up diagnosis follow below.
 
 ## Baseline: 2026-10-02
 
@@ -986,3 +983,115 @@ This increment does not establish full floating or whole-language parity.
 Evidence: `rust-parity-evidence/float-conversions-*`. Hosted results for this
 increment must be tied to its exact published revision; preceding mixed-integer
 main CI evidence is included in this commit.
+
+
+## Float conversion main: hosted verification, 2026-10-03
+
+Exact direct-main `133c145225521d1f9f3d127b9fc3f890499b7eb9` passes all six
+jobs in [Compiler CI 37121624679](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37121624679)
+and [Rust Runtime CI 37121624792](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37121624792).
+All eleven downloaded reports pass on every platform: 711 positive pairs and
+39 diagnostic/order cases per system, 2,250 hosted cases total. Every source
+hash matches the published fixture. All 117 floating cases also match their
+independent output oracle on both targets, applying Windows CRT newline
+transport to the expected bytes. Complete C/Rust suite logs retain the local
+counts above on all three platforms, with zero failures or skips.
+Evidence: `float-conversions-main-ci-green.json`. The open PR queue is empty.
+
+New local diagnosis receives no parity credit. The unchanged
+`test_compound_assignment.sn` passes nine C controls and fails Rust admission
+in every mode. Its indexed place is classified as computed; the current C
+renderer also reevaluates the indexed target for the store. Preserve the actual
+defined evaluation and mutation behavior when implementing that place.
+
+The unchanged `tests/rgen/float_array_search.sn` compiles and runs on both
+targets in nine controls, but their raw outputs differ every time. For example,
+C finds the literal `9.5f` and reports index zero for the literal `1.5f`, while
+Rust reports false and index one. Current restored C emits those direct source
+float literals as double C expressions; its array-search macro compares the
+first four bytes of the actual argument object. Rust currently casts exact
+float source arguments to f32 and compares f32 bits. A fresh observable double
+needle on `float[]` likewise succeeds through C's byte-prefix comparison while
+Rust rejects it. These are implementation gaps, not evidence for changing C.
+
+Historical PR100 did merge a C literal suffix repair, but
+`48975cbe` deliberately restored the tagged C production and quarantined
+post-tag C fixtures, as documented in `restoration/README.md`. The older audit's
+float-search prerequisite and C integration-fixture claims describe that earlier
+checkpoint and do not establish current C behavior. The next array-search repair
+must use the restored C contract and observable unchanged controls. A narrower
+actual argument object searched in a wider-element array needs separate
+analysis of defined memory access; out-of-object reads earn no parity credit.
+Raw follow-up reports and source/model provenance are retained locally under
+`.sn/float-followup-diagnosis.json` and its referenced reports for the next
+implementation increment. This remains an active completion goal.
+
+
+## Floating array representation increment: local verification, 2026-10-03
+
+Starting from main `133c1452`, the unchanged `float_array_search.sn` compiles
+and runs through both targets but differs in all nine paired controls. The
+current C macro compares `elem_size` bytes from an object of the rendered
+argument's actual type. The restored renderer emits float source literals as
+C double expressions, so searching `float[]` with a literal uses its double
+byte prefix; a stored float still uses four float bytes. Numerically casting
+all needles to f32 was incorrect. No C/shared production or default-target
+selection changes are included in this repair.
+
+Target-local copies of floating array argument expressions now retain actual C
+literal, unary, arithmetic-helper/raw-operator and signature/storage widths.
+Ordinary/method/function-value/native boundaries continue to convert at their
+C signature. Searches compare native-endian byte prefixes, preserving literal
+and stored-value differences, signed zero, copied NaN bits and first-hit/miss
+results. For stable variable receivers the needle is evaluated before the Rust
+borrow, allowing a needle function to mutate the same array and preserving the
+observed contents without holding an incompatible borrow across that call.
+
+The mutation adversary also exposed float-array `push` representation: C copies
+bytes from the value object, truncating a larger object and zero-filling a
+smaller one through `sn_array_push_safe`. Rust now preserves those bytes instead
+of numerically converting. `insert` also copies a byte prefix, evaluates its
+value before its index and leaves invalid negative/oversized positions unchanged.
+The source checker/model retains its existing argument order; private rendering
+handles C's already reordered macro arguments. Tests observe new elements,
+lengths, call counts, and the decimal evaluation trace 12/1212/121212. Captured
+array mutation persists inside the capture across calls while the original array
+stays unchanged; the observed results are true/false/1/false.
+
+A wider C element compared or inserted from a narrower actual object can read
+outside that object when the operation reaches the memory copy/comparison. No
+such execution is credited as defined parity. Rust uses a bounds-aware prefix
+comparison and zero-initialized storage, avoiding unsafe reads. Empty wider
+array searches are defined C controls and are covered, including evaluation of
+the narrower producing call. `push`'s zero-filled widening is defined and covered
+separately. The exploratory outer-capture indexed read beyond its logical/allocated
+array extent is retained as an excluded probe, not passing behavior evidence.
+
+The former `float_array_search_double_needle` rejection source moves unchanged
+to a positive generation test after nine C/Rust controls pass. Its unused found
+value proves admission only; adjacent representation, miss, call and mutation
+observations provide behavior evidence. Three stale output lines in the existing
+float-search Rust oracle are corrected to measured C behavior; neither existing
+source changes. Only the two historical float/double-search Rust snapshots are
+updated, with four new positive snapshots added. All other historical Rust
+snapshots remain byte-identical.
+
+`make test-rust-parity-floating-arrays` requires nine unchanged or new C-valid
+sources in 81 positive pairs across O0/O1/O2 and default/checked/unchecked modes.
+Its arithmetic-width case deliberately observes index one for checked helpers
+and index zero for raw arithmetic (including default O2). Independent checked
+and unchecked output oracles pin both behaviors. A scalar native case observes
+both ABI widths. Combined gates require 792 positive pairs plus 39
+diagnostic/order cases per platform (831 cases in twelve reports).
+
+Full local C counts remain 1610/107/79/1141/58/224/11. Rust counts are generation
+336, negative 165, native 8/19/1/4, closures 36/1, concurrency 10/7/1 and toolchain
+12, with zero failures or skips. Raw-byte, text-transport/helper and formatter
+checks are required before publication. The original 1,365 corpus source hashes
+are unchanged; 1,060 integration and 210 exploratory executions pass, with
+81+14 Rust compilation gaps and no admitted runtime failures in this O0 sample.
+The broader 95 compilation gaps and unverified ownership, SDK, module/type and
+behavior families remain required work; this increment does not prove full
+floating-array or whole-language parity. Indexed compound assignment is the next
+confirmed corpus gap. Evidence: `rust-parity-evidence/floating-arrays-*`.
+Publication and exact-revision hosted verification are pending.

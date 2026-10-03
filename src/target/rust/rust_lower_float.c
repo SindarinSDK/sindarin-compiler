@@ -6,6 +6,8 @@ static void rust_float_convert_value(json_object *value, json_object *target_typ
     json_object *source_type = NULL;
     if (!value || !json_object_object_get_ex(value, "type", &source_type)) return;
     const char *from = json_string_property(source_type, "kind");
+    const char *c_kind = json_string_property(value, "rust_c_float_expression_kind");
+    if (c_kind) from = c_kind;
     const char *to = json_string_property(target_type, "kind");
     if (!rust_numeric_floating_kind(from) || !rust_numeric_floating_kind(to) ||
         strcmp(from, to) == 0) return;
@@ -68,7 +70,11 @@ static void rust_lower_float_conversions(json_object *model, json_object *node,
         json_object_object_get_ex(target, "type", &target_type);
         json_object_object_get_ex(node, "value", &value);
         json_object_object_get_ex(value, "type", &value_type);
-        if (rust_float_conversion_pair(target_type, value_type))
+        const char *target_kind = json_string_property(target_type, "kind");
+        const char *value_kind = json_string_property(value, "rust_c_float_expression_kind");
+        if (!value_kind) value_kind = json_string_property(value_type, "kind");
+        if (rust_numeric_floating_kind(target_kind) && rust_numeric_floating_kind(value_kind) &&
+            strcmp(target_kind, value_kind) != 0)
         {
             /* C computes the mixed expression in double, then converts back
              * to the place's width. Do not round the RHS before arithmetic. */
@@ -116,12 +122,20 @@ static void rust_lower_float_conversions(json_object *model, json_object *node,
     }
     else if (kind && strcmp(kind, "call") == 0)
     {
+        if (json_boolean_property(node, "rust_float_array_search") ||
+            json_boolean_property(node, "rust_float_array_storage")) return;
         json_object *callee = NULL, *callee_type = NULL, *args = NULL, *params = NULL;
         json_object_object_get_ex(node, "callee", &callee);
         json_object_object_get_ex(callee, "type", &callee_type);
         json_object_object_get_ex(callee_type, "param_types", &params);
         json_object_object_get_ex(node, "args", &args);
         rust_float_convert_args(args, params, false);
+    }
+    else if (kind && strcmp(kind, "var_decl") == 0)
+    {
+        json_object_object_get_ex(node, "initializer", &value);
+        if (json_string_property(value, "rust_c_float_expression_kind"))
+            rust_float_convert_value(value, type);
     }
     else if (kind && (strcmp(kind, "static_call") == 0 || strcmp(kind, "method_call") == 0))
     {

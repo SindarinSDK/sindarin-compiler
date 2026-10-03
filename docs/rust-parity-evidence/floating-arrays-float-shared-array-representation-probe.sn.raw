@@ -1,0 +1,8 @@
+fn main(): void =>
+  var captured: float[] = {1.5f}
+  var pushCaptured: fn(): void = fn(): void =>
+    captured.push(9.5f)
+  pushCaptured()
+  println(captured.length)
+  println(captured[1] == 0.0f)
+  println(captured.contains(0.0f))

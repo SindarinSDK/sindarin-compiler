@@ -484,3 +484,18 @@ test-rust-parity-float-conversions: build
 		$(RUST_CONCURRENCY_C_LINK_ARGS) \
 		--require-count 13 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-float-conversions.json
+
+.PHONY: test-rust-parity-floating-arrays
+test-rust-parity-floating-arrays: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/rgen/float_array_search.sn \
+		tests/rgen/double_array_search.sn \
+		tests/rgen/float_array_search_double_needle.sn \
+		tests/rgen/floating_array_search_representation.sn \
+		tests/rgen/floating_array_search_call_boundaries.sn \
+		tests/rgen/floating_array_storage_bytes.sn \
+		tests/rust-float-search/floating_search_expression_widths.sn \
+		tests/rust-float-search/floating_array_capture_snapshots.sn \
+		tests/rust-native/scalar_float_array_representation.sn \
+		--require-count 9 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-floating-arrays.json

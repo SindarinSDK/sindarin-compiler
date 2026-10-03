@@ -1,0 +1,34 @@
+fn nextIndex(calls: int as ref, position: int): int =>
+  calls = calls * 10 + 2
+  return position
+
+fn nextValue(calls: int as ref): double =>
+  calls = calls * 10 + 1
+  return 1.5
+
+fn main(): void =>
+  var calls: int = 0
+  var values: float[] = {1.5f}
+  values.insert(nextValue(calls), nextIndex(calls, 0))
+  println(calls)
+  println(values[0] == 0.0f)
+  println(values.length)
+  values.insert(nextValue(calls), nextIndex(calls, -1))
+  println(calls)
+  println(values.length)
+  values.insert(nextValue(calls), nextIndex(calls, 99))
+  println(calls)
+  println(values.length)
+  var stored: float = 1.5f
+  values.push(stored)
+  println(values[2] == stored)
+  values.push(9.5f)
+  println(values[3] == 0.0f)
+  var wide: double[] = {}
+  wide.push(stored)
+  println(wide[0] > 0.0)
+  println(wide[0] < 1.0)
+  println(wide[0] == 1.5)
+  println(wide.contains(wide[0]))
+  wide.push(1.5f)
+  println(wide[1] == 1.5)

@@ -1,1 +1,1 @@
-{{#if rust_float_conversion_type}}(({{> expr_uncast this}}) as {{rust_float_conversion_type}}){{else}}{{> expr_uncast this}}{{/if~}}
+{{#if rust_float_array_storage_type}}{{> expr_rust_float_array_storage this}}{{else}}{{#if rust_float_conversion_type}}(({{> expr_uncast this}}) as {{rust_float_conversion_type}}){{else}}{{> expr_uncast this}}{{/if~}}{{/if~}}

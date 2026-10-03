@@ -1,0 +1,6 @@
+fn observe(value: float): int =>
+  var values: float[] = {0.0f, 1.5f}
+  return values.indexOf(value + 0.0f)
+
+fn main(): void =>
+  println(observe(1.5f))

@@ -1,0 +1,13 @@
+native fn floatValue(value: double): float =>
+  return value
+
+native fn doubleValue(value: double): double =>
+  return value
+
+fn main(): void =>
+  var values: float[] = {0.0f, 16777216.0f}
+  var wide: double[] = {16777217.0}
+  println(values.indexOf(floatValue(16777217.0f)))
+  println(wide.indexOf(doubleValue(16777217.0f)))
+  values.push(doubleValue(1.5f))
+  println(values[2] == 0.0f)

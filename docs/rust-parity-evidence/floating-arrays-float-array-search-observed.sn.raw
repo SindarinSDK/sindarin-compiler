@@ -1,0 +1,6 @@
+fn main(): void =>
+    var values: float[] = {0.0f, 1.0f, -0.0f}
+    var needle: double = 1.0
+    println(values.contains(needle))
+    println(values.indexOf(needle))
+    println(values.indexOf(1.0f))

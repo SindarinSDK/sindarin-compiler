@@ -141,24 +141,25 @@ static void rust_lower_split_lines_accesses(json_object *node)
     }
 }
 
-/* C array search compares non-string elements byte-for-byte. Mark floating
- * searches so Rust preserves C behavior for signed zero and NaN payloads. */
-static void rust_lower_array_searches(json_object *node)
+/* Floating array methods preserve the actual C argument object bytes. */
+#include "rust_lower_float_array.c"
+
+static void rust_lower_float_array_calls(json_object *node)
 {
     if (!node) return;
     if (json_object_is_type(node, json_type_array))
     {
         size_t count = json_object_array_length(node);
         for (size_t i = 0; i < count; i++)
-            rust_lower_array_searches(json_object_array_get_idx(node, i));
+            rust_lower_float_array_calls(json_object_array_get_idx(node, i));
         return;
     }
     if (!json_object_is_type(node, json_type_object)) return;
 
-    json_object_object_foreach(node, key, value)
+    json_object_object_foreach(node, key, child)
     {
         (void)key;
-        rust_lower_array_searches(value);
+        rust_lower_float_array_calls(child);
     }
 
     if (!json_string_property_equals(node, "kind", "call")) return;
@@ -172,13 +173,32 @@ static void rust_lower_array_searches(json_object *node)
 
     const char *method = json_string_property(callee, "member_name");
     const char *element_kind = json_string_property(element_type, "kind");
-    if (!method || (strcmp(method, "contains") != 0 && strcmp(method, "indexOf") != 0) ||
-        !element_kind || (strcmp(element_kind, "float") != 0 &&
-                          strcmp(element_kind, "double") != 0)) return;
-
-    json_object_object_add(node, "rust_float_array_search", json_object_new_boolean(true));
-    json_object_object_add(node, "rust_float_array_search_type",
-                           json_object_new_string(strcmp(element_kind, "float") == 0 ? "f32" : "f64"));
+    if (!method || !element_kind || (strcmp(element_kind, "float") != 0 &&
+                                    strcmp(element_kind, "double") != 0)) return;
+    bool search = strcmp(method, "contains") == 0 || strcmp(method, "indexOf") == 0;
+    bool push = strcmp(method, "push") == 0;
+    bool insert = strcmp(method, "insert") == 0;
+    if (!search && !push && !insert) return;
+    json_object *args = NULL, *value = NULL;
+    if (!json_object_object_get_ex(node, "args", &args) ||
+        json_object_array_length(args) != (insert ? 2 : 1)) return;
+    size_t index = insert ? 1 : 0;
+    json_object_deep_copy(json_object_array_get_idx(args, index), &value, NULL);
+    rust_float_array_c_values(value);
+    if (search)
+        json_object_object_add(node, "rust_float_array_search", json_object_new_boolean(true));
+    else
+    {
+        json_object_object_add(node, "rust_float_array_storage", json_object_new_boolean(true));
+        json_object_object_add(value, "rust_float_array_storage_type",
+                               json_object_new_string(strcmp(element_kind, "float") == 0 ? "f32" : "f64"));
+        if (insert) json_object_object_add(node, "rust_float_array_insert", json_object_new_boolean(true));
+        if (push && json_string_property_equals(object, "kind", "variable"))
+            json_object_object_add(node, "rust_float_array_push", json_object_new_boolean(true));
+    }
+    json_object_array_put_idx(args, index, value);
+    if (json_string_property_equals(object, "kind", "variable"))
+        json_object_object_add(node, "rust_float_search_defer_receiver", json_object_new_boolean(true));
 }
 
 static bool rust_owned_value_type(json_object *node)
@@ -1395,7 +1415,7 @@ static bool rust_lower_calls(json_object *model)
     size_t array_alias_id = 0;
     if (!rust_specialize_default_array_alias_calls(
             model, functions, model, &array_alias_id)) return false;
-    rust_lower_array_searches(model);
+    rust_lower_float_array_calls(model);
     rust_lower_instance_method_clones(model);
     size_t resolved_call_id = 0;
     rust_lower_resolved_receiver_prefixes(model, model, &resolved_call_id);
