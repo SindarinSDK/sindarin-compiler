@@ -30,10 +30,19 @@ native aliases, and transitive initializer helpers retain terminating behavior.
 callable whose name differs from its external C symbol. The error fixtures pin
 the remaining pointer and closure boundaries.
 
+`scalar_managed_pointer_bridge.sn` covers the managed edge of raw-pointer
+interop. It sends a NUL-terminated `SnString` to C, copies a C-owned string
+containing an invalid UTF-8 byte back without decoding it, takes ownership of a
+returned `SnArray<byte>`, and exercises scalar `as ref` values including the
+one-byte C `char` ABI. Its binary oracle and ABI marker compare C and Rust at
+O0, O1, O2, and debug O0.
+
 Tagged parity is measured separately by `rust-native-tagged`, which compiles
 and executes the unchanged tag-`79c20b` fixtures
 `tests/cgen/pragma_source.sn`, `tests/integration/test_native_math.sn`, and
-`tests/integration/test_native_with_body.sn` through both C and Rust. The
+`tests/integration/test_native_with_body.sn`,
+`tests/integration/test_pointer_unwrap.sn`, and
+`tests/integration/test_interop_pointers.sn` through both C and Rust. The
 toolchain suite additionally compiles and runs the unchanged native-body case
 with `-g`, pinning configured sanitizer-runtime linkage through the C driver.
 post-tag `scalar_bridge.sn` and `imported_alias.sn` suites require their Rust

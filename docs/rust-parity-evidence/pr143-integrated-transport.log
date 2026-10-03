@@ -1,0 +1,3 @@
+PASS native initializer/body/return printing and C flush: 2 target executions
+PASS native C output ordered between Rust writes: 2 target executions
+PASS checked diagnostic stderr/status: 2 target executions

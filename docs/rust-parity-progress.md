@@ -52,7 +52,8 @@ coverage and remove redundant skipped entries when equivalence is verified.
 - [x] Receiver alias forwarding: PR150 (`a53de135`) integrated and reverified.
 - [ ] General array identity, indexed/nested ownership, dynamic aliases and rebinding.
 - [ ] Remaining closure captures, callable contexts and reference lifetimes.
-- [ ] Concurrency/globals/synchronization: reconcile PR127, PR133, PR134, PR142.
+- [x] Existing concurrency PR127, PR133, PR134 and PR142 integrated and verified.
+- [ ] Remaining concurrency behavior, diagnostics and ownership parity.
 - [ ] Native managed transport, pointers, structs, callbacks and SDK: reconcile PR143 and remaining gaps.
 - [ ] Remaining string, numeric, matching, reflection, module and type features inventoried and completed.
 - [x] Platform runtime gates: PR144 Windows failures resolved; Linux/macOS/Windows green on integrated main.
@@ -588,6 +589,61 @@ Runtime CI retains parity JSON on successful as well as failed runs, enabling
 verification of source identities and raw streams even when every gate passes.
 
 
+## PR143 native composition: local verification
+
+The original PR143 head `1bf1b153` is composed onto verified main `432983b3`.
+Two template conflicts preserve current numeric promotion and byte/platform
+helpers while admitting the new native managed support. All 316 existing
+Rust source-generation snapshots remain unchanged. The native struct rejection
+continues to fail admission; only its obsolete list of unsupported constructs
+was corrected after native array expressions became supported.
+
+Fresh full C suites pass: 1610 unit, 107 generation, 79 model, 1141 integration,
+58 integration negatives, 224 exploratory and 11 exploratory negatives, with
+no skips. Fresh Rust suites pass: 316 generation, 172 negatives; native
+8 tagged/17 extra/1 origin/4 negatives; closures 36/1; concurrency 10/7/1;
+and 12 toolchain cases, with no skips.
+
+The new native gate compares seven source-identical PR fixtures across all nine
+optimization/arithmetic combinations: 63 exact raw-stream pairs. Existing core
+30, concurrency 51 and ownership/array 207 pairs pass. Raw-byte 63 executions,
+native transport 6 executions and simulated Windows helper checks also pass.
+Evidence: `rust-parity-evidence/pr143-local-*` and `pr143-source-hashes.json`.
+
+Added an explicit Windows binary oracle for the invalid UTF-8 managed result;
+the harness must check its exact CRLF bytes and C/Rust agreement. This remains
+pending actual hosted Windows validation. Native fixture counts in CI are
+updated to require 8 tagged and 17 extra cases; the new 63-pair gate is required
+on all three platforms. Review also repairs cleanup if allocating private
+parameter temporary names fails, without changing normal emitted behavior.
+
+This composition still needs refresh against the verified receiver integration,
+fresh combined tests, publication and hosted CI before merging. It does not
+complete native structs, callbacks, buffer/SDK or general ownership parity.
+
+
+## PR134 integrated receiver verification
+
+Exact head `01e71f5c` passes Compiler `37054754769` and Runtime
+`37054754799`, all six jobs. Downloaded Windows JSON verifies 30 core,
+51 concurrency, 207 ownership/array and 90 receiver pairs, all successful;
+every source hash matches the worker original, including all three raw fixtures.
+See `pr134-windows-report-verification.json` and the retained Windows ownership
+report. PR134 is merged as `227fd27aa08932ccad6540d450f1370aa3423151`.
+Post-merge Compiler `37056043226` and Runtime `37056043183` are running.
+Only PR143 remains open; its local composition is refreshed against this main
+and must pass combined tests before publication.
+
+
+PR143 refreshed onto receiver main `227fd27a`: the complete C/Rust suite
+counts above remain green without skips. All 441 differential pairs pass:
+30 core + 51 concurrency + 207 ownership/array + 90 receiver + 63 native,
+with exact statuses and raw stdout/stderr. Byte-string, native transport and
+Windows helper checks pass. Only workflow artifact paths and appended ledger
+entries conflicted; all receiver and native gates and evidence are retained.
+Fresh combined evidence is `rust-parity-evidence/pr143-integrated-*`.
+Hosted three-platform validation is required before this PR can merge.
+
 ## Sized-array reflection: local feature completion
 
 Remove the Rust-only `typeOf` sized-array admission guard; existing reflection
@@ -662,3 +718,28 @@ A first new snapshot was emitted with default O2 instead of the harness's O0;
 only that new snapshot was corrected after all-mode paired execution checks.
 No existing golden was refreshed. This local increment still requires composition
 with native main and fresh tests before direct-main publication.
+
+
+Native main `9683f657` now passes all six post-merge CI jobs; see
+`pr143-main-ci-green.json`. Refresh the reflection/default increments against
+this exact main, retaining native, receiver, reflection and default gates and
+all seven successful-report artifact paths. Required combined validation is
+319 Rust positives/171 negatives, native 8/17/1/4 and 504 differential pairs
+(441 existing + 36 reflection + 27 defaults), plus complete C and other suites.
+These local increments will be pushed directly to main only after that passes.
+
+
+## Reflection/default increments ready for direct main publication
+
+The full composition with native main `9683f657` passes complete C counts
+1610/107/79/1141/58/224/11, Rust 319/171, native 8/17/1/4, closures 36/1,
+concurrency 10/7/1 and 12 toolchain cases, all with zero skips. All 504
+C/Rust differential pairs pass; raw bytes 63 executions, transport 6 executions,
+Windows helper simulation and formatting pass. Evidence is
+`rust-parity-evidence/feature-composition-*`. Every existing snapshot remains
+unchanged; only the three new positives add generated/runtime oracles.
+
+The increment is authorized for direct-main push with hosted runtime CI required
+on all platforms. The PR queue is empty and native main's CI is fully green.
+Remaining native/closure/array/language work and the two observed diagnostic
+stream-order gaps still prevent claiming overall parity completion.

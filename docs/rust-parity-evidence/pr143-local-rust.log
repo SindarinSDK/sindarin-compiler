@@ -1,0 +1,100 @@
+Compiler: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn
+Platform: Linux
+Parallel: 20 workers
+
+Rust Generation Tests
+============================================================
+  Running 316 tests with 20 workers...
+                                                            
+------------------------------------------------------------
+Results: 316 passed, 0 failed, 0 skipped  (4.69s)
+
+Rust Generation Error Tests
+============================================================
+  Running 172 tests with 20 workers...
+                                                            
+------------------------------------------------------------
+Results: 172 passed, 0 failed, 0 skipped  (71ms)
+
+Tagged Native Scalar/Source/Link Parity Tests
+============================================================
+  Running 8 tests with 20 workers...
+                                                            
+------------------------------------------------------------
+Results: 8 passed, 0 failed, 0 skipped  (474ms)
+
+Post-Tag Rust Native Extra Coverage
+============================================================
+  Running 17 tests with 20 workers...
+                                                            
+------------------------------------------------------------
+Results: 17 passed, 0 failed, 0 skipped  (1.68s)
+
+Rust Native Imported-Origin Extra Coverage
+============================================================
+  Running 1 tests with 20 workers...
+                                                            
+------------------------------------------------------------
+Results: 1 passed, 0 failed, 0 skipped  (200ms)
+
+Rust Native Scalar Error Tests
+============================================================
+  Running 4 tests with 20 workers...
+                                                            
+------------------------------------------------------------
+Results: 4 passed, 0 failed, 0 skipped  (46ms)
+
+Rust Closure Value Tests
+============================================================
+  Running 36 tests with 20 workers...
+                                                            
+------------------------------------------------------------
+Results: 36 passed, 0 failed, 0 skipped  (623ms)
+
+Rust Closure Value Error Tests
+============================================================
+  Running 1 tests with 20 workers...
+                                                            
+------------------------------------------------------------
+Results: 1 passed, 0 failed, 0 skipped  (2ms)
+
+Rust Concurrency Tests
+============================================================
+  Running 10 tests with 20 workers...
+                                                            
+------------------------------------------------------------
+Results: 10 passed, 0 failed, 0 skipped  (344ms)
+
+Promoted Rust Concurrency Tests
+============================================================
+  Running 7 tests with 20 workers...
+                                                            
+------------------------------------------------------------
+Results: 7 passed, 0 failed, 0 skipped  (217ms)
+
+Rust Concurrency Error Tests
+============================================================
+  Running 1 tests with 20 workers...
+                                                            
+------------------------------------------------------------
+Results: 1 passed, 0 failed, 0 skipped  (2ms)
+
+Rust Toolchain and Artifact Lifecycle Tests
+============================================================
+  subprocess_utf8_boundary                      PASS  (32ms)
+  rustc_invocation_records                      PASS  (27ms)
+  pure_rust_has_no_c_dependency                 PASS  (7ms)
+  native_emit_requires_bundle                   PASS  (2ms)
+  native_c_link_driver_contract                 PASS  (318ms)
+  native_debug_sanitizer_link                   PASS  (263ms)
+  native_compile_and_link_failures              PASS  (275ms)
+  missing_rustc                                 PASS  (2ms)
+  failing_rustc                                 PASS  (2ms)
+  failing_rustc_build                           PASS  (15ms)
+  rust_generated_artifact_lifecycle             PASS  (9ms)
+  rust_native_artifact_lifecycle                PASS  (607ms)
+
+------------------------------------------------------------
+Results: 12 passed, 0 failed  (1.57s)
+
+All tests passed!  (total: 9.92s)

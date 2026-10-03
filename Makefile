@@ -430,3 +430,16 @@ test-rust-parity-sized-defaults: build
 		tests/rgen/typeof_sized_array.sn \
 		--require-count 3 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-sized-defaults.json
+
+.PHONY: test-rust-parity-native-managed
+test-rust-parity-native-managed: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/integration/test_pointer_unwrap.sn \
+		tests/integration/test_interop_pointers.sn \
+		tests/rust-native/scalar_managed_pointer_bridge.sn \
+		tests/rust-native/native_as_ref_char_same_place.sn \
+		tests/rust-native/native_as_ref_char_temp_collision.sn \
+		tests/rust-native/native_as_ref_same_place.sn \
+		tests/rust-native/native_string_escape.sn \
+		--require-count 7 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-native-managed.json

@@ -1,0 +1,37 @@
+[
+  {
+    "source": "tests/integration/test_pointer_unwrap.sn",
+    "sha256": "10720fa705f88b71933abd9c6b5c67170e627f7b8222ef20384a0d0e5faf68cd",
+    "original_pr143_sha256": "10720fa705f88b71933abd9c6b5c67170e627f7b8222ef20384a0d0e5faf68cd"
+  },
+  {
+    "source": "tests/integration/test_interop_pointers.sn",
+    "sha256": "c0e70a78ffbcbc2dfbf87f0aa46e84c8d2c2b472b96a379d4f43650d6eb46526",
+    "original_pr143_sha256": "c0e70a78ffbcbc2dfbf87f0aa46e84c8d2c2b472b96a379d4f43650d6eb46526"
+  },
+  {
+    "source": "tests/rust-native/scalar_managed_pointer_bridge.sn",
+    "sha256": "352dfb3bc4029894311b1a215c18a0147d894ab984e0574a89a47c37d03bb5c7",
+    "original_pr143_sha256": "352dfb3bc4029894311b1a215c18a0147d894ab984e0574a89a47c37d03bb5c7"
+  },
+  {
+    "source": "tests/rust-native/native_as_ref_char_same_place.sn",
+    "sha256": "0404006526194aaffdb54699ea780f701103e74fe696e61eb68ed13ee9a42333",
+    "original_pr143_sha256": "0404006526194aaffdb54699ea780f701103e74fe696e61eb68ed13ee9a42333"
+  },
+  {
+    "source": "tests/rust-native/native_as_ref_char_temp_collision.sn",
+    "sha256": "973bd2dad246980c291934cc58166056fb7f137b149f540ced6d606b3cb58a8f",
+    "original_pr143_sha256": "973bd2dad246980c291934cc58166056fb7f137b149f540ced6d606b3cb58a8f"
+  },
+  {
+    "source": "tests/rust-native/native_as_ref_same_place.sn",
+    "sha256": "6edfa5a3e6f1c2dbf9e48a584bfb50625dfe9bb34c23492ffae9ae5c484b5a6f",
+    "original_pr143_sha256": "6edfa5a3e6f1c2dbf9e48a584bfb50625dfe9bb34c23492ffae9ae5c484b5a6f"
+  },
+  {
+    "source": "tests/rust-native/native_string_escape.sn",
+    "sha256": "afed582e900902c37b977832e535f34097d68751ecfa1aac8c0725eb017662b5",
+    "original_pr143_sha256": "afed582e900902c37b977832e535f34097d68751ecfa1aac8c0725eb017662b5"
+  }
+]

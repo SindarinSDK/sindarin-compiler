@@ -1,0 +1,4 @@
+native fn unsupported(values: byte[]): int
+
+fn main(): void =>
+  println(unsupported({1b}))

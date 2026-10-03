@@ -1,0 +1,31 @@
+{
+  "revision": "01e71f5cbba8f55dfbc66068f8d1fc1f3d8e2c34",
+  "run": 37054754799,
+  "windows_reports": [
+    {
+      "gate": "core",
+      "pairs": 30,
+      "report_sha256": "386b7e8708580d0d3b4773c05f616c31e16721a36ee88863a9f30ea20a796b84"
+    },
+    {
+      "gate": "concurrency",
+      "pairs": 51,
+      "report_sha256": "365543970b920b1ba4efa0e5f60a99b6be09b0d2cbac07054cacf81baf493e57"
+    },
+    {
+      "gate": "thread-ownership",
+      "pairs": 207,
+      "report_sha256": "158e739a005de4b72f61dc42ab78378e5999fa20b7c9ad0e50c47966a56ec4c9"
+    },
+    {
+      "gate": "thread-receivers",
+      "pairs": 90,
+      "report_sha256": "c325b241e594045dc16c3cebba627f5d949ddbeeed6939a2ee0eafd0bdffdf3c"
+    }
+  ],
+  "raw_source_hashes": {
+    "tests/rust-thread-array-identity/indexed_member.sn.raw": "a9c0d16c958f64575a04a555d8b1a0a7bb7d9c555f9e749b780aeb5b9d8668a5",
+    "tests/rust-thread-array-identity/indexed_nested_cleanup.sn.raw": "333518adbd1ae9930bd2f3e4edd505adb3d44189fecc8f87cf1c7cee6e445a1b",
+    "tests/rust-thread-array-identity/mutation.sn.raw": "ea79ccb7edb3a4491234812357a8b872890d785340c47d6fc4126e278c8ba406"
+  }
+}

@@ -1,0 +1,477 @@
+Building Sindarin compiler...
+Platform: linux
+Generator: Ninja
+cmake -S . -B build -G "Ninja" \
+	-DCMAKE_BUILD_TYPE=Release \
+	-DCMAKE_C_COMPILER=gcc
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn.linux.cfg
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn.darwin.cfg
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn.windows.cfg
+-- Installing: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/include/runtime/sn_arith.h
+-- Installing: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/include/runtime/sn_array.h
+-- Installing: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/include/runtime/sn_byte.h
+-- Installing: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/include/runtime/sn_conv.h
+-- Installing: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/include/runtime/sn_core.h
+-- Installing: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/include/runtime/sn_minimal.h
+-- Installing: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/include/runtime/sn_reflect.h
+-- Installing: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/include/runtime/sn_serial.h
+-- Installing: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/include/runtime/sn_string.h
+-- Installing: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/include/runtime/sn_thread.h
+-- Installing: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/include/minimal/sn_arith.h
+-- Installing: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/include/minimal/sn_array.h
+-- Installing: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/include/minimal/sn_byte.h
+-- Installing: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/include/minimal/sn_conv.h
+-- Installing: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/include/minimal/sn_core.h
+-- Installing: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/include/minimal/sn_minimal.h
+-- Installing: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/include/minimal/sn_reflect.h
+-- Installing: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/include/minimal/sn_serial.h
+-- Installing: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/include/minimal/sn_string.h
+-- Installing: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/include/minimal/sn_thread.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/include/platform/compat_dirent.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/include/platform/compat_io.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/include/platform/compat_net.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/include/platform/compat_pthread.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/include/platform/compat_time.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/include/platform/compat_windows.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/include/platform/platform.h
+-- Found libs submodule: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/.sn/sindarin-pkg-libs/libs/linux
+--   Copying zlib headers...
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/zlib.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/zconf.h
+--   Copying yyjson headers...
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/yyjson.h
+--   Copying json-c headers...
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/json-c
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/json-c/json_config.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/json-c/debug.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/json-c/linkhash.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/json-c/json_object_iterator.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/json-c/json_util.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/json-c/json_tokener.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/json-c/json_patch.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/json-c/json.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/json-c/json_types.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/json-c/json_c_version.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/json-c/printbuf.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/json-c/json_visit.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/json-c/arraylist.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/json-c/json_inttypes.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/json-c/json_pointer.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/json-c/json_object.h
+--   Copying libxml2 headers...
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/xpath.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/xmlschemas.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/xmlregexp.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/xmlstring.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/xmlunicode.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/catalog.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/nanoftp.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/xmlerror.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/xmlreader.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/xmlwriter.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/HTMLtree.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/chvalid.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/schemasInternals.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/encoding.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/hash.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/xlink.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/pattern.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/uri.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/dict.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/list.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/xmlautomata.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/threads.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/xinclude.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/nanohttp.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/xmlexports.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/tree.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/xmlsave.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/xmlIO.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/c14n.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/debugXML.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/xmlschemastypes.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/parser.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/SAX.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/relaxng.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/xpointer.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/xmlversion.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/schematron.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/HTMLparser.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/SAX2.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/entities.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/xmlmemory.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/parserInternals.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/xmlmodule.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/xpathInternals.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/valid.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libxml/globals.h
+--   Copying libyaml headers...
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/yaml.h
+--   Copying openssl headers...
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/e_os2.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/x509v3err.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/md2.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/crypto.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/rc4.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/ui.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/tserr.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/modes.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/bnerr.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/ess.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/srtp.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/pkcs7.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/rc5.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/ml_kem.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/ct.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/httperr.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/buffer.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/idea.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/mdc2.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/ocsperr.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/asyncerr.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/dsaerr.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/seed.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/conferr.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/dherr.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/ssl3.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/core.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/store.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/engineerr.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/ocsp.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/proverr.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/evp.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/ssl2.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/ebcdic.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/fips_names.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/txt_db.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/decoder.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/fipskey.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/uierr.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/lhash.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/engine.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/trace.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/dsa.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/ts.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/opensslconf.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/core_dispatch.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/rc2.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/decodererr.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/encodererr.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/x509v3.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/evperr.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/safestack.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/camellia.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/cryptoerr.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/conf_api.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/kdferr.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/async.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/tls1.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/pem2.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/x509_acert.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/randerr.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/rsaerr.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/dh.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/types.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/pkcs7err.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/quic.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/sha.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/cmperr.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/conf.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/sslerr.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/ecdsa.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/param_build.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/ssl.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/rand.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/crmferr.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/hmac.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/asn1t.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/opensslv.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/storeerr.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/http.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/comp.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/pemerr.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/params.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/prov_ssl.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/srp.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/cast.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/blowfish.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/x509_vfy.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/ecerr.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/asn1err.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/rsa.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/symhacks.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/des.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/conftypes.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/objects.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/core_object.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/asn1.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/core_names.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/cms.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/kdf.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/encoder.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/pkcs12err.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/provider.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/ecdh.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/macros.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/aes.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/comperr.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/bn.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/buffererr.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/hpke.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/indicator.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/thread.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/ripemd.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/objectserr.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/byteorder.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/x509.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/ossl_typ.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/obj_mac.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/ec.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/whrlpool.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/sslerr_legacy.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/cmac.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/cterr.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/err.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/bio.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/cmp.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/stack.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/cryptoerr_legacy.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/e_ostime.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/bioerr.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/cmp_util.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/md4.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/md5.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/pem.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/x509err.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/pkcs12.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/dtls1.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/self_test.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/esserr.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/configuration.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/cmserr.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/openssl/crmf.h
+--   Copying libssh headers...
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libssh
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libssh/libssh.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libssh/legacy.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libssh/server.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libssh/libsshpp.hpp
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libssh/ssh2.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libssh/sftp.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libssh/libssh_version.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libssh/sftpserver.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/libssh/callbacks.h
+--   Copying libgit2 headers...
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/graph.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/commit.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/tag.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/reset.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/cherrypick.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/net.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/oid.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/errors.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/transport.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/attr.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/global.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/buffer.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/checkout.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/submodule.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/ignore.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/sys
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/sys/commit.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/sys/commit_graph.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/sys/stream.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/sys/errors.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/sys/transport.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/sys/cred.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/sys/openssl.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/sys/credential.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/sys/merge.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/sys/hashsig.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/sys/repository.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/sys/path.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/sys/midx.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/sys/refdb_backend.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/sys/odb_backend.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/sys/filter.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/sys/email.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/sys/diff.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/sys/alloc.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/sys/remote.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/sys/mempack.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/sys/config.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/sys/refs.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/sys/index.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/pack.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/cert.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/credential.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/merge.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/credential_helpers.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/reflog.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/trace.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/repository.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/object.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/stash.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/stdint.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/deprecated.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/indexer.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/odb_backend.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/message.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/revparse.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/status.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/filter.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/refdb.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/types.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/clone.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/tree.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/refspec.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/email.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/odb.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/diff.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/remote.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/describe.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/oidarray.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/experimental.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/rebase.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/strarray.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/revert.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/blob.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/revwalk.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/signature.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/annotated_commit.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/mailmap.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/config.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/refs.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/branch.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/index.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/transaction.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/notes.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/patch.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/pathspec.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/apply.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/worktree.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/version.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/cred_helpers.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/proxy.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/common.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/git2/blame.h
+--   Copying curl headers...
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/curl
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/curl/stdcheaders.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/curl/multi.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/curl/typecheck-gcc.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/curl/mprintf.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/curl/urlapi.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/curl/curl.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/curl/system.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/curl/options.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/curl/websockets.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/curl/easy.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/curl/curlver.h
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/include/curl/header.h
+--   Copying library: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/.sn/sindarin-pkg-libs/libs/linux/lib/libz.a
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/lib/libz.a
+--   Copying library: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/.sn/sindarin-pkg-libs/libs/linux/lib/libyyjson.a
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/lib/libyyjson.a
+--   Copying library: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/.sn/sindarin-pkg-libs/libs/linux/lib/libjson-c.a
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/lib/libjson-c.a
+--   Copying library: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/.sn/sindarin-pkg-libs/libs/linux/lib/libxml2.a
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/lib/libxml2.a
+--   Copying library: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/.sn/sindarin-pkg-libs/libs/linux/lib/libyaml.a
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/lib/libyaml.a
+--   Copying library: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/.sn/sindarin-pkg-libs/libs/linux/lib/libcrypto.a
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/lib/libcrypto.a
+--   Copying library: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/.sn/sindarin-pkg-libs/libs/linux/lib/libssl.a
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/lib/libssl.a
+--   Copying library: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/.sn/sindarin-pkg-libs/libs/linux/lib/libssh.a
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/lib/libssh.a
+--   Copying library: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/.sn/sindarin-pkg-libs/libs/linux/lib/libgit2.a
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/lib/libgit2.a
+--   Copying library: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/.sn/sindarin-pkg-libs/libs/linux/lib/libhttp_parser.a
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/lib/libhttp_parser.a
+--   Copying library: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/.sn/sindarin-pkg-libs/libs/linux/lib/libpcre2-8.a
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/lib/libpcre2-8.a
+--   Copying library: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/.sn/sindarin-pkg-libs/libs/linux/lib/libssh2.a
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/lib/libssh2.a
+--   Copying library: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/.sn/sindarin-pkg-libs/libs/linux/lib/libcurl.a
+-- Up-to-date: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps/lib/libcurl.a
+--   Dependencies copied to: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/deps
+-- Found sindarin-template (handlebars)
+-- Found libcurl - enabling auto-update feature
+-- Found libgit2 and libyaml - enabling package manager
+-- rpmbuild not found - RPM package generation disabled
+-- 
+-- Sindarin Compiler Build Configuration:
+--   Version:      1.0.0
+--   Platform:     Linux
+--   Compiler:     GNU 13.3.0
+--   Build Type:   Release
+--   Debug:        OFF
+--   ASAN:         OFF
+--   Output:       /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin
+-- 
+-- Configuring done (0.0s)
+-- Generating done (0.0s)
+-- Build files have been written to: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/build
+cmake --build build
+[0/2] Re-checking globbed directories...
+[1/2] Synchronizing runtime headers
+[2/2] Staging compiler artifacts in bin
+
+Build complete!
+Compiler: bin/sn
+PASS tests/rust-concurrency/argument_order.sn -O0 default
+PASS tests/rust-concurrency/argument_order.sn -O1 default
+PASS tests/rust-concurrency/argument_order.sn -O2 default
+PASS tests/rust-concurrency/fixed_width_cells.sn -O0 default
+PASS tests/rust-concurrency/fixed_width_cells.sn -O1 default
+PASS tests/rust-concurrency/fixed_width_cells.sn -O2 default
+PASS tests/rust-concurrency/global_initialization.sn -O0 default
+PASS tests/rust-concurrency/global_initialization.sn -O1 default
+PASS tests/rust-concurrency/global_initialization.sn -O2 default
+PASS tests/rust-concurrency/global_places.sn -O0 default
+PASS tests/rust-concurrency/global_places.sn -O1 default
+PASS tests/rust-concurrency/global_places.sn -O2 default
+PASS tests/rust-concurrency/hygiene.sn -O0 default
+PASS tests/rust-concurrency/hygiene.sn -O1 default
+PASS tests/rust-concurrency/hygiene.sn -O2 default
+PASS tests/rust-concurrency/join_visibility.sn -O0 default
+PASS tests/rust-concurrency/join_visibility.sn -O1 default
+PASS tests/rust-concurrency/join_visibility.sn -O2 default
+PASS tests/rust-concurrency/lock_return.sn -O0 default
+PASS tests/rust-concurrency/lock_return.sn -O1 default
+PASS tests/rust-concurrency/lock_return.sn -O2 default
+PASS tests/rust-concurrency/owned_arguments.sn -O0 default
+PASS tests/rust-concurrency/owned_arguments.sn -O1 default
+PASS tests/rust-concurrency/owned_arguments.sn -O2 default
+PASS tests/rust-concurrency/scope_join.sn -O0 default
+PASS tests/rust-concurrency/scope_join.sn -O1 default
+PASS tests/rust-concurrency/scope_join.sn -O2 default
+PASS tests/rust-concurrency/sync_guard_reentry.sn -O0 default
+PASS tests/rust-concurrency/sync_guard_reentry.sn -O1 default
+PASS tests/rust-concurrency/sync_guard_reentry.sn -O2 default
+PASS tests/rgen/concurrency-promoted/floating_compound_sync_local.sn -O0 default
+PASS tests/rgen/concurrency-promoted/floating_compound_sync_local.sn -O1 default
+PASS tests/rgen/concurrency-promoted/floating_compound_sync_local.sn -O2 default
+PASS tests/rgen/concurrency-promoted/floating_postfix_sync_local.sn -O0 default
+PASS tests/rgen/concurrency-promoted/floating_postfix_sync_local.sn -O1 default
+PASS tests/rgen/concurrency-promoted/floating_postfix_sync_local.sn -O2 default
+PASS tests/rgen/concurrency-promoted/import_pure_unsupported_global.sn -O0 default
+PASS tests/rgen/concurrency-promoted/import_pure_unsupported_global.sn -O1 default
+PASS tests/rgen/concurrency-promoted/import_pure_unsupported_global.sn -O2 default
+PASS tests/rgen/concurrency-promoted/statement_match_unsupported_body.sn -O0 default
+PASS tests/rgen/concurrency-promoted/statement_match_unsupported_body.sn -O1 default
+PASS tests/rgen/concurrency-promoted/statement_match_unsupported_body.sn -O2 default
+PASS tests/rgen/concurrency-promoted/sync_local_compound_mutation.sn -O0 default
+PASS tests/rgen/concurrency-promoted/sync_local_compound_mutation.sn -O1 default
+PASS tests/rgen/concurrency-promoted/sync_local_compound_mutation.sn -O2 default
+PASS tests/rgen/concurrency-promoted/sync_local_decrement_mutation.sn -O0 default
+PASS tests/rgen/concurrency-promoted/sync_local_decrement_mutation.sn -O1 default
+PASS tests/rgen/concurrency-promoted/sync_local_decrement_mutation.sn -O2 default
+PASS tests/rgen/concurrency-promoted/sync_local_increment_mutation.sn -O0 default
+PASS tests/rgen/concurrency-promoted/sync_local_increment_mutation.sn -O1 default
+PASS tests/rgen/concurrency-promoted/sync_local_increment_mutation.sn -O2 default
