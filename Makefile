@@ -520,7 +520,7 @@ test-rust-parity-numeric-places: build
 		tests/rgen/floating_postfix_array_index.sn \
 		tests/rgen/floating_postfix_nested_field.sn \
 		tests/rgen/nonfloating_nested_by_value_parameter_postfix.sn \
-		tests/rgen/nonfloating_nested_sync_local_postfix.sn \
+		tests/rgen/numeric_places_locked_struct.sn \
 		tests/rgen/numeric_places_array_captures.sn \
 		tests/rgen/numeric_places_float_widths.sn \
 		tests/rgen/numeric_places_integer_widths.sn \

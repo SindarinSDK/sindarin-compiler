@@ -4,97 +4,97 @@ Parallel: 20 workers
 
 Rust Generation Tests
 ============================================================
-  Running 355 tests with 20 workers...
+  Running 356 tests with 20 workers...
                                                             
 ------------------------------------------------------------
-Results: 355 passed, 0 failed, 0 skipped  (22.54s)
+Results: 356 passed, 0 failed, 0 skipped  (5.92s)
 
 Rust Generation Error Tests
 ============================================================
   Running 158 tests with 20 workers...
                                                             
 ------------------------------------------------------------
-Results: 158 passed, 0 failed, 0 skipped  (235ms)
+Results: 158 passed, 0 failed, 0 skipped  (62ms)
 
 Tagged Native Scalar/Source/Link Parity Tests
 ============================================================
   Running 8 tests with 20 workers...
                                                             
 ------------------------------------------------------------
-Results: 8 passed, 0 failed, 0 skipped  (1.60s)
+Results: 8 passed, 0 failed, 0 skipped  (450ms)
 
 Post-Tag Rust Native Extra Coverage
 ============================================================
   Running 19 tests with 20 workers...
                                                             
 ------------------------------------------------------------
-Results: 19 passed, 0 failed, 0 skipped  (4.44s)
+Results: 19 passed, 0 failed, 0 skipped  (1.75s)
 
 Rust Native Imported-Origin Extra Coverage
 ============================================================
   Running 1 tests with 20 workers...
                                                             
 ------------------------------------------------------------
-Results: 1 passed, 0 failed, 0 skipped  (392ms)
+Results: 1 passed, 0 failed, 0 skipped  (205ms)
 
 Rust Native Scalar Error Tests
 ============================================================
   Running 4 tests with 20 workers...
                                                             
 ------------------------------------------------------------
-Results: 4 passed, 0 failed, 0 skipped  (105ms)
+Results: 4 passed, 0 failed, 0 skipped  (47ms)
 
 Rust Closure Value Tests
 ============================================================
   Running 36 tests with 20 workers...
                                                             
 ------------------------------------------------------------
-Results: 36 passed, 0 failed, 0 skipped  (1.68s)
+Results: 36 passed, 0 failed, 0 skipped  (685ms)
 
 Rust Closure Value Error Tests
 ============================================================
   Running 1 tests with 20 workers...
                                                             
 ------------------------------------------------------------
-Results: 1 passed, 0 failed, 0 skipped  (3ms)
+Results: 1 passed, 0 failed, 0 skipped  (2ms)
 
 Rust Concurrency Tests
 ============================================================
   Running 10 tests with 20 workers...
                                                             
 ------------------------------------------------------------
-Results: 10 passed, 0 failed, 0 skipped  (943ms)
+Results: 10 passed, 0 failed, 0 skipped  (362ms)
 
 Promoted Rust Concurrency Tests
 ============================================================
   Running 7 tests with 20 workers...
                                                             
 ------------------------------------------------------------
-Results: 7 passed, 0 failed, 0 skipped  (629ms)
+Results: 7 passed, 0 failed, 0 skipped  (216ms)
 
 Rust Concurrency Error Tests
 ============================================================
   Running 1 tests with 20 workers...
                                                             
 ------------------------------------------------------------
-Results: 1 passed, 0 failed, 0 skipped  (6ms)
+Results: 1 passed, 0 failed, 0 skipped  (1ms)
 
 Rust Toolchain and Artifact Lifecycle Tests
 ============================================================
-  subprocess_utf8_boundary                      PASS  (45ms)
-  rustc_invocation_records                      PASS  (85ms)
-  pure_rust_has_no_c_dependency                 PASS  (12ms)
-  native_emit_requires_bundle                   PASS  (7ms)
-  native_c_link_driver_contract                 PASS  (601ms)
-  native_debug_sanitizer_link                   PASS  (391ms)
-  native_compile_and_link_failures              PASS  (618ms)
-  missing_rustc                                 PASS  (4ms)
-  failing_rustc                                 PASS  (9ms)
-  failing_rustc_build                           PASS  (30ms)
-  rust_generated_artifact_lifecycle             PASS  (34ms)
-  rust_native_artifact_lifecycle                PASS  (1.24s)
+  subprocess_utf8_boundary                      PASS  (34ms)
+  rustc_invocation_records                      PASS  (29ms)
+  pure_rust_has_no_c_dependency                 PASS  (4ms)
+  native_emit_requires_bundle                   PASS  (3ms)
+  native_c_link_driver_contract                 PASS  (301ms)
+  native_debug_sanitizer_link                   PASS  (272ms)
+  native_compile_and_link_failures              PASS  (325ms)
+  missing_rustc                                 PASS  (2ms)
+  failing_rustc                                 PASS  (2ms)
+  failing_rustc_build                           PASS  (13ms)
+  rust_generated_artifact_lifecycle             PASS  (11ms)
+  rust_native_artifact_lifecycle                PASS  (692ms)
 
 ------------------------------------------------------------
-Results: 12 passed, 0 failed  (3.08s)
+Results: 12 passed, 0 failed  (1.69s)
 
-All tests passed!  (total: 35.67s)
+All tests passed!  (total: 11.39s)

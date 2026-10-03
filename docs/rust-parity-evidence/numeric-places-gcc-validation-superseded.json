@@ -1,5 +1,5 @@
 {
-  "base_revision": "cb189c3d3cdbec5b9ad15f2b8d8f3bc6f5bbe83c",
+  "base_revision": "d26b391f47df7c30238d047e7214c100feb8960c",
   "compiler_sha256": "da5b96d92e7b2a9cb68c9a39283d3baaa3ef23cc61fe572c21e80490fe40779c",
   "positive_pairs": 981,
   "diagnostic_order_cases": 39,
@@ -73,7 +73,7 @@
     {
       "name": "numeric-places",
       "cases": 153,
-      "sha256": "160b1212681837f1bf9d851aa35bea94b91c540cc998e76d708609d424714e9a"
+      "sha256": "d081a71aac580dca309d5a7b9d21f289769c35710d0eeb5ae363cce23435699d"
     }
   ],
   "new_independent_oracle_cases": [
@@ -582,76 +582,76 @@
       "stdout_hex": ""
     },
     {
-      "source": "tests/rgen/numeric_places_locked_struct.sn",
-      "source_sha256": "590157e6b9ff23156d08519c84fb19d3ccf92cffeec02dbfc7d81f36c5eea24b",
+      "source": "tests/rgen/nonfloating_nested_sync_local_postfix.sn",
+      "source_sha256": "5541307af1cb75fccce9c98e3ec639673a3bb2c4ba4f43e93d496e154d4107d8",
       "optimization": "-O0",
       "arithmetic_mode": "default",
-      "oracle": "tests/rgen/numeric_places_locked_struct.expected",
-      "stdout_hex": "340a360a360a370a300a"
+      "oracle": "tests/rgen/nonfloating_nested_sync_local_postfix.expected",
+      "stdout_hex": ""
     },
     {
-      "source": "tests/rgen/numeric_places_locked_struct.sn",
-      "source_sha256": "590157e6b9ff23156d08519c84fb19d3ccf92cffeec02dbfc7d81f36c5eea24b",
+      "source": "tests/rgen/nonfloating_nested_sync_local_postfix.sn",
+      "source_sha256": "5541307af1cb75fccce9c98e3ec639673a3bb2c4ba4f43e93d496e154d4107d8",
       "optimization": "-O1",
       "arithmetic_mode": "default",
-      "oracle": "tests/rgen/numeric_places_locked_struct.expected",
-      "stdout_hex": "340a360a360a370a300a"
+      "oracle": "tests/rgen/nonfloating_nested_sync_local_postfix.expected",
+      "stdout_hex": ""
     },
     {
-      "source": "tests/rgen/numeric_places_locked_struct.sn",
-      "source_sha256": "590157e6b9ff23156d08519c84fb19d3ccf92cffeec02dbfc7d81f36c5eea24b",
+      "source": "tests/rgen/nonfloating_nested_sync_local_postfix.sn",
+      "source_sha256": "5541307af1cb75fccce9c98e3ec639673a3bb2c4ba4f43e93d496e154d4107d8",
       "optimization": "-O2",
       "arithmetic_mode": "default",
-      "oracle": "tests/rgen/numeric_places_locked_struct.expected",
-      "stdout_hex": "340a360a360a370a300a"
+      "oracle": "tests/rgen/nonfloating_nested_sync_local_postfix.expected",
+      "stdout_hex": ""
     },
     {
-      "source": "tests/rgen/numeric_places_locked_struct.sn",
-      "source_sha256": "590157e6b9ff23156d08519c84fb19d3ccf92cffeec02dbfc7d81f36c5eea24b",
+      "source": "tests/rgen/nonfloating_nested_sync_local_postfix.sn",
+      "source_sha256": "5541307af1cb75fccce9c98e3ec639673a3bb2c4ba4f43e93d496e154d4107d8",
       "optimization": "-O0",
       "arithmetic_mode": "checked",
-      "oracle": "tests/rgen/numeric_places_locked_struct.expected",
-      "stdout_hex": "340a360a360a370a300a"
+      "oracle": "tests/rgen/nonfloating_nested_sync_local_postfix.expected",
+      "stdout_hex": ""
     },
     {
-      "source": "tests/rgen/numeric_places_locked_struct.sn",
-      "source_sha256": "590157e6b9ff23156d08519c84fb19d3ccf92cffeec02dbfc7d81f36c5eea24b",
+      "source": "tests/rgen/nonfloating_nested_sync_local_postfix.sn",
+      "source_sha256": "5541307af1cb75fccce9c98e3ec639673a3bb2c4ba4f43e93d496e154d4107d8",
       "optimization": "-O1",
       "arithmetic_mode": "checked",
-      "oracle": "tests/rgen/numeric_places_locked_struct.expected",
-      "stdout_hex": "340a360a360a370a300a"
+      "oracle": "tests/rgen/nonfloating_nested_sync_local_postfix.expected",
+      "stdout_hex": ""
     },
     {
-      "source": "tests/rgen/numeric_places_locked_struct.sn",
-      "source_sha256": "590157e6b9ff23156d08519c84fb19d3ccf92cffeec02dbfc7d81f36c5eea24b",
+      "source": "tests/rgen/nonfloating_nested_sync_local_postfix.sn",
+      "source_sha256": "5541307af1cb75fccce9c98e3ec639673a3bb2c4ba4f43e93d496e154d4107d8",
       "optimization": "-O2",
       "arithmetic_mode": "checked",
-      "oracle": "tests/rgen/numeric_places_locked_struct.expected",
-      "stdout_hex": "340a360a360a370a300a"
+      "oracle": "tests/rgen/nonfloating_nested_sync_local_postfix.expected",
+      "stdout_hex": ""
     },
     {
-      "source": "tests/rgen/numeric_places_locked_struct.sn",
-      "source_sha256": "590157e6b9ff23156d08519c84fb19d3ccf92cffeec02dbfc7d81f36c5eea24b",
+      "source": "tests/rgen/nonfloating_nested_sync_local_postfix.sn",
+      "source_sha256": "5541307af1cb75fccce9c98e3ec639673a3bb2c4ba4f43e93d496e154d4107d8",
       "optimization": "-O0",
       "arithmetic_mode": "unchecked",
-      "oracle": "tests/rgen/numeric_places_locked_struct.expected",
-      "stdout_hex": "340a360a360a370a300a"
+      "oracle": "tests/rgen/nonfloating_nested_sync_local_postfix.expected",
+      "stdout_hex": ""
     },
     {
-      "source": "tests/rgen/numeric_places_locked_struct.sn",
-      "source_sha256": "590157e6b9ff23156d08519c84fb19d3ccf92cffeec02dbfc7d81f36c5eea24b",
+      "source": "tests/rgen/nonfloating_nested_sync_local_postfix.sn",
+      "source_sha256": "5541307af1cb75fccce9c98e3ec639673a3bb2c4ba4f43e93d496e154d4107d8",
       "optimization": "-O1",
       "arithmetic_mode": "unchecked",
-      "oracle": "tests/rgen/numeric_places_locked_struct.expected",
-      "stdout_hex": "340a360a360a370a300a"
+      "oracle": "tests/rgen/nonfloating_nested_sync_local_postfix.expected",
+      "stdout_hex": ""
     },
     {
-      "source": "tests/rgen/numeric_places_locked_struct.sn",
-      "source_sha256": "590157e6b9ff23156d08519c84fb19d3ccf92cffeec02dbfc7d81f36c5eea24b",
+      "source": "tests/rgen/nonfloating_nested_sync_local_postfix.sn",
+      "source_sha256": "5541307af1cb75fccce9c98e3ec639673a3bb2c4ba4f43e93d496e154d4107d8",
       "optimization": "-O2",
       "arithmetic_mode": "unchecked",
-      "oracle": "tests/rgen/numeric_places_locked_struct.expected",
-      "stdout_hex": "340a360a360a370a300a"
+      "oracle": "tests/rgen/nonfloating_nested_sync_local_postfix.expected",
+      "stdout_hex": ""
     },
     {
       "source": "tests/rgen/numeric_places_array_captures.sn",
@@ -1763,9 +1763,9 @@
     },
     {
       "name": "rust-full",
-      "sha256": "6a2d47243c96eddc845a726c7a49e338a2cd48a1a09933a4cab880b17887f866",
+      "sha256": "2df2c34b8e8ad80b7048b2cae349dedb45073f6e6e9014f8f09e73acdeb4268c",
       "counts": [
-        356,
+        355,
         158,
         8,
         19,
@@ -1821,7 +1821,7 @@
     },
     {
       "name": "final",
-      "sha256": "238eab067b4feb93073624782aeb3510ed4aa55ed474713e963096371e3f5935"
+      "sha256": "5b9438c087bd5c2be19239bd7f6c0eb4b8951e17438982ed834a335387a15cd4"
     }
   ],
   "corpus": {
@@ -1943,57 +1943,45 @@
     {
       "old_source": "tests/rgen/errors/floating_compound_nested_field.sn",
       "new_source": "tests/rgen/floating_compound_nested_field.sn",
-      "source_sha256": "21cf06e788cd16b6d6ddbec05c964a0e7a3714dd2a627a711654cba4e852f884",
-      "portable_c_parity_credit": true
+      "source_sha256": "21cf06e788cd16b6d6ddbec05c964a0e7a3714dd2a627a711654cba4e852f884"
     },
     {
       "old_source": "tests/rgen/errors/floating_compound_unstable_place.sn",
       "new_source": "tests/rgen/floating_compound_unstable_place.sn",
-      "source_sha256": "6d4a31fb2b9b973842615332096bd35b6f8f682b7d444aa6b2dac457fc2e19f4",
-      "portable_c_parity_credit": true
+      "source_sha256": "6d4a31fb2b9b973842615332096bd35b6f8f682b7d444aa6b2dac457fc2e19f4"
     },
     {
       "old_source": "tests/rgen/errors/floating_nested_as_ref_parameter_postfix.sn",
       "new_source": "tests/rgen/floating_nested_as_ref_parameter_postfix.sn",
-      "source_sha256": "3c5738a109eae9c1f68e55e531c40512eeae611068f93f8add6edf60b83dd440",
-      "portable_c_parity_credit": true
+      "source_sha256": "3c5738a109eae9c1f68e55e531c40512eeae611068f93f8add6edf60b83dd440"
     },
     {
       "old_source": "tests/rgen/errors/floating_postfix_array_index.sn",
       "new_source": "tests/rgen/floating_postfix_array_index.sn",
-      "source_sha256": "6f036a42842b0e29189d1da0495e1e427c7fec68473e3cf8b11beab196818699",
-      "portable_c_parity_credit": true
+      "source_sha256": "6f036a42842b0e29189d1da0495e1e427c7fec68473e3cf8b11beab196818699"
     },
     {
       "old_source": "tests/rgen/errors/floating_postfix_nested_field.sn",
       "new_source": "tests/rgen/floating_postfix_nested_field.sn",
-      "source_sha256": "27884bae4c9de23e2c64c8bf482776ec5685a58fce2233ccab8d9c21ac1f5b90",
-      "portable_c_parity_credit": true
+      "source_sha256": "27884bae4c9de23e2c64c8bf482776ec5685a58fce2233ccab8d9c21ac1f5b90"
     },
     {
       "old_source": "tests/rgen/errors/nonfloating_nested_by_value_parameter_postfix.sn",
       "new_source": "tests/rgen/nonfloating_nested_by_value_parameter_postfix.sn",
-      "source_sha256": "42b6dbd72f98b8f69e30ae1638cb83077aa2a783008a1f7451b531b5b352d44d",
-      "portable_c_parity_credit": true
+      "source_sha256": "42b6dbd72f98b8f69e30ae1638cb83077aa2a783008a1f7451b531b5b352d44d"
     },
     {
       "old_source": "tests/rgen/errors/nonfloating_nested_sync_local_postfix.sn",
       "new_source": "tests/rgen/nonfloating_nested_sync_local_postfix.sn",
-      "source_sha256": "5541307af1cb75fccce9c98e3ec639673a3bb2c4ba4f43e93d496e154d4107d8",
-      "portable_c_parity_credit": false
+      "source_sha256": "5541307af1cb75fccce9c98e3ec639673a3bb2c4ba4f43e93d496e154d4107d8"
     }
   ],
   "historical_snapshots_changed": 0,
   "scope": "Computed fixed-integer/float scalar storage; native, character, general returned array/identity and remaining closure/struct lifetime gaps are still required.",
   "non_credit_probes": {
-    "atomic_struct_members": "GCC accepts nested access through an atomic struct, but Apple Clang rejects it as undefined behavior. This unchanged source remains Rust-only and is excluded from the differential gate; a plain struct protected by a primitive sync lock has defined cross-platform controls.",
     "parameters_as_ref": "Shared frontend rejects array as-ref parameter qualifier in both targets. Original invalid candidate is retained; positive source uses a default array parameter.",
     "returned_value_struct_fields": "Both old temporary value-struct fields are C-invalid lvalues and remain negative fixtures.",
     "unchecked_enclosing_compound": "C emitter precedence makes the proposed addition containing compound assignment fail in unchecked modes. Original source/report retained; verified owner timing uses postfix.",
     "lambda_receiver": "Initial lambda mismatch retained; final positive has eager construction and two receiver calls per negative-index invocation, matching the C definition collected before chain flattening."
-  },
-  "retained_c_emission_followups": [
-    "Nested member mutation of an atomic struct is accepted by the frontend and GCC but undefined C and rejected by Apple Clang; establish defined synchronization or diagnostic behavior before claiming parity.",
-    "Unchecked C compound assignment inside an enclosing arithmetic expression has a retained precedence failure; the C-valid timing control uses postfix."
-  ]
+  }
 }

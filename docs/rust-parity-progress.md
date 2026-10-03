@@ -1214,9 +1214,11 @@ commit, avoiding a separate documentation-only CI cycle.
 Based on hosted-green `d26b391f`, Rust now emits compound and postfix mutation
 of fixed-integer and floating scalar computed places. The unchanged original
 `test_compound_assignment.sn` moves from nine C-successful/Rust-rejected cases
-to nine successful pairs. Seven C-valid former negatives move byte-for-byte
-into generation coverage; two returned value-struct field probes remain
-negative because C rejects those fields as lvalues.
+to nine successful pairs. Six portable C-valid former negatives move byte-for-byte into generation
+coverage. A seventh GCC-accepted atomic-struct member probe remains Rust-only:
+Apple Clang rejects that expression as undefined behavior, so it earns no
+parity credit. Two returned value-struct field probes remain negative because
+C rejects those fields as lvalues.
 
 Compound mutation copies the old scalar, releases its borrow, evaluates the
 RHS at the actual C arithmetic width, and reevaluates the store indices before
@@ -1243,7 +1245,7 @@ byte-for-byte, and unchanged C/shared production sources and C oracles:
 |---|---:|
 | Numeric gate: 17 sources × nine optimization/arithmetic modes | 153 positive pairs |
 | All 14 differential reports | 981 positive + 39 diagnostic/order cases |
-| Rust generation / diagnostics | 355 / 158 passed, zero failed/skipped |
+| Rust generation / diagnostics | 356 / 158 passed, zero failed/skipped |
 | Native tagged / extra / origin / diagnostics | 8 / 19 / 1 / 4 passed |
 | Closure positive / diagnostics | 36 / 1 passed |
 | Concurrency positive / promoted / diagnostics | 10 / 7 / 1 passed |
@@ -1256,7 +1258,7 @@ byte-for-byte, and unchanged C/shared production sources and C oracles:
 
 The 153 pairs are additionally checked against independent mode-aware raw
 output oracles. Empty-output promoted fixtures establish admission only;
-the eight new observer programs and threaded parameter control establish
+the nine new observer programs and threaded parameter control establish
 behavior. The corpus denominator remains the same 1,365 C-positive sources,
 all hashes unchanged. Its only removed failure is `test_compound_assignment`;
 94 compilation gaps remain, with no newly admitted runtime failures.
@@ -1276,3 +1278,28 @@ postfix. General returned-array identity, nil/empty and cross-width transport,
 character arithmetic, broader mutable struct/closure lifetimes, native/SDK and
 remaining language/concurrency gaps still require completion. Exact-revision
 hosted verification is pending this increment's push.
+
+
+### Immediate CI repair for atomic-struct classification
+
+The first numeric push, `cb189c3d`, passed all three Compiler jobs and Linux
+Runtime, but macOS Runtime rejected the nested member mutation of an atomic
+struct with `-Watomic-access`: accessing a member of an atomic structure is
+undefined behavior. GCC accepting this source was insufficient evidence of a
+portable C contract. No diagnostic suppression or C production change is used.
+The original source remains byte-identical in Rust-only generation coverage,
+and its GCC results are explicitly superseded as parity evidence.
+
+The cross-platform gate now exercises ordinary nested struct mutation under a
+primitive sync lock, with independent observations of postfix old values,
+compound new values and final state. It still enforces 17 sources and 153
+positive pairs across all modes. The full Rust suite adds this observer, for
+356 generation passes and 158 diagnostic passes; C/shared production and old
+Rust snapshots remain unchanged. The first CI failure report is retained in
+[atomic struct CI evidence](rust-parity-evidence/numeric-places-atomic-struct-ci-failure.json).
+Corrected exact-revision hosted verification follows the repair push.
+
+The underlying C atomic-struct emission defect and retained unchecked compound
+precedence defect remain follow-up work. Their acceptance or rejection is not
+counted as verified behavior; resolve their language contract deliberately
+before any future parity credit.

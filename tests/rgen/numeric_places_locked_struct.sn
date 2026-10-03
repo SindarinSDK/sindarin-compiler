@@ -1,0 +1,16 @@
+sync var gate: int = 0
+
+struct Inner =>
+  value: int
+
+struct Outer =>
+  inner: Inner
+
+fn main(): void =>
+  var outer: Outer = { inner: Inner { value: 4 } }
+  lock (gate) =>
+    println(outer.inner.value--)
+    println(outer.inner.value += 3)
+    println(outer.inner.value++)
+  println(outer.inner.value)
+  println(gate)
