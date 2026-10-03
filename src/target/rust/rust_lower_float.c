@@ -9,6 +9,14 @@ static void rust_float_convert_value(json_object *value, json_object *target_typ
     const char *c_kind = json_string_property(value, "rust_c_float_expression_kind");
     if (c_kind) from = c_kind;
     const char *to = json_string_property(target_type, "kind");
+    const char *numeric_c_kind = json_string_property(value, "rust_c_numeric_expression_kind");
+    if (numeric_c_kind && rust_numeric_type_name(numeric_c_kind) && rust_numeric_type_name(to) &&
+        strcmp(rust_numeric_type_name(numeric_c_kind), rust_numeric_type_name(to)) != 0)
+    {
+        json_object_object_add(value, "rust_c_numeric_conversion_type",
+                               json_object_new_string(rust_numeric_type_name(to)));
+        return;
+    }
     if (!rust_numeric_floating_kind(from) || !rust_numeric_floating_kind(to) ||
         strcmp(from, to) == 0) return;
     json_object_object_add(value, "rust_float_conversion_type",
@@ -134,7 +142,8 @@ static void rust_lower_float_conversions(json_object *model, json_object *node,
     else if (kind && strcmp(kind, "var_decl") == 0)
     {
         json_object_object_get_ex(node, "initializer", &value);
-        if (json_string_property(value, "rust_c_float_expression_kind"))
+        if (json_string_property(value, "rust_c_float_expression_kind") ||
+            json_string_property(value, "rust_c_numeric_expression_kind"))
             rust_float_convert_value(value, type);
     }
     else if (kind && (strcmp(kind, "static_call") == 0 || strcmp(kind, "method_call") == 0))

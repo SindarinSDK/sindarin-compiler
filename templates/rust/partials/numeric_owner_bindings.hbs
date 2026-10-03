@@ -1,0 +1,1 @@
+{{#each rust_numeric_owner_bindings}}let mut {{rust_ident name}}: {{rust_type type}} = {{> expr initializer}}; {{/each}}{{~!-- trim partial EOF --~}}

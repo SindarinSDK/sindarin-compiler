@@ -1,0 +1,9 @@
+fn main(): void =>
+  var zero: int32 = 0i32
+  var unsigned: uint32[] = {4294967295u32}
+  unsigned[0] /= zero - 2i32
+  println(unsigned[0])
+  var floatZero: float = 0.0f
+  var values: float[] = {1.0f}
+  values[0] -= 1.00000006f + floatZero
+  println(values[0] > -0.00000007 && values[0] < -0.00000005)

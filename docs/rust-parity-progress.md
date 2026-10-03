@@ -7,20 +7,23 @@ head counts, not the language specification or the historical evidence itself.
 
 ## Current verified status: 2026-10-03
 
-Main `ee3879f5` passes Linux/macOS/Windows Compiler and Rust Runtime CI,
-including 792 exact C/Rust positive pairs and 39 diagnostic/order cases. All
+Last hosted-green main `d26b391f` passes Linux/macOS/Windows Compiler and Rust Runtime CI,
+including 828 exact C/Rust positive pairs and 39 diagnostic/order cases. All
 existing PR work is reconciled; the open queue is empty. C remains the default
 target. Sized-array reflection/defaults, buffered output, mixed integral
 conversions, scalar float/double conversion/mutation and tested floating-array
-argument representation/order are integrated.
+argument representation/order and bytewise equality are integrated.
 
 Full parity is still incomplete. The broader unchanged C-positive corpus has
-95 Rust admission/compilation gaps, and remaining Rust-negative, ownership,
+94 Rust admission/compilation gaps in the locally verified numeric-place increment,
+and remaining Rust-negative, ownership,
 native/SDK and language families need implementation and full mode/platform
-validation. The observed floating array-search mismatch is repaired. Fresh local
-controls expose a separate floating-array equality mismatch for signed zero and
-copied NaN values, outside that 95-source compilation denominator. Indexed
-compound assignment remains a confirmed unchanged corpus rejection.
+validation. Tested floating-array search, storage, insertion order and equality
+gaps are repaired. A separate C-valid probe still exposes a borrowed default-array
+return compilation gap, outside the 95-source compilation denominator. Indexed
+compound assignment is repaired locally with 153 new positive pairs. The full
+local evidence now contains 981 positive pairs and 39 diagnostic/order cases;
+exact-revision hosted verification follows the direct main push.
 Exact CI/report links and follow-up diagnosis follow below.
 
 ## Baseline: 2026-10-02
@@ -1177,3 +1180,99 @@ The original 1365 source hashes are unchanged; broader Rust corpus sampling
 remains 1060+210 successful executions and the same 81+14 compile failures.
 Exact-revision hosted verification follows publication. Evidence:
 rust-parity-evidence/floating-array-equality-*.
+
+
+## Floating-array equality main: hosted verification, 2026-10-03
+
+Exact direct-main `d26b391f47df7c30238d047e7214c100feb8960c` passes all three
+[Compiler jobs](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37129078700)
+and all three [Rust Runtime jobs](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37129078696).
+Downloaded all 13 reports on Linux/macOS/Windows and verified 867 successful
+cases per platform (828 positive pairs and 39 diagnostic/order cases), matching
+source hashes and all 36 new independent output oracles on each platform.
+Windows verification uses its native CRLF output bytes and normalizes only the
+reported source-path separator for local source lookup. Hosted full C/Rust logs
+have zero failures/skips and the required final suite counts on all platforms.
+
+Fresh origin/main matches the tested revision; the open PR queue remains empty.
+The broad corpus still has the same 95 compilation gaps, and returned array
+identity, nil/empty distinctions, cross-width parameter transport, computed
+operand aliases, native/SDK and other unverified families remain required work.
+Next implementation: indexed numeric compound mutation, beginning with unchanged
+`tests/integration/test_compound_assignment.sn` and its nine C-successful controls.
+The full parity goal remains active.
+
+Exact-run metadata/report hashes and hosted suite-log hashes:
+`rust-parity-evidence/floating-array-equality-main-ci-green.json`.
+Downloaded artifacts and logs: `.sn/floating-equality-hosted-{linux,macos,windows}`
+and `.sn/floating-equality-{compiler,runtime}-hosted.log`. Hosted-green metadata
+and this final ledger update are ready to bundle with the next implementation
+commit, avoiding a separate documentation-only CI cycle.
+
+## Computed numeric mutation increment: 2026-10-03
+
+Based on hosted-green `d26b391f`, Rust now emits compound and postfix mutation
+of fixed-integer and floating scalar computed places. The unchanged original
+`test_compound_assignment.sn` moves from nine C-successful/Rust-rejected cases
+to nine successful pairs. Seven C-valid former negatives move byte-for-byte
+into generation coverage; two returned value-struct field probes remain
+negative because C rejects those fields as lvalues.
+
+Compound mutation copies the old scalar, releases its borrow, evaluates the
+RHS at the actual C arithmetic width, and reevaluates the store indices before
+acquiring a short mutable borrow. Postfix resolves one place and returns the
+old scalar. Negative indices retain the repeated parent length reads observed
+in C. Checked helper signatures, source LL/double literals, ordinary raw
+arithmetic, and final storage conversion are separate width boundaries. The
+encoded uint64 maximum literal now renders its stored bit pattern correctly.
+
+Returned owned array receivers are hoisted once before their statement, as in
+the C chain pass, including short-circuit and while timing. C collects lambda
+definitions before that pass: the tested negative-index lambda receiver has
+one eager construction-time call and two calls per invocation. Rust matches
+those observed effects. The initial mismatch and rendered C body are retained.
+Mutable array snapshot captures preserve their own state while isolating the
+outer array; default/thread array parameters and nested by-value/as-ref struct
+storage have explicit observers. RHS callbacks can modify arrays without a
+surviving mutable borrow. Same-array default parameters retain alias behavior.
+
+Local final verification uses one exact compiler hash, staged templates checked
+byte-for-byte, and unchanged C/shared production sources and C oracles:
+
+| Evidence | Result |
+|---|---:|
+| Numeric gate: 17 sources × nine optimization/arithmetic modes | 153 positive pairs |
+| All 14 differential reports | 981 positive + 39 diagnostic/order cases |
+| Rust generation / diagnostics | 355 / 158 passed, zero failed/skipped |
+| Native tagged / extra / origin / diagnostics | 8 / 19 / 1 / 4 passed |
+| Closure positive / diagnostics | 36 / 1 passed |
+| Concurrency positive / promoted / diagnostics | 10 / 7 / 1 passed |
+| Rust toolchain | 12 passed |
+| C unit / generation / model | 1610 / 107 / 79 passed |
+| C integration / diagnostics / explore / diagnostics | 1141 / 58 / 224 / 11 passed |
+| Raw byte / output transport | 63 / 6 executions passed |
+| Broader unchanged Rust integration / explore corpus | 1061 / 210 passed; 80 / 14 compilation gaps |
+| Historical Rust snapshots changed | 0 |
+
+The 153 pairs are additionally checked against independent mode-aware raw
+output oracles. Empty-output promoted fixtures establish admission only;
+the eight new observer programs and threaded parameter control establish
+behavior. The corpus denominator remains the same 1,365 C-positive sources,
+all hashes unchanged. Its only removed failure is `test_compound_assignment`;
+94 compilation gaps remain, with no newly admitted runtime failures.
+
+Evidence: [numeric validation](rust-parity-evidence/numeric-places-validation.json),
+[main baseline rejection](rust-parity-evidence/numeric-places-before.json),
+[expanded unpublished probes](rust-parity-evidence/numeric-places-expanded-before.json),
+[former-negative C audit](rust-parity-evidence/numeric-places-former-negatives-before.json),
+[lambda mismatch](rust-parity-evidence/numeric-places-lambda-before.json),
+and the `numeric-places-*.log` files. The runtime workflow retains the new
+153-case report on Linux, macOS and Windows.
+
+No parity credit is assigned to invalid array-as-ref qualifiers or the C
+unchecked precedence failure in a proposed enclosing compound expression;
+original sources/reports are retained, and the valid owner-timing control uses
+postfix. General returned-array identity, nil/empty and cross-width transport,
+character arithmetic, broader mutable struct/closure lifetimes, native/SDK and
+remaining language/concurrency gaps still require completion. Exact-revision
+hosted verification is pending this increment's push.

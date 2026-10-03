@@ -1,0 +1,38 @@
+struct Inner =>
+  value: int
+
+struct Outer =>
+  inner: Inner
+
+fn mutate(values: int[]): int =>
+  values[0] += 3
+  return values[0]++
+
+fn mutateRef(values: int[] as ref): int =>
+  return values[-1] -= 2
+
+fn mutateCopy(outer: Outer): int =>
+  outer.inner.value++
+  return outer.inner.value += 2
+
+fn mutateOuter(outer: Outer as ref): int =>
+  return outer.inner.value--
+
+fn same(first: int[], second: int[]): int =>
+  first[0] += 2
+  second[0] *= 3
+  return first[0]
+
+fn main(): void =>
+  var values: int[] = {4, 8}
+  println(mutate(values))
+  println(values[0])
+  println(mutateRef(values))
+  println(values[1])
+  var outer: Outer = {inner: Inner {value: 10}}
+  println(mutateCopy(outer))
+  println(outer.inner.value)
+  println(mutateOuter(outer))
+  println(outer.inner.value)
+  println(same(values, values))
+  println(values[0])

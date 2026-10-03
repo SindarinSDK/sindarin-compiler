@@ -1,1 +1,1 @@
-{{#if rust_c_float_literal}}({{value}}f64){{else}}{{rust_literal this}}{{/if}}
+{{#if rust_c_numeric_literal_type}}(({{value}}i128) as {{rust_c_numeric_literal_type}}){{else}}{{#if rust_unsigned_encoded_literal}}(({{value}}i64) as u64){{else}}{{#if rust_c_float_literal}}({{value}}f64){{else}}{{rust_literal this}}{{/if}}{{/if}}{{/if~}}

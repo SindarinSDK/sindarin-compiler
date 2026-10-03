@@ -208,6 +208,9 @@ jobs:
           run_gate "floating array byte equality (36 positive pairs)" \
             make test-rust-parity-floating-equality
 
+          run_gate "computed numeric mutation and owner timing (153 positive pairs)" \
+            make test-rust-parity-numeric-places
+
           exit "$overall_rc"
 
       - name: Retain runtime parity evidence
@@ -230,5 +233,6 @@ jobs:
             .sn/rust-parity-float-conversions.json
             .sn/rust-parity-floating-arrays.json
             .sn/rust-parity-floating-equality.json
+            .sn/rust-parity-numeric-places.json
           if-no-files-found: ignore
           retention-days: 7

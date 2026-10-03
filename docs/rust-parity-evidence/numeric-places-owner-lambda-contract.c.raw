@@ -1,0 +1,113 @@
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <limits.h>
+#include "sn_minimal.h"
+
+SnArray * __sn__make(long long *);
+SnArray * __sn__tracedMake();
+long long __sn__observe();
+typedef struct __Closure__ {
+    void *fn;
+    size_t size;
+    void (*__cleanup__)(void *);
+    int __rc__;
+} __Closure__;
+
+static long long __lambda_0__(void *__closure__);
+
+
+SnArray * __sn__make(long long *__sn__calls) {
+
+    (*__sn__calls)++;
+    
+
+    return ({
+             SnArray *__al__ = sn_array_new(sizeof(long long), 1);
+             __al__->elem_tag = SN_TAG_INT;
+     
+     
+             sn_array_push(__al__, &(long long){ 7LL });
+             __al__;
+         });}
+
+
+SnArray * __sn__tracedMake() {
+
+    sn_println("owner");
+    
+
+    return ({
+             SnArray *__al__ = sn_array_new(sizeof(long long), 1);
+             __al__->elem_tag = SN_TAG_INT;
+     
+     
+             sn_array_push(__al__, &(long long){ 7LL });
+             __al__;
+         });}
+
+
+long long __sn__observe() {
+
+    sn_println("observer");
+    
+
+    return 1LL;}
+
+int main() {
+    long long __sn__calls = 0LL;
+    sn_auto_arr SnArray * __sn____chain_tmp_0 = __sn__make(&__sn__calls);
+    printf("%lld\n", (long long)((((long long *)__sn____chain_tmp_0->data)[({ long long __ai__ = 0LL; __ai__ < 0 ? __ai__ + __sn____chain_tmp_0->len : __ai__; })]) = (((long long *)__sn____chain_tmp_0->data)[({ long long __ai__ = 0LL; __ai__ < 0 ? __ai__ + __sn____chain_tmp_0->len : __ai__; })]) + 5LL));
+    
+    printf("%lld\n", (long long)(__sn__calls));
+    
+    sn_auto_arr SnArray * __sn____chain_tmp_1 = __sn__make(&__sn__calls);
+    printf("%lld\n", (long long)((((long long *)__sn____chain_tmp_1->data)[({ long long __ai__ = 0LL; __ai__ < 0 ? __ai__ + __sn____chain_tmp_1->len : __ai__; })])++));
+    
+    printf("%lld\n", (long long)(__sn__calls));
+    
+    sn_auto_arr SnArray * __sn____chain_tmp_2 = __sn__make(&__sn__calls);
+    printf("%lld\n", (long long)((((long long *)__sn____chain_tmp_2->data)[({ long long __ai__ = (-1LL); __ai__ < 0 ? __ai__ + __sn____chain_tmp_2->len : __ai__; })]) = (((long long *)__sn____chain_tmp_2->data)[({ long long __ai__ = (-1LL); __ai__ < 0 ? __ai__ + __sn____chain_tmp_2->len : __ai__; })]) + 5LL));
+    
+    printf("%lld\n", (long long)(__sn__calls));
+    
+    sn_auto_arr SnArray * __sn____chain_tmp_3 = __sn__make(&__sn__calls);
+    printf("%lld\n", (long long)((((long long *)__sn____chain_tmp_3->data)[({ long long __ai__ = (-1LL); __ai__ < 0 ? __ai__ + __sn____chain_tmp_3->len : __ai__; })])--));
+    
+    printf("%lld\n", (long long)(__sn__calls));
+    
+    sn_auto_arr SnArray * __sn____chain_tmp_4 = __sn__tracedMake();
+    printf("%lld\n", (long long)(sn_add_long(__sn__observe(), (((long long *)__sn____chain_tmp_4->data)[({ long long __ai__ = 0LL; __ai__ < 0 ? __ai__ + __sn____chain_tmp_4->len : __ai__; })])++)));
+    
+    sn_auto_arr SnArray * __sn____chain_tmp_5 = __sn__tracedMake();
+    printf("%s\n", ((false && sn_gt_long((((long long *)__sn____chain_tmp_5->data)[({ long long __ai__ = 0LL; __ai__ < 0 ? __ai__ + __sn____chain_tmp_5->len : __ai__; })])++, 0LL))) ? "true" : "false");
+    
+    sn_auto_arr SnArray * __sn____chain_tmp_6 = __sn__tracedMake();
+    while (sn_lt_long((((long long *)__sn____chain_tmp_6->data)[({ long long __ai__ = 0LL; __ai__ < 0 ? __ai__ + __sn____chain_tmp_6->len : __ai__; })])++, 9LL)) {
+        sn_println("loop");
+        
+    }
+    sn_auto_arr SnArray * __sn____chain_tmp_7 = __sn__tracedMake();
+    sn_auto_fn void * __sn__callback = ({
+        __Closure__ *__cl__ = malloc(sizeof(__Closure__));
+        __cl__->fn = (void *)__lambda_0__;
+        __cl__->size = sizeof(__Closure__);
+        __cl__->__cleanup__ = NULL;
+        __cl__->__rc__ = 1;
+        __cl__;
+    });
+    sn_println("created");
+    
+    printf("%lld\n", (long long)(((long long (*)(void *))((__Closure__ *)__sn__callback)->fn)(__sn__callback)));
+    
+    printf("%lld\n", (long long)(((long long (*)(void *))((__Closure__ *)__sn__callback)->fn)(__sn__callback)));
+    
+    fflush(stdout);
+    return 0;
+}
+
+static long long __lambda_0__(void *__closure__) {
+    return (((long long *)__sn__tracedMake()->data)[({ long long __ai__ = (-1LL); __ai__ < 0 ? __ai__ + __sn__tracedMake()->len : __ai__; })])++;
+}

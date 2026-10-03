@@ -451,6 +451,11 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
     if (kind && strcmp(kind, "index_assign") == 0 && place && place->capture &&
         rust_closure_array_type(rust_closure_property(place->declaration, "type")))
         return rust_closure_error("mutable access to snapshot closure captures");
+    bool numeric_array_capture = place && place->capture &&
+        rust_closure_array_type(rust_closure_property(place->declaration, "type")) &&
+        rust_numeric_computed_mutation(node);
+    if (numeric_array_capture)
+        json_object_object_add(place->declaration, "rust_array_snapshot_cell", json_object_new_boolean(true));
     bool struct_snapshot = place && place->capture && rust_closure_struct_type(
         rust_closure_property(place->declaration, "type"));
     if (struct_snapshot)
@@ -517,7 +522,7 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
         if (json_boolean_property(place->declaration, "rust_shared_owned_cell"))
             json_object_object_add(node, "rust_shared_owned_cell", json_object_new_boolean(true));
     }
-    if (place && (place->capture || place->lambda_depth < scope->lambda_depth) &&
+    if (place && !numeric_array_capture && (place->capture || place->lambda_depth < scope->lambda_depth) &&
         !json_boolean_property(place->declaration, "rust_shared_cell") &&
         !json_boolean_property(place->declaration, "rust_scalar_snapshot") &&
         !json_boolean_property(place->declaration, "rust_mutable_owned_snapshot"))

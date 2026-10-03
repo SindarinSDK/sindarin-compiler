@@ -1,0 +1,14 @@
+fn make(calls: int as ref): int[] =>
+  calls++
+  return {7}
+
+fn main(): void =>
+  var calls: int = 0
+  println(make(calls)[0] += 5)
+  println(calls)
+  println(make(calls)[0]++)
+  println(calls)
+  println(make(calls)[-1] += 5)
+  println(calls)
+  println(make(calls)[-1]--)
+  println(calls)

@@ -1,0 +1,18 @@
+[0/2] Re-checking globbed directories...
+[1/7] Synchronizing runtime headers
+[2/7] Copying templates to bin/templates
+[3/7] Building C object CMakeFiles/tests.dir/src/target/rust/rust_target.c.o
+In file included from /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/src/target/rust/rust_target.c:148:
+/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/src/target/rust/rust_thread_arrays.c: In function ‘rust_lower_thread_arrays’:
+/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/src/target/rust/rust_thread_arrays.c:131:23: warning: comparison of integer expressions of different signedness: ‘size_t’ {aka ‘long unsigned int’} and ‘int’ [-Wsign-compare]
+  131 |     } while (previous != json_object_object_length(names));
+      |                       ^~
+[4/7] Building C object CMakeFiles/sn.dir/src/target/rust/rust_target.c.o
+In file included from /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/src/target/rust/rust_target.c:148:
+/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/src/target/rust/rust_thread_arrays.c: In function ‘rust_lower_thread_arrays’:
+/home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/src/target/rust/rust_thread_arrays.c:131:23: warning: comparison of integer expressions of different signedness: ‘size_t’ {aka ‘long unsigned int’} and ‘int’ [-Wsign-compare]
+  131 |     } while (previous != json_object_object_length(names));
+      |                       ^~
+[5/7] Linking C executable bin/tests
+[6/7] Linking C executable bin/sn
+[7/7] Staging compiler artifacts in bin

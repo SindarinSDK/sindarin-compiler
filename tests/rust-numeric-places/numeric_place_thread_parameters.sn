@@ -1,0 +1,12 @@
+fn mutate(values: int[]): int =>
+  values[0] += 3
+  return values[0]++
+
+fn main(): void =>
+  var values: int[] = {4}
+  var result: int = & mutate(values)
+  result !
+  println(result)
+  println(values[0])
+  println(mutate(values))
+  println(values[0])

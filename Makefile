@@ -509,3 +509,26 @@ test-rust-parity-floating-equality: build
 		tests/rgen/floating_array_equality_mutation.sn \
 		--require-count 4 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-floating-equality.json
+
+.PHONY: test-rust-parity-numeric-places
+test-rust-parity-numeric-places: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/integration/test_compound_assignment.sn \
+		tests/rgen/floating_compound_nested_field.sn \
+		tests/rgen/floating_compound_unstable_place.sn \
+		tests/rgen/floating_nested_as_ref_parameter_postfix.sn \
+		tests/rgen/floating_postfix_array_index.sn \
+		tests/rgen/floating_postfix_nested_field.sn \
+		tests/rgen/nonfloating_nested_by_value_parameter_postfix.sn \
+		tests/rgen/nonfloating_nested_sync_local_postfix.sn \
+		tests/rgen/numeric_places_array_captures.sn \
+		tests/rgen/numeric_places_float_widths.sn \
+		tests/rgen/numeric_places_integer_widths.sn \
+		tests/rgen/numeric_places_nested_counts.sn \
+		tests/rgen/numeric_places_parameters.sn \
+		tests/rgen/numeric_places_rhs_effects.sn \
+		tests/rgen/numeric_places_rhs_expression_widths.sn \
+		tests/rgen/numeric_places_temporary_owners.sn \
+		tests/rust-numeric-places/numeric_place_thread_parameters.sn \
+		--require-count 17 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-numeric-places.json

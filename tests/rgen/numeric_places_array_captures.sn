@@ -1,0 +1,15 @@
+fn main(): void =>
+  var values: int[] = {10}
+  var action: fn(): int = fn(): int =>
+    values[0] += 2
+    return values[0]++
+  println(action())
+  println(action())
+  println(values[0])
+  var rows: float[][] = {{1.0f}}
+  var step: fn(): float = fn(): float =>
+    rows[-1][-1] += 0.5f
+    return rows[0][0]++
+  println(step())
+  println(step())
+  println(rows[0][0])

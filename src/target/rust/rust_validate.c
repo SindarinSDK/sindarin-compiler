@@ -1213,6 +1213,53 @@ static bool rust_reflection_schema_is_current(json_object *type_info)
         rust_reflection_field_is(json_object_array_get_idx(field_info_fields, 2), "typeId", "int");
 }
 
+/* Computed numeric lvalues use the raw C place contract: compound assignment
+ * reevaluates its read/store places; postfix resolves one place. Ownership and
+ * callable validation still applies recursively to every operand. */
+static bool rust_numeric_computed_place(json_object *place)
+{
+    if (json_string_property_equals(place, "kind", "array_access")) return true;
+    if (json_string_property_equals(place, "kind", "variable")) return true;
+    if (json_string_property_equals(place, "kind", "member") ||
+        json_string_property_equals(place, "kind", "member_access"))
+    {
+        json_object *object = NULL;
+        json_object_object_get_ex(place, "object", &object);
+        return rust_numeric_computed_place(object);
+    }
+    /* A returned value struct field is not a C lvalue. Array-returning calls
+     * remain admitted through their indexed heap storage above. */
+    return false;
+}
+
+static bool rust_numeric_computed_mutation(json_object *node)
+{
+    if (!json_string_property_equals(node, "mutation_place", "computed")) return false;
+    bool compound = json_string_property_equals(node, "kind", "compound_assign");
+    bool postfix = json_string_property_equals(node, "kind", "increment") ||
+                   json_string_property_equals(node, "kind", "decrement");
+    if (!compound && !postfix) return false;
+    json_object *place = NULL, *type = NULL, *value = NULL, *value_type = NULL;
+    json_object_object_get_ex(node, compound ? "target" : "operand", &place);
+    if (!rust_numeric_computed_place(place)) return false;
+    json_object_object_get_ex(place, "type", &type);
+    const char *kind = json_string_property(type, "kind");
+    if (!rust_integer_type(kind) && !rust_float_type(kind)) return false;
+    if (!compound) return true;
+    json_object_object_get_ex(node, "value", &value);
+    json_object_object_get_ex(value, "type", &value_type);
+    const char *rhs = json_string_property(value_type, "kind");
+    if (!rust_integer_type(rhs) && !rust_float_type(rhs)) return false;
+    const char *op = json_string_property(node, "op");
+    if (!op) return false;
+    if (strcmp(op, "add") == 0 || strcmp(op, "subtract") == 0 ||
+        strcmp(op, "multiply") == 0 || strcmp(op, "divide") == 0) return true;
+    return rust_integer_type(kind) && rust_integer_type(rhs) &&
+        (strcmp(op, "modulo") == 0 || strcmp(op, "bitand") == 0 ||
+         strcmp(op, "bitor") == 0 || strcmp(op, "bitxor") == 0 ||
+         strcmp(op, "shl") == 0 || strcmp(op, "shr") == 0);
+}
+
 #include "rust_validate_closures.c"
 #include "rust_validate_calls.c"
 
@@ -1223,6 +1270,16 @@ static bool rust_validate_expr(json_object *expr)
     const char *kind = json_object_get_string(kind_obj);
     json_object *child = NULL;
     if (!kind) return false;
+
+    if (rust_numeric_computed_mutation(expr))
+    {
+        json_object *place = NULL, *value = NULL;
+        bool compound = strcmp(kind, "compound_assign") == 0;
+        json_object_object_get_ex(expr, compound ? "target" : "operand", &place);
+        json_object_object_get_ex(expr, "value", &value);
+        json_object_object_add(expr, "rust_numeric_computed_mutation", json_object_new_boolean(true));
+        return rust_validate_expr(place) && (!compound || rust_validate_expr(value));
+    }
 
     if (strcmp(kind, "compound_assign") == 0) {
         json_object *place = NULL, *value = NULL;

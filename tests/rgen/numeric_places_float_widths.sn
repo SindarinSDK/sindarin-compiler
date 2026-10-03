@@ -1,0 +1,21 @@
+fn narrow(value: float): float =>
+  return value
+
+fn main(): void =>
+  var values: float[] = {1.0f, 2.0f}
+  values[0] -= 1.00000006f
+  println(values[0] > -0.00000007 && values[0] < -0.00000005)
+  var wide: double = 16777217.0
+  values[1] += wide
+  println(values[1] == 16777220.0f)
+  values[0] = 1.0f
+  values[0] -= narrow(1.00000006f)
+  println(values[0] < -0.0000001)
+  var doubles: double[] = {5.0}
+  println(doubles[0] += 0.5)
+  println(doubles[0] -= 1.0f)
+  println(doubles[0] *= 2.0)
+  println(doubles[0] /= 3.0)
+  println(doubles[0]++)
+  println(doubles[0]--)
+  println(doubles[0])

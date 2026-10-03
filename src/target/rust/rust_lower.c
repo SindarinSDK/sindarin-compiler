@@ -1683,6 +1683,8 @@ static bool rust_lower_member_assignment_places(json_object *model,
     return true;
 }
 
+#include "rust_lower_numeric_places.c"
+
 static bool rust_lower_iterator_temp_names(json_object *model, json_object *node,
                                            size_t *next_id)
 {

@@ -239,6 +239,12 @@ static bool rust_emit(CompilerOptions *options, Module *module,
         json_object_put(model);
         return false;
     }
+    if (!rust_lower_numeric_places(model, model, &place_temp_id))
+    {
+        fprintf(stderr, "Error: Rust target could not lower computed numeric mutation\n");
+        json_object_put(model);
+        return false;
+    }
     size_t match_temp_id = 0;
     if (!rust_lower_match_temp_names(model, model, &match_temp_id))
     {

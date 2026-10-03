@@ -1,0 +1,30 @@
+fn make(calls: int as ref): int[] =>
+  calls++
+  return {7}
+
+fn tracedMake(): int[] =>
+  println("owner")
+  return {7}
+
+fn observe(): int =>
+  println("observer")
+  return 1
+
+fn main(): void =>
+  var calls: int = 0
+  println(make(calls)[0] += 5)
+  println(calls)
+  println(make(calls)[0]++)
+  println(calls)
+  println(make(calls)[-1] += 5)
+  println(calls)
+  println(make(calls)[-1]--)
+  println(calls)
+  println(observe() + tracedMake()[0]++)
+  println(false && (tracedMake()[0]++ > 0))
+  while tracedMake()[0]++ < 9 =>
+    println("loop")
+  var callback: fn(): int = fn(): int => tracedMake()[-1]++
+  println("created")
+  println(callback())
+  println(callback())
