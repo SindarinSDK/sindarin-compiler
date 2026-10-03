@@ -7,18 +7,18 @@ head counts, not the language specification or the historical evidence itself.
 
 ## Current verified status: 2026-10-03
 
-Main `40365381` passes Linux/macOS/Windows Compiler and Rust Runtime CI,
-including 504 exact C/Rust positive pairs. All existing PR work is reconciled;
+Main `ec797a75` passes Linux/macOS/Windows Compiler and Rust Runtime CI,
+including 504 exact C/Rust positive pairs and 30 diagnostic/order cases. All existing PR work is reconciled;
 the open queue is empty. C remains the default target. Sized-array reflection
 and default initialization are now integrated. Full parity is still incomplete:
-the broader unchanged C-positive corpus has 101 Rust admission/compilation gaps,
+the broader unchanged C-positive corpus has 101 Rust admission/compilation gaps on this verified main,
 and remaining Rust-negative, ownership, native/SDK and language families need
 implementation and full mode/platform validation.
 
-The next local increment repairs buffered diagnostic stream order. Its complete
-suites and 504 positive + 30 diagnostic/order cases pass; actual hosted ABI and
-runtime validation is required after direct-main publication. Details and exact
-CI/report links follow below.
+The next local increment repairs mixed-integer binary and storage conversions.
+Local corpus checks reduce the remaining compilation gaps to 96. Complete
+cross-platform validation is required after direct-main publication. Details
+and exact CI/report links follow below.
 
 ## Baseline: 2026-10-02
 
@@ -816,3 +816,85 @@ attempt used a missing temporary compiler wrapper; its setup failure was
 identified before any result was counted, and the corrected run uses a
 project-local wrapper. This increment is ready for direct main publication;
 verification of the resulting exact hosted revision is still required.
+
+## Buffered output published and verified on all platforms
+
+Direct-main `6b9a2a33` omitted ten reviewed concurrency snapshots from its
+staged paths. They were present in the full passing local run. The omission was
+caught immediately and repaired in `ec797a75`; every one of the 372 published
+snapshot blobs was verified against the reviewed manifest before repair push.
+The superseded Compiler run failed on those stale snapshots; its raw failure
+log is retained as `stdio-superseded-compiler-ci.log`. The superseded runtime
+run was cancelled after publishing the repair. No unrelated integration occurred
+while the latest revision awaited CI.
+
+Exact main `ec797a75a30c4ffafd3f16c47c49ac69de9a81f0` passes all six jobs in
+[Compiler run 37116886462](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37116886462)
+and [Runtime run 37116886604](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37116886604).
+All eight downloaded reports on each platform pass: 504 positive pairs and 30
+diagnostic/order cases per platform, 1,602 total. Every recorded source hash
+matches this checkout, including Windows path normalization and unchanged raw
+fixtures. Actual Windows CRT imports, raw/text output and buffered diagnostic
+order pass; this is independent of the forced-Windows helper simulation.
+Evidence: `stdio-main-ci-green.json` and `stdio-hosted-*-order.json`.
+The live open PR queue is empty.
+
+## Mixed integral binary and storage conversions: local repair
+
+The original C-positive corpus exposed missing Rust conversions for summing byte
+array elements into an int and storing a byte arithmetic result in an int. Four
+unchanged exploratory sources first passed all 36 C compilation/runtime controls
+while Rust failed all 36. A fifth unchanged integration source had the same
+storage-conversion failure in the retained original corpus inventory.
+
+Rust now converts mixed integral operands at the existing C boundary. Checked
+arithmetic uses the modeled result helper type; checked strict comparisons use
+the left operand helper type; raw comparisons and unchecked arithmetic use the
+C expression types and integer promotions. Existing checked overflow/zero-divisor
+helpers and wrapping operations remain active. Integral initializers explicitly
+convert at storage, preserving checked byte wrapping and unchecked byte promotion.
+Nested promoted byte operands remain promoted until the enclosing C conversion.
+Each operand is evaluated once; tuple initialization avoids capturing source locals
+named `__sn_left` or `__sn_right`. The C backend/shared frontend and all existing
+source fixtures, runtime oracles and generated snapshots are unchanged.
+
+The new independent positive oracle observes signed/unsigned width boundaries,
+C's asymmetric checked helper selection, byte multiplication stored in an int,
+nested promotions, high comparison bits, private-name collisions and operand
+call counts. A nested unchecked expression initially narrowed too early; retained
+before evidence shows C's 66,025 versus Rust's 1,001. The final unchanged new
+source agrees in all nine optimization/arithmetic combinations.
+
+`make test-rust-parity-mixed-integral` requires ten C-valid sources in 90 positive
+pairs and three checked failure sources in nine diagnostic cases. The failures
+require exact status 1, stdout/stderr bytes and merged diagnostic-before-buffered-
+stdout order at O0/O1/O2. New source hashes are pinned for diagnostic cases;
+unchecked overflow/division by zero is not used as a defined failure oracle.
+An initial neighboring selection exposed existing C compilation failures for
+floating modulo and checked byte division. These remain recorded in
+`mixed-integral-rejected-c-neighbors.json`, receive no parity credit and are
+replaced in the final gate by unchanged C-valid int32/uint32 integration tests.
+
+Final local C counts are 1610/107/79/1141/58/224/11, all pass. Rust is 324
+positives/171 negatives, native 8/17/1/4, closures 36/1, concurrency 10/7/1
+and toolchain 12, all pass with zero skips. All 594 positive pairs and 39
+diagnostic/order cases pass, plus raw bytes (63 executions), native transport
+(6 executions), Windows helper simulation and formatting. Four new snapshots
+are emitted only after C controls; no prior snapshot is refreshed.
+
+An initial overlapping C/Rust suite launch produced three missing-executable
+errors: the Rust runner's startup cleanup removed the C runner's active shared
+`sn_test_*` directory. Its log starts with that cleanup, and both runners' cleanup
+functions remove all matching directories without an active-process check. The
+failed C log is retained; the corrected complete C run with `--no-cleanup` passes.
+This is a harness setup failure, not a language result or parity credit.
+
+The broader original corpus source hashes all remain exact (1,365 sources).
+Rust now passes 1,059 integration and 210 exploratory oracle checks, with
+82 + 14 admission/compilation gaps and no observed admitted-program runtime
+failures or skips. These O0/debug corpus checks are not full platform/mode parity.
+The 96 remaining compilation gaps, rejected feature inventory and broader
+lifetime/native/language coverage still prevent completing the goal.
+Evidence: `rust-parity-evidence/mixed-integral-*`. The final gate is required in
+all three platform runtime CI jobs and retains both positive and diagnostic JSON
+reports. Hosted verification of the new direct-main revision remains required.

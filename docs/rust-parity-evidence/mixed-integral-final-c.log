@@ -1,0 +1,56 @@
+Compiler: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn
+Platform: Linux
+Parallel: 20 workers
+
+Unit Tests
+============================================================
+Results: [0;32m1610 passed[0m, [0;31m0 failed[0m  (total: 16.88ms)
+------------------------------------------------------------
+Unit tests passed  (19ms)
+
+Code Generation Tests
+============================================================
+  Running 107 tests with 20 workers...
+                                                            
+------------------------------------------------------------
+Results: 107 passed, 0 failed, 0 skipped  (466ms)
+
+Model Generation Tests
+============================================================
+  Running 79 tests with 20 workers...
+                                                            
+------------------------------------------------------------
+Results: 79 passed, 0 failed, 0 skipped  (51ms)
+
+Integration Tests
+============================================================
+  Running 1141 tests with 20 workers...
+                                                              test_array_literal_arg_leak                   FAIL (exit code: -1)  (81ms)
+  test_array_modify_in_loop                     FAIL (exit code: -1)  (72ms)
+  test_array_pop_double                         FAIL (exit code: -1)  (70ms)
+
+------------------------------------------------------------
+Results: 1138 passed, 3 failed, 0 skipped  (9.71s)
+
+Integration Error Tests
+============================================================
+  Running 58 tests with 20 workers...
+                                                            
+------------------------------------------------------------
+Results: 58 passed, 0 failed, 0 skipped  (69ms)
+
+Exploratory Tests
+============================================================
+  Running 224 tests with 20 workers...
+                                                            
+------------------------------------------------------------
+Results: 224 passed, 0 failed, 0 skipped  (12.45s)
+
+Exploratory Error Tests
+============================================================
+  Running 11 tests with 20 workers...
+                                                            
+------------------------------------------------------------
+Results: 11 passed, 0 failed, 0 skipped  (9ms)
+
+Some tests failed!  (total: 22.78s)

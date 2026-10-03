@@ -1,0 +1,5 @@
+fn main(): void =>
+  var numerator: int = 1000
+  var zero: byte = 0b
+  println("before")
+  println(numerator / zero)

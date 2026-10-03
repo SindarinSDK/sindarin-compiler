@@ -1,0 +1,2418 @@
+{
+  "compiler_sha256": "bc6da5284d4960b253fec9a3e6e6702465c723d3bf9b253e5c5346285d151901",
+  "cases": [
+    {
+      "source": "tests\\rgen\\assert_heap_message_order.sn",
+      "source_sha256": "e212a9041417fe1a8183b1ae4660c29f4b6d0a90c3e8e8226e3a86f651675567",
+      "mode": "default",
+      "optimization": "-O0",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\rgen\\assert_heap_message_order.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderdefault-O0c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c7267656e5c6173736572745f686561705f6d6573736167655f6f726465722e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c6173736572745f686561705f6d6573736167655f6f7264657264656661756c742d4f30632e65786520283139322e30204b42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderdefault-O0c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6d6573736167650d0a636f6e646974696f6e0d0a",
+            "stderr_hex": "6261640d0a"
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderdefault-O0c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6261640d0a6d6573736167650d0a636f6e646974696f6e0d0a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\rgen\\assert_heap_message_order.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderdefault-O0rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c7267656e5c6173736572745f686561705f6d6573736167655f6f726465722e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f6173736572745f686561705f6d6573736167655f6f726465725f313432302f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e746c6e600a20202d2d3e202e736e2f6275696c642f727573742f6173736572745f686561705f6d6573736167655f6f726465725f313432302f6d61696e2e72733a38383a31340a2020207c0a3838207c206d6163726f5f72756c657321207072696e746c6e207b0a2020207c20202020202020202020202020205e5e5e5e5e5e5e0a0a7761726e696e673a2032207761726e696e677320656d69747465640a0a201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c6173736572745f686561705f6d6573736167655f6f7264657264656661756c742d4f30727573742e6578652028312e33204d42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderdefault-O0rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6d6573736167650d0a636f6e646974696f6e0d0a",
+            "stderr_hex": "6261640d0a"
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderdefault-O0rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6261640d0a6d6573736167650d0a636f6e646974696f6e0d0a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests\\rgen\\assert_heap_message_order.sn",
+      "source_sha256": "e212a9041417fe1a8183b1ae4660c29f4b6d0a90c3e8e8226e3a86f651675567",
+      "mode": "default",
+      "optimization": "-O1",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\rgen\\assert_heap_message_order.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderdefault-O1c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c7267656e5c6173736572745f686561705f6d6573736167655f6f726465722e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c6173736572745f686561705f6d6573736167655f6f7264657264656661756c742d4f31632e65786520283139322e30204b42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderdefault-O1c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6d6573736167650d0a636f6e646974696f6e0d0a",
+            "stderr_hex": "6261640d0a"
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderdefault-O1c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6261640d0a6d6573736167650d0a636f6e646974696f6e0d0a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\rgen\\assert_heap_message_order.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderdefault-O1rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c7267656e5c6173736572745f686561705f6d6573736167655f6f726465722e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f6173736572745f686561705f6d6573736167655f6f726465725f373935362f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e746c6e600a20202d2d3e202e736e2f6275696c642f727573742f6173736572745f686561705f6d6573736167655f6f726465725f373935362f6d61696e2e72733a38383a31340a2020207c0a3838207c206d6163726f5f72756c657321207072696e746c6e207b0a2020207c20202020202020202020202020205e5e5e5e5e5e5e0a0a7761726e696e673a2032207761726e696e677320656d69747465640a0a201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c6173736572745f686561705f6d6573736167655f6f7264657264656661756c742d4f31727573742e6578652028312e33204d42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderdefault-O1rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6d6573736167650d0a636f6e646974696f6e0d0a",
+            "stderr_hex": "6261640d0a"
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderdefault-O1rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6261640d0a6d6573736167650d0a636f6e646974696f6e0d0a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests\\rgen\\assert_heap_message_order.sn",
+      "source_sha256": "e212a9041417fe1a8183b1ae4660c29f4b6d0a90c3e8e8226e3a86f651675567",
+      "mode": "default",
+      "optimization": "-O2",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\rgen\\assert_heap_message_order.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderdefault-O2c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c7267656e5c6173736572745f686561705f6d6573736167655f6f726465722e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c6173736572745f686561705f6d6573736167655f6f7264657264656661756c742d4f32632e65786520283139322e30204b42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderdefault-O2c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6d6573736167650d0a636f6e646974696f6e0d0a",
+            "stderr_hex": "6261640d0a"
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderdefault-O2c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6261640d0a6d6573736167650d0a636f6e646974696f6e0d0a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\rgen\\assert_heap_message_order.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderdefault-O2rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c7267656e5c6173736572745f686561705f6d6573736167655f6f726465722e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f6173736572745f686561705f6d6573736167655f6f726465725f363435362f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e746c6e600a20202d2d3e202e736e2f6275696c642f727573742f6173736572745f686561705f6d6573736167655f6f726465725f363435362f6d61696e2e72733a38383a31340a2020207c0a3838207c206d6163726f5f72756c657321207072696e746c6e207b0a2020207c20202020202020202020202020205e5e5e5e5e5e5e0a0a7761726e696e673a2032207761726e696e677320656d69747465640a0a201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c6173736572745f686561705f6d6573736167655f6f7264657264656661756c742d4f32727573742e6578652028312e33204d42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderdefault-O2rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6d6573736167650d0a636f6e646974696f6e0d0a",
+            "stderr_hex": "6261640d0a"
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderdefault-O2rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6261640d0a6d6573736167650d0a636f6e646974696f6e0d0a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests\\rgen\\assert_heap_message_order.sn",
+      "source_sha256": "e212a9041417fe1a8183b1ae4660c29f4b6d0a90c3e8e8226e3a86f651675567",
+      "mode": "checked",
+      "optimization": "-O0",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\rgen\\assert_heap_message_order.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderchecked-O0c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c7267656e5c6173736572745f686561705f6d6573736167655f6f726465722e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c6173736572745f686561705f6d6573736167655f6f72646572636865636b65642d4f30632e65786520283139322e30204b42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderchecked-O0c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6d6573736167650d0a636f6e646974696f6e0d0a",
+            "stderr_hex": "6261640d0a"
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderchecked-O0c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6261640d0a6d6573736167650d0a636f6e646974696f6e0d0a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\rgen\\assert_heap_message_order.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderchecked-O0rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c7267656e5c6173736572745f686561705f6d6573736167655f6f726465722e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f6173736572745f686561705f6d6573736167655f6f726465725f363935322f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e746c6e600a20202d2d3e202e736e2f6275696c642f727573742f6173736572745f686561705f6d6573736167655f6f726465725f363935322f6d61696e2e72733a38383a31340a2020207c0a3838207c206d6163726f5f72756c657321207072696e746c6e207b0a2020207c20202020202020202020202020205e5e5e5e5e5e5e0a0a7761726e696e673a2032207761726e696e677320656d69747465640a0a201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c6173736572745f686561705f6d6573736167655f6f72646572636865636b65642d4f30727573742e6578652028312e33204d42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderchecked-O0rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6d6573736167650d0a636f6e646974696f6e0d0a",
+            "stderr_hex": "6261640d0a"
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderchecked-O0rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6261640d0a6d6573736167650d0a636f6e646974696f6e0d0a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests\\rgen\\assert_heap_message_order.sn",
+      "source_sha256": "e212a9041417fe1a8183b1ae4660c29f4b6d0a90c3e8e8226e3a86f651675567",
+      "mode": "checked",
+      "optimization": "-O1",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\rgen\\assert_heap_message_order.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderchecked-O1c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c7267656e5c6173736572745f686561705f6d6573736167655f6f726465722e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c6173736572745f686561705f6d6573736167655f6f72646572636865636b65642d4f31632e65786520283139322e30204b42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderchecked-O1c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6d6573736167650d0a636f6e646974696f6e0d0a",
+            "stderr_hex": "6261640d0a"
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderchecked-O1c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6261640d0a6d6573736167650d0a636f6e646974696f6e0d0a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\rgen\\assert_heap_message_order.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderchecked-O1rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c7267656e5c6173736572745f686561705f6d6573736167655f6f726465722e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f6173736572745f686561705f6d6573736167655f6f726465725f353036302f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e746c6e600a20202d2d3e202e736e2f6275696c642f727573742f6173736572745f686561705f6d6573736167655f6f726465725f353036302f6d61696e2e72733a38383a31340a2020207c0a3838207c206d6163726f5f72756c657321207072696e746c6e207b0a2020207c20202020202020202020202020205e5e5e5e5e5e5e0a0a7761726e696e673a2032207761726e696e677320656d69747465640a0a201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c6173736572745f686561705f6d6573736167655f6f72646572636865636b65642d4f31727573742e6578652028312e33204d42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderchecked-O1rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6d6573736167650d0a636f6e646974696f6e0d0a",
+            "stderr_hex": "6261640d0a"
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderchecked-O1rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6261640d0a6d6573736167650d0a636f6e646974696f6e0d0a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests\\rgen\\assert_heap_message_order.sn",
+      "source_sha256": "e212a9041417fe1a8183b1ae4660c29f4b6d0a90c3e8e8226e3a86f651675567",
+      "mode": "checked",
+      "optimization": "-O2",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\rgen\\assert_heap_message_order.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderchecked-O2c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c7267656e5c6173736572745f686561705f6d6573736167655f6f726465722e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c6173736572745f686561705f6d6573736167655f6f72646572636865636b65642d4f32632e65786520283139322e30204b42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderchecked-O2c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6d6573736167650d0a636f6e646974696f6e0d0a",
+            "stderr_hex": "6261640d0a"
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderchecked-O2c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6261640d0a6d6573736167650d0a636f6e646974696f6e0d0a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\rgen\\assert_heap_message_order.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderchecked-O2rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c7267656e5c6173736572745f686561705f6d6573736167655f6f726465722e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f6173736572745f686561705f6d6573736167655f6f726465725f313038382f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e746c6e600a20202d2d3e202e736e2f6275696c642f727573742f6173736572745f686561705f6d6573736167655f6f726465725f313038382f6d61696e2e72733a38383a31340a2020207c0a3838207c206d6163726f5f72756c657321207072696e746c6e207b0a2020207c20202020202020202020202020205e5e5e5e5e5e5e0a0a7761726e696e673a2032207761726e696e677320656d69747465640a0a201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c6173736572745f686561705f6d6573736167655f6f72646572636865636b65642d4f32727573742e6578652028312e33204d42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderchecked-O2rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6d6573736167650d0a636f6e646974696f6e0d0a",
+            "stderr_hex": "6261640d0a"
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderchecked-O2rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6261640d0a6d6573736167650d0a636f6e646974696f6e0d0a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests\\rgen\\assert_heap_message_order.sn",
+      "source_sha256": "e212a9041417fe1a8183b1ae4660c29f4b6d0a90c3e8e8226e3a86f651675567",
+      "mode": "unchecked",
+      "optimization": "-O0",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\rgen\\assert_heap_message_order.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderunchecked-O0c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c7267656e5c6173736572745f686561705f6d6573736167655f6f726465722e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c6173736572745f686561705f6d6573736167655f6f72646572756e636865636b65642d4f30632e65786520283139322e30204b42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderunchecked-O0c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6d6573736167650d0a636f6e646974696f6e0d0a",
+            "stderr_hex": "6261640d0a"
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderunchecked-O0c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6261640d0a6d6573736167650d0a636f6e646974696f6e0d0a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\rgen\\assert_heap_message_order.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderunchecked-O0rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c7267656e5c6173736572745f686561705f6d6573736167655f6f726465722e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f6173736572745f686561705f6d6573736167655f6f726465725f323638342f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e746c6e600a20202d2d3e202e736e2f6275696c642f727573742f6173736572745f686561705f6d6573736167655f6f726465725f323638342f6d61696e2e72733a38383a31340a2020207c0a3838207c206d6163726f5f72756c657321207072696e746c6e207b0a2020207c20202020202020202020202020205e5e5e5e5e5e5e0a0a7761726e696e673a2032207761726e696e677320656d69747465640a0a201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c6173736572745f686561705f6d6573736167655f6f72646572756e636865636b65642d4f30727573742e6578652028312e33204d42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderunchecked-O0rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6d6573736167650d0a636f6e646974696f6e0d0a",
+            "stderr_hex": "6261640d0a"
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderunchecked-O0rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6261640d0a6d6573736167650d0a636f6e646974696f6e0d0a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests\\rgen\\assert_heap_message_order.sn",
+      "source_sha256": "e212a9041417fe1a8183b1ae4660c29f4b6d0a90c3e8e8226e3a86f651675567",
+      "mode": "unchecked",
+      "optimization": "-O1",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\rgen\\assert_heap_message_order.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderunchecked-O1c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c7267656e5c6173736572745f686561705f6d6573736167655f6f726465722e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c6173736572745f686561705f6d6573736167655f6f72646572756e636865636b65642d4f31632e65786520283139322e30204b42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderunchecked-O1c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6d6573736167650d0a636f6e646974696f6e0d0a",
+            "stderr_hex": "6261640d0a"
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderunchecked-O1c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6261640d0a6d6573736167650d0a636f6e646974696f6e0d0a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\rgen\\assert_heap_message_order.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderunchecked-O1rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c7267656e5c6173736572745f686561705f6d6573736167655f6f726465722e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f6173736572745f686561705f6d6573736167655f6f726465725f323530382f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e746c6e600a20202d2d3e202e736e2f6275696c642f727573742f6173736572745f686561705f6d6573736167655f6f726465725f323530382f6d61696e2e72733a38383a31340a2020207c0a3838207c206d6163726f5f72756c657321207072696e746c6e207b0a2020207c20202020202020202020202020205e5e5e5e5e5e5e0a0a7761726e696e673a2032207761726e696e677320656d69747465640a0a201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c6173736572745f686561705f6d6573736167655f6f72646572756e636865636b65642d4f31727573742e6578652028312e33204d42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderunchecked-O1rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6d6573736167650d0a636f6e646974696f6e0d0a",
+            "stderr_hex": "6261640d0a"
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderunchecked-O1rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6261640d0a6d6573736167650d0a636f6e646974696f6e0d0a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests\\rgen\\assert_heap_message_order.sn",
+      "source_sha256": "e212a9041417fe1a8183b1ae4660c29f4b6d0a90c3e8e8226e3a86f651675567",
+      "mode": "unchecked",
+      "optimization": "-O2",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\rgen\\assert_heap_message_order.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderunchecked-O2c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c7267656e5c6173736572745f686561705f6d6573736167655f6f726465722e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c6173736572745f686561705f6d6573736167655f6f72646572756e636865636b65642d4f32632e65786520283139322e30204b42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderunchecked-O2c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6d6573736167650d0a636f6e646974696f6e0d0a",
+            "stderr_hex": "6261640d0a"
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderunchecked-O2c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6261640d0a6d6573736167650d0a636f6e646974696f6e0d0a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\rgen\\assert_heap_message_order.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderunchecked-O2rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c7267656e5c6173736572745f686561705f6d6573736167655f6f726465722e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f6173736572745f686561705f6d6573736167655f6f726465725f3839362f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e746c6e600a20202d2d3e202e736e2f6275696c642f727573742f6173736572745f686561705f6d6573736167655f6f726465725f3839362f6d61696e2e72733a38383a31340a2020207c0a3838207c206d6163726f5f72756c657321207072696e746c6e207b0a2020207c20202020202020202020202020205e5e5e5e5e5e5e0a0a7761726e696e673a2032207761726e696e677320656d69747465640a0a201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c6173736572745f686561705f6d6573736167655f6f72646572756e636865636b65642d4f32727573742e6578652028312e33204d42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderunchecked-O2rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6d6573736167650d0a636f6e646974696f6e0d0a",
+            "stderr_hex": "6261640d0a"
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\assert_heap_message_orderunchecked-O2rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "6261640d0a6d6573736167650d0a636f6e646974696f6e0d0a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests\\rgen\\stdio_helper_hygiene.sn",
+      "source_sha256": "5d71b5d3d8abe955bc8b7aac4a92bf1997eecc77686555585a05c8f2d8502176",
+      "mode": "default",
+      "optimization": "-O0",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\rgen\\stdio_helper_hygiene.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygienedefault-O0c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c7267656e5c737464696f5f68656c7065725f68796769656e652e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c737464696f5f68656c7065725f68796769656e6564656661756c742d4f30632e65786520283139322e35204b42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygienedefault-O0c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "35350d0a",
+            "stderr_hex": ""
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygienedefault-O0c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "35350d0a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\rgen\\stdio_helper_hygiene.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygienedefault-O0rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c7267656e5c737464696f5f68656c7065725f68796769656e652e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e7761726e696e673a207479706520605f5f536e537464696f47756172645f31602073686f756c64206861766520616e2075707065722063616d656c2063617365206e616d650a20202d2d3e202e736e2f6275696c642f727573742f737464696f5f68656c7065725f68796769656e655f383231322f6d61696e2e72733a34313a380a2020207c0a3431207c20737472756374205f5f536e537464696f47756172645f313b0a2020207c20202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e2068656c703a20636f6e7665727420746865206964656e74696669657220746f2075707065722063616d656c20636173653a2060536e537464696f477561726431600a2020207c0a2020203d206e6f74653a2060235b7761726e286e6f6e5f63616d656c5f636173655f7479706573295d60202870617274206f662060235b7761726e286e6f6e7374616e646172645f7374796c65295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f737464696f5f68656c7065725f68796769656e655f383231322f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2032207761726e696e677320656d69747465640a0a201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c737464696f5f68656c7065725f68796769656e6564656661756c742d4f30727573742e6578652028312e33204d42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygienedefault-O0rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "35350d0a",
+            "stderr_hex": ""
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygienedefault-O0rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "35350d0a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests\\rgen\\stdio_helper_hygiene.sn",
+      "source_sha256": "5d71b5d3d8abe955bc8b7aac4a92bf1997eecc77686555585a05c8f2d8502176",
+      "mode": "default",
+      "optimization": "-O1",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\rgen\\stdio_helper_hygiene.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygienedefault-O1c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c7267656e5c737464696f5f68656c7065725f68796769656e652e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c737464696f5f68656c7065725f68796769656e6564656661756c742d4f31632e65786520283139322e35204b42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygienedefault-O1c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "35350d0a",
+            "stderr_hex": ""
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygienedefault-O1c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "35350d0a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\rgen\\stdio_helper_hygiene.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygienedefault-O1rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c7267656e5c737464696f5f68656c7065725f68796769656e652e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e7761726e696e673a207479706520605f5f536e537464696f47756172645f31602073686f756c64206861766520616e2075707065722063616d656c2063617365206e616d650a20202d2d3e202e736e2f6275696c642f727573742f737464696f5f68656c7065725f68796769656e655f353233322f6d61696e2e72733a34313a380a2020207c0a3431207c20737472756374205f5f536e537464696f47756172645f313b0a2020207c20202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e2068656c703a20636f6e7665727420746865206964656e74696669657220746f2075707065722063616d656c20636173653a2060536e537464696f477561726431600a2020207c0a2020203d206e6f74653a2060235b7761726e286e6f6e5f63616d656c5f636173655f7479706573295d60202870617274206f662060235b7761726e286e6f6e7374616e646172645f7374796c65295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f737464696f5f68656c7065725f68796769656e655f353233322f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2032207761726e696e677320656d69747465640a0a201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c737464696f5f68656c7065725f68796769656e6564656661756c742d4f31727573742e6578652028312e33204d42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygienedefault-O1rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "35350d0a",
+            "stderr_hex": ""
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygienedefault-O1rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "35350d0a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests\\rgen\\stdio_helper_hygiene.sn",
+      "source_sha256": "5d71b5d3d8abe955bc8b7aac4a92bf1997eecc77686555585a05c8f2d8502176",
+      "mode": "default",
+      "optimization": "-O2",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\rgen\\stdio_helper_hygiene.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygienedefault-O2c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c7267656e5c737464696f5f68656c7065725f68796769656e652e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c737464696f5f68656c7065725f68796769656e6564656661756c742d4f32632e65786520283139322e35204b42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygienedefault-O2c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "35350d0a",
+            "stderr_hex": ""
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygienedefault-O2c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "35350d0a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\rgen\\stdio_helper_hygiene.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygienedefault-O2rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c7267656e5c737464696f5f68656c7065725f68796769656e652e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e7761726e696e673a207479706520605f5f536e537464696f47756172645f31602073686f756c64206861766520616e2075707065722063616d656c2063617365206e616d650a20202d2d3e202e736e2f6275696c642f727573742f737464696f5f68656c7065725f68796769656e655f373233362f6d61696e2e72733a34313a380a2020207c0a3431207c20737472756374205f5f536e537464696f47756172645f313b0a2020207c20202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e2068656c703a20636f6e7665727420746865206964656e74696669657220746f2075707065722063616d656c20636173653a2060536e537464696f477561726431600a2020207c0a2020203d206e6f74653a2060235b7761726e286e6f6e5f63616d656c5f636173655f7479706573295d60202870617274206f662060235b7761726e286e6f6e7374616e646172645f7374796c65295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f737464696f5f68656c7065725f68796769656e655f373233362f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2032207761726e696e677320656d69747465640a0a201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c737464696f5f68656c7065725f68796769656e6564656661756c742d4f32727573742e6578652028312e33204d42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygienedefault-O2rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "35350d0a",
+            "stderr_hex": ""
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygienedefault-O2rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "35350d0a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests\\rgen\\stdio_helper_hygiene.sn",
+      "source_sha256": "5d71b5d3d8abe955bc8b7aac4a92bf1997eecc77686555585a05c8f2d8502176",
+      "mode": "checked",
+      "optimization": "-O0",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\rgen\\stdio_helper_hygiene.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygienechecked-O0c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c7267656e5c737464696f5f68656c7065725f68796769656e652e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c737464696f5f68656c7065725f68796769656e65636865636b65642d4f30632e65786520283139322e35204b42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygienechecked-O0c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "35350d0a",
+            "stderr_hex": ""
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygienechecked-O0c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "35350d0a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\rgen\\stdio_helper_hygiene.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygienechecked-O0rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c7267656e5c737464696f5f68656c7065725f68796769656e652e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e7761726e696e673a207479706520605f5f536e537464696f47756172645f31602073686f756c64206861766520616e2075707065722063616d656c2063617365206e616d650a20202d2d3e202e736e2f6275696c642f727573742f737464696f5f68656c7065725f68796769656e655f333736342f6d61696e2e72733a34313a380a2020207c0a3431207c20737472756374205f5f536e537464696f47756172645f313b0a2020207c20202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e2068656c703a20636f6e7665727420746865206964656e74696669657220746f2075707065722063616d656c20636173653a2060536e537464696f477561726431600a2020207c0a2020203d206e6f74653a2060235b7761726e286e6f6e5f63616d656c5f636173655f7479706573295d60202870617274206f662060235b7761726e286e6f6e7374616e646172645f7374796c65295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f737464696f5f68656c7065725f68796769656e655f333736342f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2032207761726e696e677320656d69747465640a0a201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c737464696f5f68656c7065725f68796769656e65636865636b65642d4f30727573742e6578652028312e33204d42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygienechecked-O0rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "35350d0a",
+            "stderr_hex": ""
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygienechecked-O0rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "35350d0a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests\\rgen\\stdio_helper_hygiene.sn",
+      "source_sha256": "5d71b5d3d8abe955bc8b7aac4a92bf1997eecc77686555585a05c8f2d8502176",
+      "mode": "checked",
+      "optimization": "-O1",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\rgen\\stdio_helper_hygiene.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygienechecked-O1c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c7267656e5c737464696f5f68656c7065725f68796769656e652e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c737464696f5f68656c7065725f68796769656e65636865636b65642d4f31632e65786520283139322e35204b42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygienechecked-O1c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "35350d0a",
+            "stderr_hex": ""
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygienechecked-O1c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "35350d0a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\rgen\\stdio_helper_hygiene.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygienechecked-O1rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c7267656e5c737464696f5f68656c7065725f68796769656e652e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e7761726e696e673a207479706520605f5f536e537464696f47756172645f31602073686f756c64206861766520616e2075707065722063616d656c2063617365206e616d650a20202d2d3e202e736e2f6275696c642f727573742f737464696f5f68656c7065725f68796769656e655f373532342f6d61696e2e72733a34313a380a2020207c0a3431207c20737472756374205f5f536e537464696f47756172645f313b0a2020207c20202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e2068656c703a20636f6e7665727420746865206964656e74696669657220746f2075707065722063616d656c20636173653a2060536e537464696f477561726431600a2020207c0a2020203d206e6f74653a2060235b7761726e286e6f6e5f63616d656c5f636173655f7479706573295d60202870617274206f662060235b7761726e286e6f6e7374616e646172645f7374796c65295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f737464696f5f68656c7065725f68796769656e655f373532342f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2032207761726e696e677320656d69747465640a0a201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c737464696f5f68656c7065725f68796769656e65636865636b65642d4f31727573742e6578652028312e33204d42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygienechecked-O1rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "35350d0a",
+            "stderr_hex": ""
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygienechecked-O1rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "35350d0a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests\\rgen\\stdio_helper_hygiene.sn",
+      "source_sha256": "5d71b5d3d8abe955bc8b7aac4a92bf1997eecc77686555585a05c8f2d8502176",
+      "mode": "checked",
+      "optimization": "-O2",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\rgen\\stdio_helper_hygiene.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygienechecked-O2c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c7267656e5c737464696f5f68656c7065725f68796769656e652e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c737464696f5f68656c7065725f68796769656e65636865636b65642d4f32632e65786520283139322e35204b42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygienechecked-O2c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "35350d0a",
+            "stderr_hex": ""
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygienechecked-O2c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "35350d0a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\rgen\\stdio_helper_hygiene.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygienechecked-O2rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c7267656e5c737464696f5f68656c7065725f68796769656e652e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e7761726e696e673a207479706520605f5f536e537464696f47756172645f31602073686f756c64206861766520616e2075707065722063616d656c2063617365206e616d650a20202d2d3e202e736e2f6275696c642f727573742f737464696f5f68656c7065725f68796769656e655f383535322f6d61696e2e72733a34313a380a2020207c0a3431207c20737472756374205f5f536e537464696f47756172645f313b0a2020207c20202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e2068656c703a20636f6e7665727420746865206964656e74696669657220746f2075707065722063616d656c20636173653a2060536e537464696f477561726431600a2020207c0a2020203d206e6f74653a2060235b7761726e286e6f6e5f63616d656c5f636173655f7479706573295d60202870617274206f662060235b7761726e286e6f6e7374616e646172645f7374796c65295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f737464696f5f68656c7065725f68796769656e655f383535322f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2032207761726e696e677320656d69747465640a0a201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c737464696f5f68656c7065725f68796769656e65636865636b65642d4f32727573742e6578652028312e33204d42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygienechecked-O2rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "35350d0a",
+            "stderr_hex": ""
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygienechecked-O2rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "35350d0a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests\\rgen\\stdio_helper_hygiene.sn",
+      "source_sha256": "5d71b5d3d8abe955bc8b7aac4a92bf1997eecc77686555585a05c8f2d8502176",
+      "mode": "unchecked",
+      "optimization": "-O0",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\rgen\\stdio_helper_hygiene.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygieneunchecked-O0c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c7267656e5c737464696f5f68656c7065725f68796769656e652e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c737464696f5f68656c7065725f68796769656e65756e636865636b65642d4f30632e65786520283139322e35204b42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygieneunchecked-O0c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "35350d0a",
+            "stderr_hex": ""
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygieneunchecked-O0c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "35350d0a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\rgen\\stdio_helper_hygiene.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygieneunchecked-O0rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c7267656e5c737464696f5f68656c7065725f68796769656e652e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e7761726e696e673a207479706520605f5f536e537464696f47756172645f31602073686f756c64206861766520616e2075707065722063616d656c2063617365206e616d650a20202d2d3e202e736e2f6275696c642f727573742f737464696f5f68656c7065725f68796769656e655f373039322f6d61696e2e72733a34313a380a2020207c0a3431207c20737472756374205f5f536e537464696f47756172645f313b0a2020207c20202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e2068656c703a20636f6e7665727420746865206964656e74696669657220746f2075707065722063616d656c20636173653a2060536e537464696f477561726431600a2020207c0a2020203d206e6f74653a2060235b7761726e286e6f6e5f63616d656c5f636173655f7479706573295d60202870617274206f662060235b7761726e286e6f6e7374616e646172645f7374796c65295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f737464696f5f68656c7065725f68796769656e655f373039322f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2032207761726e696e677320656d69747465640a0a201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c737464696f5f68656c7065725f68796769656e65756e636865636b65642d4f30727573742e6578652028312e33204d42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygieneunchecked-O0rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "35350d0a",
+            "stderr_hex": ""
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygieneunchecked-O0rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "35350d0a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests\\rgen\\stdio_helper_hygiene.sn",
+      "source_sha256": "5d71b5d3d8abe955bc8b7aac4a92bf1997eecc77686555585a05c8f2d8502176",
+      "mode": "unchecked",
+      "optimization": "-O1",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\rgen\\stdio_helper_hygiene.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygieneunchecked-O1c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c7267656e5c737464696f5f68656c7065725f68796769656e652e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c737464696f5f68656c7065725f68796769656e65756e636865636b65642d4f31632e65786520283139322e35204b42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygieneunchecked-O1c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "35350d0a",
+            "stderr_hex": ""
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygieneunchecked-O1c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "35350d0a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\rgen\\stdio_helper_hygiene.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygieneunchecked-O1rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c7267656e5c737464696f5f68656c7065725f68796769656e652e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e7761726e696e673a207479706520605f5f536e537464696f47756172645f31602073686f756c64206861766520616e2075707065722063616d656c2063617365206e616d650a20202d2d3e202e736e2f6275696c642f727573742f737464696f5f68656c7065725f68796769656e655f343534302f6d61696e2e72733a34313a380a2020207c0a3431207c20737472756374205f5f536e537464696f47756172645f313b0a2020207c20202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e2068656c703a20636f6e7665727420746865206964656e74696669657220746f2075707065722063616d656c20636173653a2060536e537464696f477561726431600a2020207c0a2020203d206e6f74653a2060235b7761726e286e6f6e5f63616d656c5f636173655f7479706573295d60202870617274206f662060235b7761726e286e6f6e7374616e646172645f7374796c65295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f737464696f5f68656c7065725f68796769656e655f343534302f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2032207761726e696e677320656d69747465640a0a201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c737464696f5f68656c7065725f68796769656e65756e636865636b65642d4f31727573742e6578652028312e33204d42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygieneunchecked-O1rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "35350d0a",
+            "stderr_hex": ""
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygieneunchecked-O1rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "35350d0a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests\\rgen\\stdio_helper_hygiene.sn",
+      "source_sha256": "5d71b5d3d8abe955bc8b7aac4a92bf1997eecc77686555585a05c8f2d8502176",
+      "mode": "unchecked",
+      "optimization": "-O2",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\rgen\\stdio_helper_hygiene.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygieneunchecked-O2c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c7267656e5c737464696f5f68656c7065725f68796769656e652e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c737464696f5f68656c7065725f68796769656e65756e636865636b65642d4f32632e65786520283139322e35204b42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygieneunchecked-O2c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "35350d0a",
+            "stderr_hex": ""
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygieneunchecked-O2c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "35350d0a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\rgen\\stdio_helper_hygiene.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygieneunchecked-O2rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c7267656e5c737464696f5f68656c7065725f68796769656e652e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e7761726e696e673a207479706520605f5f536e537464696f47756172645f31602073686f756c64206861766520616e2075707065722063616d656c2063617365206e616d650a20202d2d3e202e736e2f6275696c642f727573742f737464696f5f68656c7065725f68796769656e655f313936302f6d61696e2e72733a34313a380a2020207c0a3431207c20737472756374205f5f536e537464696f47756172645f313b0a2020207c20202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e2068656c703a20636f6e7665727420746865206964656e74696669657220746f2075707065722063616d656c20636173653a2060536e537464696f477561726431600a2020207c0a2020203d206e6f74653a2060235b7761726e286e6f6e5f63616d656c5f636173655f7479706573295d60202870617274206f662060235b7761726e286e6f6e7374616e646172645f7374796c65295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f737464696f5f68656c7065725f68796769656e655f313936302f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2032207761726e696e677320656d69747465640a0a201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c737464696f5f68656c7065725f68796769656e65756e636865636b65642d4f32727573742e6578652028312e33204d42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygieneunchecked-O2rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "35350d0a",
+            "stderr_hex": ""
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\stdio_helper_hygieneunchecked-O2rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "35350d0a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests\\integration\\test_assert.sn",
+      "source_sha256": "9b3f568e34fe5c8b55ebc9de11ef38e85693c851d7983ac05ac9914493790b54",
+      "mode": "default",
+      "optimization": "-O0",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\integration\\test_assert.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertdefault-O0c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c696e746567726174696f6e5c746573745f6173736572742e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c746573745f61737365727464656661756c742d4f30632e65786520283139322e30204b42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertdefault-O0c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "54657374696e67206173736572740d0a466972737420617373657274207061737365640d0a5365636f6e6420617373657274207061737365640d0a",
+            "stderr_hex": "417373657274696f6e206661696c65643a20657870656374656420636f6e646974696f6e20746f20626520747275650d0a"
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertdefault-O0c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "417373657274696f6e206661696c65643a20657870656374656420636f6e646974696f6e20746f20626520747275650d0a54657374696e67206173736572740d0a466972737420617373657274207061737365640d0a5365636f6e6420617373657274207061737365640d0a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\integration\\test_assert.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertdefault-O0rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c696e746567726174696f6e5c746573745f6173736572742e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f746573745f6173736572745f323236382f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e746c6e600a20202d2d3e202e736e2f6275696c642f727573742f746573745f6173736572745f323236382f6d61696e2e72733a38383a31340a2020207c0a3838207c206d6163726f5f72756c657321207072696e746c6e207b0a2020207c20202020202020202020202020205e5e5e5e5e5e5e0a0a7761726e696e673a2032207761726e696e677320656d69747465640a0a201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c746573745f61737365727464656661756c742d4f30727573742e6578652028312e33204d42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertdefault-O0rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "54657374696e67206173736572740d0a466972737420617373657274207061737365640d0a5365636f6e6420617373657274207061737365640d0a",
+            "stderr_hex": "417373657274696f6e206661696c65643a20657870656374656420636f6e646974696f6e20746f20626520747275650d0a"
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertdefault-O0rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "417373657274696f6e206661696c65643a20657870656374656420636f6e646974696f6e20746f20626520747275650d0a54657374696e67206173736572740d0a466972737420617373657274207061737365640d0a5365636f6e6420617373657274207061737365640d0a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests\\integration\\test_assert.sn",
+      "source_sha256": "9b3f568e34fe5c8b55ebc9de11ef38e85693c851d7983ac05ac9914493790b54",
+      "mode": "default",
+      "optimization": "-O1",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\integration\\test_assert.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertdefault-O1c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c696e746567726174696f6e5c746573745f6173736572742e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c746573745f61737365727464656661756c742d4f31632e65786520283139322e30204b42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertdefault-O1c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "54657374696e67206173736572740d0a466972737420617373657274207061737365640d0a5365636f6e6420617373657274207061737365640d0a",
+            "stderr_hex": "417373657274696f6e206661696c65643a20657870656374656420636f6e646974696f6e20746f20626520747275650d0a"
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertdefault-O1c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "417373657274696f6e206661696c65643a20657870656374656420636f6e646974696f6e20746f20626520747275650d0a54657374696e67206173736572740d0a466972737420617373657274207061737365640d0a5365636f6e6420617373657274207061737365640d0a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\integration\\test_assert.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertdefault-O1rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c696e746567726174696f6e5c746573745f6173736572742e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f746573745f6173736572745f323636302f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e746c6e600a20202d2d3e202e736e2f6275696c642f727573742f746573745f6173736572745f323636302f6d61696e2e72733a38383a31340a2020207c0a3838207c206d6163726f5f72756c657321207072696e746c6e207b0a2020207c20202020202020202020202020205e5e5e5e5e5e5e0a0a7761726e696e673a2032207761726e696e677320656d69747465640a0a201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c746573745f61737365727464656661756c742d4f31727573742e6578652028312e33204d42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertdefault-O1rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "54657374696e67206173736572740d0a466972737420617373657274207061737365640d0a5365636f6e6420617373657274207061737365640d0a",
+            "stderr_hex": "417373657274696f6e206661696c65643a20657870656374656420636f6e646974696f6e20746f20626520747275650d0a"
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertdefault-O1rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "417373657274696f6e206661696c65643a20657870656374656420636f6e646974696f6e20746f20626520747275650d0a54657374696e67206173736572740d0a466972737420617373657274207061737365640d0a5365636f6e6420617373657274207061737365640d0a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests\\integration\\test_assert.sn",
+      "source_sha256": "9b3f568e34fe5c8b55ebc9de11ef38e85693c851d7983ac05ac9914493790b54",
+      "mode": "default",
+      "optimization": "-O2",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\integration\\test_assert.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertdefault-O2c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c696e746567726174696f6e5c746573745f6173736572742e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c746573745f61737365727464656661756c742d4f32632e65786520283139322e30204b42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertdefault-O2c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "54657374696e67206173736572740d0a466972737420617373657274207061737365640d0a5365636f6e6420617373657274207061737365640d0a",
+            "stderr_hex": "417373657274696f6e206661696c65643a20657870656374656420636f6e646974696f6e20746f20626520747275650d0a"
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertdefault-O2c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "417373657274696f6e206661696c65643a20657870656374656420636f6e646974696f6e20746f20626520747275650d0a54657374696e67206173736572740d0a466972737420617373657274207061737365640d0a5365636f6e6420617373657274207061737365640d0a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\integration\\test_assert.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertdefault-O2rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c696e746567726174696f6e5c746573745f6173736572742e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f746573745f6173736572745f383637362f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e746c6e600a20202d2d3e202e736e2f6275696c642f727573742f746573745f6173736572745f383637362f6d61696e2e72733a38383a31340a2020207c0a3838207c206d6163726f5f72756c657321207072696e746c6e207b0a2020207c20202020202020202020202020205e5e5e5e5e5e5e0a0a7761726e696e673a2032207761726e696e677320656d69747465640a0a201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c746573745f61737365727464656661756c742d4f32727573742e6578652028312e33204d42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertdefault-O2rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "54657374696e67206173736572740d0a466972737420617373657274207061737365640d0a5365636f6e6420617373657274207061737365640d0a",
+            "stderr_hex": "417373657274696f6e206661696c65643a20657870656374656420636f6e646974696f6e20746f20626520747275650d0a"
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertdefault-O2rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "417373657274696f6e206661696c65643a20657870656374656420636f6e646974696f6e20746f20626520747275650d0a54657374696e67206173736572740d0a466972737420617373657274207061737365640d0a5365636f6e6420617373657274207061737365640d0a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests\\integration\\test_assert.sn",
+      "source_sha256": "9b3f568e34fe5c8b55ebc9de11ef38e85693c851d7983ac05ac9914493790b54",
+      "mode": "checked",
+      "optimization": "-O0",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\integration\\test_assert.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertchecked-O0c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c696e746567726174696f6e5c746573745f6173736572742e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c746573745f617373657274636865636b65642d4f30632e65786520283139322e30204b42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertchecked-O0c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "54657374696e67206173736572740d0a466972737420617373657274207061737365640d0a5365636f6e6420617373657274207061737365640d0a",
+            "stderr_hex": "417373657274696f6e206661696c65643a20657870656374656420636f6e646974696f6e20746f20626520747275650d0a"
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertchecked-O0c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "417373657274696f6e206661696c65643a20657870656374656420636f6e646974696f6e20746f20626520747275650d0a54657374696e67206173736572740d0a466972737420617373657274207061737365640d0a5365636f6e6420617373657274207061737365640d0a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\integration\\test_assert.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertchecked-O0rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c696e746567726174696f6e5c746573745f6173736572742e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f746573745f6173736572745f343336382f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e746c6e600a20202d2d3e202e736e2f6275696c642f727573742f746573745f6173736572745f343336382f6d61696e2e72733a38383a31340a2020207c0a3838207c206d6163726f5f72756c657321207072696e746c6e207b0a2020207c20202020202020202020202020205e5e5e5e5e5e5e0a0a7761726e696e673a2032207761726e696e677320656d69747465640a0a201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c746573745f617373657274636865636b65642d4f30727573742e6578652028312e33204d42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertchecked-O0rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "54657374696e67206173736572740d0a466972737420617373657274207061737365640d0a5365636f6e6420617373657274207061737365640d0a",
+            "stderr_hex": "417373657274696f6e206661696c65643a20657870656374656420636f6e646974696f6e20746f20626520747275650d0a"
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertchecked-O0rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "417373657274696f6e206661696c65643a20657870656374656420636f6e646974696f6e20746f20626520747275650d0a54657374696e67206173736572740d0a466972737420617373657274207061737365640d0a5365636f6e6420617373657274207061737365640d0a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests\\integration\\test_assert.sn",
+      "source_sha256": "9b3f568e34fe5c8b55ebc9de11ef38e85693c851d7983ac05ac9914493790b54",
+      "mode": "checked",
+      "optimization": "-O1",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\integration\\test_assert.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertchecked-O1c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c696e746567726174696f6e5c746573745f6173736572742e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c746573745f617373657274636865636b65642d4f31632e65786520283139322e30204b42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertchecked-O1c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "54657374696e67206173736572740d0a466972737420617373657274207061737365640d0a5365636f6e6420617373657274207061737365640d0a",
+            "stderr_hex": "417373657274696f6e206661696c65643a20657870656374656420636f6e646974696f6e20746f20626520747275650d0a"
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertchecked-O1c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "417373657274696f6e206661696c65643a20657870656374656420636f6e646974696f6e20746f20626520747275650d0a54657374696e67206173736572740d0a466972737420617373657274207061737365640d0a5365636f6e6420617373657274207061737365640d0a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\integration\\test_assert.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertchecked-O1rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c696e746567726174696f6e5c746573745f6173736572742e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f746573745f6173736572745f333237362f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e746c6e600a20202d2d3e202e736e2f6275696c642f727573742f746573745f6173736572745f333237362f6d61696e2e72733a38383a31340a2020207c0a3838207c206d6163726f5f72756c657321207072696e746c6e207b0a2020207c20202020202020202020202020205e5e5e5e5e5e5e0a0a7761726e696e673a2032207761726e696e677320656d69747465640a0a201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c746573745f617373657274636865636b65642d4f31727573742e6578652028312e33204d42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertchecked-O1rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "54657374696e67206173736572740d0a466972737420617373657274207061737365640d0a5365636f6e6420617373657274207061737365640d0a",
+            "stderr_hex": "417373657274696f6e206661696c65643a20657870656374656420636f6e646974696f6e20746f20626520747275650d0a"
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertchecked-O1rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "417373657274696f6e206661696c65643a20657870656374656420636f6e646974696f6e20746f20626520747275650d0a54657374696e67206173736572740d0a466972737420617373657274207061737365640d0a5365636f6e6420617373657274207061737365640d0a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests\\integration\\test_assert.sn",
+      "source_sha256": "9b3f568e34fe5c8b55ebc9de11ef38e85693c851d7983ac05ac9914493790b54",
+      "mode": "checked",
+      "optimization": "-O2",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\integration\\test_assert.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertchecked-O2c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c696e746567726174696f6e5c746573745f6173736572742e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c746573745f617373657274636865636b65642d4f32632e65786520283139322e30204b42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertchecked-O2c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "54657374696e67206173736572740d0a466972737420617373657274207061737365640d0a5365636f6e6420617373657274207061737365640d0a",
+            "stderr_hex": "417373657274696f6e206661696c65643a20657870656374656420636f6e646974696f6e20746f20626520747275650d0a"
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertchecked-O2c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "417373657274696f6e206661696c65643a20657870656374656420636f6e646974696f6e20746f20626520747275650d0a54657374696e67206173736572740d0a466972737420617373657274207061737365640d0a5365636f6e6420617373657274207061737365640d0a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\integration\\test_assert.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertchecked-O2rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c696e746567726174696f6e5c746573745f6173736572742e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f746573745f6173736572745f323836342f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e746c6e600a20202d2d3e202e736e2f6275696c642f727573742f746573745f6173736572745f323836342f6d61696e2e72733a38383a31340a2020207c0a3838207c206d6163726f5f72756c657321207072696e746c6e207b0a2020207c20202020202020202020202020205e5e5e5e5e5e5e0a0a7761726e696e673a2032207761726e696e677320656d69747465640a0a201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c746573745f617373657274636865636b65642d4f32727573742e6578652028312e33204d42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertchecked-O2rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "54657374696e67206173736572740d0a466972737420617373657274207061737365640d0a5365636f6e6420617373657274207061737365640d0a",
+            "stderr_hex": "417373657274696f6e206661696c65643a20657870656374656420636f6e646974696f6e20746f20626520747275650d0a"
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertchecked-O2rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "417373657274696f6e206661696c65643a20657870656374656420636f6e646974696f6e20746f20626520747275650d0a54657374696e67206173736572740d0a466972737420617373657274207061737365640d0a5365636f6e6420617373657274207061737365640d0a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests\\integration\\test_assert.sn",
+      "source_sha256": "9b3f568e34fe5c8b55ebc9de11ef38e85693c851d7983ac05ac9914493790b54",
+      "mode": "unchecked",
+      "optimization": "-O0",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\integration\\test_assert.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertunchecked-O0c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c696e746567726174696f6e5c746573745f6173736572742e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c746573745f617373657274756e636865636b65642d4f30632e65786520283139322e30204b42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertunchecked-O0c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "54657374696e67206173736572740d0a466972737420617373657274207061737365640d0a5365636f6e6420617373657274207061737365640d0a",
+            "stderr_hex": "417373657274696f6e206661696c65643a20657870656374656420636f6e646974696f6e20746f20626520747275650d0a"
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertunchecked-O0c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "417373657274696f6e206661696c65643a20657870656374656420636f6e646974696f6e20746f20626520747275650d0a54657374696e67206173736572740d0a466972737420617373657274207061737365640d0a5365636f6e6420617373657274207061737365640d0a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\integration\\test_assert.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertunchecked-O0rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c696e746567726174696f6e5c746573745f6173736572742e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f746573745f6173736572745f373931362f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e746c6e600a20202d2d3e202e736e2f6275696c642f727573742f746573745f6173736572745f373931362f6d61696e2e72733a38383a31340a2020207c0a3838207c206d6163726f5f72756c657321207072696e746c6e207b0a2020207c20202020202020202020202020205e5e5e5e5e5e5e0a0a7761726e696e673a2032207761726e696e677320656d69747465640a0a201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c746573745f617373657274756e636865636b65642d4f30727573742e6578652028312e33204d42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertunchecked-O0rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "54657374696e67206173736572740d0a466972737420617373657274207061737365640d0a5365636f6e6420617373657274207061737365640d0a",
+            "stderr_hex": "417373657274696f6e206661696c65643a20657870656374656420636f6e646974696f6e20746f20626520747275650d0a"
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertunchecked-O0rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "417373657274696f6e206661696c65643a20657870656374656420636f6e646974696f6e20746f20626520747275650d0a54657374696e67206173736572740d0a466972737420617373657274207061737365640d0a5365636f6e6420617373657274207061737365640d0a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests\\integration\\test_assert.sn",
+      "source_sha256": "9b3f568e34fe5c8b55ebc9de11ef38e85693c851d7983ac05ac9914493790b54",
+      "mode": "unchecked",
+      "optimization": "-O1",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\integration\\test_assert.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertunchecked-O1c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c696e746567726174696f6e5c746573745f6173736572742e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c746573745f617373657274756e636865636b65642d4f31632e65786520283139322e30204b42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertunchecked-O1c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "54657374696e67206173736572740d0a466972737420617373657274207061737365640d0a5365636f6e6420617373657274207061737365640d0a",
+            "stderr_hex": "417373657274696f6e206661696c65643a20657870656374656420636f6e646974696f6e20746f20626520747275650d0a"
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertunchecked-O1c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "417373657274696f6e206661696c65643a20657870656374656420636f6e646974696f6e20746f20626520747275650d0a54657374696e67206173736572740d0a466972737420617373657274207061737365640d0a5365636f6e6420617373657274207061737365640d0a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\integration\\test_assert.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertunchecked-O1rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c696e746567726174696f6e5c746573745f6173736572742e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f746573745f6173736572745f313732342f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e746c6e600a20202d2d3e202e736e2f6275696c642f727573742f746573745f6173736572745f313732342f6d61696e2e72733a38383a31340a2020207c0a3838207c206d6163726f5f72756c657321207072696e746c6e207b0a2020207c20202020202020202020202020205e5e5e5e5e5e5e0a0a7761726e696e673a2032207761726e696e677320656d69747465640a0a201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c746573745f617373657274756e636865636b65642d4f31727573742e6578652028312e33204d42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertunchecked-O1rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "54657374696e67206173736572740d0a466972737420617373657274207061737365640d0a5365636f6e6420617373657274207061737365640d0a",
+            "stderr_hex": "417373657274696f6e206661696c65643a20657870656374656420636f6e646974696f6e20746f20626520747275650d0a"
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertunchecked-O1rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "417373657274696f6e206661696c65643a20657870656374656420636f6e646974696f6e20746f20626520747275650d0a54657374696e67206173736572740d0a466972737420617373657274207061737365640d0a5365636f6e6420617373657274207061737365640d0a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests\\integration\\test_assert.sn",
+      "source_sha256": "9b3f568e34fe5c8b55ebc9de11ef38e85693c851d7983ac05ac9914493790b54",
+      "mode": "unchecked",
+      "optimization": "-O2",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\integration\\test_assert.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertunchecked-O2c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c696e746567726174696f6e5c746573745f6173736572742e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c746573745f617373657274756e636865636b65642d4f32632e65786520283139322e30204b42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertunchecked-O2c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "54657374696e67206173736572740d0a466972737420617373657274207061737365640d0a5365636f6e6420617373657274207061737365640d0a",
+            "stderr_hex": "417373657274696f6e206661696c65643a20657870656374656420636f6e646974696f6e20746f20626520747275650d0a"
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertunchecked-O2c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "417373657274696f6e206661696c65643a20657870656374656420636f6e646974696f6e20746f20626520747275650d0a54657374696e67206173736572740d0a466972737420617373657274207061737365640d0a5365636f6e6420617373657274207061737365640d0a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\integration\\test_assert.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertunchecked-O2rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c696e746567726174696f6e5c746573745f6173736572742e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f746573745f6173736572745f373634302f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e746c6e600a20202d2d3e202e736e2f6275696c642f727573742f746573745f6173736572745f373634302f6d61696e2e72733a38383a31340a2020207c0a3838207c206d6163726f5f72756c657321207072696e746c6e207b0a2020207c20202020202020202020202020205e5e5e5e5e5e5e0a0a7761726e696e673a2032207761726e696e677320656d69747465640a0a201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c746573745f617373657274756e636865636b65642d4f32727573742e6578652028312e33204d42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertunchecked-O2rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "54657374696e67206173736572740d0a466972737420617373657274207061737365640d0a5365636f6e6420617373657274207061737365640d0a",
+            "stderr_hex": "417373657274696f6e206661696c65643a20657870656374656420636f6e646974696f6e20746f20626520747275650d0a"
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_assertunchecked-O2rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "417373657274696f6e206661696c65643a20657870656374656420636f6e646974696f6e20746f20626520747275650d0a54657374696e67206173736572740d0a466972737420617373657274207061737365640d0a5365636f6e6420617373657274207061737365640d0a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests\\integration\\test_thread_panic_propagate.sn",
+      "source_sha256": "bd30fcea8645c43374581e59501a53a475c00fe184523f245df2c8bcce657cc4",
+      "mode": "checked",
+      "optimization": "-O0",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\integration\\test_thread_panic_propagate.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_thread_panic_propagatechecked-O0c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c696e746567726174696f6e5c746573745f7468726561645f70616e69635f70726f7061676174652e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c746573745f7468726561645f70616e69635f70726f706167617465636865636b65642d4f30632e65786520283139332e30204b42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_thread_panic_propagatechecked-O0c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "54657374696e67207468726561642070616e69632070726f7061676174696f6e0d0a",
+            "stderr_hex": "70616e69633a204469766973696f6e206279207a65726f0d0a"
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_thread_panic_propagatechecked-O0c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "70616e69633a204469766973696f6e206279207a65726f0d0a54657374696e67207468726561642070616e69632070726f7061676174696f6e0d0a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\integration\\test_thread_panic_propagate.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_thread_panic_propagatechecked-O0rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c696e746567726174696f6e5c746573745f7468726561645f70616e69635f70726f7061676174652e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e7761726e696e673a207479706520605f5f736e5f636f6e63757272656e6379305f4a6f696e602073686f756c64206861766520616e2075707065722063616d656c2063617365206e616d650a202d2d3e202e736e2f6275696c642f727573742f746573745f7468726561645f70616e69635f70726f7061676174655f363538382f6d61696e2e72733a333a380a20207c0a33207c20737472756374205f5f736e5f636f6e63757272656e6379305f4a6f696e3c543e284f7074696f6e3c7374643a3a7468726561643a3a4a6f696e48616e646c653c543e3e293b0a20207c20202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e2068656c703a20636f6e7665727420746865206964656e74696669657220746f2075707065722063616d656c20636173653a2060536e436f6e63757272656e6379304a6f696e600a20207c0a20203d206e6f74653a2060235b7761726e286e6f6e5f63616d656c5f636173655f7479706573295d60202870617274206f662060235b7761726e286e6f6e7374616e646172645f7374796c65295d6029206f6e2062792064656661756c740a0a7761726e696e673a207479706520605f5f736e5f636f6e63757272656e6379305f43617074757265602073686f756c64206861766520616e2075707065722063616d656c2063617365206e616d650a20202d2d3e202e736e2f6275696c642f727573742f746573745f7468726561645f70616e69635f70726f7061676174655f363538382f6d61696e2e72733a32363a380a2020207c0a3236207c20737472756374205f5f736e5f636f6e63757272656e6379305f436170747572653c543e287374643a3a73796e633a3a4d757465783c543e2c207374643a3a73796e633a3a4d757465783c28293e293b0a2020207c20202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e2068656c703a20636f6e7665727420746865206964656e74696669657220746f2075707065722063616d656c20636173653a2060536e436f6e63757272656e63793043617074757265600a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f7468726561645f70616e69635f70726f7061676174655f363538382f6d61696e2e72733a3132313a31340a202020207c0a313231207c206d6163726f5f72756c657321207072696e74207b0a202020207c20202020202020202020202020205e5e5e5e5e0a202020207c0a202020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e746c6e600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f7468726561645f70616e69635f70726f7061676174655f363538382f6d61696e2e72733a3132353a31340a202020207c0a313235207c206d6163726f5f72756c657321207072696e746c6e207b0a202020207c20202020202020202020202020205e5e5e5e5e5e5e0a0a7761726e696e673a20756e757365642072657475726e2076616c7565206f662060636c6f6e65602074686174206d75737420626520757365640a2020202d2d3e202e736e2f6275696c642f727573742f746573745f7468726561645f70616e69635f70726f7061676174655f363538382f6d61696e2e72733a3338383a3132320a202020207c0a333838207c20202020207b206966206c657420536f6d65285f5f736e5f636f6e63757272656e6379305f68616e646c6529203d205f5f736e5f636f6e63757272656e6379305f68616e646c655f722e74616b652829207b2072203d205f5f736e5f636f6e63757272656e6379305f68616e646c652e6a6f696e28293b207d20722e636c6f6e652829207d0a202020207c20202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020205e5e5e5e5e5e5e5e5e0a202020207c0a202020203d206e6f74653a20636c6f6e696e67206973206f6674656e20657870656e7369766520616e64206973206e6f7420657870656374656420746f2068617665207369646520656666656374730a202020203d206e6f74653a2060235b7761726e28756e757365645f6d7573745f757365295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a68656c703a2075736520606c6574205f203d202e2e2e6020746f2069676e6f72652074686520726573756c74696e672076616c75650a202020207c0a333838207c20202020207b206966206c657420536f6d65285f5f736e5f636f6e63757272656e6379305f68616e646c6529203d205f5f736e5f636f6e63757272656e6379305f68616e646c655f722e74616b652829207b2072203d205f5f736e5f636f6e63757272656e6379305f68616e646c652e6a6f696e28293b207d206c6574205f203d20722e636c6f6e6528293b207d0a202020207c20202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202b2b2b2b2b2b2b202020202020202020202b0a0a7761726e696e673a2035207761726e696e677320656d69747465640a0a201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c746573745f7468726561645f70616e69635f70726f706167617465636865636b65642d4f30727573742e6578652028312e34204d42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_thread_panic_propagatechecked-O0rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "54657374696e67207468726561642070616e69632070726f7061676174696f6e0d0a",
+            "stderr_hex": "70616e69633a204469766973696f6e206279207a65726f0d0a"
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_thread_panic_propagatechecked-O0rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "70616e69633a204469766973696f6e206279207a65726f0d0a54657374696e67207468726561642070616e69632070726f7061676174696f6e0d0a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests\\integration\\test_thread_panic_propagate.sn",
+      "source_sha256": "bd30fcea8645c43374581e59501a53a475c00fe184523f245df2c8bcce657cc4",
+      "mode": "checked",
+      "optimization": "-O1",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\integration\\test_thread_panic_propagate.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_thread_panic_propagatechecked-O1c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c696e746567726174696f6e5c746573745f7468726561645f70616e69635f70726f7061676174652e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c746573745f7468726561645f70616e69635f70726f706167617465636865636b65642d4f31632e65786520283139332e30204b42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_thread_panic_propagatechecked-O1c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "54657374696e67207468726561642070616e69632070726f7061676174696f6e0d0a",
+            "stderr_hex": "70616e69633a204469766973696f6e206279207a65726f0d0a"
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_thread_panic_propagatechecked-O1c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "70616e69633a204469766973696f6e206279207a65726f0d0a54657374696e67207468726561642070616e69632070726f7061676174696f6e0d0a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\integration\\test_thread_panic_propagate.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_thread_panic_propagatechecked-O1rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c696e746567726174696f6e5c746573745f7468726561645f70616e69635f70726f7061676174652e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e7761726e696e673a207479706520605f5f736e5f636f6e63757272656e6379305f4a6f696e602073686f756c64206861766520616e2075707065722063616d656c2063617365206e616d650a202d2d3e202e736e2f6275696c642f727573742f746573745f7468726561645f70616e69635f70726f7061676174655f333035322f6d61696e2e72733a333a380a20207c0a33207c20737472756374205f5f736e5f636f6e63757272656e6379305f4a6f696e3c543e284f7074696f6e3c7374643a3a7468726561643a3a4a6f696e48616e646c653c543e3e293b0a20207c20202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e2068656c703a20636f6e7665727420746865206964656e74696669657220746f2075707065722063616d656c20636173653a2060536e436f6e63757272656e6379304a6f696e600a20207c0a20203d206e6f74653a2060235b7761726e286e6f6e5f63616d656c5f636173655f7479706573295d60202870617274206f662060235b7761726e286e6f6e7374616e646172645f7374796c65295d6029206f6e2062792064656661756c740a0a7761726e696e673a207479706520605f5f736e5f636f6e63757272656e6379305f43617074757265602073686f756c64206861766520616e2075707065722063616d656c2063617365206e616d650a20202d2d3e202e736e2f6275696c642f727573742f746573745f7468726561645f70616e69635f70726f7061676174655f333035322f6d61696e2e72733a32363a380a2020207c0a3236207c20737472756374205f5f736e5f636f6e63757272656e6379305f436170747572653c543e287374643a3a73796e633a3a4d757465783c543e2c207374643a3a73796e633a3a4d757465783c28293e293b0a2020207c20202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e2068656c703a20636f6e7665727420746865206964656e74696669657220746f2075707065722063616d656c20636173653a2060536e436f6e63757272656e63793043617074757265600a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f7468726561645f70616e69635f70726f7061676174655f333035322f6d61696e2e72733a3132313a31340a202020207c0a313231207c206d6163726f5f72756c657321207072696e74207b0a202020207c20202020202020202020202020205e5e5e5e5e0a202020207c0a202020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e746c6e600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f7468726561645f70616e69635f70726f7061676174655f333035322f6d61696e2e72733a3132353a31340a202020207c0a313235207c206d6163726f5f72756c657321207072696e746c6e207b0a202020207c20202020202020202020202020205e5e5e5e5e5e5e0a0a7761726e696e673a20756e757365642072657475726e2076616c7565206f662060636c6f6e65602074686174206d75737420626520757365640a2020202d2d3e202e736e2f6275696c642f727573742f746573745f7468726561645f70616e69635f70726f7061676174655f333035322f6d61696e2e72733a3338383a3132320a202020207c0a333838207c20202020207b206966206c657420536f6d65285f5f736e5f636f6e63757272656e6379305f68616e646c6529203d205f5f736e5f636f6e63757272656e6379305f68616e646c655f722e74616b652829207b2072203d205f5f736e5f636f6e63757272656e6379305f68616e646c652e6a6f696e28293b207d20722e636c6f6e652829207d0a202020207c20202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020205e5e5e5e5e5e5e5e5e0a202020207c0a202020203d206e6f74653a20636c6f6e696e67206973206f6674656e20657870656e7369766520616e64206973206e6f7420657870656374656420746f2068617665207369646520656666656374730a202020203d206e6f74653a2060235b7761726e28756e757365645f6d7573745f757365295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a68656c703a2075736520606c6574205f203d202e2e2e6020746f2069676e6f72652074686520726573756c74696e672076616c75650a202020207c0a333838207c20202020207b206966206c657420536f6d65285f5f736e5f636f6e63757272656e6379305f68616e646c6529203d205f5f736e5f636f6e63757272656e6379305f68616e646c655f722e74616b652829207b2072203d205f5f736e5f636f6e63757272656e6379305f68616e646c652e6a6f696e28293b207d206c6574205f203d20722e636c6f6e6528293b207d0a202020207c20202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202b2b2b2b2b2b2b202020202020202020202b0a0a7761726e696e673a2035207761726e696e677320656d69747465640a0a201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c746573745f7468726561645f70616e69635f70726f706167617465636865636b65642d4f31727573742e6578652028312e34204d42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_thread_panic_propagatechecked-O1rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "54657374696e67207468726561642070616e69632070726f7061676174696f6e0d0a",
+            "stderr_hex": "70616e69633a204469766973696f6e206279207a65726f0d0a"
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_thread_panic_propagatechecked-O1rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "70616e69633a204469766973696f6e206279207a65726f0d0a54657374696e67207468726561642070616e69632070726f7061676174696f6e0d0a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests\\integration\\test_thread_panic_propagate.sn",
+      "source_sha256": "bd30fcea8645c43374581e59501a53a475c00fe184523f245df2c8bcce657cc4",
+      "mode": "checked",
+      "optimization": "-O2",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\integration\\test_thread_panic_propagate.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_thread_panic_propagatechecked-O2c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c696e746567726174696f6e5c746573745f7468726561645f70616e69635f70726f7061676174652e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c746573745f7468726561645f70616e69635f70726f706167617465636865636b65642d4f32632e65786520283139332e30204b42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_thread_panic_propagatechecked-O2c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "54657374696e67207468726561642070616e69632070726f7061676174696f6e0d0a",
+            "stderr_hex": "70616e69633a204469766973696f6e206279207a65726f0d0a"
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_thread_panic_propagatechecked-O2c.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "70616e69633a204469766973696f6e206279207a65726f0d0a54657374696e67207468726561642070616e69632070726f7061676174696f6e0d0a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\sn.exe",
+              "tests\\integration\\test_thread_panic_propagate.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-l",
+              "1",
+              "-o",
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_thread_panic_propagatechecked-O2rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374735c696e746567726174696f6e5c746573745f7468726561645f70616e69635f70726f7061676174652e736e2e2e2e0d0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0d0a20204c696e6b696e672e2e2e7761726e696e673a207479706520605f5f736e5f636f6e63757272656e6379305f4a6f696e602073686f756c64206861766520616e2075707065722063616d656c2063617365206e616d650a202d2d3e202e736e2f6275696c642f727573742f746573745f7468726561645f70616e69635f70726f7061676174655f333939322f6d61696e2e72733a333a380a20207c0a33207c20737472756374205f5f736e5f636f6e63757272656e6379305f4a6f696e3c543e284f7074696f6e3c7374643a3a7468726561643a3a4a6f696e48616e646c653c543e3e293b0a20207c20202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e2068656c703a20636f6e7665727420746865206964656e74696669657220746f2075707065722063616d656c20636173653a2060536e436f6e63757272656e6379304a6f696e600a20207c0a20203d206e6f74653a2060235b7761726e286e6f6e5f63616d656c5f636173655f7479706573295d60202870617274206f662060235b7761726e286e6f6e7374616e646172645f7374796c65295d6029206f6e2062792064656661756c740a0a7761726e696e673a207479706520605f5f736e5f636f6e63757272656e6379305f43617074757265602073686f756c64206861766520616e2075707065722063616d656c2063617365206e616d650a20202d2d3e202e736e2f6275696c642f727573742f746573745f7468726561645f70616e69635f70726f7061676174655f333939322f6d61696e2e72733a32363a380a2020207c0a3236207c20737472756374205f5f736e5f636f6e63757272656e6379305f436170747572653c543e287374643a3a73796e633a3a4d757465783c543e2c207374643a3a73796e633a3a4d757465783c28293e293b0a2020207c20202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e2068656c703a20636f6e7665727420746865206964656e74696669657220746f2075707065722063616d656c20636173653a2060536e436f6e63757272656e63793043617074757265600a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f7468726561645f70616e69635f70726f7061676174655f333939322f6d61696e2e72733a3132313a31340a202020207c0a313231207c206d6163726f5f72756c657321207072696e74207b0a202020207c20202020202020202020202020205e5e5e5e5e0a202020207c0a202020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e746c6e600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f7468726561645f70616e69635f70726f7061676174655f333939322f6d61696e2e72733a3132353a31340a202020207c0a313235207c206d6163726f5f72756c657321207072696e746c6e207b0a202020207c20202020202020202020202020205e5e5e5e5e5e5e0a0a7761726e696e673a20756e757365642072657475726e2076616c7565206f662060636c6f6e65602074686174206d75737420626520757365640a2020202d2d3e202e736e2f6275696c642f727573742f746573745f7468726561645f70616e69635f70726f7061676174655f333939322f6d61696e2e72733a3338383a3132320a202020207c0a333838207c20202020207b206966206c657420536f6d65285f5f736e5f636f6e63757272656e6379305f68616e646c6529203d205f5f736e5f636f6e63757272656e6379305f68616e646c655f722e74616b652829207b2072203d205f5f736e5f636f6e63757272656e6379305f68616e646c652e6a6f696e28293b207d20722e636c6f6e652829207d0a202020207c20202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020205e5e5e5e5e5e5e5e5e0a202020207c0a202020203d206e6f74653a20636c6f6e696e67206973206f6674656e20657870656e7369766520616e64206973206e6f7420657870656374656420746f2068617665207369646520656666656374730a202020203d206e6f74653a2060235b7761726e28756e757365645f6d7573745f757365295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a68656c703a2075736520606c6574205f203d202e2e2e6020746f2069676e6f72652074686520726573756c74696e672076616c75650a202020207c0a333838207c20202020207b206966206c657420536f6d65285f5f736e5f636f6e63757272656e6379305f68616e646c6529203d205f5f736e5f636f6e63757272656e6379305f68616e646c655f722e74616b652829207b2072203d205f5f736e5f636f6e63757272656e6379305f68616e646c652e6a6f696e28293b207d206c6574205f203d20722e636c6f6e6528293b207d0a202020207c20202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202b2b2b2b2b2b2b202020202020202020202b0a0a7761726e696e673a2035207761726e696e677320656d69747465640a0a201b5b313b33366d646f6e651b5b306d0d0a1b5b313b33366d446f6e651b5b306d3a20433a5c55736572735c52554e4e45527e315c417070446174615c4c6f63616c5c54656d705c736e2d737464696f2d6f726465722d3566306f74366b6d5c746573745f7468726561645f70616e69635f70726f706167617465636865636b65642d4f32727573742e6578652028312e34204d42290d0a"
+          },
+          "separate": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_thread_panic_propagatechecked-O2rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "54657374696e67207468726561642070616e69632070726f7061676174696f6e0d0a",
+            "stderr_hex": "70616e69633a204469766973696f6e206279207a65726f0d0a"
+          },
+          "merged": {
+            "command": [
+              "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-stdio-order-5f0ot6km\\test_thread_panic_propagatechecked-O2rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "70616e69633a204469766973696f6e206279207a65726f0d0a54657374696e67207468726561642070616e69632070726f7061676174696f6e0d0a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    }
+  ],
+  "passed": true
+}

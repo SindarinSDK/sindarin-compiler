@@ -1,0 +1,5 @@
+fn main(): void =>
+  var largest: int = 9223372036854775807
+  var one: byte = 1b
+  println("before")
+  println(largest + one)

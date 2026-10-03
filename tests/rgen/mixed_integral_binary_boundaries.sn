@@ -1,0 +1,56 @@
+fn nextByte(calls: int as ref): byte =>
+  calls++
+  return 255b
+
+fn nextInt(calls: int as ref): int =>
+  calls++
+  return 1000
+
+fn main(): void =>
+  var b: byte = 255b
+  var n: int = 1000
+  println(b + n)
+  println(n + b)
+  println(n - b)
+  println(b * n)
+  println(n / b)
+  println(n % b)
+
+  var negative: int = -1
+  var one: uint = 1u
+  println(negative == one)
+  println(negative != one)
+  println(negative <= one)
+  println(negative >= one)
+  println(negative < one)
+  println(one > negative)
+  println(negative + one)
+
+  var signed32: int32 = -1i32
+  var unsigned32: uint32 = 4294967295u32
+  println(signed32 == unsigned32)
+  println(signed32 < unsigned32)
+  println(unsigned32 + b)
+  println(unsigned32 * b)
+  println(unsigned32 / b)
+  println(unsigned32 % b)
+  println(n + unsigned32)
+
+  var wrapped: int = b * b
+  println(wrapped)
+  println(b * b + n)
+  println((b * b) == n)
+  var wide: int = 4295032321
+  println((b * b) == wide)
+  println((b << 1b) > n)
+  var widened: int = b
+  println(widened)
+
+  var __sn_left: int = 7
+  var __sn_right: byte = 3b
+  println(__sn_left + __sn_right)
+  var byteCalls: int = 0
+  var intCalls: int = 0
+  println(nextByte(byteCalls) + nextInt(intCalls))
+  println(byteCalls)
+  println(intCalls)

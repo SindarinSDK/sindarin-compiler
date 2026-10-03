@@ -1,0 +1,1 @@
+# Checked mixed integer division must diagnose a zero divisor.

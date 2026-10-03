@@ -447,3 +447,20 @@ test-rust-parity-native-managed: build
 .PHONY: test-rust-parity-stdio-order
 test-rust-parity-stdio-order: build
 	@$(PYTHON) tests/rgen/stdio_order_compare.py
+
+.PHONY: test-rust-parity-mixed-integral
+test-rust-parity-mixed-integral: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/exploratory/test_byte_array.sn \
+		tests/exploratory/test_byte_primitives.sn \
+		tests/exploratory/test_gcc_edge_arrays.sn \
+		tests/exploratory/test_mixed_numeric_types.sn \
+		tests/integration/test_scope_byte_var.sn \
+		tests/rgen/mixed_integral_binary_boundaries.sn \
+		tests/integration/test_int32_arithmetic.sn \
+		tests/rgen/tagged_byte_promotions_checked.sn \
+		tests/integration/test_uint32_arithmetic.sn \
+		tests/rgen/tagged_uint32_literal_observation_contexts.sn \
+		--require-count 10 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-mixed-integral.json
+	@$(PYTHON) tests/rgen/mixed_integral_diagnostics_compare.py

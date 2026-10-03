@@ -81,6 +81,9 @@ static const char *rust_numeric_type_name(const char *kind)
 static const char *rust_numeric_widening_type(const char *from, const char *to)
 {
     if (!from || !to || strcmp(from, to) == 0) return NULL;
+    if (rust_fixed_integral_kind(from) && rust_fixed_integral_kind(to) &&
+        strcmp(rust_numeric_type_name(from), rust_numeric_type_name(to)) != 0)
+        return rust_numeric_type_name(to);
     if (strcmp(to, "double") == 0 &&
         (strcmp(from, "int") == 0 || strcmp(from, "long") == 0 ||
          strcmp(from, "float") == 0 || strcmp(from, "int32") == 0 ||
@@ -92,13 +95,27 @@ static const char *rust_numeric_widening_type(const char *from, const char *to)
     return NULL;
 }
 
-/* Rust has no implicit numeric conversions for binary operators.  Preserve
- * Sindarin's C-style mixed floating arithmetic and comparisons using the
- * already type-checked operand model.  Checked strict relational operators
- * use the tagged runtime helper selected from the left operand type, while
- * other comparisons and arithmetic use C's common floating type.  The
- * template casts each operand expression once, so evaluation order and the
- * target-local byte/unsigned lowering nested below this node stay intact. */
+/* C emits integral source literals as signed LL expressions until a helper or
+ * storage boundary converts them. The declared model type alone cannot choose
+ * the usual arithmetic conversion for an unchecked operator or raw comparison. */
+static const char *rust_integral_c_operand_kind(json_object *expr, const char *kind)
+{
+    if (json_string_property_equals(expr, "kind", "literal") &&
+        json_string_property_equals(expr, "value_kind", "int"))
+        return "int";
+    if (json_boolean_property(expr, "rust_unsigned_literal_unary"))
+        return "int";
+    if (json_boolean_property(expr, "rust_byte_promoted") &&
+        (json_boolean_property(expr, "rust_byte_promoted_inner") ||
+         json_boolean_property(expr, "rust_byte_promoted_observed")))
+        return "int32";
+    return kind;
+}
+
+/* Rust has no implicit numeric conversions for binary operators. Preserve the
+ * C conversions at checked helper calls and raw mixed numeric operators using
+ * the already type-checked model. Templates evaluate each operand once and keep
+ * the existing checked, wrapping and byte-promotion paths intact. */
 static void rust_lower_numeric_promotions(json_object *node)
 {
     if (!node) return;
@@ -128,8 +145,14 @@ static void rust_lower_numeric_promotions(json_object *node)
                 json_string_property(initializer_type, "kind"),
                 json_string_property(type, "kind"));
             if (cast_type)
+            {
                 json_object_object_add(node, "rust_numeric_initializer_type",
                                        json_object_new_string(cast_type));
+                /* A promoted byte expression remains a C int expression when
+                 * stored in a wider integer; checked byte helpers still wrap
+                 * before this storage conversion. */
+                rust_mark_promoted_child(initializer, true);
+            }
         }
         return;
     }
@@ -147,6 +170,43 @@ static void rust_lower_numeric_promotions(json_object *node)
 
     const char *left_kind = json_string_property(left_type, "kind");
     const char *right_kind = json_string_property(right_type, "kind");
+    const char *mode = json_string_property(node, "arithmetic_mode");
+    bool checked = mode && strcmp(mode, "checked") == 0;
+    if (rust_fixed_integral_kind(left_kind) && rust_fixed_integral_kind(right_kind) &&
+        strcmp(left_kind, right_kind) != 0)
+    {
+        /* Existing unsigned-literal comparisons retain their context-sensitive
+         * lowering. Mixed arithmetic otherwise converts at
+         * the same boundary as C: result-typed checked helpers, left-typed
+         * checked strict comparisons, or usual conversions for raw operators. */
+        if (json_boolean_property(node, "rust_unsigned_literal_comparison"))
+            return;
+        rust_mark_promoted_child(left, true);
+        rust_mark_promoted_child(right, true);
+        bool arithmetic = strcmp(op, "add") == 0 || strcmp(op, "subtract") == 0 ||
+                          strcmp(op, "multiply") == 0 || strcmp(op, "divide") == 0 ||
+                          strcmp(op, "modulo") == 0;
+        json_object *result_type = NULL;
+        json_object_object_get_ex(node, "type", &result_type);
+        const char *result_kind = json_string_property(result_type, "kind");
+        const char *common_type = checked && arithmetic
+            ? rust_numeric_type_name(result_kind)
+            : checked && rust_numeric_checked_left_typed_op(op)
+                ? rust_numeric_type_name(left_kind)
+                : rust_integral_promotion_type(
+                    rust_integral_c_operand_kind(left, left_kind),
+                    rust_integral_c_operand_kind(right, right_kind), op);
+        if (!common_type) return;
+        if (strcmp(rust_numeric_type_name(left_kind), common_type) == 0 &&
+            strcmp(rust_numeric_type_name(right_kind), common_type) == 0)
+            return;
+        json_object_object_add(node, "rust_mixed_integral_binary_type",
+                               json_object_new_string(common_type));
+        json_object_object_add(node, "rust_mixed_integral_binary_wrapping",
+            json_object_new_boolean(arithmetic &&
+                (!checked || json_boolean_property(node, "rust_wrapping_binary"))));
+        return;
+    }
     bool left_numeric = rust_numeric_integral_kind(left_kind) ||
                         rust_numeric_floating_kind(left_kind);
     bool right_numeric = rust_numeric_integral_kind(right_kind) ||
@@ -157,7 +217,6 @@ static void rust_lower_numeric_promotions(json_object *node)
         strcmp(left_kind, right_kind) == 0)
         return;
 
-    const char *mode = json_string_property(node, "arithmetic_mode");
     const char *common_type =
         rust_numeric_checked_left_typed_op(op) && mode && strcmp(mode, "checked") == 0
             ? rust_numeric_type_name(left_kind)
