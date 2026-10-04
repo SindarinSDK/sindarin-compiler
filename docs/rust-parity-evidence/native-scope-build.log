@@ -1,0 +1,7 @@
+[0/2] Re-checking globbed directories...
+[1/6] Synchronizing runtime headers
+[2/6] Building C object CMakeFiles/tests.dir/src/target/rust/rust_native_plan.c.o
+[3/6] Building C object CMakeFiles/sn.dir/src/target/rust/rust_native_plan.c.o
+[4/6] Linking C executable bin/sn
+[5/6] Linking C executable bin/tests
+[6/6] Staging compiler artifacts in bin

@@ -1,0 +1,25 @@
+native struct Record =>
+  value: int
+
+native fn makeRecord(value: int): Record =>
+  return Record { value: value }
+
+native fn bumpRecord(record: Record as ref): void =>
+  record.value += 2
+
+native fn shared(value: int): int =>
+  return value + 1
+
+native fn middle(value: int): int =>
+  var record: Record = makeRecord(value)
+  bumpRecord(record)
+  return shared(record.value)
+
+native fn outer(value: int): int =>
+  return middle(value)
+
+fn main(): void =>
+  println(outer(10))
+  println(shared(4))
+  var operation: fn(int): int = fn(value: int): int => shared(value)
+  println(operation(6))

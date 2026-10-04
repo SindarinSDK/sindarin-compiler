@@ -685,3 +685,14 @@ test-rust-parity-indexed-string: build
 		--require-count 6 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-indexed-string.json
 	@$(PYTHON) scripts/check_rust_indexed_string_oracles.py .sn/rust-parity-indexed-string.json
+
+.PHONY: test-rust-parity-native-scope
+test-rust-parity-native-scope: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/integration/test_struct_native_c_interop.sn \
+		tests/rust-native/scalar_c_only_helpers.sn \
+		tests/integration/test_native_struct_ref_array_pass.sn \
+		tests/exploratory/test_struct_zlib_style.sn \
+		--require-count 4 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-native-scope.json
+	@$(PYTHON) scripts/check_rust_native_scope_oracles.py .sn/rust-parity-native-scope.json

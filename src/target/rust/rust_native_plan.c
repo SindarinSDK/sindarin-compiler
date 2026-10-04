@@ -929,6 +929,70 @@ static bool native_function_has_string_parameter(json_object *function)
     return false;
 }
 
+static bool node_references_callable(json_object *node, json_object *function)
+{
+    if (!node) return false;
+    if (json_object_is_type(node, json_type_array))
+    {
+        for (size_t i = 0; i < json_object_array_length(node); i++)
+            if (node_references_callable(json_object_array_get_idx(node, i),
+                                         function)) return true;
+        return false;
+    }
+    if (!json_object_is_type(node, json_type_object)) return false;
+    const char *kind = native_string(node, "kind");
+    if (kind && strcmp(kind, "variable") == 0 &&
+        function_matches_callable(function, native_string(node, "name")))
+        return true;
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        if (node_references_callable(value, function)) return true;
+    }
+    return false;
+}
+
+static bool rust_roots_reference_callable(json_object *model,
+                                           json_object *function)
+{
+    json_object_object_foreach(model, key, value)
+    {
+        if (strcmp(key, "functions") != 0)
+        {
+            if (node_references_callable(value, function)) return true;
+            continue;
+        }
+        for (size_t i = 0; i < json_object_array_length(value); i++)
+        {
+            json_object *root = json_object_array_get_idx(value, i);
+            if (!native_bool(root, "is_native") &&
+                node_references_callable(root, function)) return true;
+        }
+    }
+    return false;
+}
+
+static void remove_c_only_native_helpers(json_object *rust_model,
+                                          json_object *private_model)
+{
+    json_object *functions = NULL;
+    if (!json_object_object_get_ex(rust_model, "functions", &functions)) return;
+    json_object *remaining = json_object_new_array();
+    if (!remaining) return;
+    for (size_t i = 0; i < json_object_array_length(functions); i++)
+    {
+        json_object *function = json_object_array_get_idx(functions, i);
+        /* Keep declarations without C callers, including unsupported standalone
+         * declarations. Only an actual C-side dependency can be private. Also
+         * scan callable values, not just direct calls, before removing a bridge. */
+        bool private = native_bool(function, "is_native") &&
+            node_references_callable(private_model, function) &&
+            !rust_roots_reference_callable(rust_model, function);
+        if (!private) json_object_array_add(remaining, json_object_get(function));
+    }
+    json_object_object_add(rust_model, "functions", remaining);
+}
+
 bool rust_native_partition_model(json_object *rust_model,
                                  const CompilerOptions *options,
                                  RustNativePlan **out_plan)
@@ -949,12 +1013,15 @@ bool rust_native_partition_model(json_object *rust_model,
         {
             json_object *function = json_object_array_get_idx(functions, i);
             if (!native_bool(function, "is_native")) continue;
-            if (!validate_native_function(function)) return false;
-            if (native_function_uses_managed_abi(function))
-                has_managed_abi = true;
-            if (native_function_has_string_parameter(function))
-                has_string_parameter = true;
-            native_count++;
+            json_object *body = NULL;
+            if (json_object_object_get_ex(function, "body", &body) &&
+                native_body_has_unsupported_construct(body))
+            {
+                fprintf(stderr,
+                        "Error: Rust target native function '%s' body uses a closure, thread, or indirect callable construct outside the native bridge\n",
+                        native_string(function, "name"));
+                return false;
+            }
         }
     }
 
@@ -977,6 +1044,27 @@ bool rust_native_partition_model(json_object *rust_model,
         json_object_put(private_model);
         free(plan);
         return false;
+    }
+    remove_private_helper_functions(rust_model, selected_function_names);
+    remove_private_globals(rust_model, selected_global_names);
+    remove_c_only_native_helpers(rust_model, private_model);
+    json_object_object_get_ex(rust_model, "functions", &functions);
+    for (size_t i = 0; i < json_object_array_length(functions); i++)
+    {
+        json_object *function = json_object_array_get_idx(functions, i);
+        if (!native_bool(function, "is_native")) continue;
+        if (!validate_native_function(function))
+        {
+            json_object_put(private_model);
+            json_object_put(selected_function_names);
+            json_object_put(selected_global_names);
+            free(initializer_name);
+            rust_native_plan_free(plan);
+            return false;
+        }
+        has_managed_abi |= native_function_uses_managed_abi(function);
+        has_string_parameter |= native_function_has_string_parameter(function);
+        native_count++;
     }
     /* The C projection owns aggregate temporaries. Apply the same lifetime
      * pass used by the C target before splitting; nested owning method results
@@ -1259,8 +1347,6 @@ bool rust_native_partition_model(json_object *rust_model,
         }
     }
 
-    remove_private_helper_functions(rust_model, selected_function_names);
-    remove_private_globals(rust_model, selected_global_names);
     if (rust_fflush_name)
     {
         json_object_object_add(rust_model, "rust_native_flush",

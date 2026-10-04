@@ -1,0 +1,425 @@
+{
+  "remaining_original_compile_failures": 70,
+  "cases": [
+    {
+      "source": "tests/integration/test_array_literal_arg_leak.sn",
+      "source_sha256": "01d322c184bad61815f95c2192658c25051057a5a7fe9e225fb42fe903a80f66",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_array_literal_arg_leak.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target native function 'tracker_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double\n     failed"
+    },
+    {
+      "source": "tests/integration/test_as_ref_array_return.sn",
+      "source_sha256": "b8ac498987ddf0777afe9e77f8c3451d2d2122f9c6207accc5553799cb045d7d",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_as_ref_array_return.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target currently supports only plain value struct 'Item'\n     failed"
+    },
+    {
+      "source": "tests/integration/test_as_ref_for_in_self_return.sn",
+      "source_sha256": "21288b7441da00dfea27cf2b142341761b30facb7b7eb26e306a6db3c254055e",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_as_ref_for_in_self_return.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target currently supports only plain value struct 'Entry'\n     failed"
+    },
+    {
+      "source": "tests/integration/test_as_ref_params.sn",
+      "source_sha256": "2276baf8a1cfcf04d24613cbc7c5cd56596644384ac1dc89bb398aaacd10c08a",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_as_ref_params.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target does not support a parameter of function 'next_char'\n     failed"
+    },
+    {
+      "source": "tests/integration/test_as_ref_queue_drain.sn",
+      "source_sha256": "3ba6e1d7355099286a0d11fc0fc3636bbf9b974095c759c62340405a18507c26",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_as_ref_queue_drain.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target currently supports only plain value struct 'Item'\n     failed"
+    },
+    {
+      "source": "tests/integration/test_as_ref_return_passthrough.sn",
+      "source_sha256": "cdcaddce8572fe04808ec9a395a74d9b57966d62bdfa99eeae92f6642f90d4c0",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_as_ref_return_passthrough.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target currently supports only plain value struct 'Item'\n     failed"
+    },
+    {
+      "source": "tests/integration/test_as_ref_struct_lit_owned_field.sn",
+      "source_sha256": "bfa8448bd170b8a6e88dff255c65bc84cf97ee8a6f98de19d5da58c6b0739854",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_as_ref_struct_lit_owned_field.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target currently supports only plain value struct 'Inner'\n     failed"
+    },
+    {
+      "source": "tests/integration/test_as_ref_struct_param.sn",
+      "source_sha256": "67bb84e2fc39c35ec8cfc704166a7485ad3696dfd3336059762311201ce043cf",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_as_ref_struct_param.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target does not support a parameter of function 'increment'\n     failed"
+    },
+    {
+      "source": "tests/integration/test_buffer_unwrap.sn",
+      "source_sha256": "0fb1fa07a23902908a0059fad7833be238ef80f49fc57dd2c18b23fda7d7b4ae",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_buffer_unwrap.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target encountered an unsupported construct in function 'test_pointer_slice_codegen'\n     failed"
+    },
+    {
+      "source": "tests/integration/test_builtin_interfaces.sn",
+      "source_sha256": "6c26c2c105a8a5d2d05a022c72519ab79db428dbc0e6c1a4c8880a358fb43e1b",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_builtin_interfaces.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target does not support a parameter of function 'acceptComparable'\n     failed"
+    },
+    {
+      "source": "tests/integration/test_composite_borrow_mutation.sn",
+      "source_sha256": "b7a0715d7585f6bd0f01ba2e9a04834b306a4476e896e108216b9388c80a15a4",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_composite_borrow_mutation.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target does not support a parameter of function 'addIfNew'\n     failed"
+    },
+    {
+      "source": "tests/integration/test_composite_temp_arg.sn",
+      "source_sha256": "5b3eb24adb99cfe96a33192e0337d61284638af37eca6de6da65b492fbd6fc95",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_composite_temp_arg.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target does not support a parameter of function 'checkItem'\n     failed"
+    },
+    {
+      "source": "tests/integration/test_constrained_generics.sn",
+      "source_sha256": "c008cd115166f1995dfdb6c9c7c0073a80236b57e5edaaeb49ba01a016700162",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_constrained_generics.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target does not support a parameter of method 'Player.compare'\n     failed"
+    },
+    {
+      "source": "tests/integration/test_generic_multi_param_iter.sn",
+      "source_sha256": "04b55d4ab4fca01f8a2ee734aa3d282c71a2544bbc3cb5dccf0570265652c131",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_generic_multi_param_iter.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target supports iterator-protocol foreach only for heap-free scalar elements; got 'struct'\n    Error: Rust target encountered an unsupported construct in function 'main'\n     failed"
+    },
+    {
+      "source": "tests/integration/test_generic_static_call.sn",
+      "source_sha256": "c9f63349f9fca2124b19013e285cf84963c4f0e885b8b08c40a793be9fdba7bc",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_generic_static_call.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target does not support a parameter of static method 'Container_Tag.of'\n     failed"
+    },
+    {
+      "source": "tests/integration/test_generics_nested_inference.sn",
+      "source_sha256": "ed865305f959342da9e6795ef1aa790f34b02ac74f2bfa9b2c58efd0488e0aab",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_generics_nested_inference.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target does not support a parameter of function 'unwrap_str'\n     failed"
+    },
+    {
+      "source": "tests/integration/test_import_fn_field_chained.sn",
+      "source_sha256": "141d3ac1436036bdea37f3631038ca1fb90dde8dbef3803abc47cd5a50fa4b0d",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_import_fn_field_chained.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target does not support incompatible function-value signatures yet\n     failed"
+    },
+    {
+      "source": "tests/integration/test_interfaces.sn",
+      "source_sha256": "5f33120783a91040d094dbb50fef90aeb282ddf0e8beacdd4a58e96b8f817c11",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_interfaces.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target does not support a parameter of method 'Player.compare'\n     failed"
+    },
+    {
+      "source": "tests/integration/test_interop_callback.sn",
+      "source_sha256": "cf417174fd43b51e550dd2ab7c806ea6afa85744774fc963f655903877ab38a0",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_interop_callback.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target native function 'invoke_callback' body uses a closure, thread, or indirect callable construct outside the native bridge\n     failed"
+    },
+    {
+      "source": "tests/integration/test_interop_comprehensive.sn",
+      "source_sha256": "384fb8d6ae632f90596d7ec5998d897f07f676eee5d7311395fe1b44e3cbc9d1",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_interop_comprehensive.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target native function 'apply_transform' body uses a closure, thread, or indirect callable construct outside the native bridge\n     failed"
+    },
+    {
+      "source": "tests/integration/test_interop_edge_cases.sn",
+      "source_sha256": "fbae43e68034b6963e35331443f7087202620293d836a34bde0ddc02b04e3541",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_interop_edge_cases.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target native function 'invoke_ptr_callback' body uses a closure, thread, or indirect callable construct outside the native bridge\n     failed"
+    },
+    {
+      "source": "tests/integration/test_iterator_protocol.sn",
+      "source_sha256": "ca12c7619d659cccf6c687ac3f40930ff67dadb747047bf0c3fc22d3c463386f",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_iterator_protocol.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target supports iterator-protocol foreach only for heap-free scalar elements; got 'struct'\n    Error: Rust target encountered an unsupported construct in function 'main'\n     failed"
+    },
+    {
+      "source": "tests/integration/test_lambda_capture_outlives_scope.sn",
+      "source_sha256": "2bf5e25bf646444b62fa2be553e2cee422e90bdfd2b953867ed3e50d4009a1c1",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_lambda_capture_outlives_scope.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target does not support this closure capture type yet\n     failed"
+    },
+    {
+      "source": "tests/integration/test_lambda_capture_struct.sn",
+      "source_sha256": "20be2e01b300a92e101effac5bdaa34a8d95615b8e58218b4da5deadc73cfe90",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_lambda_capture_struct.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target does not support mutable access to snapshot closure captures yet\n     failed"
+    },
+    {
+      "source": "tests/integration/test_lambda_val_struct_str_field.sn",
+      "source_sha256": "1766bc53c82f053e5d2076db8c3cad82080a5000d09ac91f012c14db4817c093",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_lambda_val_struct_str_field.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target does not support incompatible function-value signatures yet\n     failed"
+    },
+    {
+      "source": "tests/integration/test_lambda_val_struct_str_interp.sn",
+      "source_sha256": "dc8c1695bd84a55207442cc97e9a508b98b22658c430993b328eee51f2a13fd9",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_lambda_val_struct_str_interp.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target does not support incompatible function-value signatures yet\n     failed"
+    },
+    {
+      "source": "tests/integration/test_module_array_swap_leak.sn",
+      "source_sha256": "e9485d7a3fc801ae45b043c2c678e801e6c25cc7bd118d347dc393fc28bfdb91",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_module_array_swap_leak.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target native function 'tag_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double\n     failed"
+    },
+    {
+      "source": "tests/integration/test_native_callback_typedef.sn",
+      "source_sha256": "3efbd77e2029ac34221bc94671fb444c72e23ef4d66fcb2faa12c7cbca0da5a3",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_native_callback_typedef.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target native function 'call_with_value' body uses a closure, thread, or indirect callable construct outside the native bridge\n     failed"
+    },
+    {
+      "source": "tests/integration/test_native_ref_field_pass_chain.sn",
+      "source_sha256": "3d8e2c42d01eb2bcd3c8a1951f16d330e03a88051616f789457e7b0b560554f3",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_native_ref_field_pass_chain.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target currently supports only plain value struct 'Tensor'\n     failed"
+    },
+    {
+      "source": "tests/integration/test_native_ref_field_return.sn",
+      "source_sha256": "3cfd7a899d58b64431d22fe6e36b04a5baeb486535b8cc17a88270eb6f0c63d1",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_native_ref_field_return.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target currently supports only plain value struct 'Handle'\n     failed"
+    },
+    {
+      "source": "tests/integration/test_native_ref_method_forward_twice.sn",
+      "source_sha256": "5405f885289a14af7f5f8be82f147e85e10cd985068443fdd85eccb7d4b088a4",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_native_ref_method_forward_twice.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target currently supports only plain value struct 'Handle'\n     failed"
+    },
+    {
+      "source": "tests/integration/test_native_ref_self_assign.sn",
+      "source_sha256": "5d002db9b99ea6693c4d37d5c4bb04cca010cca136c0a1d13c705e6a18db8f5e",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_native_ref_self_assign.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target native function 'tensor_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double\n     failed"
+    },
+    {
+      "source": "tests/integration/test_native_resource_lifecycle.sn",
+      "source_sha256": "908c1586eb7a2e04b53e67e44176d0a21a7b61cc2c79a111917cf6df9b20494b",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_native_resource_lifecycle.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target native function 'mock_listener_bind' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double\n     failed"
+    },
+    {
+      "source": "tests/integration/test_native_struct_ref_loop_cleanup.sn",
+      "source_sha256": "15783859baa80ddf712334ecb2205a95c5a47fcd41621fc1052c340b62fa53fb",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_native_struct_ref_loop_cleanup.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target native function 'handle_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double\n     failed"
+    },
+    {
+      "source": "tests/integration/test_nested_array_copy.sn",
+      "source_sha256": "354d4cc9b1bdb168dacc7035b358723147b1f241e4c7270654a5d419b5ae1979",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_nested_array_copy.sn...\n      Parsing... done\n      Type checking... done\n      Code generation... done\n      Linking...warning: unused macro definition: `print`\n      --> .sn/build/rust/test_nested_array_copy_206184/main.rs:84:14\n       |\n    84 | macro_rules! print {\n       |              ^^^^^\n       |\n       = note: `#[warn(unused_macros)]` (part of `#[warn(unused)]`) on by default\n    \n    warning: unused macro definition: `println`\n      --> .sn/build/rust/test_nested_array_copy_206184/main.rs:88:14\n       |\n    88 | macro_rules! println {\n       |              ^^^^^^^\n    \n    error[E0502]: cannot borrow `copy` as immutable because it is also borrowed as mutable\n       --> .sn/build/rust/test_nested_array_copy_206184/main.rs:340:109\n        |\n    340 | ...ex((copy).len(), 0)]).len(), 0); ((copy)[__sn_index((copy).len(), 0)])[__sn_array_index] = 999; };\n        |                                      ------------------^^^^^^-----------\n        |                                      |     |           |\n        |                                      |     |           immutable borrow occurs here\n        |                                      |     mutable borrow later used here\n        |                                      mutable borrow occurs here\n        |\n    help: try adding a local storing this...\n       --> .sn/build/rust/test_nested_array_copy_206184/main.rs:340:109\n        |\n    340 |     { let __sn_array_index = __sn_index(((copy)[__sn_index((copy).len(), 0)]).len(), 0); ((copy)[__sn_index((copy).len(), 0)])[__sn_array...\n        |                                                                                                             ^^^^^^^^^^^^\n    help: ...and then using that local here\n       --> .sn/build/rust/test_nested_array_copy_206184/main.rs:340:97\n        |\n    340 |     { let __sn_array_index = __sn_index(((copy)[__sn_index((copy).len(), 0)]).len(), 0); ((copy)[__sn_index((copy).len(), 0)])[__sn_array...\n        |                                                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    \n    error: aborting due to 1 previous error; 2 warnings emitted\n    \n    For more information about this error, try `rustc --explain E0502`.\n    Error: rustc failed to build generated source\n     failed\n    \n    Compilation failed"
+    },
+    {
+      "source": "tests/integration/test_nil_array.sn",
+      "source_sha256": "cd656b3b9bc9a66d8545319d8b6d5ae1664e7d1eb1e1628ce9829efc73eecf9e",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_nil_array.sn...\n      Parsing... done\n      Type checking... done\n      Code generation... done\n      Linking...warning: unused macro definition: `print`\n      --> .sn/build/rust/test_nil_array_206509/main.rs:84:14\n       |\n    84 | macro_rules! print {\n       |              ^^^^^\n       |\n       = note: `#[warn(unused_macros)]` (part of `#[warn(unused)]`) on by default\n    \n    error[E0308]: mismatched types\n       --> .sn/build/rust/test_nil_array_206509/main.rs:118:29\n        |\n    118 |     let mut arr: Vec<i64> = std::ptr::null_mut();\n        |                  --------   ^^^^^^^^^^^^^^^^^^^^ expected `Vec<i64>`, found `*mut _`\n        |                  |\n        |                  expected due to this\n        |\n        = note:   expected struct `Vec<i64>`\n                found raw pointer `*mut _`\n    \n    error[E0277]: can't compare `Vec<i64>` with `*mut _`\n       --> .sn/build/rust/test_nil_array_206509/main.rs:119:25\n        |\n    119 |     println!(\"{}\", (arr == std::ptr::null_mut()));\n        |                         ^^ no implementation for `Vec<i64> == *mut _`\n        |\n        = help: the trait `PartialEq<*mut _>` is not implemented for `Vec<i64>`\n        = help: the following other types implement trait `PartialEq<Rhs>`:\n                  `Vec<T, A1>` implements `PartialEq<Vec<U, A2>>`\n                  `Vec<T, A>` implements `PartialEq<&[U; N]>`\n                  `Vec<T, A>` implements `PartialEq<&[U]>`\n                  `Vec<T, A>` implements `PartialEq<&mut [U]>`\n                  `Vec<T, A>` implements `PartialEq<[U; N]>`\n                  `Vec<T, A>` implements `PartialEq<[U]>`\n                  `Vec<u8>` implements `PartialEq<ByteStr>`\n                  `Vec<u8>` implements `PartialEq<ByteString>`\n    \n    error[E0277]: can't compare `Vec<i64>` with `*mut _`\n       --> .sn/build/rust/test_nil_array_206509/main.rs:121:25\n        |\n    121 |     println!(\"{}\", (arr == std::ptr::null_mut()));\n        |                         ^^ no implementation for `Vec<i64> == *mut _`\n        |\n        = help: the trait `PartialEq<*mut _>` is not implemented for `Vec<i64>`\n        = help: the following other types implement trait `PartialEq<Rhs>`:\n                  `Vec<T, A1>` implements `PartialEq<Vec<U, A2>>`\n                  `Vec<T, A>` implements `PartialEq<&[U; N]>`"
+    },
+    {
+      "source": "tests/integration/test_nil_compare_struct.sn",
+      "source_sha256": "31deb90b9814aec75d1d24594f80b693130796cf9298a83be9624bc6adaba9ed",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_nil_compare_struct.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target currently supports only plain value struct 'Connection'\n     failed"
+    },
+    {
+      "source": "tests/integration/test_nil_pointer_slice.sn",
+      "source_sha256": "7e0d8eab059b09774768bc14cb3d2d2894fbccc576968aa1a10b1bab77799cfc",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_nil_pointer_slice.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target encountered an unsupported construct in function 'test_nil_slice_creates_array'\n     failed"
+    },
+    {
+      "source": "tests/integration/test_nil_string.sn",
+      "source_sha256": "0b4a129ec1611343d2a3c2e138462331d17f3bf277fdd1d6f05a11f09b6e9431",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_nil_string.sn...\n      Parsing... done\n      Type checking... done\n      Code generation... done\n      Linking...warning: unused macro definition: `print`\n      --> .sn/build/rust/test_nil_string_206723/main.rs:84:14\n       |\n    84 | macro_rules! print {\n       |              ^^^^^\n       |\n       = note: `#[warn(unused_macros)]` (part of `#[warn(unused)]`) on by default\n    \n    error[E0308]: mismatched types\n       --> .sn/build/rust/test_nil_string_206723/main.rs:315:27\n        |\n    315 |     let mut s: SnString = std::ptr::null_mut();\n        |                --------   ^^^^^^^^^^^^^^^^^^^^ expected `SnString`, found `*mut _`\n        |                |\n        |                expected due to this\n        |\n        = note:   expected struct `SnString`\n                found raw pointer `*mut _`\n    \n    error[E0308]: mismatched types\n       --> .sn/build/rust/test_nil_string_206723/main.rs:316:26\n        |\n    316 |     println!(\"{}\", (s == std::ptr::null_mut()));\n        |                     -    ^^^^^^^^^^^^^^^^^^^^ expected `SnString`, found `*mut _`\n        |                     |\n        |                     expected because this is `SnString`\n        |\n        = note:   expected struct `SnString`\n                found raw pointer `*mut _`\n    \n    error[E0308]: mismatched types\n       --> .sn/build/rust/test_nil_string_206723/main.rs:318:26\n        |\n    318 |     println!(\"{}\", (s == std::ptr::null_mut()));\n        |                     -    ^^^^^^^^^^^^^^^^^^^^ expected `SnString`, found `*mut _`\n        |                     |\n        |                     expected because this is `SnString`\n        |\n        = note:   expected struct `SnString`\n                found raw pointer `*mut _`\n    \n    error: aborting due to 3 previous errors; 1 warning emitted\n    \n    For more information about this error, try `rustc --explain E0308`.\n    Error: rustc failed to build generated source\n     failed"
+    },
+    {
+      "source": "tests/integration/test_qsort_callback.sn",
+      "source_sha256": "770a71ddf031d051459422c188f462dfecd9f1fde157f2c8d639561a0035d47a",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_qsort_callback.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target native function 'invoke_comparator' body uses a closure, thread, or indirect callable construct outside the native bridge\n     failed"
+    },
+    {
+      "source": "tests/integration/test_refcount_arg_leak.sn",
+      "source_sha256": "6692d5e2d8b618eec36d758871f1511b6777e38cda3db86160cfb37f4f1ecb84",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_refcount_arg_leak.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target native function 'foo_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double\n     failed"
+    },
+    {
+      "source": "tests/integration/test_refcount_chain_in_struct_literal.sn",
+      "source_sha256": "9c67fcd6dae794fd2c63eac42f6a6a0e37a8545d5ebc720dfb4ad86b06b0a780",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_refcount_chain_in_struct_literal.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target native function 'tracker_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double\n     failed"
+    },
+    {
+      "source": "tests/integration/test_return_ref_param.sn",
+      "source_sha256": "334a96ac5383e9db35b45fd4f10ff8b65967c3b18879eddf05aff80a81f44802",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_return_ref_param.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target currently supports only plain value struct 'Tensor'\n     failed"
+    },
+    {
+      "source": "tests/integration/test_return_self.sn",
+      "source_sha256": "0993daeb6b8107e273b108959833c07406a5373e6c551292d2dc23eccd526692",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_return_self.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target encountered an unsupported construct in method 'Builder.setValue'\n     failed"
+    },
+    {
+      "source": "tests/integration/test_self_method_forward_after_train.sn",
+      "source_sha256": "6304ce2dc0cf4f1e1c58fa474bcd721cbda449f0252ac0f4dea8ac8114358756",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_self_method_forward_after_train.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target native function 'resource_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double\n     failed"
+    },
+    {
+      "source": "tests/integration/test_serializable.sn",
+      "source_sha256": "2660ea8bcedcae2305d78dd38f1aec51497a6b1dfae4eb88544f86db87128c00",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_serializable.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target native function 'sn_test_json_encoder' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double\n     failed"
+    },
+    {
+      "source": "tests/integration/test_serializable_decode_struct_literal_loop.sn",
+      "source_sha256": "42f15159311a783ab955c06af505fb60c2c9a8c138ad3c2c0cbaf0f195a6e5d2",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_serializable_decode_struct_literal_loop.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target native function 'sn_test_json_encoder' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double\n     failed"
+    },
+    {
+      "source": "tests/integration/test_serializable_double_int_json.sn",
+      "source_sha256": "bc996a180daf81a22ebeafe096e75e33c0fdaccada5b017db2b93036dfd9df30",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_serializable_double_int_json.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target native function 'sn_test_json_encoder' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double\n     failed"
+    },
+    {
+      "source": "tests/integration/test_serializable_encoder_cleanup.sn",
+      "source_sha256": "b3d4ac81274b5f70df6871a6dc7b0f77cf42208fdd7a261869291720a30b0ebe",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_serializable_encoder_cleanup.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target native function 'cleanup_json_encoder' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double\n     failed"
+    },
+    {
+      "source": "tests/integration/test_serializable_long.sn",
+      "source_sha256": "3d6305a4017b251a92adfed3d68646d3e7c5b0e459e2caa3577066d9b8c6e0f9",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_serializable_long.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target native function 'sn_test_json_encoder' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double\n     failed"
+    },
+    {
+      "source": "tests/integration/test_serializable_push_ownership.sn",
+      "source_sha256": "96deaed5a5fefbe18af40a02d7d0ea7d494eb4b0aabcac5c8dba6b7e559c184f",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_serializable_push_ownership.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target native function 'sn_test_json_encoder' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double\n     failed"
+    },
+    {
+      "source": "tests/integration/test_serializable_return_nested_array.sn",
+      "source_sha256": "6733ad1573b869c28650930c4d80ee1042f00ffb46f777dd55078001751a5be9",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_serializable_return_nested_array.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target native function 'sn_test_json_encoder' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double\n     failed"
+    },
+    {
+      "source": "tests/integration/test_str_return_as_arg_leak.sn",
+      "source_sha256": "bd1cf85e17b6c4f598cdf81976cccd7b078ff2547d650fb39cf562835162a930",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_str_return_as_arg_leak.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target native function 'source_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double\n     failed"
+    },
+    {
+      "source": "tests/integration/test_struct_array_concat.sn",
+      "source_sha256": "0d4c31d4aad62d3704e278111997f2a28231efb2fc18d4fc0b520b11b80f96bd",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_struct_array_concat.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target does not support array method 'concat' for struct elements yet\n    Error: Rust target encountered an unsupported construct in function 'buildConcat'\n     failed"
+    },
+    {
+      "source": "tests/integration/test_struct_as_ref.sn",
+      "source_sha256": "2f4803aceeed954ced4fc8fd5918a470dd31f964f44f35df57b5a116da56732a",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_struct_as_ref.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target native function 'update_point' parameter 'p' must be an unsynchronized string, default-qualified raw pointer, or default/as-ref native scalar\n     failed"
+    },
+    {
+      "source": "tests/integration/test_struct_return_array_leak.sn",
+      "source_sha256": "d767e1c2ac752f7423c2a642f4c4d2c7beed2646ad9838ebf71390cb07a3b8df",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_struct_return_array_leak.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target native function 'tracker_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double\n     failed"
+    },
+    {
+      "source": "tests/integration/test_struct_rvalue_member_leak.sn",
+      "source_sha256": "61a9e58ebbfda20d6c2bba40ebf2c6471f94d5e8407103fe3f9c8fced42eead3",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_struct_rvalue_member_leak.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target native function 'tracker_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double\n     failed"
+    },
+    {
+      "source": "tests/integration/test_struct_rvalue_member_leak_contexts.sn",
+      "source_sha256": "0e533a12b5de8d2f38ef5e4341c45e7fc66184713a25939f04b98087880b34a7",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_struct_rvalue_member_leak_contexts.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target native function 'tracker_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double\n     failed"
+    },
+    {
+      "source": "tests/integration/test_struct_self_method_call.sn",
+      "source_sha256": "ca4fccb483e7992028b74bb2f36250e4ce74fc421a752f1b2ce3f76183597a37",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_struct_self_method_call.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target does not support a parameter of method 'Versioned.compare'\n     failed"
+    },
+    {
+      "source": "tests/integration/test_thread_native_fn_struct_return.sn",
+      "source_sha256": "44a97ed57b51a318b37774bd44b9100c67241b0ea3b44d9f486309eda7757aa6",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_thread_native_fn_struct_return.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target native function 'compute_native' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double\n     failed"
+    },
+    {
+      "source": "tests/integration/test_thread_struct_return_types.sn",
+      "source_sha256": "4107ecec3bc70eba14b449f78df723b47809739b3e050c23eaa5ffb98e705df8",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_thread_struct_return_types.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target native function 'raw_metrics' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double\n     failed"
+    },
+    {
+      "source": "tests/integration/test_val_struct_shared_array.sn",
+      "source_sha256": "6bf9a344015d0be5f320bca27ec94110aca443521448611abd0c467353201161",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/integration/test_val_struct_shared_array.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target does not support a parameter of function 'processConfig'\n     failed"
+    },
+    {
+      "source": "tests/exploratory/test_array_mutation_lambda.sn",
+      "source_sha256": "627fc6ff1b9d3d5b2de753df9c2d8f6e6358307dae0a7258a3994b517709c3a8",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/exploratory/test_array_mutation_lambda.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target does not support mutation of closure parameters yet\n     failed"
+    },
+    {
+      "source": "tests/exploratory/test_as_val_array_copy.sn",
+      "source_sha256": "38b57e48ddf3f76708d6de2fec0248773b5daa2965d88b40302b21f1b3f1a5ba",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/exploratory/test_as_val_array_copy.sn...\n      Parsing... done\n      Type checking...\n      warning: Assigning str/array variable to another variable shares ownership. Consider using copyOf() to avoid potential double-free\n        --> tests/exploratory/test_as_val_array_copy.sn:21:1\n              var copy: int[] as val = source\n            ^^^^\n    \n    \n      warning: Assigning str/array variable to another variable shares ownership. Consider using copyOf() to avoid potential double-free\n        --> tests/exploratory/test_as_val_array_copy.sn:30:1\n              var working: int[] as val = data\n            ^^^^^^^\n    \n      Type checking done\n      Code generation...Error: Rust target does not support a parameter of function 'modify_array'\n     failed"
+    },
+    {
+      "source": "tests/exploratory/test_gcc_edge_interop.sn",
+      "source_sha256": "6543370a3e8cd487fd767310d5f116d20b0820d7dd1e93af47f4a7b55f598d19",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/exploratory/test_gcc_edge_interop.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target native function 'compute_result' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double\n     failed"
+    },
+    {
+      "source": "tests/exploratory/test_gcc_edge_structs.sn",
+      "source_sha256": "3f75d9300c5e0e6e0e759900539a297d39a72725240dca1f66e77fea62fe6428",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/exploratory/test_gcc_edge_structs.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target does not support a parameter of function 'modify_struct'\n     failed"
+    },
+    {
+      "source": "tests/exploratory/test_match_as_val_ref.sn",
+      "source_sha256": "7ec64d210fed1c9ada26887e2a50760a09e1beaca3d078a63b5992f3504ba09a",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/exploratory/test_match_as_val_ref.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target native function 'classify_point' parameter 'p' must be an unsynchronized string, default-qualified raw pointer, or default/as-ref native scalar\n     failed"
+    },
+    {
+      "source": "tests/exploratory/test_pointer_slice_bounds.sn",
+      "source_sha256": "138ea31a5de3bfa764d7eefb102f26d73ad4c502c1ca5d1a33748f9c92ff88a8",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/exploratory/test_pointer_slice_bounds.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target encountered an unsupported construct in function 'test_correct_bounds'\n     failed"
+    },
+    {
+      "source": "tests/exploratory/test_struct_config.sn",
+      "source_sha256": "651a38dae42d8649842898bc2efeaf6fa1035a6bd49e20448f53dd7a7c3ea234",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/exploratory/test_struct_config.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target does not support a parameter of function 'apply_server_config'\n     failed"
+    },
+    {
+      "source": "tests/exploratory/test_struct_self_method_call.sn",
+      "source_sha256": "978eae166129c2956557346638deb297a1622f3ab4c29dcc412bd442126d5e77",
+      "failure": "compile error",
+      "diagnostic_excerpt": "Compiling tests/exploratory/test_struct_self_method_call.sn...\n      Parsing... done\n      Type checking... done\n      Code generation...Error: Rust target does not support a parameter of method 'Range.overlaps'\n     failed"
+    }
+  ]
+}
