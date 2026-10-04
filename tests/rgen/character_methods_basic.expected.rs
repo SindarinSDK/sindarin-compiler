@@ -383,7 +383,7 @@ fn main() {
     println!("{}", __sn_ctype::alnum('\u{40}'));
     println!("{}", (__sn_ctype::string('\u{0}')).len() as i64);
     let last: __sn_concurrency0_Cell<char> = __sn_concurrency0_Cell::new('\u{0}');
-    { let __sn_concurrency0_gate = last.guard(); let mut __sn_concurrency0_value = last.lock().unwrap_or_else(|e| e.into_inner()); let __sn_concurrency0_previous = *__sn_concurrency0_value; *__sn_concurrency0_value = ((*__sn_concurrency0_value as u32 as u8).wrapping_sub(1)) as char; __sn_concurrency0_previous };
+    { let mut __sn_concurrency0_value = last.lock().unwrap_or_else(|e| e.into_inner()); let __sn_concurrency0_previous = *__sn_concurrency0_value; *__sn_concurrency0_value = ((*__sn_concurrency0_value as u32 as u8).wrapping_sub(1)) as char; __sn_concurrency0_previous };
     println!("{}", (__sn_ctype::string({ let value = last.lock().unwrap_or_else(|e| e.into_inner()).clone(); value })).len() as i64);
     println!("{}", (__sn_ctype::upper({ let value = last.lock().unwrap_or_else(|e| e.into_inner()).clone(); value }) == { let value = last.lock().unwrap_or_else(|e| e.into_inner()).clone(); value }));
     println!("{}", (__sn_ctype::lower({ let value = last.lock().unwrap_or_else(|e| e.into_inner()).clone(); value }) == { let value = last.lock().unwrap_or_else(|e| e.into_inner()).clone(); value }));

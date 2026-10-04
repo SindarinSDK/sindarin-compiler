@@ -1,0 +1,12 @@
+fn describe(value: char): int =>
+  return match value =>
+    '\0' => 0
+    'a' => 1
+    '\xFF' => 2
+    else => 3
+
+fn main(): void =>
+  var value: char = '\0'
+  for i in 0..256 =>
+    print(describe(value))
+    value++

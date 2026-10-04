@@ -1,0 +1,9 @@
+fn choose(value: bool): int =>
+  match value =>
+    true => return 17
+    false => return 23
+  return 99
+
+fn main(): void =>
+  println(choose(true))
+  println(choose(false))

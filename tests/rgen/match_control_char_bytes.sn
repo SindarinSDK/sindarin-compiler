@@ -1,0 +1,8 @@
+fn main(): void =>
+  var value: char = '\0'
+  for i in 0..256 =>
+    var result: char = match i % 2 =>
+      0 => value
+      else => value
+    print(result)
+    value++

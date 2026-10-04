@@ -593,3 +593,30 @@ test-rust-parity-exit: build
 .PHONY: test-rust-parity-main-return
 test-rust-parity-main-return: build
 	@$(PYTHON) tests/rgen/main_return_compare.py
+
+.PHONY: test-rust-parity-match-control
+test-rust-parity-match-control: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/integration/test_match_return_arms.sn \
+		tests/exploratory/test_match_primitives.sn \
+		tests/exploratory/test_match_native.sn \
+		tests/exploratory/test_match_memory.sn \
+		tests/rgen/value_match_char_result.sn \
+		tests/rgen/value_match_multiline_body.sn \
+		tests/rgen/value_match_bool_multiline_body.sn \
+		tests/rgen/value_match_string_multiline_body.sn \
+		tests/rgen/value_match_float_multiline_body.sn \
+		tests/rgen/value_match_break_prefix.sn \
+		tests/rgen/value_match_continue_prefix.sn \
+		tests/rgen/match_control_char_bytes.sn \
+		tests/rgen/match_control_char_subject.sn \
+		tests/rgen/match_control_callable_returns.sn \
+		tests/rgen/match_control_bool_returns.sn \
+		tests/rgen/match_control_arm_scopes.sn \
+		tests/rgen/match_control_local_atomic_lock.sn \
+		tests/rgen/match_control_char_places.sn \
+		tests/rgen/match_control_captured_char_array.sn \
+		tests/rgen/match_control_probes/char_subject.sn.raw \
+		--require-count 20 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-match-control.json
+	@$(PYTHON) scripts/check_rust_match_control_oracles.py .sn/rust-parity-match-control.json

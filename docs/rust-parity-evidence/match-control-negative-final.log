@@ -1,0 +1,13 @@
+Compiler: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn
+Platform: Linux
+Parallel: 20 workers
+
+Rust Generation Error Tests
+============================================================
+  Running 31 tests with 20 workers...
+
+
+------------------------------------------------------------
+Results: 31 passed, 0 failed, 0 skipped  (18ms)
+
+All tests passed!  (total: 18ms)

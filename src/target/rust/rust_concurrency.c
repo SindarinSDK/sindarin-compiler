@@ -171,6 +171,13 @@ static void rust_concurrency_annotate(json_object *node, const char *prefix,
     }
     const char *kind = json_string_property(node, "kind");
     if (!kind) return;
+    /* The tagged C postfix renderer adds a variable mutex only for the live
+     * global-symbol path. Local atomic ++/-- operate on the atomic storage
+     * directly, including inside an explicit lock of its separate mutex.
+     * Retain the value mutex here, but do not re-acquire that explicit gate. */
+    if ((strcmp(kind, "increment") == 0 || strcmp(kind, "decrement") == 0) &&
+        !json_boolean_property(node, "rust_tagged_sync_postfix"))
+        json_object_object_add(node, "mutation_sync", json_object_new_boolean(false));
     if (strcmp(kind, "function") == 0 && json_boolean_property(model, "rust_thread_ownership"))
         json_object_object_add(node, "rust_thread_ownership", json_object_new_boolean(true));
     if (json_boolean_property(node, "rust_thread_array_read"))

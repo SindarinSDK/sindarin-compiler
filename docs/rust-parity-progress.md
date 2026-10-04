@@ -7,35 +7,35 @@ head counts, not the language specification or the historical evidence itself.
 
 ## Current verified status: 2026-10-04
 
-Last fully verified main `89de39597088c8e8cd353e9cf8c29d706d78ec6d` passes all six
-Linux/macOS/Windows Compiler and Rust Runtime jobs. Each platform's 19 runtime
-reports verifies 1416 cases: 1224 exact C/Rust positive pairs, 39 diagnostic/order
-cases and 153 process-exit cases, including independent native/Python status,
-stream and callback oracles. All source hashes and compiler provenance are
-verified. The PR queue is empty, and C remains the default target.
+The match-control increment passes complete local C/Rust suites and 21 runtime
+reports: 1704 cases comprising 1404 exact C/Rust positive pairs, 39 diagnostic/
+order cases, 153 process-exit cases and 108 normal-main-return cases. The new
+180-case gate independently verifies match return scopes, multiline arm
+statements, character subjects/results and postfix storage effects at all
+three optimization levels and arithmetic modes. Twenty C sources pass
+instrumented ASAN with leak detection. C remains the default target.
 
-Rust now emits `exit(int)` with once-only argument effects and C-int narrowing,
-including worker-thread process termination and LIFO native exit callbacks.
-Language and native printing share the C streams without extra native-call or
-initializer flushes. These changes join byte-array encodings, synchronized
-capture snapshots, character, indexed-write and numeric/concurrency work.
+The unchanged original corpus now passes 1067 integration and 215 exploratory
+cases, leaving 74 and nine compilation gaps respectively: **83 remaining
+original gaps, down from 87**. No new runtime failures or skips are observed.
+All 1365 original source hashes are unchanged. Seven previously rejected Rust
+fixtures are promoted with their exact source bytes preserved. Existing Rust
+snapshots change only by removing ten local atomic postfix gate acquisitions
+across six files; global tagged postfix remains gated.
 
-The unchanged original corpus has 87 remaining Rust compilation gaps, down from
-89, with no new runtime failures or skips. Complete local and hosted C and
-Rust regression suites pass. All twelve process-exit C sources pass ASAN with
-leak detection at their required statuses.
-
-The subsequent normal-main-return increment has passed local validation:
-20 reports and 1524 cases, including 108 new independent lifecycle cases.
-It preserves C's stdout-only fallthrough flush while explicit returns leave
-buffered output for CRT exit callbacks. Hosted verification of this increment
-is still required. See the local checkpoint below for its exact scope and
-excluded C-undefined argv probes.
+Most recent hosted proof: main
+`aaf14d36147b7a3eddf09bb04e36ef8cf055eebf` passes all six Linux/macOS/Windows
+Compiler and Rust Runtime jobs and the preceding 20 reports/1524 cases per
+platform. The match-control increment is locally verified against that main;
+its exact new main revision must receive the same hosted confirmation after
+push. The PR queue was refreshed and is empty. Local evidence:
+[match-control-validation.json](rust-parity-evidence/match-control-validation.json).
 
 Full parity remains incomplete. Broader array/callable identity, mutation and
-lifetimes, native/SDK and language families still need implementation and full
-mode/platform validation. Rejected or C-undefined probes remain explicit
-evidence limitations and do not count as positive parity.
+lifetimes, native/SDK and language families still require implementation and
+mode/platform validation. Dynamic scalar match patterns, aggregate/callable
+match results and captured scalar character mutation remain separate work.
+Rejections and C-undefined probes receive no parity credit.
 
 ## Baseline: 2026-10-02
 
@@ -1750,3 +1750,98 @@ Evidence: [main-return-validation.json](rust-parity-evidence/main-return-validat
 [main-return-c-undefined-args-indexed.json](rust-parity-evidence/main-return-c-undefined-args-indexed.json),
 [main-return-source-main-excluded.json](rust-parity-evidence/main-return-source-main-excluded.json),
 and [main-return-recursion-preserved.json](rust-parity-evidence/main-return-recursion-preserved.json).
+
+
+## Normal-return main: hosted verification, 2026-10-04
+
+Main revision `aaf14d36147b7a3eddf09bb04e36ef8cf055eebf` passes all six jobs:
+[Compiler CI 37161893730](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37161893730)
+and [Rust Runtime CI 37161893778](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37161893778).
+Downloaded Linux, macOS and Windows artifacts verify all 20 reports and 1524
+cases per platform. The 108 normal-return cases match independent status,
+separate stream and merged-order oracles, including Windows CRLF and C-int/OS
+status conversion. Existing independent process-exit, byte and character
+oracles also pass. Source hashes and a single compiler binary per platform are
+verified; complete hosted C/Rust suite counts have zero failures or skips.
+The PR queue is empty, and C remains default. There are still 87 original
+compilation gaps plus broader ownership/native/language work. Evidence:
+[main-return-main-ci-green.json](rust-parity-evidence/main-return-main-ci-green.json).
+
+The next match controls are prepared without changing original sources or
+claiming parity: enclosing-function return arms, character-valued matches over
+all 256 byte values, and character-subject matches over the same domain. Four
+sources pass 36 independent C status/raw-output checks and four C ASAN/leak
+controls; Rust rejects all. The projected model shows that an implicit outer
+return wraps a void statement match whose arms return from the enclosing
+function. The repair must preserve that control flow rather than treating the
+arms as ordinary value-result expressions. Character subjects/results require
+their own admission and byte-semantics validation. General mutable array
+identity, nil/allocated-empty distinctions, native/SDK and other language
+families remain required work.
+
+## Match control flow, character subjects/results and local atomic locks
+
+Verified against main `aaf14d36147b7a3eddf09bb04e36ef8cf055eebf`, with direct-main
+integration after all final local tests pass. The before evidence contains 117
+independently checked C status/raw-output controls, all rejected by Rust. The
+completed gate has 20 sources and 180 C/Rust pairs with independently specified
+oracles across default/checked/unchecked arithmetic and O0/O1/O2.
+
+The private Rust validator now handles a void statement match specifically in
+return contexts. A value-returning callable evaluates that match as a statement;
+its returning arms leave the enclosing function, method or lambda. Callable
+scopes are tracked separately, and an unreachable fallback satisfies Rust's
+value type only for paths lacking a defined C return value. Void-valued value
+initializers continue to receive their existing structural diagnostics.
+
+Character value matches support byte-valued results and literal character
+subjects. Ordinary character postfix updates wrap at eight bits and return
+the previous value; computed places reuse the existing index/owner lowering.
+Full byte domains, nested indices and fields, private captured arrays and C's
+negative-index length read are covered. Value-match arm prefixes may contain
+validated declarations, conditions, loops, locks, return, break and continue;
+exact result/tail and supported-feature validation remains in place.
+
+A real lock-prefix control exposed a Rust deadlock: local atomic postfix
+updates incorrectly reacquired the separate explicit-lock gate. C's live-symbol
+postfix path gates globals, while local atomic postfix directly updates storage.
+The Rust projection now follows that distinction. Explicit local locks and
+existing global/thread character controls verify old/new values and wraparound.
+Six existing Rust snapshots remove only ten such local gate acquisitions;
+all other bytes and every existing runtime oracle are preserved.
+
+| Final local evidence | Result |
+|---|---|
+| Rust generated / negative | 397 / 151, all pass; no skips |
+| Rust native tagged / extra / origin / negative | 8 / 19 / 1 / 4, all pass |
+| Closures positive / negative | 36 / 1, all pass |
+| Concurrency positive / promoted / negative | 10 / 7 / 1, all pass |
+| Toolchain | 12, all pass |
+| C unit / generation / model | 1610 / 107 / 79, all pass |
+| C integration / negative / exploratory / negative | 1141 / 58 / 224 / 11, all pass |
+| Runtime reports | 21 reports / 1704 cases, all pass |
+| New independent match controls | 180 paired cases; 20 sources |
+| C ASAN / leaks | 20 instrumented controls, all clean |
+| Original Rust integration / exploratory | 1067 / 215 passing; 74 / 9 compilation gaps |
+| Original source preservation | All 1365 hashes unchanged |
+
+The hexadecimal-character pattern probe is retained verbatim as `.sn.raw`
+because the shared formatter corrupts that literal. A distinct ordinary fixture
+covers an ASCII pattern across the same complete character subject domain.
+The initial ad-hoc void-capture and implicit exhaustive-bool-return candidates
+were rejected by the authoritative C frontend/compiler and are excluded; the
+accepted controls use explicit parameters and a defined fallback statement.
+An initial concurrent test attempt lost temporary files to a runner cleanup;
+those results were discarded. Final suites use cleanup-disabled runners and
+one final staged compiler. Neither guards nor undefined fallthrough earn credit.
+
+Evidence: [validation](rust-parity-evidence/match-control-validation.json),
+[raw pairs](rust-parity-evidence/match-control-pairs.json),
+[original before controls](rust-parity-evidence/match-control-original-before.json),
+[expanded before controls](rust-parity-evidence/match-control-expanded-before.json),
+[ASAN controls](rust-parity-evidence/match-control-asan.json),
+[snapshot proof](rust-parity-evidence/match-control-snapshot-review.json) and
+[remaining source diagnostics](rust-parity-evidence/match-control-gap-diagnostics.json).
+The 83 remaining failures are source-level compilation gaps, not 83 distinct
+features; native structs/callbacks/SDK and general owning-handle/reference
+semantics remain the largest unresolved groups.

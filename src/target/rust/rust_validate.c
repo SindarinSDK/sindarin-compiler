@@ -1244,7 +1244,8 @@ static bool rust_numeric_computed_mutation(json_object *node)
     if (!rust_numeric_computed_place(place)) return false;
     json_object_object_get_ex(place, "type", &type);
     const char *kind = json_string_property(type, "kind");
-    if (!rust_integer_type(kind) && !rust_float_type(kind)) return false;
+    if (!rust_integer_type(kind) && !rust_float_type(kind) &&
+        !(postfix && kind && strcmp(kind, "char") == 0)) return false;
     if (!compound) return true;
     json_object_object_get_ex(node, "value", &value);
     json_object_object_get_ex(value, "type", &value_type);
@@ -2574,10 +2575,11 @@ static bool rust_validate_value_match(json_object *expr)
     bool subject_is_bool = json_string_property_equals(subject_type, "kind", "bool");
     bool subject_is_float = rust_float_type(subject_kind);
     bool subject_is_string = json_string_property_equals(subject_type, "kind", "string");
+    bool subject_is_char = json_string_property_equals(subject_type, "kind", "char");
     if (!subject_is_integral && !subject_is_bool && !subject_is_float &&
-        !subject_is_string)
+        !subject_is_string && !subject_is_char)
         return rust_report_match_error(
-            "supports value match only with bool, integral, float, double, or string subjects");
+            "supports value match only with bool, char, integral, float, double, or string subjects");
 
     size_t else_count = 0;
     size_t ordinary_count = 0;
@@ -2624,6 +2626,9 @@ static bool rust_validate_value_match(json_object *expr)
                 if (subject_is_bool && !rust_bool_match_literal_pattern(pattern))
                     return rust_report_match_error(
                         "supports value match only with boolean literal patterns");
+                if (subject_is_char && !rust_char_match_literal_pattern(pattern))
+                    return rust_report_match_error(
+                        "supports value match only with character literal patterns");
                 if (subject_is_float)
                 {
                     RustFloatMatchPatternStatus status =
@@ -2651,9 +2656,9 @@ static bool rust_validate_value_match(json_object *expr)
     if (!result_kind ||
         (!rust_match_integral_type(result_kind) &&
          !rust_float_type(result_kind) && strcmp(result_kind, "bool") != 0 &&
-         strcmp(result_kind, "string") != 0))
+         strcmp(result_kind, "char") != 0 && strcmp(result_kind, "string") != 0))
         return rust_report_match_error(
-            "supports value match results only for exact str or heap-free scalar bool, int, long, int32, uint32, uint, byte, float, or double");
+            "supports value match results only for exact str or heap-free scalar bool, char, int, long, int32, uint32, uint, byte, float, or double");
 
     for (size_t i = 0; i < arm_count; i++)
     {
@@ -2667,14 +2672,6 @@ static bool rust_validate_value_match(json_object *expr)
         if (statement_count == 0)
             return rust_report_match_error(
                 "requires each value match arm body to be nonempty");
-
-        for (size_t s = 0; s + 1 < statement_count; s++)
-        {
-            json_object *prefix = json_object_array_get_idx(body_statements, s);
-            if (!json_string_property_equals(prefix, "kind", "expr"))
-                return rust_report_match_error(
-                    "requires every value match arm prefix to be an expression statement");
-        }
 
         json_object *statement =
             json_object_array_get_idx(body_statements, statement_count - 1);
@@ -2730,7 +2727,7 @@ static bool rust_validate_value_match(json_object *expr)
     }
 
     /* Do not recurse into any executable child until the complete match
-     * topology, result family, and every arm's prefix/tail shape are known to
+     * topology, result family, and every arm's tail shape are known to
      * be admissible. This keeps structural diagnostics ahead of failures in
      * earlier prefixes while retaining source evaluation order afterwards. */
     if (!rust_validate_expr(subject)) return false;
@@ -2844,7 +2841,15 @@ static bool rust_validate_stmt(json_object *stmt)
     }
     if (strcmp(kind, "break") == 0 || strcmp(kind, "continue") == 0) return true;
     if (strcmp(kind, "return") == 0)
-        return !json_object_object_get_ex(stmt, "value", &child) || rust_validate_expr(child);
+    {
+        if (!json_object_object_get_ex(stmt, "value", &child)) return true;
+        json_object *type = NULL;
+        if (json_string_property_equals(child, "kind", "match") &&
+            json_object_object_get_ex(child, "type", &type) &&
+            json_string_property_equals(type, "kind", "void"))
+            return rust_validate_statement_match(child);
+        return rust_validate_expr(child);
+    }
     if (strcmp(kind, "expr") == 0)
     {
         if (!json_object_object_get_ex(stmt, "expr", &child)) return false;
@@ -3057,6 +3062,45 @@ static bool rust_validate_model_impl(json_object *model,
     return true;
 }
 
+/* The shared model can wrap a statement match in an implicit return even
+ * when its arms return values from the enclosing callable. C evaluates the
+ * void match before its bare return; the defined value-returning paths leave
+ * from an arm. Rust must likewise evaluate the match as a statement, without
+ * requiring its void result to have the callable's value type. Callable nodes
+ * introduce their own scope, including methods and separately stored lambdas. */
+static void rust_prepare_void_match_returns(json_object *node, bool returns_value)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array))
+    {
+        for (size_t i = 0; i < json_object_array_length(node); i++)
+            rust_prepare_void_match_returns(json_object_array_get_idx(node, i),
+                                            returns_value);
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
+
+    json_object *return_type = NULL, *body = NULL;
+    if (json_object_object_get_ex(node, "return_type", &return_type) &&
+        json_object_object_get_ex(node, "body", &body))
+        returns_value = !json_string_property_equals(return_type, "kind", "void");
+
+    json_object *value = NULL, *type = NULL;
+    if (returns_value && json_string_property_equals(node, "kind", "return") &&
+        json_object_object_get_ex(node, "value", &value) &&
+        json_string_property_equals(value, "kind", "match") &&
+        json_object_object_get_ex(value, "type", &type) &&
+        json_string_property_equals(type, "kind", "void"))
+        json_object_object_add(node, "rust_return_void_match",
+                               json_object_new_boolean(true));
+
+    json_object_object_foreach(node, key, child)
+    {
+        (void)key;
+        rust_prepare_void_match_returns(child, returns_value);
+    }
+}
+
 static bool rust_validate_model(json_object *model, ArithmeticMode arithmetic_mode,
                                 const RustNativePlan *native_plan)
 {
@@ -3064,6 +3108,7 @@ static bool rust_validate_model(json_object *model, ArithmeticMode arithmetic_mo
     rust_validation_reported_error = false;
     rust_validation_arithmetic_mode = arithmetic_mode;
     rust_iterator_binding_scope = NULL;
+    rust_prepare_void_match_returns(model, false);
     bool valid = rust_validate_model_impl(model, native_plan);
     rust_validation_model = NULL;
     rust_validation_reported_error = false;

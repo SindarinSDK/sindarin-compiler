@@ -1,0 +1,13 @@
+fn main(): void =>
+  var values: char[] = {'A'}
+  var action: fn(): char = fn(): char =>
+    return values[0]++
+  println(action())
+  println(action())
+  println(values[0])
+  var rows: char[][] = {{'D'}}
+  var step: fn(): char = fn(): char =>
+    return rows[-1][-1]--
+  println(step())
+  println(step())
+  println(rows[0][0])

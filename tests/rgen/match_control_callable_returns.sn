@@ -1,0 +1,26 @@
+struct Picker =>
+  value: int
+  fn choose(): int =>
+    match self.value =>
+      1 => return 11
+      else => return 22
+
+fn choose(value: int): int =>
+  var empty: fn(int): void = fn(code: int): void =>
+    match code =>
+      1 => println("void-one")
+      else => println("void-other")
+  empty(value)
+  var nested: fn(int): int = fn(code: int): int =>
+    match code =>
+      1 => return 31
+      else => return 32
+  return nested(value)
+
+fn main(): void =>
+  var first: Picker = { value: 1 }
+  var other: Picker = { value: 2 }
+  println(first.choose())
+  println(other.choose())
+  println(choose(1))
+  println(choose(2))

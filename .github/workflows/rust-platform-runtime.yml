@@ -229,6 +229,9 @@ jobs:
           run_gate "normal main return, buffered streams and CRT callbacks (108 cases)" \
             make test-rust-parity-main-return
 
+          run_gate "match control flow, character places and local atomic locks (180 positive pairs)" \
+            make test-rust-parity-match-control
+
           exit "$overall_rc"
 
       - name: Retain runtime parity evidence
@@ -258,5 +261,6 @@ jobs:
             .sn/rust-parity-byte-encoding.json
             .sn/rust-parity-exit.json
             .sn/rust-parity-main-return.json
+            .sn/rust-parity-match-control.json
           if-no-files-found: ignore
           retention-days: 7

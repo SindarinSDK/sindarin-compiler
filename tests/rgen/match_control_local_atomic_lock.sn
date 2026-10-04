@@ -1,0 +1,17 @@
+fn main(): void =>
+  sync var number: int = 7
+  sync var octet: byte = 255
+  sync var character: char = '\0'
+  lock (number) =>
+    println(number++)
+    println(number--)
+  println(number)
+  lock (octet) =>
+    println(octet++)
+    println(octet--)
+  println(octet)
+  lock (character) =>
+    println(character-- == '\0')
+    var last: char = character
+    println(character++ == last)
+  println(character == '\0')

@@ -1,0 +1,30 @@
+struct Inner =>
+  value: char
+
+struct Outer =>
+  inner: Inner
+
+fn index(calls: int as ref, result: int): int =>
+  calls++
+  return result
+
+fn main(): void =>
+  var calls: int = 0
+  var rows: char[][] = {{'A', 'B'}, {'C', 'D'}}
+  println(rows[index(calls, -1)][index(calls, -1)]++)
+  println(calls)
+  println(rows[1][1])
+  calls = 0
+  println(rows[index(calls, 0)][index(calls, 0)]--)
+  println(calls)
+  println(rows[0][0])
+  var outers: Outer[] = { Outer { inner: Inner { value: '\0' } } }
+  calls = 0
+  println(outers[index(calls, 0)].inner.value-- == '\0')
+  println(calls)
+  var last: char = outers[0].inner.value
+  println(outers[0].inner.value++ == last)
+  println(outers[0].inner.value == '\0')
+  var direct: Inner = { value: 'Z' }
+  println(direct.value++)
+  println(direct.value)

@@ -1,0 +1,28 @@
+fn choose(code: int, calls: int as ref): int =>
+  var result: int = match code =>
+    1 =>
+      var subtotal: int = 0
+      for i in 0..3 =>
+        subtotal += i
+        calls++
+      var nested: int = match subtotal =>
+        3 =>
+          var subtotal: int = 40
+          calls++
+          subtotal
+        else => 90
+      subtotal + nested
+    else =>
+      var subtotal: int = 7
+      while subtotal < 9 =>
+        subtotal++
+        calls++
+      subtotal
+  return result
+
+fn main(): void =>
+  var calls: int = 0
+  println(choose(1, calls))
+  println(calls)
+  println(choose(2, calls))
+  println(calls)

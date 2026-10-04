@@ -1,0 +1,1709 @@
+PASS tests/rgen/by_value_scalar_parameter_assignment.sn -O0 default
+PASS tests/rgen/by_value_scalar_parameter_assignment.sn -O1 default
+PASS tests/rgen/by_value_scalar_parameter_assignment.sn -O2 default
+PASS tests/rgen/by_value_scalar_parameter_assignment_unchecked.sn -O0 default
+PASS tests/rgen/by_value_scalar_parameter_assignment_unchecked.sn -O1 default
+PASS tests/rgen/by_value_scalar_parameter_assignment_unchecked.sn -O2 default
+PASS tests/rgen/checked_numeric_mutations.sn -O0 default
+PASS tests/rgen/checked_numeric_mutations.sn -O1 default
+PASS tests/rgen/checked_numeric_mutations.sn -O2 default
+PASS tests/rgen/iterator_protocol_numeric_mutations.sn -O0 default
+PASS tests/rgen/iterator_protocol_numeric_mutations.sn -O1 default
+PASS tests/rgen/iterator_protocol_numeric_mutations.sn -O2 default
+PASS tests/rgen/resolved_callable_methods.sn -O0 default
+PASS tests/rgen/resolved_callable_methods.sn -O1 default
+PASS tests/rgen/resolved_callable_methods.sn -O2 default
+PASS tests/rgen/receiver_array_alias.sn -O0 default
+PASS tests/rgen/receiver_array_alias.sn -O1 default
+PASS tests/rgen/receiver_array_alias.sn -O2 default
+PASS tests/rgen/receiver_array_alias_forward_recursive.sn -O0 default
+PASS tests/rgen/receiver_array_alias_forward_recursive.sn -O1 default
+PASS tests/rgen/receiver_array_alias_forward_recursive.sn -O2 default
+PASS tests/rgen/receiver_array_alias_identity.sn -O0 default
+PASS tests/rgen/receiver_array_alias_identity.sn -O1 default
+PASS tests/rgen/receiver_array_alias_identity.sn -O2 default
+PASS tests/rgen/receiver_array_alias_minimal.sn -O0 default
+PASS tests/rgen/receiver_array_alias_minimal.sn -O1 default
+PASS tests/rgen/receiver_array_alias_minimal.sn -O2 default
+PASS tests/rgen/receiver_array_alias_multiple.sn -O0 default
+PASS tests/rgen/receiver_array_alias_multiple.sn -O1 default
+PASS tests/rgen/receiver_array_alias_multiple.sn -O2 default
+PASS tests/rust-concurrency/argument_order.sn -O0 default
+PASS tests/rust-concurrency/argument_order.sn -O1 default
+PASS tests/rust-concurrency/argument_order.sn -O2 default
+PASS tests/rust-concurrency/fixed_width_cells.sn -O0 default
+PASS tests/rust-concurrency/fixed_width_cells.sn -O1 default
+PASS tests/rust-concurrency/fixed_width_cells.sn -O2 default
+PASS tests/rust-concurrency/global_initialization.sn -O0 default
+PASS tests/rust-concurrency/global_initialization.sn -O1 default
+PASS tests/rust-concurrency/global_initialization.sn -O2 default
+PASS tests/rust-concurrency/global_places.sn -O0 default
+PASS tests/rust-concurrency/global_places.sn -O1 default
+PASS tests/rust-concurrency/global_places.sn -O2 default
+PASS tests/rust-concurrency/hygiene.sn -O0 default
+PASS tests/rust-concurrency/hygiene.sn -O1 default
+PASS tests/rust-concurrency/hygiene.sn -O2 default
+PASS tests/rust-concurrency/join_visibility.sn -O0 default
+PASS tests/rust-concurrency/join_visibility.sn -O1 default
+PASS tests/rust-concurrency/join_visibility.sn -O2 default
+PASS tests/rust-concurrency/lock_return.sn -O0 default
+PASS tests/rust-concurrency/lock_return.sn -O1 default
+PASS tests/rust-concurrency/lock_return.sn -O2 default
+PASS tests/rust-concurrency/owned_arguments.sn -O0 default
+PASS tests/rust-concurrency/owned_arguments.sn -O1 default
+PASS tests/rust-concurrency/owned_arguments.sn -O2 default
+PASS tests/rust-concurrency/scope_join.sn -O0 default
+PASS tests/rust-concurrency/scope_join.sn -O1 default
+PASS tests/rust-concurrency/scope_join.sn -O2 default
+PASS tests/rust-concurrency/sync_guard_reentry.sn -O0 default
+PASS tests/rust-concurrency/sync_guard_reentry.sn -O1 default
+PASS tests/rust-concurrency/sync_guard_reentry.sn -O2 default
+PASS tests/rgen/concurrency-promoted/floating_compound_sync_local.sn -O0 default
+PASS tests/rgen/concurrency-promoted/floating_compound_sync_local.sn -O1 default
+PASS tests/rgen/concurrency-promoted/floating_compound_sync_local.sn -O2 default
+PASS tests/rgen/concurrency-promoted/floating_postfix_sync_local.sn -O0 default
+PASS tests/rgen/concurrency-promoted/floating_postfix_sync_local.sn -O1 default
+PASS tests/rgen/concurrency-promoted/floating_postfix_sync_local.sn -O2 default
+PASS tests/rgen/concurrency-promoted/import_pure_unsupported_global.sn -O0 default
+PASS tests/rgen/concurrency-promoted/import_pure_unsupported_global.sn -O1 default
+PASS tests/rgen/concurrency-promoted/import_pure_unsupported_global.sn -O2 default
+PASS tests/rgen/concurrency-promoted/statement_match_unsupported_body.sn -O0 default
+PASS tests/rgen/concurrency-promoted/statement_match_unsupported_body.sn -O1 default
+PASS tests/rgen/concurrency-promoted/statement_match_unsupported_body.sn -O2 default
+PASS tests/rgen/concurrency-promoted/sync_local_compound_mutation.sn -O0 default
+PASS tests/rgen/concurrency-promoted/sync_local_compound_mutation.sn -O1 default
+PASS tests/rgen/concurrency-promoted/sync_local_compound_mutation.sn -O2 default
+PASS tests/rgen/concurrency-promoted/sync_local_decrement_mutation.sn -O0 default
+PASS tests/rgen/concurrency-promoted/sync_local_decrement_mutation.sn -O1 default
+PASS tests/rgen/concurrency-promoted/sync_local_decrement_mutation.sn -O2 default
+PASS tests/rgen/concurrency-promoted/sync_local_increment_mutation.sn -O0 default
+PASS tests/rgen/concurrency-promoted/sync_local_increment_mutation.sn -O1 default
+PASS tests/rgen/concurrency-promoted/sync_local_increment_mutation.sn -O2 default
+PASS tests/rust-thread-ownership/concurrent_references.sn -O0 default
+PASS tests/rust-thread-ownership/concurrent_references.sn -O1 default
+PASS tests/rust-thread-ownership/concurrent_references.sn -O2 default
+PASS tests/rust-thread-ownership/concurrent_references.sn -O0 checked
+PASS tests/rust-thread-ownership/concurrent_references.sn -O1 checked
+PASS tests/rust-thread-ownership/concurrent_references.sn -O2 checked
+PASS tests/rust-thread-ownership/concurrent_references.sn -O0 unchecked
+PASS tests/rust-thread-ownership/concurrent_references.sn -O1 unchecked
+PASS tests/rust-thread-ownership/concurrent_references.sn -O2 unchecked
+PASS tests/rust-thread-ownership/empty_handles.sn -O0 default
+PASS tests/rust-thread-ownership/empty_handles.sn -O1 default
+PASS tests/rust-thread-ownership/empty_handles.sn -O2 default
+PASS tests/rust-thread-ownership/empty_handles.sn -O0 checked
+PASS tests/rust-thread-ownership/empty_handles.sn -O1 checked
+PASS tests/rust-thread-ownership/empty_handles.sn -O2 checked
+PASS tests/rust-thread-ownership/empty_handles.sn -O0 unchecked
+PASS tests/rust-thread-ownership/empty_handles.sn -O1 unchecked
+PASS tests/rust-thread-ownership/empty_handles.sn -O2 unchecked
+PASS tests/rust-thread-ownership/escaped_capture.sn -O0 default
+PASS tests/rust-thread-ownership/escaped_capture.sn -O1 default
+PASS tests/rust-thread-ownership/escaped_capture.sn -O2 default
+PASS tests/rust-thread-ownership/escaped_capture.sn -O0 checked
+PASS tests/rust-thread-ownership/escaped_capture.sn -O1 checked
+PASS tests/rust-thread-ownership/escaped_capture.sn -O2 checked
+PASS tests/rust-thread-ownership/escaped_capture.sn -O0 unchecked
+PASS tests/rust-thread-ownership/escaped_capture.sn -O1 unchecked
+PASS tests/rust-thread-ownership/escaped_capture.sn -O2 unchecked
+PASS tests/rust-thread-ownership/handle_array_alias.sn -O0 default
+PASS tests/rust-thread-ownership/handle_array_alias.sn -O1 default
+PASS tests/rust-thread-ownership/handle_array_alias.sn -O2 default
+PASS tests/rust-thread-ownership/handle_array_alias.sn -O0 checked
+PASS tests/rust-thread-ownership/handle_array_alias.sn -O1 checked
+PASS tests/rust-thread-ownership/handle_array_alias.sn -O2 checked
+PASS tests/rust-thread-ownership/handle_array_alias.sn -O0 unchecked
+PASS tests/rust-thread-ownership/handle_array_alias.sn -O1 unchecked
+PASS tests/rust-thread-ownership/handle_array_alias.sn -O2 unchecked
+PASS tests/rust-thread-ownership/handle_array_assignment.sn -O0 default
+PASS tests/rust-thread-ownership/handle_array_assignment.sn -O1 default
+PASS tests/rust-thread-ownership/handle_array_assignment.sn -O2 default
+PASS tests/rust-thread-ownership/handle_array_assignment.sn -O0 checked
+PASS tests/rust-thread-ownership/handle_array_assignment.sn -O1 checked
+PASS tests/rust-thread-ownership/handle_array_assignment.sn -O2 checked
+PASS tests/rust-thread-ownership/handle_array_assignment.sn -O0 unchecked
+PASS tests/rust-thread-ownership/handle_array_assignment.sn -O1 unchecked
+PASS tests/rust-thread-ownership/handle_array_assignment.sn -O2 unchecked
+PASS tests/rust-thread-ownership/recursive.sn -O0 default
+PASS tests/rust-thread-ownership/recursive.sn -O1 default
+PASS tests/rust-thread-ownership/recursive.sn -O2 default
+PASS tests/rust-thread-ownership/recursive.sn -O0 checked
+PASS tests/rust-thread-ownership/recursive.sn -O1 checked
+PASS tests/rust-thread-ownership/recursive.sn -O2 checked
+PASS tests/rust-thread-ownership/recursive.sn -O0 unchecked
+PASS tests/rust-thread-ownership/recursive.sn -O1 unchecked
+PASS tests/rust-thread-ownership/recursive.sn -O2 unchecked
+PASS tests/rust-thread-ownership/reference_aliases.sn -O0 default
+PASS tests/rust-thread-ownership/reference_aliases.sn -O1 default
+PASS tests/rust-thread-ownership/reference_aliases.sn -O2 default
+PASS tests/rust-thread-ownership/reference_aliases.sn -O0 checked
+PASS tests/rust-thread-ownership/reference_aliases.sn -O1 checked
+PASS tests/rust-thread-ownership/reference_aliases.sn -O2 checked
+PASS tests/rust-thread-ownership/reference_aliases.sn -O0 unchecked
+PASS tests/rust-thread-ownership/reference_aliases.sn -O1 unchecked
+PASS tests/rust-thread-ownership/reference_aliases.sn -O2 unchecked
+PASS tests/rust-thread-ownership/shared_array.sn -O0 default
+PASS tests/rust-thread-ownership/shared_array.sn -O1 default
+PASS tests/rust-thread-ownership/shared_array.sn -O2 default
+PASS tests/rust-thread-ownership/shared_array.sn -O0 checked
+PASS tests/rust-thread-ownership/shared_array.sn -O1 checked
+PASS tests/rust-thread-ownership/shared_array.sn -O2 checked
+PASS tests/rust-thread-ownership/shared_array.sn -O0 unchecked
+PASS tests/rust-thread-ownership/shared_array.sn -O1 unchecked
+PASS tests/rust-thread-ownership/shared_array.sn -O2 unchecked
+PASS tests/rust-thread-ownership/shared_scalar.sn -O0 default
+PASS tests/rust-thread-ownership/shared_scalar.sn -O1 default
+PASS tests/rust-thread-ownership/shared_scalar.sn -O2 default
+PASS tests/rust-thread-ownership/shared_scalar.sn -O0 checked
+PASS tests/rust-thread-ownership/shared_scalar.sn -O1 checked
+PASS tests/rust-thread-ownership/shared_scalar.sn -O2 checked
+PASS tests/rust-thread-ownership/shared_scalar.sn -O0 unchecked
+PASS tests/rust-thread-ownership/shared_scalar.sn -O1 unchecked
+PASS tests/rust-thread-ownership/shared_scalar.sn -O2 unchecked
+PASS tests/rust-thread-ownership/sync_reference.sn -O0 default
+PASS tests/rust-thread-ownership/sync_reference.sn -O1 default
+PASS tests/rust-thread-ownership/sync_reference.sn -O2 default
+PASS tests/rust-thread-ownership/sync_reference.sn -O0 checked
+PASS tests/rust-thread-ownership/sync_reference.sn -O1 checked
+PASS tests/rust-thread-ownership/sync_reference.sn -O2 checked
+PASS tests/rust-thread-ownership/sync_reference.sn -O0 unchecked
+PASS tests/rust-thread-ownership/sync_reference.sn -O1 unchecked
+PASS tests/rust-thread-ownership/sync_reference.sn -O2 unchecked
+PASS tests/rust-thread-ownership/using_return.sn -O0 default
+PASS tests/rust-thread-ownership/using_return.sn -O1 default
+PASS tests/rust-thread-ownership/using_return.sn -O2 default
+PASS tests/rust-thread-ownership/using_return.sn -O0 checked
+PASS tests/rust-thread-ownership/using_return.sn -O1 checked
+PASS tests/rust-thread-ownership/using_return.sn -O2 checked
+PASS tests/rust-thread-ownership/using_return.sn -O0 unchecked
+PASS tests/rust-thread-ownership/using_return.sn -O1 unchecked
+PASS tests/rust-thread-ownership/using_return.sn -O2 unchecked
+PASS tests/rust-thread-array-identity/alias_rebind.sn -O0 default
+PASS tests/rust-thread-array-identity/alias_rebind.sn -O1 default
+PASS tests/rust-thread-array-identity/alias_rebind.sn -O2 default
+PASS tests/rust-thread-array-identity/alias_rebind.sn -O0 checked
+PASS tests/rust-thread-array-identity/alias_rebind.sn -O1 checked
+PASS tests/rust-thread-array-identity/alias_rebind.sn -O2 checked
+PASS tests/rust-thread-array-identity/alias_rebind.sn -O0 unchecked
+PASS tests/rust-thread-array-identity/alias_rebind.sn -O1 unchecked
+PASS tests/rust-thread-array-identity/alias_rebind.sn -O2 unchecked
+PASS tests/rust-thread-array-identity/argument_order.sn -O0 default
+PASS tests/rust-thread-array-identity/argument_order.sn -O1 default
+PASS tests/rust-thread-array-identity/argument_order.sn -O2 default
+PASS tests/rust-thread-array-identity/argument_order.sn -O0 checked
+PASS tests/rust-thread-array-identity/argument_order.sn -O1 checked
+PASS tests/rust-thread-array-identity/argument_order.sn -O2 checked
+PASS tests/rust-thread-array-identity/argument_order.sn -O0 unchecked
+PASS tests/rust-thread-array-identity/argument_order.sn -O1 unchecked
+PASS tests/rust-thread-array-identity/argument_order.sn -O2 unchecked
+PASS tests/rust-thread-array-identity/indexed_array_field_order.sn -O0 default
+PASS tests/rust-thread-array-identity/indexed_array_field_order.sn -O1 default
+PASS tests/rust-thread-array-identity/indexed_array_field_order.sn -O2 default
+PASS tests/rust-thread-array-identity/indexed_array_field_order.sn -O0 checked
+PASS tests/rust-thread-array-identity/indexed_array_field_order.sn -O1 checked
+PASS tests/rust-thread-array-identity/indexed_array_field_order.sn -O2 checked
+PASS tests/rust-thread-array-identity/indexed_array_field_order.sn -O0 unchecked
+PASS tests/rust-thread-array-identity/indexed_array_field_order.sn -O1 unchecked
+PASS tests/rust-thread-array-identity/indexed_array_field_order.sn -O2 unchecked
+PASS tests/rust-thread-array-identity/indexed_cleanup_callback.sn -O0 default
+PASS tests/rust-thread-array-identity/indexed_cleanup_callback.sn -O1 default
+PASS tests/rust-thread-array-identity/indexed_cleanup_callback.sn -O2 default
+PASS tests/rust-thread-array-identity/indexed_cleanup_callback.sn -O0 checked
+PASS tests/rust-thread-array-identity/indexed_cleanup_callback.sn -O1 checked
+PASS tests/rust-thread-array-identity/indexed_cleanup_callback.sn -O2 checked
+PASS tests/rust-thread-array-identity/indexed_cleanup_callback.sn -O0 unchecked
+PASS tests/rust-thread-array-identity/indexed_cleanup_callback.sn -O1 unchecked
+PASS tests/rust-thread-array-identity/indexed_cleanup_callback.sn -O2 unchecked
+PASS tests/rust-thread-array-identity/indexed_member.sn.raw -O0 default
+PASS tests/rust-thread-array-identity/indexed_member.sn.raw -O1 default
+PASS tests/rust-thread-array-identity/indexed_member.sn.raw -O2 default
+PASS tests/rust-thread-array-identity/indexed_member.sn.raw -O0 checked
+PASS tests/rust-thread-array-identity/indexed_member.sn.raw -O1 checked
+PASS tests/rust-thread-array-identity/indexed_member.sn.raw -O2 checked
+PASS tests/rust-thread-array-identity/indexed_member.sn.raw -O0 unchecked
+PASS tests/rust-thread-array-identity/indexed_member.sn.raw -O1 unchecked
+PASS tests/rust-thread-array-identity/indexed_member.sn.raw -O2 unchecked
+PASS tests/rust-thread-array-identity/indexed_member_rhs_join.sn -O0 default
+PASS tests/rust-thread-array-identity/indexed_member_rhs_join.sn -O1 default
+PASS tests/rust-thread-array-identity/indexed_member_rhs_join.sn -O2 default
+PASS tests/rust-thread-array-identity/indexed_member_rhs_join.sn -O0 checked
+PASS tests/rust-thread-array-identity/indexed_member_rhs_join.sn -O1 checked
+PASS tests/rust-thread-array-identity/indexed_member_rhs_join.sn -O2 checked
+PASS tests/rust-thread-array-identity/indexed_member_rhs_join.sn -O0 unchecked
+PASS tests/rust-thread-array-identity/indexed_member_rhs_join.sn -O1 unchecked
+PASS tests/rust-thread-array-identity/indexed_member_rhs_join.sn -O2 unchecked
+PASS tests/rust-thread-array-identity/indexed_nested_cleanup.sn.raw -O0 default
+PASS tests/rust-thread-array-identity/indexed_nested_cleanup.sn.raw -O1 default
+PASS tests/rust-thread-array-identity/indexed_nested_cleanup.sn.raw -O2 default
+PASS tests/rust-thread-array-identity/indexed_nested_cleanup.sn.raw -O0 checked
+PASS tests/rust-thread-array-identity/indexed_nested_cleanup.sn.raw -O1 checked
+PASS tests/rust-thread-array-identity/indexed_nested_cleanup.sn.raw -O2 checked
+PASS tests/rust-thread-array-identity/indexed_nested_cleanup.sn.raw -O0 unchecked
+PASS tests/rust-thread-array-identity/indexed_nested_cleanup.sn.raw -O1 unchecked
+PASS tests/rust-thread-array-identity/indexed_nested_cleanup.sn.raw -O2 unchecked
+PASS tests/rust-thread-array-identity/mutation.sn -O0 default
+PASS tests/rust-thread-array-identity/mutation.sn -O1 default
+PASS tests/rust-thread-array-identity/mutation.sn -O2 default
+PASS tests/rust-thread-array-identity/mutation.sn -O0 checked
+PASS tests/rust-thread-array-identity/mutation.sn -O1 checked
+PASS tests/rust-thread-array-identity/mutation.sn -O2 checked
+PASS tests/rust-thread-array-identity/mutation.sn -O0 unchecked
+PASS tests/rust-thread-array-identity/mutation.sn -O1 unchecked
+PASS tests/rust-thread-array-identity/mutation.sn -O2 unchecked
+PASS tests/rust-thread-array-identity/mutation.sn.raw -O0 default
+PASS tests/rust-thread-array-identity/mutation.sn.raw -O1 default
+PASS tests/rust-thread-array-identity/mutation.sn.raw -O2 default
+PASS tests/rust-thread-array-identity/mutation.sn.raw -O0 checked
+PASS tests/rust-thread-array-identity/mutation.sn.raw -O1 checked
+PASS tests/rust-thread-array-identity/mutation.sn.raw -O2 checked
+PASS tests/rust-thread-array-identity/mutation.sn.raw -O0 unchecked
+PASS tests/rust-thread-array-identity/mutation.sn.raw -O1 unchecked
+PASS tests/rust-thread-array-identity/mutation.sn.raw -O2 unchecked
+PASS tests/rust-thread-array-identity/nested_join.sn -O0 default
+PASS tests/rust-thread-array-identity/nested_join.sn -O1 default
+PASS tests/rust-thread-array-identity/nested_join.sn -O2 default
+PASS tests/rust-thread-array-identity/nested_join.sn -O0 checked
+PASS tests/rust-thread-array-identity/nested_join.sn -O1 checked
+PASS tests/rust-thread-array-identity/nested_join.sn -O2 checked
+PASS tests/rust-thread-array-identity/nested_join.sn -O0 unchecked
+PASS tests/rust-thread-array-identity/nested_join.sn -O1 unchecked
+PASS tests/rust-thread-array-identity/nested_join.sn -O2 unchecked
+PASS tests/rust-thread-array-identity/repeated_argument.sn -O0 default
+PASS tests/rust-thread-array-identity/repeated_argument.sn -O1 default
+PASS tests/rust-thread-array-identity/repeated_argument.sn -O2 default
+PASS tests/rust-thread-array-identity/repeated_argument.sn -O0 checked
+PASS tests/rust-thread-array-identity/repeated_argument.sn -O1 checked
+PASS tests/rust-thread-array-identity/repeated_argument.sn -O2 checked
+PASS tests/rust-thread-array-identity/repeated_argument.sn -O0 unchecked
+PASS tests/rust-thread-array-identity/repeated_argument.sn -O1 unchecked
+PASS tests/rust-thread-array-identity/repeated_argument.sn -O2 unchecked
+PASS tests/rust-thread-array-identity/temporary_argument.sn -O0 default
+PASS tests/rust-thread-array-identity/temporary_argument.sn -O1 default
+PASS tests/rust-thread-array-identity/temporary_argument.sn -O2 default
+PASS tests/rust-thread-array-identity/temporary_argument.sn -O0 checked
+PASS tests/rust-thread-array-identity/temporary_argument.sn -O1 checked
+PASS tests/rust-thread-array-identity/temporary_argument.sn -O2 checked
+PASS tests/rust-thread-array-identity/temporary_argument.sn -O0 unchecked
+PASS tests/rust-thread-array-identity/temporary_argument.sn -O1 unchecked
+PASS tests/rust-thread-array-identity/temporary_argument.sn -O2 unchecked
+PASS tests/rust-thread-receivers/aggregate_reference.sn -O0 default
+PASS tests/rust-thread-receivers/aggregate_reference.sn -O1 default
+PASS tests/rust-thread-receivers/aggregate_reference.sn -O2 default
+PASS tests/rust-thread-receivers/aggregate_reference.sn -O0 checked
+PASS tests/rust-thread-receivers/aggregate_reference.sn -O1 checked
+PASS tests/rust-thread-receivers/aggregate_reference.sn -O2 checked
+PASS tests/rust-thread-receivers/aggregate_reference.sn -O0 unchecked
+PASS tests/rust-thread-receivers/aggregate_reference.sn -O1 unchecked
+PASS tests/rust-thread-receivers/aggregate_reference.sn -O2 unchecked
+PASS tests/rust-thread-receivers/aggregate_retained_alias.sn -O0 default
+PASS tests/rust-thread-receivers/aggregate_retained_alias.sn -O1 default
+PASS tests/rust-thread-receivers/aggregate_retained_alias.sn -O2 default
+PASS tests/rust-thread-receivers/aggregate_retained_alias.sn -O0 checked
+PASS tests/rust-thread-receivers/aggregate_retained_alias.sn -O1 checked
+PASS tests/rust-thread-receivers/aggregate_retained_alias.sn -O2 checked
+PASS tests/rust-thread-receivers/aggregate_retained_alias.sn -O0 unchecked
+PASS tests/rust-thread-receivers/aggregate_retained_alias.sn -O1 unchecked
+PASS tests/rust-thread-receivers/aggregate_retained_alias.sn -O2 unchecked
+PASS tests/rust-thread-receivers/aggregate_return.sn -O0 default
+PASS tests/rust-thread-receivers/aggregate_return.sn -O1 default
+PASS tests/rust-thread-receivers/aggregate_return.sn -O2 default
+PASS tests/rust-thread-receivers/aggregate_return.sn -O0 checked
+PASS tests/rust-thread-receivers/aggregate_return.sn -O1 checked
+PASS tests/rust-thread-receivers/aggregate_return.sn -O2 checked
+PASS tests/rust-thread-receivers/aggregate_return.sn -O0 unchecked
+PASS tests/rust-thread-receivers/aggregate_return.sn -O1 unchecked
+PASS tests/rust-thread-receivers/aggregate_return.sn -O2 unchecked
+PASS tests/rust-thread-receivers/aggregate_value_snapshot.sn -O0 default
+PASS tests/rust-thread-receivers/aggregate_value_snapshot.sn -O1 default
+PASS tests/rust-thread-receivers/aggregate_value_snapshot.sn -O2 default
+PASS tests/rust-thread-receivers/aggregate_value_snapshot.sn -O0 checked
+PASS tests/rust-thread-receivers/aggregate_value_snapshot.sn -O1 checked
+PASS tests/rust-thread-receivers/aggregate_value_snapshot.sn -O2 checked
+PASS tests/rust-thread-receivers/aggregate_value_snapshot.sn -O0 unchecked
+PASS tests/rust-thread-receivers/aggregate_value_snapshot.sn -O1 unchecked
+PASS tests/rust-thread-receivers/aggregate_value_snapshot.sn -O2 unchecked
+PASS tests/rust-thread-receivers/receiver_compound.sn -O0 default
+PASS tests/rust-thread-receivers/receiver_compound.sn -O1 default
+PASS tests/rust-thread-receivers/receiver_compound.sn -O2 default
+PASS tests/rust-thread-receivers/receiver_compound.sn -O0 checked
+PASS tests/rust-thread-receivers/receiver_compound.sn -O1 checked
+PASS tests/rust-thread-receivers/receiver_compound.sn -O2 checked
+PASS tests/rust-thread-receivers/receiver_compound.sn -O0 unchecked
+PASS tests/rust-thread-receivers/receiver_compound.sn -O1 unchecked
+PASS tests/rust-thread-receivers/receiver_compound.sn -O2 unchecked
+PASS tests/rust-thread-receivers/receiver_nested_join.sn -O0 default
+PASS tests/rust-thread-receivers/receiver_nested_join.sn -O1 default
+PASS tests/rust-thread-receivers/receiver_nested_join.sn -O2 default
+PASS tests/rust-thread-receivers/receiver_nested_join.sn -O0 checked
+PASS tests/rust-thread-receivers/receiver_nested_join.sn -O1 checked
+PASS tests/rust-thread-receivers/receiver_nested_join.sn -O2 checked
+PASS tests/rust-thread-receivers/receiver_nested_join.sn -O0 unchecked
+PASS tests/rust-thread-receivers/receiver_nested_join.sn -O1 unchecked
+PASS tests/rust-thread-receivers/receiver_nested_join.sn -O2 unchecked
+PASS tests/rust-thread-receivers/receiver_visible_write.sn -O0 default
+PASS tests/rust-thread-receivers/receiver_visible_write.sn -O1 default
+PASS tests/rust-thread-receivers/receiver_visible_write.sn -O2 default
+PASS tests/rust-thread-receivers/receiver_visible_write.sn -O0 checked
+PASS tests/rust-thread-receivers/receiver_visible_write.sn -O1 checked
+PASS tests/rust-thread-receivers/receiver_visible_write.sn -O2 checked
+PASS tests/rust-thread-receivers/receiver_visible_write.sn -O0 unchecked
+PASS tests/rust-thread-receivers/receiver_visible_write.sn -O1 unchecked
+PASS tests/rust-thread-receivers/receiver_visible_write.sn -O2 unchecked
+PASS tests/integration/test_thread_spawn_self_method.sn -O0 default
+PASS tests/integration/test_thread_spawn_self_method.sn -O1 default
+PASS tests/integration/test_thread_spawn_self_method.sn -O2 default
+PASS tests/integration/test_thread_spawn_self_method.sn -O0 checked
+PASS tests/integration/test_thread_spawn_self_method.sn -O1 checked
+PASS tests/integration/test_thread_spawn_self_method.sn -O2 checked
+PASS tests/integration/test_thread_spawn_self_method.sn -O0 unchecked
+PASS tests/integration/test_thread_spawn_self_method.sn -O1 unchecked
+PASS tests/integration/test_thread_spawn_self_method.sn -O2 unchecked
+PASS tests/integration/test_thread_struct_param.sn -O0 default
+PASS tests/integration/test_thread_struct_param.sn -O1 default
+PASS tests/integration/test_thread_struct_param.sn -O2 default
+PASS tests/integration/test_thread_struct_param.sn -O0 checked
+PASS tests/integration/test_thread_struct_param.sn -O1 checked
+PASS tests/integration/test_thread_struct_param.sn -O2 checked
+PASS tests/integration/test_thread_struct_param.sn -O0 unchecked
+PASS tests/integration/test_thread_struct_param.sn -O1 unchecked
+PASS tests/integration/test_thread_struct_param.sn -O2 unchecked
+PASS tests/integration/test_pass_self_to_function.sn -O0 default
+PASS tests/integration/test_pass_self_to_function.sn -O1 default
+PASS tests/integration/test_pass_self_to_function.sn -O2 default
+PASS tests/integration/test_pass_self_to_function.sn -O0 checked
+PASS tests/integration/test_pass_self_to_function.sn -O1 checked
+PASS tests/integration/test_pass_self_to_function.sn -O2 checked
+PASS tests/integration/test_pass_self_to_function.sn -O0 unchecked
+PASS tests/integration/test_pass_self_to_function.sn -O1 unchecked
+PASS tests/integration/test_pass_self_to_function.sn -O2 unchecked
+PASS tests/rgen/typeof_sized_array.sn -O0 default
+PASS tests/rgen/typeof_sized_array.sn -O1 default
+PASS tests/rgen/typeof_sized_array.sn -O2 default
+PASS tests/rgen/typeof_sized_array.sn -O0 checked
+PASS tests/rgen/typeof_sized_array.sn -O1 checked
+PASS tests/rgen/typeof_sized_array.sn -O2 checked
+PASS tests/rgen/typeof_sized_array.sn -O0 unchecked
+PASS tests/rgen/typeof_sized_array.sn -O1 unchecked
+PASS tests/rgen/typeof_sized_array.sn -O2 unchecked
+PASS tests/rgen/typeof_sized_array_contract.sn -O0 default
+PASS tests/rgen/typeof_sized_array_contract.sn -O1 default
+PASS tests/rgen/typeof_sized_array_contract.sn -O2 default
+PASS tests/rgen/typeof_sized_array_contract.sn -O0 checked
+PASS tests/rgen/typeof_sized_array_contract.sn -O1 checked
+PASS tests/rgen/typeof_sized_array_contract.sn -O2 checked
+PASS tests/rgen/typeof_sized_array_contract.sn -O0 unchecked
+PASS tests/rgen/typeof_sized_array_contract.sn -O1 unchecked
+PASS tests/rgen/typeof_sized_array_contract.sn -O2 unchecked
+PASS tests/rgen/typeof_metadata.sn -O0 default
+PASS tests/rgen/typeof_metadata.sn -O1 default
+PASS tests/rgen/typeof_metadata.sn -O2 default
+PASS tests/rgen/typeof_metadata.sn -O0 checked
+PASS tests/rgen/typeof_metadata.sn -O1 checked
+PASS tests/rgen/typeof_metadata.sn -O2 checked
+PASS tests/rgen/typeof_metadata.sn -O0 unchecked
+PASS tests/rgen/typeof_metadata.sn -O1 unchecked
+PASS tests/rgen/typeof_metadata.sn -O2 unchecked
+PASS tests/integration/test_typeof.sn -O0 default
+PASS tests/integration/test_typeof.sn -O1 default
+PASS tests/integration/test_typeof.sn -O2 default
+PASS tests/integration/test_typeof.sn -O0 checked
+PASS tests/integration/test_typeof.sn -O1 checked
+PASS tests/integration/test_typeof.sn -O2 checked
+PASS tests/integration/test_typeof.sn -O0 unchecked
+PASS tests/integration/test_typeof.sn -O1 unchecked
+PASS tests/integration/test_typeof.sn -O2 unchecked
+PASS tests/integration/test_sized_array_syntax.sn -O0 default
+PASS tests/integration/test_sized_array_syntax.sn -O1 default
+PASS tests/integration/test_sized_array_syntax.sn -O2 default
+PASS tests/integration/test_sized_array_syntax.sn -O0 checked
+PASS tests/integration/test_sized_array_syntax.sn -O1 checked
+PASS tests/integration/test_sized_array_syntax.sn -O2 checked
+PASS tests/integration/test_sized_array_syntax.sn -O0 unchecked
+PASS tests/integration/test_sized_array_syntax.sn -O1 unchecked
+PASS tests/integration/test_sized_array_syntax.sn -O2 unchecked
+PASS tests/rgen/sized_array_defaults.sn -O0 default
+PASS tests/rgen/sized_array_defaults.sn -O1 default
+PASS tests/rgen/sized_array_defaults.sn -O2 default
+PASS tests/rgen/sized_array_defaults.sn -O0 checked
+PASS tests/rgen/sized_array_defaults.sn -O1 checked
+PASS tests/rgen/sized_array_defaults.sn -O2 checked
+PASS tests/rgen/sized_array_defaults.sn -O0 unchecked
+PASS tests/rgen/sized_array_defaults.sn -O1 unchecked
+PASS tests/rgen/sized_array_defaults.sn -O2 unchecked
+PASS tests/rgen/typeof_sized_array.sn -O0 default
+PASS tests/rgen/typeof_sized_array.sn -O1 default
+PASS tests/rgen/typeof_sized_array.sn -O2 default
+PASS tests/rgen/typeof_sized_array.sn -O0 checked
+PASS tests/rgen/typeof_sized_array.sn -O1 checked
+PASS tests/rgen/typeof_sized_array.sn -O2 checked
+PASS tests/rgen/typeof_sized_array.sn -O0 unchecked
+PASS tests/rgen/typeof_sized_array.sn -O1 unchecked
+PASS tests/rgen/typeof_sized_array.sn -O2 unchecked
+PASS tests/integration/test_pointer_unwrap.sn -O0 default
+PASS tests/integration/test_pointer_unwrap.sn -O1 default
+PASS tests/integration/test_pointer_unwrap.sn -O2 default
+PASS tests/integration/test_pointer_unwrap.sn -O0 checked
+PASS tests/integration/test_pointer_unwrap.sn -O1 checked
+PASS tests/integration/test_pointer_unwrap.sn -O2 checked
+PASS tests/integration/test_pointer_unwrap.sn -O0 unchecked
+PASS tests/integration/test_pointer_unwrap.sn -O1 unchecked
+PASS tests/integration/test_pointer_unwrap.sn -O2 unchecked
+PASS tests/integration/test_interop_pointers.sn -O0 default
+PASS tests/integration/test_interop_pointers.sn -O1 default
+PASS tests/integration/test_interop_pointers.sn -O2 default
+PASS tests/integration/test_interop_pointers.sn -O0 checked
+PASS tests/integration/test_interop_pointers.sn -O1 checked
+PASS tests/integration/test_interop_pointers.sn -O2 checked
+PASS tests/integration/test_interop_pointers.sn -O0 unchecked
+PASS tests/integration/test_interop_pointers.sn -O1 unchecked
+PASS tests/integration/test_interop_pointers.sn -O2 unchecked
+PASS tests/rust-native/scalar_managed_pointer_bridge.sn -O0 default
+PASS tests/rust-native/scalar_managed_pointer_bridge.sn -O1 default
+PASS tests/rust-native/scalar_managed_pointer_bridge.sn -O2 default
+PASS tests/rust-native/scalar_managed_pointer_bridge.sn -O0 checked
+PASS tests/rust-native/scalar_managed_pointer_bridge.sn -O1 checked
+PASS tests/rust-native/scalar_managed_pointer_bridge.sn -O2 checked
+PASS tests/rust-native/scalar_managed_pointer_bridge.sn -O0 unchecked
+PASS tests/rust-native/scalar_managed_pointer_bridge.sn -O1 unchecked
+PASS tests/rust-native/scalar_managed_pointer_bridge.sn -O2 unchecked
+PASS tests/rust-native/native_as_ref_char_same_place.sn -O0 default
+PASS tests/rust-native/native_as_ref_char_same_place.sn -O1 default
+PASS tests/rust-native/native_as_ref_char_same_place.sn -O2 default
+PASS tests/rust-native/native_as_ref_char_same_place.sn -O0 checked
+PASS tests/rust-native/native_as_ref_char_same_place.sn -O1 checked
+PASS tests/rust-native/native_as_ref_char_same_place.sn -O2 checked
+PASS tests/rust-native/native_as_ref_char_same_place.sn -O0 unchecked
+PASS tests/rust-native/native_as_ref_char_same_place.sn -O1 unchecked
+PASS tests/rust-native/native_as_ref_char_same_place.sn -O2 unchecked
+PASS tests/rust-native/native_as_ref_char_temp_collision.sn -O0 default
+PASS tests/rust-native/native_as_ref_char_temp_collision.sn -O1 default
+PASS tests/rust-native/native_as_ref_char_temp_collision.sn -O2 default
+PASS tests/rust-native/native_as_ref_char_temp_collision.sn -O0 checked
+PASS tests/rust-native/native_as_ref_char_temp_collision.sn -O1 checked
+PASS tests/rust-native/native_as_ref_char_temp_collision.sn -O2 checked
+PASS tests/rust-native/native_as_ref_char_temp_collision.sn -O0 unchecked
+PASS tests/rust-native/native_as_ref_char_temp_collision.sn -O1 unchecked
+PASS tests/rust-native/native_as_ref_char_temp_collision.sn -O2 unchecked
+PASS tests/rust-native/native_as_ref_same_place.sn -O0 default
+PASS tests/rust-native/native_as_ref_same_place.sn -O1 default
+PASS tests/rust-native/native_as_ref_same_place.sn -O2 default
+PASS tests/rust-native/native_as_ref_same_place.sn -O0 checked
+PASS tests/rust-native/native_as_ref_same_place.sn -O1 checked
+PASS tests/rust-native/native_as_ref_same_place.sn -O2 checked
+PASS tests/rust-native/native_as_ref_same_place.sn -O0 unchecked
+PASS tests/rust-native/native_as_ref_same_place.sn -O1 unchecked
+PASS tests/rust-native/native_as_ref_same_place.sn -O2 unchecked
+PASS tests/rust-native/native_string_escape.sn -O0 default
+PASS tests/rust-native/native_string_escape.sn -O1 default
+PASS tests/rust-native/native_string_escape.sn -O2 default
+PASS tests/rust-native/native_string_escape.sn -O0 checked
+PASS tests/rust-native/native_string_escape.sn -O1 checked
+PASS tests/rust-native/native_string_escape.sn -O2 checked
+PASS tests/rust-native/native_string_escape.sn -O0 unchecked
+PASS tests/rust-native/native_string_escape.sn -O1 unchecked
+PASS tests/rust-native/native_string_escape.sn -O2 unchecked
+PASS assert_heap_message_order default -O0
+PASS assert_heap_message_order default -O1
+PASS assert_heap_message_order default -O2
+PASS assert_heap_message_order checked -O0
+PASS assert_heap_message_order checked -O1
+PASS assert_heap_message_order checked -O2
+PASS assert_heap_message_order unchecked -O0
+PASS assert_heap_message_order unchecked -O1
+PASS assert_heap_message_order unchecked -O2
+PASS stdio_helper_hygiene default -O0
+PASS stdio_helper_hygiene default -O1
+PASS stdio_helper_hygiene default -O2
+PASS stdio_helper_hygiene checked -O0
+PASS stdio_helper_hygiene checked -O1
+PASS stdio_helper_hygiene checked -O2
+PASS stdio_helper_hygiene unchecked -O0
+PASS stdio_helper_hygiene unchecked -O1
+PASS stdio_helper_hygiene unchecked -O2
+PASS test_assert default -O0
+PASS test_assert default -O1
+PASS test_assert default -O2
+PASS test_assert checked -O0
+PASS test_assert checked -O1
+PASS test_assert checked -O2
+PASS test_assert unchecked -O0
+PASS test_assert unchecked -O1
+PASS test_assert unchecked -O2
+PASS test_thread_panic_propagate checked -O0
+PASS test_thread_panic_propagate checked -O1
+PASS test_thread_panic_propagate checked -O2
+PASS tests/exploratory/test_byte_array.sn -O0 default
+PASS tests/exploratory/test_byte_array.sn -O1 default
+PASS tests/exploratory/test_byte_array.sn -O2 default
+PASS tests/exploratory/test_byte_array.sn -O0 checked
+PASS tests/exploratory/test_byte_array.sn -O1 checked
+PASS tests/exploratory/test_byte_array.sn -O2 checked
+PASS tests/exploratory/test_byte_array.sn -O0 unchecked
+PASS tests/exploratory/test_byte_array.sn -O1 unchecked
+PASS tests/exploratory/test_byte_array.sn -O2 unchecked
+PASS tests/exploratory/test_byte_primitives.sn -O0 default
+PASS tests/exploratory/test_byte_primitives.sn -O1 default
+PASS tests/exploratory/test_byte_primitives.sn -O2 default
+PASS tests/exploratory/test_byte_primitives.sn -O0 checked
+PASS tests/exploratory/test_byte_primitives.sn -O1 checked
+PASS tests/exploratory/test_byte_primitives.sn -O2 checked
+PASS tests/exploratory/test_byte_primitives.sn -O0 unchecked
+PASS tests/exploratory/test_byte_primitives.sn -O1 unchecked
+PASS tests/exploratory/test_byte_primitives.sn -O2 unchecked
+PASS tests/exploratory/test_gcc_edge_arrays.sn -O0 default
+PASS tests/exploratory/test_gcc_edge_arrays.sn -O1 default
+PASS tests/exploratory/test_gcc_edge_arrays.sn -O2 default
+PASS tests/exploratory/test_gcc_edge_arrays.sn -O0 checked
+PASS tests/exploratory/test_gcc_edge_arrays.sn -O1 checked
+PASS tests/exploratory/test_gcc_edge_arrays.sn -O2 checked
+PASS tests/exploratory/test_gcc_edge_arrays.sn -O0 unchecked
+PASS tests/exploratory/test_gcc_edge_arrays.sn -O1 unchecked
+PASS tests/exploratory/test_gcc_edge_arrays.sn -O2 unchecked
+PASS tests/exploratory/test_mixed_numeric_types.sn -O0 default
+PASS tests/exploratory/test_mixed_numeric_types.sn -O1 default
+PASS tests/exploratory/test_mixed_numeric_types.sn -O2 default
+PASS tests/exploratory/test_mixed_numeric_types.sn -O0 checked
+PASS tests/exploratory/test_mixed_numeric_types.sn -O1 checked
+PASS tests/exploratory/test_mixed_numeric_types.sn -O2 checked
+PASS tests/exploratory/test_mixed_numeric_types.sn -O0 unchecked
+PASS tests/exploratory/test_mixed_numeric_types.sn -O1 unchecked
+PASS tests/exploratory/test_mixed_numeric_types.sn -O2 unchecked
+PASS tests/integration/test_scope_byte_var.sn -O0 default
+PASS tests/integration/test_scope_byte_var.sn -O1 default
+PASS tests/integration/test_scope_byte_var.sn -O2 default
+PASS tests/integration/test_scope_byte_var.sn -O0 checked
+PASS tests/integration/test_scope_byte_var.sn -O1 checked
+PASS tests/integration/test_scope_byte_var.sn -O2 checked
+PASS tests/integration/test_scope_byte_var.sn -O0 unchecked
+PASS tests/integration/test_scope_byte_var.sn -O1 unchecked
+PASS tests/integration/test_scope_byte_var.sn -O2 unchecked
+PASS tests/rgen/mixed_integral_binary_boundaries.sn -O0 default
+PASS tests/rgen/mixed_integral_binary_boundaries.sn -O1 default
+PASS tests/rgen/mixed_integral_binary_boundaries.sn -O2 default
+PASS tests/rgen/mixed_integral_binary_boundaries.sn -O0 checked
+PASS tests/rgen/mixed_integral_binary_boundaries.sn -O1 checked
+PASS tests/rgen/mixed_integral_binary_boundaries.sn -O2 checked
+PASS tests/rgen/mixed_integral_binary_boundaries.sn -O0 unchecked
+PASS tests/rgen/mixed_integral_binary_boundaries.sn -O1 unchecked
+PASS tests/rgen/mixed_integral_binary_boundaries.sn -O2 unchecked
+PASS tests/integration/test_int32_arithmetic.sn -O0 default
+PASS tests/integration/test_int32_arithmetic.sn -O1 default
+PASS tests/integration/test_int32_arithmetic.sn -O2 default
+PASS tests/integration/test_int32_arithmetic.sn -O0 checked
+PASS tests/integration/test_int32_arithmetic.sn -O1 checked
+PASS tests/integration/test_int32_arithmetic.sn -O2 checked
+PASS tests/integration/test_int32_arithmetic.sn -O0 unchecked
+PASS tests/integration/test_int32_arithmetic.sn -O1 unchecked
+PASS tests/integration/test_int32_arithmetic.sn -O2 unchecked
+PASS tests/rgen/tagged_byte_promotions_checked.sn -O0 default
+PASS tests/rgen/tagged_byte_promotions_checked.sn -O1 default
+PASS tests/rgen/tagged_byte_promotions_checked.sn -O2 default
+PASS tests/rgen/tagged_byte_promotions_checked.sn -O0 checked
+PASS tests/rgen/tagged_byte_promotions_checked.sn -O1 checked
+PASS tests/rgen/tagged_byte_promotions_checked.sn -O2 checked
+PASS tests/rgen/tagged_byte_promotions_checked.sn -O0 unchecked
+PASS tests/rgen/tagged_byte_promotions_checked.sn -O1 unchecked
+PASS tests/rgen/tagged_byte_promotions_checked.sn -O2 unchecked
+PASS tests/integration/test_uint32_arithmetic.sn -O0 default
+PASS tests/integration/test_uint32_arithmetic.sn -O1 default
+PASS tests/integration/test_uint32_arithmetic.sn -O2 default
+PASS tests/integration/test_uint32_arithmetic.sn -O0 checked
+PASS tests/integration/test_uint32_arithmetic.sn -O1 checked
+PASS tests/integration/test_uint32_arithmetic.sn -O2 checked
+PASS tests/integration/test_uint32_arithmetic.sn -O0 unchecked
+PASS tests/integration/test_uint32_arithmetic.sn -O1 unchecked
+PASS tests/integration/test_uint32_arithmetic.sn -O2 unchecked
+PASS tests/rgen/tagged_uint32_literal_observation_contexts.sn -O0 default
+PASS tests/rgen/tagged_uint32_literal_observation_contexts.sn -O1 default
+PASS tests/rgen/tagged_uint32_literal_observation_contexts.sn -O2 default
+PASS tests/rgen/tagged_uint32_literal_observation_contexts.sn -O0 checked
+PASS tests/rgen/tagged_uint32_literal_observation_contexts.sn -O1 checked
+PASS tests/rgen/tagged_uint32_literal_observation_contexts.sn -O2 checked
+PASS tests/rgen/tagged_uint32_literal_observation_contexts.sn -O0 unchecked
+PASS tests/rgen/tagged_uint32_literal_observation_contexts.sn -O1 unchecked
+PASS tests/rgen/tagged_uint32_literal_observation_contexts.sn -O2 unchecked
+PASS mixed_integral_checked_overflow -O0
+PASS mixed_integral_checked_overflow -O1
+PASS mixed_integral_checked_overflow -O2
+PASS mixed_integral_checked_div_zero -O0
+PASS mixed_integral_checked_div_zero -O1
+PASS mixed_integral_checked_div_zero -O2
+PASS mixed_integral_checked_mod_zero -O0
+PASS mixed_integral_checked_mod_zero -O1
+PASS mixed_integral_checked_mod_zero -O2
+PASS tests/integration/test_interop_types.sn -O0 default
+PASS tests/integration/test_interop_types.sn -O1 default
+PASS tests/integration/test_interop_types.sn -O2 default
+PASS tests/integration/test_interop_types.sn -O0 checked
+PASS tests/integration/test_interop_types.sn -O1 checked
+PASS tests/integration/test_interop_types.sn -O2 checked
+PASS tests/integration/test_interop_types.sn -O0 unchecked
+PASS tests/integration/test_interop_types.sn -O1 unchecked
+PASS tests/integration/test_interop_types.sn -O2 unchecked
+PASS tests/rgen/float_conversion_boundaries.sn -O0 default
+PASS tests/rgen/float_conversion_boundaries.sn -O1 default
+PASS tests/rgen/float_conversion_boundaries.sn -O2 default
+PASS tests/rgen/float_conversion_boundaries.sn -O0 checked
+PASS tests/rgen/float_conversion_boundaries.sn -O1 checked
+PASS tests/rgen/float_conversion_boundaries.sn -O2 checked
+PASS tests/rgen/float_conversion_boundaries.sn -O0 unchecked
+PASS tests/rgen/float_conversion_boundaries.sn -O1 unchecked
+PASS tests/rgen/float_conversion_boundaries.sn -O2 unchecked
+PASS tests/rgen/float_callable_conversions.sn -O0 default
+PASS tests/rgen/float_callable_conversions.sn -O1 default
+PASS tests/rgen/float_callable_conversions.sn -O2 default
+PASS tests/rgen/float_callable_conversions.sn -O0 checked
+PASS tests/rgen/float_callable_conversions.sn -O1 checked
+PASS tests/rgen/float_callable_conversions.sn -O2 checked
+PASS tests/rgen/float_callable_conversions.sn -O0 unchecked
+PASS tests/rgen/float_callable_conversions.sn -O1 unchecked
+PASS tests/rgen/float_callable_conversions.sn -O2 unchecked
+PASS tests/rgen/float_mutation_precision.sn -O0 default
+PASS tests/rgen/float_mutation_precision.sn -O1 default
+PASS tests/rgen/float_mutation_precision.sn -O2 default
+PASS tests/rgen/float_mutation_precision.sn -O0 checked
+PASS tests/rgen/float_mutation_precision.sn -O1 checked
+PASS tests/rgen/float_mutation_precision.sn -O2 checked
+PASS tests/rgen/float_mutation_precision.sn -O0 unchecked
+PASS tests/rgen/float_mutation_precision.sn -O1 unchecked
+PASS tests/rgen/float_mutation_precision.sn -O2 unchecked
+PASS tests/rgen/by_value_parameter_direct_assignment_mixed_float_double.sn -O0 default
+PASS tests/rgen/by_value_parameter_direct_assignment_mixed_float_double.sn -O1 default
+PASS tests/rgen/by_value_parameter_direct_assignment_mixed_float_double.sn -O2 default
+PASS tests/rgen/by_value_parameter_direct_assignment_mixed_float_double.sn -O0 checked
+PASS tests/rgen/by_value_parameter_direct_assignment_mixed_float_double.sn -O1 checked
+PASS tests/rgen/by_value_parameter_direct_assignment_mixed_float_double.sn -O2 checked
+PASS tests/rgen/by_value_parameter_direct_assignment_mixed_float_double.sn -O0 unchecked
+PASS tests/rgen/by_value_parameter_direct_assignment_mixed_float_double.sn -O1 unchecked
+PASS tests/rgen/by_value_parameter_direct_assignment_mixed_float_double.sn -O2 unchecked
+PASS tests/rgen/floating_as_ref_parameter_mixed_type_mutation.sn -O0 default
+PASS tests/rgen/floating_as_ref_parameter_mixed_type_mutation.sn -O1 default
+PASS tests/rgen/floating_as_ref_parameter_mixed_type_mutation.sn -O2 default
+PASS tests/rgen/floating_as_ref_parameter_mixed_type_mutation.sn -O0 checked
+PASS tests/rgen/floating_as_ref_parameter_mixed_type_mutation.sn -O1 checked
+PASS tests/rgen/floating_as_ref_parameter_mixed_type_mutation.sn -O2 checked
+PASS tests/rgen/floating_as_ref_parameter_mixed_type_mutation.sn -O0 unchecked
+PASS tests/rgen/floating_as_ref_parameter_mixed_type_mutation.sn -O1 unchecked
+PASS tests/rgen/floating_as_ref_parameter_mixed_type_mutation.sn -O2 unchecked
+PASS tests/rgen/floating_compound_mixed_float_double.sn -O0 default
+PASS tests/rgen/floating_compound_mixed_float_double.sn -O1 default
+PASS tests/rgen/floating_compound_mixed_float_double.sn -O2 default
+PASS tests/rgen/floating_compound_mixed_float_double.sn -O0 checked
+PASS tests/rgen/floating_compound_mixed_float_double.sn -O1 checked
+PASS tests/rgen/floating_compound_mixed_float_double.sn -O2 checked
+PASS tests/rgen/floating_compound_mixed_float_double.sn -O0 unchecked
+PASS tests/rgen/floating_compound_mixed_float_double.sn -O1 unchecked
+PASS tests/rgen/floating_compound_mixed_float_double.sn -O2 unchecked
+PASS tests/rgen/iterator_protocol_mixed_float_double_mutation.sn -O0 default
+PASS tests/rgen/iterator_protocol_mixed_float_double_mutation.sn -O1 default
+PASS tests/rgen/iterator_protocol_mixed_float_double_mutation.sn -O2 default
+PASS tests/rgen/iterator_protocol_mixed_float_double_mutation.sn -O0 checked
+PASS tests/rgen/iterator_protocol_mixed_float_double_mutation.sn -O1 checked
+PASS tests/rgen/iterator_protocol_mixed_float_double_mutation.sn -O2 checked
+PASS tests/rgen/iterator_protocol_mixed_float_double_mutation.sn -O0 unchecked
+PASS tests/rgen/iterator_protocol_mixed_float_double_mutation.sn -O1 unchecked
+PASS tests/rgen/iterator_protocol_mixed_float_double_mutation.sn -O2 unchecked
+PASS tests/rgen/closure_values_mixed_argument.sn -O0 default
+PASS tests/rgen/closure_values_mixed_argument.sn -O1 default
+PASS tests/rgen/closure_values_mixed_argument.sn -O2 default
+PASS tests/rgen/closure_values_mixed_argument.sn -O0 checked
+PASS tests/rgen/closure_values_mixed_argument.sn -O1 checked
+PASS tests/rgen/closure_values_mixed_argument.sn -O2 checked
+PASS tests/rgen/closure_values_mixed_argument.sn -O0 unchecked
+PASS tests/rgen/closure_values_mixed_argument.sn -O1 unchecked
+PASS tests/rgen/closure_values_mixed_argument.sn -O2 unchecked
+PASS tests/rust-native/scalar_float_conversions.sn -O0 default
+PASS tests/rust-native/scalar_float_conversions.sn -O1 default
+PASS tests/rust-native/scalar_float_conversions.sn -O2 default
+PASS tests/rust-native/scalar_float_conversions.sn -O0 checked
+PASS tests/rust-native/scalar_float_conversions.sn -O1 checked
+PASS tests/rust-native/scalar_float_conversions.sn -O2 checked
+PASS tests/rust-native/scalar_float_conversions.sn -O0 unchecked
+PASS tests/rust-native/scalar_float_conversions.sn -O1 unchecked
+PASS tests/rust-native/scalar_float_conversions.sn -O2 unchecked
+PASS tests/integration/test_float_arithmetic.sn -O0 default
+PASS tests/integration/test_float_arithmetic.sn -O1 default
+PASS tests/integration/test_float_arithmetic.sn -O2 default
+PASS tests/integration/test_float_arithmetic.sn -O0 checked
+PASS tests/integration/test_float_arithmetic.sn -O1 checked
+PASS tests/integration/test_float_arithmetic.sn -O2 checked
+PASS tests/integration/test_float_arithmetic.sn -O0 unchecked
+PASS tests/integration/test_float_arithmetic.sn -O1 unchecked
+PASS tests/integration/test_float_arithmetic.sn -O2 unchecked
+PASS tests/integration/test_op_double_arith.sn -O0 default
+PASS tests/integration/test_op_double_arith.sn -O1 default
+PASS tests/integration/test_op_double_arith.sn -O2 default
+PASS tests/integration/test_op_double_arith.sn -O0 checked
+PASS tests/integration/test_op_double_arith.sn -O1 checked
+PASS tests/integration/test_op_double_arith.sn -O2 checked
+PASS tests/integration/test_op_double_arith.sn -O0 unchecked
+PASS tests/integration/test_op_double_arith.sn -O1 unchecked
+PASS tests/integration/test_op_double_arith.sn -O2 unchecked
+PASS tests/rust-float-sync/float_cell_conversions.sn -O0 default
+PASS tests/rust-float-sync/float_cell_conversions.sn -O1 default
+PASS tests/rust-float-sync/float_cell_conversions.sn -O2 default
+PASS tests/rust-float-sync/float_cell_conversions.sn -O0 checked
+PASS tests/rust-float-sync/float_cell_conversions.sn -O1 checked
+PASS tests/rust-float-sync/float_cell_conversions.sn -O2 checked
+PASS tests/rust-float-sync/float_cell_conversions.sn -O0 unchecked
+PASS tests/rust-float-sync/float_cell_conversions.sn -O1 unchecked
+PASS tests/rust-float-sync/float_cell_conversions.sn -O2 unchecked
+PASS tests/rgen/float_array_search.sn -O0 default
+PASS tests/rgen/float_array_search.sn -O1 default
+PASS tests/rgen/float_array_search.sn -O2 default
+PASS tests/rgen/float_array_search.sn -O0 checked
+PASS tests/rgen/float_array_search.sn -O1 checked
+PASS tests/rgen/float_array_search.sn -O2 checked
+PASS tests/rgen/float_array_search.sn -O0 unchecked
+PASS tests/rgen/float_array_search.sn -O1 unchecked
+PASS tests/rgen/float_array_search.sn -O2 unchecked
+PASS tests/rgen/double_array_search.sn -O0 default
+PASS tests/rgen/double_array_search.sn -O1 default
+PASS tests/rgen/double_array_search.sn -O2 default
+PASS tests/rgen/double_array_search.sn -O0 checked
+PASS tests/rgen/double_array_search.sn -O1 checked
+PASS tests/rgen/double_array_search.sn -O2 checked
+PASS tests/rgen/double_array_search.sn -O0 unchecked
+PASS tests/rgen/double_array_search.sn -O1 unchecked
+PASS tests/rgen/double_array_search.sn -O2 unchecked
+PASS tests/rgen/float_array_search_double_needle.sn -O0 default
+PASS tests/rgen/float_array_search_double_needle.sn -O1 default
+PASS tests/rgen/float_array_search_double_needle.sn -O2 default
+PASS tests/rgen/float_array_search_double_needle.sn -O0 checked
+PASS tests/rgen/float_array_search_double_needle.sn -O1 checked
+PASS tests/rgen/float_array_search_double_needle.sn -O2 checked
+PASS tests/rgen/float_array_search_double_needle.sn -O0 unchecked
+PASS tests/rgen/float_array_search_double_needle.sn -O1 unchecked
+PASS tests/rgen/float_array_search_double_needle.sn -O2 unchecked
+PASS tests/rgen/floating_array_search_representation.sn -O0 default
+PASS tests/rgen/floating_array_search_representation.sn -O1 default
+PASS tests/rgen/floating_array_search_representation.sn -O2 default
+PASS tests/rgen/floating_array_search_representation.sn -O0 checked
+PASS tests/rgen/floating_array_search_representation.sn -O1 checked
+PASS tests/rgen/floating_array_search_representation.sn -O2 checked
+PASS tests/rgen/floating_array_search_representation.sn -O0 unchecked
+PASS tests/rgen/floating_array_search_representation.sn -O1 unchecked
+PASS tests/rgen/floating_array_search_representation.sn -O2 unchecked
+PASS tests/rgen/floating_array_search_call_boundaries.sn -O0 default
+PASS tests/rgen/floating_array_search_call_boundaries.sn -O1 default
+PASS tests/rgen/floating_array_search_call_boundaries.sn -O2 default
+PASS tests/rgen/floating_array_search_call_boundaries.sn -O0 checked
+PASS tests/rgen/floating_array_search_call_boundaries.sn -O1 checked
+PASS tests/rgen/floating_array_search_call_boundaries.sn -O2 checked
+PASS tests/rgen/floating_array_search_call_boundaries.sn -O0 unchecked
+PASS tests/rgen/floating_array_search_call_boundaries.sn -O1 unchecked
+PASS tests/rgen/floating_array_search_call_boundaries.sn -O2 unchecked
+PASS tests/rgen/floating_array_storage_bytes.sn -O0 default
+PASS tests/rgen/floating_array_storage_bytes.sn -O1 default
+PASS tests/rgen/floating_array_storage_bytes.sn -O2 default
+PASS tests/rgen/floating_array_storage_bytes.sn -O0 checked
+PASS tests/rgen/floating_array_storage_bytes.sn -O1 checked
+PASS tests/rgen/floating_array_storage_bytes.sn -O2 checked
+PASS tests/rgen/floating_array_storage_bytes.sn -O0 unchecked
+PASS tests/rgen/floating_array_storage_bytes.sn -O1 unchecked
+PASS tests/rgen/floating_array_storage_bytes.sn -O2 unchecked
+PASS tests/rust-float-search/floating_search_expression_widths.sn -O0 default
+PASS tests/rust-float-search/floating_search_expression_widths.sn -O1 default
+PASS tests/rust-float-search/floating_search_expression_widths.sn -O2 default
+PASS tests/rust-float-search/floating_search_expression_widths.sn -O0 checked
+PASS tests/rust-float-search/floating_search_expression_widths.sn -O1 checked
+PASS tests/rust-float-search/floating_search_expression_widths.sn -O2 checked
+PASS tests/rust-float-search/floating_search_expression_widths.sn -O0 unchecked
+PASS tests/rust-float-search/floating_search_expression_widths.sn -O1 unchecked
+PASS tests/rust-float-search/floating_search_expression_widths.sn -O2 unchecked
+PASS tests/rust-float-search/floating_array_capture_snapshots.sn -O0 default
+PASS tests/rust-float-search/floating_array_capture_snapshots.sn -O1 default
+PASS tests/rust-float-search/floating_array_capture_snapshots.sn -O2 default
+PASS tests/rust-float-search/floating_array_capture_snapshots.sn -O0 checked
+PASS tests/rust-float-search/floating_array_capture_snapshots.sn -O1 checked
+PASS tests/rust-float-search/floating_array_capture_snapshots.sn -O2 checked
+PASS tests/rust-float-search/floating_array_capture_snapshots.sn -O0 unchecked
+PASS tests/rust-float-search/floating_array_capture_snapshots.sn -O1 unchecked
+PASS tests/rust-float-search/floating_array_capture_snapshots.sn -O2 unchecked
+PASS tests/rust-native/scalar_float_array_representation.sn -O0 default
+PASS tests/rust-native/scalar_float_array_representation.sn -O1 default
+PASS tests/rust-native/scalar_float_array_representation.sn -O2 default
+PASS tests/rust-native/scalar_float_array_representation.sn -O0 checked
+PASS tests/rust-native/scalar_float_array_representation.sn -O1 checked
+PASS tests/rust-native/scalar_float_array_representation.sn -O2 checked
+PASS tests/rust-native/scalar_float_array_representation.sn -O0 unchecked
+PASS tests/rust-native/scalar_float_array_representation.sn -O1 unchecked
+PASS tests/rust-native/scalar_float_array_representation.sn -O2 unchecked
+PASS tests/rgen/floating_array_equality_representation.sn -O0 default
+PASS tests/rgen/floating_array_equality_representation.sn -O1 default
+PASS tests/rgen/floating_array_equality_representation.sn -O2 default
+PASS tests/rgen/floating_array_equality_representation.sn -O0 checked
+PASS tests/rgen/floating_array_equality_representation.sn -O1 checked
+PASS tests/rgen/floating_array_equality_representation.sn -O2 checked
+PASS tests/rgen/floating_array_equality_representation.sn -O0 unchecked
+PASS tests/rgen/floating_array_equality_representation.sn -O1 unchecked
+PASS tests/rgen/floating_array_equality_representation.sn -O2 unchecked
+PASS tests/rgen/floating_array_equality_mixed_width.sn -O0 default
+PASS tests/rgen/floating_array_equality_mixed_width.sn -O1 default
+PASS tests/rgen/floating_array_equality_mixed_width.sn -O2 default
+PASS tests/rgen/floating_array_equality_mixed_width.sn -O0 checked
+PASS tests/rgen/floating_array_equality_mixed_width.sn -O1 checked
+PASS tests/rgen/floating_array_equality_mixed_width.sn -O2 checked
+PASS tests/rgen/floating_array_equality_mixed_width.sn -O0 unchecked
+PASS tests/rgen/floating_array_equality_mixed_width.sn -O1 unchecked
+PASS tests/rgen/floating_array_equality_mixed_width.sn -O2 unchecked
+PASS tests/rgen/floating_array_equality_contexts.sn -O0 default
+PASS tests/rgen/floating_array_equality_contexts.sn -O1 default
+PASS tests/rgen/floating_array_equality_contexts.sn -O2 default
+PASS tests/rgen/floating_array_equality_contexts.sn -O0 checked
+PASS tests/rgen/floating_array_equality_contexts.sn -O1 checked
+PASS tests/rgen/floating_array_equality_contexts.sn -O2 checked
+PASS tests/rgen/floating_array_equality_contexts.sn -O0 unchecked
+PASS tests/rgen/floating_array_equality_contexts.sn -O1 unchecked
+PASS tests/rgen/floating_array_equality_contexts.sn -O2 unchecked
+PASS tests/rgen/floating_array_equality_mutation.sn -O0 default
+PASS tests/rgen/floating_array_equality_mutation.sn -O1 default
+PASS tests/rgen/floating_array_equality_mutation.sn -O2 default
+PASS tests/rgen/floating_array_equality_mutation.sn -O0 checked
+PASS tests/rgen/floating_array_equality_mutation.sn -O1 checked
+PASS tests/rgen/floating_array_equality_mutation.sn -O2 checked
+PASS tests/rgen/floating_array_equality_mutation.sn -O0 unchecked
+PASS tests/rgen/floating_array_equality_mutation.sn -O1 unchecked
+PASS tests/rgen/floating_array_equality_mutation.sn -O2 unchecked
+PASS tests/integration/test_compound_assignment.sn -O0 default
+PASS tests/integration/test_compound_assignment.sn -O1 default
+PASS tests/integration/test_compound_assignment.sn -O2 default
+PASS tests/integration/test_compound_assignment.sn -O0 checked
+PASS tests/integration/test_compound_assignment.sn -O1 checked
+PASS tests/integration/test_compound_assignment.sn -O2 checked
+PASS tests/integration/test_compound_assignment.sn -O0 unchecked
+PASS tests/integration/test_compound_assignment.sn -O1 unchecked
+PASS tests/integration/test_compound_assignment.sn -O2 unchecked
+PASS tests/rgen/floating_compound_nested_field.sn -O0 default
+PASS tests/rgen/floating_compound_nested_field.sn -O1 default
+PASS tests/rgen/floating_compound_nested_field.sn -O2 default
+PASS tests/rgen/floating_compound_nested_field.sn -O0 checked
+PASS tests/rgen/floating_compound_nested_field.sn -O1 checked
+PASS tests/rgen/floating_compound_nested_field.sn -O2 checked
+PASS tests/rgen/floating_compound_nested_field.sn -O0 unchecked
+PASS tests/rgen/floating_compound_nested_field.sn -O1 unchecked
+PASS tests/rgen/floating_compound_nested_field.sn -O2 unchecked
+PASS tests/rgen/floating_compound_unstable_place.sn -O0 default
+PASS tests/rgen/floating_compound_unstable_place.sn -O1 default
+PASS tests/rgen/floating_compound_unstable_place.sn -O2 default
+PASS tests/rgen/floating_compound_unstable_place.sn -O0 checked
+PASS tests/rgen/floating_compound_unstable_place.sn -O1 checked
+PASS tests/rgen/floating_compound_unstable_place.sn -O2 checked
+PASS tests/rgen/floating_compound_unstable_place.sn -O0 unchecked
+PASS tests/rgen/floating_compound_unstable_place.sn -O1 unchecked
+PASS tests/rgen/floating_compound_unstable_place.sn -O2 unchecked
+PASS tests/rgen/floating_nested_as_ref_parameter_postfix.sn -O0 default
+PASS tests/rgen/floating_nested_as_ref_parameter_postfix.sn -O1 default
+PASS tests/rgen/floating_nested_as_ref_parameter_postfix.sn -O2 default
+PASS tests/rgen/floating_nested_as_ref_parameter_postfix.sn -O0 checked
+PASS tests/rgen/floating_nested_as_ref_parameter_postfix.sn -O1 checked
+PASS tests/rgen/floating_nested_as_ref_parameter_postfix.sn -O2 checked
+PASS tests/rgen/floating_nested_as_ref_parameter_postfix.sn -O0 unchecked
+PASS tests/rgen/floating_nested_as_ref_parameter_postfix.sn -O1 unchecked
+PASS tests/rgen/floating_nested_as_ref_parameter_postfix.sn -O2 unchecked
+PASS tests/rgen/floating_postfix_array_index.sn -O0 default
+PASS tests/rgen/floating_postfix_array_index.sn -O1 default
+PASS tests/rgen/floating_postfix_array_index.sn -O2 default
+PASS tests/rgen/floating_postfix_array_index.sn -O0 checked
+PASS tests/rgen/floating_postfix_array_index.sn -O1 checked
+PASS tests/rgen/floating_postfix_array_index.sn -O2 checked
+PASS tests/rgen/floating_postfix_array_index.sn -O0 unchecked
+PASS tests/rgen/floating_postfix_array_index.sn -O1 unchecked
+PASS tests/rgen/floating_postfix_array_index.sn -O2 unchecked
+PASS tests/rgen/floating_postfix_nested_field.sn -O0 default
+PASS tests/rgen/floating_postfix_nested_field.sn -O1 default
+PASS tests/rgen/floating_postfix_nested_field.sn -O2 default
+PASS tests/rgen/floating_postfix_nested_field.sn -O0 checked
+PASS tests/rgen/floating_postfix_nested_field.sn -O1 checked
+PASS tests/rgen/floating_postfix_nested_field.sn -O2 checked
+PASS tests/rgen/floating_postfix_nested_field.sn -O0 unchecked
+PASS tests/rgen/floating_postfix_nested_field.sn -O1 unchecked
+PASS tests/rgen/floating_postfix_nested_field.sn -O2 unchecked
+PASS tests/rgen/nonfloating_nested_by_value_parameter_postfix.sn -O0 default
+PASS tests/rgen/nonfloating_nested_by_value_parameter_postfix.sn -O1 default
+PASS tests/rgen/nonfloating_nested_by_value_parameter_postfix.sn -O2 default
+PASS tests/rgen/nonfloating_nested_by_value_parameter_postfix.sn -O0 checked
+PASS tests/rgen/nonfloating_nested_by_value_parameter_postfix.sn -O1 checked
+PASS tests/rgen/nonfloating_nested_by_value_parameter_postfix.sn -O2 checked
+PASS tests/rgen/nonfloating_nested_by_value_parameter_postfix.sn -O0 unchecked
+PASS tests/rgen/nonfloating_nested_by_value_parameter_postfix.sn -O1 unchecked
+PASS tests/rgen/nonfloating_nested_by_value_parameter_postfix.sn -O2 unchecked
+PASS tests/rgen/numeric_places_locked_struct.sn -O0 default
+PASS tests/rgen/numeric_places_locked_struct.sn -O1 default
+PASS tests/rgen/numeric_places_locked_struct.sn -O2 default
+PASS tests/rgen/numeric_places_locked_struct.sn -O0 checked
+PASS tests/rgen/numeric_places_locked_struct.sn -O1 checked
+PASS tests/rgen/numeric_places_locked_struct.sn -O2 checked
+PASS tests/rgen/numeric_places_locked_struct.sn -O0 unchecked
+PASS tests/rgen/numeric_places_locked_struct.sn -O1 unchecked
+PASS tests/rgen/numeric_places_locked_struct.sn -O2 unchecked
+PASS tests/rgen/numeric_places_array_captures.sn -O0 default
+PASS tests/rgen/numeric_places_array_captures.sn -O1 default
+PASS tests/rgen/numeric_places_array_captures.sn -O2 default
+PASS tests/rgen/numeric_places_array_captures.sn -O0 checked
+PASS tests/rgen/numeric_places_array_captures.sn -O1 checked
+PASS tests/rgen/numeric_places_array_captures.sn -O2 checked
+PASS tests/rgen/numeric_places_array_captures.sn -O0 unchecked
+PASS tests/rgen/numeric_places_array_captures.sn -O1 unchecked
+PASS tests/rgen/numeric_places_array_captures.sn -O2 unchecked
+PASS tests/rgen/numeric_places_float_widths.sn -O0 default
+PASS tests/rgen/numeric_places_float_widths.sn -O1 default
+PASS tests/rgen/numeric_places_float_widths.sn -O2 default
+PASS tests/rgen/numeric_places_float_widths.sn -O0 checked
+PASS tests/rgen/numeric_places_float_widths.sn -O1 checked
+PASS tests/rgen/numeric_places_float_widths.sn -O2 checked
+PASS tests/rgen/numeric_places_float_widths.sn -O0 unchecked
+PASS tests/rgen/numeric_places_float_widths.sn -O1 unchecked
+PASS tests/rgen/numeric_places_float_widths.sn -O2 unchecked
+PASS tests/rgen/numeric_places_integer_widths.sn -O0 default
+PASS tests/rgen/numeric_places_integer_widths.sn -O1 default
+PASS tests/rgen/numeric_places_integer_widths.sn -O2 default
+PASS tests/rgen/numeric_places_integer_widths.sn -O0 checked
+PASS tests/rgen/numeric_places_integer_widths.sn -O1 checked
+PASS tests/rgen/numeric_places_integer_widths.sn -O2 checked
+PASS tests/rgen/numeric_places_integer_widths.sn -O0 unchecked
+PASS tests/rgen/numeric_places_integer_widths.sn -O1 unchecked
+PASS tests/rgen/numeric_places_integer_widths.sn -O2 unchecked
+PASS tests/rgen/numeric_places_nested_counts.sn -O0 default
+PASS tests/rgen/numeric_places_nested_counts.sn -O1 default
+PASS tests/rgen/numeric_places_nested_counts.sn -O2 default
+PASS tests/rgen/numeric_places_nested_counts.sn -O0 checked
+PASS tests/rgen/numeric_places_nested_counts.sn -O1 checked
+PASS tests/rgen/numeric_places_nested_counts.sn -O2 checked
+PASS tests/rgen/numeric_places_nested_counts.sn -O0 unchecked
+PASS tests/rgen/numeric_places_nested_counts.sn -O1 unchecked
+PASS tests/rgen/numeric_places_nested_counts.sn -O2 unchecked
+PASS tests/rgen/numeric_places_parameters.sn -O0 default
+PASS tests/rgen/numeric_places_parameters.sn -O1 default
+PASS tests/rgen/numeric_places_parameters.sn -O2 default
+PASS tests/rgen/numeric_places_parameters.sn -O0 checked
+PASS tests/rgen/numeric_places_parameters.sn -O1 checked
+PASS tests/rgen/numeric_places_parameters.sn -O2 checked
+PASS tests/rgen/numeric_places_parameters.sn -O0 unchecked
+PASS tests/rgen/numeric_places_parameters.sn -O1 unchecked
+PASS tests/rgen/numeric_places_parameters.sn -O2 unchecked
+PASS tests/rgen/numeric_places_rhs_effects.sn -O0 default
+PASS tests/rgen/numeric_places_rhs_effects.sn -O1 default
+PASS tests/rgen/numeric_places_rhs_effects.sn -O2 default
+PASS tests/rgen/numeric_places_rhs_effects.sn -O0 checked
+PASS tests/rgen/numeric_places_rhs_effects.sn -O1 checked
+PASS tests/rgen/numeric_places_rhs_effects.sn -O2 checked
+PASS tests/rgen/numeric_places_rhs_effects.sn -O0 unchecked
+PASS tests/rgen/numeric_places_rhs_effects.sn -O1 unchecked
+PASS tests/rgen/numeric_places_rhs_effects.sn -O2 unchecked
+PASS tests/rgen/numeric_places_rhs_expression_widths.sn -O0 default
+PASS tests/rgen/numeric_places_rhs_expression_widths.sn -O1 default
+PASS tests/rgen/numeric_places_rhs_expression_widths.sn -O2 default
+PASS tests/rgen/numeric_places_rhs_expression_widths.sn -O0 checked
+PASS tests/rgen/numeric_places_rhs_expression_widths.sn -O1 checked
+PASS tests/rgen/numeric_places_rhs_expression_widths.sn -O2 checked
+PASS tests/rgen/numeric_places_rhs_expression_widths.sn -O0 unchecked
+PASS tests/rgen/numeric_places_rhs_expression_widths.sn -O1 unchecked
+PASS tests/rgen/numeric_places_rhs_expression_widths.sn -O2 unchecked
+PASS tests/rgen/numeric_places_temporary_owners.sn -O0 default
+PASS tests/rgen/numeric_places_temporary_owners.sn -O1 default
+PASS tests/rgen/numeric_places_temporary_owners.sn -O2 default
+PASS tests/rgen/numeric_places_temporary_owners.sn -O0 checked
+PASS tests/rgen/numeric_places_temporary_owners.sn -O1 checked
+PASS tests/rgen/numeric_places_temporary_owners.sn -O2 checked
+PASS tests/rgen/numeric_places_temporary_owners.sn -O0 unchecked
+PASS tests/rgen/numeric_places_temporary_owners.sn -O1 unchecked
+PASS tests/rgen/numeric_places_temporary_owners.sn -O2 unchecked
+PASS tests/rust-numeric-places/numeric_place_thread_parameters.sn -O0 default
+PASS tests/rust-numeric-places/numeric_place_thread_parameters.sn -O1 default
+PASS tests/rust-numeric-places/numeric_place_thread_parameters.sn -O2 default
+PASS tests/rust-numeric-places/numeric_place_thread_parameters.sn -O0 checked
+PASS tests/rust-numeric-places/numeric_place_thread_parameters.sn -O1 checked
+PASS tests/rust-numeric-places/numeric_place_thread_parameters.sn -O2 checked
+PASS tests/rust-numeric-places/numeric_place_thread_parameters.sn -O0 unchecked
+PASS tests/rust-numeric-places/numeric_place_thread_parameters.sn -O1 unchecked
+PASS tests/rust-numeric-places/numeric_place_thread_parameters.sn -O2 unchecked
+PASS tests/rgen/capture_array_index_nested.sn -O0 default
+PASS tests/rgen/capture_array_index_nested.sn -O1 default
+PASS tests/rgen/capture_array_index_nested.sn -O2 default
+PASS tests/rgen/capture_array_index_nested.sn -O0 checked
+PASS tests/rgen/capture_array_index_nested.sn -O1 checked
+PASS tests/rgen/capture_array_index_nested.sn -O2 checked
+PASS tests/rgen/capture_array_index_nested.sn -O0 unchecked
+PASS tests/rgen/capture_array_index_nested.sn -O1 unchecked
+PASS tests/rgen/capture_array_index_nested.sn -O2 unchecked
+PASS tests/rgen/capture_array_index_result.sn -O0 default
+PASS tests/rgen/capture_array_index_result.sn -O1 default
+PASS tests/rgen/capture_array_index_result.sn -O2 default
+PASS tests/rgen/capture_array_index_result.sn -O0 checked
+PASS tests/rgen/capture_array_index_result.sn -O1 checked
+PASS tests/rgen/capture_array_index_result.sn -O2 checked
+PASS tests/rgen/capture_array_index_result.sn -O0 unchecked
+PASS tests/rgen/capture_array_index_result.sn -O1 unchecked
+PASS tests/rgen/capture_array_index_result.sn -O2 unchecked
+PASS tests/rgen/capture_array_index_shared.sn -O0 default
+PASS tests/rgen/capture_array_index_shared.sn -O1 default
+PASS tests/rgen/capture_array_index_shared.sn -O2 default
+PASS tests/rgen/capture_array_index_shared.sn -O0 checked
+PASS tests/rgen/capture_array_index_shared.sn -O1 checked
+PASS tests/rgen/capture_array_index_shared.sn -O2 checked
+PASS tests/rgen/capture_array_index_shared.sn -O0 unchecked
+PASS tests/rgen/capture_array_index_shared.sn -O1 unchecked
+PASS tests/rgen/capture_array_index_shared.sn -O2 unchecked
+PASS tests/rgen/capture_array_index_state.sn -O0 default
+PASS tests/rgen/capture_array_index_state.sn -O1 default
+PASS tests/rgen/capture_array_index_state.sn -O2 default
+PASS tests/rgen/capture_array_index_state.sn -O0 checked
+PASS tests/rgen/capture_array_index_state.sn -O1 checked
+PASS tests/rgen/capture_array_index_state.sn -O2 checked
+PASS tests/rgen/capture_array_index_state.sn -O0 unchecked
+PASS tests/rgen/capture_array_index_state.sn -O1 unchecked
+PASS tests/rgen/capture_array_index_state.sn -O2 unchecked
+PASS tests/rgen/capture_array_index_widths.sn -O0 default
+PASS tests/rgen/capture_array_index_widths.sn -O1 default
+PASS tests/rgen/capture_array_index_widths.sn -O2 default
+PASS tests/rgen/capture_array_index_widths.sn -O0 checked
+PASS tests/rgen/capture_array_index_widths.sn -O1 checked
+PASS tests/rgen/capture_array_index_widths.sn -O2 checked
+PASS tests/rgen/capture_array_index_widths.sn -O0 unchecked
+PASS tests/rgen/capture_array_index_widths.sn -O1 unchecked
+PASS tests/rgen/capture_array_index_widths.sn -O2 unchecked
+PASS tests/integration/test_sync_byte_char.sn -O0 default
+PASS tests/integration/test_sync_byte_char.sn -O1 default
+PASS tests/integration/test_sync_byte_char.sn -O2 default
+PASS tests/integration/test_sync_byte_char.sn -O0 checked
+PASS tests/integration/test_sync_byte_char.sn -O1 checked
+PASS tests/integration/test_sync_byte_char.sn -O2 checked
+PASS tests/integration/test_sync_byte_char.sn -O0 unchecked
+PASS tests/integration/test_sync_byte_char.sn -O1 unchecked
+PASS tests/integration/test_sync_byte_char.sn -O2 unchecked
+PASS tests/exploratory/test_sync_byte_threading.sn -O0 default
+PASS tests/exploratory/test_sync_byte_threading.sn -O1 default
+PASS tests/exploratory/test_sync_byte_threading.sn -O2 default
+PASS tests/exploratory/test_sync_byte_threading.sn -O0 checked
+PASS tests/exploratory/test_sync_byte_threading.sn -O1 checked
+PASS tests/exploratory/test_sync_byte_threading.sn -O2 checked
+PASS tests/exploratory/test_sync_byte_threading.sn -O0 unchecked
+PASS tests/exploratory/test_sync_byte_threading.sn -O1 unchecked
+PASS tests/exploratory/test_sync_byte_threading.sn -O2 unchecked
+PASS tests/rgen/sync_character_global_postfix.sn -O0 default
+PASS tests/rgen/sync_character_global_postfix.sn -O1 default
+PASS tests/rgen/sync_character_global_postfix.sn -O2 default
+PASS tests/rgen/sync_character_global_postfix.sn -O0 checked
+PASS tests/rgen/sync_character_global_postfix.sn -O1 checked
+PASS tests/rgen/sync_character_global_postfix.sn -O2 checked
+PASS tests/rgen/sync_character_global_postfix.sn -O0 unchecked
+PASS tests/rgen/sync_character_global_postfix.sn -O1 unchecked
+PASS tests/rgen/sync_character_global_postfix.sn -O2 unchecked
+PASS tests/rgen/sync_character_local_wrap.sn -O0 default
+PASS tests/rgen/sync_character_local_wrap.sn -O1 default
+PASS tests/rgen/sync_character_local_wrap.sn -O2 default
+PASS tests/rgen/sync_character_local_wrap.sn -O0 checked
+PASS tests/rgen/sync_character_local_wrap.sn -O1 checked
+PASS tests/rgen/sync_character_local_wrap.sn -O2 checked
+PASS tests/rgen/sync_character_local_wrap.sn -O0 unchecked
+PASS tests/rgen/sync_character_local_wrap.sn -O1 unchecked
+PASS tests/rgen/sync_character_local_wrap.sn -O2 unchecked
+PASS tests/rgen/sync_character_thread_wrap.sn -O0 default
+PASS tests/rgen/sync_character_thread_wrap.sn -O1 default
+PASS tests/rgen/sync_character_thread_wrap.sn -O2 default
+PASS tests/rgen/sync_character_thread_wrap.sn -O0 checked
+PASS tests/rgen/sync_character_thread_wrap.sn -O1 checked
+PASS tests/rgen/sync_character_thread_wrap.sn -O2 checked
+PASS tests/rgen/sync_character_thread_wrap.sn -O0 unchecked
+PASS tests/rgen/sync_character_thread_wrap.sn -O1 unchecked
+PASS tests/rgen/sync_character_thread_wrap.sn -O2 unchecked
+PASS tests/integration/test_char_methods.sn -O0 default
+PASS tests/integration/test_char_methods.sn -O1 default
+PASS tests/integration/test_char_methods.sn -O2 default
+PASS tests/integration/test_char_methods.sn -O0 checked
+PASS tests/integration/test_char_methods.sn -O1 checked
+PASS tests/integration/test_char_methods.sn -O2 checked
+PASS tests/integration/test_char_methods.sn -O0 unchecked
+PASS tests/integration/test_char_methods.sn -O1 unchecked
+PASS tests/integration/test_char_methods.sn -O2 unchecked
+PASS tests/exploratory/test_str_comprehensive.sn -O0 default
+PASS tests/exploratory/test_str_comprehensive.sn -O1 default
+PASS tests/exploratory/test_str_comprehensive.sn -O2 default
+PASS tests/exploratory/test_str_comprehensive.sn -O0 checked
+PASS tests/exploratory/test_str_comprehensive.sn -O1 checked
+PASS tests/exploratory/test_str_comprehensive.sn -O2 checked
+PASS tests/exploratory/test_str_comprehensive.sn -O0 unchecked
+PASS tests/exploratory/test_str_comprehensive.sn -O1 unchecked
+PASS tests/exploratory/test_str_comprehensive.sn -O2 unchecked
+PASS tests/rgen/character_methods_basic.sn -O0 default
+PASS tests/rgen/character_methods_basic.sn -O1 default
+PASS tests/rgen/character_methods_basic.sn -O2 default
+PASS tests/rgen/character_methods_basic.sn -O0 checked
+PASS tests/rgen/character_methods_basic.sn -O1 checked
+PASS tests/rgen/character_methods_basic.sn -O2 checked
+PASS tests/rgen/character_methods_basic.sn -O0 unchecked
+PASS tests/rgen/character_methods_basic.sn -O1 unchecked
+PASS tests/rgen/character_methods_basic.sn -O2 unchecked
+PASS tests/rgen/character_methods_receivers.sn -O0 default
+PASS tests/rgen/character_methods_receivers.sn -O1 default
+PASS tests/rgen/character_methods_receivers.sn -O2 default
+PASS tests/rgen/character_methods_receivers.sn -O0 checked
+PASS tests/rgen/character_methods_receivers.sn -O1 checked
+PASS tests/rgen/character_methods_receivers.sn -O2 checked
+PASS tests/rgen/character_methods_receivers.sn -O0 unchecked
+PASS tests/rgen/character_methods_receivers.sn -O1 unchecked
+PASS tests/rgen/character_methods_receivers.sn -O2 unchecked
+PASS tests/rgen/character_methods_predicates.sn -O0 default
+PASS tests/rgen/character_methods_predicates.sn -O1 default
+PASS tests/rgen/character_methods_predicates.sn -O2 default
+PASS tests/rgen/character_methods_predicates.sn -O0 checked
+PASS tests/rgen/character_methods_predicates.sn -O1 checked
+PASS tests/rgen/character_methods_predicates.sn -O2 checked
+PASS tests/rgen/character_methods_predicates.sn -O0 unchecked
+PASS tests/rgen/character_methods_predicates.sn -O1 unchecked
+PASS tests/rgen/character_methods_predicates.sn -O2 unchecked
+PASS tests/rgen/string_ctype_bytes.sn -O0 default
+PASS tests/rgen/string_ctype_bytes.sn -O1 default
+PASS tests/rgen/string_ctype_bytes.sn -O2 default
+PASS tests/rgen/string_ctype_bytes.sn -O0 checked
+PASS tests/rgen/string_ctype_bytes.sn -O1 checked
+PASS tests/rgen/string_ctype_bytes.sn -O2 checked
+PASS tests/rgen/string_ctype_bytes.sn -O0 unchecked
+PASS tests/rgen/string_ctype_bytes.sn -O1 unchecked
+PASS tests/rgen/string_ctype_bytes.sn -O2 unchecked
+PASS tests/rgen/string_operations.sn -O0 default
+PASS tests/rgen/string_operations.sn -O1 default
+PASS tests/rgen/string_operations.sn -O2 default
+PASS tests/rgen/string_operations.sn -O0 checked
+PASS tests/rgen/string_operations.sn -O1 checked
+PASS tests/rgen/string_operations.sn -O2 checked
+PASS tests/rgen/string_operations.sn -O0 unchecked
+PASS tests/rgen/string_operations.sn -O1 unchecked
+PASS tests/rgen/string_operations.sn -O2 unchecked
+PASS tests/rust-native/character_ctype_locale.sn -O0 default
+PASS tests/rust-native/character_ctype_locale.sn -O1 default
+PASS tests/rust-native/character_ctype_locale.sn -O2 default
+PASS tests/rust-native/character_ctype_locale.sn -O0 checked
+PASS tests/rust-native/character_ctype_locale.sn -O1 checked
+PASS tests/rust-native/character_ctype_locale.sn -O2 checked
+PASS tests/rust-native/character_ctype_locale.sn -O0 unchecked
+PASS tests/rust-native/character_ctype_locale.sn -O1 unchecked
+PASS tests/rust-native/character_ctype_locale.sn -O2 unchecked
+PASS: 72 independent C/Rust output oracles, including native CRT and char ABI references
+PASS tests/integration/test_byte_encoding.sn -O0 default
+PASS tests/integration/test_byte_encoding.sn -O1 default
+PASS tests/integration/test_byte_encoding.sn -O2 default
+PASS tests/integration/test_byte_encoding.sn -O0 checked
+PASS tests/integration/test_byte_encoding.sn -O1 checked
+PASS tests/integration/test_byte_encoding.sn -O2 checked
+PASS tests/integration/test_byte_encoding.sn -O0 unchecked
+PASS tests/integration/test_byte_encoding.sn -O1 unchecked
+PASS tests/integration/test_byte_encoding.sn -O2 unchecked
+PASS tests/rgen/byte_encoding_domain.sn -O0 default
+PASS tests/rgen/byte_encoding_domain.sn -O1 default
+PASS tests/rgen/byte_encoding_domain.sn -O2 default
+PASS tests/rgen/byte_encoding_domain.sn -O0 checked
+PASS tests/rgen/byte_encoding_domain.sn -O1 checked
+PASS tests/rgen/byte_encoding_domain.sn -O2 checked
+PASS tests/rgen/byte_encoding_domain.sn -O0 unchecked
+PASS tests/rgen/byte_encoding_domain.sn -O1 unchecked
+PASS tests/rgen/byte_encoding_domain.sn -O2 unchecked
+PASS tests/rgen/byte_encoding_latin1_domain.sn -O0 default
+PASS tests/rgen/byte_encoding_latin1_domain.sn -O1 default
+PASS tests/rgen/byte_encoding_latin1_domain.sn -O2 default
+PASS tests/rgen/byte_encoding_latin1_domain.sn -O0 checked
+PASS tests/rgen/byte_encoding_latin1_domain.sn -O1 checked
+PASS tests/rgen/byte_encoding_latin1_domain.sn -O2 checked
+PASS tests/rgen/byte_encoding_latin1_domain.sn -O0 unchecked
+PASS tests/rgen/byte_encoding_latin1_domain.sn -O1 unchecked
+PASS tests/rgen/byte_encoding_latin1_domain.sn -O2 unchecked
+PASS tests/rgen/byte_encoding_latin1_nul.sn -O0 default
+PASS tests/rgen/byte_encoding_latin1_nul.sn -O1 default
+PASS tests/rgen/byte_encoding_latin1_nul.sn -O2 default
+PASS tests/rgen/byte_encoding_latin1_nul.sn -O0 checked
+PASS tests/rgen/byte_encoding_latin1_nul.sn -O1 checked
+PASS tests/rgen/byte_encoding_latin1_nul.sn -O2 checked
+PASS tests/rgen/byte_encoding_latin1_nul.sn -O0 unchecked
+PASS tests/rgen/byte_encoding_latin1_nul.sn -O1 unchecked
+PASS tests/rgen/byte_encoding_latin1_nul.sn -O2 unchecked
+PASS tests/rgen/byte_encoding_receivers.sn -O0 default
+PASS tests/rgen/byte_encoding_receivers.sn -O1 default
+PASS tests/rgen/byte_encoding_receivers.sn -O2 default
+PASS tests/rgen/byte_encoding_receivers.sn -O0 checked
+PASS tests/rgen/byte_encoding_receivers.sn -O1 checked
+PASS tests/rgen/byte_encoding_receivers.sn -O2 checked
+PASS tests/rgen/byte_encoding_receivers.sn -O0 unchecked
+PASS tests/rgen/byte_encoding_receivers.sn -O1 unchecked
+PASS tests/rgen/byte_encoding_receivers.sn -O2 unchecked
+PASS tests/rgen/byte_encoding_parameters.sn -O0 default
+PASS tests/rgen/byte_encoding_parameters.sn -O1 default
+PASS tests/rgen/byte_encoding_parameters.sn -O2 default
+PASS tests/rgen/byte_encoding_parameters.sn -O0 checked
+PASS tests/rgen/byte_encoding_parameters.sn -O1 checked
+PASS tests/rgen/byte_encoding_parameters.sn -O2 checked
+PASS tests/rgen/byte_encoding_parameters.sn -O0 unchecked
+PASS tests/rgen/byte_encoding_parameters.sn -O1 unchecked
+PASS tests/rgen/byte_encoding_parameters.sn -O2 unchecked
+PASS tests/rgen/byte_encoding_sync_capture_state.sn -O0 default
+PASS tests/rgen/byte_encoding_sync_capture_state.sn -O1 default
+PASS tests/rgen/byte_encoding_sync_capture_state.sn -O2 default
+PASS tests/rgen/byte_encoding_sync_capture_state.sn -O0 checked
+PASS tests/rgen/byte_encoding_sync_capture_state.sn -O1 checked
+PASS tests/rgen/byte_encoding_sync_capture_state.sn -O2 checked
+PASS tests/rgen/byte_encoding_sync_capture_state.sn -O0 unchecked
+PASS tests/rgen/byte_encoding_sync_capture_state.sn -O1 unchecked
+PASS tests/rgen/byte_encoding_sync_capture_state.sn -O2 unchecked
+PASS tests/rgen/array_join_hygiene.sn -O0 default
+PASS tests/rgen/array_join_hygiene.sn -O1 default
+PASS tests/rgen/array_join_hygiene.sn -O2 default
+PASS tests/rgen/array_join_hygiene.sn -O0 checked
+PASS tests/rgen/array_join_hygiene.sn -O1 checked
+PASS tests/rgen/array_join_hygiene.sn -O2 checked
+PASS tests/rgen/array_join_hygiene.sn -O0 unchecked
+PASS tests/rgen/array_join_hygiene.sn -O1 unchecked
+PASS tests/rgen/array_join_hygiene.sn -O2 unchecked
+PASS tests/rust-native/byte_encoding_object_view.sn -O0 default
+PASS tests/rust-native/byte_encoding_object_view.sn -O1 default
+PASS tests/rust-native/byte_encoding_object_view.sn -O2 default
+PASS tests/rust-native/byte_encoding_object_view.sn -O0 checked
+PASS tests/rust-native/byte_encoding_object_view.sn -O1 checked
+PASS tests/rust-native/byte_encoding_object_view.sn -O2 checked
+PASS tests/rust-native/byte_encoding_object_view.sn -O0 unchecked
+PASS tests/rust-native/byte_encoding_object_view.sn -O1 unchecked
+PASS tests/rust-native/byte_encoding_object_view.sn -O2 unchecked
+PASS: 81 independent C/Rust byte-encoding oracles, including native object views
+PASS tests/integration/test_exit.sn [] default -O0
+PASS tests/integration/test_exit.sn [] default -O1
+PASS tests/integration/test_exit.sn [] default -O2
+PASS tests/integration/test_exit.sn [] checked -O0
+PASS tests/integration/test_exit.sn [] checked -O1
+PASS tests/integration/test_exit.sn [] checked -O2
+PASS tests/integration/test_exit.sn [] unchecked -O0
+PASS tests/integration/test_exit.sn [] unchecked -O1
+PASS tests/integration/test_exit.sn [] unchecked -O2
+PASS tests/integration/test_static_import.sn [] default -O0
+PASS tests/integration/test_static_import.sn [] default -O1
+PASS tests/integration/test_static_import.sn [] default -O2
+PASS tests/integration/test_static_import.sn [] checked -O0
+PASS tests/integration/test_static_import.sn [] checked -O1
+PASS tests/integration/test_static_import.sn [] checked -O2
+PASS tests/integration/test_static_import.sn [] unchecked -O0
+PASS tests/integration/test_static_import.sn [] unchecked -O1
+PASS tests/integration/test_static_import.sn [] unchecked -O2
+PASS tests/rgen/builtin_exit_argument.sn [] default -O0
+PASS tests/rgen/builtin_exit_argument.sn [] default -O1
+PASS tests/rgen/builtin_exit_argument.sn [] default -O2
+PASS tests/rgen/builtin_exit_argument.sn [] checked -O0
+PASS tests/rgen/builtin_exit_argument.sn [] checked -O1
+PASS tests/rgen/builtin_exit_argument.sn [] checked -O2
+PASS tests/rgen/builtin_exit_argument.sn [] unchecked -O0
+PASS tests/rgen/builtin_exit_argument.sn [] unchecked -O1
+PASS tests/rgen/builtin_exit_argument.sn [] unchecked -O2
+PASS tests/rgen/builtin_exit_closure.sn [] default -O0
+PASS tests/rgen/builtin_exit_closure.sn [] default -O1
+PASS tests/rgen/builtin_exit_closure.sn [] default -O2
+PASS tests/rgen/builtin_exit_closure.sn [] checked -O0
+PASS tests/rgen/builtin_exit_closure.sn [] checked -O1
+PASS tests/rgen/builtin_exit_closure.sn [] checked -O2
+PASS tests/rgen/builtin_exit_closure.sn [] unchecked -O0
+PASS tests/rgen/builtin_exit_closure.sn [] unchecked -O1
+PASS tests/rgen/builtin_exit_closure.sn [] unchecked -O2
+PASS tests/rgen/builtin_exit_helper_hygiene.sn [] default -O0
+PASS tests/rgen/builtin_exit_helper_hygiene.sn [] default -O1
+PASS tests/rgen/builtin_exit_helper_hygiene.sn [] default -O2
+PASS tests/rgen/builtin_exit_helper_hygiene.sn [] checked -O0
+PASS tests/rgen/builtin_exit_helper_hygiene.sn [] checked -O1
+PASS tests/rgen/builtin_exit_helper_hygiene.sn [] checked -O2
+PASS tests/rgen/builtin_exit_helper_hygiene.sn [] unchecked -O0
+PASS tests/rgen/builtin_exit_helper_hygiene.sn [] unchecked -O1
+PASS tests/rgen/builtin_exit_helper_hygiene.sn [] unchecked -O2
+PASS tests/rgen/builtin_exit_method.sn [] default -O0
+PASS tests/rgen/builtin_exit_method.sn [] default -O1
+PASS tests/rgen/builtin_exit_method.sn [] default -O2
+PASS tests/rgen/builtin_exit_method.sn [] checked -O0
+PASS tests/rgen/builtin_exit_method.sn [] checked -O1
+PASS tests/rgen/builtin_exit_method.sn [] checked -O2
+PASS tests/rgen/builtin_exit_method.sn [] unchecked -O0
+PASS tests/rgen/builtin_exit_method.sn [] unchecked -O1
+PASS tests/rgen/builtin_exit_method.sn [] unchecked -O2
+PASS tests/rgen/builtin_exit_plain.sn [] default -O0
+PASS tests/rgen/builtin_exit_plain.sn [] default -O1
+PASS tests/rgen/builtin_exit_plain.sn [] default -O2
+PASS tests/rgen/builtin_exit_plain.sn [] checked -O0
+PASS tests/rgen/builtin_exit_plain.sn [] checked -O1
+PASS tests/rgen/builtin_exit_plain.sn [] checked -O2
+PASS tests/rgen/builtin_exit_plain.sn [] unchecked -O0
+PASS tests/rgen/builtin_exit_plain.sn [] unchecked -O1
+PASS tests/rgen/builtin_exit_plain.sn [] unchecked -O2
+PASS tests/rgen/builtin_exit_static.sn [] default -O0
+PASS tests/rgen/builtin_exit_static.sn [] default -O1
+PASS tests/rgen/builtin_exit_static.sn [] default -O2
+PASS tests/rgen/builtin_exit_static.sn [] checked -O0
+PASS tests/rgen/builtin_exit_static.sn [] checked -O1
+PASS tests/rgen/builtin_exit_static.sn [] checked -O2
+PASS tests/rgen/builtin_exit_static.sn [] unchecked -O0
+PASS tests/rgen/builtin_exit_static.sn [] unchecked -O1
+PASS tests/rgen/builtin_exit_static.sn [] unchecked -O2
+PASS tests/rgen/builtin_exit_value_match.sn [] default -O0
+PASS tests/rgen/builtin_exit_value_match.sn [] default -O1
+PASS tests/rgen/builtin_exit_value_match.sn [] default -O2
+PASS tests/rgen/builtin_exit_value_match.sn [] checked -O0
+PASS tests/rgen/builtin_exit_value_match.sn [] checked -O1
+PASS tests/rgen/builtin_exit_value_match.sn [] checked -O2
+PASS tests/rgen/builtin_exit_value_match.sn [] unchecked -O0
+PASS tests/rgen/builtin_exit_value_match.sn [] unchecked -O1
+PASS tests/rgen/builtin_exit_value_match.sn [] unchecked -O2
+PASS tests/rgen/builtin_exit_worker.sn [] default -O0
+PASS tests/rgen/builtin_exit_worker.sn [] default -O1
+PASS tests/rgen/builtin_exit_worker.sn [] default -O2
+PASS tests/rgen/builtin_exit_worker.sn [] checked -O0
+PASS tests/rgen/builtin_exit_worker.sn [] checked -O1
+PASS tests/rgen/builtin_exit_worker.sn [] checked -O2
+PASS tests/rgen/builtin_exit_worker.sn [] unchecked -O0
+PASS tests/rgen/builtin_exit_worker.sn [] unchecked -O1
+PASS tests/rgen/builtin_exit_worker.sn [] unchecked -O2
+PASS tests/rust-native/builtin_exit_hooks.sn ['0'] default -O0
+PASS tests/rust-native/builtin_exit_hooks.sn ['0'] default -O1
+PASS tests/rust-native/builtin_exit_hooks.sn ['0'] default -O2
+PASS tests/rust-native/builtin_exit_hooks.sn ['0'] checked -O0
+PASS tests/rust-native/builtin_exit_hooks.sn ['0'] checked -O1
+PASS tests/rust-native/builtin_exit_hooks.sn ['0'] checked -O2
+PASS tests/rust-native/builtin_exit_hooks.sn ['0'] unchecked -O0
+PASS tests/rust-native/builtin_exit_hooks.sn ['0'] unchecked -O1
+PASS tests/rust-native/builtin_exit_hooks.sn ['0'] unchecked -O2
+PASS tests/rust-native/builtin_exit_hooks.sn ['1'] default -O0
+PASS tests/rust-native/builtin_exit_hooks.sn ['1'] default -O1
+PASS tests/rust-native/builtin_exit_hooks.sn ['1'] default -O2
+PASS tests/rust-native/builtin_exit_hooks.sn ['1'] checked -O0
+PASS tests/rust-native/builtin_exit_hooks.sn ['1'] checked -O1
+PASS tests/rust-native/builtin_exit_hooks.sn ['1'] checked -O2
+PASS tests/rust-native/builtin_exit_hooks.sn ['1'] unchecked -O0
+PASS tests/rust-native/builtin_exit_hooks.sn ['1'] unchecked -O1
+PASS tests/rust-native/builtin_exit_hooks.sn ['1'] unchecked -O2
+PASS tests/rust-native/builtin_exit_hooks.sn ['255'] default -O0
+PASS tests/rust-native/builtin_exit_hooks.sn ['255'] default -O1
+PASS tests/rust-native/builtin_exit_hooks.sn ['255'] default -O2
+PASS tests/rust-native/builtin_exit_hooks.sn ['255'] checked -O0
+PASS tests/rust-native/builtin_exit_hooks.sn ['255'] checked -O1
+PASS tests/rust-native/builtin_exit_hooks.sn ['255'] checked -O2
+PASS tests/rust-native/builtin_exit_hooks.sn ['255'] unchecked -O0
+PASS tests/rust-native/builtin_exit_hooks.sn ['255'] unchecked -O1
+PASS tests/rust-native/builtin_exit_hooks.sn ['255'] unchecked -O2
+PASS tests/rust-native/builtin_exit_hooks.sn ['256'] default -O0
+PASS tests/rust-native/builtin_exit_hooks.sn ['256'] default -O1
+PASS tests/rust-native/builtin_exit_hooks.sn ['256'] default -O2
+PASS tests/rust-native/builtin_exit_hooks.sn ['256'] checked -O0
+PASS tests/rust-native/builtin_exit_hooks.sn ['256'] checked -O1
+PASS tests/rust-native/builtin_exit_hooks.sn ['256'] checked -O2
+PASS tests/rust-native/builtin_exit_hooks.sn ['256'] unchecked -O0
+PASS tests/rust-native/builtin_exit_hooks.sn ['256'] unchecked -O1
+PASS tests/rust-native/builtin_exit_hooks.sn ['256'] unchecked -O2
+PASS tests/rust-native/builtin_exit_hooks.sn ['-1'] default -O0
+PASS tests/rust-native/builtin_exit_hooks.sn ['-1'] default -O1
+PASS tests/rust-native/builtin_exit_hooks.sn ['-1'] default -O2
+PASS tests/rust-native/builtin_exit_hooks.sn ['-1'] checked -O0
+PASS tests/rust-native/builtin_exit_hooks.sn ['-1'] checked -O1
+PASS tests/rust-native/builtin_exit_hooks.sn ['-1'] checked -O2
+PASS tests/rust-native/builtin_exit_hooks.sn ['-1'] unchecked -O0
+PASS tests/rust-native/builtin_exit_hooks.sn ['-1'] unchecked -O1
+PASS tests/rust-native/builtin_exit_hooks.sn ['-1'] unchecked -O2
+PASS tests/rust-native/builtin_exit_hooks.sn ['4294967297'] default -O0
+PASS tests/rust-native/builtin_exit_hooks.sn ['4294967297'] default -O1
+PASS tests/rust-native/builtin_exit_hooks.sn ['4294967297'] default -O2
+PASS tests/rust-native/builtin_exit_hooks.sn ['4294967297'] checked -O0
+PASS tests/rust-native/builtin_exit_hooks.sn ['4294967297'] checked -O1
+PASS tests/rust-native/builtin_exit_hooks.sn ['4294967297'] checked -O2
+PASS tests/rust-native/builtin_exit_hooks.sn ['4294967297'] unchecked -O0
+PASS tests/rust-native/builtin_exit_hooks.sn ['4294967297'] unchecked -O1
+PASS tests/rust-native/builtin_exit_hooks.sn ['4294967297'] unchecked -O2
+PASS tests/rust-native/builtin_exit_initializer.sn [] default -O0
+PASS tests/rust-native/builtin_exit_initializer.sn [] default -O1
+PASS tests/rust-native/builtin_exit_initializer.sn [] default -O2
+PASS tests/rust-native/builtin_exit_initializer.sn [] checked -O0
+PASS tests/rust-native/builtin_exit_initializer.sn [] checked -O1
+PASS tests/rust-native/builtin_exit_initializer.sn [] checked -O2
+PASS tests/rust-native/builtin_exit_initializer.sn [] unchecked -O0
+PASS tests/rust-native/builtin_exit_initializer.sn [] unchecked -O1
+PASS tests/rust-native/builtin_exit_initializer.sn [] unchecked -O2
+PASS: 153 process-exit oracles, 612 executions; exact status, streams, order and CRT lifecycle
+PASS tests/rust-native/main_return_fallthrough.sn [] default -O0
+PASS tests/rust-native/main_return_fallthrough.sn [] default -O1
+PASS tests/rust-native/main_return_fallthrough.sn [] default -O2
+PASS tests/rust-native/main_return_fallthrough.sn [] checked -O0
+PASS tests/rust-native/main_return_fallthrough.sn [] checked -O1
+PASS tests/rust-native/main_return_fallthrough.sn [] checked -O2
+PASS tests/rust-native/main_return_fallthrough.sn [] unchecked -O0
+PASS tests/rust-native/main_return_fallthrough.sn [] unchecked -O1
+PASS tests/rust-native/main_return_fallthrough.sn [] unchecked -O2
+PASS tests/rust-native/main_return_early.sn [] default -O0
+PASS tests/rust-native/main_return_early.sn [] default -O1
+PASS tests/rust-native/main_return_early.sn [] default -O2
+PASS tests/rust-native/main_return_early.sn [] checked -O0
+PASS tests/rust-native/main_return_early.sn [] checked -O1
+PASS tests/rust-native/main_return_early.sn [] checked -O2
+PASS tests/rust-native/main_return_early.sn [] unchecked -O0
+PASS tests/rust-native/main_return_early.sn [] unchecked -O1
+PASS tests/rust-native/main_return_early.sn [] unchecked -O2
+PASS tests/rust-native/main_return_initializer.sn [] default -O0
+PASS tests/rust-native/main_return_initializer.sn [] default -O1
+PASS tests/rust-native/main_return_initializer.sn [] default -O2
+PASS tests/rust-native/main_return_initializer.sn [] checked -O0
+PASS tests/rust-native/main_return_initializer.sn [] checked -O1
+PASS tests/rust-native/main_return_initializer.sn [] checked -O2
+PASS tests/rust-native/main_return_initializer.sn [] unchecked -O0
+PASS tests/rust-native/main_return_initializer.sn [] unchecked -O1
+PASS tests/rust-native/main_return_initializer.sn [] unchecked -O2
+PASS tests/rust-native/main_return_args.sn ['argument'] default -O0
+PASS tests/rust-native/main_return_args.sn ['argument'] default -O1
+PASS tests/rust-native/main_return_args.sn ['argument'] default -O2
+PASS tests/rust-native/main_return_args.sn ['argument'] checked -O0
+PASS tests/rust-native/main_return_args.sn ['argument'] checked -O1
+PASS tests/rust-native/main_return_args.sn ['argument'] checked -O2
+PASS tests/rust-native/main_return_args.sn ['argument'] unchecked -O0
+PASS tests/rust-native/main_return_args.sn ['argument'] unchecked -O1
+PASS tests/rust-native/main_return_args.sn ['argument'] unchecked -O2
+PASS tests/rust-native/main_return_hygiene.sn [] default -O0
+PASS tests/rust-native/main_return_hygiene.sn [] default -O1
+PASS tests/rust-native/main_return_hygiene.sn [] default -O2
+PASS tests/rust-native/main_return_hygiene.sn [] checked -O0
+PASS tests/rust-native/main_return_hygiene.sn [] checked -O1
+PASS tests/rust-native/main_return_hygiene.sn [] checked -O2
+PASS tests/rust-native/main_return_hygiene.sn [] unchecked -O0
+PASS tests/rust-native/main_return_hygiene.sn [] unchecked -O1
+PASS tests/rust-native/main_return_hygiene.sn [] unchecked -O2
+PASS tests/rust-native/main_return_integer_fallthrough.sn [] default -O0
+PASS tests/rust-native/main_return_integer_fallthrough.sn [] default -O1
+PASS tests/rust-native/main_return_integer_fallthrough.sn [] default -O2
+PASS tests/rust-native/main_return_integer_fallthrough.sn [] checked -O0
+PASS tests/rust-native/main_return_integer_fallthrough.sn [] checked -O1
+PASS tests/rust-native/main_return_integer_fallthrough.sn [] checked -O2
+PASS tests/rust-native/main_return_integer_fallthrough.sn [] unchecked -O0
+PASS tests/rust-native/main_return_integer_fallthrough.sn [] unchecked -O1
+PASS tests/rust-native/main_return_integer_fallthrough.sn [] unchecked -O2
+PASS tests/rust-native/main_return_integer.sn ['0'] default -O0
+PASS tests/rust-native/main_return_integer.sn ['0'] default -O1
+PASS tests/rust-native/main_return_integer.sn ['0'] default -O2
+PASS tests/rust-native/main_return_integer.sn ['0'] checked -O0
+PASS tests/rust-native/main_return_integer.sn ['0'] checked -O1
+PASS tests/rust-native/main_return_integer.sn ['0'] checked -O2
+PASS tests/rust-native/main_return_integer.sn ['0'] unchecked -O0
+PASS tests/rust-native/main_return_integer.sn ['0'] unchecked -O1
+PASS tests/rust-native/main_return_integer.sn ['0'] unchecked -O2
+PASS tests/rust-native/main_return_integer.sn ['1'] default -O0
+PASS tests/rust-native/main_return_integer.sn ['1'] default -O1
+PASS tests/rust-native/main_return_integer.sn ['1'] default -O2
+PASS tests/rust-native/main_return_integer.sn ['1'] checked -O0
+PASS tests/rust-native/main_return_integer.sn ['1'] checked -O1
+PASS tests/rust-native/main_return_integer.sn ['1'] checked -O2
+PASS tests/rust-native/main_return_integer.sn ['1'] unchecked -O0
+PASS tests/rust-native/main_return_integer.sn ['1'] unchecked -O1
+PASS tests/rust-native/main_return_integer.sn ['1'] unchecked -O2
+PASS tests/rust-native/main_return_integer.sn ['255'] default -O0
+PASS tests/rust-native/main_return_integer.sn ['255'] default -O1
+PASS tests/rust-native/main_return_integer.sn ['255'] default -O2
+PASS tests/rust-native/main_return_integer.sn ['255'] checked -O0
+PASS tests/rust-native/main_return_integer.sn ['255'] checked -O1
+PASS tests/rust-native/main_return_integer.sn ['255'] checked -O2
+PASS tests/rust-native/main_return_integer.sn ['255'] unchecked -O0
+PASS tests/rust-native/main_return_integer.sn ['255'] unchecked -O1
+PASS tests/rust-native/main_return_integer.sn ['255'] unchecked -O2
+PASS tests/rust-native/main_return_integer.sn ['256'] default -O0
+PASS tests/rust-native/main_return_integer.sn ['256'] default -O1
+PASS tests/rust-native/main_return_integer.sn ['256'] default -O2
+PASS tests/rust-native/main_return_integer.sn ['256'] checked -O0
+PASS tests/rust-native/main_return_integer.sn ['256'] checked -O1
+PASS tests/rust-native/main_return_integer.sn ['256'] checked -O2
+PASS tests/rust-native/main_return_integer.sn ['256'] unchecked -O0
+PASS tests/rust-native/main_return_integer.sn ['256'] unchecked -O1
+PASS tests/rust-native/main_return_integer.sn ['256'] unchecked -O2
+PASS tests/rust-native/main_return_integer.sn ['-1'] default -O0
+PASS tests/rust-native/main_return_integer.sn ['-1'] default -O1
+PASS tests/rust-native/main_return_integer.sn ['-1'] default -O2
+PASS tests/rust-native/main_return_integer.sn ['-1'] checked -O0
+PASS tests/rust-native/main_return_integer.sn ['-1'] checked -O1
+PASS tests/rust-native/main_return_integer.sn ['-1'] checked -O2
+PASS tests/rust-native/main_return_integer.sn ['-1'] unchecked -O0
+PASS tests/rust-native/main_return_integer.sn ['-1'] unchecked -O1
+PASS tests/rust-native/main_return_integer.sn ['-1'] unchecked -O2
+PASS tests/rust-native/main_return_integer.sn ['4294967297'] default -O0
+PASS tests/rust-native/main_return_integer.sn ['4294967297'] default -O1
+PASS tests/rust-native/main_return_integer.sn ['4294967297'] default -O2
+PASS tests/rust-native/main_return_integer.sn ['4294967297'] checked -O0
+PASS tests/rust-native/main_return_integer.sn ['4294967297'] checked -O1
+PASS tests/rust-native/main_return_integer.sn ['4294967297'] checked -O2
+PASS tests/rust-native/main_return_integer.sn ['4294967297'] unchecked -O0
+PASS tests/rust-native/main_return_integer.sn ['4294967297'] unchecked -O1
+PASS tests/rust-native/main_return_integer.sn ['4294967297'] unchecked -O2
+PASS: 108 normal-return oracles, 432 executions; exact status, streams and CRT callback order
+PASS tests/integration/test_match_return_arms.sn -O0 default
+PASS tests/integration/test_match_return_arms.sn -O1 default
+PASS tests/integration/test_match_return_arms.sn -O2 default
+PASS tests/integration/test_match_return_arms.sn -O0 checked
+PASS tests/integration/test_match_return_arms.sn -O1 checked
+PASS tests/integration/test_match_return_arms.sn -O2 checked
+PASS tests/integration/test_match_return_arms.sn -O0 unchecked
+PASS tests/integration/test_match_return_arms.sn -O1 unchecked
+PASS tests/integration/test_match_return_arms.sn -O2 unchecked
+PASS tests/exploratory/test_match_primitives.sn -O0 default
+PASS tests/exploratory/test_match_primitives.sn -O1 default
+PASS tests/exploratory/test_match_primitives.sn -O2 default
+PASS tests/exploratory/test_match_primitives.sn -O0 checked
+PASS tests/exploratory/test_match_primitives.sn -O1 checked
+PASS tests/exploratory/test_match_primitives.sn -O2 checked
+PASS tests/exploratory/test_match_primitives.sn -O0 unchecked
+PASS tests/exploratory/test_match_primitives.sn -O1 unchecked
+PASS tests/exploratory/test_match_primitives.sn -O2 unchecked
+PASS tests/exploratory/test_match_native.sn -O0 default
+PASS tests/exploratory/test_match_native.sn -O1 default
+PASS tests/exploratory/test_match_native.sn -O2 default
+PASS tests/exploratory/test_match_native.sn -O0 checked
+PASS tests/exploratory/test_match_native.sn -O1 checked
+PASS tests/exploratory/test_match_native.sn -O2 checked
+PASS tests/exploratory/test_match_native.sn -O0 unchecked
+PASS tests/exploratory/test_match_native.sn -O1 unchecked
+PASS tests/exploratory/test_match_native.sn -O2 unchecked
+PASS tests/exploratory/test_match_memory.sn -O0 default
+PASS tests/exploratory/test_match_memory.sn -O1 default
+PASS tests/exploratory/test_match_memory.sn -O2 default
+PASS tests/exploratory/test_match_memory.sn -O0 checked
+PASS tests/exploratory/test_match_memory.sn -O1 checked
+PASS tests/exploratory/test_match_memory.sn -O2 checked
+PASS tests/exploratory/test_match_memory.sn -O0 unchecked
+PASS tests/exploratory/test_match_memory.sn -O1 unchecked
+PASS tests/exploratory/test_match_memory.sn -O2 unchecked
+PASS tests/rgen/value_match_char_result.sn -O0 default
+PASS tests/rgen/value_match_char_result.sn -O1 default
+PASS tests/rgen/value_match_char_result.sn -O2 default
+PASS tests/rgen/value_match_char_result.sn -O0 checked
+PASS tests/rgen/value_match_char_result.sn -O1 checked
+PASS tests/rgen/value_match_char_result.sn -O2 checked
+PASS tests/rgen/value_match_char_result.sn -O0 unchecked
+PASS tests/rgen/value_match_char_result.sn -O1 unchecked
+PASS tests/rgen/value_match_char_result.sn -O2 unchecked
+PASS tests/rgen/value_match_multiline_body.sn -O0 default
+PASS tests/rgen/value_match_multiline_body.sn -O1 default
+PASS tests/rgen/value_match_multiline_body.sn -O2 default
+PASS tests/rgen/value_match_multiline_body.sn -O0 checked
+PASS tests/rgen/value_match_multiline_body.sn -O1 checked
+PASS tests/rgen/value_match_multiline_body.sn -O2 checked
+PASS tests/rgen/value_match_multiline_body.sn -O0 unchecked
+PASS tests/rgen/value_match_multiline_body.sn -O1 unchecked
+PASS tests/rgen/value_match_multiline_body.sn -O2 unchecked
+PASS tests/rgen/value_match_bool_multiline_body.sn -O0 default
+PASS tests/rgen/value_match_bool_multiline_body.sn -O1 default
+PASS tests/rgen/value_match_bool_multiline_body.sn -O2 default
+PASS tests/rgen/value_match_bool_multiline_body.sn -O0 checked
+PASS tests/rgen/value_match_bool_multiline_body.sn -O1 checked
+PASS tests/rgen/value_match_bool_multiline_body.sn -O2 checked
+PASS tests/rgen/value_match_bool_multiline_body.sn -O0 unchecked
+PASS tests/rgen/value_match_bool_multiline_body.sn -O1 unchecked
+PASS tests/rgen/value_match_bool_multiline_body.sn -O2 unchecked
+PASS tests/rgen/value_match_string_multiline_body.sn -O0 default
+PASS tests/rgen/value_match_string_multiline_body.sn -O1 default
+PASS tests/rgen/value_match_string_multiline_body.sn -O2 default
+PASS tests/rgen/value_match_string_multiline_body.sn -O0 checked
+PASS tests/rgen/value_match_string_multiline_body.sn -O1 checked
+PASS tests/rgen/value_match_string_multiline_body.sn -O2 checked
+PASS tests/rgen/value_match_string_multiline_body.sn -O0 unchecked
+PASS tests/rgen/value_match_string_multiline_body.sn -O1 unchecked
+PASS tests/rgen/value_match_string_multiline_body.sn -O2 unchecked
+PASS tests/rgen/value_match_float_multiline_body.sn -O0 default
+PASS tests/rgen/value_match_float_multiline_body.sn -O1 default
+PASS tests/rgen/value_match_float_multiline_body.sn -O2 default
+PASS tests/rgen/value_match_float_multiline_body.sn -O0 checked
+PASS tests/rgen/value_match_float_multiline_body.sn -O1 checked
+PASS tests/rgen/value_match_float_multiline_body.sn -O2 checked
+PASS tests/rgen/value_match_float_multiline_body.sn -O0 unchecked
+PASS tests/rgen/value_match_float_multiline_body.sn -O1 unchecked
+PASS tests/rgen/value_match_float_multiline_body.sn -O2 unchecked
+PASS tests/rgen/value_match_break_prefix.sn -O0 default
+PASS tests/rgen/value_match_break_prefix.sn -O1 default
+PASS tests/rgen/value_match_break_prefix.sn -O2 default
+PASS tests/rgen/value_match_break_prefix.sn -O0 checked
+PASS tests/rgen/value_match_break_prefix.sn -O1 checked
+PASS tests/rgen/value_match_break_prefix.sn -O2 checked
+PASS tests/rgen/value_match_break_prefix.sn -O0 unchecked
+PASS tests/rgen/value_match_break_prefix.sn -O1 unchecked
+PASS tests/rgen/value_match_break_prefix.sn -O2 unchecked
+PASS tests/rgen/value_match_continue_prefix.sn -O0 default
+PASS tests/rgen/value_match_continue_prefix.sn -O1 default
+PASS tests/rgen/value_match_continue_prefix.sn -O2 default
+PASS tests/rgen/value_match_continue_prefix.sn -O0 checked
+PASS tests/rgen/value_match_continue_prefix.sn -O1 checked
+PASS tests/rgen/value_match_continue_prefix.sn -O2 checked
+PASS tests/rgen/value_match_continue_prefix.sn -O0 unchecked
+PASS tests/rgen/value_match_continue_prefix.sn -O1 unchecked
+PASS tests/rgen/value_match_continue_prefix.sn -O2 unchecked
+PASS tests/rgen/match_control_char_bytes.sn -O0 default
+PASS tests/rgen/match_control_char_bytes.sn -O1 default
+PASS tests/rgen/match_control_char_bytes.sn -O2 default
+PASS tests/rgen/match_control_char_bytes.sn -O0 checked
+PASS tests/rgen/match_control_char_bytes.sn -O1 checked
+PASS tests/rgen/match_control_char_bytes.sn -O2 checked
+PASS tests/rgen/match_control_char_bytes.sn -O0 unchecked
+PASS tests/rgen/match_control_char_bytes.sn -O1 unchecked
+PASS tests/rgen/match_control_char_bytes.sn -O2 unchecked
+PASS tests/rgen/match_control_char_subject.sn -O0 default
+PASS tests/rgen/match_control_char_subject.sn -O1 default
+PASS tests/rgen/match_control_char_subject.sn -O2 default
+PASS tests/rgen/match_control_char_subject.sn -O0 checked
+PASS tests/rgen/match_control_char_subject.sn -O1 checked
+PASS tests/rgen/match_control_char_subject.sn -O2 checked
+PASS tests/rgen/match_control_char_subject.sn -O0 unchecked
+PASS tests/rgen/match_control_char_subject.sn -O1 unchecked
+PASS tests/rgen/match_control_char_subject.sn -O2 unchecked
+PASS tests/rgen/match_control_callable_returns.sn -O0 default
+PASS tests/rgen/match_control_callable_returns.sn -O1 default
+PASS tests/rgen/match_control_callable_returns.sn -O2 default
+PASS tests/rgen/match_control_callable_returns.sn -O0 checked
+PASS tests/rgen/match_control_callable_returns.sn -O1 checked
+PASS tests/rgen/match_control_callable_returns.sn -O2 checked
+PASS tests/rgen/match_control_callable_returns.sn -O0 unchecked
+PASS tests/rgen/match_control_callable_returns.sn -O1 unchecked
+PASS tests/rgen/match_control_callable_returns.sn -O2 unchecked
+PASS tests/rgen/match_control_bool_returns.sn -O0 default
+PASS tests/rgen/match_control_bool_returns.sn -O1 default
+PASS tests/rgen/match_control_bool_returns.sn -O2 default
+PASS tests/rgen/match_control_bool_returns.sn -O0 checked
+PASS tests/rgen/match_control_bool_returns.sn -O1 checked
+PASS tests/rgen/match_control_bool_returns.sn -O2 checked
+PASS tests/rgen/match_control_bool_returns.sn -O0 unchecked
+PASS tests/rgen/match_control_bool_returns.sn -O1 unchecked
+PASS tests/rgen/match_control_bool_returns.sn -O2 unchecked
+PASS tests/rgen/match_control_arm_scopes.sn -O0 default
+PASS tests/rgen/match_control_arm_scopes.sn -O1 default
+PASS tests/rgen/match_control_arm_scopes.sn -O2 default
+PASS tests/rgen/match_control_arm_scopes.sn -O0 checked
+PASS tests/rgen/match_control_arm_scopes.sn -O1 checked
+PASS tests/rgen/match_control_arm_scopes.sn -O2 checked
+PASS tests/rgen/match_control_arm_scopes.sn -O0 unchecked
+PASS tests/rgen/match_control_arm_scopes.sn -O1 unchecked
+PASS tests/rgen/match_control_arm_scopes.sn -O2 unchecked
+PASS tests/rgen/match_control_local_atomic_lock.sn -O0 default
+PASS tests/rgen/match_control_local_atomic_lock.sn -O1 default
+PASS tests/rgen/match_control_local_atomic_lock.sn -O2 default
+PASS tests/rgen/match_control_local_atomic_lock.sn -O0 checked
+PASS tests/rgen/match_control_local_atomic_lock.sn -O1 checked
+PASS tests/rgen/match_control_local_atomic_lock.sn -O2 checked
+PASS tests/rgen/match_control_local_atomic_lock.sn -O0 unchecked
+PASS tests/rgen/match_control_local_atomic_lock.sn -O1 unchecked
+PASS tests/rgen/match_control_local_atomic_lock.sn -O2 unchecked
+PASS tests/rgen/match_control_char_places.sn -O0 default
+PASS tests/rgen/match_control_char_places.sn -O1 default
+PASS tests/rgen/match_control_char_places.sn -O2 default
+PASS tests/rgen/match_control_char_places.sn -O0 checked
+PASS tests/rgen/match_control_char_places.sn -O1 checked
+PASS tests/rgen/match_control_char_places.sn -O2 checked
+PASS tests/rgen/match_control_char_places.sn -O0 unchecked
+PASS tests/rgen/match_control_char_places.sn -O1 unchecked
+PASS tests/rgen/match_control_char_places.sn -O2 unchecked
+PASS tests/rgen/match_control_captured_char_array.sn -O0 default
+PASS tests/rgen/match_control_captured_char_array.sn -O1 default
+PASS tests/rgen/match_control_captured_char_array.sn -O2 default
+PASS tests/rgen/match_control_captured_char_array.sn -O0 checked
+PASS tests/rgen/match_control_captured_char_array.sn -O1 checked
+PASS tests/rgen/match_control_captured_char_array.sn -O2 checked
+PASS tests/rgen/match_control_captured_char_array.sn -O0 unchecked
+PASS tests/rgen/match_control_captured_char_array.sn -O1 unchecked
+PASS tests/rgen/match_control_captured_char_array.sn -O2 unchecked
+PASS tests/rgen/match_control_probes/char_subject.sn.raw -O0 default
+PASS tests/rgen/match_control_probes/char_subject.sn.raw -O1 default
+PASS tests/rgen/match_control_probes/char_subject.sn.raw -O2 default
+PASS tests/rgen/match_control_probes/char_subject.sn.raw -O0 checked
+PASS tests/rgen/match_control_probes/char_subject.sn.raw -O1 checked
+PASS tests/rgen/match_control_probes/char_subject.sn.raw -O2 checked
+PASS tests/rgen/match_control_probes/char_subject.sn.raw -O0 unchecked
+PASS tests/rgen/match_control_probes/char_subject.sn.raw -O1 unchecked
+PASS tests/rgen/match_control_probes/char_subject.sn.raw -O2 unchecked
+PASS: 180 independent match-control C/Rust oracles, all modes and optimizations

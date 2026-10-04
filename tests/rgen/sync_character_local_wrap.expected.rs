@@ -103,16 +103,16 @@ macro_rules! println {
 
 fn main() {
     let value: __sn_concurrency0_Cell<char> = __sn_concurrency0_Cell::new('\u{0}');
-    { let __sn_concurrency0_gate = value.guard(); let mut __sn_concurrency0_value = value.lock().unwrap_or_else(|e| e.into_inner()); let __sn_concurrency0_previous = *__sn_concurrency0_value; *__sn_concurrency0_value = ((*__sn_concurrency0_value as u32 as u8).wrapping_sub(1)) as char; __sn_concurrency0_previous };
+    { let mut __sn_concurrency0_value = value.lock().unwrap_or_else(|e| e.into_inner()); let __sn_concurrency0_previous = *__sn_concurrency0_value; *__sn_concurrency0_value = ((*__sn_concurrency0_value as u32 as u8).wrapping_sub(1)) as char; __sn_concurrency0_previous };
     let mut last: char = { let value = value.lock().unwrap_or_else(|e| e.into_inner()).clone(); value };
-    println!("{}", ({ let __sn_concurrency0_gate = value.guard(); let mut __sn_concurrency0_value = value.lock().unwrap_or_else(|e| e.into_inner()); let __sn_concurrency0_previous = *__sn_concurrency0_value; *__sn_concurrency0_value = ((*__sn_concurrency0_value as u32 as u8).wrapping_add(1)) as char; __sn_concurrency0_previous } == last));
+    println!("{}", ({ let mut __sn_concurrency0_value = value.lock().unwrap_or_else(|e| e.into_inner()); let __sn_concurrency0_previous = *__sn_concurrency0_value; *__sn_concurrency0_value = ((*__sn_concurrency0_value as u32 as u8).wrapping_add(1)) as char; __sn_concurrency0_previous } == last));
     println!("{}", ({ let value = value.lock().unwrap_or_else(|e| e.into_inner()).clone(); value } == '\u{0}'));
-    println!("{}", ({ let __sn_concurrency0_gate = value.guard(); let mut __sn_concurrency0_value = value.lock().unwrap_or_else(|e| e.into_inner()); let __sn_concurrency0_previous = *__sn_concurrency0_value; *__sn_concurrency0_value = ((*__sn_concurrency0_value as u32 as u8).wrapping_sub(1)) as char; __sn_concurrency0_previous } == '\u{0}'));
+    println!("{}", ({ let mut __sn_concurrency0_value = value.lock().unwrap_or_else(|e| e.into_inner()); let __sn_concurrency0_previous = *__sn_concurrency0_value; *__sn_concurrency0_value = ((*__sn_concurrency0_value as u32 as u8).wrapping_sub(1)) as char; __sn_concurrency0_previous } == '\u{0}'));
     println!("{}", ({ let value = value.lock().unwrap_or_else(|e| e.into_inner()).clone(); value } == last));
     let byteValue: __sn_concurrency0_Cell<u8> = __sn_concurrency0_Cell::new(((255) as u8));
-    println!("0x{:02X}", ({ let __sn_concurrency0_gate = byteValue.guard(); let mut __sn_concurrency0_value_guard = byteValue.lock().unwrap_or_else(|e| e.into_inner()); { let __sn_byte_place = &mut ((*__sn_concurrency0_value_guard)); let __sn_byte_previous = *__sn_byte_place; *__sn_byte_place = __sn_byte_previous.wrapping_add(1); __sn_byte_previous } } as u32));
+    println!("0x{:02X}", ({ let mut __sn_concurrency0_value_guard = byteValue.lock().unwrap_or_else(|e| e.into_inner()); { let __sn_byte_place = &mut ((*__sn_concurrency0_value_guard)); let __sn_byte_previous = *__sn_byte_place; *__sn_byte_place = __sn_byte_previous.wrapping_add(1); __sn_byte_previous } } as u32));
     println!("0x{:02X}", ({ let value = byteValue.lock().unwrap_or_else(|e| e.into_inner()).clone(); value } as u32));
-    println!("0x{:02X}", ({ let __sn_concurrency0_gate = byteValue.guard(); let mut __sn_concurrency0_value_guard = byteValue.lock().unwrap_or_else(|e| e.into_inner()); { let __sn_byte_place = &mut ((*__sn_concurrency0_value_guard)); let __sn_byte_previous = *__sn_byte_place; *__sn_byte_place = __sn_byte_previous.wrapping_sub(1); __sn_byte_previous } } as u32));
+    println!("0x{:02X}", ({ let mut __sn_concurrency0_value_guard = byteValue.lock().unwrap_or_else(|e| e.into_inner()); { let __sn_byte_place = &mut ((*__sn_concurrency0_value_guard)); let __sn_byte_previous = *__sn_byte_place; *__sn_byte_place = __sn_byte_previous.wrapping_sub(1); __sn_byte_previous } } as u32));
     println!("0x{:02X}", ({ let value = byteValue.lock().unwrap_or_else(|e| e.into_inner()).clone(); value } as u32));
     unsafe {
         #[cfg(windows)]

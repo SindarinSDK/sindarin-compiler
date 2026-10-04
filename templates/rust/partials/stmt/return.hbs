@@ -1,1 +1,1 @@
-return{{#if value}} {{> expr value}}{{/if}};
+{{#if rust_return_void_match}}{{> expr value}}; std::unreachable!();{{else}}return{{#if value}} {{> expr value}}{{/if}};{{/if}}
