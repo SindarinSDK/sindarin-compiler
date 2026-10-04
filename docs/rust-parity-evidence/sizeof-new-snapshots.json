@@ -1,0 +1,62 @@
+[
+  {
+    "source": "tests/rgen/sizeof_c_handles.sn",
+    "source_sha256": "99c1f2ab5b76548e6610a2ff8ab632419fd451a9105f53e372de282d47576404",
+    "snapshot": "tests/rgen/sizeof_c_handles.expected.rs",
+    "snapshot_sha256": "7d0124f8d048fa6a143b1abb4e3663e65985b147fe66c3d84ea835004f90a1ed"
+  },
+  {
+    "source": "tests/rgen/sizeof_c_hygiene.sn",
+    "source_sha256": "cf288d6d4650ace45bc806f3c6438f13761a0d439d5996b2722ce27accc7e0ac",
+    "snapshot": "tests/rgen/sizeof_c_hygiene.expected.rs",
+    "snapshot_sha256": "db360ced3419fb5c731615f33e2eacbc8c582f6d2abbd22a079f2b8ef412b13b"
+  },
+  {
+    "source": "tests/rgen/sizeof_c_member_unevaluated.sn",
+    "source_sha256": "b6220cd494e3a363a48f7855a152a30280c72ddd1df4190ec9d889f79c671a80",
+    "snapshot": "tests/rgen/sizeof_c_member_unevaluated.expected.rs",
+    "snapshot_sha256": "d99d8c30a74c470d3b7e30542530ae0d75006a4abbbee1796236f5e6bf8d6a66"
+  },
+  {
+    "source": "tests/rgen/sizeof_c_nested_layout.sn",
+    "source_sha256": "7ad5e739b99a4be63be047d8d6a771ca5ff4058b7527e48f594a12698a9702a3",
+    "snapshot": "tests/rgen/sizeof_c_nested_layout.expected.rs",
+    "snapshot_sha256": "7cc36b358727989f3600002a875f52520be04f5dd9a27a636657168fb06d6907"
+  },
+  {
+    "source": "tests/rgen/sizeof_c_packed_reference_native.sn",
+    "source_sha256": "b70c958d1c5aef2130637fac8dccb46fe58c882189f9bf014cd5a7096c4cb565",
+    "snapshot": "tests/rgen/sizeof_c_packed_reference_native.expected.rs",
+    "snapshot_sha256": "adf10d18000b181b744c5740266781a627731c5c884c5c1936b39b6e6aea736a"
+  },
+  {
+    "source": "tests/rgen/sizeof_c_padding.sn",
+    "source_sha256": "63a9a809dda73ab7f15ae2a8afe2dfe613b39c7d79ed3ddc76dc6aa3b210e151",
+    "snapshot": "tests/rgen/sizeof_c_padding.expected.rs",
+    "snapshot_sha256": "1e30dbc57c05efd6824aa6f8be8fddb45816eae1dc965a007684da5ae5ab9d92"
+  },
+  {
+    "source": "tests/rgen/sizeof_c_unevaluated.sn",
+    "source_sha256": "f9c374409d1103987ddf3ab3ebab4759b183bfe8be146d617e255839cdd8f9d7",
+    "snapshot": "tests/rgen/sizeof_c_unevaluated.expected.rs",
+    "snapshot_sha256": "28006ec99476dd4b166486bab631f5ec8cbbf6dd84ef5b87aaac01eb69d1f58b"
+  },
+  {
+    "source": "tests/rgen/sizeof_struct.sn",
+    "source_sha256": "9c51a9ad1cd062a59deba595e9b01086d66cb5a3647e0e3675ccc1eb3981ba2a",
+    "snapshot": "tests/rgen/sizeof_struct.expected.rs",
+    "snapshot_sha256": "f7e7830d82a8b9591be742e64af07223694610b777d5010cf4af3209a5381f28"
+  },
+  {
+    "source": "tests/rgen/sizeof-promoted/import_pure_unsupported_native_struct.sn",
+    "source_sha256": "90166ad6c4e60e4f679ce3a715e58c735707561425093e0337e66239150fc2c4",
+    "snapshot": "tests/rgen/sizeof-promoted/import_pure_unsupported_native_struct.expected.rs",
+    "snapshot_sha256": "187e69ed752f8ad5aca43c62d6a7ec54bc4fd43a3990bec1d00d9411d210b7fe"
+  },
+  {
+    "source": "tests/rgen/resolved_operator_source_child_precedence.sn",
+    "source_sha256": "efeb2be81b0441c29181370efa53a5f2dc9fcb5b073ab9118e2a31dc180714d5",
+    "snapshot": "tests/rgen/resolved_operator_source_child_precedence.expected.rs",
+    "snapshot_sha256": "4ffe67ef960bd5b29de5a931c256feba7f474641c919fdd902364cf9d57e5450"
+  }
+]

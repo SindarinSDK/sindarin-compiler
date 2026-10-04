@@ -620,3 +620,34 @@ test-rust-parity-match-control: build
 		--require-count 20 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-match-control.json
 	@$(PYTHON) scripts/check_rust_match_control_oracles.py .sn/rust-parity-match-control.json
+
+.PHONY: test-rust-parity-sizeof
+test-rust-parity-sizeof: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/integration/test_struct_stack_alloc.sn \
+		tests/integration/test_struct_heap_alloc.sn \
+		tests/integration/test_struct_sizeof_equality.sn \
+		tests/integration/test_sizeof.sn \
+		tests/rgen/sizeof_c_unevaluated.sn \
+		tests/rgen/sizeof_c_member_unevaluated.sn \
+		tests/rgen/sizeof_c_hygiene.sn \
+		tests/rust-native/scalar_local_aggregate.sn \
+		tests/rust-native/scalar_local_aggregate_results.sn \
+		tests/rust-native/scalar_operator_local_aggregate.sn \
+		tests/rgen/sizeof_struct.sn \
+		tests/rgen/sizeof_fixed_scalars.sn \
+		tests/rgen/sizeof_managed_handles.sn \
+		tests/rgen/sizeof_pointer_values.sn \
+		tests/rgen/sizeof_c_padding.sn \
+		tests/rgen/sizeof_c_handles.sn \
+		tests/rgen/sizeof_c_packed_reference_native.sn \
+		tests/rgen/sizeof_c_nested_layout.sn \
+		tests/rgen/sizeof-promoted/import_pure_unsupported_native_struct.sn \
+		tests/rgen/resolved_operator_source_child_precedence.sn \
+		tests/integration/test_struct_as_ref_chain.sn \
+		tests/integration/test_struct_codegen_validation.sn \
+		tests/integration/test_struct_native_defaults.sn \
+		tests/integration/test_struct_packed.sn \
+		--require-count 24 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-sizeof.json
+	@$(PYTHON) scripts/check_rust_sizeof_oracles.py .sn/rust-parity-sizeof.json

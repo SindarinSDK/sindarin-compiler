@@ -1,0 +1,19 @@
+#pragma pack(1)
+struct Packed =>
+  first: char
+  value: int
+  last: bool
+#pragma pack()
+
+struct Reference as ref =>
+  value: int
+
+native struct Native =>
+  first: char
+  value: int
+  last: bool
+
+fn main(): void =>
+  println(sizeof(Packed))
+  println(sizeof(Reference))
+  println(sizeof(Native))

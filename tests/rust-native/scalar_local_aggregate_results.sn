@@ -1,0 +1,21 @@
+struct Payload =>
+  text: str
+  blob: byte[]
+
+native fn text(): str =>
+  var payload: Payload = {
+    text: "abc",
+    blob: {1b, 2b}
+  }
+  return payload.text
+
+native fn bytes(): byte[] =>
+  var payload: Payload = {
+    text: "xyz",
+    blob: {3b, 4b}
+  }
+  return payload.blob
+
+fn main(): void =>
+  println(text())
+  println(bytes().toHex())

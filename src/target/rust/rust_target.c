@@ -173,6 +173,7 @@ static bool rust_emit(CompilerOptions *options, Module *module,
     }
     result->target_data = native_plan;
     result->free_target_data = rust_native_plan_free;
+    rust_prepare_sizeof_only_declarations(model);
     rust_prepare_thread_receivers(model);
     if (!rust_prepare_by_value_scalar_parameter_mutations(model))
     {
@@ -182,6 +183,13 @@ static bool rust_emit(CompilerOptions *options, Module *module,
     if (!rust_prepare_thread_references(model)) { json_object_put(model); return false; }
     if (!rust_validate_model(model, options->arithmetic_mode, native_plan))
     {
+        json_object_put(model);
+        return false;
+    }
+    json_object_object_add(model, "rust_sizeof_layouts", json_object_new_array());
+    if (!rust_lower_sizeof_layouts(model, model))
+    {
+        fprintf(stderr, "Error: Rust target could not lower C sizeof layouts\n");
         json_object_put(model);
         return false;
     }

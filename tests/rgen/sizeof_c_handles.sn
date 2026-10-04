@@ -1,0 +1,14 @@
+struct Point =>
+  x: int
+  y: char
+
+struct Handles =>
+  first: char
+  text: str
+  values: int[]
+  nested: Point
+  last: byte
+
+fn main(): void =>
+  println(sizeof(Handles))
+  println(sizeof(Handles[]))

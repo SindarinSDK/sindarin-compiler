@@ -1,0 +1,19 @@
+struct Inner =>
+  delta: int
+
+struct Payload =>
+  text: str
+  values: int[]
+  inner: Inner
+
+native fn compute(): int =>
+  var payload: Payload = {
+    text: "abc",
+    values: {5, 6},
+    inner: Inner { delta: 7 }
+  }
+  println(sizeof(Payload))
+  return payload.values[0] + payload.text.length + payload.inner.delta
+
+fn main(): void =>
+  println(compute())

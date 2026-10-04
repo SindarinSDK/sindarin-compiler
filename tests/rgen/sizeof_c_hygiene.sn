@@ -1,0 +1,13 @@
+struct __sn_c_sizeof_layout =>
+  value: char
+
+struct Container =>
+  value: __sn_c_sizeof_layout
+  count: int32
+
+fn main(): void =>
+  var __sn_c_sizeof_layout_1: int = 9
+  println(sizeof(__sn_c_sizeof_layout))
+  println(sizeof(Container))
+  println(sizeof(__sn_c_sizeof_layout))
+  println(__sn_c_sizeof_layout_1)

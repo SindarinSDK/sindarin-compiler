@@ -1,0 +1,6 @@
+{{#each rust_sizeof_layouts}}#[repr(C{{#if packed}}, packed{{/if}})]
+struct {{rust_ident name}} {
+{{#each fields}}    {{rust_ident name}}: {{rust_type type}},
+{{/each}}{{rbrace}}
+
+{{/each}}{{~!-- trim partial EOF --~}}

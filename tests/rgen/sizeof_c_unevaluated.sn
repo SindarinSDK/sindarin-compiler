@@ -1,0 +1,20 @@
+struct Point =>
+  x: int
+  y: char
+
+fn observe(calls: int as ref): Point =>
+  calls++
+  return Point {
+    x: 1,
+    y: 'A'
+  }
+
+fn main(): void =>
+  var calls: int = 0
+  var point: Point = {
+    x: 2,
+    y: 'B'
+  }
+  println(sizeof(point))
+  println(sizeof(observe(calls)))
+  println(calls)

@@ -1,0 +1,21 @@
+struct Dense =>
+  a: char
+  b: int32
+  c: bool
+  d: double
+
+struct Ordered =>
+  d: double
+  b: int32
+  a: char
+  c: bool
+
+struct Nested =>
+  first: byte
+  dense: Dense
+  tail: byte
+
+fn main(): void =>
+  println(sizeof(Dense))
+  println(sizeof(Ordered))
+  println(sizeof(Nested))

@@ -634,6 +634,7 @@ static bool rust_validate_structs(json_object *model)
     for (size_t i = 0; i < count; i++)
     {
         json_object *structure = json_object_array_get_idx(structs, i);
+        if (json_boolean_property(structure, "rust_c_layout_only")) continue;
         const char *name = json_string_property(structure, "name");
         const char *mem_mode = json_string_property(structure, "mem_mode");
         json_object *fields = NULL;
@@ -793,6 +794,37 @@ static int rust_fixed_sizeof_bytes(const char *kind)
         strcmp(kind, "char") == 0)
         return 1;
     return -1;
+}
+
+/* C sizeof consumes the declared C type rather than the shared bookkeeping
+ * size or Rust's owning storage. Managed fields are pointer-sized; a value
+ * struct recurses through its ordered fields. Its operand stays unevaluated. */
+static bool rust_sizeof_c_layout_type(json_object *type, json_object *visiting)
+{
+    const char *kind = json_string_property(type, "kind");
+    if (!kind) return false;
+    if (rust_fixed_sizeof_bytes(kind) >= 0 ||
+        strcmp(kind, "pointer") == 0 || strcmp(kind, "opaque") == 0 ||
+        strcmp(kind, "function") == 0 || strcmp(kind, "interface") == 0)
+        return true;
+    if (strcmp(kind, "struct") != 0) return false;
+    if (json_boolean_property(type, "pass_self_by_ref")) return true;
+    const char *name = json_string_property(type, "name");
+    json_object *seen = NULL, *fields = NULL;
+    if (!name || json_object_object_get_ex(visiting, name, &seen) ||
+        !json_object_object_get_ex(type, "fields", &fields) ||
+        !json_object_is_type(fields, json_type_array)) return false;
+    json_object_object_add(visiting, name, json_object_new_boolean(true));
+    bool valid = true;
+    for (size_t i = 0; valid && i < json_object_array_length(fields); i++)
+    {
+        json_object *field_type = NULL;
+        valid = json_object_object_get_ex(json_object_array_get_idx(fields, i),
+                                          "type", &field_type) &&
+                rust_sizeof_c_layout_type(field_type, visiting);
+    }
+    json_object_object_del(visiting, name);
+    return valid;
 }
 
 static void rust_report_unsupported_sizeof(json_object *type)
@@ -1382,6 +1414,16 @@ static bool rust_validate_expr(json_object *expr)
         if (strcmp(target_kind, "pointer") == 0 || strcmp(target_kind, "opaque") == 0)
         {
             json_object_object_add(expr, "rust_sizeof_pointer", json_object_new_boolean(true));
+            return true;
+        }
+        if (strcmp(target_kind, "struct") == 0)
+        {
+            json_object *visiting = json_object_new_object();
+            bool valid = rust_sizeof_c_layout_type(target_type, visiting);
+            json_object_put(visiting);
+            if (!valid) { rust_report_unsupported_sizeof(target_type); return false; }
+            json_object_object_add(expr, "rust_sizeof_c_layout",
+                                   json_object_new_boolean(true));
             return true;
         }
         int bytes = rust_fixed_sizeof_bytes(target_kind);

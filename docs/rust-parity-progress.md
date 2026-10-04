@@ -7,35 +7,35 @@ head counts, not the language specification or the historical evidence itself.
 
 ## Current verified status: 2026-10-04
 
-The match-control increment passes complete local C/Rust suites and 21 runtime
-reports: 1704 cases comprising 1404 exact C/Rust positive pairs, 39 diagnostic/
-order cases, 153 process-exit cases and 108 normal-main-return cases. The new
-180-case gate independently verifies match return scopes, multiline arm
-statements, character subjects/results and postfix storage effects at all
-three optimization levels and arithmetic modes. Twenty C sources pass
-instrumented ASAN with leak detection. C remains the default target.
+The current integration candidate is based on main
+`f0e3d43bce63eb97183e31581bef5e8ecb177590`. Complete local C/Rust suites pass,
+and 22 runtime reports verify **1920 cases**: 1620 positive C/Rust pairs,
+39 diagnostic/order cases, 153 process-exit cases and 108 main-return cases.
+The new 216-case gate independently verifies aggregate C layouts and native
+local aggregates across all three optimization levels and arithmetic modes.
+Twenty-four C sources and seven C/Rust native bridge pairs pass instrumented
+ASAN with leak detection. C remains the default target.
 
-The unchanged original corpus now passes 1067 integration and 215 exploratory
-cases, leaving 74 and nine compilation gaps respectively: **83 remaining
-original gaps, down from 87**. No new runtime failures or skips are observed.
-All 1365 original source hashes are unchanged. Seven previously rejected Rust
-fixtures are promoted with their exact source bytes preserved. Existing Rust
-snapshots change only by removing ten local atomic postfix gate acquisitions
-across six files; global tagged postfix remains gated.
+The unchanged original corpus passes 1075 integration and 215 exploratory
+cases, leaving 66 and nine compilation gaps: **75 remaining original gaps,
+down from 83**. There are no runtime failures or skips. All 1365 original source
+hashes and every historical Rust snapshot are unchanged. Four former Rust
+negative sources are promoted with their exact bytes preserved.
 
-Most recent hosted proof: main
-`aaf14d36147b7a3eddf09bb04e36ef8cf055eebf` passes all six Linux/macOS/Windows
-Compiler and Rust Runtime jobs and the preceding 20 reports/1524 cases per
-platform. The match-control increment is locally verified against that main;
-its exact new main revision must receive the same hosted confirmation after
-push. The PR queue was refreshed and is empty. Local evidence:
-[match-control-validation.json](rust-parity-evidence/match-control-validation.json).
+Local evidence is retained in
+[sizeof validation](rust-parity-evidence/sizeof-validation.json),
+[216 independent pairs](rust-parity-evidence/sizeof-pairs.json) and
+[remaining diagnostics](rust-parity-evidence/sizeof-gap-diagnostics.json).
+The latest fully verified hosted main is the preceding match-control revision,
+with all six Compiler/Runtime jobs and all 21 reports/1704 cases per platform
+verified in [its exact-main CI proof](rust-parity-evidence/match-control-main-ci-green.json).
+The sizeof candidate's hosted verification is pending. The PR queue is empty.
 
 Full parity remains incomplete. Broader array/callable identity, mutation and
 lifetimes, native/SDK and language families still require implementation and
-mode/platform validation. Dynamic scalar match patterns, aggregate/callable
-match results and captured scalar character mutation remain separate work.
-Rejections and C-undefined probes receive no parity credit.
+mode/platform validation. Private C size layouts and C-local aggregates do not
+complete runtime packed/reference/native values or public aggregate ABI
+transport. Rejections and C-undefined probes receive no parity credit.
 
 ## Baseline: 2026-10-02
 
@@ -1845,3 +1845,89 @@ Evidence: [validation](rust-parity-evidence/match-control-validation.json),
 The 83 remaining failures are source-level compilation gaps, not 83 distinct
 features; native structs/callbacks/SDK and general owning-handle/reference
 semantics remain the largest unresolved groups.
+
+### Match-control hosted closeout
+
+Main revision `f0e3d43bce63eb97183e31581bef5e8ecb177590` passes all six jobs:
+[Compiler CI 37165654983](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37165654983)
+and [Rust Runtime CI 37165654984](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37165654984).
+Downloaded Linux, macOS and Windows artifacts independently verify all 21
+reports and 1704 cases per platform, including the new 180 match-control cases.
+Status, exact raw output, character byte domains, Windows CRLF transport,
+mutation values and control-flow effects match their fixed/Python oracles.
+Source hashes and compiler provenance are verified. Complete hosted C/Rust
+suite counts have no failures or skips. The PR queue is empty; C remains default.
+Proof: [match-control-main-ci-green.json](rust-parity-evidence/match-control-main-ci-green.json).
+
+The next aggregate-size controls preserve three original sources and add
+padding/field-order, nested/managed-handle and operand-non-evaluation probes.
+All six sources pass 54 independent C mode/optimization controls and six
+instrumented ASAN/leak checks, while Rust rejects every case. They add no parity
+credit. For example, the shared model reports Point size 24, whereas the
+unchanged C output and native ABI layout give 16. A Rust repair must reproduce
+C's actual type layout instead of trusting bookkeeping sizes or Rust owning
+storage sizes, and must keep sizeof operands unevaluated. General ownership,
+native/SDK and the 83 original compilation gaps remain required work.
+
+## Aggregate sizeof and C-local native aggregates: local validation, 2026-10-04
+
+Rust computes aggregate `sizeof` using private, never-instantiated `repr(C)`
+layout types. Ordered scalar fields retain C widths, characters occupy one byte,
+and strings, arrays, callable/interface fields and reference structs use C
+pointer representations. Nested values recurse through their C layouts; packed
+values use `repr(C, packed)`. The shared model's size/offset bookkeeping is not
+used: its Point metadata reports 24 bytes where authoritative C reports 16.
+Rust's owning runtime storage is also independent of these layout proxies.
+`sizeof` operands remain unevaluated, including calls and member receivers.
+Generated helper names are reserved against source identifiers and reused per
+declared type. A fixed-point scan of the partitioned Rust roots preserves every
+runtime-needed declaration and its field/method dependencies; declarations used
+only for size queries or native C bodies need no Rust value representation.
+
+Native functions can now construct, mutate and operate on aggregates wholly
+inside their projected C bodies, while their public arguments/results retain the
+existing supported ABI. Owned string and byte-array field results are checked.
+The first corpus run exposed an owning native method-chain leak. Standalone C
+already lifted seven intermediate Vec2 results into cleanup-bearing temporaries;
+the Rust C projection omitted that pass. Calling the unchanged authoritative
+`gen_model_flatten_chains` pass before splitting restores those lifetimes. Both
+targets now pass the original chain under instrumented ASAN with leak detection.
+The [pre-fix comparison](rust-parity-evidence/sizeof-reference-chain-pre-fix-asan.json)
+and [seven repaired native pairs](rust-parity-evidence/sizeof-native-asan.json)
+retain the evidence.
+
+The 216-case gate covers eight unchanged originals, four byte-preserved promoted
+negative sources, padding/ordering/nesting, packed and pointer-sized reference
+layouts, managed fields, non-evaluation and helper-name collisions. Its layout
+oracles use Python ctypes and fixed independently checked output contracts;
+checks require exact raw output, successful statuses, source hashes and complete
+mode/optimization coverage. Four scratch fixtures were formatted on promotion
+and revalidated; they are not claimed as byte-preserved historical sources.
+Standalone function/interface/nil/void sizeof and general aggregate transport
+remain work.
+
+| Local check | Result |
+|---|---|
+| Runtime reports | 22 / 1920 cases, all pass |
+| New independent sizeof gate | 216 / 216 pass |
+| Rust generation / negative | 407 / 147 pass |
+| Native tagged / extra / origin / negative | 8 / 22 / 1 / 4 pass |
+| Closures positive / negative | 36 / 1 pass |
+| Concurrency / promoted / negative | 10 / 7 / 1 pass |
+| Rust toolchain | 12 pass |
+| C unit / cgen / model | 1610 / 107 / 79 pass |
+| C integration / negative / exploratory / negative | 1141 / 58 / 224 / 11 pass |
+| Original Rust integration / exploratory | 1075 / 215 pass; 66 / 9 compilation gaps |
+| C instrumented ASAN | 24 clean sources |
+| Native C/Rust instrumented ASAN | Seven clean pairs |
+| Existing Rust snapshots | 450 byte-identical; ten new snapshots |
+| Original corpus source hashes | 1365 unchanged |
+| Formatter / raw-byte / Windows transport / helper checks | Pass |
+| Open PR queue | Empty |
+
+Eight newly passing original sources are stack/heap struct allocation,
+struct sizeof/equality, comprehensive sizeof, packed declarations, struct code
+generation validation, native defaults and native reference method chaining.
+All remaining original failures are compilation gaps, not distinct feature
+counts or established C-defined obligations. No guards or skips receive credit.
+Hosted checks for this candidate must complete before recording main as verified.

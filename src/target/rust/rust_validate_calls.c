@@ -421,6 +421,7 @@ static bool rust_validate_struct_methods(json_object *model)
     for (size_t i = 0; i < struct_count; i++)
     {
         json_object *structure = json_object_array_get_idx(structs, i);
+        if (json_boolean_property(structure, "rust_c_layout_only")) continue;
         const char *struct_name = json_string_property(structure, "name");
         json_object *methods = NULL;
         if (!json_object_object_get_ex(structure, "methods", &methods)) continue;

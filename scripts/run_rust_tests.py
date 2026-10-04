@@ -630,6 +630,8 @@ class TestRunner:
                 'tests/rust-native/native_flush_parameter_collision.sn',
                 'tests/rust-native/native_string_escape.sn',
             ])
+        if test_type == 'rgen':
+            test_files.extend(sorted(glob.glob('tests/rgen/sizeof-promoted/*.sn')))
         raw_fixtures = {}
         if test_type == 'rust-native-extra':
             try:

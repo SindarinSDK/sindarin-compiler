@@ -1,6 +1,7 @@
 #include "target/rust/rust_native.h"
 #include "target/rust/rust_native_internal.h"
 #include "cgen/gen_model_split.h"
+#include "cgen/gen_model.h"
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -118,7 +119,6 @@ static bool native_body_has_unsupported_construct_impl(json_object *node,
     const char *kind = native_string(node, "kind");
     if ((kind && (strcmp(kind, "lambda") == 0 ||
                   strcmp(kind, "closure_call") == 0 ||
-                  strcmp(kind, "struct_literal") == 0 ||
                   strcmp(kind, "thread_spawn") == 0 ||
                   strcmp(kind, "thread_sync") == 0 ||
                   strcmp(kind, "thread_detach") == 0 ||
@@ -130,8 +130,11 @@ static bool native_body_has_unsupported_construct_impl(json_object *node,
     if (json_object_object_get_ex(node, "type", &type))
     {
         const char *type_kind = native_string(type, "kind");
-        if (type_kind && (strcmp(type_kind, "struct") == 0 ||
-                          (strcmp(type_kind, "function") == 0 && !direct_callee)))
+        /* Local aggregates stay wholly in the projected C body. Only the
+         * public parameter/result types cross the bridge and retain their
+         * separate ABI validation. Indirect callable values still require
+         * closure definitions absent from this C-only partition. */
+        if (type_kind && strcmp(type_kind, "function") == 0 && !direct_callee)
             return true;
     }
 
@@ -197,7 +200,7 @@ static bool validate_native_function(json_object *function)
         native_body_has_unsupported_construct(body))
     {
         fprintf(stderr,
-                "Error: Rust target native function '%s' body uses a closure, thread, or struct construct outside the native bridge\n",
+                "Error: Rust target native function '%s' body uses a closure, thread, or indirect callable construct outside the native bridge\n",
                 name ? name : "<anonymous>");
         return false;
     }
@@ -972,6 +975,10 @@ bool rust_native_partition_model(json_object *rust_model,
         free(plan);
         return false;
     }
+    /* The C projection owns aggregate temporaries. Apply the same lifetime
+     * pass used by the C target before splitting; nested owning method results
+     * otherwise bypass sn_auto cleanup when called through Rust. */
+    gen_model_flatten_chains(private_model);
     plan->split = gen_model_split(private_model, options->source_file);
     json_object_put(private_model);
     if (!plan->split)

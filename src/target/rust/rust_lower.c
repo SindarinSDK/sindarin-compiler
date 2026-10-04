@@ -1841,3 +1841,5 @@ static bool rust_lower_match_temp_names(json_object *model, json_object *node,
                            json_object_new_string(index_name));
     return true;
 }
+
+#include "rust_lower_sizeof.c"

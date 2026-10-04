@@ -1,0 +1,15 @@
+struct Point =>
+  value: int
+  character: char
+
+fn observe(calls: int as ref): Point =>
+  calls++
+  return Point {
+    value: 1,
+    character: 'A'
+  }
+
+fn main(): void =>
+  var calls: int = 0
+  println(sizeof(observe(calls).character))
+  println(calls)

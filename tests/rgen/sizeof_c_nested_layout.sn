@@ -1,0 +1,23 @@
+#pragma pack(1)
+struct Packed =>
+  first: char
+  value: int
+  last: bool
+#pragma pack()
+
+struct Reference as ref =>
+  value: int
+
+struct Inner =>
+  packed: Packed
+  reference: Reference
+
+struct Outer =>
+  first: byte
+  inner: Inner
+  last: byte
+
+fn main(): void =>
+  println(sizeof(Packed))
+  println(sizeof(Inner))
+  println(sizeof(Outer))
