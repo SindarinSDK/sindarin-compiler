@@ -1,0 +1,8 @@
+values 5 original 15 native_copy 8 made local_copy
+consume 13 26 12
+write written local_copy
+empty 0 true
+filled filled
+method written!
+compound written!?
+arrays array written!? written!?

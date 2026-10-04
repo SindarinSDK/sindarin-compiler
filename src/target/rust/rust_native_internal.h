@@ -6,5 +6,6 @@
 
 ModularModel *rust_native_plan_split(RustNativePlan *plan);
 json_object *rust_native_plan_handles(RustNativePlan *plan);
+json_object *rust_native_plan_record_support(RustNativePlan *plan);
 
 #endif

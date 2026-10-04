@@ -1789,7 +1789,8 @@ static bool rust_validate_expr(json_object *expr)
             if (strcmp(value_kind, "string") != 0 ||
                 !json_string_property_equals(expr, "op", "add") ||
                 (!json_string_property_equals(target, "kind", "variable") &&
-                 !json_boolean_property(target, "rust_thread_field")))
+                 !json_boolean_property(target, "rust_thread_field") &&
+                 !json_boolean_property(target, "rust_native_c_string_storage")))
             {
                 fprintf(stderr,
                         "Error: Rust target currently supports += only for string variables and string values\n");
@@ -2967,7 +2968,8 @@ static bool rust_validate_stmt(json_object *stmt)
         if (json_object_object_get_ex(stmt, "initializer", &child))
             return rust_validate_expr(child);
         const char *type_kind = json_string_property(type, "kind");
-        return !type_kind || strcmp(type_kind, "struct") != 0;
+        return !type_kind || strcmp(type_kind, "struct") != 0 ||
+            json_boolean_property(type, "rust_native_record_storage");
     }
     if (strcmp(kind, "block") == 0) return rust_validate_block(stmt);
     if (strcmp(kind, "while") == 0)
@@ -3137,11 +3139,13 @@ static bool rust_validate_model_impl(json_object *model,
                         !mem_qual || strcmp(mem_qual, "default") == 0 ||
                         (has_param_type && strcmp(mem_qual, "as_ref") == 0 &&
                          (rust_heap_free_named_struct_type(param_type) ||
+                          (native && json_string_property(param_type, "rust_native_record_wire")) ||
                           rust_scalar_ref_parameter_type_supported(param_type) ||
                           (native && json_string_property_equals(
                               param_type, "kind", "char")))) ||
                         (has_param_type && strcmp(mem_qual, "as_val") == 0 &&
-                         rust_heap_free_named_struct_type(param_type));
+                         (rust_heap_free_named_struct_type(param_type) ||
+                          (native && json_string_property(param_type, "rust_native_record_wire"))));
                     if (!has_param_type ||
                         !rust_type_supported(param_type) ||
                         !mem_qual_supported ||

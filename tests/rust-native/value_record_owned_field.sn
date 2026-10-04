@@ -1,0 +1,9 @@
+struct OwnedRecord =>
+  label: str
+
+native fn make_owned(): OwnedRecord =>
+  return OwnedRecord { label: "owned" }
+
+fn main(): void =>
+  var value: OwnedRecord = make_owned()
+  println($"{value.label}")

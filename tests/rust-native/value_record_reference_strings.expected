@@ -1,0 +1,6 @@
+initial true true first leaf
+written true true rust rust_leaf
+native 20 z native native_leaf true
+copy 20 native native_leaf 120 copy copied_leaf
+nil true true true
+restored true true restored again

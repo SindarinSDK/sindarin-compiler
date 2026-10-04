@@ -1,0 +1,70 @@
+extern "C" {
+    fn {{rust_ident rust_native_c_string_dup}}(value: *const std::ffi::c_char) -> *mut std::ffi::c_char;
+    fn {{rust_ident rust_native_c_string_free}}(value: *mut std::ffi::c_char);
+}
+
+// A field owns the C allocation itself. Native writes update the same pointer
+// that subsequent reads, clones and destruction observe.
+#[repr(transparent)]
+struct {{rust_ident rust_native_c_string_type}}(*mut std::ffi::c_char);
+impl {{rust_ident rust_native_c_string_type}} {
+    fn adopt(pointer: *mut std::ffi::c_char) -> Self { Self(pointer) }
+    fn new(value: SnString) -> Self {
+        if value.is_nil() { return Self(std::ptr::null_mut()); }
+        let mut bytes = value.as_bytes().to_vec();
+        bytes.push(0);
+        let pointer = unsafe { {{rust_ident rust_native_c_string_dup}}(bytes.as_ptr().cast()) };
+        assert!(!pointer.is_null(), "native string allocation failed");
+        Self(pointer)
+    }
+    fn read(&self) -> SnString {
+        if self.0.is_null() { return SnString::nil(); }
+        SnString::from_slice(unsafe { std::ffi::CStr::from_ptr(self.0).to_bytes() })
+    }
+    fn append(&mut self, suffix: SnString) -> SnString {
+        let mut next = self.read();
+        next.push_str(&suffix);
+        *self = Self::new(next.clone());
+        next
+    }
+    fn borrow(&self) -> {{rust_ident rust_native_c_string_loan_type}} { {{rust_ident rust_native_c_string_loan_type}}(self.0) }
+    fn into_raw(self) -> *mut std::ffi::c_char {
+        let value = std::mem::ManuallyDrop::new(self);
+        value.0
+    }
+}
+impl Clone for {{rust_ident rust_native_c_string_type}} {
+    fn clone(&self) -> Self {
+        let pointer = unsafe { {{rust_ident rust_native_c_string_dup}}(self.0) };
+        assert!(self.0.is_null() || !pointer.is_null(), "native string copy allocation failed");
+        Self(pointer)
+    }
+}
+impl Drop for {{rust_ident rust_native_c_string_type}} {
+    fn drop(&mut self) { unsafe { {{rust_ident rust_native_c_string_free}}(self.0) }; }
+}
+impl std::fmt::Debug for {{rust_ident rust_native_c_string_type}} {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result { self.read().fmt(f) }
+}
+impl PartialEq for {{rust_ident rust_native_c_string_type}} {
+    fn eq(&self, other: &Self) -> bool { self.read() == other.read() }
+}
+// Moving sole ownership between threads does not permit shared native writes.
+unsafe impl Send for {{rust_ident rust_native_c_string_type}} {}
+{{#if rust_native_retain_string_name}}
+trait {{rust_ident rust_native_c_string_arg_trait}} {
+    fn into_native(self) -> *const std::ffi::c_char;
+}
+impl {{rust_ident rust_native_c_string_arg_trait}} for SnString {
+    fn into_native(self) -> *const std::ffi::c_char { {{rust_ident rust_native_retain_string_name}}(self) }
+}
+#[derive(Clone, Copy)]
+struct {{rust_ident rust_native_c_string_loan_type}}(*const std::ffi::c_char);
+impl {{rust_ident rust_native_c_string_arg_trait}} for {{rust_ident rust_native_c_string_loan_type}} {
+    fn into_native(self) -> *const std::ffi::c_char { self.0 }
+}
+{{else}}
+#[derive(Clone, Copy)]
+struct {{rust_ident rust_native_c_string_loan_type}}(*const std::ffi::c_char);
+{{/if}}
+{{~!-- trim EOF --~}}

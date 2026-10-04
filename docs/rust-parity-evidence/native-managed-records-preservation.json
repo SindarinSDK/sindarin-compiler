@@ -1,0 +1,243 @@
+{
+  "base_revision": "b8ad9a55c5ac49c7f21451e434ad5a0cb664bf76",
+  "state": "unpublished candidate local verification",
+  "reports": [
+    {
+      "platform": "linux",
+      "compiler_sha256": "efac0b17d07682f8f5614eb70a443f251bf87ecad8da3903e562ce53c57d9230",
+      "gates": [
+        {
+          "gate": "core",
+          "cases": 30,
+          "artifact_sha256": "36ac180d0162e9f7d0d035a857768ebec669ef5167c53f39c153a38c858e6e5e"
+        },
+        {
+          "gate": "concurrency",
+          "cases": 51,
+          "artifact_sha256": "841574a40a2627b9114cdabeae3904c68bdcec9401c3f8df7ca1b0912efd9515"
+        },
+        {
+          "gate": "thread-ownership",
+          "cases": 207,
+          "artifact_sha256": "f01e1a202e623302cc9a41ccbfa54774a68985a8cf9072d418283bf21bd490cc"
+        },
+        {
+          "gate": "thread-receivers",
+          "cases": 90,
+          "artifact_sha256": "2c4df163e7db54646db5888036c5862530ef16722e0be0e0b6b4aa107994081f"
+        },
+        {
+          "gate": "reflection",
+          "cases": 36,
+          "artifact_sha256": "bc97a50392cb0ad48bcb7801b77527da059890476a0f6812b0310003858813b2"
+        },
+        {
+          "gate": "sized-defaults",
+          "cases": 27,
+          "artifact_sha256": "0b4501bba1260b885a2d550f546fbf5582f79c0179498655fab83accc9cb32a7"
+        },
+        {
+          "gate": "native-managed",
+          "cases": 63,
+          "artifact_sha256": "48105e88a24e2cd683ade62e2e9bce684d29234a700b58fbca3e743fda7a6662"
+        },
+        {
+          "gate": "stdio-order",
+          "cases": 30,
+          "artifact_sha256": "259a763a4d241eec5a6eec4de25f8d9dce99bb7ea395206e1188564c437f196e"
+        },
+        {
+          "gate": "mixed-integral",
+          "cases": 90,
+          "artifact_sha256": "9c128b1fa5c70f49bb6d7b5624ecc3c6aa93daaae728d522e972517d1f3c4c33"
+        },
+        {
+          "gate": "mixed-integral-diagnostics",
+          "cases": 9,
+          "artifact_sha256": "c20ab4c2bd29b80035f27107dd3215c356aaebaa516a06ee0d5400236d87b639"
+        },
+        {
+          "gate": "float-conversions",
+          "cases": 117,
+          "artifact_sha256": "6385262a8359590f07a392a651f08a86e7f1455af29c155249d88b39921ceb5a"
+        },
+        {
+          "gate": "floating-arrays",
+          "cases": 81,
+          "artifact_sha256": "367a23ffe415721339a21e5e82ad8a72ce63491e694c479d4beb24db59a927f4"
+        },
+        {
+          "gate": "floating-equality",
+          "cases": 36,
+          "artifact_sha256": "99b0f17cc6062f2f9d938a91c7905166ff42ff152118422ec3af42ac05cf0897"
+        },
+        {
+          "gate": "numeric-places",
+          "cases": 153,
+          "artifact_sha256": "de1062ef6be0209cdf3afba70831b624098bca63169d76d04ada057f7202484b"
+        },
+        {
+          "gate": "capture-index",
+          "cases": 45,
+          "artifact_sha256": "7bbc281c413b5c42deb9095e1d4cf6c3e6c3af11c2e33bfb58ddea19219dcd44"
+        },
+        {
+          "gate": "sync-character",
+          "cases": 45,
+          "artifact_sha256": "895deabd07d09fc202d9cf063d08b2649378f2dbeca1a8e8a94bc39573e933f0"
+        },
+        {
+          "gate": "ctype",
+          "cases": 72,
+          "artifact_sha256": "9dbdecdc21e7436d7c5134a3eabb7104cdd5428608745b6d4564553cc82f0f31"
+        },
+        {
+          "gate": "byte-encoding",
+          "cases": 81,
+          "artifact_sha256": "c21f490494c5fbe47078f01db4c8b9d91d2b2a3c8c7483ab23d1ee7d7f542e75"
+        },
+        {
+          "gate": "exit",
+          "cases": 153,
+          "artifact_sha256": "f00894fc08209644e6cbe77094ea7c401bf137059d6608e40b80f892e02788d8"
+        },
+        {
+          "gate": "main-return",
+          "cases": 108,
+          "artifact_sha256": "d1b70ea2a4c5a5537c846cd850b9c9f40daa1577626b83af672270f478a15433"
+        },
+        {
+          "gate": "match-control",
+          "cases": 180,
+          "artifact_sha256": "09dae64b06d5fbf0877c258cdcf2e11f1d7719f001287f47c9104331f70bf537"
+        },
+        {
+          "gate": "sizeof",
+          "cases": 216,
+          "artifact_sha256": "c6028dfbc409f7df403a467a4028987dabd701e6554acd3a937419e772db179f"
+        },
+        {
+          "gate": "call-reference",
+          "cases": 126,
+          "artifact_sha256": "9f159cc36f34a53c4433e10a91f74996bc3197596049352dc2b71a087c75208d"
+        },
+        {
+          "gate": "indexed-string",
+          "cases": 54,
+          "artifact_sha256": "bc963a9f76b769e067d2f1bff5a21ebd06670258da300c62cc726d12a112fc1a"
+        },
+        {
+          "gate": "native-scope",
+          "cases": 36,
+          "artifact_sha256": "061f63a035b711ede89945cecb94fb16b31343ac6ea0990a4120a7d318f0c2b9"
+        },
+        {
+          "gate": "nil-string",
+          "cases": 72,
+          "artifact_sha256": "fc6720d296c76443c08584ec0a4ff392a48fdbe2a9e216618584a278345b6e58"
+        },
+        {
+          "gate": "nil-array",
+          "cases": 90,
+          "artifact_sha256": "4a88fa8fd310f52a97e07237977986c685c8cfd38a1c73dc7d6ea57c94096079"
+        },
+        {
+          "gate": "nested-stores",
+          "cases": 45,
+          "artifact_sha256": "1bb6e0128b0ada00ca1d726b6f614b1fdf769f0a0245ad7d3bc7cff14d5ccb89"
+        },
+        {
+          "gate": "owned-array-copies",
+          "cases": 45,
+          "artifact_sha256": "6783d7ddba2c8e4a8812f170f8cb59dc41bbe38347d88891b148701310257168"
+        },
+        {
+          "gate": "native-records",
+          "cases": 45,
+          "artifact_sha256": "1a919112708f533ccf039699b0fdbb7eed9435bf391144cf0bfca7a5a9d2e64a"
+        },
+        {
+          "gate": "native-record-references",
+          "cases": 36,
+          "artifact_sha256": "36fe0319c15f26eb9606233b2168b56dc784a402c7dcce2b7a960037c1782af7"
+        },
+        {
+          "gate": "owned-record-parameters",
+          "cases": 216,
+          "artifact_sha256": "6310096ca8d1eebf8e75def691478e71e2fe464772ea95ab442a535a5a7ce2b7"
+        },
+        {
+          "gate": "reference-records",
+          "cases": 171,
+          "artifact_sha256": "1a02c4f0e3f92b0d926079da026943c64af353e65ea845a662fb27db93e30ef9"
+        },
+        {
+          "gate": "scalar-parameters",
+          "cases": 126,
+          "artifact_sha256": "6cb01d4ee823507062085b1fd33ae613519cdfa5a8443aef9852e6ec61002ee1"
+        },
+        {
+          "gate": "closure-records",
+          "cases": 189,
+          "artifact_sha256": "837e30261254e5f67f2f8feb277f2d936480556d23ca598893061dffdab20cd2"
+        },
+        {
+          "gate": "native-handles",
+          "cases": 117,
+          "artifact_sha256": "68d87747664f5567e8dd9113a26293985fcb98b1998b89602f89668abb0daf06"
+        },
+        {
+          "gate": "native-arrays",
+          "cases": 27,
+          "artifact_sha256": "91785404ef7f7824312855e455de5e324ba04ef0acd6ce2961bbceadccd9ba68"
+        },
+        {
+          "gate": "native-globals",
+          "cases": 36,
+          "artifact_sha256": "3a1a1d244d3830b45e6fc2b3d542ba697a49dc1c62492d47d57e812fcf80e1a0"
+        }
+      ],
+      "independent_process_exit_oracle_cases": 153,
+      "independent_new_main_return_oracle_cases": 108,
+      "independent_byte_oracle_cases": 81,
+      "independent_character_oracle_cases": 72,
+      "positive_pairs": 3051,
+      "independent_native_global_cases": 36,
+      "independent_native_array_cases": 27,
+      "independent_native_handle_cases": 117,
+      "closure_record_cases": 189,
+      "independent_closure_record_cases": 189,
+      "scalar_parameter_cases": 126,
+      "independent_scalar_parameter_cases": 126,
+      "reference_record_cases": 171,
+      "independent_reference_record_cases": 171,
+      "independent_owned_record_parameter_cases": 216,
+      "diagnostic_order_cases": 39,
+      "process_exit_cases": 153,
+      "main_return_cases": 108,
+      "nested_store_cases": 45,
+      "independent_nested_store_oracle_cases": 45,
+      "owned_array_cases": 45,
+      "independent_owned_array_oracle_cases": 45,
+      "nil_array_cases": 90,
+      "independent_nil_array_oracle_cases": 90,
+      "nil_string_cases": 72,
+      "independent_nil_string_oracle_cases": 72,
+      "native_record_reference_cases": 36,
+      "independent_native_record_reference_cases": 36,
+      "native_record_cases": 45,
+      "independent_native_record_cases": 45,
+      "native_scope_cases": 36,
+      "independent_new_native_scope_oracle_cases": 36,
+      "indexed_string_cases": 54,
+      "independent_new_indexed_string_oracle_cases": 54,
+      "call_reference_cases": 126,
+      "independent_new_call_reference_oracle_cases": 126,
+      "sizeof_cases": 216,
+      "independent_new_sizeof_oracle_cases": 216,
+      "match_control_cases": 180,
+      "independent_new_match_control_oracle_cases": 180
+    }
+  ],
+  "runs": []
+}

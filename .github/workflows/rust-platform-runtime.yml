@@ -156,9 +156,9 @@ jobs:
           run_gate "tagged native C/Rust parity (8 fixtures)" \
             python3 scripts/run_rust_tests.py rust-native-tagged --verbose \
               --require-count 8 --fail-on-skip
-          run_gate "native scalar, record and managed ABI fixtures (44 fixtures)" \
+          run_gate "native scalar, record and managed ABI fixtures (49 fixtures)" \
             python3 scripts/run_rust_tests.py rust-native-extra --verbose \
-              --require-count 44 --fail-on-skip
+              --require-count 49 --fail-on-skip
           run_gate "canonical native handle ownership (117 cases)" \
             make -o build test-rust-parity-native-handles
           run_gate "canonical native reference arrays (27 cases)" \
@@ -167,6 +167,8 @@ jobs:
             make -o build test-rust-parity-native-globals
           run_gate "native record value transport (45 cases)" \
             make -o build test-rust-parity-native-records
+          run_gate "native managed record storage and ownership (54 cases)" \
+            make -o build test-rust-parity-native-managed-records
           run_gate "native record references and stable storage (36 cases)" \
             make -o build test-rust-parity-native-record-references
           run_gate "owned record parameters, aliases and field forwarding (216 cases)" \
@@ -177,9 +179,9 @@ jobs:
             make -o build test-rust-parity-scalar-parameters
           run_gate "closure record lifetimes, aliases and mutation (189 cases)" \
             make -o build test-rust-parity-closure-records
-          run_gate "native ABI admission diagnostics (7 fixtures)" \
+          run_gate "native ABI admission diagnostics (5 fixtures)" \
             python3 scripts/run_rust_tests.py rust-native-errors --verbose \
-              --require-count 7 --fail-on-skip
+              --require-count 5 --fail-on-skip
           run_gate "nested array stores and copy independence (45 cases)" \
             make -o build test-rust-parity-nested-stores
           run_gate "owned struct and nested array copies (45 cases)" \

@@ -5,6 +5,72 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Native value records with owned strings: local acceptance, 2026-10-05
+
+This candidate starts from published main
+`b8ad9a55c5ac49c7f21451e434ad5a0cb664bf76`. That revision's compiler CI is
+successful on Linux/macOS/Windows; Linux and macOS runtime artifacts are
+independently verified. Its Windows runtime job remains live. This candidate
+has complete local acceptance; publication and exact-revision hosted acceptance
+remain required. The full parity goal is active.
+
+Native-facing value records containing strings now keep persistent C-compatible
+source storage. A transparent owning field stores the C allocation itself;
+native field replacement, NULL writes and later Rust reads/drop observe the
+same pointer. Copies use C allocation helpers and native by-value transfer gives
+C ownership of the wire fields. Nested scalar/string records preserve their
+layouts. C support checks actual generated-header `sizeof`, alignment and
+`offsetof` against both Rust source and wire storage before transport. It does
+not use the model's synthetic reference-header offsets as ABI evidence.
+
+Direct native string arguments from these fields borrow the actual allocation.
+Ordinary string arguments retain the existing native string pool. Rust source
+field writes, method/compound mutations, zero/default storage, record/array
+copies, native returns and repeated/grouped thread joins are covered. Exclusively
+owned C strings may move between threads; this adds no `Sync` implementation.
+
+All complete C and Rust suites pass with zero failures/skips. Historical C/model/
+Rust emission expectations remain unchanged. Rust-native positives grow from
+44 to **49**: three new controls plus two unchanged former admission-error
+sources moved into the positive suite. Their C-verified runtime oracles replace
+the obsolete rejection expectations; the original diagnostics remain retained.
+The five remaining native admission-error fixtures pass. All **39 parity
+reports / 3405 cases**, including the previous **38 / 3351** independently
+verified again with the current compiler, pass. Mandatory CI runs the new
+**54-case** gate and the 49 positive/five negative native fixtures on all three
+platforms.
+
+All **108 instrumented target executions** (six sources, nine modes, both
+backends) return zero with empty sanitizer stderr. ASAN symbols are verified in
+every generated C object. The allocation-only promoted constructor has no
+operation requiring a UBSAN check; its generated C source and actual compile
+command with both sanitizers are retained, and its ABI support object contains
+UBSAN sites. No skipped executions or resource failures receive credit.
+
+On the previous compiler the exact final six sources yield **54 successful C
+executions and 54 Rust compilation failures**. All **1365 original source
+hashes** remain unchanged. Original coverage advances by the unchanged
+`test_struct_as_ref.sn` to **1122 integration + 221 exploratory = 1343 / 1365
+(98.4%)**, with **22 compilation gaps**, no original runtime failures and no
+skips. The newer integration control is counted separately. Raw output/argv,
+text/native-flush ordering, diagnostic transport and Windows helper logic pass;
+the host helper check is not Windows ABI evidence.
+
+The remaining work still includes interfaces/iterators, callbacks and SDK
+interop, serialization, pointer/native record families, user-copy ownership,
+array/thread/global lifetime edges and complete hosted acceptance. In
+particular, owned string fields do not establish parity for native records
+containing arrays or pointers, or indirect native string field loans.
+
+Evidence: [validation and all 22 original gaps](rust-parity-evidence/native-managed-records-validation.json),
+[54 frozen comparisons](rust-parity-evidence/native-managed-records-oracles.json),
+[previous 3351-case preservation](rust-parity-evidence/native-managed-records-preservation.json),
+[unchanged original sources](rust-parity-evidence/native-managed-records-source-preservation.json),
+[108 sanitizer executions](rust-parity-evidence/native-managed-records-asan.json),
+[exact final-source baseline](rust-parity-evidence/native-managed-records-before.json),
+[full C suite](rust-parity-evidence/native-managed-records-full-c.log),
+[full Rust suite](rust-parity-evidence/native-managed-records-full-rust.log).
+
 ## Global native owners and joined results: local acceptance, 2026-10-04
 
 This increment starts from published main

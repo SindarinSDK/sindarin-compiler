@@ -1,1 +1,1 @@
-{{#if rust_native_c_char_storage}}({{> expr value}} as u32 as u8) as std::ffi::c_char{{else}}{{> expr value}}{{rust_clone_suffix value source_is_borrow}}{{/if}}{{~!-- trim EOF --~}}
+{{#if rust_native_c_string_storage}}{{rust_ident @root.rust_native_c_string_type}}::new({{> expr value}}{{rust_clone_suffix value source_is_borrow}}){{else}}{{#if rust_native_c_char_storage}}({{> expr value}} as u32 as u8) as std::ffi::c_char{{else}}{{> expr value}}{{rust_clone_suffix value source_is_borrow}}{{/if}}{{/if}}{{~!-- trim EOF --~}}

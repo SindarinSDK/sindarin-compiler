@@ -27,6 +27,7 @@ struct RustNativePlan {
     RustNativeDeclaration *declarations;
     size_t declaration_count;
     json_object *handles;
+    json_object *record_support;
 };
 
 /* Shared privately by the Rust-native rendering/build translation units. */
@@ -38,6 +39,11 @@ ModularModel *rust_native_plan_split(RustNativePlan *plan)
 json_object *rust_native_plan_handles(RustNativePlan *plan)
 {
     return plan ? plan->handles : NULL;
+}
+
+json_object *rust_native_plan_record_support(RustNativePlan *plan)
+{
+    return plan ? plan->record_support : NULL;
 }
 
 static const char *native_string(json_object *object, const char *key)
@@ -207,7 +213,7 @@ static bool validate_native_function(json_object *function)
                 (sync && strcmp(sync, "none") != 0))
             {
                 fprintf(stderr,
-                        "Error: Rust target native function '%s' parameter '%s' must be an unsynchronized string, default-qualified raw pointer, or default/as-ref native scalar; heap-free records permit default/as-val/as-ref\n",
+                        "Error: Rust target native function '%s' parameter '%s' must be an unsynchronized string, default-qualified raw pointer, or default/as-ref native scalar; C-compatible value records permit default/as-val/as-ref\n",
                         name ? name : "<anonymous>",
                         native_string(param, "name") ? native_string(param, "name") : "<anonymous>");
                 return false;
@@ -1083,6 +1089,17 @@ bool rust_native_partition_model(json_object *rust_model,
         rust_native_plan_free(plan);
         return false;
     }
+    if (native_bool(rust_model, "rust_native_c_string_storage"))
+    {
+        plan->record_support = json_object_new_object();
+        const char *keys[] = {"rust_native_records", "rust_native_c_string_dup", "rust_native_c_string_free"};
+        for (size_t i = 0; i < 3; i++)
+        {
+            json_object *value = NULL;
+            json_object_object_get_ex(rust_model, keys[i], &value);
+            json_object_object_add(plan->record_support, keys[i], json_object_get(value));
+        }
+    }
     json_object_object_get_ex(rust_model, "functions", &functions);
     for (size_t i = 0; i < json_object_array_length(functions); i++)
     {
@@ -1506,6 +1523,7 @@ void rust_native_plan_free(void *opaque)
     if (!plan) return;
     modular_model_free(plan->split);
     if (plan->handles) json_object_put(plan->handles);
+    if (plan->record_support) json_object_put(plan->record_support);
     for (size_t i = 0; i < plan->declaration_count; i++)
     {
         free(plan->declarations[i].rust_callable_name);

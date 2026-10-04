@@ -1,0 +1,52 @@
+struct Record =>
+  number: int
+  text: str
+
+  fn append(suffix: str): void =>
+    self.text += suffix
+
+  fn read_text(): str =>
+    return self.text
+
+native fn duplicate(value: Record): Record =>
+  value.number = value.number + 10
+  value.text = "native_copy"
+  return value
+
+native fn consume(value: Record as val): int =>
+  return value.number + value.text.length
+
+native fn make_record(): Record =>
+  return Record {
+    number: 8,
+    text: "made"
+  }
+
+native fn set_text(value: Record as ref, text: str): void =>
+  value.text = text
+
+fn main(): void =>
+  var original = Record {
+    number: 5,
+    text: "original"
+  }
+  var first = duplicate(original)
+  var second = make_record()
+  var snapshot = original
+  snapshot.text = "local_copy"
+  println($"values {original.number} {original.text} {first.number} {first.text} {second.number} {second.text} {snapshot.text}")
+  println($"consume {consume(original)} {consume(first)} {consume(second)}")
+  set_text(original, "written")
+  println($"write {original.text} {snapshot.text}")
+  var empty: Record
+  println($"empty {empty.number} {empty.text == nil}")
+  set_text(empty, "filled")
+  println($"filled {empty.text}")
+  original.append("!")
+  println($"method {original.read_text()}")
+  original.text += "?"
+  println($"compound {original.text}")
+  var records = {original, first, second}
+  var copies = copyOf(records)
+  records[0].text = "array"
+  println($"arrays {records[0].text} {copies[0].text} {original.text}")

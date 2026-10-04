@@ -46,7 +46,7 @@ impl Clone for {{rust_ident name}} {
 }
 {{/if}}{{else}}{{#if rust_native_record_storage}}#[repr(C)]{{nl}}{{/if}}#[derive(Clone{{#unless has_heap_fields}}, Copy{{/unless}}, Debug, PartialEq)]
 struct {{rust_ident name}} {
-{{#each fields}}    {{rust_ident name}}: {{#if rust_native_c_char_storage}}std::ffi::c_char{{else}}{{rust_type type}}{{/if}},
+{{#each fields}}    {{rust_ident name}}: {{#if rust_native_c_string_storage}}{{rust_ident @root.rust_native_c_string_type}}{{else}}{{#if rust_native_c_char_storage}}std::ffi::c_char{{else}}{{rust_type type}}{{/if}}{{/if}},
 {{/each}}{{rbrace}}{{#if methods}}
 
 impl {{rust_ident name}} {
@@ -55,7 +55,7 @@ impl {{rust_ident name}} {
         let mut result = SnString::from_slice(b"{{name}} { ");
 {{#each fields}}{{#if @index}}        result.push_str(", ");
 {{/if}}        result.push_str("{{name}}: ");
-        result.push_str(&{{#if rust_native_c_char_storage}}char::from_u32(self.{{rust_ident name}} as u8 as u32).expect("C record char is an 8-bit value"){{else}}self.{{rust_ident name}}{{#if ../rust_thread_fields}}.read(){{/if}}{{/if}}.{{rust_ident @root.rust_struct_text_method_name}}());
+        result.push_str(&{{#if rust_native_c_char_storage}}char::from_u32(self.{{rust_ident name}} as u8 as u32).expect("C record char is an 8-bit value"){{else}}self.{{rust_ident name}}{{#if rust_native_c_string_storage}}.read(){{/if}}{{#if ../rust_thread_fields}}.read(){{/if}}{{/if}}.{{rust_ident @root.rust_struct_text_method_name}}());
 {{/each}}        result.push_str(" }");
         result
     }

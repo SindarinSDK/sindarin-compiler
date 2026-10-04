@@ -1,0 +1,3706 @@
+{
+  "flags": "-fwrapv -no-pie -fsanitize=address,undefined -fno-omit-frame-pointer -g -Werror=implicit-function-declaration",
+  "cases": [
+    {
+      "source": "tests/integration/test_struct_as_ref.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "target": "c",
+      "source_sha256": "2f4803aceeed954ced4fc8fd5918a470dd31f964f44f35df57b5a116da56732a",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/integration/test_struct_as_ref.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O0",
+        "-o",
+        ".sn/test_struct_as_ref-sanitized--O0-default-c"
+      ],
+      "status": 0,
+      "stdout_hex": "54657374696e672027617320726566272073747275637420706172616d657465722070617373696e673a0a0a312e204f726967696e616c20706f696e743a2028352e30303030302c2031302e3030303030290a2020204166746572207570646174655f706f696e743a202831352e30303030302c2033302e3030303030290a0a322e204265666f7265207363616c696e673a2028322e30303030302c20332e3030303030290a2020204166746572207363616c6520627920353a202831302e30303030302c2031352e3030303030290a0a332e204265666f726520696e6372656d656e743a20636f756e743d300a2020204166746572203320696e6372656d656e74733a20636f756e743d330a0a342e205374617274696e6720706f696e743a2028312e30303030302c20312e3030303030290a20202041667465722074776f20757064617465733a202832312e30303030302c2034312e3030303030290a0a416c6c2027617320726566272073747275637420746573747320504153534544210a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/test_struct_as_ref-sanitized--O0-default-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/integration/test_struct_as_ref.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "target": "rust",
+      "source_sha256": "2f4803aceeed954ced4fc8fd5918a470dd31f964f44f35df57b5a116da56732a",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/integration/test_struct_as_ref.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O0",
+        "-o",
+        ".sn/test_struct_as_ref-sanitized--O0-default-rust"
+      ],
+      "status": 0,
+      "stdout_hex": "54657374696e672027617320726566272073747275637420706172616d657465722070617373696e673a0a0a312e204f726967696e616c20706f696e743a2028352e30303030302c2031302e3030303030290a2020204166746572207570646174655f706f696e743a202831352e30303030302c2033302e3030303030290a0a322e204265666f7265207363616c696e673a2028322e30303030302c20332e3030303030290a2020204166746572207363616c6520627920353a202831302e30303030302c2031352e3030303030290a0a332e204265666f726520696e6372656d656e743a20636f756e743d300a2020204166746572203320696e6372656d656e74733a20636f756e743d330a0a342e205374617274696e6720706f696e743a2028312e30303030302c20312e3030303030290a20202041667465722074776f20757064617465733a202832312e30303030302c2034312e3030303030290a0a416c6c2027617320726566272073747275637420746573747320504153534544210a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "bf0bd08789db688ed401a58b12ad856977b3cd9a22bba8d40cf2c05596dcd6c6",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "8f5957a1613c4b10c0f5b6ff7f91085563716e7b45dd3a31817df3ffdec83224",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/integration/test_struct_as_ref.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "target": "c",
+      "source_sha256": "2f4803aceeed954ced4fc8fd5918a470dd31f964f44f35df57b5a116da56732a",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/integration/test_struct_as_ref.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O0",
+        "-o",
+        ".sn/test_struct_as_ref-sanitized--O0-checked-c",
+        "--checked"
+      ],
+      "status": 0,
+      "stdout_hex": "54657374696e672027617320726566272073747275637420706172616d657465722070617373696e673a0a0a312e204f726967696e616c20706f696e743a2028352e30303030302c2031302e3030303030290a2020204166746572207570646174655f706f696e743a202831352e30303030302c2033302e3030303030290a0a322e204265666f7265207363616c696e673a2028322e30303030302c20332e3030303030290a2020204166746572207363616c6520627920353a202831302e30303030302c2031352e3030303030290a0a332e204265666f726520696e6372656d656e743a20636f756e743d300a2020204166746572203320696e6372656d656e74733a20636f756e743d330a0a342e205374617274696e6720706f696e743a2028312e30303030302c20312e3030303030290a20202041667465722074776f20757064617465733a202832312e30303030302c2034312e3030303030290a0a416c6c2027617320726566272073747275637420746573747320504153534544210a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/test_struct_as_ref-sanitized--O0-checked-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/integration/test_struct_as_ref.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "target": "rust",
+      "source_sha256": "2f4803aceeed954ced4fc8fd5918a470dd31f964f44f35df57b5a116da56732a",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/integration/test_struct_as_ref.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O0",
+        "-o",
+        ".sn/test_struct_as_ref-sanitized--O0-checked-rust",
+        "--checked"
+      ],
+      "status": 0,
+      "stdout_hex": "54657374696e672027617320726566272073747275637420706172616d657465722070617373696e673a0a0a312e204f726967696e616c20706f696e743a2028352e30303030302c2031302e3030303030290a2020204166746572207570646174655f706f696e743a202831352e30303030302c2033302e3030303030290a0a322e204265666f7265207363616c696e673a2028322e30303030302c20332e3030303030290a2020204166746572207363616c6520627920353a202831302e30303030302c2031352e3030303030290a0a332e204265666f726520696e6372656d656e743a20636f756e743d300a2020204166746572203320696e6372656d656e74733a20636f756e743d330a0a342e205374617274696e6720706f696e743a2028312e30303030302c20312e3030303030290a20202041667465722074776f20757064617465733a202832312e30303030302c2034312e3030303030290a0a416c6c2027617320726566272073747275637420746573747320504153534544210a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "7d35eb09262acb70ab8ac393c5dc700f9814c7f643e0c7e81cf609d23b964d37",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "b49b62b00f18f3d02d303710ee1483d0da165bb533d48a52acafd1deb0097ca9",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/integration/test_struct_as_ref.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "target": "c",
+      "source_sha256": "2f4803aceeed954ced4fc8fd5918a470dd31f964f44f35df57b5a116da56732a",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/integration/test_struct_as_ref.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O0",
+        "-o",
+        ".sn/test_struct_as_ref-sanitized--O0-unchecked-c",
+        "--unchecked"
+      ],
+      "status": 0,
+      "stdout_hex": "54657374696e672027617320726566272073747275637420706172616d657465722070617373696e673a0a0a312e204f726967696e616c20706f696e743a2028352e30303030302c2031302e3030303030290a2020204166746572207570646174655f706f696e743a202831352e30303030302c2033302e3030303030290a0a322e204265666f7265207363616c696e673a2028322e30303030302c20332e3030303030290a2020204166746572207363616c6520627920353a202831302e30303030302c2031352e3030303030290a0a332e204265666f726520696e6372656d656e743a20636f756e743d300a2020204166746572203320696e6372656d656e74733a20636f756e743d330a0a342e205374617274696e6720706f696e743a2028312e30303030302c20312e3030303030290a20202041667465722074776f20757064617465733a202832312e30303030302c2034312e3030303030290a0a416c6c2027617320726566272073747275637420746573747320504153534544210a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/test_struct_as_ref-sanitized--O0-unchecked-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/integration/test_struct_as_ref.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "target": "rust",
+      "source_sha256": "2f4803aceeed954ced4fc8fd5918a470dd31f964f44f35df57b5a116da56732a",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/integration/test_struct_as_ref.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O0",
+        "-o",
+        ".sn/test_struct_as_ref-sanitized--O0-unchecked-rust",
+        "--unchecked"
+      ],
+      "status": 0,
+      "stdout_hex": "54657374696e672027617320726566272073747275637420706172616d657465722070617373696e673a0a0a312e204f726967696e616c20706f696e743a2028352e30303030302c2031302e3030303030290a2020204166746572207570646174655f706f696e743a202831352e30303030302c2033302e3030303030290a0a322e204265666f7265207363616c696e673a2028322e30303030302c20332e3030303030290a2020204166746572207363616c6520627920353a202831302e30303030302c2031352e3030303030290a0a332e204265666f726520696e6372656d656e743a20636f756e743d300a2020204166746572203320696e6372656d656e74733a20636f756e743d330a0a342e205374617274696e6720706f696e743a2028312e30303030302c20312e3030303030290a20202041667465722074776f20757064617465733a202832312e30303030302c2034312e3030303030290a0a416c6c2027617320726566272073747275637420746573747320504153534544210a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "627da692b132224f85cea04d02401d2bf67b132da23bbcadddb966bb3f1cf6b6",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "0f09ee2c014a7f008e04a96c9f583308354d534282a8f6a21fa21ca9cfff0e48",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/integration/test_struct_as_ref.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "target": "c",
+      "source_sha256": "2f4803aceeed954ced4fc8fd5918a470dd31f964f44f35df57b5a116da56732a",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/integration/test_struct_as_ref.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O1",
+        "-o",
+        ".sn/test_struct_as_ref-sanitized--O1-default-c"
+      ],
+      "status": 0,
+      "stdout_hex": "54657374696e672027617320726566272073747275637420706172616d657465722070617373696e673a0a0a312e204f726967696e616c20706f696e743a2028352e30303030302c2031302e3030303030290a2020204166746572207570646174655f706f696e743a202831352e30303030302c2033302e3030303030290a0a322e204265666f7265207363616c696e673a2028322e30303030302c20332e3030303030290a2020204166746572207363616c6520627920353a202831302e30303030302c2031352e3030303030290a0a332e204265666f726520696e6372656d656e743a20636f756e743d300a2020204166746572203320696e6372656d656e74733a20636f756e743d330a0a342e205374617274696e6720706f696e743a2028312e30303030302c20312e3030303030290a20202041667465722074776f20757064617465733a202832312e30303030302c2034312e3030303030290a0a416c6c2027617320726566272073747275637420746573747320504153534544210a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/test_struct_as_ref-sanitized--O1-default-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/integration/test_struct_as_ref.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "target": "rust",
+      "source_sha256": "2f4803aceeed954ced4fc8fd5918a470dd31f964f44f35df57b5a116da56732a",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/integration/test_struct_as_ref.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O1",
+        "-o",
+        ".sn/test_struct_as_ref-sanitized--O1-default-rust"
+      ],
+      "status": 0,
+      "stdout_hex": "54657374696e672027617320726566272073747275637420706172616d657465722070617373696e673a0a0a312e204f726967696e616c20706f696e743a2028352e30303030302c2031302e3030303030290a2020204166746572207570646174655f706f696e743a202831352e30303030302c2033302e3030303030290a0a322e204265666f7265207363616c696e673a2028322e30303030302c20332e3030303030290a2020204166746572207363616c6520627920353a202831302e30303030302c2031352e3030303030290a0a332e204265666f726520696e6372656d656e743a20636f756e743d300a2020204166746572203320696e6372656d656e74733a20636f756e743d330a0a342e205374617274696e6720706f696e743a2028312e30303030302c20312e3030303030290a20202041667465722074776f20757064617465733a202832312e30303030302c2034312e3030303030290a0a416c6c2027617320726566272073747275637420746573747320504153534544210a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "5cc545528fa1c4677e208750013ea4f50de0af942e75d9e7e4b10f20e0d295f2",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "73e9729af48db858df9d0fc92a4edb9a7bee3050e77d7488f48c40bff09d5476",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/integration/test_struct_as_ref.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "target": "c",
+      "source_sha256": "2f4803aceeed954ced4fc8fd5918a470dd31f964f44f35df57b5a116da56732a",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/integration/test_struct_as_ref.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O1",
+        "-o",
+        ".sn/test_struct_as_ref-sanitized--O1-checked-c",
+        "--checked"
+      ],
+      "status": 0,
+      "stdout_hex": "54657374696e672027617320726566272073747275637420706172616d657465722070617373696e673a0a0a312e204f726967696e616c20706f696e743a2028352e30303030302c2031302e3030303030290a2020204166746572207570646174655f706f696e743a202831352e30303030302c2033302e3030303030290a0a322e204265666f7265207363616c696e673a2028322e30303030302c20332e3030303030290a2020204166746572207363616c6520627920353a202831302e30303030302c2031352e3030303030290a0a332e204265666f726520696e6372656d656e743a20636f756e743d300a2020204166746572203320696e6372656d656e74733a20636f756e743d330a0a342e205374617274696e6720706f696e743a2028312e30303030302c20312e3030303030290a20202041667465722074776f20757064617465733a202832312e30303030302c2034312e3030303030290a0a416c6c2027617320726566272073747275637420746573747320504153534544210a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/test_struct_as_ref-sanitized--O1-checked-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/integration/test_struct_as_ref.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "target": "rust",
+      "source_sha256": "2f4803aceeed954ced4fc8fd5918a470dd31f964f44f35df57b5a116da56732a",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/integration/test_struct_as_ref.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O1",
+        "-o",
+        ".sn/test_struct_as_ref-sanitized--O1-checked-rust",
+        "--checked"
+      ],
+      "status": 0,
+      "stdout_hex": "54657374696e672027617320726566272073747275637420706172616d657465722070617373696e673a0a0a312e204f726967696e616c20706f696e743a2028352e30303030302c2031302e3030303030290a2020204166746572207570646174655f706f696e743a202831352e30303030302c2033302e3030303030290a0a322e204265666f7265207363616c696e673a2028322e30303030302c20332e3030303030290a2020204166746572207363616c6520627920353a202831302e30303030302c2031352e3030303030290a0a332e204265666f726520696e6372656d656e743a20636f756e743d300a2020204166746572203320696e6372656d656e74733a20636f756e743d330a0a342e205374617274696e6720706f696e743a2028312e30303030302c20312e3030303030290a20202041667465722074776f20757064617465733a202832312e30303030302c2034312e3030303030290a0a416c6c2027617320726566272073747275637420746573747320504153534544210a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "054ac24ee7e9bf7fdb26576ad9b18bdf8bdde32d2ccef04d7cef6295d53b9543",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "f6341741cab6ca06e5a73fa3364bc57f5441c5ed76246cd35e74e4ec4fe74861",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/integration/test_struct_as_ref.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "target": "c",
+      "source_sha256": "2f4803aceeed954ced4fc8fd5918a470dd31f964f44f35df57b5a116da56732a",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/integration/test_struct_as_ref.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O1",
+        "-o",
+        ".sn/test_struct_as_ref-sanitized--O1-unchecked-c",
+        "--unchecked"
+      ],
+      "status": 0,
+      "stdout_hex": "54657374696e672027617320726566272073747275637420706172616d657465722070617373696e673a0a0a312e204f726967696e616c20706f696e743a2028352e30303030302c2031302e3030303030290a2020204166746572207570646174655f706f696e743a202831352e30303030302c2033302e3030303030290a0a322e204265666f7265207363616c696e673a2028322e30303030302c20332e3030303030290a2020204166746572207363616c6520627920353a202831302e30303030302c2031352e3030303030290a0a332e204265666f726520696e6372656d656e743a20636f756e743d300a2020204166746572203320696e6372656d656e74733a20636f756e743d330a0a342e205374617274696e6720706f696e743a2028312e30303030302c20312e3030303030290a20202041667465722074776f20757064617465733a202832312e30303030302c2034312e3030303030290a0a416c6c2027617320726566272073747275637420746573747320504153534544210a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/test_struct_as_ref-sanitized--O1-unchecked-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/integration/test_struct_as_ref.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "target": "rust",
+      "source_sha256": "2f4803aceeed954ced4fc8fd5918a470dd31f964f44f35df57b5a116da56732a",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/integration/test_struct_as_ref.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O1",
+        "-o",
+        ".sn/test_struct_as_ref-sanitized--O1-unchecked-rust",
+        "--unchecked"
+      ],
+      "status": 0,
+      "stdout_hex": "54657374696e672027617320726566272073747275637420706172616d657465722070617373696e673a0a0a312e204f726967696e616c20706f696e743a2028352e30303030302c2031302e3030303030290a2020204166746572207570646174655f706f696e743a202831352e30303030302c2033302e3030303030290a0a322e204265666f7265207363616c696e673a2028322e30303030302c20332e3030303030290a2020204166746572207363616c6520627920353a202831302e30303030302c2031352e3030303030290a0a332e204265666f726520696e6372656d656e743a20636f756e743d300a2020204166746572203320696e6372656d656e74733a20636f756e743d330a0a342e205374617274696e6720706f696e743a2028312e30303030302c20312e3030303030290a20202041667465722074776f20757064617465733a202832312e30303030302c2034312e3030303030290a0a416c6c2027617320726566272073747275637420746573747320504153534544210a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "e56cc283c90439ed18c6509080382b9c1bf7985aa16f2d556443f2b781604152",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "d6860dfd3630a4bcb82bf4d75e30f5cebb58d64e1993b807d8015804f3fb540b",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/integration/test_struct_as_ref.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "target": "c",
+      "source_sha256": "2f4803aceeed954ced4fc8fd5918a470dd31f964f44f35df57b5a116da56732a",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/integration/test_struct_as_ref.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O2",
+        "-o",
+        ".sn/test_struct_as_ref-sanitized--O2-default-c"
+      ],
+      "status": 0,
+      "stdout_hex": "54657374696e672027617320726566272073747275637420706172616d657465722070617373696e673a0a0a312e204f726967696e616c20706f696e743a2028352e30303030302c2031302e3030303030290a2020204166746572207570646174655f706f696e743a202831352e30303030302c2033302e3030303030290a0a322e204265666f7265207363616c696e673a2028322e30303030302c20332e3030303030290a2020204166746572207363616c6520627920353a202831302e30303030302c2031352e3030303030290a0a332e204265666f726520696e6372656d656e743a20636f756e743d300a2020204166746572203320696e6372656d656e74733a20636f756e743d330a0a342e205374617274696e6720706f696e743a2028312e30303030302c20312e3030303030290a20202041667465722074776f20757064617465733a202832312e30303030302c2034312e3030303030290a0a416c6c2027617320726566272073747275637420746573747320504153534544210a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/test_struct_as_ref-sanitized--O2-default-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/integration/test_struct_as_ref.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "target": "rust",
+      "source_sha256": "2f4803aceeed954ced4fc8fd5918a470dd31f964f44f35df57b5a116da56732a",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/integration/test_struct_as_ref.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O2",
+        "-o",
+        ".sn/test_struct_as_ref-sanitized--O2-default-rust"
+      ],
+      "status": 0,
+      "stdout_hex": "54657374696e672027617320726566272073747275637420706172616d657465722070617373696e673a0a0a312e204f726967696e616c20706f696e743a2028352e30303030302c2031302e3030303030290a2020204166746572207570646174655f706f696e743a202831352e30303030302c2033302e3030303030290a0a322e204265666f7265207363616c696e673a2028322e30303030302c20332e3030303030290a2020204166746572207363616c6520627920353a202831302e30303030302c2031352e3030303030290a0a332e204265666f726520696e6372656d656e743a20636f756e743d300a2020204166746572203320696e6372656d656e74733a20636f756e743d330a0a342e205374617274696e6720706f696e743a2028312e30303030302c20312e3030303030290a20202041667465722074776f20757064617465733a202832312e30303030302c2034312e3030303030290a0a416c6c2027617320726566272073747275637420746573747320504153534544210a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "bdb3219b19c6374d3ac8fa78edea814cd81fca82a30f60480ec15dcfcbbfc2a3",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "15edc04bf3d09fa52355795e22a1f421d2e60c91c3146924cb134cf2e8b497bb",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/integration/test_struct_as_ref.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "target": "c",
+      "source_sha256": "2f4803aceeed954ced4fc8fd5918a470dd31f964f44f35df57b5a116da56732a",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/integration/test_struct_as_ref.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O2",
+        "-o",
+        ".sn/test_struct_as_ref-sanitized--O2-checked-c",
+        "--checked"
+      ],
+      "status": 0,
+      "stdout_hex": "54657374696e672027617320726566272073747275637420706172616d657465722070617373696e673a0a0a312e204f726967696e616c20706f696e743a2028352e30303030302c2031302e3030303030290a2020204166746572207570646174655f706f696e743a202831352e30303030302c2033302e3030303030290a0a322e204265666f7265207363616c696e673a2028322e30303030302c20332e3030303030290a2020204166746572207363616c6520627920353a202831302e30303030302c2031352e3030303030290a0a332e204265666f726520696e6372656d656e743a20636f756e743d300a2020204166746572203320696e6372656d656e74733a20636f756e743d330a0a342e205374617274696e6720706f696e743a2028312e30303030302c20312e3030303030290a20202041667465722074776f20757064617465733a202832312e30303030302c2034312e3030303030290a0a416c6c2027617320726566272073747275637420746573747320504153534544210a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/test_struct_as_ref-sanitized--O2-checked-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/integration/test_struct_as_ref.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "target": "rust",
+      "source_sha256": "2f4803aceeed954ced4fc8fd5918a470dd31f964f44f35df57b5a116da56732a",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/integration/test_struct_as_ref.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O2",
+        "-o",
+        ".sn/test_struct_as_ref-sanitized--O2-checked-rust",
+        "--checked"
+      ],
+      "status": 0,
+      "stdout_hex": "54657374696e672027617320726566272073747275637420706172616d657465722070617373696e673a0a0a312e204f726967696e616c20706f696e743a2028352e30303030302c2031302e3030303030290a2020204166746572207570646174655f706f696e743a202831352e30303030302c2033302e3030303030290a0a322e204265666f7265207363616c696e673a2028322e30303030302c20332e3030303030290a2020204166746572207363616c6520627920353a202831302e30303030302c2031352e3030303030290a0a332e204265666f726520696e6372656d656e743a20636f756e743d300a2020204166746572203320696e6372656d656e74733a20636f756e743d330a0a342e205374617274696e6720706f696e743a2028312e30303030302c20312e3030303030290a20202041667465722074776f20757064617465733a202832312e30303030302c2034312e3030303030290a0a416c6c2027617320726566272073747275637420746573747320504153534544210a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "2646f1e67243dc5ba0b32f7a80f8e1c6dc5c7ea5e166e5538ab3bb9033a6897d",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "db1518d6ea8f19f9769697aafb264d24bc45ce313554b5e4347bdd8bce75f060",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/integration/test_struct_as_ref.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "target": "c",
+      "source_sha256": "2f4803aceeed954ced4fc8fd5918a470dd31f964f44f35df57b5a116da56732a",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/integration/test_struct_as_ref.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O2",
+        "-o",
+        ".sn/test_struct_as_ref-sanitized--O2-unchecked-c",
+        "--unchecked"
+      ],
+      "status": 0,
+      "stdout_hex": "54657374696e672027617320726566272073747275637420706172616d657465722070617373696e673a0a0a312e204f726967696e616c20706f696e743a2028352e30303030302c2031302e3030303030290a2020204166746572207570646174655f706f696e743a202831352e30303030302c2033302e3030303030290a0a322e204265666f7265207363616c696e673a2028322e30303030302c20332e3030303030290a2020204166746572207363616c6520627920353a202831302e30303030302c2031352e3030303030290a0a332e204265666f726520696e6372656d656e743a20636f756e743d300a2020204166746572203320696e6372656d656e74733a20636f756e743d330a0a342e205374617274696e6720706f696e743a2028312e30303030302c20312e3030303030290a20202041667465722074776f20757064617465733a202832312e30303030302c2034312e3030303030290a0a416c6c2027617320726566272073747275637420746573747320504153534544210a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/test_struct_as_ref-sanitized--O2-unchecked-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/integration/test_struct_as_ref.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "target": "rust",
+      "source_sha256": "2f4803aceeed954ced4fc8fd5918a470dd31f964f44f35df57b5a116da56732a",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/integration/test_struct_as_ref.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O2",
+        "-o",
+        ".sn/test_struct_as_ref-sanitized--O2-unchecked-rust",
+        "--unchecked"
+      ],
+      "status": 0,
+      "stdout_hex": "54657374696e672027617320726566272073747275637420706172616d657465722070617373696e673a0a0a312e204f726967696e616c20706f696e743a2028352e30303030302c2031302e3030303030290a2020204166746572207570646174655f706f696e743a202831352e30303030302c2033302e3030303030290a0a322e204265666f7265207363616c696e673a2028322e30303030302c20332e3030303030290a2020204166746572207363616c6520627920353a202831302e30303030302c2031352e3030303030290a0a332e204265666f726520696e6372656d656e743a20636f756e743d300a2020204166746572203320696e6372656d656e74733a20636f756e743d330a0a342e205374617274696e6720706f696e743a2028312e30303030302c20312e3030303030290a20202041667465722074776f20757064617465733a202832312e30303030302c2034312e3030303030290a0a416c6c2027617320726566272073747275637420746573747320504153534544210a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "99488b501b83d00735723e518911afcecbac64a4b09072473c6d900f00b32d19",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "520a50b8225b06aedbc822c4ad193e03a416dd84b60ee70f963cece8b2f712b7",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_reference_strings.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "target": "c",
+      "source_sha256": "ef371c06eeaa3532b9a3f893d7bdafd28799fadcb7cd932fd7069fc81a1c9425",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_reference_strings.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O0",
+        "-o",
+        ".sn/value_record_reference_strings-sanitized--O0-default-c"
+      ],
+      "status": 0,
+      "stdout_hex": "696e697469616c20747275652074727565206669727374206c6561660a7772697474656e20747275652074727565207275737420727573745f6c6561660a6e6174697665203230207a206e6174697665206e61746976655f6c65616620747275650a636f7079203230206e6174697665206e61746976655f6c6561662031323020636f707920636f706965645f6c6561660a6e696c2074727565207472756520747275650a726573746f7265642074727565207472756520726573746f72656420616761696e0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_reference_strings-sanitized--O0-default-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_reference_strings.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "target": "rust",
+      "source_sha256": "ef371c06eeaa3532b9a3f893d7bdafd28799fadcb7cd932fd7069fc81a1c9425",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_reference_strings.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O0",
+        "-o",
+        ".sn/value_record_reference_strings-sanitized--O0-default-rust"
+      ],
+      "status": 0,
+      "stdout_hex": "696e697469616c20747275652074727565206669727374206c6561660a7772697474656e20747275652074727565207275737420727573745f6c6561660a6e6174697665203230207a206e6174697665206e61746976655f6c65616620747275650a636f7079203230206e6174697665206e61746976655f6c6561662031323020636f707920636f706965645f6c6561660a6e696c2074727565207472756520747275650a726573746f7265642074727565207472756520726573746f72656420616761696e0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "b97446467a0ade5c7f1f118c9f2b293ac0ab849767206edda740dc9492566b56",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "pragma_value_record_reference_strings.sn_41acfec07c6acd57.o",
+          "sha256": "97f8d198ace889cb43b6900282b6b016736360f938d30851c8d9c550e52167c3",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "070539cea9a4813c726495b2a20d5d1d4feee04f40a114e22d6fb792564ebf3d",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_reference_strings.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "target": "c",
+      "source_sha256": "ef371c06eeaa3532b9a3f893d7bdafd28799fadcb7cd932fd7069fc81a1c9425",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_reference_strings.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O0",
+        "-o",
+        ".sn/value_record_reference_strings-sanitized--O0-checked-c",
+        "--checked"
+      ],
+      "status": 0,
+      "stdout_hex": "696e697469616c20747275652074727565206669727374206c6561660a7772697474656e20747275652074727565207275737420727573745f6c6561660a6e6174697665203230207a206e6174697665206e61746976655f6c65616620747275650a636f7079203230206e6174697665206e61746976655f6c6561662031323020636f707920636f706965645f6c6561660a6e696c2074727565207472756520747275650a726573746f7265642074727565207472756520726573746f72656420616761696e0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_reference_strings-sanitized--O0-checked-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_reference_strings.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "target": "rust",
+      "source_sha256": "ef371c06eeaa3532b9a3f893d7bdafd28799fadcb7cd932fd7069fc81a1c9425",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_reference_strings.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O0",
+        "-o",
+        ".sn/value_record_reference_strings-sanitized--O0-checked-rust",
+        "--checked"
+      ],
+      "status": 0,
+      "stdout_hex": "696e697469616c20747275652074727565206669727374206c6561660a7772697474656e20747275652074727565207275737420727573745f6c6561660a6e6174697665203230207a206e6174697665206e61746976655f6c65616620747275650a636f7079203230206e6174697665206e61746976655f6c6561662031323020636f707920636f706965645f6c6561660a6e696c2074727565207472756520747275650a726573746f7265642074727565207472756520726573746f72656420616761696e0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "804dea4a868fe2f48f2ec22be8310b9f30e69467bfd46c9921d85297b9a7bb24",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "pragma_value_record_reference_strings.sn_41acfec07c6acd57.o",
+          "sha256": "f164b9326ff0af4b880fa3cb27c4ffacfe487562d0b0385a404b5cf8f67b419e",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "d861a393d7000da0ba1e812beba29a0872d9ba2ad0d585826630fdb721e9b315",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_reference_strings.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "target": "c",
+      "source_sha256": "ef371c06eeaa3532b9a3f893d7bdafd28799fadcb7cd932fd7069fc81a1c9425",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_reference_strings.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O0",
+        "-o",
+        ".sn/value_record_reference_strings-sanitized--O0-unchecked-c",
+        "--unchecked"
+      ],
+      "status": 0,
+      "stdout_hex": "696e697469616c20747275652074727565206669727374206c6561660a7772697474656e20747275652074727565207275737420727573745f6c6561660a6e6174697665203230207a206e6174697665206e61746976655f6c65616620747275650a636f7079203230206e6174697665206e61746976655f6c6561662031323020636f707920636f706965645f6c6561660a6e696c2074727565207472756520747275650a726573746f7265642074727565207472756520726573746f72656420616761696e0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_reference_strings-sanitized--O0-unchecked-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_reference_strings.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "target": "rust",
+      "source_sha256": "ef371c06eeaa3532b9a3f893d7bdafd28799fadcb7cd932fd7069fc81a1c9425",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_reference_strings.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O0",
+        "-o",
+        ".sn/value_record_reference_strings-sanitized--O0-unchecked-rust",
+        "--unchecked"
+      ],
+      "status": 0,
+      "stdout_hex": "696e697469616c20747275652074727565206669727374206c6561660a7772697474656e20747275652074727565207275737420727573745f6c6561660a6e6174697665203230207a206e6174697665206e61746976655f6c65616620747275650a636f7079203230206e6174697665206e61746976655f6c6561662031323020636f707920636f706965645f6c6561660a6e696c2074727565207472756520747275650a726573746f7265642074727565207472756520726573746f72656420616761696e0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "74949ced90fed9e8eb4ca0168ccb4ed81360af1a3ff9ef527c1f474e5ee3933b",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "pragma_value_record_reference_strings.sn_41acfec07c6acd57.o",
+          "sha256": "ca2e273410c2480f52d1e3280b47c099866d4ad8744b0a4cccd0a585ad0051fd",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "8e6a8f88bb78ec8dd0adb1e42e436807f40171e37dab4662dad27ef16f90c25d",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_reference_strings.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "target": "c",
+      "source_sha256": "ef371c06eeaa3532b9a3f893d7bdafd28799fadcb7cd932fd7069fc81a1c9425",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_reference_strings.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O1",
+        "-o",
+        ".sn/value_record_reference_strings-sanitized--O1-default-c"
+      ],
+      "status": 0,
+      "stdout_hex": "696e697469616c20747275652074727565206669727374206c6561660a7772697474656e20747275652074727565207275737420727573745f6c6561660a6e6174697665203230207a206e6174697665206e61746976655f6c65616620747275650a636f7079203230206e6174697665206e61746976655f6c6561662031323020636f707920636f706965645f6c6561660a6e696c2074727565207472756520747275650a726573746f7265642074727565207472756520726573746f72656420616761696e0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_reference_strings-sanitized--O1-default-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_reference_strings.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "target": "rust",
+      "source_sha256": "ef371c06eeaa3532b9a3f893d7bdafd28799fadcb7cd932fd7069fc81a1c9425",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_reference_strings.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O1",
+        "-o",
+        ".sn/value_record_reference_strings-sanitized--O1-default-rust"
+      ],
+      "status": 0,
+      "stdout_hex": "696e697469616c20747275652074727565206669727374206c6561660a7772697474656e20747275652074727565207275737420727573745f6c6561660a6e6174697665203230207a206e6174697665206e61746976655f6c65616620747275650a636f7079203230206e6174697665206e61746976655f6c6561662031323020636f707920636f706965645f6c6561660a6e696c2074727565207472756520747275650a726573746f7265642074727565207472756520726573746f72656420616761696e0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "3e1ce91900616558d3b93636c4d5db527c1f931493e593fb52c2e9188dee91a1",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "pragma_value_record_reference_strings.sn_41acfec07c6acd57.o",
+          "sha256": "cb39b65fbf7fcbddc6c791fc5aff3742d13c91876e2adc84d4f11d01d8b9528b",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "25afa9751c79debcf382d1e77e11a4ac9bdc7b60a390ba407b6d80159c6a06d0",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_reference_strings.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "target": "c",
+      "source_sha256": "ef371c06eeaa3532b9a3f893d7bdafd28799fadcb7cd932fd7069fc81a1c9425",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_reference_strings.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O1",
+        "-o",
+        ".sn/value_record_reference_strings-sanitized--O1-checked-c",
+        "--checked"
+      ],
+      "status": 0,
+      "stdout_hex": "696e697469616c20747275652074727565206669727374206c6561660a7772697474656e20747275652074727565207275737420727573745f6c6561660a6e6174697665203230207a206e6174697665206e61746976655f6c65616620747275650a636f7079203230206e6174697665206e61746976655f6c6561662031323020636f707920636f706965645f6c6561660a6e696c2074727565207472756520747275650a726573746f7265642074727565207472756520726573746f72656420616761696e0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_reference_strings-sanitized--O1-checked-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_reference_strings.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "target": "rust",
+      "source_sha256": "ef371c06eeaa3532b9a3f893d7bdafd28799fadcb7cd932fd7069fc81a1c9425",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_reference_strings.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O1",
+        "-o",
+        ".sn/value_record_reference_strings-sanitized--O1-checked-rust",
+        "--checked"
+      ],
+      "status": 0,
+      "stdout_hex": "696e697469616c20747275652074727565206669727374206c6561660a7772697474656e20747275652074727565207275737420727573745f6c6561660a6e6174697665203230207a206e6174697665206e61746976655f6c65616620747275650a636f7079203230206e6174697665206e61746976655f6c6561662031323020636f707920636f706965645f6c6561660a6e696c2074727565207472756520747275650a726573746f7265642074727565207472756520726573746f72656420616761696e0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "1acaeb5649330a38c2fb26f5850d8d7fd323bfbf4373551166960f1ca0ebc168",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "pragma_value_record_reference_strings.sn_41acfec07c6acd57.o",
+          "sha256": "5a2af1c637d8b5320528ee64c3faf4ff56d2c398da8cf7e00e1a8c258f2fcaf5",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "3c381b9ff32f0a2d287ab457246ccf9fde3eff95ca33054d5b8be2e5472803b0",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_reference_strings.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "target": "c",
+      "source_sha256": "ef371c06eeaa3532b9a3f893d7bdafd28799fadcb7cd932fd7069fc81a1c9425",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_reference_strings.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O1",
+        "-o",
+        ".sn/value_record_reference_strings-sanitized--O1-unchecked-c",
+        "--unchecked"
+      ],
+      "status": 0,
+      "stdout_hex": "696e697469616c20747275652074727565206669727374206c6561660a7772697474656e20747275652074727565207275737420727573745f6c6561660a6e6174697665203230207a206e6174697665206e61746976655f6c65616620747275650a636f7079203230206e6174697665206e61746976655f6c6561662031323020636f707920636f706965645f6c6561660a6e696c2074727565207472756520747275650a726573746f7265642074727565207472756520726573746f72656420616761696e0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_reference_strings-sanitized--O1-unchecked-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_reference_strings.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "target": "rust",
+      "source_sha256": "ef371c06eeaa3532b9a3f893d7bdafd28799fadcb7cd932fd7069fc81a1c9425",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_reference_strings.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O1",
+        "-o",
+        ".sn/value_record_reference_strings-sanitized--O1-unchecked-rust",
+        "--unchecked"
+      ],
+      "status": 0,
+      "stdout_hex": "696e697469616c20747275652074727565206669727374206c6561660a7772697474656e20747275652074727565207275737420727573745f6c6561660a6e6174697665203230207a206e6174697665206e61746976655f6c65616620747275650a636f7079203230206e6174697665206e61746976655f6c6561662031323020636f707920636f706965645f6c6561660a6e696c2074727565207472756520747275650a726573746f7265642074727565207472756520726573746f72656420616761696e0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "89f80c8b2dc2907f4207b69848a33fcfb0b3225170031f7be1e72c86d1f9a222",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "pragma_value_record_reference_strings.sn_41acfec07c6acd57.o",
+          "sha256": "162d93553416e17084aea9f72ce27bb25621743d2c22960082dc2688c4c8d419",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "469cc55b611923f63aaea1e98bf18dcae2e260541bd8e2471be778acc3ad93a6",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_reference_strings.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "target": "c",
+      "source_sha256": "ef371c06eeaa3532b9a3f893d7bdafd28799fadcb7cd932fd7069fc81a1c9425",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_reference_strings.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O2",
+        "-o",
+        ".sn/value_record_reference_strings-sanitized--O2-default-c"
+      ],
+      "status": 0,
+      "stdout_hex": "696e697469616c20747275652074727565206669727374206c6561660a7772697474656e20747275652074727565207275737420727573745f6c6561660a6e6174697665203230207a206e6174697665206e61746976655f6c65616620747275650a636f7079203230206e6174697665206e61746976655f6c6561662031323020636f707920636f706965645f6c6561660a6e696c2074727565207472756520747275650a726573746f7265642074727565207472756520726573746f72656420616761696e0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_reference_strings-sanitized--O2-default-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_reference_strings.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "target": "rust",
+      "source_sha256": "ef371c06eeaa3532b9a3f893d7bdafd28799fadcb7cd932fd7069fc81a1c9425",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_reference_strings.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O2",
+        "-o",
+        ".sn/value_record_reference_strings-sanitized--O2-default-rust"
+      ],
+      "status": 0,
+      "stdout_hex": "696e697469616c20747275652074727565206669727374206c6561660a7772697474656e20747275652074727565207275737420727573745f6c6561660a6e6174697665203230207a206e6174697665206e61746976655f6c65616620747275650a636f7079203230206e6174697665206e61746976655f6c6561662031323020636f707920636f706965645f6c6561660a6e696c2074727565207472756520747275650a726573746f7265642074727565207472756520726573746f72656420616761696e0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "80c649a9f0f7ebca969d5076758f4faee2f2773d7ca981ed96d446b6ae7245ed",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "pragma_value_record_reference_strings.sn_41acfec07c6acd57.o",
+          "sha256": "c0d778adfa7058888b1d58fce4caa5270a28ff569e9654b248ee364def03eac9",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "71453bc9c887ea8d0f0064ee3e343744030e4f363508c44a640e0a49d8a2b3a2",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_reference_strings.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "target": "c",
+      "source_sha256": "ef371c06eeaa3532b9a3f893d7bdafd28799fadcb7cd932fd7069fc81a1c9425",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_reference_strings.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O2",
+        "-o",
+        ".sn/value_record_reference_strings-sanitized--O2-checked-c",
+        "--checked"
+      ],
+      "status": 0,
+      "stdout_hex": "696e697469616c20747275652074727565206669727374206c6561660a7772697474656e20747275652074727565207275737420727573745f6c6561660a6e6174697665203230207a206e6174697665206e61746976655f6c65616620747275650a636f7079203230206e6174697665206e61746976655f6c6561662031323020636f707920636f706965645f6c6561660a6e696c2074727565207472756520747275650a726573746f7265642074727565207472756520726573746f72656420616761696e0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_reference_strings-sanitized--O2-checked-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_reference_strings.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "target": "rust",
+      "source_sha256": "ef371c06eeaa3532b9a3f893d7bdafd28799fadcb7cd932fd7069fc81a1c9425",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_reference_strings.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O2",
+        "-o",
+        ".sn/value_record_reference_strings-sanitized--O2-checked-rust",
+        "--checked"
+      ],
+      "status": 0,
+      "stdout_hex": "696e697469616c20747275652074727565206669727374206c6561660a7772697474656e20747275652074727565207275737420727573745f6c6561660a6e6174697665203230207a206e6174697665206e61746976655f6c65616620747275650a636f7079203230206e6174697665206e61746976655f6c6561662031323020636f707920636f706965645f6c6561660a6e696c2074727565207472756520747275650a726573746f7265642074727565207472756520726573746f72656420616761696e0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "0effa32605e19998acb419ec818d3cae039e15f4e79b6d512f181a8a2784934e",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "pragma_value_record_reference_strings.sn_41acfec07c6acd57.o",
+          "sha256": "fecfb44d7fc46462051a4de736798ab87b53f14aabc188dedbb13c2458ce1746",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "7960e8f85ed609cf4b03ebdd8c66c0c36268713cc132d01179d49b1dd42f516f",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_reference_strings.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "target": "c",
+      "source_sha256": "ef371c06eeaa3532b9a3f893d7bdafd28799fadcb7cd932fd7069fc81a1c9425",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_reference_strings.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O2",
+        "-o",
+        ".sn/value_record_reference_strings-sanitized--O2-unchecked-c",
+        "--unchecked"
+      ],
+      "status": 0,
+      "stdout_hex": "696e697469616c20747275652074727565206669727374206c6561660a7772697474656e20747275652074727565207275737420727573745f6c6561660a6e6174697665203230207a206e6174697665206e61746976655f6c65616620747275650a636f7079203230206e6174697665206e61746976655f6c6561662031323020636f707920636f706965645f6c6561660a6e696c2074727565207472756520747275650a726573746f7265642074727565207472756520726573746f72656420616761696e0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_reference_strings-sanitized--O2-unchecked-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_reference_strings.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "target": "rust",
+      "source_sha256": "ef371c06eeaa3532b9a3f893d7bdafd28799fadcb7cd932fd7069fc81a1c9425",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_reference_strings.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O2",
+        "-o",
+        ".sn/value_record_reference_strings-sanitized--O2-unchecked-rust",
+        "--unchecked"
+      ],
+      "status": 0,
+      "stdout_hex": "696e697469616c20747275652074727565206669727374206c6561660a7772697474656e20747275652074727565207275737420727573745f6c6561660a6e6174697665203230207a206e6174697665206e61746976655f6c65616620747275650a636f7079203230206e6174697665206e61746976655f6c6561662031323020636f707920636f706965645f6c6561660a6e696c2074727565207472756520747275650a726573746f7265642074727565207472756520726573746f72656420616761696e0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "14cbea58fa1c5273afbbc0ae3fb7b1a27c410738f8e92596036e8f7f79cb80b1",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "pragma_value_record_reference_strings.sn_41acfec07c6acd57.o",
+          "sha256": "2effc8a1d7e5e48435403b609d9a56173eb510445226a8e98a0999d99d3f84b6",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "235552653f496bc0cc8ce726ff1778033e792926b0379b44217e83eccc89fca4",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_strings_values.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "target": "c",
+      "source_sha256": "961f39aef1ce60da2c346cb65ff2b471c523455a5bc8c2c17da76de42b43323d",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_strings_values.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O0",
+        "-o",
+        ".sn/value_record_strings_values-sanitized--O0-default-c"
+      ],
+      "status": 0,
+      "stdout_hex": "76616c7565732035206f726967696e616c203135206e61746976655f636f70792038206d616465206c6f63616c5f636f70790a636f6e73756d652031332032362031320a7772697465207772697474656e206c6f63616c5f636f70790a656d707479203020747275650a66696c6c65642066696c6c65640a6d6574686f64207772697474656e210a636f6d706f756e64207772697474656e213f0a617272617973206172726179207772697474656e213f207772697474656e213f0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_strings_values-sanitized--O0-default-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_strings_values.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "target": "rust",
+      "source_sha256": "961f39aef1ce60da2c346cb65ff2b471c523455a5bc8c2c17da76de42b43323d",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_strings_values.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O0",
+        "-o",
+        ".sn/value_record_strings_values-sanitized--O0-default-rust"
+      ],
+      "status": 0,
+      "stdout_hex": "76616c7565732035206f726967696e616c203135206e61746976655f636f70792038206d616465206c6f63616c5f636f70790a636f6e73756d652031332032362031320a7772697465207772697474656e206c6f63616c5f636f70790a656d707479203020747275650a66696c6c65642066696c6c65640a6d6574686f64207772697474656e210a636f6d706f756e64207772697474656e213f0a617272617973206172726179207772697474656e213f207772697474656e213f0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "967ae47591aa1e1281658b7a87a041828e8863d00862bcdfd32e1a34f9db54bf",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "6ceba00e2abfdbe508e977fa1c0d5a65bce9d33259714abf5770cf1d6d1a3fac",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_strings_values.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "target": "c",
+      "source_sha256": "961f39aef1ce60da2c346cb65ff2b471c523455a5bc8c2c17da76de42b43323d",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_strings_values.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O0",
+        "-o",
+        ".sn/value_record_strings_values-sanitized--O0-checked-c",
+        "--checked"
+      ],
+      "status": 0,
+      "stdout_hex": "76616c7565732035206f726967696e616c203135206e61746976655f636f70792038206d616465206c6f63616c5f636f70790a636f6e73756d652031332032362031320a7772697465207772697474656e206c6f63616c5f636f70790a656d707479203020747275650a66696c6c65642066696c6c65640a6d6574686f64207772697474656e210a636f6d706f756e64207772697474656e213f0a617272617973206172726179207772697474656e213f207772697474656e213f0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_strings_values-sanitized--O0-checked-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_strings_values.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "target": "rust",
+      "source_sha256": "961f39aef1ce60da2c346cb65ff2b471c523455a5bc8c2c17da76de42b43323d",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_strings_values.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O0",
+        "-o",
+        ".sn/value_record_strings_values-sanitized--O0-checked-rust",
+        "--checked"
+      ],
+      "status": 0,
+      "stdout_hex": "76616c7565732035206f726967696e616c203135206e61746976655f636f70792038206d616465206c6f63616c5f636f70790a636f6e73756d652031332032362031320a7772697465207772697474656e206c6f63616c5f636f70790a656d707479203020747275650a66696c6c65642066696c6c65640a6d6574686f64207772697474656e210a636f6d706f756e64207772697474656e213f0a617272617973206172726179207772697474656e213f207772697474656e213f0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "d5a4aed35afa4fa41a4357caed9604e5e1c8bb2ebd869a8c626aeb886e9308b4",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "83f314c7fe1af9e6a199a068844aeb423ff3b50a2d6b96604deb1a2296f0aa3f",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_strings_values.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "target": "c",
+      "source_sha256": "961f39aef1ce60da2c346cb65ff2b471c523455a5bc8c2c17da76de42b43323d",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_strings_values.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O0",
+        "-o",
+        ".sn/value_record_strings_values-sanitized--O0-unchecked-c",
+        "--unchecked"
+      ],
+      "status": 0,
+      "stdout_hex": "76616c7565732035206f726967696e616c203135206e61746976655f636f70792038206d616465206c6f63616c5f636f70790a636f6e73756d652031332032362031320a7772697465207772697474656e206c6f63616c5f636f70790a656d707479203020747275650a66696c6c65642066696c6c65640a6d6574686f64207772697474656e210a636f6d706f756e64207772697474656e213f0a617272617973206172726179207772697474656e213f207772697474656e213f0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_strings_values-sanitized--O0-unchecked-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_strings_values.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "target": "rust",
+      "source_sha256": "961f39aef1ce60da2c346cb65ff2b471c523455a5bc8c2c17da76de42b43323d",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_strings_values.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O0",
+        "-o",
+        ".sn/value_record_strings_values-sanitized--O0-unchecked-rust",
+        "--unchecked"
+      ],
+      "status": 0,
+      "stdout_hex": "76616c7565732035206f726967696e616c203135206e61746976655f636f70792038206d616465206c6f63616c5f636f70790a636f6e73756d652031332032362031320a7772697465207772697474656e206c6f63616c5f636f70790a656d707479203020747275650a66696c6c65642066696c6c65640a6d6574686f64207772697474656e210a636f6d706f756e64207772697474656e213f0a617272617973206172726179207772697474656e213f207772697474656e213f0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "8ad7ac4b5014510fca9a843402a6c7bbbd440815c2be7a01208cf333211f15b5",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "5465019d554c05a5d58e972f5ea51aaf0f334d718d409574baa696edc1fcaf29",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_strings_values.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "target": "c",
+      "source_sha256": "961f39aef1ce60da2c346cb65ff2b471c523455a5bc8c2c17da76de42b43323d",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_strings_values.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O1",
+        "-o",
+        ".sn/value_record_strings_values-sanitized--O1-default-c"
+      ],
+      "status": 0,
+      "stdout_hex": "76616c7565732035206f726967696e616c203135206e61746976655f636f70792038206d616465206c6f63616c5f636f70790a636f6e73756d652031332032362031320a7772697465207772697474656e206c6f63616c5f636f70790a656d707479203020747275650a66696c6c65642066696c6c65640a6d6574686f64207772697474656e210a636f6d706f756e64207772697474656e213f0a617272617973206172726179207772697474656e213f207772697474656e213f0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_strings_values-sanitized--O1-default-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_strings_values.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "target": "rust",
+      "source_sha256": "961f39aef1ce60da2c346cb65ff2b471c523455a5bc8c2c17da76de42b43323d",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_strings_values.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O1",
+        "-o",
+        ".sn/value_record_strings_values-sanitized--O1-default-rust"
+      ],
+      "status": 0,
+      "stdout_hex": "76616c7565732035206f726967696e616c203135206e61746976655f636f70792038206d616465206c6f63616c5f636f70790a636f6e73756d652031332032362031320a7772697465207772697474656e206c6f63616c5f636f70790a656d707479203020747275650a66696c6c65642066696c6c65640a6d6574686f64207772697474656e210a636f6d706f756e64207772697474656e213f0a617272617973206172726179207772697474656e213f207772697474656e213f0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "351f6482b2799814170ea258899ad90dd27df4010b229fb9d7188fe1e11d9eb4",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "faed18aa254e291796710cf144a06e3bf551ea684ac39c77b31566d2e2126780",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_strings_values.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "target": "c",
+      "source_sha256": "961f39aef1ce60da2c346cb65ff2b471c523455a5bc8c2c17da76de42b43323d",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_strings_values.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O1",
+        "-o",
+        ".sn/value_record_strings_values-sanitized--O1-checked-c",
+        "--checked"
+      ],
+      "status": 0,
+      "stdout_hex": "76616c7565732035206f726967696e616c203135206e61746976655f636f70792038206d616465206c6f63616c5f636f70790a636f6e73756d652031332032362031320a7772697465207772697474656e206c6f63616c5f636f70790a656d707479203020747275650a66696c6c65642066696c6c65640a6d6574686f64207772697474656e210a636f6d706f756e64207772697474656e213f0a617272617973206172726179207772697474656e213f207772697474656e213f0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_strings_values-sanitized--O1-checked-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_strings_values.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "target": "rust",
+      "source_sha256": "961f39aef1ce60da2c346cb65ff2b471c523455a5bc8c2c17da76de42b43323d",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_strings_values.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O1",
+        "-o",
+        ".sn/value_record_strings_values-sanitized--O1-checked-rust",
+        "--checked"
+      ],
+      "status": 0,
+      "stdout_hex": "76616c7565732035206f726967696e616c203135206e61746976655f636f70792038206d616465206c6f63616c5f636f70790a636f6e73756d652031332032362031320a7772697465207772697474656e206c6f63616c5f636f70790a656d707479203020747275650a66696c6c65642066696c6c65640a6d6574686f64207772697474656e210a636f6d706f756e64207772697474656e213f0a617272617973206172726179207772697474656e213f207772697474656e213f0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "10d7ce83615c22412c1e238f3e9260bc54be1cf48eb6947e2107d6456d5ea731",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "da4aa82ae5322e278396cafe61727012861248730be0ce12b256b0c52a79bd6f",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_strings_values.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "target": "c",
+      "source_sha256": "961f39aef1ce60da2c346cb65ff2b471c523455a5bc8c2c17da76de42b43323d",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_strings_values.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O1",
+        "-o",
+        ".sn/value_record_strings_values-sanitized--O1-unchecked-c",
+        "--unchecked"
+      ],
+      "status": 0,
+      "stdout_hex": "76616c7565732035206f726967696e616c203135206e61746976655f636f70792038206d616465206c6f63616c5f636f70790a636f6e73756d652031332032362031320a7772697465207772697474656e206c6f63616c5f636f70790a656d707479203020747275650a66696c6c65642066696c6c65640a6d6574686f64207772697474656e210a636f6d706f756e64207772697474656e213f0a617272617973206172726179207772697474656e213f207772697474656e213f0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_strings_values-sanitized--O1-unchecked-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_strings_values.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "target": "rust",
+      "source_sha256": "961f39aef1ce60da2c346cb65ff2b471c523455a5bc8c2c17da76de42b43323d",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_strings_values.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O1",
+        "-o",
+        ".sn/value_record_strings_values-sanitized--O1-unchecked-rust",
+        "--unchecked"
+      ],
+      "status": 0,
+      "stdout_hex": "76616c7565732035206f726967696e616c203135206e61746976655f636f70792038206d616465206c6f63616c5f636f70790a636f6e73756d652031332032362031320a7772697465207772697474656e206c6f63616c5f636f70790a656d707479203020747275650a66696c6c65642066696c6c65640a6d6574686f64207772697474656e210a636f6d706f756e64207772697474656e213f0a617272617973206172726179207772697474656e213f207772697474656e213f0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "a45d801fdb2c3f3a7416721d31ad0ae1c5e46a1c977963b859b37d92a7686082",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "0a99f51a62e75d0fac7a9365a55e62f4156e0e83042d3d902916bde3473d2e2b",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_strings_values.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "target": "c",
+      "source_sha256": "961f39aef1ce60da2c346cb65ff2b471c523455a5bc8c2c17da76de42b43323d",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_strings_values.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O2",
+        "-o",
+        ".sn/value_record_strings_values-sanitized--O2-default-c"
+      ],
+      "status": 0,
+      "stdout_hex": "76616c7565732035206f726967696e616c203135206e61746976655f636f70792038206d616465206c6f63616c5f636f70790a636f6e73756d652031332032362031320a7772697465207772697474656e206c6f63616c5f636f70790a656d707479203020747275650a66696c6c65642066696c6c65640a6d6574686f64207772697474656e210a636f6d706f756e64207772697474656e213f0a617272617973206172726179207772697474656e213f207772697474656e213f0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_strings_values-sanitized--O2-default-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_strings_values.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "target": "rust",
+      "source_sha256": "961f39aef1ce60da2c346cb65ff2b471c523455a5bc8c2c17da76de42b43323d",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_strings_values.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O2",
+        "-o",
+        ".sn/value_record_strings_values-sanitized--O2-default-rust"
+      ],
+      "status": 0,
+      "stdout_hex": "76616c7565732035206f726967696e616c203135206e61746976655f636f70792038206d616465206c6f63616c5f636f70790a636f6e73756d652031332032362031320a7772697465207772697474656e206c6f63616c5f636f70790a656d707479203020747275650a66696c6c65642066696c6c65640a6d6574686f64207772697474656e210a636f6d706f756e64207772697474656e213f0a617272617973206172726179207772697474656e213f207772697474656e213f0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "b91fda3725fb6a958173677530757175affaf7e0fe0614aa9b2e3364da5713fe",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "d2534c9be609cb16335878661dc73baf74eb97ef61c85f189f68c69d5f490069",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_strings_values.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "target": "c",
+      "source_sha256": "961f39aef1ce60da2c346cb65ff2b471c523455a5bc8c2c17da76de42b43323d",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_strings_values.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O2",
+        "-o",
+        ".sn/value_record_strings_values-sanitized--O2-checked-c",
+        "--checked"
+      ],
+      "status": 0,
+      "stdout_hex": "76616c7565732035206f726967696e616c203135206e61746976655f636f70792038206d616465206c6f63616c5f636f70790a636f6e73756d652031332032362031320a7772697465207772697474656e206c6f63616c5f636f70790a656d707479203020747275650a66696c6c65642066696c6c65640a6d6574686f64207772697474656e210a636f6d706f756e64207772697474656e213f0a617272617973206172726179207772697474656e213f207772697474656e213f0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_strings_values-sanitized--O2-checked-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_strings_values.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "target": "rust",
+      "source_sha256": "961f39aef1ce60da2c346cb65ff2b471c523455a5bc8c2c17da76de42b43323d",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_strings_values.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O2",
+        "-o",
+        ".sn/value_record_strings_values-sanitized--O2-checked-rust",
+        "--checked"
+      ],
+      "status": 0,
+      "stdout_hex": "76616c7565732035206f726967696e616c203135206e61746976655f636f70792038206d616465206c6f63616c5f636f70790a636f6e73756d652031332032362031320a7772697465207772697474656e206c6f63616c5f636f70790a656d707479203020747275650a66696c6c65642066696c6c65640a6d6574686f64207772697474656e210a636f6d706f756e64207772697474656e213f0a617272617973206172726179207772697474656e213f207772697474656e213f0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "de82d8c4faf7a8c68c059c452e4a5ea8f29006266006dc284989392ff53d5ff3",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "b6b57828d19fa9292e97762d86ed8ffd24e24086e176e287a4014749105a3c56",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_strings_values.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "target": "c",
+      "source_sha256": "961f39aef1ce60da2c346cb65ff2b471c523455a5bc8c2c17da76de42b43323d",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_strings_values.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O2",
+        "-o",
+        ".sn/value_record_strings_values-sanitized--O2-unchecked-c",
+        "--unchecked"
+      ],
+      "status": 0,
+      "stdout_hex": "76616c7565732035206f726967696e616c203135206e61746976655f636f70792038206d616465206c6f63616c5f636f70790a636f6e73756d652031332032362031320a7772697465207772697474656e206c6f63616c5f636f70790a656d707479203020747275650a66696c6c65642066696c6c65640a6d6574686f64207772697474656e210a636f6d706f756e64207772697474656e213f0a617272617973206172726179207772697474656e213f207772697474656e213f0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_strings_values-sanitized--O2-unchecked-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_strings_values.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "target": "rust",
+      "source_sha256": "961f39aef1ce60da2c346cb65ff2b471c523455a5bc8c2c17da76de42b43323d",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_strings_values.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O2",
+        "-o",
+        ".sn/value_record_strings_values-sanitized--O2-unchecked-rust",
+        "--unchecked"
+      ],
+      "status": 0,
+      "stdout_hex": "76616c7565732035206f726967696e616c203135206e61746976655f636f70792038206d616465206c6f63616c5f636f70790a636f6e73756d652031332032362031320a7772697465207772697474656e206c6f63616c5f636f70790a656d707479203020747275650a66696c6c65642066696c6c65640a6d6574686f64207772697474656e210a636f6d706f756e64207772697474656e213f0a617272617973206172726179207772697474656e213f207772697474656e213f0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "bd3eabe4bb62b7000ec54a4061392858306a44800b166b8455ca3c8a410cee5b",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "50923463b6a2ca2b2415efa25590837382918c4d28addcd95864cde90e600ab5",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_strings_threads.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "target": "c",
+      "source_sha256": "8a8e6b287a8433e078a14265181b09b092a8845ed54481f6699d1d95c13b6051",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_strings_threads.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O0",
+        "-o",
+        ".sn/value_record_strings_threads-sanitized--O0-default-c"
+      ],
+      "status": 0,
+      "stdout_hex": "666972737420372066697273740a616761696e203920616761696e0a67726f7570203131206c6566742031322072696768740a706172616d6574657220323120746f7563686564203230206f726967696e616c0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_strings_threads-sanitized--O0-default-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_strings_threads.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "target": "rust",
+      "source_sha256": "8a8e6b287a8433e078a14265181b09b092a8845ed54481f6699d1d95c13b6051",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_strings_threads.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O0",
+        "-o",
+        ".sn/value_record_strings_threads-sanitized--O0-default-rust"
+      ],
+      "status": 0,
+      "stdout_hex": "666972737420372066697273740a616761696e203920616761696e0a67726f7570203131206c6566742031322072696768740a706172616d6574657220323120746f7563686564203230206f726967696e616c0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "cc41f0023f773b9e99ac07aa7f163f38f8711ea59917bcdd64bfc089ef66cb12",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "128fc267389115e2c0e0cc090c2d8a3d0f4566d65b90ed7b2d29e5e4158bd3ce",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_strings_threads.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "target": "c",
+      "source_sha256": "8a8e6b287a8433e078a14265181b09b092a8845ed54481f6699d1d95c13b6051",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_strings_threads.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O0",
+        "-o",
+        ".sn/value_record_strings_threads-sanitized--O0-checked-c",
+        "--checked"
+      ],
+      "status": 0,
+      "stdout_hex": "666972737420372066697273740a616761696e203920616761696e0a67726f7570203131206c6566742031322072696768740a706172616d6574657220323120746f7563686564203230206f726967696e616c0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_strings_threads-sanitized--O0-checked-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_strings_threads.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "target": "rust",
+      "source_sha256": "8a8e6b287a8433e078a14265181b09b092a8845ed54481f6699d1d95c13b6051",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_strings_threads.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O0",
+        "-o",
+        ".sn/value_record_strings_threads-sanitized--O0-checked-rust",
+        "--checked"
+      ],
+      "status": 0,
+      "stdout_hex": "666972737420372066697273740a616761696e203920616761696e0a67726f7570203131206c6566742031322072696768740a706172616d6574657220323120746f7563686564203230206f726967696e616c0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "65392437012b68ddc3a02905cd3f02e5209a360b5e0b71419335a8168e2b9114",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "f468b2b5b6c3019c211aff37e197860cb5644b01fb91091906e4d9edf643e105",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_strings_threads.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "target": "c",
+      "source_sha256": "8a8e6b287a8433e078a14265181b09b092a8845ed54481f6699d1d95c13b6051",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_strings_threads.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O0",
+        "-o",
+        ".sn/value_record_strings_threads-sanitized--O0-unchecked-c",
+        "--unchecked"
+      ],
+      "status": 0,
+      "stdout_hex": "666972737420372066697273740a616761696e203920616761696e0a67726f7570203131206c6566742031322072696768740a706172616d6574657220323120746f7563686564203230206f726967696e616c0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_strings_threads-sanitized--O0-unchecked-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_strings_threads.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "target": "rust",
+      "source_sha256": "8a8e6b287a8433e078a14265181b09b092a8845ed54481f6699d1d95c13b6051",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_strings_threads.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O0",
+        "-o",
+        ".sn/value_record_strings_threads-sanitized--O0-unchecked-rust",
+        "--unchecked"
+      ],
+      "status": 0,
+      "stdout_hex": "666972737420372066697273740a616761696e203920616761696e0a67726f7570203131206c6566742031322072696768740a706172616d6574657220323120746f7563686564203230206f726967696e616c0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "ecd494b4e885dca3bd2b27fdcf79801ba4c0b454c628c01f03f3ba7f2db5586f",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "3f8b256a87295d81768df2aac99f7be52327420c1ca6eff8957fee7f0a533fe5",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_strings_threads.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "target": "c",
+      "source_sha256": "8a8e6b287a8433e078a14265181b09b092a8845ed54481f6699d1d95c13b6051",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_strings_threads.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O1",
+        "-o",
+        ".sn/value_record_strings_threads-sanitized--O1-default-c"
+      ],
+      "status": 0,
+      "stdout_hex": "666972737420372066697273740a616761696e203920616761696e0a67726f7570203131206c6566742031322072696768740a706172616d6574657220323120746f7563686564203230206f726967696e616c0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_strings_threads-sanitized--O1-default-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_strings_threads.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "target": "rust",
+      "source_sha256": "8a8e6b287a8433e078a14265181b09b092a8845ed54481f6699d1d95c13b6051",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_strings_threads.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O1",
+        "-o",
+        ".sn/value_record_strings_threads-sanitized--O1-default-rust"
+      ],
+      "status": 0,
+      "stdout_hex": "666972737420372066697273740a616761696e203920616761696e0a67726f7570203131206c6566742031322072696768740a706172616d6574657220323120746f7563686564203230206f726967696e616c0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "493174234811761ca5b30bdcb1e68ab3349e0213cf4958a3f14fb7018e541367",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "680ddfeb068e02aea6b49ea8dd34501f71c71eb0cdf29ef4a72041b27c067157",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_strings_threads.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "target": "c",
+      "source_sha256": "8a8e6b287a8433e078a14265181b09b092a8845ed54481f6699d1d95c13b6051",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_strings_threads.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O1",
+        "-o",
+        ".sn/value_record_strings_threads-sanitized--O1-checked-c",
+        "--checked"
+      ],
+      "status": 0,
+      "stdout_hex": "666972737420372066697273740a616761696e203920616761696e0a67726f7570203131206c6566742031322072696768740a706172616d6574657220323120746f7563686564203230206f726967696e616c0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_strings_threads-sanitized--O1-checked-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_strings_threads.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "target": "rust",
+      "source_sha256": "8a8e6b287a8433e078a14265181b09b092a8845ed54481f6699d1d95c13b6051",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_strings_threads.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O1",
+        "-o",
+        ".sn/value_record_strings_threads-sanitized--O1-checked-rust",
+        "--checked"
+      ],
+      "status": 0,
+      "stdout_hex": "666972737420372066697273740a616761696e203920616761696e0a67726f7570203131206c6566742031322072696768740a706172616d6574657220323120746f7563686564203230206f726967696e616c0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "48cabbce9c4147e89f5d9093b02ac98367a9666816d8fc16c4ecbb72a448a51b",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "da3e87e20fb028514a741f89c765376e58de6f5c6cf741e3398caf68c46df530",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_strings_threads.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "target": "c",
+      "source_sha256": "8a8e6b287a8433e078a14265181b09b092a8845ed54481f6699d1d95c13b6051",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_strings_threads.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O1",
+        "-o",
+        ".sn/value_record_strings_threads-sanitized--O1-unchecked-c",
+        "--unchecked"
+      ],
+      "status": 0,
+      "stdout_hex": "666972737420372066697273740a616761696e203920616761696e0a67726f7570203131206c6566742031322072696768740a706172616d6574657220323120746f7563686564203230206f726967696e616c0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_strings_threads-sanitized--O1-unchecked-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_strings_threads.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "target": "rust",
+      "source_sha256": "8a8e6b287a8433e078a14265181b09b092a8845ed54481f6699d1d95c13b6051",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_strings_threads.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O1",
+        "-o",
+        ".sn/value_record_strings_threads-sanitized--O1-unchecked-rust",
+        "--unchecked"
+      ],
+      "status": 0,
+      "stdout_hex": "666972737420372066697273740a616761696e203920616761696e0a67726f7570203131206c6566742031322072696768740a706172616d6574657220323120746f7563686564203230206f726967696e616c0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "4525b4192b0becdc61f13c00c5e1beb450f993b678c875c99df8183c115aa763",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "c5cb8948b4bc3db3e590c000b83cc91d2b5669a9b9e0f6fada811dc7acdbf2e1",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_strings_threads.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "target": "c",
+      "source_sha256": "8a8e6b287a8433e078a14265181b09b092a8845ed54481f6699d1d95c13b6051",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_strings_threads.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O2",
+        "-o",
+        ".sn/value_record_strings_threads-sanitized--O2-default-c"
+      ],
+      "status": 0,
+      "stdout_hex": "666972737420372066697273740a616761696e203920616761696e0a67726f7570203131206c6566742031322072696768740a706172616d6574657220323120746f7563686564203230206f726967696e616c0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_strings_threads-sanitized--O2-default-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_strings_threads.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "target": "rust",
+      "source_sha256": "8a8e6b287a8433e078a14265181b09b092a8845ed54481f6699d1d95c13b6051",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_strings_threads.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O2",
+        "-o",
+        ".sn/value_record_strings_threads-sanitized--O2-default-rust"
+      ],
+      "status": 0,
+      "stdout_hex": "666972737420372066697273740a616761696e203920616761696e0a67726f7570203131206c6566742031322072696768740a706172616d6574657220323120746f7563686564203230206f726967696e616c0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "c148b431bda8b768fa99a5d7e35f58e1f1909dc84006a855daaaa79e7449f3fd",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "a21b66f48033de4a555139d36ee9de72c721f9dfb74a2f899c97d686e6937c0f",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_strings_threads.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "target": "c",
+      "source_sha256": "8a8e6b287a8433e078a14265181b09b092a8845ed54481f6699d1d95c13b6051",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_strings_threads.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O2",
+        "-o",
+        ".sn/value_record_strings_threads-sanitized--O2-checked-c",
+        "--checked"
+      ],
+      "status": 0,
+      "stdout_hex": "666972737420372066697273740a616761696e203920616761696e0a67726f7570203131206c6566742031322072696768740a706172616d6574657220323120746f7563686564203230206f726967696e616c0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_strings_threads-sanitized--O2-checked-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_strings_threads.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "target": "rust",
+      "source_sha256": "8a8e6b287a8433e078a14265181b09b092a8845ed54481f6699d1d95c13b6051",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_strings_threads.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O2",
+        "-o",
+        ".sn/value_record_strings_threads-sanitized--O2-checked-rust",
+        "--checked"
+      ],
+      "status": 0,
+      "stdout_hex": "666972737420372066697273740a616761696e203920616761696e0a67726f7570203131206c6566742031322072696768740a706172616d6574657220323120746f7563686564203230206f726967696e616c0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "959c39cdbb8ddbd9110986e7cb966a08d22e6dffb6df89469d81098d37dfbe6d",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "7c9988346f2a95db10589d25258cb4ca4a603eafb126676757ab9c1cd1be46e9",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_strings_threads.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "target": "c",
+      "source_sha256": "8a8e6b287a8433e078a14265181b09b092a8845ed54481f6699d1d95c13b6051",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_strings_threads.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O2",
+        "-o",
+        ".sn/value_record_strings_threads-sanitized--O2-unchecked-c",
+        "--unchecked"
+      ],
+      "status": 0,
+      "stdout_hex": "666972737420372066697273740a616761696e203920616761696e0a67726f7570203131206c6566742031322072696768740a706172616d6574657220323120746f7563686564203230206f726967696e616c0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_strings_threads-sanitized--O2-unchecked-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_strings_threads.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "target": "rust",
+      "source_sha256": "8a8e6b287a8433e078a14265181b09b092a8845ed54481f6699d1d95c13b6051",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_strings_threads.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O2",
+        "-o",
+        ".sn/value_record_strings_threads-sanitized--O2-unchecked-rust",
+        "--unchecked"
+      ],
+      "status": 0,
+      "stdout_hex": "666972737420372066697273740a616761696e203920616761696e0a67726f7570203131206c6566742031322072696768740a706172616d6574657220323120746f7563686564203230206f726967696e616c0a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "626037bd42669ecfa6eb9f7fe3827a3d2765266db3cf60909e5cf769abfca16d",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "ae1647d0ae1f1b17445071b9255b2c8769bb674566a5cec8ae04829c33683660",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_owned_field.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "target": "c",
+      "source_sha256": "3f461a656b1b28ca6a83401453786cfa933666d5fbd39dbcc9f642aa9b4fa609",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_owned_field.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O0",
+        "-o",
+        ".sn/value_record_owned_field-sanitized--O0-default-c"
+      ],
+      "status": 0,
+      "stdout_hex": "6f776e65640a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_owned_field-sanitized--O0-default-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_owned_field.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "target": "rust",
+      "source_sha256": "3f461a656b1b28ca6a83401453786cfa933666d5fbd39dbcc9f642aa9b4fa609",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_owned_field.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O0",
+        "-o",
+        ".sn/value_record_owned_field-sanitized--O0-default-rust"
+      ],
+      "status": 0,
+      "stdout_hex": "6f776e65640a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "72958d4e64b3f96512ae9915b80949f7de9f15fdc93553f6ab81f3f85d96ddfb",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "27a8f46acf4f7c9e37964f6901bb23c7d0f2d5045c297e572950828e7b1b0ded",
+          "asan": true,
+          "ubsan": false,
+          "ubsan_site_scope": "This generated allocation-only constructor calls strdup and returns its value record; it has no arithmetic/dereference operation requiring a UBSAN check. The C-layout support object in the same executable contains UBSAN sites."
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_owned_field.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "target": "c",
+      "source_sha256": "3f461a656b1b28ca6a83401453786cfa933666d5fbd39dbcc9f642aa9b4fa609",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_owned_field.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O0",
+        "-o",
+        ".sn/value_record_owned_field-sanitized--O0-checked-c",
+        "--checked"
+      ],
+      "status": 0,
+      "stdout_hex": "6f776e65640a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_owned_field-sanitized--O0-checked-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_owned_field.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "target": "rust",
+      "source_sha256": "3f461a656b1b28ca6a83401453786cfa933666d5fbd39dbcc9f642aa9b4fa609",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_owned_field.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O0",
+        "-o",
+        ".sn/value_record_owned_field-sanitized--O0-checked-rust",
+        "--checked"
+      ],
+      "status": 0,
+      "stdout_hex": "6f776e65640a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "92f71b92fa82c3945c6e8f79667a7406e7de71ae087180d3044dee856a080bd4",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "3001f372a4d978e8bff06b9e82cfe79edc37e526350cb706c1f054b08181a5e2",
+          "asan": true,
+          "ubsan": false,
+          "ubsan_site_scope": "This generated allocation-only constructor calls strdup and returns its value record; it has no arithmetic/dereference operation requiring a UBSAN check. The C-layout support object in the same executable contains UBSAN sites."
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_owned_field.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "target": "c",
+      "source_sha256": "3f461a656b1b28ca6a83401453786cfa933666d5fbd39dbcc9f642aa9b4fa609",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_owned_field.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O0",
+        "-o",
+        ".sn/value_record_owned_field-sanitized--O0-unchecked-c",
+        "--unchecked"
+      ],
+      "status": 0,
+      "stdout_hex": "6f776e65640a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_owned_field-sanitized--O0-unchecked-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_owned_field.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "target": "rust",
+      "source_sha256": "3f461a656b1b28ca6a83401453786cfa933666d5fbd39dbcc9f642aa9b4fa609",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_owned_field.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O0",
+        "-o",
+        ".sn/value_record_owned_field-sanitized--O0-unchecked-rust",
+        "--unchecked"
+      ],
+      "status": 0,
+      "stdout_hex": "6f776e65640a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "091dcde359f35f10742dedfca759a35c9ab974430db4ca2ffc49e2ddb76d807d",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "e181692e9798e0f282c6ff22c7b83e6105c662908b990039addace5839694985",
+          "asan": true,
+          "ubsan": false,
+          "ubsan_site_scope": "This generated allocation-only constructor calls strdup and returns its value record; it has no arithmetic/dereference operation requiring a UBSAN check. The C-layout support object in the same executable contains UBSAN sites."
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_owned_field.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "target": "c",
+      "source_sha256": "3f461a656b1b28ca6a83401453786cfa933666d5fbd39dbcc9f642aa9b4fa609",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_owned_field.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O1",
+        "-o",
+        ".sn/value_record_owned_field-sanitized--O1-default-c"
+      ],
+      "status": 0,
+      "stdout_hex": "6f776e65640a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_owned_field-sanitized--O1-default-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_owned_field.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "target": "rust",
+      "source_sha256": "3f461a656b1b28ca6a83401453786cfa933666d5fbd39dbcc9f642aa9b4fa609",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_owned_field.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O1",
+        "-o",
+        ".sn/value_record_owned_field-sanitized--O1-default-rust"
+      ],
+      "status": 0,
+      "stdout_hex": "6f776e65640a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "b3e31899228288cbcad8df25503fba5db85e580062fb04aa56f3e56c82dfe19b",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "cd7424861d523dfb06ca518333de45b9e0ce013081b493d0d1dcd9619072dd27",
+          "asan": true,
+          "ubsan": false,
+          "ubsan_site_scope": "This generated allocation-only constructor calls strdup and returns its value record; it has no arithmetic/dereference operation requiring a UBSAN check. The C-layout support object in the same executable contains UBSAN sites."
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_owned_field.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "target": "c",
+      "source_sha256": "3f461a656b1b28ca6a83401453786cfa933666d5fbd39dbcc9f642aa9b4fa609",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_owned_field.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O1",
+        "-o",
+        ".sn/value_record_owned_field-sanitized--O1-checked-c",
+        "--checked"
+      ],
+      "status": 0,
+      "stdout_hex": "6f776e65640a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_owned_field-sanitized--O1-checked-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_owned_field.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "target": "rust",
+      "source_sha256": "3f461a656b1b28ca6a83401453786cfa933666d5fbd39dbcc9f642aa9b4fa609",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_owned_field.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O1",
+        "-o",
+        ".sn/value_record_owned_field-sanitized--O1-checked-rust",
+        "--checked"
+      ],
+      "status": 0,
+      "stdout_hex": "6f776e65640a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "a0051024d7f13ad2c5d26786433bbad762f096c446e8033ad5685aadbcfebcf6",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "b7567008cfde5d10380de64c2d60c8837aec5b05cea874d4009a3d64106e829b",
+          "asan": true,
+          "ubsan": false,
+          "ubsan_site_scope": "This generated allocation-only constructor calls strdup and returns its value record; it has no arithmetic/dereference operation requiring a UBSAN check. The C-layout support object in the same executable contains UBSAN sites."
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_owned_field.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "target": "c",
+      "source_sha256": "3f461a656b1b28ca6a83401453786cfa933666d5fbd39dbcc9f642aa9b4fa609",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_owned_field.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O1",
+        "-o",
+        ".sn/value_record_owned_field-sanitized--O1-unchecked-c",
+        "--unchecked"
+      ],
+      "status": 0,
+      "stdout_hex": "6f776e65640a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_owned_field-sanitized--O1-unchecked-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_owned_field.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "target": "rust",
+      "source_sha256": "3f461a656b1b28ca6a83401453786cfa933666d5fbd39dbcc9f642aa9b4fa609",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_owned_field.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O1",
+        "-o",
+        ".sn/value_record_owned_field-sanitized--O1-unchecked-rust",
+        "--unchecked"
+      ],
+      "status": 0,
+      "stdout_hex": "6f776e65640a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "acbe2a3a73d2845a5fedd9b981d18c99efefb40a37eab5bc88f60ba9292f8635",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "9661eb7a95b444f7c45a0bb659ea22bb01515e37c9e01ebece68bd1a4d6b3832",
+          "asan": true,
+          "ubsan": false,
+          "ubsan_site_scope": "This generated allocation-only constructor calls strdup and returns its value record; it has no arithmetic/dereference operation requiring a UBSAN check. The C-layout support object in the same executable contains UBSAN sites."
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_owned_field.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "target": "c",
+      "source_sha256": "3f461a656b1b28ca6a83401453786cfa933666d5fbd39dbcc9f642aa9b4fa609",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_owned_field.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O2",
+        "-o",
+        ".sn/value_record_owned_field-sanitized--O2-default-c"
+      ],
+      "status": 0,
+      "stdout_hex": "6f776e65640a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_owned_field-sanitized--O2-default-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_owned_field.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "target": "rust",
+      "source_sha256": "3f461a656b1b28ca6a83401453786cfa933666d5fbd39dbcc9f642aa9b4fa609",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_owned_field.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O2",
+        "-o",
+        ".sn/value_record_owned_field-sanitized--O2-default-rust"
+      ],
+      "status": 0,
+      "stdout_hex": "6f776e65640a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "ae0ce5e04f6590696b1d6db60b43d1231a888c0ba2b67f1daaaf8e911102e08d",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "450473833d11bddaeb612bbb157459623480e5b69c4fd093df063b5dff59ab99",
+          "asan": true,
+          "ubsan": false,
+          "ubsan_site_scope": "This generated allocation-only constructor calls strdup and returns its value record; it has no arithmetic/dereference operation requiring a UBSAN check. The C-layout support object in the same executable contains UBSAN sites."
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_owned_field.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "target": "c",
+      "source_sha256": "3f461a656b1b28ca6a83401453786cfa933666d5fbd39dbcc9f642aa9b4fa609",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_owned_field.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O2",
+        "-o",
+        ".sn/value_record_owned_field-sanitized--O2-checked-c",
+        "--checked"
+      ],
+      "status": 0,
+      "stdout_hex": "6f776e65640a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_owned_field-sanitized--O2-checked-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_owned_field.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "target": "rust",
+      "source_sha256": "3f461a656b1b28ca6a83401453786cfa933666d5fbd39dbcc9f642aa9b4fa609",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_owned_field.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O2",
+        "-o",
+        ".sn/value_record_owned_field-sanitized--O2-checked-rust",
+        "--checked"
+      ],
+      "status": 0,
+      "stdout_hex": "6f776e65640a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "dcdbcfabeb45642ef3d6cb9a4a29ba595dbf0b2c448a033e0b158d45b5246d49",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "92d71c151f0090946b055e094dccc7ec0d36e0cf7e1032471529018c31fee15c",
+          "asan": true,
+          "ubsan": false,
+          "ubsan_site_scope": "This generated allocation-only constructor calls strdup and returns its value record; it has no arithmetic/dereference operation requiring a UBSAN check. The C-layout support object in the same executable contains UBSAN sites."
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_owned_field.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "target": "c",
+      "source_sha256": "3f461a656b1b28ca6a83401453786cfa933666d5fbd39dbcc9f642aa9b4fa609",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_owned_field.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O2",
+        "-o",
+        ".sn/value_record_owned_field-sanitized--O2-unchecked-c",
+        "--unchecked"
+      ],
+      "status": 0,
+      "stdout_hex": "6f776e65640a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_owned_field-sanitized--O2-unchecked-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_owned_field.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "target": "rust",
+      "source_sha256": "3f461a656b1b28ca6a83401453786cfa933666d5fbd39dbcc9f642aa9b4fa609",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_owned_field.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O2",
+        "-o",
+        ".sn/value_record_owned_field-sanitized--O2-unchecked-rust",
+        "--unchecked"
+      ],
+      "status": 0,
+      "stdout_hex": "6f776e65640a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_records.o",
+          "sha256": "d6e3b1b516c42b5a75f697c5548d6c482bc32eea857bb6de473358c740fe9e44",
+          "asan": true,
+          "ubsan": true
+        },
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "2a6873da4732542c196293a53ab211915de9d75bf25fb6b3998fea2b51159211",
+          "asan": true,
+          "ubsan": false,
+          "ubsan_site_scope": "This generated allocation-only constructor calls strdup and returns its value record; it has no arithmetic/dereference operation requiring a UBSAN check. The C-layout support object in the same executable contains UBSAN sites."
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_thread_storage.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "target": "c",
+      "source_sha256": "feb078887ccbf6d50bdcbd5482fe65c54f0a30b38462d730e9bff3b79eef5a35",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_thread_storage.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O0",
+        "-o",
+        ".sn/value_record_thread_storage-sanitized--O0-default-c"
+      ],
+      "status": 0,
+      "stdout_hex": "380a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_thread_storage-sanitized--O0-default-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_thread_storage.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "target": "rust",
+      "source_sha256": "feb078887ccbf6d50bdcbd5482fe65c54f0a30b38462d730e9bff3b79eef5a35",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_thread_storage.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O0",
+        "-o",
+        ".sn/value_record_thread_storage-sanitized--O0-default-rust"
+      ],
+      "status": 0,
+      "stdout_hex": "380a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "b324ebed2a8b5681640cd66a584e9a5e0147005eb870d003c69e138e4b8a58de",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_thread_storage.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "target": "c",
+      "source_sha256": "feb078887ccbf6d50bdcbd5482fe65c54f0a30b38462d730e9bff3b79eef5a35",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_thread_storage.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O0",
+        "-o",
+        ".sn/value_record_thread_storage-sanitized--O0-checked-c",
+        "--checked"
+      ],
+      "status": 0,
+      "stdout_hex": "380a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_thread_storage-sanitized--O0-checked-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_thread_storage.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "target": "rust",
+      "source_sha256": "feb078887ccbf6d50bdcbd5482fe65c54f0a30b38462d730e9bff3b79eef5a35",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_thread_storage.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O0",
+        "-o",
+        ".sn/value_record_thread_storage-sanitized--O0-checked-rust",
+        "--checked"
+      ],
+      "status": 0,
+      "stdout_hex": "380a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "46afd34b22938f000437684dbde6bd14e916a94a0519b3642eb93a5739b5ee92",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_thread_storage.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "target": "c",
+      "source_sha256": "feb078887ccbf6d50bdcbd5482fe65c54f0a30b38462d730e9bff3b79eef5a35",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_thread_storage.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O0",
+        "-o",
+        ".sn/value_record_thread_storage-sanitized--O0-unchecked-c",
+        "--unchecked"
+      ],
+      "status": 0,
+      "stdout_hex": "380a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_thread_storage-sanitized--O0-unchecked-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_thread_storage.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "target": "rust",
+      "source_sha256": "feb078887ccbf6d50bdcbd5482fe65c54f0a30b38462d730e9bff3b79eef5a35",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_thread_storage.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O0",
+        "-o",
+        ".sn/value_record_thread_storage-sanitized--O0-unchecked-rust",
+        "--unchecked"
+      ],
+      "status": 0,
+      "stdout_hex": "380a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "80d3e5ff89409661489a08b7ef171560409208fc03ba3d50333abce59f9990b4",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_thread_storage.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "target": "c",
+      "source_sha256": "feb078887ccbf6d50bdcbd5482fe65c54f0a30b38462d730e9bff3b79eef5a35",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_thread_storage.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O1",
+        "-o",
+        ".sn/value_record_thread_storage-sanitized--O1-default-c"
+      ],
+      "status": 0,
+      "stdout_hex": "380a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_thread_storage-sanitized--O1-default-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_thread_storage.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "target": "rust",
+      "source_sha256": "feb078887ccbf6d50bdcbd5482fe65c54f0a30b38462d730e9bff3b79eef5a35",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_thread_storage.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O1",
+        "-o",
+        ".sn/value_record_thread_storage-sanitized--O1-default-rust"
+      ],
+      "status": 0,
+      "stdout_hex": "380a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "71d097bc8dff87dcf3ead6b1ceba2feb22eed073939e23dbf4708489b77a2b1f",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_thread_storage.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "target": "c",
+      "source_sha256": "feb078887ccbf6d50bdcbd5482fe65c54f0a30b38462d730e9bff3b79eef5a35",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_thread_storage.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O1",
+        "-o",
+        ".sn/value_record_thread_storage-sanitized--O1-checked-c",
+        "--checked"
+      ],
+      "status": 0,
+      "stdout_hex": "380a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_thread_storage-sanitized--O1-checked-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_thread_storage.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "target": "rust",
+      "source_sha256": "feb078887ccbf6d50bdcbd5482fe65c54f0a30b38462d730e9bff3b79eef5a35",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_thread_storage.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O1",
+        "-o",
+        ".sn/value_record_thread_storage-sanitized--O1-checked-rust",
+        "--checked"
+      ],
+      "status": 0,
+      "stdout_hex": "380a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "44dc3541632834bbfcecc539276e78e9ea5c4637be7518250c66debfe081321d",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_thread_storage.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "target": "c",
+      "source_sha256": "feb078887ccbf6d50bdcbd5482fe65c54f0a30b38462d730e9bff3b79eef5a35",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_thread_storage.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O1",
+        "-o",
+        ".sn/value_record_thread_storage-sanitized--O1-unchecked-c",
+        "--unchecked"
+      ],
+      "status": 0,
+      "stdout_hex": "380a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_thread_storage-sanitized--O1-unchecked-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_thread_storage.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "target": "rust",
+      "source_sha256": "feb078887ccbf6d50bdcbd5482fe65c54f0a30b38462d730e9bff3b79eef5a35",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_thread_storage.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O1",
+        "-o",
+        ".sn/value_record_thread_storage-sanitized--O1-unchecked-rust",
+        "--unchecked"
+      ],
+      "status": 0,
+      "stdout_hex": "380a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "6dc752f2d5a16e61c2e736a8d960224e063f0c32bc9b0b1cd16f902ea825df10",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_thread_storage.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "target": "c",
+      "source_sha256": "feb078887ccbf6d50bdcbd5482fe65c54f0a30b38462d730e9bff3b79eef5a35",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_thread_storage.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O2",
+        "-o",
+        ".sn/value_record_thread_storage-sanitized--O2-default-c"
+      ],
+      "status": 0,
+      "stdout_hex": "380a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_thread_storage-sanitized--O2-default-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_thread_storage.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "target": "rust",
+      "source_sha256": "feb078887ccbf6d50bdcbd5482fe65c54f0a30b38462d730e9bff3b79eef5a35",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_thread_storage.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O2",
+        "-o",
+        ".sn/value_record_thread_storage-sanitized--O2-default-rust"
+      ],
+      "status": 0,
+      "stdout_hex": "380a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "af1aac77d25ad9ae352a8b93e9c5786d7639a509ccbbd3a30bc25a6590c52d90",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_thread_storage.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "target": "c",
+      "source_sha256": "feb078887ccbf6d50bdcbd5482fe65c54f0a30b38462d730e9bff3b79eef5a35",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_thread_storage.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O2",
+        "-o",
+        ".sn/value_record_thread_storage-sanitized--O2-checked-c",
+        "--checked"
+      ],
+      "status": 0,
+      "stdout_hex": "380a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_thread_storage-sanitized--O2-checked-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_thread_storage.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "target": "rust",
+      "source_sha256": "feb078887ccbf6d50bdcbd5482fe65c54f0a30b38462d730e9bff3b79eef5a35",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_thread_storage.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O2",
+        "-o",
+        ".sn/value_record_thread_storage-sanitized--O2-checked-rust",
+        "--checked"
+      ],
+      "status": 0,
+      "stdout_hex": "380a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "eb8ee8deffd2e5fa840d6b319dc04c072a20cbac581c0d1f1893ff4bb5d2d280",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_thread_storage.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "target": "c",
+      "source_sha256": "feb078887ccbf6d50bdcbd5482fe65c54f0a30b38462d730e9bff3b79eef5a35",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_thread_storage.sn",
+        "--target",
+        "c",
+        "--no-install",
+        "--keep-generated",
+        "-O2",
+        "-o",
+        ".sn/value_record_thread_storage-sanitized--O2-unchecked-c",
+        "--unchecked"
+      ],
+      "status": 0,
+      "stdout_hex": "380a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": ".sn/value_record_thread_storage-sanitized--O2-unchecked-c",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/value_record_thread_storage.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "target": "rust",
+      "source_sha256": "feb078887ccbf6d50bdcbd5482fe65c54f0a30b38462d730e9bff3b79eef5a35",
+      "compile_status": 0,
+      "command": [
+        "bin/sn",
+        "tests/rust-native/value_record_thread_storage.sn",
+        "--target",
+        "rust",
+        "--no-install",
+        "--keep-generated",
+        "-O2",
+        "-o",
+        ".sn/value_record_thread_storage-sanitized--O2-unchecked-rust",
+        "--unchecked"
+      ],
+      "status": 0,
+      "stdout_hex": "380a",
+      "stderr_hex": "",
+      "objects": [
+        {
+          "name": "sn_native_bridge_main.o",
+          "sha256": "fb494e316d83717e830d7a77e036f1f91447820a4cf66d79d21ac0cd7e94df13",
+          "asan": true,
+          "ubsan": true
+        }
+      ],
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "instrumentation_scope": "ASAN symbols verified in every C object; UBSAN symbols verified in every instrumentable C object. Allocation-only constructor has no UBSAN sites; its same-executable record ABI module is instrumented."
+}

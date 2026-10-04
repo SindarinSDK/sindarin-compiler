@@ -765,6 +765,19 @@ test-rust-parity-owned-array-copies: build
 		--arithmetic-mode unchecked --output .sn/rust-parity-owned-array-copies.json
 	@$(PYTHON) scripts/check_rust_owned_array_oracles.py .sn/rust-parity-owned-array-copies.json
 
+.PHONY: test-rust-parity-native-managed-records
+test-rust-parity-native-managed-records: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/integration/test_struct_as_ref.sn \
+		tests/rust-native/value_record_reference_strings.sn \
+		tests/rust-native/value_record_strings_values.sn \
+		tests/rust-native/value_record_strings_threads.sn \
+		tests/rust-native/value_record_owned_field.sn \
+		tests/rust-native/value_record_thread_storage.sn \
+		--require-count 6 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-native-managed-records.json
+	@$(PYTHON) scripts/check_rust_native_managed_record_oracles.py .sn/rust-parity-native-managed-records.json
+
 .PHONY: test-rust-parity-native-record-references
 test-rust-parity-native-record-references: build
 	@$(PYTHON) scripts/check_rust_parity.py \

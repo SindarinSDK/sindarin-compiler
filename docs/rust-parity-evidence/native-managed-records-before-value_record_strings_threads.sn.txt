@@ -1,0 +1,33 @@
+struct Record =>
+  count: int
+  text: str
+
+native fn make_record(count: int, text: str): Record =>
+  return Record {
+    count: count,
+    text: text
+  }
+
+native fn touch(value: Record): Record =>
+  value.count = value.count + 1
+  value.text = "touched"
+  return value
+
+fn main(): void =>
+  var first = & make_record(7, "first")
+  first !
+  println($"first {first.count} {first.text}")
+  first = & make_record(9, "again")
+  first !
+  println($"again {first.count} {first.text}")
+  var left = & make_record(11, "left")
+  var right = & make_record(12, "right")
+  [left, right] !
+  println($"group {left.count} {left.text} {right.count} {right.text}")
+  var original = Record {
+    count: 20,
+    text: "original"
+  }
+  var changed = & touch(original)
+  changed !
+  println($"parameter {changed.count} {changed.text} {original.count} {original.text}")

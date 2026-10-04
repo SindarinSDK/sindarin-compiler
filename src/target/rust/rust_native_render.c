@@ -101,5 +101,21 @@ bool rust_native_emit_support(RustNativePlan *plan, GeneratedFileSet *files,
             return false;
         }
     }
+    json_object *records = rust_native_plan_record_support(plan);
+    if (records)
+    {
+        written = snprintf(template_dir, sizeof(template_dir),
+                           "%s/templates/rust/native_records", compiler_dir);
+        if (written < 0 || (size_t)written >= sizeof(template_dir)) return false;
+        char *code = render_with_helpers(records, template_dir,
+            gen_model_get_min_c_register_fn(), "Rust native records");
+        if (!code) return false;
+        if (!generated_file_set_add(files, "sn_native_records.c", code,
+                                    GENERATED_SOURCE, false))
+        {
+            free(code);
+            return false;
+        }
+    }
     return true;
 }

@@ -1,0 +1,11 @@
+#include "sn_types.h"
+
+
+
+__sn__OwnedRecord make_owned() {
+
+    return (__sn__OwnedRecord){ .__sn__label = strdup("owned") };}
+
+
+
+

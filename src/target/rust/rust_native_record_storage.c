@@ -1,8 +1,8 @@
-/* Source character values remain Rust char; only fields in persistent native
- * record layouts occupy C char storage. Annotate both source expressions and
+/* Source char/string expressions retain language values. Persistent native
+ * record fields own their C representation. Annotate source expressions and
  * the private read/store projections made by earlier lowering passes. */
-static bool rust_native_record_char_field(json_object *model, json_object *type,
-                                          const char *name)
+static bool rust_native_record_storage_field(json_object *model, json_object *type,
+                                          const char *name, const char *flag)
 {
     json_object *base = NULL;
     if (json_string_property_equals(type, "kind", "pointer") &&
@@ -15,7 +15,7 @@ static bool rust_native_record_char_field(json_object *model, json_object *type,
     {
         json_object *field = json_object_array_get_idx(fields, i);
         if (json_string_property_equals(field, "name", name))
-            return json_boolean_property(field, "rust_native_c_char_storage");
+            return json_boolean_property(field, flag);
     }
     return false;
 }
@@ -30,6 +30,13 @@ static void rust_lower_native_record_storage(json_object *model, json_object *no
         return;
     }
     if (!json_object_is_type(node, json_type_object)) return;
+    json_object *declaration_type = NULL, *initializer = NULL;
+    if (json_string_property_equals(node, "kind", "var_decl") &&
+        json_object_object_get_ex(node, "type", &declaration_type) &&
+        json_boolean_property(declaration_type, "rust_native_record_storage") &&
+        !json_object_object_get_ex(node, "initializer", &initializer) &&
+        !json_object_object_get_ex(node, "rust_native_record_default", &initializer))
+        json_object_object_add(node, "rust_native_record_default", rust_concurrency_default(declaration_type, model));
     json_object_object_foreach(node, key, child)
     {
         (void)key;
@@ -40,9 +47,13 @@ static void rust_lower_native_record_storage(json_object *model, json_object *no
     json_object_object_get_ex(object, "type", &type);
     bool member = json_string_property_equals(node, "kind", "member");
     bool assignment = json_string_property_equals(node, "kind", "member_assign");
-    if ((member || assignment) && rust_native_record_char_field(model, type,
-        json_string_property(node, member ? "member_name" : "field_name")))
+    if ((member || assignment) && rust_native_record_storage_field(model, type,
+        json_string_property(node, member ? "member_name" : "field_name"), "rust_native_c_char_storage"))
         json_object_object_add(node, "rust_native_c_char_storage", json_object_new_boolean(true));
+
+    if ((member || assignment) && rust_native_record_storage_field(model, type,
+        json_string_property(node, member ? "member_name" : "field_name"), "rust_native_c_string_storage"))
+        json_object_object_add(node, "rust_native_c_string_storage", json_object_new_boolean(true));
 
     if (json_string_property_equals(node, "kind", "struct_literal") ||
         json_string_property_equals(node, "kind", "rust_thread_default"))
@@ -53,13 +64,48 @@ static void rust_lower_native_record_storage(json_object *model, json_object *no
         for (size_t i = 0; fields && i < json_object_array_length(fields); i++)
         {
             json_object *field = json_object_array_get_idx(fields, i);
-            if (rust_native_record_char_field(model, type, json_string_property(field, "name")))
+            if (rust_native_record_storage_field(model, type, json_string_property(field, "name"), "rust_native_c_char_storage"))
                 json_object_object_add(field, "rust_native_c_char_storage", json_object_new_boolean(true));
+            if (rust_native_record_storage_field(model, type, json_string_property(field, "name"), "rust_native_c_string_storage"))
+                json_object_object_add(field, "rust_native_c_string_storage", json_object_new_boolean(true));
         }
     }
+    /* A direct native string argument borrows the field's actual C pointer.
+     * Materializing a SnString first would silently change pointer identity. */
+    if (json_string_property_equals(node, "kind", "call"))
+    {
+        json_object *callee = NULL, *functions = NULL, *args = NULL;
+        json_object_object_get_ex(node, "callee", &callee);
+        json_object_object_get_ex(model, "functions", &functions);
+        json_object_object_get_ex(node, "args", &args);
+        const char *name = json_string_property(callee, "name");
+        for (size_t i = 0; name && functions && i < json_object_array_length(functions); i++)
+        {
+            json_object *function = json_object_array_get_idx(functions, i);
+            if (!json_boolean_property(function, "is_native") ||
+                !json_string_property_equals(function, "name", name)) continue;
+            for (size_t a = 0; args && a < json_object_array_length(args); a++)
+            {
+                json_object *arg = json_object_array_get_idx(args, a);
+                if (json_string_property_equals(arg, "kind", "member") &&
+                    json_boolean_property(arg, "rust_native_c_string_storage"))
+                    json_object_object_add(arg, "rust_native_c_string_borrow", json_object_new_boolean(true));
+            }
+            break;
+        }
+    }
+
     bool compound = json_string_property_equals(node, "kind", "compound_assign");
     bool postfix = json_string_property_equals(node, "kind", "increment") ||
                    json_string_property_equals(node, "kind", "decrement");
+    json_object *string_target = NULL;
+    if (compound && json_string_property_equals(node, "op", "add") &&
+        json_object_object_get_ex(node, "target", &string_target) &&
+        json_boolean_property(string_target, "rust_native_c_string_storage"))
+    {
+        json_object_object_add(node, "rust_native_c_string_append", json_object_new_boolean(true));
+        json_object_object_add(string_target, "rust_native_c_string_place", json_object_new_boolean(true));
+    }
     json_object *place = NULL;
     if ((compound || postfix) && json_object_object_get_ex(node, compound ? "target" : "operand", &place) &&
         json_boolean_property(place, "rust_native_c_char_storage"))

@@ -1,0 +1,46 @@
+@source "value_record_reference_strings.sn.c"
+
+struct Leaf =>
+  mark: char
+  name: str
+
+struct Record =>
+  count: int
+  leaf: Leaf
+  label: str
+
+native fn remember(value: Record as ref): void
+native fn remembered(value: Record as ref): bool
+native fn same_text(value: Record as ref, text: str): bool
+native fn replace(left: Record as ref, right: Record as ref): void
+native fn nil_text(value: Record as ref): void
+
+native fn duplicate(value: Record as val): Record =>
+  value.count = value.count + 100
+  value.label = "copy"
+  value.leaf.name = "copied_leaf"
+  return value
+
+fn main(): void =>
+  var value: Record = {
+    count: 3,
+    leaf: Leaf {
+      mark: 'a',
+      name: "leaf"
+    },
+    label: "first"
+  }
+  remember(value)
+  println($"initial {remembered(value)} {same_text(value, value.label)} {value.label} {value.leaf.name}")
+  value.label = "rust"
+  value.leaf.name = "rust_leaf"
+  println($"written {remembered(value)} {same_text(value, value.label)} {value.label} {value.leaf.name}")
+  replace(value, value)
+  println($"native {value.count} {value.leaf.mark} {value.label} {value.leaf.name} {same_text(value, value.label)}")
+  var copy = duplicate(value)
+  println($"copy {value.count} {value.label} {value.leaf.name} {copy.count} {copy.label} {copy.leaf.name}")
+  nil_text(value)
+  println($"nil {value.label == nil} {same_text(value, value.label)} {value.leaf.name == nil}")
+  value.label = "restored"
+  value.leaf.name = "again"
+  println($"restored {remembered(value)} {same_text(value, value.label)} {value.label} {value.leaf.name}")

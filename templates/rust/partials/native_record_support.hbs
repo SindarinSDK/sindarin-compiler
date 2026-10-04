@@ -1,4 +1,16 @@
-{{#each rust_native_records}}#[repr(C)]
+{{#each rust_native_records}}{{#if layout_check}}extern "C" {
+    #[link_name = {{rust_source_string_literal layout_check}}]
+    fn {{rust_ident layout_check}}_extern(size: usize, alignment: usize, offsets: *const usize) -> bool;
+}
+fn {{rust_ident layout_check}}() {
+    let offsets = [{{#each fields}}std::mem::offset_of!({{rust_ident ../source_name}}, {{rust_ident name}}), {{/each}}];
+    assert_eq!(std::mem::size_of::<{{rust_ident source_name}}>(), std::mem::size_of::<{{rust_ident wire_name}}>());
+    assert_eq!(std::mem::align_of::<{{rust_ident source_name}}>(), std::mem::align_of::<{{rust_ident wire_name}}>());
+    assert_eq!(offsets, [{{#each fields}}std::mem::offset_of!({{rust_ident ../wire_name}}, {{rust_ident name}}), {{/each}}]);
+    assert!(unsafe { {{rust_ident layout_check}}_extern(std::mem::size_of::<{{rust_ident source_name}}>(), std::mem::align_of::<{{rust_ident source_name}}>(), offsets.as_ptr()) }, "native record layout must match the generated C header");
+}
+
+{{/if}}#[repr(C)]
 #[derive(Clone, Copy)]
 struct {{rust_ident wire_name}} {
 {{#each fields}}    {{rust_ident name}}: {{> native_record_type type}},
@@ -6,13 +18,13 @@ struct {{rust_ident wire_name}} {
 
 impl std::convert::From<{{rust_ident source_name}}> for {{rust_ident wire_name}} {
     fn from(value: {{rust_ident source_name}}) -> Self {
-        Self { {{#each fields}}{{rust_ident name}}: {{> native_record_to_wire this}}, {{/each}} }
+        {{#if layout_check}}{{rust_ident layout_check}}();{{nl}}        {{/if}}Self { {{#each fields}}{{rust_ident name}}: {{> native_record_to_wire this}}, {{/each}} }
     }
 }
 
 impl std::convert::From<{{rust_ident wire_name}}> for {{rust_ident source_name}} {
     fn from(value: {{rust_ident wire_name}}) -> Self {
-        Self { {{#each fields}}{{rust_ident name}}: {{> native_record_from_wire this}}, {{/each}} }
+        {{#if layout_check}}{{rust_ident layout_check}}();{{nl}}        {{/if}}Self { {{#each fields}}{{rust_ident name}}: {{> native_record_from_wire this}}, {{/each}} }
     }
 }
 
