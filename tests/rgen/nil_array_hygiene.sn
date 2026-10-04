@@ -1,0 +1,14 @@
+struct __sn_nullable_array_0 =>
+  value: int
+
+fn main(): void =>
+  var user: __sn_nullable_array_0 = { value: 6 }
+  var __sn_nullable_store_value: int = 7
+  var __sn_place_raw_index_0: int = 0
+  var absent: int[] = nil
+  var nested: int[][] = {{1, 2}}
+  nested[__sn_place_raw_index_0][1] = __sn_nullable_store_value
+  println(user.value)
+  println(__sn_nullable_store_value)
+  println(nested[0][1])
+  println(absent == nil)

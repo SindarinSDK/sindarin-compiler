@@ -14,15 +14,15 @@ extern "C" {
     fn {{rust_ident rust_native_free_extern_name}}(_: *mut std::ffi::c_void);
 }
 
-unsafe fn {{rust_ident rust_native_take_string_name}}(value: *mut std::ffi::c_char) -> SnString {
+{{#if @root.rust_uses_byte_strings}}unsafe fn {{rust_ident rust_native_take_string_name}}(value: *mut std::ffi::c_char) -> SnString {
     if value.is_null() { return SnString::{{#if @root.rust_nullable_strings}}nil{{else}}new{{/if}}(); }
     let result = SnString::from_slice(std::ffi::CStr::from_ptr(value).to_bytes());
     {{rust_ident rust_native_free_extern_name}}(value.cast());
     result
 }
 
-unsafe fn {{rust_ident rust_native_take_array_name}}(value: *mut {{rust_ident rust_native_array_type_name}}) -> Vec<u8> {
-    if value.is_null() { return Vec::new(); }
+{{/if}}unsafe fn {{rust_ident rust_native_take_array_name}}(value: *mut {{rust_ident rust_native_array_type_name}}) -> {{#if @root.rust_nullable_arrays}}{{rust_ident @root.rust_nullable_array_name}}{{else}}Vec{{/if}}<u8> {
+    if value.is_null() { return {{#if @root.rust_nullable_arrays}}{{rust_ident @root.rust_nullable_array_name}}::nil(){{else}}Vec::new(){{/if}}; }
     let native = &*value;
     assert!(native.len >= 0, "native byte array length must be nonnegative");
     assert!(native.cap >= native.len, "native byte array capacity must cover its length");
@@ -37,7 +37,7 @@ unsafe fn {{rust_ident rust_native_take_array_name}}(value: *mut {{rust_ident ru
     };
     {{rust_ident rust_native_free_extern_name}}(native.data);
     {{rust_ident rust_native_free_extern_name}}(value.cast());
-    result
+    {{#if @root.rust_nullable_arrays}}{{rust_ident @root.rust_nullable_array_name}}::from_vec(result){{else}}result{{/if}}
 }{{#if rust_native_retain_string_name}}{{nl}}{{nl}}
 thread_local! {
     static {{rust_ident rust_native_retained_strings_name}}: std::cell::RefCell<Vec<Box<[u8]>>> =

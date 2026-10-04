@@ -150,6 +150,7 @@ static bool rust_check_toolchain(const CompilerOptions *options)
 #include "rust_thread_receivers.c"
 #include "rust_lower_float.c"
 #include "rust_nullable_strings.c"
+#include "rust_nullable_arrays.c"
 
 static bool rust_emit(CompilerOptions *options, Module *module,
                       TargetEmitMode mode, GeneratedFileSet *result)
@@ -175,6 +176,7 @@ static bool rust_emit(CompilerOptions *options, Module *module,
     result->target_data = native_plan;
     result->free_target_data = rust_native_plan_free;
     rust_prepare_nullable_strings(model);
+    rust_prepare_nullable_arrays(model);
     rust_prepare_sizeof_only_declarations(model);
     rust_prepare_thread_receivers(model);
     if (!rust_prepare_by_value_scalar_parameter_mutations(model))
@@ -267,6 +269,9 @@ static bool rust_emit(CompilerOptions *options, Module *module,
         json_object_put(model);
         return false;
     }
+    if (json_boolean_property(model, "rust_nullable_arrays") &&
+        !rust_lower_nullable_array_stores(model, model, &place_temp_id))
+    { json_object_put(model); return false; }
     size_t match_temp_id = 0;
     if (!rust_lower_match_temp_names(model, model, &match_temp_id))
     {

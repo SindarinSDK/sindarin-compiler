@@ -156,9 +156,11 @@ jobs:
           run_gate "tagged native C/Rust parity (8 fixtures)" \
             python3 scripts/run_rust_tests.py rust-native-tagged --verbose \
               --require-count 8 --fail-on-skip
-          run_gate "native scalar and managed ABI fixtures (28 fixtures)" \
+          run_gate "native scalar and managed ABI fixtures (30 fixtures)" \
             python3 scripts/run_rust_tests.py rust-native-extra --verbose \
-              --require-count 28 --fail-on-skip
+              --require-count 30 --fail-on-skip
+          run_gate "nil array state and native transport (90 cases)" \
+            make -o build test-rust-parity-nil-array
           run_gate "nil string state and native transport (72 cases)" \
             make -o build test-rust-parity-nil-string
           run_gate "C-only native helper scope (36 cases)" \

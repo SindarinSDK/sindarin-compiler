@@ -1,0 +1,51 @@
+[
+  {
+    "source": "tests/rgen/nil_array_transitions.sn",
+    "source_sha256": "e52100419acc3278aece5c2f5dfd81c0e5378ac2e7a560b7436ded44338c563e",
+    "snapshot": "tests/rgen/nil_array_transitions.expected.rs",
+    "snapshot_sha256": "d4235ecae280462aeffad7adc7a393e361c27131e9f6513b499c7594fedb7cb2",
+    "optimization": "-O0"
+  },
+  {
+    "source": "tests/rgen/nil_array_constructions.sn",
+    "source_sha256": "cfd127acc6812cc0f809dd78e76af2fa47a42d6bb3cae34eb3fac90138d79b62",
+    "snapshot": "tests/rgen/nil_array_constructions.expected.rs",
+    "snapshot_sha256": "3e39965e6756d3823e9910c23cd815dd7f9d250d1d41aed90337e382e6be6b6a",
+    "optimization": "-O0"
+  },
+  {
+    "source": "tests/rgen/nil_array_concat_copy.sn",
+    "source_sha256": "3800ace0692af5899c114df83cc1767efaef3a7376e1efbfe3451a81d883193f",
+    "snapshot": "tests/rgen/nil_array_concat_copy.expected.rs",
+    "snapshot_sha256": "2a1134501a7edaf83578626d42e85acda72800be03b858263674bc4c232f9df6",
+    "optimization": "-O0"
+  },
+  {
+    "source": "tests/rgen/nil_array_float_state.sn",
+    "source_sha256": "f98468d09525e951492c7cb42f47b4d587e386581234f1c407b34756259f7a61",
+    "snapshot": "tests/rgen/nil_array_float_state.expected.rs",
+    "snapshot_sha256": "dd7c83d0552d3c927ded25da5e8bebc720d84064340946a12644b0d70817d240",
+    "optimization": "-O0"
+  },
+  {
+    "source": "tests/rgen/nil_array_default.sn",
+    "source_sha256": "7c4ac051a0b4515ee17d567759150e3d8834a27d50bd59c8881dbf28a199dd84",
+    "snapshot": "tests/rgen/nil_array_default.expected.rs",
+    "snapshot_sha256": "fe539a453612a709e0f5b86f5839c9cfa7e92e4665b6a186ab17633f396baeb1",
+    "optimization": "-O0"
+  },
+  {
+    "source": "tests/rgen/nil_array_fields_calls.sn",
+    "source_sha256": "20d4dedd20b418616f7dc6c57de0da9576c7ad619bbc7b20022a43b68c88fcc9",
+    "snapshot": "tests/rgen/nil_array_fields_calls.expected.rs",
+    "snapshot_sha256": "44022d8b7c6ef5bb1105cf02e16e6664e147dfad4ee85a0c8933aa1727d56a7d",
+    "optimization": "-O0"
+  },
+  {
+    "source": "tests/rgen/nil_array_hygiene.sn",
+    "source_sha256": "2282942fa57edab20d5a0cb06ff8e00b7a2094572f6d3f5e9ef1a802c654d3f3",
+    "snapshot": "tests/rgen/nil_array_hygiene.expected.rs",
+    "snapshot_sha256": "cf71179ba1f04f4ebb24d9c192e7e8d1ef1363eeeb734152970416acd0169520",
+    "optimization": "-O0"
+  }
+]

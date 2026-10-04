@@ -1,0 +1,15 @@
+@source "nil-next-native-array.sn.c"
+
+native fn absent(): byte[]
+native fn empty(): byte[]
+
+fn main(): void =>
+  var values: byte[] = absent()
+  println(values == nil)
+  var copied: byte[] = copyOf(values)
+  println(copied == nil)
+  values = empty()
+  println(values == nil)
+  println(values.length)
+  copied = copyOf(values)
+  println(copied == nil)

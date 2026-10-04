@@ -1131,7 +1131,7 @@ static bool rust_lower_ctype_calls(json_object *model)
  * default-array callback can mutate the same array before sn_array_equals. */
 static bool rust_lower_float_array_equality(json_object *model, json_object *node)
 {
-    if (!node) return true;
+    if (!node || json_boolean_property(node, "rust_array_nil_comparison")) return true;
     if (json_object_is_type(node, json_type_array))
     {
         for (size_t i = 0; i < json_object_array_length(node); i++)

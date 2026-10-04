@@ -711,3 +711,20 @@ test-rust-parity-nil-string: build
 		--require-count 8 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-nil-string.json
 	@$(PYTHON) scripts/check_rust_nil_string_oracles.py .sn/rust-parity-nil-string.json
+
+.PHONY: test-rust-parity-nil-array
+test-rust-parity-nil-array: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/integration/test_nil_array.sn \
+		tests/rgen/nil_array_transitions.sn \
+		tests/rust-native/scalar_nil_array_native.sn \
+		tests/rgen/nil_array_constructions.sn \
+		tests/rgen/nil_array_concat_copy.sn \
+		tests/rgen/nil_array_float_state.sn \
+		tests/rust-native/scalar_nil_array_implicit.sn \
+		tests/rgen/nil_array_default.sn \
+		tests/rgen/nil_array_fields_calls.sn \
+		tests/rgen/nil_array_hygiene.sn \
+		--require-count 10 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-nil-array.json
+	@$(PYTHON) scripts/check_rust_nil_array_oracles.py .sn/rust-parity-nil-array.json

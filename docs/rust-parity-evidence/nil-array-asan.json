@@ -1,0 +1,327 @@
+{
+  "compiler_sha256": "825ae91b692d26600f156558f7130cedc46e940349bf17eaf9ae2df7d05bc79b",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "cases": [
+    {
+      "source": "tests/integration/test_nil_array.sn",
+      "source_sha256": "cd656b3b9bc9a66d8545319d8b6d5ae1664e7d1eb1e1628ce9829efc73eecf9e",
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/integration/test_nil_array.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-nil-array-next-asan-y6h1d97l/0.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f6e696c5f61727261792e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6e696c2d61727261792d6e6578742d6173616e2d793668316439376c2f302e657865202838332e38204b42290a"
+      },
+      "asan_instrumentation_verified": true,
+      "run": {
+        "command": [
+          "/tmp/sn-nil-array-next-asan-y6h1d97l/0.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "747275650a66616c73650a330a",
+        "stderr_hex": ""
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/nil_array_transitions.sn",
+      "source_sha256": "e52100419acc3278aece5c2f5dfd81c0e5378ac2e7a560b7436ded44338c563e",
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rgen/nil_array_transitions.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-nil-array-next-asan-y6h1d97l/1.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6e696c5f61727261795f7472616e736974696f6e732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6e696c2d61727261792d6e6578742d6173616e2d793668316439376c2f312e657865202838342e35204b42290a"
+      },
+      "asan_instrumentation_verified": true,
+      "run": {
+        "command": [
+          "/tmp/sn-nil-array-next-asan-y6h1d97l/1.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "747275650a66616c73650a300a66616c73650a747275650a320a747275650a747275650a747275650a747275650a",
+        "stderr_hex": ""
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/scalar_nil_array_native.sn",
+      "source_sha256": "2e6c17d0c7aa72d28edf8b34069dd379857592ba0c01d4c23820061fda6ab808",
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rust-native/scalar_nil_array_native.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-nil-array-next-asan-y6h1d97l/2.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f7363616c61725f6e696c5f61727261795f6e61746976652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6e696c2d61727261792d6e6578742d6173616e2d793668316439376c2f322e657865202838352e33204b42290a"
+      },
+      "asan_instrumentation_verified": true,
+      "run": {
+        "command": [
+          "/tmp/sn-nil-array-next-asan-y6h1d97l/2.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "747275650a747275650a66616c73650a300a66616c73650a",
+        "stderr_hex": ""
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/nil_array_constructions.sn",
+      "source_sha256": "cfd127acc6812cc0f809dd78e76af2fa47a42d6bb3cae34eb3fac90138d79b62",
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rgen/nil_array_constructions.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-nil-array-next-asan-y6h1d97l/3.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6e696c5f61727261795f636f6e737472756374696f6e732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6e696c2d61727261792d6e6578742d6173616e2d793668316439376c2f332e657865202838372e34204b42290a"
+      },
+      "asan_instrumentation_verified": true,
+      "run": {
+        "command": [
+          "/tmp/sn-nil-array-next-asan-y6h1d97l/3.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "747275650a320a320a66616c73650a330a66616c73650a330a300a66616c73650a340a350a66616c73650a320a776f72643a620a66616c73650a",
+        "stderr_hex": ""
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/nil_array_concat_copy.sn",
+      "source_sha256": "3800ace0692af5899c114df83cc1767efaef3a7376e1efbfe3451a81d883193f",
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rgen/nil_array_concat_copy.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-nil-array-next-asan-y6h1d97l/4.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6e696c5f61727261795f636f6e6361745f636f70792e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6e696c2d61727261792d6e6578742d6173616e2d793668316439376c2f342e657865202838362e33204b42290a"
+      },
+      "asan_instrumentation_verified": true,
+      "run": {
+        "command": [
+          "/tmp/sn-nil-array-next-asan-y6h1d97l/4.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "747275650a66616c73650a66616c73650a340a390a5b5d0a5b5d0a310a380a747275650a747275650a66616c73650a",
+        "stderr_hex": ""
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/nil_array_float_state.sn",
+      "source_sha256": "f98468d09525e951492c7cb42f47b4d587e386581234f1c407b34756259f7a61",
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rgen/nil_array_float_state.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-nil-array-next-asan-y6h1d97l/5.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6e696c5f61727261795f666c6f61745f73746174652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6e696c2d61727261792d6e6578742d6173616e2d793668316439376c2f352e657865202838342e33204b42290a"
+      },
+      "asan_instrumentation_verified": true,
+      "run": {
+        "command": [
+          "/tmp/sn-nil-array-next-asan-y6h1d97l/5.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "747275650a66616c73650a66616c73650a747275650a747275650a747275650a66616c73650a66616c73650a747275650a747275650a66616c73650a",
+        "stderr_hex": ""
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/scalar_nil_array_implicit.sn",
+      "source_sha256": "db6b550d9a32f6bb24a8440cfc48ddb09aaf37ebbfdb37b91ae1fce9413ebef9",
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rust-native/scalar_nil_array_implicit.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-nil-array-next-asan-y6h1d97l/6.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f7363616c61725f6e696c5f61727261795f696d706c696369742e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6e696c2d61727261792d6e6578742d6173616e2d793668316439376c2f362e657865202838352e30204b42290a"
+      },
+      "asan_instrumentation_verified": true,
+      "run": {
+        "command": [
+          "/tmp/sn-nil-array-next-asan-y6h1d97l/6.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "66616c73650a66616c73650a747275650a",
+        "stderr_hex": ""
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/nil_array_default.sn",
+      "source_sha256": "7c4ac051a0b4515ee17d567759150e3d8834a27d50bd59c8881dbf28a199dd84",
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rgen/nil_array_default.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-nil-array-next-asan-y6h1d97l/7.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6e696c5f61727261795f64656661756c742e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6e696c2d61727261792d6e6578742d6173616e2d793668316439376c2f372e657865202838332e36204b42290a"
+      },
+      "asan_instrumentation_verified": true,
+      "run": {
+        "command": [
+          "/tmp/sn-nil-array-next-asan-y6h1d97l/7.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "66616c73650a66616c73650a747275650a",
+        "stderr_hex": ""
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/nil_array_fields_calls.sn",
+      "source_sha256": "20d4dedd20b418616f7dc6c57de0da9576c7ad619bbc7b20022a43b68c88fcc9",
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rgen/nil_array_fields_calls.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-nil-array-next-asan-y6h1d97l/8.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6e696c5f61727261795f6669656c64735f63616c6c732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6e696c2d61727261792d6e6578742d6173616e2d793668316439376c2f382e657865202838352e34204b42290a"
+      },
+      "asan_instrumentation_verified": true,
+      "run": {
+        "command": [
+          "/tmp/sn-nil-array-next-asan-y6h1d97l/8.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "747275650a66616c73650a747275650a747275650a747275650a747275650a747275650a747275650a66616c73650a",
+        "stderr_hex": ""
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/nil_array_hygiene.sn",
+      "source_sha256": "2282942fa57edab20d5a0cb06ff8e00b7a2094572f6d3f5e9ef1a802c654d3f3",
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rgen/nil_array_hygiene.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-nil-array-next-asan-y6h1d97l/9.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6e696c5f61727261795f68796769656e652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6e696c2d61727261792d6e6578742d6173616e2d793668316439376c2f392e657865202838342e37204b42290a"
+      },
+      "asan_instrumentation_verified": true,
+      "run": {
+        "command": [
+          "/tmp/sn-nil-array-next-asan-y6h1d97l/9.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "360a370a370a747275650a",
+        "stderr_hex": ""
+      },
+      "passed": true
+    }
+  ],
+  "passed": true
+}

@@ -1,0 +1,7 @@
+fn main(): void =>
+  var missing: int[]
+  var allocated: int[] = {}
+  println(missing == allocated)
+  var copied: int[] = copyOf(missing)
+  println(copied == allocated)
+  println(missing == copied)

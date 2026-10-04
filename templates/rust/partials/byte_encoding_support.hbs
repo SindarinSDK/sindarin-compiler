@@ -29,7 +29,7 @@ mod {{rust_ident rust_byte_encoding_module}} {
         fn bytes(&self) -> Cow<'_, [u8]>;
         fn len(&self) -> usize;
     }
-    impl<T: Scalar> Array for Vec<T> {
+    impl<T: Scalar> Array for {{#if @root.rust_nullable_arrays}}super::{{rust_ident @root.rust_nullable_array_name}}{{else}}Vec{{/if}}<T> {
         fn bytes(&self) -> Cow<'_, [u8]> { T::prefix(self.as_slice()) }
         fn len(&self) -> usize { Vec::len(self) }
     }

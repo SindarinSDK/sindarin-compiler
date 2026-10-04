@@ -1,0 +1,535 @@
+{
+  "base_revision": "0e2a3d2e7fea6a353ff91bc0a0069741acbe9b15",
+  "compiler_sha256": "825ae91b692d26600f156558f7130cedc46e940349bf17eaf9ae2df7d05bc79b",
+  "positive_pairs": 1998,
+  "diagnostic_order_cases": 39,
+  "process_exit_cases": 153,
+  "main_return_cases": 108,
+  "nil_array_cases": 90,
+  "total_cases": 2298,
+  "gates": [
+    {
+      "name": "core",
+      "cases": 30,
+      "sha256": "43b562c80b60ff54a9b8bc1cd07e69dad2bd84ac02f28848f16f40eaf4585601"
+    },
+    {
+      "name": "concurrency",
+      "cases": 51,
+      "sha256": "8721b22a9b39e1543d05b18ad8da86ccb8121a8d36078586677023fe51ea717f"
+    },
+    {
+      "name": "thread-ownership",
+      "cases": 207,
+      "sha256": "5115b1c97c5298223f6096f0a5d7d0adaf4a576f6e2d9c3633bb232b3644e9d5"
+    },
+    {
+      "name": "thread-receivers",
+      "cases": 90,
+      "sha256": "d4df95ec48c962b38cece0b6b67c86477fd66505c93db68768b09b7fcb54cc71"
+    },
+    {
+      "name": "reflection",
+      "cases": 36,
+      "sha256": "f0b8e5cfc45c2f611b34ac22fe66a543c4331290450733e4358fcddd28577663"
+    },
+    {
+      "name": "sized-defaults",
+      "cases": 27,
+      "sha256": "3c536381084131c6b4a81c13b50a465a833c9334616ddc8d3abd15f7dc0a78a5"
+    },
+    {
+      "name": "native-managed",
+      "cases": 63,
+      "sha256": "7429a30cc2ed9c04b2ef6d4d9161b8f1f72154b40703605304c8c2e20eb7aaad"
+    },
+    {
+      "name": "stdio-order",
+      "cases": 30,
+      "sha256": "0ebec229161d1d467fb38a7da5209f814e4cb88701d48aaf3c4fdb1470f241a1"
+    },
+    {
+      "name": "mixed-integral",
+      "cases": 90,
+      "sha256": "e71caebed299370429cfd3747af0a59267c24d527a0a51d49ee09e0a12a9f1c6"
+    },
+    {
+      "name": "mixed-integral-diagnostics",
+      "cases": 9,
+      "sha256": "8a4a581764ef78f50c6bd27b68a1d44a318f6f6260a85922979009861215f0a0"
+    },
+    {
+      "name": "float-conversions",
+      "cases": 117,
+      "sha256": "024a9e6fc1451d9bcb1a91640189ede0d0677e3f934805c88befab8a1b176f0d"
+    },
+    {
+      "name": "floating-arrays",
+      "cases": 81,
+      "sha256": "0c0220c504c203a35515e6615d86e73186cf321a983cf65c9648c54272c4123b"
+    },
+    {
+      "name": "floating-equality",
+      "cases": 36,
+      "sha256": "4cbb502aaaeb5755780ab10577e279c3bae7de835efb109060feca73d3ae67ec"
+    },
+    {
+      "name": "numeric-places",
+      "cases": 153,
+      "sha256": "0495bb4352c9192896f46471280367c09773e30760f7848a38a774542a7c849b"
+    },
+    {
+      "name": "capture-index",
+      "cases": 45,
+      "sha256": "88ca5372e7daeb9b6c5703267469608136e6a2ea9073595b8702c1d6638849a1"
+    },
+    {
+      "name": "sync-character",
+      "cases": 45,
+      "sha256": "eedc7253d4e981e8ae2e501559b4037db495efc0cdb1c5af5a6c5491cb0dc002"
+    },
+    {
+      "name": "ctype",
+      "cases": 72,
+      "sha256": "5103958d4e30872916d6f57a74093957890d195f4bd791ebe7b07d63861f5752"
+    },
+    {
+      "name": "byte-encoding",
+      "cases": 81,
+      "sha256": "5066e617d83a76015b09e1f77e5082a58ac056bd4c80d4434ffbddb9c204929d"
+    },
+    {
+      "name": "exit",
+      "cases": 153,
+      "sha256": "7757dbab598382141698be98222c7e1fc1c10bafdaa0b1a484ef3c67641833ae"
+    },
+    {
+      "name": "main-return",
+      "cases": 108,
+      "sha256": "5e503d1a94706271dd087d4755c5dfe69476b9cfde8011a6c98000b77929d81f"
+    },
+    {
+      "name": "match-control",
+      "cases": 180,
+      "sha256": "3083918322251bd044aff85d7a345820ff59ec61cff41495da5f1221924b180a"
+    },
+    {
+      "name": "sizeof",
+      "cases": 216,
+      "sha256": "c03ff7d9299761084b2ba360c2ac5bbcda69ab65221d673ebb4554e9034aa413"
+    },
+    {
+      "name": "call-reference",
+      "cases": 126,
+      "sha256": "8c821250fd55e5a62529373034de391ddd59128fc24365c9a4c0fe68f6e84b64"
+    },
+    {
+      "name": "indexed-string",
+      "cases": 54,
+      "sha256": "f95a8be250c9008756acc34b03044e82e40bb5e14b7ca0dac0465812e07e9f37"
+    },
+    {
+      "name": "native-scope",
+      "cases": 36,
+      "sha256": "4264faa8fece554ec01880ed57026afe336992edcafef015a737e3f9eccfa7ab"
+    },
+    {
+      "name": "nil-string",
+      "cases": 72,
+      "sha256": "75ebb4dd1151d499beb6b5f35713d2bb1af66d670ba70f56ec33e2764324f4d0"
+    },
+    {
+      "name": "nil-array",
+      "cases": 90,
+      "sha256": "420f77d89e4ed3ccf21eed5d99b6978c79a751d0ed1cca8869c417bdc2281dbb"
+    }
+  ],
+  "logs": [
+    {
+      "name": "rust-final",
+      "raw_log_sha256": "1ea9674a0edf63882fc26cb31b1c0f7c29f4dfc7b51b2c8cc6685a880336c026",
+      "normalized_log_sha256": "77946c52762ed6a4474ffd9d6232bd9ed33d08c6ebbe88b3131919e9b3fcb0d1",
+      "passed_counts": [
+        434,
+        143,
+        8,
+        30,
+        1,
+        4,
+        36,
+        1,
+        10,
+        7,
+        1,
+        12
+      ]
+    },
+    {
+      "name": "c-full",
+      "raw_log_sha256": "30cf4a07ded6cc6e5d060a25c4f8e34af8bb040c100c5371a47b1cdeb4f3f08e",
+      "normalized_log_sha256": "51cede3f539ff2881cf9298bab319bdec402f5dd0bb5993c580ccc40bc51db6d",
+      "passed_counts": [
+        1610,
+        107,
+        79,
+        1141,
+        58,
+        224,
+        11
+      ]
+    },
+    {
+      "name": "corpus-integration",
+      "raw_log_sha256": "b29b3c8e8fb41cf3a072a5d3d20d59ccfab3bcc4cf15a5551293f58d67623d01",
+      "normalized_log_sha256": "c903aa65415350e772c8fdf3d51392a495ae35dc9ad1a969f6d6b2457edd67e1"
+    },
+    {
+      "name": "corpus-explore",
+      "raw_log_sha256": "ddf95000214fa0aaee91206d0d8802c6fe70dbe0a80d00f601bd50e166c21a26",
+      "normalized_log_sha256": "b779c7c8dcb7e15c0c0012352ff2768cdc187dca8725417c4fec4b22057ef2f1"
+    },
+    {
+      "name": "format",
+      "raw_log_sha256": "4c6a090a362bd87c11ee02cfbc700375a0d72d42c9b4387a9b7b0bbf45af7e2b",
+      "normalized_log_sha256": "4c6a090a362bd87c11ee02cfbc700375a0d72d42c9b4387a9b7b0bbf45af7e2b"
+    },
+    {
+      "name": "byte",
+      "raw_log_sha256": "971a43d81a4d4a176d4aceff2aa18d25efe2df369a8d05a75dfb2470b030e8a9",
+      "normalized_log_sha256": "971a43d81a4d4a176d4aceff2aa18d25efe2df369a8d05a75dfb2470b030e8a9"
+    },
+    {
+      "name": "transport",
+      "raw_log_sha256": "9d1f137619f0add0f0e3a01419654e7f12ffe613e0175c7031316ffe56c8c9ee",
+      "normalized_log_sha256": "9d1f137619f0add0f0e3a01419654e7f12ffe613e0175c7031316ffe56c8c9ee"
+    },
+    {
+      "name": "helper",
+      "raw_log_sha256": "628ce6147ceaa1887966b6df6ff1f63582712e6666a5b64c7f52e28604cc6994",
+      "normalized_log_sha256": "628ce6147ceaa1887966b6df6ff1f63582712e6666a5b64c7f52e28604cc6994"
+    },
+    {
+      "name": "existing-gates",
+      "raw_log_sha256": "2e3780837a86f81642328ebc40d1d26ea2c92adad2746539eecdfee08f6d75a1",
+      "normalized_log_sha256": "2e3780837a86f81642328ebc40d1d26ea2c92adad2746539eecdfee08f6d75a1"
+    },
+    {
+      "name": "gate",
+      "raw_log_sha256": "e31f57e77c18845ba3c0bc1a82ccf49349d67ed1673f9e5a65297e9c25fa22f2",
+      "normalized_log_sha256": "e31f57e77c18845ba3c0bc1a82ccf49349d67ed1673f9e5a65297e9c25fa22f2"
+    }
+  ],
+  "rust_template_sha256": {
+    "templates/rust/module.hbs": "959d6800e49df23c716b815195cdff4f3044257c6bcf5dd2da3c7755bb95d01e",
+    "templates/rust/partials/expr.hbs": "722a1589f55e1ca75cb1042f739917328b3ae6020d5cf49c19d9e9ce374d4bd7",
+    "templates/rust/partials/closure_weak.hbs": "1ac2ce2fcd9a9ac50ccd8daf4049abd7f26729a5409cdc08b5306888fbdfbc6b",
+    "templates/rust/partials/closure_owner.hbs": "b3eaacee340463ae45aba6a4a9b26963ae4ac5fedd06029a7d5f236884f719c2",
+    "templates/rust/partials/byte_encoding_support.hbs": "00da23a9398e1a9b198365f37d8f7df210c4553464279ad21d03f6d316c48763",
+    "templates/rust/partials/native_managed_support.hbs": "0c7b25cf3404be8fbae4c4ecdce927e313cd0d75475836ad21df1e78ca682846",
+    "templates/rust/partials/closure_support.hbs": "52b2dd85c39de31531f09b0c53690ef102e885c7747ae7be36e22d3512bc93b6",
+    "templates/rust/partials/nullable_array_support.hbs": "67ef6ad5850ce3b6d28b4e30c00781545f731c9bb509e2acf8cf875d25aba986",
+    "templates/rust/partials/expr_rust_float_array_insert.hbs": "355b8e8d050dc718f871835ec7deb1d7b2eacdfa905c14cecc9d166c3a0b27bb",
+    "templates/rust/partials/closure_once.hbs": "a2abdf2465096c5bb666daf77fced719b5d65e2e1bd06e01fcbe6740dae60c8a",
+    "templates/rust/partials/reflection_support.hbs": "02c25e2ac45dbf91a8bd3a717058965353329efcf149a01ea8207aeed5d4af9a",
+    "templates/rust/partials/expr_rust_float_array_storage.hbs": "efcb66b7ba4bf115efbba421f33909460336caf132e17085fdda0d54cf03542a",
+    "templates/rust/partials/struct.hbs": "ca7dcdccac9885a461987c8f96a786c32da76680cd02e1fae5d5ce7232433e90",
+    "templates/rust/partials/native_function.hbs": "8df6e071ef0ab69643002afcd75baff8943a8ce998f3f147f0cbbda660a6bca9",
+    "templates/rust/partials/checked_arithmetic_support.hbs": "40d32a2ed252fa0a3d586ab395c73efcfc9ab9e4a8babed2f4280eeb042f3755",
+    "templates/rust/partials/stmt.hbs": "a02d68df9dd8a7eb0f61b140a0ebdde49e7277d64e3a9a714a5de2c5dfd5f6d0",
+    "templates/rust/partials/ctype_support.hbs": "b5c77344c797d45426b0cabb38b4beebff3e29a4f3480917b07865c7c13a2e91",
+    "templates/rust/partials/thread_array_support.hbs": "5045ba5ef29b69be2ccb8457c49ea95b8ad9638805fa1d3a571b1c19cd6f3bfd",
+    "templates/rust/partials/stdio_support.hbs": "50b9eff95316067be76e73435177717e8883e1e793536e8f2d3f2030eb727c60",
+    "templates/rust/partials/byte_string_support.hbs": "ef286df170ccedbf71a1353516d8d17b34c04012c5f4f68bd34e72051d44a6da",
+    "templates/rust/partials/thread_field_support.hbs": "d191156251fb36aa7998b4eea4001569d9fe7aa1890c47dd008e1059c5098c1e",
+    "templates/rust/partials/windows_text_output_support.hbs": "d33b99ed686a36d5b09400f1b566ac55da3061337f95db97708da2d04ae7d5be",
+    "templates/rust/partials/sizeof_layout_support.hbs": "a917f6f2c74ff7c4dce88820252281287bb47d1e8e10721b64c6c07bd12c1620",
+    "templates/rust/partials/expr_rust_float_array_equality.hbs": "d53d46ed88f53addc59f397a621ed78f3b72f8eff2a3241247bf1eb46d562497",
+    "templates/rust/partials/array_text_support.hbs": "65f196eb7c0b974bc38dddb6a6f22c71d9d78861ce468e79ab4adcc2ab7cc48c",
+    "templates/rust/partials/string_split_support.hbs": "e96aa2e5fbbf965d93ee3af04587fd1c7e71eef2127773a8ac5dcf1092b00f1f",
+    "templates/rust/partials/capture_cell.hbs": "2f4ece59a59fc6720b0d11c864c3da28583f95520278b7d6dcb41fa4def8fb16",
+    "templates/rust/partials/array_support.hbs": "08b0a4d08d5cc14d508619cdeb0769deccca4bc39f027259680b699cecaa0b58",
+    "templates/rust/partials/globals.hbs": "ce52d996829fd51e37539cee474852ab0b34194f02fc59bfd7de5f94e87159c6",
+    "templates/rust/partials/string_format_support.hbs": "522b8f2a353cf47cbfa425ee09b804f38b27ec05e4636e901e5e5d2c1fbd4895",
+    "templates/rust/partials/string_support.hbs": "1b3b581cd430f7b12e4da4d9ce0122379b09c6bacfff4bed72fdeb097b15d36e",
+    "templates/rust/partials/struct_method.hbs": "e07b67cfa7556c741f2761151cfb88675b28acffd26fe3a01df6127745b82e9d",
+    "templates/rust/partials/thread_capture_support.hbs": "37b33ae5179d0d443131d1bf930ab55ffa7cfe3546bbeabaf8ab0256cf7a0a9e",
+    "templates/rust/partials/capture_owned_cell.hbs": "d65845c53a730aff1bb7866237b103e57a2090eefc3cb316e5733f5d3549adfc",
+    "templates/rust/partials/stdio_flush_stdout.hbs": "071f02650a26693f8b589909763bf9b360babdb31f9edf27356c40aeef338b93",
+    "templates/rust/partials/cell_support.hbs": "a95efde54da7a93a7968ce10eaa4e76aa27e9b51e0fb957c4375908f211abe58",
+    "templates/rust/partials/thread_support.hbs": "29a5d5c52ef5ad385ae45cb0c3a64e63a33ddf009aa9830b2310fcac3450bce8",
+    "templates/rust/partials/expr_uncast.hbs": "d6677b97131771cd2b24cca51bd4d847ce515307189ac9bb20d281bc4d7f102b",
+    "templates/rust/partials/expr_rust_float_array_search.hbs": "f98bd491c5951ea023be573747d88c879b241625baece0ee0537489bc09f4cb7",
+    "templates/rust/partials/numeric_owner_bindings.hbs": "7091d49dd62f2670a961983f7bbdfc1426726ab098078e31fe74e5fb3263c5bd",
+    "templates/rust/partials/function.hbs": "4d8c1020b00fe3da7bdf90d25dc0838a8cc505a55b22d1bed85acdf702ea81bf",
+    "templates/rust/partials/stmt/expr.hbs": "89342d9c7d5c9b8a7de6e21160381ee4e9f692a7250a8e0769abfa09e62daf9e",
+    "templates/rust/partials/stmt/block.hbs": "26aedce790cac1dbee557a7e11c90dac13d4dcef6c6ba871f40ee1d2ea2b5273",
+    "templates/rust/partials/stmt/for_each.hbs": "dccef9784030e243e4d40fc234fbc26a12582be023032bf3dcb0b7e66eb40cb6",
+    "templates/rust/partials/stmt/if.hbs": "a11b5c9787b3146b73f0f713402ec908f5d681eb806378d03df5d8945087621e",
+    "templates/rust/partials/stmt/var_decl.hbs": "e43a6a378894b6b9eeb0c85d6c62a0dc774b98316a28adecc977e280757f99a4",
+    "templates/rust/partials/stmt/using.hbs": "b32bd1279313a821ea603cddedb1feee1b067f7d9d2886163ebb60216feee0a4",
+    "templates/rust/partials/stmt/lock.hbs": "d523fd4ffbd56f51450bc7faa6d9a15ca524d584ca9a66a4c3b728e8a50806c9",
+    "templates/rust/partials/stmt/for_each_iter.hbs": "abcfbbb056fa373f184bc653e0b2833ada824dffd4649542342104e2b751278f",
+    "templates/rust/partials/stmt/for.hbs": "bf64fe9842277b918472273a1ab52e2b3f6198bdc5c4bb18567e90a2432de4f1",
+    "templates/rust/partials/stmt/while.hbs": "015c3997572951fd8feaa82cda9cce384fc440694217552b53631587934d40ea",
+    "templates/rust/partials/stmt/return.hbs": "f109e50279348dd6fbdc6a5b0b975610d9e2a2a4c185fd7b606eb9c6cc73abc0",
+    "templates/rust/partials/expr/literal.hbs": "f8bbc526b4cb53b983e2afe7a01b7563698604372cb3a6862004d72bd9957a70",
+    "templates/rust/partials/expr/range.hbs": "9499a40dbc7cbab44c8526adc4011d7f5df2748b162c4e51d5b4a1517a7de082",
+    "templates/rust/partials/expr/closure_read.hbs": "36c26292ec29cb2d9981e1a7b1976f9d900b1d26db98289b05c2b311fbb29779",
+    "templates/rust/partials/expr/variable.hbs": "8c0f802a2992dfa074641062b93dceed85c47c4c4a08b4dd2fa94d17be9f9fb2",
+    "templates/rust/partials/expr/rust_numeric_place_mutation.hbs": "3778c0216ea956d022f18d4c6f1fc55793fc5de7c95ad721cb1719f5862ed74e",
+    "templates/rust/partials/expr/static_call.hbs": "e267c76af2814c97a2457972eafbf5acd0b4123ed3eb95f0e387f0083c0fc872",
+    "templates/rust/partials/expr/rust_wrapping_binary.hbs": "4ef98f9e0767cbd9e5efb9177f0e4db9d406a84901f81ae090c634c32a0e2211",
+    "templates/rust/partials/expr/decrement.hbs": "ae0c604524f65d1f8bd61aebdcc9c3ef7d16fed9f49b1904f36c39100f15c46c",
+    "templates/rust/partials/expr/thread_default.hbs": "f2d552c3c3a30f3b9fd8da5948d0c4d3e595ef6edce877a79921ecc93653d993",
+    "templates/rust/partials/expr/rust_mixed_integral_binary.hbs": "bfa0bb0c67244f75a2f8a74336e64f936ce265e94a8b8a943b65e7dbf57cfb4d",
+    "templates/rust/partials/expr/builtin_length.hbs": "394aaf6ce622c2594192ffa0cb66f4a7ea9b36f97960dede4258093bb6d3621f",
+    "templates/rust/partials/expr/owned_string_index.hbs": "24dbb1960e0d0ff2529ab5d09a1b228c4af1a680d639b6e5c9cc837eb7470b6e",
+    "templates/rust/partials/expr/struct_literal.hbs": "aa5d30603898834a25339bf46f746db7fce1df93b864e5445210c4030ed10c99",
+    "templates/rust/partials/expr/rust_byte_promoted_comparison.hbs": "25efe7eee7bf8e679ac6c8116338ca3cce5b8676c868e7ec66761d38798149e0",
+    "templates/rust/partials/expr/call.hbs": "f10006c530c50b38be7fcc32824708ab6b4d6dc780a0b3d74e624f8de7cbe8c1",
+    "templates/rust/partials/expr/closure_write.hbs": "98e5ffac5c3ea4f2ec0a9ac2d88051eee454a8885ac5a40482585d2e8ef9c33e",
+    "templates/rust/partials/expr/builtin_print.hbs": "c9c44d43db14994e8633d3e9aef8aec59688c2312f2ff64661f49e5164a58842",
+    "templates/rust/partials/expr/builtin_println.hbs": "b6234697f100216f8d71b6606f41717d6d531777a1c4a3d5376432cc1cc8c9c7",
+    "templates/rust/partials/expr/builtin_assert.hbs": "2f0e80643e8075b52b003a055597c5fe07f74aaf734195f23bcaee386a9f15cc",
+    "templates/rust/partials/expr/rust_wrapping_unary.hbs": "b7816e2a5720fb21cc2a412be6f45c87de40e9e6b8d5158f463c26a7e3a1f5ad",
+    "templates/rust/partials/expr/binary.hbs": "fbccf3b878346711653cd24728dc2220f69e4314ddb0c75cbce02641df5cd164",
+    "templates/rust/partials/expr/interpolated_string.hbs": "241ec4f17716573494a90de107f109775968faf3fe210907d6cc43c89081fe9a",
+    "templates/rust/partials/expr/borrow_inferred_call.hbs": "dd8a3125ea577af52fd63bb09da543a9481bae22b430262f49e4bf60104c9276",
+    "templates/rust/partials/expr/array_access.hbs": "480e4f7b3c797615c7eebedfa432f4bd074b3be2533ed4c12996c35d267407c9",
+    "templates/rust/partials/expr/tagged_array_field_cleanup.hbs": "18f456c691cd4ebcf25a2f4bc8c28b30e19c37c5389e8d16b8233fc936c4738b",
+    "templates/rust/partials/expr/default_array_ref_arg.hbs": "0b137c05ad328f690823e8f64425cd096a3a0ee86ed976ad8556d89bde34361f",
+    "templates/rust/partials/expr/array_join_place_indices.hbs": "56d2bd76d7cb7cc82757c596bd8b21c0336812cd262779ac635c526bae3b67f1",
+    "templates/rust/partials/expr/direct_variable.hbs": "968afb4edfae642cbab747d84f9ffa7edf9afd2c21b6a35604a04321f53058a0",
+    "templates/rust/partials/expr/typeof.hbs": "daed06edfedccb407bc42e0419e31159b01b905644a02326d047197db869ae0b",
+    "templates/rust/partials/expr/str_concat_multi.hbs": "3998853467144b1176d8b30ab1d5838f98063cc70486471bbce4d10e46dad8d7",
+    "templates/rust/partials/expr/thread_detach.hbs": "8c302413e9a2467402e961bb30029afa3cb737eb5ddd46fd93ce200568e03cdd",
+    "templates/rust/partials/expr/sizeof.hbs": "cf3498ad64ced54107d3d3d7a5472cc190deced5731bb4188400659b2f04c0d2",
+    "templates/rust/partials/expr/array_slice.hbs": "c1610cb3f97bf1fbad2e93fa73e3a25d21ce623a77fd61fb90a78f6dcedbc62d",
+    "templates/rust/partials/expr/lambda.hbs": "bb1c3c7ddc12483075ba5db6613aa4142114d00f4aee0360cc1b946e745ccbe7",
+    "templates/rust/partials/expr/builtin_exit.hbs": "b81138f2146a4c2b63ffdd712d596274d8cc88d6a048a4a1f186cddbfc27b4dc",
+    "templates/rust/partials/expr/copy_of.hbs": "d5f929ebef667c933b59ffc2c0fc1d254c080aaab6746959db742aaccd3d153a",
+    "templates/rust/partials/expr/rust_unchecked_integral_compound.hbs": "ca5bc12c3a0299c7e6719df1fb027e17f741a9b36e1ba1650d3b329d77c9c585",
+    "templates/rust/partials/expr/string_call.hbs": "3f21f37cc3549d2201a2dbd811217d8f59676859d68d9dff86ba7eef2580bf86",
+    "templates/rust/partials/expr/tagged_place_steps.hbs": "ee8fcd9f8a4714510a8750916d83bc9c46e39acae2c466b5e615dd7b57814271",
+    "templates/rust/partials/expr/direct_assign.hbs": "a7d6effed716fd4cc7890e2d3a7d019d92a4da19eb70c7458d3a396eef68db96",
+    "templates/rust/partials/expr/array_join_place_raw_indices.hbs": "660fa034bc0ba0f1406d8271b2db9ecf893d1f5de90e9182b7891cf314178675",
+    "templates/rust/partials/expr/resolved_call_prefix.hbs": "bba6aed99ce5e4b9ff144b24d4f212a258ad6496bd081e588b7551de46409754",
+    "templates/rust/partials/expr/sized_array.hbs": "b37d35f52790826179968cf5db1b177a4e4cc070d740e8087961bee63f0f2631",
+    "templates/rust/partials/expr/match_array_receiver.hbs": "82a219fe90ec536dd9a49634f50ca2e1f3e3d974990b5d43aaa97d3e5e584661",
+    "templates/rust/partials/expr/direct_call.hbs": "51e6f70185220364539028522851b73039338f06561dcdaa824d5b709631738a",
+    "templates/rust/partials/expr/rust_byte_promoted.hbs": "7c2bcfca30ce670fb489addc431039cd011553559ebede7fa6b3957fbd090b8e",
+    "templates/rust/partials/expr/array_call.hbs": "bd5aeb7bd73eb5c2765d045f1484baec30715026f973892ed3342bd593bb7d72",
+    "templates/rust/partials/expr/closure_call.hbs": "e356beba380640f0d42007b91db16f72d86fc17b86f45b0f50bc3525f49cc53e",
+    "templates/rust/partials/expr/method_call.hbs": "fec9da88bdc69474394b25b1745183420ad988a4f56c2f59088bce4462132f00",
+    "templates/rust/partials/expr/increment.hbs": "f1c202e9b68b3d63f416d6313eba5f1577b43311c047c5997a7bd8d71585eb5f",
+    "templates/rust/partials/expr/assign.hbs": "41cc209890df95cdf8a566b295d0d917e65c03e01832f6793f5550785565c00d",
+    "templates/rust/partials/expr/rust_wrapping_compound_assign.hbs": "31e405b5b0af93484d1f8e9057793644956ae7517bbdd8716b9a07e02172a7d0",
+    "templates/rust/partials/expr/member_assign.hbs": "a0439ce123c2129f64401a9d561bb9018cc1ed200d1496d019f4cee07355ef07",
+    "templates/rust/partials/expr/thread_spawn.hbs": "6f7038bc6cac06eed92403ed29dd78b0750b17b9f0888218aae9c78fdcc92ed4",
+    "templates/rust/partials/expr/match.hbs": "7ac1595be94e25c583d4db2141bb6427a710eff4d363c1f691b3559e5cb62528",
+    "templates/rust/partials/expr/array_literal.hbs": "be259a56b7540043f5aff53d388687eb78a697064a6ee6f283fe48471429e1a3",
+    "templates/rust/partials/expr/member.hbs": "2cc1b486c76ecaaeaccadcda0a6922aebe89b0c291863fa5f56b60d9c3b96bd6",
+    "templates/rust/partials/expr/index_assign.hbs": "cfd58b1044e0871dd56c0ec75a2dec10b671fd7a9a826cfa61c0874c2a392beb",
+    "templates/rust/partials/expr/compound_assign.hbs": "e2a60c87d66afa8d1bfc88a3fb74fb9c456ca31ade18726fc4c3dbea9ca8e6c1",
+    "templates/rust/partials/expr/rust_wrapping_increment.hbs": "08c3cb00cb71108fc1692e46d4f447c46f9cf741c5fb1980324492ac7d645e9b",
+    "templates/rust/partials/expr/cell_operation.hbs": "6e7513a1c4f871ee286ac0334b94483de27ad504ef51caed7312b8a733bd1d9a",
+    "templates/rust/partials/expr/unary.hbs": "e9e948fc6f1887a83273fa70d02980ce55660bc6f461cd536ab27b11292c51b1",
+    "templates/rust/partials/expr/thread_sync.hbs": "c6b0df1b35fd5525dfc7b9c8482f69a86051c7d74d4e464d16a58351bf13a72e",
+    "templates/rust/partials/expr/resolved_call_arg.hbs": "a2b8d25b785b0a3d7e49a48b273bf10541c39bcde4529c56bf2458b600ddcced",
+    "templates/rust/partials/expr/rust_mixed_integral_compound.hbs": "b6d63ba1b184bdf55a4b2c51f834956f8fdce8b5052a414e3aa4a30de5f7d0f2",
+    "templates/rust/partials/expr/rust_wrapping_decrement.hbs": "f0dfc0aca7575c64192ed35e3853d64fb9258920965cc60b6224b86eadebb80e",
+    "templates/rust/partials/expr/resolved_call_arg_binding.hbs": "cf4cc5d7d0fe8590a7dd444d09d1db883a6d8426e0b2087bdfe7842f2fbdb2e7",
+    "templates/rust/partials/expr/receiver_mutation.hbs": "38964011073bf5ee972b9dfcfe92fe84bb34e6abfb14a602e7749e35ffe7e1fe"
+  },
+  "byte_preserved_new_controls": [
+    {
+      "before": ".sn/nil-next-array-transitions.sn",
+      "after": "tests/rgen/nil_array_transitions.sn",
+      "sha256": "e52100419acc3278aece5c2f5dfd81c0e5378ac2e7a560b7436ded44338c563e"
+    },
+    {
+      "before": ".sn/nil-next-native-array.sn",
+      "after": "tests/rust-native/scalar_nil_array_native.sn",
+      "sha256": "2e6c17d0c7aa72d28edf8b34069dd379857592ba0c01d4c23820061fda6ab808"
+    },
+    {
+      "before": ".sn/nil-array-mixed-constructions.sn",
+      "after": "tests/rgen/nil_array_constructions.sn",
+      "sha256": "cfd127acc6812cc0f809dd78e76af2fa47a42d6bb3cae34eb3fac90138d79b62"
+    },
+    {
+      "before": ".sn/nil-array-concat-copy.sn",
+      "after": "tests/rgen/nil_array_concat_copy.sn",
+      "sha256": "3800ace0692af5899c114df83cc1767efaef3a7376e1efbfe3451a81d883193f"
+    },
+    {
+      "before": ".sn/nil-array-float-state.sn",
+      "after": "tests/rgen/nil_array_float_state.sn",
+      "sha256": "f98468d09525e951492c7cb42f47b4d587e386581234f1c407b34756259f7a61"
+    },
+    {
+      "before": ".sn/nil-array-native-implicit.sn",
+      "after": "tests/rust-native/scalar_nil_array_implicit.sn",
+      "sha256": "db6b550d9a32f6bb24a8440cfc48ddb09aaf37ebbfdb37b91ae1fce9413ebef9"
+    },
+    {
+      "before": ".sn/nil-array-default-implicit.sn",
+      "after": "tests/rgen/nil_array_default.sn",
+      "sha256": "7c4ac051a0b4515ee17d567759150e3d8834a27d50bd59c8881dbf28a199dd84"
+    },
+    {
+      "before": ".sn/nil-array-field-call-state.sn",
+      "after": "tests/rgen/nil_array_fields_calls.sn",
+      "sha256": "20d4dedd20b418616f7dc6c57de0da9576c7ad619bbc7b20022a43b68c88fcc9"
+    },
+    {
+      "before": ".sn/nil-array-hygiene.sn",
+      "after": "tests/rgen/nil_array_hygiene.sn",
+      "sha256": "2282942fa57edab20d5a0cb06ff8e00b7a2094572f6d3f5e9ef1a802c654d3f3"
+    }
+  ],
+  "prior_independent_c_controls": 90,
+  "prior_rust_rejected_cases": 81,
+  "prior_rust_runtime_mismatches": 9,
+  "baseline_compiler_hashes": [
+    "9f63d3a90d126237c59c1cbb84e970c0df81a1df7aa9a8c318dd899bcf705e96",
+    "b663dc1de605858e2126568794748c407a37bb1016da34dceb76bbc36fa0f7d2"
+  ],
+  "baseline_note": "Baseline compiler hashes remain distinct; uninitialized arrays expose nine actual runtime mismatches. The formatted hygiene control is revalidated against integrated nil-string main.",
+  "unchanged_historical_rust_snapshots": 480,
+  "corpus": {
+    "integration": {
+      "passed": 1081,
+      "compile_failures": 60,
+      "runtime_failures": 0,
+      "skips": 0,
+      "closed_sources": [
+        "test_nil_array"
+      ],
+      "remaining_failed_sources": [
+        "test_array_literal_arg_leak",
+        "test_as_ref_array_return",
+        "test_as_ref_for_in_self_return",
+        "test_as_ref_params",
+        "test_as_ref_queue_drain",
+        "test_as_ref_return_passthrough",
+        "test_as_ref_struct_lit_owned_field",
+        "test_as_ref_struct_param",
+        "test_buffer_unwrap",
+        "test_builtin_interfaces",
+        "test_composite_borrow_mutation",
+        "test_composite_temp_arg",
+        "test_constrained_generics",
+        "test_generic_multi_param_iter",
+        "test_generic_static_call",
+        "test_generics_nested_inference",
+        "test_import_fn_field_chained",
+        "test_interfaces",
+        "test_interop_callback",
+        "test_interop_comprehensive",
+        "test_interop_edge_cases",
+        "test_iterator_protocol",
+        "test_lambda_capture_outlives_scope",
+        "test_lambda_capture_struct",
+        "test_lambda_val_struct_str_field",
+        "test_lambda_val_struct_str_interp",
+        "test_module_array_swap_leak",
+        "test_native_callback_typedef",
+        "test_native_ref_field_pass_chain",
+        "test_native_ref_field_return",
+        "test_native_ref_method_forward_twice",
+        "test_native_ref_self_assign",
+        "test_native_resource_lifecycle",
+        "test_native_struct_ref_loop_cleanup",
+        "test_nested_array_copy",
+        "test_nil_compare_struct",
+        "test_nil_pointer_slice",
+        "test_qsort_callback",
+        "test_refcount_arg_leak",
+        "test_refcount_chain_in_struct_literal",
+        "test_return_ref_param",
+        "test_return_self",
+        "test_self_method_forward_after_train",
+        "test_serializable",
+        "test_serializable_decode_struct_literal_loop",
+        "test_serializable_double_int_json",
+        "test_serializable_encoder_cleanup",
+        "test_serializable_long",
+        "test_serializable_push_ownership",
+        "test_serializable_return_nested_array",
+        "test_str_return_as_arg_leak",
+        "test_struct_array_concat",
+        "test_struct_as_ref",
+        "test_struct_return_array_leak",
+        "test_struct_rvalue_member_leak",
+        "test_struct_rvalue_member_leak_contexts",
+        "test_struct_self_method_call",
+        "test_thread_native_fn_struct_return",
+        "test_thread_struct_return_types",
+        "test_val_struct_shared_array"
+      ]
+    },
+    "explore": {
+      "passed": 216,
+      "compile_failures": 8,
+      "runtime_failures": 0,
+      "skips": 0,
+      "closed_sources": [],
+      "remaining_failed_sources": [
+        "test_array_mutation_lambda",
+        "test_as_val_array_copy",
+        "test_gcc_edge_interop",
+        "test_gcc_edge_structs",
+        "test_match_as_val_ref",
+        "test_pointer_slice_bounds",
+        "test_struct_config",
+        "test_struct_self_method_call"
+      ]
+    }
+  },
+  "unchanged_original_source_hashes": 1365,
+  "instrumented_c_asan_sources": 10,
+  "instrumented_rust_native_asan_sources": 2,
+  "rust_native_asan_scope": "Rust executables with instrumented C bridge/runtime and verified __asan_init; no claim of general Rust allocator instrumentation.",
+  "native_reference_sha256": "491c8502b759c1ed859378dd31192eaab457910c6bbabc3200943f36780b8bb9",
+  "new_snapshots": 7,
+  "limitations": [
+    "68 original compilation gaps and broader language/native/SDK/reference/array/callable identity, mutation and lifetime obligations remain.",
+    "Borrowed array returns and memory-qualified array parameters remain unimplemented. Nine unchanged C-valid borrowed nil-return comparisons remain explicitly rejected and receive no parity credit.",
+    "C-dereferencing nil operations and generated-C cleanup failures are not positive oracles; no rejected/undefined probes count as parity."
+  ],
+  "initial_attempts": [
+    "Native array-only programs exposed an existing unused SnString bridge helper without byte-string support; emitting it only when its type exists restores compilation.",
+    "A prototype nested-store deep-copy destination was reused without resetting it to NULL; the generated model corrupted ownership and crashed. Corrected; final all-mode comparisons and full suites pass.",
+    "Template EOF whitespace initially altered historical generation snapshots; corrected while preserving all 480 historical snapshots.",
+    "The first corpus invocation referenced a missing wrapper. A worktree-local executable wrapper was created; final unchanged corpus results are retained.",
+    "The hygiene source failed formatting for compact struct-literal spacing. Both prepared and promoted bytes were formatted; baseline and all-mode outputs were revalidated, and its generated snapshot stayed byte-identical."
+  ],
+  "probe_classification": [
+    {
+      "source": ".sn/nil-array-implicit-field.sn.rejected.raw",
+      "sha256": "60e821fcdc16f5367c758069c6c03449906cad215bfe9aa536f2f5d76ded3449",
+      "classification": "Shared frontend requires the omitted field in a struct literal; not C-valid."
+    },
+    {
+      "source": ".sn/nil-array-implicit-field.sn",
+      "sha256": "350ea19464ca127bb2fe7def489aabd4825809219e935301895245f297c2cbd2",
+      "classification": "C-valid bare struct default; Rust rejects uninitialized heap-bearing value structs. Separate remaining gap."
+    },
+    {
+      "source": ".sn/nil-array-borrow-return-mutation.sn",
+      "sha256": "a75650a8c05f785ecd7dd26393fca61e3e181b6414d6741074cb99b3cc4eb97a",
+      "classification": "C ASAN reports cleanup use-after-free; not a defined mutation oracle."
+    },
+    {
+      "source": ".sn/nil-array-borrow-return-alias.sn",
+      "sha256": "601c52a1d925ed74db385e9afe53134a77de1ba79e3662a24b8d42bc998e98a1",
+      "classification": "C ASAN reports cleanup use-after-free; not a defined alias oracle."
+    },
+    {
+      "source": ".sn/nil-array-borrow-return-method.sn",
+      "sha256": "437e25c563fb13f9e666057e2afb2f5b288c8004bd541233f093dc4086e780fb",
+      "classification": "C ASAN reports cleanup use-after-free; not a defined returned-method mutation oracle."
+    }
+  ]
+}

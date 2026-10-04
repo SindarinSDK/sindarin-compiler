@@ -1,0 +1,23 @@
+fn main(): void =>
+  var anchor: int[] = nil
+  println(anchor == nil)
+  var values: int[] = {1, 2, 3, 4}
+  var slice: int[] = values[1..3]
+  println(slice.length)
+  println(slice[0])
+  println(slice == nil)
+  var ranged: int[] = {0..3}
+  println(ranged.length)
+  println(ranged == nil)
+  var sized: int[3]
+  println(sized.length)
+  println(sized[0])
+  println(sized == nil)
+  var flattened: int[] = {0, ...slice, 5}
+  println(flattened.length)
+  println(flattened[3])
+  println(flattened == nil)
+  var words: str[] = "a,b".split(",")
+  println(words.length)
+  println($"word:{words[1]}")
+  println(words == nil)

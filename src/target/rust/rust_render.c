@@ -74,9 +74,12 @@ static char *rust_type(json_object *type)
             return strdup("Vec<()>");
         char *element = rust_type(element_type);
         if (!element) return NULL;
-        size_t length = strlen(element) + sizeof("Vec<>");
+        json_object *nullable = NULL;
+        const char *container = json_object_object_get_ex(type, "rust_nullable_array_name", &nullable)
+            ? json_object_get_string(nullable) : "Vec";
+        size_t length = strlen(container) + strlen(element) + sizeof("<>");
         char *result = malloc(length);
-        if (result) snprintf(result, length, "Vec<%s>", element);
+        if (result) snprintf(result, length, "%s<%s>", container, element);
         free(element);
         return result;
     }
@@ -318,7 +321,17 @@ static char *helper_rust_default(json_object **params, int param_count, hbs_opti
                            json_object_get_boolean(nullable);
         return strdup(is_nullable ? "SnString::nil()" : "SnString::new()");
     }
-    if (strcmp(kind, "array") == 0) return strdup("Vec::new()");
+    if (strcmp(kind, "array") == 0)
+    {
+        json_object *nullable = NULL;
+        if (!json_object_object_get_ex(params[0], "rust_nullable_array_name", &nullable))
+            return strdup("Vec::new()");
+        const char *name = json_object_get_string(nullable);
+        size_t length = strlen(name) + sizeof("::nil()");
+        char *result = malloc(length);
+        if (result) snprintf(result, length, "%s::nil()", name);
+        return result;
+    }
     if (strcmp(kind, "pointer") == 0 || strcmp(kind, "opaque") == 0)
         return strdup("std::ptr::null_mut()");
     if (strcmp(kind, "void") == 0) return strdup("()");

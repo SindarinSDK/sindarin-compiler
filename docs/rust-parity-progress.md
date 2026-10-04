@@ -5,11 +5,61 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
-## Latest local increment: nil strings, 2026-10-04
+## Latest local increment: nil arrays, 2026-10-04
+
+This increment is locally verified against integrated nil-string main
+`0e2a3d2e7fea6a353ff91bc0a0069741acbe9b15`; all six jobs and complete retained
+artifacts for that revision are verified. This increment is ready for integration;
+its exact-revision hosted verification is still required.
+All 27 reports pass **2298 cases**, including 90 independent nil-array cases
+at O0/O1/O2 in default/checked/unchecked arithmetic modes. Complete C suites pass
+unchanged; Rust generation/negative are 434 / 143, native 8 / 30 / 1 / 4,
+closures 36 / 1, concurrency 10 / 7 / 1 and toolchain 12, without failures or skips.
+Ten C controls and two Rust/native executables pass instrumented ASAN with leak
+detection. Rust/native instrumentation covers the C bridge/runtime. Raw-byte,
+text-transport, helper and formatting checks pass.
+
+Language arrays retain nil state separately from allocated empty vectors.
+Contextual nil values, default arrays, literal returns, copies, concatenation,
+field/free/instance/static call contexts and native NULL byte-array results
+preserve that state. Slice/range/sized/spread and string-split constructions remain
+allocated arrays. Floating equality keeps C object-byte comparisons while checking
+nil state. Nested owned copies retain independent mutation; stable nested stores
+resolve indices before taking a mutable borrow. Private wrapper and store names
+avoid source identifiers. Native array-only programs no longer emit an unused
+string bridge helper when its Rust type is absent.
+
+The unchanged original corpus passes 1081 integration and 216 exploratory
+programs, leaving **68 original compilation gaps locally**, down from 69.
+There are no original runtime failures or skips. All 1365 original source hashes
+and 480 existing Rust snapshots are unchanged; seven new O0 snapshots are added.
+Nine new controls preserve their prepared source bytes. The 90-case baseline
+contains 81 compiler rejections and nine actual runtime mismatches, with distinct
+compiler hashes retained. Formatting of the new hygiene control was revalidated
+against its baseline; its generated snapshot is byte-identical.
+
+Borrowed array returns remain a separate gap: nine unchanged, C-valid nil-return
+comparisons are still rejected and receive no parity credit. Memory-qualified
+array parameters and general array/reference/callable identity remain unfinished.
+C-generated cleanup failures and frontend-rejected probes are retained separately;
+they do not supply positive oracles. C production, templates and original
+expectations are unchanged, and C remains the default.
+
+Evidence: [local validation](rust-parity-evidence/nil-array-validation.json),
+[90 independent pairs](rust-parity-evidence/nil-array-pairs.json),
+[baseline](rust-parity-evidence/nil-array-before-controls.json),
+[C ASAN](rust-parity-evidence/nil-array-asan.json),
+[Rust/native ASAN](rust-parity-evidence/nil-array-native-asan.json),
+[remaining borrowed returns](rust-parity-evidence/nil-array-remaining-borrowed-returns.json)
+and [remaining diagnostics](rust-parity-evidence/nil-array-gap-diagnostics.json).
+
+## Nil strings: verified on main, 2026-10-04
 
 This increment is locally verified against main
-`08aef21116b8009cfcdcc9d00ff03b37abe01146`; all six CI jobs and retained artifacts
-for that base are now verified. Integration and nil-string hosted CI follow. All 26 reports pass
+`08aef21116b8009cfcdcc9d00ff03b37abe01146` and integrated as
+`0e2a3d2e7fea6a353ff91bc0a0069741acbe9b15`. All six exact-revision CI jobs pass;
+complete retained artifacts independently verify all 26 reports and 2208 cases
+on Linux, macOS and Windows. All 26 local reports pass
 **2208 cases**, including 72 independent nil-string cases at O0/O1/O2 in
 all arithmetic modes. Full C suites pass unchanged; Rust generation/negative
 are 427 / 143, native 8 / 28 / 1 / 4, closures 36 / 1, concurrency 10 / 7 / 1
@@ -26,7 +76,7 @@ static and native call contexts are tested. Nullable representation is enabled
 when observable null semantics are required; existing snapshots remain unchanged.
 
 The unchanged original corpus passes 1080 integration and 216 exploratory
-programs, leaving **69 compilation gaps locally**, down from 70. No original
+programs, leaving **69 compilation gaps**, down from 70. No original
 runtime failures or skips occur. All 1365 original source hashes and 477 existing
 Rust snapshots are unchanged; three new O0 snapshots are added. Seven new
 controls preserve their prepared source bytes. The baseline contains 54 Rust
@@ -37,7 +87,8 @@ Evidence: [local validation](rust-parity-evidence/nil-string-validation.json),
 [72 independent pairs](rust-parity-evidence/nil-string-pairs.json),
 [baseline](rust-parity-evidence/nil-string-before-controls.json),
 [C ASAN](rust-parity-evidence/nil-string-asan.json),
-[Rust/native ASAN](rust-parity-evidence/nil-string-native-asan.json) and
+[Rust/native ASAN](rust-parity-evidence/nil-string-native-asan.json),
+[exact-main CI proof](rust-parity-evidence/nil-string-main-ci-green.json) and
 [remaining diagnostics](rust-parity-evidence/nil-string-gap-diagnostics.json).
 C production, templates and original expectations are unchanged; C remains default.
 
@@ -188,24 +239,25 @@ Full parity and exact-revision hosted verification remain required.
 
 ## Current verified status: 2026-10-04
 
-Main `08aef21116b8009cfcdcc9d00ff03b37abe01146` passes all six Linux/macOS/Windows
+Main `0e2a3d2e7fea6a353ff91bc0a0069741acbe9b15` passes all six Linux/macOS/Windows
 Compiler and Rust Runtime jobs. Complete hosted C/Rust suites pass without
-failures or skips. Each platform's 25 retained runtime reports independently
-verifies **2136 cases**: 1836 positive C/Rust pairs, 39 diagnostic/order cases,
-153 process-exit cases and 108 main-return cases. The 36 helper-scope cases verify
-C-only helpers alongside shared scalar Rust/C callers. C remains default.
+failures or skips. Each platform's 26 retained runtime reports independently
+verifies **2208 cases**: 1908 positive C/Rust pairs, 39 diagnostic/order cases,
+153 process-exit cases and 108 main-return cases. The 72 nil-string cases verify
+nil versus allocated empty state and native NULL transport. C remains default.
 
-The unchanged original corpus passes 1079 integration and 216 exploratory
-programs, leaving 62 and eight compilation gaps: **70 remaining original gaps**
-on this verified revision. All 1365 original source hashes and 477 existing Rust
-snapshots are unchanged. Four C helper-scope sources pass instrumented ASAN.
-The pending nil-string increment reduces the locally verified gap count to 69.
+The unchanged original corpus passes 1080 integration and 216 exploratory
+programs, leaving 61 and eight compilation gaps: **69 remaining original gaps**
+on this verified revision. All 1365 original source hashes and 477 historical
+Rust snapshots are unchanged, with three new snapshots bringing the total to 480.
+Eight C controls and four Rust/native controls pass instrumented ASAN; the latter
+covers the C bridge/runtime. The pending nil-array increment reduces the locally
+verified gap count to 68.
 
-Evidence: [local validation](rust-parity-evidence/native-scope-validation.json),
-[36 independent pairs](rust-parity-evidence/native-scope-pairs.json),
-[remaining diagnostics](rust-parity-evidence/native-scope-gap-diagnostics.json)
-and [exact-main CI proof](rust-parity-evidence/native-scope-main-ci-green.json).
-The proof retains the first Linux upload timeout and the successful targeted rerun.
+Evidence: [local validation](rust-parity-evidence/nil-string-validation.json),
+[72 independent pairs](rust-parity-evidence/nil-string-pairs.json),
+[remaining diagnostics](rust-parity-evidence/nil-string-gap-diagnostics.json)
+and [exact-main CI proof](rust-parity-evidence/nil-string-main-ci-green.json).
 
 ## Baseline: 2026-10-02
 

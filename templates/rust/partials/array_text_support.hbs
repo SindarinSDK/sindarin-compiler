@@ -105,7 +105,15 @@ impl<T: {{rust_ident rust_array_text_trait_name}}> {{rust_ident rust_array_text_
     // reserved for full array formatting (print and interpolation).
     fn {{rust_ident rust_array_join_text_method_name}}(&self) -> SnString { SnString::from_slice(b"?") }
     fn {{rust_ident rust_struct_text_method_name}}(&self) -> SnString { {{rust_ident rust_array_to_string_name}}(self.as_slice()) }
-}
+}{{#if @root.rust_nullable_arrays}}
+
+impl<T: {{rust_ident rust_array_text_trait_name}}> {{rust_ident rust_array_text_trait_name}} for {{rust_ident @root.rust_nullable_array_name}}<T> {
+    fn {{rust_ident rust_array_text_method_name}}(&self) -> SnString { {{rust_ident rust_array_to_string_name}}(self.as_slice()) }
+    // sn_array_join renders each nested-array element as "?"; recursion is
+    // reserved for full array formatting (print and interpolation).
+    fn {{rust_ident rust_array_join_text_method_name}}(&self) -> SnString { SnString::from_slice(b"?") }
+    fn {{rust_ident rust_struct_text_method_name}}(&self) -> SnString { {{rust_ident rust_array_to_string_name}}(self.as_slice()) }
+}{{/if}}
 
 fn {{rust_ident rust_array_to_string_name}}<T: {{rust_ident rust_array_text_trait_name}}>(array: &[T]) -> SnString {
     let mut result = SnString::from_slice(b"[");

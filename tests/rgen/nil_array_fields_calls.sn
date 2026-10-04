@@ -1,0 +1,35 @@
+fn missing(values: int[]): bool =>
+  return values == nil
+
+struct Holder =>
+  values: int[] = nil
+
+  fn missing(): bool =>
+    return self.values == nil
+
+  fn missingArgument(values: int[]): bool =>
+    return values == nil
+
+  static fn missingStatic(values: int[]): bool =>
+    return values == nil
+
+  static fn absent(): int[] =>
+    return nil
+
+fn main(): void =>
+  var holder: Holder = {}
+  println(holder.missing())
+  holder.values = {}
+  println(holder.missing())
+  holder.values = nil
+  println(holder.values == nil)
+  println(missing(nil))
+  println(holder.missingArgument(nil))
+  println(Holder.missingStatic(nil))
+  var result: int[] = Holder.absent()
+  println(result == nil)
+  var nested: int[][] = {{}, {}}
+  nested[0] = nil
+  var copied: int[][] = copyOf(nested)
+  println(copied[0] == nil)
+  println(copied[1] == nil)

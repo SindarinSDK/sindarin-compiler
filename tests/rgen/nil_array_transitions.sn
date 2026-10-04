@@ -1,0 +1,24 @@
+fn absent(): int[] =>
+  return nil
+
+fn missing(values: int[]): bool =>
+  return values == nil
+
+fn main(): void =>
+  var values: int[] = nil
+  println(values == nil)
+  values = {}
+  println(values == nil)
+  println(values.length)
+  var copied: int[] = copyOf(values)
+  println(copied == nil)
+  values = {1, 2}
+  println(values != nil)
+  println(values.length)
+  values = nil
+  println(nil == values)
+  var missingCopy: int[] = copyOf(values)
+  println(missingCopy == nil)
+  println(missing(values))
+  var result: int[] = absent()
+  println(result == nil)

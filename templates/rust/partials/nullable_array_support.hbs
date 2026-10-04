@@ -1,0 +1,44 @@
+#[allow(non_camel_case_types)]
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct {{rust_ident rust_nullable_array_name}}<T> {
+    values: Vec<T>,
+    nil: bool,
+}
+
+impl<T> {{rust_ident rust_nullable_array_name}}<T> {
+    fn nil() -> Self { Self { values: Vec::new(), nil: true } }
+    fn from_vec(values: Vec<T>) -> Self { Self { values, nil: false } }
+    fn is_nil(&self) -> bool { self.nil }
+}
+
+impl<T: Clone> {{rust_ident rust_nullable_array_name}}<T> {
+    fn concat_nullable(&self, other: &Self) -> Self {
+        if self.nil && other.nil { return Self::nil(); }
+        Self::from_vec([self.values.as_slice(), other.values.as_slice()].concat())
+    }
+}
+
+impl<T> Default for {{rust_ident rust_nullable_array_name}}<T> {
+    fn default() -> Self { Self::nil() }
+}
+
+impl<T> std::ops::Deref for {{rust_ident rust_nullable_array_name}}<T> {
+    type Target = Vec<T>;
+    fn deref(&self) -> &Self::Target { &self.values }
+}
+
+impl<T> std::ops::DerefMut for {{rust_ident rust_nullable_array_name}}<T> {
+    fn deref_mut(&mut self) -> &mut Self::Target { &mut self.values }
+}
+
+impl<T> IntoIterator for {{rust_ident rust_nullable_array_name}}<T> {
+    type Item = T;
+    type IntoIter = std::vec::IntoIter<T>;
+    fn into_iter(self) -> Self::IntoIter { self.values.into_iter() }
+}
+
+impl<'a, T> IntoIterator for &'a {{rust_ident rust_nullable_array_name}}<T> {
+    type Item = &'a T;
+    type IntoIter = std::slice::Iter<'a, T>;
+    fn into_iter(self) -> Self::IntoIter { self.values.iter() }
+}

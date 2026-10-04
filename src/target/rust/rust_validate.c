@@ -979,6 +979,12 @@ static bool rust_array_copy_type_supported(json_object *type)
 {
     if (json_string_property_equals(type, "kind", "function"))
         return rust_closure_type_supported(type);
+    if (json_string_property_equals(type, "kind", "array"))
+    {
+        json_object *element = NULL;
+        return json_object_object_get_ex(type, "element_type", &element) &&
+               rust_array_copy_type_supported(element);
+    }
     const char *kind = json_string_property(type, "kind");
     if (kind && strcmp(kind, "struct") == 0)
         return rust_heap_free_named_struct_type(type);
