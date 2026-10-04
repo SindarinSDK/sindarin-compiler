@@ -1,0 +1,20 @@
+fn next(value: byte as ref): byte =>
+  return value = value + 1
+
+fn previous(value: byte as ref): byte =>
+  return value = value - 1
+
+fn wide(value: byte as ref): byte =>
+  var maximum: int = 9223372036854775807
+  return value = maximum
+
+fn literal(value: byte as ref): byte =>
+  return value = 9223372036854775807
+
+fn main(): void =>
+  var value: byte = 255
+  var first: byte = next(value)
+  var second: byte = previous(value)
+  var third: byte = wide(value)
+  var fourth: byte = literal(value)
+  println($"{first} {second} {third} {fourth} {value}")

@@ -362,34 +362,50 @@ fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
     })
 }
 
-struct __SnClosure<F: ?Sized>(std::rc::Rc<F>);
-impl<F: ?Sized> Clone for __SnClosure<F> {
-    fn clone(&self) -> Self { Self(self.0.clone()) }
+fn referenceNext(value: &mut char) -> char {
+    return { let __sn_place = &mut (*(value)); let __sn_previous = *__sn_place; *__sn_place = (__sn_previous as u32 as u8).wrapping_add(1) as char; __sn_previous };
 }
-impl<F: ?Sized> std::fmt::Debug for __SnClosure<F> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str("<function>")
-    }
+
+fn valueNext(mut value: char) -> char {
+    let mut old: char = { let __sn_place = &mut (value); let __sn_previous = *__sn_place; *__sn_place = (__sn_previous as u32 as u8).wrapping_add(1) as char; __sn_previous };
+    return old;
 }
-impl<F: ?Sized> PartialEq for __SnClosure<F> {
-    fn eq(&self, other: &Self) -> bool { std::rc::Rc::ptr_eq(&self.0, &other.0) }
+
+fn referencePrevious(value: &mut char) -> char {
+    return { let __sn_place = &mut (*(value)); let __sn_previous = *__sn_place; *__sn_place = (__sn_previous as u32 as u8).wrapping_sub(1) as char; __sn_previous };
 }
+
 fn main() {
-    let mut floats: Vec<f32> = vec![0.0];
-    let mut narrow: Vec<i32> = vec![((((1i128) as i64)) as i32)];
-    let mut flags: Vec<bool> = vec![false];
-    let mut chars: Vec<char> = vec!['\u{61}'];
-    let mut __sn_capture_index_value: i64 = 2;
-    let mut __sn_capture_index_place: i64 = 3;
-    let mut action: __SnClosure<dyn Fn() -> ()> = { let (floats, narrow, flags, chars, __sn_capture_index_value, __sn_capture_index_place, ) = (std::rc::Rc::new(std::cell::RefCell::new(floats.clone())), std::rc::Rc::new(std::cell::RefCell::new(narrow.clone())), std::rc::Rc::new(std::cell::RefCell::new(flags.clone())), std::rc::Rc::new(std::cell::RefCell::new(chars.clone())), __sn_capture_index_value.clone(), __sn_capture_index_place.clone(), ); self::__SnClosure::<dyn Fn() -> ()>(std::rc::Rc::new(move || -> () { { let __sn_capture_index_value_1 = ((((((((floats.borrow().clone())[__sn_index((floats.borrow().clone()).len(), ((0i128) as i64))]) as f64) + (((0.5f64)) as f64))) as f32)) as f32); let __sn_place_raw_index_0 = 0; let __sn_place_index_0 = if __sn_place_raw_index_0 < 0 { __sn_place_raw_index_0 + (floats.borrow().clone()).len() as i64 } else { __sn_place_raw_index_0 }; { let __sn_capture_index_place_1 = &mut ((floats.borrow_mut())[__sn_place_index_0 as usize]); *__sn_capture_index_place_1 = __sn_capture_index_value_1; } __sn_capture_index_value_1 };{ let __sn_capture_index_value_2 = (({ let (__sn_left, __sn_right): (i32, i32) = (((narrow.borrow().clone())[__sn_index((narrow.borrow().clone()).len(), ((0i128) as i64))]) as i32, (((2i128) as i64)) as i32); __sn_checked_0(__sn_left.checked_add(__sn_right), "Runtime error: integer overflow in addition") }
-) as i32); let __sn_place_raw_index_1 = 0; let __sn_place_index_1 = if __sn_place_raw_index_1 < 0 { __sn_place_raw_index_1 + (narrow.borrow().clone()).len() as i64 } else { __sn_place_raw_index_1 }; { let __sn_capture_index_place_2 = &mut ((narrow.borrow_mut())[__sn_place_index_1 as usize]); *__sn_capture_index_place_2 = __sn_capture_index_value_2; } __sn_capture_index_value_2 };{ let __sn_capture_index_value_3 = (!(flags.borrow().clone())[__sn_index((flags.borrow().clone()).len(), ((0i128) as i64))]); let __sn_place_raw_index_2 = 0; let __sn_place_index_2 = if __sn_place_raw_index_2 < 0 { __sn_place_raw_index_2 + (flags.borrow().clone()).len() as i64 } else { __sn_place_raw_index_2 }; { let __sn_capture_index_place_3 = &mut ((flags.borrow_mut())[__sn_place_index_2 as usize]); *__sn_capture_index_place_3 = __sn_capture_index_value_3; } __sn_capture_index_value_3 };{ let __sn_capture_index_value_4 = '\u{7a}'; let __sn_place_raw_index_3 = 0; let __sn_place_index_3 = if __sn_place_raw_index_3 < 0 { __sn_place_raw_index_3 + (chars.borrow().clone()).len() as i64 } else { __sn_place_raw_index_3 }; { let __sn_capture_index_place_4 = &mut ((chars.borrow_mut())[__sn_place_index_3 as usize]); *__sn_capture_index_place_4 = __sn_capture_index_value_4; } __sn_capture_index_value_4 };println!("{:.5}", (floats.borrow().clone())[__sn_index((floats.borrow().clone()).len(), 0)]);println!("{}", (narrow.borrow().clone())[__sn_index((narrow.borrow().clone()).len(), 0)]);println!("{}", (flags.borrow().clone())[__sn_index((flags.borrow().clone()).len(), 0)]);__sn_println_char((chars.borrow().clone())[__sn_index((chars.borrow().clone()).len(), 0)]);println!("{}", __sn_checked_0((__sn_capture_index_value.clone()).checked_add(__sn_capture_index_place.clone()), "Runtime error: integer overflow in addition"));})) }
-;
-    ((action.clone()).0)();
-    ((action.clone()).0)();
-    println!("{:.5}", (floats)[__sn_index((floats).len(), 0)]);
-    println!("{}", (narrow)[__sn_index((narrow).len(), 0)]);
-    println!("{}", (flags)[__sn_index((flags).len(), 0)]);
-    __sn_println_char((chars)[__sn_index((chars).len(), 0)]);
+    let mut values: Vec<char> = vec!['\u{0}', '\u{1}', '\u{2}', '\u{3}', '\u{4}', '\u{5}', '\u{6}', '\u{7}', '\u{8}', '\u{9}', '\u{a}', '\u{b}', '\u{c}', '\u{d}', '\u{e}', '\u{f}', '\u{10}', '\u{11}', '\u{12}', '\u{13}', '\u{14}', '\u{15}', '\u{16}', '\u{17}', '\u{18}', '\u{19}', '\u{1a}', '\u{1b}', '\u{1c}', '\u{1d}', '\u{1e}', '\u{1f}', '\u{20}', '\u{21}', '\u{22}', '\u{23}', '\u{24}', '\u{25}', '\u{26}', '\u{27}', '\u{28}', '\u{29}', '\u{2a}', '\u{2b}', '\u{2c}', '\u{2d}', '\u{2e}', '\u{2f}', '\u{30}', '\u{31}', '\u{32}', '\u{33}', '\u{34}', '\u{35}', '\u{36}', '\u{37}', '\u{38}', '\u{39}', '\u{3a}', '\u{3b}', '\u{3c}', '\u{3d}', '\u{3e}', '\u{3f}', '\u{40}', '\u{41}', '\u{42}', '\u{43}', '\u{44}', '\u{45}', '\u{46}', '\u{47}', '\u{48}', '\u{49}', '\u{4a}', '\u{4b}', '\u{4c}', '\u{4d}', '\u{4e}', '\u{4f}', '\u{50}', '\u{51}', '\u{52}', '\u{53}', '\u{54}', '\u{55}', '\u{56}', '\u{57}', '\u{58}', '\u{59}', '\u{5a}', '\u{5b}', '\u{5c}', '\u{5d}', '\u{5e}', '\u{5f}', '\u{60}', '\u{61}', '\u{62}', '\u{63}', '\u{64}', '\u{65}', '\u{66}', '\u{67}', '\u{68}', '\u{69}', '\u{6a}', '\u{6b}', '\u{6c}', '\u{6d}', '\u{6e}', '\u{6f}', '\u{70}', '\u{71}', '\u{72}', '\u{73}', '\u{74}', '\u{75}', '\u{76}', '\u{77}', '\u{78}', '\u{79}', '\u{7a}', '\u{7b}', '\u{7c}', '\u{7d}', '\u{7e}', '\u{7f}', '\u{80}', '\u{81}', '\u{82}', '\u{83}', '\u{84}', '\u{85}', '\u{86}', '\u{87}', '\u{88}', '\u{89}', '\u{8a}', '\u{8b}', '\u{8c}', '\u{8d}', '\u{8e}', '\u{8f}', '\u{90}', '\u{91}', '\u{92}', '\u{93}', '\u{94}', '\u{95}', '\u{96}', '\u{97}', '\u{98}', '\u{99}', '\u{9a}', '\u{9b}', '\u{9c}', '\u{9d}', '\u{9e}', '\u{9f}', '\u{a0}', '\u{a1}', '\u{a2}', '\u{a3}', '\u{a4}', '\u{a5}', '\u{a6}', '\u{a7}', '\u{a8}', '\u{a9}', '\u{aa}', '\u{ab}', '\u{ac}', '\u{ad}', '\u{ae}', '\u{af}', '\u{b0}', '\u{b1}', '\u{b2}', '\u{b3}', '\u{b4}', '\u{b5}', '\u{b6}', '\u{b7}', '\u{b8}', '\u{b9}', '\u{ba}', '\u{bb}', '\u{bc}', '\u{bd}', '\u{be}', '\u{bf}', '\u{c0}', '\u{c1}', '\u{c2}', '\u{c3}', '\u{c4}', '\u{c5}', '\u{c6}', '\u{c7}', '\u{c8}', '\u{c9}', '\u{ca}', '\u{cb}', '\u{cc}', '\u{cd}', '\u{ce}', '\u{cf}', '\u{d0}', '\u{d1}', '\u{d2}', '\u{d3}', '\u{d4}', '\u{d5}', '\u{d6}', '\u{d7}', '\u{d8}', '\u{d9}', '\u{da}', '\u{db}', '\u{dc}', '\u{dd}', '\u{de}', '\u{df}', '\u{e0}', '\u{e1}', '\u{e2}', '\u{e3}', '\u{e4}', '\u{e5}', '\u{e6}', '\u{e7}', '\u{e8}', '\u{e9}', '\u{ea}', '\u{eb}', '\u{ec}', '\u{ed}', '\u{ee}', '\u{ef}', '\u{f0}', '\u{f1}', '\u{f2}', '\u{f3}', '\u{f4}', '\u{f5}', '\u{f6}', '\u{f7}', '\u{f8}', '\u{f9}', '\u{fa}', '\u{fb}', '\u{fc}', '\u{fd}', '\u{fe}', '\u{ff}'];
+    let mut original: i64 = 0;
+    let mut advanced: i64 = 0;
+    let mut isolated: i64 = 0;
+    let mut restored: i64 = 0;
+    {
+        let mut i: i64 = 0;
+
+        while (i < (values).len() as i64) {
+            let mut expected: char = (values)[__sn_index((values).len(), i)];
+            let mut value: char = expected;
+            let mut old: char = referenceNext(&mut (value));
+            if (old == expected) {
+        { let __sn_place = &mut (original); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
+    }
+            if (value == (values)[__sn_index((values).len(), { let __sn_left = __sn_checked_0((i).checked_add(1), "Runtime error: integer overflow in addition"); let __sn_right = (values).len() as i64; __sn_checked_mod_0(__sn_left.checked_rem(__sn_right), __sn_right == 0) })]) {
+        { let __sn_place = &mut (advanced); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
+    }
+            let mut localOld: char = valueNext(expected);
+            if ((localOld == (values)[__sn_index((values).len(), i)]) && (expected == (values)[__sn_index((values).len(), i)])) {
+        { let __sn_place = &mut (isolated); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
+    }
+            let mut previous: char = referencePrevious(&mut (value));
+            if ((previous == (values)[__sn_index((values).len(), { let __sn_left = __sn_checked_0((i).checked_add(1), "Runtime error: integer overflow in addition"); let __sn_right = (values).len() as i64; __sn_checked_mod_0(__sn_left.checked_rem(__sn_right), __sn_right == 0) })]) && (value == expected)) {
+        { let __sn_place = &mut (restored); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
+    }
+            { let __sn_place = &mut (i); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
+        }
+    }
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", original)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", advanced)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", isolated)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", restored)); __sn_interpolated }));
     unsafe {
         #[cfg(windows)]
         let stream = crate::__sn_stdio_iob(1);

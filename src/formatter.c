@@ -211,8 +211,14 @@ static int tokenize_line(const char *p, const char *line_end, FT *tokens)
         else if (*p == '\'')
         {
             p++;
-            if (p < line_end && *p == '\\' && p + 1 < line_end) p++;
-            if (p < line_end && !is_eol(*p)) p++;
+            /* Preserve the complete spelling, including hex escapes and
+             * escaped quotes, as one token. Literal validity belongs to the
+             * compiler lexer; formatting must not rewrite its contents. */
+            while (p < line_end && *p != '\'' && !is_eol(*p))
+            {
+                if (*p == '\\' && p + 1 < line_end) p++;
+                p++;
+            }
             if (p < line_end && *p == '\'') p++;
             tok->type = FT_CHAR_LIT;
         }

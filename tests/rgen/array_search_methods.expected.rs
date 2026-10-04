@@ -349,9 +349,9 @@ fn main() {
     let mut flags: Vec<bool> = vec![true, false];
     println!("{}", { let __sn_array = &(flags); let __sn_array_search = &(false); __sn_array.contains(__sn_array_search) });
     println!("{}", { let __sn_array = &(flags); let __sn_array_search = &(true); __sn_array.iter().position(|__sn_item| __sn_item == __sn_array_search).map(|__sn_index| __sn_index as i64).unwrap_or(-1) });
-    let mut bytes: Vec<u8> = vec![10, 20, 30];
-    println!("{}", { let __sn_array = &(bytes); let __sn_array_search = &(20); __sn_array.contains(__sn_array_search) });
-    println!("{}", { let __sn_array = &(bytes); let __sn_array_search = &(30); __sn_array.iter().position(|__sn_item| __sn_item == __sn_array_search).map(|__sn_index| __sn_index as i64).unwrap_or(-1) });
+    let mut bytes: Vec<u8> = vec![((((10i128) as i64)) as u8), ((((20i128) as i64)) as u8), ((((30i128) as i64)) as u8)];
+    println!("{}", { let __sn_array = &(bytes); let __sn_array_search = &(((((20i128) as i64)) as u8)); __sn_array.contains(__sn_array_search) });
+    println!("{}", { let __sn_array = &(bytes); let __sn_array_search = &(((((30i128) as i64)) as u8)); __sn_array.iter().position(|__sn_item| __sn_item == __sn_array_search).map(|__sn_index| __sn_index as i64).unwrap_or(-1) });
     let mut letters: Vec<char> = vec!['\u{61}', '\u{62}', '\u{61}'];
     println!("{}", { let __sn_array = &(letters); let __sn_array_search = &('\u{62}'); __sn_array.contains(__sn_array_search) });
     println!("{}", { let __sn_array = &(letters); let __sn_array_search = &('\u{7a}'); __sn_array.contains(__sn_array_search) });

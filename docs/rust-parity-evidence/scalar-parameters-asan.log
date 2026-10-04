@@ -1,0 +1,14 @@
+tests/rgen/char_as_ref_parameter.sn True
+tests/integration/test_byte_arr_insert.sn True
+tests/integration/test_as_ref_params.sn True
+tests/rgen/by_value_parameter_direct_assignment_char.sn True
+tests/rgen/by_value_parameter_char_postfix_mutation.sn True
+tests/rgen/character_reference_places.sn True
+tests/rgen/character_thread_references.sn True
+tests/rgen/character_reference_aliases.sn True
+tests/rgen/byte_reference_assignment_values.sn True
+tests/rgen/character_parameter_byte_domain.sn True
+tests/rgen/scalar_reference_aliases.sn True
+tests/rgen/integer_reference_storage_boundaries.sn True
+tests/rgen/array_search_methods.sn True
+tests/rgen/capture_array_index_widths.sn True

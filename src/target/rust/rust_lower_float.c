@@ -10,9 +10,17 @@ static void rust_float_convert_value(json_object *value, json_object *target_typ
     if (c_kind) from = c_kind;
     const char *to = json_string_property(target_type, "kind");
     const char *numeric_c_kind = json_string_property(value, "rust_c_numeric_expression_kind");
+    /* Ordinary integer expressions also convert at storage boundaries. In
+     * particular, byte + int retains its promoted width until assignment. */
+    if (!numeric_c_kind && rust_fixed_integral_kind(from) &&
+        rust_fixed_integral_kind(to)) numeric_c_kind = from;
     if (numeric_c_kind && rust_numeric_type_name(numeric_c_kind) && rust_numeric_type_name(to) &&
         strcmp(rust_numeric_type_name(numeric_c_kind), rust_numeric_type_name(to)) != 0)
     {
+        if (json_string_property_equals(value, "kind", "literal") &&
+            json_string_property_equals(value, "value_kind", "int"))
+            json_object_object_add(value, "rust_c_numeric_literal_type",
+                json_object_new_string(rust_numeric_type_name(numeric_c_kind)));
         json_object_object_add(value, "rust_c_numeric_conversion_type",
                                json_object_new_string(rust_numeric_type_name(to)));
         return;
@@ -77,6 +85,20 @@ static void rust_lower_float_conversions(json_object *model, json_object *node,
     const char *kind = json_string_property(node, "kind");
     json_object *type = NULL, *value = NULL;
     json_object_object_get_ex(node, "type", &type);
+    if (kind && strcmp(kind, "assign") == 0 &&
+        (rust_numeric_type_name(json_string_property(type, "kind")) ||
+         json_string_property_equals(type, "kind", "bool")))
+        json_object_object_add(node, "rust_scalar_assignment_value",
+                               json_object_new_boolean(true));
+    /* A discarded statement needs no final read of its stored scalar. Nested
+     * assignments retain their values for the enclosing expression. */
+    if (kind && strcmp(kind, "expr") == 0)
+    {
+        json_object *expression = NULL;
+        json_object_object_get_ex(node, "expr", &expression);
+        if (json_string_property_equals(expression, "kind", "assign"))
+            json_object_object_del(expression, "rust_scalar_assignment_value");
+    }
     if (kind && strcmp(kind, "return") == 0)
     {
         json_object_object_get_ex(node, "value", &value);
@@ -148,7 +170,22 @@ static void rust_lower_float_conversions(json_object *model, json_object *node,
         json_object_object_get_ex(callee, "type", &callee_type);
         json_object_object_get_ex(callee_type, "param_types", &params);
         json_object_object_get_ex(node, "args", &args);
-        rust_float_convert_args(args, params, false);
+        json_object *object = NULL, *object_type = NULL;
+        json_object_object_get_ex(callee, "object", &object);
+        json_object_object_get_ex(object, "type", &object_type);
+        if (json_string_property_equals(callee, "kind", "member") &&
+            json_string_property_equals(callee, "member_name", "insert") &&
+            json_string_property_equals(object_type, "kind", "array") &&
+            json_object_array_length(args) == 2 && json_object_array_length(params) == 2)
+        {
+            /* Array lowering puts the index before the element. The shared
+             * callable type retains the source element/index parameter order. */
+            rust_float_convert_value(json_object_array_get_idx(args, 0),
+                                     json_object_array_get_idx(params, 1));
+            rust_float_convert_value(json_object_array_get_idx(args, 1),
+                                     json_object_array_get_idx(params, 0));
+        }
+        else rust_float_convert_args(args, params, false);
     }
     else if (kind && strcmp(kind, "var_decl") == 0)
     {

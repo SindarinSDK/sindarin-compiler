@@ -1,0 +1,65 @@
+Compiler: /home/gavin/code/sindarin/sindarin-rust-character-reference-parameters-b857f00e/bin/sn
+Platform: Linux
+Parallel: 8 workers
+
+Unit Tests
+============================================================
+Results: 1610 passed, 0 failed  (total: 18.10ms)
+------------------------------------------------------------
+Unit tests passed  (20ms)
+
+Code Generation Tests
+============================================================
+  Running 107 tests with 8 workers...
+
+
+
+------------------------------------------------------------
+Results: 107 passed, 0 failed, 0 skipped  (1.47s)
+
+Model Generation Tests
+============================================================
+  Running 79 tests with 8 workers...
+
+
+
+------------------------------------------------------------
+Results: 79 passed, 0 failed, 0 skipped  (93ms)
+
+Integration Tests
+============================================================
+  Running 1141 tests with 8 workers...
+
+
+
+------------------------------------------------------------
+Results: 1141 passed, 0 failed, 0 skipped  (17.03s)
+
+Integration Error Tests
+============================================================
+  Running 58 tests with 8 workers...
+
+
+
+------------------------------------------------------------
+Results: 58 passed, 0 failed, 0 skipped  (58ms)
+
+Exploratory Tests
+============================================================
+  Running 224 tests with 8 workers...
+
+
+
+------------------------------------------------------------
+Results: 224 passed, 0 failed, 0 skipped  (14.80s)
+
+Exploratory Error Tests
+============================================================
+  Running 11 tests with 8 workers...
+
+
+
+------------------------------------------------------------
+Results: 11 passed, 0 failed, 0 skipped  (8ms)
+
+All tests passed!  (total: 33.47s)

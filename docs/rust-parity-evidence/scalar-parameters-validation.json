@@ -1,0 +1,281 @@
+{
+  "base_revision": "b857f00ebfa5d489a99bda333891c2f769282ae7",
+  "compiler_sha256": "f1d7a7ba2d03565afe4815c44a87f636fcec81afd56b652072ff32a2ce92f1ca",
+  "independent_oracle_cases": 126,
+  "asan_c_controls": 14,
+  "baseline_c_controls": 126,
+  "baseline_rust_compile_gaps": 99,
+  "temporary_insert_regression_controls": 9,
+  "original_corpus": {
+    "programs": 1365,
+    "integration_passed": 1104,
+    "integration_compile_gaps": 37,
+    "exploratory_passed": 221,
+    "exploratory_compile_gaps": 3,
+    "passing": 1325,
+    "remaining": 40,
+    "runtime_failures": 0,
+    "skips": 0
+  },
+  "rust_suites": {
+    "rgen": 477,
+    "rgen_errors": 134,
+    "native_tagged": 8,
+    "native_extra": 37,
+    "native_origin": 1,
+    "native_errors": 7,
+    "closures": 36,
+    "closure_errors": 1,
+    "concurrency": 10,
+    "concurrency_promoted": 7,
+    "concurrency_errors": 1,
+    "toolchain": 12
+  },
+  "c_suites": {
+    "unit": 1610,
+    "cgen": 107,
+    "mgen": 79,
+    "integration": 1141,
+    "integration_errors": 58,
+    "explore": 224,
+    "explore_errors": 11
+  },
+  "original_sources_preserved": 1365,
+  "closed_originals": [
+    "tests/integration/test_as_ref_params.sn"
+  ],
+  "state": "All combined local checks pass against verified main. Exact-revision hosted verification of this increment remains required.",
+  "gate_reports": 34,
+  "gate_cases": 2982,
+  "reports": [
+    {
+      "name": "core",
+      "cases": 30,
+      "sha256": "0135c7f0f16fcb20298e20d48646d432cbac5b402f93df6cc5204066ecc2f28f"
+    },
+    {
+      "name": "concurrency",
+      "cases": 51,
+      "sha256": "638283f9115b3b22ae924af33d18a0fab0425fc2728eb54de3901cbc279741ec"
+    },
+    {
+      "name": "thread-ownership",
+      "cases": 207,
+      "sha256": "fff90139adf62902a405d06353aa96664840dd80cc981bca8c7688ec67c2039e"
+    },
+    {
+      "name": "thread-receivers",
+      "cases": 90,
+      "sha256": "0dce59853bb0a41e7fc6b67d03af7969db368a35c59979e7e87ae99d64605dc3"
+    },
+    {
+      "name": "reflection",
+      "cases": 36,
+      "sha256": "1eceb426e6fca09a0e392bea27099e676a2c8820f279a4085bab743b4ff22b28"
+    },
+    {
+      "name": "sized-defaults",
+      "cases": 27,
+      "sha256": "5e26a74a97c5aa891fd5ba1ae45c863662c69c598dd7a1fc9816e3b9bcee5fa6"
+    },
+    {
+      "name": "native-managed",
+      "cases": 63,
+      "sha256": "5c7674eeab14ec522b6ecf6b4f1fc2e5cf0a6ca80f00cdc59ef04e9c591e9069"
+    },
+    {
+      "name": "stdio-order",
+      "cases": 30,
+      "sha256": "d7b3a17c9afefb9555bc156975e5b8bae422c3ead1f3dddb969afed1ed69c9c7"
+    },
+    {
+      "name": "mixed-integral",
+      "cases": 90,
+      "sha256": "e3078881997c68fd30f22f3fc9e3d1a9a44a41b25b40db7f73e27557959b4656"
+    },
+    {
+      "name": "mixed-integral-diagnostics",
+      "cases": 9,
+      "sha256": "5339460bf2401bbb18abba96383d6150781fe3cbcec6ad2c2a8c51d87401cf0f"
+    },
+    {
+      "name": "float-conversions",
+      "cases": 117,
+      "sha256": "b038251f78f7ff16464cbe513dbe747249d380d2d07ac4cfba79bd8ad2fcdb5a"
+    },
+    {
+      "name": "floating-arrays",
+      "cases": 81,
+      "sha256": "180f322775c3d4a494bd1aab66d3a50e6415f71c1f6f14e95d7047c0f27dd876"
+    },
+    {
+      "name": "floating-equality",
+      "cases": 36,
+      "sha256": "3d97fb6b61d842b53442227df588898c1e31eac6d1a3f980a11e0bcaf4ab22be"
+    },
+    {
+      "name": "numeric-places",
+      "cases": 153,
+      "sha256": "f57ec2ada3fc17c235fce9b938de0a527f109cc099b354e176dc6307c431bad1"
+    },
+    {
+      "name": "capture-index",
+      "cases": 45,
+      "sha256": "9d4622f7f71b5fa5e907c7f39aa6cfdb306e989a44abc9ad7dbe472d2b4279d9"
+    },
+    {
+      "name": "sync-character",
+      "cases": 45,
+      "sha256": "42e9e4b292780d702ab5a8d80673907b81e5c1f51eaef39b085debb6858d075b"
+    },
+    {
+      "name": "ctype",
+      "cases": 72,
+      "sha256": "ec23231ef955e6d3b13033493d8a08b4786a651d0e2e594a26908140157e8f24"
+    },
+    {
+      "name": "byte-encoding",
+      "cases": 81,
+      "sha256": "189d2abd357884f8809f7d177ee1bab3e1229e47ba3aef040ca27bb055f2cfb7"
+    },
+    {
+      "name": "exit",
+      "cases": 153,
+      "sha256": "9a6b0c05ef0e6754bc63b647efbc0c169416abd74ad3f2cec675701d2f22c91f"
+    },
+    {
+      "name": "main-return",
+      "cases": 108,
+      "sha256": "723f3151c27f812c2e83887805d44cb2cc3c53aedd19db934039ac0660258ed1"
+    },
+    {
+      "name": "match-control",
+      "cases": 180,
+      "sha256": "96aa08ea852227c3a29ab119dccf682f501104df8bf73d3a562fdc701ca68103"
+    },
+    {
+      "name": "sizeof",
+      "cases": 216,
+      "sha256": "14e59b5e66632159e1c8a2289fd05ba72cb481aa03d99bd793d3dddbeca87f1c"
+    },
+    {
+      "name": "call-reference",
+      "cases": 126,
+      "sha256": "f93ef5f388fe8acd62013b547ffceaaec200e59537e882c676aacb4a03b171d3"
+    },
+    {
+      "name": "indexed-string",
+      "cases": 54,
+      "sha256": "418b403227d8d3079f11eb1fa371501b852b7693816668f7ada333aab45438d8"
+    },
+    {
+      "name": "native-scope",
+      "cases": 36,
+      "sha256": "c8124fa824087c9cb2a1b1a5fa0c1088ebf78d8b625100fdff6984df4bfe319b"
+    },
+    {
+      "name": "nil-string",
+      "cases": 72,
+      "sha256": "6ebd9b541716def8c85e10e958087500a40e2494a7b372efc961b9ed285709ab"
+    },
+    {
+      "name": "nil-array",
+      "cases": 90,
+      "sha256": "9c235ad55e2a50ff51f4c3311c81883bf74ad212ec399fe4eacc6034f4bd4264"
+    },
+    {
+      "name": "nested-stores",
+      "cases": 45,
+      "sha256": "8337ae977ede34b414b581f07f24e261d752028bec46bd538ca5b8a3cf59bb2c"
+    },
+    {
+      "name": "owned-array-copies",
+      "cases": 45,
+      "sha256": "326218678549bd81d60bd07c17da72bf6792c2c58a96b18df1dac2712914ad9e"
+    },
+    {
+      "name": "native-records",
+      "cases": 45,
+      "sha256": "b858a5f6958b1f63928299b3110547fe4792e1472148bc34fafd35195a7e7a8e"
+    },
+    {
+      "name": "native-record-references",
+      "cases": 36,
+      "sha256": "a6cda7ca26f0d88205a709f13dbfaedf819865f95e6c76026c14ae2905c804be"
+    },
+    {
+      "name": "owned-record-parameters",
+      "cases": 216,
+      "sha256": "63cba6519bc15d1e5039ae101ce847223d825b9e0f97b4dc1fb0e179bfd12c99"
+    },
+    {
+      "name": "reference-records",
+      "cases": 171,
+      "sha256": "e6f95d47efb13d38ddd02566456000b9ef13c4452ed058d711b06e607709a1d6"
+    },
+    {
+      "name": "scalar-parameters",
+      "cases": 126,
+      "sha256": "a727be6d129cf17fd0385010aee2fab7bf4e8db2d4bf5d5baabc3537d5473fc1"
+    }
+  ],
+  "harness_logs": {
+    "scalar-parameters-full-c.log": {
+      "raw_sha256": "ea00101e4294a1df5ab39199843b773fad77b0649097e1cf879a95221f806db3",
+      "retained_sha256": "0207920c09f819851d0e222b4e15be61b2f3a936ac4298e2dbe05653da710e0d",
+      "normalization": "Harness ANSI styling, carriage-return progress updates and trailing whitespace removed; program bytes remain unchanged in JSON stdout_hex/stderr_hex."
+    },
+    "scalar-parameters-full-rust.log": {
+      "raw_sha256": "33a2d51c642b8d781bed252174475102f7aa1a107f2935788c29156454e000dd",
+      "retained_sha256": "2f91b359d77d085db9b71e56e635339ad27e8a86098657b15751c045b0146126",
+      "normalization": "Harness ANSI styling, carriage-return progress updates and trailing whitespace removed; program bytes remain unchanged in JSON stdout_hex/stderr_hex."
+    },
+    "scalar-parameters-corpus-integration.log": {
+      "raw_sha256": "3652c85c38898d282a1cae8bd266d9ecbff158d07c7d3e0ebd9d08841809e9e8",
+      "retained_sha256": "7883d4477291d0a1a3a416470b8d456e34c9a26c6fe8e4b6902b1afb76ea9738",
+      "normalization": "Harness ANSI styling, carriage-return progress updates and trailing whitespace removed; program bytes remain unchanged in JSON stdout_hex/stderr_hex."
+    },
+    "scalar-parameters-corpus-explore.log": {
+      "raw_sha256": "3182cfb4369c9d193f9aedf933a9b7a636e5bea7b4a03d6fb381049b3cc043c7",
+      "retained_sha256": "d88b70a9063e1fed1f8e174997723516a4a517f1a82a78bb9453d6664d298e8b",
+      "normalization": "Harness ANSI styling, carriage-return progress updates and trailing whitespace removed; program bytes remain unchanged in JSON stdout_hex/stderr_hex."
+    },
+    "scalar-parameters-before-controls.log": {
+      "raw_sha256": "1c3b04649e70eebdf93f9a0bdc9f9afb0b2548270fc984d7504232a00165db93",
+      "retained_sha256": "1c3b04649e70eebdf93f9a0bdc9f9afb0b2548270fc984d7504232a00165db93",
+      "normalization": "Harness ANSI styling, carriage-return progress updates and trailing whitespace removed; program bytes remain unchanged in JSON stdout_hex/stderr_hex."
+    },
+    "scalar-parameters-insert-regression-before.log": {
+      "raw_sha256": "80bb70b1fc7a418bbd08fb8f122c6b4cf7de4bc8033a9483a9ba5b3dcadbca51",
+      "retained_sha256": "80bb70b1fc7a418bbd08fb8f122c6b4cf7de4bc8033a9483a9ba5b3dcadbca51",
+      "normalization": "Harness ANSI styling, carriage-return progress updates and trailing whitespace removed; program bytes remain unchanged in JSON stdout_hex/stderr_hex."
+    },
+    "scalar-parameters-asan.log": {
+      "raw_sha256": "9bc1d3a65d1df3550ae4c7c7ee984ff72ac96b878ade2dca7301721d3aff114b",
+      "retained_sha256": "9bc1d3a65d1df3550ae4c7c7ee984ff72ac96b878ade2dca7301721d3aff114b",
+      "normalization": "Harness ANSI styling, carriage-return progress updates and trailing whitespace removed; program bytes remain unchanged in JSON stdout_hex/stderr_hex."
+    },
+    "scalar-parameters-byte.log": {
+      "raw_sha256": "971a43d81a4d4a176d4aceff2aa18d25efe2df369a8d05a75dfb2470b030e8a9",
+      "retained_sha256": "971a43d81a4d4a176d4aceff2aa18d25efe2df369a8d05a75dfb2470b030e8a9",
+      "normalization": "Harness ANSI styling, carriage-return progress updates and trailing whitespace removed; program bytes remain unchanged in JSON stdout_hex/stderr_hex."
+    },
+    "scalar-parameters-text.log": {
+      "raw_sha256": "9d1f137619f0add0f0e3a01419654e7f12ffe613e0175c7031316ffe56c8c9ee",
+      "retained_sha256": "9d1f137619f0add0f0e3a01419654e7f12ffe613e0175c7031316ffe56c8c9ee",
+      "normalization": "Harness ANSI styling, carriage-return progress updates and trailing whitespace removed; program bytes remain unchanged in JSON stdout_hex/stderr_hex."
+    },
+    "scalar-parameters-text-helpers.log": {
+      "raw_sha256": "628ce6147ceaa1887966b6df6ff1f63582712e6666a5b64c7f52e28604cc6994",
+      "retained_sha256": "628ce6147ceaa1887966b6df6ff1f63582712e6666a5b64c7f52e28604cc6994",
+      "normalization": "Harness ANSI styling, carriage-return progress updates and trailing whitespace removed; program bytes remain unchanged in JSON stdout_hex/stderr_hex."
+    },
+    "scalar-parameters-all-gates.log": {
+      "raw_sha256": "3718bf29c40890d8057c2af1e85c9bbdbece5ebb8e336cb83d01fe78191aca1a",
+      "retained_sha256": "3718bf29c40890d8057c2af1e85c9bbdbece5ebb8e336cb83d01fe78191aca1a",
+      "normalization": "Harness styling/progress/trailing whitespace only; program bytes retained unchanged in JSON."
+    }
+  },
+  "source_preservation": "All originals unchanged; three C-valid negative sources promoted byte-for-byte; two of 520 historical snapshots updated; 518 unchanged.",
+  "shared_formatter_repair": "Complete character spellings remain one token. All 256 hex spellings preserve bytes and pass formatter idempotence. C generation/runtime/default unchanged."
+}

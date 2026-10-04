@@ -155,7 +155,8 @@ static bool rust_scalar_ref_parameter_type_supported(json_object *type)
         json_string_property_equals(type, "kind", "uint") ||
         json_string_property_equals(type, "kind", "bool") ||
         json_string_property_equals(type, "kind", "float") ||
-        json_string_property_equals(type, "kind", "double");
+        json_string_property_equals(type, "kind", "double") ||
+        json_string_property_equals(type, "kind", "char");
 }
 
 /* Direct assignment is intentionally narrower than Rust's general Copy set.
@@ -363,7 +364,7 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
                 !rust_by_value_assign_parameter_type_supported(type))
             {
                 fprintf(stderr,
-                        "Error: Rust target does not support direct assignment of by-value parameter '%s' with type '%s'; only bool, int, long, int32, byte, uint32, uint, float, and double are supported\n",
+                        "Error: Rust target does not support direct assignment of by-value parameter '%s' with type '%s'; only bool, char, int, long, int32, byte, uint32, uint, float, and double are supported\n",
                         target ? target : "<anonymous>",
                         type_kind ? type_kind : "<unknown>");
                 return false;
@@ -499,14 +500,16 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
              strcmp(param_kind, "double") == 0 ||
              strcmp(param_kind, "byte") == 0 ||
              strcmp(param_kind, "uint32") == 0 ||
-             strcmp(param_kind, "uint") == 0))
+             strcmp(param_kind, "uint") == 0 ||
+             strcmp(param_kind, "char") == 0))
         {
             json_object_object_add(param, "rust_by_value_mutated",
                                    json_object_new_boolean(true));
             json_object_object_add(node,
                 (strcmp(param_kind, "byte") == 0 ||
                  strcmp(param_kind, "uint32") == 0 ||
-                 strcmp(param_kind, "uint") == 0) ?
+                 strcmp(param_kind, "uint") == 0 ||
+                 strcmp(param_kind, "char") == 0) ?
                     "rust_by_value_wrapping_parameter_mutation" :
                     "rust_by_value_floating_parameter_mutation",
                 json_object_new_boolean(true));

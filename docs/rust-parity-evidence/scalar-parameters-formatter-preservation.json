@@ -1,0 +1,8 @@
+{
+  "source": "tests/rgen/character_parameter_byte_domain.sn",
+  "input_sha256": "05ba52a8035e2a5a15d4044fe1e39abaf3b81d2f313e07dbb1e4c0f99902f9ab",
+  "formatted_sha256": "05ba52a8035e2a5a15d4044fe1e39abaf3b81d2f313e07dbb1e4c0f99902f9ab",
+  "hex_character_literals": 256,
+  "byte_preserved": true,
+  "formatter_idempotent": true
+}

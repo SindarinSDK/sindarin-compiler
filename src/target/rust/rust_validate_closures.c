@@ -866,10 +866,18 @@ static bool rust_validate_closure_cell_mutation(json_object *expr)
     json_object *place = rust_closure_property(expr, compound ? "target" : "operand");
     json_object *type = rust_closure_property(place, "type");
     const char *kind = json_string_property(type, "kind");
+    bool character_postfix = !compound && kind && strcmp(kind, "char") == 0;
     if (!json_string_property_equals(place, "kind", "variable") ||
-        !kind || (!rust_integer_type(kind) && !rust_float_type(kind)) ||
+        !kind || (!rust_integer_type(kind) && !rust_float_type(kind) &&
+                  !character_postfix) ||
         json_boolean_property(expr, "mutation_sync"))
         return rust_closure_error("this shared scalar mutation");
+    if (character_postfix)
+    {
+        json_object_object_add(expr, "rust_cell_char_postfix",
+                               json_object_new_boolean(true));
+        return rust_validate_expr(place);
+    }
     const char *op = compound ? json_string_property(expr, "op") :
         (json_string_property_equals(expr, "kind", "increment") ? "add" : "subtract");
     const char *method = NULL, *error_name = NULL;

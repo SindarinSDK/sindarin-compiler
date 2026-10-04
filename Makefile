@@ -832,3 +832,24 @@ test-rust-parity-reference-records: build
 		--arithmetic-mode default --arithmetic-mode checked --arithmetic-mode unchecked \
 		--require-count 19 --output .sn/rust-parity-reference-records.json
 	@$(PYTHON) scripts/check_rust_reference_record_oracles.py .sn/rust-parity-reference-records.json
+
+.PHONY: test-rust-parity-scalar-parameters
+test-rust-parity-scalar-parameters: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/integration/test_as_ref_params.sn \
+		tests/integration/test_byte_arr_insert.sn \
+		tests/rgen/char_as_ref_parameter.sn \
+		tests/rgen/by_value_parameter_direct_assignment_char.sn \
+		tests/rgen/by_value_parameter_char_postfix_mutation.sn \
+		tests/rgen/character_parameter_byte_domain.sn \
+		tests/rgen/character_reference_places.sn \
+		tests/rgen/character_thread_references.sn \
+		tests/rgen/character_reference_aliases.sn \
+		tests/rgen/byte_reference_assignment_values.sn \
+		tests/rgen/scalar_reference_aliases.sn \
+		tests/rgen/integer_reference_storage_boundaries.sn \
+		tests/rgen/array_search_methods.sn \
+		tests/rgen/capture_array_index_widths.sn \
+		--require-count 14 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-scalar-parameters.json
+	@$(PYTHON) scripts/check_rust_scalar_parameter_oracles.py .sn/rust-parity-scalar-parameters.json

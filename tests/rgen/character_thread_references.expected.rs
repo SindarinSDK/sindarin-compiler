@@ -1,5 +1,42 @@
 #![allow(dead_code, unused_mut, unused_variables, unused_parens)]
 
+struct __sn_concurrency0_Join<T>(Option<std::thread::JoinHandle<T>>);
+impl<T: Send + 'static> __sn_concurrency0_Join<T> {
+    fn spawn<F: FnOnce() -> T + Send + 'static>(call: F) -> Self {
+        Self(Some(std::thread::spawn(call)))
+    }
+}
+impl<T> __sn_concurrency0_Join<T> {
+    fn join(mut self) -> T {
+        match self.0.take().expect("thread already joined").join() {
+            Ok(value) => value,
+            Err(error) => std::panic::resume_unwind(error),
+        }
+    }
+    fn detach(mut self) { self.0.take(); }
+}
+impl<T> Drop for __sn_concurrency0_Join<T> {
+    fn drop(&mut self) {
+        if let Some(handle) = self.0.take() { let _ = handle.join(); }
+    }
+}
+
+// Arc owns capture identity. Reads clone under the lock and release it before
+// evaluating the next source operand; mutable operations borrow the same cell.
+struct __sn_concurrency0_Capture<T>(std::sync::Mutex<T>, std::sync::Mutex<()>);
+impl<T> __sn_concurrency0_Capture<T> {
+    fn new(value: T) -> Self { Self(std::sync::Mutex::new(value), std::sync::Mutex::new(())) }
+    fn lock(&self) -> std::sync::LockResult<std::sync::MutexGuard<'_, T>> { self.0.lock() }
+    fn guard(&self) -> std::sync::MutexGuard<'_, ()> { self.1.lock().unwrap_or_else(|e| e.into_inner()) }
+    fn borrow_mut(&self) -> std::sync::MutexGuard<'_, T> { self.0.lock().unwrap_or_else(|e| e.into_inner()) }
+    fn set(&self, value: T) { *self.borrow_mut() = value; }
+    fn replace(&self, value: T) -> T { std::mem::replace(&mut *self.borrow_mut(), value) }
+}
+impl<T: Clone> __sn_concurrency0_Capture<T> {
+    fn borrow(&self) -> T { self.borrow_mut().clone() }
+    fn get(&self) -> T { self.borrow() }
+}
+
 extern "C" {
     #[link_name = "fwrite"]
     fn __sn_stdio_fwrite(_: *const std::ffi::c_void, _: usize, _: usize, _: *mut std::ffi::c_void) -> usize;
@@ -311,85 +348,27 @@ fn __sn_string_to_double(value: &SnString) -> f64 {
 }
 
 
-fn __sn_index(length: usize, index: i64) -> usize {
-    let resolved = if index < 0 { length as i64 + index } else { index };
-    if resolved < 0 || resolved >= length as i64 {
-        panic!("array index out of bounds: {index}");
-    }
-    resolved as usize
+fn next(value: std::sync::Arc<__sn_concurrency0_Capture<char>>) -> char {
+    return { let __sn_cell = &value; let __sn_previous = __sn_cell.get(); let __sn_next = (__sn_previous as u32 as u8).wrapping_add(1) as char; __sn_cell.set(__sn_next); __sn_previous };
 }
 
-fn __sn_insert_index(length: usize, index: i64) -> usize {
-    let resolved = if index < 0 { length as i64 + index } else { index };
-    if resolved < 0 || resolved > length as i64 {
-        panic!("array insert index out of bounds: {index}");
-    }
-    resolved as usize
+fn write(value: std::sync::Arc<__sn_concurrency0_Capture<char>>) -> char {
+    { let (__sn_value, __sn_cell) = ('\u{5a}', &value); __sn_cell.set(__sn_value); __sn_value };
+    return value.get();
 }
 
-fn __sn_array_size(size: i64) -> usize {
-    if size < 0 {
-        panic!("array size cannot be negative: {size}");
-    }
-    size as usize
-}
-
-fn __sn_runtime_error_0(message: &'static str) -> ! {
-    crate::__sn_write_stderr_bytes(&[message.as_bytes(), b"\n"].concat());
-    crate::__sn_stdio_exit(1);
-}
-
-fn __sn_checked_0<T>(value: Option<T>, message: &'static str) -> T {
-    match value {
-        Some(value) => value,
-        None => __sn_runtime_error_0(message),
-    }
-}
-
-fn __sn_checked_div_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
-    __sn_checked_0(value, if divisor_is_zero {
-        "panic: Division by zero"
-    } else {
-        "Runtime error: integer overflow in division"
-    })
-}
-
-fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
-    __sn_checked_0(value, if divisor_is_zero {
-        "panic: Modulo by zero"
-    } else {
-        "Runtime error: integer overflow in modulo"
-    })
-}
-
-struct __SnClosure<F: ?Sized>(std::rc::Rc<F>);
-impl<F: ?Sized> Clone for __SnClosure<F> {
-    fn clone(&self) -> Self { Self(self.0.clone()) }
-}
-impl<F: ?Sized> std::fmt::Debug for __SnClosure<F> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str("<function>")
-    }
-}
-impl<F: ?Sized> PartialEq for __SnClosure<F> {
-    fn eq(&self, other: &Self) -> bool { std::rc::Rc::ptr_eq(&self.0, &other.0) }
-}
 fn main() {
-    let mut floats: Vec<f32> = vec![0.0];
-    let mut narrow: Vec<i32> = vec![((((1i128) as i64)) as i32)];
-    let mut flags: Vec<bool> = vec![false];
-    let mut chars: Vec<char> = vec!['\u{61}'];
-    let mut __sn_capture_index_value: i64 = 2;
-    let mut __sn_capture_index_place: i64 = 3;
-    let mut action: __SnClosure<dyn Fn() -> ()> = { let (floats, narrow, flags, chars, __sn_capture_index_value, __sn_capture_index_place, ) = (std::rc::Rc::new(std::cell::RefCell::new(floats.clone())), std::rc::Rc::new(std::cell::RefCell::new(narrow.clone())), std::rc::Rc::new(std::cell::RefCell::new(flags.clone())), std::rc::Rc::new(std::cell::RefCell::new(chars.clone())), __sn_capture_index_value.clone(), __sn_capture_index_place.clone(), ); self::__SnClosure::<dyn Fn() -> ()>(std::rc::Rc::new(move || -> () { { let __sn_capture_index_value_1 = ((((((((floats.borrow().clone())[__sn_index((floats.borrow().clone()).len(), ((0i128) as i64))]) as f64) + (((0.5f64)) as f64))) as f32)) as f32); let __sn_place_raw_index_0 = 0; let __sn_place_index_0 = if __sn_place_raw_index_0 < 0 { __sn_place_raw_index_0 + (floats.borrow().clone()).len() as i64 } else { __sn_place_raw_index_0 }; { let __sn_capture_index_place_1 = &mut ((floats.borrow_mut())[__sn_place_index_0 as usize]); *__sn_capture_index_place_1 = __sn_capture_index_value_1; } __sn_capture_index_value_1 };{ let __sn_capture_index_value_2 = (({ let (__sn_left, __sn_right): (i32, i32) = (((narrow.borrow().clone())[__sn_index((narrow.borrow().clone()).len(), ((0i128) as i64))]) as i32, (((2i128) as i64)) as i32); __sn_checked_0(__sn_left.checked_add(__sn_right), "Runtime error: integer overflow in addition") }
-) as i32); let __sn_place_raw_index_1 = 0; let __sn_place_index_1 = if __sn_place_raw_index_1 < 0 { __sn_place_raw_index_1 + (narrow.borrow().clone()).len() as i64 } else { __sn_place_raw_index_1 }; { let __sn_capture_index_place_2 = &mut ((narrow.borrow_mut())[__sn_place_index_1 as usize]); *__sn_capture_index_place_2 = __sn_capture_index_value_2; } __sn_capture_index_value_2 };{ let __sn_capture_index_value_3 = (!(flags.borrow().clone())[__sn_index((flags.borrow().clone()).len(), ((0i128) as i64))]); let __sn_place_raw_index_2 = 0; let __sn_place_index_2 = if __sn_place_raw_index_2 < 0 { __sn_place_raw_index_2 + (flags.borrow().clone()).len() as i64 } else { __sn_place_raw_index_2 }; { let __sn_capture_index_place_3 = &mut ((flags.borrow_mut())[__sn_place_index_2 as usize]); *__sn_capture_index_place_3 = __sn_capture_index_value_3; } __sn_capture_index_value_3 };{ let __sn_capture_index_value_4 = '\u{7a}'; let __sn_place_raw_index_3 = 0; let __sn_place_index_3 = if __sn_place_raw_index_3 < 0 { __sn_place_raw_index_3 + (chars.borrow().clone()).len() as i64 } else { __sn_place_raw_index_3 }; { let __sn_capture_index_place_4 = &mut ((chars.borrow_mut())[__sn_place_index_3 as usize]); *__sn_capture_index_place_4 = __sn_capture_index_value_4; } __sn_capture_index_value_4 };println!("{:.5}", (floats.borrow().clone())[__sn_index((floats.borrow().clone()).len(), 0)]);println!("{}", (narrow.borrow().clone())[__sn_index((narrow.borrow().clone()).len(), 0)]);println!("{}", (flags.borrow().clone())[__sn_index((flags.borrow().clone()).len(), 0)]);__sn_println_char((chars.borrow().clone())[__sn_index((chars.borrow().clone()).len(), 0)]);println!("{}", __sn_checked_0((__sn_capture_index_value.clone()).checked_add(__sn_capture_index_place.clone()), "Runtime error: integer overflow in addition"));})) }
+    let value: std::sync::Arc<__sn_concurrency0_Capture<char>> = std::sync::Arc::new(__sn_concurrency0_Capture::new('\u{41}'));
+    let mut first: char = '\0'; let mut __sn_concurrency0_handle_first: Option<__sn_concurrency0_Join<char>> = Some({ let __sn_concurrency0_arg0 = (value.clone()).clone(); __sn_concurrency0_Join::spawn(move || next(__sn_concurrency0_arg0.clone())) }
+);
+    { if let Some(__sn_concurrency0_handle) = __sn_concurrency0_handle_first.take() { first = __sn_concurrency0_handle.join(); } first.clone() }
 ;
-    ((action.clone()).0)();
-    ((action.clone()).0)();
-    println!("{:.5}", (floats)[__sn_index((floats).len(), 0)]);
-    println!("{}", (narrow)[__sn_index((narrow).len(), 0)]);
-    println!("{}", (flags)[__sn_index((flags).len(), 0)]);
-    __sn_println_char((chars)[__sn_index((chars).len(), 0)]);
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_char(first); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_char(value.get()); __sn_interpolated }));
+    let mut second: char = '\0'; let mut __sn_concurrency0_handle_second: Option<__sn_concurrency0_Join<char>> = Some({ let __sn_concurrency0_arg0 = (value.clone()).clone(); __sn_concurrency0_Join::spawn(move || write(__sn_concurrency0_arg0.clone())) }
+);
+    { if let Some(__sn_concurrency0_handle) = __sn_concurrency0_handle_second.take() { second = __sn_concurrency0_handle.join(); } second.clone() }
+;
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_char(second); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_char(value.get()); __sn_interpolated }));
     unsafe {
         #[cfg(windows)]
         let stream = crate::__sn_stdio_iob(1);

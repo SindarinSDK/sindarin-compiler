@@ -174,11 +174,79 @@ static bool rust_thread_ref_walk(json_object *node, json_object *functions,
     return true;
 }
 
+/* Repeated scalar reference arguments need the same owner contract even when
+ * the call is synchronous. The existing graph propagates that contract through
+ * forwarding functions and chooses Rc<Cell<T>> outside threaded programs. */
+static bool rust_find_scalar_reference_aliases(json_object *node,
+                                              json_object *functions)
+{
+    if (!node) return false;
+    bool found = false;
+    if (json_object_is_type(node, json_type_array))
+    {
+        for (size_t i = 0; i < json_object_array_length(node); i++)
+            found |= rust_find_scalar_reference_aliases(
+                json_object_array_get_idx(node, i), functions);
+        return found;
+    }
+    if (!json_object_is_type(node, json_type_object)) return false;
+    if (json_string_property_equals(node, "kind", "call") &&
+        !json_boolean_property(node, "is_closure_call"))
+    {
+        json_object *callee = NULL, *args = NULL;
+        json_object_object_get_ex(node, "callee", &callee);
+        json_object_object_get_ex(node, "args", &args);
+        const char *name = json_string_property(callee, "name");
+        for (size_t f = 0; name && f < json_object_array_length(functions); f++)
+        {
+            json_object *fn = json_object_array_get_idx(functions, f), *params = NULL;
+            if (!json_string_property_equals(fn, "name", name) ||
+                json_boolean_property(fn, "is_native") ||
+                json_boolean_property(fn, "rust_native_bridge")) continue;
+            json_object_object_get_ex(fn, "params", &params);
+            size_t count = json_object_array_length(args);
+            if (count > json_object_array_length(params)) count = json_object_array_length(params);
+            for (size_t i = 0; i < count; i++)
+            {
+                json_object *arg = json_object_array_get_idx(args, i);
+                json_object *param = json_object_array_get_idx(params, i), *type = NULL;
+                json_object_object_get_ex(param, "type", &type);
+                if (!json_string_property_equals(arg, "kind", "variable") ||
+                    !json_string_property_equals(param, "mem_qual", "as_ref") ||
+                    !rust_scalar_ref_parameter_type_supported(type)) continue;
+                const char *arg_name = json_string_property(arg, "name");
+                for (size_t j = i + 1; arg_name && j < count; j++)
+                {
+                    json_object *other = json_object_array_get_idx(args, j);
+                    json_object *other_param = json_object_array_get_idx(params, j), *other_type = NULL;
+                    json_object_object_get_ex(other_param, "type", &other_type);
+                    if (!json_string_property_equals(other, "kind", "variable") ||
+                        !json_string_property_equals(other, "name", arg_name) ||
+                        !json_string_property_equals(other_param, "mem_qual", "as_ref") ||
+                        !rust_scalar_ref_parameter_type_supported(other_type)) continue;
+                    json_object_object_add(param, "rust_thread_ref_param", json_object_new_boolean(true));
+                    json_object_object_add(param, "rust_shared_cell", json_object_new_boolean(true));
+                    json_object_object_add(other_param, "rust_thread_ref_param", json_object_new_boolean(true));
+                    json_object_object_add(other_param, "rust_shared_cell", json_object_new_boolean(true));
+                    found = true;
+                }
+            }
+        }
+    }
+    json_object_object_foreach(node, key, child)
+    {
+        (void)key;
+        found |= rust_find_scalar_reference_aliases(child, functions);
+    }
+    return found;
+}
+
 static bool rust_prepare_thread_references(json_object *model)
 {
-    if (array_is_empty(model, "threads")) return true;
     json_object *functions = NULL;
     json_object_object_get_ex(model, "functions", &functions);
+    bool aliases = rust_find_scalar_reference_aliases(model, functions);
+    if (array_is_empty(model, "threads") && !aliases) return true;
     rust_thread_ref_find_targets(model, functions);
     bool changed;
     do {

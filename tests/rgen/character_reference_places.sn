@@ -1,0 +1,34 @@
+struct Holder =>
+  letter: char
+
+struct Shared as ref =>
+  letter: char
+
+fn write(value: char as ref): void =>
+  value = 'Z'
+
+fn forward(value: char as ref): void =>
+  write(value)
+
+fn nextHolder(holder: Holder as ref): char =>
+  return holder.letter++
+
+fn nextShared(shared: Shared): char =>
+  return shared.letter++
+
+var choices: int = 0
+
+fn choose(): int =>
+  choices = choices + 1
+  return 1
+
+fn main(): void =>
+  var value: char = 'A'
+  forward(value)
+  var holder: Holder = { letter: 'A' }
+  var holderOld: char = nextHolder(holder)
+  var shared: Shared = { letter: 'A' }
+  var sharedOld: char = nextShared(shared)
+  var letters: char[] = {'A', 'B', 'C'}
+  var old: char = letters[choose()]++
+  println($"{value} {holderOld} {holder.letter} {sharedOld} {shared.letter} {old} {letters[1]} {choices}")

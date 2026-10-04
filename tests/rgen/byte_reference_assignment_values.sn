@@ -1,0 +1,8 @@
+fn next(value: byte as ref): byte =>
+  return value = value + 1
+
+fn main(): void =>
+  var value: byte = 255
+  var first: byte = next(value)
+  var second: byte = next(value)
+  println($"{first} {second} {value}")

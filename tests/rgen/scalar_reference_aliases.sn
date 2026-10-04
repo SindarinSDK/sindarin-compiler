@@ -1,0 +1,111 @@
+fn aliasInt(left: int as ref, right: int as ref): bool =>
+  left = 3
+  var saw: bool = right == 3
+  right = 4
+  return saw && left == 4
+
+fn aliasLong(left: long as ref, right: long as ref): bool =>
+  left = 3
+  var saw: bool = right == 3
+  right = 4
+  return saw && left == 4
+
+fn aliasInt32(left: int32 as ref, right: int32 as ref): bool =>
+  left = 3
+  var saw: bool = right == 3
+  right = 4
+  return saw && left == 4
+
+fn aliasUint(left: uint as ref, right: uint as ref): bool =>
+  left = 3
+  var saw: bool = right == 3
+  right = 4
+  return saw && left == 4
+
+fn aliasUint32(left: uint32 as ref, right: uint32 as ref): bool =>
+  left = 3
+  var saw: bool = right == 3
+  right = 4
+  return saw && left == 4
+
+fn aliasByte(left: byte as ref, right: byte as ref): bool =>
+  left = 3
+  var saw: bool = right == 3
+  right = 4
+  return saw && left == 4
+
+fn aliasFloat(left: float as ref, right: float as ref): bool =>
+  left = 3.0f
+  var saw: bool = right == 3.0f
+  right = 4.0f
+  return saw && left == 4.0f
+
+fn aliasDouble(left: double as ref, right: double as ref): bool =>
+  left = 3.0
+  var saw: bool = right == 3.0
+  right = 4.0
+  return saw && left == 4.0
+
+fn aliasBool(left: bool as ref, right: bool as ref): bool =>
+  left = true
+  var saw: bool = right == true
+  right = false
+  return saw && left == false
+
+fn aliasChar(left: char as ref, right: char as ref): bool =>
+  left = 'X'
+  var saw: bool = right == 'X'
+  right = 'Y'
+  return saw && left == 'Y'
+
+fn main(): void =>
+  var sameInt: int = 1
+  var leftInt: int = 1
+  var rightInt: int = 2
+  println(aliasInt(sameInt, sameInt))
+  println(aliasInt(leftInt, rightInt))
+  var sameLong: long = 1
+  var leftLong: long = 1
+  var rightLong: long = 2
+  println(aliasLong(sameLong, sameLong))
+  println(aliasLong(leftLong, rightLong))
+  var sameInt32: int32 = 1
+  var leftInt32: int32 = 1
+  var rightInt32: int32 = 2
+  println(aliasInt32(sameInt32, sameInt32))
+  println(aliasInt32(leftInt32, rightInt32))
+  var sameUint: uint = 1
+  var leftUint: uint = 1
+  var rightUint: uint = 2
+  println(aliasUint(sameUint, sameUint))
+  println(aliasUint(leftUint, rightUint))
+  var sameUint32: uint32 = 1
+  var leftUint32: uint32 = 1
+  var rightUint32: uint32 = 2
+  println(aliasUint32(sameUint32, sameUint32))
+  println(aliasUint32(leftUint32, rightUint32))
+  var sameByte: byte = 1
+  var leftByte: byte = 1
+  var rightByte: byte = 2
+  println(aliasByte(sameByte, sameByte))
+  println(aliasByte(leftByte, rightByte))
+  var sameFloat: float = 1.0f
+  var leftFloat: float = 1.0f
+  var rightFloat: float = 2.0f
+  println(aliasFloat(sameFloat, sameFloat))
+  println(aliasFloat(leftFloat, rightFloat))
+  var sameDouble: double = 1.0
+  var leftDouble: double = 1.0
+  var rightDouble: double = 2.0
+  println(aliasDouble(sameDouble, sameDouble))
+  println(aliasDouble(leftDouble, rightDouble))
+  var sameBool: bool = false
+  var leftBool: bool = false
+  var rightBool: bool = false
+  println(aliasBool(sameBool, sameBool))
+  println(aliasBool(leftBool, rightBool))
+  var sameChar: char = 'A'
+  var leftChar: char = 'A'
+  var rightChar: char = 'B'
+  println(aliasChar(sameChar, sameChar))
+  println(aliasChar(leftChar, rightChar))

@@ -1,0 +1,301 @@
+{
+  "compiler_sha256": "f1d7a7ba2d03565afe4815c44a87f636fcec81afd56b652072ff32a2ce92f1ca",
+  "asan_options": "detect_leaks=1:halt_on_error=1",
+  "cases": [
+    {
+      "source": "tests/integration/test_byte_arr_insert.sn",
+      "source_sha256": "f3e3fd9f7bdaa83d2ebf2a0bf6c8ca7b8aca41fa956ad572c52910b60dbf1097",
+      "compile_command": [
+        "/home/gavin/code/sindarin/sindarin-rust-character-reference-parameters-b857f00e/bin/sn",
+        "tests/integration/test_byte_arr_insert.sn",
+        "--target",
+        "c",
+        "-g",
+        "-O0",
+        "--no-install",
+        "-o",
+        "/home/gavin/code/sindarin/sindarin-rust-character-reference-parameters-b857f00e/.sn/scalar-parameters-asan-0"
+      ],
+      "compile_status": 0,
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "31203220330a",
+      "stderr_hex": "",
+      "passed": true
+    },
+    {
+      "source": "tests/integration/test_as_ref_params.sn",
+      "source_sha256": "2276baf8a1cfcf04d24613cbc7c5cd56596644384ac1dc89bb398aaacd10c08a",
+      "compile_command": [
+        "/home/gavin/code/sindarin/sindarin-rust-character-reference-parameters-b857f00e/bin/sn",
+        "tests/integration/test_as_ref_params.sn",
+        "--target",
+        "c",
+        "-g",
+        "-O0",
+        "--no-install",
+        "-o",
+        "/home/gavin/code/sindarin/sindarin-rust-character-reference-parameters-b857f00e/.sn/scalar-parameters-asan-1"
+      ],
+      "compile_status": 0,
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "3d3d3d20506172616d657465722d6c6576656c202761732072656627205465737473203d3d3d0a0a5465737420313a2042617369632061732072656620706172616d657465720a2020504153530a5465737420323a204d756c7469706c652061732072656620706172616d65746572730a2020504153530a5465737420333a20446966666572656e74207072696d69746976652074797065730a2020504153530a5465737420343a20546872656164656420617320726566206d6f64696669636174696f6e0a2020504153530a5465737420353a204d6f64696669636174696f6e2061667465722073796e630a2020504153530a5465737420363a204d697865642061732072656620616e6420726567756c617220706172616d730a2020504153530a5465737420373a204279746520616e642063686172206173207265660a2020504153530a5465737420383a204e6573746564206173207265662063616c6c730a2020504153530a0a3d3d3d20416c6c20276173207265662720706172616d657465722074657374732070617373656421203d3d3d0a",
+      "stderr_hex": "",
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/char_as_ref_parameter.sn",
+      "source_sha256": "38f2e167a1fcc840a9bddd8e00428f93a3ade57f4d488034f7059c2374fe60de",
+      "compile_command": [
+        "/home/gavin/code/sindarin/sindarin-rust-character-reference-parameters-b857f00e/bin/sn",
+        "tests/rgen/char_as_ref_parameter.sn",
+        "--target",
+        "c",
+        "-g",
+        "-O0",
+        "--no-install",
+        "-o",
+        "/home/gavin/code/sindarin/sindarin-rust-character-reference-parameters-b857f00e/.sn/scalar-parameters-asan-2"
+      ],
+      "compile_status": 0,
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "",
+      "stderr_hex": "",
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/by_value_parameter_direct_assignment_char.sn",
+      "source_sha256": "0118dd5a62f174462ac7b8ed0f797a4ec02f2508dc6c902aa0c286800e8d963d",
+      "compile_command": [
+        "/home/gavin/code/sindarin/sindarin-rust-character-reference-parameters-b857f00e/bin/sn",
+        "tests/rgen/by_value_parameter_direct_assignment_char.sn",
+        "--target",
+        "c",
+        "-g",
+        "-O0",
+        "--no-install",
+        "-o",
+        "/home/gavin/code/sindarin/sindarin-rust-character-reference-parameters-b857f00e/.sn/scalar-parameters-asan-3"
+      ],
+      "compile_status": 0,
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "7a0a",
+      "stderr_hex": "",
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/by_value_parameter_char_postfix_mutation.sn",
+      "source_sha256": "b5766037ceb1f8e11789adc28979b6e46816dfb464a2defbf3a3a07670642960",
+      "compile_command": [
+        "/home/gavin/code/sindarin/sindarin-rust-character-reference-parameters-b857f00e/bin/sn",
+        "tests/rgen/by_value_parameter_char_postfix_mutation.sn",
+        "--target",
+        "c",
+        "-g",
+        "-O0",
+        "--no-install",
+        "-o",
+        "/home/gavin/code/sindarin/sindarin-rust-character-reference-parameters-b857f00e/.sn/scalar-parameters-asan-4"
+      ],
+      "compile_status": 0,
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "610a",
+      "stderr_hex": "",
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/character_parameter_byte_domain.sn",
+      "source_sha256": "05ba52a8035e2a5a15d4044fe1e39abaf3b81d2f313e07dbb1e4c0f99902f9ab",
+      "compile_command": [
+        "/home/gavin/code/sindarin/sindarin-rust-character-reference-parameters-b857f00e/bin/sn",
+        "tests/rgen/character_parameter_byte_domain.sn",
+        "--target",
+        "c",
+        "-g",
+        "-O0",
+        "--no-install",
+        "-o",
+        "/home/gavin/code/sindarin/sindarin-rust-character-reference-parameters-b857f00e/.sn/scalar-parameters-asan-5"
+      ],
+      "compile_status": 0,
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "3235362032353620323536203235360a",
+      "stderr_hex": "",
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/character_reference_places.sn",
+      "source_sha256": "5cafd5f41b67e8808c56377e730fec17c3c0efc5d1b95829b80a4e321fa9914d",
+      "compile_command": [
+        "/home/gavin/code/sindarin/sindarin-rust-character-reference-parameters-b857f00e/bin/sn",
+        "tests/rgen/character_reference_places.sn",
+        "--target",
+        "c",
+        "-g",
+        "-O0",
+        "--no-install",
+        "-o",
+        "/home/gavin/code/sindarin/sindarin-rust-character-reference-parameters-b857f00e/.sn/scalar-parameters-asan-6"
+      ],
+      "compile_status": 0,
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "5a20412042204120422042204320310a",
+      "stderr_hex": "",
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/character_thread_references.sn",
+      "source_sha256": "88a1ec5aaeee2279e5cb2040318f379178d24bf4661f55d57522562fe942bf03",
+      "compile_command": [
+        "/home/gavin/code/sindarin/sindarin-rust-character-reference-parameters-b857f00e/bin/sn",
+        "tests/rgen/character_thread_references.sn",
+        "--target",
+        "c",
+        "-g",
+        "-O0",
+        "--no-install",
+        "-o",
+        "/home/gavin/code/sindarin/sindarin-rust-character-reference-parameters-b857f00e/.sn/scalar-parameters-asan-7"
+      ],
+      "compile_status": 0,
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "4120420a5a205a0a",
+      "stderr_hex": "",
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/character_reference_aliases.sn",
+      "source_sha256": "3ce289b235d0c301f5292b60fb9bea7c93aa3b41c0d6bbe71a9fc387c95ccfe3",
+      "compile_command": [
+        "/home/gavin/code/sindarin/sindarin-rust-character-reference-parameters-b857f00e/bin/sn",
+        "tests/rgen/character_reference_aliases.sn",
+        "--target",
+        "c",
+        "-g",
+        "-O0",
+        "--no-install",
+        "-o",
+        "/home/gavin/code/sindarin/sindarin-rust-character-reference-parameters-b857f00e/.sn/scalar-parameters-asan-8"
+      ],
+      "compile_status": 0,
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "580a590a590a420a580a5820430a",
+      "stderr_hex": "",
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/byte_reference_assignment_values.sn",
+      "source_sha256": "fa18cd170c74796169ee179f439853534eb8cae0f6316d59505822cdec1e6bed",
+      "compile_command": [
+        "/home/gavin/code/sindarin/sindarin-rust-character-reference-parameters-b857f00e/bin/sn",
+        "tests/rgen/byte_reference_assignment_values.sn",
+        "--target",
+        "c",
+        "-g",
+        "-O0",
+        "--no-install",
+        "-o",
+        "/home/gavin/code/sindarin/sindarin-rust-character-reference-parameters-b857f00e/.sn/scalar-parameters-asan-9"
+      ],
+      "compile_status": 0,
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "30203120310a",
+      "stderr_hex": "",
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/scalar_reference_aliases.sn",
+      "source_sha256": "fd38f0312a9f52eea7c65c5256de4ebd6e057a2ed7196389905d05051fea7fd3",
+      "compile_command": [
+        "/home/gavin/code/sindarin/sindarin-rust-character-reference-parameters-b857f00e/bin/sn",
+        "tests/rgen/scalar_reference_aliases.sn",
+        "--target",
+        "c",
+        "-g",
+        "-O0",
+        "--no-install",
+        "-o",
+        "/home/gavin/code/sindarin/sindarin-rust-character-reference-parameters-b857f00e/.sn/scalar-parameters-asan-10"
+      ],
+      "compile_status": 0,
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "747275650a66616c73650a747275650a66616c73650a747275650a66616c73650a747275650a66616c73650a747275650a66616c73650a747275650a66616c73650a747275650a66616c73650a747275650a66616c73650a747275650a66616c73650a747275650a66616c73650a",
+      "stderr_hex": "",
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/integer_reference_storage_boundaries.sn",
+      "source_sha256": "20c8a8ddf97386fb909d326fea1f683d058533b9f2987fefe44b7d2575f23c0c",
+      "compile_command": [
+        "/home/gavin/code/sindarin/sindarin-rust-character-reference-parameters-b857f00e/bin/sn",
+        "tests/rgen/integer_reference_storage_boundaries.sn",
+        "--target",
+        "c",
+        "-g",
+        "-O0",
+        "--no-install",
+        "-o",
+        "/home/gavin/code/sindarin/sindarin-rust-character-reference-parameters-b857f00e/.sn/scalar-parameters-asan-11"
+      ],
+      "compile_status": 0,
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "30203235352032353520323535203235350a",
+      "stderr_hex": "",
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/array_search_methods.sn",
+      "source_sha256": "eee859bec0cfc5c6a27766da3ced04955a5d5261f6e80a0b6edd496385f62d43",
+      "compile_command": [
+        "/home/gavin/code/sindarin/sindarin-rust-character-reference-parameters-b857f00e/bin/sn",
+        "tests/rgen/array_search_methods.sn",
+        "--target",
+        "c",
+        "-g",
+        "-O0",
+        "--no-install",
+        "-o",
+        "/home/gavin/code/sindarin/sindarin-rust-character-reference-parameters-b857f00e/.sn/scalar-parameters-asan-12"
+      ],
+      "compile_status": 0,
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "747275650a66616c73650a300a2d310a747275650a300a2d310a626574610a747275650a300a747275650a320a747275650a66616c73650a300a2d310a66616c73650a2d310a",
+      "stderr_hex": "",
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/capture_array_index_widths.sn",
+      "source_sha256": "9398205c8c123b4491789f10f64e6d1a86dbb6c6b568a0f09669f0d326d43475",
+      "compile_command": [
+        "/home/gavin/code/sindarin/sindarin-rust-character-reference-parameters-b857f00e/bin/sn",
+        "tests/rgen/capture_array_index_widths.sn",
+        "--target",
+        "c",
+        "-g",
+        "-O0",
+        "--no-install",
+        "-o",
+        "/home/gavin/code/sindarin/sindarin-rust-character-reference-parameters-b857f00e/.sn/scalar-parameters-asan-13"
+      ],
+      "compile_status": 0,
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "302e35303030300a330a747275650a7a0a350a312e30303030300a350a66616c73650a7a0a350a302e30303030300a310a66616c73650a610a",
+      "stderr_hex": "",
+      "passed": true
+    }
+  ],
+  "passed": true
+}

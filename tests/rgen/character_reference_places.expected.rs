@@ -1,4 +1,51 @@
 #![allow(dead_code, unused_mut, unused_variables, unused_parens)]
+#[derive(Debug)]
+struct __sn_concurrency0_Field<T>(std::sync::Arc<std::sync::Mutex<T>>);
+impl<T> __sn_concurrency0_Field<T> {
+    fn new(value: T) -> Self { Self(std::sync::Arc::new(std::sync::Mutex::new(value))) }
+    fn share(&self) -> Self { Self(self.0.clone()) }
+    fn lock(&self) -> std::sync::MutexGuard<'_ , T> { self.0.lock().unwrap_or_else(|e| e.into_inner()) }
+    fn set(&self, value: T) { *self.0.lock().unwrap_or_else(|e| e.into_inner()) = value; }
+}
+impl<T: Clone> __sn_concurrency0_Field<T> {
+    fn read(&self) -> T { self.0.lock().unwrap_or_else(|e| e.into_inner()).clone() }
+}
+impl<T: Clone> Clone for __sn_concurrency0_Field<T> {
+    fn clone(&self) -> Self { Self::new(self.read()) }
+}
+impl<T: Clone + PartialEq> PartialEq for __sn_concurrency0_Field<T> {
+    fn eq(&self, other: &Self) -> bool { self.read() == other.read() }
+}
+#[derive(Debug)]
+struct __sn_concurrency0_ReferenceField<T>(Option<std::sync::Arc<std::sync::Mutex<T>>>);
+impl<T> __sn_concurrency0_ReferenceField<T> {
+    fn new(value: T) -> Self { Self(Some(std::sync::Arc::new(std::sync::Mutex::new(value)))) }
+    fn nil() -> Self { Self(None) }
+    fn share(&self) -> Self { Self(self.0.clone()) }
+    fn owner(&self) -> __sn_concurrency0_Field<T> {
+        __sn_concurrency0_Field(self.0.as_ref().expect("nil record field access").clone())
+    }
+    fn lock(&self) -> std::sync::MutexGuard<'_, T> { self.0.as_ref().expect("nil record field access").lock().unwrap_or_else(|e| e.into_inner()) }
+    fn set(&self, value: T) { *self.lock() = value; }
+}
+impl<T: Clone> __sn_concurrency0_ReferenceField<T> {
+    fn read(&self) -> T { self.lock().clone() }
+}
+impl<T: Clone> Clone for __sn_concurrency0_ReferenceField<T> {
+    fn clone(&self) -> Self { if self.0.is_none() { Self::nil() } else { Self::new(self.read()) } }
+}
+
+struct __sn_concurrency0_Cell<T> {
+    value: std::sync::Mutex<T>,
+    gate: std::sync::Mutex<()>,
+}
+impl<T> __sn_concurrency0_Cell<T> {
+    fn new(value: T) -> Self { Self { value: std::sync::Mutex::new(value), gate: std::sync::Mutex::new(()) } }
+    fn lock(&self) -> std::sync::LockResult<std::sync::MutexGuard<'_, T>> { self.value.lock() }
+    fn guard(&self) -> std::sync::MutexGuard<'_, ()> { self.gate.lock().unwrap_or_else(|e| e.into_inner()) }
+}
+
+static __sn_concurrency0_global_choices: std::sync::LazyLock<__sn_concurrency0_Cell<i64>> = std::sync::LazyLock::new(|| __sn_concurrency0_Cell::new(0));
 
 extern "C" {
     #[link_name = "fwrite"]
@@ -362,34 +409,77 @@ fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
     })
 }
 
-struct __SnClosure<F: ?Sized>(std::rc::Rc<F>);
-impl<F: ?Sized> Clone for __SnClosure<F> {
-    fn clone(&self) -> Self { Self(self.0.clone()) }
+#[derive(Clone, Copy, Debug, PartialEq)]
+struct Holder {
+    letter: char,
 }
-impl<F: ?Sized> std::fmt::Debug for __SnClosure<F> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str("<function>")
+#[derive( Debug)]
+struct Shared {
+    __sn_concurrency0_record_identity: Option<std::sync::Arc<()>>,
+    letter: __sn_concurrency0_ReferenceField<char>,
+}
+impl Shared {
+    fn __sn_concurrency0_share(&self) -> Self {
+        Self { __sn_concurrency0_record_identity: self.__sn_concurrency0_record_identity.clone(), letter: self.letter.share(),  }
     }
 }
-impl<F: ?Sized> PartialEq for __SnClosure<F> {
-    fn eq(&self, other: &Self) -> bool { std::rc::Rc::ptr_eq(&self.0, &other.0) }
+impl Shared {
+    fn __sn_concurrency0_nil() -> Self {
+        Self { __sn_concurrency0_record_identity: None, letter: __sn_concurrency0_ReferenceField::nil(),  }
+    }
+
+    fn __sn_concurrency0_snapshot(&self) -> Self {
+        if self.__sn_concurrency0_record_identity.is_none() { return Self::__sn_concurrency0_nil(); }
+        Self { __sn_concurrency0_record_identity: Some(std::sync::Arc::new(())), letter: self.letter.clone(),  }
+    }
 }
-fn main() {
-    let mut floats: Vec<f32> = vec![0.0];
-    let mut narrow: Vec<i32> = vec![((((1i128) as i64)) as i32)];
-    let mut flags: Vec<bool> = vec![false];
-    let mut chars: Vec<char> = vec!['\u{61}'];
-    let mut __sn_capture_index_value: i64 = 2;
-    let mut __sn_capture_index_place: i64 = 3;
-    let mut action: __SnClosure<dyn Fn() -> ()> = { let (floats, narrow, flags, chars, __sn_capture_index_value, __sn_capture_index_place, ) = (std::rc::Rc::new(std::cell::RefCell::new(floats.clone())), std::rc::Rc::new(std::cell::RefCell::new(narrow.clone())), std::rc::Rc::new(std::cell::RefCell::new(flags.clone())), std::rc::Rc::new(std::cell::RefCell::new(chars.clone())), __sn_capture_index_value.clone(), __sn_capture_index_place.clone(), ); self::__SnClosure::<dyn Fn() -> ()>(std::rc::Rc::new(move || -> () { { let __sn_capture_index_value_1 = ((((((((floats.borrow().clone())[__sn_index((floats.borrow().clone()).len(), ((0i128) as i64))]) as f64) + (((0.5f64)) as f64))) as f32)) as f32); let __sn_place_raw_index_0 = 0; let __sn_place_index_0 = if __sn_place_raw_index_0 < 0 { __sn_place_raw_index_0 + (floats.borrow().clone()).len() as i64 } else { __sn_place_raw_index_0 }; { let __sn_capture_index_place_1 = &mut ((floats.borrow_mut())[__sn_place_index_0 as usize]); *__sn_capture_index_place_1 = __sn_capture_index_value_1; } __sn_capture_index_value_1 };{ let __sn_capture_index_value_2 = (({ let (__sn_left, __sn_right): (i32, i32) = (((narrow.borrow().clone())[__sn_index((narrow.borrow().clone()).len(), ((0i128) as i64))]) as i32, (((2i128) as i64)) as i32); __sn_checked_0(__sn_left.checked_add(__sn_right), "Runtime error: integer overflow in addition") }
-) as i32); let __sn_place_raw_index_1 = 0; let __sn_place_index_1 = if __sn_place_raw_index_1 < 0 { __sn_place_raw_index_1 + (narrow.borrow().clone()).len() as i64 } else { __sn_place_raw_index_1 }; { let __sn_capture_index_place_2 = &mut ((narrow.borrow_mut())[__sn_place_index_1 as usize]); *__sn_capture_index_place_2 = __sn_capture_index_value_2; } __sn_capture_index_value_2 };{ let __sn_capture_index_value_3 = (!(flags.borrow().clone())[__sn_index((flags.borrow().clone()).len(), ((0i128) as i64))]); let __sn_place_raw_index_2 = 0; let __sn_place_index_2 = if __sn_place_raw_index_2 < 0 { __sn_place_raw_index_2 + (flags.borrow().clone()).len() as i64 } else { __sn_place_raw_index_2 }; { let __sn_capture_index_place_3 = &mut ((flags.borrow_mut())[__sn_place_index_2 as usize]); *__sn_capture_index_place_3 = __sn_capture_index_value_3; } __sn_capture_index_value_3 };{ let __sn_capture_index_value_4 = '\u{7a}'; let __sn_place_raw_index_3 = 0; let __sn_place_index_3 = if __sn_place_raw_index_3 < 0 { __sn_place_raw_index_3 + (chars.borrow().clone()).len() as i64 } else { __sn_place_raw_index_3 }; { let __sn_capture_index_place_4 = &mut ((chars.borrow_mut())[__sn_place_index_3 as usize]); *__sn_capture_index_place_4 = __sn_capture_index_value_4; } __sn_capture_index_value_4 };println!("{:.5}", (floats.borrow().clone())[__sn_index((floats.borrow().clone()).len(), 0)]);println!("{}", (narrow.borrow().clone())[__sn_index((narrow.borrow().clone()).len(), 0)]);println!("{}", (flags.borrow().clone())[__sn_index((flags.borrow().clone()).len(), 0)]);__sn_println_char((chars.borrow().clone())[__sn_index((chars.borrow().clone()).len(), 0)]);println!("{}", __sn_checked_0((__sn_capture_index_value.clone()).checked_add(__sn_capture_index_place.clone()), "Runtime error: integer overflow in addition"));})) }
+impl PartialEq for Shared {
+    fn eq(&self, other: &Self) -> bool {
+        match (&self.__sn_concurrency0_record_identity, &other.__sn_concurrency0_record_identity) {
+            (Some(left), Some(right)) => std::sync::Arc::ptr_eq(left, right),
+            (None, None) => true,
+            _ => false,
+        }
+    }
+}
+impl Clone for Shared {
+    fn clone(&self) -> Self { self.__sn_concurrency0_share() }
+}
+
+
+fn write(value: &mut char) {
+    (*(value) = '\u{5a}');
+}
+
+fn forward(value: &mut char) {
+    write(&mut *(value));
+}
+
+fn nextHolder(holder: &mut Holder) -> char {
+    return { let __sn_place = &mut ((holder).letter); let __sn_previous = *__sn_place; *__sn_place = (__sn_previous as u32 as u8).wrapping_add(1) as char; __sn_previous };
+}
+
+fn nextShared(shared: Shared) -> char {
+    return { let __sn_concurrency0_receiver = (shared).letter.share(); let mut __sn_concurrency0_field_guard = __sn_concurrency0_receiver.lock(); { let __sn_place = &mut ((*__sn_concurrency0_field_guard)); let __sn_previous = *__sn_place; *__sn_place = (__sn_previous as u32 as u8).wrapping_add(1) as char; __sn_previous } }
 ;
-    ((action.clone()).0)();
-    ((action.clone()).0)();
-    println!("{:.5}", (floats)[__sn_index((floats).len(), 0)]);
-    println!("{}", (narrow)[__sn_index((narrow).len(), 0)]);
-    println!("{}", (flags)[__sn_index((flags).len(), 0)]);
-    __sn_println_char((chars)[__sn_index((chars).len(), 0)]);
+}
+
+fn choose() -> i64 {
+    { let __sn_concurrency0_value = __sn_checked_0(({ let value = __sn_concurrency0_global_choices.lock().unwrap_or_else(|e| e.into_inner()).clone(); value }).checked_add(1), "Runtime error: integer overflow in addition"); *__sn_concurrency0_global_choices.lock().unwrap_or_else(|e| e.into_inner()) = __sn_concurrency0_value.clone(); __sn_concurrency0_value };
+    return 1;
+}
+
+fn main() {
+    std::sync::LazyLock::force(&__sn_concurrency0_global_choices);
+    let mut value: char = '\u{41}';
+    forward(&mut (value));
+    let mut holder: Holder = Holder { letter: '\u{41}' };
+    let mut holderOld: char = nextHolder(&mut (holder));
+    let mut shared: Shared = Shared { __sn_concurrency0_record_identity: Some(std::sync::Arc::new(())), letter: __sn_concurrency0_ReferenceField::new('\u{41}') };
+    let mut sharedOld: char = nextShared(shared.clone());
+    let mut letters: Vec<char> = vec!['\u{41}', '\u{42}', '\u{43}'];
+    let mut old: char = { let __sn_place_raw_index_0 = choose(); let __sn_place_index_0 = if __sn_place_raw_index_0 < 0 { __sn_place_raw_index_0 + (letters).len() as i64 } else { __sn_place_raw_index_0 }; let __sn_numeric_place: &mut char = &mut ((letters)[__sn_place_index_0 as usize]); let __sn_numeric_old = *__sn_numeric_place; *__sn_numeric_place = (__sn_numeric_old as u8).wrapping_add(1) as char; __sn_numeric_old };
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_char(value); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_char(holderOld); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_char((holder).letter); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_char(sharedOld); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_char((shared).letter.read()); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_char(old); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_char((letters)[__sn_index((letters).len(), 1)]); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", { let value = __sn_concurrency0_global_choices.lock().unwrap_or_else(|e| e.into_inner()).clone(); value })); __sn_interpolated }));
     unsafe {
         #[cfg(windows)]
         let stream = crate::__sn_stdio_iob(1);

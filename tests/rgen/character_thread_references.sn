@@ -1,0 +1,15 @@
+fn next(value: char as ref): char =>
+  return value++
+
+fn write(value: char as ref): char =>
+  value = 'Z'
+  return value
+
+fn main(): void =>
+  var value: char = 'A'
+  var first: char = & next(value)
+  first !
+  println($"{first} {value}")
+  var second: char = & write(value)
+  second !
+  println($"{second} {value}")

@@ -5,13 +5,79 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Character and scalar parameters: combined validation, 2026-10-04
+
+This increment is based on verified main
+`b857f00ebfa5d489a99bda333891c2f769282ae7`. All six compiler/runtime CI jobs
+pass, and the retained Linux/macOS/Windows artifacts independently verify
+33 reports / 2856 cases per platform. The
+[hosted acceptance evidence](rust-parity-evidence/reference-records-main-ci-green.json)
+closes the preceding increment's pending verification.
+
+Character reference parameters now support assignment, forwarding and postfix
+mutation; by-value character parameters preserve caller isolation. Their
+boundary fixture checks all 256 byte identities without assuming signed C
+`char`. Character references also retain mutation and return values across
+thread synchronization. Repeated scalar reference arguments use shared cells
+whose ownership propagates through forwarding functions, preserving aliases
+for all ten scalar types while distinct arguments remain independent.
+
+Integer storage boundaries retain the C arithmetic promotion before narrowing
+back to byte storage. Consumed scalar assignment expressions return the stored
+value. Maximum-width literal controls prevent Rust literal-inference overflow.
+The original-corpus sweep exposed a temporary byte-array insertion regression:
+the shared function signature retains element/index parameter order while
+lowered arguments are index/element. Conversions now follow the lowered order;
+the unchanged original insertion program is a permanent all-mode control.
+All nine temporary failures are retained rather than hidden by snapshot edits.
+
+The unchanged original corpus passes **1104 integration + 221 exploratory
+programs**, leaving **40 compilation gaps**, zero runtime failures and no skips:
+**1325 / 1365 (97.1%) original-program coverage**. This percentage measures
+coverage rather than remaining engineering effort. All 1365 source hashes are
+unchanged. Three C-valid character rejection sources move byte-for-byte into
+positive coverage. Two of 520 historical snapshots receive explicit byte
+conversion casts; the other 518 are unchanged.
+
+A mandatory **126-case gate** covers fourteen frozen independent output
+oracles in all nine optimization/arithmetic modes. All fourteen C controls
+pass instrumented ASAN with leak detection. Complete C and Rust suites pass;
+Rust generation/negative counts are 477 / 134, native tagged/extra/origin/negative
+8 / 37 / 1 / 7, closures 36 / 1, concurrency 10 / 7 / 1 and toolchain 12.
+Raw-byte/argv, native flush ordering and Windows helper logic controls pass.
+The combined compiler passes all **34 reports / 2982 cases**, including every
+preceding gate.
+The new increment requires exact-revision Linux/macOS/Windows hosted evidence
+after publication; local checks do not substitute for it.
+
+A shared formatter repair keeps complete character literal spellings together,
+including hexadecimal escapes. The 256-value fixture is byte-identical after
+formatting and passes the formatter's idempotence check. C code generation,
+runtime and default-target selection are unchanged. Direct scalar field/index
+reference arguments rejected by the shared frontend receive no parity credit;
+field mutation in this gate passes the whole owning record. Dynamic closure,
+method/global reference aliasing and the remaining native/SDK, callback,
+closure lifetime, interface/iterator, serialization and general copy-hook gaps
+remain part of the full goal.
+
+Evidence: [combined local validation](rust-parity-evidence/scalar-parameters-validation.json),
+[126 independent pairs](rust-parity-evidence/scalar-parameters-pairs.json),
+[baseline controls](rust-parity-evidence/scalar-parameters-before-controls.json),
+[temporary insertion regression](rust-parity-evidence/scalar-parameters-insert-regression-before.json),
+[ASAN controls](rust-parity-evidence/scalar-parameters-asan.json),
+[preservation](rust-parity-evidence/scalar-parameters-preservation.json),
+[formatter preservation](rust-parity-evidence/scalar-parameters-formatter-preservation.json) and
+[remaining original diagnostics](rust-parity-evidence/scalar-parameters-gap-diagnostics.json).
+
 ## Reference records: combined validation, 2026-10-04
 
 This increment is based on repaired main
 `7b5d2fdaece19df06b29ade1cbebe29b5d229abd`. All six exact-revision CI jobs and
 retained Linux/macOS/Windows artifacts independently pass 32 reports / 2685
 cases. The reference increment is published directly to main after complete
-combined local checks. Its exact-revision hosted verification remains pending.
+combined local checks. All six compiler/runtime jobs for `b857f00e` subsequently pass, and
+33 reports / 2856 cases per platform independently verify in the
+[hosted acceptance evidence](rust-parity-evidence/reference-records-main-ci-green.json).
 
 Ordinary reference records retain one identity across local aliases, array and
 field reads, calls, returns, foreach bindings, global replacement and owner
@@ -43,7 +109,7 @@ compiler passes all 33 reports / 2856 cases, including every preceding gate.
 Rust generation/negative counts are 467 / 137; native tagged/extra/origin/negative
 8 / 37 / 1 / 7, closures 36 / 1, concurrency 10 / 7 / 1 and toolchain 12.
 Raw byte/argv, native flush ordering and Windows text-helper controls pass.
-These local results do not claim hosted acceptance of the new increment.
+The subsequent hosted evidence verifies this increment on all three platforms.
 
 C production and default-target selection remain unchanged. Native/SDK owned
 bridges, callbacks and closure lifetimes, interfaces/iterators, serializable

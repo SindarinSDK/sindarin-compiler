@@ -1,0 +1,287 @@
+{
+  "remaining_original_gaps": 40,
+  "cases": [
+    {
+      "source": "tests/integration/test_array_literal_arg_leak.sn",
+      "failure_kind": "compile error",
+      "diagnostics": [
+        "Code generation...Error: Rust target native function 'tracker_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value"
+      ]
+    },
+    {
+      "source": "tests/integration/test_buffer_unwrap.sn",
+      "failure_kind": "compile error",
+      "diagnostics": [
+        "Code generation...Error: Rust target encountered an unsupported construct in function 'test_pointer_slice_codegen'"
+      ]
+    },
+    {
+      "source": "tests/integration/test_builtin_interfaces.sn",
+      "failure_kind": "compile error",
+      "diagnostics": [
+        "Code generation...Error: Rust target does not support a parameter of function 'acceptComparable'"
+      ]
+    },
+    {
+      "source": "tests/integration/test_generic_multi_param_iter.sn",
+      "failure_kind": "compile error",
+      "diagnostics": [
+        "Code generation...Error: Rust target supports iterator-protocol foreach only for heap-free scalar elements; got 'struct'",
+        "Error: Rust target encountered an unsupported construct in function 'main'"
+      ]
+    },
+    {
+      "source": "tests/integration/test_import_fn_field_chained.sn",
+      "failure_kind": "compile error",
+      "diagnostics": [
+        "Code generation...Error: Rust target does not support incompatible function-value signatures yet"
+      ]
+    },
+    {
+      "source": "tests/integration/test_interfaces.sn",
+      "failure_kind": "compile error",
+      "diagnostics": [
+        "Code generation...Error: Rust target does not support a parameter of function 'acceptComparable'"
+      ]
+    },
+    {
+      "source": "tests/integration/test_interop_callback.sn",
+      "failure_kind": "compile error",
+      "diagnostics": [
+        "Code generation...Error: Rust target native function 'invoke_callback' body uses a closure, thread, or indirect callable construct outside the native bridge"
+      ]
+    },
+    {
+      "source": "tests/integration/test_interop_comprehensive.sn",
+      "failure_kind": "compile error",
+      "diagnostics": [
+        "Code generation...Error: Rust target native function 'apply_transform' body uses a closure, thread, or indirect callable construct outside the native bridge"
+      ]
+    },
+    {
+      "source": "tests/integration/test_interop_edge_cases.sn",
+      "failure_kind": "compile error",
+      "diagnostics": [
+        "Code generation...Error: Rust target native function 'invoke_ptr_callback' body uses a closure, thread, or indirect callable construct outside the native bridge"
+      ]
+    },
+    {
+      "source": "tests/integration/test_iterator_protocol.sn",
+      "failure_kind": "compile error",
+      "diagnostics": [
+        "Code generation...Error: Rust target supports iterator-protocol foreach only for heap-free scalar elements; got 'struct'",
+        "Error: Rust target encountered an unsupported construct in function 'main'"
+      ]
+    },
+    {
+      "source": "tests/integration/test_lambda_capture_outlives_scope.sn",
+      "failure_kind": "compile error",
+      "diagnostics": [
+        "Code generation...Error: Rust target does not support this closure capture type yet"
+      ]
+    },
+    {
+      "source": "tests/integration/test_lambda_capture_struct.sn",
+      "failure_kind": "compile error",
+      "diagnostics": [
+        "Code generation...Error: Rust target does not support mutable access to snapshot closure captures yet"
+      ]
+    },
+    {
+      "source": "tests/integration/test_lambda_val_struct_str_field.sn",
+      "failure_kind": "compile error",
+      "diagnostics": [
+        "Code generation...Error: Rust target does not support incompatible function-value signatures yet"
+      ]
+    },
+    {
+      "source": "tests/integration/test_lambda_val_struct_str_interp.sn",
+      "failure_kind": "compile error",
+      "diagnostics": [
+        "Code generation...Error: Rust target does not support incompatible function-value signatures yet"
+      ]
+    },
+    {
+      "source": "tests/integration/test_module_array_swap_leak.sn",
+      "failure_kind": "compile error",
+      "diagnostics": [
+        "Code generation...Error: Rust target native function 'tag_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value"
+      ]
+    },
+    {
+      "source": "tests/integration/test_native_callback_typedef.sn",
+      "failure_kind": "compile error",
+      "diagnostics": [
+        "Code generation...Error: Rust target native function 'call_with_value' body uses a closure, thread, or indirect callable construct outside the native bridge"
+      ]
+    },
+    {
+      "source": "tests/integration/test_native_ref_self_assign.sn",
+      "failure_kind": "compile error",
+      "diagnostics": [
+        "Code generation...Error: Rust target native function 'tensor_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value"
+      ]
+    },
+    {
+      "source": "tests/integration/test_native_resource_lifecycle.sn",
+      "failure_kind": "compile error",
+      "diagnostics": [
+        "Code generation...Error: Rust target native function 'mock_listener_bind' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value"
+      ]
+    },
+    {
+      "source": "tests/integration/test_native_struct_ref_loop_cleanup.sn",
+      "failure_kind": "compile error",
+      "diagnostics": [
+        "Code generation...Error: Rust target native function 'handle_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value"
+      ]
+    },
+    {
+      "source": "tests/integration/test_nil_pointer_slice.sn",
+      "failure_kind": "compile error",
+      "diagnostics": [
+        "Code generation...Error: Rust target encountered an unsupported construct in function 'test_nil_slice_creates_array'"
+      ]
+    },
+    {
+      "source": "tests/integration/test_qsort_callback.sn",
+      "failure_kind": "compile error",
+      "diagnostics": [
+        "Code generation...Error: Rust target native function 'invoke_comparator' body uses a closure, thread, or indirect callable construct outside the native bridge"
+      ]
+    },
+    {
+      "source": "tests/integration/test_refcount_arg_leak.sn",
+      "failure_kind": "compile error",
+      "diagnostics": [
+        "Code generation...Error: Rust target native function 'foo_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value"
+      ]
+    },
+    {
+      "source": "tests/integration/test_refcount_chain_in_struct_literal.sn",
+      "failure_kind": "compile error",
+      "diagnostics": [
+        "Code generation...Error: Rust target native function 'tracker_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value"
+      ]
+    },
+    {
+      "source": "tests/integration/test_self_method_forward_after_train.sn",
+      "failure_kind": "compile error",
+      "diagnostics": [
+        "Code generation...Error: Rust target native function 'resource_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value"
+      ]
+    },
+    {
+      "source": "tests/integration/test_serializable.sn",
+      "failure_kind": "compile error",
+      "diagnostics": [
+        "Code generation...Error: Rust target native function 'sn_test_json_encoder' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value"
+      ]
+    },
+    {
+      "source": "tests/integration/test_serializable_decode_struct_literal_loop.sn",
+      "failure_kind": "compile error",
+      "diagnostics": [
+        "Code generation...Error: Rust target native function 'sn_test_json_encoder' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value"
+      ]
+    },
+    {
+      "source": "tests/integration/test_serializable_double_int_json.sn",
+      "failure_kind": "compile error",
+      "diagnostics": [
+        "Code generation...Error: Rust target native function 'sn_test_json_encoder' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value"
+      ]
+    },
+    {
+      "source": "tests/integration/test_serializable_encoder_cleanup.sn",
+      "failure_kind": "compile error",
+      "diagnostics": [
+        "Code generation...Error: Rust target native function 'cleanup_json_encoder' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value"
+      ]
+    },
+    {
+      "source": "tests/integration/test_serializable_long.sn",
+      "failure_kind": "compile error",
+      "diagnostics": [
+        "Code generation...Error: Rust target native function 'sn_test_json_encoder' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value"
+      ]
+    },
+    {
+      "source": "tests/integration/test_serializable_push_ownership.sn",
+      "failure_kind": "compile error",
+      "diagnostics": [
+        "Code generation...Error: Rust target native function 'sn_test_json_encoder' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value"
+      ]
+    },
+    {
+      "source": "tests/integration/test_serializable_return_nested_array.sn",
+      "failure_kind": "compile error",
+      "diagnostics": [
+        "Code generation...Error: Rust target native function 'sn_test_json_encoder' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value"
+      ]
+    },
+    {
+      "source": "tests/integration/test_str_return_as_arg_leak.sn",
+      "failure_kind": "compile error",
+      "diagnostics": [
+        "Code generation...Error: Rust target native function 'source_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value"
+      ]
+    },
+    {
+      "source": "tests/integration/test_struct_as_ref.sn",
+      "failure_kind": "compile error",
+      "diagnostics": [
+        "Code generation...Error: Rust target native function 'increment_counter' parameter 'c' must be an unsynchronized string, default-qualified raw pointer, or default/as-ref native scalar; heap-free records permit default/as-val/as-ref"
+      ]
+    },
+    {
+      "source": "tests/integration/test_struct_return_array_leak.sn",
+      "failure_kind": "compile error",
+      "diagnostics": [
+        "Code generation...Error: Rust target native function 'tracker_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value"
+      ]
+    },
+    {
+      "source": "tests/integration/test_struct_rvalue_member_leak.sn",
+      "failure_kind": "compile error",
+      "diagnostics": [
+        "Code generation...Error: Rust target native function 'tracker_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value"
+      ]
+    },
+    {
+      "source": "tests/integration/test_struct_rvalue_member_leak_contexts.sn",
+      "failure_kind": "compile error",
+      "diagnostics": [
+        "Code generation...Error: Rust target native function 'tracker_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value"
+      ]
+    },
+    {
+      "source": "tests/integration/test_thread_struct_return_types.sn",
+      "failure_kind": "compile error",
+      "diagnostics": [
+        "Code generation...Error: Rust target currently supports only plain value struct 'HyperParams'"
+      ]
+    },
+    {
+      "source": "tests/exploratory/test_array_mutation_lambda.sn",
+      "failure_kind": "compile error",
+      "diagnostics": [
+        "Code generation...Error: Rust target does not support mutation of closure parameters yet"
+      ]
+    },
+    {
+      "source": "tests/exploratory/test_as_val_array_copy.sn",
+      "failure_kind": "compile error",
+      "diagnostics": [
+        "Code generation...Error: Rust target does not support a parameter of function 'modify_array'"
+      ]
+    },
+    {
+      "source": "tests/exploratory/test_pointer_slice_bounds.sn",
+      "failure_kind": "compile error",
+      "diagnostics": [
+        "Code generation...Error: Rust target encountered an unsupported construct in function 'test_correct_bounds'"
+      ]
+    }
+  ]
+}

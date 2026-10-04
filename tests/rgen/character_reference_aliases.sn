@@ -1,0 +1,17 @@
+fn edit(left: char as ref, right: char as ref): void =>
+  left = 'X'
+  println(right)
+  right++
+  println(left)
+
+fn forward(left: char as ref, right: char as ref): void =>
+  edit(left, right)
+
+fn main(): void =>
+  var same: char = 'A'
+  forward(same, same)
+  println(same)
+  var left: char = 'A'
+  var right: char = 'B'
+  forward(left, right)
+  println($"{left} {right}")

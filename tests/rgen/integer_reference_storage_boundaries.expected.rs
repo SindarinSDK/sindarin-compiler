@@ -311,29 +311,6 @@ fn __sn_string_to_double(value: &SnString) -> f64 {
 }
 
 
-fn __sn_index(length: usize, index: i64) -> usize {
-    let resolved = if index < 0 { length as i64 + index } else { index };
-    if resolved < 0 || resolved >= length as i64 {
-        panic!("array index out of bounds: {index}");
-    }
-    resolved as usize
-}
-
-fn __sn_insert_index(length: usize, index: i64) -> usize {
-    let resolved = if index < 0 { length as i64 + index } else { index };
-    if resolved < 0 || resolved > length as i64 {
-        panic!("array insert index out of bounds: {index}");
-    }
-    resolved as usize
-}
-
-fn __sn_array_size(size: i64) -> usize {
-    if size < 0 {
-        panic!("array size cannot be negative: {size}");
-    }
-    size as usize
-}
-
 fn __sn_runtime_error_0(message: &'static str) -> ! {
     crate::__sn_write_stderr_bytes(&[message.as_bytes(), b"\n"].concat());
     crate::__sn_stdio_exit(1);
@@ -362,34 +339,32 @@ fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
     })
 }
 
-struct __SnClosure<F: ?Sized>(std::rc::Rc<F>);
-impl<F: ?Sized> Clone for __SnClosure<F> {
-    fn clone(&self) -> Self { Self(self.0.clone()) }
+fn next(value: &mut u8) -> u8 {
+    return { *(value) = (({ let (__sn_left, __sn_right): (i64, i64) = ((*(value)) as i64, (1) as i64); __sn_checked_0(__sn_left.checked_add(__sn_right), "Runtime error: integer overflow in addition") }
+ ) as u8); (*(value)) };
 }
-impl<F: ?Sized> std::fmt::Debug for __SnClosure<F> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str("<function>")
-    }
+
+fn previous(value: &mut u8) -> u8 {
+    return { *(value) = (({ let (__sn_left, __sn_right): (i64, i64) = ((*(value)) as i64, (1) as i64); __sn_checked_0(__sn_left.checked_sub(__sn_right), "Runtime error: integer overflow in subtraction") }
+ ) as u8); (*(value)) };
 }
-impl<F: ?Sized> PartialEq for __SnClosure<F> {
-    fn eq(&self, other: &Self) -> bool { std::rc::Rc::ptr_eq(&self.0, &other.0) }
+
+fn wide(value: &mut u8) -> u8 {
+    let mut maximum: i64 = 9223372036854775807;
+    return { *(value) = ((maximum) as u8); (*(value)) };
 }
+
+fn literal(value: &mut u8) -> u8 {
+    return { *(value) = ((((9223372036854775807i128) as i64)) as u8); (*(value)) };
+}
+
 fn main() {
-    let mut floats: Vec<f32> = vec![0.0];
-    let mut narrow: Vec<i32> = vec![((((1i128) as i64)) as i32)];
-    let mut flags: Vec<bool> = vec![false];
-    let mut chars: Vec<char> = vec!['\u{61}'];
-    let mut __sn_capture_index_value: i64 = 2;
-    let mut __sn_capture_index_place: i64 = 3;
-    let mut action: __SnClosure<dyn Fn() -> ()> = { let (floats, narrow, flags, chars, __sn_capture_index_value, __sn_capture_index_place, ) = (std::rc::Rc::new(std::cell::RefCell::new(floats.clone())), std::rc::Rc::new(std::cell::RefCell::new(narrow.clone())), std::rc::Rc::new(std::cell::RefCell::new(flags.clone())), std::rc::Rc::new(std::cell::RefCell::new(chars.clone())), __sn_capture_index_value.clone(), __sn_capture_index_place.clone(), ); self::__SnClosure::<dyn Fn() -> ()>(std::rc::Rc::new(move || -> () { { let __sn_capture_index_value_1 = ((((((((floats.borrow().clone())[__sn_index((floats.borrow().clone()).len(), ((0i128) as i64))]) as f64) + (((0.5f64)) as f64))) as f32)) as f32); let __sn_place_raw_index_0 = 0; let __sn_place_index_0 = if __sn_place_raw_index_0 < 0 { __sn_place_raw_index_0 + (floats.borrow().clone()).len() as i64 } else { __sn_place_raw_index_0 }; { let __sn_capture_index_place_1 = &mut ((floats.borrow_mut())[__sn_place_index_0 as usize]); *__sn_capture_index_place_1 = __sn_capture_index_value_1; } __sn_capture_index_value_1 };{ let __sn_capture_index_value_2 = (({ let (__sn_left, __sn_right): (i32, i32) = (((narrow.borrow().clone())[__sn_index((narrow.borrow().clone()).len(), ((0i128) as i64))]) as i32, (((2i128) as i64)) as i32); __sn_checked_0(__sn_left.checked_add(__sn_right), "Runtime error: integer overflow in addition") }
-) as i32); let __sn_place_raw_index_1 = 0; let __sn_place_index_1 = if __sn_place_raw_index_1 < 0 { __sn_place_raw_index_1 + (narrow.borrow().clone()).len() as i64 } else { __sn_place_raw_index_1 }; { let __sn_capture_index_place_2 = &mut ((narrow.borrow_mut())[__sn_place_index_1 as usize]); *__sn_capture_index_place_2 = __sn_capture_index_value_2; } __sn_capture_index_value_2 };{ let __sn_capture_index_value_3 = (!(flags.borrow().clone())[__sn_index((flags.borrow().clone()).len(), ((0i128) as i64))]); let __sn_place_raw_index_2 = 0; let __sn_place_index_2 = if __sn_place_raw_index_2 < 0 { __sn_place_raw_index_2 + (flags.borrow().clone()).len() as i64 } else { __sn_place_raw_index_2 }; { let __sn_capture_index_place_3 = &mut ((flags.borrow_mut())[__sn_place_index_2 as usize]); *__sn_capture_index_place_3 = __sn_capture_index_value_3; } __sn_capture_index_value_3 };{ let __sn_capture_index_value_4 = '\u{7a}'; let __sn_place_raw_index_3 = 0; let __sn_place_index_3 = if __sn_place_raw_index_3 < 0 { __sn_place_raw_index_3 + (chars.borrow().clone()).len() as i64 } else { __sn_place_raw_index_3 }; { let __sn_capture_index_place_4 = &mut ((chars.borrow_mut())[__sn_place_index_3 as usize]); *__sn_capture_index_place_4 = __sn_capture_index_value_4; } __sn_capture_index_value_4 };println!("{:.5}", (floats.borrow().clone())[__sn_index((floats.borrow().clone()).len(), 0)]);println!("{}", (narrow.borrow().clone())[__sn_index((narrow.borrow().clone()).len(), 0)]);println!("{}", (flags.borrow().clone())[__sn_index((flags.borrow().clone()).len(), 0)]);__sn_println_char((chars.borrow().clone())[__sn_index((chars.borrow().clone()).len(), 0)]);println!("{}", __sn_checked_0((__sn_capture_index_value.clone()).checked_add(__sn_capture_index_place.clone()), "Runtime error: integer overflow in addition"));})) }
-;
-    ((action.clone()).0)();
-    ((action.clone()).0)();
-    println!("{:.5}", (floats)[__sn_index((floats).len(), 0)]);
-    println!("{}", (narrow)[__sn_index((narrow).len(), 0)]);
-    println!("{}", (flags)[__sn_index((flags).len(), 0)]);
-    __sn_println_char((chars)[__sn_index((chars).len(), 0)]);
+    let mut value: u8 = ((255) as u8);
+    let mut first: u8 = next(&mut (value));
+    let mut second: u8 = previous(&mut (value));
+    let mut third: u8 = wide(&mut (value));
+    let mut fourth: u8 = literal(&mut (value));
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", first)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", second)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", third)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", fourth)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", value)); __sn_interpolated }));
     unsafe {
         #[cfg(windows)]
         let stream = crate::__sn_stdio_iob(1);
