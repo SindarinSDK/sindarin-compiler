@@ -1,0 +1,20 @@
+{
+  "scope": "Prototype Rust implementation temporarily retained shared record fields before borrowed native calls; C1 vsRust2visiblecounts. Corrected through non-owning canonical pointer projections; not published.",
+  "input_sha256": "6e4b4d519bb916eeb17a1f85a6944ea17c0131724fe9023744988cedd72b1391",
+  "targets": [
+    {
+      "target": "c",
+      "compile_status": 0,
+      "exit_status": 0,
+      "stdout_hex": "6265666f726520310a6669656c64207265667320310a616674657220310a",
+      "stderr_hex": ""
+    },
+    {
+      "target": "rust",
+      "compile_status": 0,
+      "exit_status": 0,
+      "stdout_hex": "6265666f726520320a6669656c64207265667320320a616674657220320a",
+      "stderr_hex": ""
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+#[repr(transparent)]
+#[derive(Debug, PartialEq)]
+struct {{rust_ident name}} {
+    {{rust_ident rust_native_handle_field}}: *mut std::ffi::c_void,
+}
+extern "C" {
+    fn {{rust_ident rust_native_handle_retain}}(_: *mut std::ffi::c_void);
+    fn {{rust_ident rust_native_handle_release}}(_: *mut std::ffi::c_void);
+    fn {{rust_ident rust_native_handle_refs}}(_: *mut std::ffi::c_void) -> i32;
+{{#each fields}}{{#if rust_native_handle_get}}    fn {{rust_ident rust_native_handle_get}}(_: *mut std::ffi::c_void) -> {{#if (eq type.kind "char")}}std::ffi::c_char{{else}}{{rust_type type}}{{/if}};
+{{/if}}{{/each}}
+}
+impl {{rust_ident name}} {
+    fn {{rust_ident rust_native_handle_adopt}}(pointer: *mut std::ffi::c_void) -> Self {
+        Self { {{rust_ident rust_native_handle_field}}: pointer }
+    }
+{{#each methods}}{{> struct_method this}}{{/each}}{{rbrace}}
+impl Clone for {{rust_ident name}} {
+    fn clone(&self) -> Self {
+        unsafe { {{rust_ident rust_native_handle_retain}}(self.{{rust_ident rust_native_handle_field}}); }
+        Self::{{rust_ident rust_native_handle_adopt}}(self.{{rust_ident rust_native_handle_field}})
+    }
+}
+impl Drop for {{rust_ident name}} {
+    fn drop(&mut self) {
+        unsafe { {{rust_ident rust_native_handle_release}}(self.{{rust_ident rust_native_handle_field}}); }
+    }
+}

@@ -408,11 +408,26 @@ static void flatten_expr(json_object *expr, json_object *inserts)
         for (int ci = 0; ci < (int)json_object_array_length(checks); ci++)
         {
             json_object *check = json_object_array_get_idx(checks, ci);
-            json_object *index = NULL;
-            if (!json_object_object_get_ex(check, "arg_index", &index)) continue;
-            int ai = json_object_get_int(index);
-            if (ai < 0 || ai >= (int)json_object_array_length(args)) continue;
-            json_object *arg = json_object_array_get_idx(args, ai);
+            json_object *index = NULL, *receiver_flag = NULL, *receiver_parent = NULL, *arg = NULL;
+            bool receiver = json_object_object_get_ex(check, "is_receiver", &receiver_flag) &&
+                            json_object_get_boolean(receiver_flag);
+            int ai = -1;
+            if (receiver)
+            {
+                json_object *inner_kind = NULL;
+                json_object_object_get_ex(inner_call, "kind", &inner_kind);
+                if (inner_kind && strcmp(json_object_get_string(inner_kind), "method_call") == 0)
+                    receiver_parent = inner_call;
+                else if (!json_object_object_get_ex(inner_call, "callee", &receiver_parent)) continue;
+                if (!json_object_object_get_ex(receiver_parent, "object", &arg)) continue;
+            }
+            else
+            {
+                if (!json_object_object_get_ex(check, "arg_index", &index)) continue;
+                ai = json_object_get_int(index);
+                if (ai < 0 || ai >= (int)json_object_array_length(args)) continue;
+                arg = json_object_array_get_idx(args, ai);
+            }
             json_object_object_add(check, "ptr_expr", json_object_get(arg));
             char name[64];
             snprintf(name, sizeof(name), "__bi_snap_%d__", ci);
@@ -426,7 +441,8 @@ static void flatten_expr(json_object *expr, json_object *inserts)
             json_object *type = NULL;
             if (json_object_object_get_ex(arg, "type", &type))
                 json_object_object_add(var, "type", json_object_get(type));
-            json_object_array_put_idx(args, ai, var);
+            if (receiver) json_object_object_add(receiver_parent, "object", var);
+            else json_object_array_put_idx(args, ai, var);
         }
         json_object_object_add(expr, "borrow_args_bound", json_object_new_boolean(true));
         return;

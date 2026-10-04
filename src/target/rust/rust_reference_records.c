@@ -3,8 +3,9 @@
 static bool rust_reference_record_type(json_object *model, json_object *type)
 {
     return json_string_property_equals(type, "kind", "struct") &&
-        json_boolean_property(rust_find_struct(model, json_string_property(type, "name")),
-                              "rust_thread_reference_identity");
+        (json_boolean_property(rust_find_struct(model, json_string_property(type, "name")),
+                              "rust_thread_reference_identity") ||
+        json_boolean_property(type, "rust_native_reference_handle"));
 }
 
 static void rust_prepare_reference_record_nodes(json_object *model, json_object *node,

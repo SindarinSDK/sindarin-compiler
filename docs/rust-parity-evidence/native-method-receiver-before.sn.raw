@@ -1,0 +1,20 @@
+@source "../integration/test_native_ref_return_evaluation_helper.c"
+
+native struct Token as ref =>
+  id: int
+  @alias "token_dispose"
+  native fn dispose(): void
+  @alias "token_create"
+  native static fn create(id: int): Token
+  @alias "token_borrow"
+  native fn borrow(): Token
+  @alias "token_refs"
+  native fn refs(): int
+
+fn main(): void =>
+  var value: Token = Token.create(75)
+  println($"made {value.id} {value.refs()}")
+  var alias: Token = value.borrow()
+  println($"borrow {alias.id} {value.refs()} {alias.refs()}")
+  var absent: Token
+  println($"nil {absent == nil} {absent.refs()}")

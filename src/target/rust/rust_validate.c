@@ -660,11 +660,13 @@ static bool rust_validate_structs(json_object *model)
         }
 
         if ((json_boolean_property(structure, "is_native") &&
-             !json_boolean_property(structure, "rust_native_value_record")) ||
+             !json_boolean_property(structure, "rust_native_value_record") &&
+             !json_boolean_property(structure, "rust_native_reference_handle")) ||
             json_boolean_property(structure, "is_packed") ||
             json_boolean_property(structure, "is_serializable") ||
             (mem_mode && strcmp(mem_mode, "val") != 0 &&
-             !json_boolean_property(structure, "rust_thread_reference_identity")))
+             !json_boolean_property(structure, "rust_thread_reference_identity") &&
+             !json_boolean_property(structure, "rust_native_reference_handle")))
         {
             fprintf(stderr,
                     "Error: Rust target currently supports only plain value struct '%s'\n",
@@ -1474,6 +1476,14 @@ static bool rust_validate_expr(json_object *expr)
     }
     if (strcmp(kind, "struct_literal") == 0)
     {
+        json_object *literal_type = NULL;
+        json_object_object_get_ex(expr, "type", &literal_type);
+        if (json_boolean_property(literal_type, "rust_native_reference_handle"))
+        {
+            fprintf(stderr, "Error: Rust target native reference struct literals require canonical C allocation support\n");
+            return false;
+        }
+
         json_object *fields = NULL;
         if (!json_object_object_get_ex(expr, "fields", &fields)) return true;
         size_t count = json_object_array_length(fields);
@@ -1618,8 +1628,18 @@ static bool rust_validate_expr(json_object *expr)
         return json_object_object_get_ex(expr, "object", &child) &&
                rust_validate_expr(child);
     if (strcmp(kind, "member") == 0)
-        return json_object_object_get_ex(expr, "object", &child) &&
-               rust_validate_expr(child);
+    {
+        if (!json_object_object_get_ex(expr, "object", &child)) return false;
+        json_object *object_type = NULL;
+        json_object_object_get_ex(child, "type", &object_type);
+        if (json_boolean_property(object_type, "rust_native_reference_handle") &&
+            !json_string_property(expr, "rust_native_handle_get"))
+        {
+            fprintf(stderr, "Error: Rust target native handle field access requires a canonical C field accessor\n");
+            return false;
+        }
+        return rust_validate_expr(child);
+    }
     if (strcmp(kind, "copy_of") == 0)
     {
         json_object *operand = NULL, *operand_type = NULL;

@@ -1,4 +1,4 @@
-{{#if rust_thread_fields}}#[derive({{#unless rust_thread_reference_identity}}Clone, {{/unless}} Debug{{#unless rust_thread_reference_identity}}, PartialEq{{/unless}})]
+{{#if rust_native_reference_handle}}{{> native_handle_struct}}{{else}}{{#if rust_thread_fields}}#[derive({{#unless rust_thread_reference_identity}}Clone, {{/unless}} Debug{{#unless rust_thread_reference_identity}}, PartialEq{{/unless}})]
 struct {{rust_ident name}} {
 {{#if rust_thread_reference_identity}}    {{rust_ident @root.rust_record_identity_field}}: Option<std::sync::Arc<()>>,
 {{/if}}{{#each fields}}    {{rust_ident name}}: {{#if ../rust_thread_reference_identity}}{{rust_ident @root.rust_reference_field_type}}{{else}}{{rust_ident @root.rust_thread_field_type}}{{/if}}<{{rust_type type}}>,
@@ -68,3 +68,4 @@ impl {{rust_ident name}} {
         self.{{rust_ident @root.rust_array_text_method_name}}()
     }
 }{{/if~}}
+{{/if}}

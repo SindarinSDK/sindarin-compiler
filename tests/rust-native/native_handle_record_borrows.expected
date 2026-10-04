@@ -1,0 +1,11 @@
+before 1 10
+parameter 1 1
+after 1
+alias 2 true
+borrowed 3 3
+same true 3
+temporary 1
+nested 1 30
+indexed 1 1
+nil true 0
+done 0 created 5

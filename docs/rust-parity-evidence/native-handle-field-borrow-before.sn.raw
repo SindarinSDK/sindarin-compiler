@@ -1,0 +1,22 @@
+@source "../tests/integration/test_native_ref_return_evaluation_helper.c"
+
+native struct Token as ref =>
+  id: int
+  @alias "token_dispose"
+  native fn dispose(): void
+
+struct Box =>
+  item: Token
+
+native fn token_create(id: int): Token
+native fn token_refs(value: Token): int
+native fn token_live(): int
+
+fn inspect(value: Box): void =>
+  println($"field refs {token_refs(value.item)}")
+
+fn main(): void =>
+  var value: Box = Box { item: token_create(10) }
+  println($"before {token_refs(value.item)}")
+  inspect(value)
+  println($"after {token_refs(value.item)}")

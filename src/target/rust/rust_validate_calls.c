@@ -882,9 +882,11 @@ static bool rust_resolved_value_type_supported(json_object *type)
         json_object *structure = rust_find_struct(
             rust_validation_model, json_string_property(type, "name"));
         const char *mem_mode = json_string_property(structure, "mem_mode");
-        return structure && !json_boolean_property(structure, "is_native") &&
+        return structure && (!json_boolean_property(structure, "is_native") ||
+            json_boolean_property(structure, "rust_native_reference_handle")) &&
             !json_boolean_property(structure, "is_packed") &&
             (json_boolean_property(structure, "rust_thread_reference_identity") ||
+             json_boolean_property(structure, "rust_native_reference_handle") ||
              (!json_boolean_property(structure, "pass_self_by_ref") &&
               (!mem_mode || strcmp(mem_mode, "val") == 0)));
     }
@@ -964,11 +966,13 @@ static bool rust_validate_method_call(json_object *expr)
     if (!structure)
         return rust_report_resolved_call_error(
             "encountered resolved method_call with an unknown struct receiver");
-    if (json_boolean_property(structure, "is_native") ||
-        json_boolean_property(struct_type, "is_native"))
+    if ((json_boolean_property(structure, "is_native") ||
+         json_boolean_property(struct_type, "is_native")) &&
+        !json_boolean_property(structure, "rust_native_reference_handle"))
         return rust_report_resolved_call_error(
             "does not support native resolved method_call receivers");
     if (!json_boolean_property(structure, "rust_thread_reference_identity") &&
+        !json_boolean_property(structure, "rust_native_reference_handle") &&
         (json_boolean_property(structure, "pass_self_by_ref") ||
          json_boolean_property(struct_type, "pass_self_by_ref") ||
          !json_string_property_equals(structure, "mem_mode", "val")))
@@ -1133,6 +1137,10 @@ static bool rust_validate_borrow_inferred_call(json_object *expr)
         json_object_array_length(checks) == 0)
         return rust_report_resolved_call_error(
             "encountered malformed borrow_inferred_call model");
+
+    if (json_boolean_property(expr, "rust_native_handle_owned_result") &&
+        json_boolean_property(type, "rust_native_reference_handle"))
+        return rust_validate_expr(inner_call);
 
     /* The shared model currently creates this wrapper exclusively for native
      * calls whose reference-struct result may alias a reference-struct input.

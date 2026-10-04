@@ -79,5 +79,24 @@ bool rust_native_emit_support(RustNativePlan *plan, GeneratedFileSet *files,
         }
     }
     modular_render_result_free(rendered);
+    json_object *handles = rust_native_plan_handles(plan);
+    if (handles && json_object_array_length(handles))
+    {
+        written = snprintf(template_dir, sizeof(template_dir),
+                           "%s/templates/rust/native_handles", compiler_dir);
+        if (written < 0 || (size_t)written >= sizeof(template_dir)) return false;
+        json_object *model = json_object_new_object();
+        json_object_object_add(model, "handles", json_object_get(handles));
+        char *code = render_with_helpers(model, template_dir,
+            gen_model_get_min_c_register_fn(), "Rust native handles");
+        json_object_put(model);
+        if (!code) return false;
+        if (!generated_file_set_add(files, "sn_native_handles.c", code,
+                                    GENERATED_SOURCE, false))
+        {
+            free(code);
+            return false;
+        }
+    }
     return true;
 }

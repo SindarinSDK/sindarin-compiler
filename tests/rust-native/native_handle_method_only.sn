@@ -1,0 +1,50 @@
+@source "../integration/test_native_ref_return_evaluation_helper.c"
+
+native struct Token as ref =>
+  id: int
+  @alias "token_dispose"
+  native fn dispose(): void
+  @alias "token_create"
+  native static fn create(id: int): Token
+  @alias "token_borrow"
+  native fn borrow(): Token
+  @alias "token_retained"
+  native fn retained(): Token
+  @alias "token_fresh"
+  native fn fresh(): Token
+  @alias "token_pick"
+  native fn pick(other: Token): Token
+  @alias "token_offset"
+  native static fn offset(tag: int, value: Token): Token
+  @alias "token_refs"
+  native fn refs(): int
+  @alias "token_live"
+  native static fn live(): int
+  @alias "token_created"
+  native static fn created(): int
+
+fn exercise(): void =>
+  var value: Token = Token.create(75)
+  println($"made {value.id} {value.refs()}")
+  var alias: Token = value.borrow()
+  println($"borrow {alias.id} {value.refs()} {alias.refs()}")
+  alias = alias.retained()
+  println($"retained {value.refs()}")
+  var fresh: Token = value.fresh()
+  println($"fresh {fresh.id} {fresh.refs()} {value.refs()}")
+  var temporary: Token = Token.create(80).borrow()
+  println($"temporary {temporary.id} {temporary.refs()}")
+  var nested: Token = Token.create(90).borrow().borrow()
+  println($"nested {nested.id} {nested.refs()}")
+  var picked: Token = Token.create(100).pick(Token.create(200))
+  println($"picked {picked.id} {picked.refs()}")
+  var repeated: Token = value.pick(value)
+  println($"repeated {repeated.id} {value.refs()}")
+  var offset: Token = Token.offset(9, Token.create(300))
+  println($"offset {offset.id} {offset.refs()}")
+  var absent: Token
+  println($"nil {absent == nil} {absent.refs()}")
+
+fn main(): void =>
+  exercise()
+  println($"done {Token.live()} created {Token.created()}")

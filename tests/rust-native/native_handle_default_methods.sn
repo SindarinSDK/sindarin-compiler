@@ -1,0 +1,22 @@
+@source "native_handle_default_methods.sn.c"
+
+native struct Token as ref =>
+  id: int
+  native fn dispose(): void
+  native static fn create(id: int): Token
+  native fn borrow(): Token
+  native fn pick(__receiver_0: Token): Token
+  native fn refs(): int
+  native static fn live(): int
+
+fn exercise(): void =>
+  using value = Token.create(17) =>
+    var alias: Token = value.borrow()
+    println($"borrow {alias.id} {value.refs()} {alias.refs()}")
+    using __receiver_0 = Token.create(99) =>
+      var picked: Token = value.pick(__receiver_0)
+      println($"picked {picked.id} {__receiver_0.refs()} {picked.refs()}")
+
+fn main(): void =>
+  exercise()
+  println($"done {Token.live()}")

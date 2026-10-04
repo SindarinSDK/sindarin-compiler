@@ -26,12 +26,18 @@ struct RustNativePlan {
     ModularModel *split;
     RustNativeDeclaration *declarations;
     size_t declaration_count;
+    json_object *handles;
 };
 
 /* Shared privately by the Rust-native rendering/build translation units. */
 ModularModel *rust_native_plan_split(RustNativePlan *plan)
 {
     return plan ? plan->split : NULL;
+}
+
+json_object *rust_native_plan_handles(RustNativePlan *plan)
+{
+    return plan ? plan->handles : NULL;
 }
 
 static const char *native_string(json_object *object, const char *key)
@@ -89,13 +95,15 @@ static bool native_byte_array_type(json_object *type)
 static bool native_result_type(json_object *type)
 {
     const char *kind = native_string(type, "kind");
-    return native_string(type, "rust_native_record_wire") || native_scalar_type(type, true) ||
+    return native_bool(type, "rust_native_reference_handle") || native_string(type, "rust_native_record_wire") || native_scalar_type(type, true) ||
         (kind && strcmp(kind, "string") == 0) || native_byte_array_type(type);
 }
 
 static bool native_parameter_type(json_object *type, const char *mem)
 {
     const char *kind = native_string(type, "kind");
+    if (native_bool(type, "rust_native_reference_handle"))
+        return !mem || strcmp(mem, "default") == 0;
     if (mem && strcmp(mem, "as_ref") == 0)
         return native_string(type, "rust_native_record_wire") || (kind && native_scalar_kind(kind, false));
     return native_string(type, "rust_native_record_wire") || native_scalar_type(type, false) ||
@@ -528,6 +536,7 @@ static char *unique_private_name(json_object *functions, json_object *structs,
 }
 
 #include "rust_native_records.c"
+#include "rust_native_handles.c"
 
 static bool add_native_initializer(json_object *functions,
                                    json_object *globals,
@@ -604,6 +613,13 @@ static bool project_native_model(json_object *model,
     for (size_t i = 0; i < function_count; i++)
         if (native_bool(json_object_array_get_idx(functions, i), "is_native"))
             selected_functions[i] = true;
+
+    /* Every Rust owner needs its canonical C allocation and cleanup helpers,
+     * including declarations used only through native methods or nil values. */
+    for (size_t i = 0; i < struct_count; i++)
+        if (native_bool(json_object_array_get_idx(structs, i), "is_native") &&
+            native_bool(json_object_array_get_idx(structs, i), "pass_self_by_ref"))
+            selected_structs[i] = true;
 
     bool changed;
     do
@@ -1052,7 +1068,7 @@ bool rust_native_partition_model(json_object *rust_model,
     remove_private_helper_functions(rust_model, selected_function_names);
     remove_private_globals(rust_model, selected_global_names);
     remove_c_only_native_helpers(rust_model, private_model);
-    if (!native_prepare_records(rust_model))
+    if (!native_prepare_records(rust_model) || !native_prepare_handles(rust_model, plan))
     {
         json_object_put(private_model);
         json_object_put(selected_function_names);
@@ -1221,7 +1237,7 @@ bool rust_native_partition_model(json_object *rust_model,
                 json_object *type = NULL;
                 const char *kind = json_object_object_get_ex(param, "type", &type)
                     ? native_string(type, "kind") : NULL;
-                const char *stem = native_string(type, "rust_native_record_wire")
+                const char *stem = native_handle_type(type) ? "__sn_native_handle_snapshot" : native_string(type, "rust_native_record_wire")
                     ? "__sn_native_record" : kind && strcmp(kind, "string") == 0
                     ? "__sn_native_bytes" :
                     (kind && strcmp(kind, "char") == 0 &&
@@ -1353,6 +1369,12 @@ bool rust_native_partition_model(json_object *rust_model,
                     char_index++;
                 }
             }
+            bool handle_bridge = native_handle_type(native_record_child(function, "return_type"));
+            for (size_t p = 0; params && p < json_object_array_length(params); p++)
+                if (native_handle_type(native_record_child(json_object_array_get_idx(params, p), "type")))
+                    handle_bridge = true;
+            if (handle_bridge)
+                json_object_object_add(function, "rust_native_handle_bridge", json_object_new_boolean(true));
             bool record_bridge = native_string(native_record_child(function,
                 "return_type"), "rust_native_record_wire") != NULL;
             for (size_t p = 0; params && p < json_object_array_length(params); p++)
@@ -1466,6 +1488,7 @@ bool rust_native_validate_declaration(const RustNativePlan *plan,
 bool rust_native_plan_has_work(const RustNativePlan *plan)
 {
     return plan && (plan->declaration_count > 0 ||
+        (plan->handles && json_object_array_length(plan->handles) > 0) ||
         (plan->split && (plan->split->source_file_count > 0 ||
                          plan->split->link_lib_count > 0)));
 }
@@ -1475,6 +1498,7 @@ void rust_native_plan_free(void *opaque)
     RustNativePlan *plan = opaque;
     if (!plan) return;
     modular_model_free(plan->split);
+    if (plan->handles) json_object_put(plan->handles);
     for (size_t i = 0; i < plan->declaration_count; i++)
     {
         free(plan->declarations[i].rust_callable_name);

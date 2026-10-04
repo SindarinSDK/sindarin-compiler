@@ -358,6 +358,11 @@ static char *helper_rust_clone_suffix(json_object **params, int param_count,
     if (param_count < 2 || !params[0] || !params[1] ||
         !json_object_get_boolean(params[1])) return strdup("");
 
+    json_object *owned = NULL, *borrowed = NULL, *acquired = NULL;
+    if ((json_object_object_get_ex(params[0], "rust_native_handle_owned_read", &owned) && json_object_get_boolean(owned)) ||
+        (json_object_object_get_ex(params[0], "rust_native_handle_borrow_arg", &borrowed) && json_object_get_boolean(borrowed)) ||
+        (json_object_object_get_ex(params[0], "rust_native_handle_read_acquired", &acquired) && json_object_get_boolean(acquired))) return strdup("");
+
     const char *kind = json_string_property(params[0], "kind");
     if (kind && (strcmp(kind, "variable") == 0 || strcmp(kind, "member") == 0 ||
                  strcmp(kind, "array_access") == 0))

@@ -1,0 +1,59 @@
+Compiler: /home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn
+Platform: Linux
+Parallel: 8 workers
+
+Unit Tests
+============================================================
+Results: 1610 passed, 0 failed  (total: 20.09ms)
+------------------------------------------------------------
+Unit tests passed  (22ms)
+
+Code Generation Tests
+============================================================
+  Running 107 tests with 8 workers...
+
+
+------------------------------------------------------------
+Results: 107 passed, 0 failed, 0 skipped  (1.81s)
+
+Model Generation Tests
+============================================================
+  Running 79 tests with 8 workers...
+
+
+------------------------------------------------------------
+Results: 79 passed, 0 failed, 0 skipped  (96ms)
+
+Integration Tests
+============================================================
+  Running 1142 tests with 8 workers...
+
+
+------------------------------------------------------------
+Results: 1142 passed, 0 failed, 0 skipped  (21.63s)
+
+Integration Error Tests
+============================================================
+  Running 58 tests with 8 workers...
+
+
+------------------------------------------------------------
+Results: 58 passed, 0 failed, 0 skipped  (72ms)
+
+Exploratory Tests
+============================================================
+  Running 224 tests with 8 workers...
+
+
+------------------------------------------------------------
+Results: 224 passed, 0 failed, 0 skipped  (14.40s)
+
+Exploratory Error Tests
+============================================================
+  Running 11 tests with 8 workers...
+
+
+------------------------------------------------------------
+Results: 11 passed, 0 failed, 0 skipped  (24ms)
+
+All tests passed!  (total: 38.06s)

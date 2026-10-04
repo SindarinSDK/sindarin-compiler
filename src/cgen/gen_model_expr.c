@@ -3,6 +3,8 @@
 #include "symbol_table/symbol_table_core.h"
 #include <string.h>
 
+#include "cgen/gen_model_native_method_borrow.c"
+
 /* Re-escape a string value for C output.
  * The lexer already interprets escape sequences (\n → 0x0A), but the C
  * templates need the two-character escape form so that the generated C
@@ -1857,6 +1859,31 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                         int pcount = ctype2->as.function.param_count;
                         json_object *check_args = json_object_new_array();
                         int n_checks = 0;
+                        /* Native instance methods borrow their receiver too.
+                         * Include it in result ownership inference, using the
+                         * already generated receiver rather than its AST. */
+                        if (expr->as.call.callee->type == EXPR_MEMBER)
+                        {
+                            Expr *receiver = expr->as.call.callee->as.member.object;
+                            Type *receiver_type = receiver ? receiver->expr_type : NULL;
+                            if (receiver_type && receiver_type->kind == TYPE_STRUCT &&
+                                receiver_type->as.struct_type.pass_self_by_ref &&
+                                receiver_type->as.struct_type.name && ret_name &&
+                                strcmp(receiver_type->as.struct_type.name, ret_name) == 0)
+                            {
+                                json_object *callee_model = NULL, *receiver_model = NULL;
+                                if (json_object_object_get_ex(obj, "callee", &callee_model) &&
+                                    json_object_object_get_ex(callee_model, "object", &receiver_model))
+                                {
+                                    json_object *check = json_object_new_object();
+                                    json_object_object_add(check, "type_name", json_object_new_string(ret_name));
+                                    json_object_object_add(check, "is_receiver", json_object_new_boolean(true));
+                                    json_object_object_add(check, "ptr_expr", json_object_get(receiver_model));
+                                    json_object_array_add(check_args, check);
+                                    n_checks++;
+                                }
+                            }
+                        }
                         for (int pi = 0; pi < pcount && pi < expr->as.call.arg_count; pi++)
                         {
                             Type *pt = ptypes[pi];
@@ -3731,6 +3758,8 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
             break;
         }
     }
+
+    obj = wrap_native_method_borrow(obj, expr);
 
     /* Escape info */
     if (expr->escape_info.escapes_scope || expr->escape_info.needs_heap_allocation)

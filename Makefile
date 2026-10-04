@@ -881,3 +881,24 @@ test-rust-parity-closure-records: build
 		--require-count 21 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-closure-records.json
 	@$(PYTHON) scripts/check_rust_closure_record_oracles.py .sn/rust-parity-closure-records.json
+
+# Canonical C allocations stay owned by C across Rust handle aliases and borrows.
+.PHONY: test-rust-parity-native-handles
+test-rust-parity-native-handles: build
+	@$(PYTHON) scripts/check_rust_parity.py --compiler $(SN) --require-count 13 \
+		tests/integration/test_native_ref_self_assign.sn \
+		tests/integration/test_native_resource_lifecycle.sn \
+		tests/integration/test_native_struct_ref_loop_cleanup.sn \
+		tests/integration/test_refcount_arg_leak.sn \
+		tests/integration/test_refcount_chain_in_struct_literal.sn \
+		tests/integration/test_str_return_as_arg_leak.sn \
+		tests/integration/test_struct_return_array_leak.sn \
+		tests/integration/test_struct_rvalue_member_leak.sn \
+		tests/integration/test_struct_rvalue_member_leak_contexts.sn \
+		tests/integration/test_native_ref_return_evaluation.sn \
+		tests/rust-native/native_handle_record_borrows.sn \
+		tests/rust-native/native_handle_method_only.sn \
+		tests/rust-native/native_handle_default_methods.sn \
+		--arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-native-handles.json
+	@$(PYTHON) scripts/check_rust_native_handle_oracles.py .sn/rust-parity-native-handles.json

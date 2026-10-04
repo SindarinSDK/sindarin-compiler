@@ -153,6 +153,7 @@ static bool rust_check_toolchain(const CompilerOptions *options)
 #include "rust_nullable_arrays.c"
 #include "rust_reference_records.c"
 #include "rust_native_record_storage.c"
+#include "rust_native_handle_nodes.c"
 
 static bool rust_emit(CompilerOptions *options, Module *module,
                       TargetEmitMode mode, GeneratedFileSet *result)
@@ -177,6 +178,7 @@ static bool rust_emit(CompilerOptions *options, Module *module,
     }
     result->target_data = native_plan;
     result->free_target_data = rust_native_plan_free;
+    rust_prepare_native_handle_nodes(model, model);
     rust_prepare_nullable_strings(model);
     rust_prepare_nullable_arrays(model);
     rust_prepare_sizeof_only_declarations(model);
@@ -340,6 +342,10 @@ static bool rust_emit(CompilerOptions *options, Module *module,
 
     char template_dir[1024];
     snprintf(template_dir, sizeof(template_dir), "%s/templates/rust", options->compiler_dir);
+    size_t native_temporary_id = 0;
+    rust_lower_native_handle_temporaries(model, model, &native_temporary_id);
+    rust_prepare_native_handle_nodes(model, model);
+    rust_lower_native_handle_reads(model, model, false);
     char *code = rust_render_model(model, template_dir);
     json_object_put(model);
     if (!code) return false;

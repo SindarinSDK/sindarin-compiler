@@ -1,0 +1,50 @@
+@source "../integration/test_native_ref_return_evaluation_helper.c"
+
+native struct Token as ref =>
+  id: int
+  @alias "token_dispose"
+  native fn dispose(): void
+  @alias "token_refs"
+  native fn refs(): int
+
+struct Holder =>
+  item: Token
+
+struct Nested =>
+  holder: Holder
+
+native fn token_create(id: int): Token
+native fn token_borrow(value: Token): Token
+native fn token_refs(value: Token): int
+native fn token_same(left: Token, right: Token): bool
+native fn token_live(): int
+native fn token_created(): int
+
+fn inspect(value: Holder): void =>
+  println($"parameter {token_refs(value.item)} {value.item.refs()}")
+
+fn make_holder(id: int): Holder =>
+  return Holder { item: token_create(id) }
+
+fn exercise(): void =>
+  var value: Holder = make_holder(10)
+  println($"before {token_refs(value.item)} {value.item.id}")
+  inspect(value)
+  println($"after {token_refs(value.item)}")
+  var alias: Token = value.item
+  println($"alias {token_refs(value.item)} {token_same(value.item, alias)}")
+  var borrowed: Token = token_borrow(value.item)
+  println($"borrowed {token_refs(value.item)} {token_refs(borrowed)}")
+  println($"same {token_same(value.item, value.item)} {token_refs(value.item)}")
+  println($"temporary {token_refs(make_holder(20).item)}")
+  var nested: Nested = { holder: make_holder(30) }
+  println($"nested {token_refs(nested.holder.item)} {nested.holder.item.id}")
+  var values: Holder[] = {make_holder(40), make_holder(50)}
+  var index: int = 0
+  println($"indexed {token_refs(values[index++].item)} {index}")
+  var absent: Holder = { item: nil }
+  println($"nil {absent.item == nil} {token_refs(absent.item)}")
+
+fn main(): void =>
+  exercise()
+  println($"done {token_live()} created {token_created()}")
