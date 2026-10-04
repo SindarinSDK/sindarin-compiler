@@ -1,0 +1,10 @@
+interface Sized =>
+  fn size(): int
+
+struct Callbacks =>
+  first: char
+  callback: fn(int): int
+  last: bool
+
+fn main(): void =>
+  println(sizeof(Callbacks))

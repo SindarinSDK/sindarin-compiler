@@ -1409,9 +1409,10 @@ static bool rust_validate_expr(json_object *expr)
             return false;
         }
 
-        /* C renders both kinds as sizeof(void *), independent of the pointee.
+        /* C renders these kinds as sizeof(void *), independent of the pointee.
          * Resolve the size in the generated target, not on the compiler host. */
-        if (strcmp(target_kind, "pointer") == 0 || strcmp(target_kind, "opaque") == 0)
+        if (strcmp(target_kind, "pointer") == 0 || strcmp(target_kind, "opaque") == 0 ||
+            strcmp(target_kind, "interface") == 0)
         {
             json_object_object_add(expr, "rust_sizeof_pointer", json_object_new_boolean(true));
             return true;
@@ -1426,7 +1427,12 @@ static bool rust_validate_expr(json_object *expr)
                                    json_object_new_boolean(true));
             return true;
         }
-        int bytes = rust_fixed_sizeof_bytes(target_kind);
+        /* The authoritative C helper uses sizeof(long long) for callable,
+         * nil and void queries. This is independent of any callable storage. */
+        int bytes = (strcmp(target_kind, "function") == 0 ||
+                     strcmp(target_kind, "nil") == 0 ||
+                     strcmp(target_kind, "void") == 0)
+            ? 8 : rust_fixed_sizeof_bytes(target_kind);
         if (bytes < 0)
         {
             rust_report_unsupported_sizeof(target_type);

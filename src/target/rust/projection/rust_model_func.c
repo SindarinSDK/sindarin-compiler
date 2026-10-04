@@ -263,7 +263,7 @@ static void prescan_expr(Arena *arena, Expr *expr, SymbolTable *table, int lambd
         }
         break;
     case EXPR_SIZEOF:
-        prescan_expr(arena, expr->as.sizeof_expr.expr_operand, table, lambda_scope_depth);
+        /* No capture promotion or mutation occurs in an unevaluated operand. */
         break;
     case EXPR_TYPEOF:
         prescan_expr(arena, expr->as.typeof_expr.operand, table, lambda_scope_depth);

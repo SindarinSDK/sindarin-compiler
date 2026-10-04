@@ -1,0 +1,26 @@
+Compiler: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn
+Platform: Linux
+Parallel: 20 workers
+
+Rust Generation Tests
+============================================================
+  Running 419 tests with 20 workers...
+
+
+  reference_call_borrowed_handles               SKIP (no .expected.rs)
+  reference_call_member_handles                 SKIP (no .expected.rs)
+  reference_call_static_handles                 SKIP (no .expected.rs)
+  sizeof_c_callables                            SKIP (no .expected.rs)
+  sizeof_c_callback_fields                      SKIP (no .expected.rs)
+  sizeof_c_interfaces                           SKIP (no .expected.rs)
+  sizeof_c_lambda_operand                       SKIP (no .expected.rs)
+  sizeof_c_nonvalues                            SKIP (no .expected.rs)
+  sizeof_function                               SKIP (no .expected.rs)
+  sizeof_interface                              SKIP (no .expected.rs)
+  sizeof_nil                                    SKIP (no .expected.rs)
+  sizeof_void                                   SKIP (no .expected.rs)
+
+------------------------------------------------------------
+Results: 407 passed, 0 failed, 12 skipped  (6.44s)
+
+All tests passed!  (total: 6.44s)

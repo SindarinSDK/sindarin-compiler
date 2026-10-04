@@ -5,11 +5,51 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Latest local increment: sizeof fallback and reference calls, 2026-10-04
+
+The next implementation increment is locally verified against main
+`8cb11594f577c7c497244bc549c9000dca5566a2`; its hosted CI is pending.
+All 23 runtime reports pass **2046 cases**, including 126 new independent
+sizeof/reference-call comparisons at O0/O1/O2 in default/checked/unchecked
+arithmetic modes. Full C suites pass unchanged; Rust generation/negative are
+419 / 143, native tagged/extra/origin/negative 8 / 23 / 1 / 4, closures 36 / 1,
+concurrency 10 / 7 / 1 and toolchain 12, with no failures or skips.
+
+Standalone callable/nil/void sizing now matches C's long-long fallback;
+interfaces use target pointer size. Unevaluated sizeof operands do not register
+runtime lambdas or capture mutations, including native zero-capture queries.
+Borrowed reference-call lvalues acquire handles, and reference parameter fields
+are classified as interior mutation places. Controls verify free/instance/static
+calls, repeated aliases, returned handles, field/index arguments, mutation
+visibility and read-only reentry using the existing shared thread field owners.
+These changes do not complete general reference storage or callable/interface ABI.
+
+The unchanged original corpus passes 1076 integration and 215 exploratory cases,
+leaving **74 original compilation gaps**, down from 75. There are no runtime
+failures or skips; all 1365 original source hashes and 460 historical Rust
+snapshots are byte-identical. Four exact negative sources are promoted, and 12
+new Rust snapshots are added. The unused former negative queries already pass
+at O1/O2 through dead-code elimination; printed controls establish actual sizing
+support in every mode. Four initial new snapshots used O2 instead of the
+runner's required O0; their correction is retained in the evidence, and the
+complete final suite passes.
+
+Fourteen C sources and one C/Rust native pair pass instrumented ASAN with leak
+detection. C remains default, remote main is refreshed, and the PR queue is empty.
+Evidence: [local validation](rust-parity-evidence/call-reference-validation.json),
+[126 independent pairs](rust-parity-evidence/call-reference-pairs.json),
+[ASAN](rust-parity-evidence/call-reference-asan.json) and
+[remaining diagnostics](rust-parity-evidence/call-reference-gap-diagnostics.json).
+A probe that mutates the same target inside a compound-assignment RHS has
+indeterminate C evaluation ordering and receives no portable-order parity credit;
+rejected frontend probes are likewise excluded and recorded explicitly.
+Full parity and exact-revision hosted verification remain required.
+
 ## Current verified status: 2026-10-04
 
-The current integration candidate is based on main
-`f0e3d43bce63eb97183e31581bef5e8ecb177590`. Complete local C/Rust suites pass,
-and 22 runtime reports verify **1920 cases**: 1620 positive C/Rust pairs,
+Main `8cb11594f577c7c497244bc549c9000dca5566a2` passes all six Linux/macOS/Windows
+Compiler and Rust Runtime jobs. Complete local and hosted C/Rust suites pass,
+and each platform’s 22 retained runtime reports verifies **1920 cases**: 1620 positive C/Rust pairs,
 39 diagnostic/order cases, 153 process-exit cases and 108 main-return cases.
 The new 216-case gate independently verifies aggregate C layouts and native
 local aggregates across all three optimization levels and arithmetic modes.
@@ -26,10 +66,13 @@ Local evidence is retained in
 [sizeof validation](rust-parity-evidence/sizeof-validation.json),
 [216 independent pairs](rust-parity-evidence/sizeof-pairs.json) and
 [remaining diagnostics](rust-parity-evidence/sizeof-gap-diagnostics.json).
-The latest fully verified hosted main is the preceding match-control revision,
-with all six Compiler/Runtime jobs and all 21 reports/1704 cases per platform
-verified in [its exact-main CI proof](rust-parity-evidence/match-control-main-ci-green.json).
-The sizeof candidate's hosted verification is pending. The PR queue is empty.
+All three platforms' retained artifacts verify every report's statuses, raw
+outputs, source hashes and a single compiler binary per platform. The new
+216 sizeof/control cases and existing match, character, byte, exit and
+main-return contracts are checked against independent oracles. Complete hosted
+suite counts have no failures or skips. The PR queue is empty. Evidence:
+[exact-main CI proof](rust-parity-evidence/sizeof-main-ci-green.json) and
+[preceding match-control proof](rust-parity-evidence/match-control-main-ci-green.json).
 
 Full parity remains incomplete. Broader array/callable identity, mutation and
 lifetimes, native/SDK and language families still require implementation and
@@ -1930,4 +1973,32 @@ struct sizeof/equality, comprehensive sizeof, packed declarations, struct code
 generation validation, native defaults and native reference method chaining.
 All remaining original failures are compilation gaps, not distinct feature
 counts or established C-defined obligations. No guards or skips receive credit.
-Hosted checks for this candidate must complete before recording main as verified.
+Hosted checks completed successfully for the integrated sizeof implementation.
+
+## Aggregate sizeof: hosted verification, 2026-10-04
+
+Main implementation revision `8cb11594f577c7c497244bc549c9000dca5566a2` passes
+all six jobs in
+[Compiler CI 37169311621](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37169311621)
+and [Rust Runtime CI 37169311620](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37169311620).
+Retained Linux/macOS/Windows artifacts each verify all 22 reports and 1920
+cases, including 216 independent sizeof cases. Every report uses the one
+recorded compiler binary for its platform; source hashes, exact raw outputs,
+statuses and complete mode/optimization identities are checked. Windows
+comparisons enforce the platform's actual CRLF text transport.
+
+The exact-revision proof is in
+[sizeof-main-ci-green.json](rust-parity-evidence/sizeof-main-ci-green.json).
+Complete hosted C suites retain counts 1610 / 107 / 79 / 1141 / 58 / 224 / 11;
+Rust generation/negative are 407 / 147, native tagged/extra/origin/negative
+8 / 22 / 1 / 4, closures 36 / 1, concurrency 10 / 7 / 1 and toolchain 12.
+All have zero failures/skips. Remote main still equals the verified revision
+and the PR queue is empty. The final hosted proof and ledger closeout are
+retained locally for inclusion with the next tested implementation increment.
+
+Full parity remains required: 75 original compilation gaps, wider array and
+callable identity/mutation/lifetimes, native/SDK and language features. C-defined
+controls for the remaining sizeof categories, shared reference parameters and
+nil storage have been prepared; no additional production changes are included
+in this closeout. Guards, dead-code-eliminated feature queries, skipped tests
+and C-undefined probes receive no feature-completion credit.

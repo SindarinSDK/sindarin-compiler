@@ -1,0 +1,236 @@
+Compiler: /home/gavin/code/sindarin/sindarin-rust-thread-parity-2bf57b91/bin/sn
+Platform: Linux
+Parallel: 20 workers
+
+Rust Generation Tests
+============================================================
+  Running 419 tests with 20 workers...
+
+
+  sizeof_function                               FAIL (Rust code mismatch)  (4ms)
+      line 99:
+        expected:     unsafe {
+        got:          let mut bytes: i64 = 8i64;
+      line 100:
+        expected:         #[cfg(windows)]
+        got:          unsafe {
+      line 101:
+        expected:         let stream = crate::__sn_stdio_iob(1);
+        got:              #[cfg(windows)]
+      line 102:
+        expected:         #[cfg(not(windows))]
+        got:              let stream = crate::__sn_stdio_iob(1);
+      line 103:
+        expected:         let stream = crate::__sn_stdio_stdout;
+        got:              #[cfg(not(windows))]
+      line 104:
+        expected:         crate::__sn_stdio_fflush(stream);
+        got:              let stream = crate::__sn_stdio_stdout;
+      line 105:
+        expected:     }
+        got:              crate::__sn_stdio_fflush(stream);
+      line 106:
+        expected: }
+        got:          }
+      line 107:
+        expected:
+        got:      }
+      line 108:
+        expected: <missing>
+        got:
+  sizeof_interface                              FAIL (Rust code mismatch)  (3ms)
+      line 95:
+        expected:     unsafe {
+        got:          let mut bytes: i64 = (std::mem::size_of::<*mut std::ffi::c_void>() as i64);
+      line 96:
+        expected:         #[cfg(windows)]
+        got:          unsafe {
+      line 97:
+        expected:         let stream = crate::__sn_stdio_iob(1);
+        got:              #[cfg(windows)]
+      line 98:
+        expected:         #[cfg(not(windows))]
+        got:              let stream = crate::__sn_stdio_iob(1);
+      line 99:
+        expected:         let stream = crate::__sn_stdio_stdout;
+        got:              #[cfg(not(windows))]
+      line 100:
+        expected:         crate::__sn_stdio_fflush(stream);
+        got:              let stream = crate::__sn_stdio_stdout;
+      line 101:
+        expected:     }
+        got:              crate::__sn_stdio_fflush(stream);
+      line 102:
+        expected: }
+        got:          }
+      line 103:
+        expected:
+        got:      }
+      line 104:
+        expected: <missing>
+        got:
+  sizeof_nil                                    FAIL (Rust code mismatch)  (5ms)
+      line 95:
+        expected:     unsafe {
+        got:          let mut bytes: i64 = 8i64;
+      line 96:
+        expected:         #[cfg(windows)]
+        got:          unsafe {
+      line 97:
+        expected:         let stream = crate::__sn_stdio_iob(1);
+        got:              #[cfg(windows)]
+      line 98:
+        expected:         #[cfg(not(windows))]
+        got:              let stream = crate::__sn_stdio_iob(1);
+      line 99:
+        expected:         let stream = crate::__sn_stdio_stdout;
+        got:              #[cfg(not(windows))]
+      line 100:
+        expected:         crate::__sn_stdio_fflush(stream);
+        got:              let stream = crate::__sn_stdio_stdout;
+      line 101:
+        expected:     }
+        got:              crate::__sn_stdio_fflush(stream);
+      line 102:
+        expected: }
+        got:          }
+      line 103:
+        expected:
+        got:      }
+      line 104:
+        expected: <missing>
+        got:
+  sizeof_void                                   FAIL (Rust code mismatch)  (4ms)
+      line 95:
+        expected:     unsafe {
+        got:          let mut bytes: i64 = 8i64;
+      line 96:
+        expected:         #[cfg(windows)]
+        got:          unsafe {
+      line 97:
+        expected:         let stream = crate::__sn_stdio_iob(1);
+        got:              #[cfg(windows)]
+      line 98:
+        expected:         #[cfg(not(windows))]
+        got:              let stream = crate::__sn_stdio_iob(1);
+      line 99:
+        expected:         let stream = crate::__sn_stdio_stdout;
+        got:              #[cfg(not(windows))]
+      line 100:
+        expected:         crate::__sn_stdio_fflush(stream);
+        got:              let stream = crate::__sn_stdio_stdout;
+      line 101:
+        expected:     }
+        got:              crate::__sn_stdio_fflush(stream);
+      line 102:
+        expected: }
+        got:          }
+      line 103:
+        expected:
+        got:      }
+      line 104:
+        expected: <missing>
+        got:
+
+------------------------------------------------------------
+Results: 415 passed, 4 failed, 0 skipped  (6.64s)
+
+Rust Generation Error Tests
+============================================================
+  Running 143 tests with 20 workers...
+
+
+------------------------------------------------------------
+Results: 143 passed, 0 failed, 0 skipped  (58ms)
+
+Tagged Native Scalar/Source/Link Parity Tests
+============================================================
+  Running 8 tests with 20 workers...
+
+
+------------------------------------------------------------
+Results: 8 passed, 0 failed, 0 skipped  (580ms)
+
+Post-Tag Rust Native Extra Coverage
+============================================================
+  Running 23 tests with 20 workers...
+
+
+------------------------------------------------------------
+Results: 23 passed, 0 failed, 0 skipped  (1.76s)
+
+Rust Native Imported-Origin Extra Coverage
+============================================================
+  Running 1 tests with 20 workers...
+
+
+------------------------------------------------------------
+Results: 1 passed, 0 failed, 0 skipped  (224ms)
+
+Rust Native Scalar Error Tests
+============================================================
+  Running 4 tests with 20 workers...
+
+
+------------------------------------------------------------
+Results: 4 passed, 0 failed, 0 skipped  (47ms)
+
+Rust Closure Value Tests
+============================================================
+  Running 36 tests with 20 workers...
+
+
+------------------------------------------------------------
+Results: 36 passed, 0 failed, 0 skipped  (661ms)
+
+Rust Closure Value Error Tests
+============================================================
+  Running 1 tests with 20 workers...
+
+
+------------------------------------------------------------
+Results: 1 passed, 0 failed, 0 skipped  (2ms)
+
+Rust Concurrency Tests
+============================================================
+  Running 10 tests with 20 workers...
+
+
+------------------------------------------------------------
+Results: 10 passed, 0 failed, 0 skipped  (372ms)
+
+Promoted Rust Concurrency Tests
+============================================================
+  Running 7 tests with 20 workers...
+
+
+------------------------------------------------------------
+Results: 7 passed, 0 failed, 0 skipped  (240ms)
+
+Rust Concurrency Error Tests
+============================================================
+  Running 1 tests with 20 workers...
+
+
+------------------------------------------------------------
+Results: 1 passed, 0 failed, 0 skipped  (2ms)
+
+Rust Toolchain and Artifact Lifecycle Tests
+============================================================
+  subprocess_utf8_boundary                      PASS  (32ms)
+  rustc_invocation_records                      PASS  (30ms)
+  pure_rust_has_no_c_dependency                 PASS  (8ms)
+  native_emit_requires_bundle                   PASS  (1ms)
+  native_c_link_driver_contract                 PASS  (386ms)
+  native_debug_sanitizer_link                   PASS  (286ms)
+  native_compile_and_link_failures              PASS  (360ms)
+  missing_rustc                                 PASS  (2ms)
+  failing_rustc                                 PASS  (3ms)
+  failing_rustc_build                           PASS  (15ms)
+  rust_generated_artifact_lifecycle             PASS  (10ms)
+  rust_native_artifact_lifecycle                PASS  (628ms)
+
+------------------------------------------------------------
+Results: 12 passed, 0 failed  (1.77s)
+
+Some tests failed!  (total: 12.36s)

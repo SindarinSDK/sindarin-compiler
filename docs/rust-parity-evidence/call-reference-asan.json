@@ -1,0 +1,502 @@
+{
+  "compiler_sha256": "9f63d3a90d126237c59c1cbb84e970c0df81a1df7aa9a8c318dd899bcf705e96",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "cases": [
+    {
+      "source": "tests/rgen/sizeof_function.sn",
+      "target": "c",
+      "source_sha256": "162b0ef75e3c26c56c0db635041cd9784f384e93e7fb426fb3cda664e5c63705",
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rgen/sizeof_function.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-call-ref-asan-dgv44k0v/0-c.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f73697a656f665f66756e6374696f6e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d63616c6c2d7265662d6173616e2d64677634346b30762f302d632e657865202838302e35204b42290a"
+      },
+      "asan_instrumentation_verified": true,
+      "run": {
+        "command": [
+          "/tmp/sn-call-ref-asan-dgv44k0v/0-c.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": ""
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/sizeof_interface.sn",
+      "target": "c",
+      "source_sha256": "c98318bf1dc4d101cd6c3fedbeee156dcf96c8145a19d74f07ea125b77cbef40",
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rgen/sizeof_interface.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-call-ref-asan-dgv44k0v/1-c.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f73697a656f665f696e746572666163652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d63616c6c2d7265662d6173616e2d64677634346b30762f312d632e657865202838302e34204b42290a"
+      },
+      "asan_instrumentation_verified": true,
+      "run": {
+        "command": [
+          "/tmp/sn-call-ref-asan-dgv44k0v/1-c.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": ""
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/sizeof_nil.sn",
+      "target": "c",
+      "source_sha256": "00ee134f80fef83a5f2529e61bb406d4a305324eb92f2c1817006fabfd24640d",
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rgen/sizeof_nil.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-call-ref-asan-dgv44k0v/2-c.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f73697a656f665f6e696c2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d63616c6c2d7265662d6173616e2d64677634346b30762f322d632e657865202838302e34204b42290a"
+      },
+      "asan_instrumentation_verified": true,
+      "run": {
+        "command": [
+          "/tmp/sn-call-ref-asan-dgv44k0v/2-c.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": ""
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/sizeof_void.sn",
+      "target": "c",
+      "source_sha256": "d134b29f5b2ccd620ede075ef7429d6b4ec2286771bd04b2bad7b16bc685a23c",
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rgen/sizeof_void.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-call-ref-asan-dgv44k0v/3-c.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f73697a656f665f766f69642e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d63616c6c2d7265662d6173616e2d64677634346b30762f332d632e657865202838302e34204b42290a"
+      },
+      "asan_instrumentation_verified": true,
+      "run": {
+        "command": [
+          "/tmp/sn-call-ref-asan-dgv44k0v/3-c.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": ""
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/sizeof_c_callables.sn",
+      "target": "c",
+      "source_sha256": "ddda7987268513e9c3b3e4d1d1186a94de370dff10fd35b12c8beaf11a03f447",
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rgen/sizeof_c_callables.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-call-ref-asan-dgv44k0v/4-c.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f73697a656f665f635f63616c6c61626c65732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d63616c6c2d7265662d6173616e2d64677634346b30762f342d632e657865202838322e33204b42290a"
+      },
+      "asan_instrumentation_verified": true,
+      "run": {
+        "command": [
+          "/tmp/sn-call-ref-asan-dgv44k0v/4-c.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "380a380a380a300a34310a",
+        "stderr_hex": ""
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/sizeof_c_nonvalues.sn",
+      "target": "c",
+      "source_sha256": "ad3b974e89564b9f39f3e0020d595ad49672ffad5566825c8df30b5de278ab8b",
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rgen/sizeof_c_nonvalues.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-call-ref-asan-dgv44k0v/5-c.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f73697a656f665f635f6e6f6e76616c7565732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d63616c6c2d7265662d6173616e2d64677634346b30762f352d632e657865202838302e35204b42290a"
+      },
+      "asan_instrumentation_verified": true,
+      "run": {
+        "command": [
+          "/tmp/sn-call-ref-asan-dgv44k0v/5-c.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "380a380a",
+        "stderr_hex": ""
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/sizeof_c_interfaces.sn",
+      "target": "c",
+      "source_sha256": "903b5118090b73750f6873aa1ce692fdc7c2b1b1d7b74e656c9cf8817ec6d4ac",
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rgen/sizeof_c_interfaces.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-call-ref-asan-dgv44k0v/6-c.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f73697a656f665f635f696e74657266616365732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d63616c6c2d7265662d6173616e2d64677634346b30762f362d632e657865202838302e35204b42290a"
+      },
+      "asan_instrumentation_verified": true,
+      "run": {
+        "command": [
+          "/tmp/sn-call-ref-asan-dgv44k0v/6-c.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "380a",
+        "stderr_hex": ""
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/sizeof_c_callback_fields.sn",
+      "target": "c",
+      "source_sha256": "90c80f3ac831d814951cfa7c037116dba3aace9f88a6ee0156501275a9395c4d",
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rgen/sizeof_c_callback_fields.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-call-ref-asan-dgv44k0v/7-c.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f73697a656f665f635f63616c6c6261636b5f6669656c64732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d63616c6c2d7265662d6173616e2d64677634346b30762f372d632e657865202838302e35204b42290a"
+      },
+      "asan_instrumentation_verified": true,
+      "run": {
+        "command": [
+          "/tmp/sn-call-ref-asan-dgv44k0v/7-c.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "32340a",
+        "stderr_hex": ""
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/sizeof_c_lambda_operand.sn",
+      "target": "c",
+      "source_sha256": "8ee63e49494c301073cc6ed5bef698a459d978696e16864562dbfd2b896dd3c8",
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rgen/sizeof_c_lambda_operand.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-call-ref-asan-dgv44k0v/8-c.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f73697a656f665f635f6c616d6264615f6f706572616e642e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d63616c6c2d7265662d6173616e2d64677634346b30762f382d632e657865202838312e34204b42290a"
+      },
+      "asan_instrumentation_verified": true,
+      "run": {
+        "command": [
+          "/tmp/sn-call-ref-asan-dgv44k0v/8-c.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "380a300a",
+        "stderr_hex": ""
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/scalar_sizeof_native_lambda.sn",
+      "target": "c",
+      "source_sha256": "897f4d34fa8311414f0c8230e369a609d61a53c76273c6b549a121b026e1239c",
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rust-native/scalar_sizeof_native_lambda.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-call-ref-asan-dgv44k0v/9-c.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f7363616c61725f73697a656f665f6e61746976655f6c616d6264612e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d63616c6c2d7265662d6173616e2d64677634346b30762f392d632e657865202838302e38204b42290a"
+      },
+      "asan_instrumentation_verified": true,
+      "run": {
+        "command": [
+          "/tmp/sn-call-ref-asan-dgv44k0v/9-c.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "380a",
+        "stderr_hex": ""
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/scalar_sizeof_native_lambda.sn",
+      "target": "rust",
+      "source_sha256": "897f4d34fa8311414f0c8230e369a609d61a53c76273c6b549a121b026e1239c",
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rust-native/scalar_sizeof_native_lambda.sn",
+          "--target",
+          "rust",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-call-ref-asan-dgv44k0v/9-rust.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f7363616c61725f73697a656f665f6e61746976655f6c616d6264612e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f7363616c61725f73697a656f665f6e61746976655f6c616d6264615f333338363139332f6d61696e2e72733a38393a31340a2020207c0a3839207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d63616c6c2d7265662d6173616e2d64677634346b30762f392d727573742e6578652028332e38204d42290a"
+      },
+      "asan_instrumentation_verified": true,
+      "run": {
+        "command": [
+          "/tmp/sn-call-ref-asan-dgv44k0v/9-rust.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "380a",
+        "stderr_hex": ""
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/integration/test_as_ref_on_ref_struct_param.sn",
+      "target": "c",
+      "source_sha256": "226968ecf8f876c3072205e98df8bce4ce5687d3c9a4008719168edb7b3bb28a",
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/integration/test_as_ref_on_ref_struct_param.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-call-ref-asan-dgv44k0v/10-c.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f61735f7265665f6f6e5f7265665f7374727563745f706172616d2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d63616c6c2d7265662d6173616e2d64677634346b30762f31302d632e657865202838362e37204b42290a"
+      },
+      "asan_instrumentation_verified": true,
+      "run": {
+        "command": [
+          "/tmp/sn-call-ref-asan-dgv44k0v/10-c.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "636f6d707574653a20504153530a6d75746174653a20504153530a62756d7053656c663a20504153530a746872656164576f726b3a20504153530a416c6c2061732d7265662d6f6e2d7265662d73747275637420746573747320706173736564210a",
+        "stderr_hex": ""
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/reference_call_borrowed_handles.sn",
+      "target": "c",
+      "source_sha256": "d76fe217a306542b1ad2d95ea014101f2ff0c0da900b765753952d0299787e40",
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rgen/reference_call_borrowed_handles.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-call-ref-asan-dgv44k0v/11-c.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f7265666572656e63655f63616c6c5f626f72726f7765645f68616e646c65732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d63616c6c2d7265662d6173616e2d64677634346b30762f31312d632e657865202838352e38204b42290a"
+      },
+      "asan_instrumentation_verified": true,
+      "run": {
+        "command": [
+          "/tmp/sn-call-ref-asan-dgv44k0v/11-c.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "33320a31360a31360a33360a31380a31380a31380a",
+        "stderr_hex": ""
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/reference_call_static_handles.sn",
+      "target": "c",
+      "source_sha256": "d904b9254ff87bba141aa597579ddeee06657029ca8d4c2a2b970700d9f3a49f",
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rgen/reference_call_static_handles.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-call-ref-asan-dgv44k0v/12-c.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f7265666572656e63655f63616c6c5f7374617469635f68616e646c65732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d63616c6c2d7265662d6173616e2d64677634346b30762f31322d632e657865202838362e32204b42290a"
+      },
+      "asan_instrumentation_verified": true,
+      "run": {
+        "command": [
+          "/tmp/sn-call-ref-asan-dgv44k0v/12-c.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "32300a31300a31320a31320a33340a31370a31370a",
+        "stderr_hex": ""
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/reference_call_member_handles.sn",
+      "target": "c",
+      "source_sha256": "c06193347a23f5eef5b51554b2aa0e0e55fe7b158f87eed9314e59be7df9dc21",
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rgen/reference_call_member_handles.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-call-ref-asan-dgv44k0v/13-c.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f7265666572656e63655f63616c6c5f6d656d6265725f68616e646c65732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d63616c6c2d7265662d6173616e2d64677634346b30762f31332d632e657865202838372e37204b42290a"
+      },
+      "asan_instrumentation_verified": true,
+      "run": {
+        "command": [
+          "/tmp/sn-call-ref-asan-dgv44k0v/13-c.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "360a360a370a370a370a370a",
+        "stderr_hex": ""
+      },
+      "passed": true
+    }
+  ],
+  "passed": true
+}

@@ -651,3 +651,24 @@ test-rust-parity-sizeof: build
 		--require-count 24 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-sizeof.json
 	@$(PYTHON) scripts/check_rust_sizeof_oracles.py .sn/rust-parity-sizeof.json
+
+.PHONY: test-rust-parity-call-reference
+test-rust-parity-call-reference: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/rgen/sizeof_function.sn \
+		tests/rgen/sizeof_interface.sn \
+		tests/rgen/sizeof_nil.sn \
+		tests/rgen/sizeof_void.sn \
+		tests/rgen/sizeof_c_callables.sn \
+		tests/rgen/sizeof_c_nonvalues.sn \
+		tests/rgen/sizeof_c_interfaces.sn \
+		tests/rgen/sizeof_c_callback_fields.sn \
+		tests/rgen/sizeof_c_lambda_operand.sn \
+		tests/rust-native/scalar_sizeof_native_lambda.sn \
+		tests/integration/test_as_ref_on_ref_struct_param.sn \
+		tests/rgen/reference_call_borrowed_handles.sn \
+		tests/rgen/reference_call_static_handles.sn \
+		tests/rgen/reference_call_member_handles.sn \
+		--require-count 14 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-call-reference.json
+	@$(PYTHON) scripts/check_rust_call_reference_oracles.py .sn/rust-parity-call-reference.json

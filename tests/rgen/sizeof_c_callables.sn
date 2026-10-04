@@ -1,0 +1,13 @@
+fn answer(): int => return 41
+
+fn observe(calls: int as ref): void =>
+  calls++
+
+fn main(): void =>
+  var calls: int = 0
+  var callback: fn(): int = fn(): int => 41
+  println(sizeof(answer))
+  println(sizeof(callback))
+  println(sizeof(observe(calls)))
+  println(calls)
+  println(callback())

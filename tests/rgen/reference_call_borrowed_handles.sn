@@ -1,0 +1,28 @@
+struct Worker as ref =>
+  value: int
+
+  fn add(other: Worker as ref): int =>
+    other.value += 2
+    return self.value + other.value
+
+fn update(left: Worker as ref, right: Worker as ref): int =>
+  left.value += 1
+  right.value += 10
+  return left.value + right.value
+
+fn read(worker: Worker as ref): int =>
+  return worker.value
+
+fn threadRead(worker: Worker as ref): int =>
+  return worker.value
+
+fn main(): void =>
+  var worker: Worker = { value: 5 }
+  println(update(worker, worker))
+  println(worker.value)
+  println(read(worker))
+  println(worker.add(worker))
+  println(worker.value)
+  var handle: int = & threadRead(worker)
+  println(handle !)
+  println(worker.value)

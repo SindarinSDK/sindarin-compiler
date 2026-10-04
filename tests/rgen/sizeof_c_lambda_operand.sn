@@ -1,0 +1,8 @@
+fn record(calls: int as ref): int =>
+  calls++
+  return 9
+
+fn main(): void =>
+  var calls: int = 0
+  println(sizeof(fn(): int => record(calls)))
+  println(calls)

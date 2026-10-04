@@ -1,0 +1,5 @@
+native fn measure(): int =>
+  return sizeof(fn(): int => 9)
+
+fn main(): void =>
+  println(measure())

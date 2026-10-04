@@ -629,8 +629,12 @@ static const char *mutation_storage_kind(Expr *target)
     Expr *base = mutation_base_variable(target);
     if (!base) return "computed";
     if (target->type == EXPR_MEMBER || target->type == EXPR_MEMBER_ACCESS) {
-        /* `self.field` is the supported direct-field method place. */
-        if (mutation_variable_name_equals(base, "self")) return "local";
+        /* A reference handle's fields are interior places, even when the
+         * handle itself is a parameter. Scalar parameter reassignment remains
+         * separate; field mutation operates on the existing shared owner. */
+        if (mutation_variable_name_equals(base, "self") ||
+            (base->expr_type && base->expr_type->kind == TYPE_STRUCT &&
+             base->expr_type->as.struct_type.pass_self_by_ref)) return "local";
     }
     if (rust_variable_facts(base).is_parameter) return "parameter";
     for (int i = 0; i < rust_g_captured_var_count; i++)
@@ -4227,9 +4231,9 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
             }
             if (expr->as.sizeof_expr.expr_operand)
             {
-                json_object_object_add(obj, "operand",
-                    rust_gen_model_expr(arena, expr->as.sizeof_expr.expr_operand, symbol_table, arithmetic_mode));
-                /* Also set target_type from the expression's resolved type */
+                /* C sizeof consumes only the resolved type. Do not project
+                 * the operand: that would register unevaluated lambdas and
+                 * their capture/mutation requirements in the runtime model. */
                 if (!expr->as.sizeof_expr.type_operand && expr->as.sizeof_expr.expr_operand->expr_type)
                 {
                     json_object_object_add(obj, "target_type",

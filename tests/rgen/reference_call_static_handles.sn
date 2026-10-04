@@ -1,0 +1,33 @@
+struct Worker as ref =>
+  value: int
+
+  static fn update(left: Worker as ref, right: Worker as ref): int =>
+    left.value += 2
+    right.value += 3
+    return left.value + right.value
+
+  fn reenter(other: Worker as ref): int =>
+    other.value += touch(self)
+    return self.value
+
+fn touch(worker: Worker as ref): int =>
+  return worker.value / 5
+
+fn retain(worker: Worker as ref): Worker =>
+  return worker
+
+fn threadRead(worker: Worker as ref): int =>
+  return worker.value
+
+fn main(): void =>
+  var worker: Worker = { value: 5 }
+  var alias: Worker = worker
+  println(Worker.update(worker, alias))
+  println(worker.value)
+  println(alias.reenter(worker))
+  println(worker.value)
+  var result: Worker = retain(worker)
+  println(Worker.update(result, worker))
+  println(alias.value)
+  var handle: int = & threadRead(worker)
+  println(handle !)

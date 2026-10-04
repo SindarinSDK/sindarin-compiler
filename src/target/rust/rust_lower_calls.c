@@ -2,11 +2,15 @@
 
 static bool rust_owned_value_type(json_object *node);
 
-static bool rust_owned_string_call_argument(json_object *node)
+static bool rust_call_argument_needs_acquire(json_object *node)
 {
     json_object *type = NULL;
     if (!json_object_object_get_ex(node, "type", &type)) return false;
-    return json_string_property_equals(type, "kind", "string");
+    /* Reference structs use sharing Clone implementations. Acquiring the
+     * handle keeps a borrowed C argument from consuming its caller's lvalue. */
+    return json_string_property_equals(type, "kind", "string") ||
+           (json_string_property_equals(type, "kind", "struct") &&
+            json_boolean_property(type, "pass_self_by_ref"));
 }
 
 static void rust_lower_call_strings(json_object *node, const char *kind)
@@ -36,9 +40,9 @@ static void rust_lower_call_strings(json_object *node, const char *kind)
             }
         }
 
-        /* Sindarin passes owned strings by value without consuming an lvalue at
-         * the call site. C's string ABI does not need an acquire annotation for
-         * every default parameter, so record Rust's move/clone decision here. */
+        /* C borrows owned strings and reference-struct handles at calls.
+         * Rust receives owned values, so acquire an lvalue before passing it.
+         * Reference Clone shares identity rather than copying field values. */
         bool copies_owned_args = false;
         if (json_object_object_get_ex(node, "callee", &callee))
         {
@@ -70,7 +74,7 @@ static void rust_lower_call_strings(json_object *node, const char *kind)
                     const char *arg_kind = json_string_property(arg, "kind");
                     if (!json_boolean_property(arg, "is_ref_arg") &&
                         !json_boolean_property(arg, "is_copy_arg") &&
-                        rust_owned_string_call_argument(arg) &&
+                        rust_call_argument_needs_acquire(arg) &&
                         arg_kind && (strcmp(arg_kind, "variable") == 0 ||
                                      strcmp(arg_kind, "member") == 0 ||
                                      strcmp(arg_kind, "array_access") == 0))
@@ -92,7 +96,7 @@ static void rust_lower_call_strings(json_object *node, const char *kind)
                 const char *arg_kind = json_string_property(arg, "kind");
                 if (!json_boolean_property(arg, "is_ref_arg") &&
                     !json_boolean_property(arg, "is_copy_arg") &&
-                    rust_owned_string_call_argument(arg) &&
+                    rust_call_argument_needs_acquire(arg) &&
                     arg_kind && (strcmp(arg_kind, "variable") == 0 ||
                                  strcmp(arg_kind, "member") == 0 ||
                                  strcmp(arg_kind, "array_access") == 0))

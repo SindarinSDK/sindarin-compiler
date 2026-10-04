@@ -117,6 +117,9 @@ static bool native_body_has_unsupported_construct_impl(json_object *node,
     if (!json_object_is_type(node, json_type_object)) return false;
 
     const char *kind = native_string(node, "kind");
+    /* C emits only the resolved type for sizeof; an operand's lambda/thread
+     * metadata does not imply an evaluated construct or an ABI boundary. */
+    if (kind && strcmp(kind, "sizeof") == 0) return false;
     if ((kind && (strcmp(kind, "lambda") == 0 ||
                   strcmp(kind, "closure_call") == 0 ||
                   strcmp(kind, "thread_spawn") == 0 ||

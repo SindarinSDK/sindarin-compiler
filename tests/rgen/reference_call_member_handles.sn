@@ -1,0 +1,24 @@
+struct Worker as ref =>
+  value: int
+
+struct Holder =>
+  worker: Worker
+
+fn update(worker: Worker): int =>
+  worker.value += 1
+  return worker.value
+
+fn threadRead(worker: Worker): int =>
+  return worker.value
+
+fn main(): void =>
+  var worker: Worker = { value: 5 }
+  var holder: Holder = { worker: worker }
+  var workers: Worker[] = {worker}
+  println(update(holder.worker))
+  println(worker.value)
+  println(update(workers[0]))
+  println(worker.value)
+  println(holder.worker.value)
+  var handle: int = & threadRead(worker)
+  println(handle !)

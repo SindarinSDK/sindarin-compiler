@@ -1,0 +1,74 @@
+[
+  {
+    "source": "tests/rgen/sizeof_function.sn",
+    "source_sha256": "162b0ef75e3c26c56c0db635041cd9784f384e93e7fb426fb3cda664e5c63705",
+    "snapshot": "tests/rgen/sizeof_function.expected.rs",
+    "snapshot_sha256": "d7125078438ccbafac623c7561f8ec4af97bed748597a2492a705cb94f9d4d38"
+  },
+  {
+    "source": "tests/rgen/sizeof_interface.sn",
+    "source_sha256": "c98318bf1dc4d101cd6c3fedbeee156dcf96c8145a19d74f07ea125b77cbef40",
+    "snapshot": "tests/rgen/sizeof_interface.expected.rs",
+    "snapshot_sha256": "5b19af82704cb91d4acfeb00fc27eed7a1ff7704c0443418219947beab6af09c"
+  },
+  {
+    "source": "tests/rgen/sizeof_nil.sn",
+    "source_sha256": "00ee134f80fef83a5f2529e61bb406d4a305324eb92f2c1817006fabfd24640d",
+    "snapshot": "tests/rgen/sizeof_nil.expected.rs",
+    "snapshot_sha256": "63d6e6568aa108793ba63d7247cd7f041d9d767a625460c81ba5a13a93af4e0e"
+  },
+  {
+    "source": "tests/rgen/sizeof_void.sn",
+    "source_sha256": "d134b29f5b2ccd620ede075ef7429d6b4ec2286771bd04b2bad7b16bc685a23c",
+    "snapshot": "tests/rgen/sizeof_void.expected.rs",
+    "snapshot_sha256": "63d6e6568aa108793ba63d7247cd7f041d9d767a625460c81ba5a13a93af4e0e"
+  },
+  {
+    "source": "tests/rgen/sizeof_c_callables.sn",
+    "source_sha256": "ddda7987268513e9c3b3e4d1d1186a94de370dff10fd35b12c8beaf11a03f447",
+    "snapshot": "tests/rgen/sizeof_c_callables.expected.rs",
+    "snapshot_sha256": "af97d19e090f656423c350edd10a1406773535d8add5ccc4769a9bece4349f55"
+  },
+  {
+    "source": "tests/rgen/sizeof_c_nonvalues.sn",
+    "source_sha256": "ad3b974e89564b9f39f3e0020d595ad49672ffad5566825c8df30b5de278ab8b",
+    "snapshot": "tests/rgen/sizeof_c_nonvalues.expected.rs",
+    "snapshot_sha256": "ff266d9a7a64c1d4c53c51b6e85f7db1de90505edb81ff9c14e22a2179d076f8"
+  },
+  {
+    "source": "tests/rgen/sizeof_c_interfaces.sn",
+    "source_sha256": "903b5118090b73750f6873aa1ce692fdc7c2b1b1d7b74e656c9cf8817ec6d4ac",
+    "snapshot": "tests/rgen/sizeof_c_interfaces.expected.rs",
+    "snapshot_sha256": "e4490ce6c25f8a4657252404b68160cc0e929f7b28033f2d0087bbe2d54be5c0"
+  },
+  {
+    "source": "tests/rgen/sizeof_c_callback_fields.sn",
+    "source_sha256": "90c80f3ac831d814951cfa7c037116dba3aace9f88a6ee0156501275a9395c4d",
+    "snapshot": "tests/rgen/sizeof_c_callback_fields.expected.rs",
+    "snapshot_sha256": "64e325927729f7aecc885521d41d72841ad02d1cc9760621b44549eaa1122f89"
+  },
+  {
+    "source": "tests/rgen/sizeof_c_lambda_operand.sn",
+    "source_sha256": "8ee63e49494c301073cc6ed5bef698a459d978696e16864562dbfd2b896dd3c8",
+    "snapshot": "tests/rgen/sizeof_c_lambda_operand.expected.rs",
+    "snapshot_sha256": "5df750c9ab8c2a9f53ebf6c159578026eea3bbedda13da34a9c01a6413d691f8"
+  },
+  {
+    "source": "tests/rgen/reference_call_borrowed_handles.sn",
+    "source_sha256": "d76fe217a306542b1ad2d95ea014101f2ff0c0da900b765753952d0299787e40",
+    "snapshot": "tests/rgen/reference_call_borrowed_handles.expected.rs",
+    "snapshot_sha256": "6f6916005c658798a9d8b72bb9deca9210379387791cf0d8d806b3d5e8298faa"
+  },
+  {
+    "source": "tests/rgen/reference_call_static_handles.sn",
+    "source_sha256": "d904b9254ff87bba141aa597579ddeee06657029ca8d4c2a2b970700d9f3a49f",
+    "snapshot": "tests/rgen/reference_call_static_handles.expected.rs",
+    "snapshot_sha256": "d8fbe9e3dd52125880b756add0a9b1d30a87fbb4a26bf909839841b33a8cef41"
+  },
+  {
+    "source": "tests/rgen/reference_call_member_handles.sn",
+    "source_sha256": "c06193347a23f5eef5b51554b2aa0e0e55fe7b158f87eed9314e59be7df9dc21",
+    "snapshot": "tests/rgen/reference_call_member_handles.expected.rs",
+    "snapshot_sha256": "6c795372a4887cd5e690b80073033f7afcbf8a70c2c2332b33c55ba351f9f580"
+  }
+]
