@@ -1,0 +1,27 @@
+@source "nil-next-native-string.sn.c"
+
+native fn is_absent(value: str): bool
+
+fn missing(value: str): bool =>
+  return value == nil
+
+struct Checker =>
+  value: int = 0
+
+  fn missing(value: str): bool =>
+    return value == nil
+
+  static fn missingStatic(value: str): bool =>
+    return value == nil
+
+  static fn absent(): str =>
+    return nil
+
+fn main(): void =>
+  println(missing(nil))
+  var checker: Checker = {}
+  println(checker.missing(nil))
+  println(Checker.missingStatic(nil))
+  var value: str = Checker.absent()
+  println(value == nil)
+  println(is_absent(nil))

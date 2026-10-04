@@ -1,0 +1,23 @@
+[
+  {
+    "source": "tests/rgen/nil_string_transitions.sn",
+    "source_sha256": "e8757eb7ba458f50773a9b86cb8c96972f08435b3d99a83833742875b36cb9d3",
+    "snapshot": "tests/rgen/nil_string_transitions.expected.rs",
+    "snapshot_sha256": "27e36de703bb72dddef8f59717fbd0b09db7667b711d25b4f997dba322fd7c5e",
+    "optimization": "-O0"
+  },
+  {
+    "source": "tests/rgen/nil_string_print_concat.sn",
+    "source_sha256": "57627528e87be1675246c2de8b21568ff633c8c1ff9f021992052d354a53dea8",
+    "snapshot": "tests/rgen/nil_string_print_concat.expected.rs",
+    "snapshot_sha256": "15249d18ca3929ba60ffa74fcda268262896906ad31d9d8749a992bd5007fbea",
+    "optimization": "-O0"
+  },
+  {
+    "source": "tests/rgen/nil_string_fields.sn",
+    "source_sha256": "9dfe0ebee8ffa645a47a2611cd1ccd9a4d11150273abf6fe71ef23bb6aeb1364",
+    "snapshot": "tests/rgen/nil_string_fields.expected.rs",
+    "snapshot_sha256": "0e4c238843bf0e673cf703a41b38aa5c260dd5ac7cc5e5f641d0dff55a08b9ab",
+    "optimization": "-O0"
+  }
+]

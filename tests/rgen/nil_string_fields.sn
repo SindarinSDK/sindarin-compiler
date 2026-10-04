@@ -1,0 +1,24 @@
+struct Label =>
+  text: str = nil
+
+  fn missing(): bool =>
+    return self.text == nil
+
+fn create(): Label =>
+  var label: Label = {}
+  return label
+
+fn main(): void =>
+  var label: Label = {}
+  println(label.missing())
+  label.text = ""
+  println(label.text == nil)
+  var result: Label = create()
+  println(result.text == nil)
+  var values: str[] = {"", "", "x"}
+  values[1] = nil
+  println(values[0] == nil)
+  println(values[1] == nil)
+  println(values[2] != nil)
+  var copied: str[] = copyOf(values)
+  println(copied[1] == nil)

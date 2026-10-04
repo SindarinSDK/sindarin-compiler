@@ -1,0 +1,8 @@
+@source "nil-next-native-string.sn.c"
+
+native fn absent(): str
+native fn is_absent(value: str): bool
+
+fn main(): void =>
+  var value: str = absent()
+  println(is_absent(value))

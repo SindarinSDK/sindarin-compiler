@@ -311,7 +311,13 @@ static char *helper_rust_default(json_object **params, int param_count, hbs_opti
     if (!kind) return strdup("()");
     if (strcmp(kind, "bool") == 0) return strdup("false");
     if (strcmp(kind, "char") == 0) return strdup("'\\0'");
-    if (strcmp(kind, "string") == 0) return strdup("SnString::new()");
+    if (strcmp(kind, "string") == 0)
+    {
+        json_object *nullable = NULL;
+        bool is_nullable = json_object_object_get_ex(params[0], "rust_nullable_string", &nullable) &&
+                           json_object_get_boolean(nullable);
+        return strdup(is_nullable ? "SnString::nil()" : "SnString::new()");
+    }
     if (strcmp(kind, "array") == 0) return strdup("Vec::new()");
     if (strcmp(kind, "pointer") == 0 || strcmp(kind, "opaque") == 0)
         return strdup("std::ptr::null_mut()");

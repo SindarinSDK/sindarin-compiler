@@ -149,6 +149,7 @@ static bool rust_check_toolchain(const CompilerOptions *options)
 #include "rust_thread_refs.c"
 #include "rust_thread_receivers.c"
 #include "rust_lower_float.c"
+#include "rust_nullable_strings.c"
 
 static bool rust_emit(CompilerOptions *options, Module *module,
                       TargetEmitMode mode, GeneratedFileSet *result)
@@ -173,6 +174,7 @@ static bool rust_emit(CompilerOptions *options, Module *module,
     }
     result->target_data = native_plan;
     result->free_target_data = rust_native_plan_free;
+    rust_prepare_nullable_strings(model);
     rust_prepare_sizeof_only_declarations(model);
     rust_prepare_thread_receivers(model);
     if (!rust_prepare_by_value_scalar_parameter_mutations(model))

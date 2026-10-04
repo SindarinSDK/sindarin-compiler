@@ -1,0 +1,16 @@
+fn main(): void =>
+  var missing: str = nil
+  print("[")
+  print(missing)
+  println("]")
+  println(missing)
+  var text: str = missing + "a"
+  println(text == nil)
+  println(text)
+  missing += ""
+  println(missing == nil)
+  println(missing.length)
+  missing = nil
+  missing += "b"
+  println(missing == nil)
+  println(missing)

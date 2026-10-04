@@ -1,0 +1,20 @@
+fn echo(value: str): str =>
+  return value
+
+fn absent(): str =>
+  return nil
+
+fn main(): void =>
+  var value: str = nil
+  println(value == nil)
+  value = ""
+  println(value == nil)
+  println(value.length)
+  var returned: str = echo(value)
+  println(returned == nil)
+  value = "hello"
+  println(value != nil)
+  value = nil
+  println(nil == value)
+  var missing: str = absent()
+  println(missing == nil)

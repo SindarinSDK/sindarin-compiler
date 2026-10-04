@@ -696,3 +696,18 @@ test-rust-parity-native-scope: build
 		--require-count 4 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-native-scope.json
 	@$(PYTHON) scripts/check_rust_native_scope_oracles.py .sn/rust-parity-native-scope.json
+
+.PHONY: test-rust-parity-nil-string
+test-rust-parity-nil-string: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/integration/test_nil_string.sn \
+		tests/rgen/nil_string_transitions.sn \
+		tests/rgen/nil_string_print_concat.sn \
+		tests/rgen/nil_string_fields.sn \
+		tests/rust-native/scalar_nil_string_native.sn \
+		tests/rust-native/scalar_nil_string_implicit.sn \
+		tests/rust-native/scalar_nil_string_default.sn \
+		tests/rust-native/scalar_nil_string_calls.sn \
+		--require-count 8 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-nil-string.json
+	@$(PYTHON) scripts/check_rust_nil_string_oracles.py .sn/rust-parity-nil-string.json

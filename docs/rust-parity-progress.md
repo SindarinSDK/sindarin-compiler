@@ -5,10 +5,75 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
-## Latest local increment: C-only native helpers, 2026-10-04
+## Latest local increment: nil strings, 2026-10-04
+
+This increment is locally verified against main
+`08aef21116b8009cfcdcc9d00ff03b37abe01146`; all six CI jobs and retained artifacts
+for that base are now verified. Integration and nil-string hosted CI follow. All 26 reports pass
+**2208 cases**, including 72 independent nil-string cases at O0/O1/O2 in
+all arithmetic modes. Full C suites pass unchanged; Rust generation/negative
+are 427 / 143, native 8 / 28 / 1 / 4, closures 36 / 1, concurrency 10 / 7 / 1
+and toolchain 12, with no failures or skips. Eight C controls pass instrumented
+ASAN with leak detection; four Rust/native executables also pass with
+instrumented C bridge/runtime. Raw bytes, text transport and formatting pass.
+
+Nil string state is distinct from allocated empty bytes. Contextual nil values,
+default strings, field/array-element copies and literal nil returns preserve that
+state. Null-safe printing emits empty output; concatenation produces allocated
+strings even when appending an empty suffix to nil. Native NULL results and nil
+arguments retain NULL, including programs with no nil literal. Free/instance,
+static and native call contexts are tested. Nullable representation is enabled
+when observable null semantics are required; existing snapshots remain unchanged.
+
+The unchanged original corpus passes 1080 integration and 216 exploratory
+programs, leaving **69 compilation gaps locally**, down from 70. No original
+runtime failures or skips occur. All 1365 original source hashes and 477 existing
+Rust snapshots are unchanged; three new O0 snapshots are added. Seven new
+controls preserve their prepared source bytes. The baseline contains 54 Rust
+compiler rejections and 18 actual runtime mismatches, with distinct compiler
+hashes retained. Nil arrays and C-undefined borrowed nil returns remain separate.
+
+Evidence: [local validation](rust-parity-evidence/nil-string-validation.json),
+[72 independent pairs](rust-parity-evidence/nil-string-pairs.json),
+[baseline](rust-parity-evidence/nil-string-before-controls.json),
+[C ASAN](rust-parity-evidence/nil-string-asan.json),
+[Rust/native ASAN](rust-parity-evidence/nil-string-native-asan.json) and
+[remaining diagnostics](rust-parity-evidence/nil-string-gap-diagnostics.json).
+C production, templates and original expectations are unchanged; C remains default.
+
+## CI retention repair: 2026-10-04
+
+The helper-scope gate passes all 36 cases in the Linux job for main
+`68f870f0c104986760e99d1b4df0d46ebb034420`, but the explicit artifact upload
+list omitted its report. Only 24 reports were retained, so complete retained
+25-report evidence is unproven for that revision. The correction is pushed as
+`afa6cf25607aed29c208041ecbf12b88042d2a53`: the artifact retains every
+`.sn/rust-parity-*.json` report alongside runtime diagnostics. All 25 current
+local report paths were checked against the pattern; compiler semantics are
+unchanged. Exact-revision CI and complete platform artifacts are pending.
+
+The first glob correction on `afa6cf25607aed29c208041ecbf12b88042d2a53`
+matched no files because the uploader excludes hidden directories. The Linux
+job passed its suites and gates but uploaded no artifact; it is not accepted as
+retained parity evidence. Main `08aef21116b8009cfcdcc9d00ff03b37abe01146`
+now sets `include-hidden-files: true` and makes an empty upload fail CI.
+A project-local replay with the uploader's actual `@actions/glob@0.6.1` library
+reproduces zero reports with the old setting and all 25 required reports with the
+new setting. [Replay evidence](rust-parity-evidence/artifact-hidden-glob-validation.json)
+is committed. All six exact-revision jobs now pass and every platform's
+25 reports independently verify 2136 cases. The Linux Compiler job's first
+attempt passed all tests but timed out creating the build artifact; one targeted
+rerun passed. Its failed upload log and hash remain recorded in the proof.
+[Exact-main CI evidence](rust-parity-evidence/native-scope-main-ci-green.json)
+includes that attempt; no compiler change was needed for the upload timeout.
+
+## C-only native helpers: local validation, 2026-10-04
 
 This implementation increment is locally verified against main
-`1221cc7b9946737f609bc29d4b0de94356239639`; its hosted CI is pending.
+`1221cc7b9946737f609bc29d4b0de94356239639`; all six hosted jobs pass on helper-scope revision
+`68f870f0c104986760e99d1b4df0d46ebb034420`. Complete retained artifact evidence
+is verified on unchanged compiler revision `08aef21116b8009cfcdcc9d00ff03b37abe01146`
+after the two retention corrections described above.
 All 25 runtime reports pass **2136 cases**, including 36 independent helper-scope
 cases at O0/O1/O2 in default/checked/unchecked arithmetic modes. Complete C suites
 pass unchanged; Rust generation/negative are 424 / 143, native 8 / 24 / 1 / 4,
@@ -123,32 +188,24 @@ Full parity and exact-revision hosted verification remain required.
 
 ## Current verified status: 2026-10-04
 
-Main `1221cc7b9946737f609bc29d4b0de94356239639` passes all six Linux/macOS/Windows
-Compiler and Rust Runtime jobs. Complete local and hosted C/Rust suites pass.
-Each platform's 24 retained runtime reports verifies **2100 cases**: 1800
-positive C/Rust pairs, 39 diagnostic/order cases, 153 process-exit cases and
-108 main-return cases. The 54 indexed-string cases independently verify copies,
-computed owner lifetimes, evaluation order and helper-name collisions in all
-three optimization levels and arithmetic modes. C remains the default.
+Main `08aef21116b8009cfcdcc9d00ff03b37abe01146` passes all six Linux/macOS/Windows
+Compiler and Rust Runtime jobs. Complete hosted C/Rust suites pass without
+failures or skips. Each platform's 25 retained runtime reports independently
+verifies **2136 cases**: 1836 positive C/Rust pairs, 39 diagnostic/order cases,
+153 process-exit cases and 108 main-return cases. The 36 helper-scope cases verify
+C-only helpers alongside shared scalar Rust/C callers. C remains default.
 
-The unchanged original corpus passes 1077 integration and 215 exploratory
-cases, leaving 64 and nine compilation gaps: **73 remaining original gaps**.
-There are no runtime failures or skips. All 1365 original source hashes and
-472 historical Rust snapshots are unchanged; five new snapshots are added.
-Six C sources pass instrumented ASAN with leak detection.
+The unchanged original corpus passes 1079 integration and 216 exploratory
+programs, leaving 62 and eight compilation gaps: **70 remaining original gaps**
+on this verified revision. All 1365 original source hashes and 477 existing Rust
+snapshots are unchanged. Four C helper-scope sources pass instrumented ASAN.
+The pending nil-string increment reduces the locally verified gap count to 69.
 
-Evidence: [local validation](rust-parity-evidence/indexed-string-validation.json),
-[54 independent pairs](rust-parity-evidence/indexed-string-pairs.json),
-[remaining diagnostics](rust-parity-evidence/indexed-string-gap-diagnostics.json)
-and [exact-main CI proof](rust-parity-evidence/indexed-string-main-ci-green.json).
-All three platforms' artifacts verify every case's source hash, statuses, raw
-output and complete mode/optimization identities with one compiler per platform.
-Complete hosted suite counts have no failures or skips. The PR queue is empty.
-
-Full parity remains incomplete: broader array/callable/reference identity,
-mutation and lifetimes, native/SDK and language families still require work.
-Guards, dead-code-eliminated queries, skipped tests, rejected and C-undefined or
-indeterminate-order probes receive no feature-completion credit.
+Evidence: [local validation](rust-parity-evidence/native-scope-validation.json),
+[36 independent pairs](rust-parity-evidence/native-scope-pairs.json),
+[remaining diagnostics](rust-parity-evidence/native-scope-gap-diagnostics.json)
+and [exact-main CI proof](rust-parity-evidence/native-scope-main-ci-green.json).
+The proof retains the first Linux upload timeout and the successful targeted rerun.
 
 ## Baseline: 2026-10-02
 

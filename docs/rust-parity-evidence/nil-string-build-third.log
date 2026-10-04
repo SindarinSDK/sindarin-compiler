@@ -1,0 +1,17 @@
+[0/2] Re-checking globbed directories...
+[1/6] Synchronizing runtime headers
+[2/6] Building C object CMakeFiles/sn.dir/src/target/rust/rust_target.c.o
+In file included from /home/gavin/code/sindarin/sindarin-rust-nullable-strings-68f870f0/src/target/rust/rust_target.c:148:
+/home/gavin/code/sindarin/sindarin-rust-nullable-strings-68f870f0/src/target/rust/rust_thread_arrays.c: In function ‘rust_lower_thread_arrays’:
+/home/gavin/code/sindarin/sindarin-rust-nullable-strings-68f870f0/src/target/rust/rust_thread_arrays.c:131:23: warning: comparison of integer expressions of different signedness: ‘size_t’ {aka ‘long unsigned int’} and ‘int’ [-Wsign-compare]
+  131 |     } while (previous != json_object_object_length(names));
+      |                       ^~
+[3/6] Building C object CMakeFiles/tests.dir/src/target/rust/rust_target.c.o
+In file included from /home/gavin/code/sindarin/sindarin-rust-nullable-strings-68f870f0/src/target/rust/rust_target.c:148:
+/home/gavin/code/sindarin/sindarin-rust-nullable-strings-68f870f0/src/target/rust/rust_thread_arrays.c: In function ‘rust_lower_thread_arrays’:
+/home/gavin/code/sindarin/sindarin-rust-nullable-strings-68f870f0/src/target/rust/rust_thread_arrays.c:131:23: warning: comparison of integer expressions of different signedness: ‘size_t’ {aka ‘long unsigned int’} and ‘int’ [-Wsign-compare]
+  131 |     } while (previous != json_object_object_length(names));
+      |                       ^~
+[4/6] Linking C executable bin/sn
+[5/6] Linking C executable bin/tests
+[6/6] Staging compiler artifacts in bin

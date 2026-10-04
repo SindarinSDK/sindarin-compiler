@@ -1,0 +1,111 @@
+Compiler: /home/gavin/code/sindarin/sindarin-rust-nullable-strings-68f870f0/bin/sn
+Platform: Linux
+Parallel: 20 workers
+
+Rust Generation Tests
+============================================================
+  Running 427 tests with 20 workers...
+
+
+------------------------------------------------------------
+Results: 427 passed, 0 failed, 0 skipped  (17.93s)
+
+Rust Generation Error Tests
+============================================================
+  Running 143 tests with 20 workers...
+
+
+------------------------------------------------------------
+Results: 143 passed, 0 failed, 0 skipped  (140ms)
+
+Tagged Native Scalar/Source/Link Parity Tests
+============================================================
+  Running 8 tests with 20 workers...
+
+
+------------------------------------------------------------
+Results: 8 passed, 0 failed, 0 skipped  (873ms)
+
+Post-Tag Rust Native Extra Coverage
+============================================================
+  Running 28 tests with 20 workers...
+
+
+------------------------------------------------------------
+Results: 28 passed, 0 failed, 0 skipped  (3.55s)
+
+Rust Native Imported-Origin Extra Coverage
+============================================================
+  Running 1 tests with 20 workers...
+
+
+------------------------------------------------------------
+Results: 1 passed, 0 failed, 0 skipped  (382ms)
+
+Rust Native Scalar Error Tests
+============================================================
+  Running 4 tests with 20 workers...
+
+
+------------------------------------------------------------
+Results: 4 passed, 0 failed, 0 skipped  (99ms)
+
+Rust Closure Value Tests
+============================================================
+  Running 36 tests with 20 workers...
+
+
+------------------------------------------------------------
+Results: 36 passed, 0 failed, 0 skipped  (1.43s)
+
+Rust Closure Value Error Tests
+============================================================
+  Running 1 tests with 20 workers...
+
+
+------------------------------------------------------------
+Results: 1 passed, 0 failed, 0 skipped  (2ms)
+
+Rust Concurrency Tests
+============================================================
+  Running 10 tests with 20 workers...
+
+
+------------------------------------------------------------
+Results: 10 passed, 0 failed, 0 skipped  (796ms)
+
+Promoted Rust Concurrency Tests
+============================================================
+  Running 7 tests with 20 workers...
+
+
+------------------------------------------------------------
+Results: 7 passed, 0 failed, 0 skipped  (454ms)
+
+Rust Concurrency Error Tests
+============================================================
+  Running 1 tests with 20 workers...
+
+
+------------------------------------------------------------
+Results: 1 passed, 0 failed, 0 skipped  (5ms)
+
+Rust Toolchain and Artifact Lifecycle Tests
+============================================================
+  subprocess_utf8_boundary                      PASS  (41ms)
+  rustc_invocation_records                      PASS  (50ms)
+  pure_rust_has_no_c_dependency                 PASS  (14ms)
+  native_emit_requires_bundle                   PASS  (4ms)
+  native_c_link_driver_contract                 PASS  (528ms)
+  native_debug_sanitizer_link                   PASS  (356ms)
+  native_compile_and_link_failures              PASS  (530ms)
+  missing_rustc                                 PASS  (3ms)
+  failing_rustc                                 PASS  (2ms)
+  failing_rustc_build                           PASS  (31ms)
+  rust_generated_artifact_lifecycle             PASS  (29ms)
+  rust_native_artifact_lifecycle                PASS  (1.21s)
+
+------------------------------------------------------------
+Results: 12 passed, 0 failed  (2.81s)
+
+All tests passed!  (total: 28.47s)

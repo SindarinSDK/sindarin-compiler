@@ -15,7 +15,7 @@ extern "C" {
 }
 
 unsafe fn {{rust_ident rust_native_take_string_name}}(value: *mut std::ffi::c_char) -> SnString {
-    if value.is_null() { return SnString::new(); }
+    if value.is_null() { return SnString::{{#if @root.rust_nullable_strings}}nil{{else}}new{{/if}}(); }
     let result = SnString::from_slice(std::ffi::CStr::from_ptr(value).to_bytes());
     {{rust_ident rust_native_free_extern_name}}(value.cast());
     result
@@ -45,7 +45,8 @@ thread_local! {
 }
 
 fn {{rust_ident rust_native_retain_string_name}}(value: SnString) -> *const std::ffi::c_char {
-    let mut bytes = value.as_bytes().to_vec();
+{{#if @root.rust_nullable_strings}}    if value.is_nil() { return std::ptr::null(); }
+{{/if}}    let mut bytes = value.as_bytes().to_vec();
     bytes.push(0);
     let bytes = bytes.into_boxed_slice();
     let pointer = bytes.as_ptr().cast();
