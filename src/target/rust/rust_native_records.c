@@ -1,6 +1,6 @@
-/* By-value, heap-free records use private C-layout wire types. In particular,
- * C char is one byte while Rust char is four. Reference parameters require
- * stable C-visible storage/lifetimes and remain outside this bridge. */
+/* Heap-free records use private C-layout wire types. Referenced records also
+ * keep this layout in their source storage, so C observes the original address,
+ * aliases and later mutations. C char occupies one byte rather than Rust's four. */
 static json_object *native_record_child(json_object *node, const char *key)
 {
     json_object *child = NULL;
@@ -97,6 +97,36 @@ static bool native_record_register(json_object *model, json_object *type,
     return true;
 }
 
+static void native_record_reference_storage(json_object *model, json_object *type,
+                                             json_object *records)
+{
+    if (!native_string(type, "kind") || strcmp(native_string(type, "kind"), "struct") != 0)
+        return;
+    const char *name = native_string(type, "name");
+    json_object *structure = native_record_struct(model, name);
+    if (native_bool(structure, "rust_native_record_storage")) return;
+    json_object_object_add(structure, "rust_native_record_storage", json_object_new_boolean(true));
+    json_object *fields = native_record_child(structure, "fields");
+    for (size_t i = 0; i < json_object_array_length(fields); i++)
+    {
+        json_object *field = json_object_array_get_idx(fields, i);
+        json_object *field_type = native_record_child(field, "type");
+        if (native_string(field_type, "kind") && strcmp(native_string(field_type, "kind"), "char") == 0)
+            json_object_object_add(field, "rust_native_c_char_storage", json_object_new_boolean(true));
+        native_record_reference_storage(model, field_type, records);
+    }
+    for (size_t i = 0; i < json_object_array_length(records); i++)
+    {
+        json_object *record = json_object_array_get_idx(records, i);
+        if (strcmp(native_string(record, "source_name"), name) != 0) continue;
+        json_object *wire_fields = native_record_child(record, "fields");
+        for (size_t f = 0; f < json_object_array_length(fields); f++)
+            if (native_bool(json_object_array_get_idx(fields, f), "rust_native_c_char_storage"))
+                json_object_object_add(json_object_array_get_idx(wire_fields, f),
+                    "rust_native_c_char_storage", json_object_new_boolean(true));
+    }
+}
+
 static void native_record_mark_types(json_object *node, json_object *records)
 {
     if (!node) return;
@@ -136,6 +166,21 @@ static bool native_prepare_records(json_object *model)
         {
             type = native_record_child(json_object_array_get_idx(params, p), "type");
             if (native_record_is_supported(model, type) && !native_record_register(model, type, records)) goto fail;
+        }
+    }
+    /* Select persistent source layouts only for records exposed by reference.
+     * By-value-only records keep the existing source representation. */
+    for (size_t i = 0; functions && i < json_object_array_length(functions); i++)
+    {
+        json_object *function = json_object_array_get_idx(functions, i);
+        if (!native_bool(function, "is_native")) continue;
+        json_object *params = native_record_child(function, "params");
+        for (size_t p = 0; params && p < json_object_array_length(params); p++)
+        {
+            json_object *param = json_object_array_get_idx(params, p);
+            json_object *type = native_record_child(param, "type");
+            if (native_string(param, "mem_qual") && strcmp(native_string(param, "mem_qual"), "as_ref") == 0 &&
+                native_record_is_supported(model, type)) native_record_reference_storage(model, type, records);
         }
     }
     if (json_object_array_length(records))

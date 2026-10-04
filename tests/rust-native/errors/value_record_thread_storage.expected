@@ -1,0 +1,1 @@
+Error: Rust target native record references require stable C-layout storage for threaded struct 'Record'

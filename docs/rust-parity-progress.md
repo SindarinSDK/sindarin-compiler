@@ -5,7 +5,55 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
-## Latest local increment: native value records, 2026-10-04
+## Native record references: direct-main increment, 2026-10-04
+
+This increment is locally verified against main
+`4446a9e5de915a9a972a673ce3bcb8c46f36d307`, whose six jobs and retained
+Linux/macOS/Windows artifacts independently pass 30 reports and 2433 cases.
+This increment is integrated directly on main after the complete local gates;
+its exact-revision hosted verification remains required. The compiler passes
+**31 reports / 2469 cases**, including 36 independent reference comparisons
+across O0/O1/O2 and all arithmetic modes. Complete C suites pass unchanged.
+Rust generation/negative pass 442 / 143, native tagged/extra/origin/negative
+8 / 37 / 1 / 7, closures 36 / 1, concurrency 10 / 7 / 1 and toolchain 12,
+without failures or skips.
+
+Heap-free record references use persistent C-layout source storage. Nested
+records and one-byte C character fields share their original address with C;
+the bridge preserves same-place aliases, distinct-place mutation and C-retained
+addresses read after subsequent source updates. Source character reads remain
+logical characters, while writes, methods, postfix operations and compound
+assignment convert at the storage boundary. All 256 byte values and their
+increment/decrement/compound mutations are checked, along with later by-value
+returns and independent copies. The original retained-address rejection is
+promoted unchanged into positive coverage, with its original C helper unchanged.
+
+The baseline verifies 36 successful C executions against 36 Rust rejections.
+Another nine C-defined executions establish the still-unfinished thread-managed
+storage obligation. Thread field wrappers cannot be cast to a C record layout;
+that composition retains an explicit guard. General record-array join remains
+rejected against nine successful C controls and receives no parity credit.
+Owned/pointer fields, packed/refcounted records, user copy hooks and broader
+lifetime/callable/SDK obligations remain work.
+
+Five C programs and four Rust/native programs pass instrumented ASAN with leak
+detection. Rust/native instrumentation covers the C bridge/runtime, not Rust
+allocations. All 1365 original source hashes and 495 historical Rust snapshots
+remain unchanged. The unchanged corpus still passes 1084 integration and 217
+exploratory programs with **64 original compilation gaps**, no runtime failures
+or skips. Benchmark coverage remains **95.3% (1301 / 1365)**; this increment
+advances feature coverage without closing an original-corpus compilation gap.
+C production, original expectations and the default target remain unchanged.
+The refreshed PR queue is empty.
+
+Evidence: [local validation](rust-parity-evidence/native-record-reference-validation.json),
+[36 independent pairs](rust-parity-evidence/native-record-reference-pairs.json),
+[C baseline and admission control](rust-parity-evidence/native-record-reference-before-controls.json),
+[ASAN](rust-parity-evidence/native-record-reference-asan.json),
+[remaining record-array text composition](rust-parity-evidence/native-record-reference-remaining-text.json)
+and [remaining original diagnostics](rust-parity-evidence/native-record-reference-gap-diagnostics.json).
+
+## Native value records: verified on main, 2026-10-04
 
 This increment is verified against main
 `af0893c456aa1c682b7c3678064e6d4641b101f4`, whose six CI jobs and complete
@@ -15,7 +63,10 @@ independent native-record comparisons across O0/O1/O2 and all arithmetic modes.
 Complete C suites pass unchanged. Complete Rust generation/negative pass
 442 / 143, native tagged/extra/origin/negative 8 / 33 / 1 / 7, closures 36 / 1,
 concurrency 10 / 7 / 1 and toolchain 12, without failures or skips.
-Exact-revision hosted verification for this new increment remains required.
+It is integrated as `4446a9e5de915a9a972a673ce3bcb8c46f36d307`.
+All six Compiler/Rust Runtime jobs pass, and complete retained artifacts
+independently verify all 30 reports and 2433 cases on Linux, macOS and Windows.
+[Exact-main CI proof](rust-parity-evidence/native-record-main-ci-green.json).
 
 Heap-free native and ordinary value records use private C-layout wire records
 and explicit field conversions. The original C ABI and sidecars remain intact;

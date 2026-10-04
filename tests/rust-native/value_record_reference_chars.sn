@@ -1,0 +1,63 @@
+@source "value_record_reference_chars.sn.c"
+
+struct Record =>
+  count: int
+  mark: char
+  flag: bool
+
+native fn remember_record(value: Record as ref): void
+native fn saved_record(): Record
+native fn char_bits(value: char): byte
+
+native fn combine(left: Record as ref, right: Record as ref): void =>
+  left.count = left.count + 1
+  right.count = left.count * 10
+  left.mark = 'x'
+  right.mark = 'y'
+  left.flag = false
+
+native fn set_byte(record: Record as ref, value: byte): void =>
+  record.mark = value.toChar()
+
+fn main(): void =>
+  var value: Record = {
+    count: 2,
+    mark: 'a',
+    flag: true
+  }
+  remember_record(value)
+  combine(value, value)
+  println($"{value.count} {value.mark} {value.flag}")
+  value.count = 42
+  value.mark = 'p'
+  value.flag = true
+  var snapshot: Record = saved_record()
+  println($"{snapshot.count} {snapshot.mark} {snapshot.flag}")
+  var first: Record = {
+    count: 4,
+    mark: 'b',
+    flag: true
+  }
+  var second: Record = {
+    count: 9,
+    mark: 'c',
+    flag: true
+  }
+  combine(first, second)
+  println($"{first.count} {first.mark} {first.flag} {second.count} {second.mark}")
+  var ok: bool = true
+  for i in 0..256 =>
+    set_byte(value, i.toByte())
+    snapshot = saved_record()
+    if char_bits(value.mark) != i.toByte() || char_bits(snapshot.mark) != i.toByte() =>
+      ok = false
+    var previous: char = value.mark++
+    if char_bits(previous) != i.toByte() || char_bits(value.mark) != ((i + 1) % 256).toByte() =>
+      ok = false
+    value.mark--
+    if char_bits(value.mark) != i.toByte() =>
+      ok = false
+    value.mark += 2
+    if char_bits(value.mark) != ((i + 2) % 256).toByte() =>
+      ok = false
+  println(ok)

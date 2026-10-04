@@ -97,7 +97,7 @@ static bool native_parameter_type(json_object *type, const char *mem)
 {
     const char *kind = native_string(type, "kind");
     if (mem && strcmp(mem, "as_ref") == 0)
-        return kind && native_scalar_kind(kind, false);
+        return native_string(type, "rust_native_record_wire") || (kind && native_scalar_kind(kind, false));
     return native_string(type, "rust_native_record_wire") || native_scalar_type(type, false) ||
         (kind && strcmp(kind, "string") == 0);
 }
@@ -194,7 +194,7 @@ static bool validate_native_function(json_object *function)
                 (sync && strcmp(sync, "none") != 0))
             {
                 fprintf(stderr,
-                        "Error: Rust target native function '%s' parameter '%s' must be an unsynchronized string, default-qualified raw pointer, or default/as-ref native scalar; heap-free records require default/as-val\n",
+                        "Error: Rust target native function '%s' parameter '%s' must be an unsynchronized string, default-qualified raw pointer, or default/as-ref native scalar; heap-free records permit default/as-val/as-ref\n",
                         name ? name : "<anonymous>",
                         native_string(param, "name") ? native_string(param, "name") : "<anonymous>");
                 return false;

@@ -1,0 +1,13 @@
+Compiler: /home/gavin/code/sindarin/sindarin-rust-native-record-references-4446a9e5/bin/sn
+Platform: Linux
+Parallel: 20 workers
+
+Rust Generation Tests
+============================================================
+  Running 442 tests with 20 workers...
+
+
+------------------------------------------------------------
+Results: 442 passed, 0 failed, 0 skipped  (8.34s)
+
+All tests passed!  (total: 8.34s)

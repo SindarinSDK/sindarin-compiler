@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Independent raw output and complete mode coverage for by-value native records."""
+"""Independent raw output and complete mode coverage for native record references."""
 import hashlib
 import json
 import os
@@ -8,30 +8,14 @@ import sys
 
 
 ORACLES = {
-    'tests/integration/test_thread_native_fn_struct_return.sn': b'r1=10\n',
-    'tests/rust-native/native_record_values.sn': b'7 a true\n107 x false\n17 a true\n',
-    'tests/rust-native/native_record_hygiene.sn': b'z 91\n',
-    'tests/rust-native/value_record_bridge.sn': (
-        b'0xFF\n-123\ntrue\n1.50000\n7000000000\n-8000000000\n'
-        b'9000000000\n4000000000\n0xFE\n2.50000\n'
-        b'7000000000 7000000010 128 false\nrecord\n0xFF\n2 128 254\ntrue\n'
-    ),
-    'tests/exploratory/test_gcc_edge_interop.sn': (
-        b'=== Native/Interop Edge Case Tests ===\n\n'
-        b'sin(pi/2) = 1.00000\ncos(0) = 1.00000\nsqrt(144) = 12.00000\n'
-        b'pow(2,10) = 1024.00000\nfabs(-42.5) = 42.50000\n'
-        b'floor(3.7) = 3.00000\nceil(3.2) = 4.00000\nsqrt(25) = 5.00000\n'
-        b'Complex native expr: 0.57787\nsqrt(16)==4: PASS\n'
-        b'Sum of sqrt(1..10): 22.46828\nSin values count: 10\n'
-        b'First sin: 0.00000\nLast sin: 0.78333\n'
-        b'Duplicate includes test: PASS\ntoInt(\'12345\') = 12345\n'
-        b'toDouble(\'3.14159\') = 3.14159\nMathResult: value=7.00000 valid=1\n'
-        b'\n=== All Interop Tests Done ===\n'
-    ),
+    'tests/rust-native/value_record_reference.sn': b'42\n',
+    'tests/rust-native/value_record_reference_chars.sn': b'30 y false\n42 p true\n5 x false 50 y\ntrue\n',
+    'tests/rust-native/value_record_reference_nested.sn': b'3 x 30 y 2.00000 false\n3 z 30 y 2.00000 false\n',
+    'tests/rust-native/value_record_reference_methods.sn': b'4\na\nb 5\na\nc\nd\n',
 }
 NATIVE_SOURCES = (
-    'tests/integration/test_thread_native_fn_struct_return.sn.c',
-    'tests/rust-native/value_record_bridge.sn.c',
+    'tests/rust-native/value_record_reference.sn.c',
+    'tests/rust-native/value_record_reference_chars.sn.c',
 )
 
 
@@ -41,7 +25,7 @@ def verify(path):
                 for optimization in ('-O0', '-O1', '-O2')
                 for mode in ('default', 'checked', 'unchecked')}
     if not report['passed'] or len(report['cases']) != len(required):
-        raise ValueError('expected 45 successful native record cases')
+        raise ValueError('expected 36 successful native record reference cases')
     seen = set()
     for case in report['cases']:
         source = case['source'].replace('\\', '/')
@@ -76,16 +60,15 @@ def verify(path):
         for source in NATIVE_SOURCES
     }
     report['oracle_scope'] = (
-        'Heap-free native and ordinary value records cross the original C ABI '
-        'by value, including nested records, default/as-val copies, all scalar '
-        'widths, all 256 character bytes, bool, mixed managed results and aliased '
-        'scalar character references, hygienic names and native thread results. '
-        'Record references are verified by their separate stable-storage gate. '
-        'Owned or pointer fields, packed/refcounted records and user-defined '
-        'copy hooks remain unsupported.'
+        'Persistent C-layout storage for heap-free record references preserves '
+        'C-retained addresses, source updates, same-place aliases and distinct '
+        'places, nested records, all 256 character bytes, subsequent by-value '
+        'returns/copies, and source method/postfix/compound/indexed mutations. '
+        'Thread-managed, owned/pointer, packed/refcounted and user-copy records '
+        'remain separate admission and ownership obligations.'
     )
     path.write_text(json.dumps(report, indent=2) + '\n')
-    print('PASS: 45 independent by-value native record C/Rust oracles')
+    print('PASS: 36 independent native record reference C/Rust oracles')
 
 
 if __name__ == '__main__':

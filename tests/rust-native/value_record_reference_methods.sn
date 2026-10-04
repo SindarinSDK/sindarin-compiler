@@ -1,0 +1,29 @@
+struct Record =>
+  mark: char
+  count: int
+
+  fn bump(): char =>
+    var before: char = self.mark
+    self.mark++
+    self.count = self.count + 1
+    return before
+
+native fn observe(value: Record as ref): int =>
+  return value.count
+
+fn main(): void =>
+  var value: Record = {
+    mark: 'a',
+    count: 4
+  }
+  println(observe(value))
+  println(value.bump())
+  println($"{value.mark} {value.count}")
+  value.mark--
+  println(value.mark)
+  value.mark += 2
+  println(value.mark)
+  var values: Record[] = {}
+  values.push(value)
+  values[0].mark++
+  println(values[0].mark)

@@ -1,0 +1,1 @@
+{{#if rust_native_c_char_mutation}}char::from_u32({{rust_ident rust_numeric_next_name}} as u8 as u32).expect("C record char is an 8-bit value"){{else}}{{rust_ident rust_numeric_next_name}}{{/if}}{{~!-- trim EOF --~}}

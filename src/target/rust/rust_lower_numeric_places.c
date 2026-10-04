@@ -270,6 +270,7 @@ static bool rust_lower_numeric_places_walk(json_object *model, json_object *node
     json_object_object_add(node, "rust_numeric_place_compound", json_object_new_boolean(compound));
 
     const char *left_kind = json_string_property(type, "kind");
+    if (json_boolean_property(node, "rust_native_c_char_mutation")) left_kind = "int32";
     const char *common = rust_numeric_type_name(left_kind);
     if (compound)
     {

@@ -639,6 +639,14 @@ static bool rust_validate_structs(json_object *model)
         const char *mem_mode = json_string_property(structure, "mem_mode");
         json_object *fields = NULL;
 
+        if (json_boolean_property(structure, "rust_native_record_storage") &&
+            json_boolean_property(structure, "rust_thread_fields"))
+        {
+            fprintf(stderr, "Error: Rust target native record references require stable C-layout storage for threaded struct '%s'\n",
+                    name ? name : "<anonymous>");
+            return false;
+        }
+
         if (name && (strcmp(name, "FieldInfo") == 0 ||
                      strcmp(name, "TypeInfo") == 0))
         {
@@ -1281,7 +1289,8 @@ static bool rust_numeric_computed_place(json_object *place)
 
 static bool rust_numeric_computed_mutation(json_object *node)
 {
-    if (!json_string_property_equals(node, "mutation_place", "computed")) return false;
+    if (!json_string_property_equals(node, "mutation_place", "computed") &&
+        !json_boolean_property(node, "rust_native_c_char_mutation")) return false;
     bool compound = json_string_property_equals(node, "kind", "compound_assign");
     bool postfix = json_string_property_equals(node, "kind", "increment") ||
                    json_string_property_equals(node, "kind", "decrement");
@@ -1292,7 +1301,8 @@ static bool rust_numeric_computed_mutation(json_object *node)
     json_object_object_get_ex(place, "type", &type);
     const char *kind = json_string_property(type, "kind");
     if (!rust_integer_type(kind) && !rust_float_type(kind) &&
-        !(postfix && kind && strcmp(kind, "char") == 0)) return false;
+        !((postfix || json_boolean_property(node, "rust_native_c_char_mutation")) &&
+          kind && strcmp(kind, "char") == 0)) return false;
     if (!compound) return true;
     json_object_object_get_ex(node, "value", &value);
     json_object_object_get_ex(value, "type", &value_type);
@@ -1302,7 +1312,7 @@ static bool rust_numeric_computed_mutation(json_object *node)
     if (!op) return false;
     if (strcmp(op, "add") == 0 || strcmp(op, "subtract") == 0 ||
         strcmp(op, "multiply") == 0 || strcmp(op, "divide") == 0) return true;
-    return rust_integer_type(kind) && rust_integer_type(rhs) &&
+    return (rust_integer_type(kind) || json_boolean_property(node, "rust_native_c_char_mutation")) && rust_integer_type(rhs) &&
         (strcmp(op, "modulo") == 0 || strcmp(op, "bitand") == 0 ||
          strcmp(op, "bitor") == 0 || strcmp(op, "bitxor") == 0 ||
          strcmp(op, "shl") == 0 || strcmp(op, "shr") == 0);

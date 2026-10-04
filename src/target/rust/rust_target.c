@@ -151,6 +151,7 @@ static bool rust_check_toolchain(const CompilerOptions *options)
 #include "rust_lower_float.c"
 #include "rust_nullable_strings.c"
 #include "rust_nullable_arrays.c"
+#include "rust_native_record_storage.c"
 
 static bool rust_emit(CompilerOptions *options, Module *module,
                       TargetEmitMode mode, GeneratedFileSet *result)
@@ -179,6 +180,7 @@ static bool rust_emit(CompilerOptions *options, Module *module,
     rust_prepare_nullable_arrays(model);
     rust_prepare_sizeof_only_declarations(model);
     rust_prepare_thread_receivers(model);
+    rust_lower_native_record_storage(model, model);
     if (!rust_prepare_by_value_scalar_parameter_mutations(model))
     {
         json_object_put(model);
@@ -326,6 +328,7 @@ static bool rust_emit(CompilerOptions *options, Module *module,
     rust_lower_concurrency(model);
     rust_lower_thread_arrays(model);
     rust_lower_thread_receivers(model);
+    rust_lower_native_record_storage(model, model);
 
     char template_dir[1024];
     snprintf(template_dir, sizeof(template_dir), "%s/templates/rust", options->compiler_dir);

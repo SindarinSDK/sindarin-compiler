@@ -1,0 +1,82 @@
+Compiler: /home/gavin/code/sindarin/sindarin-rust-native-record-references-4446a9e5/.sn/rust-corpus-compiler
+Platform: Linux
+Parallel: 12 workers
+
+Exploratory Tests
+============================================================
+  Running 224 tests with 12 workers...
+
+
+  test_array_mutation_lambda                    FAIL (compile error)  (48ms)
+    Compiling tests/exploratory/test_array_mutation_lambda.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target does not support mutation of closure parameters yet
+     failed
+
+
+  test_as_val_array_copy                        FAIL (compile error)  (72ms)
+    Compiling tests/exploratory/test_as_val_array_copy.sn...
+      Parsing... done
+      Type checking...
+      warning: Assigning str/array variable to another variable shares ownership. Consider using copyOf() to avoid potential double-free
+        --> tests/exploratory/test_as_val_array_copy.sn:21:1
+              var copy: int[] as val = source
+            ^^^^
+
+
+      warning: Assigning str/array variable to another variable shares ownership. Consider using copyOf() to avoid potential double-free
+        --> tests/exploratory/test_as_val_array_copy.sn:30:1
+              var working: int[] as val = data
+            ^^^^^^^
+
+      Type checking done
+      Code generation...Error: Rust target does not support a parameter of function 'modify_array'
+     failed
+
+
+  test_gcc_edge_structs                         FAIL (compile error)  (70ms)
+    Compiling tests/exploratory/test_gcc_edge_structs.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target does not support a parameter of function 'modify_struct'
+     failed
+
+
+  test_match_as_val_ref                         FAIL (compile error)  (85ms)
+    Compiling tests/exploratory/test_match_as_val_ref.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target does not support a parameter of function 'match_on_val_copy'
+     failed
+
+
+  test_pointer_slice_bounds                     FAIL (compile error)  (58ms)
+    Compiling tests/exploratory/test_pointer_slice_bounds.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target encountered an unsupported construct in function 'test_correct_bounds'
+     failed
+
+
+  test_struct_config                            FAIL (compile error)  (72ms)
+    Compiling tests/exploratory/test_struct_config.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target does not support a parameter of function 'apply_server_config'
+     failed
+
+
+  test_struct_self_method_call                  FAIL (compile error)  (75ms)
+    Compiling tests/exploratory/test_struct_self_method_call.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target does not support a parameter of method 'Range.overlaps'
+     failed
+
+
+
+------------------------------------------------------------
+Results: 217 passed, 7 failed, 0 skipped  (8.31s)
+
+Some tests failed!  (total: 8.31s)

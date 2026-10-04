@@ -1,0 +1,37 @@
+struct Leaf =>
+  mark: char
+  count: int32
+
+struct Record =>
+  first: Leaf
+  second: Leaf
+  fraction: double
+  flag: bool
+
+native fn combine(left: Record as ref, right: Record as ref): void =>
+  left.first.count = left.first.count + 1i32
+  right.second.count = left.first.count * 10i32
+  left.first.mark = 'x'
+  right.second.mark = 'y'
+  left.fraction = right.fraction + 0.5
+  right.flag = false
+
+native fn duplicate(value: Record as val): Record =>
+  return value
+
+fn main(): void =>
+  var leaf: Leaf = {
+    mark: 'a',
+    count: 2i32
+  }
+  var value: Record = {
+    first: leaf,
+    second: leaf,
+    fraction: 1.5,
+    flag: true
+  }
+  combine(value, value)
+  var copy: Record = duplicate(value)
+  copy.first.mark = 'z'
+  println($"{value.first.count} {value.first.mark} {value.second.count} {value.second.mark} {value.fraction} {value.flag}")
+  println($"{copy.first.count} {copy.first.mark} {copy.second.count} {copy.second.mark} {copy.fraction} {copy.flag}")

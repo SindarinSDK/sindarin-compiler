@@ -1,0 +1,13 @@
+Compiler: /home/gavin/code/sindarin/sindarin-rust-native-record-references-4446a9e5/bin/sn
+Platform: Linux
+Parallel: 20 workers
+
+Post-Tag Rust Native Extra Coverage
+============================================================
+  Running 37 tests with 20 workers...
+
+
+------------------------------------------------------------
+Results: 37 passed, 0 failed, 0 skipped  (2.13s)
+
+All tests passed!  (total: 2.13s)

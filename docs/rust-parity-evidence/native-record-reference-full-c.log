@@ -1,0 +1,59 @@
+Compiler: /home/gavin/code/sindarin/sindarin-rust-native-record-references-4446a9e5/bin/sn
+Platform: Linux
+Parallel: 8 workers
+
+Unit Tests
+============================================================
+Results: 1610 passed, 0 failed  (total: 11.11ms)
+------------------------------------------------------------
+Unit tests passed  (14ms)
+
+Code Generation Tests
+============================================================
+  Running 107 tests with 8 workers...
+
+
+------------------------------------------------------------
+Results: 107 passed, 0 failed, 0 skipped  (941ms)
+
+Model Generation Tests
+============================================================
+  Running 79 tests with 8 workers...
+
+
+------------------------------------------------------------
+Results: 79 passed, 0 failed, 0 skipped  (43ms)
+
+Integration Tests
+============================================================
+  Running 1141 tests with 8 workers...
+
+
+------------------------------------------------------------
+Results: 1141 passed, 0 failed, 0 skipped  (10.82s)
+
+Integration Error Tests
+============================================================
+  Running 58 tests with 8 workers...
+
+
+------------------------------------------------------------
+Results: 58 passed, 0 failed, 0 skipped  (28ms)
+
+Exploratory Tests
+============================================================
+  Running 224 tests with 8 workers...
+
+
+------------------------------------------------------------
+Results: 224 passed, 0 failed, 0 skipped  (10.94s)
+
+Exploratory Error Tests
+============================================================
+  Running 11 tests with 8 workers...
+
+
+------------------------------------------------------------
+Results: 11 passed, 0 failed, 0 skipped  (7ms)
+
+All tests passed!  (total: 22.79s)

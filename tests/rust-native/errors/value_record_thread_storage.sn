@@ -1,0 +1,19 @@
+struct Record =>
+  count: int
+  mark: char
+
+native fn mutate(value: Record as ref): void =>
+  value.count = value.count + 1
+
+fn read_count(value: Record): int =>
+  return value.count
+
+fn main(): void =>
+  var value: Record = {
+    count: 7,
+    mark: 'a'
+  }
+  mutate(value)
+  var result: int = & read_count(value)
+  result !
+  println(result)
