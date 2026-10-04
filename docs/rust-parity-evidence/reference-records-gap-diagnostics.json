@@ -1,0 +1,182 @@
+{
+  "cases": [
+    {
+      "source": "tests/integration/test_array_literal_arg_leak.sn",
+      "reason": "compile error"
+    },
+    {
+      "source": "tests/integration/test_as_ref_params.sn",
+      "reason": "compile error"
+    },
+    {
+      "source": "tests/integration/test_buffer_unwrap.sn",
+      "reason": "compile error"
+    },
+    {
+      "source": "tests/integration/test_builtin_interfaces.sn",
+      "reason": "compile error"
+    },
+    {
+      "source": "tests/integration/test_generic_multi_param_iter.sn",
+      "reason": "compile error"
+    },
+    {
+      "source": "tests/integration/test_import_fn_field_chained.sn",
+      "reason": "compile error"
+    },
+    {
+      "source": "tests/integration/test_interfaces.sn",
+      "reason": "compile error"
+    },
+    {
+      "source": "tests/integration/test_interop_callback.sn",
+      "reason": "compile error"
+    },
+    {
+      "source": "tests/integration/test_interop_comprehensive.sn",
+      "reason": "compile error"
+    },
+    {
+      "source": "tests/integration/test_interop_edge_cases.sn",
+      "reason": "compile error"
+    },
+    {
+      "source": "tests/integration/test_iterator_protocol.sn",
+      "reason": "compile error"
+    },
+    {
+      "source": "tests/integration/test_lambda_capture_outlives_scope.sn",
+      "reason": "compile error"
+    },
+    {
+      "source": "tests/integration/test_lambda_capture_struct.sn",
+      "reason": "compile error"
+    },
+    {
+      "source": "tests/integration/test_lambda_val_struct_str_field.sn",
+      "reason": "compile error"
+    },
+    {
+      "source": "tests/integration/test_lambda_val_struct_str_interp.sn",
+      "reason": "compile error"
+    },
+    {
+      "source": "tests/integration/test_module_array_swap_leak.sn",
+      "reason": "compile error"
+    },
+    {
+      "source": "tests/integration/test_native_callback_typedef.sn",
+      "reason": "compile error"
+    },
+    {
+      "source": "tests/integration/test_native_ref_self_assign.sn",
+      "reason": "compile error"
+    },
+    {
+      "source": "tests/integration/test_native_resource_lifecycle.sn",
+      "reason": "compile error"
+    },
+    {
+      "source": "tests/integration/test_native_struct_ref_loop_cleanup.sn",
+      "reason": "compile error"
+    },
+    {
+      "source": "tests/integration/test_nil_pointer_slice.sn",
+      "reason": "compile error"
+    },
+    {
+      "source": "tests/integration/test_qsort_callback.sn",
+      "reason": "compile error"
+    },
+    {
+      "source": "tests/integration/test_refcount_arg_leak.sn",
+      "reason": "compile error"
+    },
+    {
+      "source": "tests/integration/test_refcount_chain_in_struct_literal.sn",
+      "reason": "compile error"
+    },
+    {
+      "source": "tests/integration/test_self_method_forward_after_train.sn",
+      "reason": "compile error"
+    },
+    {
+      "source": "tests/integration/test_serializable.sn",
+      "reason": "compile error"
+    },
+    {
+      "source": "tests/integration/test_serializable_decode_struct_literal_loop.sn",
+      "reason": "compile error"
+    },
+    {
+      "source": "tests/integration/test_serializable_double_int_json.sn",
+      "reason": "compile error"
+    },
+    {
+      "source": "tests/integration/test_serializable_encoder_cleanup.sn",
+      "reason": "compile error"
+    },
+    {
+      "source": "tests/integration/test_serializable_long.sn",
+      "reason": "compile error"
+    },
+    {
+      "source": "tests/integration/test_serializable_push_ownership.sn",
+      "reason": "compile error"
+    },
+    {
+      "source": "tests/integration/test_serializable_return_nested_array.sn",
+      "reason": "compile error"
+    },
+    {
+      "source": "tests/integration/test_str_return_as_arg_leak.sn",
+      "reason": "compile error"
+    },
+    {
+      "source": "tests/integration/test_struct_as_ref.sn",
+      "reason": "compile error"
+    },
+    {
+      "source": "tests/integration/test_struct_return_array_leak.sn",
+      "reason": "compile error"
+    },
+    {
+      "source": "tests/integration/test_struct_rvalue_member_leak.sn",
+      "reason": "compile error"
+    },
+    {
+      "source": "tests/integration/test_struct_rvalue_member_leak_contexts.sn",
+      "reason": "compile error"
+    },
+    {
+      "source": "tests/integration/test_thread_struct_return_types.sn",
+      "reason": "compile error"
+    },
+    {
+      "source": "tests/exploratory/test_array_mutation_lambda.sn",
+      "reason": "compile error"
+    },
+    {
+      "source": "tests/exploratory/test_as_val_array_copy.sn",
+      "reason": "compile error"
+    },
+    {
+      "source": "tests/exploratory/test_pointer_slice_bounds.sn",
+      "reason": "compile error"
+    }
+  ],
+  "closed_originals": [
+    "tests/integration/test_as_ref_array_return.sn",
+    "tests/integration/test_as_ref_for_in_self_return.sn",
+    "tests/integration/test_as_ref_queue_drain.sn",
+    "tests/integration/test_as_ref_return_passthrough.sn",
+    "tests/integration/test_as_ref_struct_lit_owned_field.sn",
+    "tests/integration/test_native_ref_field_pass_chain.sn",
+    "tests/integration/test_native_ref_field_return.sn",
+    "tests/integration/test_native_ref_method_forward_twice.sn",
+    "tests/integration/test_nil_compare_struct.sn",
+    "tests/integration/test_return_ref_param.sn",
+    "tests/integration/test_return_self.sn"
+  ],
+  "remaining": 41
+}

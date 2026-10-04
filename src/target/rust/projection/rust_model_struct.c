@@ -227,26 +227,9 @@ json_object *rust_gen_model_struct(Arena *arena, StructDeclStmt *decl, SymbolTab
         rust_g_as_ref_param_names = NULL;
         rust_g_as_ref_param_count = 0;
 
-        /* Prepend param guard locals for as-val-on-as-ref-struct override params */
+        /* Register parameter bindings for Rust body projection. */
         for (int j = 0; j < m->param_count; j++)
         {
-            if (m->params[j].mem_qualifier == MEM_AS_VAL &&
-                m->params[j].type && m->params[j].type->kind == TYPE_STRUCT &&
-                m->params[j].type->as.struct_type.pass_self_by_ref)
-            {
-                char buf[512];
-                snprintf(buf, sizeof(buf),
-                    "sn_auto_%s __sn__%s *__sn__%s__pc = __sn__%s;",
-                    m->params[j].type->as.struct_type.name,
-                    m->params[j].type->as.struct_type.name,
-                    m->params[j].name.start,
-                    m->params[j].name.start);
-                json_object *guard = json_object_new_object();
-                json_object_object_add(guard, "kind", json_object_new_string("raw_c"));
-                json_object_object_add(guard, "code", json_object_new_string(buf));
-                json_object_array_add(body, guard);
-            }
-
             /* Register as-ref and composite borrow params for body dereference.
              * Skip 'as ref' on already-refcounted structs — the param is a
              * single pointer, and field access goes through the normal

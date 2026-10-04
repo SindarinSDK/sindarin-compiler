@@ -20,6 +20,41 @@ struct __sn_c_sizeof_layout_2 {
 }
 
 
+#[derive(Debug)]
+struct __sn_concurrency0_Field<T>(std::sync::Arc<std::sync::Mutex<T>>);
+impl<T> __sn_concurrency0_Field<T> {
+    fn new(value: T) -> Self { Self(std::sync::Arc::new(std::sync::Mutex::new(value))) }
+    fn share(&self) -> Self { Self(self.0.clone()) }
+    fn lock(&self) -> std::sync::MutexGuard<'_ , T> { self.0.lock().unwrap_or_else(|e| e.into_inner()) }
+    fn set(&self, value: T) { *self.0.lock().unwrap_or_else(|e| e.into_inner()) = value; }
+}
+impl<T: Clone> __sn_concurrency0_Field<T> {
+    fn read(&self) -> T { self.0.lock().unwrap_or_else(|e| e.into_inner()).clone() }
+}
+impl<T: Clone> Clone for __sn_concurrency0_Field<T> {
+    fn clone(&self) -> Self { Self::new(self.read()) }
+}
+impl<T: Clone + PartialEq> PartialEq for __sn_concurrency0_Field<T> {
+    fn eq(&self, other: &Self) -> bool { self.read() == other.read() }
+}
+#[derive(Debug)]
+struct __sn_concurrency0_ReferenceField<T>(Option<std::sync::Arc<std::sync::Mutex<T>>>);
+impl<T> __sn_concurrency0_ReferenceField<T> {
+    fn new(value: T) -> Self { Self(Some(std::sync::Arc::new(std::sync::Mutex::new(value)))) }
+    fn nil() -> Self { Self(None) }
+    fn share(&self) -> Self { Self(self.0.clone()) }
+    fn owner(&self) -> __sn_concurrency0_Field<T> {
+        __sn_concurrency0_Field(self.0.as_ref().expect("nil record field access").clone())
+    }
+    fn lock(&self) -> std::sync::MutexGuard<'_, T> { self.0.as_ref().expect("nil record field access").lock().unwrap_or_else(|e| e.into_inner()) }
+    fn set(&self, value: T) { *self.lock() = value; }
+}
+impl<T: Clone> __sn_concurrency0_ReferenceField<T> {
+    fn read(&self) -> T { self.lock().clone() }
+}
+impl<T: Clone> Clone for __sn_concurrency0_ReferenceField<T> {
+    fn clone(&self) -> Self { if self.0.is_none() { Self::nil() } else { Self::new(self.read()) } }
+}
 
 extern "C" {
     #[link_name = "fwrite"]

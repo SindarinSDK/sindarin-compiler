@@ -1647,6 +1647,12 @@ static bool rust_validate_expr(json_object *expr)
             operand_name = json_string_property(operand_type, "name");
             auto_copy_struct = rust_auto_copy_plain_value_struct_type(
                 operand_type, &user_copy_name);
+            json_object *structure = rust_find_struct(rust_validation_model, operand_name);
+            if (json_boolean_property(structure, "rust_thread_reference_identity"))
+            {
+                auto_copy_struct = true;
+                json_object_object_add(expr, "rust_reference_record_copy", json_object_new_boolean(true));
+            }
             if (user_copy_name)
             {
                 if (operand_name && strcmp(operand_name, user_copy_name) == 0)

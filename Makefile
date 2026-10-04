@@ -806,3 +806,29 @@ test-rust-parity-owned-record-parameters: build
 		--require-count 24 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-owned-record-parameters.json
 	@$(PYTHON) scripts/check_rust_owned_record_oracles.py .sn/rust-parity-owned-record-parameters.json
+
+.PHONY: test-rust-parity-reference-records
+test-rust-parity-reference-records: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/integration/test_as_ref_array_return.sn \
+		tests/integration/test_as_ref_return_passthrough.sn \
+		tests/integration/test_as_ref_for_in_self_return.sn \
+		tests/integration/test_as_ref_queue_drain.sn \
+		tests/integration/test_return_ref_param.sn \
+		tests/integration/test_as_ref_struct_lit_owned_field.sn \
+		tests/integration/test_nil_compare_struct.sn \
+		tests/integration/test_return_self.sn \
+		tests/integration/test_native_ref_field_pass_chain.sn \
+		tests/integration/test_native_ref_field_return.sn \
+		tests/integration/test_native_ref_method_forward_twice.sn \
+		tests/rgen/reference_record_aliases.sn \
+		tests/rgen/reference_record_array_forwarding.sn \
+		tests/rgen/reference_record_contains.sn \
+		tests/rgen/reference_record_nil_nested.sn \
+		tests/rgen/reference_record_parameter_copies.sn \
+		tests/rgen/reference_record_value_copies.sn \
+		tests/rgen/resolved_operator_ref_receiver.sn \
+		tests/rgen/reference_record_self_copy_hooks.sn \
+		--arithmetic-mode default --arithmetic-mode checked --arithmetic-mode unchecked \
+		--require-count 19 --output .sn/rust-parity-reference-records.json
+	@$(PYTHON) scripts/check_rust_reference_record_oracles.py .sn/rust-parity-reference-records.json

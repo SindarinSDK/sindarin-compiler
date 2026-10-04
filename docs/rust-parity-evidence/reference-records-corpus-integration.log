@@ -1,0 +1,320 @@
+Compiler: /home/gavin/code/sindarin/sindarin-rust-reference-records-e595e1d6/.sn/rust-corpus-compiler
+Platform: Linux
+Parallel: 8 workers
+
+Integration Tests
+============================================================
+  Running 1141 tests with 8 workers...
+
+
+  test_array_literal_arg_leak                   FAIL (compile error)  (30ms)
+    Compiling tests/integration/test_array_literal_arg_leak.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target native function 'tracker_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value
+     failed
+
+
+  test_as_ref_params                            FAIL (compile error)  (48ms)
+    Compiling tests/integration/test_as_ref_params.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target does not support a parameter of function 'next_char'
+     failed
+
+
+  test_buffer_unwrap                            FAIL (compile error)  (47ms)
+    Compiling tests/integration/test_buffer_unwrap.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target encountered an unsupported construct in function 'test_pointer_slice_codegen'
+     failed
+
+
+  test_builtin_interfaces                       FAIL (compile error)  (48ms)
+    Compiling tests/integration/test_builtin_interfaces.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target does not support a parameter of function 'acceptComparable'
+     failed
+
+
+  test_generic_multi_param_iter                 FAIL (compile error)  (53ms)
+    Compiling tests/integration/test_generic_multi_param_iter.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target supports iterator-protocol foreach only for heap-free scalar elements; got 'struct'
+    Error: Rust target encountered an unsupported construct in function 'main'
+     failed
+
+
+  test_import_fn_field_chained                  FAIL (compile error)  (49ms)
+    Compiling tests/integration/test_import_fn_field_chained.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target does not support incompatible function-value signatures yet
+     failed
+
+
+  test_interfaces                               FAIL (compile error)  (50ms)
+    Compiling tests/integration/test_interfaces.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target does not support a parameter of function 'acceptComparable'
+     failed
+
+
+  test_interop_callback                         FAIL (compile error)  (34ms)
+    Compiling tests/integration/test_interop_callback.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target native function 'invoke_callback' body uses a closure, thread, or indirect callable construct outside the native bridge
+     failed
+
+
+  test_interop_comprehensive                    FAIL (compile error)  (49ms)
+    Compiling tests/integration/test_interop_comprehensive.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target native function 'apply_transform' body uses a closure, thread, or indirect callable construct outside the native bridge
+     failed
+
+
+  test_interop_edge_cases                       FAIL (compile error)  (29ms)
+    Compiling tests/integration/test_interop_edge_cases.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target native function 'invoke_ptr_callback' body uses a closure, thread, or indirect callable construct outside the native bridge
+     failed
+
+
+  test_iterator_protocol                        FAIL (compile error)  (49ms)
+    Compiling tests/integration/test_iterator_protocol.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target supports iterator-protocol foreach only for heap-free scalar elements; got 'struct'
+    Error: Rust target encountered an unsupported construct in function 'main'
+     failed
+
+
+  test_lambda_capture_outlives_scope            FAIL (compile error)  (30ms)
+    Compiling tests/integration/test_lambda_capture_outlives_scope.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target does not support this closure capture type yet
+     failed
+
+
+  test_lambda_capture_struct                    FAIL (compile error)  (49ms)
+    Compiling tests/integration/test_lambda_capture_struct.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target does not support mutable access to snapshot closure captures yet
+     failed
+
+
+  test_lambda_val_struct_str_field              FAIL (compile error)  (31ms)
+    Compiling tests/integration/test_lambda_val_struct_str_field.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target does not support incompatible function-value signatures yet
+     failed
+
+
+  test_lambda_val_struct_str_interp             FAIL (compile error)  (45ms)
+    Compiling tests/integration/test_lambda_val_struct_str_interp.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target does not support incompatible function-value signatures yet
+     failed
+
+
+  test_module_array_swap_leak                   FAIL (compile error)  (49ms)
+    Compiling tests/integration/test_module_array_swap_leak.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target native function 'tag_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value
+     failed
+
+
+  test_native_callback_typedef                  FAIL (compile error)  (28ms)
+    Compiling tests/integration/test_native_callback_typedef.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target native function 'call_with_value' body uses a closure, thread, or indirect callable construct outside the native bridge
+     failed
+
+
+  test_native_ref_self_assign                   FAIL (compile error)  (34ms)
+    Compiling tests/integration/test_native_ref_self_assign.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target native function 'tensor_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value
+     failed
+
+
+  test_native_resource_lifecycle                FAIL (compile error)  (47ms)
+    Compiling tests/integration/test_native_resource_lifecycle.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target native function 'mock_listener_bind' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value
+     failed
+
+
+  test_native_struct_ref_loop_cleanup           FAIL (compile error)  (45ms)
+    Compiling tests/integration/test_native_struct_ref_loop_cleanup.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target native function 'handle_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value
+     failed
+
+
+  test_nil_pointer_slice                        FAIL (compile error)  (31ms)
+    Compiling tests/integration/test_nil_pointer_slice.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target encountered an unsupported construct in function 'test_nil_slice_creates_array'
+     failed
+
+
+  test_qsort_callback                           FAIL (compile error)  (31ms)
+    Compiling tests/integration/test_qsort_callback.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target native function 'invoke_comparator' body uses a closure, thread, or indirect callable construct outside the native bridge
+     failed
+
+
+  test_refcount_arg_leak                        FAIL (compile error)  (30ms)
+    Compiling tests/integration/test_refcount_arg_leak.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target native function 'foo_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value
+     failed
+
+
+  test_refcount_chain_in_struct_literal         FAIL (compile error)  (46ms)
+    Compiling tests/integration/test_refcount_chain_in_struct_literal.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target native function 'tracker_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value
+     failed
+
+
+  test_self_method_forward_after_train          FAIL (compile error)  (36ms)
+    Compiling tests/integration/test_self_method_forward_after_train.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target native function 'resource_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value
+     failed
+
+
+  test_serializable                             FAIL (compile error)  (35ms)
+    Compiling tests/integration/test_serializable.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target native function 'sn_test_json_encoder' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value
+     failed
+
+
+  test_serializable_decode_struct_literal_loop  FAIL (compile error)  (32ms)
+    Compiling tests/integration/test_serializable_decode_struct_literal_loop.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target native function 'sn_test_json_encoder' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value
+     failed
+
+
+  test_serializable_double_int_json             FAIL (compile error)  (48ms)
+    Compiling tests/integration/test_serializable_double_int_json.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target native function 'sn_test_json_encoder' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value
+     failed
+
+
+  test_serializable_encoder_cleanup             FAIL (compile error)  (46ms)
+    Compiling tests/integration/test_serializable_encoder_cleanup.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target native function 'cleanup_json_encoder' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value
+     failed
+
+
+  test_serializable_long                        FAIL (compile error)  (30ms)
+    Compiling tests/integration/test_serializable_long.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target native function 'sn_test_json_encoder' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value
+     failed
+
+
+  test_serializable_push_ownership              FAIL (compile error)  (30ms)
+    Compiling tests/integration/test_serializable_push_ownership.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target native function 'sn_test_json_encoder' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value
+     failed
+
+
+  test_serializable_return_nested_array         FAIL (compile error)  (50ms)
+    Compiling tests/integration/test_serializable_return_nested_array.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target native function 'sn_test_json_encoder' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value
+     failed
+
+
+  test_str_return_as_arg_leak                   FAIL (compile error)  (32ms)
+    Compiling tests/integration/test_str_return_as_arg_leak.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target native function 'source_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value
+     failed
+
+
+  test_struct_as_ref                            FAIL (compile error)  (29ms)
+    Compiling tests/integration/test_struct_as_ref.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target native function 'increment_counter' parameter 'c' must be an unsynchronized string, default-qualified raw pointer, or default/as-ref native scalar; heap-free records permit default/as-val/as-ref
+     failed
+
+
+  test_struct_return_array_leak                 FAIL (compile error)  (34ms)
+    Compiling tests/integration/test_struct_return_array_leak.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target native function 'tracker_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value
+     failed
+
+
+  test_struct_rvalue_member_leak                FAIL (compile error)  (28ms)
+    Compiling tests/integration/test_struct_rvalue_member_leak.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target native function 'tracker_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value
+     failed
+
+
+  test_struct_rvalue_member_leak_contexts       FAIL (compile error)  (49ms)
+    Compiling tests/integration/test_struct_rvalue_member_leak_contexts.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target native function 'tracker_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value
+     failed
+
+
+  test_thread_struct_return_types               FAIL (compile error)  (51ms)
+    Compiling tests/integration/test_thread_struct_return_types.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target currently supports only plain value struct 'HyperParams'
+     failed
+
+
+
+------------------------------------------------------------
+Results: 1103 passed, 38 failed, 0 skipped  (33.43s)
+
+Some tests failed!  (total: 33.43s)

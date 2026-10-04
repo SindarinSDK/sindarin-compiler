@@ -1,0 +1,12 @@
+struct Inner =>
+  label: str
+  fn copy(): Inner =>
+    return Inner { label: "copied" }
+struct Outer =>
+  inner: Inner
+  fn get(): Outer =>
+    return self
+fn main(): void =>
+  var original: Outer = { inner: Inner { label: "original" } }
+  var copied: Outer = original.get()
+  println($"{original.inner.label} {copied.inner.label}")

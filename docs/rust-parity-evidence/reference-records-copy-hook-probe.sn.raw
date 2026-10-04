@@ -1,0 +1,13 @@
+struct Box =>
+  label: str
+
+  fn copy(): Box =>
+    return Box { label: "copied" }
+
+  fn get(): Box =>
+    return self
+
+fn main(): void =>
+  var original: Box = { label: "original" }
+  var copied: Box = original.get()
+  println($"{original.label} {copied.label}")

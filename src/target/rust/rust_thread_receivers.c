@@ -105,7 +105,11 @@ static void rust_thread_receiver_prepare_nodes(json_object *model, json_object *
         json_object_object_get_ex(structure, "fields", &fields);
         for (size_t i = 0; fields && i < json_object_array_length(fields); i++)
             if (json_string_property_equals(json_object_array_get_idx(fields, i), "name", json_string_property(node, "member_name")))
+            {
                 json_object_object_add(node, "rust_thread_field", json_object_new_boolean(true));
+                if (json_string_property_equals(structure, "mem_mode", "ref"))
+                    json_object_object_add(node, "rust_reference_field", json_object_new_boolean(true));
+            }
     }
     json_object_object_foreach(node, key, value) {
         (void)key; rust_thread_receiver_prepare_nodes(model, value, names);
@@ -184,6 +188,19 @@ static void rust_prepare_thread_receivers(json_object *model)
         }
     }
     json_object_put(declarations);
+    /* Ordinary reference records retain shared field owners through local
+     * aliases, container reads and return edges, just like thread transfers. */
+    for (size_t i = 0; declared_structs && i < json_object_array_length(declared_structs); i++)
+    {
+        json_object *structure = json_object_array_get_idx(declared_structs, i);
+        const char *name = json_string_property(structure, "name");
+        if (name && json_string_property_equals(structure, "mem_mode", "ref") &&
+            !json_boolean_property(structure, "is_native") &&
+            !json_boolean_property(structure, "is_packed") &&
+            !json_boolean_property(structure, "is_serializable") &&
+            !json_boolean_property(structure, "has_user_copy_method"))
+            json_object_object_add(names, name, json_object_new_boolean(true));
+    }
     json_object_object_add(model, "rust_thread_receiver_names", names);
     rust_thread_receiver_prepare_nodes(model, model, names);
     rust_qualified_record_assignments(model, model, NULL, names);
@@ -194,7 +211,10 @@ static void rust_prepare_thread_receivers(json_object *model)
         if (json_object_object_get_ex(names, json_string_property(structure, "name"), &found)) {
             json_object_object_add(structure, "rust_thread_fields", json_object_new_boolean(true));
             if (json_string_property_equals(structure, "mem_mode", "ref"))
+            {
                 json_object_object_add(structure, "rust_thread_reference_identity", json_object_new_boolean(true));
+                json_object_object_add(model, "rust_uses_reference_records", json_object_new_boolean(true));
+            }
         }
     }
 }
@@ -223,6 +243,8 @@ static void rust_thread_receiver_lower(json_object *node, json_object *names, js
             if (json_string_property_equals(json_object_array_get_idx(fields, i), "name", field_name))
             {
                 json_object_object_add(node, "rust_thread_field", json_object_new_boolean(true));
+                if (json_boolean_property(structure, "rust_thread_reference_identity"))
+                    json_object_object_add(node, "rust_reference_field", json_object_new_boolean(true));
                 /* A field read snapshots the field, not its containing owner. */
                 if (json_string_property_equals(object, "kind", "variable"))
                     json_object_object_del(object, "rust_needs_clone");
@@ -232,11 +254,33 @@ static void rust_thread_receiver_lower(json_object *node, json_object *names, js
         json_object *found = NULL;
         const char *name = json_string_property(node, "struct_name");
         if (name && json_object_object_get_ex(names, name, &found))
+        {
             json_object_object_add(node, "rust_thread_fields", json_object_new_boolean(true));
+            json_object *structure = rust_find_struct(model, name);
+            if (json_boolean_property(structure, "rust_thread_reference_identity"))
+                json_object_object_add(node, "rust_thread_reference_identity", json_object_new_boolean(true));
+        }
     }
     json_object_object_get_ex(node, "type", &type);
+    if (rust_thread_receiver_type(type, names))
+    {
+        json_object *structure = rust_find_struct(model, json_string_property(type, "name"));
+        if (json_boolean_property(structure, "rust_thread_reference_identity") &&
+            json_boolean_property(node, "is_copy_arg"))
+        {
+            json_object_object_add(node, "rust_record_value_copy", json_object_new_boolean(true));
+            json_object_object_del(node, "is_copy_arg");
+            json_object_object_del(node, "rust_needs_clone");
+            json_object_object_del(node, "rust_resolved_clone");
+        }
+    }
     if (rust_thread_receiver_type(type, names) && json_string_property_equals(node, "kind", "rust_thread_default"))
+    {
         json_object_object_add(node, "rust_thread_fields", json_object_new_boolean(true));
+        json_object *structure = rust_find_struct(model, json_string_property(type, "name"));
+        if (json_boolean_property(structure, "rust_thread_reference_identity"))
+            json_object_object_add(node, "rust_thread_reference_identity", json_object_new_boolean(true));
+    }
     if (rust_thread_receiver_type(type, names) &&
         (json_boolean_property(node, "is_ref_arg") || json_boolean_property(node, "is_borrow_tmp"))) {
         json_object_object_del(node, "is_ref_arg");
@@ -387,6 +431,14 @@ static void rust_lower_thread_receivers(json_object *model)
     rust_concurrency_string(model, "rust_thread_field_type", name);
     snprintf(name, sizeof(name), "%sshare", prefix);
     rust_concurrency_string(model, "rust_thread_share_method", name);
+    snprintf(name, sizeof(name), "%sReferenceField", prefix);
+    rust_concurrency_string(model, "rust_reference_field_type", name);
+    snprintf(name, sizeof(name), "%snil", prefix);
+    rust_concurrency_string(model, "rust_record_nil_method", name);
+    snprintf(name, sizeof(name), "%srecord_identity", prefix);
+    rust_concurrency_string(model, "rust_record_identity_field", name);
+    snprintf(name, sizeof(name), "%ssnapshot", prefix);
+    rust_concurrency_string(model, "rust_record_snapshot_method", name);
     snprintf(name, sizeof(name), "%sassign", prefix);
     rust_concurrency_string(model, "rust_record_assign_method", name);
     snprintf(name, sizeof(name), "%sreceiver", prefix);

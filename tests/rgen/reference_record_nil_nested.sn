@@ -1,0 +1,32 @@
+struct Leaf as ref =>
+  value: int
+
+struct Holder as ref =>
+  leaf: Leaf
+
+var global: Leaf = { value: 0 }
+
+fn pass(leaf: Leaf): Leaf =>
+  return leaf
+
+fn make(value: int): Leaf =>
+  return Leaf { value: value }
+
+fn main(): void =>
+  var empty: Leaf
+  println(empty == nil)
+  var first: Leaf = make(1)
+  var holder: Holder = { leaf: make(2) }
+  var held: Leaf = holder.leaf
+  global = pass(first)
+  var items: Leaf[] = {first}
+  items.push(nil)
+  println(items[1] == nil)
+  holder.leaf = nil
+  println(holder.leaf == nil)
+  println(held.value)
+  global = nil
+  first = nil
+  items.clear()
+  println(held.value)
+  println(pass(nil) == nil)

@@ -1,6 +1,7 @@
-{{#if rust_thread_fields}}#[derive({{#unless rust_thread_reference_identity}}Clone, {{/unless}} Debug, PartialEq)]
+{{#if rust_thread_fields}}#[derive({{#unless rust_thread_reference_identity}}Clone, {{/unless}} Debug{{#unless rust_thread_reference_identity}}, PartialEq{{/unless}})]
 struct {{rust_ident name}} {
-{{#each fields}}    {{rust_ident name}}: {{rust_ident @root.rust_thread_field_type}}<{{rust_type type}}>,
+{{#if rust_thread_reference_identity}}    {{rust_ident @root.rust_record_identity_field}}: Option<std::sync::Arc<()>>,
+{{/if}}{{#each fields}}    {{rust_ident name}}: {{#if ../rust_thread_reference_identity}}{{rust_ident @root.rust_reference_field_type}}{{else}}{{rust_ident @root.rust_thread_field_type}}{{/if}}<{{rust_type type}}>,
 {{/each}}{{rbrace}}{{#if methods}}
 
 impl {{rust_ident name}} {
@@ -13,11 +14,30 @@ impl {{rust_ident name}} {
     }
 
 {{/if}}    fn {{rust_ident @root.rust_thread_share_method}}(&self) -> Self {
-        Self { {{#each fields}}{{rust_ident name}}: self.{{rust_ident name}}.share(), {{/each}} }
+        Self { {{#if rust_thread_reference_identity}}{{rust_ident @root.rust_record_identity_field}}: self.{{rust_ident @root.rust_record_identity_field}}.clone(), {{/if}}{{#each fields}}{{rust_ident name}}: self.{{rust_ident name}}.share(), {{/each}} }
     }
 }
 {{/if}}
-{{#if rust_thread_reference_identity}}impl Clone for {{rust_ident name}} {
+{{#if rust_thread_reference_identity}}impl {{rust_ident name}} {
+    fn {{rust_ident @root.rust_record_nil_method}}() -> Self {
+        Self { {{rust_ident @root.rust_record_identity_field}}: None, {{#each fields}}{{rust_ident name}}: {{rust_ident @root.rust_reference_field_type}}::nil(), {{/each}} }
+    }
+
+    fn {{rust_ident @root.rust_record_snapshot_method}}(&self) -> Self {
+        if self.{{rust_ident @root.rust_record_identity_field}}.is_none() { return Self::{{rust_ident @root.rust_record_nil_method}}(); }
+        Self { {{rust_ident @root.rust_record_identity_field}}: Some(std::sync::Arc::new(())), {{#each fields}}{{rust_ident name}}: self.{{rust_ident name}}.clone(), {{/each}} }
+    }
+}
+impl PartialEq for {{rust_ident name}} {
+    fn eq(&self, other: &Self) -> bool {
+        match (&self.{{rust_ident @root.rust_record_identity_field}}, &other.{{rust_ident @root.rust_record_identity_field}}) {
+            (Some(left), Some(right)) => std::sync::Arc::ptr_eq(left, right),
+            (None, None) => true,
+            _ => false,
+        }
+    }
+}
+impl Clone for {{rust_ident name}} {
     fn clone(&self) -> Self { self.{{rust_ident @root.rust_thread_share_method}}() }
 }
 {{/if}}{{else}}{{#if rust_native_record_storage}}#[repr(C)]{{nl}}{{/if}}#[derive(Clone{{#unless has_heap_fields}}, Copy{{/unless}}, Debug, PartialEq)]

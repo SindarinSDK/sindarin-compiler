@@ -1,0 +1,63 @@
+{
+  "source_sha256": "18273d732a2597d0be7cb590a12018a0bac9bbc29e62565bc42bd213d94a6bf8",
+  "prototype_compiler_sha256": "aa4ffbc6cf814b5fee44e7081a9606abd39919f934a625e3fe0ad28c3168c1b1",
+  "cause": "New return-self admission used derived Clone rather than the authoritative C user-defined copy hook. All three optimization modes compile and run successfully but produce different output.",
+  "cases": [
+    {
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile_status": 0,
+          "run_status": 0,
+          "stdout_hex": "6f726967696e616c20636f706965640a",
+          "stderr_hex": ""
+        },
+        "rust": {
+          "compile_status": 0,
+          "run_status": 0,
+          "stdout_hex": "6f726967696e616c206f726967696e616c0a",
+          "stderr_hex": ""
+        }
+      }
+    },
+    {
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile_status": 0,
+          "run_status": 0,
+          "stdout_hex": "6f726967696e616c20636f706965640a",
+          "stderr_hex": ""
+        },
+        "rust": {
+          "compile_status": 0,
+          "run_status": 0,
+          "stdout_hex": "6f726967696e616c206f726967696e616c0a",
+          "stderr_hex": ""
+        }
+      }
+    },
+    {
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile_status": 0,
+          "run_status": 0,
+          "stdout_hex": "6f726967696e616c20636f706965640a",
+          "stderr_hex": ""
+        },
+        "rust": {
+          "compile_status": 0,
+          "run_status": 0,
+          "stdout_hex": "6f726967696e616c206f726967696e616c0a",
+          "stderr_hex": ""
+        }
+      }
+    }
+  ],
+  "repair": "Return-self calls the declared copy hook. Receiver mutation classification propagates through implicit copy calls and ordinary forwarding methods. The permanent fixture covers read-only and mutating hooks with frozen output.",
+  "remaining_scope": "General user-defined copy operations remain required work; this repair covers the direct return-self operation."
+}

@@ -1,0 +1,32 @@
+struct Item as ref =>
+  tag: str
+  value: int
+
+fn pass(item: Item): Item =>
+  return item
+
+fn get(items: Item[], index: int): Item =>
+  return pass(items[index])
+
+fn change(first: Item, second: Item): void =>
+  first.value = first.value + 10
+  println(second.value)
+  second.tag = "changed"
+
+fn main(): void =>
+  var original: Item = {
+    tag: "old",
+    value: 1
+  }
+  var alias: Item = pass(original)
+  var items: Item[] = {original}
+  var picked: Item = get(items, -1)
+  change(picked, alias)
+  println($"{original.tag} {original.value} {items[0].tag} {items[0].value}")
+  items.clear()
+  original = Item {
+    tag: "new",
+    value: 99
+  }
+  println($"{alias.tag} {alias.value} {picked.tag} {picked.value}")
+  println($"{original.tag} {original.value}")

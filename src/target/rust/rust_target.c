@@ -151,6 +151,7 @@ static bool rust_check_toolchain(const CompilerOptions *options)
 #include "rust_lower_float.c"
 #include "rust_nullable_strings.c"
 #include "rust_nullable_arrays.c"
+#include "rust_reference_records.c"
 #include "rust_native_record_storage.c"
 
 static bool rust_emit(CompilerOptions *options, Module *module,
@@ -180,6 +181,7 @@ static bool rust_emit(CompilerOptions *options, Module *module,
     rust_prepare_nullable_arrays(model);
     rust_prepare_sizeof_only_declarations(model);
     rust_prepare_thread_receivers(model);
+    rust_prepare_reference_record_nodes(model, model, NULL, NULL);
     rust_lower_native_record_storage(model, model);
     if (!rust_prepare_by_value_scalar_parameter_mutations(model))
     {

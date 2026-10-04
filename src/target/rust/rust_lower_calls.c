@@ -1457,8 +1457,39 @@ static void rust_lower_indexed_string_acquires(json_object *node,
     json_object_object_add(value, "rust_bound_string_index_name", json_object_new_string(index_name));
 }
 
+/* Reading a reference record acquires its identity, never its contents.
+ * This applies equally to array/field reads, return edges and assignments to
+ * globals. Store projections remove clone annotations before borrowing. */
+static void rust_lower_reference_record_reads(json_object *node, json_object *model)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array))
+    {
+        for (size_t i = 0; i < json_object_array_length(node); i++)
+            rust_lower_reference_record_reads(json_object_array_get_idx(node, i), model);
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
+    json_object_object_foreach(node, key, child)
+    {
+        if (strncmp(key, "rust_", 5) != 0) rust_lower_reference_record_reads(child, model);
+    }
+    json_object *type = NULL;
+    const char *kind = json_string_property(node, "kind");
+    if (kind && (strcmp(kind, "variable") == 0 || strcmp(kind, "member") == 0 ||
+                 strcmp(kind, "array_access") == 0) &&
+        json_object_object_get_ex(node, "type", &type) &&
+        json_string_property_equals(type, "kind", "struct") &&
+        json_boolean_property(rust_find_struct(model, json_string_property(type, "name")),
+                              "rust_thread_reference_identity") &&
+        !json_boolean_property(node, "is_ref_arg") &&
+        !json_boolean_property(node, "rust_resolved_clone"))
+        json_object_object_add(node, "rust_needs_clone", json_object_new_boolean(true));
+}
+
 static bool rust_lower_calls(json_object *model)
 {
+    rust_lower_reference_record_reads(model, model);
     rust_lower_split_lines_accesses(model);
     json_object *functions = NULL;
     if (!json_object_object_get_ex(model, "functions", &functions) ||

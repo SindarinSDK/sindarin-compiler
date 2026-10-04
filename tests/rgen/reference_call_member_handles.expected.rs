@@ -16,6 +16,24 @@ impl<T: Clone> Clone for __sn_concurrency0_Field<T> {
 impl<T: Clone + PartialEq> PartialEq for __sn_concurrency0_Field<T> {
     fn eq(&self, other: &Self) -> bool { self.read() == other.read() }
 }
+#[derive(Debug)]
+struct __sn_concurrency0_ReferenceField<T>(Option<std::sync::Arc<std::sync::Mutex<T>>>);
+impl<T> __sn_concurrency0_ReferenceField<T> {
+    fn new(value: T) -> Self { Self(Some(std::sync::Arc::new(std::sync::Mutex::new(value)))) }
+    fn nil() -> Self { Self(None) }
+    fn share(&self) -> Self { Self(self.0.clone()) }
+    fn owner(&self) -> __sn_concurrency0_Field<T> {
+        __sn_concurrency0_Field(self.0.as_ref().expect("nil record field access").clone())
+    }
+    fn lock(&self) -> std::sync::MutexGuard<'_, T> { self.0.as_ref().expect("nil record field access").lock().unwrap_or_else(|e| e.into_inner()) }
+    fn set(&self, value: T) { *self.lock() = value; }
+}
+impl<T: Clone> __sn_concurrency0_ReferenceField<T> {
+    fn read(&self) -> T { self.lock().clone() }
+}
+impl<T: Clone> Clone for __sn_concurrency0_ReferenceField<T> {
+    fn clone(&self) -> Self { if self.0.is_none() { Self::nil() } else { Self::new(self.read()) } }
+}
 
 struct __sn_concurrency0_Join<T>(Option<std::thread::JoinHandle<T>>);
 impl<T: Send + 'static> __sn_concurrency0_Join<T> {
@@ -196,13 +214,33 @@ fn __sn_checked_mod_0<T>(value: Option<T>, divisor_is_zero: bool) -> T {
     })
 }
 
-#[derive( Debug, PartialEq)]
+#[derive( Debug)]
 struct Worker {
-    value: __sn_concurrency0_Field<i64>,
+    __sn_concurrency0_record_identity: Option<std::sync::Arc<()>>,
+    value: __sn_concurrency0_ReferenceField<i64>,
 }
 impl Worker {
     fn __sn_concurrency0_share(&self) -> Self {
-        Self { value: self.value.share(),  }
+        Self { __sn_concurrency0_record_identity: self.__sn_concurrency0_record_identity.clone(), value: self.value.share(),  }
+    }
+}
+impl Worker {
+    fn __sn_concurrency0_nil() -> Self {
+        Self { __sn_concurrency0_record_identity: None, value: __sn_concurrency0_ReferenceField::nil(),  }
+    }
+
+    fn __sn_concurrency0_snapshot(&self) -> Self {
+        if self.__sn_concurrency0_record_identity.is_none() { return Self::__sn_concurrency0_nil(); }
+        Self { __sn_concurrency0_record_identity: Some(std::sync::Arc::new(())), value: self.value.clone(),  }
+    }
+}
+impl PartialEq for Worker {
+    fn eq(&self, other: &Self) -> bool {
+        match (&self.__sn_concurrency0_record_identity, &other.__sn_concurrency0_record_identity) {
+            (Some(left), Some(right)) => std::sync::Arc::ptr_eq(left, right),
+            (None, None) => true,
+            _ => false,
+        }
     }
 }
 impl Clone for Worker {
@@ -225,14 +263,14 @@ fn threadRead(worker: Worker) -> i64 {
 }
 
 fn main() {
-    let mut worker: Worker = Worker { value: __sn_concurrency0_Field::new(5) };
-    let mut holder: Holder = Holder { worker: worker.clone() };
-    let mut workers: Vec<Worker> = vec![worker.clone()];
+    let mut worker: Worker = Worker { __sn_concurrency0_record_identity: Some(std::sync::Arc::new(())), value: __sn_concurrency0_ReferenceField::new(5) };
+    let mut holder: Holder = Holder { worker: worker.clone().clone() };
+    let mut workers: Vec<Worker> = vec![worker.clone().clone()];
     println!("{}", update((holder).worker.clone()));
     println!("{}", (worker).value.read());
     println!("{}", update((workers)[__sn_index((workers).len(), 0)].clone()));
     println!("{}", (worker).value.read());
-    println!("{}", ((holder).worker).value.read());
+    println!("{}", ((holder).worker.clone()).value.read());
     let mut handle: i64 = 0; let mut __sn_concurrency0_handle_handle: Option<__sn_concurrency0_Join<i64>> = Some({ let __sn_concurrency0_arg0 = (worker.clone()).clone(); __sn_concurrency0_Join::spawn(move || threadRead(__sn_concurrency0_arg0.clone())) }
 );
     println!("{}", { if let Some(__sn_concurrency0_handle) = __sn_concurrency0_handle_handle.take() { handle = __sn_concurrency0_handle.join(); } handle.clone() }

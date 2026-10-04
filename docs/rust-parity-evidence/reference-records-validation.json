@@ -1,0 +1,348 @@
+{
+  "base_revision": "7b5d2fdaece19df06b29ade1cbebe29b5d229abd",
+  "compiler_sha256": "30e23e7d9f85da0f8dcae3a54a6c89dc20b3d8443f935e856c0214ad7f58752f",
+  "independent_oracle_cases": 171,
+  "asan_c_controls": 19,
+  "original_baseline_controls": 99,
+  "original_corpus": {
+    "programs": 1365,
+    "integration_passed": 1103,
+    "integration_compile_gaps": 38,
+    "exploratory_passed": 221,
+    "exploratory_compile_gaps": 3,
+    "passing": 1324,
+    "remaining": 41,
+    "runtime_failures": 0,
+    "skips": 0
+  },
+  "rust_suites": {
+    "rgen": 467,
+    "rgen_errors": 137,
+    "native_tagged": 8,
+    "native_extra": 37,
+    "native_origin": 1,
+    "native_errors": 7,
+    "closures": 36,
+    "closure_errors": 1,
+    "concurrency": 10,
+    "concurrency_promoted": 7,
+    "concurrency_errors": 1,
+    "toolchain": 12
+  },
+  "c_suites": {
+    "unit": 1610,
+    "cgen": 107,
+    "mgen": 79,
+    "integration": 1141,
+    "integration_errors": 58,
+    "explore": 224,
+    "explore_errors": 11
+  },
+  "original_sources_preserved": 1365,
+  "closed_originals": [
+    "tests/integration/test_as_ref_array_return.sn",
+    "tests/integration/test_as_ref_for_in_self_return.sn",
+    "tests/integration/test_as_ref_queue_drain.sn",
+    "tests/integration/test_as_ref_return_passthrough.sn",
+    "tests/integration/test_as_ref_struct_lit_owned_field.sn",
+    "tests/integration/test_native_ref_field_pass_chain.sn",
+    "tests/integration/test_native_ref_field_return.sn",
+    "tests/integration/test_native_ref_method_forward_twice.sn",
+    "tests/integration/test_nil_compare_struct.sn",
+    "tests/integration/test_return_ref_param.sn",
+    "tests/integration/test_return_self.sn"
+  ],
+  "state": "All combined local checks pass against verified main. Hosted acceptance of this increment remains required.",
+  "gate_reports": 33,
+  "gate_cases": 2856,
+  "reports": [
+    {
+      "name": "core",
+      "cases": 30,
+      "sha256": "deb0ceeb79bc0e9f81d165eabc6c765e99e2f5368b2e8b2b6ca5b211b4477db7"
+    },
+    {
+      "name": "concurrency",
+      "cases": 51,
+      "sha256": "31b04eb6ad494f5a6861cb70cf88fa8a85d121440d72d9f4a638d8677b41bcba"
+    },
+    {
+      "name": "thread-ownership",
+      "cases": 207,
+      "sha256": "f20ffd59b43c5ba88fedc5b6fa850aabf690199ab07fdf880fb5a18f0d1291a5"
+    },
+    {
+      "name": "thread-receivers",
+      "cases": 90,
+      "sha256": "14b9111a9e76544784bee2c99bdb31106ede2a9f0cb3b511b03831461da7ca0b"
+    },
+    {
+      "name": "reflection",
+      "cases": 36,
+      "sha256": "f4412468d9e403cdd14d1dba810734680e2105cfb9fd28068e267891125a7923"
+    },
+    {
+      "name": "sized-defaults",
+      "cases": 27,
+      "sha256": "225d94ad194aacb84bc7c9b99197acdd6951e11d0ee70d6d136a1c1d8a5f2d7f"
+    },
+    {
+      "name": "native-managed",
+      "cases": 63,
+      "sha256": "23d7791da74b2296acc04cfe2d5fd2fa217ef1096445e2184f901bfb09c30c35"
+    },
+    {
+      "name": "stdio-order",
+      "cases": 30,
+      "sha256": "50edc6e09bfa4901f7a08039e0c7dfa2f1b5bad8b2db6b1e3e6b8ce019d5ddb6"
+    },
+    {
+      "name": "mixed-integral",
+      "cases": 90,
+      "sha256": "17dddcb1ba90618e238b28eac698fc3669c567ec3d04cc127e3d7cc0235ae0f0"
+    },
+    {
+      "name": "mixed-integral-diagnostics",
+      "cases": 9,
+      "sha256": "2859de15b7b83b7b94789e4d068a16246dcb23cfdba8e376c89cfc143b9b91ee"
+    },
+    {
+      "name": "float-conversions",
+      "cases": 117,
+      "sha256": "92a119b5b4c50f2b7b2beaad1b63b7e0e4c57be7fb73c2c4ec47b9580b071fad"
+    },
+    {
+      "name": "floating-arrays",
+      "cases": 81,
+      "sha256": "9970a0f8b85d3f5943160f8cc5663bae1525e4c034d4512868b8acec87ec42f7"
+    },
+    {
+      "name": "floating-equality",
+      "cases": 36,
+      "sha256": "6886d0e240947c673c456138863f0c277e0dc25d72270910e54bd335f56493b8"
+    },
+    {
+      "name": "numeric-places",
+      "cases": 153,
+      "sha256": "bb44662690df0f13d00a38dbbd547fdf9fdcfa87d2a7bc41e888739a1f91daf7"
+    },
+    {
+      "name": "capture-index",
+      "cases": 45,
+      "sha256": "485352dbb42252c80a7dcc5bf5ed128d80a4d734004b488ee720f9b305ddf5b5"
+    },
+    {
+      "name": "sync-character",
+      "cases": 45,
+      "sha256": "7892093864e7df71e07ab2fe1d16fd1f536af6e62fe738aaecf8cff9b6914b2e"
+    },
+    {
+      "name": "ctype",
+      "cases": 72,
+      "sha256": "74c22bdb69cf38d6d7e145ea9f89f2fa4d4b7412a34a1b33c3595ba9354ece61"
+    },
+    {
+      "name": "byte-encoding",
+      "cases": 81,
+      "sha256": "d2ffb1d9a99bcfe4451835fda284717f22d7bffa60fb82ba1a95b6365c9c5fc3"
+    },
+    {
+      "name": "exit",
+      "cases": 153,
+      "sha256": "331473b001caeeb217a189b5b7688b2af1002635c63f96a5b315ef294197eccb"
+    },
+    {
+      "name": "main-return",
+      "cases": 108,
+      "sha256": "23a564fbae63fdb32faa236bf118c3e8065bbff9b8c69c0daddfb044aba691f7"
+    },
+    {
+      "name": "match-control",
+      "cases": 180,
+      "sha256": "a6a6a306858599f08593cf52829f37a1200fa4b13ba9840119540c10a02cfbb4"
+    },
+    {
+      "name": "sizeof",
+      "cases": 216,
+      "sha256": "c64e9497dd9693e36b810ff7c685d64fe594d11df2d411317afa4f9e9bab425b"
+    },
+    {
+      "name": "call-reference",
+      "cases": 126,
+      "sha256": "6c7bf56b74a4cb94b2b0950eece472a4ce5a990e7c8ad877933d1f6c797f1d2f"
+    },
+    {
+      "name": "indexed-string",
+      "cases": 54,
+      "sha256": "30cded60a958ba4b81240373d4c4f26cdcd0a3a36d0cf5350e8c6e2fbf6c5cf4"
+    },
+    {
+      "name": "native-scope",
+      "cases": 36,
+      "sha256": "c480cacf6827fe3a53acfa6fb50585163185223dbfc9fedccf4d70cfaa2f3761"
+    },
+    {
+      "name": "nil-string",
+      "cases": 72,
+      "sha256": "97012ab34af4675b8c5a7d54df8457ab08092f121b31f33abf3fadca01621675"
+    },
+    {
+      "name": "nil-array",
+      "cases": 90,
+      "sha256": "adf8499ae8abe8a06fe176fd686dfdd7b0d5bdc1038e82150df5350eb600ae2e"
+    },
+    {
+      "name": "nested-stores",
+      "cases": 45,
+      "sha256": "ae5a7a7d48ce71999ad706f2a55c452c4417fb3760796676881df36738dcb230"
+    },
+    {
+      "name": "owned-array-copies",
+      "cases": 45,
+      "sha256": "9886326bc8db2f3050c204e728d23a99d8bd7d21ebaba84c37bd3cc5129fe6f4"
+    },
+    {
+      "name": "native-records",
+      "cases": 45,
+      "sha256": "b6bf79e7dd2ee925b0eda74ebee0ba2eaf3d98860392d6bab11c3219acf40c93"
+    },
+    {
+      "name": "native-record-references",
+      "cases": 36,
+      "sha256": "569e71205cb98f2a903f9d34e4c73fee5064d6a0b269c8bdf077708628292461"
+    },
+    {
+      "name": "owned-record-parameters",
+      "cases": 216,
+      "sha256": "ac58c6d059cccd6d2cc795b5146d7568ee3d02953da6d5ec94f02a406645df9c"
+    },
+    {
+      "name": "reference-records",
+      "cases": 171,
+      "sha256": "561ec10e262366cc1349f9e025524a4c21503d1769f0d0b271616d854edb199d"
+    }
+  ],
+  "gate_status": {
+    "core": 0,
+    "concurrency": 0,
+    "thread-ownership": 0,
+    "thread-receivers": 0,
+    "reflection": 0,
+    "sized-defaults": 0,
+    "native-managed": 0,
+    "stdio-order": 0,
+    "mixed-integral": 0,
+    "float-conversions": 0,
+    "floating-arrays": 0,
+    "floating-equality": 0,
+    "numeric-places": 0,
+    "capture-index": 0,
+    "sync-character": 0,
+    "ctype": 0,
+    "byte-encoding": 0,
+    "exit": 0,
+    "main-return": 0,
+    "match-control": 0,
+    "sizeof": 0,
+    "call-reference": 0,
+    "indexed-string": 0,
+    "native-scope": 0,
+    "nil-string": 0,
+    "nil-array": 0,
+    "nested-stores": 0,
+    "owned-array-copies": 0,
+    "native-records": 0,
+    "native-record-references": 0,
+    "owned-record-parameters": 0,
+    "reference-records": 0
+  },
+  "cross_platform_verification": "Base main repair 7b5d2fda passes all six checks with 32 reports /2685 cases independently verified on Linux, macOS and Windows. Hosted acceptance of this reference-record increment remains pending publication and exact-revision CI.",
+  "local_checks_passed": true,
+  "copy_hook_baseline_controls": 9,
+  "new_positive_fixtures": [
+    {
+      "source": "tests/rgen/reference_record_value_copies.sn",
+      "source_sha256": "41f6f55e7300aab385ee1b9c78b866d052c8e7889318576d46c97b5af0af3346",
+      "runtime_oracle_sha256": "f0e442b7f503ce8c3704aca220a2f5eb1a7e53dca9daf05559bd5493e3f5af5f",
+      "snapshot_sha256": "3f4fa43b9fd77d90dc826c0f04feb203b08ebb9c354831f1f03e1d00e761e902"
+    },
+    {
+      "source": "tests/rgen/reference_record_aliases.sn",
+      "source_sha256": "c944b25335cdfa8c2450e78d42e12a1dec2a2bf260a9cf0bbf023bd87fcca7bd",
+      "runtime_oracle_sha256": "8cef1141900902f7a8e79c544611ecf3d7ec0b6f70541e07056bce2d94f90a5b",
+      "snapshot_sha256": "0ae78761e71af9b0e9127c68cfb416317912f8a1148b1c0ade0a0c05c946d4eb"
+    },
+    {
+      "source": "tests/rgen/reference_record_contains.sn",
+      "source_sha256": "3fa023101354be12e62ca9d0e61c7a7c3d14a3b31994576f2b4356f110bc2f17",
+      "runtime_oracle_sha256": "ee0db6debef73a799ba198d245ddb45d951cedb729007cfcc621464178ff1b39",
+      "snapshot_sha256": "0862f059ddaacb1396491dc82bc88ea562ab3766874a3bcc3ab5e90c45b1c28e"
+    },
+    {
+      "source": "tests/rgen/reference_record_nil_nested.sn",
+      "source_sha256": "dfe15fe0dc936fe02c8ba063e4f184834def2217c9f238ae267b53e7fcc12d7e",
+      "runtime_oracle_sha256": "aa94cba9b6bf9b394d99cd6720e426db55aa2f5f69ab7506de9916e260a3d2ee",
+      "snapshot_sha256": "d979c18b93fa7b0223db66cb36e4be12c24429fe330a70300e08fbc1abf9b111"
+    },
+    {
+      "source": "tests/rgen/reference_record_array_forwarding.sn",
+      "source_sha256": "7bf02d3c39034b8eef9c7635325f494a8db79d32de11cd4e457944f0af7a89d5",
+      "runtime_oracle_sha256": "dcdfe8fcda0edc137ce6f8b91dde9dd03c6348582338fac77b4b30bdabbc27d4",
+      "snapshot_sha256": "64840fddd3f5bd74263dd828f4b76ba6ade84bf51659c0c2c9bd8321333fc578"
+    },
+    {
+      "source": "tests/rgen/reference_record_self_copy_hooks.sn",
+      "source_sha256": "dd7119188fa27cccafdda80966d4041e5f4932684621d200b9c26a764b793841",
+      "runtime_oracle_sha256": "ba6a61374ccb4173fb2556f6f6ba3491d836c58f11b8de260c9c9674fd99df11",
+      "snapshot_sha256": "0f20df1979cd7e2c06d9d09a96ef1ace50531ec4f160f21cc8a56db2f50ecb5e"
+    },
+    {
+      "source": "tests/rgen/reference_record_parameter_copies.sn",
+      "source_sha256": "a2849023da4fa173b82c1de60afb84c659898f54e95b5aa271c0a54f846189da",
+      "runtime_oracle_sha256": "4b2b44fe682f2cee710606d43a6240e217ce0d2c4990f3f3c3ae58bb4b7f3715",
+      "snapshot_sha256": "ae8506208afd9539f9e729f51720f0062d8a1934d98f83df000f78190e69009c"
+    }
+  ],
+  "harness_logs": {
+    "reference-records-all-gates.log": {
+      "raw_sha256": "1886752d7960e795d732338fbcf641dcaa645b50074c984117992d5cdbf8c373",
+      "retained_sha256": "1886752d7960e795d732338fbcf641dcaa645b50074c984117992d5cdbf8c373",
+      "normalization": "Remove terminal ANSI escapes, normalize progress carriage returns and trim trailing whitespace in harness logs. Program output hex in JSON reports is unchanged."
+    },
+    "reference-records-byte.log": {
+      "raw_sha256": "971a43d81a4d4a176d4aceff2aa18d25efe2df369a8d05a75dfb2470b030e8a9",
+      "retained_sha256": "971a43d81a4d4a176d4aceff2aa18d25efe2df369a8d05a75dfb2470b030e8a9",
+      "normalization": "Remove terminal ANSI escapes, normalize progress carriage returns and trim trailing whitespace in harness logs. Program output hex in JSON reports is unchanged."
+    },
+    "reference-records-corpus-explore.log": {
+      "raw_sha256": "80dc5844169ed47aefb3e32ac8d07db402c101eeff546cf351d0055d9a6e948b",
+      "retained_sha256": "7e3a181909d6d4c997df538f9c6e2d1c6b1919d843eda474ec7250e4c0e316ca",
+      "normalization": "Remove terminal ANSI escapes, normalize progress carriage returns and trim trailing whitespace in harness logs. Program output hex in JSON reports is unchanged."
+    },
+    "reference-records-corpus-integration.log": {
+      "raw_sha256": "4274cd1e80ca737affed33da5b54b765eed4c8c76d95b0a3f5d0969652e2e1f4",
+      "retained_sha256": "79964074f69837e0c55ec5186975716e047d0c908f85bb7cc9f4d830ab278577",
+      "normalization": "Remove terminal ANSI escapes, normalize progress carriage returns and trim trailing whitespace in harness logs. Program output hex in JSON reports is unchanged."
+    },
+    "reference-records-full-c.log": {
+      "raw_sha256": "bc2cd1e736a9a8fa5fde2d6a88a95e0a5eaa9eabb169894a91ad75b94c2b0d96",
+      "retained_sha256": "5271c291b9357f45ed53c06e8adc542cf1418cd28050f484dc6cee51c4963c28",
+      "normalization": "Remove terminal ANSI escapes, normalize progress carriage returns and trim trailing whitespace in harness logs. Program output hex in JSON reports is unchanged."
+    },
+    "reference-records-full-rust.log": {
+      "raw_sha256": "36138bffa264b34820c731cf56aab16a0098d275e085368e8854414aadbfd332",
+      "retained_sha256": "130d8c485fbd725613ff3bb9e2c922e41d51235ed600350ba0c8a93b6f3e7972",
+      "normalization": "Remove terminal ANSI escapes, normalize progress carriage returns and trim trailing whitespace in harness logs. Program output hex in JSON reports is unchanged."
+    },
+    "reference-records-text-helpers.log": {
+      "raw_sha256": "628ce6147ceaa1887966b6df6ff1f63582712e6666a5b64c7f52e28604cc6994",
+      "retained_sha256": "628ce6147ceaa1887966b6df6ff1f63582712e6666a5b64c7f52e28604cc6994",
+      "normalization": "Remove terminal ANSI escapes, normalize progress carriage returns and trim trailing whitespace in harness logs. Program output hex in JSON reports is unchanged."
+    },
+    "reference-records-text.log": {
+      "raw_sha256": "9d1f137619f0add0f0e3a01419654e7f12ffe613e0175c7031316ffe56c8c9ee",
+      "retained_sha256": "9d1f137619f0add0f0e3a01419654e7f12ffe613e0175c7031316ffe56c8c9ee",
+      "normalization": "Remove terminal ANSI escapes, normalize progress carriage returns and trim trailing whitespace in harness logs. Program output hex in JSON reports is unchanged."
+    }
+  }
+}

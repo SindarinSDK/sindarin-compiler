@@ -1,0 +1,40 @@
+struct Hooked =>
+  label: str
+
+  fn copy(): Hooked =>
+    println("copy")
+    return Hooked { label: "copied" }
+
+  fn get(): Hooked =>
+    return self
+
+struct Counting =>
+  label: str
+  count: int
+
+  fn copy(): Counting =>
+    self.count = self.count + 1
+    return Counting {
+      label: "counted",
+      count: self.count
+    }
+
+  fn get(first: bool): Counting =>
+    if first =>
+      return self
+    return self
+
+  fn forward(): Counting =>
+    return self.get(false)
+
+fn main(): void =>
+  var original: Hooked = { label: "original" }
+  var copied: Hooked = original.get()
+  println($"{original.label} {copied.label}")
+  var counter: Counting = {
+    label: "original",
+    count: 0
+  }
+  var first: Counting = counter.get(true)
+  var second: Counting = counter.forward()
+  println($"{counter.label} {counter.count} {first.label} {first.count} {second.label} {second.count}")

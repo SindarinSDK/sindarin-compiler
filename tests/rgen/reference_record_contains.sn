@@ -1,0 +1,12 @@
+struct Item as ref =>
+  value: int
+
+fn main(): void =>
+  var first: Item = { value: 1 }
+  var same: Item = first
+  var different: Item = { value: 1 }
+  var items: Item[] = {first}
+  println(items.contains(same))
+  println(items.contains(different))
+  println(items.indexOf(same))
+  println(items.indexOf(different))

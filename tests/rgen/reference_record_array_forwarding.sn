@@ -1,0 +1,12 @@
+struct Holder as ref =>
+  values: int[]
+
+fn append(values: int[], same: int[]): void =>
+  values.push(7)
+  println(same.length)
+  same[0] = 9
+
+fn main(): void =>
+  var holder: Holder = { values: {1} }
+  append(holder.values, holder.values)
+  println($"{holder.values[0]} {holder.values.length}")

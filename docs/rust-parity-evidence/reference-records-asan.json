@@ -1,0 +1,178 @@
+{
+  "compiler_sha256": "30e23e7d9f85da0f8dcae3a54a6c89dc20b3d8443f935e856c0214ad7f58752f",
+  "asan_options": "detect_leaks=1:halt_on_error=1",
+  "cases": [
+    {
+      "source": "tests/integration/test_as_ref_array_return.sn",
+      "source_sha256": "b8ac498987ddf0777afe9e77f8c3451d2d2122f9c6207accc5553799cb045d7d",
+      "compile_status": 0,
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "504153530a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/integration/test_as_ref_return_passthrough.sn",
+      "source_sha256": "cdcaddce8572fe04808ec9a395a74d9b57966d62bdfa99eeae92f6642f90d4c0",
+      "compile_status": 0,
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "504153530a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/integration/test_as_ref_for_in_self_return.sn",
+      "source_sha256": "21288b7441da00dfea27cf2b142341761b30facb7b7eb26e306a6db3c254055e",
+      "compile_status": 0,
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "504153530a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/integration/test_as_ref_queue_drain.sn",
+      "source_sha256": "3ba6e1d7355099286a0d11fc0fc3636bbf9b974095c759c62340405a18507c26",
+      "compile_status": 0,
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "504153530a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/integration/test_return_ref_param.sn",
+      "source_sha256": "334a96ac5383e9db35b45fd4f10ff8b65967c3b18879eddf05aff80a81f44802",
+      "compile_status": 0,
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "613d343220623d34320a633d3720643d372063616368653d370a616674657220726573746173683a20613d343220633d3720653d39392063616368653d39390a504153530a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/integration/test_as_ref_struct_lit_owned_field.sn",
+      "source_sha256": "bfa8448bd170b8a6e88dff255c65bc84cf97ee8a6f98de19d5da58c6b0739854",
+      "compile_status": 0,
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "504153530a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/integration/test_nil_compare_struct.sn",
+      "source_sha256": "31deb90b9814aec75d1d24594f80b693130796cf9298a83be9624bc6adaba9ed",
+      "compile_status": 0,
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "676f6f643a20636f6e6e65637465640a6261643a206e696c0a6e696c203d3d206261643a20747275650a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/integration/test_return_self.sn",
+      "source_sha256": "0993daeb6b8107e273b108959833c07406a5373e6c551292d2dc23eccd526692",
+      "compile_status": 0,
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "73657456616c75652072657475726e2073656c663a20504153530a636861696e65642073657456616c75653a20504153530a636861696e6564207365744e616d653a20504153530a416c6c2072657475726e2073656c6620746573747320706173736564210a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/integration/test_native_ref_field_pass_chain.sn",
+      "source_sha256": "3d8e2c42d01eb2bcd3c8a1951f16d330e03a88051616f789457e7b0b560554f3",
+      "compile_status": 0,
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "6379636c6520303a20726573756c743d3330302c206e663d31302c2065773d33300a6379636c6520313a20726573756c743d3630302c206e663d32302c2065773d36300a6379636c6520323a20726573756c743d3930302c206e663d33302c2065773d39300a6379636c6520333a20726573756c743d313230302c206e663d34302c2065773d3132300a6379636c6520343a20726573756c743d313530302c206e663d35302c2065773d3135300a6379636c6520353a20726573756c743d313830302c206e663d36302c2065773d3138300a6379636c6520363a20726573756c743d323130302c206e663d37302c2065773d3231300a6379636c6520373a20726573756c743d323430302c206e663d38302c2065773d3234300a6379636c6520383a20726573756c743d323730302c206e663d39302c2065773d3237300a6379636c6520393a20726573756c743d333030302c206e663d3130302c2065773d3330300a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/integration/test_native_ref_field_return.sn",
+      "source_sha256": "3cfd7a899d58b64431d22fe6e36b04a5baeb486535b8cc17a88270eb6f0c63d1",
+      "compile_status": 0,
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "4469726563743a207461673d312c207061796c6f61643d320a4c6f63616c2068313a207461673d33302c207061796c6f61643d3330300a4c6f63616c2068323a207461673d34302c207061796c6f61643d3430300a496e736964653a20612e7461673d31302c20612e7061796c6f61643d3130300a496e736964653a20622e7461673d32302c20622e7061796c6f61643d3230300a52657475726e65642068313a207461673d31302c207061796c6f61643d3130300a52657475726e65642068323a207461673d32302c207061796c6f61643d3230300a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/integration/test_native_ref_method_forward_twice.sn",
+      "source_sha256": "5405f885289a14af7f5f8be82f147e85e10cd985068443fdd85eccb7d4b088a4",
+      "compile_status": 0,
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "7465737431206d6f64656c3a2077313d31302077323d32300a736166653a20613d313020623d32300a74657374312061667465723a2077313d31302077323d32300a7465737432206d6f64656c3a2077313d33302077323d34300a666f72776172643a20613d333020623d34300a74657374322061667465723a2077313d33302077323d34300a666f72776172643a20613d333020623d34300a74657374332061667465723a2077313d33302077323d34300a504153530a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/rgen/reference_record_aliases.sn",
+      "source_sha256": "c944b25335cdfa8c2450e78d42e12a1dec2a2bf260a9cf0bbf023bd87fcca7bd",
+      "compile_status": 0,
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "31310a6368616e676564203131206368616e6765642031310a6368616e676564203131206368616e6765642031310a6e65772039390a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/rgen/reference_record_array_forwarding.sn",
+      "source_sha256": "7bf02d3c39034b8eef9c7635325f494a8db79d32de11cd4e457944f0af7a89d5",
+      "compile_status": 0,
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "320a3920320a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/rgen/reference_record_contains.sn",
+      "source_sha256": "3fa023101354be12e62ca9d0e61c7a7c3d14a3b31994576f2b4356f110bc2f17",
+      "compile_status": 0,
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "747275650a66616c73650a300a2d310a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/rgen/reference_record_nil_nested.sn",
+      "source_sha256": "dfe15fe0dc936fe02c8ba063e4f184834def2217c9f238ae267b53e7fcc12d7e",
+      "compile_status": 0,
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "747275650a747275650a747275650a320a320a747275650a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/rgen/reference_record_parameter_copies.sn",
+      "source_sha256": "a2849023da4fa173b82c1de60afb84c659898f54e95b5aa271c0a54f846189da",
+      "compile_status": 0,
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "636f707920320a6f6c6420310a6c6f63616c2032206c6f63616c20320a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/rgen/reference_record_value_copies.sn",
+      "source_sha256": "41f6f55e7300aab385ee1b9c78b866d052c8e7889318576d46c97b5af0af3346",
+      "compile_status": 0,
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "636f707920320a6f6c6420310a6c6f63616c2032206f6c6420310a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/rgen/resolved_operator_ref_receiver.sn",
+      "source_sha256": "c4fc2181fbbdc8dd9fd3c98bdd5488efd1e2dafb2edcfe00e9b68d87b332561d",
+      "compile_status": 0,
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "747275650a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/rgen/reference_record_self_copy_hooks.sn",
+      "source_sha256": "dd7119188fa27cccafdda80966d4041e5f4932684621d200b9c26a764b793841",
+      "compile_status": 0,
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "636f70790a6f726967696e616c20636f706965640a6f726967696e616c203220636f756e746564203120636f756e74656420320a",
+      "stderr_hex": ""
+    }
+  ],
+  "passed": true
+}

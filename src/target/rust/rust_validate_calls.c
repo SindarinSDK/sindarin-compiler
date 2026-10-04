@@ -383,6 +383,16 @@ static bool rust_method_calls_mutating_self(json_object *node,
     }
     if (!json_object_is_type(node, json_type_object)) return false;
 
+    if (json_boolean_property(node, "rust_return_self_user_copy"))
+    {
+        size_t count = json_object_array_length(methods);
+        for (size_t i = 0; i < count; i++)
+        {
+            json_object *method = json_object_array_get_idx(methods, i);
+            if (json_string_property_equals(method, "name", "copy") &&
+                json_boolean_property(method, "rust_mutating")) return true;
+        }
+    }
     if (json_string_property_equals(node, "kind", "call"))
     {
         json_object *callee = NULL, *object = NULL;
@@ -412,6 +422,30 @@ static bool rust_method_calls_mutating_self(json_object *node,
     return false;
 }
 
+/* The C return-self operation invokes a value record's copy hook. It is not
+ * interchangeable with Rust Clone, including when the hook mutates self. */
+static void rust_mark_return_self_user_copy(json_object *node)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            rust_mark_return_self_user_copy(json_object_array_get_idx(node, i));
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
+    if (json_string_property_equals(node, "kind", "return") &&
+        json_boolean_property(node, "is_return_self"))
+        json_object_object_add(node, "rust_return_self_user_copy",
+                               json_object_new_boolean(true));
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        rust_mark_return_self_user_copy(value);
+    }
+}
+
 static bool rust_validate_struct_methods(json_object *model)
 {
     json_object *structs = NULL;
@@ -431,6 +465,9 @@ static bool rust_validate_struct_methods(json_object *model)
         {
             json_object *method = json_object_array_get_idx(methods, m);
             json_object *body = NULL;
+            if (json_boolean_property(structure, "has_user_copy_method") &&
+                json_object_object_get_ex(method, "body", &body))
+                rust_mark_return_self_user_copy(body);
             if (!json_boolean_property(method, "is_static") &&
                 json_object_object_get_ex(method, "body", &body) &&
                 rust_method_has_direct_mutation(body))
@@ -529,7 +566,7 @@ static bool rust_validate_struct_methods(json_object *model)
             json_object_object_get_ex(method, "body", &body);
             if (!rust_validate_statements(body) ||
                 (!is_static && !rust_instance_method_node_supported(
-                    body, !json_boolean_property(structure, "has_heap_fields"))))
+                    body, true)))
             {
                 if (!rust_validation_reported_error)
                     fprintf(stderr,
@@ -635,7 +672,10 @@ static bool rust_validate_call(json_object *expr)
                 const char *element_kind = NULL, *arg_kind = NULL;
                 if (!json_object_object_get_ex(object_type, "element_type", &element_type) ||
                     !(element_kind = json_string_property(element_type, "kind")) ||
-                    !rust_array_search_type_supported(element_kind))
+                    (!rust_array_search_type_supported(element_kind) &&
+                     !(strcmp(element_kind, "struct") == 0 &&
+                       json_boolean_property(rust_find_struct(rust_validation_model,
+                           json_string_property(element_type, "name")), "rust_thread_reference_identity"))))
                 {
                     fprintf(stderr,
                             "Error: Rust target does not support array method '%s' for %s elements yet\n",
@@ -844,8 +884,9 @@ static bool rust_resolved_value_type_supported(json_object *type)
         const char *mem_mode = json_string_property(structure, "mem_mode");
         return structure && !json_boolean_property(structure, "is_native") &&
             !json_boolean_property(structure, "is_packed") &&
-            !json_boolean_property(structure, "pass_self_by_ref") &&
-            (!mem_mode || strcmp(mem_mode, "val") == 0);
+            (json_boolean_property(structure, "rust_thread_reference_identity") ||
+             (!json_boolean_property(structure, "pass_self_by_ref") &&
+              (!mem_mode || strcmp(mem_mode, "val") == 0)));
     }
     return rust_type_supported(type);
 }
@@ -927,9 +968,10 @@ static bool rust_validate_method_call(json_object *expr)
         json_boolean_property(struct_type, "is_native"))
         return rust_report_resolved_call_error(
             "does not support native resolved method_call receivers");
-    if (json_boolean_property(structure, "pass_self_by_ref") ||
-        json_boolean_property(struct_type, "pass_self_by_ref") ||
-        !json_string_property_equals(structure, "mem_mode", "val"))
+    if (!json_boolean_property(structure, "rust_thread_reference_identity") &&
+        (json_boolean_property(structure, "pass_self_by_ref") ||
+         json_boolean_property(struct_type, "pass_self_by_ref") ||
+         !json_string_property_equals(structure, "mem_mode", "val")))
         return rust_report_resolved_call_error(
             "does not support reference-struct resolved method_call receivers");
     if (json_boolean_property(structure, "is_packed"))

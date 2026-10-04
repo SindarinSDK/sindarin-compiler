@@ -1,0 +1,20 @@
+struct Item as ref =>
+  tag: str
+  values: int[]
+
+fn change(item: Item as val): void =>
+  item.tag = "copy"
+  item.values.push(9)
+  println($"{item.tag} {item.values.length}")
+
+fn main(): void =>
+  var original: Item = {
+    tag: "old",
+    values: {1}
+  }
+  change(original)
+  println($"{original.tag} {original.values.length}")
+  var copied: Item = copyOf(original)
+  copied.tag = "local"
+  copied.values.push(2)
+  println($"{copied.tag} {copied.values.length} {original.tag} {original.values.length}")

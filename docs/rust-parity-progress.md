@@ -5,6 +5,61 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Reference records: combined validation, 2026-10-04
+
+This increment is based on repaired main
+`7b5d2fdaece19df06b29ade1cbebe29b5d229abd`. All six exact-revision CI jobs and
+retained Linux/macOS/Windows artifacts independently pass 32 reports / 2685
+cases. The reference increment is published directly to main after complete
+combined local checks. Its exact-revision hosted verification remains pending.
+
+Ordinary reference records retain one identity across local aliases, array and
+field reads, calls, returns, foreach bindings, global replacement and owner
+release. Nil records preserve that same identity contract without initializing
+field values. Array `contains` and `indexOf` compare identities. Explicit
+reference-record value parameters and `copyOf` detach contents, while a local
+`as val` binding preserves C's existing alias behavior. Array-field forwarding
+continues to carry the actual shared field owner.
+
+Owned value-record `return self` now supports ordinary content copies. A
+C-valid probe exposed a copy-hook mismatch in the prototype: C invoked the
+user-defined hook while Rust used derived Clone. The repaired operation invokes
+the hook and propagates its receiver mutation through conditional returns and
+forwarding methods. General user-copy operations remain completion work.
+
+The unchanged original corpus passes **1103 integration + 221 exploratory
+programs**, with **41 compilation gaps**, zero runtime failures and no skips:
+**1324 / 1365 (97.0%) original-program coverage**. Eleven originals close; this
+percentage measures coverage rather than remaining development effort. All
+1365 original source hashes are unchanged. One former reference-operator
+rejection moves unchanged into positive coverage and has a clean instrumented
+C control. Five historical emission snapshots reflect the reference field and
+identity representation; the other 507 historical snapshots remain unchanged.
+
+A mandatory 171-case gate covers 19 independent output oracles across all nine
+optimization/arithmetic modes. All nineteen C sources pass instrumented ASAN
+with leak detection. Complete C and Rust suites pass without failures or skips. The combined
+compiler passes all 33 reports / 2856 cases, including every preceding gate.
+Rust generation/negative counts are 467 / 137; native tagged/extra/origin/negative
+8 / 37 / 1 / 7, closures 36 / 1, concurrency 10 / 7 / 1 and toolchain 12.
+Raw byte/argv, native flush ordering and Windows text-helper controls pass.
+These local results do not claim hosted acceptance of the new increment.
+
+C production and default-target selection remain unchanged. Native/SDK owned
+bridges, callbacks and closure lifetimes, interfaces/iterators, serializable
+records, general copy hooks and the remaining language/ownership gaps remain
+part of the full active goal. C-invalid method-copy, nested-hook declaration,
+and `copyOf(nil)` probes are excluded from portable parity credit.
+
+Evidence: [combined local validation](rust-parity-evidence/reference-records-validation.json),
+[171 independent pairs](rust-parity-evidence/reference-records-pairs.json),
+[original admission controls](rust-parity-evidence/reference-records-before-controls.json),
+[copy-hook admission controls](rust-parity-evidence/reference-records-copy-hook-before.json),
+[copy-hook diagnosis](rust-parity-evidence/reference-records-copy-hook-diagnosis.json),
+[ASAN controls](rust-parity-evidence/reference-records-asan.json),
+[preservation](rust-parity-evidence/reference-records-preservation.json) and
+[remaining original diagnostics](rust-parity-evidence/reference-records-gap-diagnostics.json).
+
 ## Owned record index oracle: CI repair, 2026-10-04
 
 The owned-record increment was published as
@@ -25,12 +80,15 @@ sequenced stable-index store runs an RHS callback that reads the preceding
 mutation. The managed string index/RHS sequence remains covered. The independent
 raw-byte oracle is updated for these defined operations; the mandatory count
 remains 216. C production, default-target selection and all original corpus
-sources and oracles remain unchanged. Exact-revision CI for this repair is
-pending publication. Complete local C/Rust suites, all 216 independent
+sources and oracles remain unchanged. The repair is published as
+`7b5d2fdaece19df06b29ade1cbebe29b5d229abd`; compiler jobs and Linux/macOS
+runtime checks pass on Linux, macOS and Windows. Complete local C/Rust suites, all 216 independent
 owned-record comparisons and 24 instrumented C controls pass. The other
 31 report inputs and compiler binary are unchanged.
 [Repair validation](rust-parity-evidence/owned-record-index-order-validation.json).
-Further integration is suspended until CI is green.
+All six repair CI jobs now pass, and retained artifacts independently verify
+all 32 reports / 2685 cases per platform. Integration can resume.
+[Exact-main repair proof](rust-parity-evidence/owned-record-index-order-main-ci-green.json).
 
 ## Owned record parameters: direct-main increment, 2026-10-04
 
