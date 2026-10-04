@@ -1869,9 +1869,10 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                                 json_object *check = json_object_new_object();
                                 json_object_object_add(check, "type_name",
                                     json_object_new_string(ret_name));
+                                json_object_object_add(check, "arg_index",
+                                    json_object_new_int(pi));
                                 json_object_object_add(check, "ptr_expr",
-                                    gen_model_expr(arena, expr->as.call.arguments[pi],
-                                                   symbol_table, arithmetic_mode));
+                                    json_object_get(json_object_array_get_idx(args, pi)));
                                 json_object_array_add(check_args, check);
                                 n_checks++;
                             }

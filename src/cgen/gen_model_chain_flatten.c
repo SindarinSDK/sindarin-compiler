@@ -208,6 +208,7 @@ static void extract_heap_producing_args(json_object *args, json_object *inserts)
         if (!json_object_object_get_ex(arg, "kind", &arg_kind)) continue;
         const char *akind = json_object_get_string(arg_kind);
         bool is_call_result = (strcmp(akind, "call") == 0 ||
+                               strcmp(akind, "borrow_inferred_call") == 0 ||
                                strcmp(akind, "method_call") == 0 ||
                                strcmp(akind, "static_call") == 0);
         bool is_lifted_member = false;
@@ -385,6 +386,51 @@ static void flatten_expr(json_object *expr, json_object *inserts)
     json_object *kind_obj = NULL;
     if (!json_object_object_get_ex(expr, "kind", &kind_obj)) return;
     const char *kind = json_object_get_string(kind_obj);
+
+    /* Bind native ownership snapshots to the actual, flattened arguments.
+     * Rebuilding their AST expressions evaluates factories/indexes twice and
+     * can compare a different allocation before releasing the returned one.
+     * The inner call uses the snapshot itself, so each pointer is read once.
+     * Nested inferred calls are owned results and must be lifted/cleaned up
+     * just like ordinary native factories. */
+    if (strcmp(kind, "borrow_inferred_call") == 0)
+    {
+        json_object *inner_call = NULL, *checks = NULL, *args = NULL;
+        json_object *bound = NULL;
+        if (json_object_object_get_ex(expr, "borrow_args_bound", &bound) &&
+            json_object_get_boolean(bound))
+            return;
+        if (!json_object_object_get_ex(expr, "inner_call", &inner_call) ||
+            !json_object_object_get_ex(expr, "borrow_check_args", &checks))
+            return;
+        flatten_expr(inner_call, inserts);
+        if (!json_object_object_get_ex(inner_call, "args", &args)) return;
+        for (int ci = 0; ci < (int)json_object_array_length(checks); ci++)
+        {
+            json_object *check = json_object_array_get_idx(checks, ci);
+            json_object *index = NULL;
+            if (!json_object_object_get_ex(check, "arg_index", &index)) continue;
+            int ai = json_object_get_int(index);
+            if (ai < 0 || ai >= (int)json_object_array_length(args)) continue;
+            json_object *arg = json_object_array_get_idx(args, ai);
+            json_object_object_add(check, "ptr_expr", json_object_get(arg));
+            char name[64];
+            snprintf(name, sizeof(name), "__bi_snap_%d__", ci);
+            json_object *var = json_object_new_object();
+            json_object_object_add(var, "kind", json_object_new_string("variable"));
+            json_object_object_add(var, "name", json_object_new_string(name));
+            /* Compiler-local C names live outside the __sn__ source namespace.
+             * A source binding named __bi_snap_0__ must not shadow this read. */
+            json_object_object_add(var, "is_borrow_snapshot", json_object_new_boolean(true));
+            json_object_object_add(var, "borrow_snapshot_index", json_object_new_int(ci));
+            json_object *type = NULL;
+            if (json_object_object_get_ex(arg, "type", &type))
+                json_object_object_add(var, "type", json_object_get(type));
+            json_object_array_put_idx(args, ai, var);
+        }
+        json_object_object_add(expr, "borrow_args_bound", json_object_new_boolean(true));
+        return;
+    }
 
     /* Thread spawns contain a call — recurse into it but do NOT extract
      * interpolated string args, because the temp variable's sn_auto_str

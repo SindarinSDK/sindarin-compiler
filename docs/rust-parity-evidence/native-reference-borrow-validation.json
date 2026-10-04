@@ -1,0 +1,241 @@
+{
+  "base_revision": "e8eba717d3915f80e602eb5643d8df7f9fca2fc3",
+  "compiler_sha256": "c1fcdad5297367ab8a05c53aaa7f1d637b9dec3a16111bf1f3613023b2e8495b",
+  "state": "Complete local acceptance; unpublished, exact-revision hosted CI required after publication. Full native Rust transport remains unimplemented.",
+  "production_scope": "C ownership snapshots use actual flattened args exactly once, preserve argument index and native borrow/owned inference, nested wrapper results have owning cleanup. Matching Rust model projection avoids duplicate AST regeneration; admission unchanged. C default preserved.",
+  "new_source": "tests/integration/test_native_ref_return_evaluation.sn",
+  "new_source_sha256": "08a05bb78de46a7e7de80ba27e094b6f618adf44a505ab223916868d0fd94e9e",
+  "native_helper_sha256": "bfabd1480485d73f7ac0952c5d51edadf35a9165e43e93cbb8c3fe69f2370ec2",
+  "expected_stdout_hex": "7374617274203120310a626f72726f772032203220747275650a72657461696e6564203220310a6672657368203130203131302032203120320a74656d706f72617279203230203120330a74656d706f726172792072657461696e656420333020310a6e657374656420343020310a74656d706f726172792066726573682031353020310a72657461696e6564206e657374656420363020310a696e646578656420312037300a7069636b65642032303020310a7265706561746564207472756520330a736e617073686f74206e616d6520393020310a6f66667365742033303020310a6e696c20747275650a646f6e65203020637265617465642031340a",
+  "new_C_control_modes": 9,
+  "asan_C_controls": 21,
+  "c_suites": [
+    1610,
+    107,
+    79,
+    1142,
+    58,
+    224,
+    11
+  ],
+  "rust_suites": [
+    491,
+    133,
+    8,
+    37,
+    1,
+    7,
+    36,
+    1,
+    10,
+    7,
+    1,
+    12
+  ],
+  "reports": [
+    {
+      "name": "core",
+      "cases": 30,
+      "report_sha256": "a638a5f6da68e18c9ea743c75365ddd5b63b666a81451492be66836cee08a4ac"
+    },
+    {
+      "name": "concurrency",
+      "cases": 51,
+      "report_sha256": "9b3834ae0cb58021487b14e4a84daae6d37aaa9f5c2bfd62b0862196777f2a8c"
+    },
+    {
+      "name": "thread-ownership",
+      "cases": 207,
+      "report_sha256": "1414b733d565d6aba1ba26027e1bc8039085c90e28acab83f32e4121dd976a71"
+    },
+    {
+      "name": "thread-receivers",
+      "cases": 90,
+      "report_sha256": "f457da7f11402823360919cb711d87df5ea8a9ec3e1a8f5e27824f24499dc485"
+    },
+    {
+      "name": "reflection",
+      "cases": 36,
+      "report_sha256": "6cab4b8f49ec2851885c2c142c788f7b6f70aeb16a69d103f1bcfdc824c126c0"
+    },
+    {
+      "name": "sized-defaults",
+      "cases": 27,
+      "report_sha256": "38762cb6e66f16ff88a0d4c98a700a53d14e6ba25923c6d8fb8cb7140f8e3650"
+    },
+    {
+      "name": "native-managed",
+      "cases": 63,
+      "report_sha256": "d362a5525f2a36a9da0b4041467b9696933e216c3d439861511daf283111f12d"
+    },
+    {
+      "name": "stdio-order",
+      "cases": 30,
+      "report_sha256": "b2206242a1249abde1e60fb9acb6f36061f7a14cb2a69ab41e0b8b17bde764d8"
+    },
+    {
+      "name": "mixed-integral",
+      "cases": 90,
+      "report_sha256": "98bf50624285c4096765ac1c57365b2d13675aae1f344b36b15f7f02d847970e"
+    },
+    {
+      "name": "mixed-integral-diagnostics",
+      "cases": 9,
+      "report_sha256": "5f7d03a079f54e00afa8cd1b8b37631e0e0bb72c5644a940f7312d8e85eb43b9"
+    },
+    {
+      "name": "float-conversions",
+      "cases": 117,
+      "report_sha256": "307eb6316592bfa62b5de66b8c79bba61047b3b2ce8db8c5960ed1fbc3e9b1fd"
+    },
+    {
+      "name": "floating-arrays",
+      "cases": 81,
+      "report_sha256": "e340b07d746ee4e67fc22af901d9a46234e730c678a72cbb31924c088288b575"
+    },
+    {
+      "name": "floating-equality",
+      "cases": 36,
+      "report_sha256": "2bf7edec04e0003cb5f2db46e152de8891d07111f7e26785df9944216137631d"
+    },
+    {
+      "name": "numeric-places",
+      "cases": 153,
+      "report_sha256": "b755d8b974068a96fd23b8447479066a129b823ef643b63bcac9ee07f91335cb"
+    },
+    {
+      "name": "capture-index",
+      "cases": 45,
+      "report_sha256": "9143b6b1352b4696ce5ee42048e56afb6cbe5b269553e874af3a567cade1c8ba"
+    },
+    {
+      "name": "sync-character",
+      "cases": 45,
+      "report_sha256": "0abf8cc2c31d6adb22efa3cc3e4049edc6d5a71b5251c12216eadb428b4d7111"
+    },
+    {
+      "name": "ctype",
+      "cases": 72,
+      "report_sha256": "134657092cef810a050f2b5c08a615f89974f4d08a2959958eb9e102bcb3b8d7"
+    },
+    {
+      "name": "byte-encoding",
+      "cases": 81,
+      "report_sha256": "09c9086b20980c8ea97fde7ef81211797606d1749944443260b635853e020865"
+    },
+    {
+      "name": "exit",
+      "cases": 153,
+      "report_sha256": "d160a06809711a740e9548fbcac58b1e83fbd9fec88ce410c2e1ef6897581db9"
+    },
+    {
+      "name": "main-return",
+      "cases": 108,
+      "report_sha256": "23a09f99c095b7317cd1ea60615f787befd91300c3d55cb4b77294ee96ea50b0"
+    },
+    {
+      "name": "match-control",
+      "cases": 180,
+      "report_sha256": "aa3c879800d7623b1656f5b9030e5622bbbf49b4ae3232123ed284526885c145"
+    },
+    {
+      "name": "sizeof",
+      "cases": 216,
+      "report_sha256": "a37a93972d2659e4ce66d3451c02a0229eaf55756ee54e3fb173a48e5368e1e4"
+    },
+    {
+      "name": "call-reference",
+      "cases": 126,
+      "report_sha256": "bd635ce2388baff309aa35f49047552fce33867f052bdc391617631e58b8cfcf"
+    },
+    {
+      "name": "indexed-string",
+      "cases": 54,
+      "report_sha256": "16397c42b44b1155cd2a85ed67c6b8e96ef2262dad132cb749aa78d7567dbd89"
+    },
+    {
+      "name": "native-scope",
+      "cases": 36,
+      "report_sha256": "de90e13b4854de55ea3822d33ef2bb2d7de6cb265d16a164156dfd536c5a69fe"
+    },
+    {
+      "name": "nil-string",
+      "cases": 72,
+      "report_sha256": "0d33f43784636e7c838e87e8dab1083f1747ad3e8c58c9b5b8e87345f8d1c5d7"
+    },
+    {
+      "name": "nil-array",
+      "cases": 90,
+      "report_sha256": "5e13e3a1a2cc02ae698ce38d67238514d9960f276883ee0f6873a32c955c9667"
+    },
+    {
+      "name": "nested-stores",
+      "cases": 45,
+      "report_sha256": "a34d06bed63373d1b708c17ca680263b7f9a7c973d1f08529031801084a357bb"
+    },
+    {
+      "name": "owned-array-copies",
+      "cases": 45,
+      "report_sha256": "685110bc1b31190dcb723193c3e064b0987c5def248e145376e0ef160c0dd735"
+    },
+    {
+      "name": "native-records",
+      "cases": 45,
+      "report_sha256": "b86b6353ba06ea846addd9cc6a754694fe4a100bea0116db0d608e5fac4f7d3b"
+    },
+    {
+      "name": "native-record-references",
+      "cases": 36,
+      "report_sha256": "fdf82b9a313f50413668570e5ea7c85780f000dea199f3c665f45af865eb6b7f"
+    },
+    {
+      "name": "owned-record-parameters",
+      "cases": 216,
+      "report_sha256": "52f3d032e348a372e968aee2e2d7dca3e9f276bba39ff6f51188ceaca6dc5fdf"
+    },
+    {
+      "name": "reference-records",
+      "cases": 171,
+      "report_sha256": "392ef2a2e596a371ba375d602505452304e83d34e63db9465759fbfc8521943e"
+    },
+    {
+      "name": "scalar-parameters",
+      "cases": 126,
+      "report_sha256": "5a0bdf5c8e2ddadbcd9038a2b14a88718819ebb354d3e32e2b7c2fa7d5936383"
+    },
+    {
+      "name": "closure-records",
+      "cases": 189,
+      "report_sha256": "04f446c1e243a33eca589d6c7121ca7412ad0dc95b42612bc94da827cb9f8e24"
+    }
+  ],
+  "gate_reports": 35,
+  "gate_cases": 3171,
+  "original_source_hashes_preserved": 1365,
+  "historical_emission_oracles_changed": 0,
+  "original_program_coverage": "1330/1365 (97.4%);35 original compilation gaps remain; no new native Rust feature/parity credit",
+  "harness_logs": {
+    "full-c": {
+      "raw_sha256": "5c2f6bd3be676da98eab61d39ba99b38099ce2716aad71a852f5e4d0f99fe764",
+      "retained_sha256": "9c6a5056e9c9d9e715f0d00d808e80bd8d5766fdd0496d4f559bafbfbc7e0c36",
+      "normalization": "Harness styling/progress/blank/trailing whitespace only; raw program streams retained in JSON."
+    },
+    "full-rust": {
+      "raw_sha256": "922cb3e5985875a0447c3d2ebde64ae7b569ab48ce43081ba231c1ce02a2bda0",
+      "retained_sha256": "c3bb7acfd90fb0e15765c38116f6617fb934f97ad6564cc3b2ffb4f1acd1ca74",
+      "normalization": "Harness styling/progress/blank/trailing whitespace only; raw program streams retained in JSON."
+    },
+    "asan": {
+      "raw_sha256": "5498075d9613673d96b2a600d3e7bec6e226c77e994b14043b0be29dace30ab0",
+      "retained_sha256": "5498075d9613673d96b2a600d3e7bec6e226c77e994b14043b0be29dace30ab0",
+      "normalization": "Harness styling/progress/blank/trailing whitespace only; raw program streams retained in JSON."
+    }
+  },
+  "temporary_harness_failure": "Concurrent C/Rust runners remove all sn_test_* directories. Initial C log failed from missing temporary output paths; isolated project-local TMPDIR C run passes. No product defect attributed.",
+  "temporary_formatting_failure": "Newline at C partial EOF changed75 C snapshots. Restored original partial EOF formatting; fresh complete C suite passes107 unchanged snapshots, no golden edits. Runtime gates passed under same compiled binary; only partial whitespace was subsequently restored and full C/Rust/sanitizer checks repeated.",
+  "canonical_ABI_experiment": {
+    "path": ".sn/native-reference-owner-harness.json",
+    "passed": true,
+    "scope": "Manual Rust opaque C owner reproduces frozen14-creation/zero-live oracle and Clone/Drop under C ASAN/UBSAN; exploratory support for next implementation,not backend feature/parity credit."
+  }
+}

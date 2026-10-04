@@ -1,1 +1,1 @@
-{{#if is_captured}}(*__sn__{{name}}){{else}}__sn__{{name}}{{/if}}
+{{#if is_borrow_snapshot}}__bi_snap_{{borrow_snapshot_index}}__{{else}}{{#if is_captured}}(*__sn__{{name}}){{else}}__sn__{{name}}{{/if}}{{/if}}

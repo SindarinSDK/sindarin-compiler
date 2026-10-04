@@ -1,0 +1,39 @@
+Compiler: /home/gavin/code/sindarin/sindarin-rust-native-reference-lifecycles-e8eba717/bin/sn
+Platform: Linux
+Parallel: 8 workers
+Unit Tests
+============================================================
+Results: 1610 passed, 0 failed  (total: 16.38ms)
+------------------------------------------------------------
+Unit tests passed  (18ms)
+Code Generation Tests
+============================================================
+  Running 107 tests with 8 workers...
+------------------------------------------------------------
+Results: 107 passed, 0 failed, 0 skipped  (928ms)
+Model Generation Tests
+============================================================
+  Running 79 tests with 8 workers...
+------------------------------------------------------------
+Results: 79 passed, 0 failed, 0 skipped  (41ms)
+Integration Tests
+============================================================
+  Running 1142 tests with 8 workers...
+------------------------------------------------------------
+Results: 1142 passed, 0 failed, 0 skipped  (11.13s)
+Integration Error Tests
+============================================================
+  Running 58 tests with 8 workers...
+------------------------------------------------------------
+Results: 58 passed, 0 failed, 0 skipped  (32ms)
+Exploratory Tests
+============================================================
+  Running 224 tests with 8 workers...
+------------------------------------------------------------
+Results: 224 passed, 0 failed, 0 skipped  (14.23s)
+Exploratory Error Tests
+============================================================
+  Running 11 tests with 8 workers...
+------------------------------------------------------------
+Results: 11 passed, 0 failed, 0 skipped  (11ms)
+All tests passed!  (total: 26.39s)

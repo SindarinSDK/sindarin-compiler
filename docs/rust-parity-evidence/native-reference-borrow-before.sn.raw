@@ -1,0 +1,70 @@
+@source "test_native_ref_return_evaluation_helper.c"
+
+native struct Token as ref =>
+  id: int
+  @alias "token_dispose"
+  native fn dispose(): void
+
+native fn token_create(id: int): Token
+native fn token_borrow(value: Token): Token
+native fn token_retained(value: Token): Token
+native fn token_fresh(value: Token): Token
+native fn token_refs(value: Token): int
+native fn token_live(): int
+native fn token_same(left: Token, right: Token): bool
+native fn token_id(value: Token): int
+native fn token_nil(): Token
+native fn token_created(): int
+native fn token_pick(left: Token, right: Token): Token
+
+fn temporary(): Token =>
+  return token_borrow(token_create(20))
+
+fn temporary_retained(): Token =>
+  return token_retained(token_create(30))
+
+fn nested(): Token =>
+  return token_borrow(token_borrow(token_create(40)))
+
+fn temporary_fresh(): Token =>
+  return token_fresh(token_create(50))
+
+fn retained_nested(): Token =>
+  return token_retained(token_borrow(token_create(60)))
+
+fn select_temporary(): Token =>
+  return token_pick(token_create(100), token_create(200))
+
+fn exercise(): void =>
+  var value: Token = token_create(10)
+  println($"start {token_refs(value)} {token_live()}")
+  var alias: Token = token_borrow(value)
+  println($"borrow {token_refs(value)} {token_refs(alias)} {token_same(value, alias)}")
+  alias = token_retained(alias)
+  println($"retained {token_refs(value)} {token_live()}")
+  var fresh: Token = token_fresh(value)
+  println($"fresh {token_id(value)} {token_id(fresh)} {token_refs(value)} {token_refs(fresh)} {token_live()}")
+  var temp: Token = temporary()
+  println($"temporary {token_id(temp)} {token_refs(temp)} {token_live()}")
+  var retained: Token = temporary_retained()
+  println($"temporary retained {token_id(retained)} {token_refs(retained)}")
+  var chained: Token = nested()
+  println($"nested {token_id(chained)} {token_refs(chained)}")
+  var made: Token = temporary_fresh()
+  println($"temporary fresh {token_id(made)} {token_refs(made)}")
+  var owned: Token = retained_nested()
+  println($"retained nested {token_id(owned)} {token_refs(owned)}")
+  var items: Token[] = {token_create(70), token_create(80)}
+  var index: int = 0
+  var selected: Token = token_borrow(items[index++])
+  println($"indexed {index} {token_id(selected)}")
+  var picked: Token = select_temporary()
+  println($"picked {token_id(picked)} {token_refs(picked)}")
+  var repeated: Token = token_pick(value, value)
+  println($"repeated {token_same(repeated, value)} {token_refs(value)}")
+  var absent: Token = token_borrow(token_nil())
+  println($"nil {absent == nil}")
+
+fn main(): void =>
+  exercise()
+  println($"done {token_live()} created {token_created()}")

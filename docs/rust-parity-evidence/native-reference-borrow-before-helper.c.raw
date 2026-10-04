@@ -1,0 +1,17 @@
+#include <stdlib.h>
+static long long token_count;
+static long long token_creations;
+__sn__Token *token_create(long long id) { __sn__Token *p = __sn__Token__new(); p->__sn__id=id; token_count++; token_creations++; return p; }
+void token_dispose(__sn__Token *p) { (void)p; token_count--; }
+__sn__Token *token_borrow(__sn__Token *p) { return p; }
+__sn__Token *token_retained(__sn__Token *p) { return __sn__Token_retain(p); }
+__sn__Token *token_fresh(__sn__Token *p) { return token_create(p->__sn__id+100); }
+long long token_refs(__sn__Token *p) { return p ? p->__rc__ : 0; }
+long long token_live(void) { return token_count; }
+long long token_id(__sn__Token *p) { return p ? p->__sn__id : -1; }
+__sn__Token *token_nil(void) { return NULL; }
+
+bool token_same(__sn__Token *left, __sn__Token *right) { return left==right; }
+
+long long token_created(void) { return token_creations; }
+__sn__Token *token_pick(__sn__Token *left, __sn__Token *right) { (void)left; return right; }

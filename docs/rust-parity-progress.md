@@ -5,6 +5,68 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Native reference-return ownership: C prerequisite repair, 2026-10-04
+
+This increment starts from published main
+`e8eba717d3915f80e602eb5643d8df7f9fca2fc3`. All six preceding compiler/runtime
+jobs pass and all Linux/macOS/Windows artifacts independently verify 35 reports /
+3171 cases in the [hosted evidence](rust-parity-evidence/owned-closure-records-main-ci-green.json).
+The new repair has complete local acceptance; its exact-revision hosted
+verification remains required after publication.
+
+Auditing native reference-handle transport exposed a language-valid C lifetime
+failure: `return token_borrow(token_create(20))` generated two factory calls.
+The ownership check snapshotted one allocation but passed a different flattened
+argument to native code. It failed to retain the borrowed result before the
+argument's cleanup, causing a sanitizer-confirmed use-after-free. Native pointer
+argument expressions now evaluate once: checks follow actual argument positions,
+use flattened temporaries and pass the snapshot to the native call. Nested
+inferred calls receive owning temporary cleanup. Already retained results are
+not retained again; distinct fresh results and nil keep their existing contract.
+Compiler-local C snapshot names remain separate from valid source bindings.
+The matching Rust model projection shares the normalized argument rather than
+regenerating its AST. Native Rust admission is unchanged, and C remains default.
+
+A new integration fixture checks borrowed/retained/fresh/nil returns, temporary
+and nested arguments, self-assignment, repeated aliases, an index with a side
+effect, a checked record in a later parameter position, source-name hygiene,
+exact visible reference counts, exactly 14 allocations and zero surviving
+resources. It passes all nine optimization/arithmetic modes with verified ASAN
+instrumentation, UBSAN and leak detection. Twelve unchanged native-resource
+originals also pass instrumented C controls: **21 clean controls** in total.
+
+Complete C suites pass **1610 / 107 / 79 / 1142 / 58 / 224 / 11** checks;
+complete Rust suites pass **491 / 133 / 8 / 37 / 1 / 7 / 36 / 1 / 10 / 7 / 1 /
+12** with no failures or skips. All **35 reports / 3171 preservation cases**
+pass and are independently checked against existing frozen oracles, complete
+mode coverage and current source/compiler hashes. Raw bytes/argv, text/native
+flush ordering and Windows helper controls pass. All **1365 original sources**
+and every historical emission oracle are unchanged.
+
+Two temporary verification failures were resolved without changing expectations:
+the parallel test runners deleted each other's temporary directories, repaired
+by an isolated project-local TMPDIR; a newline accidentally added at a C partial
+EOF changed 75 source snapshots, repaired by restoring the original formatting.
+Fresh full C/Rust suites and sanitizer controls pass after the formatting repair.
+
+The original Rust coverage remains **1330 / 1365 (97.4%)**, with **35 original
+compilation gaps**. This C prerequisite and its new C-only control receive no
+new Rust feature or portable parity credit. The twelve native-reference
+originals still require implementation; a separate manual Rust/C owner experiment
+supports canonical opaque C handles with C retain/release and live, once-evaluated
+borrow snapshots, but is not compiler acceptance. Native/SDK callbacks, general
+native methods/ownership, interfaces/iterators, serialization/copy hooks, broader
+closure contracts and the retained C ownership failures remain in the full goal.
+
+Evidence: [local validation](rust-parity-evidence/native-reference-borrow-validation.json),
+[pre-repair sanitizer failure](rust-parity-evidence/native-reference-borrow-before.json),
+[exact failing source](rust-parity-evidence/native-reference-borrow-before.sn.raw),
+[exact native helper](rust-parity-evidence/native-reference-borrow-before-helper.c.raw),
+[21 clean sanitizer controls](rust-parity-evidence/native-reference-borrow-asan.json),
+[independent preservation verification](rust-parity-evidence/native-reference-borrow-local-verification.log),
+[full C suite](rust-parity-evidence/native-reference-borrow-full-c.log) and
+[full Rust suite](rust-parity-evidence/native-reference-borrow-full-rust.log).
+
 ## Owned and reference record closures: combined validation, 2026-10-04
 
 This increment is based on exact verified main
@@ -12,8 +74,10 @@ This increment is based on exact verified main
 compiler/runtime jobs pass; the retained Linux/macOS/Windows artifacts
 independently verify 34 reports / 2982 cases per platform in the
 [preceding hosted evidence](rust-parity-evidence/scalar-parameters-main-ci-green.json).
-The new increment has complete combined local acceptance; exact-revision hosted
-verification after publication remains required.
+All six compiler/runtime CI jobs for published main
+`e8eba717d3915f80e602eb5643d8df7f9fca2fc3` pass. The retained Linux/macOS/Windows
+artifacts independently verify all 35 reports / 3171 cases per platform in the
+[hosted acceptance evidence](rust-parity-evidence/owned-closure-records-main-ci-green.json).
 
 Default heap-owning record callable parameters preserve C's caller borrow and
 alias behavior through shared field owners. Repeated parameters observe each
