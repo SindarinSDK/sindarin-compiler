@@ -1,0 +1,1100 @@
+{
+  "revision": "af0893c456aa1c682b7c3678064e6d4641b101f4",
+  "reports": [
+    {
+      "platform": "linux",
+      "compiler_sha256": "8d38822f921410df78c593bc1033625ed37041dd36f9dd5d9d9a9099236f6dd8",
+      "gates": [
+        {
+          "gate": "core",
+          "cases": 30,
+          "artifact_sha256": "075a525838e194a794fadc961ce16dd7718b2804c27e6de4d88de467ad63e7ac"
+        },
+        {
+          "gate": "concurrency",
+          "cases": 51,
+          "artifact_sha256": "923eed8c1bfe71cdedad41f552f45968d750a2ca11f659ec09b284ea0c5a7801"
+        },
+        {
+          "gate": "thread-ownership",
+          "cases": 207,
+          "artifact_sha256": "9fb085bd0f49792f521556732338c785d38ce57180fb5c43e9337d32f6275b9e"
+        },
+        {
+          "gate": "thread-receivers",
+          "cases": 90,
+          "artifact_sha256": "a127fa737797624b80e49c3ff9858166b15d46d8fb7d6f8a1ab512d8a0b4e46a"
+        },
+        {
+          "gate": "reflection",
+          "cases": 36,
+          "artifact_sha256": "099d8c1f1cb16d5aa31a8201c6e602191a66b5b2ce653ef166d16410556c1fcb"
+        },
+        {
+          "gate": "sized-defaults",
+          "cases": 27,
+          "artifact_sha256": "41cd1375df6be3343a005bbc5572bf3e60cf3fb6c2a9a9a2d668adc7fbb4e8aa"
+        },
+        {
+          "gate": "native-managed",
+          "cases": 63,
+          "artifact_sha256": "cd197687d2628bcb16e121a627b948dde2519f1b98cf3a76b060fa8b0451787d"
+        },
+        {
+          "gate": "stdio-order",
+          "cases": 30,
+          "artifact_sha256": "60e1e4deab5d990f21460ce43d075bfca0a0678eddd82c0f054530b311fe673e"
+        },
+        {
+          "gate": "mixed-integral",
+          "cases": 90,
+          "artifact_sha256": "f110a5a915c5b540cc1589a8879c802aed8644e6aebd9d4300c34ced6a4a379c"
+        },
+        {
+          "gate": "mixed-integral-diagnostics",
+          "cases": 9,
+          "artifact_sha256": "adfa81f8000f2cc4131b4fda783244d9af3bfef4f129db76ce02da3e0e840a72"
+        },
+        {
+          "gate": "float-conversions",
+          "cases": 117,
+          "artifact_sha256": "8c0a41eaa5a40f7dd0a396a40fa71e63c0b2ff76d97fc7e65ae78908c678e785"
+        },
+        {
+          "gate": "floating-arrays",
+          "cases": 81,
+          "artifact_sha256": "03c084086b99132002601e7c0b205c914c79585855a3be9b5153fbc6c9e68a4b"
+        },
+        {
+          "gate": "floating-equality",
+          "cases": 36,
+          "artifact_sha256": "f2bfd0d47a6bcb9a1b9acec7c0c7beec969562051abe63bf05497b60468cedb6"
+        },
+        {
+          "gate": "numeric-places",
+          "cases": 153,
+          "artifact_sha256": "60201b822548a8305e5861b9db62cdf2a0d6611f2f5c2ef31f3bd1caddb9a2f2"
+        },
+        {
+          "gate": "capture-index",
+          "cases": 45,
+          "artifact_sha256": "2038d4ccaa6f16df840e0f39920894873eefb1c28eda86d2f780d60cf4cfae70"
+        },
+        {
+          "gate": "sync-character",
+          "cases": 45,
+          "artifact_sha256": "01b41d5300dd0221463494292304573263aaa033fa2defcfb499801a05afaaa4"
+        },
+        {
+          "gate": "ctype",
+          "cases": 72,
+          "artifact_sha256": "99a508208d102bd3168e2c1fe35e1ac1e83475ba9fce997bca34a5ff34fe2cc7"
+        },
+        {
+          "gate": "byte-encoding",
+          "cases": 81,
+          "artifact_sha256": "255bc958f4d7835639e0d0c9fd5dde3c637c4a06cf24d7a55a49a4d8e3c8b4df"
+        },
+        {
+          "gate": "exit",
+          "cases": 153,
+          "artifact_sha256": "41edac9971ae759ea9b9957efee30b4a95a0b34382d2246f6738fef5db1a40f1"
+        },
+        {
+          "gate": "main-return",
+          "cases": 108,
+          "artifact_sha256": "3856920c34b5b27a7a86c8fa40c7a7545a5731ec867cd55666083e10e51afd2c"
+        },
+        {
+          "gate": "match-control",
+          "cases": 180,
+          "artifact_sha256": "d8c3c25e658cd38f2735202b5784d960b03994488beb11c9f8c5a51b5ed3a28b"
+        },
+        {
+          "gate": "sizeof",
+          "cases": 216,
+          "artifact_sha256": "fc276dcf8cbb90dc19df63c1d9ed90078b2a4edd49a4fd926d3d3683cb80f54e"
+        },
+        {
+          "gate": "call-reference",
+          "cases": 126,
+          "artifact_sha256": "050273ed5d33c2dab01f84ad95a6cc3f4f4e971dedc3702a60702aad1d4d86f9"
+        },
+        {
+          "gate": "indexed-string",
+          "cases": 54,
+          "artifact_sha256": "1957e7c45da7d16a6233cfd4c184c5085ba14334a32647c157e5c5755bf8790f"
+        },
+        {
+          "gate": "native-scope",
+          "cases": 36,
+          "artifact_sha256": "45c821ce9f188b40c60c9c32150c4c324c42ccfbd195c50f509af0a5de3c9d90"
+        },
+        {
+          "gate": "nil-string",
+          "cases": 72,
+          "artifact_sha256": "ad4239ee015e8a4dace5ce1faa2bb3cfd55964cb39927626bae327173dcd7cfa"
+        },
+        {
+          "gate": "nil-array",
+          "cases": 90,
+          "artifact_sha256": "a13203572b6c33107f7938e909a3ee1574bfcefa4983095762bf0e27d9b7784a"
+        },
+        {
+          "gate": "nested-stores",
+          "cases": 45,
+          "artifact_sha256": "5f950a8df5e3f98444492c072824c1cae15089203fcffd8a943c7c23f3dcfa30"
+        },
+        {
+          "gate": "owned-array-copies",
+          "cases": 45,
+          "artifact_sha256": "7e60bf85c021d801dbb844a579675c4795da191d903e7e95780489416afa53c4"
+        }
+      ],
+      "independent_process_exit_oracle_cases": 153,
+      "independent_new_main_return_oracle_cases": 108,
+      "independent_byte_oracle_cases": 81,
+      "independent_character_oracle_cases": 72,
+      "positive_pairs": 2088,
+      "diagnostic_order_cases": 39,
+      "process_exit_cases": 153,
+      "main_return_cases": 108,
+      "nested_store_cases": 45,
+      "independent_nested_store_oracle_cases": 45,
+      "owned_array_cases": 45,
+      "independent_owned_array_oracle_cases": 45,
+      "nil_array_cases": 90,
+      "independent_nil_array_oracle_cases": 90,
+      "nil_string_cases": 72,
+      "independent_nil_string_oracle_cases": 72,
+      "native_scope_cases": 36,
+      "independent_new_native_scope_oracle_cases": 36,
+      "indexed_string_cases": 54,
+      "independent_new_indexed_string_oracle_cases": 54,
+      "call_reference_cases": 126,
+      "independent_new_call_reference_oracle_cases": 126,
+      "sizeof_cases": 216,
+      "independent_new_sizeof_oracle_cases": 216,
+      "match_control_cases": 180,
+      "independent_new_match_control_oracle_cases": 180
+    },
+    {
+      "platform": "macos",
+      "compiler_sha256": "8f5db7c1c36ed76a0174f5910b6d2cae0a6a0bcaac056a9b75409f8e63a24959",
+      "gates": [
+        {
+          "gate": "core",
+          "cases": 30,
+          "artifact_sha256": "e10d4b2c09f88eeedaff4fb93e7cf199251bc9f6bc6af0544d6b41a50ed70377"
+        },
+        {
+          "gate": "concurrency",
+          "cases": 51,
+          "artifact_sha256": "269e765115571e4fab8cc18aee96de964cc3f9dd6eb550c4fbf39f64c20ff8d4"
+        },
+        {
+          "gate": "thread-ownership",
+          "cases": 207,
+          "artifact_sha256": "ab78bab4388675e7e2791a5d39d92c3769fad8baffcb22053957b7f9bb0d1f2a"
+        },
+        {
+          "gate": "thread-receivers",
+          "cases": 90,
+          "artifact_sha256": "409109955b6bb083ee743d7a15b4908856f9fda5151bf67087782cf3408bb703"
+        },
+        {
+          "gate": "reflection",
+          "cases": 36,
+          "artifact_sha256": "4ae38b006777d7ab3b4122513d1cca89834ceee2d5132da17346d28985ba5385"
+        },
+        {
+          "gate": "sized-defaults",
+          "cases": 27,
+          "artifact_sha256": "e41e8f060d83cf8b5cd970133313ce4bbcd99556080a05983bca15d89c548e3b"
+        },
+        {
+          "gate": "native-managed",
+          "cases": 63,
+          "artifact_sha256": "4f0bc8649f2470406b9be51b93100a6e60e012e03aa0cf981d3b0c8ecfe26c59"
+        },
+        {
+          "gate": "stdio-order",
+          "cases": 30,
+          "artifact_sha256": "d994198da12f0ced3a8bbf7027332cddd309112fcb78e8d1bfb719420a0ea220"
+        },
+        {
+          "gate": "mixed-integral",
+          "cases": 90,
+          "artifact_sha256": "540b96d85417644376e8747224d4be01960abe2012cd09f7d7ef7edde9cc3d4e"
+        },
+        {
+          "gate": "mixed-integral-diagnostics",
+          "cases": 9,
+          "artifact_sha256": "3f8eebd96ebe40d446580263ca892635318dd968249aa8a21264d0952a874cce"
+        },
+        {
+          "gate": "float-conversions",
+          "cases": 117,
+          "artifact_sha256": "8f26ef53ff229997775acaa8bdd0f072e9c711efa2e352f4caeb5fa0d9569d16"
+        },
+        {
+          "gate": "floating-arrays",
+          "cases": 81,
+          "artifact_sha256": "e7de0161f4a59f414d01d0000fc9404081ffc339da0a189276f4a405d21b21f6"
+        },
+        {
+          "gate": "floating-equality",
+          "cases": 36,
+          "artifact_sha256": "67c86c0a500acc6da95d76abbcd563d5e284cff10f8779105defcf34d07d9d2d"
+        },
+        {
+          "gate": "numeric-places",
+          "cases": 153,
+          "artifact_sha256": "0d6be9fffce13aad6b70ce42bfa9dee34945c9a066529ff42d1120c0f3655101"
+        },
+        {
+          "gate": "capture-index",
+          "cases": 45,
+          "artifact_sha256": "a8d79212cb94fa20161e3b3959cf62d4103eb0b9280c50771bf6c466d96471f9"
+        },
+        {
+          "gate": "sync-character",
+          "cases": 45,
+          "artifact_sha256": "76c9e026c83615eccdb29acec34546e81fdc467aa7b6fc7abb771218bee19f17"
+        },
+        {
+          "gate": "ctype",
+          "cases": 72,
+          "artifact_sha256": "4dd6bb6b544ce2da80212ef0e1a7422513730b026fcb3f205e5d891a8e8cf9ef"
+        },
+        {
+          "gate": "byte-encoding",
+          "cases": 81,
+          "artifact_sha256": "f0fec05089b7edcdac8598dff2500037989311660fa36fb7478ba1967e1d7053"
+        },
+        {
+          "gate": "exit",
+          "cases": 153,
+          "artifact_sha256": "92100f9ac5ab788712dbefb2a7a9a954b01fbed2edf8489a16f7e8bd8991cb11"
+        },
+        {
+          "gate": "main-return",
+          "cases": 108,
+          "artifact_sha256": "e9887ff3740e7b57fee5816a102a09513b5b362580b8c13addc25e49108e4963"
+        },
+        {
+          "gate": "match-control",
+          "cases": 180,
+          "artifact_sha256": "973dac2e8b5337c0b2e4557528e3e73fc0c21155ef1775f27bdff17518f5a26f"
+        },
+        {
+          "gate": "sizeof",
+          "cases": 216,
+          "artifact_sha256": "628b8c28b03adf49de110d8d0458519dfb6bb3d25b0dd94f3d0f4e5d98e567c9"
+        },
+        {
+          "gate": "call-reference",
+          "cases": 126,
+          "artifact_sha256": "c48b1b9017df64b1cadfe471c5c1a1496659449302391e19572b5f20704e6f57"
+        },
+        {
+          "gate": "indexed-string",
+          "cases": 54,
+          "artifact_sha256": "7d31ea4d5a16652bb76e47787b3289179df014e5addaab8d83567989093b1a04"
+        },
+        {
+          "gate": "native-scope",
+          "cases": 36,
+          "artifact_sha256": "1fecb6faf32b31e520c58a5a948d683fe1931e1834b5897978bd0da184bba40e"
+        },
+        {
+          "gate": "nil-string",
+          "cases": 72,
+          "artifact_sha256": "e4c03b903c0375c853c4768247c117f88a7a70f42f11955d27d31bd58c493dee"
+        },
+        {
+          "gate": "nil-array",
+          "cases": 90,
+          "artifact_sha256": "e4454a8c915fe8bfc212296bd94d06a7f04f7d340f74a0c5b0ade27fb2523a25"
+        },
+        {
+          "gate": "nested-stores",
+          "cases": 45,
+          "artifact_sha256": "ccf06594fe525b60d9e301b4f3501e8df8e75439c7571c80f3894ec5237941a3"
+        },
+        {
+          "gate": "owned-array-copies",
+          "cases": 45,
+          "artifact_sha256": "4e1fe2ebb29b37f00ce166ba959e2d400284eb45215393aafb601504439b26ca"
+        }
+      ],
+      "independent_process_exit_oracle_cases": 153,
+      "independent_new_main_return_oracle_cases": 108,
+      "independent_byte_oracle_cases": 81,
+      "independent_character_oracle_cases": 72,
+      "positive_pairs": 2088,
+      "diagnostic_order_cases": 39,
+      "process_exit_cases": 153,
+      "main_return_cases": 108,
+      "nested_store_cases": 45,
+      "independent_nested_store_oracle_cases": 45,
+      "owned_array_cases": 45,
+      "independent_owned_array_oracle_cases": 45,
+      "nil_array_cases": 90,
+      "independent_nil_array_oracle_cases": 90,
+      "nil_string_cases": 72,
+      "independent_nil_string_oracle_cases": 72,
+      "native_scope_cases": 36,
+      "independent_new_native_scope_oracle_cases": 36,
+      "indexed_string_cases": 54,
+      "independent_new_indexed_string_oracle_cases": 54,
+      "call_reference_cases": 126,
+      "independent_new_call_reference_oracle_cases": 126,
+      "sizeof_cases": 216,
+      "independent_new_sizeof_oracle_cases": 216,
+      "match_control_cases": 180,
+      "independent_new_match_control_oracle_cases": 180
+    },
+    {
+      "platform": "windows",
+      "compiler_sha256": "401af37390626ce3de9856fee8bea40d298708879b17b5624b24ca64b6c575a5",
+      "gates": [
+        {
+          "gate": "core",
+          "cases": 30,
+          "artifact_sha256": "e35812e0afc887eb3704b01effc026ef66be41bc3d2dc246e36e9736f1235cf3"
+        },
+        {
+          "gate": "concurrency",
+          "cases": 51,
+          "artifact_sha256": "f24cbcdc9451243a9388c40932988669028116daef3e35a3cedcc22dc3da7773"
+        },
+        {
+          "gate": "thread-ownership",
+          "cases": 207,
+          "artifact_sha256": "164efd4b0c79ca361a667c0b03f1256978b906ca68665ba966c0430350d814b5"
+        },
+        {
+          "gate": "thread-receivers",
+          "cases": 90,
+          "artifact_sha256": "4ef8a07d3c26b8b43facd09766a8d9fee6f85fb16742d7a44c6ca07d14a68f51"
+        },
+        {
+          "gate": "reflection",
+          "cases": 36,
+          "artifact_sha256": "2b6f66fd46d8741ba9260104e0a2f240ef943f1eb93ab219054d0bc74da6870a"
+        },
+        {
+          "gate": "sized-defaults",
+          "cases": 27,
+          "artifact_sha256": "4cdf9e2d0fe1e0515fedadcef72f0186e19cf5d3e48455a008164572512f5e14"
+        },
+        {
+          "gate": "native-managed",
+          "cases": 63,
+          "artifact_sha256": "3e5ffe6c9989b91caa785f4f4aa0fdc9f5eca390d7bb5db0eb0e1cf2e68e5a35"
+        },
+        {
+          "gate": "stdio-order",
+          "cases": 30,
+          "artifact_sha256": "2c07c9d9f65ff9921bd186eca8c4db41295c7fb9e88a4b6498e8256663152ba8"
+        },
+        {
+          "gate": "mixed-integral",
+          "cases": 90,
+          "artifact_sha256": "41d8f3ab161800e4ff88168937523f5cfa1b1ae855044fe6be435755dcfc5500"
+        },
+        {
+          "gate": "mixed-integral-diagnostics",
+          "cases": 9,
+          "artifact_sha256": "f08687c5a12ae7556344d6e4d15d0cc723ee99d88c43d811ae10d3d5e8b63332"
+        },
+        {
+          "gate": "float-conversions",
+          "cases": 117,
+          "artifact_sha256": "c6d0a5e2ce83b7b0492be917515f3440720c261cc7b9655749c44a14eb075b82"
+        },
+        {
+          "gate": "floating-arrays",
+          "cases": 81,
+          "artifact_sha256": "1a90536810dfc7bc487743eb7d4830919ff64ba444cc75f3dc417a326a3e3316"
+        },
+        {
+          "gate": "floating-equality",
+          "cases": 36,
+          "artifact_sha256": "6b5bff2c3d2c907b7ec4f156d8e6360685fe0bd9226cf371baa2fdb822e93b3a"
+        },
+        {
+          "gate": "numeric-places",
+          "cases": 153,
+          "artifact_sha256": "ad4c6b2c9b3fefcddf900a43bb5f45908c5146faded2e16c52302e9bcf2bc643"
+        },
+        {
+          "gate": "capture-index",
+          "cases": 45,
+          "artifact_sha256": "231de27b8bbdace307e8ecbcd6b8807e7e541f59285521c553818e0c017eb103"
+        },
+        {
+          "gate": "sync-character",
+          "cases": 45,
+          "artifact_sha256": "feefd90711f954692d8678ae3cd6392495686fa2f7f94441f7aa83d540ea24da"
+        },
+        {
+          "gate": "ctype",
+          "cases": 72,
+          "artifact_sha256": "e6fb3174d9b6c81878070e224e930058f164a0fff85c8ce200518a43670f0f85"
+        },
+        {
+          "gate": "byte-encoding",
+          "cases": 81,
+          "artifact_sha256": "7fc4246cc8832834605d8a8669e184c8313e99197c11c36b7731ebd9a6e26eca"
+        },
+        {
+          "gate": "exit",
+          "cases": 153,
+          "artifact_sha256": "de6e978af5a40c59f5587d394e598d12ba0c0eeefe5aa726e6c2d7f4989c5136"
+        },
+        {
+          "gate": "main-return",
+          "cases": 108,
+          "artifact_sha256": "246c6bcabd297dfc92e918f0752844a4399ad363f6e1a0e17936408a1f13a2fc"
+        },
+        {
+          "gate": "match-control",
+          "cases": 180,
+          "artifact_sha256": "8e9f37802dc9284f35bc4ee5f480507c094977dafff7c71704e764ca7640ecbe"
+        },
+        {
+          "gate": "sizeof",
+          "cases": 216,
+          "artifact_sha256": "8aba54c71f273f4778904e7b1c5723adf875626b4eb43bf5c55f9ca1c1876740"
+        },
+        {
+          "gate": "call-reference",
+          "cases": 126,
+          "artifact_sha256": "e682b586277a53c4c0aa788845646ca58a3745eb6ad8008bceff52815cacfc5e"
+        },
+        {
+          "gate": "indexed-string",
+          "cases": 54,
+          "artifact_sha256": "3339f1d01a5110c297413ee3ef7ed885b7a21fafaedfdf55af4f2c8de080f062"
+        },
+        {
+          "gate": "native-scope",
+          "cases": 36,
+          "artifact_sha256": "7e1bf1c7b7ec979c458e3da92944df59d6e92fb3dd7aead576919be6cf0d09dc"
+        },
+        {
+          "gate": "nil-string",
+          "cases": 72,
+          "artifact_sha256": "15a3f0173ee9f05ac2e2e55b72e0fbe0acff3ba539f3ead1e842a2ce59b9917b"
+        },
+        {
+          "gate": "nil-array",
+          "cases": 90,
+          "artifact_sha256": "d4f2108cc3a414aa2699f37eb533418407e7eebb5f7260fc6d4341feadfbfc4c"
+        },
+        {
+          "gate": "nested-stores",
+          "cases": 45,
+          "artifact_sha256": "fe112651fbd1d0b37d9991b928f83285da6db06b832720a57a19885f5e9d6070"
+        },
+        {
+          "gate": "owned-array-copies",
+          "cases": 45,
+          "artifact_sha256": "17b9dedca57f9f2da643a43344f1e236d0ce8a52bc4e1a9855e368c03a4b3478"
+        }
+      ],
+      "independent_process_exit_oracle_cases": 153,
+      "independent_new_main_return_oracle_cases": 108,
+      "independent_byte_oracle_cases": 81,
+      "independent_character_oracle_cases": 72,
+      "positive_pairs": 2088,
+      "diagnostic_order_cases": 39,
+      "process_exit_cases": 153,
+      "main_return_cases": 108,
+      "nested_store_cases": 45,
+      "independent_nested_store_oracle_cases": 45,
+      "owned_array_cases": 45,
+      "independent_owned_array_oracle_cases": 45,
+      "nil_array_cases": 90,
+      "independent_nil_array_oracle_cases": 90,
+      "nil_string_cases": 72,
+      "independent_nil_string_oracle_cases": 72,
+      "native_scope_cases": 36,
+      "independent_new_native_scope_oracle_cases": 36,
+      "indexed_string_cases": 54,
+      "independent_new_indexed_string_oracle_cases": 54,
+      "call_reference_cases": 126,
+      "independent_new_call_reference_oracle_cases": 126,
+      "sizeof_cases": 216,
+      "independent_new_sizeof_oracle_cases": 216,
+      "match_control_cases": 180,
+      "independent_new_match_control_oracle_cases": 180
+    }
+  ],
+  "runs": [
+    {
+      "kind": "compiler",
+      "id": 37186080317,
+      "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37186080317",
+      "jobs": [
+        {
+          "name": "Build (ubuntu-latest)",
+          "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37186080317/job/111388148264",
+          "conclusion": "success"
+        },
+        {
+          "name": "Build (macos-latest)",
+          "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37186080317/job/111388148414",
+          "conclusion": "success"
+        },
+        {
+          "name": "Build (windows-latest)",
+          "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37186080317/job/111388148455",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "kind": "runtime",
+      "id": 37186080335,
+      "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37186080335",
+      "jobs": [
+        {
+          "name": "Rust runtime (macos-latest)",
+          "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37186080335/job/111388148282",
+          "conclusion": "success"
+        },
+        {
+          "name": "Rust runtime (windows-latest)",
+          "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37186080335/job/111388148372",
+          "conclusion": "success"
+        },
+        {
+          "name": "Rust runtime (ubuntu-latest)",
+          "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37186080335/job/111388148458",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ],
+  "hosted_logs": [
+    {
+      "kind": "compiler",
+      "sha256": "d73f658553af59e94394dc19bcc016d873b712253473e87c30db7a8c211263fe",
+      "results": [
+        {
+          "passed": 1610,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Build (ubuntu-latest)\tRun all tests\t2026-10-04T07:34:21.9225280Z Results: 1610 passed, 0 failed  (total: 12.50ms)"
+        },
+        {
+          "passed": 107,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Build (ubuntu-latest)\tRun all tests\t2026-10-04T07:34:21.9228285Z Results: 107 passed, 0 failed, 0 skipped  (4.19s)"
+        },
+        {
+          "passed": 79,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Build (ubuntu-latest)\tRun all tests\t2026-10-04T07:34:21.9230720Z Results: 79 passed, 0 failed, 0 skipped  (111ms)"
+        },
+        {
+          "passed": 1141,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Build (ubuntu-latest)\tRun all tests\t2026-10-04T07:34:21.9232597Z Results: 1141 passed, 0 failed, 0 skipped  (46.28s)"
+        },
+        {
+          "passed": 58,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Build (ubuntu-latest)\tRun all tests\t2026-10-04T07:34:21.9234486Z Results: 58 passed, 0 failed, 0 skipped  (76ms)"
+        },
+        {
+          "passed": 224,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Build (ubuntu-latest)\tRun all tests\t2026-10-04T07:34:21.9236333Z Results: 224 passed, 0 failed, 0 skipped  (13.17s)"
+        },
+        {
+          "passed": 11,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Build (ubuntu-latest)\tRun all tests\t2026-10-04T07:34:21.9238225Z Results: 11 passed, 0 failed, 0 skipped  (17ms)"
+        },
+        {
+          "passed": 36,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Build (ubuntu-latest)\tRun promoted Rust closure tests\t2026-10-04T07:34:24.9339214Z Results: 36 passed, 0 failed, 0 skipped  (2.78s)"
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Build (ubuntu-latest)\tRun promoted Rust closure tests\t2026-10-04T07:34:25.0082166Z Results: 1 passed, 0 failed, 0 skipped  (3ms)"
+        },
+        {
+          "passed": 10,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Build (ubuntu-latest)\tRun Rust concurrency tests\t2026-10-04T07:34:26.4781311Z Results: 10 passed, 0 failed, 0 skipped  (1.26s)"
+        },
+        {
+          "passed": 7,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Build (ubuntu-latest)\tRun Rust concurrency tests\t2026-10-04T07:34:26.8660980Z Results: 7 passed, 0 failed, 0 skipped  (311ms)"
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Build (ubuntu-latest)\tRun Rust concurrency tests\t2026-10-04T07:34:26.9497222Z Results: 1 passed, 0 failed, 0 skipped  (3ms)"
+        },
+        {
+          "passed": 1610,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Build (macos-latest)\tRun all tests\t2026-10-04T07:35:42.2348890Z Results: 1610 passed, 0 failed  (total: 63.01ms)"
+        },
+        {
+          "passed": 107,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Build (macos-latest)\tRun all tests\t2026-10-04T07:35:42.3356400Z Results: 107 passed, 0 failed, 0 skipped  (10.51s)"
+        },
+        {
+          "passed": 79,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Build (macos-latest)\tRun all tests\t2026-10-04T07:35:42.4243180Z Results: 79 passed, 0 failed, 0 skipped  (430ms)"
+        },
+        {
+          "passed": 1141,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Build (macos-latest)\tRun all tests\t2026-10-04T07:35:42.4593040Z Results: 1141 passed, 0 failed, 0 skipped  (106.33s)"
+        },
+        {
+          "passed": 58,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Build (macos-latest)\tRun all tests\t2026-10-04T07:35:42.4630270Z Results: 58 passed, 0 failed, 0 skipped  (1.05s)"
+        },
+        {
+          "passed": 224,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Build (macos-latest)\tRun all tests\t2026-10-04T07:35:42.4634930Z Results: 224 passed, 0 failed, 0 skipped  (21.34s)"
+        },
+        {
+          "passed": 11,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Build (macos-latest)\tRun all tests\t2026-10-04T07:35:42.4647940Z Results: 11 passed, 0 failed, 0 skipped  (253ms)"
+        },
+        {
+          "passed": 36,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Build (macos-latest)\tRun promoted Rust closure tests\t2026-10-04T07:35:52.9413490Z Results: 36 passed, 0 failed, 0 skipped  (9.65s)"
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Build (macos-latest)\tRun promoted Rust closure tests\t2026-10-04T07:35:53.0520730Z Results: 1 passed, 0 failed, 0 skipped  (12ms)"
+        },
+        {
+          "passed": 10,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Build (macos-latest)\tRun Rust concurrency tests\t2026-10-04T07:35:55.2350750Z Results: 10 passed, 0 failed, 0 skipped  (1.84s)"
+        },
+        {
+          "passed": 7,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Build (macos-latest)\tRun Rust concurrency tests\t2026-10-04T07:35:55.9698820Z Results: 7 passed, 0 failed, 0 skipped  (667ms)"
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Build (macos-latest)\tRun Rust concurrency tests\t2026-10-04T07:35:56.0491030Z Results: 1 passed, 0 failed, 0 skipped  (8ms)"
+        },
+        {
+          "passed": 1610,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Build (windows-latest)\tRun all tests\t2026-10-04T07:37:08.8106745Z Results: 1610 passed, 0 failed  (total: 133.21ms)"
+        },
+        {
+          "passed": 107,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Build (windows-latest)\tRun all tests\t2026-10-04T07:37:08.8109100Z Results: 107 passed, 0 failed, 0 skipped  (10.54s)"
+        },
+        {
+          "passed": 79,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Build (windows-latest)\tRun all tests\t2026-10-04T07:37:08.8110990Z Results: 79 passed, 0 failed, 0 skipped  (451ms)"
+        },
+        {
+          "passed": 1141,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Build (windows-latest)\tRun all tests\t2026-10-04T07:37:08.8112701Z Results: 1141 passed, 0 failed, 0 skipped  (118.23s)"
+        },
+        {
+          "passed": 58,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Build (windows-latest)\tRun all tests\t2026-10-04T07:37:08.8114365Z Results: 58 passed, 0 failed, 0 skipped  (1.08s)"
+        },
+        {
+          "passed": 224,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Build (windows-latest)\tRun all tests\t2026-10-04T07:37:08.8115971Z Results: 224 passed, 0 failed, 0 skipped  (27.94s)"
+        },
+        {
+          "passed": 11,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Build (windows-latest)\tRun all tests\t2026-10-04T07:37:08.8118076Z Results: 11 passed, 0 failed, 0 skipped  (221ms)"
+        },
+        {
+          "passed": 36,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Build (windows-latest)\tRun promoted Rust closure tests\t2026-10-04T07:37:19.9382533Z Results: 36 passed, 0 failed, 0 skipped  (9.25s)"
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Build (windows-latest)\tRun promoted Rust closure tests\t2026-10-04T07:37:20.1105486Z Results: 1 passed, 0 failed, 0 skipped  (16ms)"
+        },
+        {
+          "passed": 10,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Build (windows-latest)\tRun Rust concurrency tests\t2026-10-04T07:37:24.0590598Z Results: 10 passed, 0 failed, 0 skipped  (2.88s)"
+        },
+        {
+          "passed": 7,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Build (windows-latest)\tRun Rust concurrency tests\t2026-10-04T07:37:25.3211011Z Results: 7 passed, 0 failed, 0 skipped  (1.02s)"
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Build (windows-latest)\tRun Rust concurrency tests\t2026-10-04T07:37:25.4845315Z Results: 1 passed, 0 failed, 0 skipped  (14ms)"
+        }
+      ]
+    },
+    {
+      "kind": "runtime",
+      "sha256": "2abb1c79620e88038417dc3d9bc64b5606f0c5519ab2cbe740e62676ef1d451a",
+      "results": [
+        {
+          "passed": 8,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (macos-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:33:22.4489120Z Results: 8 passed, 0 failed, 0 skipped  (6.00s)"
+        },
+        {
+          "passed": 30,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (macos-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:33:37.7510370Z Results: 30 passed, 0 failed, 0 skipped  (15.20s)"
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (macos-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:35:31.9469650Z Results: 1 passed, 0 failed, 0 skipped  (267ms)"
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (macos-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:35:46.7232460Z Results: 1 passed, 0 failed, 0 skipped  (474ms)"
+        },
+        {
+          "passed": 442,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (macos-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:36:56.9981810Z Results: 442 passed, 0 failed, 0 skipped  (69.99s)"
+        },
+        {
+          "passed": 143,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (macos-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:36:57.5281530Z Results: 143 passed, 0 failed, 0 skipped  (529ms)"
+        },
+        {
+          "passed": 8,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (macos-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:36:59.5554070Z Results: 8 passed, 0 failed, 0 skipped  (2.03s)"
+        },
+        {
+          "passed": 30,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (macos-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:37:13.2620820Z Results: 30 passed, 0 failed, 0 skipped  (13.70s)"
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (macos-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:37:13.5901170Z Results: 1 passed, 0 failed, 0 skipped  (331ms)"
+        },
+        {
+          "passed": 4,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (macos-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:37:13.7053600Z Results: 4 passed, 0 failed, 0 skipped  (115ms)"
+        },
+        {
+          "passed": 36,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (macos-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:37:19.8130700Z Results: 36 passed, 0 failed, 0 skipped  (6.11s)"
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (macos-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:37:19.8257850Z Results: 1 passed, 0 failed, 0 skipped  (10ms)"
+        },
+        {
+          "passed": 10,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (macos-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:37:21.8881720Z Results: 10 passed, 0 failed, 0 skipped  (2.06s)"
+        },
+        {
+          "passed": 7,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (macos-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:37:22.7929500Z Results: 7 passed, 0 failed, 0 skipped  (905ms)"
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (macos-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:37:22.8036130Z Results: 1 passed, 0 failed, 0 skipped  (10ms)"
+        },
+        {
+          "passed": 12,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (macos-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:37:26.3100740Z Results: 12 passed, 0 failed  (3.51s)"
+        },
+        {
+          "passed": 8,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (windows-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:33:59.2255092Z Results: 8 passed, 0 failed, 0 skipped  (1.96s)"
+        },
+        {
+          "passed": 30,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (windows-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:34:12.0734639Z Results: 30 passed, 0 failed, 0 skipped  (12.73s)"
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (windows-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:37:36.9084680Z Results: 1 passed, 0 failed, 0 skipped  (381ms)"
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (windows-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:37:58.9229988Z Results: 1 passed, 0 failed, 0 skipped  (594ms)"
+        },
+        {
+          "passed": 442,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (windows-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:39:24.2178251Z Results: 442 passed, 0 failed, 0 skipped  (81.68s)"
+        },
+        {
+          "passed": 143,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (windows-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:39:24.6995158Z Results: 143 passed, 0 failed, 0 skipped  (477ms)"
+        },
+        {
+          "passed": 8,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (windows-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:39:26.5878449Z Results: 8 passed, 0 failed, 0 skipped  (1.89s)"
+        },
+        {
+          "passed": 30,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (windows-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:39:38.5376782Z Results: 30 passed, 0 failed, 0 skipped  (11.95s)"
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (windows-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:39:38.8750131Z Results: 1 passed, 0 failed, 0 skipped  (337ms)"
+        },
+        {
+          "passed": 4,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (windows-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:39:38.9312031Z Results: 4 passed, 0 failed, 0 skipped  (56ms)"
+        },
+        {
+          "passed": 36,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (windows-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:39:44.5549203Z Results: 36 passed, 0 failed, 0 skipped  (5.62s)"
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (windows-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:39:44.5648502Z Results: 1 passed, 0 failed, 0 skipped  (10ms)"
+        },
+        {
+          "passed": 10,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (windows-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:39:46.8312542Z Results: 10 passed, 0 failed, 0 skipped  (2.27s)"
+        },
+        {
+          "passed": 7,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (windows-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:39:47.6605796Z Results: 7 passed, 0 failed, 0 skipped  (829ms)"
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (windows-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:39:47.6688905Z Results: 1 passed, 0 failed, 0 skipped  (8ms)"
+        },
+        {
+          "passed": 12,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (windows-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:39:50.9785345Z Results: 12 passed, 0 failed  (3.31s)"
+        },
+        {
+          "passed": 8,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (ubuntu-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:33:13.2680717Z Results: 8 passed, 0 failed, 0 skipped  (906ms)"
+        },
+        {
+          "passed": 30,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (ubuntu-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:33:18.5676590Z Results: 30 passed, 0 failed, 0 skipped  (5.24s)"
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (ubuntu-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:34:33.0918031Z Results: 1 passed, 0 failed, 0 skipped  (124ms)"
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (ubuntu-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:34:40.4880762Z Results: 1 passed, 0 failed, 0 skipped  (280ms)"
+        },
+        {
+          "passed": 442,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (ubuntu-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:35:06.3395750Z Results: 442 passed, 0 failed, 0 skipped  (25.67s)"
+        },
+        {
+          "passed": 143,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (ubuntu-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:35:06.4401115Z Results: 143 passed, 0 failed, 0 skipped  (100ms)"
+        },
+        {
+          "passed": 8,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (ubuntu-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:35:07.2906044Z Results: 8 passed, 0 failed, 0 skipped  (850ms)"
+        },
+        {
+          "passed": 30,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (ubuntu-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:35:12.0121331Z Results: 30 passed, 0 failed, 0 skipped  (4.72s)"
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (ubuntu-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:35:12.1374187Z Results: 1 passed, 0 failed, 0 skipped  (125ms)"
+        },
+        {
+          "passed": 4,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (ubuntu-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:35:12.1593616Z Results: 4 passed, 0 failed, 0 skipped  (22ms)"
+        },
+        {
+          "passed": 36,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (ubuntu-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:35:14.3594078Z Results: 36 passed, 0 failed, 0 skipped  (2.20s)"
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (ubuntu-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:35:14.3616362Z Results: 1 passed, 0 failed, 0 skipped  (2ms)"
+        },
+        {
+          "passed": 10,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (ubuntu-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:35:15.3366825Z Results: 10 passed, 0 failed, 0 skipped  (975ms)"
+        },
+        {
+          "passed": 7,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (ubuntu-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:35:15.5925437Z Results: 7 passed, 0 failed, 0 skipped  (256ms)"
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (ubuntu-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:35:15.5943706Z Results: 1 passed, 0 failed, 0 skipped  (2ms)"
+        },
+        {
+          "passed": 12,
+          "failed": 0,
+          "skipped": 0,
+          "line": "Rust runtime (ubuntu-latest)\tRun Rust suites and runtime parity gates\t2026-10-04T07:35:16.8187770Z Results: 12 passed, 0 failed  (1.22s)"
+        }
+      ]
+    }
+  ]
+}

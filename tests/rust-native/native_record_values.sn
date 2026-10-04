@@ -1,0 +1,26 @@
+struct Record =>
+  count: int
+  mark: char
+  ok: bool
+
+native fn duplicate_record(p: Record): Record =>
+  p.count = p.count + 100
+  p.mark = 'x'
+  p.ok = !p.ok
+  return p
+
+native fn duplicate_explicit(p: Record as val): Record =>
+  p.count = p.count + 10
+  return p
+
+fn main(): void =>
+  var value: Record = {
+    count: 7,
+    mark: 'a',
+    ok: true
+  }
+  var copy: Record = duplicate_record(value)
+  var explicit_copy: Record = duplicate_explicit(value)
+  println($"{value.count} {value.mark} {value.ok}")
+  println($"{copy.count} {copy.mark} {copy.ok}")
+  println($"{explicit_copy.count} {explicit_copy.mark} {explicit_copy.ok}")

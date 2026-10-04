@@ -1,0 +1,1 @@
+Error: Rust target native function 'make_pointer_record' has unsupported result type 'struct'

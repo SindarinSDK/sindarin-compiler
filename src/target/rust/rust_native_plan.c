@@ -89,7 +89,7 @@ static bool native_byte_array_type(json_object *type)
 static bool native_result_type(json_object *type)
 {
     const char *kind = native_string(type, "kind");
-    return native_scalar_type(type, true) ||
+    return native_string(type, "rust_native_record_wire") || native_scalar_type(type, true) ||
         (kind && strcmp(kind, "string") == 0) || native_byte_array_type(type);
 }
 
@@ -98,7 +98,7 @@ static bool native_parameter_type(json_object *type, const char *mem)
     const char *kind = native_string(type, "kind");
     if (mem && strcmp(mem, "as_ref") == 0)
         return kind && native_scalar_kind(kind, false);
-    return native_scalar_type(type, false) ||
+    return native_string(type, "rust_native_record_wire") || native_scalar_type(type, false) ||
         (kind && strcmp(kind, "string") == 0);
 }
 
@@ -172,7 +172,7 @@ static bool validate_native_function(json_object *function)
     {
         const char *kind = native_string(return_type, "kind");
         fprintf(stderr,
-                "Error: Rust target native function '%s' has unsupported result type '%s'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double\n",
+                "Error: Rust target native function '%s' has unsupported result type '%s'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value\n",
                 name ? name : "<anonymous>", kind ? kind : "unknown");
         return false;
     }
@@ -188,11 +188,13 @@ static bool validate_native_function(json_object *function)
             if (!json_object_object_get_ex(param, "type", &type) ||
                 !native_parameter_type(type, mem) ||
                 (mem && strcmp(mem, "default") != 0 &&
-                        strcmp(mem, "as_ref") != 0) ||
+                        strcmp(mem, "as_ref") != 0 &&
+                        !(strcmp(mem, "as_val") == 0 &&
+                          native_string(type, "rust_native_record_wire"))) ||
                 (sync && strcmp(sync, "none") != 0))
             {
                 fprintf(stderr,
-                        "Error: Rust target native function '%s' parameter '%s' must be an unsynchronized string, default-qualified raw pointer, or default/as-ref native scalar\n",
+                        "Error: Rust target native function '%s' parameter '%s' must be an unsynchronized string, default-qualified raw pointer, or default/as-ref native scalar; heap-free records require default/as-val\n",
                         name ? name : "<anonymous>",
                         native_string(param, "name") ? native_string(param, "name") : "<anonymous>");
                 return false;
@@ -524,6 +526,8 @@ static char *unique_private_name(json_object *functions, json_object *structs,
     }
     return NULL;
 }
+
+#include "rust_native_records.c"
 
 static bool add_native_initializer(json_object *functions,
                                    json_object *globals,
@@ -1048,6 +1052,15 @@ bool rust_native_partition_model(json_object *rust_model,
     remove_private_helper_functions(rust_model, selected_function_names);
     remove_private_globals(rust_model, selected_global_names);
     remove_c_only_native_helpers(rust_model, private_model);
+    if (!native_prepare_records(rust_model))
+    {
+        json_object_put(private_model);
+        json_object_put(selected_function_names);
+        json_object_put(selected_global_names);
+        free(initializer_name);
+        rust_native_plan_free(plan);
+        return false;
+    }
     json_object_object_get_ex(rust_model, "functions", &functions);
     for (size_t i = 0; i < json_object_array_length(functions); i++)
     {
@@ -1174,8 +1187,7 @@ bool rust_native_partition_model(json_object *rust_model,
         }
     }
 
-    /* Finish all fallible owned-plan allocation before touching rust_model, so
-     * a partition failure cannot leave a partially annotated Rust projection. */
+    /* Allocate owned declaration names before applying their annotations. */
     size_t native_index = 0;
     if (functions)
     {
@@ -1209,7 +1221,8 @@ bool rust_native_partition_model(json_object *rust_model,
                 json_object *type = NULL;
                 const char *kind = json_object_object_get_ex(param, "type", &type)
                     ? native_string(type, "kind") : NULL;
-                const char *stem = kind && strcmp(kind, "string") == 0
+                const char *stem = native_string(type, "rust_native_record_wire")
+                    ? "__sn_native_record" : kind && strcmp(kind, "string") == 0
                     ? "__sn_native_bytes" :
                     (kind && strcmp(kind, "char") == 0 &&
                      native_string(param, "mem_qual") &&
@@ -1340,6 +1353,15 @@ bool rust_native_partition_model(json_object *rust_model,
                     char_index++;
                 }
             }
+            bool record_bridge = native_string(native_record_child(function,
+                "return_type"), "rust_native_record_wire") != NULL;
+            for (size_t p = 0; params && p < json_object_array_length(params); p++)
+                if (native_string(native_record_child(
+                        json_object_array_get_idx(params, p), "type"),
+                        "rust_native_record_wire")) record_bridge = true;
+            if (record_bridge)
+                json_object_object_add(function, "rust_native_record_bridge",
+                                       json_object_new_boolean(true));
             json_object_object_del(function, "body");
             json_object_object_add(function, "body", json_object_new_array());
             json_object_object_add(function, "has_body", json_object_new_boolean(false));

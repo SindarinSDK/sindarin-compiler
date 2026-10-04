@@ -624,6 +624,9 @@ class TestRunner:
             test_files = sorted(glob.glob(pattern, recursive=True))
         if test_type == 'rust-native-extra':
             test_files.extend([
+                'tests/rust-native/native_record_values.sn',
+                'tests/rust-native/native_record_hygiene.sn',
+                'tests/rust-native/value_record_bridge.sn',
                 'tests/rust-native/native_as_ref_char_same_place.sn',
                 'tests/rust-native/native_as_ref_char_temp_collision.sn',
                 'tests/rust-native/native_as_ref_same_place.sn',

@@ -1,0 +1,13 @@
+Compiler: /home/gavin/code/sindarin/sindarin-rust-native-value-records-af0893c4/bin/sn
+Platform: Linux
+Parallel: 4 workers
+
+Rust Native Scalar Error Tests
+============================================================
+  Running 7 tests with 4 workers...
+
+
+------------------------------------------------------------
+Results: 7 passed, 0 failed, 0 skipped  (92ms)
+
+All tests passed!  (total: 92ms)

@@ -1,0 +1,14 @@
+struct __SnNativeRecord_0_0 =>
+  mark: char
+  count: int
+
+native fn record_identity(__sn_native_record_0_0: __SnNativeRecord_0_0): __SnNativeRecord_0_0 =>
+  return __sn_native_record_0_0
+
+fn main(): void =>
+  var value: __SnNativeRecord_0_0 = {
+    mark: 'z',
+    count: 91
+  }
+  var copy: __SnNativeRecord_0_0 = record_identity(value)
+  println($"{copy.mark} {copy.count}")

@@ -1,0 +1,19 @@
+{{#each rust_native_records}}#[repr(C)]
+#[derive(Clone, Copy)]
+struct {{rust_ident wire_name}} {
+{{#each fields}}    {{rust_ident name}}: {{> native_record_type type}},
+{{/each}}{{rbrace}}
+
+impl std::convert::From<{{rust_ident source_name}}> for {{rust_ident wire_name}} {
+    fn from(value: {{rust_ident source_name}}) -> Self {
+        Self { {{#each fields}}{{rust_ident name}}: {{> native_record_to_wire this}}, {{/each}} }
+    }
+}
+
+impl std::convert::From<{{rust_ident wire_name}}> for {{rust_ident source_name}} {
+    fn from(value: {{rust_ident wire_name}}) -> Self {
+        Self { {{#each fields}}{{rust_ident name}}: {{> native_record_from_wire this}}, {{/each}} }
+    }
+}
+
+{{/each}}{{~!-- trim EOF --~}}

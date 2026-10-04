@@ -1,0 +1,9 @@
+native struct PointerRecord =>
+  pointer: *int
+
+native fn make_pointer_record(): PointerRecord =>
+  return PointerRecord { pointer: nil }
+
+fn main(): void =>
+  var value: PointerRecord = make_pointer_record()
+  println(value.pointer == nil)

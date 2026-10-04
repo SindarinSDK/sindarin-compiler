@@ -5,7 +5,61 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
-## Latest local increment: array stores and owned copies, 2026-10-04
+## Latest local increment: native value records, 2026-10-04
+
+This increment is verified against main
+`af0893c456aa1c682b7c3678064e6d4641b101f4`, whose six CI jobs and complete
+Linux/macOS/Windows artifacts independently pass 29 reports and 2388 cases.
+The new local compiler passes **30 reports / 2433 cases**, including 45
+independent native-record comparisons across O0/O1/O2 and all arithmetic modes.
+Complete C suites pass unchanged. Complete Rust generation/negative pass
+442 / 143, native tagged/extra/origin/negative 8 / 33 / 1 / 7, closures 36 / 1,
+concurrency 10 / 7 / 1 and toolchain 12, without failures or skips.
+Exact-revision hosted verification for this new increment remains required.
+
+Heap-free native and ordinary value records use private C-layout wire records
+and explicit field conversions. The original C ABI and sidecars remain intact;
+Rust source structs retain their language storage. Nested records, every scalar
+width, all 256 character bytes, bool, default and explicit by-value copies,
+hygienic names, mixed string/byte-array results and aliased scalar character
+references are covered. C char stays one byte at the ABI boundary. Record
+references, owned/pointer fields, packed/refcounted records and user-defined
+copy hooks retain their guards and remain work. Rejecting them receives no
+parity credit.
+
+The unchanged native-struct thread-return and interop edge-case programs pass
+all nine comparisons. Optimized interop initially failed because removing
+`i * 1.0` left an integer argument at a floating call boundary. Rust-private
+lowering now writes the C-compatible conversion explicitly, preserving the
+argument's evaluation and leaving C optimization unchanged. The original
+corpus passes 1084 integration and 217 exploratory programs, leaving **64
+original compilation gaps locally**, down from 66. That is 1301 / 1365
+original programs, or **95.3% benchmark coverage**; it is not a percentage of
+full feature parity. Remaining ownership, lifetimes, callbacks and SDK work
+can require more effort than the raw test count suggests. There are no new runtime
+failures or skips. All 1365 original source hashes and 495 historical Rust
+snapshots remain unchanged.
+
+The baseline independently verifies 45 successful C executions against 45 Rust
+rejections. Another 27 C-defined executions establish three remaining admission
+obligations, including a C-retained record address read after source mutation;
+they remain rejected. Eight C programs and five Rust/native programs pass
+instrumented ASAN with leak detection. Rust/native instrumentation covers the
+C bridge/runtime, not Rust allocations. A scratch direct owned-field print
+triggered canonical C cleanup double-free and is excluded; the final guard
+control uses interpolation and passes C ASAN. Native-body controls were moved
+into the native suite after the emission-only runner rejected their placement;
+final complete suites forbid skips. C production, original source/output
+expectations and the default target remain unchanged. The PR queue is empty.
+
+Evidence: [local validation](rust-parity-evidence/native-record-validation.json),
+[45 independent pairs](rust-parity-evidence/native-record-pairs.json),
+[C baseline and admission controls](rust-parity-evidence/native-record-before-controls.json),
+[ASAN](rust-parity-evidence/native-record-asan.json),
+[remaining diagnostics](rust-parity-evidence/native-record-gap-diagnostics.json)
+and [previous main CI proof](rust-parity-evidence/array-copy-store-main-ci-green.json).
+
+## Array stores and owned copies: verified on main, 2026-10-04
 
 This combined increment is locally verified against integrated nil-array main
 `99798871a8561481f4e0c2bb9f29a74864c86899`, whose six CI jobs and complete
@@ -15,8 +69,11 @@ across O0/O1/O2 and all arithmetic modes. Full C suites pass unchanged. Rust
 generation/negative pass 442 / 143, native 8 / 30 / 1 / 4, closures 36 / 1,
 concurrency 10 / 7 / 1 and toolchain 12, without failures/skips. Ten C controls
 pass instrumented ASAN with leak detection. Raw-byte, transport, helper and
-formatting checks pass. Exact-revision hosted verification for this increment
-remains required.
+formatting checks pass. It is integrated on main as
+`af0893c456aa1c682b7c3678064e6d4641b101f4`. All six Compiler/Rust Runtime jobs
+pass, and each retained Linux/macOS/Windows artifact independently verifies all
+29 reports and 2388 cases. The exact-revision proof is
+[array-copy-store-main-ci-green.json](rust-parity-evidence/array-copy-store-main-ci-green.json).
 
 Nested stable array stores resolve destination indices before taking the final
 mutable borrow, including ordinary vectors and constant negative indices.
@@ -295,25 +352,25 @@ Full parity and exact-revision hosted verification remain required.
 
 ## Current verified status: 2026-10-04
 
-Main `99798871a8561481f4e0c2bb9f29a74864c86899` passes all six Linux/macOS/Windows
+Main `af0893c456aa1c682b7c3678064e6d4641b101f4` passes all six Linux/macOS/Windows
 Compiler and Rust Runtime jobs. Complete hosted C/Rust suites pass without
-failures or skips. Each platform's 27 retained runtime reports independently
-verifies **2298 cases**: 1998 positive C/Rust pairs, 39 diagnostic/order cases,
-153 process-exit cases and 108 main-return cases. The 90 nil-array cases verify
-nil versus allocated empty state and native NULL transport. C remains default.
+failures or skips. Each platform's 29 retained runtime reports independently
+verifies **2388 cases**: 2088 positive C/Rust pairs, 39 diagnostic/order cases,
+153 process-exit cases and 108 main-return cases. The 45 nested-store and 45
+owned-array cases verify ordered stores and independent copies. C remains default.
 
-The unchanged original corpus passes 1081 integration and 216 exploratory
-programs, leaving 60 and eight compilation gaps: **68 remaining original gaps**
-on this verified revision. All 1365 original source hashes and 480 historical
-Rust snapshots are unchanged, with seven new snapshots bringing the total to 487.
-Ten C controls and two Rust/native controls pass instrumented ASAN; the latter
-covers the C bridge/runtime. The next local array-store/owned-copy increment
-reduces the original gap count to 66.
+The unchanged original corpus passes 1083 integration and 216 exploratory
+programs, leaving 58 and eight compilation gaps: **66 remaining original gaps**
+on this verified revision. All 1365 original source hashes are unchanged. The
+495 passing Rust snapshots include two reviewed order corrections and eight new
+snapshots from the combined store/copy increment. Ten C controls pass
+instrumented ASAN with leak detection. The open PR queue is empty.
 
-Evidence: [local validation](rust-parity-evidence/nil-array-validation.json),
-[90 independent pairs](rust-parity-evidence/nil-array-pairs.json),
-[remaining diagnostics](rust-parity-evidence/nil-array-gap-diagnostics.json)
-and [exact-main CI proof](rust-parity-evidence/nil-array-main-ci-green.json).
+Evidence: [local validation](rust-parity-evidence/array-copy-store-validation.json),
+[nested-store pairs](rust-parity-evidence/nested-store-pairs.json),
+[owned-array pairs](rust-parity-evidence/owned-array-pairs.json),
+[remaining diagnostics](rust-parity-evidence/array-copy-store-gap-diagnostics.json)
+and [exact-main CI proof](rust-parity-evidence/array-copy-store-main-ci-green.json).
 
 ## Baseline: 2026-10-02
 

@@ -17,6 +17,17 @@ static void rust_float_convert_value(json_object *value, json_object *target_typ
                                json_object_new_string(rust_numeric_type_name(to)));
         return;
     }
+    /* Optimization can remove a floating identity such as i * 1.0 while
+     * retaining the callee's floating parameter type. C converts the surviving
+     * integer at that boundary; Rust needs the conversion written explicitly.
+     * Char promotion retains its separate platform-aware lowering. */
+    if (rust_numeric_integral_kind(from) && strcmp(from, "char") != 0 &&
+        rust_numeric_floating_kind(to))
+    {
+        json_object_object_add(value, "rust_float_conversion_type",
+                               json_object_new_string(rust_numeric_type_name(to)));
+        return;
+    }
     if (!rust_numeric_floating_kind(from) || !rust_numeric_floating_kind(to) ||
         strcmp(from, to) == 0) return;
     json_object_object_add(value, "rust_float_conversion_type",

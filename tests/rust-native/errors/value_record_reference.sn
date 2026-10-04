@@ -1,0 +1,13 @@
+@source "value_record_reference.sn.c"
+
+struct Record =>
+  count: int
+
+native fn remember_record(value: Record as ref): void
+native fn read_record(): int
+
+fn main(): void =>
+  var value: Record = { count: 7 }
+  remember_record(value)
+  value.count = 42
+  println(read_record())

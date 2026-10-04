@@ -1,0 +1,1 @@
+{{#if type.rust_native_record_wire}}<{{rust_ident type.rust_native_record_wire}} as std::convert::From<{{rust_type type}}>>::from(value.{{rust_ident name}}){{else}}{{#if (eq type.kind "char")}}(value.{{rust_ident name}} as u32 as u8) as std::ffi::c_char{{else}}value.{{rust_ident name}}{{/if}}{{/if}}{{~!-- trim EOF --~}}

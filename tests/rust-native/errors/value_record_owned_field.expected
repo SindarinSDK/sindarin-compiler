@@ -1,0 +1,1 @@
+Error: Rust target native function 'make_owned' has unsupported result type 'struct'

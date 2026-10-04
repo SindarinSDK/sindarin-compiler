@@ -1,0 +1,51 @@
+@source "value_record_bridge.sn.c"
+
+native struct Leaf =>
+  mark: char
+  small: int32
+  flag: bool
+  fraction: float
+
+native struct Record =>
+  leaf: Leaf
+  count: int
+  wide: long
+  natural: uint
+  unsigned_small: uint32
+  octet: byte
+  fraction: double
+
+native fn make_record(): Record
+native fn make_leaf(value: byte): Leaf
+native fn leaf_identity(value: Leaf): Leaf
+native fn update_record(value: Record as val): Record
+native fn record_label(value: Record, label: str, left: char as ref, right: char as ref): str
+native fn record_bytes(value: Record): byte[]
+native fn char_bits(value: char): byte
+
+fn main(): void =>
+  var value: Record = make_record()
+  println(char_bits(value.leaf.mark))
+  println(value.leaf.small)
+  println(value.leaf.flag)
+  println(value.leaf.fraction)
+  println(value.count)
+  println(value.wide)
+  println(value.natural)
+  println(value.unsigned_small)
+  println(value.octet)
+  println(value.fraction)
+  var copy: Record = update_record(value)
+  println($"{value.count} {copy.count} {char_bits(copy.leaf.mark)} {copy.leaf.flag}")
+  var letter: char = 'a'
+  println(record_label(copy, "record", letter, letter))
+  println(char_bits(letter))
+  var bytes: byte[] = record_bytes(copy)
+  println($"{bytes.length} {bytes[0]} {bytes[1]}")
+  var all_bytes: bool = true
+  for i in 0..256 =>
+    var leaf: Leaf = make_leaf(i.toByte())
+    var returned: Leaf = leaf_identity(leaf)
+    if char_bits(returned.mark) != i.toByte() || returned.small != 37i32 || !returned.flag || returned.fraction != 1.5f =>
+      all_bytes = false
+  println(all_bytes)

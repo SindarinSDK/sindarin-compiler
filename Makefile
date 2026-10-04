@@ -697,6 +697,18 @@ test-rust-parity-native-scope: build
 		--arithmetic-mode unchecked --output .sn/rust-parity-native-scope.json
 	@$(PYTHON) scripts/check_rust_native_scope_oracles.py .sn/rust-parity-native-scope.json
 
+.PHONY: test-rust-parity-native-records
+test-rust-parity-native-records: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/integration/test_thread_native_fn_struct_return.sn \
+		tests/rust-native/native_record_values.sn \
+		tests/rust-native/native_record_hygiene.sn \
+		tests/rust-native/value_record_bridge.sn \
+		tests/exploratory/test_gcc_edge_interop.sn \
+		--require-count 5 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-native-records.json
+	@$(PYTHON) scripts/check_rust_native_record_oracles.py .sn/rust-parity-native-records.json
+
 .PHONY: test-rust-parity-nil-string
 test-rust-parity-nil-string: build
 	@$(PYTHON) scripts/check_rust_parity.py \
