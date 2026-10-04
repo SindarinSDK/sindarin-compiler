@@ -1,0 +1,16 @@
+fn source(calls: int as ref): str[] =>
+  calls = calls * 10 + 1
+  return {"alpha", "beta"}
+
+fn index(calls: int as ref): int =>
+  calls = calls * 10 + 2
+  return - 1
+
+fn select(calls: int as ref): str =>
+  return source(calls)[index(calls)]
+
+fn main(): void =>
+  var calls: int = 0
+  var result: str = select(calls)
+  println(result)
+  println(calls)

@@ -236,6 +236,8 @@ jobs:
             make test-rust-parity-sizeof
           run_gate "C sizeof fallback and borrowed reference calls (126 positive pairs)" \
             make test-rust-parity-call-reference
+          run_gate "Indexed string copies, lifetimes and evaluation order (54 positive pairs)" \
+            make test-rust-parity-indexed-string
 
           exit "$overall_rc"
 
@@ -269,5 +271,6 @@ jobs:
             .sn/rust-parity-match-control.json
             .sn/rust-parity-sizeof.json
             .sn/rust-parity-call-reference.json
+            .sn/rust-parity-indexed-string.json
           if-no-files-found: ignore
           retention-days: 7

@@ -1,0 +1,16 @@
+fn source(calls: int as ref): str[] =>
+  calls += 1
+  return {"alpha", "beta"}
+
+fn select(__sn_returned_string_0_array: int as ref): str =>
+  var __sn_returned_string_0_index: int = -1
+  var __sn_array_value: int = 17
+  var __sn_array_index: int = 18
+  var result: str = source(__sn_returned_string_0_array)[__sn_returned_string_0_index]
+  println(__sn_array_value + __sn_array_index)
+  return result
+
+fn main(): void =>
+  var calls: int = 0
+  println(select(calls))
+  println(calls)

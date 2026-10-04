@@ -1,0 +1,370 @@
+{
+  "note": "First actual diagnostics per unchanged original source. Source counts are not distinct feature counts or C-defined obligations.",
+  "sources": [
+    {
+      "source": "tests/exploratory/test_array_mutation_lambda.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target does not support mutation of closure parameters yet"
+    },
+    {
+      "source": "tests/exploratory/test_as_val_array_copy.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target does not support a parameter of function 'modify_array'"
+    },
+    {
+      "source": "tests/exploratory/test_gcc_edge_interop.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target native function 'compute_result' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double"
+    },
+    {
+      "source": "tests/exploratory/test_gcc_edge_structs.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target does not support a parameter of function 'modify_struct'"
+    },
+    {
+      "source": "tests/exploratory/test_match_as_val_ref.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target native function 'init_point' parameter 'p' must be an unsynchronized string, default-qualified raw pointer, or default/as-ref native scalar"
+    },
+    {
+      "source": "tests/exploratory/test_pointer_slice_bounds.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target encountered an unsupported construct in function 'test_correct_bounds'"
+    },
+    {
+      "source": "tests/exploratory/test_struct_config.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target does not support a parameter of function 'apply_server_config'"
+    },
+    {
+      "source": "tests/exploratory/test_struct_self_method_call.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target does not support a parameter of method 'Range.overlaps'"
+    },
+    {
+      "source": "tests/exploratory/test_struct_zlib_style.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target native function 'stream_init' parameter 'strm' must be an unsynchronized string, default-qualified raw pointer, or default/as-ref native scalar"
+    },
+    {
+      "source": "tests/integration/test_array_literal_arg_leak.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target native function 'tracker_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double"
+    },
+    {
+      "source": "tests/integration/test_as_ref_array_return.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target currently supports only plain value struct 'Item'"
+    },
+    {
+      "source": "tests/integration/test_as_ref_for_in_self_return.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target currently supports only plain value struct 'Entry'"
+    },
+    {
+      "source": "tests/integration/test_as_ref_params.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target does not support a parameter of function 'next_char'"
+    },
+    {
+      "source": "tests/integration/test_as_ref_queue_drain.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target currently supports only plain value struct 'Item'"
+    },
+    {
+      "source": "tests/integration/test_as_ref_return_passthrough.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target currently supports only plain value struct 'Item'"
+    },
+    {
+      "source": "tests/integration/test_as_ref_struct_lit_owned_field.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target currently supports only plain value struct 'Inner'"
+    },
+    {
+      "source": "tests/integration/test_as_ref_struct_param.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target does not support a parameter of function 'increment'"
+    },
+    {
+      "source": "tests/integration/test_buffer_unwrap.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target encountered an unsupported construct in function 'test_pointer_slice_codegen'"
+    },
+    {
+      "source": "tests/integration/test_builtin_interfaces.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target does not support a parameter of function 'acceptComparable'"
+    },
+    {
+      "source": "tests/integration/test_composite_borrow_mutation.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target does not support a parameter of function 'addIfNew'"
+    },
+    {
+      "source": "tests/integration/test_composite_temp_arg.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target does not support a parameter of function 'checkItem'"
+    },
+    {
+      "source": "tests/integration/test_constrained_generics.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target does not support a parameter of method 'Player.compare'"
+    },
+    {
+      "source": "tests/integration/test_generic_multi_param_iter.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target supports iterator-protocol foreach only for heap-free scalar elements; got 'struct'"
+    },
+    {
+      "source": "tests/integration/test_generic_static_call.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target does not support a parameter of static method 'Container_Tag.of'"
+    },
+    {
+      "source": "tests/integration/test_generics_nested_inference.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target does not support a parameter of function 'unwrap_str'"
+    },
+    {
+      "source": "tests/integration/test_import_fn_field_chained.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target does not support incompatible function-value signatures yet"
+    },
+    {
+      "source": "tests/integration/test_interfaces.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target does not support a parameter of method 'Player.compare'"
+    },
+    {
+      "source": "tests/integration/test_interop_callback.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target native function 'invoke_callback' parameter 'cb' must be an unsynchronized string, default-qualified raw pointer, or default/as-ref native scalar"
+    },
+    {
+      "source": "tests/integration/test_interop_comprehensive.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target native function 'test_printf' cannot be variadic yet"
+    },
+    {
+      "source": "tests/integration/test_interop_edge_cases.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target native function 'invoke_ptr_callback' parameter 'cb' must be an unsynchronized string, default-qualified raw pointer, or default/as-ref native scalar"
+    },
+    {
+      "source": "tests/integration/test_iterator_protocol.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target supports iterator-protocol foreach only for heap-free scalar elements; got 'struct'"
+    },
+    {
+      "source": "tests/integration/test_lambda_capture_outlives_scope.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target does not support this closure capture type yet"
+    },
+    {
+      "source": "tests/integration/test_lambda_capture_struct.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target does not support mutable access to snapshot closure captures yet"
+    },
+    {
+      "source": "tests/integration/test_lambda_val_struct_str_field.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target does not support incompatible function-value signatures yet"
+    },
+    {
+      "source": "tests/integration/test_lambda_val_struct_str_interp.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target does not support incompatible function-value signatures yet"
+    },
+    {
+      "source": "tests/integration/test_module_array_swap_leak.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target native function 'tag_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double"
+    },
+    {
+      "source": "tests/integration/test_native_callback_typedef.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target native function 'call_with_value' parameter 'cb' must be an unsynchronized string, default-qualified raw pointer, or default/as-ref native scalar"
+    },
+    {
+      "source": "tests/integration/test_native_ref_field_pass_chain.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target currently supports only plain value struct 'Tensor'"
+    },
+    {
+      "source": "tests/integration/test_native_ref_field_return.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target currently supports only plain value struct 'Handle'"
+    },
+    {
+      "source": "tests/integration/test_native_ref_method_forward_twice.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target currently supports only plain value struct 'Handle'"
+    },
+    {
+      "source": "tests/integration/test_native_ref_self_assign.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target native function 'tensor_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double"
+    },
+    {
+      "source": "tests/integration/test_native_resource_lifecycle.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target native function 'mock_listener_bind' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double"
+    },
+    {
+      "source": "tests/integration/test_native_struct_ref_array_pass.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target native function 'verify_widget_array' parameter 'widgets' must be an unsynchronized string, default-qualified raw pointer, or default/as-ref native scalar"
+    },
+    {
+      "source": "tests/integration/test_native_struct_ref_loop_cleanup.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target native function 'handle_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double"
+    },
+    {
+      "source": "tests/integration/test_nested_array_copy.sn",
+      "failure": "compile error",
+      "first_diagnostic": "error[E0502]: cannot borrow `copy` as immutable because it is also borrowed as mutable"
+    },
+    {
+      "source": "tests/integration/test_nil_array.sn",
+      "failure": "compile error",
+      "first_diagnostic": "error[E0308]: mismatched types"
+    },
+    {
+      "source": "tests/integration/test_nil_compare_struct.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target currently supports only plain value struct 'Connection'"
+    },
+    {
+      "source": "tests/integration/test_nil_pointer_slice.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target encountered an unsupported construct in function 'test_nil_slice_creates_array'"
+    },
+    {
+      "source": "tests/integration/test_nil_string.sn",
+      "failure": "compile error",
+      "first_diagnostic": "error[E0308]: mismatched types"
+    },
+    {
+      "source": "tests/integration/test_qsort_callback.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target native function 'invoke_comparator' parameter 'cmp' must be an unsynchronized string, default-qualified raw pointer, or default/as-ref native scalar"
+    },
+    {
+      "source": "tests/integration/test_refcount_arg_leak.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target native function 'foo_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double"
+    },
+    {
+      "source": "tests/integration/test_refcount_chain_in_struct_literal.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target native function 'tracker_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double"
+    },
+    {
+      "source": "tests/integration/test_return_ref_param.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target currently supports only plain value struct 'Tensor'"
+    },
+    {
+      "source": "tests/integration/test_return_self.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target encountered an unsupported construct in method 'Builder.setValue'"
+    },
+    {
+      "source": "tests/integration/test_self_method_forward_after_train.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target native function 'resource_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double"
+    },
+    {
+      "source": "tests/integration/test_serializable.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target native function 'sn_test_json_encoder' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double"
+    },
+    {
+      "source": "tests/integration/test_serializable_decode_struct_literal_loop.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target native function 'sn_test_json_encoder' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double"
+    },
+    {
+      "source": "tests/integration/test_serializable_double_int_json.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target native function 'sn_test_json_encoder' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double"
+    },
+    {
+      "source": "tests/integration/test_serializable_encoder_cleanup.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target native function 'cleanup_json_encoder' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double"
+    },
+    {
+      "source": "tests/integration/test_serializable_long.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target native function 'sn_test_json_encoder' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double"
+    },
+    {
+      "source": "tests/integration/test_serializable_push_ownership.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target native function 'sn_test_json_encoder' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double"
+    },
+    {
+      "source": "tests/integration/test_serializable_return_nested_array.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target native function 'sn_test_json_encoder' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double"
+    },
+    {
+      "source": "tests/integration/test_str_return_as_arg_leak.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target native function 'source_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double"
+    },
+    {
+      "source": "tests/integration/test_struct_array_concat.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target does not support array method 'concat' for struct elements yet"
+    },
+    {
+      "source": "tests/integration/test_struct_as_ref.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target native function 'update_point' parameter 'p' must be an unsynchronized string, default-qualified raw pointer, or default/as-ref native scalar"
+    },
+    {
+      "source": "tests/integration/test_struct_native_c_interop.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target native function 'c_init_buffer' parameter 'buf' must be an unsynchronized string, default-qualified raw pointer, or default/as-ref native scalar"
+    },
+    {
+      "source": "tests/integration/test_struct_return_array_leak.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target native function 'tracker_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double"
+    },
+    {
+      "source": "tests/integration/test_struct_rvalue_member_leak.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target native function 'tracker_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double"
+    },
+    {
+      "source": "tests/integration/test_struct_rvalue_member_leak_contexts.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target native function 'tracker_create' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double"
+    },
+    {
+      "source": "tests/integration/test_struct_self_method_call.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target does not support a parameter of method 'Versioned.compare'"
+    },
+    {
+      "source": "tests/integration/test_thread_native_fn_struct_return.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target native function 'compute_native' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double"
+    },
+    {
+      "source": "tests/integration/test_thread_struct_return_types.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target native function 'raw_metrics' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double"
+    },
+    {
+      "source": "tests/integration/test_val_struct_shared_array.sn",
+      "failure": "compile error",
+      "first_diagnostic": "Error: Rust target does not support a parameter of function 'processConfig'"
+    }
+  ]
+}

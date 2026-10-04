@@ -1,0 +1,1 @@
+{ let {{rust_ident rust_bound_string_array_name}} = &({{> expr array}}); let {{rust_ident rust_bound_string_index_name}} = {{> expr index}}; {{rust_ident rust_bound_string_array_name}}[__sn_index({{rust_ident rust_bound_string_array_name}}.len(), {{rust_ident rust_bound_string_index_name}})]{{rust_clone_suffix this rust_needs_clone}} }

@@ -1,0 +1,14 @@
+fn first<T>(values: T[]): T =>
+  return values[0]
+
+fn main(): void =>
+  var values: str[] = {"alpha", "beta"}
+  var result: str = first(values)
+  println($"original:{values[0]}")
+  result += "!"
+  println(result)
+  println($"original:{values[0]}")
+  values[0] = "changed"
+  println(result)
+  println(first(values))
+  println(values.length)

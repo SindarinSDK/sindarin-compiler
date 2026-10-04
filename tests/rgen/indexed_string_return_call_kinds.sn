@@ -1,0 +1,27 @@
+struct Access =>
+  value: int
+
+  static fn first(values: str[]): str =>
+    return values[0]
+
+  fn last(values: str[]): str =>
+    return values[-1]
+
+fn first(values: str[]): str =>
+  return values[0]
+
+fn main(): void =>
+  var values: str[] = {"alpha", "beta"}
+  var result: str = first(values)
+  result += "!"
+  println(result)
+  println($"original:{values[0]}")
+  var staticResult: str = Access.first(values)
+  println(staticResult)
+  var access: Access = { value: 0 }
+  var instanceResult: str = access.last(values)
+  println(instanceResult)
+  values[0] = "changed"
+  println(staticResult)
+  println($"original:{values[0]}")
+  println(values.length)

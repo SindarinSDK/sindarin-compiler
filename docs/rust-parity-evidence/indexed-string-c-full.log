@@ -1,0 +1,59 @@
+Compiler: /home/gavin/code/sindarin/sindarin-rust-indexed-results-1c192f1d/bin/sn
+Platform: Linux
+Parallel: 20 workers
+
+Unit Tests
+============================================================
+Results: 1610 passed, 0 failed  (total: 17.40ms)
+------------------------------------------------------------
+Unit tests passed  (20ms)
+
+Code Generation Tests
+============================================================
+  Running 107 tests with 20 workers...
+
+
+------------------------------------------------------------
+Results: 107 passed, 0 failed, 0 skipped  (923ms)
+
+Model Generation Tests
+============================================================
+  Running 79 tests with 20 workers...
+
+
+------------------------------------------------------------
+Results: 79 passed, 0 failed, 0 skipped  (96ms)
+
+Integration Tests
+============================================================
+  Running 1141 tests with 20 workers...
+
+
+------------------------------------------------------------
+Results: 1141 passed, 0 failed, 0 skipped  (10.09s)
+
+Integration Error Tests
+============================================================
+  Running 58 tests with 20 workers...
+
+
+------------------------------------------------------------
+Results: 58 passed, 0 failed, 0 skipped  (26ms)
+
+Exploratory Tests
+============================================================
+  Running 224 tests with 20 workers...
+
+
+------------------------------------------------------------
+Results: 224 passed, 0 failed, 0 skipped  (12.78s)
+
+Exploratory Error Tests
+============================================================
+  Running 11 tests with 20 workers...
+
+
+------------------------------------------------------------
+Results: 11 passed, 0 failed, 0 skipped  (7ms)
+
+All tests passed!  (total: 23.94s)

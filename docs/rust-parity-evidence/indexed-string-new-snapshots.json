@@ -1,0 +1,32 @@
+[
+  {
+    "source": "tests/rgen/indexed_string_return_generic.sn",
+    "source_sha256": "1b493d8a9e54a20edd156cc6782f14426c1f7e6b9340d8c277060ec91f5b9d42",
+    "snapshot": "tests/rgen/indexed_string_return_generic.expected.rs",
+    "snapshot_sha256": "c0e3d2f8e9ad274b465f26e42df41ffc34415832ad7040638800277ac6f3971d"
+  },
+  {
+    "source": "tests/rgen/indexed_string_return_call_kinds.sn",
+    "source_sha256": "4c24d18e6cb25611b02471f60f054317bc89ccbb6df465f8f441c0d47498e210",
+    "snapshot": "tests/rgen/indexed_string_return_call_kinds.expected.rs",
+    "snapshot_sha256": "964d0d53cfceec31adc216c65d9ec01e59ca3faa284e331580af01e993774358"
+  },
+  {
+    "source": "tests/rgen/indexed_string_return_computed.sn",
+    "source_sha256": "8ccf95a1ef3c23f5fb67700082d9302be6e99fa00c1703f815bef9a405e7a8fb",
+    "snapshot": "tests/rgen/indexed_string_return_computed.expected.rs",
+    "snapshot_sha256": "e247e6eaa707f0cab6ed322f19dd33554a3608fc1bfd2fbe6b63ddd6ff353f1e"
+  },
+  {
+    "source": "tests/rgen/indexed_string_return_order.sn",
+    "source_sha256": "0fb55d6a6a3aa4e5aa01a080d93fd47fdaec2590bbb1c7f9bf7714e9c2315d42",
+    "snapshot": "tests/rgen/indexed_string_return_order.expected.rs",
+    "snapshot_sha256": "592ca0243cf9eec2b03982b7974e043792d9a43644ac505b40f76304f71dc12f"
+  },
+  {
+    "source": "tests/rgen/indexed_string_initializer_hygiene.sn",
+    "source_sha256": "26845657e8b401833fc1d6b813cc3fdd3bc81e1c6cf4821fb178ae2783818cd7",
+    "snapshot": "tests/rgen/indexed_string_initializer_hygiene.expected.rs",
+    "snapshot_sha256": "1598de837849fa084a36d3a6a14895d608d9b3917a62ce2352f15624c3b3a866"
+  }
+]

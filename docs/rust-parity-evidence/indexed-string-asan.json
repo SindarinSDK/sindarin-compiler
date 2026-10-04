@@ -1,0 +1,199 @@
+{
+  "compiler_sha256": "a2b0e7bf36749534a7cb7c6975637abbd87edf89e990497c94d2d83ff9582c39",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "cases": [
+    {
+      "source": "tests/integration/test_generics_functions.sn",
+      "source_sha256": "d82eaa1f7b807da63fa835cd60af0ef433b8e2962fafa7cb6264a242cd7c56bd",
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/integration/test_generics_functions.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-indexed-result-asan-x5pvjphd/0.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f67656e65726963735f66756e6374696f6e732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d696e64657865642d726573756c742d6173616e2d783570766a7068642f302e657865202839322e32204b42290a"
+      },
+      "asan_instrumentation_verified": true,
+      "run": {
+        "command": [
+          "/tmp/sn-indexed-result-asan-x5pvjphd/0.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "546573742031207061737365643a206964656e746974793c696e743e0a546573742032207061737365643a206964656e746974793c7374723e0a546573742033207061737365643a2066697273743c696e743e0a546573742034207061737365643a2066697273743c7374723e0a546573742035207061737365643a206d61703c696e742c20696e743e0a546573742036207061737365643a206d61703c7374722c207374723e0a546573742037207061737365643a2066696c7465723c696e743e0a416c6c2067656e657269632066756e6374696f6e20746573747320706173736564210a",
+        "stderr_hex": ""
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/indexed_string_return_generic.sn",
+      "source_sha256": "1b493d8a9e54a20edd156cc6782f14426c1f7e6b9340d8c277060ec91f5b9d42",
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rgen/indexed_string_return_generic.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-indexed-result-asan-x5pvjphd/1.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f696e64657865645f737472696e675f72657475726e5f67656e657269632e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d696e64657865642d726573756c742d6173616e2d783570766a7068642f312e657865202838362e33204b42290a"
+      },
+      "asan_instrumentation_verified": true,
+      "run": {
+        "command": [
+          "/tmp/sn-indexed-result-asan-x5pvjphd/1.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "6f726967696e616c3a616c7068610a616c706861210a6f726967696e616c3a616c7068610a616c706861210a6368616e6765640a320a",
+        "stderr_hex": ""
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/indexed_string_return_call_kinds.sn",
+      "source_sha256": "4c24d18e6cb25611b02471f60f054317bc89ccbb6df465f8f441c0d47498e210",
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rgen/indexed_string_return_call_kinds.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-indexed-result-asan-x5pvjphd/2.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f696e64657865645f737472696e675f72657475726e5f63616c6c5f6b696e64732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d696e64657865642d726573756c742d6173616e2d783570766a7068642f322e657865202838362e39204b42290a"
+      },
+      "asan_instrumentation_verified": true,
+      "run": {
+        "command": [
+          "/tmp/sn-indexed-result-asan-x5pvjphd/2.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "616c706861210a6f726967696e616c3a616c7068610a616c7068610a626574610a616c7068610a6f726967696e616c3a6368616e6765640a320a",
+        "stderr_hex": ""
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/indexed_string_return_computed.sn",
+      "source_sha256": "8ccf95a1ef3c23f5fb67700082d9302be6e99fa00c1703f815bef9a405e7a8fb",
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rgen/indexed_string_return_computed.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-indexed-result-asan-x5pvjphd/3.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f696e64657865645f737472696e675f72657475726e5f636f6d70757465642e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d696e64657865642d726573756c742d6173616e2d783570766a7068642f332e657865202838342e35204b42290a"
+      },
+      "asan_instrumentation_verified": true,
+      "run": {
+        "command": [
+          "/tmp/sn-indexed-result-asan-x5pvjphd/3.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "626574610a320a",
+        "stderr_hex": ""
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/indexed_string_return_order.sn",
+      "source_sha256": "0fb55d6a6a3aa4e5aa01a080d93fd47fdaec2590bbb1c7f9bf7714e9c2315d42",
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rgen/indexed_string_return_order.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-indexed-result-asan-x5pvjphd/4.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f696e64657865645f737472696e675f72657475726e5f6f726465722e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d696e64657865642d726573756c742d6173616e2d783570766a7068642f342e657865202838352e32204b42290a"
+      },
+      "asan_instrumentation_verified": true,
+      "run": {
+        "command": [
+          "/tmp/sn-indexed-result-asan-x5pvjphd/4.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "626574610a31320a",
+        "stderr_hex": ""
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/indexed_string_initializer_hygiene.sn",
+      "source_sha256": "26845657e8b401833fc1d6b813cc3fdd3bc81e1c6cf4821fb178ae2783818cd7",
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rgen/indexed_string_initializer_hygiene.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-indexed-result-asan-x5pvjphd/5.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f696e64657865645f737472696e675f696e697469616c697a65725f68796769656e652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d696e64657865642d726573756c742d6173616e2d783570766a7068642f352e657865202838352e33204b42290a"
+      },
+      "asan_instrumentation_verified": true,
+      "run": {
+        "command": [
+          "/tmp/sn-indexed-result-asan-x5pvjphd/5.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "33350a626574610a310a",
+        "stderr_hex": ""
+      },
+      "passed": true
+    }
+  ],
+  "passed": true
+}

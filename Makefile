@@ -672,3 +672,16 @@ test-rust-parity-call-reference: build
 		--require-count 14 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-call-reference.json
 	@$(PYTHON) scripts/check_rust_call_reference_oracles.py .sn/rust-parity-call-reference.json
+
+.PHONY: test-rust-parity-indexed-string
+test-rust-parity-indexed-string: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/integration/test_generics_functions.sn \
+		tests/rgen/indexed_string_return_generic.sn \
+		tests/rgen/indexed_string_return_call_kinds.sn \
+		tests/rgen/indexed_string_return_computed.sn \
+		tests/rgen/indexed_string_return_order.sn \
+		tests/rgen/indexed_string_initializer_hygiene.sn \
+		--require-count 6 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-indexed-string.json
+	@$(PYTHON) scripts/check_rust_indexed_string_oracles.py .sn/rust-parity-indexed-string.json

@@ -1,0 +1,13 @@
+Compiler: /home/gavin/code/sindarin/sindarin-rust-indexed-results-1c192f1d/bin/sn
+Platform: Linux
+Parallel: 20 workers
+
+Rust Generation Tests
+============================================================
+  Running 419 tests with 20 workers...
+
+
+------------------------------------------------------------
+Results: 419 passed, 0 failed, 0 skipped  (6.98s)
+
+All tests passed!  (total: 6.98s)

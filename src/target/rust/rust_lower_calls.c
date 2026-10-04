@@ -1407,6 +1407,56 @@ static void rust_lower_instance_method_clones(json_object *model)
     }
 }
 
+/* C returns and initializes independent copies of borrowed string elements.
+ * Rust must acquire an element before its array owner leaves scope. Bind computed
+ * owners once, without moving a borrowed field or nested array place. */
+static void rust_lower_indexed_string_acquires(json_object *node,
+                                               json_object *model,
+                                               size_t *binding_id)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array)) {
+        for (size_t i = 0; i < json_object_array_length(node); i++)
+            rust_lower_indexed_string_acquires(json_object_array_get_idx(node, i),
+                                               model, binding_id);
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
+    json_object_object_foreach(node, key, child) {
+        (void)key;
+        rust_lower_indexed_string_acquires(child, model, binding_id);
+    }
+    json_object *value = NULL, *type = NULL, *array = NULL;
+    bool initializer = json_string_property_equals(node, "kind", "var_decl");
+    if (initializer) json_object_object_get_ex(node, "initializer", &value);
+    else if (json_string_property_equals(node, "kind", "return"))
+        json_object_object_get_ex(node, "value", &value);
+    else return;
+    if (!json_string_property_equals(value, "kind", "array_access") ||
+        !json_object_object_get_ex(value, "type", &type) ||
+        !json_string_property_equals(type, "kind", "string") ||
+        json_boolean_property(value, "rust_resolved_clone")) return;
+    bool bind = json_object_object_get_ex(value, "array", &array) &&
+        !json_string_property_equals(array, "kind", "variable") &&
+        !json_boolean_property(value, "rust_bind_array_once");
+    /* Ordinary initializers already acquire in var_decl. A bound computed
+     * owner acquires its element inside the block, before the owner expires. */
+    if (initializer && !bind) return;
+    json_object_object_add(value, "rust_needs_clone", json_object_new_boolean(true));
+    if (!bind) return;
+    if (initializer)
+        json_object_object_add(node, "rust_indexed_initializer_owned", json_object_new_boolean(true));
+    char array_name[128], index_name[128];
+    do {
+        snprintf(array_name, sizeof(array_name), "__sn_returned_string_%zu_array", *binding_id);
+        snprintf(index_name, sizeof(index_name), "__sn_returned_string_%zu_index", *binding_id);
+        (*binding_id)++;
+    } while (rust_call_model_contains_string(model, array_name) ||
+             rust_call_model_contains_string(model, index_name));
+    json_object_object_add(value, "rust_bound_string_array_name", json_object_new_string(array_name));
+    json_object_object_add(value, "rust_bound_string_index_name", json_object_new_string(index_name));
+}
+
 static bool rust_lower_calls(json_object *model)
 {
     rust_lower_split_lines_accesses(model);
@@ -1427,5 +1477,7 @@ static bool rust_lower_calls(json_object *model)
     rust_lower_default_array_ref_indices(model, model, &array_arg_id);
     size_t array_late_read_id = 0;
     rust_lower_default_array_late_reads(model, model, &array_late_read_id);
+    size_t returned_string_id = 0;
+    rust_lower_indexed_string_acquires(model, model, &returned_string_id);
     return true;
 }
