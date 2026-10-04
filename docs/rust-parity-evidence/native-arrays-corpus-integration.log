@@ -1,0 +1,177 @@
+Compiler: /home/gavin/code/sindarin/sindarin-rust-native-reference-arrays-3fa0bc91/.sn/rust-corpus-compiler
+Platform: Linux
+Parallel: 4 workers
+Integration Tests
+============================================================
+  Running 1142 tests with 4 workers...
+  test_buffer_unwrap                            FAIL (compile error)  (35ms)
+    Compiling tests/integration/test_buffer_unwrap.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target encountered an unsupported construct in function 'test_pointer_slice_codegen'
+     failed
+  test_builtin_interfaces                       FAIL (compile error)  (38ms)
+    Compiling tests/integration/test_builtin_interfaces.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target does not support a parameter of function 'acceptComparable'
+     failed
+  test_generic_multi_param_iter                 FAIL (compile error)  (53ms)
+    Compiling tests/integration/test_generic_multi_param_iter.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target supports iterator-protocol foreach only for heap-free scalar elements; got 'struct'
+    Error: Rust target encountered an unsupported construct in function 'main'
+     failed
+  test_interfaces                               FAIL (compile error)  (51ms)
+    Compiling tests/integration/test_interfaces.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target does not support a parameter of function 'acceptComparable'
+     failed
+  test_interop_callback                         FAIL (compile error)  (48ms)
+    Compiling tests/integration/test_interop_callback.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target native function 'invoke_callback' body uses a closure, thread, or indirect callable construct outside the native bridge
+     failed
+  test_interop_comprehensive                    FAIL (compile error)  (31ms)
+    Compiling tests/integration/test_interop_comprehensive.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target native function 'apply_transform' body uses a closure, thread, or indirect callable construct outside the native bridge
+     failed
+  test_interop_edge_cases                       FAIL (compile error)  (48ms)
+    Compiling tests/integration/test_interop_edge_cases.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target native function 'invoke_ptr_callback' body uses a closure, thread, or indirect callable construct outside the native bridge
+     failed
+  test_iterator_protocol                        FAIL (compile error)  (56ms)
+    Compiling tests/integration/test_iterator_protocol.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target supports iterator-protocol foreach only for heap-free scalar elements; got 'struct'
+    Error: Rust target encountered an unsupported construct in function 'main'
+     failed
+  test_module_array_swap_leak                   FAIL (compile error)  (268ms)
+    Compiling tests/integration/test_module_array_swap_leak.sn...
+      Parsing... done
+      Type checking... done
+      Code generation... done
+      Linking...warning: trait `__sn_native_handle_array_trait_0` should have an upper camel case name
+      --> .sn/build/rust/test_module_array_swap_leak_1133056/main.rs:10:14
+       |
+    10 | unsafe trait __sn_native_handle_array_trait_0: Clone + PartialEq {
+       |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper camel case: `SnNativeHandleArrayTrait0`
+       |
+       = note: `#[warn(non_camel_case_types)]` (part of `#[warn(nonstandard_style)]`) on by default
+    warning: type `__sn_native_handle_array_type_0` should have an upper camel case name
+      --> .sn/build/rust/test_module_array_swap_leak_1133056/main.rs:29:8
+       |
+    29 | struct __sn_native_handle_array_type_0<T: __sn_native_handle_array_trait_0> {
+       |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper camel case: `SnNativeHandleArrayType0`
+    warning: type `__sn_concurrency0_Cell` should have an upper camel case name
+       --> .sn/build/rust/test_module_array_swap_leak_1133056/main.rs:104:8
+        |
+    104 | struct __sn_concurrency0_Cell<T> {
+        |        ^^^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper camel case: `SnConcurrency0Cell`
+    warning: unused macro definition: `print`
+       --> .sn/build/rust/test_module_array_swap_leak_1133056/main.rs:197:14
+        |
+    197 | macro_rules! print {
+        |              ^^^^^
+        |
+        = note: `#[warn(unused_macros)]` (part of `#[warn(unused)]`) on by default
+    warning: unused macro definition: `println`
+       --> .sn/build/rust/test_module_array_swap_leak_1133056/main.rs:201:14
+        |
+    201 | macro_rules! println {
+        |              ^^^^^^^
+    error[E0277]: `*mut c_void` cannot be sent between threads safely
+       --> .sn/build/rust/test_module_array_swap_leak_1133056/main.rs:114:41
+        |
+    114 | ...lobal_buffer: std::sync::LazyLock<__sn_concurrency0_Cell<Vec<Item>>> = std::sync::LazyLock::new(|| __sn_concurrency0_Cell::new(vec![]));
+        |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `*mut c_void` cannot be sent between threads safely
+        |
+        = help: within `Vec<Item>`, the trait `Send` is not implemented for `*mut c_void`
+    note: required because it appears within the type `__sn_native_handle_array_type_0<Tag>`
+       --> .sn/build/rust/test_module_array_swap_leak_1133056/main.rs:29:8
+        |
+     29 | struct __sn_native_handle_array_type_0<T: __sn_native_handle_array_trait_0> {
+        |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  test_native_callback_typedef                  FAIL (compile error)  (51ms)
+    Compiling tests/integration/test_native_callback_typedef.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target native function 'call_with_value' body uses a closure, thread, or indirect callable construct outside the native bridge
+     failed
+  test_nil_pointer_slice                        FAIL (compile error)  (47ms)
+    Compiling tests/integration/test_nil_pointer_slice.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target encountered an unsupported construct in function 'test_nil_slice_creates_array'
+     failed
+  test_qsort_callback                           FAIL (compile error)  (47ms)
+    Compiling tests/integration/test_qsort_callback.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target native function 'invoke_comparator' body uses a closure, thread, or indirect callable construct outside the native bridge
+     failed
+  test_serializable                             FAIL (compile error)  (50ms)
+    Compiling tests/integration/test_serializable.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target native function 'sn_test_json_encoder' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value
+     failed
+  test_serializable_decode_struct_literal_loop  FAIL (compile error)  (30ms)
+    Compiling tests/integration/test_serializable_decode_struct_literal_loop.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target native function 'sn_test_json_encoder' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value
+     failed
+  test_serializable_double_int_json             FAIL (compile error)  (47ms)
+    Compiling tests/integration/test_serializable_double_int_json.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target native function 'sn_test_json_encoder' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value
+     failed
+  test_serializable_encoder_cleanup             FAIL (compile error)  (30ms)
+    Compiling tests/integration/test_serializable_encoder_cleanup.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target native function 'cleanup_json_encoder' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value
+     failed
+  test_serializable_long                        FAIL (compile error)  (29ms)
+    Compiling tests/integration/test_serializable_long.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target native function 'sn_test_json_encoder' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value
+     failed
+  test_serializable_push_ownership              FAIL (compile error)  (52ms)
+    Compiling tests/integration/test_serializable_push_ownership.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target native function 'sn_test_json_encoder' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value
+     failed
+  test_serializable_return_nested_array         FAIL (compile error)  (48ms)
+    Compiling tests/integration/test_serializable_return_nested_array.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target native function 'sn_test_json_encoder' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value
+     failed
+  test_struct_as_ref                            FAIL (compile error)  (46ms)
+    Compiling tests/integration/test_struct_as_ref.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target native function 'increment_counter' parameter 'c' must be an unsynchronized string, default-qualified raw pointer, or default/as-ref native scalar; heap-free records permit default/as-val/as-ref
+     failed
+  test_thread_struct_return_types               FAIL (compile error)  (58ms)
+    Compiling tests/integration/test_thread_struct_return_types.sn...
+      Parsing... done
+      Type checking... done
+      Code generation...Error: Rust target currently supports only plain value struct 'HyperParams'
+     failed
+------------------------------------------------------------
+Results: 1121 passed, 21 failed, 0 skipped  (70.92s)
+Some tests failed!  (total: 70.92s)

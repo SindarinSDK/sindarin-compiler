@@ -103,6 +103,12 @@ static bool rust_validate_shared_default_array_arguments(json_object *args)
     size_t count = json_object_array_length(args);
     for (size_t i = 0; i < count; i++)
     {
+        json_object *arg = json_object_array_get_idx(args, i), *arg_type = NULL;
+        json_object_object_get_ex(arg, "type", &arg_type);
+        /* Planned native array wrappers borrow the canonical C header; they
+         * require neither a Rust Vec copy nor an exclusive Vec projection. */
+        if (json_boolean_property(arg, "rust_native_handle_borrow_arg") &&
+            json_boolean_property(arg_type, "rust_native_handle_array")) continue;
         if (!rust_shared_default_array_argument(
                 json_object_array_get_idx(args, i))) continue;
         if (!json_boolean_property(

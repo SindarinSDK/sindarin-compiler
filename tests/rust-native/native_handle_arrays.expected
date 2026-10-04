@@ -1,0 +1,12 @@
+start 2 1 2
+same true
+grow 1 5 1
+ordinary 6 6
+copy false 6 2
+clear 1 6
+slice 2 2 2
+iteration 6 5 7
+temporary false 8
+nil true 0
+methods 2 3 4 1 2 4
+done 0

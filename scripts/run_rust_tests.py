@@ -627,6 +627,7 @@ class TestRunner:
                 'tests/rust-native/native_handle_record_borrows.sn',
                 'tests/rust-native/native_handle_method_only.sn',
                 'tests/rust-native/native_handle_default_methods.sn',
+                'tests/rust-native/native_handle_arrays.sn',
                 'tests/rust-native/native_record_values.sn',
                 'tests/rust-native/native_record_hygiene.sn',
                 'tests/rust-native/value_record_bridge.sn',

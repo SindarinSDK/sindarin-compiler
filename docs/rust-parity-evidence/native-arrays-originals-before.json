@@ -1,0 +1,1435 @@
+{
+  "compiler": "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+  "compiler_sha256": "5479d0f80dfd5e3a3bed2723b7a7eb2af68aa4bc694fc24702340c2b1e8eef71",
+  "c_ldlibs": null,
+  "arithmetic_modes": [
+    "default",
+    "checked",
+    "unchecked"
+  ],
+  "environment": {
+    "SN_CC": null,
+    "SN_CFLAGS": null,
+    "SN_RELEASE_CFLAGS": null,
+    "SN_LDLIBS": null,
+    "SN_RUSTFLAGS": null
+  },
+  "cases": [
+    {
+      "source": "tests/integration/test_array_literal_arg_leak.sn",
+      "source_sha256": "01d322c184bad61815f95c2192658c25051057a5a7fe9e225fb42fe903a80f66",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_array_literal_arg_leak.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-0--O0-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f61727261795f6c69746572616c5f6172675f6c65616b2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d7a6c7537667165362f636173652d302d2d4f302d64656661756c742d632e657865202837312e35204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-zlu7fqe6/case-0--O0-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "74616b65735f747261636b6572733a20676f7420330a746573745f61727261795f6c69746572616c5f6172675f6c65616b3a20504153530a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_array_literal_arg_leak.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-0--O0-default-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f61727261795f6c69746572616c5f6172675f6c65616b2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a205275737420746172676574206e61746976652066756e6374696f6e202774616b65735f747261636b6572732720706172616d65746572202761727227206d75737420626520616e20756e73796e6368726f6e697a656420737472696e672c2064656661756c742d7175616c69666965642072617720706f696e7465722c206f722064656661756c742f61732d726566206e6174697665207363616c61723b20686561702d66726565207265636f726473207065726d69742064656661756c742f61732d76616c2f61732d7265660a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/integration/test_array_literal_arg_leak.sn",
+      "source_sha256": "01d322c184bad61815f95c2192658c25051057a5a7fe9e225fb42fe903a80f66",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_array_literal_arg_leak.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-0--O1-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f61727261795f6c69746572616c5f6172675f6c65616b2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d7a6c7537667165362f636173652d302d2d4f312d64656661756c742d632e657865202837312e35204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-zlu7fqe6/case-0--O1-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "74616b65735f747261636b6572733a20676f7420330a746573745f61727261795f6c69746572616c5f6172675f6c65616b3a20504153530a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_array_literal_arg_leak.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-0--O1-default-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f61727261795f6c69746572616c5f6172675f6c65616b2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a205275737420746172676574206e61746976652066756e6374696f6e202774616b65735f747261636b6572732720706172616d65746572202761727227206d75737420626520616e20756e73796e6368726f6e697a656420737472696e672c2064656661756c742d7175616c69666965642072617720706f696e7465722c206f722064656661756c742f61732d726566206e6174697665207363616c61723b20686561702d66726565207265636f726473207065726d69742064656661756c742f61732d76616c2f61732d7265660a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/integration/test_array_literal_arg_leak.sn",
+      "source_sha256": "01d322c184bad61815f95c2192658c25051057a5a7fe9e225fb42fe903a80f66",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_array_literal_arg_leak.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-0--O2-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f61727261795f6c69746572616c5f6172675f6c65616b2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d7a6c7537667165362f636173652d302d2d4f322d64656661756c742d632e657865202837312e35204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-zlu7fqe6/case-0--O2-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "74616b65735f747261636b6572733a20676f7420330a746573745f61727261795f6c69746572616c5f6172675f6c65616b3a20504153530a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_array_literal_arg_leak.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-0--O2-default-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f61727261795f6c69746572616c5f6172675f6c65616b2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a205275737420746172676574206e61746976652066756e6374696f6e202774616b65735f747261636b6572732720706172616d65746572202761727227206d75737420626520616e20756e73796e6368726f6e697a656420737472696e672c2064656661756c742d7175616c69666965642072617720706f696e7465722c206f722064656661756c742f61732d726566206e6174697665207363616c61723b20686561702d66726565207265636f726473207065726d69742064656661756c742f61732d76616c2f61732d7265660a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/integration/test_array_literal_arg_leak.sn",
+      "source_sha256": "01d322c184bad61815f95c2192658c25051057a5a7fe9e225fb42fe903a80f66",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_array_literal_arg_leak.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-0--O0-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f61727261795f6c69746572616c5f6172675f6c65616b2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d7a6c7537667165362f636173652d302d2d4f302d636865636b65642d632e657865202837312e35204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-zlu7fqe6/case-0--O0-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "74616b65735f747261636b6572733a20676f7420330a746573745f61727261795f6c69746572616c5f6172675f6c65616b3a20504153530a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_array_literal_arg_leak.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-0--O0-checked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f61727261795f6c69746572616c5f6172675f6c65616b2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a205275737420746172676574206e61746976652066756e6374696f6e202774616b65735f747261636b6572732720706172616d65746572202761727227206d75737420626520616e20756e73796e6368726f6e697a656420737472696e672c2064656661756c742d7175616c69666965642072617720706f696e7465722c206f722064656661756c742f61732d726566206e6174697665207363616c61723b20686561702d66726565207265636f726473207065726d69742064656661756c742f61732d76616c2f61732d7265660a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/integration/test_array_literal_arg_leak.sn",
+      "source_sha256": "01d322c184bad61815f95c2192658c25051057a5a7fe9e225fb42fe903a80f66",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_array_literal_arg_leak.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-0--O1-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f61727261795f6c69746572616c5f6172675f6c65616b2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d7a6c7537667165362f636173652d302d2d4f312d636865636b65642d632e657865202837312e35204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-zlu7fqe6/case-0--O1-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "74616b65735f747261636b6572733a20676f7420330a746573745f61727261795f6c69746572616c5f6172675f6c65616b3a20504153530a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_array_literal_arg_leak.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-0--O1-checked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f61727261795f6c69746572616c5f6172675f6c65616b2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a205275737420746172676574206e61746976652066756e6374696f6e202774616b65735f747261636b6572732720706172616d65746572202761727227206d75737420626520616e20756e73796e6368726f6e697a656420737472696e672c2064656661756c742d7175616c69666965642072617720706f696e7465722c206f722064656661756c742f61732d726566206e6174697665207363616c61723b20686561702d66726565207265636f726473207065726d69742064656661756c742f61732d76616c2f61732d7265660a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/integration/test_array_literal_arg_leak.sn",
+      "source_sha256": "01d322c184bad61815f95c2192658c25051057a5a7fe9e225fb42fe903a80f66",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_array_literal_arg_leak.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-0--O2-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f61727261795f6c69746572616c5f6172675f6c65616b2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d7a6c7537667165362f636173652d302d2d4f322d636865636b65642d632e657865202837312e35204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-zlu7fqe6/case-0--O2-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "74616b65735f747261636b6572733a20676f7420330a746573745f61727261795f6c69746572616c5f6172675f6c65616b3a20504153530a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_array_literal_arg_leak.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-0--O2-checked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f61727261795f6c69746572616c5f6172675f6c65616b2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a205275737420746172676574206e61746976652066756e6374696f6e202774616b65735f747261636b6572732720706172616d65746572202761727227206d75737420626520616e20756e73796e6368726f6e697a656420737472696e672c2064656661756c742d7175616c69666965642072617720706f696e7465722c206f722064656661756c742f61732d726566206e6174697665207363616c61723b20686561702d66726565207265636f726473207065726d69742064656661756c742f61732d76616c2f61732d7265660a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/integration/test_array_literal_arg_leak.sn",
+      "source_sha256": "01d322c184bad61815f95c2192658c25051057a5a7fe9e225fb42fe903a80f66",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_array_literal_arg_leak.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-0--O0-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f61727261795f6c69746572616c5f6172675f6c65616b2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d7a6c7537667165362f636173652d302d2d4f302d756e636865636b65642d632e657865202837312e35204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-zlu7fqe6/case-0--O0-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "74616b65735f747261636b6572733a20676f7420330a746573745f61727261795f6c69746572616c5f6172675f6c65616b3a20504153530a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_array_literal_arg_leak.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-0--O0-unchecked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f61727261795f6c69746572616c5f6172675f6c65616b2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a205275737420746172676574206e61746976652066756e6374696f6e202774616b65735f747261636b6572732720706172616d65746572202761727227206d75737420626520616e20756e73796e6368726f6e697a656420737472696e672c2064656661756c742d7175616c69666965642072617720706f696e7465722c206f722064656661756c742f61732d726566206e6174697665207363616c61723b20686561702d66726565207265636f726473207065726d69742064656661756c742f61732d76616c2f61732d7265660a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/integration/test_array_literal_arg_leak.sn",
+      "source_sha256": "01d322c184bad61815f95c2192658c25051057a5a7fe9e225fb42fe903a80f66",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_array_literal_arg_leak.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-0--O1-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f61727261795f6c69746572616c5f6172675f6c65616b2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d7a6c7537667165362f636173652d302d2d4f312d756e636865636b65642d632e657865202837312e35204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-zlu7fqe6/case-0--O1-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "74616b65735f747261636b6572733a20676f7420330a746573745f61727261795f6c69746572616c5f6172675f6c65616b3a20504153530a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_array_literal_arg_leak.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-0--O1-unchecked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f61727261795f6c69746572616c5f6172675f6c65616b2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a205275737420746172676574206e61746976652066756e6374696f6e202774616b65735f747261636b6572732720706172616d65746572202761727227206d75737420626520616e20756e73796e6368726f6e697a656420737472696e672c2064656661756c742d7175616c69666965642072617720706f696e7465722c206f722064656661756c742f61732d726566206e6174697665207363616c61723b20686561702d66726565207265636f726473207065726d69742064656661756c742f61732d76616c2f61732d7265660a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/integration/test_array_literal_arg_leak.sn",
+      "source_sha256": "01d322c184bad61815f95c2192658c25051057a5a7fe9e225fb42fe903a80f66",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_array_literal_arg_leak.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-0--O2-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f61727261795f6c69746572616c5f6172675f6c65616b2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d7a6c7537667165362f636173652d302d2d4f322d756e636865636b65642d632e657865202837312e35204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-zlu7fqe6/case-0--O2-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "74616b65735f747261636b6572733a20676f7420330a746573745f61727261795f6c69746572616c5f6172675f6c65616b3a20504153530a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_array_literal_arg_leak.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-0--O2-unchecked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f61727261795f6c69746572616c5f6172675f6c65616b2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a205275737420746172676574206e61746976652066756e6374696f6e202774616b65735f747261636b6572732720706172616d65746572202761727227206d75737420626520616e20756e73796e6368726f6e697a656420737472696e672c2064656661756c742d7175616c69666965642072617720706f696e7465722c206f722064656661756c742f61732d726566206e6174697665207363616c61723b20686561702d66726565207265636f726473207065726d69742064656661756c742f61732d76616c2f61732d7265660a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/integration/test_self_method_forward_after_train.sn",
+      "source_sha256": "6304ce2dc0cf4f1e1c58fa474bcd721cbda449f0252ac0f4dea8ac8114358756",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_self_method_forward_after_train.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-1--O0-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f73656c665f6d6574686f645f666f72776172645f61667465725f747261696e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d7a6c7537667165362f636173652d312d2d4f302d64656661756c742d632e657865202837312e38204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-zlu7fqe6/case-1--O0-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "666f727761726420313a2076313d3130302076323d3230300a666f727761726420323a2076313d3130302076323d3230300a747261696e20696e6e65723a2076313d3135302076323d3235300a63616c6c6572206469726563743a2077313d3135302077323d3235300a666f727761726420333a2076313d3135302076323d3235300a747261696e20696e6e65723a2076313d3330302076323d3430300a666f727761726420343a2076313d3330302076323d3430300a504153530a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_self_method_forward_after_train.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-1--O0-default-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f73656c665f6d6574686f645f666f72776172645f61667465725f747261696e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a205275737420746172676574206e61746976652066756e6374696f6e20277265736f757263655f70726f636573735f61727261792720706172616d6574657220277265736f757263657327206d75737420626520616e20756e73796e6368726f6e697a656420737472696e672c2064656661756c742d7175616c69666965642072617720706f696e7465722c206f722064656661756c742f61732d726566206e6174697665207363616c61723b20686561702d66726565207265636f726473207065726d69742064656661756c742f61732d76616c2f61732d7265660a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/integration/test_self_method_forward_after_train.sn",
+      "source_sha256": "6304ce2dc0cf4f1e1c58fa474bcd721cbda449f0252ac0f4dea8ac8114358756",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_self_method_forward_after_train.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-1--O1-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f73656c665f6d6574686f645f666f72776172645f61667465725f747261696e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d7a6c7537667165362f636173652d312d2d4f312d64656661756c742d632e657865202837312e38204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-zlu7fqe6/case-1--O1-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "666f727761726420313a2076313d3130302076323d3230300a666f727761726420323a2076313d3130302076323d3230300a747261696e20696e6e65723a2076313d3135302076323d3235300a63616c6c6572206469726563743a2077313d3135302077323d3235300a666f727761726420333a2076313d3135302076323d3235300a747261696e20696e6e65723a2076313d3330302076323d3430300a666f727761726420343a2076313d3330302076323d3430300a504153530a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_self_method_forward_after_train.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-1--O1-default-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f73656c665f6d6574686f645f666f72776172645f61667465725f747261696e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a205275737420746172676574206e61746976652066756e6374696f6e20277265736f757263655f70726f636573735f61727261792720706172616d6574657220277265736f757263657327206d75737420626520616e20756e73796e6368726f6e697a656420737472696e672c2064656661756c742d7175616c69666965642072617720706f696e7465722c206f722064656661756c742f61732d726566206e6174697665207363616c61723b20686561702d66726565207265636f726473207065726d69742064656661756c742f61732d76616c2f61732d7265660a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/integration/test_self_method_forward_after_train.sn",
+      "source_sha256": "6304ce2dc0cf4f1e1c58fa474bcd721cbda449f0252ac0f4dea8ac8114358756",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_self_method_forward_after_train.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-1--O2-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f73656c665f6d6574686f645f666f72776172645f61667465725f747261696e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d7a6c7537667165362f636173652d312d2d4f322d64656661756c742d632e657865202837312e38204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-zlu7fqe6/case-1--O2-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "666f727761726420313a2076313d3130302076323d3230300a666f727761726420323a2076313d3130302076323d3230300a747261696e20696e6e65723a2076313d3135302076323d3235300a63616c6c6572206469726563743a2077313d3135302077323d3235300a666f727761726420333a2076313d3135302076323d3235300a747261696e20696e6e65723a2076313d3330302076323d3430300a666f727761726420343a2076313d3330302076323d3430300a504153530a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_self_method_forward_after_train.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-1--O2-default-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f73656c665f6d6574686f645f666f72776172645f61667465725f747261696e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a205275737420746172676574206e61746976652066756e6374696f6e20277265736f757263655f70726f636573735f61727261792720706172616d6574657220277265736f757263657327206d75737420626520616e20756e73796e6368726f6e697a656420737472696e672c2064656661756c742d7175616c69666965642072617720706f696e7465722c206f722064656661756c742f61732d726566206e6174697665207363616c61723b20686561702d66726565207265636f726473207065726d69742064656661756c742f61732d76616c2f61732d7265660a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/integration/test_self_method_forward_after_train.sn",
+      "source_sha256": "6304ce2dc0cf4f1e1c58fa474bcd721cbda449f0252ac0f4dea8ac8114358756",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_self_method_forward_after_train.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-1--O0-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f73656c665f6d6574686f645f666f72776172645f61667465725f747261696e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d7a6c7537667165362f636173652d312d2d4f302d636865636b65642d632e657865202837312e38204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-zlu7fqe6/case-1--O0-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "666f727761726420313a2076313d3130302076323d3230300a666f727761726420323a2076313d3130302076323d3230300a747261696e20696e6e65723a2076313d3135302076323d3235300a63616c6c6572206469726563743a2077313d3135302077323d3235300a666f727761726420333a2076313d3135302076323d3235300a747261696e20696e6e65723a2076313d3330302076323d3430300a666f727761726420343a2076313d3330302076323d3430300a504153530a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_self_method_forward_after_train.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-1--O0-checked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f73656c665f6d6574686f645f666f72776172645f61667465725f747261696e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a205275737420746172676574206e61746976652066756e6374696f6e20277265736f757263655f70726f636573735f61727261792720706172616d6574657220277265736f757263657327206d75737420626520616e20756e73796e6368726f6e697a656420737472696e672c2064656661756c742d7175616c69666965642072617720706f696e7465722c206f722064656661756c742f61732d726566206e6174697665207363616c61723b20686561702d66726565207265636f726473207065726d69742064656661756c742f61732d76616c2f61732d7265660a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/integration/test_self_method_forward_after_train.sn",
+      "source_sha256": "6304ce2dc0cf4f1e1c58fa474bcd721cbda449f0252ac0f4dea8ac8114358756",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_self_method_forward_after_train.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-1--O1-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f73656c665f6d6574686f645f666f72776172645f61667465725f747261696e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d7a6c7537667165362f636173652d312d2d4f312d636865636b65642d632e657865202837312e38204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-zlu7fqe6/case-1--O1-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "666f727761726420313a2076313d3130302076323d3230300a666f727761726420323a2076313d3130302076323d3230300a747261696e20696e6e65723a2076313d3135302076323d3235300a63616c6c6572206469726563743a2077313d3135302077323d3235300a666f727761726420333a2076313d3135302076323d3235300a747261696e20696e6e65723a2076313d3330302076323d3430300a666f727761726420343a2076313d3330302076323d3430300a504153530a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_self_method_forward_after_train.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-1--O1-checked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f73656c665f6d6574686f645f666f72776172645f61667465725f747261696e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a205275737420746172676574206e61746976652066756e6374696f6e20277265736f757263655f70726f636573735f61727261792720706172616d6574657220277265736f757263657327206d75737420626520616e20756e73796e6368726f6e697a656420737472696e672c2064656661756c742d7175616c69666965642072617720706f696e7465722c206f722064656661756c742f61732d726566206e6174697665207363616c61723b20686561702d66726565207265636f726473207065726d69742064656661756c742f61732d76616c2f61732d7265660a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/integration/test_self_method_forward_after_train.sn",
+      "source_sha256": "6304ce2dc0cf4f1e1c58fa474bcd721cbda449f0252ac0f4dea8ac8114358756",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_self_method_forward_after_train.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-1--O2-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f73656c665f6d6574686f645f666f72776172645f61667465725f747261696e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d7a6c7537667165362f636173652d312d2d4f322d636865636b65642d632e657865202837312e38204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-zlu7fqe6/case-1--O2-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "666f727761726420313a2076313d3130302076323d3230300a666f727761726420323a2076313d3130302076323d3230300a747261696e20696e6e65723a2076313d3135302076323d3235300a63616c6c6572206469726563743a2077313d3135302077323d3235300a666f727761726420333a2076313d3135302076323d3235300a747261696e20696e6e65723a2076313d3330302076323d3430300a666f727761726420343a2076313d3330302076323d3430300a504153530a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_self_method_forward_after_train.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-1--O2-checked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f73656c665f6d6574686f645f666f72776172645f61667465725f747261696e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a205275737420746172676574206e61746976652066756e6374696f6e20277265736f757263655f70726f636573735f61727261792720706172616d6574657220277265736f757263657327206d75737420626520616e20756e73796e6368726f6e697a656420737472696e672c2064656661756c742d7175616c69666965642072617720706f696e7465722c206f722064656661756c742f61732d726566206e6174697665207363616c61723b20686561702d66726565207265636f726473207065726d69742064656661756c742f61732d76616c2f61732d7265660a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/integration/test_self_method_forward_after_train.sn",
+      "source_sha256": "6304ce2dc0cf4f1e1c58fa474bcd721cbda449f0252ac0f4dea8ac8114358756",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_self_method_forward_after_train.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-1--O0-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f73656c665f6d6574686f645f666f72776172645f61667465725f747261696e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d7a6c7537667165362f636173652d312d2d4f302d756e636865636b65642d632e657865202837312e38204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-zlu7fqe6/case-1--O0-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "666f727761726420313a2076313d3130302076323d3230300a666f727761726420323a2076313d3130302076323d3230300a747261696e20696e6e65723a2076313d3135302076323d3235300a63616c6c6572206469726563743a2077313d3135302077323d3235300a666f727761726420333a2076313d3135302076323d3235300a747261696e20696e6e65723a2076313d3330302076323d3430300a666f727761726420343a2076313d3330302076323d3430300a504153530a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_self_method_forward_after_train.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-1--O0-unchecked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f73656c665f6d6574686f645f666f72776172645f61667465725f747261696e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a205275737420746172676574206e61746976652066756e6374696f6e20277265736f757263655f70726f636573735f61727261792720706172616d6574657220277265736f757263657327206d75737420626520616e20756e73796e6368726f6e697a656420737472696e672c2064656661756c742d7175616c69666965642072617720706f696e7465722c206f722064656661756c742f61732d726566206e6174697665207363616c61723b20686561702d66726565207265636f726473207065726d69742064656661756c742f61732d76616c2f61732d7265660a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/integration/test_self_method_forward_after_train.sn",
+      "source_sha256": "6304ce2dc0cf4f1e1c58fa474bcd721cbda449f0252ac0f4dea8ac8114358756",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_self_method_forward_after_train.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-1--O1-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f73656c665f6d6574686f645f666f72776172645f61667465725f747261696e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d7a6c7537667165362f636173652d312d2d4f312d756e636865636b65642d632e657865202837312e38204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-zlu7fqe6/case-1--O1-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "666f727761726420313a2076313d3130302076323d3230300a666f727761726420323a2076313d3130302076323d3230300a747261696e20696e6e65723a2076313d3135302076323d3235300a63616c6c6572206469726563743a2077313d3135302077323d3235300a666f727761726420333a2076313d3135302076323d3235300a747261696e20696e6e65723a2076313d3330302076323d3430300a666f727761726420343a2076313d3330302076323d3430300a504153530a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_self_method_forward_after_train.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-1--O1-unchecked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f73656c665f6d6574686f645f666f72776172645f61667465725f747261696e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a205275737420746172676574206e61746976652066756e6374696f6e20277265736f757263655f70726f636573735f61727261792720706172616d6574657220277265736f757263657327206d75737420626520616e20756e73796e6368726f6e697a656420737472696e672c2064656661756c742d7175616c69666965642072617720706f696e7465722c206f722064656661756c742f61732d726566206e6174697665207363616c61723b20686561702d66726565207265636f726473207065726d69742064656661756c742f61732d76616c2f61732d7265660a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/integration/test_self_method_forward_after_train.sn",
+      "source_sha256": "6304ce2dc0cf4f1e1c58fa474bcd721cbda449f0252ac0f4dea8ac8114358756",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_self_method_forward_after_train.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-1--O2-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f73656c665f6d6574686f645f666f72776172645f61667465725f747261696e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d7a6c7537667165362f636173652d312d2d4f322d756e636865636b65642d632e657865202837312e38204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-zlu7fqe6/case-1--O2-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "666f727761726420313a2076313d3130302076323d3230300a666f727761726420323a2076313d3130302076323d3230300a747261696e20696e6e65723a2076313d3135302076323d3235300a63616c6c6572206469726563743a2077313d3135302077323d3235300a666f727761726420333a2076313d3135302076323d3235300a747261696e20696e6e65723a2076313d3330302076323d3430300a666f727761726420343a2076313d3330302076323d3430300a504153530a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_self_method_forward_after_train.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-1--O2-unchecked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f73656c665f6d6574686f645f666f72776172645f61667465725f747261696e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a205275737420746172676574206e61746976652066756e6374696f6e20277265736f757263655f70726f636573735f61727261792720706172616d6574657220277265736f757263657327206d75737420626520616e20756e73796e6368726f6e697a656420737472696e672c2064656661756c742d7175616c69666965642072617720706f696e7465722c206f722064656661756c742f61732d726566206e6174697665207363616c61723b20686561702d66726565207265636f726473207065726d69742064656661756c742f61732d76616c2f61732d7265660a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/integration/test_module_array_swap_leak.sn",
+      "source_sha256": "e9485d7a3fc801ae45b043c2c678e801e6c25cc7bd118d347dc393fc28bfdb91",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_module_array_swap_leak.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-2--O0-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f6d6f64756c655f61727261795f737761705f6c65616b2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d7a6c7537667165362f636173652d322d2d4f302d64656661756c742d632e657865202837312e39204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-zlu7fqe6/case-2--O0-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "6265666f726520666c7573683a20616c6976653d340a616674657220666c7573683a20636f756e743d3220616c6976653d300a746573745f73657061726174655f73636f7065733a20504153530a6166746572203520726f756e64733a20616c6976653d300a746573745f72657065617465645f666c7573683a20504153530a746573745f6d697865645f656d7074793a20504153530a6265666f726520726561737369676e3a20616c6976653d320a616674657220726561737369676e3a20616c6976653d300a746573745f6469726563745f726561737369676e3a20504153530a61667465722073616d652d73636f706520666c7573683a20616c6976653d310a66696e616c3a20616c6976653d300a746573745f6d6f64756c655f61727261795f737761705f6c65616b3a20414c4c20504153530a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_module_array_swap_leak.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-2--O0-default-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f6d6f64756c655f61727261795f737761705f6c65616b2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a207479706520605f5f736e5f636f6e63757272656e6379305f43656c6c602073686f756c64206861766520616e2075707065722063616d656c2063617365206e616d650a202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353039352f6d61696e2e72733a383a380a20207c0a38207c20737472756374205f5f736e5f636f6e63757272656e6379305f43656c6c3c543e207b0a20207c20202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e2068656c703a20636f6e7665727420746865206964656e74696669657220746f2075707065722063616d656c20636173653a2060536e436f6e63757272656e63793043656c6c600a20207c0a20203d206e6f74653a2060235b7761726e286e6f6e5f63616d656c5f636173655f7479706573295d60202870617274206f662060235b7761726e286e6f6e7374616e646172645f7374796c65295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353039352f6d61696e2e72733a3130313a31340a202020207c0a313031207c206d6163726f5f72756c657321207072696e74207b0a202020207c20202020202020202020202020205e5e5e5e5e0a202020207c0a202020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e746c6e600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353039352f6d61696e2e72733a3130353a31340a202020207c0a313035207c206d6163726f5f72756c657321207072696e746c6e207b0a202020207c20202020202020202020202020205e5e5e5e5e5e5e0a0a6572726f725b45303237375d3a20602a6d757420635f766f6964602063616e6e6f742062652073656e74206265747765656e207468726561647320736166656c790a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353039352f6d61696e2e72733a31383a34310a202020207c0a203138207c202e2e2e6c6f62616c5f6275666665723a207374643a3a73796e633a3a4c617a794c6f636b3c5f5f736e5f636f6e63757272656e6379305f43656c6c3c5665633c4974656d3e3e3e203d207374643a3a73796e633a3a4c617a794c6f636b3a3a6e6577287c7c205f5f736e5f636f6e63757272656e6379305f43656c6c3a3a6e657728766563215b5d29293b0a202020207c2020202020202020202020202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e20602a6d757420635f766f6964602063616e6e6f742062652073656e74206265747765656e207468726561647320736166656c790a202020207c0a202020203d2068656c703a2077697468696e20605665633c4974656d3e602c20746865207472616974206053656e6460206973206e6f7420696d706c656d656e74656420666f7220602a6d757420635f766f6964600a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e2074686520747970652060546167600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353039352f6d61696e2e72733a3338343a380a202020207c0a333834207c2073747275637420546167207b0a202020207c20202020202020205e5e5e0a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605068616e746f6d446174613c5461673e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f636f72652f7372632f6d61726b65722e72733a3831393a31320a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e2074686520747970652060616c6c6f633a3a7261775f7665633a3a5261775665633c5461673e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f616c6c6f632f7372632f7261775f7665632f6d6f642e72733a37333a31390a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605665633c5461673e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f616c6c6f632f7372632f7665632f6d6f642e72733a3433383a31320a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520604974656d600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353039352f6d61696e2e72733a3431353a380a202020207c0a343135207c20737472756374204974656d207b0a202020207c20202020202020205e5e5e5e0a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605068616e746f6d446174613c4974656d3e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f636f72652f7372632f6d61726b65722e72733a3831393a31320a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e2074686520747970652060616c6c6f633a3a7261775f7665633a3a5261775665633c4974656d3e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f616c6c6f632f7372632f7261775f7665632f6d6f642e72733a37333a31390a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605665633c4974656d3e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f616c6c6f632f7372632f7665632f6d6f642e72733a3433383a31320a202020203d206e6f74653a20726571756972656420666f7220607374643a3a73796e633a3a4d757465783c5665633c4974656d3e3e6020746f20696d706c656d656e74206053796e63600a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605f5f736e5f636f6e63757272656e6379305f43656c6c3c5665633c4974656d3e3e600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353039352f6d61696e2e72733a383a380a202020207c0a202038207c20737472756374205f5f736e5f636f6e63757272656e6379305f43656c6c3c543e207b0a202020207c20202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e0a202020203d206e6f74653a20726571756972656420666f7220604c617a794c6f636b3c5f5f736e5f636f6e63757272656e6379305f43656c6c3c5665633c4974656d3e3e3e6020746f20696d706c656d656e74206053796e63600a202020203d206e6f74653a2073686172656420737461746963207661726961626c6573206d757374206861766520612074797065207468617420696d706c656d656e7473206053796e63600a0a6572726f723a2061626f7274696e672064756520746f20312070726576696f7573206572726f723b2033207761726e696e677320656d69747465640a0a466f72206d6f726520696e666f726d6174696f6e2061626f75742074686973206572726f722c2074727920607275737463202d2d6578706c61696e204530323737602e0a4572726f723a207275737463206661696c656420746f206c696e6b2067656e657261746564205275737420616e64206e61746976652043206f626a656374730a201b5b313b33316d6661696c65641b5b306d0a0a1b5b313b33316d436f6d70696c6174696f6e206661696c65641b5b306d0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/integration/test_module_array_swap_leak.sn",
+      "source_sha256": "e9485d7a3fc801ae45b043c2c678e801e6c25cc7bd118d347dc393fc28bfdb91",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_module_array_swap_leak.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-2--O1-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f6d6f64756c655f61727261795f737761705f6c65616b2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d7a6c7537667165362f636173652d322d2d4f312d64656661756c742d632e657865202837312e39204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-zlu7fqe6/case-2--O1-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "6265666f726520666c7573683a20616c6976653d340a616674657220666c7573683a20636f756e743d3220616c6976653d300a746573745f73657061726174655f73636f7065733a20504153530a6166746572203520726f756e64733a20616c6976653d300a746573745f72657065617465645f666c7573683a20504153530a746573745f6d697865645f656d7074793a20504153530a6265666f726520726561737369676e3a20616c6976653d320a616674657220726561737369676e3a20616c6976653d300a746573745f6469726563745f726561737369676e3a20504153530a61667465722073616d652d73636f706520666c7573683a20616c6976653d310a66696e616c3a20616c6976653d300a746573745f6d6f64756c655f61727261795f737761705f6c65616b3a20414c4c20504153530a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_module_array_swap_leak.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-2--O1-default-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f6d6f64756c655f61727261795f737761705f6c65616b2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a207479706520605f5f736e5f636f6e63757272656e6379305f43656c6c602073686f756c64206861766520616e2075707065722063616d656c2063617365206e616d650a202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353136392f6d61696e2e72733a383a380a20207c0a38207c20737472756374205f5f736e5f636f6e63757272656e6379305f43656c6c3c543e207b0a20207c20202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e2068656c703a20636f6e7665727420746865206964656e74696669657220746f2075707065722063616d656c20636173653a2060536e436f6e63757272656e63793043656c6c600a20207c0a20203d206e6f74653a2060235b7761726e286e6f6e5f63616d656c5f636173655f7479706573295d60202870617274206f662060235b7761726e286e6f6e7374616e646172645f7374796c65295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353136392f6d61696e2e72733a3130313a31340a202020207c0a313031207c206d6163726f5f72756c657321207072696e74207b0a202020207c20202020202020202020202020205e5e5e5e5e0a202020207c0a202020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e746c6e600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353136392f6d61696e2e72733a3130353a31340a202020207c0a313035207c206d6163726f5f72756c657321207072696e746c6e207b0a202020207c20202020202020202020202020205e5e5e5e5e5e5e0a0a6572726f725b45303237375d3a20602a6d757420635f766f6964602063616e6e6f742062652073656e74206265747765656e207468726561647320736166656c790a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353136392f6d61696e2e72733a31383a34310a202020207c0a203138207c202e2e2e6c6f62616c5f6275666665723a207374643a3a73796e633a3a4c617a794c6f636b3c5f5f736e5f636f6e63757272656e6379305f43656c6c3c5665633c4974656d3e3e3e203d207374643a3a73796e633a3a4c617a794c6f636b3a3a6e6577287c7c205f5f736e5f636f6e63757272656e6379305f43656c6c3a3a6e657728766563215b5d29293b0a202020207c2020202020202020202020202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e20602a6d757420635f766f6964602063616e6e6f742062652073656e74206265747765656e207468726561647320736166656c790a202020207c0a202020203d2068656c703a2077697468696e20605665633c4974656d3e602c20746865207472616974206053656e6460206973206e6f7420696d706c656d656e74656420666f7220602a6d757420635f766f6964600a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e2074686520747970652060546167600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353136392f6d61696e2e72733a3338343a380a202020207c0a333834207c2073747275637420546167207b0a202020207c20202020202020205e5e5e0a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605068616e746f6d446174613c5461673e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f636f72652f7372632f6d61726b65722e72733a3831393a31320a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e2074686520747970652060616c6c6f633a3a7261775f7665633a3a5261775665633c5461673e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f616c6c6f632f7372632f7261775f7665632f6d6f642e72733a37333a31390a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605665633c5461673e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f616c6c6f632f7372632f7665632f6d6f642e72733a3433383a31320a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520604974656d600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353136392f6d61696e2e72733a3431353a380a202020207c0a343135207c20737472756374204974656d207b0a202020207c20202020202020205e5e5e5e0a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605068616e746f6d446174613c4974656d3e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f636f72652f7372632f6d61726b65722e72733a3831393a31320a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e2074686520747970652060616c6c6f633a3a7261775f7665633a3a5261775665633c4974656d3e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f616c6c6f632f7372632f7261775f7665632f6d6f642e72733a37333a31390a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605665633c4974656d3e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f616c6c6f632f7372632f7665632f6d6f642e72733a3433383a31320a202020203d206e6f74653a20726571756972656420666f7220607374643a3a73796e633a3a4d757465783c5665633c4974656d3e3e6020746f20696d706c656d656e74206053796e63600a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605f5f736e5f636f6e63757272656e6379305f43656c6c3c5665633c4974656d3e3e600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353136392f6d61696e2e72733a383a380a202020207c0a202038207c20737472756374205f5f736e5f636f6e63757272656e6379305f43656c6c3c543e207b0a202020207c20202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e0a202020203d206e6f74653a20726571756972656420666f7220604c617a794c6f636b3c5f5f736e5f636f6e63757272656e6379305f43656c6c3c5665633c4974656d3e3e3e6020746f20696d706c656d656e74206053796e63600a202020203d206e6f74653a2073686172656420737461746963207661726961626c6573206d757374206861766520612074797065207468617420696d706c656d656e7473206053796e63600a0a6572726f723a2061626f7274696e672064756520746f20312070726576696f7573206572726f723b2033207761726e696e677320656d69747465640a0a466f72206d6f726520696e666f726d6174696f6e2061626f75742074686973206572726f722c2074727920607275737463202d2d6578706c61696e204530323737602e0a4572726f723a207275737463206661696c656420746f206c696e6b2067656e657261746564205275737420616e64206e61746976652043206f626a656374730a201b5b313b33316d6661696c65641b5b306d0a0a1b5b313b33316d436f6d70696c6174696f6e206661696c65641b5b306d0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/integration/test_module_array_swap_leak.sn",
+      "source_sha256": "e9485d7a3fc801ae45b043c2c678e801e6c25cc7bd118d347dc393fc28bfdb91",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_module_array_swap_leak.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-2--O2-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f6d6f64756c655f61727261795f737761705f6c65616b2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d7a6c7537667165362f636173652d322d2d4f322d64656661756c742d632e657865202837312e39204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-zlu7fqe6/case-2--O2-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "6265666f726520666c7573683a20616c6976653d340a616674657220666c7573683a20636f756e743d3220616c6976653d300a746573745f73657061726174655f73636f7065733a20504153530a6166746572203520726f756e64733a20616c6976653d300a746573745f72657065617465645f666c7573683a20504153530a746573745f6d697865645f656d7074793a20504153530a6265666f726520726561737369676e3a20616c6976653d320a616674657220726561737369676e3a20616c6976653d300a746573745f6469726563745f726561737369676e3a20504153530a61667465722073616d652d73636f706520666c7573683a20616c6976653d310a66696e616c3a20616c6976653d300a746573745f6d6f64756c655f61727261795f737761705f6c65616b3a20414c4c20504153530a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_module_array_swap_leak.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-2--O2-default-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f6d6f64756c655f61727261795f737761705f6c65616b2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a207479706520605f5f736e5f636f6e63757272656e6379305f43656c6c602073686f756c64206861766520616e2075707065722063616d656c2063617365206e616d650a202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353236322f6d61696e2e72733a383a380a20207c0a38207c20737472756374205f5f736e5f636f6e63757272656e6379305f43656c6c3c543e207b0a20207c20202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e2068656c703a20636f6e7665727420746865206964656e74696669657220746f2075707065722063616d656c20636173653a2060536e436f6e63757272656e63793043656c6c600a20207c0a20203d206e6f74653a2060235b7761726e286e6f6e5f63616d656c5f636173655f7479706573295d60202870617274206f662060235b7761726e286e6f6e7374616e646172645f7374796c65295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353236322f6d61696e2e72733a3130313a31340a202020207c0a313031207c206d6163726f5f72756c657321207072696e74207b0a202020207c20202020202020202020202020205e5e5e5e5e0a202020207c0a202020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e746c6e600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353236322f6d61696e2e72733a3130353a31340a202020207c0a313035207c206d6163726f5f72756c657321207072696e746c6e207b0a202020207c20202020202020202020202020205e5e5e5e5e5e5e0a0a6572726f725b45303237375d3a20602a6d757420635f766f6964602063616e6e6f742062652073656e74206265747765656e207468726561647320736166656c790a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353236322f6d61696e2e72733a31383a34310a202020207c0a203138207c202e2e2e6c6f62616c5f6275666665723a207374643a3a73796e633a3a4c617a794c6f636b3c5f5f736e5f636f6e63757272656e6379305f43656c6c3c5665633c4974656d3e3e3e203d207374643a3a73796e633a3a4c617a794c6f636b3a3a6e6577287c7c205f5f736e5f636f6e63757272656e6379305f43656c6c3a3a6e657728766563215b5d29293b0a202020207c2020202020202020202020202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e20602a6d757420635f766f6964602063616e6e6f742062652073656e74206265747765656e207468726561647320736166656c790a202020207c0a202020203d2068656c703a2077697468696e20605665633c4974656d3e602c20746865207472616974206053656e6460206973206e6f7420696d706c656d656e74656420666f7220602a6d757420635f766f6964600a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e2074686520747970652060546167600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353236322f6d61696e2e72733a3335363a380a202020207c0a333536207c2073747275637420546167207b0a202020207c20202020202020205e5e5e0a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605068616e746f6d446174613c5461673e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f636f72652f7372632f6d61726b65722e72733a3831393a31320a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e2074686520747970652060616c6c6f633a3a7261775f7665633a3a5261775665633c5461673e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f616c6c6f632f7372632f7261775f7665632f6d6f642e72733a37333a31390a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605665633c5461673e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f616c6c6f632f7372632f7665632f6d6f642e72733a3433383a31320a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520604974656d600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353236322f6d61696e2e72733a3338373a380a202020207c0a333837207c20737472756374204974656d207b0a202020207c20202020202020205e5e5e5e0a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605068616e746f6d446174613c4974656d3e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f636f72652f7372632f6d61726b65722e72733a3831393a31320a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e2074686520747970652060616c6c6f633a3a7261775f7665633a3a5261775665633c4974656d3e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f616c6c6f632f7372632f7261775f7665632f6d6f642e72733a37333a31390a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605665633c4974656d3e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f616c6c6f632f7372632f7665632f6d6f642e72733a3433383a31320a202020203d206e6f74653a20726571756972656420666f7220607374643a3a73796e633a3a4d757465783c5665633c4974656d3e3e6020746f20696d706c656d656e74206053796e63600a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605f5f736e5f636f6e63757272656e6379305f43656c6c3c5665633c4974656d3e3e600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353236322f6d61696e2e72733a383a380a202020207c0a202038207c20737472756374205f5f736e5f636f6e63757272656e6379305f43656c6c3c543e207b0a202020207c20202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e0a202020203d206e6f74653a20726571756972656420666f7220604c617a794c6f636b3c5f5f736e5f636f6e63757272656e6379305f43656c6c3c5665633c4974656d3e3e3e6020746f20696d706c656d656e74206053796e63600a202020203d206e6f74653a2073686172656420737461746963207661726961626c6573206d757374206861766520612074797065207468617420696d706c656d656e7473206053796e63600a0a6572726f723a2061626f7274696e672064756520746f20312070726576696f7573206572726f723b2033207761726e696e677320656d69747465640a0a466f72206d6f726520696e666f726d6174696f6e2061626f75742074686973206572726f722c2074727920607275737463202d2d6578706c61696e204530323737602e0a4572726f723a207275737463206661696c656420746f206c696e6b2067656e657261746564205275737420616e64206e61746976652043206f626a656374730a201b5b313b33316d6661696c65641b5b306d0a0a1b5b313b33316d436f6d70696c6174696f6e206661696c65641b5b306d0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/integration/test_module_array_swap_leak.sn",
+      "source_sha256": "e9485d7a3fc801ae45b043c2c678e801e6c25cc7bd118d347dc393fc28bfdb91",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_module_array_swap_leak.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-2--O0-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f6d6f64756c655f61727261795f737761705f6c65616b2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d7a6c7537667165362f636173652d322d2d4f302d636865636b65642d632e657865202837312e39204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-zlu7fqe6/case-2--O0-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "6265666f726520666c7573683a20616c6976653d340a616674657220666c7573683a20636f756e743d3220616c6976653d300a746573745f73657061726174655f73636f7065733a20504153530a6166746572203520726f756e64733a20616c6976653d300a746573745f72657065617465645f666c7573683a20504153530a746573745f6d697865645f656d7074793a20504153530a6265666f726520726561737369676e3a20616c6976653d320a616674657220726561737369676e3a20616c6976653d300a746573745f6469726563745f726561737369676e3a20504153530a61667465722073616d652d73636f706520666c7573683a20616c6976653d310a66696e616c3a20616c6976653d300a746573745f6d6f64756c655f61727261795f737761705f6c65616b3a20414c4c20504153530a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_module_array_swap_leak.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-2--O0-checked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f6d6f64756c655f61727261795f737761705f6c65616b2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a207479706520605f5f736e5f636f6e63757272656e6379305f43656c6c602073686f756c64206861766520616e2075707065722063616d656c2063617365206e616d650a202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353333362f6d61696e2e72733a383a380a20207c0a38207c20737472756374205f5f736e5f636f6e63757272656e6379305f43656c6c3c543e207b0a20207c20202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e2068656c703a20636f6e7665727420746865206964656e74696669657220746f2075707065722063616d656c20636173653a2060536e436f6e63757272656e63793043656c6c600a20207c0a20203d206e6f74653a2060235b7761726e286e6f6e5f63616d656c5f636173655f7479706573295d60202870617274206f662060235b7761726e286e6f6e7374616e646172645f7374796c65295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353333362f6d61696e2e72733a3130313a31340a202020207c0a313031207c206d6163726f5f72756c657321207072696e74207b0a202020207c20202020202020202020202020205e5e5e5e5e0a202020207c0a202020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e746c6e600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353333362f6d61696e2e72733a3130353a31340a202020207c0a313035207c206d6163726f5f72756c657321207072696e746c6e207b0a202020207c20202020202020202020202020205e5e5e5e5e5e5e0a0a6572726f725b45303237375d3a20602a6d757420635f766f6964602063616e6e6f742062652073656e74206265747765656e207468726561647320736166656c790a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353333362f6d61696e2e72733a31383a34310a202020207c0a203138207c202e2e2e6c6f62616c5f6275666665723a207374643a3a73796e633a3a4c617a794c6f636b3c5f5f736e5f636f6e63757272656e6379305f43656c6c3c5665633c4974656d3e3e3e203d207374643a3a73796e633a3a4c617a794c6f636b3a3a6e6577287c7c205f5f736e5f636f6e63757272656e6379305f43656c6c3a3a6e657728766563215b5d29293b0a202020207c2020202020202020202020202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e20602a6d757420635f766f6964602063616e6e6f742062652073656e74206265747765656e207468726561647320736166656c790a202020207c0a202020203d2068656c703a2077697468696e20605665633c4974656d3e602c20746865207472616974206053656e6460206973206e6f7420696d706c656d656e74656420666f7220602a6d757420635f766f6964600a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e2074686520747970652060546167600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353333362f6d61696e2e72733a3338343a380a202020207c0a333834207c2073747275637420546167207b0a202020207c20202020202020205e5e5e0a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605068616e746f6d446174613c5461673e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f636f72652f7372632f6d61726b65722e72733a3831393a31320a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e2074686520747970652060616c6c6f633a3a7261775f7665633a3a5261775665633c5461673e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f616c6c6f632f7372632f7261775f7665632f6d6f642e72733a37333a31390a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605665633c5461673e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f616c6c6f632f7372632f7665632f6d6f642e72733a3433383a31320a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520604974656d600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353333362f6d61696e2e72733a3431353a380a202020207c0a343135207c20737472756374204974656d207b0a202020207c20202020202020205e5e5e5e0a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605068616e746f6d446174613c4974656d3e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f636f72652f7372632f6d61726b65722e72733a3831393a31320a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e2074686520747970652060616c6c6f633a3a7261775f7665633a3a5261775665633c4974656d3e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f616c6c6f632f7372632f7261775f7665632f6d6f642e72733a37333a31390a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605665633c4974656d3e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f616c6c6f632f7372632f7665632f6d6f642e72733a3433383a31320a202020203d206e6f74653a20726571756972656420666f7220607374643a3a73796e633a3a4d757465783c5665633c4974656d3e3e6020746f20696d706c656d656e74206053796e63600a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605f5f736e5f636f6e63757272656e6379305f43656c6c3c5665633c4974656d3e3e600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353333362f6d61696e2e72733a383a380a202020207c0a202038207c20737472756374205f5f736e5f636f6e63757272656e6379305f43656c6c3c543e207b0a202020207c20202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e0a202020203d206e6f74653a20726571756972656420666f7220604c617a794c6f636b3c5f5f736e5f636f6e63757272656e6379305f43656c6c3c5665633c4974656d3e3e3e6020746f20696d706c656d656e74206053796e63600a202020203d206e6f74653a2073686172656420737461746963207661726961626c6573206d757374206861766520612074797065207468617420696d706c656d656e7473206053796e63600a0a6572726f723a2061626f7274696e672064756520746f20312070726576696f7573206572726f723b2033207761726e696e677320656d69747465640a0a466f72206d6f726520696e666f726d6174696f6e2061626f75742074686973206572726f722c2074727920607275737463202d2d6578706c61696e204530323737602e0a4572726f723a207275737463206661696c656420746f206c696e6b2067656e657261746564205275737420616e64206e61746976652043206f626a656374730a201b5b313b33316d6661696c65641b5b306d0a0a1b5b313b33316d436f6d70696c6174696f6e206661696c65641b5b306d0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/integration/test_module_array_swap_leak.sn",
+      "source_sha256": "e9485d7a3fc801ae45b043c2c678e801e6c25cc7bd118d347dc393fc28bfdb91",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_module_array_swap_leak.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-2--O1-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f6d6f64756c655f61727261795f737761705f6c65616b2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d7a6c7537667165362f636173652d322d2d4f312d636865636b65642d632e657865202837312e39204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-zlu7fqe6/case-2--O1-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "6265666f726520666c7573683a20616c6976653d340a616674657220666c7573683a20636f756e743d3220616c6976653d300a746573745f73657061726174655f73636f7065733a20504153530a6166746572203520726f756e64733a20616c6976653d300a746573745f72657065617465645f666c7573683a20504153530a746573745f6d697865645f656d7074793a20504153530a6265666f726520726561737369676e3a20616c6976653d320a616674657220726561737369676e3a20616c6976653d300a746573745f6469726563745f726561737369676e3a20504153530a61667465722073616d652d73636f706520666c7573683a20616c6976653d310a66696e616c3a20616c6976653d300a746573745f6d6f64756c655f61727261795f737761705f6c65616b3a20414c4c20504153530a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_module_array_swap_leak.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-2--O1-checked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f6d6f64756c655f61727261795f737761705f6c65616b2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a207479706520605f5f736e5f636f6e63757272656e6379305f43656c6c602073686f756c64206861766520616e2075707065722063616d656c2063617365206e616d650a202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353433342f6d61696e2e72733a383a380a20207c0a38207c20737472756374205f5f736e5f636f6e63757272656e6379305f43656c6c3c543e207b0a20207c20202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e2068656c703a20636f6e7665727420746865206964656e74696669657220746f2075707065722063616d656c20636173653a2060536e436f6e63757272656e63793043656c6c600a20207c0a20203d206e6f74653a2060235b7761726e286e6f6e5f63616d656c5f636173655f7479706573295d60202870617274206f662060235b7761726e286e6f6e7374616e646172645f7374796c65295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353433342f6d61696e2e72733a3130313a31340a202020207c0a313031207c206d6163726f5f72756c657321207072696e74207b0a202020207c20202020202020202020202020205e5e5e5e5e0a202020207c0a202020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e746c6e600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353433342f6d61696e2e72733a3130353a31340a202020207c0a313035207c206d6163726f5f72756c657321207072696e746c6e207b0a202020207c20202020202020202020202020205e5e5e5e5e5e5e0a0a6572726f725b45303237375d3a20602a6d757420635f766f6964602063616e6e6f742062652073656e74206265747765656e207468726561647320736166656c790a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353433342f6d61696e2e72733a31383a34310a202020207c0a203138207c202e2e2e6c6f62616c5f6275666665723a207374643a3a73796e633a3a4c617a794c6f636b3c5f5f736e5f636f6e63757272656e6379305f43656c6c3c5665633c4974656d3e3e3e203d207374643a3a73796e633a3a4c617a794c6f636b3a3a6e6577287c7c205f5f736e5f636f6e63757272656e6379305f43656c6c3a3a6e657728766563215b5d29293b0a202020207c2020202020202020202020202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e20602a6d757420635f766f6964602063616e6e6f742062652073656e74206265747765656e207468726561647320736166656c790a202020207c0a202020203d2068656c703a2077697468696e20605665633c4974656d3e602c20746865207472616974206053656e6460206973206e6f7420696d706c656d656e74656420666f7220602a6d757420635f766f6964600a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e2074686520747970652060546167600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353433342f6d61696e2e72733a3338343a380a202020207c0a333834207c2073747275637420546167207b0a202020207c20202020202020205e5e5e0a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605068616e746f6d446174613c5461673e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f636f72652f7372632f6d61726b65722e72733a3831393a31320a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e2074686520747970652060616c6c6f633a3a7261775f7665633a3a5261775665633c5461673e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f616c6c6f632f7372632f7261775f7665632f6d6f642e72733a37333a31390a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605665633c5461673e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f616c6c6f632f7372632f7665632f6d6f642e72733a3433383a31320a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520604974656d600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353433342f6d61696e2e72733a3431353a380a202020207c0a343135207c20737472756374204974656d207b0a202020207c20202020202020205e5e5e5e0a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605068616e746f6d446174613c4974656d3e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f636f72652f7372632f6d61726b65722e72733a3831393a31320a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e2074686520747970652060616c6c6f633a3a7261775f7665633a3a5261775665633c4974656d3e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f616c6c6f632f7372632f7261775f7665632f6d6f642e72733a37333a31390a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605665633c4974656d3e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f616c6c6f632f7372632f7665632f6d6f642e72733a3433383a31320a202020203d206e6f74653a20726571756972656420666f7220607374643a3a73796e633a3a4d757465783c5665633c4974656d3e3e6020746f20696d706c656d656e74206053796e63600a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605f5f736e5f636f6e63757272656e6379305f43656c6c3c5665633c4974656d3e3e600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353433342f6d61696e2e72733a383a380a202020207c0a202038207c20737472756374205f5f736e5f636f6e63757272656e6379305f43656c6c3c543e207b0a202020207c20202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e0a202020203d206e6f74653a20726571756972656420666f7220604c617a794c6f636b3c5f5f736e5f636f6e63757272656e6379305f43656c6c3c5665633c4974656d3e3e3e6020746f20696d706c656d656e74206053796e63600a202020203d206e6f74653a2073686172656420737461746963207661726961626c6573206d757374206861766520612074797065207468617420696d706c656d656e7473206053796e63600a0a6572726f723a2061626f7274696e672064756520746f20312070726576696f7573206572726f723b2033207761726e696e677320656d69747465640a0a466f72206d6f726520696e666f726d6174696f6e2061626f75742074686973206572726f722c2074727920607275737463202d2d6578706c61696e204530323737602e0a4572726f723a207275737463206661696c656420746f206c696e6b2067656e657261746564205275737420616e64206e61746976652043206f626a656374730a201b5b313b33316d6661696c65641b5b306d0a0a1b5b313b33316d436f6d70696c6174696f6e206661696c65641b5b306d0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/integration/test_module_array_swap_leak.sn",
+      "source_sha256": "e9485d7a3fc801ae45b043c2c678e801e6c25cc7bd118d347dc393fc28bfdb91",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_module_array_swap_leak.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-2--O2-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f6d6f64756c655f61727261795f737761705f6c65616b2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d7a6c7537667165362f636173652d322d2d4f322d636865636b65642d632e657865202837312e39204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-zlu7fqe6/case-2--O2-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "6265666f726520666c7573683a20616c6976653d340a616674657220666c7573683a20636f756e743d3220616c6976653d300a746573745f73657061726174655f73636f7065733a20504153530a6166746572203520726f756e64733a20616c6976653d300a746573745f72657065617465645f666c7573683a20504153530a746573745f6d697865645f656d7074793a20504153530a6265666f726520726561737369676e3a20616c6976653d320a616674657220726561737369676e3a20616c6976653d300a746573745f6469726563745f726561737369676e3a20504153530a61667465722073616d652d73636f706520666c7573683a20616c6976653d310a66696e616c3a20616c6976653d300a746573745f6d6f64756c655f61727261795f737761705f6c65616b3a20414c4c20504153530a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_module_array_swap_leak.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-2--O2-checked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f6d6f64756c655f61727261795f737761705f6c65616b2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a207479706520605f5f736e5f636f6e63757272656e6379305f43656c6c602073686f756c64206861766520616e2075707065722063616d656c2063617365206e616d650a202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353530372f6d61696e2e72733a383a380a20207c0a38207c20737472756374205f5f736e5f636f6e63757272656e6379305f43656c6c3c543e207b0a20207c20202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e2068656c703a20636f6e7665727420746865206964656e74696669657220746f2075707065722063616d656c20636173653a2060536e436f6e63757272656e63793043656c6c600a20207c0a20203d206e6f74653a2060235b7761726e286e6f6e5f63616d656c5f636173655f7479706573295d60202870617274206f662060235b7761726e286e6f6e7374616e646172645f7374796c65295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353530372f6d61696e2e72733a3130313a31340a202020207c0a313031207c206d6163726f5f72756c657321207072696e74207b0a202020207c20202020202020202020202020205e5e5e5e5e0a202020207c0a202020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e746c6e600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353530372f6d61696e2e72733a3130353a31340a202020207c0a313035207c206d6163726f5f72756c657321207072696e746c6e207b0a202020207c20202020202020202020202020205e5e5e5e5e5e5e0a0a6572726f725b45303237375d3a20602a6d757420635f766f6964602063616e6e6f742062652073656e74206265747765656e207468726561647320736166656c790a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353530372f6d61696e2e72733a31383a34310a202020207c0a203138207c202e2e2e6c6f62616c5f6275666665723a207374643a3a73796e633a3a4c617a794c6f636b3c5f5f736e5f636f6e63757272656e6379305f43656c6c3c5665633c4974656d3e3e3e203d207374643a3a73796e633a3a4c617a794c6f636b3a3a6e6577287c7c205f5f736e5f636f6e63757272656e6379305f43656c6c3a3a6e657728766563215b5d29293b0a202020207c2020202020202020202020202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e20602a6d757420635f766f6964602063616e6e6f742062652073656e74206265747765656e207468726561647320736166656c790a202020207c0a202020203d2068656c703a2077697468696e20605665633c4974656d3e602c20746865207472616974206053656e6460206973206e6f7420696d706c656d656e74656420666f7220602a6d757420635f766f6964600a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e2074686520747970652060546167600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353530372f6d61696e2e72733a3338343a380a202020207c0a333834207c2073747275637420546167207b0a202020207c20202020202020205e5e5e0a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605068616e746f6d446174613c5461673e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f636f72652f7372632f6d61726b65722e72733a3831393a31320a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e2074686520747970652060616c6c6f633a3a7261775f7665633a3a5261775665633c5461673e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f616c6c6f632f7372632f7261775f7665632f6d6f642e72733a37333a31390a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605665633c5461673e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f616c6c6f632f7372632f7665632f6d6f642e72733a3433383a31320a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520604974656d600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353530372f6d61696e2e72733a3431353a380a202020207c0a343135207c20737472756374204974656d207b0a202020207c20202020202020205e5e5e5e0a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605068616e746f6d446174613c4974656d3e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f636f72652f7372632f6d61726b65722e72733a3831393a31320a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e2074686520747970652060616c6c6f633a3a7261775f7665633a3a5261775665633c4974656d3e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f616c6c6f632f7372632f7261775f7665632f6d6f642e72733a37333a31390a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605665633c4974656d3e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f616c6c6f632f7372632f7665632f6d6f642e72733a3433383a31320a202020203d206e6f74653a20726571756972656420666f7220607374643a3a73796e633a3a4d757465783c5665633c4974656d3e3e6020746f20696d706c656d656e74206053796e63600a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605f5f736e5f636f6e63757272656e6379305f43656c6c3c5665633c4974656d3e3e600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353530372f6d61696e2e72733a383a380a202020207c0a202038207c20737472756374205f5f736e5f636f6e63757272656e6379305f43656c6c3c543e207b0a202020207c20202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e0a202020203d206e6f74653a20726571756972656420666f7220604c617a794c6f636b3c5f5f736e5f636f6e63757272656e6379305f43656c6c3c5665633c4974656d3e3e3e6020746f20696d706c656d656e74206053796e63600a202020203d206e6f74653a2073686172656420737461746963207661726961626c6573206d757374206861766520612074797065207468617420696d706c656d656e7473206053796e63600a0a6572726f723a2061626f7274696e672064756520746f20312070726576696f7573206572726f723b2033207761726e696e677320656d69747465640a0a466f72206d6f726520696e666f726d6174696f6e2061626f75742074686973206572726f722c2074727920607275737463202d2d6578706c61696e204530323737602e0a4572726f723a207275737463206661696c656420746f206c696e6b2067656e657261746564205275737420616e64206e61746976652043206f626a656374730a201b5b313b33316d6661696c65641b5b306d0a0a1b5b313b33316d436f6d70696c6174696f6e206661696c65641b5b306d0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/integration/test_module_array_swap_leak.sn",
+      "source_sha256": "e9485d7a3fc801ae45b043c2c678e801e6c25cc7bd118d347dc393fc28bfdb91",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_module_array_swap_leak.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-2--O0-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f6d6f64756c655f61727261795f737761705f6c65616b2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d7a6c7537667165362f636173652d322d2d4f302d756e636865636b65642d632e657865202837312e39204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-zlu7fqe6/case-2--O0-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "6265666f726520666c7573683a20616c6976653d340a616674657220666c7573683a20636f756e743d3220616c6976653d300a746573745f73657061726174655f73636f7065733a20504153530a6166746572203520726f756e64733a20616c6976653d300a746573745f72657065617465645f666c7573683a20504153530a746573745f6d697865645f656d7074793a20504153530a6265666f726520726561737369676e3a20616c6976653d320a616674657220726561737369676e3a20616c6976653d300a746573745f6469726563745f726561737369676e3a20504153530a61667465722073616d652d73636f706520666c7573683a20616c6976653d310a66696e616c3a20616c6976653d300a746573745f6d6f64756c655f61727261795f737761705f6c65616b3a20414c4c20504153530a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_module_array_swap_leak.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-2--O0-unchecked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f6d6f64756c655f61727261795f737761705f6c65616b2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a207479706520605f5f736e5f636f6e63757272656e6379305f43656c6c602073686f756c64206861766520616e2075707065722063616d656c2063617365206e616d650a202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353538302f6d61696e2e72733a383a380a20207c0a38207c20737472756374205f5f736e5f636f6e63757272656e6379305f43656c6c3c543e207b0a20207c20202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e2068656c703a20636f6e7665727420746865206964656e74696669657220746f2075707065722063616d656c20636173653a2060536e436f6e63757272656e63793043656c6c600a20207c0a20203d206e6f74653a2060235b7761726e286e6f6e5f63616d656c5f636173655f7479706573295d60202870617274206f662060235b7761726e286e6f6e7374616e646172645f7374796c65295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353538302f6d61696e2e72733a3130313a31340a202020207c0a313031207c206d6163726f5f72756c657321207072696e74207b0a202020207c20202020202020202020202020205e5e5e5e5e0a202020207c0a202020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e746c6e600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353538302f6d61696e2e72733a3130353a31340a202020207c0a313035207c206d6163726f5f72756c657321207072696e746c6e207b0a202020207c20202020202020202020202020205e5e5e5e5e5e5e0a0a6572726f725b45303237375d3a20602a6d757420635f766f6964602063616e6e6f742062652073656e74206265747765656e207468726561647320736166656c790a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353538302f6d61696e2e72733a31383a34310a202020207c0a203138207c202e2e2e6c6f62616c5f6275666665723a207374643a3a73796e633a3a4c617a794c6f636b3c5f5f736e5f636f6e63757272656e6379305f43656c6c3c5665633c4974656d3e3e3e203d207374643a3a73796e633a3a4c617a794c6f636b3a3a6e6577287c7c205f5f736e5f636f6e63757272656e6379305f43656c6c3a3a6e657728766563215b5d29293b0a202020207c2020202020202020202020202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e20602a6d757420635f766f6964602063616e6e6f742062652073656e74206265747765656e207468726561647320736166656c790a202020207c0a202020203d2068656c703a2077697468696e20605665633c4974656d3e602c20746865207472616974206053656e6460206973206e6f7420696d706c656d656e74656420666f7220602a6d757420635f766f6964600a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e2074686520747970652060546167600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353538302f6d61696e2e72733a3335363a380a202020207c0a333536207c2073747275637420546167207b0a202020207c20202020202020205e5e5e0a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605068616e746f6d446174613c5461673e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f636f72652f7372632f6d61726b65722e72733a3831393a31320a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e2074686520747970652060616c6c6f633a3a7261775f7665633a3a5261775665633c5461673e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f616c6c6f632f7372632f7261775f7665632f6d6f642e72733a37333a31390a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605665633c5461673e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f616c6c6f632f7372632f7665632f6d6f642e72733a3433383a31320a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520604974656d600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353538302f6d61696e2e72733a3338373a380a202020207c0a333837207c20737472756374204974656d207b0a202020207c20202020202020205e5e5e5e0a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605068616e746f6d446174613c4974656d3e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f636f72652f7372632f6d61726b65722e72733a3831393a31320a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e2074686520747970652060616c6c6f633a3a7261775f7665633a3a5261775665633c4974656d3e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f616c6c6f632f7372632f7261775f7665632f6d6f642e72733a37333a31390a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605665633c4974656d3e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f616c6c6f632f7372632f7665632f6d6f642e72733a3433383a31320a202020203d206e6f74653a20726571756972656420666f7220607374643a3a73796e633a3a4d757465783c5665633c4974656d3e3e6020746f20696d706c656d656e74206053796e63600a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605f5f736e5f636f6e63757272656e6379305f43656c6c3c5665633c4974656d3e3e600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353538302f6d61696e2e72733a383a380a202020207c0a202038207c20737472756374205f5f736e5f636f6e63757272656e6379305f43656c6c3c543e207b0a202020207c20202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e0a202020203d206e6f74653a20726571756972656420666f7220604c617a794c6f636b3c5f5f736e5f636f6e63757272656e6379305f43656c6c3c5665633c4974656d3e3e3e6020746f20696d706c656d656e74206053796e63600a202020203d206e6f74653a2073686172656420737461746963207661726961626c6573206d757374206861766520612074797065207468617420696d706c656d656e7473206053796e63600a0a6572726f723a2061626f7274696e672064756520746f20312070726576696f7573206572726f723b2033207761726e696e677320656d69747465640a0a466f72206d6f726520696e666f726d6174696f6e2061626f75742074686973206572726f722c2074727920607275737463202d2d6578706c61696e204530323737602e0a4572726f723a207275737463206661696c656420746f206c696e6b2067656e657261746564205275737420616e64206e61746976652043206f626a656374730a201b5b313b33316d6661696c65641b5b306d0a0a1b5b313b33316d436f6d70696c6174696f6e206661696c65641b5b306d0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/integration/test_module_array_swap_leak.sn",
+      "source_sha256": "e9485d7a3fc801ae45b043c2c678e801e6c25cc7bd118d347dc393fc28bfdb91",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_module_array_swap_leak.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-2--O1-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f6d6f64756c655f61727261795f737761705f6c65616b2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d7a6c7537667165362f636173652d322d2d4f312d756e636865636b65642d632e657865202837312e39204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-zlu7fqe6/case-2--O1-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "6265666f726520666c7573683a20616c6976653d340a616674657220666c7573683a20636f756e743d3220616c6976653d300a746573745f73657061726174655f73636f7065733a20504153530a6166746572203520726f756e64733a20616c6976653d300a746573745f72657065617465645f666c7573683a20504153530a746573745f6d697865645f656d7074793a20504153530a6265666f726520726561737369676e3a20616c6976653d320a616674657220726561737369676e3a20616c6976653d300a746573745f6469726563745f726561737369676e3a20504153530a61667465722073616d652d73636f706520666c7573683a20616c6976653d310a66696e616c3a20616c6976653d300a746573745f6d6f64756c655f61727261795f737761705f6c65616b3a20414c4c20504153530a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_module_array_swap_leak.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-2--O1-unchecked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f6d6f64756c655f61727261795f737761705f6c65616b2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a207479706520605f5f736e5f636f6e63757272656e6379305f43656c6c602073686f756c64206861766520616e2075707065722063616d656c2063617365206e616d650a202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353635362f6d61696e2e72733a383a380a20207c0a38207c20737472756374205f5f736e5f636f6e63757272656e6379305f43656c6c3c543e207b0a20207c20202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e2068656c703a20636f6e7665727420746865206964656e74696669657220746f2075707065722063616d656c20636173653a2060536e436f6e63757272656e63793043656c6c600a20207c0a20203d206e6f74653a2060235b7761726e286e6f6e5f63616d656c5f636173655f7479706573295d60202870617274206f662060235b7761726e286e6f6e7374616e646172645f7374796c65295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353635362f6d61696e2e72733a3130313a31340a202020207c0a313031207c206d6163726f5f72756c657321207072696e74207b0a202020207c20202020202020202020202020205e5e5e5e5e0a202020207c0a202020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e746c6e600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353635362f6d61696e2e72733a3130353a31340a202020207c0a313035207c206d6163726f5f72756c657321207072696e746c6e207b0a202020207c20202020202020202020202020205e5e5e5e5e5e5e0a0a6572726f725b45303237375d3a20602a6d757420635f766f6964602063616e6e6f742062652073656e74206265747765656e207468726561647320736166656c790a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353635362f6d61696e2e72733a31383a34310a202020207c0a203138207c202e2e2e6c6f62616c5f6275666665723a207374643a3a73796e633a3a4c617a794c6f636b3c5f5f736e5f636f6e63757272656e6379305f43656c6c3c5665633c4974656d3e3e3e203d207374643a3a73796e633a3a4c617a794c6f636b3a3a6e6577287c7c205f5f736e5f636f6e63757272656e6379305f43656c6c3a3a6e657728766563215b5d29293b0a202020207c2020202020202020202020202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e20602a6d757420635f766f6964602063616e6e6f742062652073656e74206265747765656e207468726561647320736166656c790a202020207c0a202020203d2068656c703a2077697468696e20605665633c4974656d3e602c20746865207472616974206053656e6460206973206e6f7420696d706c656d656e74656420666f7220602a6d757420635f766f6964600a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e2074686520747970652060546167600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353635362f6d61696e2e72733a3335363a380a202020207c0a333536207c2073747275637420546167207b0a202020207c20202020202020205e5e5e0a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605068616e746f6d446174613c5461673e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f636f72652f7372632f6d61726b65722e72733a3831393a31320a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e2074686520747970652060616c6c6f633a3a7261775f7665633a3a5261775665633c5461673e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f616c6c6f632f7372632f7261775f7665632f6d6f642e72733a37333a31390a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605665633c5461673e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f616c6c6f632f7372632f7665632f6d6f642e72733a3433383a31320a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520604974656d600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353635362f6d61696e2e72733a3338373a380a202020207c0a333837207c20737472756374204974656d207b0a202020207c20202020202020205e5e5e5e0a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605068616e746f6d446174613c4974656d3e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f636f72652f7372632f6d61726b65722e72733a3831393a31320a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e2074686520747970652060616c6c6f633a3a7261775f7665633a3a5261775665633c4974656d3e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f616c6c6f632f7372632f7261775f7665632f6d6f642e72733a37333a31390a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605665633c4974656d3e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f616c6c6f632f7372632f7665632f6d6f642e72733a3433383a31320a202020203d206e6f74653a20726571756972656420666f7220607374643a3a73796e633a3a4d757465783c5665633c4974656d3e3e6020746f20696d706c656d656e74206053796e63600a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605f5f736e5f636f6e63757272656e6379305f43656c6c3c5665633c4974656d3e3e600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353635362f6d61696e2e72733a383a380a202020207c0a202038207c20737472756374205f5f736e5f636f6e63757272656e6379305f43656c6c3c543e207b0a202020207c20202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e0a202020203d206e6f74653a20726571756972656420666f7220604c617a794c6f636b3c5f5f736e5f636f6e63757272656e6379305f43656c6c3c5665633c4974656d3e3e3e6020746f20696d706c656d656e74206053796e63600a202020203d206e6f74653a2073686172656420737461746963207661726961626c6573206d757374206861766520612074797065207468617420696d706c656d656e7473206053796e63600a0a6572726f723a2061626f7274696e672064756520746f20312070726576696f7573206572726f723b2033207761726e696e677320656d69747465640a0a466f72206d6f726520696e666f726d6174696f6e2061626f75742074686973206572726f722c2074727920607275737463202d2d6578706c61696e204530323737602e0a4572726f723a207275737463206661696c656420746f206c696e6b2067656e657261746564205275737420616e64206e61746976652043206f626a656374730a201b5b313b33316d6661696c65641b5b306d0a0a1b5b313b33316d436f6d70696c6174696f6e206661696c65641b5b306d0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/integration/test_module_array_swap_leak.sn",
+      "source_sha256": "e9485d7a3fc801ae45b043c2c678e801e6c25cc7bd118d347dc393fc28bfdb91",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_module_array_swap_leak.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-2--O2-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f6d6f64756c655f61727261795f737761705f6c65616b2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d7a6c7537667165362f636173652d322d2d4f322d756e636865636b65642d632e657865202837312e39204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-zlu7fqe6/case-2--O2-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "6265666f726520666c7573683a20616c6976653d340a616674657220666c7573683a20636f756e743d3220616c6976653d300a746573745f73657061726174655f73636f7065733a20504153530a6166746572203520726f756e64733a20616c6976653d300a746573745f72657065617465645f666c7573683a20504153530a746573745f6d697865645f656d7074793a20504153530a6265666f726520726561737369676e3a20616c6976653d320a616674657220726561737369676e3a20616c6976653d300a746573745f6469726563745f726561737369676e3a20504153530a61667465722073616d652d73636f706520666c7573683a20616c6976653d310a66696e616c3a20616c6976653d300a746573745f6d6f64756c655f61727261795f737761705f6c65616b3a20414c4c20504153530a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-reference-handles-5e48abc8/bin/sn",
+              "tests/integration/test_module_array_swap_leak.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-zlu7fqe6/case-2--O2-unchecked-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f6d6f64756c655f61727261795f737761705f6c65616b2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a207479706520605f5f736e5f636f6e63757272656e6379305f43656c6c602073686f756c64206861766520616e2075707065722063616d656c2063617365206e616d650a202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353732392f6d61696e2e72733a383a380a20207c0a38207c20737472756374205f5f736e5f636f6e63757272656e6379305f43656c6c3c543e207b0a20207c20202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e2068656c703a20636f6e7665727420746865206964656e74696669657220746f2075707065722063616d656c20636173653a2060536e436f6e63757272656e63793043656c6c600a20207c0a20203d206e6f74653a2060235b7761726e286e6f6e5f63616d656c5f636173655f7479706573295d60202870617274206f662060235b7761726e286e6f6e7374616e646172645f7374796c65295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353732392f6d61696e2e72733a3130313a31340a202020207c0a313031207c206d6163726f5f72756c657321207072696e74207b0a202020207c20202020202020202020202020205e5e5e5e5e0a202020207c0a202020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e746c6e600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353732392f6d61696e2e72733a3130353a31340a202020207c0a313035207c206d6163726f5f72756c657321207072696e746c6e207b0a202020207c20202020202020202020202020205e5e5e5e5e5e5e0a0a6572726f725b45303237375d3a20602a6d757420635f766f6964602063616e6e6f742062652073656e74206265747765656e207468726561647320736166656c790a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353732392f6d61696e2e72733a31383a34310a202020207c0a203138207c202e2e2e6c6f62616c5f6275666665723a207374643a3a73796e633a3a4c617a794c6f636b3c5f5f736e5f636f6e63757272656e6379305f43656c6c3c5665633c4974656d3e3e3e203d207374643a3a73796e633a3a4c617a794c6f636b3a3a6e6577287c7c205f5f736e5f636f6e63757272656e6379305f43656c6c3a3a6e657728766563215b5d29293b0a202020207c2020202020202020202020202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e20602a6d757420635f766f6964602063616e6e6f742062652073656e74206265747765656e207468726561647320736166656c790a202020207c0a202020203d2068656c703a2077697468696e20605665633c4974656d3e602c20746865207472616974206053656e6460206973206e6f7420696d706c656d656e74656420666f7220602a6d757420635f766f6964600a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e2074686520747970652060546167600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353732392f6d61696e2e72733a3335363a380a202020207c0a333536207c2073747275637420546167207b0a202020207c20202020202020205e5e5e0a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605068616e746f6d446174613c5461673e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f636f72652f7372632f6d61726b65722e72733a3831393a31320a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e2074686520747970652060616c6c6f633a3a7261775f7665633a3a5261775665633c5461673e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f616c6c6f632f7372632f7261775f7665632f6d6f642e72733a37333a31390a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605665633c5461673e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f616c6c6f632f7372632f7665632f6d6f642e72733a3433383a31320a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520604974656d600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353732392f6d61696e2e72733a3338373a380a202020207c0a333837207c20737472756374204974656d207b0a202020207c20202020202020205e5e5e5e0a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605068616e746f6d446174613c4974656d3e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f636f72652f7372632f6d61726b65722e72733a3831393a31320a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e2074686520747970652060616c6c6f633a3a7261775f7665633a3a5261775665633c4974656d3e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f616c6c6f632f7372632f7261775f7665632f6d6f642e72733a37333a31390a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605665633c4974656d3e600a2020202d2d3e202f72757374632f303166366464663735383866343261653264376562306132663231643434653865393636373463662f6c6962726172792f616c6c6f632f7372632f7665632f6d6f642e72733a3433383a31320a202020203d206e6f74653a20726571756972656420666f7220607374643a3a73796e633a3a4d757465783c5665633c4974656d3e3e6020746f20696d706c656d656e74206053796e63600a6e6f74653a207265717569726564206265636175736520697420617070656172732077697468696e20746865207479706520605f5f736e5f636f6e63757272656e6379305f43656c6c3c5665633c4974656d3e3e600a2020202d2d3e202e736e2f6275696c642f727573742f746573745f6d6f64756c655f61727261795f737761705f6c65616b5f3438353732392f6d61696e2e72733a383a380a202020207c0a202038207c20737472756374205f5f736e5f636f6e63757272656e6379305f43656c6c3c543e207b0a202020207c20202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e0a202020203d206e6f74653a20726571756972656420666f7220604c617a794c6f636b3c5f5f736e5f636f6e63757272656e6379305f43656c6c3c5665633c4974656d3e3e3e6020746f20696d706c656d656e74206053796e63600a202020203d206e6f74653a2073686172656420737461746963207661726961626c6573206d757374206861766520612074797065207468617420696d706c656d656e7473206053796e63600a0a6572726f723a2061626f7274696e672064756520746f20312070726576696f7573206572726f723b2033207761726e696e677320656d69747465640a0a466f72206d6f726520696e666f726d6174696f6e2061626f75742074686973206572726f722c2074727920607275737463202d2d6578706c61696e204530323737602e0a4572726f723a207275737463206661696c656420746f206c696e6b2067656e657261746564205275737420616e64206e61746976652043206f626a656374730a201b5b313b33316d6661696c65641b5b306d0a0a1b5b313b33316d436f6d70696c6174696f6e206661696c65641b5b306d0a"
+          }
+        }
+      },
+      "passed": false
+    }
+  ],
+  "passed": false,
+  "independent_C_oracle_cases": 27,
+  "state": "Preserved originals: C matches frozen output in every mode; Rust has two native-array admission gaps and one opaque-handle global storage failure. No parity credit."
+}

@@ -48,10 +48,21 @@ receivers, native scalar field reads, and borrowed/retained/fresh/nil results.
 Nine unchanged originals and four ownership controls pass 117 frozen all-mode
 C/Rust comparisons and 234 ASAN/UBSAN/leak controls locally. This supersedes
 historical blanket native reference-record/method exclusions for the verified
-contexts. Native arrays/global handle storage, managed native record parameters,
-callbacks, field stores, constructors and broader ownership contracts remain
-required work. The completion ledger distinguishes local acceptance from hosted
-verification and retains the remaining full goal.
+contexts. Its exact published revision now has verified Linux/macOS/Windows
+acceptance. Managed native record parameters, callbacks, field stores,
+constructors and broader ownership contracts remain required work.
+
+The subsequent native-reference array increment preserves the actual C header,
+data and element callbacks across native default parameters, mutation, copies,
+slices, concatenation and cleanup. Borrowed record arguments survive later array
+reallocation without an extra owner; foreach follows C's cached length/current
+data and declaration temporaries match C's scope. Two unchanged originals and
+one ownership control pass 27 frozen all-mode comparisons; 117 native-handle
+preservation cases and 288 instrumented target executions pass locally.
+Global/thread storage, other native array element families, qualifiers,
+sized/nested arrays and broader ownership/evaluation composition remain required.
+The completion ledger distinguishes local acceptance from the required hosted
+verification and retains the full goal and all 24 remaining original gaps.
 
 **Status (2026-09-05):** PR #111 landed at `bdb0d167930210a41ed792038f044a327bfd8575` (bounded exact-`str` match results and canonical string-byte corrections); PR #112 landed at `e64ed9b84bcf7847a2e949ecdc79429b00909016` (supported expression prefixes in value-match arms). PR #113 landed at `3f6d23c0d609a63865ea58f98e81f1951dba816b`, with ordered parents `e64ed9b84bcf7847a2e949ecdc79429b00909016` and `7249e7c1c3ff57c7f8f72abc488cb79754a0404a`, adding stable borrowed string patterns. This extraction branch is rebased onto that exact fetched `origin/main`. The behavior-preserving validator/lowering extraction is a prerequisite for separate resolved-call and closure/callback authors. It adds no admitted programs and claims no parity completion.
 C is the default target (`src/compiler.c:31` `options->target = TARGET_C`); Rust is opt-in via `--target rust` / `--emit-rust`.

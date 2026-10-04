@@ -92,17 +92,22 @@ static bool native_byte_array_type(json_object *type)
         strcmp(native_string(element_type, "kind"), "byte") == 0;
 }
 
+static bool native_handle_array_type(json_object *type)
+{
+    return native_bool(type, "rust_native_handle_array");
+}
+
 static bool native_result_type(json_object *type)
 {
     const char *kind = native_string(type, "kind");
-    return native_bool(type, "rust_native_reference_handle") || native_string(type, "rust_native_record_wire") || native_scalar_type(type, true) ||
+    return native_handle_array_type(type) || native_bool(type, "rust_native_reference_handle") || native_string(type, "rust_native_record_wire") || native_scalar_type(type, true) ||
         (kind && strcmp(kind, "string") == 0) || native_byte_array_type(type);
 }
 
 static bool native_parameter_type(json_object *type, const char *mem)
 {
     const char *kind = native_string(type, "kind");
-    if (native_bool(type, "rust_native_reference_handle"))
+    if (native_bool(type, "rust_native_reference_handle") || native_handle_array_type(type))
         return !mem || strcmp(mem, "default") == 0;
     if (mem && strcmp(mem, "as_ref") == 0)
         return native_string(type, "rust_native_record_wire") || (kind && native_scalar_kind(kind, false));
@@ -1369,9 +1374,10 @@ bool rust_native_partition_model(json_object *rust_model,
                     char_index++;
                 }
             }
-            bool handle_bridge = native_handle_type(native_record_child(function, "return_type"));
+            bool handle_bridge = native_handle_type(native_record_child(function, "return_type")) || native_handle_array_type(native_record_child(function, "return_type"));
             for (size_t p = 0; params && p < json_object_array_length(params); p++)
-                if (native_handle_type(native_record_child(json_object_array_get_idx(params, p), "type")))
+                if (native_handle_type(native_record_child(json_object_array_get_idx(params, p), "type")) ||
+                    native_handle_array_type(native_record_child(json_object_array_get_idx(params, p), "type")))
                     handle_bridge = true;
             if (handle_bridge)
                 json_object_object_add(function, "rust_native_handle_bridge", json_object_new_boolean(true));

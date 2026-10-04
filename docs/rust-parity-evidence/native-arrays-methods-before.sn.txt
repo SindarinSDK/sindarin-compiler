@@ -1,0 +1,17 @@
+@source "native_handle_arrays.sn.c"
+native struct Token as ref =>
+  id: int
+  @alias "token_dispose"
+  native fn dispose(): void
+native fn token_create(id: int): Token
+native fn token_alive(): int
+native fn token_refs(value: Token): int
+fn main(): void =>
+  var a: Token[] = {token_create(1), token_create(2)}
+  var b: Token[] = {token_create(3)}
+  var c: Token[] = a.concat(b)
+  c.reverse()
+  c.insert(token_create(4), 1)
+  c.remove(2)
+  var last: Token = c.pop()
+  println($"methods {len(c)} {c[0].id} {c[1].id} {last.id} {token_refs(last)} {token_alive()}")

@@ -87,6 +87,9 @@ bool rust_native_emit_support(RustNativePlan *plan, GeneratedFileSet *files,
         if (written < 0 || (size_t)written >= sizeof(template_dir)) return false;
         json_object *model = json_object_new_object();
         json_object_object_add(model, "handles", json_object_get(handles));
+        json_object *arrays = NULL;
+        if (json_object_object_get_ex(json_object_array_get_idx(handles, 0), "rust_native_handle_array_support", &arrays))
+            json_object_object_add(model, "arrays", json_object_get(arrays));
         char *code = render_with_helpers(model, template_dir,
             gen_model_get_min_c_register_fn(), "Rust native handles");
         json_object_put(model);

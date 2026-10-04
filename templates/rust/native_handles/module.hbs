@@ -1,5 +1,29 @@
 #include "sn_types.h"
+{{#with arrays}}
+void {{free}}(void *value) { sn_array_free((SnArray *)value); }
+void *{{copy}}(void *value) { return sn_array_copy((SnArray *)value); }
+long long {{length}}(void *value) { return value ? ((SnArray *)value)->len : 0; }
+void *{{data}}(void *value) { return value ? ((SnArray *)value)->data : NULL; }
+size_t {{width}}(void *value) { return value ? ((SnArray *)value)->elem_size : 0; }
+void {{push}}(void *value, const void *element) { sn_array_push((SnArray *)value, element); }
+void *{{pop}}(void *value) { return sn_array_pop_ref((SnArray *)value); }
+void {{insert}}(void *value, const void *element, long long index) { sn_array_insert((SnArray *)value, element, index); }
+void {{remove}}(void *value, long long index) { sn_array_remove((SnArray *)value, index); }
+void {{clear}}(void *value) { SnArray *array = value; __sn___clear(&array); }
+void {{reverse}}(void *value) { sn_array_reverse((SnArray *)value); }
+void *{{slice}}(void *value, long long start, long long end) { return sn_array_slice((SnArray *)value, start, end); }
+void *{{concat}}(void *left, void *right) { return sn_array_concat((SnArray *)left, (SnArray *)right); }
+{{/with}}
 {{#each handles}}
+{{#if rust_native_handle_array_new}}
+void *{{rust_native_handle_array_new}}(long long capacity) {
+    SnArray *value = sn_array_new(sizeof(__sn__{{name}} *), capacity);
+    value->elem_release = __sn__{{name}}_release_elem;
+    value->elem_copy = __sn__{{name}}_retain_into;
+    value->elem_tag = SN_TAG_STRUCT;
+    return value;
+}
+{{/if}}
 void {{rust_native_handle_retain}}(void *pointer) {
     __sn__{{name}}_retain((__sn__{{name}} *)pointer);
 }

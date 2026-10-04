@@ -1,0 +1,96 @@
+{{#with rust_native_handle_array_support}}
+// A native reference array keeps its C header, data and element callbacks.
+// Rust never asks C to realloc a Rust allocation or substitutes a copied header.
+unsafe trait {{rust_ident trait}}: Clone + PartialEq {
+    unsafe fn allocate_native_array(capacity: i64) -> *mut std::ffi::c_void;
+}
+extern "C" {
+    fn {{rust_ident free}}(value: *mut std::ffi::c_void);
+    fn {{rust_ident copy}}(value: *mut std::ffi::c_void) -> *mut std::ffi::c_void;
+    fn {{rust_ident length}}(value: *mut std::ffi::c_void) -> i64;
+    fn {{rust_ident data}}(value: *mut std::ffi::c_void) -> *mut std::ffi::c_void;
+    fn {{rust_ident width}}(value: *mut std::ffi::c_void) -> usize;
+    fn {{rust_ident push}}(value: *mut std::ffi::c_void, element: *const std::ffi::c_void);
+    fn {{rust_ident pop}}(value: *mut std::ffi::c_void) -> *mut std::ffi::c_void;
+    fn {{rust_ident insert}}(value: *mut std::ffi::c_void, element: *const std::ffi::c_void, index: i64);
+    fn {{rust_ident remove}}(value: *mut std::ffi::c_void, index: i64);
+    fn {{rust_ident clear}}(value: *mut std::ffi::c_void);
+    fn {{rust_ident reverse}}(value: *mut std::ffi::c_void);
+    fn {{rust_ident slice}}(value: *mut std::ffi::c_void, start: i64, end: i64) -> *mut std::ffi::c_void;
+    fn {{rust_ident concat}}(left: *mut std::ffi::c_void, right: *mut std::ffi::c_void) -> *mut std::ffi::c_void;
+}
+#[derive(Debug)]
+struct {{rust_ident type}}<T: {{rust_ident trait}}> {
+    pointer: *mut std::ffi::c_void,
+    element: std::marker::PhantomData<T>,
+}
+impl<T: {{rust_ident trait}}> {{rust_ident type}}<T> {
+    fn adopt(pointer: *mut std::ffi::c_void) -> Self { Self { pointer, element: std::marker::PhantomData } }
+    fn nil() -> Self { Self::adopt(std::ptr::null_mut()) }
+    fn new() -> Self { unsafe { Self::adopt(T::allocate_native_array(0)) } }
+    fn from_vec(values: Vec<T>) -> Self {
+        let mut result = unsafe { Self::adopt(T::allocate_native_array(i64::try_from(values.len()).expect("array length fits C"))) };
+        for value in values { result.push(value); }
+        result
+    }
+    fn is_nil(&self) -> bool { self.pointer.is_null() }
+    fn len(&self) -> usize { usize::try_from(unsafe { {{rust_ident length}}(self.pointer) }).expect("native array length is nonnegative") }
+    fn is_empty(&self) -> bool { self.len() == 0 }
+    fn as_slice(&self) -> &[T] {
+        let length = self.len();
+        if length == 0 { return &[]; }
+        unsafe {
+            assert_eq!({{rust_ident width}}(self.pointer), std::mem::size_of::<T>(), "native reference array element width");
+            std::slice::from_raw_parts({{rust_ident data}}(self.pointer).cast::<T>(), length)
+        }
+    }
+    fn as_mut_slice(&mut self) -> &mut [T] {
+        let length = self.len();
+        if length == 0 { return &mut []; }
+        unsafe {
+            assert_eq!({{rust_ident width}}(self.pointer), std::mem::size_of::<T>(), "native reference array element width");
+            std::slice::from_raw_parts_mut({{rust_ident data}}(self.pointer).cast::<T>(), length)
+        }
+    }
+    // C foreach caches length, but reloads the actual data after each body.
+    // A borrowed slot supplies no extra element owner, including after growth.
+    unsafe fn borrow_iteration_slot(&self, index: usize) -> std::mem::ManuallyDrop<T> {
+        std::mem::ManuallyDrop::new({{rust_ident data}}(self.pointer).cast::<T>().add(index).read())
+    }
+    fn push(&mut self, value: T) {
+        assert!(!self.is_nil(), "cannot push into a nil C array");
+        let value = std::mem::ManuallyDrop::new(value);
+        unsafe { {{rust_ident push}}(self.pointer, (&*value as *const T).cast()); }
+    }
+    fn insert(&mut self, index: usize, value: T) {
+        assert!(index <= self.len() && !self.is_nil(), "native array insert bounds");
+        let value = std::mem::ManuallyDrop::new(value);
+        unsafe { {{rust_ident insert}}(self.pointer, (&*value as *const T).cast(), index as i64); }
+    }
+    fn pop(&mut self) -> Option<T> {
+        if self.is_empty() { return None; }
+        unsafe { Some({{rust_ident pop}}(self.pointer).cast::<T>().read()) }
+    }
+    fn remove(&mut self, index: usize) { unsafe { {{rust_ident remove}}(self.pointer, index as i64); } }
+    fn clear(&mut self) { assert!(!self.is_nil(), "cannot clear a nil C array"); unsafe { {{rust_ident clear}}(self.pointer); } }
+    fn reverse(&mut self) { unsafe { {{rust_ident reverse}}(self.pointer); } }
+    fn slice_native(&self, start: i64, end: i64) -> Self { unsafe { Self::adopt({{rust_ident slice}}(self.pointer, start, end)) } }
+    fn concat_nullable(&self, other: &Self) -> Self { unsafe { Self::adopt({{rust_ident concat}}(self.pointer, other.pointer)) } }
+    fn extend<I: IntoIterator<Item = T>>(&mut self, values: I) { for value in values { self.push(value); } }
+}
+impl<T: {{rust_ident trait}}> Default for {{rust_ident type}}<T> { fn default() -> Self { Self::nil() } }
+impl<T: {{rust_ident trait}}> Clone for {{rust_ident type}}<T> { fn clone(&self) -> Self { unsafe { Self::adopt({{rust_ident copy}}(self.pointer)) } } }
+impl<T: {{rust_ident trait}}> Drop for {{rust_ident type}}<T> { fn drop(&mut self) { unsafe { {{rust_ident free}}(self.pointer); } } }
+impl<T: {{rust_ident trait}}> PartialEq for {{rust_ident type}}<T> {
+    fn eq(&self, other: &Self) -> bool { self.is_nil() == other.is_nil() && self.as_slice() == other.as_slice() }
+}
+impl<T: {{rust_ident trait}}> std::ops::Deref for {{rust_ident type}}<T> {
+    type Target = [T]; fn deref(&self) -> &[T] { self.as_slice() }
+}
+impl<T: {{rust_ident trait}}> std::ops::DerefMut for {{rust_ident type}}<T> {
+    fn deref_mut(&mut self) -> &mut [T] { self.as_mut_slice() }
+}
+impl<'a, T: {{rust_ident trait}}> IntoIterator for &'a {{rust_ident type}}<T> {
+    type Item = &'a T; type IntoIter = std::slice::Iter<'a, T>; fn into_iter(self) -> Self::IntoIter { self.as_slice().iter() }
+}
+{{/with}}

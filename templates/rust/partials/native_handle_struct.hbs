@@ -26,3 +26,9 @@ impl Drop for {{rust_ident name}} {
         unsafe { {{rust_ident rust_native_handle_release}}(self.{{rust_ident rust_native_handle_field}}); }
     }
 }
+{{#if rust_native_handle_array_new}}
+extern "C" { fn {{rust_ident rust_native_handle_array_new}}(capacity: i64) -> *mut std::ffi::c_void; }
+unsafe impl {{rust_ident rust_native_handle_array_support.trait}} for {{rust_ident name}} {
+    unsafe fn allocate_native_array(capacity: i64) -> *mut std::ffi::c_void { {{rust_ident rust_native_handle_array_new}}(capacity) }
+}
+{{/if}}

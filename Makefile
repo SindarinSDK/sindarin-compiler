@@ -902,3 +902,14 @@ test-rust-parity-native-handles: build
 		--arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-native-handles.json
 	@$(PYTHON) scripts/check_rust_native_handle_oracles.py .sn/rust-parity-native-handles.json
+
+# Canonical C native-reference arrays preserve identity, callbacks and mutations.
+.PHONY: test-rust-parity-native-arrays
+test-rust-parity-native-arrays: build
+	@$(PYTHON) scripts/check_rust_parity.py --compiler $(SN) --require-count 3 \
+		tests/integration/test_array_literal_arg_leak.sn \
+		tests/integration/test_self_method_forward_after_train.sn \
+		tests/rust-native/native_handle_arrays.sn \
+		--arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-native-arrays.json
+	@$(PYTHON) scripts/check_rust_native_array_oracles.py .sn/rust-parity-native-arrays.json

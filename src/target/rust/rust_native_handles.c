@@ -119,6 +119,8 @@ static bool native_handle_prepare_methods(json_object *model, json_object *handl
     return true;
 }
 
+#include "rust_native_handle_arrays.c"
+
 static bool native_prepare_handles(json_object *model, RustNativePlan *plan)
 {
     json_object *handles = json_object_new_array();
@@ -153,6 +155,7 @@ static bool native_prepare_handles(json_object *model, RustNativePlan *plan)
         if (!native_handle_prepare_methods(model, structure)) { json_object_put(handles); return false; }
     }
     native_handle_mark_types(model, handles);
+    if (!native_prepare_handle_arrays(model, handles)) { json_object_put(handles); return false; }
     plan->handles = json_object_get(handles);
     if (json_object_array_length(handles)) json_object_object_add(model, "rust_native_handles", handles);
     else json_object_put(handles);

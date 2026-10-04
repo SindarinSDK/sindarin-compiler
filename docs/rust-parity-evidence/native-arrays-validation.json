@@ -1,0 +1,437 @@
+{
+  "base_revision": "3fa0bc91d8c75923e34fe331bc511db10890edf4",
+  "compiler_sha256": "3b9f57a893a0af7e596b744c4d76a5d54c8afe63accae11fa04e6dfdc3dda6c0",
+  "state": "Complete local acceptance; unpublished candidate, Linux/macOS/Windows exact-revision CI acceptance required. Full parity goal remains active.",
+  "production_scope": "Native reference arrays keep canonical C SnArray header/data and metadata. Native default parameters borrow the original header, including duplicate aliases. Array construction, clone/slice/concat, push/pop/insert/remove/clear/reverse and cleanup use canonical C runtime helpers. Native-result arrays adopt owned headers. Native handle arguments snapshot borrowed pointers before later native reallocations. Native foreach caches initial length, reloads C data, borrows slots and retains owning aliases. Owning declaration arguments keep C-compatible enclosing-scope lifetimes. C remains default.",
+  "c_suites": [
+    1610,
+    107,
+    79,
+    1142,
+    58,
+    224,
+    11
+  ],
+  "rust_suites": [
+    491,
+    133,
+    8,
+    41,
+    1,
+    7,
+    36,
+    1,
+    10,
+    7,
+    1,
+    12
+  ],
+  "suite_failures": 0,
+  "suite_skips": 0,
+  "reports": [
+    {
+      "name": "core",
+      "cases": 30,
+      "report_sha256": "74498d9fd305362724cb25d50fc4710d2947d2e9e1333fe13a46d37a36c8288d"
+    },
+    {
+      "name": "concurrency",
+      "cases": 51,
+      "report_sha256": "8a939c76b4ae7e4163d44f90b17eb10f54931aa6e567f670fe6b67218cb8ebc5"
+    },
+    {
+      "name": "thread-ownership",
+      "cases": 207,
+      "report_sha256": "804605d9c9a47632408be6d855d195829fea866bc0ca942d29e889fdc5219d8b"
+    },
+    {
+      "name": "thread-receivers",
+      "cases": 90,
+      "report_sha256": "e69626f347c3fb874911dafe0156f5917e9d12ff34ef3b4fd9ba950fa7aa1467"
+    },
+    {
+      "name": "reflection",
+      "cases": 36,
+      "report_sha256": "3bd0c9709f7c28023dd5b851e033bdf21eae04ce07d3da5e50eac8100bf2e9fe"
+    },
+    {
+      "name": "sized-defaults",
+      "cases": 27,
+      "report_sha256": "f349f2e4d96f7084b12cb0fb20b9ff2f169956a9a73a85c74d76f8d8b76c29c5"
+    },
+    {
+      "name": "native-managed",
+      "cases": 63,
+      "report_sha256": "669a7572f0276f1cadb31229d7e231667577126de0e9de9cec8eaabdc8d9b9f6"
+    },
+    {
+      "name": "stdio-order",
+      "cases": 30,
+      "report_sha256": "7810f80bc6390b3e43d32f5c3916a22eb46e24ed853f600e905c0847b0efce05"
+    },
+    {
+      "name": "mixed-integral",
+      "cases": 90,
+      "report_sha256": "84d35597872fa6e59522d68b4edde866b27c7b903a8e3e8aac30146870830faa"
+    },
+    {
+      "name": "mixed-integral-diagnostics",
+      "cases": 9,
+      "report_sha256": "8cfdb874df95f9364995320255c96e604b936b4d330c7956ca4363d0c8d04174"
+    },
+    {
+      "name": "float-conversions",
+      "cases": 117,
+      "report_sha256": "4f2988a954e61fea5af723e0a4ad1c222b7bd30d5b1a2594bdd57f008982e780"
+    },
+    {
+      "name": "floating-arrays",
+      "cases": 81,
+      "report_sha256": "86189e007b4bb9a9a70a2dd4e710b6c37034bdbb5d18fcde3949e3a23bdbf1d7"
+    },
+    {
+      "name": "floating-equality",
+      "cases": 36,
+      "report_sha256": "76f41bc8398a1d0e2a23d3c898e1b54861beba79ecf5525ac603d086a9927a9d"
+    },
+    {
+      "name": "numeric-places",
+      "cases": 153,
+      "report_sha256": "967a64c913565004761ced33fb6ad75a42c34c8fec7990524a6146cf21af5003"
+    },
+    {
+      "name": "capture-index",
+      "cases": 45,
+      "report_sha256": "79c9089c5dcef4c014ab358a8f812bb72bba588b6a5dde86306506ab1e0ff255"
+    },
+    {
+      "name": "sync-character",
+      "cases": 45,
+      "report_sha256": "17e1af479ab3042267ffc68aaf0b4b26da7ea7d09f45b859bb142d147bb85f1f"
+    },
+    {
+      "name": "ctype",
+      "cases": 72,
+      "report_sha256": "01d334f5bbf95e9ae8d4b871fad5d9ce4636bbd1d1e9da72b332ab7b90237d42"
+    },
+    {
+      "name": "byte-encoding",
+      "cases": 81,
+      "report_sha256": "65e6e3dbdc282f1159a4e897435514bd1ca0fdacf45cc1d44198d7b093b37aba"
+    },
+    {
+      "name": "exit",
+      "cases": 153,
+      "report_sha256": "3413d5c491b20c00fe59a071f4653418e488c2ff0cf718e4184e1e55f7d8da47"
+    },
+    {
+      "name": "main-return",
+      "cases": 108,
+      "report_sha256": "cc898bed2882598c5ac03062409cf683199555ecdc452e024e2baec3b5ceaa21"
+    },
+    {
+      "name": "match-control",
+      "cases": 180,
+      "report_sha256": "18856f938cefac3c92f0eff74a123a372f36c8fb4b270a82c39496e41cd8b694"
+    },
+    {
+      "name": "sizeof",
+      "cases": 216,
+      "report_sha256": "eaf7441b9ad1f81333f9932e7d99076dfea9d2f4a010db0b519433303e887e25"
+    },
+    {
+      "name": "call-reference",
+      "cases": 126,
+      "report_sha256": "c5aca341f1968691e5db25d9a80099560f386e428aa98c49f467bee626ac924f"
+    },
+    {
+      "name": "indexed-string",
+      "cases": 54,
+      "report_sha256": "62ed200e1a0f365cb79ed16d1b5df7367a51254af10e8c103f34b4e09e0ea73e"
+    },
+    {
+      "name": "native-scope",
+      "cases": 36,
+      "report_sha256": "96194f2e29e2776037306347c9aaf3324fc420065eb57165620efbc3a8e10708"
+    },
+    {
+      "name": "nil-string",
+      "cases": 72,
+      "report_sha256": "a146b381f94cba84d8a198b220dd14aedf8e8f35f2e2c494cdfaff0cb5ade712"
+    },
+    {
+      "name": "nil-array",
+      "cases": 90,
+      "report_sha256": "a2fc940ab6d9322f585bb354ecfb7a3636a13ce1a3d66a657352cc038865e90a"
+    },
+    {
+      "name": "nested-stores",
+      "cases": 45,
+      "report_sha256": "7ee8a28e2d65dc6851062a2c125c37e575d4c3c3edeadbe57ea754a08bc9dae1"
+    },
+    {
+      "name": "owned-array-copies",
+      "cases": 45,
+      "report_sha256": "b7fa5a6871f637586cc1687c3978a4bcbd75fb2491e9ebfc281318f5f85d4885"
+    },
+    {
+      "name": "native-records",
+      "cases": 45,
+      "report_sha256": "61c557c618f4125a70ec775750610e4fedebabb7474c8bbe3ef0fa1d0d77842c"
+    },
+    {
+      "name": "native-record-references",
+      "cases": 36,
+      "report_sha256": "92f1d5dbb92598f2d9c9cfe7c11b3a5d6f1383e4c96ae857e240f35201a326fa"
+    },
+    {
+      "name": "owned-record-parameters",
+      "cases": 216,
+      "report_sha256": "2359068de024855c9eaf728876757293c3317cc0e7c3140627747889b67cc28a"
+    },
+    {
+      "name": "reference-records",
+      "cases": 171,
+      "report_sha256": "0aaf357cc3f3129afa885956b68e891356a3ed3337d76afcb036ffd360621429"
+    },
+    {
+      "name": "scalar-parameters",
+      "cases": 126,
+      "report_sha256": "88a69d30f9081db1a2a32ff00e78d3b4c145991b14f0f2c40652a76ddf2f63d9"
+    },
+    {
+      "name": "closure-records",
+      "cases": 189,
+      "report_sha256": "edacf550c6cd217f6e6566fcc120670461cb910bd252f1c91e5efb764fc634b2"
+    },
+    {
+      "name": "native-handles",
+      "cases": 117,
+      "report_sha256": "2ae71730bd81b545605ff56e54dae9d6fef0310fb2d1670e9ccd1b2b1ee4fe83"
+    },
+    {
+      "name": "native-arrays",
+      "cases": 27,
+      "report_sha256": "5947669cf992728ef1440b8715cd667f2aa6501b42979a596eeb74235b5e5609"
+    }
+  ],
+  "native_array_frozen_cases": 27,
+  "native_handle_preservation_frozen_cases": 117,
+  "instrumented_target_executions": 288,
+  "original_coverage": {
+    "passing": 1341,
+    "total": 1365,
+    "integration": 1120,
+    "exploratory": 221,
+    "compilation_gaps": 24,
+    "runtime_failures": 0,
+    "skips": 0,
+    "unchanged_original_sources": 1365,
+    "source_manifest": "docs/rust-parity-evidence/owned-closure-records-preservation.json",
+    "source_manifest_sha256": "d1755e520828fb51f4919bd7030ddaff66f4ba4c250fcc1ff8c6c99ac5531a87",
+    "new_integration_control_passes_separately": 1,
+    "newly_supported_originals": [
+      "tests/integration/test_array_literal_arg_leak.sn",
+      "tests/integration/test_self_method_forward_after_train.sn"
+    ],
+    "remaining_compilation_gaps": [
+      "tests/explore/test_array_mutation_lambda.sn",
+      "tests/explore/test_as_val_array_copy.sn",
+      "tests/explore/test_pointer_slice_bounds.sn",
+      "tests/integration/test_buffer_unwrap.sn",
+      "tests/integration/test_builtin_interfaces.sn",
+      "tests/integration/test_generic_multi_param_iter.sn",
+      "tests/integration/test_interfaces.sn",
+      "tests/integration/test_interop_callback.sn",
+      "tests/integration/test_interop_comprehensive.sn",
+      "tests/integration/test_interop_edge_cases.sn",
+      "tests/integration/test_iterator_protocol.sn",
+      "tests/integration/test_module_array_swap_leak.sn",
+      "tests/integration/test_native_callback_typedef.sn",
+      "tests/integration/test_nil_pointer_slice.sn",
+      "tests/integration/test_qsort_callback.sn",
+      "tests/integration/test_serializable.sn",
+      "tests/integration/test_serializable_decode_struct_literal_loop.sn",
+      "tests/integration/test_serializable_double_int_json.sn",
+      "tests/integration/test_serializable_encoder_cleanup.sn",
+      "tests/integration/test_serializable_long.sn",
+      "tests/integration/test_serializable_push_ownership.sn",
+      "tests/integration/test_serializable_return_nested_array.sn",
+      "tests/integration/test_struct_as_ref.sn",
+      "tests/integration/test_thread_struct_return_types.sn"
+    ]
+  },
+  "source_oracle_hashes": {
+    "tests/integration/test_array_literal_arg_leak.sn": {
+      "source_sha256": "01d322c184bad61815f95c2192658c25051057a5a7fe9e225fb42fe903a80f66",
+      "oracle_sha256": "750dfa8fdf57f31eaf331d7c2a38720aae66112b9aa1cd5658b453900b392362"
+    },
+    "tests/integration/test_self_method_forward_after_train.sn": {
+      "source_sha256": "6304ce2dc0cf4f1e1c58fa474bcd721cbda449f0252ac0f4dea8ac8114358756",
+      "oracle_sha256": "4122efbacb99bee36036a3637c33b5b31932f2370431b9a22533228196aaf169"
+    },
+    "tests/rust-native/native_handle_arrays.sn": {
+      "source_sha256": "2a9a9225f5eaf6ceed27543e3b155bc332615b05e034d636ce2a3bf21794ddaa",
+      "oracle_sha256": "3856d11cb71b9a11f90e27af8ea0c90d3dd7fbe6f26f07b806cb2cd784fbd519"
+    }
+  },
+  "transport_controls": {
+    "raw_output_pairs": 30,
+    "target_executions": 60,
+    "unix_raw_argv_executions": 3,
+    "text_native_flush_order_diagnostic_controls": "pass",
+    "windows_output_helper_simulation": "pass; real Windows acceptance still required"
+  },
+  "before_proofs": {
+    "originals": "27 allmode pre-implementation C successes / Rust compile rejections for three originals; two repaired, global Tag array original remains a gap.",
+    "temporary_scope": "Exact retained source/helper: C temporary false 8 versus Rust 7 before repair, all three optimization modes.",
+    "concat": "Exact unchanged C-valid source/helper: C succeeds and Rust rejects Vec result before repair. Same source succeeds with frozen output in all nine modes after repair.",
+    "nil_length_excluded": "Original exploratory len(nil) control faults in C sn_array_length under ASAN. Raw source and diagnostic retained; no parity credit. Exact historical helper snapshot was not retained for this excluded probe. Positive fixture uses explicit nil-safe native array_count and retains all historical oracles."
+  },
+  "remaining_full_goal_scope": [
+    "All 24 original compilation gaps remain required, plus unrepresented feature/behavior gaps.",
+    "Global/thread native allocation ownership and synchronized transport, managed native value-record parameters, callbacks/SDK interop.",
+    "Other native array element families, qualifiers, sized arrays, nested native arrays, field stores, constructors, callbacks and broader method ownership/evaluation composition.",
+    "Interfaces/iterators, serialization/copy hooks, broader closure/native/thread lifetimes and retained C ownership failures."
+  ],
+  "artifacts": [
+    {
+      "path": "docs/rust-parity-evidence/native-arrays-full-c.log",
+      "sha256": "7508a1352d8a94f31324b3193b2d122264c0c9e4df89f1fcfa3368bb408dec61",
+      "raw_input": ".sn/native-array-full-c.log",
+      "raw_input_sha256": "bb2164371896c8209d4ff7fe71a19591b764e83d52ac12bc2ee434e0805dcbdb"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-arrays-full-rust.log",
+      "sha256": "b0a1c6537dd38d2200272a1b03ce072ef3f0eca9ca0141c91d2d77bdd0c674ba",
+      "raw_input": ".sn/native-array-full-rust.log",
+      "raw_input_sha256": "ce9d3e9b9315898af60d493d941e17611020f941f7bc01f9e43b76a9267dcdac"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-arrays-oracles.json",
+      "sha256": "5947669cf992728ef1440b8715cd667f2aa6501b42979a596eeb74235b5e5609",
+      "raw_input": ".sn/rust-parity-native-arrays.json",
+      "raw_input_sha256": "5947669cf992728ef1440b8715cd667f2aa6501b42979a596eeb74235b5e5609"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-arrays-handles-preservation.json",
+      "sha256": "2ae71730bd81b545605ff56e54dae9d6fef0310fb2d1670e9ccd1b2b1ee4fe83",
+      "raw_input": ".sn/rust-parity-native-handles.json",
+      "raw_input_sha256": "2ae71730bd81b545605ff56e54dae9d6fef0310fb2d1670e9ccd1b2b1ee4fe83"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-arrays-preservation-gates.log",
+      "sha256": "53b4026f1622c152778bc73b12a013cfe3a205329ea65d73cecb3feac600590a",
+      "raw_input": ".sn/native-array-all-gates.log",
+      "raw_input_sha256": "53b4026f1622c152778bc73b12a013cfe3a205329ea65d73cecb3feac600590a"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-arrays-local-verification.log",
+      "sha256": "10a3411e9852ff684e932fce7348173cd64d19aab5af74c85d74e64829a5b561",
+      "raw_input": ".sn/native-array-preservation.log",
+      "raw_input_sha256": "10a3411e9852ff684e932fce7348173cd64d19aab5af74c85d74e64829a5b561"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-arrays-corpus-integration.log",
+      "sha256": "9df709b3cee5a7c4b7dd41d26dc32c5cd106fa5ab373ae25ea6d60e50026e5c3",
+      "raw_input": ".sn/native-array-corpus-integration.log",
+      "raw_input_sha256": "9acfab936cf1bbf4c93936e1f61d4be4d78810a1ada9e525f7ed215741378e2f"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-arrays-corpus-explore.log",
+      "sha256": "85256047d6921edb8338cd6570b66cbf8e7e52681bfe6c8fc5061b7a95980e0c",
+      "raw_input": ".sn/native-array-corpus-explore.log",
+      "raw_input_sha256": "503255d1b7b7eaf4bf704c0c12990841e40d9a69f2e165c90261ae7b2dcb6c95"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-arrays-asan.json",
+      "sha256": "ba9addcaf6ec8975571a19ea1e3720d18757df3d5a3c8ac670979e1ee926d8b0",
+      "raw_input": ".sn/native-array-asan.json",
+      "raw_input_sha256": "ba9addcaf6ec8975571a19ea1e3720d18757df3d5a3c8ac670979e1ee926d8b0"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-arrays-asan.log",
+      "sha256": "bbe041b4056a39931e668d4722cb5ae0e39b1ac49ec919d28294971d7614cbce",
+      "raw_input": ".sn/native-array-asan.log",
+      "raw_input_sha256": "bbe041b4056a39931e668d4722cb5ae0e39b1ac49ec919d28294971d7614cbce"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-arrays-bytes.log",
+      "sha256": "971a43d81a4d4a176d4aceff2aa18d25efe2df369a8d05a75dfb2470b030e8a9",
+      "raw_input": ".sn/native-array-bytes.log",
+      "raw_input_sha256": "971a43d81a4d4a176d4aceff2aa18d25efe2df369a8d05a75dfb2470b030e8a9"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-arrays-text-transport.log",
+      "sha256": "9d1f137619f0add0f0e3a01419654e7f12ffe613e0175c7031316ffe56c8c9ee",
+      "raw_input": ".sn/native-array-text-transport.log",
+      "raw_input_sha256": "9d1f137619f0add0f0e3a01419654e7f12ffe613e0175c7031316ffe56c8c9ee"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-arrays-windows-helpers.log",
+      "sha256": "628ce6147ceaa1887966b6df6ff1f63582712e6666a5b64c7f52e28604cc6994",
+      "raw_input": ".sn/native-array-windows-helpers.log",
+      "raw_input_sha256": "628ce6147ceaa1887966b6df6ff1f63582712e6666a5b64c7f52e28604cc6994"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-arrays-originals-before.json",
+      "sha256": "62946e5070e88db10ae23ecde80eac7e47db1f2b088605cd12e5d88ae4edef40",
+      "raw_input": ".sn/native-array-originals-before.json",
+      "raw_input_sha256": "62946e5070e88db10ae23ecde80eac7e47db1f2b088605cd12e5d88ae4edef40"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-arrays-temporary-before.json",
+      "sha256": "581369477913c994d5d39fb8c4a3580b844dc1048c3d1361c52b12b8782d1267",
+      "raw_input": ".sn/native-array-temporary-before.json",
+      "raw_input_sha256": "581369477913c994d5d39fb8c4a3580b844dc1048c3d1361c52b12b8782d1267"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-arrays-temporary-before.sn.txt",
+      "sha256": "e3582a7f1d8e878c3bc456fc80cf741459907f5a4a4075da6afee87e3bfd91d5",
+      "raw_input": ".sn/native-array-temporary-before.sn.raw",
+      "raw_input_sha256": "e3582a7f1d8e878c3bc456fc80cf741459907f5a4a4075da6afee87e3bfd91d5"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-arrays-temporary-before-helper.c.txt",
+      "sha256": "d65ca7c65ed1f795f05abc50b3987c1beb63bf45aeb71f1fc0e0464e771d5241",
+      "raw_input": ".sn/native-array-temporary-before-helper.c.raw",
+      "raw_input_sha256": "d65ca7c65ed1f795f05abc50b3987c1beb63bf45aeb71f1fc0e0464e771d5241"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-arrays-methods-before.json",
+      "sha256": "7a9ff6ab26ea4b82eb9d6fba418ca5c8a4c625a78126cd4eb3e479991e303ea1",
+      "raw_input": ".sn/native-array-methods-before.json",
+      "raw_input_sha256": "7a9ff6ab26ea4b82eb9d6fba418ca5c8a4c625a78126cd4eb3e479991e303ea1"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-arrays-methods-after.json",
+      "sha256": "3a697034917de81c6cb9c7a89e5dcffb1c0483443a5468f010ca0949bea5cdc4",
+      "raw_input": ".sn/native-array-methods-after.json",
+      "raw_input_sha256": "3a697034917de81c6cb9c7a89e5dcffb1c0483443a5468f010ca0949bea5cdc4"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-arrays-methods-before.sn.txt",
+      "sha256": "dca13871d91a4f27a9b3c5a2540893b495092dabe197e2838c9beffe1031c53c",
+      "raw_input": ".sn/native-array-methods-before.sn.raw",
+      "raw_input_sha256": "dca13871d91a4f27a9b3c5a2540893b495092dabe197e2838c9beffe1031c53c"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-arrays-methods-before-helper.c.txt",
+      "sha256": "d65ca7c65ed1f795f05abc50b3987c1beb63bf45aeb71f1fc0e0464e771d5241",
+      "raw_input": ".sn/native-array-methods-before-helper.c.raw",
+      "raw_input_sha256": "d65ca7c65ed1f795f05abc50b3987c1beb63bf45aeb71f1fc0e0464e771d5241"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-arrays-nil-length-excluded.json",
+      "sha256": "cdc7d846d4119af27ab8a64e749d8badac16fe876e7b9e60ccc6c7ff7ac21344",
+      "raw_input": ".sn/native-array-nil-length-before.json",
+      "raw_input_sha256": "cdc7d846d4119af27ab8a64e749d8badac16fe876e7b9e60ccc6c7ff7ac21344"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-arrays-nil-length-excluded.sn.txt",
+      "sha256": "647bee207c7a49c89a2658958e1f7fb44b23a45bb4bd51ea01d6a1c6e3253938",
+      "raw_input": ".sn/native-array-nil-length-before.sn.raw",
+      "raw_input_sha256": "647bee207c7a49c89a2658958e1f7fb44b23a45bb4bd51ea01d6a1c6e3253938"
+    }
+  ]
+}

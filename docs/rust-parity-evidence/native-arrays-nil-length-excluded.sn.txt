@@ -1,0 +1,52 @@
+@source "native_handle_arrays.sn.c"
+
+native struct Token as ref =>
+  id: int
+
+  @alias "token_dispose"
+  native fn dispose(): void
+
+native fn token_create(id: int): Token
+native fn token_dispose(value: Token): void
+native fn token_refs(value: Token): int
+native fn token_alive(): int
+native fn array_append(values: Token[], id: int): int
+native fn array_same(left: Token[], right: Token[]): bool
+native fn array_copy(values: Token[]): Token[]
+native fn array_nil(): Token[]
+native fn token_after(value: Token, ignored: int): int
+
+fn add(values: Token[], id: int): void =>
+  values.push(token_create(id))
+
+fn exercise(): void =>
+  var values: Token[] = {token_create(1), token_create(2)}
+  println($"start {len(values)} {token_refs(values[0])} {token_alive()}")
+  println($"same {array_same(values, values)}")
+  array_append(values, 3)
+  array_append(values, 4)
+  println($"grow {token_after(values[0], array_append(values, 5))} {len(values)} {token_refs(values[0])}")
+  add(values, 6)
+  println($"ordinary {len(values)} {values[5].id}")
+  var copied: Token[] = array_copy(values)
+  println($"copy {array_same(values, copied)} {len(copied)} {token_refs(values[0])}")
+  copied.clear()
+  println($"clear {token_refs(values[0])} {token_alive()}")
+  var sliced: Token[] = values[1..3]
+  println($"slice {len(sliced)} {sliced[0].id} {token_refs(values[1])}")
+  sliced.clear()
+  var initial: int = len(values)
+  var count: int = 0
+  for value in values =>
+    if value.id == 1 =>
+      array_append(values, 7)
+      continue
+    count++
+    assert(token_refs(value) == 1, "foreach borrows")
+  println($"iteration {initial} {count} {len(values)}")
+  var absent: Token[] = array_nil()
+  println($"nil {absent == nil} {len(absent)}")
+
+fn main(): void =>
+  exercise()
+  println($"done {token_alive()}")

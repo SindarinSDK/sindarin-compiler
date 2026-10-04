@@ -75,7 +75,8 @@ static char *rust_type(json_object *type)
         char *element = rust_type(element_type);
         if (!element) return NULL;
         json_object *nullable = NULL;
-        const char *container = json_object_object_get_ex(type, "rust_nullable_array_name", &nullable)
+        const char *container = json_object_object_get_ex(type, "rust_native_handle_array_name", &nullable)
+            ? json_object_get_string(nullable) : json_object_object_get_ex(type, "rust_nullable_array_name", &nullable)
             ? json_object_get_string(nullable) : "Vec";
         size_t length = strlen(container) + strlen(element) + sizeof("<>");
         char *result = malloc(length);
@@ -321,10 +322,24 @@ static char *helper_rust_default(json_object **params, int param_count, hbs_opti
                            json_object_get_boolean(nullable);
         return strdup(is_nullable ? "SnString::nil()" : "SnString::new()");
     }
+    json_object *native_handle = NULL;
+    if (strcmp(kind, "struct") == 0 && json_object_object_get_ex(params[0], "rust_native_reference_handle", &native_handle) && json_object_get_boolean(native_handle))
+    {
+        json_object *adopt = NULL;
+        json_object_object_get_ex(params[0], "rust_native_handle_adopt", &adopt);
+        char *name = rust_type(params[0]);
+        char *helper = helper_rust_ident(&adopt, 1, NULL);
+        if (!name || !helper) { free(name); free(helper); return NULL; }
+        size_t length = strlen(name) + strlen(helper) + sizeof("::(std::ptr::null_mut())");
+        char *result = malloc(length);
+        if (result) snprintf(result, length, "%s::%s(std::ptr::null_mut())", name, helper);
+        free(name); free(helper); return result;
+    }
     if (strcmp(kind, "array") == 0)
     {
         json_object *nullable = NULL;
-        if (!json_object_object_get_ex(params[0], "rust_nullable_array_name", &nullable))
+        if (!json_object_object_get_ex(params[0], "rust_native_handle_array_name", &nullable) &&
+            !json_object_object_get_ex(params[0], "rust_nullable_array_name", &nullable))
             return strdup("Vec::new()");
         const char *name = json_object_get_string(nullable);
         size_t length = strlen(name) + sizeof("::nil()");

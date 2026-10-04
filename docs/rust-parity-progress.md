@@ -5,14 +5,91 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
-## Canonical native reference handles: local acceptance, 2026-10-04
+## Canonical native reference arrays: local acceptance, 2026-10-04
+
+This increment starts from published main
+`3fa0bc91d8c75923e34fe331bc511db10890edf4`, whose six compiler/runtime jobs and
+Linux/macOS/Windows **36 reports / 3288 cases** are independently verified below.
+The array candidate has complete local acceptance. Publication and exact-revision
+Linux/macOS/Windows acceptance are still required; the full parity goal remains
+active.
+
+Rust arrays of canonical native reference handles now keep the actual C
+`SnArray` header, data and element ownership callbacks. Native default parameters
+borrow that header, including duplicate aliases, so native mutation and
+reallocation remain visible. Array construction, copies, slices, concatenation
+and the tested mutation methods use canonical C helpers; owned results adopt the
+C header and cleanup uses its callbacks. Borrowed record arguments snapshot their pointer before later
+argument effects can reallocate array data. Foreach caches the initial C length,
+reloads current data and borrows each element; explicit owning aliases retain an
+owner, and `continue` advances correctly. Native array declaration temporaries
+live through their enclosing scope, matching C's visible resource counts.
+
+Two unchanged originals now pass across all nine optimization/arithmetic modes:
+array-literal argument cleanup and self/method forwarding after native training
+updates. An additional control verifies header identity, native growth, ordinary
+default-array mutation, metadata copies, clear/slice, borrowed iteration,
+declaration temporaries, nil transport and zero resources. The ownership review
+also found that native-array `concat` still returned a Rust `Vec`. Its exact
+unchanged C-valid probe now passes all nine modes; the positive fixture includes
+concat/reverse/insert/remove/pop and verifies both original inputs remain intact.
+The mandatory gate checks **27 frozen C/Rust cases**, and native-extra CI now
+requires **41 fixtures**.
+
+All **37 reports / 3315 cases**, including **117 existing native-handle cases**
+and the preceding **35 reports / 3171 cases**, pass with one compiler.
+**288 instrumented target executions** pass ASAN, UBSAN and leak detection;
+executable and generated C-object instrumentation is verified. Raw bytes/argv,
+text/native flush ordering and Windows output helper controls pass locally.
+Complete C suites pass **1610 / 107 / 79 / 1142 / 58 / 224 / 11**; complete Rust
+suites pass **491 / 133 / 8 / 41 / 1 / 7 / 36 / 1 / 10 / 7 / 1 / 12**, with zero
+failures or skips.
+
+All **1365 original source hashes** and historical C/model/Rust emission oracles
+remain unchanged. Original-program coverage is **1120 integration + 221
+exploratory = 1341 / 1365 (98.2%)**, leaving **24 compilation gaps**, no runtime
+failures and no skips. The newer integration ownership control passes separately
+and receives no credit in the original denominator. The retained pre-repair array
+temporary control observes C's eight surviving resources versus Rust's seven;
+the implementation corrects the lifetime. An exploratory `len(nil)` control
+faults in C's `sn_array_length` under ASAN and receives no parity credit. Its raw
+source and diagnostic are retained, with the missing historical helper snapshot
+explicitly documented. The positive fixture uses a nil-safe native count helper;
+historical sources and expectations are preserved.
+
+Global/thread native handle storage still blocks the remaining module-array
+original. Managed native value-record parameters, callbacks/SDK interop, other
+native array element families, qualifiers, sized/nested arrays, field stores,
+constructors and broader method ownership/evaluation composition remain required.
+Interfaces/iterators, serialization/copy hooks, broader closure/native/thread
+lifetimes and retained C ownership failures also remain in the full goal.
+Coverage measures programs, not remaining engineering effort or completion.
+
+Evidence: [local validation and remaining 24 gaps](rust-parity-evidence/native-arrays-validation.json),
+[27 frozen array comparisons](rust-parity-evidence/native-arrays-oracles.json),
+[117 native-handle preservation comparisons](rust-parity-evidence/native-arrays-handles-preservation.json),
+[288 sanitizer executions](rust-parity-evidence/native-arrays-asan.json),
+[independent preservation verification](rust-parity-evidence/native-arrays-local-verification.log),
+[unchanged originals before implementation](rust-parity-evidence/native-arrays-originals-before.json),
+[pre-repair temporary lifetime](rust-parity-evidence/native-arrays-temporary-before.json),
+[pre-repair concat compilation](rust-parity-evidence/native-arrays-methods-before.json),
+[unchanged concat probe after repair](rust-parity-evidence/native-arrays-methods-after.json),
+[excluded nil-length diagnostic](rust-parity-evidence/native-arrays-nil-length-excluded.json),
+[full C suite](rust-parity-evidence/native-arrays-full-c.log),
+[full Rust suite](rust-parity-evidence/native-arrays-full-rust.log).
+
+## Canonical native reference handles: combined acceptance, 2026-10-04
 
 This increment starts from published main
 `5e48abc87d5a48d83731fafc4b9eb6f954550016`. All six preceding compiler/runtime
 jobs pass; Linux/macOS/Windows artifacts independently verify 35 reports /
 3171 cases in the [preceding hosted evidence](rust-parity-evidence/native-reference-borrow-main-ci-green.json).
-The new implementation has complete local acceptance. Exact-revision hosted
-verification remains required after publication; portable credit is pending.
+The implementation is published at
+`3fa0bc91d8c75923e34fe331bc511db10890edf4`. All six exact-revision compiler/runtime
+jobs pass. Retained Linux/macOS/Windows artifacts independently verify all
+**36 reports / 3288 cases** per platform, including the 117 native handle cases,
+and hosted complete C/Rust suite counts have zero failures or skips in the
+[hosted acceptance evidence](rust-parity-evidence/native-handles-main-ci-green.json).
 
 Rust native reference records now keep the canonical C allocation behind an
 opaque handle. C helpers compiled against the actual generated record definition
