@@ -250,29 +250,6 @@ jobs:
           name: rust-runtime-diagnostics-${{ matrix.os }}
           path: |
             .sn/rust-runtime-diagnostics/
-            .sn/rust-parity-core.json
-            .sn/rust-parity-concurrency.json
-            .sn/rust-parity-thread-ownership.json
-            .sn/rust-parity-native-managed.json
-            .sn/rust-parity-thread-receivers.json
-            .sn/rust-parity-reflection.json
-            .sn/rust-parity-sized-defaults.json
-            .sn/rust-parity-stdio-order.json
-            .sn/rust-parity-mixed-integral.json
-            .sn/rust-parity-mixed-integral-diagnostics.json
-            .sn/rust-parity-float-conversions.json
-            .sn/rust-parity-floating-arrays.json
-            .sn/rust-parity-floating-equality.json
-            .sn/rust-parity-numeric-places.json
-            .sn/rust-parity-capture-index.json
-            .sn/rust-parity-sync-character.json
-            .sn/rust-parity-ctype.json
-            .sn/rust-parity-byte-encoding.json
-            .sn/rust-parity-exit.json
-            .sn/rust-parity-main-return.json
-            .sn/rust-parity-match-control.json
-            .sn/rust-parity-sizeof.json
-            .sn/rust-parity-call-reference.json
-            .sn/rust-parity-indexed-string.json
+            .sn/rust-parity-*.json
           if-no-files-found: ignore
           retention-days: 7
