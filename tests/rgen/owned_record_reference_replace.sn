@@ -1,0 +1,21 @@
+struct Record =>
+  label: str
+  count: int
+
+fn replace(value: Record as ref): void =>
+  value = Record {
+    label: "new",
+    count: 42
+  }
+
+fn observe(left: Record as ref, right: Record as ref): void =>
+  replace(left)
+  println($"{right.label} {right.count}")
+
+fn main(): void =>
+  var value: Record = {
+    label: "old",
+    count: 7
+  }
+  observe(value, value)
+  println($"{value.label} {value.count}")

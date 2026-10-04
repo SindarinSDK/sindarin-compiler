@@ -1,0 +1,30 @@
+struct Bag =>
+  values: int[]
+  label: str
+
+  static fn modify(bag: Bag as ref): void =>
+    bag.values.push(7)
+    bag.label = "modified"
+
+struct Methods =>
+  count: int
+
+  static fn append(values: int[]): void =>
+    values.push(42)
+
+  fn appendAgain(values: int[]): void =>
+    values.push(99)
+
+fn exercise(bag: Bag as ref): void =>
+  Methods.append(bag.values)
+  var methods: Methods = { count: 0 }
+  methods.appendAgain(bag.values)
+
+fn main(): void =>
+  var bag: Bag = {
+    values: {1},
+    label: "original"
+  }
+  exercise(bag)
+  Bag.modify(bag)
+  println($"{bag.label} {bag.values.length} {bag.values[1]} {bag.values[2]} {bag.values[3]}")

@@ -212,6 +212,12 @@ static bool rust_emit(CompilerOptions *options, Module *module,
     }
     rust_lower_floating_mutations(model);
     rust_lower_strings(model);
+    if (!rust_specialize_field_array_calls(model))
+    {
+        fprintf(stderr, "Error: Rust target could not preserve array field call owners\n");
+        json_object_put(model);
+        return false;
+    }
     if (!rust_lower_calls(model))
     {
         fprintf(stderr, "Error: Rust target could not lower default-array call aliases\n");

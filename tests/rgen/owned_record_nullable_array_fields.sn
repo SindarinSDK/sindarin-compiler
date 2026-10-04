@@ -1,0 +1,19 @@
+struct Bag =>
+  values: int[]
+  label: str
+
+fn exercise(bag: Bag as ref): void =>
+  println(bag.values == nil)
+  bag.values.insert(7, 0)
+  println(bag.values == nil)
+  bag.values = {}
+  println(bag.values == nil)
+  bag.values.push(9)
+  println($"{bag.values.length} {bag.values[0]}")
+
+fn main(): void =>
+  var bag: Bag = {
+    values: nil,
+    label: "nil"
+  }
+  exercise(bag)

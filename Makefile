@@ -775,3 +775,34 @@ test-rust-parity-native-record-references: build
 		--require-count 4 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-native-record-references.json
 	@$(PYTHON) scripts/check_rust_native_record_reference_oracles.py .sn/rust-parity-native-record-references.json
+
+.PHONY: test-rust-parity-owned-record-parameters
+test-rust-parity-owned-record-parameters: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/rgen/owned_record_alias_array.sn \
+		tests/rgen/owned_record_reference_replace.sn \
+		tests/rgen/owned_record_field_operations.sn \
+		tests/rgen/owned_record_float_fields.sn \
+		tests/rgen/owned_record_nested_fields.sn \
+		tests/rgen/owned_record_field_forwarding.sn \
+		tests/rgen/owned_record_method_fields.sn \
+		tests/rgen/owned_record_index_callback.sn \
+		tests/rgen/owned_record_char_fields.sn \
+		tests/rgen/owned_record_nullable_array_fields.sn \
+		tests/integration/test_as_ref_struct_param.sn \
+		tests/integration/test_val_struct_shared_array.sn \
+		tests/exploratory/test_gcc_edge_structs.sn \
+		tests/exploratory/test_struct_config.sn \
+		tests/integration/test_composite_borrow_mutation.sn \
+		tests/integration/test_composite_temp_arg.sn \
+		tests/integration/test_constrained_generics.sn \
+		tests/integration/test_generic_static_call.sn \
+		tests/integration/test_generics_nested_inference.sn \
+		tests/integration/test_struct_self_method_call.sn \
+		tests/exploratory/test_match_as_val_ref.sn \
+		tests/exploratory/test_struct_self_method_call.sn \
+		tests/rgen/owned_record_nested_default_references.sn \
+		tests/rgen/owned_record_nested_deep_references.sn \
+		--require-count 24 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-owned-record-parameters.json
+	@$(PYTHON) scripts/check_rust_owned_record_oracles.py .sn/rust-parity-owned-record-parameters.json

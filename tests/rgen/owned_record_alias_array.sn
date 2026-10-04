@@ -1,0 +1,26 @@
+struct Record =>
+  values: int[]
+  label: str
+
+fn combine(left: Record as ref, right: Record as ref): void =>
+  left.values.push(9)
+  right.values[0] = left.values.length
+  left.label = "changed"
+  println($"{right.label} {right.values.length}")
+
+fn copy_change(value: Record as val): Record =>
+  value.values.push(7)
+  value.values[0] = 88
+  value.label = "copy"
+  return value
+
+fn main(): void =>
+  var value: Record = {
+    values: {1, 2},
+    label: "original"
+  }
+  combine(value, value)
+  println($"{value.label} {value.values.length} {value.values[0]} {value.values[2]}")
+  var copy: Record = copy_change(value)
+  println($"{value.label} {value.values.length} {value.values[0]}")
+  println($"{copy.label} {copy.values.length} {copy.values[0]} {copy.values[3]}")

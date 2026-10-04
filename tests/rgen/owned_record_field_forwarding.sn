@@ -1,0 +1,41 @@
+struct Bag =>
+  values: int[]
+  words: str[]
+  name: str
+
+fn callback(bag: Bag as ref): int =>
+  println($"callback {bag.values.length}")
+  bag.values.push(7)
+  return 9
+
+fn leaf(left: int[], right: int[], bag: Bag as ref): void =>
+  left.push(callback(bag))
+  right[0] = left.length
+  println($"{bag.values[0]} {right.length}")
+
+fn recur(left: int[], right: int[], bag: Bag as ref, depth: int): void =>
+  if depth > 0 =>
+    recur(left, right, bag, depth - 1)
+  else =>
+    leaf(left, right, bag)
+
+fn words(values: str[], bag: Bag as ref): void =>
+  values.push(bag.name)
+  values[0] = "new"
+  println($"{bag.words[0]} {bag.words.length}")
+
+fn exercise(bag: Bag as ref): void =>
+  recur(bag.values, bag.values, bag, 2)
+  words(bag.words, bag)
+
+fn main(): void =>
+  var bag: Bag = {
+    values: {1},
+    words: {"old"},
+    name: "source"
+  }
+  exercise(bag)
+  println($"{bag.values[0]} {bag.values[1]} {bag.values[2]} {bag.words[0]} {bag.words[1]}")
+  var values: int[] = {4}
+  leaf(values, values, bag)
+  println($"{values[0]} {values[1]} {bag.values.length}")

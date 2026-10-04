@@ -1,0 +1,15 @@
+{ let {{rust_ident @root.rust_thread_receiver_temp}} = {{> expr_field_array_owner callee.object}}.share();
+{{#if (eq callee.member_name "insert")}}{{#each args}}{{#if @last}}let {{rust_ident rust_field_arg_name}} = {{> expr this}}{{rust_clone_suffix this source_is_borrow}};{{/if}}{{/each}}
+{{#each args}}{{#if @first}}let {{rust_ident rust_field_arg_name}} = ({{> expr this}}) as i64;{{/if}}{{/each}}
+{{else}}{{#each args}}let {{rust_ident rust_field_arg_name}} = {{> expr this}}{{rust_clone_suffix this source_is_borrow}};{{/each}}{{/if}}
+let mut {{rust_ident @root.rust_thread_field_guard}} = {{rust_ident @root.rust_thread_receiver_temp}}.lock();
+{{#if (eq callee.member_name "push")}}{{rust_ident @root.rust_thread_field_guard}}.push({{#each args}}{{rust_ident rust_field_arg_name}}{{/each}})
+{{else}}{{#if (eq callee.member_name "pop")}}{{rust_ident @root.rust_thread_field_guard}}.pop().expect("pop from empty array")
+{{else}}{{#if (eq callee.member_name "insert")}}let {{rust_ident @root.rust_thread_field_index}} = {{#each args}}{{#if @first}}{{rust_ident rust_field_arg_name}}{{/if}}{{/each}};
+if {{#if @root.rust_nullable_arrays}}!{{rust_ident @root.rust_thread_field_guard}}.is_nil() && {{/if}}{{rust_ident @root.rust_thread_field_index}} >= 0 && ({{rust_ident @root.rust_thread_field_index}} as usize) <= {{rust_ident @root.rust_thread_field_guard}}.len() {
+{{rust_ident @root.rust_thread_field_guard}}.insert({{rust_ident @root.rust_thread_field_index}} as usize, {{#each args}}{{#if @last}}{{rust_ident rust_field_arg_name}}{{/if}}{{/each}}); }
+{{else}}{{#if (eq callee.member_name "remove")}}let {{rust_ident @root.rust_thread_field_index}} = ({{#each args}}{{rust_ident rust_field_arg_name}}{{/each}}) as i64;
+if {{rust_ident @root.rust_thread_field_index}} >= 0 && ({{rust_ident @root.rust_thread_field_index}} as usize) < {{rust_ident @root.rust_thread_field_guard}}.len() {
+{{rust_ident @root.rust_thread_field_guard}}.remove({{rust_ident @root.rust_thread_field_index}} as usize); }
+{{else}}{{#if (eq callee.member_name "reverse")}}{{rust_ident @root.rust_thread_field_guard}}.reverse()
+{{else}}{{rust_ident @root.rust_thread_field_guard}}.clear(){{/if}}{{/if}}{{/if}}{{/if}}{{/if}} }{{~!-- trim EOF --~}}

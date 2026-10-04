@@ -1,0 +1,42 @@
+struct Bag =>
+  values: int[]
+  words: str[]
+  text: str
+  count: int
+
+fn rhs(bag: Bag as ref): str =>
+  println($"rhs {bag.text}")
+  return "!"
+
+fn add(bag: Bag as ref, value: int): int =>
+  bag.values.push(value)
+  return 0
+
+fn exercise(bag: Bag as ref): void =>
+  bag.text += rhs(bag)
+  bag.count += 1
+  bag.count++
+  bag.values.insert(8, 1)
+  println($"{bag.values[0]} {bag.values[1]} {bag.values[2]}")
+  bag.values.remove(1)
+  bag.values.reverse()
+  println(bag.values.pop())
+  bag.words.push(bag.text)
+  bag.words.insert("second", 0)
+  println($"{bag.words[0]} {bag.words[1]}")
+  bag.words[0] = bag.text
+  println($"{bag.words[0]} {bag.count}")
+  bag.values.insert(9, add(bag, 5))
+  println($"{bag.values[0]} {bag.values[1]} {bag.values[2]}")
+  bag.values.clear()
+  println(bag.values.length)
+
+fn main(): void =>
+  var bag: Bag = {
+    values: {1, 2},
+    words: {},
+    text: "a",
+    count: 0
+  }
+  exercise(bag)
+  println($"{bag.text} {bag.words.length} {bag.count}")

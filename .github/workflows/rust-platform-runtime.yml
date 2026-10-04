@@ -163,6 +163,8 @@ jobs:
             make -o build test-rust-parity-native-records
           run_gate "native record references and stable storage (36 cases)" \
             make -o build test-rust-parity-native-record-references
+          run_gate "owned record parameters, aliases and field forwarding (216 cases)" \
+            make -o build test-rust-parity-owned-record-parameters
           run_gate "native ABI admission diagnostics (7 fixtures)" \
             python3 scripts/run_rust_tests.py rust-native-errors --verbose \
               --require-count 7 --fail-on-skip

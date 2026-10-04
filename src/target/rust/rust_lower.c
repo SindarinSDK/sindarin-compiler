@@ -16,9 +16,12 @@ static void rust_cleanup_length_reads(json_object *place)
 
 static bool rust_collect_place_indices(json_object *model, json_object *place,
                                        json_object *bindings, size_t *next_id);
+static bool rust_allocate_helper_name(json_object *model, const char *base,
+                                      char *name, size_t size);
 
 /* Included after validation; uses the same private type/model helpers. */
 #include "rust_lower_calls.c"
+#include "rust_field_array_calls.c"
 #include "rust_lower_closures.c"
 #include "rust_lower_byte.c"
 
@@ -1672,6 +1675,19 @@ static bool rust_collect_place_indices(json_object *model, json_object *place,
     return rust_collect_place_indices_mode(model, place, bindings, next_id, false);
 }
 
+static bool rust_place_has_field_owner(json_object *place)
+{
+    if (!place) return false;
+    if (json_boolean_property(place, "rust_thread_field") ||
+        json_boolean_property(place, "rust_field_array_value")) return true;
+    json_object *parent = NULL;
+    if (json_string_property_equals(place, "kind", "array_access"))
+        json_object_object_get_ex(place, "array", &parent);
+    else if (json_string_property_equals(place, "kind", "member"))
+        json_object_object_get_ex(place, "object", &parent);
+    return parent && rust_place_has_field_owner(parent);
+}
+
 static bool rust_lower_member_assignment_places(json_object *model,
                                                 json_object *node,
                                                 size_t *next_id)
@@ -1701,13 +1717,14 @@ static bool rust_lower_member_assignment_places(json_object *model,
 
     json_object *bindings = json_object_new_array();
     if (!bindings) return false;
+    bool field_store = rust_place_has_field_owner(object) && !json_boolean_property(node, "rust_thread_field");
     bool tagged_cleanup = json_string_property_equals(node, "field_cleanup", "cleanup_arr");
-    if (!rust_collect_place_indices_mode(model, object, bindings, next_id, tagged_cleanup))
+    if (!rust_collect_place_indices_mode(model, object, bindings, next_id, tagged_cleanup || field_store))
     {
         json_object_put(bindings);
         return false;
     }
-    if (json_object_array_length(bindings) == 0)
+    if (json_object_array_length(bindings) == 0 && !field_store)
     {
         json_object_put(bindings);
         return true;
@@ -1736,6 +1753,8 @@ static bool rust_lower_member_assignment_places(json_object *model,
     json_object_object_add(node, "rust_place_value_name",
                            json_object_new_string(value_name));
     json_object_object_add(node, "rust_place_index_bindings", bindings);
+    if (field_store)
+        json_object_object_add(node, "rust_field_nested_assignment", json_object_new_boolean(true));
     if (tagged_cleanup)
         json_object_object_add(node, "rust_tagged_array_cleanup", json_object_new_boolean(true));
     return true;

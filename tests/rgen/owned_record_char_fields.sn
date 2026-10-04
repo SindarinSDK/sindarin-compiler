@@ -1,0 +1,17 @@
+struct Bag =>
+  label: str
+  value: char
+
+fn exercise(bag: Bag as ref): void =>
+  var old: char = bag.value++
+  println($"{old.toInt()} {bag.value.toInt()}")
+  bag.value--
+  println(bag.value.toInt())
+
+fn main(): void =>
+  var bag: Bag = {
+    label: "byte",
+    value: 'A'
+  }
+  exercise(bag)
+  println(bag.value.toInt())

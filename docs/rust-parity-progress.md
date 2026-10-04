@@ -5,13 +5,67 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Owned record parameters: direct-main increment, 2026-10-04
+
+This increment is based on main `775fea71e2bf5e5e0504a67e4238c68be6b4b1d5`.
+All six CI jobs and retained Linux/macOS/Windows artifacts for that revision
+independently verify 31 reports and 2469 cases. The current increment adds a
+mandatory 216-case gate covering 24 unchanged or newly defined C-valid sources
+across all nine optimization/arithmetic combinations. This increment is published directly to main after the complete local checks.
+Exact-revision hosted verification is pending; local results below do not
+claim cross-platform acceptance.
+
+Ordinary owned value-record reference parameters share existing field owners;
+value arguments and assignments copy their contents into independent owners.
+Whole-record reference assignment updates the caller and other aliases.
+Array-field writes and mutating methods retain the actual owner, and private
+function/method specializations carry it through array parameters, repeated
+aliases, recursion and callbacks. Callback-bearing values and indices resolve
+before borrowing storage. Nested record references use the same original
+owners, including nested arrays and C's repeated negative-index length reads.
+Floating array inserts retain C's value-before-index evaluation and byte-storage
+conversions. This work also fixes field text rendering to use the supported
+field-read operation.
+
+The unchanged original corpus now passes **1092 integration + 221 exploratory
+programs**, with **52 compilation gaps**, no runtime failures and no skips.
+That is **1313 / 1365 (96.2%) original-program test coverage**, compared with
+1301 / 1365 on the previous main. All twelve newly passing originals match C
+across all nine modes; the denominator and original source files are unchanged.
+This percentage is coverage, not an estimate of total remaining effort.
+
+Five previous owned-parameter rejection sources move unchanged into Rust
+positive coverage. Their canonical C controls abort with ownership errors or
+fail to link, so they receive no parity credit. Independent Rust execution
+checks preserve their specified outputs. One existing Rust emission snapshot,
+`resolved_calls`, changes to reflect shared owned-record operator arguments;
+its source and runtime oracle remain unchanged and all nine independent Rust
+runtime checks pass. The other 494 historical snapshots remain unchanged.
+
+C production and the default target remain unchanged. Native owned-record
+bridges, callback/resource lifetimes, general reference-return behavior,
+interfaces/iterators and serializable records remain completion work; the full
+backend goal remains active. The PR queue is empty.
+
+Evidence: [local validation](rust-parity-evidence/owned-record-parameters-validation.json),
+[216 independent pairs](rust-parity-evidence/owned-record-parameters-pairs.json),
+[baseline admission controls](rust-parity-evidence/owned-record-parameters-before-controls.json),
+[ownership controls](rust-parity-evidence/owned-record-parameters-asan.json),
+[preserved sources and snapshots](rust-parity-evidence/owned-record-parameters-preservation.json),
+[Rust-only regression controls](rust-parity-evidence/owned-record-parameters-rust-regressions.json)
+and [remaining original diagnostics](rust-parity-evidence/owned-record-parameters-gap-diagnostics.json).
+
 ## Native record references: direct-main increment, 2026-10-04
 
 This increment is locally verified against main
 `4446a9e5de915a9a972a673ce3bcb8c46f36d307`, whose six jobs and retained
 Linux/macOS/Windows artifacts independently pass 30 reports and 2433 cases.
 This increment is integrated directly on main after the complete local gates;
-its exact-revision hosted verification remains required. The compiler passes
+it is integrated as `775fea71e2bf5e5e0504a67e4238c68be6b4b1d5`.
+All six exact-revision jobs pass and retained artifacts independently verify
+all 31 reports and 2469 cases on Linux, macOS and Windows.
+[Exact-main CI proof](rust-parity-evidence/native-record-reference-main-ci-green.json).
+The compiler passes
 **31 reports / 2469 cases**, including 36 independent reference comparisons
 across O0/O1/O2 and all arithmetic modes. Complete C suites pass unchanged.
 Rust generation/negative pass 442 / 143, native tagged/extra/origin/negative

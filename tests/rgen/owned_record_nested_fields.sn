@@ -1,0 +1,29 @@
+struct Child =>
+  name: str
+  count: int
+
+struct Parent =>
+  child: Child
+  values: int[][]
+  children: Child[]
+
+fn update(parent: Parent as ref): void =>
+  parent.child.name = "new"
+  parent.child.count++
+  parent.values[0][0] = 17
+  parent.children[0].name = "array"
+  parent.children[0].count += 4
+
+fn main(): void =>
+  var child: Child = {
+    name: "old",
+    count: 1
+  }
+  var parent: Parent = {
+    child: child,
+    values: {{2}},
+    children: {child}
+  }
+  update(parent)
+  println($"{parent.child.name} {parent.child.count} {parent.values[0][0]} {parent.children[0].name} {parent.children[0].count}")
+  println($"{child.name} {child.count}")

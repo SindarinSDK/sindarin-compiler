@@ -492,6 +492,7 @@ static bool rust_validate_struct_methods(json_object *model)
                     bool has_param_type =
                         json_object_object_get_ex(param, "type", &param_type);
                     bool mem_qual_supported =
+                        json_boolean_property(param, "rust_thread_aggregate_param") ||
                         !mem_qual || strcmp(mem_qual, "default") == 0 ||
                         (has_param_type &&
                          strcmp(mem_qual, "as_ref") == 0 &&

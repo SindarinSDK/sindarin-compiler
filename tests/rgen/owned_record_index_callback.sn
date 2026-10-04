@@ -1,0 +1,31 @@
+struct Bag =>
+  values: int[]
+  words: str[]
+  count: int
+
+fn index(bag: Bag as ref): int =>
+  println("index")
+  bag.values.push(7)
+  bag.words.push("second")
+  return - 1
+
+fn value(bag: Bag as ref): int =>
+  println("value")
+  return 42
+
+fn word(bag: Bag as ref): str =>
+  println("word")
+  return "new"
+
+fn exercise(bag: Bag as ref): void =>
+  bag.values[index(bag)] = value(bag)
+  bag.words[index(bag)] = word(bag)
+  println($"{bag.values[0]} {bag.values[1]} {bag.values[2]} {bag.words[0]} {bag.words[1]} {bag.words[2]}")
+
+fn main(): void =>
+  var bag: Bag = {
+    values: {1},
+    words: {"old"},
+    count: 0
+  }
+  exercise(bag)

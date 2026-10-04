@@ -1,4 +1,21 @@
 #![allow(dead_code, unused_mut, unused_variables, unused_parens)]
+#[derive(Debug)]
+struct __sn_concurrency0_Field<T>(std::sync::Arc<std::sync::Mutex<T>>);
+impl<T> __sn_concurrency0_Field<T> {
+    fn new(value: T) -> Self { Self(std::sync::Arc::new(std::sync::Mutex::new(value))) }
+    fn share(&self) -> Self { Self(self.0.clone()) }
+    fn lock(&self) -> std::sync::MutexGuard<'_ , T> { self.0.lock().unwrap_or_else(|e| e.into_inner()) }
+    fn set(&self, value: T) { *self.0.lock().unwrap_or_else(|e| e.into_inner()) = value; }
+}
+impl<T: Clone> __sn_concurrency0_Field<T> {
+    fn read(&self) -> T { self.0.lock().unwrap_or_else(|e| e.into_inner()).clone() }
+}
+impl<T: Clone> Clone for __sn_concurrency0_Field<T> {
+    fn clone(&self) -> Self { Self::new(self.read()) }
+}
+impl<T: Clone + PartialEq> PartialEq for __sn_concurrency0_Field<T> {
+    fn eq(&self, other: &Self) -> bool { self.read() == other.read() }
+}
 
 extern "C" {
     #[link_name = "fwrite"]
@@ -389,20 +406,26 @@ impl Explicit {
 struct Holder {
     point: Point,
 }
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone,  Debug, PartialEq)]
 struct OwnedPoint {
-    label: SnString,
-    values: Vec<i64>,
+    label: __sn_concurrency0_Field<SnString>,
+    values: __sn_concurrency0_Field<Vec<i64>>,
 }
 
 impl OwnedPoint {
-    fn op_eq(&self, other: &mut OwnedPoint) -> bool {
-        return (((self).label.clone() == (other).label.clone()) && (((self).values.clone()).len() as i64 == ((other).values.clone()).len() as i64));
+    fn op_eq(&self, other: OwnedPoint) -> bool {
+        return (((self).label.read() == (other).label.read()) && (((self).values.read()).len() as i64 == ((other).values.read()).len() as i64));
     }
-    fn op_lt(&self, other: &mut OwnedPoint) -> bool {
-        return (((self).values.clone())[__sn_index(((self).values.clone()).len(), 0)] < ((other).values.clone())[__sn_index(((other).values.clone()).len(), 0)]);
+    fn op_lt(&self, other: OwnedPoint) -> bool {
+        return (((self).values.read())[__sn_index(((self).values.read()).len(), 0)] < ((other).values.read())[__sn_index(((other).values.read()).len(), 0)]);
     }
 }
+impl OwnedPoint {
+    fn __sn_concurrency0_share(&self) -> Self {
+        Self { label: self.label.share(), values: self.values.share(),  }
+    }
+}
+
 #[derive(Clone, Debug, PartialEq)]
 struct CallValues {
     label: SnString,
@@ -435,7 +458,7 @@ fn markedPoint(calls: &mut i64, order: &mut i64, marker: i64, value: i64) -> Poi
 fn markedOwnedPoint(calls: &mut i64, order: &mut i64, marker: i64, value: i64) -> OwnedPoint {
     { let __sn_place = &mut (*(calls)); let __sn_previous = *__sn_place; let __sn_next = __sn_checked_0(__sn_previous.checked_add(1), "Runtime error: integer overflow in addition"); *__sn_place = __sn_next; __sn_previous };
     (*(order) = __sn_checked_0((__sn_checked_0((*(order)).checked_mul(10), "Runtime error: integer overflow in multiplication")).checked_add(marker), "Runtime error: integer overflow in addition"));
-    return OwnedPoint { label: { let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x76, 0x61, 0x6c, 0x75, 0x65, 0x2d]))); __sn_interpolated.push_str(&format!("{}", value)); __sn_interpolated }, values: vec![value] };
+    return OwnedPoint { label: __sn_concurrency0_Field::new({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(SnString::from_slice(&[0x76, 0x61, 0x6c, 0x75, 0x65, 0x2d]))); __sn_interpolated.push_str(&format!("{}", value)); __sn_interpolated }), values: __sn_concurrency0_Field::new(vec![value]) };
 }
 
 fn markedPoints(calls: &mut i64, order: &mut i64, marker: i64, value: i64) -> Vec<Point> {
@@ -492,13 +515,17 @@ fn main() {
     let mut __sn_resolved_receiver_0: i64 = 2;
     let mut directOrder: bool = (markedPoint(&mut (calls), &mut (order), 1, 1)).op_lt(markedPoint(&mut (calls), &mut (order), 2, 2));
     let mut swappedOrder: bool = (markedPoint(&mut (calls), &mut (order), 4, 4)).op_lt(markedPoint(&mut (calls), &mut (order), 3, 3));
-    let mut ownedLeft: OwnedPoint = OwnedPoint { label: SnString::from_slice(&[0x6f, 0x77, 0x6e, 0x65, 0x64]), values: vec![5, 6] };
+    let mut ownedLeft: OwnedPoint = OwnedPoint { label: __sn_concurrency0_Field::new(SnString::from_slice(&[0x6f, 0x77, 0x6e, 0x65, 0x64])), values: __sn_concurrency0_Field::new(vec![5, 6]) };
     let mut ownedSame: OwnedPoint = ownedLeft.clone();
-    let mut ownedEqual: bool = (ownedLeft).op_eq(&mut (ownedSame));
-    let mut ownedSwapped: bool = (markedOwnedPoint(&mut (calls), &mut (order), 6, 6)).op_lt(&mut (markedOwnedPoint(&mut (calls), &mut (order), 5, 5)));
+    let mut ownedEqual: bool = (ownedLeft).op_eq(ownedSame.__sn_concurrency0_share());
+    let mut ownedSwapped: bool = (markedOwnedPoint(&mut (calls), &mut (order), 6, 6)).op_lt((markedOwnedPoint(&mut (calls), &mut (order), 5, 5)).__sn_concurrency0_share());
     let mut nestedReceiver: bool = { let mut __sn_resolved_owner_0: Vec<Point> = markedPoints(&mut (calls), &mut (order), 8, 8);let __sn_resolved_receiver_1 = & ((__sn_resolved_owner_0)[__sn_index((__sn_resolved_owner_0).len(), markedIndex(&mut (calls), &mut (order), 9, 0))]); (__sn_resolved_receiver_1).op_lt(markedPoint(&mut (calls), &mut (order), 7, 7)) };
     let mut negativeNestedReceiver: bool = { let mut __sn_resolved_owner_2: Vec<Point> = markedPoints(&mut (calls), &mut (order), 2, 10);let __sn_resolved_receiver_3 = & ((__sn_resolved_owner_2)[__sn_index((__sn_resolved_owner_2).len(), markedIndex(&mut (calls), &mut (order), 3, (-1)))]); (__sn_resolved_receiver_3).op_lt(markedPoint(&mut (calls), &mut (order), 1, 9)) };
-    ((ownedSame).values).push(7);
+    { let __sn_concurrency0_receiver = (ownedSame).values.share();
+let __sn_concurrency0_field_arg0 = 7;
+let mut __sn_concurrency0_field_guard = __sn_concurrency0_receiver.lock();
+__sn_concurrency0_field_guard.push(__sn_concurrency0_field_arg0)
+ };
     let mut sourceLabel: SnString = SnString::from_slice(&[0x73, 0x6f, 0x75, 0x72, 0x63, 0x65]);
     let mut callValues: CallValues = CallValues { label: SnString::from_slice(&[0x70, 0x72, 0x65, 0x66, 0x69, 0x78]) };
     let mut staticMatch: bool = CallValues::labelMatches(sourceLabel.clone());
@@ -508,7 +535,7 @@ fn main() {
     let mut instanceNumbers: Vec<i64> = (callValues).makeNumbersAgain();
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", initialized)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", argument)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", returned)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", memberReceiver)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", indexedReceiver)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", explicitNe)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", derivedGe)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", derivedLe)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", matched)); __sn_interpolated }));
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", directOrder)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", swappedOrder)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", ownedEqual)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", ownedSwapped)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", nestedReceiver)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", negativeNestedReceiver)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", calls)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", order)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", __sn_checked_0((__sn_resolved_arg_0).checked_add(__sn_resolved_receiver_0), "Runtime error: integer overflow in addition"))); __sn_interpolated }));
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&((ownedLeft).label)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", ((ownedLeft).values).len() as i64)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", ((ownedSame).values).len() as i64)); __sn_interpolated }));
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&((ownedLeft).label.read())); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", ((ownedLeft).values.read()).len() as i64)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", ((ownedSame).values.read()).len() as i64)); __sn_interpolated }));
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", staticMatch)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&(staticLabel)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&(instanceLabel)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&(sourceLabel)); __sn_interpolated }));
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", (staticNumbers).len() as i64)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x7c]))); __sn_interpolated.push_str(&format!("{}", (instanceNumbers).len() as i64)); __sn_interpolated }));
     unsafe {

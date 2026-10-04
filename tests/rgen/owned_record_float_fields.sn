@@ -1,0 +1,44 @@
+fn nextIndex(calls: int as ref, position: int): int =>
+  calls = calls * 10 + 2
+  return position
+
+fn nextValue(calls: int as ref): double =>
+  calls = calls * 10 + 1
+  return 1.5
+
+struct Bag =>
+  values: float[]
+  wide: double[]
+
+fn exercise(bag: Bag as ref): void =>
+  var calls: int = 0
+  bag.values.insert(nextValue(calls), nextIndex(calls, 0))
+  println(calls)
+  println(bag.values[0] == 0.0f)
+  println(bag.values.length)
+  bag.values.insert(nextValue(calls), nextIndex(calls, -1))
+  println(calls)
+  println(bag.values.length)
+  bag.values.insert(nextValue(calls), nextIndex(calls, 99))
+  println(calls)
+  println(bag.values.length)
+  var stored: float = 1.5f
+  bag.values.push(stored)
+  println(bag.values[2] == stored)
+  bag.values.push(9.5f)
+  println(bag.values[3] == 0.0f)
+  bag.wide.push(stored)
+  println(bag.wide[0] > 0.0)
+  println(bag.wide[0] < 1.0)
+  println(bag.wide[0] == 1.5)
+  println(bag.wide.contains(bag.wide[0]))
+  bag.wide.push(1.5f)
+  println(bag.wide[1] == 1.5)
+
+fn main(): void =>
+  var bag: Bag = {
+    values: {1.5f},
+    wide: {}
+  }
+  exercise(bag)
+  println($"{bag.values.length} {bag.wide.length}")

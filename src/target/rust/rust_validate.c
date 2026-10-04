@@ -1759,7 +1759,8 @@ static bool rust_validate_expr(json_object *expr)
             }
             if (strcmp(value_kind, "string") != 0 ||
                 !json_string_property_equals(expr, "op", "add") ||
-                !json_string_property_equals(target, "kind", "variable"))
+                (!json_string_property_equals(target, "kind", "variable") &&
+                 !json_boolean_property(target, "rust_thread_field")))
             {
                 fprintf(stderr,
                         "Error: Rust target currently supports += only for string variables and string values\n");

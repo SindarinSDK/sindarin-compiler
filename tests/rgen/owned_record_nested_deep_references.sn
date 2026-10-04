@@ -1,0 +1,38 @@
+struct Child =>
+  name: str
+  count: int
+
+struct Parent =>
+  child: Child
+  children: Child[][]
+  label: str
+
+fn rename(child: Child): void =>
+  child.name = "new"
+  child.count++
+
+fn index(parent: Parent as ref): int =>
+  println($"index {parent.child.name}")
+  return - 1
+
+fn forward(children: Child[][]): void =>
+  rename(children[0][0])
+
+fn exercise(parent: Parent as ref): void =>
+  rename(parent.child)
+  rename(parent.children[index(parent)][index(parent)])
+  forward(parent.children)
+
+fn main(): void =>
+  var child: Child = {
+    name: "old",
+    count: 1
+  }
+  var parent: Parent = {
+    child: child,
+    children: {{child}},
+    label: "parent"
+  }
+  exercise(parent)
+  println($"{parent.child.name} {parent.child.count} {parent.children[0][0].name} {parent.children[0][0].count}")
+  println($"{child.name} {child.count}")
