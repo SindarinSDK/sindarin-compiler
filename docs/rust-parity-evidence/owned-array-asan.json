@@ -1,0 +1,167 @@
+{
+  "compiler_sha256": "ac1fea0e60006a64cb5d9337981d161a3b7dfb3494dd9c73d8ffee6b3e58e58d",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "cases": [
+    {
+      "source": "tests/integration/test_struct_array_concat.sn",
+      "source_sha256": "0d4c31d4aad62d3704e278111997f2a28231efb2fc18d4fc0b520b11b80f96bd",
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/integration/test_struct_array_concat.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-owned-array-asan-w82i0iyt/0.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f7374727563745f61727261795f636f6e6361742e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6f776e65642d61727261792d6173616e2d77383269306979742f302e657865202838372e38204b42290a"
+      },
+      "asan_instrumentation_verified": true,
+      "run": {
+        "command": [
+          "/tmp/sn-owned-array-asan-w82i0iyt/0.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "504153530a",
+        "stderr_hex": ""
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/owned_array_concat_values.sn",
+      "source_sha256": "20b4679852c4a0cec6a8b00764989cee52d1e46ffa0fa6212d87ffa5e190da24",
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rgen/owned_array_concat_values.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-owned-array-asan-w82i0iyt/1.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6f776e65645f61727261795f636f6e6361745f76616c7565732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6f776e65642d61727261792d6173616e2d77383269306979742f312e657865202838392e37204b42290a"
+      },
+      "asan_instrumentation_verified": true,
+      "run": {
+        "command": [
+          "/tmp/sn-owned-array-asan-w82i0iyt/1.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "32206120322031300a6220332032300a6368616e6765642039206f7468657220380a",
+        "stderr_hex": ""
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/owned_array_copy_values.sn",
+      "source_sha256": "6ce33e71e4143bc2fef70cf24b874bfc7273db781c85b7c1181059fe67ebfd70",
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rgen/owned_array_copy_values.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-owned-array-asan-w82i0iyt/2.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6f776e65645f61727261795f636f70795f76616c7565732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6f776e65642d61727261792d6173616e2d77383269306979742f322e657865202838382e35204b42290a"
+      },
+      "asan_instrumentation_verified": true,
+      "run": {
+        "command": [
+          "/tmp/sn-owned-array-asan-w82i0iyt/2.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "736f75726365203220320a6f726967696e616c203920636f707920380a",
+        "stderr_hex": ""
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/owned_array_concat_nested.sn",
+      "source_sha256": "1d8298946190961097818d27598aad0f5422ee77fc0a0e00694550101fa1135d",
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rgen/owned_array_concat_nested.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-owned-array-asan-w82i0iyt/3.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6f776e65645f61727261795f636f6e6361745f6e65737465642e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6f776e65642d61727261792d6173616e2d77383269306979742f332e657865202838372e39204b42290a"
+      },
+      "asan_instrumentation_verified": true,
+      "run": {
+        "command": [
+          "/tmp/sn-owned-array-asan-w82i0iyt/3.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "3220312032203320340a3920380a",
+        "stderr_hex": ""
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/owned_array_null_state.sn",
+      "source_sha256": "bec29745b91ffd895b615e88d4d6e9893d94ecf5bf65de13642ee152f83e848a",
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rgen/owned_array_null_state.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-owned-array-asan-w82i0iyt/4.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6f776e65645f61727261795f6e756c6c5f73746174652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6f776e65642d61727261792d6173616e2d77383269306979742f342e657865202838382e37204b42290a"
+      },
+      "asan_instrumentation_verified": true,
+      "run": {
+        "command": [
+          "/tmp/sn-owned-array-asan-w82i0iyt/4.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "7472756520747275652066616c73652066616c73650a7472756520747275652066616c73652066616c73650a312074727565207472756520747275650a",
+        "stderr_hex": ""
+      },
+      "passed": true
+    }
+  ],
+  "passed": true
+}

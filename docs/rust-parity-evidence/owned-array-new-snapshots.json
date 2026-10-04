@@ -1,0 +1,34 @@
+[
+  {
+    "source": "tests/rgen/owned_array_concat_values.sn",
+    "source_sha256": "20b4679852c4a0cec6a8b00764989cee52d1e46ffa0fa6212d87ffa5e190da24",
+    "snapshot": "tests/rgen/owned_array_concat_values.expected.rs",
+    "snapshot_sha256": "58e1e7fb158cf158172b262887cfecf9dc35cc45198efa4905d2e5d1293e19ed",
+    "optimization": "-O0",
+    "runtime_verified_cases": 9
+  },
+  {
+    "source": "tests/rgen/owned_array_copy_values.sn",
+    "source_sha256": "6ce33e71e4143bc2fef70cf24b874bfc7273db781c85b7c1181059fe67ebfd70",
+    "snapshot": "tests/rgen/owned_array_copy_values.expected.rs",
+    "snapshot_sha256": "eb33d42c59e0e7b7aebc39f3b70763f0590e7b5d040721601ec7cc5d4a5544d6",
+    "optimization": "-O0",
+    "runtime_verified_cases": 9
+  },
+  {
+    "source": "tests/rgen/owned_array_concat_nested.sn",
+    "source_sha256": "1d8298946190961097818d27598aad0f5422ee77fc0a0e00694550101fa1135d",
+    "snapshot": "tests/rgen/owned_array_concat_nested.expected.rs",
+    "snapshot_sha256": "90efd17efca0d1c44e7de955894269c24ace953881f06751b6d28be139652da9",
+    "optimization": "-O0",
+    "runtime_verified_cases": 9
+  },
+  {
+    "source": "tests/rgen/owned_array_null_state.sn",
+    "source_sha256": "bec29745b91ffd895b615e88d4d6e9893d94ecf5bf65de13642ee152f83e848a",
+    "snapshot": "tests/rgen/owned_array_null_state.expected.rs",
+    "snapshot_sha256": "c8c039d3011d88bdddb41eb6afe050f4e91a4f7a8f2f1e7190f6d41447ad7f50",
+    "optimization": "-O0",
+    "runtime_verified_cases": 9
+  }
+]

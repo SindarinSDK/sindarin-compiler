@@ -1,0 +1,33 @@
+struct Point =>
+  x: int
+
+struct Payload =>
+  label: str
+  values: int[]
+  point: Point
+
+fn main(): void =>
+  var left: Payload[] = { Payload {
+    label: "a",
+    values: {1, 2},
+    point: Point { x: 10 }
+  } }
+  var right: Payload[] = { Payload {
+    label: "b",
+    values: {3, 4},
+    point: Point { x: 20 }
+  } }
+  var combined: Payload[] = left.concat(right)
+  left[0] = Payload {
+    label: "changed",
+    values: {9},
+    point: Point { x: 90 }
+  }
+  right[0] = Payload {
+    label: "other",
+    values: {8},
+    point: Point { x: 80 }
+  }
+  println($"{combined.length} {combined[0].label} {combined[0].values[1]} {combined[0].point.x}")
+  println($"{combined[1].label} {combined[1].values[0]} {combined[1].point.x}")
+  println($"{left[0].label} {left[0].values[0]} {right[0].label} {right[0].values[0]}")

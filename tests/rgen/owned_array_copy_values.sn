@@ -1,0 +1,23 @@
+struct Inner =>
+  label: str
+  values: int[]
+
+struct Entry =>
+  inner: Inner
+
+fn main(): void =>
+  var original: Entry[] = { Entry { inner: Inner {
+    label: "source",
+    values: {1, 2}
+  } } }
+  var copied: Entry[] = copyOf(original)
+  original[0] = Entry { inner: Inner {
+    label: "original",
+    values: {9}
+  } }
+  println($"{copied[0].inner.label} {copied[0].inner.values.length} {copied[0].inner.values[1]}")
+  copied[0] = Entry { inner: Inner {
+    label: "copy",
+    values: {8}
+  } }
+  println($"{original[0].inner.label} {original[0].inner.values[0]} {copied[0].inner.label} {copied[0].inner.values[0]}")

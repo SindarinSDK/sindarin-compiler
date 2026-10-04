@@ -5,12 +5,68 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
-## Latest local increment: nil arrays, 2026-10-04
+## Latest local increment: array stores and owned copies, 2026-10-04
+
+This combined increment is locally verified against integrated nil-array main
+`99798871a8561481f4e0c2bb9f29a74864c86899`, whose six CI jobs and complete
+retained artifacts are now verified. All 29 local reports pass **2388 cases**,
+including 45 independent nested-store cases and 45 owned-array copy/concat cases
+across O0/O1/O2 and all arithmetic modes. Full C suites pass unchanged. Rust
+generation/negative pass 442 / 143, native 8 / 30 / 1 / 4, closures 36 / 1,
+concurrency 10 / 7 / 1 and toolchain 12, without failures/skips. Ten C controls
+pass instrumented ASAN with leak detection. Raw-byte, transport, helper and
+formatting checks pass. Exact-revision hosted verification for this increment
+remains required.
+
+Nested stable array stores resolve destination indices before taking the final
+mutable borrow, including ordinary vectors and constant negative indices.
+String stores preserve C's explicit index-before-replacement ordering when
+replacement calls mutate the source index. Plain and nullable representations,
+three dimensions, field owners, deep-copy mutation and private-name collisions
+are covered. Effectful nested owners and borrowed returns remain separate work.
+
+Array concatenation and copyOf support validated auto-copy value structs with
+owned strings, arrays and nested value fields; concatenation also supports nested
+arrays. Their deep copies survive replacement and cleanup of source elements.
+Nil versus allocated empty state survives nested field copies and nullable-array
+concatenation. Existing native, memory-qualification and user-copy-hook guards
+remain; general shared array/reference/callable identity remains unfinished.
+
+The unchanged original corpus passes 1083 integration and 216 exploratory
+programs, leaving **66 original compilation gaps locally**, down from 68.
+The unchanged nested-array copy and struct-array concat programs now pass all
+nine mode/optimization combinations. No original runtime failures or skips occur.
+All 1365 original source hashes are unchanged. Of 487 historical Rust snapshots,
+485 are byte-identical; two reviewed one-line changes move index bindings ahead
+of the replacement value, backed by the 90-case nil-array gate. Eight new O0
+snapshots are added, and all eight controls preserve their final prepared bytes.
+
+The baseline contains 36 nested-store compiler rejections, nine actual nullable
+string-store output mismatches, and 45 owned-array compiler rejections, against
+90 independently checked successful C executions. A scalar probe that changes
+its own destination index in the RHS has unspecified C operand order and is
+excluded. Unsupported member-copy syntax and intermediate ordering/formatting
+failures are retained separately. C production, templates and original source/
+output expectations are unchanged; C remains the default target.
+
+Evidence: [combined local validation](rust-parity-evidence/array-copy-store-validation.json),
+[nested-store pairs](rust-parity-evidence/nested-store-pairs.json),
+[owned-array pairs](rust-parity-evidence/owned-array-pairs.json),
+[nested baseline](rust-parity-evidence/nested-store-before-controls.json),
+[owned baseline](rust-parity-evidence/owned-array-before-controls.json),
+[nested ASAN](rust-parity-evidence/nested-store-asan.json),
+[owned ASAN](rust-parity-evidence/owned-array-asan.json) and
+[remaining diagnostics](rust-parity-evidence/array-copy-store-gap-diagnostics.json).
+
+## Nil arrays: verified on main, 2026-10-04
 
 This increment is locally verified against integrated nil-string main
-`0e2a3d2e7fea6a353ff91bc0a0069741acbe9b15`; all six jobs and complete retained
-artifacts for that revision are verified. This increment is ready for integration;
-its exact-revision hosted verification is still required.
+`0e2a3d2e7fea6a353ff91bc0a0069741acbe9b15`, whose six jobs and complete retained
+artifacts are verified. It is pushed directly to main as
+`99798871a8561481f4e0c2bb9f29a74864c86899`. All six Compiler/Rust Runtime
+jobs pass. Complete retained artifacts independently verify all 27 reports /
+2298 cases on Linux, macOS and Windows. The open PR queue is empty.
+[Exact-main CI proof](rust-parity-evidence/nil-array-main-ci-green.json).
 All 27 reports pass **2298 cases**, including 90 independent nil-array cases
 at O0/O1/O2 in default/checked/unchecked arithmetic modes. Complete C suites pass
 unchanged; Rust generation/negative are 434 / 143, native 8 / 30 / 1 / 4,
@@ -239,25 +295,25 @@ Full parity and exact-revision hosted verification remain required.
 
 ## Current verified status: 2026-10-04
 
-Main `0e2a3d2e7fea6a353ff91bc0a0069741acbe9b15` passes all six Linux/macOS/Windows
+Main `99798871a8561481f4e0c2bb9f29a74864c86899` passes all six Linux/macOS/Windows
 Compiler and Rust Runtime jobs. Complete hosted C/Rust suites pass without
-failures or skips. Each platform's 26 retained runtime reports independently
-verifies **2208 cases**: 1908 positive C/Rust pairs, 39 diagnostic/order cases,
-153 process-exit cases and 108 main-return cases. The 72 nil-string cases verify
+failures or skips. Each platform's 27 retained runtime reports independently
+verifies **2298 cases**: 1998 positive C/Rust pairs, 39 diagnostic/order cases,
+153 process-exit cases and 108 main-return cases. The 90 nil-array cases verify
 nil versus allocated empty state and native NULL transport. C remains default.
 
-The unchanged original corpus passes 1080 integration and 216 exploratory
-programs, leaving 61 and eight compilation gaps: **69 remaining original gaps**
-on this verified revision. All 1365 original source hashes and 477 historical
-Rust snapshots are unchanged, with three new snapshots bringing the total to 480.
-Eight C controls and four Rust/native controls pass instrumented ASAN; the latter
-covers the C bridge/runtime. The pending nil-array increment reduces the locally
-verified gap count to 68.
+The unchanged original corpus passes 1081 integration and 216 exploratory
+programs, leaving 60 and eight compilation gaps: **68 remaining original gaps**
+on this verified revision. All 1365 original source hashes and 480 historical
+Rust snapshots are unchanged, with seven new snapshots bringing the total to 487.
+Ten C controls and two Rust/native controls pass instrumented ASAN; the latter
+covers the C bridge/runtime. The next local array-store/owned-copy increment
+reduces the original gap count to 66.
 
-Evidence: [local validation](rust-parity-evidence/nil-string-validation.json),
-[72 independent pairs](rust-parity-evidence/nil-string-pairs.json),
-[remaining diagnostics](rust-parity-evidence/nil-string-gap-diagnostics.json)
-and [exact-main CI proof](rust-parity-evidence/nil-string-main-ci-green.json).
+Evidence: [local validation](rust-parity-evidence/nil-array-validation.json),
+[90 independent pairs](rust-parity-evidence/nil-array-pairs.json),
+[remaining diagnostics](rust-parity-evidence/nil-array-gap-diagnostics.json)
+and [exact-main CI proof](rust-parity-evidence/nil-array-main-ci-green.json).
 
 ## Baseline: 2026-10-02
 

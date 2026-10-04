@@ -166,6 +166,23 @@ static void rust_prepare_nullable_arrays(json_object *model)
     json_object_object_add(model, "rust_nullable_array_name", json_object_new_string(name));
 }
 
+/* Callback-free nested owners, including constant negative indices.  Keep
+ * this broader classification private to stores; call admission is unchanged. */
+static bool rust_nested_array_stable_place(json_object *node)
+{
+    if (json_string_property_equals(node, "kind", "variable")) return true;
+    if (json_string_property_equals(node, "kind", "member"))
+        return rust_nested_array_stable_place(rust_nullable_child(node, "object"));
+    if (!json_string_property_equals(node, "kind", "array_access")) return false;
+    json_object *index = rust_nullable_child(node, "index");
+    bool constant_negative = json_string_property_equals(index, "kind", "unary") &&
+        json_string_property_equals(index, "op", "negate") &&
+        json_string_property_equals(rust_nullable_child(index, "operand"), "kind", "literal");
+    return rust_nested_array_stable_place(rust_nullable_child(node, "array")) &&
+        (json_string_property_equals(index, "kind", "literal") ||
+         rust_call_stable_place(index) || constant_negative);
+}
+
 /* Resolve nested stable indices before taking the store's mutable borrow. */
 static bool rust_lower_nullable_array_stores(json_object *model, json_object *node,
                                               size_t *next_id)
@@ -187,7 +204,7 @@ static bool rust_lower_nullable_array_stores(json_object *model, json_object *no
     json_object *array = rust_nullable_child(node, "array");
     if (!json_string_property_equals(node, "kind", "index_assign") ||
         !json_string_property_equals(array, "kind", "array_access") ||
-        !rust_call_stable_place(array) || json_boolean_property(node, "rust_capture_index_assign"))
+        !rust_nested_array_stable_place(array) || json_boolean_property(node, "rust_capture_index_assign"))
         return true;
     json_object *store = json_object_new_object();
     json_object_object_add(store, "kind", json_object_new_string("array_access"));

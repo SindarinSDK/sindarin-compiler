@@ -269,8 +269,7 @@ static bool rust_emit(CompilerOptions *options, Module *module,
         json_object_put(model);
         return false;
     }
-    if (json_boolean_property(model, "rust_nullable_arrays") &&
-        !rust_lower_nullable_array_stores(model, model, &place_temp_id))
+    if (!rust_lower_nullable_array_stores(model, model, &place_temp_id))
     { json_object_put(model); return false; }
     size_t match_temp_id = 0;
     if (!rust_lower_match_temp_names(model, model, &match_temp_id))

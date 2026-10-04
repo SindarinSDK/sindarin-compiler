@@ -960,7 +960,14 @@ static bool rust_array_concat_type_supported(json_object *type)
     {
         json_object *structure = rust_find_struct(
             rust_validation_model, json_string_property(type, "name"));
-        return structure && !json_boolean_property(structure, "has_heap_fields");
+        return structure && (!json_boolean_property(structure, "has_heap_fields") ||
+            rust_auto_copy_plain_value_struct_type(type, NULL));
+    }
+    if (kind && strcmp(kind, "array") == 0)
+    {
+        json_object *element = NULL;
+        return json_object_object_get_ex(type, "element_type", &element) &&
+               rust_array_concat_type_supported(element);
     }
     return rust_integer_type(kind) || rust_float_type(kind) ||
            (kind && (strcmp(kind, "bool") == 0 || strcmp(kind, "char") == 0 ||
@@ -987,7 +994,8 @@ static bool rust_array_copy_type_supported(json_object *type)
     }
     const char *kind = json_string_property(type, "kind");
     if (kind && strcmp(kind, "struct") == 0)
-        return rust_heap_free_named_struct_type(type);
+        return rust_heap_free_named_struct_type(type) ||
+               rust_auto_copy_plain_value_struct_type(type, NULL);
     return rust_integer_type(kind) || rust_float_type(kind) ||
            (kind && (strcmp(kind, "bool") == 0 || strcmp(kind, "char") == 0 ||
                      strcmp(kind, "string") == 0));
@@ -1650,7 +1658,7 @@ static bool rust_validate_expr(json_object *expr)
              !rust_array_copy_type_supported(element_type)))
         {
             fprintf(stderr,
-                    "Error: Rust target currently supports copyOf() only for strings, auto-copy plain value structs, and arrays of integers, strings, booleans, characters, floating-point values, and heap-free named value structs\n");
+                    "Error: Rust target currently supports copyOf() only for strings, auto-copy plain value structs, and arrays of supported scalar, callable, nested array, and auto-copy value struct elements\n");
             return false;
         }
         return rust_validate_expr(operand);

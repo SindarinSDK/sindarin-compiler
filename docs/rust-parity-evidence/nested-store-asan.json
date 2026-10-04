@@ -1,0 +1,167 @@
+{
+  "compiler_sha256": "ac1fea0e60006a64cb5d9337981d161a3b7dfb3494dd9c73d8ffee6b3e58e58d",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "cases": [
+    {
+      "source": "tests/integration/test_nested_array_copy.sn",
+      "source_sha256": "354d4cc9b1bdb168dacc7035b358723147b1f241e4c7270654a5d419b5ae1979",
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/integration/test_nested_array_copy.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-nested-store-asan-3xapgfz1/0.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f6e65737465645f61727261795f636f70792e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6e65737465642d73746f72652d6173616e2d3378617067667a312f302e657865202838392e37204b42290a"
+      },
+      "asan_instrumentation_verified": true,
+      "run": {
+        "command": [
+          "/tmp/sn-nested-store-asan-3xapgfz1/0.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "31203220330a34203520360a393939203220330a34203520360a",
+        "stderr_hex": ""
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/nested_store_stable_indices.sn",
+      "source_sha256": "cdab1b2fc6f0f02c201325808b23b917815a6d819352bb9cd4d685a699fee4b5",
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rgen/nested_store_stable_indices.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-nested-store-asan-3xapgfz1/1.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6e65737465645f73746f72655f737461626c655f696e64696365732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6e65737465642d73746f72652d6173616e2d3378617067667a312f312e657865202838392e30204b42290a"
+      },
+      "asan_instrumentation_verified": true,
+      "run": {
+        "command": [
+          "/tmp/sn-nested-store-asan-3xapgfz1/1.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "312032203320340a373720322033203930203020310a",
+        "stderr_hex": ""
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/nested_store_string_indices.sn",
+      "source_sha256": "aa3ffa6673ffd716c17ab9ad1d60c0ba4dc7a14762232f4b5a7c137bbbf0057c",
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rgen/nested_store_string_indices.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-nested-store-asan-3xapgfz1/2.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6e65737465645f73746f72655f737472696e675f696e64696365732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6e65737465642d73746f72652d6173616e2d3378617067667a312f322e657865202838392e36204b42290a"
+      },
+      "asan_instrumentation_verified": true,
+      "run": {
+        "command": [
+          "/tmp/sn-nested-store-asan-3xapgfz1/2.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "612062206320640a7570646174656420622063207461696c20310a",
+        "stderr_hex": ""
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/nested_store_nullable_string.sn",
+      "source_sha256": "be465325137878727cfcff7e23c795522e3b7ff6be0351b64073c21569534bc2",
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rgen/nested_store_nullable_string.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-nested-store-asan-3xapgfz1/3.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6e65737465645f73746f72655f6e756c6c61626c655f737472696e672e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6e65737465642d73746f72652d6173616e2d3378617067667a312f332e657865202839302e31204b42290a"
+      },
+      "asan_instrumentation_verified": true,
+      "run": {
+        "command": [
+          "/tmp/sn-nested-store-asan-3xapgfz1/3.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "747275650a747275650a612062206320640a7570646174656420622063207461696c20310a",
+        "stderr_hex": ""
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rgen/nested_store_deep_fields.sn",
+      "source_sha256": "b9dff326a99daca4c892b33c6c3ed025d6ebe38dcbe74a791860947695acd899",
+      "compile": {
+        "command": [
+          "bin/sn",
+          "tests/rgen/nested_store_deep_fields.sn",
+          "--target",
+          "c",
+          "-O0",
+          "-g",
+          "--no-install",
+          "-l",
+          "1",
+          "-o",
+          "/tmp/sn-nested-store-asan-3xapgfz1/4.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "",
+        "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6e65737465645f73746f72655f646565705f6669656c64732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d6e65737465642d73746f72652d6173616e2d3378617067667a312f342e657865202839302e31204b42290a"
+      },
+      "asan_instrumentation_verified": true,
+      "run": {
+        "command": [
+          "/tmp/sn-nested-store-asan-3xapgfz1/4.exe"
+        ],
+        "status": 0,
+        "stdout_hex": "393120380a342039390a",
+        "stderr_hex": ""
+      },
+      "passed": true
+    }
+  ],
+  "passed": true
+}

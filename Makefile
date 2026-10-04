@@ -728,3 +728,27 @@ test-rust-parity-nil-array: build
 		--require-count 10 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-nil-array.json
 	@$(PYTHON) scripts/check_rust_nil_array_oracles.py .sn/rust-parity-nil-array.json
+
+.PHONY: test-rust-parity-nested-stores
+test-rust-parity-nested-stores: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/integration/test_nested_array_copy.sn \
+		tests/rgen/nested_store_stable_indices.sn \
+		tests/rgen/nested_store_string_indices.sn \
+		tests/rgen/nested_store_deep_fields.sn \
+		tests/rgen/nested_store_nullable_string.sn \
+		--require-count 5 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-nested-stores.json
+	@$(PYTHON) scripts/check_rust_nested_store_oracles.py .sn/rust-parity-nested-stores.json
+
+.PHONY: test-rust-parity-owned-array-copies
+test-rust-parity-owned-array-copies: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/integration/test_struct_array_concat.sn \
+		tests/rgen/owned_array_concat_values.sn \
+		tests/rgen/owned_array_copy_values.sn \
+		tests/rgen/owned_array_concat_nested.sn \
+		tests/rgen/owned_array_null_state.sn \
+		--require-count 5 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-owned-array-copies.json
+	@$(PYTHON) scripts/check_rust_owned_array_oracles.py .sn/rust-parity-owned-array-copies.json

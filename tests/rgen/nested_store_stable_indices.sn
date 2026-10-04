@@ -1,0 +1,15 @@
+fn change(index: int as ref): int =>
+  index = 1
+  return 77
+
+fn main(): void =>
+  var grid: int[][] = {{1, 2}, {3, 4}}
+  var copy: int[][] = grid.clone()
+  var row: int = -1
+  var column: int = -1
+  copy[row][column] = 90
+  var selected: int = 0
+  var calls: int = 0
+  copy[0][selected] = change(calls)
+  println($"{grid[0][0]} {grid[0][1]} {grid[1][0]} {grid[1][1]}")
+  println($"{copy[0][0]} {copy[0][1]} {copy[1][0]} {copy[1][1]} {selected} {calls}")

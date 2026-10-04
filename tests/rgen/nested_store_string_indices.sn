@@ -1,0 +1,13 @@
+fn change(index: int as ref): str =>
+  index = 1
+  return "updated"
+
+fn main(): void =>
+  var grid: str[][] = {{"a", "b"}, {"c", "d"}}
+  var copy: str[][] = grid.clone()
+  var selected: int = 0
+  copy[0][selected] = change(selected)
+  var last: int = -1
+  copy[last][last] = "tail"
+  println($"{grid[0][0]} {grid[0][1]} {grid[1][0]} {grid[1][1]}")
+  println($"{copy[0][0]} {copy[0][1]} {copy[1][0]} {copy[1][1]} {selected}")

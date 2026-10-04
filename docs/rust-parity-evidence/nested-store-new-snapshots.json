@@ -1,0 +1,34 @@
+[
+  {
+    "source": "tests/rgen/nested_store_stable_indices.sn",
+    "source_sha256": "cdab1b2fc6f0f02c201325808b23b917815a6d819352bb9cd4d685a699fee4b5",
+    "snapshot": "tests/rgen/nested_store_stable_indices.expected.rs",
+    "snapshot_sha256": "23175332b08d9a2d9452e3c8697b2ea59f0e934c12213f8a8321f9f17ab8b4c3",
+    "optimization": "-O0",
+    "runtime_verified_cases": 9
+  },
+  {
+    "source": "tests/rgen/nested_store_string_indices.sn",
+    "source_sha256": "aa3ffa6673ffd716c17ab9ad1d60c0ba4dc7a14762232f4b5a7c137bbbf0057c",
+    "snapshot": "tests/rgen/nested_store_string_indices.expected.rs",
+    "snapshot_sha256": "86c166087917931470abb98bb4084aed95356eb25b84fa93adacf67daa0b48e4",
+    "optimization": "-O0",
+    "runtime_verified_cases": 9
+  },
+  {
+    "source": "tests/rgen/nested_store_nullable_string.sn",
+    "source_sha256": "be465325137878727cfcff7e23c795522e3b7ff6be0351b64073c21569534bc2",
+    "snapshot": "tests/rgen/nested_store_nullable_string.expected.rs",
+    "snapshot_sha256": "1f8516cddf82adbc9df7f02f7d28851b7bab70e7e0704735e0af998cac51f07a",
+    "optimization": "-O0",
+    "runtime_verified_cases": 9
+  },
+  {
+    "source": "tests/rgen/nested_store_deep_fields.sn",
+    "source_sha256": "b9dff326a99daca4c892b33c6c3ed025d6ebe38dcbe74a791860947695acd899",
+    "snapshot": "tests/rgen/nested_store_deep_fields.expected.rs",
+    "snapshot_sha256": "14a68e3b37925ec4b0b10afa732292d93a5ea8c28ce740e6530ba3b0bf1361b6",
+    "optimization": "-O0",
+    "runtime_verified_cases": 9
+  }
+]

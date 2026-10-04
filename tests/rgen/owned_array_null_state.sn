@@ -1,0 +1,21 @@
+struct Payload =>
+  label: str
+  values: int[]
+
+fn main(): void =>
+  var left: Payload[] = { Payload {
+    label: nil,
+    values: nil
+  } }
+  var right: Payload[] = { Payload {
+    label: "",
+    values: {}
+  } }
+  var absent: Payload[] = nil
+  var combined: Payload[] = left.concat(right)
+  var copied: Payload[] = copyOf(combined)
+  var one: Payload[] = absent.concat(left)
+  var none: Payload[] = copyOf(absent.concat(absent))
+  println($"{combined[0].label == nil} {combined[0].values == nil} {combined[1].label == nil} {combined[1].values == nil}")
+  println($"{copied[0].label == nil} {copied[0].values == nil} {copied[1].label == nil} {copied[1].values == nil}")
+  println($"{one.length} {one[0].label == nil} {one[0].values == nil} {none == nil}")

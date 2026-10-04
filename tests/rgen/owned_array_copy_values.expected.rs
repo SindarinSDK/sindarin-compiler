@@ -311,52 +311,6 @@ fn __sn_string_to_double(value: &SnString) -> f64 {
 }
 
 
-#[allow(non_camel_case_types)]
-#[derive(Clone, Debug, PartialEq, Eq)]
-struct __sn_nullable_array_0<T> {
-    values: Vec<T>,
-    nil: bool,
-}
-
-impl<T> __sn_nullable_array_0<T> {
-    fn nil() -> Self { Self { values: Vec::new(), nil: true } }
-    fn from_vec(values: Vec<T>) -> Self { Self { values, nil: false } }
-    fn is_nil(&self) -> bool { self.nil }
-}
-
-impl<T: Clone> __sn_nullable_array_0<T> {
-    fn concat_nullable(&self, other: &Self) -> Self {
-        if self.nil && other.nil { return Self::nil(); }
-        Self::from_vec([self.values.as_slice(), other.values.as_slice()].concat())
-    }
-}
-
-impl<T> Default for __sn_nullable_array_0<T> {
-    fn default() -> Self { Self::nil() }
-}
-
-impl<T> std::ops::Deref for __sn_nullable_array_0<T> {
-    type Target = Vec<T>;
-    fn deref(&self) -> &Self::Target { &self.values }
-}
-
-impl<T> std::ops::DerefMut for __sn_nullable_array_0<T> {
-    fn deref_mut(&mut self) -> &mut Self::Target { &mut self.values }
-}
-
-impl<T> IntoIterator for __sn_nullable_array_0<T> {
-    type Item = T;
-    type IntoIter = std::vec::IntoIter<T>;
-    fn into_iter(self) -> Self::IntoIter { self.values.into_iter() }
-}
-
-impl<'a, T> IntoIterator for &'a __sn_nullable_array_0<T> {
-    type Item = &'a T;
-    type IntoIter = std::slice::Iter<'a, T>;
-    fn into_iter(self) -> Self::IntoIter { self.values.iter() }
-}
-
-
 fn __sn_index(length: usize, index: i64) -> usize {
     let resolved = if index < 0 { length as i64 + index } else { index };
     if resolved < 0 || resolved >= length as i64 {
@@ -380,175 +334,23 @@ fn __sn_array_size(size: i64) -> usize {
     size as usize
 }
 
-#[allow(non_camel_case_types)]
-trait __SnArrayText_0 {
-    fn __sn_array_text_0(&self) -> SnString;
-    fn __sn_join_text_0(&self) -> SnString;
-    fn __sn_struct_text_0(&self) -> SnString;
+#[derive(Clone, Debug, PartialEq)]
+struct Inner {
+    label: SnString,
+    values: Vec<i64>,
 }
-
-macro_rules! __sn_integer_array_text_0 {
-    ($($type:ty),+ $(,)?) => {$(
-        impl __SnArrayText_0 for $type {
-            fn __sn_array_text_0(&self) -> SnString { SnString::from(self.to_string()) }
-            fn __sn_join_text_0(&self) -> SnString { SnString::from(self.to_string()) }
-            fn __sn_struct_text_0(&self) -> SnString { SnString::from(self.to_string()) }
-        }
-    )+};
+#[derive(Clone, Debug, PartialEq)]
+struct Entry {
+    inner: Inner,
 }
-
-__sn_integer_array_text_0!(i64, i32, u32);
-
-impl __SnArrayText_0 for u64 {
-    fn __sn_array_text_0(&self) -> SnString { SnString::from((*self as i64).to_string()) }
-    fn __sn_join_text_0(&self) -> SnString { SnString::from((*self as i64).to_string()) }
-    fn __sn_struct_text_0(&self) -> SnString { SnString::from((*self as i64).to_string()) }
-}
-
-impl __SnArrayText_0 for u8 {
-    fn __sn_array_text_0(&self) -> SnString { SnString::from(format!("0x{:02X}", self)) }
-    fn __sn_join_text_0(&self) -> SnString { SnString::from(format!("0x{:02X}", self)) }
-    fn __sn_struct_text_0(&self) -> SnString { SnString::from(self.to_string()) }
-}
-
-impl __SnArrayText_0 for bool {
-    fn __sn_array_text_0(&self) -> SnString { SnString::from(self.to_string()) }
-    fn __sn_join_text_0(&self) -> SnString { SnString::from(self.to_string()) }
-    fn __sn_struct_text_0(&self) -> SnString { SnString::from(self.to_string()) }
-}
-
-impl __SnArrayText_0 for char {
-    fn __sn_array_text_0(&self) -> SnString {
-        let mut result = SnString::from_slice(b"'");
-        result.push_char(*self);
-        result.push_str("'");
-        result
-    }
-    fn __sn_join_text_0(&self) -> SnString {
-        let mut result = SnString::new();
-        result.push_char(*self);
-        result
-    }
-    fn __sn_struct_text_0(&self) -> SnString {
-        self.__sn_array_text_0()
-    }
-}
-
-impl __SnArrayText_0 for SnString {
-    fn __sn_array_text_0(&self) -> SnString {
-        let mut result = SnString::from_slice(b"\"");
-        result.push_str(self);
-        result.push_str("\"");
-        result
-    }
-    fn __sn_join_text_0(&self) -> SnString { self.clone() }
-    fn __sn_struct_text_0(&self) -> SnString {
-        self.__sn_array_text_0()
-    }
-}
-
-fn __sn_float_array_text_0(value: f64) -> String {
-    if value.is_nan() { return "nan".to_string(); }
-    if value == f64::INFINITY { return "inf".to_string(); }
-    if value == f64::NEG_INFINITY { return "-inf".to_string(); }
-
-    let scientific = format!("{:.5e}", value);
-    let (mantissa, exponent_text) = scientific.split_once('e').unwrap();
-    let exponent: i32 = exponent_text.parse().unwrap();
-    if exponent < -4 || exponent >= 6 {
-        let mantissa = mantissa.trim_end_matches('0').trim_end_matches('.');
-        return format!("{}e{:+03}", mantissa, exponent);
-    }
-
-    let precision = (5 - exponent).max(0) as usize;
-    let fixed = format!("{:.*}", precision, value);
-    if fixed.contains('.') {
-        fixed.trim_end_matches('0').trim_end_matches('.').to_string()
-    } else {
-        fixed
-    }
-}
-
-macro_rules! __sn_float_array_text_impl_0 {
-    ($($type:ty),+ $(,)?) => {$(
-        impl __SnArrayText_0 for $type {
-            fn __sn_array_text_0(&self) -> SnString { SnString::from(__sn_float_array_text_0(*self as f64)) }
-            fn __sn_join_text_0(&self) -> SnString { SnString::from(format!("{:.5}", self)) }
-            fn __sn_struct_text_0(&self) -> SnString { SnString::from(format!("{:.5}", self)) }
-        }
-    )+};
-}
-
-__sn_float_array_text_impl_0!(f64, f32);
-
-impl<T: __SnArrayText_0> __SnArrayText_0 for Vec<T> {
-    fn __sn_array_text_0(&self) -> SnString { __sn_array_to_string_0(self.as_slice()) }
-    // sn_array_join renders each nested-array element as "?"; recursion is
-    // reserved for full array formatting (print and interpolation).
-    fn __sn_join_text_0(&self) -> SnString { SnString::from_slice(b"?") }
-    fn __sn_struct_text_0(&self) -> SnString { __sn_array_to_string_0(self.as_slice()) }
-}
-
-impl<T: __SnArrayText_0> __SnArrayText_0 for __sn_nullable_array_0<T> {
-    fn __sn_array_text_0(&self) -> SnString { __sn_array_to_string_0(self.as_slice()) }
-    // sn_array_join renders each nested-array element as "?"; recursion is
-    // reserved for full array formatting (print and interpolation).
-    fn __sn_join_text_0(&self) -> SnString { SnString::from_slice(b"?") }
-    fn __sn_struct_text_0(&self) -> SnString { __sn_array_to_string_0(self.as_slice()) }
-}
-
-fn __sn_array_to_string_0<T: __SnArrayText_0>(array: &[T]) -> SnString {
-    let mut result = SnString::from_slice(b"[");
-    for (index, value) in array.iter().enumerate() {
-        if index != 0 { result.push_str(", "); }
-        result.push_str(&value.__sn_array_text_0());
-    }
-    result.push_str("]");
-    result
-}
-
-fn __sn_array_join_0<T: __SnArrayText_0>(array: &[T], separator: &SnString) -> SnString {
-    let mut result = SnString::new();
-    for (index, value) in array.iter().enumerate() {
-        if index != 0 { result.push_str(separator); }
-        result.push_str(&value.__sn_join_text_0());
-    }
-    result
-}
-
 
 fn main() {
-    let mut absent: __sn_nullable_array_0<i64> = __sn_nullable_array_0::nil();
-    let mut empty: __sn_nullable_array_0<i64> = __sn_nullable_array_0::from_vec(vec![]);
-    let mut values: __sn_nullable_array_0<i64> = __sn_nullable_array_0::from_vec(vec![4, 5]);
-    let mut bothAbsent: __sn_nullable_array_0<i64> = { let __sn_array_left = &(absent); let __sn_array_right = &(absent); __sn_array_left.concat_nullable(__sn_array_right) };
-    println!("{}", { (bothAbsent).is_nil() }
-);
-    let mut leftAbsent: __sn_nullable_array_0<i64> = { let __sn_array_left = &(absent); let __sn_array_right = &(empty); __sn_array_left.concat_nullable(__sn_array_right) };
-    println!("{}", { (leftAbsent).is_nil() }
-);
-    let mut rightAbsent: __sn_nullable_array_0<i64> = { let __sn_array_left = &(empty); let __sn_array_right = &(absent); __sn_array_left.concat_nullable(__sn_array_right) };
-    println!("{}", { (rightAbsent).is_nil() }
-);
-    let mut joined: __sn_nullable_array_0<i64> = { let __sn_array_left = &(absent); let __sn_array_right = &(values); __sn_array_left.concat_nullable(__sn_array_right) };
-    { let __sn_array_index = __sn_index((joined).len(), 0); (joined)[__sn_array_index] = 9; };
-    println!("{}", (values)[__sn_index((values).len(), 0)]);
-    println!("{}", (joined)[__sn_index((joined).len(), 0)]);
-    __sn_println_string(&__sn_array_to_string_0(&(absent)));
-    __sn_println_string(&__sn_array_to_string_0(&(empty)));
-    let mut nested: __sn_nullable_array_0<__sn_nullable_array_0<i64>> = __sn_nullable_array_0::from_vec(vec![__sn_nullable_array_0::from_vec(vec![1, 2]), __sn_nullable_array_0::from_vec(vec![])]);
-    { let __sn_array_index = __sn_index((nested).len(), 1); (nested)[__sn_array_index] = __sn_nullable_array_0::nil(); };
-    let mut copied: __sn_nullable_array_0<__sn_nullable_array_0<i64>> = (nested).clone();
-    { let __sn_place_raw_index_0 = 0; let __sn_place_index_0 = if __sn_place_raw_index_0 < 0 { __sn_place_raw_index_0 + (copied).len() as i64 } else { __sn_place_raw_index_0 }; let __sn_place_raw_index_1 = 0; let __sn_place_index_1 = if __sn_place_raw_index_1 < 0 { let __sn_place_raw_index_2 = 0; let __sn_place_index_2 = if __sn_place_raw_index_2 < 0 { __sn_place_raw_index_2 + (copied).len() as i64 } else { __sn_place_raw_index_2 }; __sn_place_raw_index_1 + ((copied)[__sn_place_index_2 as usize]).len() as i64 } else { __sn_place_raw_index_1 }; let __sn_nullable_store_value = 8; *(&mut (((copied)[__sn_place_index_0 as usize])[__sn_place_index_1 as usize])) = __sn_nullable_store_value; };
-    println!("{}", ((nested)[__sn_index((nested).len(), 0)])[__sn_index(((nested)[__sn_index((nested).len(), 0)]).len(), 0)]);
-    println!("{}", ((copied)[__sn_index((copied).len(), 0)])[__sn_index(((copied)[__sn_index((copied).len(), 0)]).len(), 0)]);
-    println!("{}", { ((copied)[__sn_index((copied).len(), 1)]).is_nil() }
-);
-    { let __sn_array_index = __sn_index((copied).len(), 1); (copied)[__sn_array_index] = __sn_nullable_array_0::from_vec(vec![]); };
-    println!("{}", { ((nested)[__sn_index((nested).len(), 1)]).is_nil() }
-);
-    println!("{}", { ((copied)[__sn_index((copied).len(), 1)]).is_nil() }
-);
+    let mut original: Vec<Entry> = vec![Entry { inner: Inner { label: SnString::from_slice(&[0x73, 0x6f, 0x75, 0x72, 0x63, 0x65]), values: vec![1, 2] } }];
+    let mut copied: Vec<Entry> = (original).clone();
+    { let __sn_array_index = __sn_index((original).len(), 0); (original)[__sn_array_index] = Entry { inner: Inner { label: SnString::from_slice(&[0x6f, 0x72, 0x69, 0x67, 0x69, 0x6e, 0x61, 0x6c]), values: vec![9] } }; };
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&((((copied)[__sn_index((copied).len(), 0)]).inner).label)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", ((((copied)[__sn_index((copied).len(), 0)]).inner).values).len() as i64)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", ((((copied)[__sn_index((copied).len(), 0)]).inner).values)[__sn_index(((((copied)[__sn_index((copied).len(), 0)]).inner).values).len(), 1)])); __sn_interpolated }));
+    { let __sn_array_index = __sn_index((copied).len(), 0); (copied)[__sn_array_index] = Entry { inner: Inner { label: SnString::from_slice(&[0x63, 0x6f, 0x70, 0x79]), values: vec![8] } }; };
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&((((original)[__sn_index((original).len(), 0)]).inner).label)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", ((((original)[__sn_index((original).len(), 0)]).inner).values)[__sn_index(((((original)[__sn_index((original).len(), 0)]).inner).values).len(), 0)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&((((copied)[__sn_index((copied).len(), 0)]).inner).label)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", ((((copied)[__sn_index((copied).len(), 0)]).inner).values)[__sn_index(((((copied)[__sn_index((copied).len(), 0)]).inner).values).len(), 0)])); __sn_interpolated }));
     unsafe {
         #[cfg(windows)]
         let stream = crate::__sn_stdio_iob(1);
