@@ -1,0 +1,22 @@
+{
+  "dependency": "@actions/glob@0.6.1",
+  "patterns": ".sn/rust-runtime-diagnostics/\n.sn/rust-parity-*.json",
+  "checks": [
+    {
+      "includeHiddenFiles": false,
+      "matchedFiles": 0,
+      "matchedRequiredReports": 0,
+      "searchPaths": [
+        "/home/gavin/code/sindarin/sindarin-rust-indexed-results-1c192f1d/.sn"
+      ]
+    },
+    {
+      "includeHiddenFiles": true,
+      "matchedFiles": 25,
+      "matchedRequiredReports": 25,
+      "searchPaths": [
+        "/home/gavin/code/sindarin/sindarin-rust-indexed-results-1c192f1d/.sn"
+      ]
+    }
+  ]
+}

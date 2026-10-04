@@ -251,5 +251,6 @@ jobs:
           path: |
             .sn/rust-runtime-diagnostics/
             .sn/rust-parity-*.json
-          if-no-files-found: ignore
+          include-hidden-files: true
+          if-no-files-found: error
           retention-days: 7
