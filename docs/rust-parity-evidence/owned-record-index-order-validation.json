@@ -1,0 +1,197 @@
+{
+  "base_revision": "e595e1d639bf2c95cfcd3f8b8ce7da5c06453c75",
+  "compiler_sha256": "4b39d69e22f60c6e2a8e57bb92d6a5482d5b1eedbfc4cc5a0aefb44614bcba0f",
+  "production_changed": false,
+  "original_corpus_changed": false,
+  "gate_reports": 32,
+  "gate_cases": 2685,
+  "reports": [
+    {
+      "name": "core",
+      "cases": 30,
+      "sha256": "1a50ea503019af7d16f16abcddcf16bfc08c3b240a2facd968e92f51d06bd42a"
+    },
+    {
+      "name": "concurrency",
+      "cases": 51,
+      "sha256": "0e2a684fc9c9b1eea2516d3026dc39844bdcc289bba2ced24bd41cc200a89428"
+    },
+    {
+      "name": "thread-ownership",
+      "cases": 207,
+      "sha256": "2e9c9e863638d8d24e9ab91f09d84823a947f487fb8eb95baa9f12129489d247"
+    },
+    {
+      "name": "thread-receivers",
+      "cases": 90,
+      "sha256": "6669b37db02b81b6c068bb3dcf72ae8d00f9a585ec062a8cd53b004a69a5d4df"
+    },
+    {
+      "name": "reflection",
+      "cases": 36,
+      "sha256": "cc0f5e2a77fdb47897e404e646be29c3031057292a80336e2f09f6c183c81c55"
+    },
+    {
+      "name": "sized-defaults",
+      "cases": 27,
+      "sha256": "9baeb8d69aab305b4411f3906129033c587720404624938d5d351f3297ddbcf5"
+    },
+    {
+      "name": "native-managed",
+      "cases": 63,
+      "sha256": "0ea393a6c1ed7561a3cd9c3dbfec2b23787d9de11a5e494733e1ed86149547cd"
+    },
+    {
+      "name": "stdio-order",
+      "cases": 30,
+      "sha256": "90d12ceec804340b2ab70c25f29f64b371771605347e46afb96f8f9737621352"
+    },
+    {
+      "name": "mixed-integral",
+      "cases": 90,
+      "sha256": "7191db564f84cb418e12483e1033eea2084351633a9e5033de609c4e2183a00f"
+    },
+    {
+      "name": "mixed-integral-diagnostics",
+      "cases": 9,
+      "sha256": "22d1f1089fd10f5c4428b8ed2ca9c9c726b090854574407cafbafe6721d472a7"
+    },
+    {
+      "name": "float-conversions",
+      "cases": 117,
+      "sha256": "158cdb92cda71433f5e41004f2159a35518437d56f7b76453eb86188256e2610"
+    },
+    {
+      "name": "floating-arrays",
+      "cases": 81,
+      "sha256": "24ba41423544a736c1653979e73571af9650930452a48e5d4249430fe68cf79b"
+    },
+    {
+      "name": "floating-equality",
+      "cases": 36,
+      "sha256": "a6d012191f52f1c704fddba026e1a8d7888ff291e28be5df0c78bd6bf082e79e"
+    },
+    {
+      "name": "numeric-places",
+      "cases": 153,
+      "sha256": "1326fe98e194f53dada24ba4de7658105c0c6150c3101d63614a1d40974d1d07"
+    },
+    {
+      "name": "capture-index",
+      "cases": 45,
+      "sha256": "d911edfebcc8ed5e88336f3275fc9f153210303d4c7f826ae0e726536452f462"
+    },
+    {
+      "name": "sync-character",
+      "cases": 45,
+      "sha256": "c3d6ab78236839b322604604b140a3193afd9e59cbf4d2a601fd38f9f9a4e4dd"
+    },
+    {
+      "name": "ctype",
+      "cases": 72,
+      "sha256": "b202be45c0cab0179fd0c6a346e3f62453a748e5e9df0fb54d6c08ac96a03eeb"
+    },
+    {
+      "name": "byte-encoding",
+      "cases": 81,
+      "sha256": "90da4f7e358bd4be541e03123b9fd255ea0e4447eaf8c2443d1f65288e9e146e"
+    },
+    {
+      "name": "exit",
+      "cases": 153,
+      "sha256": "dde56b8cc172f89a485c2bb4a1acff56025771fd65ce7b038fef15986bd6f5f5"
+    },
+    {
+      "name": "main-return",
+      "cases": 108,
+      "sha256": "bfffe0bd8e83bf7de84c5da384fee121a937d19eb19246644da1c32b224de9e3"
+    },
+    {
+      "name": "match-control",
+      "cases": 180,
+      "sha256": "29515c792979cc6bfb43356d9528c2166cc1b18def11817b37e945a668f1c608"
+    },
+    {
+      "name": "sizeof",
+      "cases": 216,
+      "sha256": "525c34939bb8ed1605e38e759f96c8bd0a68879e52248a3c390f3915be07ff46"
+    },
+    {
+      "name": "call-reference",
+      "cases": 126,
+      "sha256": "bccf703fc708951ee2ab25d0c75968fa169dd93fe3f0c6d1a0ee0f0f3a8d8369"
+    },
+    {
+      "name": "indexed-string",
+      "cases": 54,
+      "sha256": "98dc265e81b5de0ef2ace849503c018a95bea8f179053897dd2c389860eb94e4"
+    },
+    {
+      "name": "native-scope",
+      "cases": 36,
+      "sha256": "482fd4ac4506cc4d9fd5f377ffe8cec43d25e135f728b87362a773240dbbee3a"
+    },
+    {
+      "name": "nil-string",
+      "cases": 72,
+      "sha256": "ce4f5b6608e80d41693180c7478792f36ceac279173b20e3aeb0d141e1100e26"
+    },
+    {
+      "name": "nil-array",
+      "cases": 90,
+      "sha256": "b519c5ece7c313f7ec14ed103b1dd41ae8717dbae80ebcd4de7169fcf273f891"
+    },
+    {
+      "name": "nested-stores",
+      "cases": 45,
+      "sha256": "7b4ce753478cc17dc5160cf6ec4a31e3e47e731770c53927dd1aac0d7422ed1d"
+    },
+    {
+      "name": "owned-array-copies",
+      "cases": 45,
+      "sha256": "8d88081d8a18cc6a6e511f4c39d24b579041f7c217e4be81a55c34026c7247b2"
+    },
+    {
+      "name": "native-records",
+      "cases": 45,
+      "sha256": "790fd569302cbf0d25140c5e403517b287d75b5d4b32afc04a8076fcd13e5010"
+    },
+    {
+      "name": "native-record-references",
+      "cases": 36,
+      "sha256": "0c4e4a91d571255c5d502f3797dbb66e1bcba07a79d21439ea4f69b3463cdf62"
+    },
+    {
+      "name": "owned-record-parameters",
+      "cases": 216,
+      "sha256": "06f25da91c6dc260daf5870dbc2a329efb7f2847e5e669b4c52b38ab0b776551"
+    }
+  ],
+  "owned_record_oracle_cases": 216,
+  "c_suites": {
+    "unit": 1610,
+    "cgen": 107,
+    "mgen": 79,
+    "integration": 1141,
+    "integration_errors": 58,
+    "explore": 224,
+    "explore_errors": 11
+  },
+  "rust_suites": {
+    "rgen": 459,
+    "rgen_errors": 138,
+    "native_tagged": 8,
+    "native_extra": 37,
+    "native_origin": 1,
+    "native_errors": 7,
+    "closures": 36,
+    "closure_errors": 1,
+    "concurrency": 10,
+    "concurrency_promoted": 7,
+    "concurrency_errors": 1,
+    "toolchain": 12
+  },
+  "asan_c_controls": 24,
+  "local_checks_passed": true,
+  "cross_platform_verification": "Pending exact-revision CI for the repair. e595e1d6 macOS failure is retained separately; no claim of all-platform acceptance."
+}

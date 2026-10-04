@@ -25,7 +25,7 @@ ORACLES = {
     'tests/rgen/owned_record_nested_fields.sn': b'new 2 17 array 5\nold 1\n',
     'tests/rgen/owned_record_field_forwarding.sn': b'callback 1\n3 3\nnew 2\n3 7 9 new source\ncallback 3\n3 2\n2 9 4\n',
     'tests/rgen/owned_record_method_fields.sn': b'modified 4 42 99 7\n',
-    'tests/rgen/owned_record_index_callback.sn': b'index\nvalue\nindex\nword\n1 42 7 old second new\n',
+    'tests/rgen/owned_record_index_callback.sn': b'index\nvalue\n42\nindex\nword\n1 43 7 old second new\n',
     'tests/rgen/owned_record_char_fields.sn': b'65 66\n65\n65\n',
     'tests/rgen/owned_record_nullable_array_fields.sn': b'true\ntrue\nfalse\n1 9\n',
     'tests/integration/test_as_ref_struct_param.sn': (

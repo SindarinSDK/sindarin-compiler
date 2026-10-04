@@ -1,0 +1,59 @@
+Compiler: /home/gavin/code/sindarin/sindarin-rust-owned-record-parameters-775fea71/bin/sn
+Platform: Linux
+Parallel: 20 workers
+
+Unit Tests
+============================================================
+Results: 1610 passed, 0 failed  (total: 7.56ms)
+------------------------------------------------------------
+Unit tests passed  (10ms)
+
+Code Generation Tests
+============================================================
+  Running 107 tests with 20 workers...
+
+
+------------------------------------------------------------
+Results: 107 passed, 0 failed, 0 skipped  (927ms)
+
+Model Generation Tests
+============================================================
+  Running 79 tests with 20 workers...
+
+
+------------------------------------------------------------
+Results: 79 passed, 0 failed, 0 skipped  (137ms)
+
+Integration Tests
+============================================================
+  Running 1141 tests with 20 workers...
+
+
+------------------------------------------------------------
+Results: 1141 passed, 0 failed, 0 skipped  (10.54s)
+
+Integration Error Tests
+============================================================
+  Running 58 tests with 20 workers...
+
+
+------------------------------------------------------------
+Results: 58 passed, 0 failed, 0 skipped  (81ms)
+
+Exploratory Tests
+============================================================
+  Running 224 tests with 20 workers...
+
+
+------------------------------------------------------------
+Results: 224 passed, 0 failed, 0 skipped  (11.28s)
+
+Exploratory Error Tests
+============================================================
+  Running 11 tests with 20 workers...
+
+
+------------------------------------------------------------
+Results: 11 passed, 0 failed, 0 skipped  (9ms)
+
+All tests passed!  (total: 22.98s)

@@ -381,7 +381,8 @@ __sn_concurrency0_field_guard.push(__sn_concurrency0_field_arg0)
 
 fn value(bag: Bag) -> i64 {
     __sn_println_string(&(SnString::from_slice(&[0x76, 0x61, 0x6c, 0x75, 0x65])));
-    return 42;
+    println!("{}", ((bag).values.read())[__sn_index(((bag).values.read()).len(), 1)]);
+    return 43;
 }
 
 fn word(bag: Bag) -> SnString {
@@ -390,7 +391,8 @@ fn word(bag: Bag) -> SnString {
 }
 
 fn exercise(bag: Bag) {
-    { let __sn_concurrency0_receiver = (bag).values.share(); let __sn_concurrency0_field_index = index(bag.__sn_concurrency0_share()); let __sn_concurrency0_field_index = __sn_index(__sn_concurrency0_receiver.read().len(), __sn_concurrency0_field_index); let __sn_concurrency0_field_rhs = value(bag.__sn_concurrency0_share()); let mut __sn_concurrency0_field_guard = __sn_concurrency0_receiver.lock(); __sn_concurrency0_field_guard[__sn_concurrency0_field_index] = __sn_concurrency0_field_rhs; };
+    { let __sn_concurrency0_receiver = (bag).values.share(); let __sn_concurrency0_field_index = index(bag.__sn_concurrency0_share()); let __sn_concurrency0_field_index = __sn_index(__sn_concurrency0_receiver.read().len(), __sn_concurrency0_field_index); let __sn_concurrency0_field_rhs = 42; let mut __sn_concurrency0_field_guard = __sn_concurrency0_receiver.lock(); __sn_concurrency0_field_guard[__sn_concurrency0_field_index] = __sn_concurrency0_field_rhs; };
+    { let __sn_concurrency0_receiver = (bag).values.share(); let __sn_concurrency0_field_index = 1; let __sn_concurrency0_field_index = __sn_index(__sn_concurrency0_receiver.read().len(), __sn_concurrency0_field_index); let __sn_concurrency0_field_rhs = value(bag.__sn_concurrency0_share()); let mut __sn_concurrency0_field_guard = __sn_concurrency0_receiver.lock(); __sn_concurrency0_field_guard[__sn_concurrency0_field_index] = __sn_concurrency0_field_rhs; };
     { let __sn_concurrency0_receiver = (bag).words.share(); let __sn_concurrency0_field_index = index(bag.__sn_concurrency0_share()); let __sn_concurrency0_field_index = __sn_index(__sn_concurrency0_receiver.read().len(), __sn_concurrency0_field_index); let __sn_concurrency0_field_rhs = word(bag.__sn_concurrency0_share()); let mut __sn_concurrency0_field_guard = __sn_concurrency0_receiver.lock(); __sn_concurrency0_field_guard[__sn_concurrency0_field_index] = __sn_concurrency0_field_rhs; };
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&format!("{}", ((bag).values.read())[__sn_index(((bag).values.read()).len(), 0)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", ((bag).values.read())[__sn_index(((bag).values.read()).len(), 1)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", ((bag).values.read())[__sn_index(((bag).values.read()).len(), 2)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&(((bag).words.read())[__sn_index(((bag).words.read()).len(), 0)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&(((bag).words.read())[__sn_index(((bag).words.read()).len(), 1)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&(((bag).words.read())[__sn_index(((bag).words.read()).len(), 2)])); __sn_interpolated }));
 }

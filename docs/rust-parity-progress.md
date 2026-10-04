@@ -5,6 +5,33 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Owned record index oracle: CI repair, 2026-10-04
+
+The owned-record increment was published as
+`e595e1d639bf2c95cfcd3f8b8ce7da5c06453c75`. All three compiler jobs pass;
+Linux runtime and its 32 reports / 2685 retained cases independently pass.
+macOS exposes nine failures in one newly added oracle: a scalar array assignment
+with observable callbacks in both its index and RHS. C leaves that operand order
+unspecified: GCC prints index/value while Clang prints value/index. Both targets
+produce the same final mutations, and the other 31 macOS reports pass. This
+probe cannot receive portable evaluation-order parity credit; its unchanged
+source and all nine failures are retained in the
+[CI diagnosis](rust-parity-evidence/owned-record-index-order-ci-diagnosis.json)
+and [original probe](rust-parity-evidence/owned-record-index-unsequenced.sn.raw).
+
+The replacement fixture preserves an inline index callback that grows the
+array and then stores through its updated negative index. A following, explicitly
+sequenced stable-index store runs an RHS callback that reads the preceding
+mutation. The managed string index/RHS sequence remains covered. The independent
+raw-byte oracle is updated for these defined operations; the mandatory count
+remains 216. C production, default-target selection and all original corpus
+sources and oracles remain unchanged. Exact-revision CI for this repair is
+pending publication. Complete local C/Rust suites, all 216 independent
+owned-record comparisons and 24 instrumented C controls pass. The other
+31 report inputs and compiler binary are unchanged.
+[Repair validation](rust-parity-evidence/owned-record-index-order-validation.json).
+Further integration is suspended until CI is green.
+
 ## Owned record parameters: direct-main increment, 2026-10-04
 
 This increment is based on main `775fea71e2bf5e5e0504a67e4238c68be6b4b1d5`.
