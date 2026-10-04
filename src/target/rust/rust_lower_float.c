@@ -90,6 +90,10 @@ static void rust_lower_float_conversions(json_object *model, json_object *node,
          json_string_property_equals(type, "kind", "bool")))
         json_object_object_add(node, "rust_scalar_assignment_value",
                                json_object_new_boolean(true));
+    if (kind && strcmp(kind, "member_assign") == 0 &&
+        (rust_numeric_type_name(json_string_property(type, "kind")) ||
+         json_string_property_equals(type, "kind", "bool")))
+        json_object_object_add(node, "rust_field_assignment_value", json_object_new_boolean(true));
     /* A discarded statement needs no final read of its stored scalar. Nested
      * assignments retain their values for the enclosing expression. */
     if (kind && strcmp(kind, "expr") == 0)
@@ -98,6 +102,8 @@ static void rust_lower_float_conversions(json_object *model, json_object *node,
         json_object_object_get_ex(node, "expr", &expression);
         if (json_string_property_equals(expression, "kind", "assign"))
             json_object_object_del(expression, "rust_scalar_assignment_value");
+        if (json_string_property_equals(expression, "kind", "member_assign"))
+            json_object_object_del(expression, "rust_field_assignment_value");
     }
     if (kind && strcmp(kind, "return") == 0)
     {

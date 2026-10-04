@@ -1,0 +1,19 @@
+struct Subject =>
+  count: int
+  label: str
+
+fn build(): fn(Subject): fn(): str =>
+  return fn(subject: Subject): fn(): str => fn(): str => $"{subject.count} {subject.label}"
+
+fn make(): fn(): str =>
+  var builder: fn(Subject): fn(): str = build()
+  var subject: Subject = { count: 10, label: "before" }
+  var result: fn(): str = builder(subject)
+  subject.count = 20
+  subject.label = "after"
+  return result
+
+fn main(): void =>
+  var action: fn(): str = make()
+  println(action())
+  println(action())

@@ -77,6 +77,11 @@ static void rust_lower_closures(json_object *model)
     unsigned int suffix = 0;
     while (rust_model_contains_string(model, name))
         snprintf(name, sizeof(name), "__SnClosure_%u", suffix++);
+    char snapshot[64] = "__sn_closure_record_snapshot";
+    suffix = 0;
+    while (rust_model_contains_string(model, snapshot))
+        snprintf(snapshot, sizeof(snapshot), "__sn_closure_record_snapshot_%u", suffix++);
+    json_object_object_add(model, "rust_closure_snapshot_method", json_object_new_string(snapshot));
     rust_closure_name_types(model, name);
     json_object_object_add(model, "rust_closure_handle_name", json_object_new_string(name));
     json_object_object_add(model, "rust_has_closures", json_object_new_boolean(true));

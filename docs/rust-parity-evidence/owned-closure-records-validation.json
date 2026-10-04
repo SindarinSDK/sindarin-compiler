@@ -1,0 +1,281 @@
+{
+  "base_revision": "ed9e8c9c7767c17a1581b2ede317791338b06790",
+  "compiler_sha256": "a4c08062801fab680e24bc69e3826d25f43daef4908288a425f49da5af137703",
+  "independent_oracle_cases": 189,
+  "asan_c_controls": 23,
+  "baseline_c_controls": 36,
+  "baseline_rust_compile_gaps": 36,
+  "original_corpus": {
+    "programs": 1365,
+    "integration_passed": 1109,
+    "integration_compile_gaps": 32,
+    "exploratory_passed": 221,
+    "exploratory_compile_gaps": 3,
+    "passing": 1330,
+    "remaining": 35,
+    "runtime_failures": 0,
+    "skips": 0
+  },
+  "rust_suites": {
+    "rgen": 491,
+    "rgen_errors": 133,
+    "native_tagged": 8,
+    "native_extra": 37,
+    "native_origin": 1,
+    "native_errors": 7,
+    "closures": 36,
+    "closure_errors": 1,
+    "concurrency": 10,
+    "concurrency_promoted": 7,
+    "concurrency_errors": 1,
+    "toolchain": 12
+  },
+  "c_suites": {
+    "unit": 1610,
+    "cgen": 107,
+    "mgen": 79,
+    "integration": 1141,
+    "integration_errors": 58,
+    "explore": 224,
+    "explore_errors": 11
+  },
+  "original_sources_preserved": 1365,
+  "closed_originals": [
+    "tests/integration/test_import_fn_field_chained.sn",
+    "tests/integration/test_lambda_capture_outlives_scope.sn",
+    "tests/integration/test_lambda_capture_struct.sn",
+    "tests/integration/test_lambda_val_struct_str_field.sn",
+    "tests/integration/test_lambda_val_struct_str_interp.sn"
+  ],
+  "state": "All required combined local checks pass. Not complete until publication and exact-revision Linux/macOS/Windows hosted evidence; full parity goal still has outstanding gaps.",
+  "gate_reports": 35,
+  "gate_cases": 3171,
+  "reports": [
+    {
+      "name": "core",
+      "cases": 30,
+      "sha256": "a67af50f7b413602b35a2826805f243d3be49aaa0ef651acd791c94cafa7b08e"
+    },
+    {
+      "name": "concurrency",
+      "cases": 51,
+      "sha256": "64a6a26ad445242bc552dede5875b7a0ffd4f809cc047d6d445255e03c2e8aa7"
+    },
+    {
+      "name": "thread-ownership",
+      "cases": 207,
+      "sha256": "be3d76394dbac3201920f93f108e7f2f6848823338c3fff2b9e02d486872188a"
+    },
+    {
+      "name": "thread-receivers",
+      "cases": 90,
+      "sha256": "f7e037c1786ba7e84333ea0f4507c94ef026040c9646804cb66b9f2a5bca96bf"
+    },
+    {
+      "name": "reflection",
+      "cases": 36,
+      "sha256": "dd789f6633db82c62c1dedd863f1cd9ee56da61132c8effe478138231e56897a"
+    },
+    {
+      "name": "sized-defaults",
+      "cases": 27,
+      "sha256": "e9f5f8ef8620efa0116a54dbf31b3842e4999b090e60df91b30ba395e518042a"
+    },
+    {
+      "name": "native-managed",
+      "cases": 63,
+      "sha256": "f0f3223a5186a1cbdad63817d33162ba22a76d83a69cc4ef98953c9da171424b"
+    },
+    {
+      "name": "stdio-order",
+      "cases": 30,
+      "sha256": "68de4cf5279a57c09aa6c0403b54752b90ef887e8e07811ce71053dd17fb863a"
+    },
+    {
+      "name": "mixed-integral",
+      "cases": 90,
+      "sha256": "c9f9dadfd88a302be09e921fd3e56af16629d0f0dab27bf48589638fce335dc4"
+    },
+    {
+      "name": "mixed-integral-diagnostics",
+      "cases": 9,
+      "sha256": "14125a282e60666c1bcaa05342aa7df6a08e2988835f7a5280cf8c3ae218d2e8"
+    },
+    {
+      "name": "float-conversions",
+      "cases": 117,
+      "sha256": "cc7c42570d5a60db8f07cbe456be75b64a5bd77634e81777aa8dae2f4b43928a"
+    },
+    {
+      "name": "floating-arrays",
+      "cases": 81,
+      "sha256": "ef2543b13dbe569ad5e193b49006fea3cd245b9abb3dae7ba51fce96ef3ecc8f"
+    },
+    {
+      "name": "floating-equality",
+      "cases": 36,
+      "sha256": "207051db2146d2700dc91601d6e58180f6d401780bf881fa26d8eb516dea532d"
+    },
+    {
+      "name": "numeric-places",
+      "cases": 153,
+      "sha256": "7e8207e33947de28815e1486fae9eade52ee3e6a7c797d5f3d9796998cba647c"
+    },
+    {
+      "name": "capture-index",
+      "cases": 45,
+      "sha256": "40e69732943800393833f312e6c6ddf03d5183047118584dd36091b788fe6aee"
+    },
+    {
+      "name": "sync-character",
+      "cases": 45,
+      "sha256": "0c347bb260dca154659132bc7c27a7e830a212d93b60129b2ca76e9873bfb179"
+    },
+    {
+      "name": "ctype",
+      "cases": 72,
+      "sha256": "daab6c975cdffa019a71b0cbf80796ec9627f3d39da399b6dac3ddc7af4464af"
+    },
+    {
+      "name": "byte-encoding",
+      "cases": 81,
+      "sha256": "fc34e33eec3b3838ff0ba1e2bdcabed621432829d83755494949c0ccae1e4361"
+    },
+    {
+      "name": "exit",
+      "cases": 153,
+      "sha256": "36349a84d3520f5b479a8c58ea1935160756c5501cb237b52c33b33c2be24a65"
+    },
+    {
+      "name": "main-return",
+      "cases": 108,
+      "sha256": "9dd3a4893cf32641f17d0cf863afe4187f92bdb525391150d4c631e238056be2"
+    },
+    {
+      "name": "match-control",
+      "cases": 180,
+      "sha256": "9a40a05a4c504587656ee5591ecb55def3a31e084e8570b60ba3ea7c0c7d4b4d"
+    },
+    {
+      "name": "sizeof",
+      "cases": 216,
+      "sha256": "a1e778284128eabc092fc088451313eb896ca899dbd424afeaf0d36163767ac4"
+    },
+    {
+      "name": "call-reference",
+      "cases": 126,
+      "sha256": "0e6d2a11d0c84a342a1f7d81c788941f431d15d6b2f4f8ebdf65318cf5ed43c4"
+    },
+    {
+      "name": "indexed-string",
+      "cases": 54,
+      "sha256": "b9fe957fc0177988f1960006cf0ab5a46c4ba370ea82199d0f300460fcbbc238"
+    },
+    {
+      "name": "native-scope",
+      "cases": 36,
+      "sha256": "31e0f87bea36d7aa9b0471f9d1a1e03ca1b5099455f3397b51d9ec13df929989"
+    },
+    {
+      "name": "nil-string",
+      "cases": 72,
+      "sha256": "ecd8df3f4382be57bb96854a7bdd35afc32c3a0ae59c9c29a7300eac71d5dddd"
+    },
+    {
+      "name": "nil-array",
+      "cases": 90,
+      "sha256": "e784ebc40634a66c9729c523734d1cff659a05524c43793dfe553568f6272ac3"
+    },
+    {
+      "name": "nested-stores",
+      "cases": 45,
+      "sha256": "9966dca4c5bb2fd98765bc8efe5bff7144ca93d9175e85afedb4a73f119c4046"
+    },
+    {
+      "name": "owned-array-copies",
+      "cases": 45,
+      "sha256": "fa9dfd404f674c7701989e13c5aadb9a7b7331b2a2da5f7f4c8f0ccb3a60aa3e"
+    },
+    {
+      "name": "native-records",
+      "cases": 45,
+      "sha256": "ccb232ac9efecfec1fef84698363f7ec3e1e1502dca636c662b5fddcbb3b7349"
+    },
+    {
+      "name": "native-record-references",
+      "cases": 36,
+      "sha256": "b29e41029299ae2590ebf596af490058eee951d76d948d22e539c85a01ead308"
+    },
+    {
+      "name": "owned-record-parameters",
+      "cases": 216,
+      "sha256": "f8d897cef4258456a5784d3ed99bc6196c5b638b3eeb84df2f18b94787ecf607"
+    },
+    {
+      "name": "reference-records",
+      "cases": 171,
+      "sha256": "e51bc1e847732fc9a31d442416d36896f63a402b4aac348479d2805a9097021d"
+    },
+    {
+      "name": "scalar-parameters",
+      "cases": 126,
+      "sha256": "5bdfdb147e141fd9f409cd297297db59f910697db6a0696d835195e1006f314f"
+    },
+    {
+      "name": "closure-records",
+      "cases": 189,
+      "sha256": "5a48a6e6b396faf17766c21a3b6c716bb99cf2cbaaf38c2c4c8fe0c3af0aba2a"
+    }
+  ],
+  "harness_logs": {
+    "owned-closure-records-full-c.log": {
+      "raw_sha256": "c07053bb4910f5264935b516830338f9bcbe44977a94a90e08c7d72358c04b5e",
+      "retained_sha256": "2dff1520aef91def9b0d1b460aefd23c576847f34ff2269c2683b062c949055a",
+      "normalization": "Harness styling/progress/trailing whitespace only; program bytes retained in JSON evidence."
+    },
+    "owned-closure-records-full-rust.log": {
+      "raw_sha256": "5d1f7b7853c3e96721125956fffe81eeebaaddbacfb36eef83c8cd1674fb47ea",
+      "retained_sha256": "fca79d793042434162b82bfcbd488d69c50b1aa9fe755f0f1e67be5e2889c5d3",
+      "normalization": "Harness styling/progress/trailing whitespace only; program bytes retained in JSON evidence."
+    },
+    "owned-closure-records-corpus-integration.log": {
+      "raw_sha256": "48a55c89f9e9792470d1a175f0adf325f5014cb96f081a9f07e949f32f16ec0e",
+      "retained_sha256": "20ab30784192b1f9e602b3de39993a882c8751f65ef427de0d7c69b46e8014b5",
+      "normalization": "Harness styling/progress/trailing whitespace only; program bytes retained in JSON evidence."
+    },
+    "owned-closure-records-corpus-explore.log": {
+      "raw_sha256": "203074045e7acef6738062041e2062ea3141e220eb43b7157a848530b22ab641",
+      "retained_sha256": "e64666bf93d395972107fe3fa9844b700c411dd55f92d9dc1ff8de79467c1f74",
+      "normalization": "Harness styling/progress/trailing whitespace only; program bytes retained in JSON evidence."
+    },
+    "owned-closure-records-bytes.log": {
+      "raw_sha256": "971a43d81a4d4a176d4aceff2aa18d25efe2df369a8d05a75dfb2470b030e8a9",
+      "retained_sha256": "971a43d81a4d4a176d4aceff2aa18d25efe2df369a8d05a75dfb2470b030e8a9",
+      "normalization": "Harness styling/progress/trailing whitespace only; program bytes retained in JSON evidence."
+    },
+    "owned-closure-records-text-transport.log": {
+      "raw_sha256": "9d1f137619f0add0f0e3a01419654e7f12ffe613e0175c7031316ffe56c8c9ee",
+      "retained_sha256": "9d1f137619f0add0f0e3a01419654e7f12ffe613e0175c7031316ffe56c8c9ee",
+      "normalization": "Harness styling/progress/trailing whitespace only; program bytes retained in JSON evidence."
+    },
+    "owned-closure-records-windows-helpers.log": {
+      "raw_sha256": "628ce6147ceaa1887966b6df6ff1f63582712e6666a5b64c7f52e28604cc6994",
+      "retained_sha256": "628ce6147ceaa1887966b6df6ff1f63582712e6666a5b64c7f52e28604cc6994",
+      "normalization": "Harness styling/progress/trailing whitespace only; program bytes retained in JSON evidence."
+    },
+    "owned-closure-records-corpus-integration-pre-reference-projection-fix.log": {
+      "raw_sha256": "801f27bb70560320d4c2799e7c4dd81473835ceda7ac264b4b0bbd2851e22671",
+      "retained_sha256": "533c62163bd417d14f44687673b20a346bbb8ee86adced54621252f2bd8d5363",
+      "normalization": "Harness styling/progress/trailing whitespace only; program bytes retained in JSON evidence."
+    },
+    "owned-closure-records-all-gates.log": {
+      "raw_sha256": "322f5c6763ce860d39f1b030cdf9ccf83cdddfe097ffd1f8c9010a8069374fcd",
+      "retained_sha256": "322f5c6763ce860d39f1b030cdf9ccf83cdddfe097ffd1f8c9010a8069374fcd",
+      "normalization": "Harness styling/progress/trailing whitespace only; program bytes retained in JSON."
+    }
+  },
+  "source_preservation": "All 1365 originals unchanged; one C-valid negative promoted byte-for-byte; four of 540 tracked historical snapshots change and 536 remain unchanged. Thirteen new generation fixtures.",
+  "temporary_regression": "A previously passing nested reference-field original failed in the first prototype corpus sweep. Repaired ReferenceField.map_read support; unchanged Source is now a mandatory all-mode frozen control. Failed sweep retained.",
+  "excluded_c_probes": "C use-after-free/stack overflow probes and historical foundation C crash remain explicit ownership/verification work. None contributes positive portable parity credit. Historical foundation Rust output is preserved across nine modes.",
+  "production_scope": "Default owned-record callable parameters share caller field owners; reference records preserve identity; captured owned records receive fresh scalar slots per invocation with shared array owners, recursively for nested value records; consumed scalar field assignments return stored results; nested projections preserve actual owners. C backend/runtime/default unchanged."
+}

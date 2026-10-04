@@ -1,0 +1,12 @@
+struct Subject =>
+  count: int
+  label: str
+
+fn main(): void =>
+  var action: fn(Subject): int = fn(subject: Subject): int => subject.count = subject.count + 1
+  var subject: Subject = {
+    count: 10,
+    label: "alive"
+  }
+  var result: int = action(subject)
+  println($"{result} {subject.count} {subject.label}")

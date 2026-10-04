@@ -1,4 +1,21 @@
 #![allow(dead_code, unused_mut, unused_variables, unused_parens)]
+#[derive(Debug)]
+struct __sn_concurrency0_Field<T>(std::sync::Arc<std::sync::Mutex<T>>);
+impl<T> __sn_concurrency0_Field<T> {
+    fn new(value: T) -> Self { Self(std::sync::Arc::new(std::sync::Mutex::new(value))) }
+    fn share(&self) -> Self { Self(self.0.clone()) }
+    fn lock(&self) -> std::sync::MutexGuard<'_ , T> { self.0.lock().unwrap_or_else(|e| e.into_inner()) }
+    fn set(&self, value: T) { *self.0.lock().unwrap_or_else(|e| e.into_inner()) = value; }
+}
+impl<T: Clone> __sn_concurrency0_Field<T> {
+    fn read(&self) -> T { self.0.lock().unwrap_or_else(|e| e.into_inner()).clone() }
+}
+impl<T: Clone> Clone for __sn_concurrency0_Field<T> {
+    fn clone(&self) -> Self { Self::new(self.read()) }
+}
+impl<T: Clone + PartialEq> PartialEq for __sn_concurrency0_Field<T> {
+    fn eq(&self, other: &Self) -> bool { self.read() == other.read() }
+}
 
 extern "C" {
     #[link_name = "fwrite"]
@@ -346,16 +363,22 @@ impl<F: ?Sized> std::fmt::Debug for __SnClosure<F> {
 impl<F: ?Sized> PartialEq for __SnClosure<F> {
     fn eq(&self, other: &Self) -> bool { std::rc::Rc::ptr_eq(&self.0, &other.0) }
 }
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone,  Debug, PartialEq)]
 struct State {
-    label: SnString,
-    values: Vec<i64>,
-    count: i64,
+    label: __sn_concurrency0_Field<SnString>,
+    values: __sn_concurrency0_Field<Vec<i64>>,
+    count: __sn_concurrency0_Field<i64>,
+}
+impl State {
+    fn __sn_concurrency0_share(&self) -> Self {
+        Self { label: self.label.share(), values: self.values.share(), count: self.count.share(),  }
+    }
 }
 
+
 fn makeReader() -> __SnClosure<dyn Fn() -> SnString> {
-    let mut state: State = State { label: SnString::from_slice(&[0x73, 0x65, 0x65, 0x64]), values: vec![1, 2], count: 7 };
-    return { let (state, ) = (state.clone(), ); self::__SnClosure::<dyn Fn() -> SnString>(std::rc::Rc::new(move || -> SnString { { let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&((state.clone()).label)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", (state.clone()).count)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", ((state.clone()).values).len() as i64)); __sn_interpolated }})) }
+    let mut state: State = State { label: __sn_concurrency0_Field::new(SnString::from_slice(&[0x73, 0x65, 0x65, 0x64])), values: __sn_concurrency0_Field::new(vec![1, 2]), count: __sn_concurrency0_Field::new(7) };
+    return { let (state, ) = (state.clone(), ); self::__SnClosure::<dyn Fn() -> SnString>(std::rc::Rc::new(move || -> SnString { { let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&((state).label.read())); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", (state).count.read())); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", ((state).values.read()).len() as i64)); __sn_interpolated }})) }
 ;
 }
 

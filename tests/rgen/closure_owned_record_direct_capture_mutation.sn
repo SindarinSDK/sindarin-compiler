@@ -1,0 +1,22 @@
+struct Subject =>
+  count: int
+  label: str
+  values: int[]
+
+fn make(): fn(): int =>
+  var subject: Subject = {
+    count: 10,
+    label: "before",
+    values: {100}
+  }
+  return fn(): int =>
+    subject.count = subject.count + 1
+    subject.values[0] = subject.values[0] + 1
+    println($"inside {subject.count} {subject.label} {subject.values[0]}")
+    return subject.count
+
+fn main(): void =>
+  var action: fn(): int = make()
+  var first: int = action()
+  var second: int = action()
+  println($"{first} {second}")

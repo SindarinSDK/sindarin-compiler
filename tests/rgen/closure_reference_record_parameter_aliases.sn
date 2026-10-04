@@ -1,0 +1,14 @@
+struct State as ref =>
+  value: int
+  label: str
+
+fn main(): void =>
+  var action: fn(State, State): int = fn(left: State, right: State): int =>
+    left.value = left.value + 1
+    return right.value
+  var state: State = {
+    value: 10,
+    label: "alive"
+  }
+  var result: int = action(state, state)
+  println($"{result} {state.value} {state.label}")

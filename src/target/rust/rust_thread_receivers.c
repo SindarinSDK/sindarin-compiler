@@ -143,6 +143,54 @@ static void rust_thread_field_store_places(json_object *place)
     rust_thread_field_store_places(parent);
 }
 
+/* A captured value record copies its scalar slots but can retain array owners
+ * within the per-invocation shallow C view. Select nested field storage too. */
+static void rust_thread_capture_record_types(json_object *model, json_object *type,
+                                            json_object *names)
+{
+    if (!json_string_property_equals(type, "kind", "struct")) return;
+    const char *name = json_string_property(type, "name");
+    json_object *structure = rust_find_struct(model, name);
+    if (!structure || !json_string_property_equals(structure, "mem_mode", "val") ||
+        !json_boolean_property(structure, "has_heap_fields") ||
+        json_boolean_property(structure, "is_native") ||
+        json_boolean_property(structure, "is_packed") ||
+        json_boolean_property(structure, "is_serializable") ||
+        json_boolean_property(structure, "has_user_copy_method") ||
+        json_boolean_property(structure, "rust_closure_capture_storage")) return;
+    json_object_object_add(structure, "rust_closure_capture_storage", json_object_new_boolean(true));
+    json_object_object_add(names, name, json_object_new_boolean(true));
+    json_object *fields = NULL;
+    json_object_object_get_ex(structure, "fields", &fields);
+    for (size_t i = 0; fields && i < json_object_array_length(fields); i++)
+    {
+        json_object *field_type = NULL;
+        json_object_object_get_ex(json_object_array_get_idx(fields, i), "type", &field_type);
+        rust_thread_capture_record_types(model, field_type, names);
+    }
+}
+
+/* Lambda record parameters use the same C borrow contract as ordinary
+ * functions. Select shared field storage before closure signature validation. */
+static void rust_thread_collect_lambda_declarations(json_object *node, json_object *declarations)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array))
+    {
+        for (size_t i = 0; i < json_object_array_length(node); i++)
+            rust_thread_collect_lambda_declarations(json_object_array_get_idx(node, i), declarations);
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
+    if (json_string_property_equals(node, "kind", "lambda"))
+        json_object_array_add(declarations, json_object_get(node));
+    json_object_object_foreach(node, key, child)
+    {
+        (void)key;
+        rust_thread_collect_lambda_declarations(child, declarations);
+    }
+}
+
 static void rust_prepare_thread_receivers(json_object *model)
 {
     json_object *names = json_object_new_object();
@@ -163,11 +211,23 @@ static void rust_prepare_thread_receivers(json_object *model)
         for (size_t j = 0; methods && j < json_object_array_length(methods); j++)
             json_object_array_add(declarations, json_object_get(json_object_array_get_idx(methods, j)));
     }
+    rust_thread_collect_lambda_declarations(model, declarations);
     for (size_t i = 0; i < json_object_array_length(declarations); i++)
     {
         json_object *declaration = json_object_array_get_idx(declarations, i), *params = NULL;
         if (json_boolean_property(declaration, "is_native")) continue;
         json_object_object_get_ex(declaration, "params", &params);
+        if (json_string_property_equals(declaration, "kind", "lambda"))
+        {
+            json_object *captures = NULL;
+            json_object_object_get_ex(declaration, "captures", &captures);
+            for (size_t j = 0; captures && j < json_object_array_length(captures); j++)
+            {
+                json_object *capture_type = NULL;
+                json_object_object_get_ex(json_object_array_get_idx(captures, j), "type", &capture_type);
+                rust_thread_capture_record_types(model, capture_type, names);
+            }
+        }
         for (size_t j = 0; params && j < json_object_array_length(params); j++)
         {
             json_object *param = json_object_array_get_idx(params, j), *type = NULL;
@@ -245,6 +305,14 @@ static void rust_thread_receiver_lower(json_object *node, json_object *names, js
                 json_object_object_add(node, "rust_thread_field", json_object_new_boolean(true));
                 if (json_boolean_property(structure, "rust_thread_reference_identity"))
                     json_object_object_add(node, "rust_reference_field", json_object_new_boolean(true));
+                /* Project a nested record through shared field owners. A deep
+                 * parent read would detach an array update from its owner. */
+                if (json_string_property_equals(object, "kind", "member") &&
+                    json_boolean_property(object, "rust_thread_field"))
+                {
+                    json_object_object_add(object, "rust_thread_record_projection", json_object_new_boolean(true));
+                    json_object_object_add(model, "rust_uses_thread_field_map_read", json_object_new_boolean(true));
+                }
                 /* A field read snapshots the field, not its containing owner. */
                 if (json_string_property_equals(object, "kind", "variable"))
                     json_object_object_del(object, "rust_needs_clone");

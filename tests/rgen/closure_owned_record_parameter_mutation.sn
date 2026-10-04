@@ -1,0 +1,16 @@
+struct Subject =>
+  count: int
+  label: str
+
+fn main(): void =>
+  var f: fn(Subject): int = fn(s: Subject): int =>
+    s.count = s.count + 1
+    s.label = s.label + "!"
+    return s.count
+  var subject: Subject = {
+    count: 10,
+    label: "before"
+  }
+  var first: int = f(subject)
+  var second: int = f(subject)
+  println($"{first} {second} {subject.count} {subject.label}")

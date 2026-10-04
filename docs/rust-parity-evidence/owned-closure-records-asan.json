@@ -1,0 +1,581 @@
+{
+  "compiler_sha256": "a4c08062801fab680e24bc69e3826d25f43daef4908288a425f49da5af137703",
+  "passed": true,
+  "cases": [
+    {
+      "source": "tests/integration/test_lambda_val_struct_str_field.sn",
+      "source_sha256": "1766bc53c82f053e5d2076db8c3cad82080a5000d09ac91f012c14db4817c093",
+      "compile_command": [
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/bin/sn",
+        "tests/integration/test_lambda_val_struct_str_field.sn",
+        "--target",
+        "c",
+        "-O0",
+        "--no-install",
+        "-o",
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/.sn/owned-closure-permanent-asan-0"
+      ],
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f6c616d6264615f76616c5f7374727563745f7374725f6669656c642e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f686f6d652f676176696e2f636f64652f73696e646172696e2f73696e646172696e2d727573742d6f776e65642d7265636f72642d636c6f73757265732d65643965386339632f2e736e2f6f776e65642d636c6f737572652d7065726d616e656e742d6173616e2d30202838342e33204b42290a",
+      "asan_environment": {
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer -no-pie",
+        "ASAN_OPTIONS": "detect_leaks=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      },
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "66287329203d2068690a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/integration/test_lambda_val_struct_str_interp.sn",
+      "source_sha256": "dc8c1695bd84a55207442cc97e9a508b98b22658c430993b328eee51f2a13fd9",
+      "compile_command": [
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/bin/sn",
+        "tests/integration/test_lambda_val_struct_str_interp.sn",
+        "--target",
+        "c",
+        "-O0",
+        "--no-install",
+        "-o",
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/.sn/owned-closure-permanent-asan-1"
+      ],
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f6c616d6264615f76616c5f7374727563745f7374725f696e746572702e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f686f6d652f676176696e2f636f64652f73696e646172696e2f73696e646172696e2d727573742d6f776e65642d7265636f72642d636c6f73757265732d65643965386339632f2e736e2f6f776e65642d636c6f737572652d7065726d616e656e742d6173616e2d31202838352e30204b42290a",
+      "asan_environment": {
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer -no-pie",
+        "ASAN_OPTIONS": "detect_leaks=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      },
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "6d6573736167653d6e3d332062656c6f77206d696e696d756d20350a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/integration/test_lambda_capture_outlives_scope.sn",
+      "source_sha256": "2bf5e25bf646444b62fa2be553e2cee422e90bdfd2b953867ed3e50d4009a1c1",
+      "compile_command": [
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/bin/sn",
+        "tests/integration/test_lambda_capture_outlives_scope.sn",
+        "--target",
+        "c",
+        "-O0",
+        "--no-install",
+        "-o",
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/.sn/owned-closure-permanent-asan-2"
+      ],
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f6c616d6264615f636170747572655f6f75746c697665735f73636f70652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f686f6d652f676176696e2f636f64652f73696e646172696e2f73696e646172696e2d727573742d6f776e65642d7265636f72642d636c6f73757265732d65643965386339632f2e736e2f6f776e65642d636c6f737572652d7065726d616e656e742d6173616e2d32202839392e37204b42290a",
+      "asan_environment": {
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer -no-pie",
+        "ASAN_OPTIONS": "detect_leaks=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      },
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "68656c6c6f2066726f6d2061206361707475726564206c6f63616c20737472696e67207c2073746174652d707265666978207c20636f756e743d370a68656c6c6f2066726f6d2061206361707475726564206c6f63616c20737472696e67207c2073746174652d707265666978207c20636f756e743d370a636f756e7465723a203130310a636f756e7465723a203130320a636f756e7465723a203130330a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/integration/test_lambda_capture_struct.sn",
+      "source_sha256": "20be2e01b300a92e101effac5bdaa34a8d95615b8e58218b4da5deadc73cfe90",
+      "compile_command": [
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/bin/sn",
+        "tests/integration/test_lambda_capture_struct.sn",
+        "--target",
+        "c",
+        "-O0",
+        "--no-install",
+        "-o",
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/.sn/owned-closure-permanent-asan-3"
+      ],
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f6c616d6264615f636170747572655f7374727563742e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f686f6d652f676176696e2f636f64652f73696e646172696e2f73696e646172696e2d727573742d6f776e65642d7265636f72642d636c6f73757265732d65643965386339632f2e736e2f6f776e65642d636c6f737572652d7065726d616e656e742d6173616e2d3320283130342e38204b42290a",
+      "asan_environment": {
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer -no-pie",
+        "ASAN_OPTIONS": "detect_leaks=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      },
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "6d61696e3a20736f757263653d68656c6c6f20616464723d776f726c642062617463683d32303020696e74657276616c3d3130303030206275664c656e3d300a696e766f6b6549743a20353020697465726174696f6e73204f4b0a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/rgen/closure_values_ref_struct.sn",
+      "source_sha256": "1ccdb729a15cfce7a085ddc0e135c6aa8f2351e95585a9ca7759a755d6c4504d",
+      "compile_command": [
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/bin/sn",
+        "tests/rgen/closure_values_ref_struct.sn",
+        "--target",
+        "c",
+        "-O0",
+        "--no-install",
+        "-o",
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/.sn/owned-closure-permanent-asan-4"
+      ],
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f636c6f737572655f76616c7565735f7265665f7374727563742e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f686f6d652f676176696e2f636f64652f73696e646172696e2f73696e646172696e2d727573742d6f776e65642d7265636f72642d636c6f73757265732d65643965386339632f2e736e2f6f776e65642d636c6f737572652d7065726d616e656e742d6173616e2d34202838342e36204b42290a",
+      "asan_environment": {
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer -no-pie",
+        "ASAN_OPTIONS": "detect_leaks=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      },
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "310a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/rust/closure-values/closure_values_owned_struct_escaping.sn",
+      "source_sha256": "00f3888926469864f1236ed0d006b87a984a6d5054a6959d4b794c495b003639",
+      "compile_command": [
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/bin/sn",
+        "tests/rust/closure-values/closure_values_owned_struct_escaping.sn",
+        "--target",
+        "c",
+        "-O0",
+        "--no-install",
+        "-o",
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/.sn/owned-closure-permanent-asan-5"
+      ],
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742f636c6f737572652d76616c7565732f636c6f737572655f76616c7565735f6f776e65645f7374727563745f6573636170696e672e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f686f6d652f676176696e2f636f64652f73696e646172696e2f73696e646172696e2d727573742d6f776e65642d7265636f72642d636c6f73757265732d65643965386339632f2e736e2f6f776e65642d636c6f737572652d7065726d616e656e742d6173616e2d35202838382e34204b42290a",
+      "asan_environment": {
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer -no-pie",
+        "ASAN_OPTIONS": "detect_leaks=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      },
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "736565643a373a320a736565643a373a320a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/rgen/closure_owned_record_parameter_mutation.sn",
+      "source_sha256": "e8b12a0f96d8b38dfc3094041f3000f4584792a748d5efa0f1308a4be44ddb9c",
+      "compile_command": [
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/bin/sn",
+        "tests/rgen/closure_owned_record_parameter_mutation.sn",
+        "--target",
+        "c",
+        "-O0",
+        "--no-install",
+        "-o",
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/.sn/owned-closure-permanent-asan-6"
+      ],
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f636c6f737572655f6f776e65645f7265636f72645f706172616d657465725f6d75746174696f6e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f686f6d652f676176696e2f636f64652f73696e646172696e2f73696e646172696e2d727573742d6f776e65642d7265636f72642d636c6f73757265732d65643965386339632f2e736e2f6f776e65642d636c6f737572652d7065726d616e656e742d6173616e2d36202838352e34204b42290a",
+      "asan_environment": {
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer -no-pie",
+        "ASAN_OPTIONS": "detect_leaks=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      },
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "3131203132203132206265666f726521210a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/rgen/closure_owned_record_parameter_aliases.sn",
+      "source_sha256": "34bc2aad14bc90298bec861a19afdacd273593242cf3fe313df2487cae90cb5f",
+      "compile_command": [
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/bin/sn",
+        "tests/rgen/closure_owned_record_parameter_aliases.sn",
+        "--target",
+        "c",
+        "-O0",
+        "--no-install",
+        "-o",
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/.sn/owned-closure-permanent-asan-7"
+      ],
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f636c6f737572655f6f776e65645f7265636f72645f706172616d657465725f616c69617365732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f686f6d652f676176696e2f636f64652f73696e646172696e2f73696e646172696e2d727573742d6f776e65642d7265636f72642d636c6f73757265732d65643965386339632f2e736e2f6f776e65642d636c6f737572652d7065726d616e656e742d6173616e2d37202838362e31204b42290a",
+      "asan_environment": {
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer -no-pie",
+        "ASAN_OPTIONS": "detect_leaks=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      },
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "72656164203131206265666f7265210a3132203132206265666f7265210a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/rgen/closure_owned_record_captured_borrow.sn",
+      "source_sha256": "1d8f1a8a735fbea3e5a17fefcd194adf946c907aee64a6df9e906d7f9e0a99d9",
+      "compile_command": [
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/bin/sn",
+        "tests/rgen/closure_owned_record_captured_borrow.sn",
+        "--target",
+        "c",
+        "-O0",
+        "--no-install",
+        "-o",
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/.sn/owned-closure-permanent-asan-8"
+      ],
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f636c6f737572655f6f776e65645f7265636f72645f63617074757265645f626f72726f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f686f6d652f676176696e2f636f64652f73696e646172696e2f73696e646172696e2d727573742d6f776e65642d7265636f72642d636c6f73757265732d65643965386339632f2e736e2f6f776e65642d636c6f737572652d7065726d616e656e742d6173616e2d38202838362e37204b42290a",
+      "asan_environment": {
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer -no-pie",
+        "ASAN_OPTIONS": "detect_leaks=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      },
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "696e73696465203131206265666f72650a696e73696465203131206265666f72650a31312031310a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/rgen/closure_owned_record_captured_array.sn",
+      "source_sha256": "c602b9059af2dd5873071026adc0aa916489258e3d65b2f898a4407655d88454",
+      "compile_command": [
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/bin/sn",
+        "tests/rgen/closure_owned_record_captured_array.sn",
+        "--target",
+        "c",
+        "-O0",
+        "--no-install",
+        "-o",
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/.sn/owned-closure-permanent-asan-9"
+      ],
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f636c6f737572655f6f776e65645f7265636f72645f63617074757265645f61727261792e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f686f6d652f676176696e2f636f64652f73696e646172696e2f73696e646172696e2d727573742d6f776e65642d7265636f72642d636c6f73757265732d65643965386339632f2e736e2f6f776e65642d636c6f737572652d7065726d616e656e742d6173616e2d39202839312e34204b42290a",
+      "asan_environment": {
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer -no-pie",
+        "ASAN_OPTIONS": "detect_leaks=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      },
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "696e73696465203131206265666f7265203130310a696e73696465203131206265666f7265203130320a31312031310a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/rgen/closure_reference_record_capture_mutation.sn",
+      "source_sha256": "409e0e9f59f14aca88e2eeb2bebbb534e9321ed1e848b5be39e9e56882e8b6bc",
+      "compile_command": [
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/bin/sn",
+        "tests/rgen/closure_reference_record_capture_mutation.sn",
+        "--target",
+        "c",
+        "-O0",
+        "--no-install",
+        "-o",
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/.sn/owned-closure-permanent-asan-10"
+      ],
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f636c6f737572655f7265666572656e63655f7265636f72645f636170747572655f6d75746174696f6e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f686f6d652f676176696e2f636f64652f73696e646172696e2f73696e646172696e2d727573742d6f776e65642d7265636f72642d636c6f73757265732d65643965386339632f2e736e2f6f776e65642d636c6f737572652d7065726d616e656e742d6173616e2d3130202838392e33204b42290a",
+      "asan_environment": {
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer -no-pie",
+        "ASAN_OPTIONS": "detect_leaks=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      },
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "313120313220313220616c6976650a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/rgen/closure_record_assignment_value.sn",
+      "source_sha256": "d8eb99060a036ac672a1523a320f783ee5767c832d5667fd29bceeccd0015bbd",
+      "compile_command": [
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/bin/sn",
+        "tests/rgen/closure_record_assignment_value.sn",
+        "--target",
+        "c",
+        "-O0",
+        "--no-install",
+        "-o",
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/.sn/owned-closure-permanent-asan-11"
+      ],
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f636c6f737572655f7265636f72645f61737369676e6d656e745f76616c75652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f686f6d652f676176696e2f636f64652f73696e646172696e2f73696e646172696e2d727573742d6f776e65642d7265636f72642d636c6f73757265732d65643965386339632f2e736e2f6f776e65642d636c6f737572652d7065726d616e656e742d6173616e2d3131202838342e35204b42290a",
+      "asan_environment": {
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer -no-pie",
+        "ASAN_OPTIONS": "detect_leaks=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      },
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "313120313120616c6976650a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/rgen/closure_reference_record_parameter_aliases.sn",
+      "source_sha256": "99396a7c6c8cdef229c00311d143c46904c02676e3f0df817f43c1c944b9af16",
+      "compile_command": [
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/bin/sn",
+        "tests/rgen/closure_reference_record_parameter_aliases.sn",
+        "--target",
+        "c",
+        "-O0",
+        "--no-install",
+        "-o",
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/.sn/owned-closure-permanent-asan-12"
+      ],
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f636c6f737572655f7265666572656e63655f7265636f72645f706172616d657465725f616c69617365732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f686f6d652f676176696e2f636f64652f73696e646172696e2f73696e646172696e2d727573742d6f776e65642d7265636f72642d636c6f73757265732d65643965386339632f2e736e2f6f776e65642d636c6f737572652d7065726d616e656e742d6173616e2d3132202838362e37204b42290a",
+      "asan_environment": {
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer -no-pie",
+        "ASAN_OPTIONS": "detect_leaks=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      },
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "313120313120616c6976650a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/rgen/closure_reference_record_captured_method.sn",
+      "source_sha256": "f9ece3098955f4a38b164a1488b6b3182bbbaa75cc023c90ea196f518eeb6243",
+      "compile_command": [
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/bin/sn",
+        "tests/rgen/closure_reference_record_captured_method.sn",
+        "--target",
+        "c",
+        "-O0",
+        "--no-install",
+        "-o",
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/.sn/owned-closure-permanent-asan-13"
+      ],
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f636c6f737572655f7265666572656e63655f7265636f72645f63617074757265645f6d6574686f642e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f686f6d652f676176696e2f636f64652f73696e646172696e2f73696e646172696e2d727573742d6f776e65642d7265636f72642d636c6f73757265732d65643965386339632f2e736e2f6f776e65642d636c6f737572652d7065726d616e656e742d6173616e2d3133202838392e33204b42290a",
+      "asan_environment": {
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer -no-pie",
+        "ASAN_OPTIONS": "detect_leaks=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      },
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "313120313220313220616c6976650a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/rgen/closure_nested_record_array_capture.sn",
+      "source_sha256": "9c20113af832b80d015708297faced6f8487b8d8f35c4d7c10876041fb4e12bc",
+      "compile_command": [
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/bin/sn",
+        "tests/rgen/closure_nested_record_array_capture.sn",
+        "--target",
+        "c",
+        "-O0",
+        "--no-install",
+        "-o",
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/.sn/owned-closure-permanent-asan-14"
+      ],
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f636c6f737572655f6e65737465645f7265636f72645f61727261795f636170747572652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f686f6d652f676176696e2f636f64652f73696e646172696e2f73696e646172696e2d727573742d6f776e65642d7265636f72642d636c6f73757265732d65643965386339632f2e736e2f6f776e65642d636c6f737572652d7065726d616e656e742d6173616e2d3134202839312e38204b42290a",
+      "asan_environment": {
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer -no-pie",
+        "ASAN_OPTIONS": "detect_leaks=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      },
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "696e73696465203131206265666f7265203130310a696e73696465203131206265666f7265203130320a31312031310a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/rgen/closure_reference_record_parameter_method.sn",
+      "source_sha256": "4ee0c7c4c3f4d7cc980257d31635fd5da694ebc27de20829d917c9ef3190acbc",
+      "compile_command": [
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/bin/sn",
+        "tests/rgen/closure_reference_record_parameter_method.sn",
+        "--target",
+        "c",
+        "-O0",
+        "--no-install",
+        "-o",
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/.sn/owned-closure-permanent-asan-15"
+      ],
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f636c6f737572655f7265666572656e63655f7265636f72645f706172616d657465725f6d6574686f642e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f686f6d652f676176696e2f636f64652f73696e646172696e2f73696e646172696e2d727573742d6f776e65642d7265636f72642d636c6f73757265732d65643965386339632f2e736e2f6f776e65642d636c6f737572652d7065726d616e656e742d6173616e2d3135202838362e38204b42290a",
+      "asan_environment": {
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer -no-pie",
+        "ASAN_OPTIONS": "detect_leaks=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      },
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "313120313220313220616c6976650a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/rgen/closure_owned_record_parameter_reassignment.sn",
+      "source_sha256": "d70b439dd3e3863737e3429ec82cdf0a0b17b81c2222d6decd6fd8cafa96d1e3",
+      "compile_command": [
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/bin/sn",
+        "tests/rgen/closure_owned_record_parameter_reassignment.sn",
+        "--target",
+        "c",
+        "-O0",
+        "--no-install",
+        "-o",
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/.sn/owned-closure-permanent-asan-16"
+      ],
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f636c6f737572655f6f776e65645f7265636f72645f706172616d657465725f726561737369676e6d656e742e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f686f6d652f676176696e2f636f64652f73696e646172696e2f73696e646172696e2d727573742d6f776e65642d7265636f72642d636c6f73757265732d65643965386339632f2e736e2f6f776e65642d636c6f737572652d7065726d616e656e742d6173616e2d3136202838352e31204b42290a",
+      "asan_environment": {
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer -no-pie",
+        "ASAN_OPTIONS": "detect_leaks=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      },
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "31312031312061667465720a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/rgen/closure_owned_record_direct_capture_mutation.sn",
+      "source_sha256": "3d38931268068947c6c477df3fb0a301be17cede4b77b556c5d14cb53e5cb885",
+      "compile_command": [
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/bin/sn",
+        "tests/rgen/closure_owned_record_direct_capture_mutation.sn",
+        "--target",
+        "c",
+        "-O0",
+        "--no-install",
+        "-o",
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/.sn/owned-closure-permanent-asan-17"
+      ],
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f636c6f737572655f6f776e65645f7265636f72645f6469726563745f636170747572655f6d75746174696f6e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f686f6d652f676176696e2f636f64652f73696e646172696e2f73696e646172696e2d727573742d6f776e65642d7265636f72642d636c6f73757265732d65643965386339632f2e736e2f6f776e65642d636c6f737572652d7065726d616e656e742d6173616e2d3137202839302e31204b42290a",
+      "asan_environment": {
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer -no-pie",
+        "ASAN_OPTIONS": "detect_leaks=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      },
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "696e73696465203131206265666f7265203130310a696e73696465203131206265666f7265203130320a31312031310a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/rgen/closure_nested_record_direct_capture_mutation.sn",
+      "source_sha256": "c776abfbcb5d2973c1acb7e8023eddde47d9cf73d91967b577032479be5eb68d",
+      "compile_command": [
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/bin/sn",
+        "tests/rgen/closure_nested_record_direct_capture_mutation.sn",
+        "--target",
+        "c",
+        "-O0",
+        "--no-install",
+        "-o",
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/.sn/owned-closure-permanent-asan-18"
+      ],
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f636c6f737572655f6e65737465645f7265636f72645f6469726563745f636170747572655f6d75746174696f6e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f686f6d652f676176696e2f636f64652f73696e646172696e2f73696e646172696e2d727573742d6f776e65642d7265636f72642d636c6f73757265732d65643965386339632f2e736e2f6f776e65642d636c6f737572652d7065726d616e656e742d6173616e2d3138202839302e34204b42290a",
+      "asan_environment": {
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer -no-pie",
+        "ASAN_OPTIONS": "detect_leaks=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      },
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "696e73696465203131206265666f7265203130310a696e73696465203131206265666f7265203130320a31312031310a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/integration/test_as_ref_struct_lit_owned_field.sn",
+      "source_sha256": "bfa8448bd170b8a6e88dff255c65bc84cf97ee8a6f98de19d5da58c6b0739854",
+      "compile_command": [
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/bin/sn",
+        "tests/integration/test_as_ref_struct_lit_owned_field.sn",
+        "--target",
+        "c",
+        "-O0",
+        "--no-install",
+        "-o",
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/.sn/owned-closure-permanent-asan-19"
+      ],
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f61735f7265665f7374727563745f6c69745f6f776e65645f6669656c642e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f686f6d652f676176696e2f636f64652f73696e646172696e2f73696e646172696e2d727573742d6f776e65642d7265636f72642d636c6f73757265732d65643965386339632f2e736e2f6f776e65642d636c6f737572652d7065726d616e656e742d6173616e2d3139202839332e32204b42290a",
+      "asan_environment": {
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer -no-pie",
+        "ASAN_OPTIONS": "detect_leaks=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      },
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "504153530a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/integration/test_import_fn_field_chained.sn",
+      "source_sha256": "141d3ac1436036bdea37f3631038ca1fb90dde8dbef3803abc47cd5a50fa4b0d",
+      "compile_command": [
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/bin/sn",
+        "tests/integration/test_import_fn_field_chained.sn",
+        "--target",
+        "c",
+        "-O0",
+        "--no-install",
+        "-o",
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/.sn/owned-closure-permanent-asan-20"
+      ],
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f696d706f72745f666e5f6669656c645f636861696e65642e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f686f6d652f676176696e2f636f64652f73696e646172696e2f73696e646172696e2d727573742d6f776e65642d7265636f72642d636c6f73757265732d65643965386339632f2e736e2f6f776e65642d636c6f737572652d7065726d616e656e742d6173616e2d323020283130312e31204b42290a",
+      "asan_environment": {
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer -no-pie",
+        "ASAN_OPTIONS": "detect_leaks=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      },
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "4372656174696e6720726f757465720a416464696e6720726f7574650a4372656174696e6720726571756573740a48616e646c696e6720726571756573740a5374617475733a203230300a426f64793a20486f6d650a54657374696e67206e6f7420666f756e640a5374617475733a203430340a426f64793a204e6f7420466f756e640a416c6c20746573747320706173736564210a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/rgen/owned_record_nested_deep_references.sn",
+      "source_sha256": "5cfa126ccd3c18734bb513b9546196148918c9d4079e5555f7c2368e6c4f4d41",
+      "compile_command": [
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/bin/sn",
+        "tests/rgen/owned_record_nested_deep_references.sn",
+        "--target",
+        "c",
+        "-O0",
+        "--no-install",
+        "-o",
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/.sn/owned-closure-projection-asan-0"
+      ],
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6f776e65645f7265636f72645f6e65737465645f646565705f7265666572656e6365732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f686f6d652f676176696e2f636f64652f73696e646172696e2f73696e646172696e2d727573742d6f776e65642d7265636f72642d636c6f73757265732d65643965386339632f2e736e2f6f776e65642d636c6f737572652d70726f6a656374696f6e2d6173616e2d30202839332e33204b42290a",
+      "asan_environment": {
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer -no-pie",
+        "ASAN_OPTIONS": "detect_leaks=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      },
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "696e646578206e65770a696e646578206e65770a696e646578206e65770a6e65772032206e657720330a6f6c6420310a",
+      "stderr_hex": ""
+    },
+    {
+      "source": "tests/rgen/owned_record_nested_default_references.sn",
+      "source_sha256": "ccc783d11da37b5bda405966a43b907b2f44bdb19c8d34810ad1825e12ff418b",
+      "compile_command": [
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/bin/sn",
+        "tests/rgen/owned_record_nested_default_references.sn",
+        "--target",
+        "c",
+        "-O0",
+        "--no-install",
+        "-o",
+        "/home/gavin/code/sindarin/sindarin-rust-owned-record-closures-ed9e8c9c/.sn/owned-closure-projection-asan-1"
+      ],
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6f776e65645f7265636f72645f6e65737465645f64656661756c745f7265666572656e6365732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f686f6d652f676176696e2f636f64652f73696e646172696e2f73696e646172696e2d727573742d6f776e65642d7265636f72642d636c6f73757265732d65643965386339632f2e736e2f6f776e65642d636c6f737572652d70726f6a656374696f6e2d6173616e2d31202838372e37204b42290a",
+      "asan_environment": {
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer -no-pie",
+        "ASAN_OPTIONS": "detect_leaks=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      },
+      "asan_init_verified": true,
+      "run_status": 0,
+      "stdout_hex": "6e65772032206e657720320a6f6c6420310a",
+      "stderr_hex": ""
+    }
+  ]
+}

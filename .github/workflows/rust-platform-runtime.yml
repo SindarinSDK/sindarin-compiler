@@ -169,6 +169,8 @@ jobs:
             make -o build test-rust-parity-reference-records
           run_gate "scalar parameter characters, aliases and storage conversions (126 cases)" \
             make -o build test-rust-parity-scalar-parameters
+          run_gate "closure record lifetimes, aliases and mutation (189 cases)" \
+            make -o build test-rust-parity-closure-records
           run_gate "native ABI admission diagnostics (7 fixtures)" \
             python3 scripts/run_rust_tests.py rust-native-errors --verbose \
               --require-count 7 --fail-on-skip

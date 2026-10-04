@@ -7,7 +7,11 @@ struct {{rust_ident name}} {
 impl {{rust_ident name}} {
 {{#each methods}}{{> struct_method this}}{{/each}}{{rbrace}}{{/if}}
 {{#if rust_thread_fields}}impl {{rust_ident name}} {
-{{#if @root.rust_uses_record_reference_assign}}    fn {{rust_ident @root.rust_record_assign_method}}(&self, value: Self) -> Self {
+{{#if rust_closure_record_snapshot}}    fn {{rust_ident @root.rust_closure_snapshot_method}}(&self) -> Self {
+        Self { {{#each fields}}{{rust_ident name}}: {{#if rust_closure_array_owner}}self.{{rust_ident name}}.share(){{else}}{{#if rust_closure_nested_snapshot}}{{rust_ident @root.rust_thread_field_type}}::new(self.{{rust_ident name}}.map_read(|value| value.{{rust_ident @root.rust_closure_snapshot_method}}())){{else}}self.{{rust_ident name}}.clone(){{/if}}{{/if}}, {{/each}} }
+    }
+
+{{/if}}{{#if @root.rust_uses_record_reference_assign}}    fn {{rust_ident @root.rust_record_assign_method}}(&self, value: Self) -> Self {
         let snapshot = value.clone();
 {{#each fields}}        self.{{rust_ident name}}.set(snapshot.{{rust_ident name}}.read());
 {{/each}}        snapshot

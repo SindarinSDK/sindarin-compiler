@@ -1,4 +1,21 @@
 #![allow(dead_code, unused_mut, unused_variables, unused_parens)]
+#[derive(Debug)]
+struct __sn_concurrency0_Field<T>(std::sync::Arc<std::sync::Mutex<T>>);
+impl<T> __sn_concurrency0_Field<T> {
+    fn new(value: T) -> Self { Self(std::sync::Arc::new(std::sync::Mutex::new(value))) }
+    fn share(&self) -> Self { Self(self.0.clone()) }
+    fn lock(&self) -> std::sync::MutexGuard<'_ , T> { self.0.lock().unwrap_or_else(|e| e.into_inner()) }
+    fn set(&self, value: T) { *self.0.lock().unwrap_or_else(|e| e.into_inner()) = value; }
+}
+impl<T: Clone> __sn_concurrency0_Field<T> {
+    fn read(&self) -> T { self.0.lock().unwrap_or_else(|e| e.into_inner()).clone() }
+}
+impl<T: Clone> Clone for __sn_concurrency0_Field<T> {
+    fn clone(&self) -> Self { Self::new(self.read()) }
+}
+impl<T: Clone + PartialEq> PartialEq for __sn_concurrency0_Field<T> {
+    fn eq(&self, other: &Self) -> bool { self.read() == other.read() }
+}
 
 extern "C" {
     #[link_name = "fwrite"]
@@ -378,11 +395,17 @@ impl<F: ?Sized> PartialEq for __SnClosure<F> {
 struct Holder {
     action: __SnClosure<dyn Fn(i64) -> i64>,
 }
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone,  Debug, PartialEq)]
 struct Payload {
-    text: SnString,
-    values: Vec<i64>,
+    text: __sn_concurrency0_Field<SnString>,
+    values: __sn_concurrency0_Field<Vec<i64>>,
 }
+impl Payload {
+    fn __sn_concurrency0_share(&self) -> Self {
+        Self { text: self.text.share(), values: self.values.share(),  }
+    }
+}
+
 
 fn plusOne(x: i64) -> i64 {
     return __sn_checked_0((x).checked_add(1), "Runtime error: integer overflow in addition");
@@ -405,9 +428,9 @@ fn factory(offset: i64) -> __SnClosure<dyn Fn(i64) -> i64> {
 fn owned() -> __SnClosure<dyn Fn() -> SnString> {
     let mut text: SnString = SnString::from_slice(&[0x73, 0x6e, 0x61, 0x70, 0x73, 0x68, 0x6f, 0x74]);
     let mut values: Vec<i64> = vec![7, 8];
-    let mut payload: Payload = Payload { text: SnString::from_slice(&[0x6f, 0x77, 0x6e, 0x65, 0x64]), values: values.clone() };
+    let mut payload: Payload = Payload { text: __sn_concurrency0_Field::new(SnString::from_slice(&[0x6f, 0x77, 0x6e, 0x65, 0x64])), values: __sn_concurrency0_Field::new(values.clone()) };
     let mut callback: __SnClosure<dyn Fn(i64) -> i64> = factory(30);
-    return { let (text, values, payload, callback, ) = (text.clone(), values.clone(), payload.clone(), callback.clone(), ); self::__SnClosure::<dyn Fn() -> SnString>(std::rc::Rc::new(move || -> SnString { { let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(text.clone())); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", (values.clone())[__sn_index((values.clone()).len(), 0)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&((payload.clone()).text)); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", ((callback.clone()).0)(2))); __sn_interpolated }})) }
+    return { let (text, values, payload, callback, ) = (text.clone(), values.clone(), payload.clone(), callback.clone(), ); self::__SnClosure::<dyn Fn() -> SnString>(std::rc::Rc::new(move || -> SnString { { let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(text.clone())); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", (values.clone())[__sn_index((values.clone()).len(), 0)])); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&((payload).text.read())); __sn_interpolated.push_str(&(SnString::from_slice(&[0x3a]))); __sn_interpolated.push_str(&format!("{}", ((callback.clone()).0)(2))); __sn_interpolated }})) }
 ;
 }
 

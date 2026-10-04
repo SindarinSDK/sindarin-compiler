@@ -1,0 +1,20 @@
+struct State as ref =>
+  value: int
+  label: str
+
+  fn bump(): int =>
+    self.value = self.value + 1
+    return self.value
+
+fn build(): fn(State): int =>
+  return fn(state: State): int => state.bump()
+
+fn main(): void =>
+  var state: State = {
+    value: 10,
+    label: "alive"
+  }
+  var action: fn(State): int = build()
+  var first: int = action(state)
+  var second: int = action(state)
+  println($"{first} {second} {state.value} {state.label}")

@@ -3,7 +3,8 @@ struct {{rust_ident rust_thread_field_type}}<T>(std::sync::Arc<std::sync::Mutex<
 impl<T> {{rust_ident rust_thread_field_type}}<T> {
     fn new(value: T) -> Self { Self(std::sync::Arc::new(std::sync::Mutex::new(value))) }
     fn share(&self) -> Self { Self(self.0.clone()) }
-    fn lock(&self) -> std::sync::MutexGuard<'_ , T> { self.0.lock().unwrap_or_else(|e| e.into_inner()) }
+{{#if rust_uses_thread_field_map_read}}    fn map_read<R>(&self, read: impl FnOnce(&T) -> R) -> R { let value = self.0.lock().unwrap_or_else(|e| e.into_inner()); read(&*value) }
+{{/if}}    fn lock(&self) -> std::sync::MutexGuard<'_ , T> { self.0.lock().unwrap_or_else(|e| e.into_inner()) }
     fn set(&self, value: T) { *self.0.lock().unwrap_or_else(|e| e.into_inner()) = value; }
 }
 impl<T: Clone> {{rust_ident rust_thread_field_type}}<T> {
@@ -25,7 +26,8 @@ impl<T> {{rust_ident rust_reference_field_type}}<T> {
     fn owner(&self) -> {{rust_ident rust_thread_field_type}}<T> {
         {{rust_ident rust_thread_field_type}}(self.0.as_ref().expect("nil record field access").clone())
     }
-    fn lock(&self) -> std::sync::MutexGuard<'_, T> { self.0.as_ref().expect("nil record field access").lock().unwrap_or_else(|e| e.into_inner()) }
+{{#if rust_uses_thread_field_map_read}}    fn map_read<R>(&self, read: impl FnOnce(&T) -> R) -> R { let value = self.lock(); read(&*value) }
+{{/if}}    fn lock(&self) -> std::sync::MutexGuard<'_, T> { self.0.as_ref().expect("nil record field access").lock().unwrap_or_else(|e| e.into_inner()) }
     fn set(&self, value: T) { *self.lock() = value; }
 }
 impl<T: Clone> {{rust_ident rust_reference_field_type}}<T> {

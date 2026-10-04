@@ -1,0 +1,17 @@
+struct Subject =>
+  count: int
+  label: str
+
+fn main(): void =>
+  var action: fn(Subject, Subject): int = fn(left: Subject, right: Subject): int =>
+    left = Subject {
+      count: left.count + 1,
+      label: "after"
+    }
+    return right.count
+  var state: Subject = {
+    count: 10,
+    label: "before"
+  }
+  var result: int = action(state, state)
+  println($"{result} {state.count} {state.label}")

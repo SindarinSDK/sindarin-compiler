@@ -56,10 +56,45 @@ static bool rust_closure_owned_type(json_object *type)
 {
     if (!rust_type_supported(type)) return false;
     if (json_string_property_equals(type, "kind", "struct"))
-        return rust_auto_copy_plain_value_struct_type(type, NULL);
+        return rust_auto_copy_plain_value_struct_type(type, NULL) ||
+            json_boolean_property(rust_find_struct(rust_validation_model,
+                json_string_property(type, "name")), "rust_thread_reference_identity");
     if (json_string_property_equals(type, "kind", "array"))
         return rust_closure_owned_type(rust_closure_property(type, "element_type"));
     return !json_string_property_equals(type, "kind", "void");
+}
+
+static bool rust_closure_reference_record_type(json_object *type)
+{
+    return json_string_property_equals(type, "kind", "struct") &&
+        json_boolean_property(rust_find_struct(rust_validation_model,
+            json_string_property(type, "name")), "rust_thread_reference_identity");
+}
+
+static void rust_closure_record_snapshot_type(json_object *type)
+{
+    if (!rust_auto_copy_plain_value_struct_type(type, NULL)) return;
+    json_object *structure = rust_find_struct(rust_validation_model, json_string_property(type, "name"));
+    if (!json_boolean_property(structure, "rust_thread_fields") ||
+        json_boolean_property(structure, "rust_closure_record_snapshot")) return;
+    json_object_object_add(structure, "rust_closure_record_snapshot", json_object_new_boolean(true));
+    json_object_object_add(rust_validation_model, "rust_uses_closure_record_snapshots", json_object_new_boolean(true));
+    json_object_object_add(rust_validation_model, "rust_uses_thread_field_map_read", json_object_new_boolean(true));
+    json_object *fields = rust_closure_property(structure, "fields");
+    for (size_t i = 0; i < rust_closure_length(fields); i++)
+    {
+        json_object *field = json_object_array_get_idx(fields, i);
+        json_object *field_type = rust_closure_property(field, "type");
+        if (json_string_property_equals(field_type, "kind", "array"))
+            json_object_object_add(field, "rust_closure_array_owner", json_object_new_boolean(true));
+        else if (rust_auto_copy_plain_value_struct_type(field_type, NULL))
+        {
+            rust_closure_record_snapshot_type(field_type);
+            json_object *child = rust_find_struct(rust_validation_model, json_string_property(field_type, "name"));
+            if (json_boolean_property(child, "rust_closure_record_snapshot"))
+                json_object_object_add(field, "rust_closure_nested_snapshot", json_object_new_boolean(true));
+        }
+    }
 }
 
 static bool rust_closure_type_supported(json_object *type)
@@ -78,8 +113,13 @@ static bool rust_closure_type_supported(json_object *type)
     {
         json_object *param = json_object_array_get_idx(params, i);
         if (!rust_closure_owned_type(param)) return false;
-        if (json_string_property_equals(param, "kind", "struct") &&
-            !rust_heap_free_named_struct_type(param)) return false;
+        if (rust_closure_reference_record_type(param))
+            json_object_object_add(param, "rust_closure_param_share", json_object_new_boolean(true));
+        else if (json_boolean_property(param, "pass_by_ptr") &&
+                 rust_auto_copy_plain_value_struct_type(param, NULL))
+            json_object_object_add(param,
+                "rust_closure_param_share",
+                json_object_new_boolean(true));
     }
     json_object *ret = rust_closure_property(type, "return_type");
     return json_string_property_equals(ret, "kind", "void") || rust_closure_owned_type(ret);
@@ -236,6 +276,8 @@ static bool rust_closure_walk_lambda(RustClosureScope *scope, json_object *node)
         if (!rust_closure_owned_type(cap_type))
             return rust_closure_error("this closure capture type");
         json_object_object_add(cap, "rust_binding_id", json_object_new_int(b->id));
+        if (rust_closure_reference_record_type(cap_type))
+            json_object_object_add(cap, "rust_reference_record_capture", json_object_new_boolean(true));
         bool shared = json_boolean_property(cap, "is_ref") ||
             (owned_candidate &&
              json_boolean_property(b->declaration, "rust_shared_owned_cell"));
@@ -289,7 +331,17 @@ static bool rust_closure_walk_lambda(RustClosureScope *scope, json_object *node)
     for (size_t i = 0; ok && i < rust_closure_length(params); i++)
     {
         json_object *p = json_object_array_get_idx(params, i);
-        if (!json_string_property_equals(p, "mem_qual", "default"))
+        json_object *signature_params = rust_closure_property(
+            rust_closure_property(node, "type"), "param_types");
+        json_object *signature_param = i < rust_closure_length(signature_params)
+            ? json_object_array_get_idx(signature_params, i) : NULL;
+        bool shared_record = json_boolean_property(signature_param, "rust_closure_param_share");
+        bool record_ref = shared_record &&
+            json_string_property_equals(p, "mem_qual", "as_ref");
+        if (record_ref || shared_record)
+            json_object_object_add(p, "rust_closure_param_share",
+                                   json_object_new_boolean(true));
+        if (!json_string_property_equals(p, "mem_qual", "default") && !record_ref)
             ok = rust_closure_error("qualified closure parameters");
         else ok = rust_closure_bind(scope, p, json_string_property(p, "name"), -1, false);
     }
@@ -399,6 +451,17 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
         RustClosureBinding *b = rust_closure_lookup(scope, name);
         if (b)
         {
+            if (b->capture && json_boolean_property(node, "is_ref_arg") &&
+                rust_auto_copy_plain_value_struct_type(rust_closure_property(b->declaration, "type"), NULL))
+            {
+                json_object_object_add(b->declaration, "rust_mutable_owned_snapshot", json_object_new_boolean(true));
+                json_object_object_add(node, "rust_capture_mutation_place", json_object_new_boolean(true));
+                rust_closure_record_snapshot_type(rust_closure_property(b->declaration, "type"));
+                if (json_boolean_property(rust_find_struct(rust_validation_model,
+                        json_string_property(rust_closure_property(b->declaration, "type"), "name")),
+                        "rust_closure_record_snapshot"))
+                    json_object_object_add(b->declaration, "rust_closure_record_snapshot", json_object_new_boolean(true));
+            }
             if (b->lambda_depth != scope->lambda_depth)
                 return rust_closure_error("missing transitive closure captures");
             json_object_object_add(node, "rust_binding_id", json_object_new_int(b->id));
@@ -419,7 +482,9 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
             if (json_string_property_equals(b->declaration, "rust_capture_mode", "self"))
                 json_object_object_add(node, "rust_self_read", json_object_new_boolean(true));
             if ((b->capture || json_boolean_property(b->declaration, "rust_shared_cell")) &&
-                json_boolean_property(node, "is_ref_arg") && !json_boolean_property(node, "rust_thread_ref_owner"))
+                json_boolean_property(node, "is_ref_arg") && !json_boolean_property(node, "rust_thread_ref_owner") &&
+                !json_boolean_property(b->declaration, "rust_mutable_owned_snapshot") &&
+                !json_boolean_property(b->declaration, "rust_reference_record_capture"))
                 return rust_closure_error("mutable access to snapshot closure captures");
         }
         else if (!json_boolean_property(node, "rust_direct_callee") && name &&
@@ -452,12 +517,16 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
         place = rust_closure_place(scope, rust_closure_property(node, "object"));
     else if (kind && strcmp(kind, "index_assign") == 0)
         place = rust_closure_place(scope, rust_closure_property(node, "array"));
-    if (place && scope->lambda_depth > 0 && !json_string_property(place->declaration, "kind") && !place->capture)
+    if (place && scope->lambda_depth > 0 && !json_string_property(place->declaration, "kind") &&
+        !place->capture &&
+        !json_boolean_property(place->declaration, "rust_closure_param_share"))
         return rust_closure_error("mutation of closure parameters");
     if (json_boolean_property(node, "is_ref_arg"))
     {
         RustClosureBinding *borrowed = rust_closure_place(scope, node);
-        if (borrowed && borrowed->capture)
+        if (borrowed && borrowed->capture &&
+            !json_boolean_property(borrowed->declaration, "rust_mutable_owned_snapshot") &&
+            !json_boolean_property(borrowed->declaration, "rust_reference_record_capture"))
             return rust_closure_error("mutable access to snapshot closure captures");
     }
     bool captured_index = kind && strcmp(kind, "index_assign") == 0 && place &&
@@ -474,7 +543,8 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
         rust_numeric_computed_mutation(node);
     if (numeric_array_capture)
         json_object_object_add(place->declaration, "rust_array_snapshot_cell", json_object_new_boolean(true));
-    bool struct_snapshot = place && place->capture && rust_closure_struct_type(
+    bool struct_snapshot = place && place->capture &&
+        !json_boolean_property(place->declaration, "rust_reference_record_capture") && rust_closure_struct_type(
         rust_closure_property(place->declaration, "type"));
     if (struct_snapshot)
     {
@@ -488,24 +558,49 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
         bool direct_assign = kind && strcmp(kind, "assign") == 0;
         bool direct_member = root && json_string_property_equals(root, "kind", "variable") &&
             rust_closure_lookup(scope, json_string_property(root, "name")) == place;
-        if (!rust_heap_free_named_struct_type(
-                rust_closure_property(place->declaration, "type")))
-            return rust_closure_error("mutable heap-owning struct snapshot captures");
-        if (!direct_assign && !direct_member)
-            return rust_closure_error("nested mutable struct snapshot places");
-        json_object_object_add(place->declaration, "rust_mutable_owned_snapshot",
-                               json_object_new_boolean(true));
-        if (direct_assign)
-            json_object_object_add(node, "rust_mutable_owned_snapshot",
-                                   json_object_new_boolean(true));
+        rust_closure_record_snapshot_type(rust_closure_property(place->declaration, "type"));
+        json_object *structure = rust_find_struct(rust_validation_model,
+            json_string_property(rust_closure_property(place->declaration, "type"), "name"));
+        if (json_boolean_property(structure, "rust_closure_record_snapshot"))
+        {
+            json_object_object_add(place->declaration, "rust_mutable_owned_snapshot", json_object_new_boolean(true));
+            json_object_object_add(place->declaration, "rust_closure_record_snapshot", json_object_new_boolean(true));
+            if (direct_assign)
+                json_object_object_add(node, "rust_mutable_owned_snapshot", json_object_new_boolean(true));
+            else
+            {
+                json_object *projection = root;
+                if (kind && strcmp(kind, "index_assign") == 0)
+                    projection = rust_closure_property(node, "array");
+                while (json_string_property_equals(projection, "kind", "member") ||
+                       json_string_property_equals(projection, "kind", "array_access"))
+                    projection = rust_closure_property(projection,
+                        json_string_property_equals(projection, "kind", "member") ? "object" : "array");
+                if (projection)
+                    json_object_object_add(projection, "rust_capture_mutation_place", json_object_new_boolean(true));
+            }
+        }
         else
         {
-            json_object_object_add(root, "rust_capture_mutation_place",
+            if (!rust_heap_free_named_struct_type(
+                    rust_closure_property(place->declaration, "type")))
+                return rust_closure_error("mutable heap-owning struct snapshot captures");
+            if (!direct_assign && !direct_member)
+                return rust_closure_error("nested mutable struct snapshot places");
+            json_object_object_add(place->declaration, "rust_mutable_owned_snapshot",
                                    json_object_new_boolean(true));
-            json_object_object_add(node, "rust_struct_snapshot_mutation",
-                                   json_object_new_boolean(true));
-            json_object_object_add(node, "rust_struct_snapshot_name",
-                                   json_object_new_string(place->name));
+            if (direct_assign)
+                json_object_object_add(node, "rust_mutable_owned_snapshot",
+                                       json_object_new_boolean(true));
+            else
+            {
+                json_object_object_add(root, "rust_capture_mutation_place",
+                                       json_object_new_boolean(true));
+                json_object_object_add(node, "rust_struct_snapshot_mutation",
+                                       json_object_new_boolean(true));
+                json_object_object_add(node, "rust_struct_snapshot_name",
+                                       json_object_new_string(place->name));
+            }
         }
     }
     bool shared_owned = place && rust_closure_string_type(
@@ -543,7 +638,8 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
     if (place && !numeric_array_capture && !captured_index && (place->capture || place->lambda_depth < scope->lambda_depth) &&
         !json_boolean_property(place->declaration, "rust_shared_cell") &&
         !json_boolean_property(place->declaration, "rust_scalar_snapshot") &&
-        !json_boolean_property(place->declaration, "rust_mutable_owned_snapshot"))
+        !json_boolean_property(place->declaration, "rust_mutable_owned_snapshot") &&
+        !json_boolean_property(place->declaration, "rust_reference_record_capture"))
         return rust_closure_error("mutable access to snapshot closure captures");
     if (kind && strcmp(kind, "call") == 0)
     {
@@ -619,10 +715,12 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
                             return rust_closure_error("this nested mutable array snapshot method");
                     }
                 }
-                else if (!rust_closure_string_type(binding_type) && !scalar_read)
+                else if (!rust_closure_string_type(binding_type) && !scalar_read &&
+                         !json_boolean_property(b->declaration, "rust_reference_record_capture"))
                     return rust_closure_error("method calls on snapshot closure captures");
             }
             if (b && !scalar_read && !b->capture && scope->lambda_depth > 0 &&
+                !json_boolean_property(b->declaration, "rust_closure_param_share") &&
                 !json_string_property(b->declaration, "kind"))
                 return rust_closure_error("method calls on closure parameters");
         }
@@ -1078,15 +1176,17 @@ static RustValidationResult rust_validate_closure_call(json_object *expr)
         /* C converts value arguments at the signature boundary. */
         if ((!rust_closure_same_type(actual, wanted) &&
              !rust_float_conversion_pair(actual, wanted)) ||
-            json_boolean_property(arg, "is_ref_arg"))
+            (json_boolean_property(arg, "is_ref_arg") &&
+             !json_boolean_property(wanted, "rust_closure_param_share")))
         {
             rust_closure_error("mixed-type or reference closure arguments");
             return RUST_VALIDATION_UNSUPPORTED;
         }
         if (!rust_validate_expr(arg)) return RUST_VALIDATION_UNSUPPORTED;
         const char *kind = json_string_property(arg, "kind");
-        if (kind && (strcmp(kind, "variable") == 0 || strcmp(kind, "member") == 0 ||
-                     strcmp(kind, "array_access") == 0))
+        if (!json_boolean_property(wanted, "rust_closure_param_share") &&
+                 kind && (strcmp(kind, "variable") == 0 || strcmp(kind, "member") == 0 ||
+                          strcmp(kind, "array_access") == 0))
             json_object_object_add(arg, "rust_closure_arg_clone", json_object_new_boolean(true));
     }
     json_object_object_add(expr, "rust_closure_call", json_object_new_boolean(true));

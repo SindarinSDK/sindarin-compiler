@@ -1,0 +1,19 @@
+struct Subject =>
+  count: int
+  label: str
+
+fn touch(value: Subject): int =>
+  value.count = value.count + 1
+  println($"inside {value.count} {value.label}")
+  return value.count
+
+fn make(): fn(): int =>
+  var subject: Subject = { count: 10, label: "before" }
+  return fn(): int => touch(subject)
+
+fn main(): void =>
+  var f: fn(): int = make()
+  var alias: fn(): int = f
+  var first: int = f()
+  var second: int = alias()
+  println($"{first} {second}")

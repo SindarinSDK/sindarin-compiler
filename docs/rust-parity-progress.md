@@ -5,6 +5,80 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Owned and reference record closures: combined validation, 2026-10-04
+
+This increment is based on exact verified main
+`ed9e8c9c7767c17a1581b2ede317791338b06790`. All six preceding
+compiler/runtime jobs pass; the retained Linux/macOS/Windows artifacts
+independently verify 34 reports / 2982 cases per platform in the
+[preceding hosted evidence](rust-parity-evidence/scalar-parameters-main-ci-green.json).
+The new increment has complete combined local acceptance; exact-revision hosted
+verification after publication remains required.
+
+Default heap-owning record callable parameters preserve C's caller borrow and
+alias behavior through shared field owners. Repeated parameters observe each
+other's writes, including whole-record reassignment. Ordinary reference records
+retain their identity through callable parameters, captures and methods.
+Consumed scalar field assignments return their stored value. Imported function
+fields with owned record signatures now pass the unchanged router original.
+
+Captured value records keep an owned environment and create a shallow body view
+for each invocation: scalar changes reset between calls, while array-element
+updates persist. A deep Clone of every field per call would silently change C's
+behavior. The target-local snapshot helper copies scalar slots, shares array
+owners and recursively snapshots nested value records. Nested field projection
+shares the actual record owners without keeping a guard across source callbacks.
+Both ordinary borrowing calls and direct closure-body mutations are covered.
+C generation, runtime and default-target selection are unchanged.
+
+The unchanged original corpus passes **1109 integration + 221 exploratory
+programs**: **1330 / 1365 (97.4%) original-program coverage**. Five earlier gaps
+close, leaving **35 compilation gaps**, zero runtime failures and no skips.
+This percentage measures coverage, not remaining engineering effort. All 1365
+original source hashes remain unchanged. One former reference-capture rejection
+moves byte-for-byte into positive coverage; thirteen new generation fixtures
+exercise mutation, aliases, snapshots, assignment results and nested lifetimes.
+Four of 540 tracked historical Rust emission snapshots change; 536 are unchanged.
+The historical foundation's Rust output remains identical in all nine modes;
+its failing C run receives no portable parity credit.
+
+The first prototype corpus sweep exposed a temporary regression in a previously
+passing nested reference-field original: the reference field wrapper lacked
+`map_read`. The wrapper now supports the same nil-checked projection operation;
+the unchanged original is included in the mandatory **189-case gate**. The
+failed sweep is retained. All 21 gate sources and two earlier nested-record
+controls pass instrumented C ASAN with leak detection: **23 clean controls**.
+All frozen oracles pass across nine optimization/arithmetic modes.
+
+Complete C suites pass **1610 / 107 / 79 / 1141 / 58 / 224 / 11** checks.
+Complete Rust generation/negative suites pass **491 / 133**; native
+8 / 37 / 1 / 7, closures 36 / 1, concurrency 10 / 7 / 1 and toolchain 12
+also pass, with zero failures or skips. Raw-byte/argv, text/flush ordering and
+Windows helper controls pass. All preceding gates remain green: the combined
+compiler passes **35 reports / 3171 cases**. These local results do not replace
+required Linux/macOS/Windows hosted verification.
+
+C failure probes remain explicit ownership/verification work. Replacing a
+captured string, copying the probed callable handle, nesting a borrowed-record
+capture, and returning a borrowed owned-record parameter expose C use-after-free
+or stack-overflow defects. The historical foundation also crashes in C callable
+identity conversion. Their exact sources and available sanitizer evidence are
+retained separately; neither failed execution nor a changed oracle is counted
+as parity. Their language ownership contracts remain part of the full goal.
+Qualified/scalar closure references, broader callable lifetime and method
+composition, native/SDK callbacks, interfaces/iterators, serialization and
+general copy hooks also remain required work.
+
+Evidence: [combined local validation](rust-parity-evidence/owned-closure-records-validation.json),
+[189 frozen pairs](rust-parity-evidence/owned-closure-records-pairs.json),
+[baseline four-original controls](rust-parity-evidence/owned-closure-records-before.json),
+[23 instrumented C controls](rust-parity-evidence/owned-closure-records-asan.json),
+[source/snapshot preservation](rust-parity-evidence/owned-closure-records-preservation.json),
+[remaining original diagnostics](rust-parity-evidence/owned-closure-records-gap-diagnostics.json),
+[temporary failed sweep](rust-parity-evidence/owned-closure-records-corpus-integration-pre-reference-projection-fix.log),
+[excluded C probes](rust-parity-evidence/owned-closure-records-excluded-c-probes.json) and
+[historical foundation control](rust-parity-evidence/owned-closure-records-foundation-control.json).
+
 ## Character and scalar parameters: combined validation, 2026-10-04
 
 This increment is based on verified main
@@ -47,8 +121,11 @@ Rust generation/negative counts are 477 / 134, native tagged/extra/origin/negati
 Raw-byte/argv, native flush ordering and Windows helper logic controls pass.
 The combined compiler passes all **34 reports / 2982 cases**, including every
 preceding gate.
-The new increment requires exact-revision Linux/macOS/Windows hosted evidence
-after publication; local checks do not substitute for it.
+All six compiler/runtime jobs for exact main
+`ed9e8c9c7767c17a1581b2ede317791338b06790` pass. The retained
+Linux/macOS/Windows artifacts independently verify all **34 reports / 2982
+cases** per platform in the
+[hosted acceptance evidence](rust-parity-evidence/scalar-parameters-main-ci-green.json).
 
 A shared formatter repair keeps complete character literal spellings together,
 including hexadecimal escapes. The 256-value fixture is byte-identical after

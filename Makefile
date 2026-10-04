@@ -853,3 +853,31 @@ test-rust-parity-scalar-parameters: build
 		--require-count 14 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-scalar-parameters.json
 	@$(PYTHON) scripts/check_rust_scalar_parameter_oracles.py .sn/rust-parity-scalar-parameters.json
+
+.PHONY: test-rust-parity-closure-records
+test-rust-parity-closure-records: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/integration/test_lambda_val_struct_str_field.sn \
+		tests/integration/test_lambda_val_struct_str_interp.sn \
+		tests/integration/test_lambda_capture_outlives_scope.sn \
+		tests/integration/test_lambda_capture_struct.sn \
+		tests/rgen/closure_values_ref_struct.sn \
+		tests/rust/closure-values/closure_values_owned_struct_escaping.sn \
+		tests/rgen/closure_owned_record_parameter_mutation.sn \
+		tests/rgen/closure_owned_record_parameter_aliases.sn \
+		tests/rgen/closure_owned_record_captured_borrow.sn \
+		tests/rgen/closure_owned_record_captured_array.sn \
+		tests/rgen/closure_reference_record_capture_mutation.sn \
+		tests/rgen/closure_record_assignment_value.sn \
+		tests/rgen/closure_reference_record_parameter_aliases.sn \
+		tests/rgen/closure_reference_record_captured_method.sn \
+		tests/rgen/closure_nested_record_array_capture.sn \
+		tests/rgen/closure_reference_record_parameter_method.sn \
+		tests/rgen/closure_owned_record_parameter_reassignment.sn \
+		tests/rgen/closure_owned_record_direct_capture_mutation.sn \
+		tests/rgen/closure_nested_record_direct_capture_mutation.sn \
+		tests/integration/test_as_ref_struct_lit_owned_field.sn \
+		tests/integration/test_import_fn_field_chained.sn \
+		--require-count 21 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-closure-records.json
+	@$(PYTHON) scripts/check_rust_closure_record_oracles.py .sn/rust-parity-closure-records.json

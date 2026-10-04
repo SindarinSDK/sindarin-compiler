@@ -4,6 +4,7 @@ struct __sn_concurrency0_Field<T>(std::sync::Arc<std::sync::Mutex<T>>);
 impl<T> __sn_concurrency0_Field<T> {
     fn new(value: T) -> Self { Self(std::sync::Arc::new(std::sync::Mutex::new(value))) }
     fn share(&self) -> Self { Self(self.0.clone()) }
+    fn map_read<R>(&self, read: impl FnOnce(&T) -> R) -> R { let value = self.0.lock().unwrap_or_else(|e| e.into_inner()); read(&*value) }
     fn lock(&self) -> std::sync::MutexGuard<'_ , T> { self.0.lock().unwrap_or_else(|e| e.into_inner()) }
     fn set(&self, value: T) { *self.0.lock().unwrap_or_else(|e| e.into_inner()) = value; }
 }
@@ -389,7 +390,7 @@ fn main() {
     let mut child: Child = Child { name: __sn_concurrency0_Field::new(SnString::from_slice(&[0x6f, 0x6c, 0x64])), count: __sn_concurrency0_Field::new(1) };
     let mut parent: Parent = Parent { child: __sn_concurrency0_Field::new(child.clone()), children: __sn_concurrency0_Field::new(vec![child.clone()]), label: __sn_concurrency0_Field::new(SnString::from_slice(&[0x70, 0x61, 0x72, 0x65, 0x6e, 0x74])) };
     exercise(parent.__sn_concurrency0_share());
-    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(((parent).child.read()).name.read())); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", ((parent).child.read()).count.read())); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&((((parent).children.read())[__sn_index(((parent).children.read()).len(), 0)]).name.read())); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", (((parent).children.read())[__sn_index(((parent).children.read()).len(), 0)]).count.read())); __sn_interpolated }));
+    __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&(((parent).child.map_read(|value| value.__sn_concurrency0_share())).name.read())); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", ((parent).child.map_read(|value| value.__sn_concurrency0_share())).count.read())); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&((((parent).children.read())[__sn_index(((parent).children.read()).len(), 0)]).name.read())); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", (((parent).children.read())[__sn_index(((parent).children.read()).len(), 0)]).count.read())); __sn_interpolated }));
     __sn_println_string(&({ let mut __sn_interpolated = SnString::new(); __sn_interpolated.push_str(&((child).name.read())); __sn_interpolated.push_str(&(SnString::from_slice(&[0x20]))); __sn_interpolated.push_str(&format!("{}", (child).count.read())); __sn_interpolated }));
     unsafe {
         #[cfg(windows)]

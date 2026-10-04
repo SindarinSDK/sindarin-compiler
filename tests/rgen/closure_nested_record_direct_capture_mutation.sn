@@ -1,0 +1,27 @@
+struct Child =>
+  count: int
+  values: int[]
+
+struct Subject =>
+  child: Child
+  label: str
+
+fn make(): fn(): int =>
+  var subject: Subject = {
+    child: Child {
+      count: 10,
+      values: {100}
+    },
+    label: "before"
+  }
+  return fn(): int =>
+    subject.child.count = subject.child.count + 1
+    subject.child.values[0] = subject.child.values[0] + 1
+    println($"inside {subject.child.count} {subject.label} {subject.child.values[0]}")
+    return subject.child.count
+
+fn main(): void =>
+  var action: fn(): int = make()
+  var first: int = action()
+  var second: int = action()
+  println($"{first} {second}")
