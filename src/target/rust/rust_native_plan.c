@@ -1073,7 +1073,8 @@ bool rust_native_partition_model(json_object *rust_model,
     remove_private_helper_functions(rust_model, selected_function_names);
     remove_private_globals(rust_model, selected_global_names);
     remove_c_only_native_helpers(rust_model, private_model);
-    if (!native_prepare_records(rust_model) || !native_prepare_handles(rust_model, plan))
+    if (!native_prepare_records(rust_model) || !native_prepare_handles(rust_model, plan) ||
+        !native_prepare_handle_atomic_owners(private_model, plan->handles))
     {
         json_object_put(private_model);
         json_object_put(selected_function_names);

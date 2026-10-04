@@ -22,7 +22,7 @@ static void native_handle_mark_types(json_object *node, json_object *handles)
             if (strcmp(name, native_string(handle, "name")) != 0) continue;
             json_object_object_add(node, "rust_native_reference_handle", json_object_new_boolean(true));
             const char *keys[] = {"rust_native_handle_field", "rust_native_handle_adopt",
-                "rust_native_handle_retain", "rust_native_handle_release", "rust_native_handle_refs", NULL};
+                "rust_native_handle_retain", "rust_native_handle_release", "rust_native_handle_refs", "rust_native_handle_borrow", NULL};
             for (int k = 0; keys[k]; k++)
                 json_object_object_add(node, keys[k], json_object_new_string(native_string(handle, keys[k])));
             break;
@@ -140,6 +140,13 @@ static bool native_prepare_handles(json_object *model, RustNativePlan *plan)
             if (!name) { json_object_put(handles); return false; }
             json_object_object_add(structure, keys[k], json_object_new_string(name)); free(name);
         }
+        char borrow_stem[160];
+        snprintf(borrow_stem, sizeof(borrow_stem), "__sn_native_handle_%zu_borrow", i);
+        char *borrow_name = unique_private_name(native_record_child(structure, "methods"),
+            native_record_child(structure, "fields"), native_record_child(model, "functions"), borrow_stem);
+        if (!borrow_name) { json_object_put(handles); return false; }
+        json_object_object_add(structure, "rust_native_handle_borrow", json_object_new_string(borrow_name));
+        free(borrow_name);
         json_object *fields = native_record_child(structure, "fields");
         for (size_t f = 0; fields && f < json_object_array_length(fields); f++) {
             json_object *field = json_object_array_get_idx(fields, f);
@@ -149,6 +156,11 @@ static bool native_prepare_handles(json_object *model, RustNativePlan *plan)
                 native_record_child(model, "globals"), stem);
             if (!getter) { json_object_put(handles); return false; }
             json_object_object_add(field, "rust_native_handle_get", json_object_new_string(getter)); free(getter);
+            snprintf(stem, sizeof(stem), "__sn_native_handle_%zu_set_%zu", i, f);
+            char *setter = unique_private_name(native_record_child(model, "functions"), structures,
+                native_record_child(model, "globals"), stem);
+            if (!setter) { json_object_put(handles); return false; }
+            json_object_object_add(field, "rust_native_handle_set", json_object_new_string(setter)); free(setter);
         }
         json_object_object_add(structure, "rust_native_reference_handle", json_object_new_boolean(true));
         json_object_array_add(handles, json_object_get(structure));
@@ -159,5 +171,24 @@ static bool native_prepare_handles(json_object *model, RustNativePlan *plan)
     plan->handles = json_object_get(handles);
     if (json_object_array_length(handles)) json_object_object_add(model, "rust_native_handles", handles);
     else json_object_put(handles);
+    return true;
+}
+
+/* Native handles can move only after the actual C owner implementation supplies
+ * atomic credits. Annotate the private C projection, never the default C model.
+ * Every generated retain/release and array callback then uses the same atomic
+ * field. C emission asserts its type and ABI before Rust may claim Send. */
+static bool native_prepare_handle_atomic_owners(json_object *private_model,
+                                                 json_object *handles)
+{
+    for (size_t i = 0; handles && i < json_object_array_length(handles); i++)
+    {
+        json_object *handle = json_object_array_get_idx(handles, i);
+        json_object *structure = native_record_struct(private_model, native_string(handle, "name"));
+        if (!structure || !native_bool(structure, "is_native") ||
+            !native_bool(structure, "pass_self_by_ref")) return false;
+        json_object_object_add(structure, "rust_native_handle_atomic_refs", json_object_new_boolean(true));
+        json_object_object_add(handle, "rust_native_handle_send", json_object_new_boolean(true));
+    }
     return true;
 }

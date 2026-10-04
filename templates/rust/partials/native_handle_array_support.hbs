@@ -5,6 +5,7 @@ unsafe trait {{rust_ident trait}}: Clone + PartialEq {
     unsafe fn allocate_native_array(capacity: i64) -> *mut std::ffi::c_void;
 }
 extern "C" {
+    fn {{rust_ident untyped_new}}() -> *mut std::ffi::c_void;
     fn {{rust_ident free}}(value: *mut std::ffi::c_void);
     fn {{rust_ident copy}}(value: *mut std::ffi::c_void) -> *mut std::ffi::c_void;
     fn {{rust_ident length}}(value: *mut std::ffi::c_void) -> i64;
@@ -27,6 +28,7 @@ struct {{rust_ident type}}<T: {{rust_ident trait}}> {
 impl<T: {{rust_ident trait}}> {{rust_ident type}}<T> {
     fn adopt(pointer: *mut std::ffi::c_void) -> Self { Self { pointer, element: std::marker::PhantomData } }
     fn nil() -> Self { Self::adopt(std::ptr::null_mut()) }
+    fn untyped_empty() -> Self { unsafe { Self::adopt({{rust_ident untyped_new}}()) } }
     fn new() -> Self { unsafe { Self::adopt(T::allocate_native_array(0)) } }
     fn from_vec(values: Vec<T>) -> Self {
         let mut result = unsafe { Self::adopt(T::allocate_native_array(i64::try_from(values.len()).expect("array length fits C"))) };
@@ -78,6 +80,9 @@ impl<T: {{rust_ident trait}}> {{rust_ident type}}<T> {
     fn concat_nullable(&self, other: &Self) -> Self { unsafe { Self::adopt({{rust_ident concat}}(self.pointer, other.pointer)) } }
     fn extend<I: IntoIterator<Item = T>>(&mut self, values: I) { for value in values { self.push(value); } }
 }
+// An owned header/data allocation moves with its sendable element owners.
+// Clones allocate a distinct C header; there is no shared-header Sync claim.
+unsafe impl<T: {{rust_ident trait}} + Send> Send for {{rust_ident type}}<T> {}
 impl<T: {{rust_ident trait}}> Default for {{rust_ident type}}<T> { fn default() -> Self { Self::nil() } }
 impl<T: {{rust_ident trait}}> Clone for {{rust_ident type}}<T> { fn clone(&self) -> Self { unsafe { Self::adopt({{rust_ident copy}}(self.pointer)) } } }
 impl<T: {{rust_ident trait}}> Drop for {{rust_ident type}}<T> { fn drop(&mut self) { unsafe { {{rust_ident free}}(self.pointer); } } }

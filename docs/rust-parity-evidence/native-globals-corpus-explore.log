@@ -1,0 +1,48 @@
+Compiler: /tmp/sn-global-corpus-crmnxglz/compiler
+Platform: Linux
+Parallel: 4 workers
+
+Exploratory Tests
+============================================================
+  Running 224 tests with 4 workers...
+                                                              test_array_mutation_lambda                    FAIL (compile error)  (33ms)
+    [1mCompiling[0m tests/exploratory/test_array_mutation_lambda.sn...
+      Parsing... [1;36mdone[0m
+      Type checking... [1;36mdone[0m
+      Code generation...Error: Rust target does not support mutation of closure parameters yet
+     [1;31mfailed[0m
+    
+    
+  test_as_val_array_copy                        FAIL (compile error)  (49ms)
+    [1mCompiling[0m tests/exploratory/test_as_val_array_copy.sn...
+      Parsing... [1;36mdone[0m
+      Type checking...
+      [1;33mwarning[0m: Assigning str/array variable to another variable shares ownership. Consider using copyOf() to avoid potential double-free
+        [1;34m-->[0m tests/exploratory/test_as_val_array_copy.sn:21:1
+              var copy: int[] as val = source
+            [1;33m^^^^[0m
+    
+    
+      [1;33mwarning[0m: Assigning str/array variable to another variable shares ownership. Consider using copyOf() to avoid potential double-free
+        [1;34m-->[0m tests/exploratory/test_as_val_array_copy.sn:30:1
+              var working: int[] as val = data
+            [1;33m^^^^^^^[0m
+    
+      Type checking [1;36mdone[0m
+      Code generation...Error: Rust target does not support a parameter of function 'modify_array'
+     [1;31mfailed[0m
+    
+    
+  test_pointer_slice_bounds                     FAIL (compile error)  (28ms)
+    [1mCompiling[0m tests/exploratory/test_pointer_slice_bounds.sn...
+      Parsing... [1;36mdone[0m
+      Type checking... [1;36mdone[0m
+      Code generation...Error: Rust target encountered an unsupported construct in function 'test_correct_bounds'
+     [1;31mfailed[0m
+    
+    
+
+------------------------------------------------------------
+Results: 221 passed, 3 failed, 0 skipped  (16.01s)
+
+Some tests failed!  (total: 16.01s)

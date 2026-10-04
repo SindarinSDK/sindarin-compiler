@@ -21,7 +21,8 @@ static void rust_thread_array_promote(json_object *decl, bool *changed)
     if (!json_boolean_property(decl, "rust_thread_array_storage")) *changed = true;
     json_object_object_add(decl, "rust_thread_array_storage", json_object_new_boolean(true));
     json_object_object_add(decl, "rust_shared_cell", json_object_new_boolean(true));
-    if (!json_string_property_equals(decl, "kind", "var_decl")) {
+    if (!json_string_property_equals(decl, "kind", "var_decl") &&
+        !json_boolean_property(decl, "rust_thread_global_binding")) {
         json_object_object_add(decl, "rust_thread_ref_param", json_object_new_boolean(true));
         json_object_object_add(decl, "rust_thread_array_param", json_object_new_boolean(true));
     }
@@ -98,12 +99,15 @@ static bool rust_thread_ref_walk(json_object *node, json_object *functions,
     if (json_string_property_equals(node, "kind", "assign")) {
         RustThreadRefBinding *target = rust_thread_ref_lookup(scope, json_string_property(node, "target"));
         if (target && json_boolean_property(target->declaration, "rust_thread_array_storage"))
-            json_object_object_add(node, "rust_thread_array_storage", json_object_new_boolean(true));
+            json_object_object_add(node, json_boolean_property(target->declaration, "rust_thread_global_binding")
+                ? "rust_thread_array_global" : "rust_thread_array_storage", json_object_new_boolean(true));
     }
     if (json_string_property_equals(node, "kind", "variable")) {
         RustThreadRefBinding *binding = rust_thread_ref_lookup(scope, json_string_property(node, "name"));
         if (binding && json_boolean_property(binding->declaration, "rust_thread_array_storage")) {
             json_object_object_add(node, "rust_thread_array_read", json_object_new_boolean(true));
+            if (json_boolean_property(binding->declaration, "rust_thread_global_binding"))
+                json_object_object_add(node, "rust_thread_array_global", json_object_new_boolean(true));
             json_object_object_del(node, "rust_deref");
         }
     }
@@ -243,8 +247,9 @@ static bool rust_find_scalar_reference_aliases(json_object *node,
 
 static bool rust_prepare_thread_references(json_object *model)
 {
-    json_object *functions = NULL;
+    json_object *functions = NULL, *globals = NULL;
     json_object_object_get_ex(model, "functions", &functions);
+    json_object_object_get_ex(model, "globals", &globals);
     bool aliases = rust_find_scalar_reference_aliases(model, functions);
     if (array_is_empty(model, "threads") && !aliases) return true;
     rust_thread_ref_find_targets(model, functions);
@@ -256,10 +261,36 @@ static bool rust_prepare_thread_references(json_object *model)
             json_object_object_get_ex(fn, "params", &params);
             json_object_object_get_ex(fn, "body", &body);
             RustThreadRefBinding *scope = NULL;
+            /* Globals are outer lexical bindings. Parameters and subsequent
+             * locals shadow them, including namespaced global declarations. */
+            for (size_t g = 0; globals && g < json_object_array_length(globals); g++) {
+                json_object *global = json_object_array_get_idx(globals, g);
+                json_object_object_add(global, "rust_thread_global_binding", json_object_new_boolean(true));
+                RustThreadRefBinding *binding = malloc(sizeof(*binding));
+                if (!binding) {
+                    while (scope) { RustThreadRefBinding *next = scope->next; free(scope); scope = next; }
+                    return false;
+                }
+                *binding = (RustThreadRefBinding){json_string_property(global, "name"), global, scope};
+                scope = binding;
+            }
+            /* Initializers are evaluated in global scope, never in the
+             * parameter/local scope of the function being traversed. */
+            for (size_t g = 0; globals && g < json_object_array_length(globals); g++) {
+                json_object *initializer = NULL;
+                json_object_object_get_ex(json_object_array_get_idx(globals, g), "initializer", &initializer);
+                if (!rust_thread_ref_walk(initializer, functions, scope, &changed)) {
+                    while (scope) { RustThreadRefBinding *next = scope->next; free(scope); scope = next; }
+                    return false;
+                }
+            }
             for (size_t p = 0; params && p < json_object_array_length(params); p++) {
                 json_object *param = json_object_array_get_idx(params, p);
                 RustThreadRefBinding *binding = malloc(sizeof(*binding));
-                if (!binding) return false;
+                if (!binding) {
+                    while (scope) { RustThreadRefBinding *next = scope->next; free(scope); scope = next; }
+                    return false;
+                }
                 *binding = (RustThreadRefBinding){json_string_property(param, "name"), param, scope}; scope = binding;
             }
             bool ok = rust_thread_ref_walk(body, functions, scope, &changed);

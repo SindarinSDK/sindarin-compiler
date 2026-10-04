@@ -5,14 +5,81 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
-## Canonical native reference arrays: local acceptance, 2026-10-04
+## Global native owners and joined results: local acceptance, 2026-10-04
+
+This increment starts from published main
+`c4cfbf78fa380198590c8fb1f365219f33cc5d4a`, whose complete three-platform
+acceptance is retained below. The candidate has complete local acceptance;
+publication and exact-revision Linux/macOS/Windows acceptance remain required.
+The full parity goal is active.
+
+Canonical native-reference owners now move through process-wide globals and
+threads. The Rust-private C header uses atomic reference credits; generated C
+asserts the actual field type and atomic/C-int size and alignment before Rust
+claims `Send`. Owners and uniquely owned array headers gain `Send`, with no
+`Sync` implementation. Native code retains its C/foreign threading preconditions.
+Default threaded array parameters share the selected global header without
+copy callbacks. Global replacement selects a new owner; aliases retain their
+selected header. Cell reads acquire ownership once, borrowed pointer views drop
+mutex guards before subsequent arguments, and closure borrows capture the whole
+native owner. Empty inferred call literals retain C's actual untyped metadata.
+Native scalar field writes update the actual C object rather than Rust mirrors.
+
+The unchanged module-array cleanup original passes all nine modes. New controls
+verify duplicate global borrows, native owner moves, zero-copy array thread
+transport, alias mutation and growth, one copy callback per explicitly copied
+element, global replacement, lexical shadowing and threaded scalar reference
+aliases. Repeated/grouped joins verify native result defaults and zero resources.
+The baseline C compiler omitted cleanup of joined reference results and old owners
+on overwrite: unchanged final sources leak one and three allocations under
+LeakSanitizer. The C cleanup paths are repaired explicitly; the positive oracle
+requires zero surviving resources. A separate C global-array initializer aliases
+both owners and aborts at cleanup; its exact source and failure are retained and
+receive no parity credit.
+
+The mandatory gate checks **36 frozen C/Rust comparisons**. All **38 reports /
+3351 cases**, including the previous **37 / 3315**, pass with one current
+compiler; production and staged template hashes are recorded because template
+changes alone do not change the compiler binary. **351 instrumented executions**
+pass ASAN, UBSAN and leak detection: 342 native C/Rust executions and nine plain
+global-array C controls. Complete C suites pass **1610 / 107 / 79 / 1142 / 58 /
+224 / 11**; complete Rust suites pass **491 / 133 / 8 / 44 / 1 / 7 / 36 / 1 / 10 /
+7 / 1 / 12**, with no failures or skips. Historical emission oracles and all
+1365 original source hashes remain unchanged. Raw bytes/argv, text/native flush
+ordering and Windows output helper controls pass locally. CI requires 44 native
+fixtures and the new gate on all three platforms.
+
+Original coverage is **1121 integration + 221 exploratory = 1342 / 1365 (98.3%)**,
+with **23 compilation gaps**, no runtime failures and no skips. The newer
+integration ownership control passes separately. Remaining originals cover
+interfaces/iterators, callbacks/SDK interop, serialization, managed native value
+records, pointer slices, array qualifiers/closures and thread record results.
+Broader native array families, constructor/method/closure lifetimes, implicit
+thread-result disposal, threaded temporary arrays, nonthreaded global reference
+aliases and retained C ownership failures remain required full-goal work.
+
+Evidence: [local validation and all 23 gaps](rust-parity-evidence/native-globals-validation.json),
+[36 frozen comparisons](rust-parity-evidence/native-globals-oracles.json),
+[previous 3315-case preservation](rust-parity-evidence/native-globals-preservation.json),
+[351 sanitizer executions](rust-parity-evidence/native-globals-asan.json),
+[exact final-source baseline](rust-parity-evidence/native-globals-before.json),
+[C joined-result leak baseline](rust-parity-evidence/native-globals-c-joined-leak-before.json),
+[excluded C initializer](rust-parity-evidence/native-globals-initializer-excluded.json),
+[full C suite](rust-parity-evidence/native-globals-full-c.log),
+[full Rust suite](rust-parity-evidence/native-globals-full-rust.log).
+
+## Canonical native reference arrays: combined acceptance, 2026-10-04
 
 This increment starts from published main
 `3fa0bc91d8c75923e34fe331bc511db10890edf4`, whose six compiler/runtime jobs and
 Linux/macOS/Windows **36 reports / 3288 cases** are independently verified below.
-The array candidate has complete local acceptance. Publication and exact-revision
-Linux/macOS/Windows acceptance are still required; the full parity goal remains
-active.
+The implementation is published at
+`c4cfbf78fa380198590c8fb1f365219f33cc5d4a`. All six exact-revision
+compiler/runtime jobs pass. Linux/macOS/Windows artifacts independently verify
+**37 reports / 3315 cases** per platform and the complete hosted suite counts,
+including 41 native-extra fixtures. The full parity goal remains active.
+Evidence: [hosted acceptance](rust-parity-evidence/native-arrays-main-ci-green.json),
+[verification log](rust-parity-evidence/native-arrays-hosted-verification.log).
 
 Rust arrays of canonical native reference handles now keep the actual C
 `SnArray` header, data and element ownership callbacks. Native default parameters

@@ -3,16 +3,26 @@
 struct {{rust_ident name}} {
     {{rust_ident rust_native_handle_field}}: *mut std::ffi::c_void,
 }
+{{#if rust_native_handle_send}}
+// The C owner uses atomic credits, verified in the actual generated C header.
+// Native calls retain the source language's C/foreign threading preconditions.
+unsafe impl Send for {{rust_ident name}} {}
+{{/if}}
 extern "C" {
     fn {{rust_ident rust_native_handle_retain}}(_: *mut std::ffi::c_void);
     fn {{rust_ident rust_native_handle_release}}(_: *mut std::ffi::c_void);
     fn {{rust_ident rust_native_handle_refs}}(_: *mut std::ffi::c_void) -> i32;
 {{#each fields}}{{#if rust_native_handle_get}}    fn {{rust_ident rust_native_handle_get}}(_: *mut std::ffi::c_void) -> {{#if (eq type.kind "char")}}std::ffi::c_char{{else}}{{rust_type type}}{{/if}};
-{{/if}}{{/each}}
+{{#if rust_native_handle_set}}    fn {{rust_ident rust_native_handle_set}}(_: *mut std::ffi::c_void, _: {{#if (eq type.kind "char")}}std::ffi::c_char{{else}}{{rust_type type}}{{/if}});
+{{/if}}{{/if}}{{/each}}
 }
 impl {{rust_ident name}} {
     fn {{rust_ident rust_native_handle_adopt}}(pointer: *mut std::ffi::c_void) -> Self {
         Self { {{rust_ident rust_native_handle_field}}: pointer }
+    }
+    fn {{rust_ident rust_native_handle_borrow}}(&self) -> std::mem::ManuallyDrop<Self> {
+        // A method call captures the complete owner in a moved Rust closure.
+        std::mem::ManuallyDrop::new(Self::{{rust_ident rust_native_handle_adopt}}(self.{{rust_ident rust_native_handle_field}}))
     }
 {{#each methods}}{{> struct_method this}}{{/each}}{{rbrace}}
 impl Clone for {{rust_ident name}} {

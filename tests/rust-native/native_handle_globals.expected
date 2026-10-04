@@ -1,0 +1,14 @@
+identity true 1 1
+empty 15 15
+worker 9 2 1
+joined 109 1 4
+array_worker 2 1
+array_joined 2 0 1
+return 20 2 2
+after 3 1 1
+done 0
+alias true true
+grown 41 41 71 0 41
+copy 41 41 2
+copy_clear 0 1
+cleared 0

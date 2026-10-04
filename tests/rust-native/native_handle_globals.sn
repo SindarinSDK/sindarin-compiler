@@ -1,0 +1,85 @@
+@source "native_handle_globals.sn.c"
+
+native struct Token as ref =>
+  id: int
+  @alias "token_dispose"
+  native fn dispose(): void
+native fn token_create(id: int): Token
+native fn token_alive(): int
+native fn token_refs(value: Token): int
+native fn array_same(left: Token[], right: Token[]): bool
+native fn array_metadata(values: Token[]): int
+native fn enable_copy_counter(values: Token[]): void
+native fn copy_count(): int
+
+var global_values: Token[] = {}
+var global_token: Token
+
+fn observe(values: Token[]): int =>
+  return array_metadata(values)
+
+fn inspect(value: Token): int =>
+  println($"worker {value.id} {token_refs(value)} {global_values[0].id}")
+  return value.id + 100
+
+fn thread_scope(): void =>
+  var value: Token = token_create(9)
+  var result: int = & inspect(value)
+  result !
+  println($"joined {result} {token_refs(value)} {token_alive()}")
+
+fn inspect_array(values: Token[]): int =>
+  println($"array_worker {len(values)} {token_refs(values[0])}")
+  return len(values)
+
+fn array_thread_scope(): void =>
+  enable_copy_counter(global_values)
+  var count: int = & inspect_array(global_values)
+  count !
+  println($"array_joined {count} {copy_count()} {token_refs(global_values[0])}")
+
+fn echo(value: Token): Token =>
+  return value
+
+fn return_scope(): void =>
+  var value: Token = token_create(20)
+  var result: Token = & echo(value)
+  result !
+  println($"return {result.id} {token_refs(value)} {token_refs(result)}")
+
+fn grow(values: Token[], same: Token[]): int =>
+  println($"alias {array_same(values, same)} {array_same(values, global_values)}")
+  for i in 0..40 =>
+    values.push(token_create(i + 100))
+  same[0].id = 71
+  return len(values)
+
+fn copy_scope(): void =>
+  var snapshot: Token[] = global_values
+  println($"copy {len(snapshot)} {copy_count()} {token_refs(global_values[0])}")
+  snapshot.clear()
+  println($"copy_clear {len(snapshot)} {token_refs(global_values[0])}")
+
+fn main(): void =>
+  global_values.push(token_create(1))
+  global_values.push(token_create(2))
+  global_token = token_create(3)
+  println($"identity {array_same(global_values, global_values)} {token_refs(global_values[0])} {token_refs(global_token)}")
+  println($"empty {observe({})} {array_metadata({})}")
+  thread_scope()
+  array_thread_scope()
+  return_scope()
+  println($"after {token_alive()} {token_refs(global_token)} {token_refs(global_values[0])}")
+  global_values.clear()
+  global_token = nil
+  println($"done {token_alive()}")
+
+  global_values = {}
+  global_values.push(token_create(41))
+  enable_copy_counter(global_values)
+  var grown: int = & grow(global_values, global_values)
+  grown !
+  println($"grown {grown} {len(global_values)} {global_values[0].id} {copy_count()} {token_alive()}")
+  copy_scope()
+  global_values.clear()
+  println($"cleared {token_alive()}")

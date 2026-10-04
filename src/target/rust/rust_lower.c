@@ -1711,7 +1711,8 @@ static bool rust_lower_member_assignment_places(json_object *model,
             return false;
     }
 
-    if (!json_string_property_equals(node, "kind", "member_assign")) return true;
+    if (!json_string_property_equals(node, "kind", "member_assign") ||
+        json_string_property(node, "rust_native_handle_set")) return true;
     json_object *object = NULL;
     if (!json_object_object_get_ex(node, "object", &object)) return false;
 

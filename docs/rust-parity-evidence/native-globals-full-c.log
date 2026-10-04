@@ -1,0 +1,53 @@
+Compiler: /home/gavin/code/sindarin/sindarin-rust-native-global-ownership-c4cfbf78/bin/sn
+Platform: Linux
+Parallel: 8 workers
+
+Unit Tests
+============================================================
+Results: [0;32m1610 passed[0m, [0;31m0 failed[0m  (total: 15.41ms)
+------------------------------------------------------------
+Unit tests passed  (17ms)
+
+Code Generation Tests
+============================================================
+  Running 107 tests with 8 workers...
+                                                            
+------------------------------------------------------------
+Results: 107 passed, 0 failed, 0 skipped  (899ms)
+
+Model Generation Tests
+============================================================
+  Running 79 tests with 8 workers...
+                                                            
+------------------------------------------------------------
+Results: 79 passed, 0 failed, 0 skipped  (43ms)
+
+Integration Tests
+============================================================
+  Running 1142 tests with 8 workers...
+                                                            
+------------------------------------------------------------
+Results: 1142 passed, 0 failed, 0 skipped  (10.72s)
+
+Integration Error Tests
+============================================================
+  Running 58 tests with 8 workers...
+                                                            
+------------------------------------------------------------
+Results: 58 passed, 0 failed, 0 skipped  (25ms)
+
+Exploratory Tests
+============================================================
+  Running 224 tests with 8 workers...
+                                                            
+------------------------------------------------------------
+Results: 224 passed, 0 failed, 0 skipped  (10.98s)
+
+Exploratory Error Tests
+============================================================
+  Running 11 tests with 8 workers...
+                                                            
+------------------------------------------------------------
+Results: 11 passed, 0 failed, 0 skipped  (8ms)
+
+All tests passed!  (total: 22.70s)

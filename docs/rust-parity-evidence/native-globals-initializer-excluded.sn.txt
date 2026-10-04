@@ -1,0 +1,25 @@
+var numbers: int[] = {1, 2}
+var initial_copy: int[] = numbers
+
+fn grow(left: int[], right: int[]): int =>
+  left.push(3)
+  right[0] = 8
+  return len(left)
+
+fn shadow(): void =>
+  var numbers: int[] = {9}
+  var count: int = & grow(numbers, numbers)
+  count !
+  println($"shadow {count} {numbers[0]} {numbers[1]}")
+
+fn main(): void =>
+  var count: int = & grow(numbers, numbers)
+  count !
+  println($"first {count} {numbers[0]} {numbers[2]}")
+  println($"initial {len(initial_copy)} {initial_copy[0]}")
+  shadow()
+  println($"global {len(numbers)} {numbers[0]}")
+  numbers = {4, 5}
+  count = & grow(numbers, numbers)
+  count !
+  println($"replaced {count} {numbers[0]} {numbers[2]}")

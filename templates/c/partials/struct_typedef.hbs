@@ -1,6 +1,6 @@
 {{#if is_native}}{{#if pass_self_by_ref}}/* Struct: {{name}} (native, as ref — refcounted) */
 typedef struct {
-    int __rc__;
+    {{#if rust_native_handle_atomic_refs}}_Atomic int{{else}}int{{/if}} __rc__;
 {{#each fields}}
     {{c_type type}} {{#if c_alias}}{{c_alias}}{{else}}__sn__{{name}}{{/if}};
 {{/each}}

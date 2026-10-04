@@ -70,6 +70,7 @@ static json_object *rust_concurrency_bind_args(json_object *call, const char *pr
         rust_concurrency_string(read, "name", name);
         json_object_object_del(read, "rust_cell");
         json_object_object_del(read, "rust_global");
+        json_object_object_del(read, "rust_thread_array_global");
         if (json_boolean_property(arg, "rust_thread_default_array_arg")) {
             /* Own the staged array across spawn; borrow that owned value only
              * inside the worker to satisfy the ordinary function signature. */
@@ -248,10 +249,13 @@ static void rust_concurrency_annotate(json_object *node, const char *prefix,
         if (callee && json_object_object_get_ex(callee, "object", &object) &&
             json_boolean_property(object, "rust_cell")) {
             rust_concurrency_string(node, "rust_cell_owner", json_string_property(object, "name"));
+            if (json_boolean_property(object, "rust_thread_array_global"))
+                json_object_object_add(node, "rust_cell_global_array", json_object_new_boolean(true));
             char guard[256]; snprintf(guard, sizeof(guard), "%svalue_guard", prefix);
             rust_concurrency_string(node, "rust_value_guard", guard);
             rust_concurrency_string(object, "name", guard);
             json_object_object_del(object, "rust_cell");
+            json_object_object_del(object, "rust_thread_array_global");
             json_object_object_add(object, "rust_cell_guard", json_object_new_boolean(true));
             json_object_object_add(node, "rust_cell_bindings", rust_concurrency_bind_args(node, prefix));
         }
@@ -266,11 +270,14 @@ static void rust_concurrency_annotate(json_object *node, const char *prefix,
              * renderer then indexes the real owned Vec under one short lock. */
             char guard[256]; snprintf(guard, sizeof(guard), "%splace_guard", prefix);
             rust_concurrency_string(node, "rust_place_cell_owner", json_string_property(owner, "name"));
+            if (json_boolean_property(owner, "rust_thread_array_global"))
+                json_object_object_add(node, "rust_place_global_array", json_object_new_boolean(true));
             rust_concurrency_string(node, "rust_place_cell_guard", guard);
             rust_concurrency_string(owner, "name", guard);
             json_object_object_del(owner, "rust_cell");
             json_object_object_del(owner, "rust_global");
             json_object_object_del(owner, "rust_thread_ref_owner");
+            json_object_object_del(owner, "rust_thread_array_global");
             json_object_object_add(owner, "rust_cell_guard", json_object_new_boolean(true));
         }
     }
@@ -282,12 +289,15 @@ static void rust_concurrency_annotate(json_object *node, const char *prefix,
             json_object *inner = NULL, *bindings = json_object_new_array();
             json_object_deep_copy(node, &inner, NULL);
             rust_concurrency_string(node, "rust_cell_owner", json_string_property(place, "name"));
+            if (json_boolean_property(place, "rust_thread_array_global"))
+                json_object_object_add(node, "rust_cell_global_array", json_object_new_boolean(true));
             char guard[256]; snprintf(guard, sizeof(guard), "%svalue_guard", prefix);
             rust_concurrency_string(node, "rust_value_guard", guard);
             json_object *inner_place = NULL;
             json_object_object_get_ex(inner, place_key, &inner_place);
             json_object_object_del(inner_place, "rust_cell");
             json_object_object_del(inner_place, "rust_global");
+            json_object_object_del(inner_place, "rust_thread_array_global");
             json_object_object_add(inner_place, "rust_cell_guard", json_object_new_boolean(true));
             rust_concurrency_string(inner_place, "name", guard);
             const char *keys[] = {"index", "value"};

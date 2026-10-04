@@ -25,14 +25,16 @@ static void rust_thread_receiver_select(json_object *node, json_object *names)
         if (object) json_object_object_get_ex(object, "type", &type);
         type = rust_thread_receiver_base(type);
         const char *name = json_string_property(type, "name");
-        if (name && json_string_property_equals(type, "kind", "struct"))
+        if (name && json_string_property_equals(type, "kind", "struct") &&
+            !json_boolean_property(type, "rust_native_reference_handle"))
             json_object_object_add(names, name, json_object_new_boolean(true));
         json_object_object_get_ex(call, "args", &args);
         for (size_t i = 0; args && i < json_object_array_length(args); i++) {
             json_object *arg = json_object_array_get_idx(args, i); type = NULL;
             json_object_object_get_ex(arg, "type", &type);
             name = json_string_property(type, "name");
-            if (name && json_string_property_equals(type, "kind", "struct"))
+            if (name && json_string_property_equals(type, "kind", "struct") &&
+            !json_boolean_property(type, "rust_native_reference_handle"))
                 json_object_object_add(names, name, json_object_new_boolean(true));
         }
     }
@@ -47,6 +49,7 @@ static bool rust_thread_receiver_type(json_object *type, json_object *names)
     type = rust_thread_receiver_base(type);
     const char *name = json_string_property(type, "name");
     return name && json_string_property_equals(type, "kind", "struct") &&
+        !json_boolean_property(type, "rust_native_reference_handle") &&
         json_object_object_get_ex(names, name, &found);
 }
 

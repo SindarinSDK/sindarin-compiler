@@ -1,5 +1,6 @@
 #include "sn_types.h"
 {{#with arrays}}
+void *{{untyped_new}}(void) { return sn_array_new(sizeof(long long), 0); }
 void {{free}}(void *value) { sn_array_free((SnArray *)value); }
 void *{{copy}}(void *value) { return sn_array_copy((SnArray *)value); }
 long long {{length}}(void *value) { return value ? ((SnArray *)value)->len : 0; }
@@ -15,6 +16,10 @@ void *{{slice}}(void *value, long long start, long long end) { return sn_array_s
 void *{{concat}}(void *left, void *right) { return sn_array_concat((SnArray *)left, (SnArray *)right); }
 {{/with}}
 {{#each handles}}
+{{#if rust_native_handle_send}}
+_Static_assert(_Generic(&((__sn__{{name}} *)0)->__rc__, _Atomic int *: 1, default: 0), "native owner credits must be atomic");
+_Static_assert(sizeof(_Atomic int) == sizeof(int) && _Alignof(_Atomic int) == _Alignof(int), "native atomic owner credits preserve the C ABI");
+{{/if}}
 {{#if rust_native_handle_array_new}}
 void *{{rust_native_handle_array_new}}(long long capacity) {
     SnArray *value = sn_array_new(sizeof(__sn__{{name}} *), capacity);
@@ -38,4 +43,8 @@ int {{rust_native_handle_refs}}(void *pointer) {
 {{c_type type}} {{rust_native_handle_get}}(void *pointer) {
     return ((__sn__{{../name}} *)pointer)->{{#if c_alias}}{{c_alias}}{{else}}__sn__{{name}}{{/if}};
 }
-{{/if}}{{/each}}{{/each}}
+{{#if rust_native_handle_set}}
+void {{rust_native_handle_set}}(void *pointer, {{c_type type}} value) {
+    ((__sn__{{../name}} *)pointer)->{{#if c_alias}}{{c_alias}}{{else}}__sn__{{name}}{{/if}} = value;
+}
+{{/if}}{{/if}}{{/each}}{{/each}}

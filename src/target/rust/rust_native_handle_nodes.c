@@ -53,12 +53,42 @@ static void rust_prepare_native_handle_nodes(json_object *model, json_object *no
     for (size_t p = 0; args && params && p < json_object_array_length(args) && p < json_object_array_length(params); p++)
     {
         json_object *param = json_object_array_get_idx(params, p);
+        json_object *arg = json_object_array_get_idx(args, p);
+        json_object *expected_type = rust_nullable_child(param, "type");
+        json_object *elements = rust_nullable_child(arg, "elements");
+        if (json_boolean_property(expected_type, "rust_native_handle_array") &&
+            json_string_property_equals(arg, "kind", "array_literal") &&
+            elements && json_object_array_length(elements) == 0 &&
+            json_string_property_equals(rust_nullable_child(rust_nullable_child(arg, "type"), "element_type"), "kind", "nil"))
+        {
+            /* C allocates inferred empty call literals as untyped long-long
+             * arrays, with no element callbacks. Keep that actual header while
+             * projecting the callee's native array type into Rust. */
+            json_object_object_add(arg, "type", json_object_get(expected_type));
+            json_object_object_add(arg, "rust_native_handle_untyped_array", json_object_new_boolean(true));
+        }
         if ((rust_native_handle_type(rust_nullable_child(param, "type")) ||
              (json_boolean_property(function, "rust_native_bridge") && json_boolean_property(rust_nullable_child(param, "type"), "rust_native_handle_array"))) &&
             json_string_property_equals(param, "mem_qual", "default"))
             json_object_object_add(json_object_array_get_idx(args, p), "rust_native_handle_borrow_arg", json_object_new_boolean(true));
     }
-    if (json_string_property_equals(node, "kind", "member"))
+    json_object *param_types = rust_nullable_child(rust_nullable_child(rust_nullable_child(node, "callee"), "type"), "param_types");
+    for (size_t p = 0; args && param_types && p < json_object_array_length(args) && p < json_object_array_length(param_types); p++)
+    {
+        json_object *arg = json_object_array_get_idx(args, p);
+        json_object *expected_type = json_object_array_get_idx(param_types, p);
+        json_object *elements = rust_nullable_child(arg, "elements");
+        if (json_boolean_property(expected_type, "rust_native_handle_array") &&
+            json_string_property_equals(arg, "kind", "array_literal") &&
+            elements && json_object_array_length(elements) == 0 &&
+            json_string_property_equals(rust_nullable_child(rust_nullable_child(arg, "type"), "element_type"), "kind", "nil"))
+        {
+            json_object_object_add(arg, "type", json_object_get(expected_type));
+            json_object_object_add(arg, "rust_native_handle_untyped_array", json_object_new_boolean(true));
+        }
+    }
+    if (json_string_property_equals(node, "kind", "member") ||
+        json_string_property_equals(node, "kind", "member_assign"))
     {
         json_object *object_type = rust_nullable_child(rust_nullable_child(node, "object"), "type");
         if (rust_native_handle_type(object_type))
@@ -66,12 +96,14 @@ static void rust_prepare_native_handle_nodes(json_object *model, json_object *no
             json_object *structure = rust_find_struct(model, json_string_property(object_type, "name"));
             json_object *fields = rust_nullable_child(structure, "fields");
             const char *member = json_string_property(node, "member_name");
+            bool store = json_string_property_equals(node, "kind", "member_assign");
+            if (store) member = json_string_property(node, "field_name");
             for (size_t f = 0; member && fields && f < json_object_array_length(fields); f++)
             {
                 json_object *field = json_object_array_get_idx(fields, f);
-                const char *getter = json_string_property(field, "rust_native_handle_get");
+                const char *getter = json_string_property(field, store ? "rust_native_handle_set" : "rust_native_handle_get");
                 if (getter && json_string_property_equals(field, "name", member))
-                    json_object_object_add(node, "rust_native_handle_get", json_object_new_string(getter));
+                    json_object_object_add(node, store ? "rust_native_handle_set" : "rust_native_handle_get", json_object_new_string(getter));
             }
         }
     }
@@ -111,11 +143,15 @@ static void rust_lower_native_handle_reads(json_object *model, json_object *node
         json_object_object_del(node, "rust_needs_clone");
         json_object_object_del(node, "rust_resolved_clone");
         bool field_read = json_boolean_property(node, "rust_thread_field");
-        json_object_object_add(node, "rust_native_handle_owned_read", json_object_new_boolean(!borrow && !field_read));
-        if (handle && borrow && !field_read)
+        bool owner_read = json_boolean_property(node, "rust_thread_ref_owner");
+        bool cell_read = json_string_property_equals(node, "kind", "variable") && json_boolean_property(node, "rust_cell");
+        json_object_object_add(node, "rust_native_handle_owned_read", json_object_new_boolean(!borrow && !field_read && !cell_read && !owner_read));
+        if (handle && borrow && !field_read && !cell_read)
             json_object_object_add(node, "rust_native_handle_borrow_snapshot", json_object_new_boolean(true));
-        if (field_read)
+        if (field_read || cell_read)
             json_object_object_add(node, "rust_native_handle_read_acquired", json_object_new_boolean(!borrow));
+        if (cell_read && borrow)
+            json_object_object_add(node, "rust_native_handle_cell_borrow_view", json_object_new_boolean(true));
         if (field_read && borrow)
         {
             json_object_object_add(node, "rust_native_handle_borrow_view", json_object_new_boolean(true));

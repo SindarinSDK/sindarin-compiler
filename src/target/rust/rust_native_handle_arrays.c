@@ -42,7 +42,7 @@ static bool native_prepare_handle_arrays(json_object *model, json_object *handle
 {
     if (!native_handle_array_collect(model)) return true;
     json_object *support = json_object_new_object();
-    const char *roles[] = {"type", "trait", "free", "copy", "length", "data", "width", "push", "pop", "insert", "remove", "clear", "reverse", "slice", "concat", NULL};
+    const char *roles[] = {"type", "trait", "untyped_new", "free", "copy", "length", "data", "width", "push", "pop", "insert", "remove", "clear", "reverse", "slice", "concat", NULL};
     for (int i = 0; roles[i]; i++) {
         char stem[160]; snprintf(stem, sizeof(stem), "__sn_native_handle_array_%s", roles[i]);
         char *name = unique_private_name(native_record_child(model, "functions"), native_record_child(model, "structs"), native_record_child(model, "globals"), stem);

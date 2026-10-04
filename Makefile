@@ -913,3 +913,15 @@ test-rust-parity-native-arrays: build
 		--arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-native-arrays.json
 	@$(PYTHON) scripts/check_rust_native_array_oracles.py .sn/rust-parity-native-arrays.json
+
+# Canonical process-wide native owners, default thread borrows and joined results.
+.PHONY: test-rust-parity-native-globals
+test-rust-parity-native-globals: build
+	@$(PYTHON) scripts/check_rust_parity.py --compiler $(SN) --require-count 4 \
+		tests/integration/test_module_array_swap_leak.sn \
+		tests/rust-native/native_handle_globals.sn \
+		tests/rust-native/native_handle_joined_results.sn \
+		tests/rust-native/global_array_thread_aliases.sn \
+		--arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-native-globals.json
+	@$(PYTHON) scripts/check_rust_native_global_oracles.py .sn/rust-parity-native-globals.json

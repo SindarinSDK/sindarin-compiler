@@ -1,0 +1,39 @@
+@source "native_handle_joined_results.sn.c"
+
+native struct Token as ref =>
+  id: int
+  @alias "token_dispose"
+  native fn dispose(): void
+native fn token_create(id: int): Token
+native fn token_alive(): int
+native fn token_refs(value: Token): int
+
+fn echo(value: Token): Token =>
+  return value
+
+fn repeated(): void =>
+  var value: Token = token_create(11)
+  var result: Token = & echo(value)
+  result !
+  println($"first {result.id} {token_refs(value)}")
+  result = & echo(result)
+  result !
+  println($"again {result.id} {token_refs(value)}")
+
+fn grouped(): void =>
+  var one: Token = token_create(21)
+  var two: Token = token_create(22)
+  var left: Token = & echo(one)
+  var right: Token = & echo(two)
+  [left, right] !
+  println($"group {left.id} {right.id} {token_refs(one)} {token_refs(two)}")
+  left = & echo(one)
+  right = & echo(two)
+  [left, right] !
+  println($"regroup {left.id} {right.id} {token_refs(one)} {token_refs(two)}")
+
+fn main(): void =>
+  repeated()
+  println($"after_repeat {token_alive()}")
+  grouped()
+  println($"done {token_alive()}")
