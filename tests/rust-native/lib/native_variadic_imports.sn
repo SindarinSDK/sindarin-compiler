@@ -1,0 +1,7 @@
+@source "native_variadic_imports.sn.c"
+
+@alias "sn_variadic_sum"
+native fn imported_sum(count: int32, ...): int
+
+fn shared_variadic(value: int): int =>
+  return imported_sum(2i32, value, 7)

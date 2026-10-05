@@ -5,6 +5,68 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Native variadic adapters: local acceptance, 2026-10-05
+
+This increment starts from published main
+`8d29dd4597332146bbdcd290f22fd0a33a4d48d2`. All compiler jobs and the Linux/macOS
+runtime artifacts for that revision pass; Windows runtime remains active.
+The preceding `ea1098d2` now has all six exact-revision CI jobs, all three
+39-report/3405-case artifacts and hosted full-suite counts independently verified:
+[hosted proof](rust-parity-evidence/native-managed-records-main-ci-green.json).
+Publication and hosted acceptance of this increment remain required.
+
+Resolved direct native variadic calls now use hygienic, deduplicated C adapters
+with fixed signatures. Rust sends typed arguments; C performs the actual
+variadic call and target argument promotions. Native C bodies keep their original
+calls. Existing native ABI wrappers preserve fixed parameter qualifications,
+reference aliasing, managed results and record storage. An owned `as val` record
+is transferred once: the adapter does not repeat the real callee's cleanup.
+
+Two prerequisite repairs also retain language behavior. Generated C variadic
+body definitions now include the ellipsis already present in their declarations.
+Private C initializers and callable definitions are linked even when no public
+Rust ABI wrapper is required. The unused-native control pins initialization
+before source main. These controls failed C compilation on the baseline and are
+reported separately from previously C-valid parity successes.
+
+Complete C/Rust suites pass with zero failures/skips; native positives are **57**,
+with **four** remaining admission-error fixtures. All **41 reports / 3522 cases**
+pass, including independently reverified previous **40 / 3468**. The new
+**54-case** gate is mandatory on Linux/macOS/Windows. Controls cover scalar and
+pointer tails, actual promotions (including float rounding and high-bit char),
+imported aliases, globals, closures, shared C/Rust helpers, joined threads,
+duplicate scalar/char/record references, managed string/byte-array results and
+owned record transfers. All **108 instrumented target executions** pass frozen
+output oracles with zero statuses and empty sanitizer stderr. All 225 actual C
+compilation commands include ASAN/UBSAN; all objects contain ASAN sites, with
+158 containing applicable UBSAN sites. Each Rust run is tied to its exact C
+objects. Rust memory instrumentation is not claimed. Additional **18** promotion
+comparisons pass with explicitly signed and unsigned C char.
+
+The exact final baseline has **36 C successes**, **18 C compilation failures**
+from the variadic-body prerequisite, and **54 Rust compilation failures**.
+All **1365 original source hashes** remain unchanged. Original coverage is
+**1127 integration + 221 exploratory = 1348 / 1365 (98.8%)**, with **17
+compilation gaps**, zero runtime failures and zero skips. The newer integration
+control is counted separately. The unchanged comprehensive interop original is
+the newly passing source. Raw byte/argv, native print/flush ordering, diagnostics
+and Windows helper logic also pass.
+
+Full completion still requires every remaining original gap, interfaces and
+iterators, serialization and broader SDK/native ownership families, callbacks
+crossing Rust/C boundaries, indirect variadic callable values, array and global/
+thread lifetime edges, exact integrated platform acceptance and a full completion
+audit. This percentage measures the original corpus, not the full goal.
+
+Evidence: [validation and remaining gaps](rust-parity-evidence/native-variadics-validation.json),
+[54 frozen comparisons](rust-parity-evidence/native-variadics-oracles.json),
+[previous 3468-case preservation](rust-parity-evidence/native-variadics-preservation.json),
+[108 instrumented executions](rust-parity-evidence/native-variadics-asan.json),
+[actual compiler/object audit](rust-parity-evidence/native-variadics-asan-object-audit.json),
+[final-source baseline](rust-parity-evidence/native-variadics-before.json),
+[full C suite](rust-parity-evidence/native-variadics-full-c.log),
+[full Rust suite](rust-parity-evidence/native-variadics-full-rust.log).
+
 ## Native C callable definitions: local acceptance, 2026-10-05
 
 This increment starts from published main

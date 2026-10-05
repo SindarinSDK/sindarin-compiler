@@ -1,0 +1,27 @@
+import "lib/native_variadic_imports"
+
+var seeded: int = imported_sum(2i32, 20, 2)
+
+fn __sn_native_variadic_0(value: int): int =>
+  return value + 1
+
+native fn ignored_tail(base: int, ...): int =>
+  return base + 1
+
+native fn c_work(value: int): int =>
+  return shared_variadic(value) + ignored_tail(2, 99)
+
+fn main(): void =>
+  println(seeded)
+  println(imported_sum(0i32))
+  println(shared_variadic(10))
+  println(c_work(20))
+  var offset = 5
+  var callback = fn(value: int): int => imported_sum(2i32, value, offset)
+  println(callback(30))
+  println(ignored_tail(40))
+  println(__sn_native_variadic_0(50))
+  var left = & shared_variadic(60)
+  var right = & shared_variadic(70)
+  [left, right] !
+  println($"threads {left} {right}")

@@ -1191,6 +1191,8 @@ static void remove_c_only_native_helpers(json_object *rust_model,
     json_object_object_add(rust_model, "functions", remaining);
 }
 
+#include "rust_native_variadics.c"
+
 bool rust_native_partition_model(json_object *rust_model,
                                  const CompilerOptions *options,
                                  RustNativePlan **out_plan)
@@ -1238,6 +1240,15 @@ bool rust_native_partition_model(json_object *rust_model,
     }
     native_select_rust_metadata(rust_model);
     remove_c_only_native_helpers(rust_model, private_model);
+    if (!native_lower_variadic_calls(rust_model, private_model, options->source_file))
+    {
+        json_object_put(private_model);
+        json_object_put(selected_function_names);
+        json_object_put(selected_global_names);
+        free(initializer_name);
+        rust_native_plan_free(plan);
+        return false;
+    }
     if (!native_prepare_records(rust_model) || !native_prepare_handles(rust_model, plan) ||
         !native_prepare_handle_atomic_owners(private_model, plan->handles))
     {
@@ -1670,10 +1681,16 @@ bool rust_native_validate_declaration(const RustNativePlan *plan,
 
 bool rust_native_plan_has_work(const RustNativePlan *plan)
 {
-    return plan && (plan->declaration_count > 0 ||
+    if (!plan) return false;
+    if (plan->declaration_count > 0 ||
         (plan->handles && json_object_array_length(plan->handles) > 0) ||
         (plan->split && (plan->split->source_file_count > 0 ||
-                         plan->split->link_lib_count > 0)));
+                         plan->split->link_lib_count > 0))) return true;
+    /* Private C initializers and callable bodies may remain even when Rust
+     * needs no public ABI wrapper, for example an unused variadic definition. */
+    for (int i = 0; plan->split && i < plan->split->impl_count; i++)
+        if (rust_native_impl_has_callable_body(plan->split->impl_models[i])) return true;
+    return false;
 }
 
 void rust_native_plan_free(void *opaque)

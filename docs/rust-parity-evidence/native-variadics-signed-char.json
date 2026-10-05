@@ -1,0 +1,563 @@
+{
+  "compiler": "/home/gavin/code/sindarin/sindarin-rust-native-variadics-8d29dd45/bin/sn",
+  "compiler_sha256": "13f92492c78a8bb2b4621d5b7dcda2447d68729ff88f220d45f1d2bee23f927c",
+  "c_ldlibs": null,
+  "arithmetic_modes": [
+    "default",
+    "checked",
+    "unchecked"
+  ],
+  "environment": {
+    "SN_CC": null,
+    "SN_CFLAGS": "-fwrapv -fsigned-char",
+    "SN_RELEASE_CFLAGS": "-fwrapv -fsigned-char",
+    "SN_LDLIBS": null,
+    "SN_RUSTFLAGS": null
+  },
+  "cases": [
+    {
+      "source": "tests/rust-native/native_variadic_promotions.sn",
+      "source_sha256": "49220c401c3f3b9d127360d276a5a2d9065d4f12d8d9ba7a94bff014590569a0",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-variadics-8d29dd45/bin/sn",
+              "tests/rust-native/native_variadic_promotions.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-0rvpjsxw/case-0--O0-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f6e61746976655f76617269616469635f70726f6d6f74696f6e732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d307276706a7378772f636173652d302d2d4f302d64656661756c742d632e657865202836392e34204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-0rvpjsxw/case-0--O0-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-variadics-8d29dd45/bin/sn",
+              "tests/rust-native/native_variadic_promotions.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-0rvpjsxw/case-0--O0-default-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f6e61746976655f76617269616469635f70726f6d6f74696f6e732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a2020202d2d3e202e736e2f6275696c642f727573742f6e61746976655f76617269616469635f70726f6d6f74696f6e735f333336383739392f6d61696e2e72733a3135303a31340a202020207c0a313530207c206d6163726f5f72756c657321207072696e74207b0a202020207c20202020202020202020202020205e5e5e5e5e0a202020207c0a202020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d307276706a7378772f636173652d302d2d4f302d64656661756c742d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-0rvpjsxw/case-0--O0-default-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/native_variadic_promotions.sn",
+      "source_sha256": "49220c401c3f3b9d127360d276a5a2d9065d4f12d8d9ba7a94bff014590569a0",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-variadics-8d29dd45/bin/sn",
+              "tests/rust-native/native_variadic_promotions.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-0rvpjsxw/case-0--O1-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f6e61746976655f76617269616469635f70726f6d6f74696f6e732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d307276706a7378772f636173652d302d2d4f312d64656661756c742d632e657865202836392e34204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-0rvpjsxw/case-0--O1-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-variadics-8d29dd45/bin/sn",
+              "tests/rust-native/native_variadic_promotions.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-0rvpjsxw/case-0--O1-default-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f6e61746976655f76617269616469635f70726f6d6f74696f6e732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a2020202d2d3e202e736e2f6275696c642f727573742f6e61746976655f76617269616469635f70726f6d6f74696f6e735f333336393337322f6d61696e2e72733a3135303a31340a202020207c0a313530207c206d6163726f5f72756c657321207072696e74207b0a202020207c20202020202020202020202020205e5e5e5e5e0a202020207c0a202020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d307276706a7378772f636173652d302d2d4f312d64656661756c742d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-0rvpjsxw/case-0--O1-default-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/native_variadic_promotions.sn",
+      "source_sha256": "49220c401c3f3b9d127360d276a5a2d9065d4f12d8d9ba7a94bff014590569a0",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-variadics-8d29dd45/bin/sn",
+              "tests/rust-native/native_variadic_promotions.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-0rvpjsxw/case-0--O2-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f6e61746976655f76617269616469635f70726f6d6f74696f6e732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d307276706a7378772f636173652d302d2d4f322d64656661756c742d632e657865202836392e34204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-0rvpjsxw/case-0--O2-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-variadics-8d29dd45/bin/sn",
+              "tests/rust-native/native_variadic_promotions.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-0rvpjsxw/case-0--O2-default-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f6e61746976655f76617269616469635f70726f6d6f74696f6e732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a2020202d2d3e202e736e2f6275696c642f727573742f6e61746976655f76617269616469635f70726f6d6f74696f6e735f333336393834322f6d61696e2e72733a3135303a31340a202020207c0a313530207c206d6163726f5f72756c657321207072696e74207b0a202020207c20202020202020202020202020205e5e5e5e5e0a202020207c0a202020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d307276706a7378772f636173652d302d2d4f322d64656661756c742d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-0rvpjsxw/case-0--O2-default-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/native_variadic_promotions.sn",
+      "source_sha256": "49220c401c3f3b9d127360d276a5a2d9065d4f12d8d9ba7a94bff014590569a0",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-variadics-8d29dd45/bin/sn",
+              "tests/rust-native/native_variadic_promotions.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-0rvpjsxw/case-0--O0-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f6e61746976655f76617269616469635f70726f6d6f74696f6e732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d307276706a7378772f636173652d302d2d4f302d636865636b65642d632e657865202836392e34204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-0rvpjsxw/case-0--O0-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-variadics-8d29dd45/bin/sn",
+              "tests/rust-native/native_variadic_promotions.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-0rvpjsxw/case-0--O0-checked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f6e61746976655f76617269616469635f70726f6d6f74696f6e732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a2020202d2d3e202e736e2f6275696c642f727573742f6e61746976655f76617269616469635f70726f6d6f74696f6e735f333337303331342f6d61696e2e72733a3135303a31340a202020207c0a313530207c206d6163726f5f72756c657321207072696e74207b0a202020207c20202020202020202020202020205e5e5e5e5e0a202020207c0a202020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d307276706a7378772f636173652d302d2d4f302d636865636b65642d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-0rvpjsxw/case-0--O0-checked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/native_variadic_promotions.sn",
+      "source_sha256": "49220c401c3f3b9d127360d276a5a2d9065d4f12d8d9ba7a94bff014590569a0",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-variadics-8d29dd45/bin/sn",
+              "tests/rust-native/native_variadic_promotions.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-0rvpjsxw/case-0--O1-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f6e61746976655f76617269616469635f70726f6d6f74696f6e732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d307276706a7378772f636173652d302d2d4f312d636865636b65642d632e657865202836392e34204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-0rvpjsxw/case-0--O1-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-variadics-8d29dd45/bin/sn",
+              "tests/rust-native/native_variadic_promotions.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-0rvpjsxw/case-0--O1-checked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f6e61746976655f76617269616469635f70726f6d6f74696f6e732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a2020202d2d3e202e736e2f6275696c642f727573742f6e61746976655f76617269616469635f70726f6d6f74696f6e735f333337303833312f6d61696e2e72733a3135303a31340a202020207c0a313530207c206d6163726f5f72756c657321207072696e74207b0a202020207c20202020202020202020202020205e5e5e5e5e0a202020207c0a202020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d307276706a7378772f636173652d302d2d4f312d636865636b65642d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-0rvpjsxw/case-0--O1-checked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/native_variadic_promotions.sn",
+      "source_sha256": "49220c401c3f3b9d127360d276a5a2d9065d4f12d8d9ba7a94bff014590569a0",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-variadics-8d29dd45/bin/sn",
+              "tests/rust-native/native_variadic_promotions.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-0rvpjsxw/case-0--O2-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f6e61746976655f76617269616469635f70726f6d6f74696f6e732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d307276706a7378772f636173652d302d2d4f322d636865636b65642d632e657865202836392e34204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-0rvpjsxw/case-0--O2-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-variadics-8d29dd45/bin/sn",
+              "tests/rust-native/native_variadic_promotions.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-0rvpjsxw/case-0--O2-checked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f6e61746976655f76617269616469635f70726f6d6f74696f6e732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a2020202d2d3e202e736e2f6275696c642f727573742f6e61746976655f76617269616469635f70726f6d6f74696f6e735f333337313336372f6d61696e2e72733a3135303a31340a202020207c0a313530207c206d6163726f5f72756c657321207072696e74207b0a202020207c20202020202020202020202020205e5e5e5e5e0a202020207c0a202020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d307276706a7378772f636173652d302d2d4f322d636865636b65642d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-0rvpjsxw/case-0--O2-checked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/native_variadic_promotions.sn",
+      "source_sha256": "49220c401c3f3b9d127360d276a5a2d9065d4f12d8d9ba7a94bff014590569a0",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-variadics-8d29dd45/bin/sn",
+              "tests/rust-native/native_variadic_promotions.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-0rvpjsxw/case-0--O0-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f6e61746976655f76617269616469635f70726f6d6f74696f6e732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d307276706a7378772f636173652d302d2d4f302d756e636865636b65642d632e657865202836392e34204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-0rvpjsxw/case-0--O0-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-variadics-8d29dd45/bin/sn",
+              "tests/rust-native/native_variadic_promotions.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-0rvpjsxw/case-0--O0-unchecked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f6e61746976655f76617269616469635f70726f6d6f74696f6e732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a2020202d2d3e202e736e2f6275696c642f727573742f6e61746976655f76617269616469635f70726f6d6f74696f6e735f333337313837342f6d61696e2e72733a3135303a31340a202020207c0a313530207c206d6163726f5f72756c657321207072696e74207b0a202020207c20202020202020202020202020205e5e5e5e5e0a202020207c0a202020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d307276706a7378772f636173652d302d2d4f302d756e636865636b65642d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-0rvpjsxw/case-0--O0-unchecked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/native_variadic_promotions.sn",
+      "source_sha256": "49220c401c3f3b9d127360d276a5a2d9065d4f12d8d9ba7a94bff014590569a0",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-variadics-8d29dd45/bin/sn",
+              "tests/rust-native/native_variadic_promotions.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-0rvpjsxw/case-0--O1-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f6e61746976655f76617269616469635f70726f6d6f74696f6e732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d307276706a7378772f636173652d302d2d4f312d756e636865636b65642d632e657865202836392e34204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-0rvpjsxw/case-0--O1-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-variadics-8d29dd45/bin/sn",
+              "tests/rust-native/native_variadic_promotions.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-0rvpjsxw/case-0--O1-unchecked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f6e61746976655f76617269616469635f70726f6d6f74696f6e732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a2020202d2d3e202e736e2f6275696c642f727573742f6e61746976655f76617269616469635f70726f6d6f74696f6e735f333337323431362f6d61696e2e72733a3135303a31340a202020207c0a313530207c206d6163726f5f72756c657321207072696e74207b0a202020207c20202020202020202020202020205e5e5e5e5e0a202020207c0a202020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d307276706a7378772f636173652d302d2d4f312d756e636865636b65642d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-0rvpjsxw/case-0--O1-unchecked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/native_variadic_promotions.sn",
+      "source_sha256": "49220c401c3f3b9d127360d276a5a2d9065d4f12d8d9ba7a94bff014590569a0",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-variadics-8d29dd45/bin/sn",
+              "tests/rust-native/native_variadic_promotions.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-0rvpjsxw/case-0--O2-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f6e61746976655f76617269616469635f70726f6d6f74696f6e732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d307276706a7378772f636173652d302d2d4f322d756e636865636b65642d632e657865202836392e34204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-0rvpjsxw/case-0--O2-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-native-variadics-8d29dd45/bin/sn",
+              "tests/rust-native/native_variadic_promotions.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-0rvpjsxw/case-0--O2-unchecked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f6e61746976655f76617269616469635f70726f6d6f74696f6e732e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a2020202d2d3e202e736e2f6275696c642f727573742f6e61746976655f76617269616469635f70726f6d6f74696f6e735f333337323836352f6d61696e2e72733a3135303a31340a202020207c0a313530207c206d6163726f5f72756c657321207072696e74207b0a202020207c20202020202020202020202020205e5e5e5e5e0a202020207c0a202020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d307276706a7378772f636173652d302d2d4f322d756e636865636b65642d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-0rvpjsxw/case-0--O2-unchecked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    }
+  ],
+  "passed": true
+}

@@ -952,3 +952,16 @@ test-rust-parity-native-callables: build
 		--require-count 7 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-native-callables.json
 	@$(PYTHON) scripts/check_rust_native_callable_oracles.py .sn/rust-parity-native-callables.json
+
+.PHONY: test-rust-parity-native-variadics
+test-rust-parity-native-variadics: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/integration/test_interop_comprehensive.sn \
+		tests/rust-native/native_variadic_promotions.sn \
+		tests/rust-native/native_variadic_ownership.sn \
+		tests/rust-native/native_variadic_records.sn \
+		tests/rust-native/native_variadic_contexts.sn \
+		tests/rust-native/native_variadic_unused.sn \
+		--require-count 6 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-native-variadics.json
+	@$(PYTHON) scripts/check_rust_native_variadic_oracles.py .sn/rust-parity-native-variadics.json

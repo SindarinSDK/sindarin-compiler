@@ -1,0 +1,20 @@
+@source "native_variadic_records.sn.c"
+
+struct VariadicRecord =>
+  number: int
+  text: str
+
+native fn record_mutate(left: VariadicRecord as ref, right: VariadicRecord as ref, ...): bool
+native fn record_duplicate(value: VariadicRecord as val, ...): VariadicRecord
+
+fn main(): void =>
+  var original = VariadicRecord {
+    number: 5,
+    text: "initial"
+  }
+  println(record_mutate(original, original, 7, "written"))
+  println($"mutated {original.number} {original.text}")
+  var copied = record_duplicate(original, 10, "copied")
+  println($"values {original.number} {original.text} {copied.number} {copied.text}")
+  copied.text = "local"
+  println($"independent {original.text} {copied.text}")

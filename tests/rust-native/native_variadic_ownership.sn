@@ -1,0 +1,23 @@
+@source "native_variadic_ownership.sn.c"
+
+native fn remember(label: str, ...): void
+native fn remembered(tag: int32, ...): bool
+native fn owned_text(tag: int32, ...): str
+native fn owned_bytes(tag: int32, ...): byte[]
+native fn mutate_alias(left: int as ref, right: int as ref, first: char as ref, second: char as ref, ...): bool
+native fn char_bits(value: char): byte
+
+fn main(): void =>
+  var tail = "tail"
+  remember("fixed", tail)
+  println(remembered(1i32))
+  tail = "replacement"
+  var result = owned_text(2i32, "owned")
+  println(result)
+  var bytes = owned_bytes(3i32, 255b)
+  println(bytes.length == 3 && bytes[0] == 0b && bytes[1] == 127b && bytes[2] == 255b)
+  var number: int = 4
+  var letter: char = 'A'
+  println(mutate_alias(number, number, letter, letter, 3, 255b))
+  println(number)
+  println(char_bits(letter) == 255b)

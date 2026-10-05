@@ -1,0 +1,126 @@
+Compiler: /home/gavin/code/sindarin/sindarin-rust-native-variadics-8d29dd45/.sn/native-variadic-rust-sn
+Platform: Linux
+Parallel: 8 workers
+
+Integration Tests
+============================================================
+  Running 1142 tests with 8 workers...
+                                                              test_buffer_unwrap                            FAIL (compile error)  (41ms)
+    [1mCompiling[0m tests/integration/test_buffer_unwrap.sn...
+      Parsing... [1;36mdone[0m
+      Type checking... [1;36mdone[0m
+      Code generation...Error: Rust target encountered an unsupported construct in function 'test_pointer_slice_codegen'
+     [1;31mfailed[0m
+    
+    
+  test_builtin_interfaces                       FAIL (compile error)  (38ms)
+    [1mCompiling[0m tests/integration/test_builtin_interfaces.sn...
+      Parsing... [1;36mdone[0m
+      Type checking... [1;36mdone[0m
+      Code generation...Error: Rust target does not support a parameter of function 'acceptComparable'
+     [1;31mfailed[0m
+    
+    
+  test_generic_multi_param_iter                 FAIL (compile error)  (36ms)
+    [1mCompiling[0m tests/integration/test_generic_multi_param_iter.sn...
+      Parsing... [1;36mdone[0m
+      Type checking... [1;36mdone[0m
+      Code generation...Error: Rust target supports iterator-protocol foreach only for heap-free scalar elements; got 'struct'
+    Error: Rust target encountered an unsupported construct in function 'main'
+     [1;31mfailed[0m
+    
+    
+  test_interfaces                               FAIL (compile error)  (52ms)
+    [1mCompiling[0m tests/integration/test_interfaces.sn...
+      Parsing... [1;36mdone[0m
+      Type checking... [1;36mdone[0m
+      Code generation...Error: Rust target does not support a parameter of function 'acceptComparable'
+     [1;31mfailed[0m
+    
+    
+  test_iterator_protocol                        FAIL (compile error)  (44ms)
+    [1mCompiling[0m tests/integration/test_iterator_protocol.sn...
+      Parsing... [1;36mdone[0m
+      Type checking... [1;36mdone[0m
+      Code generation...Error: Rust target supports iterator-protocol foreach only for heap-free scalar elements; got 'struct'
+    Error: Rust target encountered an unsupported construct in function 'main'
+     [1;31mfailed[0m
+    
+    
+  test_nil_pointer_slice                        FAIL (compile error)  (48ms)
+    [1mCompiling[0m tests/integration/test_nil_pointer_slice.sn...
+      Parsing... [1;36mdone[0m
+      Type checking... [1;36mdone[0m
+      Code generation...Error: Rust target encountered an unsupported construct in function 'test_nil_slice_creates_array'
+     [1;31mfailed[0m
+    
+    
+  test_serializable                             FAIL (compile error)  (56ms)
+    [1mCompiling[0m tests/integration/test_serializable.sn...
+      Parsing... [1;36mdone[0m
+      Type checking... [1;36mdone[0m
+      Code generation...Error: Rust target native function 'sn_test_json_encoder' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value
+     [1;31mfailed[0m
+    
+    
+  test_serializable_decode_struct_literal_loop  FAIL (compile error)  (49ms)
+    [1mCompiling[0m tests/integration/test_serializable_decode_struct_literal_loop.sn...
+      Parsing... [1;36mdone[0m
+      Type checking... [1;36mdone[0m
+      Code generation...Error: Rust target native function 'sn_test_json_encoder' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value
+     [1;31mfailed[0m
+    
+    
+  test_serializable_double_int_json             FAIL (compile error)  (52ms)
+    [1mCompiling[0m tests/integration/test_serializable_double_int_json.sn...
+      Parsing... [1;36mdone[0m
+      Type checking... [1;36mdone[0m
+      Code generation...Error: Rust target native function 'sn_test_json_encoder' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value
+     [1;31mfailed[0m
+    
+    
+  test_serializable_encoder_cleanup             FAIL (compile error)  (50ms)
+    [1mCompiling[0m tests/integration/test_serializable_encoder_cleanup.sn...
+      Parsing... [1;36mdone[0m
+      Type checking... [1;36mdone[0m
+      Code generation...Error: Rust target native function 'cleanup_json_encoder' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value
+     [1;31mfailed[0m
+    
+    
+  test_serializable_long                        FAIL (compile error)  (36ms)
+    [1mCompiling[0m tests/integration/test_serializable_long.sn...
+      Parsing... [1;36mdone[0m
+      Type checking... [1;36mdone[0m
+      Code generation...Error: Rust target native function 'sn_test_json_encoder' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value
+     [1;31mfailed[0m
+    
+    
+  test_serializable_push_ownership              FAIL (compile error)  (35ms)
+    [1mCompiling[0m tests/integration/test_serializable_push_ownership.sn...
+      Parsing... [1;36mdone[0m
+      Type checking... [1;36mdone[0m
+      Code generation...Error: Rust target native function 'sn_test_json_encoder' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value
+     [1;31mfailed[0m
+    
+    
+  test_serializable_return_nested_array         FAIL (compile error)  (34ms)
+    [1mCompiling[0m tests/integration/test_serializable_return_nested_array.sn...
+      Parsing... [1;36mdone[0m
+      Type checking... [1;36mdone[0m
+      Code generation...Error: Rust target native function 'sn_test_json_encoder' has unsupported result type 'struct'; the native bridge supports owned strings and byte arrays plus raw pointers, void, bool, char, int, long, int32, uint, uint32, byte, float, and double; heap-free records can also pass by value
+     [1;31mfailed[0m
+    
+    
+  test_thread_struct_return_types               FAIL (compile error)  (37ms)
+    [1mCompiling[0m tests/integration/test_thread_struct_return_types.sn...
+      Parsing... [1;36mdone[0m
+      Type checking... [1;36mdone[0m
+      Code generation...Error: Rust target currently supports only plain value struct 'HyperParams'
+     [1;31mfailed[0m
+    
+    
+
+------------------------------------------------------------
+Results: 1128 passed, 14 failed, 0 skipped  (36.39s)
+
+Some tests failed!  (total: 36.39s)

@@ -1,0 +1,11 @@
+fn mark(value: int): int =>
+  println($"seed {value}")
+  return value
+
+var seeded: int = mark(3)
+
+native fn unused_variadic(base: int, ...): int =>
+  return base + seeded
+
+fn main(): void =>
+  println("main")

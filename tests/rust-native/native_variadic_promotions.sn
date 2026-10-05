@@ -1,0 +1,15 @@
+@source "native_variadic_promotions.sn.c"
+
+native fn check_promotions(tag: int32, ...): bool
+native fn high_char(): char
+native fn int_address(): *int
+native fn char_address(): *char
+native fn void_address(): *void
+native fn null_address(): *int
+native fn check_pointers(tag: int32, ...): bool
+
+fn main(): void =>
+  var rounded: float = 1.1f
+  println(check_promotions(1i32, -7000000000, 9000000000l, -123i32, 18000000000000000000u, 4000000000u32, 255b, true, high_char(), rounded, 2.5, "tail"))
+  println(check_promotions(1i32, -7000000000, 9000000000l, -123i32, 18000000000000000000u, 4000000000u32, 255b, true, high_char(), rounded, 2.5, "tail"))
+  println(check_pointers(2i32, int_address(), char_address(), void_address(), null_address()))

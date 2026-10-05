@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-static bool impl_has_callable_body(json_object *impl)
+bool rust_native_impl_has_callable_body(json_object *impl)
 {
     json_object *definitions = NULL;
     const char *keys[] = {"functions", "lambdas", "threads", "fn_wrappers"};
@@ -52,7 +52,7 @@ bool rust_native_emit_support(RustNativePlan *plan, GeneratedFileSet *files,
 
     for (int i = 0; i < rendered->impl_count; i++)
     {
-        if (!impl_has_callable_body(split->impl_models[i])) continue;
+        if (!rust_native_impl_has_callable_body(split->impl_models[i])) continue;
         size_t path_size = strlen(rendered->impl_names[i]) +
                            sizeof("sn_native_bridge_.c");
         char *path = malloc(path_size);

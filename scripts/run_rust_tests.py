@@ -624,6 +624,11 @@ class TestRunner:
             test_files = sorted(glob.glob(pattern, recursive=True))
         if test_type == 'rust-native-extra':
             test_files.extend([
+                'tests/rust-native/native_variadic_promotions.sn',
+                'tests/rust-native/native_variadic_ownership.sn',
+                'tests/rust-native/native_variadic_records.sn',
+                'tests/rust-native/native_variadic_contexts.sn',
+                'tests/rust-native/native_variadic_unused.sn',
                 'tests/rust-native/native_callable_body.sn',
                 'tests/rust-native/native_callable_islands.sn',
                 'tests/rust-native/native_callable_globals.sn',

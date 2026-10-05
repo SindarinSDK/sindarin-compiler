@@ -1,0 +1,256 @@
+{
+  "base_revision": "8d29dd4597332146bbdcd290f22fd0a33a4d48d2",
+  "state": "Previous 40 reports independently reverified with current compiler",
+  "reports": [
+    {
+      "platform": "linux",
+      "compiler_sha256": "13f92492c78a8bb2b4621d5b7dcda2447d68729ff88f220d45f1d2bee23f927c",
+      "gates": [
+        {
+          "gate": "core",
+          "cases": 30,
+          "artifact_sha256": "f4a569a5e26966e42083d8f76acabcbdf5c9943c96981f9548e11fed8ce594d0"
+        },
+        {
+          "gate": "concurrency",
+          "cases": 51,
+          "artifact_sha256": "02fae06197795cea271da22fe7847df92e3f745e0354d0ad7c24a8bf109ddb50"
+        },
+        {
+          "gate": "thread-ownership",
+          "cases": 207,
+          "artifact_sha256": "9c1bc5db7e07a24ac69ac5c93b0a16f32572fc99c3d8778850760f84d92e6585"
+        },
+        {
+          "gate": "thread-receivers",
+          "cases": 90,
+          "artifact_sha256": "e5e17fb35d98eb666c15f88c58f82982c90fe972b4a9b3b445a551a06a8ee61b"
+        },
+        {
+          "gate": "reflection",
+          "cases": 36,
+          "artifact_sha256": "dcae45761d32d2be1cc974cb969416df28475a91506095afaed708acabea1981"
+        },
+        {
+          "gate": "sized-defaults",
+          "cases": 27,
+          "artifact_sha256": "5c9bb6b23c83cf214b6911838b63285cb86d662285a69824c5d59913c0dea7a7"
+        },
+        {
+          "gate": "native-managed",
+          "cases": 63,
+          "artifact_sha256": "3b22b8a0b4821f818cb2b9132d9f2de78a797be9a77291e8bbcdd047c5212b3f"
+        },
+        {
+          "gate": "stdio-order",
+          "cases": 30,
+          "artifact_sha256": "e3b99abb47e1c4fba278aa6e3ba8539b59dd7effe1f206a7aa016d82602c3c06"
+        },
+        {
+          "gate": "mixed-integral",
+          "cases": 90,
+          "artifact_sha256": "464afc65802114e52f81cfe855ad3cb1e031ecf53b8cfc74d5764158069e9490"
+        },
+        {
+          "gate": "mixed-integral-diagnostics",
+          "cases": 9,
+          "artifact_sha256": "763be0f379e341e8d1a8bc884dcad5b3d53a284e9e50fc9247541665f8da9cda"
+        },
+        {
+          "gate": "float-conversions",
+          "cases": 117,
+          "artifact_sha256": "b7b4f0720c888a89b3d0364edc817b1d59120b5acf34d02418f15d2bf8096478"
+        },
+        {
+          "gate": "floating-arrays",
+          "cases": 81,
+          "artifact_sha256": "a28570f5eba667bf4536f563f61f493fd3e7e676f2c047ad468ce606f5ca8be3"
+        },
+        {
+          "gate": "floating-equality",
+          "cases": 36,
+          "artifact_sha256": "df370d55efec40f736812e8b4b3543d52e4205fa7dd34b0c60019e7960f6dd2e"
+        },
+        {
+          "gate": "numeric-places",
+          "cases": 153,
+          "artifact_sha256": "72ca27a56a461f74069bed2a60b5ab426a1d724350e9908e8ae9fd593d89134f"
+        },
+        {
+          "gate": "capture-index",
+          "cases": 45,
+          "artifact_sha256": "473625a324bead894fa6b4e29f176233185c68561d8a3082d3bc6363866c2fa7"
+        },
+        {
+          "gate": "sync-character",
+          "cases": 45,
+          "artifact_sha256": "e495560da970dbed91ceaa5c4f1415379374430dd2a9d11263eba5c334eba387"
+        },
+        {
+          "gate": "ctype",
+          "cases": 72,
+          "artifact_sha256": "5ffeb38ef7ea5320b2a6262682ca9c4650a38aab0ae9854abea0b7690c84fb85"
+        },
+        {
+          "gate": "byte-encoding",
+          "cases": 81,
+          "artifact_sha256": "8287c37e316edc085f092b8bcc65e4a16f2f196ea3e0a49fc494f4044f81138c"
+        },
+        {
+          "gate": "exit",
+          "cases": 153,
+          "artifact_sha256": "5472f27faf9b4afec17ad2eb35b4ec7e8bd2d9d2828e6ad857cc57f6821ef73b"
+        },
+        {
+          "gate": "main-return",
+          "cases": 108,
+          "artifact_sha256": "884ea99ee5727d66093565f24532c8e0cafec754c54cbe82dc1c1912ffe2cc89"
+        },
+        {
+          "gate": "match-control",
+          "cases": 180,
+          "artifact_sha256": "fc5c21288677ab39f7ea1de5b50c61fa0013820f1747b2fd35b59a0886253902"
+        },
+        {
+          "gate": "sizeof",
+          "cases": 216,
+          "artifact_sha256": "a7a8df7d22b4dbfae68186d4521af106bde9b2a9ad1074490b74c09136c633a3"
+        },
+        {
+          "gate": "call-reference",
+          "cases": 126,
+          "artifact_sha256": "9010a9e70f31c83b3e077c965279eca75e06f8a44844d895073fe8ad46c903e2"
+        },
+        {
+          "gate": "indexed-string",
+          "cases": 54,
+          "artifact_sha256": "279216e3d36005a2f5a0c6918eb2f12533049576d5470aa2ff64574243f044be"
+        },
+        {
+          "gate": "native-scope",
+          "cases": 36,
+          "artifact_sha256": "f4f3f47f88b8a5a2228657a78ddc3ff17a17ca477555871ef2ff6a085b6dd106"
+        },
+        {
+          "gate": "nil-string",
+          "cases": 72,
+          "artifact_sha256": "6a88ef989499d5385a6ea10a36bbb4fc5b0f7de87e5236f309a6803509adad93"
+        },
+        {
+          "gate": "nil-array",
+          "cases": 90,
+          "artifact_sha256": "7360f89172a1a75d10754b7d71cd9b705a2b840626659400f1525dac316b9565"
+        },
+        {
+          "gate": "nested-stores",
+          "cases": 45,
+          "artifact_sha256": "e78e709a6e11a9e4eeb823649a1b139b512127c8d101d2ccd515b6d0563756b2"
+        },
+        {
+          "gate": "owned-array-copies",
+          "cases": 45,
+          "artifact_sha256": "e0c0728925c082c089124dc875d40a2fe743a21c687f272e4f45b7e7c26151bb"
+        },
+        {
+          "gate": "native-records",
+          "cases": 45,
+          "artifact_sha256": "35c13084b24c25107f29cf31f7f4059ca5be9fad81b14252b4e44c59101d8715"
+        },
+        {
+          "gate": "native-record-references",
+          "cases": 36,
+          "artifact_sha256": "f3854b13352526b4dc43883bba241e3fc20c72bfacfc5204a99dfb2bfefd327b"
+        },
+        {
+          "gate": "owned-record-parameters",
+          "cases": 216,
+          "artifact_sha256": "bb730962d3fe115143636f7d4715704d83de009ca33bf2d63d7dcec06470663d"
+        },
+        {
+          "gate": "reference-records",
+          "cases": 171,
+          "artifact_sha256": "0932799aadf0af4d56c66f89ad1c345f57999ee57ea18c0a5ab9abd2340fd1de"
+        },
+        {
+          "gate": "scalar-parameters",
+          "cases": 126,
+          "artifact_sha256": "1870fcf58919166824289f51d8d47ca3a5d0170256c15dca771f347955ed865e"
+        },
+        {
+          "gate": "closure-records",
+          "cases": 189,
+          "artifact_sha256": "33c7a9c89bd43e11d16347dc94f6be88bccdd62e28b1ae5620623df94cdc9965"
+        },
+        {
+          "gate": "native-handles",
+          "cases": 117,
+          "artifact_sha256": "bd73d326ee18f5bcdb42d1308121e32a9541aa188fa7691c183c0282bff6a497"
+        },
+        {
+          "gate": "native-arrays",
+          "cases": 27,
+          "artifact_sha256": "a140ef6bac8117e63f5115871217d839e4453db2a8657bfba57497f16636f2b1"
+        },
+        {
+          "gate": "native-globals",
+          "cases": 36,
+          "artifact_sha256": "f50e4ed96af665fd39a00bbe2ff34bb8a8e099009f28bb9c37301ec283e26b02"
+        },
+        {
+          "gate": "native-managed-records",
+          "cases": 54,
+          "artifact_sha256": "cc82ee9d3890a3373dcf7e5dfa2844d376ae80ce8804a825823ffcd5843d38df"
+        },
+        {
+          "gate": "native-callables",
+          "cases": 63,
+          "artifact_sha256": "6ee8350ba8833f1e69a7da450364abe0a58ffdf7e116cd3f1cef09dec11017f4"
+        }
+      ],
+      "independent_process_exit_oracle_cases": 153,
+      "independent_new_main_return_oracle_cases": 108,
+      "independent_byte_oracle_cases": 81,
+      "independent_character_oracle_cases": 72,
+      "positive_pairs": 3114,
+      "independent_native_callable_cases": 63,
+      "independent_native_managed_record_cases": 54,
+      "independent_native_global_cases": 36,
+      "independent_native_array_cases": 27,
+      "independent_native_handle_cases": 117,
+      "closure_record_cases": 189,
+      "independent_closure_record_cases": 189,
+      "scalar_parameter_cases": 126,
+      "independent_scalar_parameter_cases": 126,
+      "reference_record_cases": 171,
+      "independent_reference_record_cases": 171,
+      "independent_owned_record_parameter_cases": 216,
+      "diagnostic_order_cases": 39,
+      "process_exit_cases": 153,
+      "main_return_cases": 108,
+      "nested_store_cases": 45,
+      "independent_nested_store_oracle_cases": 45,
+      "owned_array_cases": 45,
+      "independent_owned_array_oracle_cases": 45,
+      "nil_array_cases": 90,
+      "independent_nil_array_oracle_cases": 90,
+      "nil_string_cases": 72,
+      "independent_nil_string_oracle_cases": 72,
+      "native_record_reference_cases": 36,
+      "independent_native_record_reference_cases": 36,
+      "native_record_cases": 45,
+      "independent_native_record_cases": 45,
+      "native_scope_cases": 36,
+      "independent_new_native_scope_oracle_cases": 36,
+      "indexed_string_cases": 54,
+      "independent_new_indexed_string_oracle_cases": 54,
+      "call_reference_cases": 126,
+      "independent_new_call_reference_oracle_cases": 126,
+      "sizeof_cases": 216,
+      "independent_new_sizeof_oracle_cases": 216,
+      "match_control_cases": 180,
+      "independent_new_match_control_oracle_cases": 180
+    }
+  ],
+  "runs": [],
+  "compiler_sha256": "13f92492c78a8bb2b4621d5b7dcda2447d68729ff88f220d45f1d2bee23f927c"
+}
