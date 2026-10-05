@@ -1,0 +1,1452 @@
+{
+  "compiler_sha256": "bcee9e5a7f8052a0dfc1dff2379203bc171a638cacba05f15965b4746048204a",
+  "instrumented_target_executions": 90,
+  "actual_c_object_compilations": 117,
+  "asan_objects": 117,
+  "ubsan_objects": 81,
+  "objects": [
+    {
+      "source": ".sn/build/test_buffer_unwrap_4032556/main.c",
+      "source_sha256": "fa2995f5202104f7b02f5505bb1b26753274fc62fb16906c51800e9ef2710ab4",
+      "object": ".sn/build/test_buffer_unwrap_4032556/main.o",
+      "object_sha256": "695b7b0ef9bcecfeb232800f34a19fb5b9909b907987505e511d0e070b05c1dd",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/test_nil_pointer_slice_4032562/main.c",
+      "source_sha256": "c7e3f7124841941de382beabf52cd3250795e2fe3763081823961d41faa56193",
+      "object": ".sn/build/test_nil_pointer_slice_4032562/main.o",
+      "object_sha256": "531c7f44a3359a82bbc84a52106f2b4f559051e252cb200d2a3a9b3102ebe278",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/rust/test_nil_pointer_slice_4033515/sn_native_bridge_main.c",
+      "source_sha256": "2d98257e58f40d8d7f976c480aae21dc5042cf37cc7087758463fe2c0a8fd54b",
+      "object": ".sn/build/rust/test_nil_pointer_slice_4033515/sn_native_bridge_main.o",
+      "object_sha256": "50a04c2572e4e001051efefa234b4642a92644e2e11dd5a11acffe613b1aef80",
+      "asan_symbols": true,
+      "ubsan_symbols": false
+    },
+    {
+      "source": ".sn/build/rust/test_buffer_unwrap_4033658/sn_native_bridge_main.c",
+      "source_sha256": "37f6044a3cf9e055ce362ca74751e5d9db2b4bf9a2fb9dcb258c507ac14a34fb",
+      "object": ".sn/build/rust/test_buffer_unwrap_4033658/sn_native_bridge_main.o",
+      "object_sha256": "4c702b6437942f7454d51950ce0f3458c6d87fbfc628076fec4d8f7377880b26",
+      "asan_symbols": true,
+      "ubsan_symbols": false
+    },
+    {
+      "source": ".sn/build/test_nil_pointer_slice_4034959/main.c",
+      "source_sha256": "c7e3f7124841941de382beabf52cd3250795e2fe3763081823961d41faa56193",
+      "object": ".sn/build/test_nil_pointer_slice_4034959/main.o",
+      "object_sha256": "5fe3c30bdac62299f9812783c16bc4f23a714505eca1ba58b237b16ff8177a0d",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/test_buffer_unwrap_4035205/main.c",
+      "source_sha256": "fa2995f5202104f7b02f5505bb1b26753274fc62fb16906c51800e9ef2710ab4",
+      "object": ".sn/build/test_buffer_unwrap_4035205/main.o",
+      "object_sha256": "de10441ebc0499fec2212a1d875dd224050fe8e2e77d3229537840f6f43427e7",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/rust/test_nil_pointer_slice_4035706/sn_native_bridge_main.c",
+      "source_sha256": "2d98257e58f40d8d7f976c480aae21dc5042cf37cc7087758463fe2c0a8fd54b",
+      "object": ".sn/build/rust/test_nil_pointer_slice_4035706/sn_native_bridge_main.o",
+      "object_sha256": "e449e27681b971dc5a1a0772e2423f0ff14754b1ed3398280d5d87b7b36a03f0",
+      "asan_symbols": true,
+      "ubsan_symbols": false
+    },
+    {
+      "source": ".sn/build/rust/test_buffer_unwrap_4036068/sn_native_bridge_main.c",
+      "source_sha256": "37f6044a3cf9e055ce362ca74751e5d9db2b4bf9a2fb9dcb258c507ac14a34fb",
+      "object": ".sn/build/rust/test_buffer_unwrap_4036068/sn_native_bridge_main.o",
+      "object_sha256": "531e46b37cd364eb1db610c78a639912568390d3b816d45ba445c63d6e143072",
+      "asan_symbols": true,
+      "ubsan_symbols": false
+    },
+    {
+      "source": ".sn/build/test_nil_pointer_slice_4037294/main.c",
+      "source_sha256": "c7e3f7124841941de382beabf52cd3250795e2fe3763081823961d41faa56193",
+      "object": ".sn/build/test_nil_pointer_slice_4037294/main.o",
+      "object_sha256": "63941c50bbee765eb67c6fd10fd86d38e6c5ef0de367b202e0a9542b4616a4cd",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/test_buffer_unwrap_4037479/main.c",
+      "source_sha256": "fa2995f5202104f7b02f5505bb1b26753274fc62fb16906c51800e9ef2710ab4",
+      "object": ".sn/build/test_buffer_unwrap_4037479/main.o",
+      "object_sha256": "057be0449c39ea531e237397fd62d943981c7a0b789cefe0812b16efce258c17",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/rust/test_nil_pointer_slice_4037863/sn_native_bridge_main.c",
+      "source_sha256": "2d98257e58f40d8d7f976c480aae21dc5042cf37cc7087758463fe2c0a8fd54b",
+      "object": ".sn/build/rust/test_nil_pointer_slice_4037863/sn_native_bridge_main.o",
+      "object_sha256": "18131f2af0bab79f4759986d1de7085fd359bd267ad5d91f7fab92eca9ab44f0",
+      "asan_symbols": true,
+      "ubsan_symbols": false
+    },
+    {
+      "source": ".sn/build/rust/test_buffer_unwrap_4038111/sn_native_bridge_main.c",
+      "source_sha256": "37f6044a3cf9e055ce362ca74751e5d9db2b4bf9a2fb9dcb258c507ac14a34fb",
+      "object": ".sn/build/rust/test_buffer_unwrap_4038111/sn_native_bridge_main.o",
+      "object_sha256": "8f662b87c0a21e9fbc30a2e28fd4e5a2a3723b0b046325cb8f635591e9c42f83",
+      "asan_symbols": true,
+      "ubsan_symbols": false
+    },
+    {
+      "source": ".sn/build/test_nil_pointer_slice_4039615/main.c",
+      "source_sha256": "c7e3f7124841941de382beabf52cd3250795e2fe3763081823961d41faa56193",
+      "object": ".sn/build/test_nil_pointer_slice_4039615/main.o",
+      "object_sha256": "aca6f9459fed4bd4e9875865d6ec2f45b78e149b34acc22217d686ed1675f266",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/test_buffer_unwrap_4039675/main.c",
+      "source_sha256": "f65c30650af7757754457a9d69b867f8a1f014bf9f7d863ddd35057c56e63696",
+      "object": ".sn/build/test_buffer_unwrap_4039675/main.o",
+      "object_sha256": "33007476d1b75f9205a690a208e37e994d27e74f58dd1aa035e48a3d381d7fef",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/rust/test_nil_pointer_slice_4040089/sn_native_bridge_main.c",
+      "source_sha256": "2d98257e58f40d8d7f976c480aae21dc5042cf37cc7087758463fe2c0a8fd54b",
+      "object": ".sn/build/rust/test_nil_pointer_slice_4040089/sn_native_bridge_main.o",
+      "object_sha256": "dd816b60ca8aa3911901c8400ce36ae9f5105b5dff0c6d91948b266682832b37",
+      "asan_symbols": true,
+      "ubsan_symbols": false
+    },
+    {
+      "source": ".sn/build/rust/test_buffer_unwrap_4040039/sn_native_bridge_main.c",
+      "source_sha256": "37f6044a3cf9e055ce362ca74751e5d9db2b4bf9a2fb9dcb258c507ac14a34fb",
+      "object": ".sn/build/rust/test_buffer_unwrap_4040039/sn_native_bridge_main.o",
+      "object_sha256": "23a41ef0c53c1b08482743fb6b49314cdbdf19d9a4b8cb0449c8bdbb561bdc8a",
+      "asan_symbols": true,
+      "ubsan_symbols": false
+    },
+    {
+      "source": ".sn/build/test_buffer_unwrap_4041623/main.c",
+      "source_sha256": "f65c30650af7757754457a9d69b867f8a1f014bf9f7d863ddd35057c56e63696",
+      "object": ".sn/build/test_buffer_unwrap_4041623/main.o",
+      "object_sha256": "f065d11081aa37bfb2547af1218edde995518ba6f1a8de0fb4a8533286439f66",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/test_nil_pointer_slice_4041696/main.c",
+      "source_sha256": "c7e3f7124841941de382beabf52cd3250795e2fe3763081823961d41faa56193",
+      "object": ".sn/build/test_nil_pointer_slice_4041696/main.o",
+      "object_sha256": "9f5c2bbf2737e7532db2f0824b7acfe27320cd1c0a99a954cc7b0c1000f9b106",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/rust/test_nil_pointer_slice_4042232/sn_native_bridge_main.c",
+      "source_sha256": "2d98257e58f40d8d7f976c480aae21dc5042cf37cc7087758463fe2c0a8fd54b",
+      "object": ".sn/build/rust/test_nil_pointer_slice_4042232/sn_native_bridge_main.o",
+      "object_sha256": "0656dfb1066acf4851268ad70c8ef0884c13ab0591bbe175db20c563a442448b",
+      "asan_symbols": true,
+      "ubsan_symbols": false
+    },
+    {
+      "source": ".sn/build/rust/test_buffer_unwrap_4042281/sn_native_bridge_main.c",
+      "source_sha256": "37f6044a3cf9e055ce362ca74751e5d9db2b4bf9a2fb9dcb258c507ac14a34fb",
+      "object": ".sn/build/rust/test_buffer_unwrap_4042281/sn_native_bridge_main.o",
+      "object_sha256": "ad7853ccbcfb72fd16f3cc972e86eda4b6b57864cf8e8b7db8008def071425af",
+      "asan_symbols": true,
+      "ubsan_symbols": false
+    },
+    {
+      "source": ".sn/build/test_nil_pointer_slice_4043756/main.c",
+      "source_sha256": "c7e3f7124841941de382beabf52cd3250795e2fe3763081823961d41faa56193",
+      "object": ".sn/build/test_nil_pointer_slice_4043756/main.o",
+      "object_sha256": "7a92764b0e9e6f7d1c7b8cc8c67dd5a76784b7ae7ea33cf2a38c1b4ea5261d0b",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/test_buffer_unwrap_4044071/main.c",
+      "source_sha256": "f65c30650af7757754457a9d69b867f8a1f014bf9f7d863ddd35057c56e63696",
+      "object": ".sn/build/test_buffer_unwrap_4044071/main.o",
+      "object_sha256": "038943687979514108667d9e46251dc686747e3e5b54dd18d2d82c63617c50f0",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/rust/test_nil_pointer_slice_4044352/sn_native_bridge_main.c",
+      "source_sha256": "2d98257e58f40d8d7f976c480aae21dc5042cf37cc7087758463fe2c0a8fd54b",
+      "object": ".sn/build/rust/test_nil_pointer_slice_4044352/sn_native_bridge_main.o",
+      "object_sha256": "16f94dfc666959caf9e451afc62fee1d3049a5c508b04aee1295ce00e30fcc4a",
+      "asan_symbols": true,
+      "ubsan_symbols": false
+    },
+    {
+      "source": ".sn/build/rust/test_buffer_unwrap_4044968/sn_native_bridge_main.c",
+      "source_sha256": "37f6044a3cf9e055ce362ca74751e5d9db2b4bf9a2fb9dcb258c507ac14a34fb",
+      "object": ".sn/build/rust/test_buffer_unwrap_4044968/sn_native_bridge_main.o",
+      "object_sha256": "13fd625119793f19059632b4991509bfa68e79b5ce66e3ecc5746c7775d8de70",
+      "asan_symbols": true,
+      "ubsan_symbols": false
+    },
+    {
+      "source": ".sn/build/test_nil_pointer_slice_4045866/main.c",
+      "source_sha256": "c7e3f7124841941de382beabf52cd3250795e2fe3763081823961d41faa56193",
+      "object": ".sn/build/test_nil_pointer_slice_4045866/main.o",
+      "object_sha256": "d90af93ee0f664c4fa102f6622f935ca2ffabb8cb1805ed0a63df99416c056f2",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/test_buffer_unwrap_4046775/main.c",
+      "source_sha256": "f65c30650af7757754457a9d69b867f8a1f014bf9f7d863ddd35057c56e63696",
+      "object": ".sn/build/test_buffer_unwrap_4046775/main.o",
+      "object_sha256": "598b9c9ff9eb1464588e41909cb064a33c9d1bfcab3047079b1ac8f7e22b7629",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/rust/test_nil_pointer_slice_4046729/sn_native_bridge_main.c",
+      "source_sha256": "2d98257e58f40d8d7f976c480aae21dc5042cf37cc7087758463fe2c0a8fd54b",
+      "object": ".sn/build/rust/test_nil_pointer_slice_4046729/sn_native_bridge_main.o",
+      "object_sha256": "48f3b9cec5ed965d353b147a342e963d237b08c91c5915b70bb8ee06f5fc34b2",
+      "asan_symbols": true,
+      "ubsan_symbols": false
+    },
+    {
+      "source": ".sn/build/rust/test_buffer_unwrap_4047524/sn_native_bridge_main.c",
+      "source_sha256": "37f6044a3cf9e055ce362ca74751e5d9db2b4bf9a2fb9dcb258c507ac14a34fb",
+      "object": ".sn/build/rust/test_buffer_unwrap_4047524/sn_native_bridge_main.o",
+      "object_sha256": "f0ec1172baf1e178d6fe87d53b86336db3cd6d6a6a822affed79fb234ca9db09",
+      "asan_symbols": true,
+      "ubsan_symbols": false
+    },
+    {
+      "source": ".sn/build/test_nil_pointer_slice_4048446/main.c",
+      "source_sha256": "c7e3f7124841941de382beabf52cd3250795e2fe3763081823961d41faa56193",
+      "object": ".sn/build/test_nil_pointer_slice_4048446/main.o",
+      "object_sha256": "d156ce8d1638a007d9b604d4ef0f68e1f4e57fb41c43aaec5d28219130767ab1",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/rust/test_nil_pointer_slice_4049033/sn_native_bridge_main.c",
+      "source_sha256": "2d98257e58f40d8d7f976c480aae21dc5042cf37cc7087758463fe2c0a8fd54b",
+      "object": ".sn/build/rust/test_nil_pointer_slice_4049033/sn_native_bridge_main.o",
+      "object_sha256": "363d75df5a8fb3075fab50638ac2349a69467c497cc1732c96c2b5d3b863d62d",
+      "asan_symbols": true,
+      "ubsan_symbols": false
+    },
+    {
+      "source": ".sn/build/test_buffer_unwrap_4049411/main.c",
+      "source_sha256": "f65c30650af7757754457a9d69b867f8a1f014bf9f7d863ddd35057c56e63696",
+      "object": ".sn/build/test_buffer_unwrap_4049411/main.o",
+      "object_sha256": "0c5554e437c1d67ab6ca387699cfdf424fc23888f347617106d5d91c5ecf4184",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/rust/test_buffer_unwrap_4050060/sn_native_bridge_main.c",
+      "source_sha256": "37f6044a3cf9e055ce362ca74751e5d9db2b4bf9a2fb9dcb258c507ac14a34fb",
+      "object": ".sn/build/rust/test_buffer_unwrap_4050060/sn_native_bridge_main.o",
+      "object_sha256": "6e1061762fc39feb5e6257f441b0f50d6cddd90ee107b3e4345f0e2ecc79e637",
+      "asan_symbols": true,
+      "ubsan_symbols": false
+    },
+    {
+      "source": ".sn/build/test_nil_pointer_slice_4050534/main.c",
+      "source_sha256": "c7e3f7124841941de382beabf52cd3250795e2fe3763081823961d41faa56193",
+      "object": ".sn/build/test_nil_pointer_slice_4050534/main.o",
+      "object_sha256": "040bc2820070e227a3f63ee5c1b41e9eac5e4587da4424b6bfd98ca199c92000",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/rust/test_nil_pointer_slice_4051178/sn_native_bridge_main.c",
+      "source_sha256": "2d98257e58f40d8d7f976c480aae21dc5042cf37cc7087758463fe2c0a8fd54b",
+      "object": ".sn/build/rust/test_nil_pointer_slice_4051178/sn_native_bridge_main.o",
+      "object_sha256": "44296a94d87387ff988f77f37b99db73445ed687d30cafca8f549aca51a3a415",
+      "asan_symbols": true,
+      "ubsan_symbols": false
+    },
+    {
+      "source": ".sn/build/test_buffer_unwrap_4051441/main.c",
+      "source_sha256": "f65c30650af7757754457a9d69b867f8a1f014bf9f7d863ddd35057c56e63696",
+      "object": ".sn/build/test_buffer_unwrap_4051441/main.o",
+      "object_sha256": "7dc56e5f13b9c2d27b9a79afd6fe692f2f576189ac56926c9c26311f6ae69210",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/rust/test_buffer_unwrap_4052115/sn_native_bridge_main.c",
+      "source_sha256": "37f6044a3cf9e055ce362ca74751e5d9db2b4bf9a2fb9dcb258c507ac14a34fb",
+      "object": ".sn/build/rust/test_buffer_unwrap_4052115/sn_native_bridge_main.o",
+      "object_sha256": "4d440c526bc63e152879ea6f4d50708da2ccee57340edde83414c809f1910f7a",
+      "asan_symbols": true,
+      "ubsan_symbols": false
+    },
+    {
+      "source": ".sn/build/test_pointer_slice_bounds_4052506/main.c",
+      "source_sha256": "3c5e06f4978ee69283657d10f52174d2ca68d7ea38190a680a6169e6859c77c4",
+      "object": ".sn/build/test_pointer_slice_bounds_4052506/main.o",
+      "object_sha256": "e796a89e845b58042bb8ae650b003fdd6a53aa1d646222de1282f5563c08d57c",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/rust/test_pointer_slice_bounds_4052960/sn_native_bridge_main.c",
+      "source_sha256": "b171afb08a79996dcdd22280ee11be259400f0a34af2265c86d73a643905b3e3",
+      "object": ".sn/build/rust/test_pointer_slice_bounds_4052960/sn_native_bridge_main.o",
+      "object_sha256": "b627f576304778485ee7c44b30463956a96824044caa7911db246b1db5a8bd56",
+      "asan_symbols": true,
+      "ubsan_symbols": false
+    },
+    {
+      "source": ".sn/build/native_pointer_slices_4053589/main.c",
+      "source_sha256": "fc0fa498b6bbe96faad0e204f13f8f78ba7bb5e78cfff87494756d12b4b21aad",
+      "object": ".sn/build/native_pointer_slices_4053589/main.o",
+      "object_sha256": "8fbd033d538b3567a477cabf47537037e54c667c67ca53085198c6890cd637c0",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn.c",
+      "source_sha256": "ad759453261c748080fcb3a5f252b12f18da3ad6a6915e2fc8cd8c41a3359c80",
+      "object": ".sn/build/native_pointer_slices_4053589/pragma_native_pointer_slices.sn.o",
+      "object_sha256": "3b873fa1d6238bb375d5d6932ca3bfa7682245f65f471eaf1e477f9947c1e12c",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/test_pointer_slice_bounds_4054285/main.c",
+      "source_sha256": "3c5e06f4978ee69283657d10f52174d2ca68d7ea38190a680a6169e6859c77c4",
+      "object": ".sn/build/test_pointer_slice_bounds_4054285/main.o",
+      "object_sha256": "5bea58b6f377715b356c4a7e2bc779e358ee76c1bd3751ae26a8e366ac8cc3e3",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/rust/native_pointer_slices_4054419/sn_native_bridge_main.c",
+      "source_sha256": "f9952156a6096462bb8dfc954df2006ffd847780593f6d8bd0cb6688b9e785c9",
+      "object": ".sn/build/rust/native_pointer_slices_4054419/sn_native_bridge_main.o",
+      "object_sha256": "352460583d39f74b49ac7148bc2eba77b1d6e60ddd1f31769569300d3e18270f",
+      "asan_symbols": true,
+      "ubsan_symbols": false
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn.c",
+      "source_sha256": "ad759453261c748080fcb3a5f252b12f18da3ad6a6915e2fc8cd8c41a3359c80",
+      "object": ".sn/build/rust/native_pointer_slices_4054419/pragma_native_pointer_slices.sn_f267f7a7be604ccd.o",
+      "object_sha256": "3b873fa1d6238bb375d5d6932ca3bfa7682245f65f471eaf1e477f9947c1e12c",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/rust/test_pointer_slice_bounds_4054956/sn_native_bridge_main.c",
+      "source_sha256": "b171afb08a79996dcdd22280ee11be259400f0a34af2265c86d73a643905b3e3",
+      "object": ".sn/build/rust/test_pointer_slice_bounds_4054956/sn_native_bridge_main.o",
+      "object_sha256": "66b52ddb0ede6a85539db4f4c83e22f216c969662480d5ee7a9b72526707d60b",
+      "asan_symbols": true,
+      "ubsan_symbols": false
+    },
+    {
+      "source": ".sn/build/test_pointer_slice_bounds_4056369/main.c",
+      "source_sha256": "3c5e06f4978ee69283657d10f52174d2ca68d7ea38190a680a6169e6859c77c4",
+      "object": ".sn/build/test_pointer_slice_bounds_4056369/main.o",
+      "object_sha256": "92d134ca4a9bcd11f85931955adbaee0abc8386b811f9381a1054fc0b1c32632",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/native_pointer_slices_4056521/main.c",
+      "source_sha256": "fc0fa498b6bbe96faad0e204f13f8f78ba7bb5e78cfff87494756d12b4b21aad",
+      "object": ".sn/build/native_pointer_slices_4056521/main.o",
+      "object_sha256": "bc2cebef8c15d4580bda2ba2669e7429071448b7ef850b6f107c204c579bb569",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn.c",
+      "source_sha256": "ad759453261c748080fcb3a5f252b12f18da3ad6a6915e2fc8cd8c41a3359c80",
+      "object": ".sn/build/native_pointer_slices_4056521/pragma_native_pointer_slices.sn.o",
+      "object_sha256": "3b873fa1d6238bb375d5d6932ca3bfa7682245f65f471eaf1e477f9947c1e12c",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/rust/test_pointer_slice_bounds_4057036/sn_native_bridge_main.c",
+      "source_sha256": "b171afb08a79996dcdd22280ee11be259400f0a34af2265c86d73a643905b3e3",
+      "object": ".sn/build/rust/test_pointer_slice_bounds_4057036/sn_native_bridge_main.o",
+      "object_sha256": "1d0e4ce6539de70a4ec59c959d41d35adac32a1e26d03e149c17b6f2fa0860f0",
+      "asan_symbols": true,
+      "ubsan_symbols": false
+    },
+    {
+      "source": ".sn/build/rust/native_pointer_slices_4057529/sn_native_bridge_main.c",
+      "source_sha256": "f9952156a6096462bb8dfc954df2006ffd847780593f6d8bd0cb6688b9e785c9",
+      "object": ".sn/build/rust/native_pointer_slices_4057529/sn_native_bridge_main.o",
+      "object_sha256": "ef4a1470f2a9d35c3d9d1401bf303a3e1aaa4f1b4481f0cbd013d5ec4461c8d1",
+      "asan_symbols": true,
+      "ubsan_symbols": false
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn.c",
+      "source_sha256": "ad759453261c748080fcb3a5f252b12f18da3ad6a6915e2fc8cd8c41a3359c80",
+      "object": ".sn/build/rust/native_pointer_slices_4057529/pragma_native_pointer_slices.sn_f267f7a7be604ccd.o",
+      "object_sha256": "3b873fa1d6238bb375d5d6932ca3bfa7682245f65f471eaf1e477f9947c1e12c",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/test_pointer_slice_bounds_4058497/main.c",
+      "source_sha256": "3c5e06f4978ee69283657d10f52174d2ca68d7ea38190a680a6169e6859c77c4",
+      "object": ".sn/build/test_pointer_slice_bounds_4058497/main.o",
+      "object_sha256": "0a4623ec2c104b0b003fa2d951a8bc0411f3a26d9688f1a95ca0184c7ce4b71b",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/rust/test_pointer_slice_bounds_4059227/sn_native_bridge_main.c",
+      "source_sha256": "b171afb08a79996dcdd22280ee11be259400f0a34af2265c86d73a643905b3e3",
+      "object": ".sn/build/rust/test_pointer_slice_bounds_4059227/sn_native_bridge_main.o",
+      "object_sha256": "ca12134bbe44bda88681b75845600b9a71f0cb1b7cee8b35a5e94af142cb3daa",
+      "asan_symbols": true,
+      "ubsan_symbols": false
+    },
+    {
+      "source": ".sn/build/native_pointer_slices_4059318/main.c",
+      "source_sha256": "fc0fa498b6bbe96faad0e204f13f8f78ba7bb5e78cfff87494756d12b4b21aad",
+      "object": ".sn/build/native_pointer_slices_4059318/main.o",
+      "object_sha256": "c911cb9af8c7f8938a460fb25a39c5c76e7c5b90cde6b9f0f2c8eb1fa0115124",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn.c",
+      "source_sha256": "ad759453261c748080fcb3a5f252b12f18da3ad6a6915e2fc8cd8c41a3359c80",
+      "object": ".sn/build/native_pointer_slices_4059318/pragma_native_pointer_slices.sn.o",
+      "object_sha256": "3b873fa1d6238bb375d5d6932ca3bfa7682245f65f471eaf1e477f9947c1e12c",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/rust/native_pointer_slices_4060110/sn_native_bridge_main.c",
+      "source_sha256": "f9952156a6096462bb8dfc954df2006ffd847780593f6d8bd0cb6688b9e785c9",
+      "object": ".sn/build/rust/native_pointer_slices_4060110/sn_native_bridge_main.o",
+      "object_sha256": "2d45dd68519fd3321a46dea0e7c2f35296a376e9544b67079a4695eb4f6a69e4",
+      "asan_symbols": true,
+      "ubsan_symbols": false
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn.c",
+      "source_sha256": "ad759453261c748080fcb3a5f252b12f18da3ad6a6915e2fc8cd8c41a3359c80",
+      "object": ".sn/build/rust/native_pointer_slices_4060110/pragma_native_pointer_slices.sn_f267f7a7be604ccd.o",
+      "object_sha256": "3b873fa1d6238bb375d5d6932ca3bfa7682245f65f471eaf1e477f9947c1e12c",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/test_pointer_slice_bounds_4060529/main.c",
+      "source_sha256": "3c5e06f4978ee69283657d10f52174d2ca68d7ea38190a680a6169e6859c77c4",
+      "object": ".sn/build/test_pointer_slice_bounds_4060529/main.o",
+      "object_sha256": "d6ec26bbd7b41294000e9be0474d4525dad72a7245242c4f2bb38e38b8cec193",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/rust/test_pointer_slice_bounds_4061273/sn_native_bridge_main.c",
+      "source_sha256": "b171afb08a79996dcdd22280ee11be259400f0a34af2265c86d73a643905b3e3",
+      "object": ".sn/build/rust/test_pointer_slice_bounds_4061273/sn_native_bridge_main.o",
+      "object_sha256": "e058d46a2f4a328028d5ce75e0fccb5dfbf7b2696baeb5786ec507eaa855da49",
+      "asan_symbols": true,
+      "ubsan_symbols": false
+    },
+    {
+      "source": ".sn/build/native_pointer_slices_4061882/main.c",
+      "source_sha256": "fc0fa498b6bbe96faad0e204f13f8f78ba7bb5e78cfff87494756d12b4b21aad",
+      "object": ".sn/build/native_pointer_slices_4061882/main.o",
+      "object_sha256": "0fb02937c54942620a4f42cda4cd5ad758efbbd1e25a3fa943481c54799ec9dd",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn.c",
+      "source_sha256": "ad759453261c748080fcb3a5f252b12f18da3ad6a6915e2fc8cd8c41a3359c80",
+      "object": ".sn/build/native_pointer_slices_4061882/pragma_native_pointer_slices.sn.o",
+      "object_sha256": "3b873fa1d6238bb375d5d6932ca3bfa7682245f65f471eaf1e477f9947c1e12c",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/test_pointer_slice_bounds_4062652/main.c",
+      "source_sha256": "3c5e06f4978ee69283657d10f52174d2ca68d7ea38190a680a6169e6859c77c4",
+      "object": ".sn/build/test_pointer_slice_bounds_4062652/main.o",
+      "object_sha256": "3e43a45b61762cb084df28e6c9a295dd01779523919c1a2358b0255f334b838e",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/rust/native_pointer_slices_4062578/sn_native_bridge_main.c",
+      "source_sha256": "f9952156a6096462bb8dfc954df2006ffd847780593f6d8bd0cb6688b9e785c9",
+      "object": ".sn/build/rust/native_pointer_slices_4062578/sn_native_bridge_main.o",
+      "object_sha256": "9cc7fef0908bd76d41219b66344af08aa98cebbadd37839c09b2510ed52d90fa",
+      "asan_symbols": true,
+      "ubsan_symbols": false
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn.c",
+      "source_sha256": "ad759453261c748080fcb3a5f252b12f18da3ad6a6915e2fc8cd8c41a3359c80",
+      "object": ".sn/build/rust/native_pointer_slices_4062578/pragma_native_pointer_slices.sn_f267f7a7be604ccd.o",
+      "object_sha256": "3b873fa1d6238bb375d5d6932ca3bfa7682245f65f471eaf1e477f9947c1e12c",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/rust/test_pointer_slice_bounds_4063361/sn_native_bridge_main.c",
+      "source_sha256": "b171afb08a79996dcdd22280ee11be259400f0a34af2265c86d73a643905b3e3",
+      "object": ".sn/build/rust/test_pointer_slice_bounds_4063361/sn_native_bridge_main.o",
+      "object_sha256": "3d1d658b0e21fa5309fdf03a76ed37e7af1b299950a1cb9421c9df874125a5ed",
+      "asan_symbols": true,
+      "ubsan_symbols": false
+    },
+    {
+      "source": ".sn/build/native_pointer_slices_4064548/main.c",
+      "source_sha256": "fc0fa498b6bbe96faad0e204f13f8f78ba7bb5e78cfff87494756d12b4b21aad",
+      "object": ".sn/build/native_pointer_slices_4064548/main.o",
+      "object_sha256": "2cf3212035235e561d32cf0a2b37b9de1138c2a50ac1429bcefee94f31011a6a",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn.c",
+      "source_sha256": "ad759453261c748080fcb3a5f252b12f18da3ad6a6915e2fc8cd8c41a3359c80",
+      "object": ".sn/build/native_pointer_slices_4064548/pragma_native_pointer_slices.sn.o",
+      "object_sha256": "3b873fa1d6238bb375d5d6932ca3bfa7682245f65f471eaf1e477f9947c1e12c",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/test_pointer_slice_bounds_4064819/main.c",
+      "source_sha256": "3c5e06f4978ee69283657d10f52174d2ca68d7ea38190a680a6169e6859c77c4",
+      "object": ".sn/build/test_pointer_slice_bounds_4064819/main.o",
+      "object_sha256": "ef15f6b51f0126b614334684721e36786ff200af9a67915d6d914e219fccdca8",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/rust/test_pointer_slice_bounds_4065268/sn_native_bridge_main.c",
+      "source_sha256": "b171afb08a79996dcdd22280ee11be259400f0a34af2265c86d73a643905b3e3",
+      "object": ".sn/build/rust/test_pointer_slice_bounds_4065268/sn_native_bridge_main.o",
+      "object_sha256": "e6d29e8d96b323df018626c5bed63a2712436c150868a83b238ae04770d30a64",
+      "asan_symbols": true,
+      "ubsan_symbols": false
+    },
+    {
+      "source": ".sn/build/rust/native_pointer_slices_4065173/sn_native_bridge_main.c",
+      "source_sha256": "f9952156a6096462bb8dfc954df2006ffd847780593f6d8bd0cb6688b9e785c9",
+      "object": ".sn/build/rust/native_pointer_slices_4065173/sn_native_bridge_main.o",
+      "object_sha256": "a858ad8f4406215ffd34d87e64c7bf8efa537c10fc0fd8ce50aa982f36f76eb4",
+      "asan_symbols": true,
+      "ubsan_symbols": false
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn.c",
+      "source_sha256": "ad759453261c748080fcb3a5f252b12f18da3ad6a6915e2fc8cd8c41a3359c80",
+      "object": ".sn/build/rust/native_pointer_slices_4065173/pragma_native_pointer_slices.sn_f267f7a7be604ccd.o",
+      "object_sha256": "3b873fa1d6238bb375d5d6932ca3bfa7682245f65f471eaf1e477f9947c1e12c",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/test_pointer_slice_bounds_4067113/main.c",
+      "source_sha256": "3c5e06f4978ee69283657d10f52174d2ca68d7ea38190a680a6169e6859c77c4",
+      "object": ".sn/build/test_pointer_slice_bounds_4067113/main.o",
+      "object_sha256": "0bc855180e3ed323ac0ce1bbe863d99fe2fd85343051da8a4ec34eb2bd34ab25",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/native_pointer_slices_4067236/main.c",
+      "source_sha256": "fc0fa498b6bbe96faad0e204f13f8f78ba7bb5e78cfff87494756d12b4b21aad",
+      "object": ".sn/build/native_pointer_slices_4067236/main.o",
+      "object_sha256": "ac31090aed984723a383f38349af5acb91c1d8c440207ae2d7ddffbc6a4bec02",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn.c",
+      "source_sha256": "ad759453261c748080fcb3a5f252b12f18da3ad6a6915e2fc8cd8c41a3359c80",
+      "object": ".sn/build/native_pointer_slices_4067236/pragma_native_pointer_slices.sn.o",
+      "object_sha256": "3b873fa1d6238bb375d5d6932ca3bfa7682245f65f471eaf1e477f9947c1e12c",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/rust/test_pointer_slice_bounds_4067713/sn_native_bridge_main.c",
+      "source_sha256": "b171afb08a79996dcdd22280ee11be259400f0a34af2265c86d73a643905b3e3",
+      "object": ".sn/build/rust/test_pointer_slice_bounds_4067713/sn_native_bridge_main.o",
+      "object_sha256": "f3a6a1556a0c06a03cbd6471f2e9694baefd420d893bc9782944948543de85e4",
+      "asan_symbols": true,
+      "ubsan_symbols": false
+    },
+    {
+      "source": ".sn/build/rust/native_pointer_slices_4068244/sn_native_bridge_main.c",
+      "source_sha256": "f9952156a6096462bb8dfc954df2006ffd847780593f6d8bd0cb6688b9e785c9",
+      "object": ".sn/build/rust/native_pointer_slices_4068244/sn_native_bridge_main.o",
+      "object_sha256": "dccbeb9cd9f19ab05547e3fd03c54131ba0b094e7ffade10447074de223cd264",
+      "asan_symbols": true,
+      "ubsan_symbols": false
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn.c",
+      "source_sha256": "ad759453261c748080fcb3a5f252b12f18da3ad6a6915e2fc8cd8c41a3359c80",
+      "object": ".sn/build/rust/native_pointer_slices_4068244/pragma_native_pointer_slices.sn_f267f7a7be604ccd.o",
+      "object_sha256": "3b873fa1d6238bb375d5d6932ca3bfa7682245f65f471eaf1e477f9947c1e12c",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/test_pointer_slice_bounds_4069306/main.c",
+      "source_sha256": "3c5e06f4978ee69283657d10f52174d2ca68d7ea38190a680a6169e6859c77c4",
+      "object": ".sn/build/test_pointer_slice_bounds_4069306/main.o",
+      "object_sha256": "c71b0d1fe5abb9798f87bf52d32feb1a72eee5d248262491aca3a7daf7cf0f4c",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/native_pointer_slices_4069925/main.c",
+      "source_sha256": "fc0fa498b6bbe96faad0e204f13f8f78ba7bb5e78cfff87494756d12b4b21aad",
+      "object": ".sn/build/native_pointer_slices_4069925/main.o",
+      "object_sha256": "b9977f9cbb6967e103fe25e6e4893a2a1b96bbb04af673fde1d5e40110f59725",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/rust/test_pointer_slice_bounds_4069943/sn_native_bridge_main.c",
+      "source_sha256": "b171afb08a79996dcdd22280ee11be259400f0a34af2265c86d73a643905b3e3",
+      "object": ".sn/build/rust/test_pointer_slice_bounds_4069943/sn_native_bridge_main.o",
+      "object_sha256": "3c255f1f86da19bda17ff85c04fedc5555ad465ffa77b749a8c109155b085836",
+      "asan_symbols": true,
+      "ubsan_symbols": false
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn.c",
+      "source_sha256": "ad759453261c748080fcb3a5f252b12f18da3ad6a6915e2fc8cd8c41a3359c80",
+      "object": ".sn/build/native_pointer_slices_4069925/pragma_native_pointer_slices.sn.o",
+      "object_sha256": "3b873fa1d6238bb375d5d6932ca3bfa7682245f65f471eaf1e477f9947c1e12c",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/rust/native_pointer_slices_4071163/sn_native_bridge_main.c",
+      "source_sha256": "f9952156a6096462bb8dfc954df2006ffd847780593f6d8bd0cb6688b9e785c9",
+      "object": ".sn/build/rust/native_pointer_slices_4071163/sn_native_bridge_main.o",
+      "object_sha256": "f2f79288d23f429b1a213de8327d73ecc5cd989b6cb1e34d269c71f167990f4a",
+      "asan_symbols": true,
+      "ubsan_symbols": false
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn.c",
+      "source_sha256": "ad759453261c748080fcb3a5f252b12f18da3ad6a6915e2fc8cd8c41a3359c80",
+      "object": ".sn/build/rust/native_pointer_slices_4071163/pragma_native_pointer_slices.sn_f267f7a7be604ccd.o",
+      "object_sha256": "3b873fa1d6238bb375d5d6932ca3bfa7682245f65f471eaf1e477f9947c1e12c",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/native_pointer_slice_contexts_4071756/main.c",
+      "source_sha256": "cf70ba07764d112446d90d5df7db5417cacf5cef5a37770812c6c660f328b535",
+      "object": ".sn/build/native_pointer_slice_contexts_4071756/main.o",
+      "object_sha256": "b56a03b4436d4ff49dd6c1e68ade71b7e4146efc12ef8e912af1c6a5fc109f72",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn.c",
+      "source_sha256": "ad759453261c748080fcb3a5f252b12f18da3ad6a6915e2fc8cd8c41a3359c80",
+      "object": ".sn/build/native_pointer_slice_contexts_4071756/pragma_native_pointer_slices.sn.o",
+      "object_sha256": "3b873fa1d6238bb375d5d6932ca3bfa7682245f65f471eaf1e477f9947c1e12c",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn.c",
+      "source_sha256": "ad759453261c748080fcb3a5f252b12f18da3ad6a6915e2fc8cd8c41a3359c80",
+      "object": ".sn/build/rust/native_pointer_slice_contexts_4072823/pragma_native_pointer_slices.sn_f267f7a7be604ccd.o",
+      "object_sha256": "3b873fa1d6238bb375d5d6932ca3bfa7682245f65f471eaf1e477f9947c1e12c",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/native_pointer_slices_4073032/main.c",
+      "source_sha256": "fc0fa498b6bbe96faad0e204f13f8f78ba7bb5e78cfff87494756d12b4b21aad",
+      "object": ".sn/build/native_pointer_slices_4073032/main.o",
+      "object_sha256": "fb716f03f2a329197b65daa40798ada2505f71aa8fb0df058cb87f0a0fce6a40",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn.c",
+      "source_sha256": "ad759453261c748080fcb3a5f252b12f18da3ad6a6915e2fc8cd8c41a3359c80",
+      "object": ".sn/build/native_pointer_slices_4073032/pragma_native_pointer_slices.sn.o",
+      "object_sha256": "3b873fa1d6238bb375d5d6932ca3bfa7682245f65f471eaf1e477f9947c1e12c",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/rust/native_pointer_slices_4074001/sn_native_bridge_main.c",
+      "source_sha256": "f9952156a6096462bb8dfc954df2006ffd847780593f6d8bd0cb6688b9e785c9",
+      "object": ".sn/build/rust/native_pointer_slices_4074001/sn_native_bridge_main.o",
+      "object_sha256": "ce2ebec17fc914028985519574dd6083ec1dfec6b8821dca7739fb1ea6036a5d",
+      "asan_symbols": true,
+      "ubsan_symbols": false
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn.c",
+      "source_sha256": "ad759453261c748080fcb3a5f252b12f18da3ad6a6915e2fc8cd8c41a3359c80",
+      "object": ".sn/build/rust/native_pointer_slices_4074001/pragma_native_pointer_slices.sn_f267f7a7be604ccd.o",
+      "object_sha256": "3b873fa1d6238bb375d5d6932ca3bfa7682245f65f471eaf1e477f9947c1e12c",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/native_pointer_slice_contexts_4074919/main.c",
+      "source_sha256": "cf70ba07764d112446d90d5df7db5417cacf5cef5a37770812c6c660f328b535",
+      "object": ".sn/build/native_pointer_slice_contexts_4074919/main.o",
+      "object_sha256": "a0b27b0ed120fdbc9f9ec0edaea21b03d3ff59945ebb20fec46477c70514f3bb",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn.c",
+      "source_sha256": "ad759453261c748080fcb3a5f252b12f18da3ad6a6915e2fc8cd8c41a3359c80",
+      "object": ".sn/build/native_pointer_slice_contexts_4074919/pragma_native_pointer_slices.sn.o",
+      "object_sha256": "3b873fa1d6238bb375d5d6932ca3bfa7682245f65f471eaf1e477f9947c1e12c",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/native_pointer_slices_4075557/main.c",
+      "source_sha256": "fc0fa498b6bbe96faad0e204f13f8f78ba7bb5e78cfff87494756d12b4b21aad",
+      "object": ".sn/build/native_pointer_slices_4075557/main.o",
+      "object_sha256": "043a8607a7fc2c0704be6426dbda63958326e4fe83fb838f0c57e78b769df558",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn.c",
+      "source_sha256": "ad759453261c748080fcb3a5f252b12f18da3ad6a6915e2fc8cd8c41a3359c80",
+      "object": ".sn/build/rust/native_pointer_slice_contexts_4075629/pragma_native_pointer_slices.sn_f267f7a7be604ccd.o",
+      "object_sha256": "3b873fa1d6238bb375d5d6932ca3bfa7682245f65f471eaf1e477f9947c1e12c",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn.c",
+      "source_sha256": "ad759453261c748080fcb3a5f252b12f18da3ad6a6915e2fc8cd8c41a3359c80",
+      "object": ".sn/build/native_pointer_slices_4075557/pragma_native_pointer_slices.sn.o",
+      "object_sha256": "3b873fa1d6238bb375d5d6932ca3bfa7682245f65f471eaf1e477f9947c1e12c",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/rust/native_pointer_slices_4076495/sn_native_bridge_main.c",
+      "source_sha256": "f9952156a6096462bb8dfc954df2006ffd847780593f6d8bd0cb6688b9e785c9",
+      "object": ".sn/build/rust/native_pointer_slices_4076495/sn_native_bridge_main.o",
+      "object_sha256": "1fa1b6c8174e4d7bca973f698b19e9fa9a5d8c0b3f66239daaef90f5c2af1097",
+      "asan_symbols": true,
+      "ubsan_symbols": false
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn.c",
+      "source_sha256": "ad759453261c748080fcb3a5f252b12f18da3ad6a6915e2fc8cd8c41a3359c80",
+      "object": ".sn/build/rust/native_pointer_slices_4076495/pragma_native_pointer_slices.sn_f267f7a7be604ccd.o",
+      "object_sha256": "3b873fa1d6238bb375d5d6932ca3bfa7682245f65f471eaf1e477f9947c1e12c",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/native_pointer_slice_contexts_4077457/main.c",
+      "source_sha256": "cf70ba07764d112446d90d5df7db5417cacf5cef5a37770812c6c660f328b535",
+      "object": ".sn/build/native_pointer_slice_contexts_4077457/main.o",
+      "object_sha256": "30f978d705c59579f42e35707cccf077c5351cd2eeed748c34c87b4aef223646",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn.c",
+      "source_sha256": "ad759453261c748080fcb3a5f252b12f18da3ad6a6915e2fc8cd8c41a3359c80",
+      "object": ".sn/build/native_pointer_slice_contexts_4077457/pragma_native_pointer_slices.sn.o",
+      "object_sha256": "3b873fa1d6238bb375d5d6932ca3bfa7682245f65f471eaf1e477f9947c1e12c",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn.c",
+      "source_sha256": "ad759453261c748080fcb3a5f252b12f18da3ad6a6915e2fc8cd8c41a3359c80",
+      "object": ".sn/build/rust/native_pointer_slice_contexts_4078443/pragma_native_pointer_slices.sn_f267f7a7be604ccd.o",
+      "object_sha256": "3b873fa1d6238bb375d5d6932ca3bfa7682245f65f471eaf1e477f9947c1e12c",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/native_pointer_slice_contexts_4080276/main.c",
+      "source_sha256": "cf70ba07764d112446d90d5df7db5417cacf5cef5a37770812c6c660f328b535",
+      "object": ".sn/build/native_pointer_slice_contexts_4080276/main.o",
+      "object_sha256": "c2d44b67657a573d60c4b0b451a6b596f8535d782067ff5260519a756f2abade",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn.c",
+      "source_sha256": "ad759453261c748080fcb3a5f252b12f18da3ad6a6915e2fc8cd8c41a3359c80",
+      "object": ".sn/build/native_pointer_slice_contexts_4080276/pragma_native_pointer_slices.sn.o",
+      "object_sha256": "3b873fa1d6238bb375d5d6932ca3bfa7682245f65f471eaf1e477f9947c1e12c",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn.c",
+      "source_sha256": "ad759453261c748080fcb3a5f252b12f18da3ad6a6915e2fc8cd8c41a3359c80",
+      "object": ".sn/build/rust/native_pointer_slice_contexts_4080944/pragma_native_pointer_slices.sn_f267f7a7be604ccd.o",
+      "object_sha256": "3b873fa1d6238bb375d5d6932ca3bfa7682245f65f471eaf1e477f9947c1e12c",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/native_pointer_slice_contexts_4082770/main.c",
+      "source_sha256": "cf70ba07764d112446d90d5df7db5417cacf5cef5a37770812c6c660f328b535",
+      "object": ".sn/build/native_pointer_slice_contexts_4082770/main.o",
+      "object_sha256": "bfefdb58a838a83de598af0641d5bab25d1b54d31df7ff439aad97987ea53350",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn.c",
+      "source_sha256": "ad759453261c748080fcb3a5f252b12f18da3ad6a6915e2fc8cd8c41a3359c80",
+      "object": ".sn/build/native_pointer_slice_contexts_4082770/pragma_native_pointer_slices.sn.o",
+      "object_sha256": "3b873fa1d6238bb375d5d6932ca3bfa7682245f65f471eaf1e477f9947c1e12c",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn.c",
+      "source_sha256": "ad759453261c748080fcb3a5f252b12f18da3ad6a6915e2fc8cd8c41a3359c80",
+      "object": ".sn/build/rust/native_pointer_slice_contexts_4083446/pragma_native_pointer_slices.sn_f267f7a7be604ccd.o",
+      "object_sha256": "3b873fa1d6238bb375d5d6932ca3bfa7682245f65f471eaf1e477f9947c1e12c",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/native_pointer_slice_contexts_4085281/main.c",
+      "source_sha256": "cf70ba07764d112446d90d5df7db5417cacf5cef5a37770812c6c660f328b535",
+      "object": ".sn/build/native_pointer_slice_contexts_4085281/main.o",
+      "object_sha256": "bfe4557850e8764872f45fe5c82bf817286f86c611d9ac6bede91463d7eca5a2",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn.c",
+      "source_sha256": "ad759453261c748080fcb3a5f252b12f18da3ad6a6915e2fc8cd8c41a3359c80",
+      "object": ".sn/build/native_pointer_slice_contexts_4085281/pragma_native_pointer_slices.sn.o",
+      "object_sha256": "3b873fa1d6238bb375d5d6932ca3bfa7682245f65f471eaf1e477f9947c1e12c",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn.c",
+      "source_sha256": "ad759453261c748080fcb3a5f252b12f18da3ad6a6915e2fc8cd8c41a3359c80",
+      "object": ".sn/build/rust/native_pointer_slice_contexts_4086350/pragma_native_pointer_slices.sn_f267f7a7be604ccd.o",
+      "object_sha256": "3b873fa1d6238bb375d5d6932ca3bfa7682245f65f471eaf1e477f9947c1e12c",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/native_pointer_slice_contexts_4088427/main.c",
+      "source_sha256": "cf70ba07764d112446d90d5df7db5417cacf5cef5a37770812c6c660f328b535",
+      "object": ".sn/build/native_pointer_slice_contexts_4088427/main.o",
+      "object_sha256": "cfc818c3764c89943d43be87d5bf2532460cfc5962eadbc86d7f051f3f8ca5ed",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn.c",
+      "source_sha256": "ad759453261c748080fcb3a5f252b12f18da3ad6a6915e2fc8cd8c41a3359c80",
+      "object": ".sn/build/native_pointer_slice_contexts_4088427/pragma_native_pointer_slices.sn.o",
+      "object_sha256": "3b873fa1d6238bb375d5d6932ca3bfa7682245f65f471eaf1e477f9947c1e12c",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn.c",
+      "source_sha256": "ad759453261c748080fcb3a5f252b12f18da3ad6a6915e2fc8cd8c41a3359c80",
+      "object": ".sn/build/rust/native_pointer_slice_contexts_4089387/pragma_native_pointer_slices.sn_f267f7a7be604ccd.o",
+      "object_sha256": "3b873fa1d6238bb375d5d6932ca3bfa7682245f65f471eaf1e477f9947c1e12c",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/native_pointer_slice_contexts_4091081/main.c",
+      "source_sha256": "cf70ba07764d112446d90d5df7db5417cacf5cef5a37770812c6c660f328b535",
+      "object": ".sn/build/native_pointer_slice_contexts_4091081/main.o",
+      "object_sha256": "5d176e4e757849d2e8ef4a649720cda3e1fd7ace77edcd4bd86ddb03911fb773",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn.c",
+      "source_sha256": "ad759453261c748080fcb3a5f252b12f18da3ad6a6915e2fc8cd8c41a3359c80",
+      "object": ".sn/build/native_pointer_slice_contexts_4091081/pragma_native_pointer_slices.sn.o",
+      "object_sha256": "3b873fa1d6238bb375d5d6932ca3bfa7682245f65f471eaf1e477f9947c1e12c",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn.c",
+      "source_sha256": "ad759453261c748080fcb3a5f252b12f18da3ad6a6915e2fc8cd8c41a3359c80",
+      "object": ".sn/build/rust/native_pointer_slice_contexts_4091943/pragma_native_pointer_slices.sn_f267f7a7be604ccd.o",
+      "object_sha256": "3b873fa1d6238bb375d5d6932ca3bfa7682245f65f471eaf1e477f9947c1e12c",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": ".sn/build/native_pointer_slice_contexts_4093432/main.c",
+      "source_sha256": "cf70ba07764d112446d90d5df7db5417cacf5cef5a37770812c6c660f328b535",
+      "object": ".sn/build/native_pointer_slice_contexts_4093432/main.o",
+      "object_sha256": "d200a597e872957aef5814f149f3dc7e741a3b9ecd0e8ba627f381df4abb6104",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn.c",
+      "source_sha256": "ad759453261c748080fcb3a5f252b12f18da3ad6a6915e2fc8cd8c41a3359c80",
+      "object": ".sn/build/native_pointer_slice_contexts_4093432/pragma_native_pointer_slices.sn.o",
+      "object_sha256": "3b873fa1d6238bb375d5d6932ca3bfa7682245f65f471eaf1e477f9947c1e12c",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn.c",
+      "source_sha256": "ad759453261c748080fcb3a5f252b12f18da3ad6a6915e2fc8cd8c41a3359c80",
+      "object": ".sn/build/rust/native_pointer_slice_contexts_4094136/pragma_native_pointer_slices.sn_f267f7a7be604ccd.o",
+      "object_sha256": "3b873fa1d6238bb375d5d6932ca3bfa7682245f65f471eaf1e477f9947c1e12c",
+      "asan_symbols": true,
+      "ubsan_symbols": true
+    }
+  ],
+  "rust_case_objects": [
+    {
+      "source": "tests/integration/test_buffer_unwrap.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "generated_directory": ".sn/build/rust/test_buffer_unwrap_4033658/",
+      "compile_log_sha256": "b30be778572e1a5d4f926b49f899ba3e503327cbe1d7a02e38f6714df23e9afb",
+      "instrumented_objects": [
+        ".sn/build/rust/test_buffer_unwrap_4033658/sn_native_bridge_main.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/integration/test_buffer_unwrap.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "generated_directory": ".sn/build/rust/test_buffer_unwrap_4036068/",
+      "compile_log_sha256": "df8e893e06eeae46c79b0636e03d3d93c6e80daa16c922cb4db8facd14eb7eff",
+      "instrumented_objects": [
+        ".sn/build/rust/test_buffer_unwrap_4036068/sn_native_bridge_main.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/integration/test_buffer_unwrap.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "generated_directory": ".sn/build/rust/test_buffer_unwrap_4038111/",
+      "compile_log_sha256": "066ad933145e5ff9281f2a995e7edb67e76e05a6062ba9194be99e9a8797d633",
+      "instrumented_objects": [
+        ".sn/build/rust/test_buffer_unwrap_4038111/sn_native_bridge_main.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/integration/test_buffer_unwrap.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "generated_directory": ".sn/build/rust/test_buffer_unwrap_4040039/",
+      "compile_log_sha256": "d64f1602d5e202530182e321dbbf0679043ba655eec30c4f038a17c61e414815",
+      "instrumented_objects": [
+        ".sn/build/rust/test_buffer_unwrap_4040039/sn_native_bridge_main.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/integration/test_buffer_unwrap.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "generated_directory": ".sn/build/rust/test_buffer_unwrap_4042281/",
+      "compile_log_sha256": "c49fcf36a53a6882a0aa4fcdbddb9dae70af59a0d106741e734cb182e78afff2",
+      "instrumented_objects": [
+        ".sn/build/rust/test_buffer_unwrap_4042281/sn_native_bridge_main.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/integration/test_buffer_unwrap.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "generated_directory": ".sn/build/rust/test_buffer_unwrap_4044968/",
+      "compile_log_sha256": "9fc5ce743a7594f0399bc9e59cd53861b4fe7989e2f0056cd2b2e4a07958ee57",
+      "instrumented_objects": [
+        ".sn/build/rust/test_buffer_unwrap_4044968/sn_native_bridge_main.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/integration/test_buffer_unwrap.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "generated_directory": ".sn/build/rust/test_buffer_unwrap_4047524/",
+      "compile_log_sha256": "896a80d67d3c96637df1c76e10078a71cbc5df41fdcffad5e07d475eb10d99f1",
+      "instrumented_objects": [
+        ".sn/build/rust/test_buffer_unwrap_4047524/sn_native_bridge_main.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/integration/test_buffer_unwrap.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "generated_directory": ".sn/build/rust/test_buffer_unwrap_4050060/",
+      "compile_log_sha256": "1ac56f337237b28cbb8332a864b3241268bb869e457e36aeb427c0e7cbb7cb86",
+      "instrumented_objects": [
+        ".sn/build/rust/test_buffer_unwrap_4050060/sn_native_bridge_main.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/integration/test_buffer_unwrap.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "generated_directory": ".sn/build/rust/test_buffer_unwrap_4052115/",
+      "compile_log_sha256": "2617d0fc79b4d4e7b9e71988c6e8fa745f7ed7f8c82618766ecdd2ba86fcb3fc",
+      "instrumented_objects": [
+        ".sn/build/rust/test_buffer_unwrap_4052115/sn_native_bridge_main.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/integration/test_nil_pointer_slice.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "generated_directory": ".sn/build/rust/test_nil_pointer_slice_4033515/",
+      "compile_log_sha256": "4e980236f23f7edd2a293c44770d81732819aed6714a2cdeffc541c0888876d2",
+      "instrumented_objects": [
+        ".sn/build/rust/test_nil_pointer_slice_4033515/sn_native_bridge_main.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/integration/test_nil_pointer_slice.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "generated_directory": ".sn/build/rust/test_nil_pointer_slice_4035706/",
+      "compile_log_sha256": "80165e4f08d7c5839b37ace34ab24b7d6ad9804079a0b1c7389116d90595d341",
+      "instrumented_objects": [
+        ".sn/build/rust/test_nil_pointer_slice_4035706/sn_native_bridge_main.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/integration/test_nil_pointer_slice.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "generated_directory": ".sn/build/rust/test_nil_pointer_slice_4037863/",
+      "compile_log_sha256": "2b49f055630588b6642260d6c3db09282d80876bced2c53bc2561a402eeb6fe8",
+      "instrumented_objects": [
+        ".sn/build/rust/test_nil_pointer_slice_4037863/sn_native_bridge_main.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/integration/test_nil_pointer_slice.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "generated_directory": ".sn/build/rust/test_nil_pointer_slice_4040089/",
+      "compile_log_sha256": "33e655c9e097cfc8ce355fd723b7fac8beb251a5b5d21f0a4175f81ba3598a4f",
+      "instrumented_objects": [
+        ".sn/build/rust/test_nil_pointer_slice_4040089/sn_native_bridge_main.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/integration/test_nil_pointer_slice.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "generated_directory": ".sn/build/rust/test_nil_pointer_slice_4042232/",
+      "compile_log_sha256": "c6aab8728666fa23be6012109f2328a62d56640532fcbf97a7f541283b900702",
+      "instrumented_objects": [
+        ".sn/build/rust/test_nil_pointer_slice_4042232/sn_native_bridge_main.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/integration/test_nil_pointer_slice.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "generated_directory": ".sn/build/rust/test_nil_pointer_slice_4044352/",
+      "compile_log_sha256": "ce976b656c64e2547e658300b2c4b2bd952c80b85a44ebde92e31ca3c1ceece2",
+      "instrumented_objects": [
+        ".sn/build/rust/test_nil_pointer_slice_4044352/sn_native_bridge_main.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/integration/test_nil_pointer_slice.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "generated_directory": ".sn/build/rust/test_nil_pointer_slice_4046729/",
+      "compile_log_sha256": "8cbd57749c8c7ccc82b777f6544f844086443baca9af0fd2b6bf1f4b029c43af",
+      "instrumented_objects": [
+        ".sn/build/rust/test_nil_pointer_slice_4046729/sn_native_bridge_main.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/integration/test_nil_pointer_slice.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "generated_directory": ".sn/build/rust/test_nil_pointer_slice_4049033/",
+      "compile_log_sha256": "58838a9454a7cbe94778ded4ab2fcc70840d2ff8741398e55f8657523982edcc",
+      "instrumented_objects": [
+        ".sn/build/rust/test_nil_pointer_slice_4049033/sn_native_bridge_main.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/integration/test_nil_pointer_slice.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "generated_directory": ".sn/build/rust/test_nil_pointer_slice_4051178/",
+      "compile_log_sha256": "f6709da2116b11e84f1fcbfc22771065354932c9a73eb3e2f84c08f032a33dd7",
+      "instrumented_objects": [
+        ".sn/build/rust/test_nil_pointer_slice_4051178/sn_native_bridge_main.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/exploratory/test_pointer_slice_bounds.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "generated_directory": ".sn/build/rust/test_pointer_slice_bounds_4052960/",
+      "compile_log_sha256": "684bc352a26ea9fb5c2154225bb60d567212884194e94220cd7ec7e7047c683b",
+      "instrumented_objects": [
+        ".sn/build/rust/test_pointer_slice_bounds_4052960/sn_native_bridge_main.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/exploratory/test_pointer_slice_bounds.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "generated_directory": ".sn/build/rust/test_pointer_slice_bounds_4054956/",
+      "compile_log_sha256": "58b522d982ee06747b534794ee5d92b1cf09c57dc37868b711a5c9c69e941d65",
+      "instrumented_objects": [
+        ".sn/build/rust/test_pointer_slice_bounds_4054956/sn_native_bridge_main.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/exploratory/test_pointer_slice_bounds.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "generated_directory": ".sn/build/rust/test_pointer_slice_bounds_4057036/",
+      "compile_log_sha256": "1daacb9e8ab4ddf34076aa22264c0e85d6239725e90eea96e7001451c4e4e84e",
+      "instrumented_objects": [
+        ".sn/build/rust/test_pointer_slice_bounds_4057036/sn_native_bridge_main.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/exploratory/test_pointer_slice_bounds.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "generated_directory": ".sn/build/rust/test_pointer_slice_bounds_4059227/",
+      "compile_log_sha256": "1843d6ba790f91cb70248c848031ce75caf9bb58360ccb1cacb6fb57fbda3751",
+      "instrumented_objects": [
+        ".sn/build/rust/test_pointer_slice_bounds_4059227/sn_native_bridge_main.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/exploratory/test_pointer_slice_bounds.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "generated_directory": ".sn/build/rust/test_pointer_slice_bounds_4061273/",
+      "compile_log_sha256": "c01003c58725316489c4b627bd84dc982db9dfa61854a07b7be605ab4303ae9f",
+      "instrumented_objects": [
+        ".sn/build/rust/test_pointer_slice_bounds_4061273/sn_native_bridge_main.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/exploratory/test_pointer_slice_bounds.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "generated_directory": ".sn/build/rust/test_pointer_slice_bounds_4063361/",
+      "compile_log_sha256": "ab89ce110965f74b00ebaa573873cf6068c2ac1cf574a987b92c9f2c7e418bab",
+      "instrumented_objects": [
+        ".sn/build/rust/test_pointer_slice_bounds_4063361/sn_native_bridge_main.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/exploratory/test_pointer_slice_bounds.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "generated_directory": ".sn/build/rust/test_pointer_slice_bounds_4065268/",
+      "compile_log_sha256": "24bca1182c81541453fdc287fe303676c493251287e584dd595f4738a93b7fb2",
+      "instrumented_objects": [
+        ".sn/build/rust/test_pointer_slice_bounds_4065268/sn_native_bridge_main.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/exploratory/test_pointer_slice_bounds.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "generated_directory": ".sn/build/rust/test_pointer_slice_bounds_4067713/",
+      "compile_log_sha256": "f9c00c137d9862530129e0a52fb242e3a8f2f0071420dd2a97822921df3ab899",
+      "instrumented_objects": [
+        ".sn/build/rust/test_pointer_slice_bounds_4067713/sn_native_bridge_main.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/exploratory/test_pointer_slice_bounds.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "generated_directory": ".sn/build/rust/test_pointer_slice_bounds_4069943/",
+      "compile_log_sha256": "75f5149c681c9285f860a94f22366c6153e45f59c370b258f3ce22bf01fb79b8",
+      "instrumented_objects": [
+        ".sn/build/rust/test_pointer_slice_bounds_4069943/sn_native_bridge_main.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "generated_directory": ".sn/build/rust/native_pointer_slices_4054419/",
+      "compile_log_sha256": "dbb1db54205bcb7f5eb4a5b414ad13041c20dc88ce9e169515d686baeda8b294",
+      "instrumented_objects": [
+        ".sn/build/rust/native_pointer_slices_4054419/sn_native_bridge_main.o",
+        ".sn/build/rust/native_pointer_slices_4054419/pragma_native_pointer_slices.sn_f267f7a7be604ccd.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "generated_directory": ".sn/build/rust/native_pointer_slices_4057529/",
+      "compile_log_sha256": "6b1d50e68187be56efa512a7d99e59f8a28a3cc0a70fc0a982c2f4217cd9b440",
+      "instrumented_objects": [
+        ".sn/build/rust/native_pointer_slices_4057529/sn_native_bridge_main.o",
+        ".sn/build/rust/native_pointer_slices_4057529/pragma_native_pointer_slices.sn_f267f7a7be604ccd.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "generated_directory": ".sn/build/rust/native_pointer_slices_4060110/",
+      "compile_log_sha256": "58d6807fcb96338a609fa7b91361c05168a37a2aba971bc64bb591de9e287f4e",
+      "instrumented_objects": [
+        ".sn/build/rust/native_pointer_slices_4060110/sn_native_bridge_main.o",
+        ".sn/build/rust/native_pointer_slices_4060110/pragma_native_pointer_slices.sn_f267f7a7be604ccd.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "generated_directory": ".sn/build/rust/native_pointer_slices_4062578/",
+      "compile_log_sha256": "c80c503342df8f37bf3e324a87a154d29e5fb74ab667857f65bf3c59a6edb25a",
+      "instrumented_objects": [
+        ".sn/build/rust/native_pointer_slices_4062578/sn_native_bridge_main.o",
+        ".sn/build/rust/native_pointer_slices_4062578/pragma_native_pointer_slices.sn_f267f7a7be604ccd.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "generated_directory": ".sn/build/rust/native_pointer_slices_4065173/",
+      "compile_log_sha256": "17715d8d7efddd1688c39feea2a71a09b07ca81cdbbb6e0766cf9183a737974a",
+      "instrumented_objects": [
+        ".sn/build/rust/native_pointer_slices_4065173/sn_native_bridge_main.o",
+        ".sn/build/rust/native_pointer_slices_4065173/pragma_native_pointer_slices.sn_f267f7a7be604ccd.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "generated_directory": ".sn/build/rust/native_pointer_slices_4068244/",
+      "compile_log_sha256": "6f75bb112a43d8e818f8b5f9fb7140af33606acdf89d4387b19cfcd21adc3538",
+      "instrumented_objects": [
+        ".sn/build/rust/native_pointer_slices_4068244/sn_native_bridge_main.o",
+        ".sn/build/rust/native_pointer_slices_4068244/pragma_native_pointer_slices.sn_f267f7a7be604ccd.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "generated_directory": ".sn/build/rust/native_pointer_slices_4071163/",
+      "compile_log_sha256": "0371858fed97a540f207dd87a4caec7221d037955c4db9922613413abc6a609f",
+      "instrumented_objects": [
+        ".sn/build/rust/native_pointer_slices_4071163/sn_native_bridge_main.o",
+        ".sn/build/rust/native_pointer_slices_4071163/pragma_native_pointer_slices.sn_f267f7a7be604ccd.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "generated_directory": ".sn/build/rust/native_pointer_slices_4074001/",
+      "compile_log_sha256": "99560b3b0296cb3132f5017887882482763a10cff6650e931ef578c3384218a9",
+      "instrumented_objects": [
+        ".sn/build/rust/native_pointer_slices_4074001/sn_native_bridge_main.o",
+        ".sn/build/rust/native_pointer_slices_4074001/pragma_native_pointer_slices.sn_f267f7a7be604ccd.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slices.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "generated_directory": ".sn/build/rust/native_pointer_slices_4076495/",
+      "compile_log_sha256": "0be0d551eb95a2d3c8b7e0aead2649320415f50f29fed22db18c01b7bb04e531",
+      "instrumented_objects": [
+        ".sn/build/rust/native_pointer_slices_4076495/sn_native_bridge_main.o",
+        ".sn/build/rust/native_pointer_slices_4076495/pragma_native_pointer_slices.sn_f267f7a7be604ccd.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slice_contexts.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "generated_directory": ".sn/build/rust/native_pointer_slice_contexts_4072823/",
+      "compile_log_sha256": "333fcf220ae8566fae8a5b61115252163c1cf8548f18d2191c508b5f0958ff12",
+      "instrumented_objects": [
+        ".sn/build/rust/native_pointer_slice_contexts_4072823/pragma_native_pointer_slices.sn_f267f7a7be604ccd.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slice_contexts.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "generated_directory": ".sn/build/rust/native_pointer_slice_contexts_4075629/",
+      "compile_log_sha256": "5e862cfc186d933da33d88a3029ed7c3ebf63aad985047624bf9563ee2e0c1d6",
+      "instrumented_objects": [
+        ".sn/build/rust/native_pointer_slice_contexts_4075629/pragma_native_pointer_slices.sn_f267f7a7be604ccd.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slice_contexts.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "generated_directory": ".sn/build/rust/native_pointer_slice_contexts_4078443/",
+      "compile_log_sha256": "42778d0210b91743383be3669bd4d530c28dd05e64cc5905353dbb58b62e160e",
+      "instrumented_objects": [
+        ".sn/build/rust/native_pointer_slice_contexts_4078443/pragma_native_pointer_slices.sn_f267f7a7be604ccd.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slice_contexts.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "generated_directory": ".sn/build/rust/native_pointer_slice_contexts_4080944/",
+      "compile_log_sha256": "d795f631f1b7312636f160579be3bbbf4f4f46c5c6dbebaa17b9c0fecaa59eb1",
+      "instrumented_objects": [
+        ".sn/build/rust/native_pointer_slice_contexts_4080944/pragma_native_pointer_slices.sn_f267f7a7be604ccd.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slice_contexts.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "generated_directory": ".sn/build/rust/native_pointer_slice_contexts_4083446/",
+      "compile_log_sha256": "3966836c7e6ad0566a53e367c2e44f21f94210c8b7a30fe0a90357a475a3c7d9",
+      "instrumented_objects": [
+        ".sn/build/rust/native_pointer_slice_contexts_4083446/pragma_native_pointer_slices.sn_f267f7a7be604ccd.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slice_contexts.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "generated_directory": ".sn/build/rust/native_pointer_slice_contexts_4086350/",
+      "compile_log_sha256": "3349f6780cbbdfba29b842c2b484e83e25897145ce5750a672bf0b9ab1d2ea69",
+      "instrumented_objects": [
+        ".sn/build/rust/native_pointer_slice_contexts_4086350/pragma_native_pointer_slices.sn_f267f7a7be604ccd.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slice_contexts.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "generated_directory": ".sn/build/rust/native_pointer_slice_contexts_4089387/",
+      "compile_log_sha256": "9f0e2dbe44d8fd3fad4630beab8e9931332dd75c2f15eb7cecbf293142664180",
+      "instrumented_objects": [
+        ".sn/build/rust/native_pointer_slice_contexts_4089387/pragma_native_pointer_slices.sn_f267f7a7be604ccd.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slice_contexts.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "generated_directory": ".sn/build/rust/native_pointer_slice_contexts_4091943/",
+      "compile_log_sha256": "4c73ae74e37bcd3a673c02f910c4459096d7bc2a5336e6e56230e67b948fc701",
+      "instrumented_objects": [
+        ".sn/build/rust/native_pointer_slice_contexts_4091943/pragma_native_pointer_slices.sn_f267f7a7be604ccd.o"
+      ],
+      "pure_rust": false
+    },
+    {
+      "source": "tests/rust-native/native_pointer_slice_contexts.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "generated_directory": ".sn/build/rust/native_pointer_slice_contexts_4094136/",
+      "compile_log_sha256": "c7ce40c68a14f366e0e5106c6556a2c99677a32e6dd93a366ba522dbb776be85",
+      "instrumented_objects": [
+        ".sn/build/rust/native_pointer_slice_contexts_4094136/pragma_native_pointer_slices.sn_f267f7a7be604ccd.o"
+      ],
+      "pure_rust": false
+    }
+  ],
+  "scope": "Actual C object instrumentation. Rust pointer copy code is not sanitizer-instrumented; nil-pointer original has no native C objects."
+}

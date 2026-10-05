@@ -314,6 +314,12 @@ static bool rust_emit(CompilerOptions *options, Module *module,
     }
     if (rust_model_uses_arrays(model))
         json_object_object_add(model, "rust_uses_arrays", json_object_new_boolean(true));
+    if (!rust_assign_pointer_slice_helper(model))
+    {
+        fprintf(stderr, "Error: Rust target could not assign a pointer slice helper name\n");
+        json_object_put(model);
+        return false;
+    }
     if (!rust_assign_windows_text_names(model))
     {
         fprintf(stderr, "Error: Rust target could not assign Windows text helper names\n");

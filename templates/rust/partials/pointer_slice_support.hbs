@@ -1,0 +1,11 @@
+unsafe fn {{rust_ident rust_pointer_slice_helper}}(pointer: *const u8, start: i64, end: i64) -> Vec<u8> {
+    if end <= start { return Vec::new(); }
+    // Match sn_array_from_ptr: byte offsets, owned copy, nil zero-fill, and
+    // runtime wrapping subtraction independent from source arithmetic mode.
+    let count = end.wrapping_sub(start) as usize;
+    let mut result = vec![0u8; count];
+    if !pointer.is_null() {
+        std::ptr::copy_nonoverlapping(pointer.offset(start as isize), result.as_mut_ptr(), count);
+    }
+    result
+}

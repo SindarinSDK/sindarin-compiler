@@ -1,0 +1,112 @@
+[
+  {
+    "type": "char",
+    "target": "c",
+    "source": "native fn buffer(): *char =>\n  return nil\n\nfn main(): void =>\n  var values = valueOf(buffer()[0..16])\n  println(len(values))\n  println(values[0])\n",
+    "source_sha256": "fd11f8e5736a9363a8a2f395b472d5c1986cad7dbfe62dfc13c47fa41527f525",
+    "compile_status": 0,
+    "compile_stderr": "\u001b[1mCompiling\u001b[0m /tmp/sn-pointer-storage-gaps-6tj0febb/char.sn...\n  Parsing... \u001b[1;36mdone\u001b[0m\n  Type checking... \u001b[1;36mdone\u001b[0m\n  Code generation... \u001b[1;36mdone\u001b[0m\n  Linking... \u001b[1;36mdone\u001b[0m\n\u001b[1;36mDone\u001b[0m: /tmp/sn-pointer-storage-gaps-6tj0febb/char-c (70.1 KB)\n",
+    "run_status": 0,
+    "stdout_hex": "31360a000a",
+    "stderr_hex": ""
+  },
+  {
+    "type": "char",
+    "target": "rust",
+    "source": "native fn buffer(): *char =>\n  return nil\n\nfn main(): void =>\n  var values = valueOf(buffer()[0..16])\n  println(len(values))\n  println(values[0])\n",
+    "source_sha256": "fd11f8e5736a9363a8a2f395b472d5c1986cad7dbfe62dfc13c47fa41527f525",
+    "compile_status": 1,
+    "compile_stderr": "\u001b[1mCompiling\u001b[0m /tmp/sn-pointer-storage-gaps-6tj0febb/char.sn...\n  Parsing... \u001b[1;36mdone\u001b[0m\n  Type checking... \u001b[1;36mdone\u001b[0m\n  Code generation...Error: Rust target pointer slices require byte elements; other native storage families remain unsupported\nError: Rust target encountered an unsupported construct in function 'main'\n \u001b[1;31mfailed\u001b[0m\n\n",
+    "run_status": null,
+    "stdout_hex": null,
+    "stderr_hex": null
+  },
+  {
+    "type": "bool",
+    "target": "c",
+    "source": "native fn buffer(): *bool =>\n  return nil\n\nfn main(): void =>\n  var values = valueOf(buffer()[0..16])\n  println(len(values))\n  println(values[0])\n",
+    "source_sha256": "8d654b84dd20a3bab6aa253c1922f1f96ee96694b540f68c94a6f51121dbcec9",
+    "compile_status": 0,
+    "compile_stderr": "\u001b[1mCompiling\u001b[0m /tmp/sn-pointer-storage-gaps-6tj0febb/bool.sn...\n  Parsing... \u001b[1;36mdone\u001b[0m\n  Type checking... \u001b[1;36mdone\u001b[0m\n  Code generation... \u001b[1;36mdone\u001b[0m\n  Linking... \u001b[1;36mdone\u001b[0m\n\u001b[1;36mDone\u001b[0m: /tmp/sn-pointer-storage-gaps-6tj0febb/bool-c (70.1 KB)\n",
+    "run_status": 0,
+    "stdout_hex": "31360a66616c73650a",
+    "stderr_hex": ""
+  },
+  {
+    "type": "bool",
+    "target": "rust",
+    "source": "native fn buffer(): *bool =>\n  return nil\n\nfn main(): void =>\n  var values = valueOf(buffer()[0..16])\n  println(len(values))\n  println(values[0])\n",
+    "source_sha256": "8d654b84dd20a3bab6aa253c1922f1f96ee96694b540f68c94a6f51121dbcec9",
+    "compile_status": 1,
+    "compile_stderr": "\u001b[1mCompiling\u001b[0m /tmp/sn-pointer-storage-gaps-6tj0febb/bool.sn...\n  Parsing... \u001b[1;36mdone\u001b[0m\n  Type checking... \u001b[1;36mdone\u001b[0m\n  Code generation...Error: Rust target pointer slices require byte elements; other native storage families remain unsupported\nError: Rust target encountered an unsupported construct in function 'main'\n \u001b[1;31mfailed\u001b[0m\n\n",
+    "run_status": null,
+    "stdout_hex": null,
+    "stderr_hex": null
+  },
+  {
+    "type": "int",
+    "target": "c",
+    "source": "native fn buffer(): *int =>\n  return nil\n\nfn main(): void =>\n  var values = valueOf(buffer()[0..16])\n  println(len(values))\n  println(values[0])\n",
+    "source_sha256": "a35fcac67b0585244ecbfa61a204ef2f6915c4d6a696c4b0099c27a00b0ad4c4",
+    "compile_status": 0,
+    "compile_stderr": "\u001b[1mCompiling\u001b[0m /tmp/sn-pointer-storage-gaps-6tj0febb/int.sn...\n  Parsing... \u001b[1;36mdone\u001b[0m\n  Type checking... \u001b[1;36mdone\u001b[0m\n  Code generation... \u001b[1;36mdone\u001b[0m\n  Linking... \u001b[1;36mdone\u001b[0m\n\u001b[1;36mDone\u001b[0m: /tmp/sn-pointer-storage-gaps-6tj0febb/int-c (70.1 KB)\n",
+    "run_status": 0,
+    "stdout_hex": "31360a300a",
+    "stderr_hex": ""
+  },
+  {
+    "type": "int",
+    "target": "rust",
+    "source": "native fn buffer(): *int =>\n  return nil\n\nfn main(): void =>\n  var values = valueOf(buffer()[0..16])\n  println(len(values))\n  println(values[0])\n",
+    "source_sha256": "a35fcac67b0585244ecbfa61a204ef2f6915c4d6a696c4b0099c27a00b0ad4c4",
+    "compile_status": 1,
+    "compile_stderr": "\u001b[1mCompiling\u001b[0m /tmp/sn-pointer-storage-gaps-6tj0febb/int.sn...\n  Parsing... \u001b[1;36mdone\u001b[0m\n  Type checking... \u001b[1;36mdone\u001b[0m\n  Code generation...Error: Rust target pointer slices require byte elements; other native storage families remain unsupported\nError: Rust target encountered an unsupported construct in function 'main'\n \u001b[1;31mfailed\u001b[0m\n\n",
+    "run_status": null,
+    "stdout_hex": null,
+    "stderr_hex": null
+  },
+  {
+    "type": "float",
+    "target": "c",
+    "source": "native fn buffer(): *float =>\n  return nil\n\nfn main(): void =>\n  var values = valueOf(buffer()[0..16])\n  println(len(values))\n  println(values[0])\n",
+    "source_sha256": "1a1f04fcec0fb7c3dd1924acd3198c4f34d248655da6bcb9078b59f83648644c",
+    "compile_status": 0,
+    "compile_stderr": "\u001b[1mCompiling\u001b[0m /tmp/sn-pointer-storage-gaps-6tj0febb/float.sn...\n  Parsing... \u001b[1;36mdone\u001b[0m\n  Type checking... \u001b[1;36mdone\u001b[0m\n  Code generation... \u001b[1;36mdone\u001b[0m\n  Linking... \u001b[1;36mdone\u001b[0m\n\u001b[1;36mDone\u001b[0m: /tmp/sn-pointer-storage-gaps-6tj0febb/float-c (70.1 KB)\n",
+    "run_status": 0,
+    "stdout_hex": "31360a302e30303030300a",
+    "stderr_hex": ""
+  },
+  {
+    "type": "float",
+    "target": "rust",
+    "source": "native fn buffer(): *float =>\n  return nil\n\nfn main(): void =>\n  var values = valueOf(buffer()[0..16])\n  println(len(values))\n  println(values[0])\n",
+    "source_sha256": "1a1f04fcec0fb7c3dd1924acd3198c4f34d248655da6bcb9078b59f83648644c",
+    "compile_status": 1,
+    "compile_stderr": "\u001b[1mCompiling\u001b[0m /tmp/sn-pointer-storage-gaps-6tj0febb/float.sn...\n  Parsing... \u001b[1;36mdone\u001b[0m\n  Type checking... \u001b[1;36mdone\u001b[0m\n  Code generation...Error: Rust target pointer slices require byte elements; other native storage families remain unsupported\nError: Rust target encountered an unsupported construct in function 'main'\n \u001b[1;31mfailed\u001b[0m\n\n",
+    "run_status": null,
+    "stdout_hex": null,
+    "stderr_hex": null
+  },
+  {
+    "type": "double",
+    "target": "c",
+    "source": "native fn buffer(): *double =>\n  return nil\n\nfn main(): void =>\n  var values = valueOf(buffer()[0..16])\n  println(len(values))\n  println(values[0])\n",
+    "source_sha256": "2e9131983b865a34fddc19e0b6c9ef52bf7649af0cd619f3df06f779a14b9c69",
+    "compile_status": 0,
+    "compile_stderr": "\u001b[1mCompiling\u001b[0m /tmp/sn-pointer-storage-gaps-6tj0febb/double.sn...\n  Parsing... \u001b[1;36mdone\u001b[0m\n  Type checking... \u001b[1;36mdone\u001b[0m\n  Code generation... \u001b[1;36mdone\u001b[0m\n  Linking... \u001b[1;36mdone\u001b[0m\n\u001b[1;36mDone\u001b[0m: /tmp/sn-pointer-storage-gaps-6tj0febb/double-c (70.1 KB)\n",
+    "run_status": 0,
+    "stdout_hex": "31360a302e30303030300a",
+    "stderr_hex": ""
+  },
+  {
+    "type": "double",
+    "target": "rust",
+    "source": "native fn buffer(): *double =>\n  return nil\n\nfn main(): void =>\n  var values = valueOf(buffer()[0..16])\n  println(len(values))\n  println(values[0])\n",
+    "source_sha256": "2e9131983b865a34fddc19e0b6c9ef52bf7649af0cd619f3df06f779a14b9c69",
+    "compile_status": 1,
+    "compile_stderr": "\u001b[1mCompiling\u001b[0m /tmp/sn-pointer-storage-gaps-6tj0febb/double.sn...\n  Parsing... \u001b[1;36mdone\u001b[0m\n  Type checking... \u001b[1;36mdone\u001b[0m\n  Code generation...Error: Rust target pointer slices require byte elements; other native storage families remain unsupported\nError: Rust target encountered an unsupported construct in function 'main'\n \u001b[1;31mfailed\u001b[0m\n\n",
+    "run_status": null,
+    "stdout_hex": null,
+    "stderr_hex": null
+  }
+]

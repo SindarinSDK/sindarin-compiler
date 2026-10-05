@@ -985,3 +985,15 @@ test-rust-parity-serialization: build
 		--require-count 13 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-serialization.json
 	@$(PYTHON) scripts/check_rust_serialization_oracles.py .sn/rust-parity-serialization.json
+
+.PHONY: test-rust-parity-pointer-slices
+test-rust-parity-pointer-slices: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/integration/test_buffer_unwrap.sn \
+		tests/integration/test_nil_pointer_slice.sn \
+		tests/exploratory/test_pointer_slice_bounds.sn \
+		tests/rust-native/native_pointer_slices.sn \
+		tests/rust-native/native_pointer_slice_contexts.sn \
+		--require-count 5 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-pointer-slices.json
+	@$(PYTHON) scripts/check_rust_pointer_slice_oracles.py .sn/rust-parity-pointer-slices.json

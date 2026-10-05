@@ -387,6 +387,35 @@ static bool rust_assign_checked_helper_names(json_object *model)
     return true;
 }
 
+static bool rust_model_uses_pointer_slices(json_object *node)
+{
+    if (!node) return false;
+    if (json_object_is_type(node, json_type_array)) {
+        for (size_t i = 0; i < json_object_array_length(node); i++)
+            if (rust_model_uses_pointer_slices(json_object_array_get_idx(node, i))) return true;
+    } else if (json_object_is_type(node, json_type_object)) {
+        if (json_boolean_property(node, "is_pointer_slice")) return true;
+        json_object_object_foreach(node, key, value)
+            if (strncmp(key, "rust_", 5) != 0 && rust_model_uses_pointer_slices(value)) return true;
+    }
+    return false;
+}
+
+static bool rust_assign_pointer_slice_helper(json_object *model)
+{
+    if (!rust_model_uses_pointer_slices(model)) return true;
+    for (size_t suffix = 0; ; suffix++) {
+        char name[96];
+        int written = snprintf(name, sizeof(name), "__sn_pointer_slice_%zu", suffix);
+        if (written < 0 || (size_t)written >= sizeof(name)) return false;
+        if (!rust_model_contains_string(model, name)) {
+            json_object_object_add(model, "rust_pointer_slice_helper", json_object_new_string(name));
+            return true;
+        }
+        if (suffix == (size_t)-1) return false;
+    }
+}
+
 /* Floating compound assignment and postfix mutation use the same shared
  * stable-place annotations as checked integer mutation, but ordinary Rust
  * f32/f64 arithmetic. */

@@ -1594,10 +1594,17 @@ static bool rust_validate_expr(json_object *expr)
     {
         json_object *array = NULL, *start = NULL, *end = NULL;
         json_object *step = NULL, *is_pointer_slice = NULL;
+        json_object *slice_type = NULL, *element_type = NULL;
+        if (json_object_object_get_ex(expr, "type", &slice_type))
+            json_object_object_get_ex(slice_type, "element_type", &element_type);
         if (json_object_object_get_ex(expr, "is_pointer_slice", &is_pointer_slice) &&
-            json_object_get_boolean(is_pointer_slice))
+            json_object_get_boolean(is_pointer_slice) &&
+            !json_string_property_equals(element_type, "kind", "byte"))
         {
-            fprintf(stderr, "Error: Rust target does not support pointer array slices yet\n");
+            /* The shared C runtime copies raw bytes, including its byte tag.
+             * Wider/managed element storage needs independent transport; a
+             * typed Rust Vec would silently change that C representation. */
+            fprintf(stderr, "Error: Rust target pointer slices require byte elements; other native storage families remain unsupported\n");
             return false;
         }
         /*
@@ -1616,6 +1623,8 @@ static bool rust_validate_expr(json_object *expr)
             !rust_validate_expr(end)) return false;
         return true;
     }
+    if (strcmp(kind, "value_of") == 0 && json_boolean_property(expr, "is_noop"))
+        return json_object_object_get_ex(expr, "operand", &child) && rust_validate_expr(child);
     if (strcmp(kind, "index_assign") == 0)
     {
         json_object *array = NULL, *index = NULL, *value = NULL;

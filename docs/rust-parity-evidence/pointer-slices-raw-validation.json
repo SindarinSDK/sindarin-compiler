@@ -1,0 +1,14 @@
+[
+  {
+    "name": "byte_string_compare",
+    "status": 0
+  },
+  {
+    "name": "windows_text_transport_compare",
+    "status": 0
+  },
+  {
+    "name": "windows_text_helpers",
+    "status": 0
+  }
+]

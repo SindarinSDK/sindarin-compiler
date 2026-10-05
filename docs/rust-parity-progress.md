@@ -5,6 +5,59 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Ordinary byte-pointer slices: local acceptance, 2026-10-05
+
+This increment starts from published main
+`b5efa4c73e41471fa7dab4783d933ad3260286a8`. All three compiler jobs pass and
+the Linux 42-report/3639-case runtime artifact is independently verified.
+macOS and Windows runtime jobs remain active. The preceding `8314a270` now has
+all six jobs, all three 41-report/3522-case artifacts and hosted suite counts
+independently verified:
+[hosted proof](rust-parity-evidence/native-variadics-main-ci-green.json).
+Publication and exact-revision hosted acceptance of this increment remain required.
+
+Rust now evaluates ordinary byte-pointer slices and no-op `valueOf`, matching
+the C runtime's byte offsets, owned copies, nil zero-fill, reversed/empty ranges
+and negative offsets inside valid allocations. Results survive native source
+mutation and disposal. A typed C adapter preserves actual char bound promotion.
+Controls cover numeric bounds, source/private-name collisions, nullable array
+identity, globals, record fields, ordinary returns and joined workers. Each
+operand is evaluated once. C leaves independent argument order unspecified;
+these controls do not claim a portable C evaluation order.
+
+Complete C/Rust suites pass with zero failures/skips, including **64** native
+positives and the existing **four** admission-error fixtures. All **43 reports /
+3684 cases** pass, including independently reverified previous **42 / 3639**.
+The new mandatory platform gate covers **45 frozen comparisons**. Its final
+baseline has **45 C successes and 45 Rust compilation failures**. All **90
+instrumented target executions** match frozen raw output with zero statuses and
+empty sanitizer stderr. Actual **117 C object compiles** include ASAN/UBSAN;
+all objects have ASAN sites, with applicable UBSAN sites in **81**. Every Rust
+execution is tied to its own generated C objects or recorded as pure Rust. Rust
+pointer-copy instrumentation is not claimed. An additional **18 comparisons**
+pass with explicitly signed and unsigned C char. Raw bytes/argv, native output
+order, diagnostics and Windows helper logic also pass.
+
+All **1365 original source hashes** remain unchanged. Original coverage is
+**1137 integration + 222 exploratory = 1359 / 1365 (99.56%)**, with **six
+compilation gaps**, zero runtime failures and zero skips. The newer integration
+control is counted separately. This percentage measures original corpus
+coverage, not full completion. Interfaces/iterators, array parameter/capture/
+copy semantics, broader scalar/managed pointer storage, foreign callbacks,
+SDK record/array transport, native disposal/alias ownership, global/thread
+lifetimes and exact integrated hosted acceptance remain required. Separate
+C-valid char/bool/int/float/double pointer-slice probes still reject in Rust;
+they receive no parity credit.
+
+Evidence: [implementation](rust-pointer-slices.md),
+[validation and remaining gaps](rust-parity-evidence/pointer-slices-validation.json),
+[45 frozen comparisons](rust-parity-evidence/pointer-slices-oracles.json),
+[previous 3639-case preservation](rust-parity-evidence/pointer-slices-preservation.json),
+[90 instrumented executions](rust-parity-evidence/pointer-slices-asan.json),
+[actual compiler/object audit](rust-parity-evidence/pointer-slices-asan-object-audit.json),
+[unchanged original sources](rust-parity-evidence/pointer-slices-source-preservation.json),
+[remaining pointer storage probes](rust-parity-evidence/pointer-slices-storage-gaps.json).
+
 ## Serialization vtables and generated methods, 2026-10-05
 
 This increment builds on published main `8314a2706f3713ff765d7b27c5d49ebb4633b972`.

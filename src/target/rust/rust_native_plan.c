@@ -1193,6 +1193,7 @@ static void remove_c_only_native_helpers(json_object *rust_model,
 
 #include "rust_native_variadics.c"
 #include "rust_native_serial.c"
+#include "rust_native_pointer_slices.c"
 
 bool rust_native_partition_model(json_object *rust_model,
                                  const CompilerOptions *options,
@@ -1250,7 +1251,8 @@ bool rust_native_partition_model(json_object *rust_model,
         rust_native_plan_free(plan);
         return false;
     }
-    if (!native_prepare_serial_types(rust_model, private_model, options->source_file) ||
+    if (!native_prepare_pointer_slice_char_bounds(rust_model, private_model, options->source_file) ||
+        !native_prepare_serial_types(rust_model, private_model, options->source_file) ||
         !native_prepare_records(rust_model) || !native_prepare_handles(rust_model, plan) ||
         !native_prepare_handle_atomic_owners(private_model, plan->handles))
     {

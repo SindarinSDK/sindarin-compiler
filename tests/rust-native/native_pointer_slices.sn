@@ -1,0 +1,47 @@
+@source "native_pointer_slices.sn.c"
+
+native fn slice_pointer(): *byte
+native fn slice_start(): int
+native fn slice_end(): int
+native fn slice_once(): bool
+native fn slice_char_span(bound: char): int
+native fn slice_base(): *byte
+native fn slice_middle(): *byte
+native fn slice_owned(): *byte
+native fn slice_mutate_owned(): void
+native fn slice_dispose_owned(): void
+native fn slice_nil(): *byte
+native fn slice_alive(): int
+
+fn owned_copy(): byte[] =>
+  var bytes = valueOf(slice_owned()[1..5])
+  slice_mutate_owned()
+  slice_dispose_owned()
+  return bytes
+
+fn main(): void =>
+  var bytes = valueOf(slice_pointer()[slice_start()..slice_end()])
+  println(slice_once())
+  println(len(bytes) == 4 && bytes[0] == 255b && bytes[1] == 0b && bytes[2] == 128b && bytes[3] == 10b)
+  var interior = valueOf(slice_middle()[-2..2])
+  println(interior == bytes)
+  var implicit = valueOf(slice_base()[..3])
+  println(len(implicit) == 3 && implicit[0] == 65b && implicit[1] == 255b && implicit[2] == 0b)
+  var copied = owned_copy()
+  println(copied == bytes && slice_alive() == 0)
+  var empty = valueOf(slice_base()[4..4])
+  var reversed = valueOf(slice_base()[5..2])
+  println(len(empty) == 0 && len(reversed) == 0)
+  var zeroes = valueOf(slice_nil()[-2..3])
+  println(len(zeroes) == 5 && zeroes[0] == 0b && zeroes[4] == 0b)
+  var first: int32 = 1i32
+  var last: uint32 = 5u32
+  var mixed = valueOf(slice_base()[first..last])
+  println(mixed == bytes)
+  var lower: double = 1.9
+  var upper: double = 5.7
+  var floating = valueOf(slice_base()[lower..upper])
+  println(floating == bytes)
+  var high: char = '\xff'
+  var characters = valueOf(slice_nil()[high..300])
+  println(len(characters) == slice_char_span(high) && characters[0] == 0b)

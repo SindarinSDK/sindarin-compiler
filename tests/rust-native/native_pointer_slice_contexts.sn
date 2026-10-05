@@ -1,0 +1,29 @@
+@source "native_pointer_slices.sn.c"
+
+native fn slice_base(): *byte
+native fn slice_nil(): *byte
+
+var globalBytes: byte[] = valueOf(slice_base()[0..2])
+var __sn_pointer_slice_1: int = 88
+
+fn __sn_pointer_slice_0(): int =>
+  return 77
+
+struct Packet =>
+  bytes: byte[]
+
+fn worker(): Packet =>
+  return Packet { bytes: valueOf(slice_base()[..4]) }
+
+fn main(): void =>
+  println(len(globalBytes) == 2 && globalBytes[0] == 65b && globalBytes[1] == 255b)
+  var packet = worker()
+  println(len(packet.bytes) == 4 && packet.bytes[2] == 0b && packet.bytes[3] == 128b)
+  var result = & worker()
+  result !
+  println(len(result.bytes) == 4 && result.bytes[0] == 65b && result.bytes[1] == 255b)
+  var empty = valueOf(slice_nil()[0..0])
+  println(empty != nil && len(empty) == 0)
+  var absent = valueOf(slice_nil()[..3])
+  println(absent != nil && len(absent) == 3 && absent[0] == 0b && absent[2] == 0b)
+  println(__sn_pointer_slice_0() == 77 && __sn_pointer_slice_1 == 88)
