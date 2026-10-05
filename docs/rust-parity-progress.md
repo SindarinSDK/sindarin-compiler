@@ -14,7 +14,13 @@ are independently verified:
 [hosted proof](rust-parity-evidence/pointer-slices-main-ci-green.json).
 The serialization parent `b5efa4c7` is also fully verified:
 [hosted proof](rust-parity-evidence/serialization-main-ci-green.json).
-Publication and exact-revision hosted acceptance of this increment remain required.
+The implementation is published at `f40dd12af209c1c86d974c09b44d0f97b2f98421`.
+All three compiler CI jobs pass. Linux runtime CI failed because its separate
+native-positive guard still required 64 fixtures after this increment added three.
+The complete Linux Rust suite passes, including all 67 native positives, and its
+44 reports / 3729 cases are independently verified. The workflow guard and label
+are corrected to 67; the strict local count/skip check passes. Exact-revision
+hosted acceptance of the correction remains required.
 
 Ordinary function and instance/static method `as val` array parameters now own
 independent entry copies. Duplicate value inputs remain independent, while mixed
