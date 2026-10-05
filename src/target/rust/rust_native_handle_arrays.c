@@ -9,7 +9,8 @@ static bool native_handle_array_collect(json_object *node)
             found |= native_handle_array_collect(json_object_array_get_idx(node, i));
     } else if (json_object_is_type(node, json_type_object)) {
         if (native_string(node, "kind") && strcmp(native_string(node, "kind"), "array") == 0 &&
-            native_handle_type(native_record_child(node, "element_type"))) found = true;
+            native_handle_type(native_record_child(node, "element_type")) &&
+            !native_bool(native_record_child(node, "element_type"), "rust_native_serial_handle")) found = true;
         json_object_object_foreach(node, key, child)
             if (strncmp(key, "rust_", 5) != 0) found |= native_handle_array_collect(child);
     }
@@ -26,7 +27,8 @@ static void native_handle_array_mark(json_object *node, json_object *support)
     }
     if (!json_object_is_type(node, json_type_object)) return;
     if (native_string(node, "kind") && strcmp(native_string(node, "kind"), "array") == 0 &&
-        native_handle_type(native_record_child(node, "element_type"))) {
+        native_handle_type(native_record_child(node, "element_type")) &&
+            !native_bool(native_record_child(node, "element_type"), "rust_native_serial_handle")) {
         json_object_object_add(node, "rust_native_handle_array", json_object_new_boolean(true));
         json_object_object_add(node, "rust_native_handle_array_name", json_object_get(native_record_child(support, "type")));
     }
@@ -51,11 +53,14 @@ static bool native_prepare_handle_arrays(json_object *model, json_object *handle
     }
     for (size_t i = 0; i < json_object_array_length(handles); i++) {
         json_object *handle = json_object_array_get_idx(handles, i);
+        /* Keep support visible to the C renderer even when the first handle is
+         * an opaque serialization object. It has no C refcount/copy callback. */
+        json_object_object_add(handle, "rust_native_handle_array_support", json_object_get(support));
+        if (native_bool(handle, "rust_native_serial_handle")) continue;
         char stem[160]; snprintf(stem, sizeof(stem), "__sn_native_handle_%zu_array_new", i);
         char *name = unique_private_name(native_record_child(model, "functions"), native_record_child(model, "structs"), native_record_child(model, "globals"), stem);
         if (!name) { json_object_put(support); return false; }
         json_object_object_add(handle, "rust_native_handle_array_new", json_object_new_string(name)); free(name);
-        json_object_object_add(handle, "rust_native_handle_array_support", json_object_get(support));
     }
     native_handle_array_mark(model, support);
     json_object_object_add(model, "rust_native_handle_array_support", support);

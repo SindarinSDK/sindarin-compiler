@@ -1,0 +1,56 @@
+{{#if rust_serial_internal_encode}}
+{{#each rust_serial_fields}}
+{{#if (eq serial_action "str")}}        e.writeStr(SnString::from_slice({{rust_source_string_literal rust_serial_key}}.as_bytes()), {{#if ../rust_serial_thread_fields}}self.{{rust_ident name}}.read(){{else}}self.{{rust_ident name}}.clone(){{/if}});
+{{/if}}{{#if (eq serial_action "int")}}        e.writeInt(SnString::from_slice({{rust_source_string_literal rust_serial_key}}.as_bytes()), self.{{rust_ident name}}{{#if ../rust_serial_thread_fields}}.read(){{/if}});
+{{/if}}{{#if (eq serial_action "double")}}        e.writeDouble(SnString::from_slice({{rust_source_string_literal rust_serial_key}}.as_bytes()), self.{{rust_ident name}}{{#if ../rust_serial_thread_fields}}.read(){{/if}});
+{{/if}}{{#if (eq serial_action "bool")}}        e.writeBool(SnString::from_slice({{rust_source_string_literal rust_serial_key}}.as_bytes()), self.{{rust_ident name}}{{#if ../rust_serial_thread_fields}}.read(){{/if}});
+{{/if}}{{#if (eq serial_action "object")}}        {
+            let child = e.beginObject(SnString::from_slice({{rust_source_string_literal rust_serial_key}}.as_bytes()));
+            self.{{rust_ident name}}{{#if ../rust_serial_thread_fields}}.read(){{/if}}.{{rust_ident rust_serial_encode_impl}}(&child);
+            child.end();
+        }
+{{/if}}{{#if (eq type.kind "array")}}        {
+            let child = e.beginArray(SnString::from_slice({{rust_source_string_literal rust_serial_key}}.as_bytes()));
+            for value in self.{{rust_ident name}}{{#if ../rust_serial_thread_fields}}.read(){{/if}}.iter() {
+{{#if (eq serial_action "array_str")}}                child.appendStr(value.clone());
+{{/if}}{{#if (eq serial_action "array_int")}}                child.appendInt(*value);
+{{/if}}{{#if (eq serial_action "array_double")}}                child.appendDouble(*value);
+{{/if}}{{#if (eq serial_action "array_bool")}}                child.appendBool(*value);
+{{/if}}{{#if (eq serial_action "array_object")}}                let object = child.appendObject();
+                value.{{rust_ident rust_serial_encode_impl}}(&object);
+                object.end();
+{{/if}}            }
+            child.end();
+        }
+{{/if}}{{/each}}
+{{else}}{{#if (eq name "encode")}}        self.{{rust_ident rust_serial_encode_impl}}(e);
+        e.result()
+{{/if}}{{#if (eq name "decode")}}
+{{#each rust_serial_fields}}{{#if (eq type.kind "array")}}        let {{rust_ident rust_serial_field_value}} = {
+            let child = d.readArray(SnString::from_slice({{rust_source_string_literal rust_serial_key}}.as_bytes()));
+            let mut values = Vec::new();
+            for index in 0..child.length() {
+{{#if (eq serial_action "array_str")}}                values.push(child.atStr(index));
+{{/if}}{{#if (eq serial_action "array_int")}}                values.push(child.atInt(index));
+{{/if}}{{#if (eq serial_action "array_double")}}                values.push(child.atDouble(index));
+{{/if}}{{#if (eq serial_action "array_bool")}}                values.push(child.atBool(index));
+{{/if}}{{#if (eq serial_action "array_object")}}                let object = child.at(index);
+                values.push({{rust_ident serial_elem_struct_name}}::decode(&object));
+{{/if}}            }
+            {{#if @root.rust_nullable_arrays}}{{rust_ident @root.rust_nullable_array_name}}::from_vec(values){{else}}values{{/if}}
+        };
+{{else}}        let {{rust_ident rust_serial_field_value}} = {{#if (eq serial_action "str")}}d.readStr(SnString::from_slice({{rust_source_string_literal rust_serial_key}}.as_bytes())){{/if}}{{#if (eq serial_action "int")}}d.readInt(SnString::from_slice({{rust_source_string_literal rust_serial_key}}.as_bytes())){{/if}}{{#if (eq serial_action "double")}}d.readDouble(SnString::from_slice({{rust_source_string_literal rust_serial_key}}.as_bytes())){{/if}}{{#if (eq serial_action "bool")}}d.readBool(SnString::from_slice({{rust_source_string_literal rust_serial_key}}.as_bytes())){{/if}}{{#if (eq serial_action "object")}}{ let child = d.readObject(SnString::from_slice({{rust_source_string_literal rust_serial_key}}.as_bytes())); {{rust_ident serial_struct_name}}::decode(&child) }{{/if}};
+{{/if}}{{/each}}        Self { {{#if rust_serial_reference_identity}}{{rust_ident @root.rust_record_identity_field}}: Some(std::sync::Arc::new(())), {{/if}}{{#each rust_serial_fields}}{{rust_ident name}}: {{#if ../rust_serial_thread_fields}}{{#if ../rust_serial_reference_identity}}{{rust_ident @root.rust_reference_field_type}}{{else}}{{rust_ident @root.rust_thread_field_type}}{{/if}}::new({{rust_ident rust_serial_field_value}}){{else}}{{rust_ident rust_serial_field_value}}{{/if}}, {{/each}} }
+{{/if}}{{#if (eq name "encodeArray")}}        for value in items.iter() {
+            let object = e.appendObject();
+            value.{{rust_ident rust_serial_encode_impl}}(&object);
+            object.end();
+        }
+        e.result()
+{{/if}}{{#if (eq name "decodeArray")}}        let mut values = Vec::new();
+        for index in 0..d.length() {
+            let object = d.at(index);
+            values.push(Self::decode(&object));
+        }
+        {{#if @root.rust_nullable_arrays}}{{rust_ident @root.rust_nullable_array_name}}::from_vec(values){{else}}values{{/if}}
+{{/if}}{{/if}}

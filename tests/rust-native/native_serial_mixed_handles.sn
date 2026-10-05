@@ -1,0 +1,32 @@
+@source "../integration/test_serializable.sn.c"
+@source "native_handle_arrays.sn.c"
+
+native struct Token as ref =>
+  id: int
+
+  @alias "token_dispose"
+  native fn dispose(): void
+
+native fn array_owned(id: int): Token[]
+native fn token_alive(): int
+native fn sn_test_json_encoder(): Encoder
+native fn sn_test_json_decoder(input: str): Decoder
+
+@serializable
+struct Entry =>
+  label: str
+  number: int
+
+fn exercise(): void =>
+  var handles: Token[] = array_owned(9)
+  var original: Entry = {
+    label: "mixed",
+    number: handles[0].id
+  }
+  var json = original.encode(sn_test_json_encoder())
+  var copy = Entry.decode(sn_test_json_decoder(json))
+  println(copy.label == "mixed" && copy.number == 9 && len(handles) == 1)
+
+fn main(): void =>
+  exercise()
+  println(token_alive() == 0)

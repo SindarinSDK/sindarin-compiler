@@ -34,6 +34,7 @@ static bool native_record_type_supported(json_object *model, json_object *type,
         native_bool(structure, "pass_self_by_ref") ||
         native_bool(structure, "is_packed") ||
         native_bool(structure, "is_serializable") ||
+        native_bool(structure, "rust_serializable") ||
         native_bool(structure, "has_user_copy_method") ||
         json_object_object_get_ex(visiting, name, &seen)) return false;
     json_object *fields = native_record_child(structure, "fields");

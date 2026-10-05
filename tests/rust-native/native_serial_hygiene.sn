@@ -1,0 +1,43 @@
+@source "../integration/test_serializable.sn.c"
+
+native fn sn_test_json_encoder(): Encoder
+native fn sn_test_json_decoder(input: str): Decoder
+
+@serializable
+struct Names =>
+  d: str
+  e: int
+  child: long
+  values: bool
+  index: double
+  object: str
+  __sn_serial_value_0: str
+  numbers: int[]
+  flags: bool[]
+  scores: double[]
+  wide: long[]
+  empty: str[]
+
+  fn __sn_serial_encode_impl(): int =>
+    return 91
+
+fn main(): void =>
+  var value: Names = {
+    d: "decoder",
+    e: 17,
+    child: 1234567890123l,
+    values: true,
+    index: 3.5,
+    object: "object",
+    __sn_serial_value_0: "private",
+    numbers: {1, 2},
+    flags: {true, false},
+    scores: {1.5, 2.5},
+    wide: {1234567890123L, 9999999999L},
+    empty: {}
+  }
+  var json = value.encode(sn_test_json_encoder())
+  var copy = Names.decode(sn_test_json_decoder(json))
+  println(copy.d == value.d && copy.e == value.e && copy.child == value.child && copy.values == value.values && copy.index == value.index && copy.object == value.object && copy.__sn_serial_value_0 == "private")
+  println(copy.numbers[1] == 2 && copy.flags[0] && !copy.flags[1] && copy.scores[1] == 2.5 && copy.wide[0] == 1234567890123L && len(copy.empty) == 0)
+  println(copy.__sn_serial_encode_impl() == 91)

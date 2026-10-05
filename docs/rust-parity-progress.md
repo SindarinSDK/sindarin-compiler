@@ -5,6 +5,56 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Serialization vtables and generated methods, 2026-10-05
+
+This increment builds on published main `8314a2706f3713ff765d7b27c5d49ebb4633b972`.
+Its compiler jobs are green on all three platforms, and Linux/macOS runtime
+41-report/3522-case artifacts are independently verified. Windows runtime remains
+active. The preceding `8d29dd45` now has all six jobs, all three 40-report/3468-case
+artifacts and full-suite counts independently verified:
+[hosted proof](rust-parity-evidence/native-callables-main-ci-green.json).
+Resulting exact-revision hosted acceptance remains required.
+
+Rust now emits `@serializable` encode/decode/array traversal and calls concrete C
+Encoder/Decoder vtables through typed shims. Opaque serialization objects share
+one Rust owner for the actual C allocation; known children retain their parents,
+Encoder end invalidates the child owner, and result uses the C finalization cache.
+Generated field reads preserve order and aliases. Decoder locals avoid source
+field collisions. Threaded record storage is wrapped/read correctly, and mixed
+native arrays do not invent Encoder/Decoder C retain callbacks. No Send claim or
+general serialized-record wire-ABI admission is made.
+
+All complete C/Rust suites pass with zero failures/skips, including **62** native
+positives and the existing **four** admission-error fixtures. All **42 reports /
+3639 cases** pass; previous **41 / 3522** are independently verified with this
+compiler. The new **117-case** gate is mandatory on Linux/macOS/Windows. Thirteen
+unchanged sources cover the eight original serialization/threaded-return programs
+and five direct vtable, name/array, cleanup/nil/return, mixed-native-array and
+joined-record-thread controls. All **234 instrumented executions** match frozen
+oracles, return zero and have empty sanitizer stderr. Actual **603 C object
+compiles** include ASAN/UBSAN, with ASAN sites in all objects and applicable UBSAN
+sites in **585**. Every Rust case is associated with its exact C objects; Rust
+memory instrumentation is not claimed.
+
+The final-source baseline has **117 C successes and 117 Rust compile failures**.
+All **1365 original source hashes** are unchanged. Original coverage is **1135
+integration + 221 exploratory = 1356 / 1365 (99.34%)**, with **nine compilation
+gaps**, zero runtime failures and zero skips. The newer integration control is
+counted separately. Raw bytes/argv, native output order, diagnostics and Windows
+helper logic also pass. This percentage measures the original corpus, not full
+completion. Interfaces/iterators, pointer slices, remaining array semantics,
+foreign callbacks/SDK/native ownership, opaque-handle and global/thread lifetime
+composition and exact hosted acceptance remain required.
+
+Evidence: [serialization approach](rust-serialization.md),
+[validation and remaining gaps](rust-parity-evidence/serialization-validation.json),
+[117 frozen comparisons](rust-parity-evidence/serialization-oracles.json),
+[234 instrumented executions](rust-parity-evidence/serialization-asan.json),
+[actual compiler/object audit](rust-parity-evidence/serialization-asan-object-audit.json),
+[final-source baseline](rust-parity-evidence/serialization-before.json),
+[full C suite](rust-parity-evidence/serialization-full-c.log),
+[full Rust suite](rust-parity-evidence/serialization-full-rust.log).
+
 ## Native variadic adapters: local acceptance, 2026-10-05
 
 This increment starts from published main

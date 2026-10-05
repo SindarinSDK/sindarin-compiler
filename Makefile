@@ -965,3 +965,23 @@ test-rust-parity-native-variadics: build
 		--require-count 6 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-native-variadics.json
 	@$(PYTHON) scripts/check_rust_native_variadic_oracles.py .sn/rust-parity-native-variadics.json
+
+.PHONY: test-rust-parity-serialization
+test-rust-parity-serialization: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/integration/test_serializable.sn \
+		tests/integration/test_serializable_decode_struct_literal_loop.sn \
+		tests/integration/test_serializable_double_int_json.sn \
+		tests/integration/test_serializable_encoder_cleanup.sn \
+		tests/integration/test_serializable_long.sn \
+		tests/integration/test_serializable_push_ownership.sn \
+		tests/integration/test_serializable_return_nested_array.sn \
+		tests/rust-native/native_serial_hygiene.sn \
+		tests/rust-native/native_serial_lifetimes.sn \
+		tests/rust-native/native_serial_mixed_handles.sn \
+		tests/rust-native/native_serial_objects.sn \
+		tests/rust-native/native_serial_threads.sn \
+		tests/integration/test_thread_struct_return_types.sn \
+		--require-count 13 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-serialization.json
+	@$(PYTHON) scripts/check_rust_serialization_oracles.py .sn/rust-parity-serialization.json

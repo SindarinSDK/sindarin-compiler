@@ -1,0 +1,40 @@
+@source "native_serial_lifetimes.sn.c"
+
+native fn serial_encoder(): Encoder
+native fn serial_decoder(value: int): Decoder
+native fn serial_read(value: Decoder): int
+native fn serial_live(): int
+native fn serial_cleanups(): int
+native fn serial_nil_encoder(): Encoder
+native fn serial_nil_decoder(): Decoder
+
+fn make(): Encoder =>
+  return serial_encoder()
+
+fn borrow(encoder: Encoder): str =>
+  encoder.writeInt("v", 7)
+  return encoder.result()
+
+fn discard(): void =>
+  var encoder = serial_encoder()
+  encoder.writeInt("v", 3)
+  var decoder = serial_decoder(3)
+  println(decoder.readInt("v") == 3)
+
+fn exercise(): void =>
+  var encoder = make()
+  println(borrow(encoder) == "v=7")
+  println(encoder.result() == "v=7")
+  var decoder = serial_decoder(9)
+  println(decoder.readInt("v") == 9)
+  println(serial_read(decoder) == 9)
+  println(serial_live() == 1)
+
+fn main(): void =>
+  println(serial_nil_encoder() == nil)
+  println(serial_nil_decoder() == nil)
+  discard()
+  println(serial_live() == 0)
+  exercise()
+  println(serial_live() == 0)
+  println(serial_cleanups() == 4)

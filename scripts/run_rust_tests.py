@@ -624,6 +624,11 @@ class TestRunner:
             test_files = sorted(glob.glob(pattern, recursive=True))
         if test_type == 'rust-native-extra':
             test_files.extend([
+                'tests/rust-native/native_serial_hygiene.sn',
+                'tests/rust-native/native_serial_lifetimes.sn',
+                'tests/rust-native/native_serial_mixed_handles.sn',
+                'tests/rust-native/native_serial_objects.sn',
+                'tests/rust-native/native_serial_threads.sn',
                 'tests/rust-native/native_variadic_promotions.sn',
                 'tests/rust-native/native_variadic_ownership.sn',
                 'tests/rust-native/native_variadic_records.sn',

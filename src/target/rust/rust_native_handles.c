@@ -20,6 +20,11 @@ static void native_handle_mark_types(json_object *node, json_object *handles)
         for (size_t i = 0; i < json_object_array_length(handles); i++) {
             json_object *handle = json_object_array_get_idx(handles, i);
             if (strcmp(name, native_string(handle, "name")) != 0) continue;
+            if (native_bool(handle, "rust_native_serial_handle")) {
+                json_object_object_add(node, "rust_native_serial_handle", json_object_new_boolean(true));
+                json_object_object_add(node, "rust_native_serial_invalidate", json_object_get(native_record_child(handle, "rust_native_serial_invalidate")));
+                json_object_object_add(node, "rust_native_serial_hold_parent", json_object_get(native_record_child(handle, "rust_native_serial_hold_parent")));
+            }
             json_object_object_add(node, "rust_native_reference_handle", json_object_new_boolean(true));
             const char *keys[] = {"rust_native_handle_field", "rust_native_handle_adopt",
                 "rust_native_handle_retain", "rust_native_handle_release", "rust_native_handle_refs", "rust_native_handle_borrow", NULL};
@@ -64,6 +69,10 @@ static bool native_handle_prepare_methods(json_object *model, json_object *handl
         json_object_object_add(function, "name", json_object_new_string(name));
         json_object_object_add(function, "is_native", json_object_new_boolean(true));
         json_object_object_add(function, "has_body", json_object_new_boolean(false));
+        if (native_bool(method, "rust_native_serial_end"))
+            json_object_object_add(function, "rust_native_serial_end", json_object_new_boolean(true));
+        if (native_bool(method, "rust_native_serial_child"))
+            json_object_object_add(function, "rust_native_serial_child", json_object_new_boolean(true));
         json_object_object_add(function, "return_type", json_object_get(native_record_child(method, "return_type")));
         const char *alias = native_string(method, "c_alias");
         char fallback[256];
@@ -184,6 +193,7 @@ static bool native_prepare_handle_atomic_owners(json_object *private_model,
     for (size_t i = 0; handles && i < json_object_array_length(handles); i++)
     {
         json_object *handle = json_object_array_get_idx(handles, i);
+        if (native_bool(handle, "rust_native_serial_handle")) continue;
         json_object *structure = native_record_struct(private_model, native_string(handle, "name"));
         if (!structure || !native_bool(structure, "is_native") ||
             !native_bool(structure, "pass_self_by_ref")) return false;

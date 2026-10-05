@@ -30,14 +30,20 @@ void *{{rust_native_handle_array_new}}(long long capacity) {
 }
 {{/if}}
 void {{rust_native_handle_retain}}(void *pointer) {
+{{#if rust_native_serial_handle}}    (void)pointer; /* Rust owns the shared opaque serialization object. */
+{{else}}
     __sn__{{name}}_retain((__sn__{{name}} *)pointer);
+{{/if}}
 }
 void {{rust_native_handle_release}}(void *pointer) {
     __sn__{{name}} *value = (__sn__{{name}} *)pointer;
     __sn__{{name}}_release(&value);
 }
 int {{rust_native_handle_refs}}(void *pointer) {
+{{#if rust_native_serial_handle}}    return pointer ? 1 : 0;
+{{else}}
     return pointer ? ((__sn__{{name}} *)pointer)->__rc__ : 0;
+{{/if}}
 }
 {{#each fields}}{{#if rust_native_handle_get}}
 {{c_type type}} {{rust_native_handle_get}}(void *pointer) {

@@ -1,0 +1,70 @@
+#[allow(non_camel_case_types)]
+#[derive(Debug)]
+struct {{rust_ident rust_native_serial_owner}} {
+    pointer: std::cell::Cell<*mut std::ffi::c_void>,
+    parents: std::cell::RefCell<Vec<std::rc::Rc<{{rust_ident rust_native_serial_owner}}>>>,
+}
+impl Drop for {{rust_ident rust_native_serial_owner}} {
+    fn drop(&mut self) {
+        let pointer = self.pointer.get();
+        if !pointer.is_null() { unsafe { {{rust_ident rust_native_handle_release}}(pointer); } }
+    }
+}
+thread_local! {
+    static {{rust_ident rust_native_serial_registry}}: std::cell::RefCell<std::collections::HashMap<usize, std::rc::Weak<{{rust_ident rust_native_serial_owner}}>>> = std::cell::RefCell::new(std::collections::HashMap::new());
+}
+#[derive(Debug)]
+struct {{rust_ident name}} {
+    {{rust_ident rust_native_handle_field}}: *mut std::ffi::c_void,
+    owner: Option<std::rc::Rc<{{rust_ident rust_native_serial_owner}}>>,
+}
+extern "C" {
+    fn {{rust_ident rust_native_handle_release}}(_: *mut std::ffi::c_void);
+    fn {{rust_ident rust_native_handle_retain}}(_: *mut std::ffi::c_void);
+    fn {{rust_ident rust_native_handle_refs}}(_: *mut std::ffi::c_void) -> i32;
+}
+impl {{rust_ident name}} {
+    fn {{rust_ident rust_native_handle_adopt}}(pointer: *mut std::ffi::c_void) -> Self {
+        let owner = if pointer.is_null() { None } else {
+            Some({{rust_ident rust_native_serial_registry}}.with(|registry| {
+                let mut registry = registry.borrow_mut();
+                if let Some(owner) = registry.get(&(pointer as usize)).and_then(std::rc::Weak::upgrade) {
+                    if owner.pointer.get() == pointer { return owner; }
+                }
+                registry.retain(|_, value| value.strong_count() != 0);
+                let owner = std::rc::Rc::new({{rust_ident rust_native_serial_owner}} { pointer: std::cell::Cell::new(pointer), parents: std::cell::RefCell::new(Vec::new()) });
+                registry.insert(pointer as usize, std::rc::Rc::downgrade(&owner));
+                owner
+            }))
+        };
+        Self { {{rust_ident rust_native_handle_field}}: pointer, owner }
+    }
+    fn {{rust_ident rust_native_handle_borrow}}(&self) -> std::mem::ManuallyDrop<Self> {
+        std::mem::ManuallyDrop::new(Self { {{rust_ident rust_native_handle_field}}: self.{{rust_ident rust_native_handle_field}}, owner: None })
+    }
+    fn {{rust_ident rust_native_serial_invalidate}}(&self) {
+        {{rust_ident rust_native_serial_registry}}.with(|registry| {
+            if let Some(owner) = registry.borrow_mut().remove(&(self.{{rust_ident rust_native_handle_field}} as usize)).and_then(|value| value.upgrade()) {
+                owner.pointer.set(std::ptr::null_mut());
+            }
+        });
+    }
+    fn {{rust_ident rust_native_serial_hold_parent}}(&self, parent: &Self) {
+        if self.{{rust_ident rust_native_handle_field}} == parent.{{rust_ident rust_native_handle_field}} { return; }
+        if let Some(owner) = &self.owner {
+            {{rust_ident rust_native_serial_registry}}.with(|registry| {
+                if let Some(parent) = registry.borrow().get(&(parent.{{rust_ident rust_native_handle_field}} as usize)).and_then(std::rc::Weak::upgrade) {
+                    if !owner.parents.borrow().iter().any(|prior| std::rc::Rc::ptr_eq(prior, &parent)) {
+                        owner.parents.borrow_mut().push(parent);
+                    }
+                }
+            });
+        }
+    }
+{{#each methods}}{{> struct_method this}}{{/each}}{{rbrace}}
+impl Clone for {{rust_ident name}} {
+    fn clone(&self) -> Self { Self::{{rust_ident rust_native_handle_adopt}}(self.{{rust_ident rust_native_handle_field}}) }
+}
+impl PartialEq for {{rust_ident name}} {
+    fn eq(&self, other: &Self) -> bool { self.{{rust_ident rust_native_handle_field}} == other.{{rust_ident rust_native_handle_field}} }
+}

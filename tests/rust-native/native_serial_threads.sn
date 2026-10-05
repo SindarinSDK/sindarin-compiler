@@ -1,0 +1,25 @@
+@source "../integration/test_serializable.sn.c"
+
+native fn sn_test_json_encoder(): Encoder
+native fn sn_test_json_decoder(input: str): Decoder
+
+@serializable
+struct Report =>
+  label: str
+  count: int
+  tags: str[]
+
+fn roundtrip(value: Report): Report =>
+  var json = value.encode(sn_test_json_encoder())
+  return Report.decode(sn_test_json_decoder(json))
+
+fn main(): void =>
+  var original: Report = {
+    label: "worker",
+    count: 17,
+    tags: {"a", "b"}
+  }
+  var result = & roundtrip(original)
+  result !
+  println(result.label == "worker" && result.count == 17 && result.tags[1] == "b")
+  println(original.label == "worker" && original.count == 17 && original.tags[0] == "a")

@@ -346,6 +346,21 @@ static bool rust_emit(CompilerOptions *options, Module *module,
     rust_lower_native_handle_temporaries(model, model, &native_temporary_id);
     rust_prepare_native_handle_nodes(model, model);
     rust_lower_native_handle_reads(model, model, false);
+    /* Serialization bodies are generated after record storage lowering. */
+    json_object *serial_structs = rust_nullable_child(model, "structs");
+    for (size_t i = 0; i < json_object_array_length(serial_structs); i++) {
+        json_object *structure = json_object_array_get_idx(serial_structs, i);
+        if (!json_boolean_property(structure, "rust_serializable")) continue;
+        json_object *methods = rust_nullable_child(structure, "methods");
+        for (size_t m = 0; m < json_object_array_length(methods); m++) {
+            json_object *method = json_object_array_get_idx(methods, m);
+            if (!json_boolean_property(method, "is_serializable_method")) continue;
+            json_object_object_add(method, "rust_serial_thread_fields", json_object_new_boolean(
+                json_boolean_property(structure, "rust_thread_fields")));
+            json_object_object_add(method, "rust_serial_reference_identity", json_object_new_boolean(
+                json_boolean_property(structure, "rust_thread_reference_identity")));
+        }
+    }
     char *code = rust_render_model(model, template_dir);
     json_object_put(model);
     if (!code) return false;
