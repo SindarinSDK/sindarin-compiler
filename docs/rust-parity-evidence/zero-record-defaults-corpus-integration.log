@@ -1,0 +1,46 @@
+Compiler: /home/gavin/code/sindarin/sindarin-rust-zero-record-defaults-afdcddef/.sn/zero-record-corpus-bin/sn
+Platform: Linux
+Parallel: 6 workers
+
+Integration Tests
+============================================================
+  Running 1142 tests with 6 workers...
+                                                              test_builtin_interfaces                       FAIL (compile error)  (52ms)
+    [1mCompiling[0m tests/integration/test_builtin_interfaces.sn...
+      Parsing... [1;36mdone[0m
+      Type checking... [1;36mdone[0m
+      Code generation...Error: Rust target does not support a parameter of function 'acceptComparable'
+     [1;31mfailed[0m
+    
+    
+  test_generic_multi_param_iter                 FAIL (compile error)  (37ms)
+    [1mCompiling[0m tests/integration/test_generic_multi_param_iter.sn...
+      Parsing... [1;36mdone[0m
+      Type checking... [1;36mdone[0m
+      Code generation...Error: Rust target supports iterator-protocol foreach only for heap-free scalar elements; got 'struct'
+    Error: Rust target encountered an unsupported construct in function 'main'
+     [1;31mfailed[0m
+    
+    
+  test_interfaces                               FAIL (compile error)  (31ms)
+    [1mCompiling[0m tests/integration/test_interfaces.sn...
+      Parsing... [1;36mdone[0m
+      Type checking... [1;36mdone[0m
+      Code generation...Error: Rust target does not support a parameter of function 'acceptComparable'
+     [1;31mfailed[0m
+    
+    
+  test_iterator_protocol                        FAIL (compile error)  (37ms)
+    [1mCompiling[0m tests/integration/test_iterator_protocol.sn...
+      Parsing... [1;36mdone[0m
+      Type checking... [1;36mdone[0m
+      Code generation...Error: Rust target supports iterator-protocol foreach only for heap-free scalar elements; got 'struct'
+    Error: Rust target encountered an unsupported construct in function 'main'
+     [1;31mfailed[0m
+    
+    
+
+------------------------------------------------------------
+Results: 1138 passed, 4 failed, 0 skipped  (47.51s)
+
+Some tests failed!  (total: 47.51s)

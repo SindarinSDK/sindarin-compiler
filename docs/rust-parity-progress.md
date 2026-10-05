@@ -5,7 +5,36 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
-## Array value parameters: local acceptance, 2026-10-05
+## Zero-initialized value records, 2026-10-05
+
+This independent increment starts from verified main `afdcddef`. Rust now lowers
+uninitialized value-record bindings to their C zero values before nullable and
+ownership preparation. Nested records contain zero scalars and nil managed
+fields; explicit record literals continue to apply source field defaults.
+Controls cover integer/float/boolean/character fields, nested strings, arrays
+and references, independent copies, returns, array transport, escaping closures
+and repeated scope exits. Native record storage retains its existing lowering.
+
+All **27** unchanged baseline cases compile and produce exact expected output
+under C; Rust originally rejects all 27. After the fix, all 27 comparisons pass
+at O0/O1/O2 in default, checked and unchecked arithmetic modes. Both complete
+local suites pass with zero failures/skips, including **70** native positives.
+All **45 reports / 3756 cases** pass on the same frozen compiler, with the prior
+**44 / 3729** independently reverified. The mandatory platform gate includes the
+new comparisons; its native fixture guard and label both require 70.
+
+The **1365** original source hashes are unchanged. Corpus coverage remains
+**1360 / 1365 (99.63%)**, with the same five interface/iterator/closure-array gaps.
+This increment is a prerequisite for interface work; full interface ownership,
+metadata cleanup and foreign boundaries still require implementation and proof.
+Exact-revision Linux/macOS/Windows acceptance is recorded by the mandatory CI
+workflows after publication.
+
+Evidence: [validation](rust-parity-evidence/zero-record-defaults-validation.json),
+[unchanged baseline](rust-parity-evidence/zero-record-defaults-before.json),
+[raw-output contracts](rust-parity-evidence/zero-record-defaults-oracles.json).
+
+## Array value parameters: published and hosted verified, 2026-10-05
 
 This increment starts from published main
 `6d608821834aacc714774133fe219b088fd11d54`. All six compiler/runtime jobs,
@@ -15,12 +44,12 @@ are independently verified:
 The serialization parent `b5efa4c7` is also fully verified:
 [hosted proof](rust-parity-evidence/serialization-main-ci-green.json).
 The implementation is published at `f40dd12af209c1c86d974c09b44d0f97b2f98421`.
-All three compiler CI jobs pass. Linux runtime CI failed because its separate
-native-positive guard still required 64 fixtures after this increment added three.
-The complete Linux Rust suite passes, including all 67 native positives, and its
-44 reports / 3729 cases are independently verified. The workflow guard and label
-are corrected to 67; the strict local count/skip check passes. Exact-revision
-hosted acceptance of the correction remains required.
+Runtime CI initially failed on all three platforms because its native-positive
+guard still required 64 fixtures after this increment added three. The correction
+is published at `afdcddeff0e1aa06bac3738bd68b1b3535fc0a01`. All six exact-revision
+compiler/runtime jobs pass, and all three **44-report / 3729-case** platform
+artifacts and suite counts are independently verified:
+[hosted proof](rust-parity-evidence/array-values-main-ci-green.json).
 
 Ordinary function and instance/static method `as val` array parameters now own
 independent entry copies. Duplicate value inputs remain independent, while mixed

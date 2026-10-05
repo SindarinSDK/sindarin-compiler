@@ -156,9 +156,9 @@ jobs:
           run_gate "tagged native C/Rust parity (8 fixtures)" \
             python3 scripts/run_rust_tests.py rust-native-tagged --verbose \
               --require-count 8 --fail-on-skip
-          run_gate "native scalar, record and managed ABI fixtures (67 fixtures)" \
+          run_gate "native scalar, record and managed ABI fixtures (70 fixtures)" \
             python3 scripts/run_rust_tests.py rust-native-extra --verbose \
-              --require-count 67 --fail-on-skip
+              --require-count 70 --fail-on-skip
           run_gate "canonical native handle ownership (117 cases)" \
             make -o build test-rust-parity-native-handles
           run_gate "canonical native reference arrays (27 cases)" \
@@ -232,6 +232,9 @@ jobs:
 
           run_gate "sized-array defaults and evaluation effects (3 sources, all optimization/arithmetic modes)" \
             make test-rust-parity-sized-defaults
+
+          run_gate "zero-initialized value records (3 sources, all optimization/arithmetic modes)" \
+            make test-rust-parity-zero-record-defaults
 
           run_gate "native managed results and scalar references (7 sources, all optimization/arithmetic modes)" \
             make test-rust-parity-native-managed

@@ -1,0 +1,38 @@
+struct Scalars =>
+  count: int = 99
+  wide: long = 123
+  unsigned: uint = 17
+  octet: byte = 5
+  ratio: float = 1.5
+  precise: double = 2.5
+  enabled: bool = true
+  character: char = 'x'
+
+struct Reference as ref =>
+  text: str
+
+struct Child =>
+  text: str = "declared"
+  values: int[] = {1, 2}
+  reference: Reference
+  number: int = 77
+
+struct Parent =>
+  scalar: Scalars
+  child: Child
+  rows: Child[]
+  matrix: int[][]
+
+fn main(): void =>
+  var scalar: Scalars
+  println(scalar.count == 0 && scalar.wide == 0 && scalar.unsigned == 0 && scalar.octet == 0)
+  println(scalar.ratio == 0.0 && scalar.precise == 0.0 && !scalar.enabled && scalar.character == '\0')
+  var child: Child
+  println(child.text == nil && child.values == nil && child.reference == nil && child.number == 0)
+  var parent: Parent
+  println(parent.scalar.count == 0 && parent.child.number == 0)
+  println(parent.child.text == nil && parent.child.values == nil && parent.child.reference == nil)
+  println(parent.rows == nil && parent.matrix == nil)
+  var explicit: Scalars = {}
+  println(explicit.count == 99 && explicit.wide == 123 && explicit.unsigned == 17 && explicit.octet == 5)
+  println(explicit.ratio == 1.5 && explicit.precise == 2.5 && explicit.enabled && explicit.character == 'x')

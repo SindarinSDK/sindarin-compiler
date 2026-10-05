@@ -154,6 +154,7 @@ static bool rust_check_toolchain(const CompilerOptions *options)
 #include "rust_reference_records.c"
 #include "rust_native_record_storage.c"
 #include "rust_native_handle_nodes.c"
+#include "rust_zero_records.c"
 
 static bool rust_emit(CompilerOptions *options, Module *module,
                       TargetEmitMode mode, GeneratedFileSet *result)
@@ -179,6 +180,7 @@ static bool rust_emit(CompilerOptions *options, Module *module,
     result->target_data = native_plan;
     result->free_target_data = rust_native_plan_free;
     rust_prepare_native_handle_nodes(model, model);
+    rust_prepare_zero_record_bindings(model, model);
     rust_prepare_nullable_strings(model);
     rust_prepare_nullable_arrays(model);
     rust_prepare_sizeof_only_declarations(model);

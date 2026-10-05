@@ -1,0 +1,39 @@
+struct Item =>
+  text: str = "declared"
+  values: int[] = {9}
+  count: int = 42
+
+struct Holder =>
+  item: Item
+
+fn make(): Holder =>
+  var result: Holder
+  return result
+
+fn absent(value: Holder): bool =>
+  return value.item.text == nil && value.item.values == nil && value.item.count == 0
+
+fn change(value: Holder as ref): void =>
+  value.item.text = "changed"
+  value.item.values = {7}
+  value.item.count = 1
+
+fn snapshot(): fn(): bool =>
+  var local: Holder
+  return fn(): bool => absent(local)
+
+fn main(): void =>
+  var original: Holder
+  var copied = original
+  println(absent(original) && absent(copied))
+  change(copied)
+  println(absent(original))
+  println(copied.item.text == "changed" && copied.item.values[0] == 7 && copied.item.count == 1)
+  var returned = make()
+  println(absent(returned))
+  var rows: Holder[] = {original, returned}
+  println(absent(rows[0]) && absent(rows[1]))
+  var inspect: fn(): bool = snapshot()
+  println(inspect())
+  original = returned
+  println(absent(original))

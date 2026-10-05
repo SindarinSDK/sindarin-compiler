@@ -1009,3 +1009,13 @@ test-rust-parity-array-values: build
 		--require-count 5 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-array-values.json
 	@$(PYTHON) scripts/check_rust_array_value_oracles.py .sn/rust-parity-array-values.json
+
+.PHONY: test-rust-parity-zero-record-defaults
+test-rust-parity-zero-record-defaults: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/rust-native/scalar_zero_record_fields.sn \
+		tests/rust-native/scalar_zero_record_transports.sn \
+		tests/rust-native/scalar_zero_record_local_scopes.sn \
+		--require-count 3 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-zero-record-defaults.json
+	@$(PYTHON) scripts/check_rust_zero_record_oracles.py .sn/rust-parity-zero-record-defaults.json

@@ -1,0 +1,26 @@
+struct Item =>
+  text: str
+  values: int[]
+  count: int = 91
+
+fn exercise(): bool =>
+  var item: Item
+  var startedAbsent = item.text == nil && item.values == nil && item.count == 0
+  item.text = "owned"
+  item.values = {3}
+  item.count++
+  var copy = item
+  copy.text = "copy"
+  copy.values.push(4)
+  copy.count++
+  return startedAbsent && item.text == "owned" && item.values.length == 1 && item.count == 1 && copy.text == "copy" && copy.values.length == 2 && copy.count == 2
+
+fn main(): void =>
+  var good: bool = true
+  for i in 0..100 =>
+    good = good && exercise()
+  println(good)
+  var inspect: fn(): bool = fn(): bool =>
+    var local: Item
+    return local.text == nil && local.values == nil && local.count == 0
+  println(inspect())
