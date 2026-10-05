@@ -1,0 +1,74 @@
+struct Entry as ref =>
+  text: str
+  values: int[]
+
+struct Iterator as ref =>
+  items: Entry[]
+  index: int
+  fn hasNext(): bool =>
+    return self.index < self.items.length
+  fn next(): Entry =>
+    var result = self.items[self.index]
+    self.index++
+    return result
+
+struct Collection as ref =>
+  items: Entry[]
+  fn iter(): Iterator =>
+    return Iterator {
+      items: self.items,
+      index: 0
+    }
+
+fn make(calls: int as ref): Collection =>
+  calls++
+  var first = Entry {
+    text: "first",
+    values: {1}
+  }
+  var second = Entry {
+    text: "second",
+    values: {2}
+  }
+  var third = Entry {
+    text: "third",
+    values: {3}
+  }
+  var items: Entry[] = {}
+  items.push(first)
+  items.push(second)
+  items.push(third)
+  return Collection { items: items }
+
+fn early(value: Collection): str =>
+  for entry in value =>
+    return entry.text
+  return "empty"
+
+fn main(): void =>
+  var calls: int = 0
+  var value = make(calls)
+  var total: int = 0
+  for entry in value =>
+    total += entry.values[0]
+  println(total == 6 && calls == 1)
+  println(early(value) == "first")
+  var seen: int = 0
+  var second = make(calls)
+  for entry in second =>
+    seen++
+    if seen == 1 =>
+      continue
+    if entry.text == "second" =>
+      break
+  println(seen == 2 && calls == 2)
+  var iterations: int = 0
+  for outer in value =>
+    for inner in value =>
+      iterations++
+  println(iterations == 9)
+  println(value.items[0].text == "first" && value.items[1].values[0] == 2)
+  for entry in value =>
+    entry.text = entry.text + "!"
+    entry.values[0] += 10
+  println(value.items[0].text == "first!" && value.items[1].values[0] == 12)

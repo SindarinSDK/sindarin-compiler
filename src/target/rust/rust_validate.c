@@ -2876,13 +2876,6 @@ static bool rust_validate_value_match(json_object *expr)
     return true;
 }
 
-static bool rust_iterator_scalar_element_supported(json_object *type)
-{
-    const char *kind = json_string_property(type, "kind");
-    return kind && (rust_integer_type(kind) || rust_float_type(kind) ||
-                    strcmp(kind, "bool") == 0 || strcmp(kind, "char") == 0);
-}
-
 static bool rust_validate_for_each_iter(json_object *stmt)
 {
     json_object *iterable = NULL, *body = NULL, *iterable_type = NULL;
@@ -2898,24 +2891,15 @@ static bool rust_validate_for_each_iter(json_object *stmt)
         return false;
     }
 
-    const char *element_kind = json_string_property(element_type, "kind");
-    if (!rust_iterator_scalar_element_supported(element_type) ||
-        !json_string_property_equals(stmt, "element_cleanup_kind", "none"))
+    /* next() returns an owned source value. Rust scope destruction handles
+     * scalar, string, array and record elements on normal exit and early control
+     * flow; iterable/iterator ownership uses the ordinary record lowering. */
+    if (!rust_type_supported(element_type) ||
+        !rust_type_supported(iterable_type) || !rust_type_supported(iter_type) ||
+        !json_string_property_equals(iterable_type, "kind", "struct") ||
+        !json_string_property_equals(iter_type, "kind", "struct"))
     {
-        fprintf(stderr,
-                "Error: Rust target supports iterator-protocol foreach only for heap-free scalar elements; got '%s'\n",
-                element_kind ? element_kind : "<unknown>");
-        return false;
-    }
-
-    if (json_boolean_property(stmt, "iterable_pass_by_ref") ||
-        json_boolean_property(stmt, "iter_pass_by_ref") ||
-        !json_string_property_equals(stmt, "iter_cleanup_kind", "none") ||
-        !rust_heap_free_named_struct_type(iterable_type) ||
-        !rust_heap_free_named_struct_type(iter_type))
-    {
-        fprintf(stderr,
-                "Error: Rust target supports iterator-protocol foreach only with plain heap-free value iterable and iterator structs\n");
+        fprintf(stderr, "Error: Rust target encountered unsupported iterator storage types\n");
         return false;
     }
 

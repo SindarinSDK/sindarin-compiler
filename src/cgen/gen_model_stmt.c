@@ -809,6 +809,17 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                 json_object_object_add(obj, "iterable_pass_by_ref",
                     json_object_new_boolean(iterable_type->as.struct_type.pass_self_by_ref));
 
+                /* Keep an owned temporary collection alive until its iterator has
+                 * been destroyed. Borrowed lvalues retain their original storage. */
+                Expr *iterable_expr = stmt->as.for_each_stmt.iterable;
+                if (ownership_kind(iterable_expr) == OWNERSHIP_OWNED)
+                {
+                    json_object_object_add(obj, "needs_iterable_storage",
+                        json_object_new_boolean(true));
+                    json_object_object_add(obj, "iterable_cleanup_kind",
+                        json_object_new_string(gen_model_var_cleanup_kind(iterable_type, false)));
+                }
+
                 /* Iterator struct type name (for __sn__<Name>_hasNext / _next calls) */
                 json_object_object_add(obj, "iter_type_name",
                     json_object_new_string(iter_type->as.struct_type.name));

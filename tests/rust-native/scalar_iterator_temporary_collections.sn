@@ -1,0 +1,75 @@
+struct Entry =>
+  text: str
+  values: int[]
+
+struct Iterator =>
+  items: Entry[]
+  index: int
+  fn hasNext(): bool =>
+    return self.index < self.items.length
+  fn next(): Entry =>
+    var result = self.items[self.index]
+    self.index++
+    return result
+
+struct Collection =>
+  items: Entry[]
+  calls: int = 0
+  fn iter(): Iterator =>
+    self.calls++
+    return Iterator {
+      items: self.items,
+      index: 0
+    }
+
+fn make(calls: int as ref): Collection =>
+  calls++
+  return Collection { items: { Entry {
+    text: "first",
+    values: {1}
+  }, Entry {
+    text: "second",
+    values: {2}
+  }, Entry {
+    text: "third",
+    values: {3}
+  } } }
+
+fn early(value: Collection): str =>
+  for entry in value =>
+    return entry.text
+  return "empty"
+
+fn first(calls: int as ref): Entry =>
+  for entry in make(calls) =>
+    return entry
+  return Entry {
+    text: "empty",
+    values: {}
+  }
+
+fn main(): void =>
+  var calls: int = 0
+  var total: int = 0
+  for entry in make(calls) =>
+    total += entry.values[0]
+  println(total == 6 && calls == 1)
+  var result = first(calls)
+  println(result.text == "first" && result.values[0] == 1 && calls == 2)
+  var seen: int = 0
+  for entry in make(calls) =>
+    seen++
+    if seen == 1 =>
+      continue
+    break
+  println(seen == 2 && calls == 3)
+  var original = make(calls)
+  for entry in original =>
+    entry.text = "changed"
+    entry.values[0] = 99
+  println(original.calls == 1 && original.items[0].text == "first" && original.items[0].values[0] == 1)
+  var repeated: int = 0
+  for index in 0..32 =>
+    for entry in make(calls) =>
+      repeated += entry.values[0]
+  println(repeated == 192 && calls == 36)

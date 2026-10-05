@@ -2470,6 +2470,10 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 json_object_object_add(obj, "kind", json_object_new_string("builtin_length"));
                 json_object_object_add(obj, "object",
                     gen_model_expr(arena, expr->as.member.object, symbol_table, arithmetic_mode));
+                if (obj_type->kind == TYPE_ARRAY &&
+                    ownership_kind(expr->as.member.object) == OWNERSHIP_OWNED)
+                    json_object_object_add(obj, "length_owns_arr",
+                        json_object_new_boolean(true));
                 /* Detect when .length is called on an owned string rvalue
                  * (method call / function call returning str) — the temp
                  * string must be freed after measuring its length. */

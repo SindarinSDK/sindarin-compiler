@@ -5,6 +5,49 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Managed iterator protocol, 2026-10-05
+
+Rust now accepts supported managed element, iterator and iterable types through
+its ordinary record and scope lowering. Strings, arrays, value records and
+reference records are covered, including generic maps, nested loops, empty
+inputs, early return, break/continue, element mutation and receiver mutation.
+The two original iterator programs are unchanged, as are all **1365** original
+corpus source hashes.
+
+Ownership testing exposed three C defects: reference iterator objects were not
+released, temporary collections had no scope owner, and owned arrays used only
+for `.length` leaked. C now destroys owned iterator/collection temporaries in
+reverse declaration order and releases an owned array after reading its length.
+Borrowed collections retain their original storage and caller-visible receiver
+mutation. Returned loop elements remain alive after the iterator is destroyed.
+
+The original seven controls pass all **63** cases under the unchanged C baseline;
+Rust rejected all 63. The additional value-temporary control exposed a C address
+of rvalue compilation bug, so its nine repaired cases are not claimed as
+pre-existing C-positive coverage. All **72** frozen output comparisons now pass
+under GCC and Clang at O0/O1/O2 in default/checked/unchecked arithmetic. Linux
+ASAN/UBSAN/leak checks pass all **24** source/optimization cases; the recorded
+before-fix leak includes reference iterators on normal and early exits.
+
+Both complete local suites pass with zero failures/skips, including **76** native
+positives. Two former iterator rejections are preserved as positive fixtures.
+The frozen compiler passes **46 reports / 3828 cases**, including independent
+reverification of the prior **45 / 3756**. CI requires the new all-platform gate,
+the native fixture count, and the Linux sanitizer report.
+
+Local original corpus coverage rises to **1362 / 1365 (99.78%)**. Hosted acceptance
+of this exact increment is still required before counting it as integrated
+progress. The remaining original failures are both interface programs and array
+mutation through closure parameters; foreign interfaces, qualifier/ownership
+composition and other full-goal requirements remain implementation work.
+
+Evidence: [validation](rust-parity-evidence/managed-iterators-validation.json),
+[unchanged C baseline](rust-parity-evidence/managed-iterators-before.json),
+[temporary baseline](rust-parity-evidence/managed-iterators-temporary-before.json),
+[frozen output contracts](rust-parity-evidence/managed-iterators-oracles.json),
+[sanitized C lifetimes](rust-parity-evidence/managed-iterators-c-lifetimes.json),
+[before-fix leaks](rust-parity-evidence/managed-iterators-reference-leaks-before.json).
+
 ## Interface CI recovery, 2026-10-05
 
 The interface increment `b7e0686c` and evidence-retention follow-up `e3b99919`
@@ -17,7 +60,9 @@ The implementation and tests remain preserved in `b7e0686c`. Main restores the
 exact compiler, templates and acceptance controls of fully hosted-verified
 `2602b3c5` while the empty-storage contract is repaired. Full local C/Rust suites
 pass without failures/skips, including 70 native positives and all 27 frozen
-zero-record comparisons. Recovery CI still requires exact-revision confirmation.
+zero-record comparisons. Recovery revision `5a58cd52` has all six compiler/runtime jobs green, with all
+three 45-report/3756-case platform artifacts independently verified
+([hosted proof](rust-parity-evidence/interface-recovery-main-ci-green.json)).
 The accepted original corpus count returns to **1360 / 1365 (99.63%)**; interface
 prototype results are not counted as accepted progress. The full goal remains
 unchanged, including interfaces, foreign ABI, iterators and closure ownership.

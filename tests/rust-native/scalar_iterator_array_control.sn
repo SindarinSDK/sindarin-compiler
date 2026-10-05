@@ -1,0 +1,44 @@
+struct ArrayIter =>
+  items: int[][]
+  index: int
+  fn hasNext(): bool =>
+    return self.index < self.items.length
+  fn next(): int[] =>
+    var value = self.items[self.index]
+    self.index++
+    return value
+
+struct Sequence as ref =>
+  items: int[][]
+  fn iter(): ArrayIter =>
+    return ArrayIter {
+      items: self.items,
+      index: 0
+    }
+
+fn make(calls: int as ref): Sequence =>
+  calls++
+  return Sequence { items: {{1, 2}, {3}, {4, 5}} }
+
+fn first(value: Sequence): int[] =>
+  for item in value =>
+    return item
+  return {}
+
+fn main(): void =>
+  var calls: int = 0
+  var sum: int = 0
+  for item in make(calls) =>
+    for number in item =>
+      sum += number
+  println(sum == 15 && calls == 1)
+  var source = make(calls)
+  var returned = first(source)
+  println(returned.length == 2 && returned[0] == 1 && returned[1] == 2)
+  var seen: int = 0
+  for item in source =>
+    item = {42}
+    seen++
+  println(seen == 3 && source.items[0][0] == 1 && source.items[2][1] == 5)
+  var empty = Sequence { items: {} }
+  println(first(empty).length == 0)

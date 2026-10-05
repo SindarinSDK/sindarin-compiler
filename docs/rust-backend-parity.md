@@ -4,6 +4,12 @@ Current integration progress and verification evidence are maintained in the
 [completion ledger](rust-parity-progress.md). The dated checkpoints below retain
 their historical scope; they do not define the current parity denominator.
 
+The 2026-10-05 managed iterator increment admits strings, arrays and supported
+value/reference records through the existing iterator lowering. It also repairs
+C cleanup for reference iterators, temporary collections and owned array length
+reads. Frozen all-mode comparisons and Linux sanitizer checks are recorded in
+the completion ledger; exact-revision hosted acceptance remains required.
+
 The 2026-10-03 float/double increment adds conversions at tested scalar storage,
 call and return boundaries and mixed floating compound mutation, including
 observable synchronized cells. Historical same-type-only exclusions below are

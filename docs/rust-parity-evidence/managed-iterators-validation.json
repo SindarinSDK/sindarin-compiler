@@ -1,0 +1,296 @@
+{
+  "base_revision": "5a58cd52064678e17a705f62438ce994fab8e275",
+  "compiler_sha256": "89ea434105940d14cba9660d625dece8eb20d082f151b0e8a4d15ebf6a377fa8",
+  "frozen_inputs_sha256": "9d5f3a4cfce4ac9159b579067c0b2078eddd18b327d5b6901245bbb076d65ddf",
+  "original_sources_preserved": 1365,
+  "local_original_coverage": {
+    "accepted": 1362,
+    "total": 1365
+  },
+  "main_accepted_original_coverage": {
+    "accepted": 1360,
+    "total": 1365,
+    "pending": "Managed iterator increment requires publication and hosted acceptance"
+  },
+  "suites": {
+    "c": {
+      "passed_counts": [
+        1610,
+        107,
+        79,
+        1142,
+        58,
+        224,
+        11
+      ],
+      "failed": 0,
+      "skipped": 0,
+      "log_sha256": "b0dd2d8dc702fbfe9c3d538ac841dd1803309ea9192ef37aae4046b94b7395a0"
+    },
+    "rust": {
+      "passed_counts": [
+        491,
+        131,
+        8,
+        76,
+        1,
+        4,
+        36,
+        1,
+        10,
+        7,
+        1,
+        12
+      ],
+      "failed": 0,
+      "skipped": 0,
+      "log_sha256": "9f278acf24eeeac13d4196ba40e961ab0c671800d625b959780124309283f110"
+    }
+  },
+  "reports": [
+    {
+      "name": "core",
+      "cases": 30,
+      "sha256": "f771c309607004810c20431b794552c70692cba16f4ed135dec2d2eee8486489"
+    },
+    {
+      "name": "concurrency",
+      "cases": 51,
+      "sha256": "57f8e3c37d8009d478adb62c8ec9b6a2925913bcf1d6875184e0d248233a7122"
+    },
+    {
+      "name": "thread-ownership",
+      "cases": 207,
+      "sha256": "da361912d1ef504a1c47b94a969477d79d42cd4da5d7a4a83c4d877b4e8f1cba"
+    },
+    {
+      "name": "thread-receivers",
+      "cases": 90,
+      "sha256": "74aa1e71562af827bea606df43f7278231a6fea531345bf4be48f997546f8d06"
+    },
+    {
+      "name": "reflection",
+      "cases": 36,
+      "sha256": "b5a8695150f8e0da27272c976b07645dd9b595b829a416582257badccda5c3d9"
+    },
+    {
+      "name": "sized-defaults",
+      "cases": 27,
+      "sha256": "56f9316424da814d4c3d58600c52c11898125798b294c5c9393d188dff7b41e6"
+    },
+    {
+      "name": "native-managed",
+      "cases": 63,
+      "sha256": "5482fb8952509f28388cc3e42fb36faf3c3c1fbb219267bfdb48d04f8c475daa"
+    },
+    {
+      "name": "stdio-order",
+      "cases": 30,
+      "sha256": "23fb0f4d0651aa4c873ee3ba9e22ef3d2b4c999d8a3b0f2510d11a2a62b8a6e8"
+    },
+    {
+      "name": "mixed-integral",
+      "cases": 90,
+      "sha256": "11fa769ac4c65e6c69d327b29a26c98fd045e6365f9c026251ab4a2e82c3c00c"
+    },
+    {
+      "name": "mixed-integral-diagnostics",
+      "cases": 9,
+      "sha256": "ad21240a16287caa4ace4bbd6242083d847e600a58553f86b3cff1b66a87c05f"
+    },
+    {
+      "name": "float-conversions",
+      "cases": 117,
+      "sha256": "c8b06f5b61f8f16d150f09f48515f937b2aeb2a02c314a1e444e8df00938b8cd"
+    },
+    {
+      "name": "floating-arrays",
+      "cases": 81,
+      "sha256": "c745aa3ccc7b185a9b54da8d68cc469a7f3ce701dcdbbcf51df7e4166e79f6ad"
+    },
+    {
+      "name": "floating-equality",
+      "cases": 36,
+      "sha256": "1643503939478ebebdf77ed9259a63d350aa7d280ea92c67e92aac0115e89f18"
+    },
+    {
+      "name": "numeric-places",
+      "cases": 153,
+      "sha256": "38547d1b9d8be844d0059449647937ac300d624ddd8ed3825ba2d8c220a80230"
+    },
+    {
+      "name": "capture-index",
+      "cases": 45,
+      "sha256": "4d38b7472d5a9f50caedf301b1cc911b2fa4a3f497ecd35224c8f94d40f86211"
+    },
+    {
+      "name": "sync-character",
+      "cases": 45,
+      "sha256": "842782890a00d75fe2d8389a619d425c6529c4d6250f169bcdd1201ca7c4110a"
+    },
+    {
+      "name": "ctype",
+      "cases": 72,
+      "sha256": "e53888f22556cf3ad8720f0d35236342fbe9d61dbcf1251bd4ff3b7d5b4a6b85"
+    },
+    {
+      "name": "byte-encoding",
+      "cases": 81,
+      "sha256": "6a1875ad867e556a316fc61bd3b8e5f6264f3dd00bee3ae9e739dc457e187621"
+    },
+    {
+      "name": "exit",
+      "cases": 153,
+      "sha256": "31dc9d15b8e3b45d0942f9cbe25a7a9ac518a82ba716e921ca50d8d20dccb2d2"
+    },
+    {
+      "name": "main-return",
+      "cases": 108,
+      "sha256": "3fe71dc898f14eb40b1a9e517eac903f8031decebcafd62bb554d5891841921f"
+    },
+    {
+      "name": "match-control",
+      "cases": 180,
+      "sha256": "921d70abd1a7df0a9c6413035b87bac7710a5a00ad9cc0e3a5c201ae73a84813"
+    },
+    {
+      "name": "sizeof",
+      "cases": 216,
+      "sha256": "cd1d5895c4ef4216f257919b6d2f420213f0b35e3265396436d2c6b6ae709685"
+    },
+    {
+      "name": "call-reference",
+      "cases": 126,
+      "sha256": "3fe41a20000bc7b10941e238415d49f48013cb0ad1e0bf6715fda40b8dee9f06"
+    },
+    {
+      "name": "indexed-string",
+      "cases": 54,
+      "sha256": "f240f75594097ec6dfebe237d87fbd647d5f54d2a369ec95a1032b2533458168"
+    },
+    {
+      "name": "native-scope",
+      "cases": 36,
+      "sha256": "ad3e8b38926bcb9e2f87cab7b51975e210e04146cd8995826a6b584976917f7d"
+    },
+    {
+      "name": "nil-string",
+      "cases": 72,
+      "sha256": "a7c9107a039f82200058800acc8303fdf104594dd777742993bcc9c607c28b7e"
+    },
+    {
+      "name": "nil-array",
+      "cases": 90,
+      "sha256": "46a6067dfa408f6b6fe6295a4de0f1e19a9bcec4bdc503d544cda0eccb1ee4dd"
+    },
+    {
+      "name": "nested-stores",
+      "cases": 45,
+      "sha256": "fecbd59f10a64b9f0a1b9ad95dac3494aa4ed06a0cdf8bf55138b2e5d88c7cb7"
+    },
+    {
+      "name": "owned-array-copies",
+      "cases": 45,
+      "sha256": "892d4402408f384c913af55aa403bcee298fe4921b7d1d500b18cfe9a0f2b55c"
+    },
+    {
+      "name": "native-records",
+      "cases": 45,
+      "sha256": "aff09ce3696c297352afa70a3208bc81f05d899b8b33c457599d787311bfb18d"
+    },
+    {
+      "name": "native-record-references",
+      "cases": 36,
+      "sha256": "202f7188ba0d457df1d0d3583b7485d6b920deb554e0def14257c7ca7258beb3"
+    },
+    {
+      "name": "owned-record-parameters",
+      "cases": 216,
+      "sha256": "1769bd3b279d18344f5dc52e3ae5d5773cc82bd5f39310bf1b9a885fac59ea9b"
+    },
+    {
+      "name": "reference-records",
+      "cases": 171,
+      "sha256": "63dcf3325bfce7729bce506974bdcff04e53fbdfb35713b116fa37d7516880d1"
+    },
+    {
+      "name": "scalar-parameters",
+      "cases": 126,
+      "sha256": "5c1c8ecfb0c9d2ad703b0e1b6b708cce10091a687ab91c912b3ebfeb024f9ce6"
+    },
+    {
+      "name": "closure-records",
+      "cases": 189,
+      "sha256": "44cbf5bbacdf85cbf1b2555c12013bf2cc815416d763312a04376765c698caa2"
+    },
+    {
+      "name": "native-handles",
+      "cases": 117,
+      "sha256": "347d948023b92a9daef2bea016845bec794c06fa33b8eed5f7471b561ac07bcd"
+    },
+    {
+      "name": "native-arrays",
+      "cases": 27,
+      "sha256": "d944b989c3e50112df19c3840af5e25e83cf09543f374beabaa4056a6d1595f2"
+    },
+    {
+      "name": "native-globals",
+      "cases": 36,
+      "sha256": "c72f7d0bd9c183d8152db5d75da5d610a2ea10c5f21ee56917b42a53e7294ee8"
+    },
+    {
+      "name": "native-managed-records",
+      "cases": 54,
+      "sha256": "022790a3c3d70d4d2998790c37b7303061d2ab9b2a4d694bd9903b9ad72e9e8b"
+    },
+    {
+      "name": "native-callables",
+      "cases": 63,
+      "sha256": "d570f596760a4c89c478b0c14fae514c72e0a5f48a995bda6bb4209c9f6342c8"
+    },
+    {
+      "name": "native-variadics",
+      "cases": 54,
+      "sha256": "6dc3b1925417759a27f0863f8fc6d017c7f21682c6e8530d6d27831a548df322"
+    },
+    {
+      "name": "serialization",
+      "cases": 117,
+      "sha256": "e83289b05085a5028b93b30171280d46ffd6f91073241817b30825bcb3553488"
+    },
+    {
+      "name": "pointer-slices",
+      "cases": 45,
+      "sha256": "1ba2747940161b88e19b7952287b02954c6115b1596e9e03f7a743d251cddb6f"
+    },
+    {
+      "name": "array-values",
+      "cases": 45,
+      "sha256": "daa4e6a6f44fa5ab610c48458684bd7943903845f74a1badf86dfcd0d50d141b"
+    },
+    {
+      "name": "zero-record-defaults",
+      "cases": 27,
+      "sha256": "e24830532fc4e5f26672a8d0f675ca07f0410c523bc468fc71c0436b72462d07"
+    },
+    {
+      "name": "managed-iterators",
+      "cases": 72,
+      "sha256": "d3150d9b80f870625a86af219b9af38fa8685f594d63d0322da6dc2ec8e9f014"
+    }
+  ],
+  "report_count": 46,
+  "case_count": 3828,
+  "independent_iterator_cases": 72,
+  "independent_clang_iterator_cases": 72,
+  "sanitizer_cases": 24,
+  "before_c_positive_cases": 63,
+  "separate_before_c_invalid_temporary_cases": 9,
+  "hosted_acceptance": "pending exact revision",
+  "remaining_originals": [
+    "tests/integration/test_interfaces.sn",
+    "tests/integration/test_builtin_interfaces.sn",
+    "tests/exploratory/test_array_mutation_lambda.sn"
+  ],
+  "full_goal_complete": false
+}

@@ -1019,3 +1019,18 @@ test-rust-parity-zero-record-defaults: build
 		--require-count 3 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-zero-record-defaults.json
 	@$(PYTHON) scripts/check_rust_zero_record_oracles.py .sn/rust-parity-zero-record-defaults.json
+
+.PHONY: test-rust-parity-managed-iterators
+test-rust-parity-managed-iterators: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/integration/test_iterator_protocol.sn \
+		tests/integration/test_generic_multi_param_iter.sn \
+		tests/rust-native/scalar_iterator_array_control.sn \
+		tests/rust-native/scalar_iterator_owned_control.sn \
+		tests/rust-native/scalar_iterator_owned_state.sn \
+		tests/rust-native/scalar_iterator_owned_string.sn \
+		tests/rust-native/scalar_iterator_reference_control.sn \
+		tests/rust-native/scalar_iterator_temporary_collections.sn \
+		--require-count 8 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-managed-iterators.json
+	@$(PYTHON) scripts/check_rust_iterator_oracles.py .sn/rust-parity-managed-iterators.json
