@@ -1395,5 +1395,6 @@
       "status": "passed",
       "log_sha256": "8b6219f49b75794e8c9541528b5926fd256790cf892b1350b98e449a586462ce"
     }
-  }
+  },
+  "hosted_lifetime_artifact": ".sn/rust-interface-lifetimes.json, retained with mandatory platform artifacts"
 }
