@@ -5,43 +5,24 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
-## Ordinary structural interfaces: local acceptance, 2026-10-05
+## Interface CI recovery, 2026-10-05
 
-This increment starts from fully hosted-verified main `2602b3c5`. The shared front
-end continues to check structural satisfaction. Rust transports private source
-storage identities using C field offsets, preserving value/reference arguments,
-aliases, independent copies, inline fields, readonly aggregate origins, empty
-values, record-array strides, source closure snapshots and temporary lifetimes.
-Provenance edges belong to shared lifetime tokens; final-owner destruction
-removes them across moves, growth, returns and escaping captures. Source equality
-and reflection exclude private metadata. Native C record layouts retain their
-existing ABI. C remains the default target.
+The interface increment `b7e0686c` and evidence-retention follow-up `e3b99919`
+failed macOS runtime CI. Clang gives two zero-byte empty locals the same address;
+Rust gave them distinct identities. Four related fixtures disagree at all nine
+optimization/arithmetic combinations. Linux acceptance does not prove these
+platform-dependent storage relationships.
 
-Both complete local suites pass with zero failures/skips, including **87** native
-positives. All **46 reports / 3927 cases** pass on one frozen compiler, including
-independent reverification of the prior **45 / 3756**. The new mandatory gate adds
-**171** frozen comparisons and **12** emitted-Rust lifetime audits. Its source
-hashes and raw outputs are checked independently; the strict platform fixture
-count and label both require 87.
+The implementation and tests remain preserved in `b7e0686c`. Main restores the
+exact compiler, templates and acceptance controls of fully hosted-verified
+`2602b3c5` while the empty-storage contract is repaired. Full local C/Rust suites
+pass without failures/skips, including 70 native positives and all 27 frozen
+zero-record comparisons. Recovery CI still requires exact-revision confirmation.
+The accepted original corpus count returns to **1360 / 1365 (99.63%)**; interface
+prototype results are not counted as accepted progress. The full goal remains
+unchanged, including interfaces, foreign ABI, iterators and closure ownership.
 
-The two unchanged original interface programs pass. Original corpus coverage is
-**1362 / 1365 (99.78%)**, with all 1365 source hashes unchanged. The remaining
-original gaps are multi-parameter generic iteration, iterator protocols and
-mutation of closure array parameters. This percentage describes original corpus
-coverage, not completion of the full goal.
-
-**Native interface ABI is still incomplete:** a C-valid boundary probe passes
-six independent checks per optimization level while Rust rejects its interface
-parameters. Rejection is not parity credit. Real C source storage, mutations,
-returns, SDK callbacks and qualified/global/concurrent ownership remain full-goal
-work. Exact-revision Linux/macOS/Windows ordinary-interface acceptance is recorded
-by mandatory CI after publication.
-
-Evidence: [validation](rust-parity-evidence/interfaces-validation.json),
-[raw-output contracts](rust-parity-evidence/interfaces-oracles.json),
-[lifetime audits](rust-parity-evidence/interfaces-lifetimes.json),
-[native ABI gap](rust-parity-evidence/interfaces-native-abi-before.json),
-[implementation scope](rust-structural-interfaces.md).
+Evidence: [recovery validation](rust-parity-evidence/interface-ci-recovery.json).
 
 ## Zero-initialized value records, 2026-10-05
 
@@ -65,10 +46,8 @@ The **1365** original source hashes are unchanged. Corpus coverage remains
 **1360 / 1365 (99.63%)**, with the same five interface/iterator/closure-array gaps.
 This increment is a prerequisite for interface work; full interface ownership,
 metadata cleanup and foreign boundaries still require implementation and proof.
-The increment is published at `2602b3c5e7860296206826032e5f137a12aa33df`.
-All six exact-revision jobs pass, and Linux/macOS/Windows artifacts independently
-verify **45 reports / 3756 cases** each with zero suite failures/skips:
-[hosted proof](rust-parity-evidence/zero-record-defaults-main-ci-green.json).
+Exact-revision Linux/macOS/Windows acceptance is recorded by the mandatory CI
+workflows after publication.
 
 Evidence: [validation](rust-parity-evidence/zero-record-defaults-validation.json),
 [unchanged baseline](rust-parity-evidence/zero-record-defaults-before.json),

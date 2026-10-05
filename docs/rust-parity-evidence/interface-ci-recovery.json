@@ -1,0 +1,46 @@
+{
+  "state": "CI recovery: revert interface implementation until empty-value identity agrees with selected C storage semantics",
+  "restored_revision": "2602b3c5e7860296206826032e5f137a12aa33df",
+  "source_templates_controls_match_verified_parent": true,
+  "interface_work_preserved_revision": "b7e0686cd6d4a5fd383ce4c7ddf42354ad4e3382",
+  "failure_revision": "e3b99919b3756208032b0b3dfd7a864d41d2ca3c",
+  "failed_runtime_run": 37338648966,
+  "macos_failed_job": 111859780962,
+  "failure": "At comparison 17, Clang C aliases zero-byte empty locals, so C prints false while Rust prints true; four related interface sources fail at all nine modes. No failed revision is accepted as parity.",
+  "suites": {
+    "c": {
+      "counts": [
+        1610,
+        107,
+        79,
+        1142,
+        58,
+        224,
+        11
+      ],
+      "failures": 0,
+      "skips": 0,
+      "log_sha256": "1079e90daf68db3d07b4602c8668c8584f0f4fbacf584a73588f079af23a8cf5"
+    },
+    "rust": {
+      "counts": [
+        491,
+        133,
+        8,
+        70,
+        1,
+        4,
+        36,
+        1,
+        10,
+        7,
+        1,
+        12
+      ],
+      "failures": 0,
+      "skips": 0,
+      "log_sha256": "7a5be921913e0a0527e4d664ba2631de15961a68de35c059d607ec59ebd04eed"
+    }
+  },
+  "zero_record_frozen_pairs": 27
+}

@@ -41,11 +41,6 @@ static char *rust_type(json_object *type)
     if (strcmp(kind, "bool") == 0) return strdup("bool");
     if (strcmp(kind, "char") == 0) return strdup("char");
     if (strcmp(kind, "byte") == 0) return strdup("u8");
-    if (strcmp(kind, "interface") == 0)
-    {
-        const char *name = json_string_property(type, "rust_interface_type_name");
-        return strdup(name ? name : "*mut std::ffi::c_void");
-    }
     if (strcmp(kind, "opaque") == 0)
         return strdup("*mut std::ffi::c_void");
     if (strcmp(kind, "pointer") == 0)
@@ -319,17 +314,6 @@ static char *helper_rust_default(json_object **params, int param_count, hbs_opti
     const char *kind = param_count > 0 ? json_kind(params[0]) : NULL;
     if (!kind) return strdup("()");
     if (strcmp(kind, "bool") == 0) return strdup("false");
-    if (strcmp(kind, "interface") == 0)
-    {
-        const char *name = json_string_property(params[0], "rust_interface_type_name");
-        if (name)
-        {
-            size_t size = strlen(name) + sizeof("::nil()");
-            char *result = malloc(size);
-            if (result) snprintf(result, size, "%s::nil()", name);
-            return result;
-        }
-    }
     if (strcmp(kind, "char") == 0) return strdup("'\\0'");
     if (strcmp(kind, "string") == 0)
     {
@@ -388,12 +372,6 @@ static char *helper_rust_clone_suffix(json_object **params, int param_count,
     (void)options;
     if (param_count < 2 || !params[0] || !params[1] ||
         !json_object_get_boolean(params[1])) return strdup("");
-
-    /* Interface arguments expose the existing identity without acquiring a
-     * value copy. This also applies to clone flags added by later owner passes. */
-    json_object *interface = NULL;
-    if (json_object_object_get_ex(params[0], "rust_interface_argument", &interface) &&
-        json_object_get_boolean(interface)) return strdup("");
 
     json_object *owned = NULL, *borrowed = NULL, *acquired = NULL;
     if ((json_object_object_get_ex(params[0], "rust_native_handle_owned_read", &owned) && json_object_get_boolean(owned)) ||

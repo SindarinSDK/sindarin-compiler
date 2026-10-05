@@ -156,9 +156,9 @@ jobs:
           run_gate "tagged native C/Rust parity (8 fixtures)" \
             python3 scripts/run_rust_tests.py rust-native-tagged --verbose \
               --require-count 8 --fail-on-skip
-          run_gate "native scalar, record and managed ABI fixtures (87 fixtures)" \
+          run_gate "native scalar, record and managed ABI fixtures (70 fixtures)" \
             python3 scripts/run_rust_tests.py rust-native-extra --verbose \
-              --require-count 87 --fail-on-skip
+              --require-count 70 --fail-on-skip
           run_gate "canonical native handle ownership (117 cases)" \
             make -o build test-rust-parity-native-handles
           run_gate "canonical native reference arrays (27 cases)" \
@@ -236,9 +236,6 @@ jobs:
           run_gate "zero-initialized value records (3 sources, all optimization/arithmetic modes)" \
             make test-rust-parity-zero-record-defaults
 
-          run_gate "structural interface storage and lifetimes (19 sources, all optimization/arithmetic modes)" \
-            make test-rust-parity-interfaces
-
           run_gate "native managed results and scalar references (7 sources, all optimization/arithmetic modes)" \
             make test-rust-parity-native-managed
 
@@ -298,7 +295,6 @@ jobs:
           path: |
             .sn/rust-runtime-diagnostics/
             .sn/rust-parity-*.json
-            .sn/rust-interface-lifetimes.json
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 7
