@@ -1,0 +1,114 @@
+{
+  "compiler_sha256": "5fdcef2f1a85062d88af228620556862b43a5fa25cdcd96e57d0e45a77b9e2d9",
+  "cases": [
+    {
+      "source": "tests/rust-native/native_interface_metadata_scope.sn",
+      "source_sha256": "8067457d87ae2d2051fab63ad3170ad520109287c9a15edd1ec493be2bb729e7",
+      "optimization": "-O0",
+      "status": 0,
+      "stdout_hex": "747275650a",
+      "stderr_hex": "6d657461646174615f656e74726965733a300a",
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/native_interface_metadata_scope.sn",
+      "source_sha256": "8067457d87ae2d2051fab63ad3170ad520109287c9a15edd1ec493be2bb729e7",
+      "optimization": "-O1",
+      "status": 0,
+      "stdout_hex": "747275650a",
+      "stderr_hex": "6d657461646174615f656e74726965733a300a",
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/native_interface_metadata_scope.sn",
+      "source_sha256": "8067457d87ae2d2051fab63ad3170ad520109287c9a15edd1ec493be2bb729e7",
+      "optimization": "-O2",
+      "status": 0,
+      "stdout_hex": "747275650a",
+      "stderr_hex": "6d657461646174615f656e74726965733a300a",
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/native_interface_metadata_growth.sn",
+      "source_sha256": "de430338b15dbf6ea16ad4f3d41675179152d1cc047aea985750676c63fe2ad1",
+      "optimization": "-O0",
+      "status": 0,
+      "stdout_hex": "747275650a",
+      "stderr_hex": "6d657461646174615f656e74726965733a300a",
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/native_interface_metadata_growth.sn",
+      "source_sha256": "de430338b15dbf6ea16ad4f3d41675179152d1cc047aea985750676c63fe2ad1",
+      "optimization": "-O1",
+      "status": 0,
+      "stdout_hex": "747275650a",
+      "stderr_hex": "6d657461646174615f656e74726965733a300a",
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/native_interface_metadata_growth.sn",
+      "source_sha256": "de430338b15dbf6ea16ad4f3d41675179152d1cc047aea985750676c63fe2ad1",
+      "optimization": "-O2",
+      "status": 0,
+      "stdout_hex": "747275650a",
+      "stderr_hex": "6d657461646174615f656e74726965733a300a",
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/native_interface_metadata_capture.sn",
+      "source_sha256": "6fbd36de62f11ff7457d435691c1b7e0e21ab8acd7dafd01d9d1fc1c46ac46a3",
+      "optimization": "-O0",
+      "status": 0,
+      "stdout_hex": "747275650a",
+      "stderr_hex": "6d657461646174615f656e74726965733a300a",
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/native_interface_metadata_capture.sn",
+      "source_sha256": "6fbd36de62f11ff7457d435691c1b7e0e21ab8acd7dafd01d9d1fc1c46ac46a3",
+      "optimization": "-O1",
+      "status": 0,
+      "stdout_hex": "747275650a",
+      "stderr_hex": "6d657461646174615f656e74726965733a300a",
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/native_interface_metadata_capture.sn",
+      "source_sha256": "6fbd36de62f11ff7457d435691c1b7e0e21ab8acd7dafd01d9d1fc1c46ac46a3",
+      "optimization": "-O2",
+      "status": 0,
+      "stdout_hex": "747275650a",
+      "stderr_hex": "6d657461646174615f656e74726965733a300a",
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/native_interface_returned_array_scope.sn",
+      "source_sha256": "2ede86af57de34bac2316c76034c1660a6291c9f7abdbc7526489829d486ba63",
+      "optimization": "-O0",
+      "status": 0,
+      "stdout_hex": "747275650a",
+      "stderr_hex": "6d657461646174615f656e74726965733a300a",
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/native_interface_returned_array_scope.sn",
+      "source_sha256": "2ede86af57de34bac2316c76034c1660a6291c9f7abdbc7526489829d486ba63",
+      "optimization": "-O1",
+      "status": 0,
+      "stdout_hex": "747275650a",
+      "stderr_hex": "6d657461646174615f656e74726965733a300a",
+      "passed": true
+    },
+    {
+      "source": "tests/rust-native/native_interface_returned_array_scope.sn",
+      "source_sha256": "2ede86af57de34bac2316c76034c1660a6291c9f7abdbc7526489829d486ba63",
+      "optimization": "-O2",
+      "status": 0,
+      "stdout_hex": "747275650a",
+      "stderr_hex": "6d657461646174615f656e74726965733a300a",
+      "passed": true
+    }
+  ],
+  "passed": true
+}

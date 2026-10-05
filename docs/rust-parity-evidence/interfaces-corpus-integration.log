@@ -1,0 +1,30 @@
+Compiler: /home/gavin/code/sindarin/sindarin-rust-interfaces-f40dd12a/.sn/interface-core-corpus-bin/sn
+Platform: Linux
+Parallel: 6 workers
+
+Integration Tests
+============================================================
+  Running 1142 tests with 6 workers...
+                                                              test_generic_multi_param_iter                 FAIL (compile error)  (35ms)
+    [1mCompiling[0m tests/integration/test_generic_multi_param_iter.sn...
+      Parsing... [1;36mdone[0m
+      Type checking... [1;36mdone[0m
+      Code generation...Error: Rust target supports iterator-protocol foreach only for heap-free scalar elements; got 'struct'
+    Error: Rust target encountered an unsupported construct in function 'main'
+     [1;31mfailed[0m
+    
+    
+  test_iterator_protocol                        FAIL (compile error)  (52ms)
+    [1mCompiling[0m tests/integration/test_iterator_protocol.sn...
+      Parsing... [1;36mdone[0m
+      Type checking... [1;36mdone[0m
+      Code generation...Error: Rust target supports iterator-protocol foreach only for heap-free scalar elements; got 'struct'
+    Error: Rust target encountered an unsupported construct in function 'main'
+     [1;31mfailed[0m
+    
+    
+
+------------------------------------------------------------
+Results: 1140 passed, 2 failed, 0 skipped  (46.19s)
+
+Some tests failed!  (total: 46.19s)

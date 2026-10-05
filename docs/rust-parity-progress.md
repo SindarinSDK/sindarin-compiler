@@ -5,6 +5,44 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Ordinary structural interfaces: local acceptance, 2026-10-05
+
+This increment starts from fully hosted-verified main `2602b3c5`. The shared front
+end continues to check structural satisfaction. Rust transports private source
+storage identities using C field offsets, preserving value/reference arguments,
+aliases, independent copies, inline fields, readonly aggregate origins, empty
+values, record-array strides, source closure snapshots and temporary lifetimes.
+Provenance edges belong to shared lifetime tokens; final-owner destruction
+removes them across moves, growth, returns and escaping captures. Source equality
+and reflection exclude private metadata. Native C record layouts retain their
+existing ABI. C remains the default target.
+
+Both complete local suites pass with zero failures/skips, including **87** native
+positives. All **46 reports / 3927 cases** pass on one frozen compiler, including
+independent reverification of the prior **45 / 3756**. The new mandatory gate adds
+**171** frozen comparisons and **12** emitted-Rust lifetime audits. Its source
+hashes and raw outputs are checked independently; the strict platform fixture
+count and label both require 87.
+
+The two unchanged original interface programs pass. Original corpus coverage is
+**1362 / 1365 (99.78%)**, with all 1365 source hashes unchanged. The remaining
+original gaps are multi-parameter generic iteration, iterator protocols and
+mutation of closure array parameters. This percentage describes original corpus
+coverage, not completion of the full goal.
+
+**Native interface ABI is still incomplete:** a C-valid boundary probe passes
+six independent checks per optimization level while Rust rejects its interface
+parameters. Rejection is not parity credit. Real C source storage, mutations,
+returns, SDK callbacks and qualified/global/concurrent ownership remain full-goal
+work. Exact-revision Linux/macOS/Windows ordinary-interface acceptance is recorded
+by mandatory CI after publication.
+
+Evidence: [validation](rust-parity-evidence/interfaces-validation.json),
+[raw-output contracts](rust-parity-evidence/interfaces-oracles.json),
+[lifetime audits](rust-parity-evidence/interfaces-lifetimes.json),
+[native ABI gap](rust-parity-evidence/interfaces-native-abi-before.json),
+[implementation scope](rust-structural-interfaces.md).
+
 ## Zero-initialized value records, 2026-10-05
 
 This independent increment starts from verified main `afdcddef`. Rust now lowers
@@ -27,8 +65,10 @@ The **1365** original source hashes are unchanged. Corpus coverage remains
 **1360 / 1365 (99.63%)**, with the same five interface/iterator/closure-array gaps.
 This increment is a prerequisite for interface work; full interface ownership,
 metadata cleanup and foreign boundaries still require implementation and proof.
-Exact-revision Linux/macOS/Windows acceptance is recorded by the mandatory CI
-workflows after publication.
+The increment is published at `2602b3c5e7860296206826032e5f137a12aa33df`.
+All six exact-revision jobs pass, and Linux/macOS/Windows artifacts independently
+verify **45 reports / 3756 cases** each with zero suite failures/skips:
+[hosted proof](rust-parity-evidence/zero-record-defaults-main-ci-green.json).
 
 Evidence: [validation](rust-parity-evidence/zero-record-defaults-validation.json),
 [unchanged baseline](rust-parity-evidence/zero-record-defaults-before.json),

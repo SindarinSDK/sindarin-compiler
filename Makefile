@@ -1019,3 +1019,30 @@ test-rust-parity-zero-record-defaults: build
 		--require-count 3 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-zero-record-defaults.json
 	@$(PYTHON) scripts/check_rust_zero_record_oracles.py .sn/rust-parity-zero-record-defaults.json
+
+.PHONY: test-rust-parity-interfaces
+test-rust-parity-interfaces: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/integration/test_interfaces.sn \
+		tests/integration/test_builtin_interfaces.sn \
+		tests/rust-native/native_structural_interfaces.sn \
+		tests/rust-native/native_interface_temporary_fields.sn \
+		tests/rust-native/native_interface_parent_field_parameter.sn \
+		tests/rust-native/native_interface_empty_array.sn \
+		tests/rust-native/native_interface_storage_mutations.sn \
+		tests/rust-native/native_interface_array_storage.sn \
+		tests/rust-native/native_interface_default_values.sn \
+		tests/rust-native/native_interface_array_copies.sn \
+		tests/rust-native/native_interface_field_arrays.sn \
+		tests/rust-native/native_interface_captured_field_arrays.sn \
+		tests/rust-native/native_interface_metadata_scope.sn \
+		tests/rust-native/native_interface_metadata_growth.sn \
+		tests/rust-native/native_interface_metadata_capture.sn \
+		tests/rust-native/native_interface_returned_array_scope.sn \
+		tests/rust-native/native_interface_plain_record_copies.sn \
+		tests/rust-native/native_interface_serial_runtime.sn \
+		tests/rust-native/native_interface_captured_array_alias.sn \
+		--require-count 19 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-interfaces.json
+	@$(PYTHON) scripts/check_rust_interface_oracles.py .sn/rust-parity-interfaces.json
+	@$(PYTHON) scripts/check_rust_interface_lifetimes.py

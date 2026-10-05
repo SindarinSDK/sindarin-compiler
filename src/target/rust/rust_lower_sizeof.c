@@ -209,3 +209,72 @@ static bool rust_lower_sizeof_layouts(json_object *model, json_object *node)
     }
     return true;
 }
+
+/* Interface identity follows source C storage, including inline fields and
+ * zero-sized value elements. Keep these layouts independent of the owning and
+ * synchronized representations used by generated Rust. Reference record body
+ * layouts include the real C reference-count header; sizeof(reference) remains
+ * pointer-sized and continues to use the existing path above. */
+static bool rust_prepare_interface_layouts(json_object *model)
+{
+    if (!json_boolean_property(model, "rust_has_interface_arguments")) return true;
+    json_object *structures = NULL;
+    if (!json_object_object_get_ex(model, "structs", &structures)) return true;
+    json_object *plans = json_object_new_array();
+    json_object_object_add(model, "rust_interface_layouts", plans);
+    for (size_t i = 0; i < json_object_array_length(structures); i++)
+    {
+        json_object *structure = json_object_array_get_idx(structures, i), *source_fields = NULL;
+        const char *source_name = json_string_property(structure, "name");
+        if (!source_name || json_boolean_property(structure, "rust_c_layout_only")) continue;
+        /* Encoder/Decoder bodies are defined by sn_serial.h and have no
+         * generated reference-count header. Their canonical native handles
+         * must use the runtime ABI rather than a synthesized record body. */
+        if (json_boolean_property(structure, "rust_native_serial_handle")) continue;
+        if (!json_object_object_get_ex(structure, "fields", &source_fields)) return false;
+
+        bool reference = json_boolean_property(structure, "pass_self_by_ref");
+        json_object *body = json_object_new_object(), *body_fields = json_object_new_array();
+        size_t name_size = strlen(source_name) + sizeof("::interface_body");
+        char *body_name = malloc(name_size);
+        if (!body_name) { json_object_put(body); json_object_put(body_fields); return false; }
+        snprintf(body_name, name_size, "%s::interface_body", source_name);
+        json_object_object_add(body, "kind", json_object_new_string("struct"));
+        json_object_object_add(body, "name", json_object_new_string(body_name));
+        free(body_name);
+        json_object_object_add(body, "is_packed", json_object_new_boolean(
+            !reference && json_boolean_property(structure, "is_packed")));
+        json_object_object_add(body, "fields", body_fields);
+        if (reference)
+        {
+            json_object *header = json_object_new_object(), *header_type = json_object_new_object();
+            json_object_object_add(header_type, "kind", json_object_new_string("int32"));
+            json_object_object_add(header, "type", header_type);
+            json_object_array_add(body_fields, header);
+        }
+        for (size_t f = 0; f < json_object_array_length(source_fields); f++)
+            json_object_array_add(body_fields, json_object_get(json_object_array_get_idx(source_fields, f)));
+        json_object *wire = rust_sizeof_wire_type(model, body);
+        json_object_put(body);
+        if (!wire) return false;
+        json_object_object_add(structure, "rust_interface_layout_type", json_object_get(wire));
+
+        json_object *plan = json_object_new_object(), *fields = json_object_new_array();
+        json_object_object_add(plan, "source_name", json_object_new_string(source_name));
+        json_object_object_add(plan, "type", wire);
+        json_object_object_add(plan, "is_reference", json_object_new_boolean(reference));
+        json_object_object_add(plan, "fields", fields);
+        for (size_t f = 0; f < json_object_array_length(source_fields); f++)
+        {
+            json_object *source_field = json_object_array_get_idx(source_fields, f), *field = json_object_new_object();
+            const char *name = json_string_property(source_field, "name");
+            char wire_name[48];
+            snprintf(wire_name, sizeof(wire_name), "field_%zu", f + (reference ? 1 : 0));
+            json_object_object_add(field, "name", json_object_new_string(name ? name : ""));
+            json_object_object_add(field, "wire_name", json_object_new_string(wire_name));
+            json_object_array_add(fields, field);
+        }
+        json_object_array_add(plans, plan);
+    }
+    return true;
+}

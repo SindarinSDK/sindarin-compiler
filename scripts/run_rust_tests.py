@@ -624,6 +624,23 @@ class TestRunner:
             test_files = sorted(glob.glob(pattern, recursive=True))
         if test_type == 'rust-native-extra':
             test_files.extend([
+                'tests/rust-native/native_structural_interfaces.sn',
+                'tests/rust-native/native_interface_temporary_fields.sn',
+                'tests/rust-native/native_interface_parent_field_parameter.sn',
+                'tests/rust-native/native_interface_empty_array.sn',
+                'tests/rust-native/native_interface_storage_mutations.sn',
+                'tests/rust-native/native_interface_array_storage.sn',
+                'tests/rust-native/native_interface_default_values.sn',
+                'tests/rust-native/native_interface_array_copies.sn',
+                'tests/rust-native/native_interface_field_arrays.sn',
+                'tests/rust-native/native_interface_captured_field_arrays.sn',
+                'tests/rust-native/native_interface_metadata_scope.sn',
+                'tests/rust-native/native_interface_metadata_growth.sn',
+                'tests/rust-native/native_interface_metadata_capture.sn',
+                'tests/rust-native/native_interface_returned_array_scope.sn',
+                'tests/rust-native/native_interface_plain_record_copies.sn',
+                'tests/rust-native/native_interface_serial_runtime.sn',
+                'tests/rust-native/native_interface_captured_array_alias.sn',
                 'tests/rust-native/native_as_val_arrays.sn',
                 'tests/rust-native/native_as_val_array_contexts.sn',
                 'tests/rust-native/native_as_val_array_types.sn',

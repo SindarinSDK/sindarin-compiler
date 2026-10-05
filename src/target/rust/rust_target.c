@@ -155,6 +155,7 @@ static bool rust_check_toolchain(const CompilerOptions *options)
 #include "rust_native_record_storage.c"
 #include "rust_native_handle_nodes.c"
 #include "rust_zero_records.c"
+#include "rust_interfaces.c"
 
 static bool rust_emit(CompilerOptions *options, Module *module,
                       TargetEmitMode mode, GeneratedFileSet *result)
@@ -227,6 +228,18 @@ static bool rust_emit(CompilerOptions *options, Module *module,
     if (!rust_lower_calls(model))
     {
         fprintf(stderr, "Error: Rust target could not lower default-array call aliases\n");
+        json_object_put(model);
+        return false;
+    }
+    if (!rust_prepare_interface_layouts(model))
+    {
+        fprintf(stderr, "Error: Rust target could not preserve interface C storage layouts\n");
+        json_object_put(model);
+        return false;
+    }
+    if (!rust_prepare_interface_identities(model))
+    {
+        fprintf(stderr, "Error: Rust target could not preserve interface storage identities\n");
         json_object_put(model);
         return false;
     }

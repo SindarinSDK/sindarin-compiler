@@ -1,0 +1,1 @@
+{{rust_ident @root.rust_interface_array_prepare_function}}({{> expr_uncast this}}, std::mem::size_of::<{{rust_type type.element_type.rust_interface_layout_type}}>(), {{#if type.element_type.rust_native_record_storage}}true{{else}}false{{/if}})

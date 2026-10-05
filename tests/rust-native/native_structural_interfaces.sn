@@ -1,0 +1,62 @@
+interface Named =>
+  fn toString(): str
+
+struct Value =>
+  name: str
+
+  fn toString(): str =>
+    return self.name
+
+struct Reference as ref =>
+  name: str
+
+  fn toString(): str =>
+    return self.name
+
+struct Holder =>
+  value: Value
+
+struct Acceptor =>
+  marker: int
+
+  fn accept(value: Named): bool =>
+    return true
+
+fn accepts(value: Named): bool =>
+  return true
+
+fn same(left: Named, right: Named): bool =>
+  return left == right
+
+fn make(calls: int as ref): Value =>
+  calls++
+  return Value { name: "temporary" }
+
+fn main(): void =>
+  var value: Value = { name: "value" }
+  var reference: Reference = { name: "reference" }
+  var alias = reference
+  println(accepts(value))
+  println(accepts(reference))
+  println(same(value, value))
+  println(same(reference, alias))
+  var calls: int = 0
+  var temporary = make(calls)
+  println(accepts(temporary) && calls == 1)
+  println(value.toString() == "value" && reference.toString() == "reference")
+  var inspect: fn(): bool = fn(): bool => same(value, value) && same(reference, alias)
+  println(inspect())
+  var acceptor: Acceptor = { marker: 0 }
+  println(acceptor.accept(value))
+  var lambda: fn(Named): bool = fn(arg: Named): bool => true
+  println(lambda(reference))
+  var other: Value = { name: "value" }
+  println(!same(value, other))
+  var absent: Reference
+  println(same(absent, absent) && !same(reference, absent))
+  var holder: Holder = { value: Value { name: "held" } }
+  println(same(holder.value, holder.value))
+  var rows: Value[] = {value}
+  println(same(rows[0], rows[0]))
+  var fieldReader: fn(): bool = fn(): bool => same(holder.value, holder.value)
+  println(fieldReader())
