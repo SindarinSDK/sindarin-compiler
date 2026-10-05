@@ -1,0 +1,91 @@
+struct Processor =>
+  marker: int
+  values: int[]
+
+  fn touch(): int =>
+    self.values[0] = 13
+    return 0
+
+  fn copy(values: int[] as val): int[] =>
+    values.push(self.marker)
+    return values
+
+  static fn copyStatic(values: int[] as val): int[] =>
+    values.push(5)
+    return values
+
+  fn pair(left: int[] as val, right: int[] as val): bool =>
+    left[0] = 9
+    return right[0] == 1
+
+  static fn mixed(copy: int[] as val, shared: int[]): bool =>
+    copy[0] = 9
+    shared[0] = 7
+    return copy[0] == 9 && shared[0] == 7
+
+  fn escaped(values: int[] as val): fn(): int =>
+    var reader = fn(): int => values[0]
+    values[0] = 9
+    return reader
+
+  static fn escapedStatic(values: int[] as val): fn(): int =>
+    var reader = fn(): int => values[0]
+    values[0] = 10
+    return reader
+
+fn worker(values: int[] as val): int[] =>
+  values.push(8)
+  return values
+
+fn escaped(values: int[] as val): fn(): int =>
+  values[0] = 6
+  return fn(): int => values[0]
+
+fn make(calls: int as ref): int[] =>
+  calls++
+  return {2}
+
+fn observe(values: int[] as val, ignored: int): int =>
+  var observed = values[0]
+  values[0] = 99
+  return observed
+
+fn touch(values: int[]): int =>
+  values[0] = 12
+  return 0
+
+fn snapshotReader(values: int[] as val): fn(): int =>
+  var reader = fn(): int => values[0]
+  values[0] = 7
+  return reader
+
+fn main(): void =>
+  var source: int[] = {1}
+  var processor: Processor = {
+    marker: 4,
+    values: {3}
+  }
+  var copied = processor.copy(source)
+  println(source == {1} && copied == {1, 4})
+  var staticCopy = Processor.copyStatic(source)
+  println(source == {1} && staticCopy == {1, 5})
+  var fieldCopy = Processor.copyStatic(processor.values)
+  println(processor.values == {3} && fieldCopy == {3, 5})
+  var result = & worker(source)
+  result !
+  println(source == {1} && result == {1, 8})
+  var reader = escaped(source)
+  println(source == {1} && reader() == 6)
+  var calls: int = 0
+  println(Processor.copyStatic(make(calls)) == {2, 5} && calls == 1)
+  var instanceReader = processor.escaped(source)
+  println(source == {1} && instanceReader() == 1)
+  var staticReader = Processor.escapedStatic(source)
+  println(source == {1} && staticReader() == 1)
+  var shared = snapshotReader(source)
+  println(source == {1} && shared() == 1)
+  println(processor.pair(source, source) && source[0] == 1)
+  println(Processor.mixed(source, source) && source[0] == 7)
+  var observed = observe(source, touch(source))
+  println(source == {12} && observed == 12)
+  println(observe(processor.values, processor.touch()) == 13 && processor.values[0] == 13)

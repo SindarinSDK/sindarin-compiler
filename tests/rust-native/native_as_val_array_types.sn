@@ -1,0 +1,96 @@
+struct Counter as ref =>
+  count: int
+
+struct Copier =>
+  marker: int
+
+  fn pair(left: int[] as val, right: int[] as val): bool =>
+    left[0] = 9
+    return right[0] == 1
+
+  static fn mixed(copy: int[] as val, shared: int[]): bool =>
+    copy[0] = 9
+    shared[0] = 7
+    return copy[0] == 9 && shared[0] == 7
+
+struct Holder =>
+  values: int[]
+
+  static fn observe(values: int[] as val, ignored: int): int =>
+    var observed = values[0]
+    values[0] = 99
+    return observed
+
+  fn observeInstance(values: int[] as val, ignored: int): int =>
+    var observed = values[0]
+    values[0] = 99
+    return observed
+
+fn touchHolder(holder: Holder): int =>
+  holder.values[0] = 12
+  return 0
+
+fn references(values: Counter[] as val): Counter[] =>
+  values[0].count = 3
+  values.push(Counter { count: 7 })
+  return values
+
+fn functions(values: (fn(): int)[] as val): int =>
+  values[0] = values[0]
+  var first = values[0] ()
+  values[0] = fn(): int => 5
+  return first + values[0] ()
+
+fn booleans(values: bool[] as val): bool[] =>
+  values[0] = false
+  return values
+
+fn characters(values: char[] as val): char[] =>
+  values[0] = '\xff'
+  return values
+
+fn bytes(values: byte[] as val): byte[] =>
+  values[0] = 255b
+  return values
+
+fn singles(values: float[] as val): float[] =>
+  values[0] = 2.5f
+  return values
+
+fn doubles(values: double[] as val): double[] =>
+  values[0] = 2.5
+  return values
+
+fn unsigneds(values: uint[] as val): uint[] =>
+  values[0] = 9u
+  return values
+
+fn main(): void =>
+  var initial: Counter = { count: 1 }
+  var counters: Counter[] = {initial}
+  var copied = references(counters)
+  copied[0].count = 4
+  println(len(counters) == 1 && counters[0].count == 4 && len(copied) == 2 && copied[0].count == 4)
+  var callback: fn(): int = fn(): int => 3
+  var callbacks: (fn(): int)[] = {callback}
+  println(functions(callbacks) == 8 && callbacks[0] () == 3)
+  var truth: bool[] = {true}
+  println(booleans(truth)[0] == false && truth[0] == true)
+  var letters: char[] = {'A'}
+  println(characters(letters)[0] == '\xff' && letters[0] == 'A')
+  var octets: byte[] = {1b}
+  println(bytes(octets)[0] == 255b && octets[0] == 1b)
+  var narrow: float[] = {1.5f}
+  println(singles(narrow)[0] == 2.5f && narrow[0] == 1.5f)
+  var wide: double[] = {1.5}
+  println(doubles(wide)[0] == 2.5 && wide[0] == 1.5)
+  var positive: uint[] = {1u}
+  println(unsigneds(positive)[0] == 9u && positive[0] == 1u)
+  var copier: Copier = { marker: 0 }
+  var aliased: int[] = {1}
+  println(copier.pair(aliased, aliased) && aliased[0] == 1)
+  println(Copier.mixed(aliased, aliased) && aliased[0] == 7)
+  var holder: Holder = { values: {1} }
+  println(Holder.observe(holder.values, touchHolder(holder)) == 12 && holder.values[0] == 12)
+  holder.values[0] = 1
+  println(holder.observeInstance(holder.values, touchHolder(holder)) == 12 && holder.values[0] == 12)

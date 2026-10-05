@@ -2051,9 +2051,14 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                                         callee_is_known_fn = false;
                                 }
                             }
-                            bool param_is_default = true;
-                            if (pmq && i < pmq_count && pmq[i] != MEM_DEFAULT)
-                                param_is_default = false;
+                            MemoryQualifier param_qualifier = MEM_DEFAULT;
+                            if (resolved_method && i < resolved_method->param_count)
+                                param_qualifier = resolved_method->params[i].mem_qualifier;
+                            else if (pmq && i < pmq_count)
+                                param_qualifier = pmq[i];
+                            /* Preserve the established non-array record argument projection.
+                             * Resolved method qualifiers are needed for the new array ABI. */
+                            bool param_is_default = !pmq || i >= pmq_count || pmq[i] == MEM_DEFAULT;
                             bool default_array_callee = false;
                             if (expr->as.call.callee->type == EXPR_VARIABLE)
                             {
@@ -2073,7 +2078,7 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                             bool default_array_ref = arg_type &&
                                 arg_type->kind == TYPE_ARRAY &&
                                 default_array_callee &&
-                                param_is_default;
+                                (param_qualifier == MEM_DEFAULT || param_qualifier == MEM_AS_VAL);
                             if (default_array_ref)
                             {
                                 json_object_object_add(arg,
@@ -2493,7 +2498,8 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                             if (m && i < m->param_count && m->params[i].mem_qualifier != MEM_DEFAULT)
                                 method_param_default = false;
                             if (arg_type && arg_type->kind == TYPE_ARRAY &&
-                                m && !m->is_native && method_param_default)
+                                m && !m->is_native &&
+                                (method_param_default || (i < m->param_count && m->params[i].mem_qualifier == MEM_AS_VAL)))
                             {
                                 json_object_object_add(arg,
                                     rust_g_in_thread_spawn_call
@@ -2591,7 +2597,8 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                             if (m && i < m->param_count && m->params[i].mem_qualifier != MEM_DEFAULT)
                                 static_param_default = false;
                             if (arg_type && arg_type->kind == TYPE_ARRAY &&
-                                m && !m->is_native && static_param_default)
+                                m && !m->is_native &&
+                                (static_param_default || (i < m->param_count && m->params[i].mem_qualifier == MEM_AS_VAL)))
                             {
                                 json_object_object_add(arg,
                                     rust_g_in_thread_spawn_call

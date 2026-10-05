@@ -73,8 +73,35 @@ static void rust_thread_ref_find_targets(json_object *node, json_object *functio
     }
 }
 
+/* Resolve methods by their owning type, so array owners crossing a method
+ * boundary participate in the same fixed-point transport graph as free calls. */
+static json_object *rust_thread_ref_target(json_object *model, json_object *functions,
+                                           json_object *call)
+{
+    json_object *callee = NULL, *type = NULL, *object = NULL;
+    const char *name = NULL, *structure_name = NULL;
+    bool is_static = json_string_property_equals(call, "kind", "static_call") ||
+        json_boolean_property(call, "is_static");
+    if (json_string_property_equals(call, "kind", "call")) {
+        json_object_object_get_ex(call, "callee", &callee);
+        if (json_string_property_equals(callee, "kind", "variable"))
+            return rust_default_array_function(functions, json_string_property(callee, "name"));
+        if (!json_string_property_equals(callee, "kind", "member")) return NULL;
+        json_object_object_get_ex(callee, "object", &object);
+        json_object_object_get_ex(object, "type", &type);
+        name = json_string_property(callee, "member_name");
+    } else {
+        json_object_object_get_ex(call, "struct_type", &type);
+        structure_name = json_string_property(call, "type_name");
+        name = json_string_property(call, "method_name");
+    }
+    if (!structure_name) structure_name = json_string_property(type, "name");
+    json_object *target = rust_find_resolved_method(rust_find_struct(model, structure_name), name, is_static);
+    return target && !json_boolean_property(target, "is_native") ? target : NULL;
+}
+
 static bool rust_thread_ref_walk(json_object *node, json_object *functions,
-                                 RustThreadRefBinding *scope, bool *changed)
+                                 json_object *model, RustThreadRefBinding *scope, bool *changed)
 {
     if (!node) return true;
     if (json_object_is_type(node, json_type_array)) {
@@ -82,7 +109,7 @@ static bool rust_thread_ref_walk(json_object *node, json_object *functions,
         bool ok = true;
         for (size_t i = 0; ok && i < json_object_array_length(node); i++) {
             json_object *child = json_object_array_get_idx(node, i);
-            ok = rust_thread_ref_walk(child, functions, locals, changed);
+            ok = rust_thread_ref_walk(child, functions, model, locals, changed);
             if (json_string_property_equals(child, "kind", "var_decl")) {
                 RustThreadRefBinding *binding = malloc(sizeof(*binding));
                 if (!binding) { ok = false; break; }
@@ -111,15 +138,14 @@ static bool rust_thread_ref_walk(json_object *node, json_object *functions,
             json_object_object_del(node, "rust_deref");
         }
     }
-    if (json_string_property_equals(node, "kind", "call") &&
+    if ((json_string_property_equals(node, "kind", "call") ||
+         json_string_property_equals(node, "kind", "method_call") ||
+         json_string_property_equals(node, "kind", "static_call")) &&
         !json_boolean_property(node, "is_closure_call")) {
-        json_object *callee = NULL, *args = NULL;
-        json_object_object_get_ex(node, "callee", &callee);
+        json_object *args = NULL;
         json_object_object_get_ex(node, "args", &args);
-        const char *name = json_string_property(callee, "name");
-        for (size_t f = 0; name && f < json_object_array_length(functions); f++) {
-            json_object *fn = json_object_array_get_idx(functions, f), *params = NULL;
-            if (!json_string_property_equals(fn, "name", name)) continue;
+        json_object *fn = rust_thread_ref_target(model, functions, node), *params = NULL;
+        if (fn) {
             json_object_object_get_ex(fn, "params", &params);
             for (size_t i = 0; args && params && i < json_object_array_length(params) && i < json_object_array_length(args); i++) {
                 json_object *param = json_object_array_get_idx(params, i);
@@ -145,6 +171,16 @@ static bool rust_thread_ref_walk(json_object *node, json_object *functions,
                         json_object_object_add(arg, "rust_thread_ref_owner", json_object_new_boolean(true));
                     } else {
                         json_object_object_add(arg, "rust_thread_array_temporary", json_object_new_boolean(true));
+                        /* A copied input from a field/index still belongs to
+                         * its source owner. Build the temporary from a value
+                         * snapshot, never move the source's array out. */
+                        if (json_boolean_property(param, "needs_array_copy") &&
+                            (json_string_property_equals(arg, "kind", "member") ||
+                             json_string_property_equals(arg, "kind", "array_access")))
+                        {
+                            json_object_object_add(arg, "rust_needs_clone", json_object_new_boolean(true));
+                            json_object_object_add(arg, "rust_thread_array_copy_borrow", json_object_new_boolean(true));
+                        }
                     }
                     json_object_object_del(arg, "rust_default_array_ref_arg");
                     json_object_object_del(arg, "rust_thread_default_array_arg");
@@ -173,7 +209,7 @@ static bool rust_thread_ref_walk(json_object *node, json_object *functions,
         }
     }
     json_object_object_foreach(node, key, value) {
-        (void)key; if (!rust_thread_ref_walk(value, functions, scope, changed)) return false;
+        (void)key; if (!rust_thread_ref_walk(value, functions, model, scope, changed)) return false;
     }
     return true;
 }
@@ -253,11 +289,21 @@ static bool rust_prepare_thread_references(json_object *model)
     bool aliases = rust_find_scalar_reference_aliases(model, functions);
     if (array_is_empty(model, "threads") && !aliases) return true;
     rust_thread_ref_find_targets(model, functions);
+    json_object *callables = json_object_new_array(), *structures = NULL;
+    for (size_t i = 0; functions && i < json_object_array_length(functions); i++)
+        json_object_array_add(callables, json_object_get(json_object_array_get_idx(functions, i)));
+    json_object_object_get_ex(model, "structs", &structures);
+    for (size_t i = 0; structures && i < json_object_array_length(structures); i++) {
+        json_object *methods = NULL;
+        json_object_object_get_ex(json_object_array_get_idx(structures, i), "methods", &methods);
+        for (size_t j = 0; methods && j < json_object_array_length(methods); j++)
+            json_object_array_add(callables, json_object_get(json_object_array_get_idx(methods, j)));
+    }
     bool changed;
     do {
         changed = false;
-        for (size_t i = 0; functions && i < json_object_array_length(functions); i++) {
-            json_object *fn = json_object_array_get_idx(functions, i), *params = NULL, *body = NULL;
+        for (size_t i = 0; i < json_object_array_length(callables); i++) {
+            json_object *fn = json_object_array_get_idx(callables, i), *params = NULL, *body = NULL;
             json_object_object_get_ex(fn, "params", &params);
             json_object_object_get_ex(fn, "body", &body);
             RustThreadRefBinding *scope = NULL;
@@ -269,6 +315,7 @@ static bool rust_prepare_thread_references(json_object *model)
                 RustThreadRefBinding *binding = malloc(sizeof(*binding));
                 if (!binding) {
                     while (scope) { RustThreadRefBinding *next = scope->next; free(scope); scope = next; }
+                    json_object_put(callables);
                     return false;
                 }
                 *binding = (RustThreadRefBinding){json_string_property(global, "name"), global, scope};
@@ -279,8 +326,9 @@ static bool rust_prepare_thread_references(json_object *model)
             for (size_t g = 0; globals && g < json_object_array_length(globals); g++) {
                 json_object *initializer = NULL;
                 json_object_object_get_ex(json_object_array_get_idx(globals, g), "initializer", &initializer);
-                if (!rust_thread_ref_walk(initializer, functions, scope, &changed)) {
+                if (!rust_thread_ref_walk(initializer, functions, model, scope, &changed)) {
                     while (scope) { RustThreadRefBinding *next = scope->next; free(scope); scope = next; }
+                    json_object_put(callables);
                     return false;
                 }
             }
@@ -289,14 +337,16 @@ static bool rust_prepare_thread_references(json_object *model)
                 RustThreadRefBinding *binding = malloc(sizeof(*binding));
                 if (!binding) {
                     while (scope) { RustThreadRefBinding *next = scope->next; free(scope); scope = next; }
+                    json_object_put(callables);
                     return false;
                 }
                 *binding = (RustThreadRefBinding){json_string_property(param, "name"), param, scope}; scope = binding;
             }
-            bool ok = rust_thread_ref_walk(body, functions, scope, &changed);
+            bool ok = rust_thread_ref_walk(body, functions, model, scope, &changed);
             while (scope) { RustThreadRefBinding *next = scope->next; free(scope); scope = next; }
-            if (!ok) return false;
+            if (!ok) { json_object_put(callables); return false; }
         }
     } while (changed);
+    json_object_put(callables);
     return true;
 }

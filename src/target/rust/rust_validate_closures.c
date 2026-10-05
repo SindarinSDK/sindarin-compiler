@@ -467,6 +467,15 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
             json_object_object_add(node, "rust_binding_id", json_object_new_int(b->id));
             if (b->capture && json_boolean_property(b->declaration, "rust_atomic_snapshot_value"))
                 json_object_object_del(node, "rust_cell");
+            /* A by-value array capture snapshots its enclosing threaded owner
+             * into a Vec. Reads inside the lambda use that snapshot, not the
+             * enclosing function's Arc/lock projection. */
+            if (b->capture && json_string_property_equals(b->declaration, "rust_capture_mode", "value") &&
+                rust_closure_array_type(rust_closure_property(b->declaration, "type")))
+            {
+                json_object_object_del(node, "rust_thread_array_read");
+                json_object_object_del(node, "rust_thread_array_global");
+            }
             if (b->array_capture_id >= 0)
                 json_object_object_add(node, "rust_array_capture_id", json_object_new_int(b->array_capture_id));
             if (b->capture && !json_boolean_property(node, "rust_capture_mutation_place"))

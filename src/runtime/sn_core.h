@@ -104,6 +104,12 @@ static inline void sn_closure_release(void **p) {
 
 static inline void sn_cleanup_fn(void **p) { sn_closure_release(p); }
 
+/* Array slots own a retained closure handle; copying the array preserves the
+ * callable identity while replacement and destruction release each slot. */
+static inline void sn_copy_fn(const void *src, void *dst) {
+    *(void **)dst = sn_closure_retain(*(void *const *)src);
+}
+
 #define sn_auto_str __attribute__((cleanup(sn_cleanup_str)))
 #define sn_auto_ptr __attribute__((cleanup(sn_cleanup_ptr)))
 #define sn_auto_fn __attribute__((cleanup(sn_cleanup_fn)))

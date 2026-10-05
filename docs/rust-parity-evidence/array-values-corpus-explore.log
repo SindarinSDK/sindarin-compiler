@@ -1,0 +1,20 @@
+Compiler: /home/gavin/code/sindarin/sindarin-rust-array-values-6d608821/.sn/array-values-corpus-bin/sn
+Platform: Linux
+Parallel: 6 workers
+
+Exploratory Tests
+============================================================
+  Running 224 tests with 6 workers...
+                                                              test_array_mutation_lambda                    FAIL (compile error)  (57ms)
+    [1mCompiling[0m tests/exploratory/test_array_mutation_lambda.sn...
+      Parsing... [1;36mdone[0m
+      Type checking... [1;36mdone[0m
+      Code generation...Error: Rust target does not support mutation of closure parameters yet
+     [1;31mfailed[0m
+    
+    
+
+------------------------------------------------------------
+Results: 223 passed, 1 failed, 0 skipped  (12.15s)
+
+Some tests failed!  (total: 12.15s)

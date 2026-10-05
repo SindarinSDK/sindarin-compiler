@@ -1,0 +1,82 @@
+struct Entry =>
+  label: str
+  values: int[]
+
+fn integers(values: int[] as val): int[] =>
+  values[0] = 9
+  values.push(7)
+  return values
+
+fn strings(values: str[] as val): str[] =>
+  values[0] = "copy"
+  values.push("tail")
+  return values
+
+fn nested(values: int[][] as val): int[][] =>
+  values[0][0] = 8
+  values[0].push(6)
+  return values
+
+fn records(values: Entry[] as val): Entry[] =>
+  values[0] = Entry {
+    label: "copy",
+    values: {8}
+  }
+  return values
+
+fn pair(left: int[] as val, right: int[] as val): bool =>
+  left[0] = 11
+  return right[0] == 1
+
+fn mixed(copy: int[] as val, shared: int[]): bool =>
+  copy[0] = 11
+  shared[0] = 4
+  return copy[0] == 11 && shared[0] == 4
+
+fn identity(values: int[] as val): int[] =>
+  return values
+
+fn forward(values: int[] as val): int[] =>
+  return integers(values)
+
+fn offset(calls: int as ref): int =>
+  calls = calls * 10 + 1
+  return 0
+
+fn value(calls: int as ref): int =>
+  calls = calls * 10 + 2
+  return 7
+
+fn ordered(values: int[][] as val): bool =>
+  var calls: int = 0
+  values[offset(calls)].push(value(calls))
+  return calls == 21 && values[0] == {1, 7}
+
+fn main(): void =>
+  var source: int[] = {1, 2}
+  var copy = integers(source)
+  println(source == {1, 2} && copy == {9, 2, 7})
+  println(pair(source, source) && source == {1, 2})
+  var text: str[] = {"source"}
+  var copiedText = strings(text)
+  println(text[0] == "source" && copiedText[0] == "copy" && copiedText[1] == "tail")
+  var matrix: int[][] = {{1, 2}}
+  var copiedMatrix = nested(matrix)
+  println(matrix[0] == {1, 2} && copiedMatrix[0] == {8, 2, 6})
+  var entries: Entry[] = { Entry {
+    label: "source",
+    values: {1, 2}
+  } }
+  var copiedEntries = records(entries)
+  println(entries[0].label == "source" && entries[0].values == {1, 2} && copiedEntries[0].label == "copy")
+  var absent: int[] = nil
+  var copiedAbsent = identity(absent)
+  var empty: int[] = {}
+  var copiedEmpty = identity(empty)
+  println(copiedAbsent == nil && copiedEmpty != nil && len(copiedEmpty) == 0)
+  var forwarded = forward(source)
+  println(source == {1, 2} && forwarded == {9, 2, 7})
+  println(identity({3, 4}) == {3, 4})
+  println(ordered({{1}}))
+  println(mixed(source, source) && source[0] == 4)
+  println(identity({2}) == identity({2}) && identity({2}) != identity({3}))

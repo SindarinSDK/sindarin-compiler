@@ -903,6 +903,23 @@ static bool rust_specialize_receiver_array_alias_call(json_object *model,
         return false;
     }
 
+    /* An as-val array has its own entry copy and must never be rewritten as
+     * the receiver field, even when the source argument names that field. */
+    for (size_t i = 0; i < arg_count; i++)
+    {
+        if (alias_fields[i] && json_boolean_property(
+                json_object_array_get_idx(params, i), "needs_array_copy"))
+        {
+            alias_fields[i] = NULL;
+            alias_count--;
+        }
+    }
+    if (alias_count == 0)
+    {
+        free(alias_fields);
+        return true;
+    }
+
     json_object *specialized = rust_receiver_array_alias_specialization(
         methods, origin, alias_fields, arg_count);
     const char *specialized_name = specialized
@@ -1104,21 +1121,48 @@ static bool rust_specialize_default_array_alias_call(json_object *model,
                                                      json_object *call,
                                                      size_t *next_id)
 {
-    if (!json_string_property_equals(call, "kind", "call") ||
+    if ((!json_string_property_equals(call, "kind", "call") &&
+         !json_string_property_equals(call, "kind", "method_call") &&
+         !json_string_property_equals(call, "kind", "static_call")) ||
         json_boolean_property(call, "is_closure_call") ||
         json_boolean_property(call, "is_fn_field_call") ||
         json_boolean_property(call, "rust_array_alias_specialized"))
         return true;
 
-    json_object *callee = NULL, *args = NULL;
-    if (!json_object_object_get_ex(call, "callee", &callee) ||
-        !json_string_property_equals(callee, "kind", "variable") ||
-        !json_object_object_get_ex(call, "args", &args) ||
+    json_object *callee = NULL, *args = NULL, *structure = NULL;
+    json_object *definitions = functions, *name_owner = NULL;
+    const char *name_key = "name";
+    if (!json_object_object_get_ex(call, "args", &args) ||
         !json_object_is_type(args, json_type_array)) return true;
-
-    const char *callee_name = json_string_property(callee, "name");
-    json_object *function = callee_name
-        ? rust_default_array_function(functions, callee_name) : NULL;
+    if (json_string_property_equals(call, "kind", "call")) {
+        if (!json_object_object_get_ex(call, "callee", &callee)) return true;
+        name_owner = callee;
+        if (json_string_property_equals(callee, "kind", "member")) {
+            json_object *receiver = NULL;
+            json_object_object_get_ex(callee, "object", &receiver);
+            structure = rust_receiver_structure(model, receiver);
+            name_key = "member_name";
+        } else if (!json_string_property_equals(callee, "kind", "variable")) return true;
+    } else {
+        name_owner = call;
+        name_key = "method_name";
+        if (json_string_property_equals(call, "kind", "static_call"))
+            structure = rust_find_struct(model, json_string_property(call, "type_name"));
+        else {
+            json_object *type = NULL;
+            json_object_object_get_ex(call, "struct_type", &type);
+            structure = rust_find_struct(model, json_string_property(type, "name"));
+        }
+    }
+    if (strcmp(name_key, "name") != 0 &&
+        (!structure || !json_object_object_get_ex(structure, "methods", &definitions)))
+        return true;
+    const char *callee_name = json_string_property(name_owner, name_key);
+    json_object *function = structure
+        ? rust_find_resolved_method(structure, callee_name,
+              json_string_property_equals(call, "kind", "static_call") ||
+              json_boolean_property(call, "is_static"))
+        : (callee_name ? rust_default_array_function(definitions, callee_name) : NULL);
     json_object *params = NULL;
     if (!function || !json_object_object_get_ex(function, "params", &params) ||
         !json_object_is_type(params, json_type_array)) return true;
@@ -1168,7 +1212,7 @@ static bool rust_specialize_default_array_alias_call(json_object *model,
      * function/pattern so recursive lowering terminates without reintroducing
      * overlapping mutable references. */
     json_object *existing = rust_array_alias_specialization(
-        functions, callee_name, canonical, count);
+        definitions, callee_name, canonical, count);
     if (existing)
     {
         const char *existing_name = json_string_property(existing, "name");
@@ -1178,8 +1222,8 @@ static bool rust_specialize_default_array_alias_call(json_object *model,
             free(canonical);
             return false;
         }
-        json_object_object_del(callee, "name");
-        json_object_object_add(callee, "name",
+        json_object_object_del(name_owner, name_key);
+        json_object_object_add(name_owner, name_key,
                                json_object_new_string(existing_name));
         json_object_object_add(call, "rust_array_alias_specialized",
                                json_object_new_boolean(true));
@@ -1202,14 +1246,49 @@ static bool rust_specialize_default_array_alias_call(json_object *model,
         return false;
     }
 
+    json_object *copy_inputs = json_object_new_array(), *copies = json_object_new_array();
+    /* Coalesce incoming handles, not the owned as-val locals. Keep the
+     * original borrowed input alive under a private name while making each
+     * independent copy in source parameter order. */
+    for (size_t i = 0; i < count; i++)
+    {
+        json_object *param = json_object_array_get_idx(specialized_params, i);
+        if (canonical[i] != i || !json_boolean_property(param, "needs_array_copy")) continue;
+        char input_name[96];
+        do {
+            snprintf(input_name, sizeof(input_name), "__sn_array_copy_input_%zu", (*next_id)++);
+        } while (rust_call_model_contains_string(model, input_name));
+        json_object *input = json_object_new_object();
+        json_object_object_add(input, "name", json_object_new_string(input_name));
+        json_object_object_add(input, "source", json_object_get(rust_closure_property(param, "name")));
+        json_object_array_add(copy_inputs, input);
+        json_object_object_add(param, "rust_array_copy_source", json_object_new_string(input_name));
+    }
+    for (size_t i = 0; i < count; i++)
+    {
+        json_object *param = json_object_array_get_idx(specialized_params, i);
+        if (!json_boolean_property(param, "needs_array_copy")) continue;
+        json_object *source = json_object_array_get_idx(specialized_params, canonical[i]);
+        const char *source_name = json_string_property(source, "rust_array_copy_source");
+        if (!source_name) source_name = json_string_property(source, "name");
+        json_object_object_add(param, "rust_array_copy_source", json_object_new_string(source_name));
+        json_object_array_add(copies, json_object_get(param));
+    }
+    json_object_object_add(specialized, "rust_array_copy_inputs", copy_inputs);
+    if (json_object_array_length(copies))
+        json_object_object_add(specialized, "rust_array_alias_copies", copies);
+    else json_object_put(copies);
+
     for (size_t i = 0; i < count; i++)
     {
         if (canonical[i] == i) continue;
         json_object *from = json_object_array_get_idx(specialized_params, i);
+        if (json_boolean_property(from, "needs_array_copy")) continue;
         json_object *to = json_object_array_get_idx(
             specialized_params, canonical[i]);
         const char *from_name = json_string_property(from, "name");
-        const char *to_name = json_string_property(to, "name");
+        const char *to_name = json_string_property(to, "rust_array_copy_source");
+        if (!to_name) to_name = json_string_property(to, "name");
         json_object *from_binding = NULL;
         if (!from_name || !to_name ||
             !json_object_object_get_ex(
@@ -1268,11 +1347,11 @@ static bool rust_specialize_default_array_alias_call(json_object *model,
     for (size_t i = 0; i < count; i++)
         json_object_array_add(pattern, json_object_new_int64((int64_t)canonical[i]));
     json_object_object_add(specialized, "rust_array_alias_pattern", pattern);
-    json_object_object_del(callee, "name");
-    json_object_object_add(callee, "name", json_object_new_string(specialized_name));
+    json_object_object_del(name_owner, name_key);
+    json_object_object_add(name_owner, name_key, json_object_new_string(specialized_name));
     json_object_object_add(call, "rust_array_alias_specialized",
                            json_object_new_boolean(true));
-    json_object_array_add(functions, specialized);
+    json_object_array_add(definitions, specialized);
     bool ok = rust_specialize_default_array_alias_calls(
         model, functions, body, next_id);
     free(canonical);
@@ -1327,7 +1406,24 @@ static void rust_lower_default_array_late_reads(json_object *model,
         rust_lower_default_array_late_reads(model, value, next_id);
     }
 
-    if (!json_string_property_equals(node, "kind", "call")) return;
+    bool direct_call = json_string_property_equals(node, "kind", "call");
+    bool method_call = json_string_property_equals(node, "kind", "method_call");
+    bool static_call = json_string_property_equals(node, "kind", "static_call");
+    if (!direct_call && !method_call && !static_call) return;
+    if (!direct_call) {
+        json_object *structure_type = NULL, *params = NULL;
+        json_object_object_get_ex(node, "struct_type", &structure_type);
+        const char *structure_name = static_call ? json_string_property(node, "type_name")
+            : json_string_property(structure_type, "name");
+        json_object *method = rust_find_resolved_method(
+            rust_find_struct(model, structure_name), json_string_property(node, "method_name"),
+            static_call || json_boolean_property(node, "is_static"));
+        json_object_object_get_ex(method, "params", &params);
+        bool has_copy = false;
+        for (size_t i = 0; params && i < json_object_array_length(params); i++)
+            has_copy |= json_boolean_property(json_object_array_get_idx(params, i), "needs_array_copy");
+        if (!has_copy) return;
+    }
     json_object *args = NULL;
     if (!json_object_object_get_ex(node, "args", &args) ||
         !json_object_is_type(args, json_type_array)) return;
@@ -1337,7 +1433,8 @@ static void rust_lower_default_array_late_reads(json_object *model,
     for (size_t i = 0; i < count; i++)
     {
         json_object *arg = json_object_array_get_idx(args, i);
-        if (!json_boolean_property(arg, "rust_default_array_ref_arg")) continue;
+        if (!(json_boolean_property(arg, "rust_default_array_ref_arg") ||
+            json_boolean_property(arg, "rust_thread_array_copy_borrow"))) continue;
         if (!rust_deferred_default_array_place(arg)) return;
         if (first_array_index == count) first_array_index = i;
     }
@@ -1346,7 +1443,8 @@ static void rust_lower_default_array_late_reads(json_object *model,
     for (size_t i = first_array_index + 1; i < count; i++)
     {
         json_object *arg = json_object_array_get_idx(args, i);
-        if (!json_boolean_property(arg, "rust_default_array_ref_arg"))
+        if (!(json_boolean_property(arg, "rust_default_array_ref_arg") ||
+            json_boolean_property(arg, "rust_thread_array_copy_borrow")))
         {
             has_later_value = true;
             break;
@@ -1359,7 +1457,8 @@ static void rust_lower_default_array_late_reads(json_object *model,
     for (size_t i = 0; i < count; i++)
     {
         json_object *arg = json_object_array_get_idx(args, i);
-        if (json_boolean_property(arg, "rust_default_array_ref_arg")) continue;
+        if ((json_boolean_property(arg, "rust_default_array_ref_arg") ||
+            json_boolean_property(arg, "rust_thread_array_copy_borrow"))) continue;
         if (json_boolean_property(arg, "is_ref_arg") ||
             json_boolean_property(arg, "is_borrow_tmp")) return;
     }
@@ -1369,7 +1468,8 @@ static void rust_lower_default_array_late_reads(json_object *model,
     for (size_t i = 0; i < count; i++)
     {
         json_object *arg = json_object_array_get_idx(args, i);
-        if (json_boolean_property(arg, "rust_default_array_ref_arg")) continue;
+        if ((json_boolean_property(arg, "rust_default_array_ref_arg") ||
+            json_boolean_property(arg, "rust_thread_array_copy_borrow"))) continue;
         char arg_name[80];
         do
         {
@@ -1487,6 +1587,58 @@ static void rust_lower_reference_record_reads(json_object *node, json_object *mo
         json_object_object_add(node, "rust_needs_clone", json_object_new_boolean(true));
 }
 
+/* Normalize nested array mutation indices before taking the mutable element
+ * borrow. Otherwise Rust overlaps the indexing length read with that borrow. */
+static void rust_lower_indexed_array_mutations(json_object *model, json_object *node, size_t *next_id)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array)) {
+        for (size_t i = 0; i < json_object_array_length(node); i++)
+            rust_lower_indexed_array_mutations(model, json_object_array_get_idx(node, i), next_id);
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
+    json_object_object_foreach(node, key, child)
+        if (strncmp(key, "rust_", 5) != 0) rust_lower_indexed_array_mutations(model, child, next_id);
+    if (!json_string_property_equals(node, "kind", "call") ||
+        json_boolean_property(node, "rust_array_cell_mutation") ||
+        json_boolean_property(node, "rust_field_array_mutation")) return;
+    json_object *callee = NULL, *receiver = NULL, *type = NULL;
+    json_object_object_get_ex(node, "callee", &callee);
+    json_object_object_get_ex(callee, "object", &receiver);
+    json_object_object_get_ex(receiver, "type", &type);
+    if (!json_string_property_equals(callee, "kind", "member") ||
+        !json_string_property_equals(receiver, "kind", "array_access") ||
+        !json_string_property_equals(type, "kind", "array")) return;
+    const char *method = json_string_property(callee, "member_name");
+    if (!rust_closure_mutating_array_method(method)) return;
+    /* The C push macro evaluates its value before its array place. Evaluate
+     * and acquire that value once, before normalizing nested receiver indices. */
+    json_object *args = NULL;
+    if (strcmp(method, "push") == 0 && json_object_object_get_ex(node, "args", &args) &&
+        json_object_array_length(args) == 1)
+    {
+        char name[96];
+        do {
+            snprintf(name, sizeof(name), "__sn_indexed_push_value_%zu", (*next_id)++);
+        } while (rust_call_model_contains_string(model, name));
+        json_object *value = json_object_array_get_idx(args, 0);
+        json_object_object_add(node, "rust_indexed_array_push_value", json_object_get(value));
+        json_object_object_add(node, "rust_indexed_array_push_value_name", json_object_new_string(name));
+        json_object *variable = json_object_new_object(), *value_type = NULL;
+        json_object_object_get_ex(value, "type", &value_type);
+        json_object_object_add(variable, "kind", json_object_new_string("variable"));
+        json_object_object_add(variable, "name", json_object_new_string(name));
+        if (value_type) json_object_object_add(variable, "type", json_object_get(value_type));
+        json_object_array_put_idx(args, 0, variable);
+    }
+    json_object *prefix = json_object_new_array();
+    rust_stabilize_resolved_receiver(model, receiver, prefix, next_id, true);
+    if (json_object_array_length(prefix))
+        json_object_object_add(node, "rust_indexed_array_mutation_prefix", prefix);
+    else json_object_put(prefix);
+}
+
 static bool rust_lower_calls(json_object *model)
 {
     rust_lower_reference_record_reads(model, model);
@@ -1508,6 +1660,8 @@ static bool rust_lower_calls(json_object *model)
     rust_lower_default_array_ref_indices(model, model, &array_arg_id);
     size_t array_late_read_id = 0;
     rust_lower_default_array_late_reads(model, model, &array_late_read_id);
+    size_t indexed_array_mutation_id = 0;
+    rust_lower_indexed_array_mutations(model, model, &indexed_array_mutation_id);
     size_t returned_string_id = 0;
     rust_lower_indexed_string_acquires(model, model, &returned_string_id);
     return true;

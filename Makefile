@@ -997,3 +997,15 @@ test-rust-parity-pointer-slices: build
 		--require-count 5 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-pointer-slices.json
 	@$(PYTHON) scripts/check_rust_pointer_slice_oracles.py .sn/rust-parity-pointer-slices.json
+
+.PHONY: test-rust-parity-array-values
+test-rust-parity-array-values: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/exploratory/test_as_val_array_copy.sn \
+		tests/exploratory/test_array_of_lambdas.sn \
+		tests/rust-native/native_as_val_arrays.sn \
+		tests/rust-native/native_as_val_array_contexts.sn \
+		tests/rust-native/native_as_val_array_types.sn \
+		--require-count 5 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-array-values.json
+	@$(PYTHON) scripts/check_rust_array_value_oracles.py .sn/rust-parity-array-values.json

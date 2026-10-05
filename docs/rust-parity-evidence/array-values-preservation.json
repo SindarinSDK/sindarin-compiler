@@ -1,0 +1,478 @@
+{
+  "compiler_sha256": "c8a86753b3f5fc51a9592dddbdbd69eb66779904369ff97d20185cb51b070786",
+  "reports": [
+    {
+      "name": "core",
+      "cases": 30,
+      "report_sha256": "7112601c508f7fba3dffd0560b0fb53f643385156cb7dc3d580bb9c5c5fa84d7"
+    },
+    {
+      "name": "concurrency",
+      "cases": 51,
+      "report_sha256": "99457934dcab0ce553bb560a437d45af2bd2a043bd230fadbe9124f150af6299"
+    },
+    {
+      "name": "thread-ownership",
+      "cases": 207,
+      "report_sha256": "e283547d85d0c84adef1dd309a02ff42fe98716c41ee46c15a15f25b8e82a22e"
+    },
+    {
+      "name": "thread-receivers",
+      "cases": 90,
+      "report_sha256": "6910dcd690d090b1a375e38e79ac354dd5e9fa9981a0bc27b4f990db4fa8efc8"
+    },
+    {
+      "name": "reflection",
+      "cases": 36,
+      "report_sha256": "0b2ae1c12bac6aeb76a35196ef3f0da486ef084f406ca153ebcc01ad6940d486"
+    },
+    {
+      "name": "sized-defaults",
+      "cases": 27,
+      "report_sha256": "3ced57a90c9890eb98c3f49997ec406dc1f23d685f22e11179361bdfe1c58969"
+    },
+    {
+      "name": "native-managed",
+      "cases": 63,
+      "report_sha256": "69ae599c5eb2adaa822a2c1645cbe3b38bcc8376c920a4bd01a1834193dd8a04"
+    },
+    {
+      "name": "stdio-order",
+      "cases": 30,
+      "report_sha256": "8a4b4fd340118ca55eb0d298d0d9b183c6802b3f03cd1363f7069bf53b016b5c"
+    },
+    {
+      "name": "mixed-integral",
+      "cases": 90,
+      "report_sha256": "3f4ef39d5cb46634c1572843898098967a2a408fd1b416e343909e5b1d0668fb"
+    },
+    {
+      "name": "mixed-integral-diagnostics",
+      "cases": 9,
+      "report_sha256": "e92209459f54b027e907ac4cf853940f7c51bc95d701b028da7d6e95bef1f48b"
+    },
+    {
+      "name": "float-conversions",
+      "cases": 117,
+      "report_sha256": "7415756b14e34e4a61dc4e3215f203b4752be9bf92ea41177a21df2d69c8d0d1"
+    },
+    {
+      "name": "floating-arrays",
+      "cases": 81,
+      "report_sha256": "e771e6af73f9306c1b31e842426fc00c1cfa57273a19c76ed8fb8ecba1526ec0"
+    },
+    {
+      "name": "floating-equality",
+      "cases": 36,
+      "report_sha256": "950c49e5daaf2a07ab5f67009b3e4b7d6ea1ce011d81b24c5665e6bae8453817"
+    },
+    {
+      "name": "numeric-places",
+      "cases": 153,
+      "report_sha256": "b8d08d1b4ba36c266febdd4e9d4fd2ee499c76766d86bf05698aed4136c5a7e3"
+    },
+    {
+      "name": "capture-index",
+      "cases": 45,
+      "report_sha256": "fcafd709ea6ac906b02cbf2f99f8f8baadbb64ee2851f04fb306a0d10af5ecc4"
+    },
+    {
+      "name": "sync-character",
+      "cases": 45,
+      "report_sha256": "e0e8ca9fc6c2aad37cc933351585e8787b5be9557fcaeb75e0bd210c60911781"
+    },
+    {
+      "name": "ctype",
+      "cases": 72,
+      "report_sha256": "7ebba565337e64a1142703fd0649f11a0f8818ac055543033e3c87dd8c06d078"
+    },
+    {
+      "name": "byte-encoding",
+      "cases": 81,
+      "report_sha256": "a1bdc2514399899e2af4ff51a417ee9c190a90753539b2ba28a7c0963d8e2768"
+    },
+    {
+      "name": "exit",
+      "cases": 153,
+      "report_sha256": "c8cff69af7455c7787239724b804ac4b2758f0bc7901ca10b843c9b64d1e6997"
+    },
+    {
+      "name": "main-return",
+      "cases": 108,
+      "report_sha256": "05c24cf7726744ce3974e494f79a2e91527fb2be356db96e97ee16486bec1d26"
+    },
+    {
+      "name": "match-control",
+      "cases": 180,
+      "report_sha256": "9a5d158befcdd22786cd89fce6d466a40db054986e313dffc950bb750fdd7a18"
+    },
+    {
+      "name": "sizeof",
+      "cases": 216,
+      "report_sha256": "62e9fc27768dff629a84c2b0b04b7e1f13fadf02a192d466ce4e42b2831242a1"
+    },
+    {
+      "name": "call-reference",
+      "cases": 126,
+      "report_sha256": "1d7fce80d49eca6f33788b2dc2dd8e783989b5c33c682ea04f45e17eac2bcaa1"
+    },
+    {
+      "name": "indexed-string",
+      "cases": 54,
+      "report_sha256": "8388b419fc5807f19ccd497c8f695f129f3f23232490483d145278049e328e40"
+    },
+    {
+      "name": "native-scope",
+      "cases": 36,
+      "report_sha256": "6240945e0134f3210827fa174289cd7dbb43058ee2fbb58c1e1999512982cc0f"
+    },
+    {
+      "name": "nil-string",
+      "cases": 72,
+      "report_sha256": "ed088a428cee9300e2c04e2d09c3677750d2f6b28baf2f534a4e1500f4e33441"
+    },
+    {
+      "name": "nil-array",
+      "cases": 90,
+      "report_sha256": "77c25bb76a9dbb2a5e249679187d8b4fae7844fe5c431f20ba53c5b728bae16c"
+    },
+    {
+      "name": "nested-stores",
+      "cases": 45,
+      "report_sha256": "b417c818884f283a349aab490c19d1bf052cf4ada60f9a3489146d86d11a4846"
+    },
+    {
+      "name": "owned-array-copies",
+      "cases": 45,
+      "report_sha256": "361db6cdee6e596189573d7768942b44e970e4d7872c4fa1922a0cf7133954df"
+    },
+    {
+      "name": "native-records",
+      "cases": 45,
+      "report_sha256": "c7df4aea54aced77c0230c7b694eaef426aeb41dd80a712794e475593fcf1b7c"
+    },
+    {
+      "name": "native-record-references",
+      "cases": 36,
+      "report_sha256": "59d3ef6fe4e9a2333a3cf45d885e0285e6fb410d072b8f2a704220ad4c43cbae"
+    },
+    {
+      "name": "owned-record-parameters",
+      "cases": 216,
+      "report_sha256": "4aa00382bca7dfb0e1d2992621f0bec066b3060a3329d12498af827774b11686"
+    },
+    {
+      "name": "reference-records",
+      "cases": 171,
+      "report_sha256": "f1aa86bd9ba406340e35da9fa05d0419c87afe57d1b8f527453db9ed38f75607"
+    },
+    {
+      "name": "scalar-parameters",
+      "cases": 126,
+      "report_sha256": "326f99634f8ead067b9ac4f89152dc3feca2eda4d7d17864380af1ae9b27bc42"
+    },
+    {
+      "name": "closure-records",
+      "cases": 189,
+      "report_sha256": "0c2ec4581256716d0a2ffc17e8158b734264c7fdfaedb2b61a1ea99448288ae1"
+    },
+    {
+      "name": "native-handles",
+      "cases": 117,
+      "report_sha256": "de8c6f5a2ae863d2eb3e2731bb8c132caa2f140c8d3529ad705a29b2496b37e4"
+    },
+    {
+      "name": "native-arrays",
+      "cases": 27,
+      "report_sha256": "ee21f12f0f133f502d081eb225e2972c5fc45149da9edd2d831837d178a643c3"
+    },
+    {
+      "name": "native-globals",
+      "cases": 36,
+      "report_sha256": "6777e2eedd37bd089f7c7ed76bee23671f83c733f10862a0029e69dd612a999e"
+    },
+    {
+      "name": "native-managed-records",
+      "cases": 54,
+      "report_sha256": "4698e999fb56f51d0a5cc4744dfc9e9860ae33ef841a2713ba09152b355cbed6"
+    },
+    {
+      "name": "native-callables",
+      "cases": 63,
+      "report_sha256": "2bb800474933bc5e73db80da973b76821119a082c6d38d894fe26b13305ade9d"
+    },
+    {
+      "name": "native-variadics",
+      "cases": 54,
+      "report_sha256": "503538fb40752f4cdb4452450992cf37b74e21e89aed198b3ee296d56fc412bc"
+    },
+    {
+      "name": "serialization",
+      "cases": 117,
+      "report_sha256": "bea1564db5e4b4aa63f25e03df2d7cb51959964e5131e98cfe8f2e5bf4cde6e5"
+    },
+    {
+      "name": "pointer-slices",
+      "cases": 45,
+      "report_sha256": "664521af25e383144437c79e5230f3b5e5e8f831e3543996d8a628da320a76c7"
+    }
+  ],
+  "report_count": 43,
+  "case_count": 3684,
+  "target_count": 42,
+  "targets": [
+    {
+      "target": "test-rust-parity-core",
+      "status": 0,
+      "log": ".sn/test-rust-parity-core.log",
+      "sha256": "b06ff2bbfb1c41ac3605172ef9f8cceb20a0d72161a9b0d074178346bcd25263"
+    },
+    {
+      "target": "test-rust-parity-concurrency",
+      "status": 0,
+      "log": ".sn/test-rust-parity-concurrency.log",
+      "sha256": "8466e75e0d58540e6047549f09bf944f47ee8cbaba0cebce34996ba333ef35c2"
+    },
+    {
+      "target": "test-rust-parity-thread-ownership",
+      "status": 0,
+      "log": ".sn/test-rust-parity-thread-ownership.log",
+      "sha256": "de116f8d13432bb22aaaa78d734ee32181a659f8add6a47f85e6b22d0ccc38f3"
+    },
+    {
+      "target": "test-rust-parity-thread-receivers",
+      "status": 0,
+      "log": ".sn/test-rust-parity-thread-receivers.log",
+      "sha256": "ac5380e693a2e49c7455d8a83f6f89d1085daa5895ec234565844e67dfb788c6"
+    },
+    {
+      "target": "test-rust-parity-reflection",
+      "status": 0,
+      "log": ".sn/test-rust-parity-reflection.log",
+      "sha256": "2e40a7c0b400b13b73552373be9a78475c9b1971ce81ab43d784fd7bf3b90810"
+    },
+    {
+      "target": "test-rust-parity-sized-defaults",
+      "status": 0,
+      "log": ".sn/test-rust-parity-sized-defaults.log",
+      "sha256": "250286fa9bb6c9b996e0b183a9d3a3b64d9b2e1b4cc8b47fc5a08e92846fe1d8"
+    },
+    {
+      "target": "test-rust-parity-native-managed",
+      "status": 0,
+      "log": ".sn/test-rust-parity-native-managed.log",
+      "sha256": "556778a47c42c9b02bbc1aef90238f8438440950783672caacb5f55b51252c5f"
+    },
+    {
+      "target": "test-rust-parity-stdio-order",
+      "status": 0,
+      "log": ".sn/test-rust-parity-stdio-order.log",
+      "sha256": "8e9474684b30b31363506b26a704a638e501d568e6087c2f05d8f9cc48d92a22"
+    },
+    {
+      "target": "test-rust-parity-mixed-integral",
+      "status": 0,
+      "log": ".sn/test-rust-parity-mixed-integral.log",
+      "sha256": "ad78cd83dd673b2bfb4a8559ead5a1c7aa32b846df1f2c38d67379582c492efa"
+    },
+    {
+      "target": "test-rust-parity-float-conversions",
+      "status": 0,
+      "log": ".sn/test-rust-parity-float-conversions.log",
+      "sha256": "e52441108dd1aa60febab3750edb7b2cd5b37c2825e609b4edd892a34ae33f30"
+    },
+    {
+      "target": "test-rust-parity-floating-arrays",
+      "status": 0,
+      "log": ".sn/test-rust-parity-floating-arrays.log",
+      "sha256": "a5587fa2ee3afc1a77ff315a94850325684e3aa063d935fb1348635eaebfabec"
+    },
+    {
+      "target": "test-rust-parity-floating-equality",
+      "status": 0,
+      "log": ".sn/test-rust-parity-floating-equality.log",
+      "sha256": "7187f4269b6f86753ac0b8178c56fcaeccb5a1171fae908b2ed48621168d261f"
+    },
+    {
+      "target": "test-rust-parity-numeric-places",
+      "status": 0,
+      "log": ".sn/test-rust-parity-numeric-places.log",
+      "sha256": "238eab067b4feb93073624782aeb3510ed4aa55ed474713e963096371e3f5935"
+    },
+    {
+      "target": "test-rust-parity-capture-index",
+      "status": 0,
+      "log": ".sn/test-rust-parity-capture-index.log",
+      "sha256": "6b6b4adc512338a0d9ef9967215c88e77917dbcbb00bcd3ed742af3a8fc0d16c"
+    },
+    {
+      "target": "test-rust-parity-sync-character",
+      "status": 0,
+      "log": ".sn/test-rust-parity-sync-character.log",
+      "sha256": "89093a27271347f817b860c190ea313af77f0d7e8d0ad30fcfaed1333d68e9d6"
+    },
+    {
+      "target": "test-rust-parity-ctype",
+      "status": 0,
+      "log": ".sn/test-rust-parity-ctype.log",
+      "sha256": "d0a4f7d4e1b7e9877d2a03033593fe7184ea845084a8f473f6b10c05e151ff44"
+    },
+    {
+      "target": "test-rust-parity-byte-encoding",
+      "status": 0,
+      "log": ".sn/test-rust-parity-byte-encoding.log",
+      "sha256": "9506cd38f84da9fd182ee9c6bcda3322323ea0b195df2b3750c68b6a63bd5a7b"
+    },
+    {
+      "target": "test-rust-parity-exit",
+      "status": 0,
+      "log": ".sn/test-rust-parity-exit.log",
+      "sha256": "39bb4ba7be1ddc50631a1149747c45a0fd4a595b89f98ded241c6e037869aca8"
+    },
+    {
+      "target": "test-rust-parity-main-return",
+      "status": 0,
+      "log": ".sn/test-rust-parity-main-return.log",
+      "sha256": "18c10b530595f27f9fb77c1377890e0d2fa25ecd5f0c3a58e79e98c1b546edaf"
+    },
+    {
+      "target": "test-rust-parity-match-control",
+      "status": 0,
+      "log": ".sn/test-rust-parity-match-control.log",
+      "sha256": "38f3ed4e30db64cc5fe0f0562c4f107718f26d70519abcea25f17ea6a826b54c"
+    },
+    {
+      "target": "test-rust-parity-sizeof",
+      "status": 0,
+      "log": ".sn/test-rust-parity-sizeof.log",
+      "sha256": "a834736480b454e432ed1be7f9a1fb91bbbab1446b7504904ccb6c4c3bc364d8"
+    },
+    {
+      "target": "test-rust-parity-call-reference",
+      "status": 0,
+      "log": ".sn/test-rust-parity-call-reference.log",
+      "sha256": "51495dce7216137743fbdd2cd0200d59623e398a74ac7a655fb76174a24bd4a3"
+    },
+    {
+      "target": "test-rust-parity-indexed-string",
+      "status": 0,
+      "log": ".sn/test-rust-parity-indexed-string.log",
+      "sha256": "39102823701d5164379e4881919dde8b7e88bc242e16bb0ba3a3d913ac269075"
+    },
+    {
+      "target": "test-rust-parity-native-scope",
+      "status": 0,
+      "log": ".sn/test-rust-parity-native-scope.log",
+      "sha256": "a2d27572c86ad27a591a1d33deeecfa53871d3c6a4bae5105393574b0cfcae12"
+    },
+    {
+      "target": "test-rust-parity-native-records",
+      "status": 0,
+      "log": ".sn/test-rust-parity-native-records.log",
+      "sha256": "e08036899e062f4388b6dfd4fb4d8272ddbf9652b0d66a7e5d20a88e31c16844"
+    },
+    {
+      "target": "test-rust-parity-nil-string",
+      "status": 0,
+      "log": ".sn/test-rust-parity-nil-string.log",
+      "sha256": "7dba8896e56c7cc3758ccbe52dc9c7c8b9f5ee03bca8b3829978f9f6f6b0d4ca"
+    },
+    {
+      "target": "test-rust-parity-nil-array",
+      "status": 0,
+      "log": ".sn/test-rust-parity-nil-array.log",
+      "sha256": "e31f57e77c18845ba3c0bc1a82ccf49349d67ed1673f9e5a65297e9c25fa22f2"
+    },
+    {
+      "target": "test-rust-parity-nested-stores",
+      "status": 0,
+      "log": ".sn/test-rust-parity-nested-stores.log",
+      "sha256": "7e482bfe06e18c6998bab29e213348c643b8b236c2c4924afc62ee29994c9124"
+    },
+    {
+      "target": "test-rust-parity-owned-array-copies",
+      "status": 0,
+      "log": ".sn/test-rust-parity-owned-array-copies.log",
+      "sha256": "deed890a861646309f4709c99669ff67e4ce6095ff296d6ab699c8cd82488005"
+    },
+    {
+      "target": "test-rust-parity-native-managed-records",
+      "status": 0,
+      "log": ".sn/test-rust-parity-native-managed-records.log",
+      "sha256": "88ee8d095f1f3725e5ce8f93ef3d09f4d1b370ae5b6ad6bcb68d7d9385f79b32"
+    },
+    {
+      "target": "test-rust-parity-native-record-references",
+      "status": 0,
+      "log": ".sn/test-rust-parity-native-record-references.log",
+      "sha256": "1c52a45936d520712915aa2649fb41d1a0235f7e158f9c23c39ed242df3350be"
+    },
+    {
+      "target": "test-rust-parity-owned-record-parameters",
+      "status": 0,
+      "log": ".sn/test-rust-parity-owned-record-parameters.log",
+      "sha256": "6a0f902b80b4f981e29cb30626afddad5e70925a51e50bc830a40460c567defe"
+    },
+    {
+      "target": "test-rust-parity-reference-records",
+      "status": 0,
+      "log": ".sn/test-rust-parity-reference-records.log",
+      "sha256": "458537fbb684d3275fb38ffdde1da90a553a9e9cf59c12f41e45dd682412d01c"
+    },
+    {
+      "target": "test-rust-parity-scalar-parameters",
+      "status": 0,
+      "log": ".sn/test-rust-parity-scalar-parameters.log",
+      "sha256": "bda67df48cbe0f3afd212931d06757e07daa059648e8e7ce0a8c5c45ef831d98"
+    },
+    {
+      "target": "test-rust-parity-closure-records",
+      "status": 0,
+      "log": ".sn/test-rust-parity-closure-records.log",
+      "sha256": "ee2e859a624b3b43a5d0ad0b48fb190239ab2d43d2dedfb389c36af579dea9ab"
+    },
+    {
+      "target": "test-rust-parity-native-handles",
+      "status": 0,
+      "log": ".sn/test-rust-parity-native-handles.log",
+      "sha256": "4a7d98624bb4c009fd6ce61bd8f28e2716ab5418e04e9b0dca7b0eb9aaed9ad7"
+    },
+    {
+      "target": "test-rust-parity-native-arrays",
+      "status": 0,
+      "log": ".sn/test-rust-parity-native-arrays.log",
+      "sha256": "13e34d0a1b06cca3e30167c557b0c209c6c84741c0b1c880c4936a71848e3734"
+    },
+    {
+      "target": "test-rust-parity-native-globals",
+      "status": 0,
+      "log": ".sn/test-rust-parity-native-globals.log",
+      "sha256": "43639402029301af76c373c85cef545a7b6e91326e3eb9e11c6869b25d717bc2"
+    },
+    {
+      "target": "test-rust-parity-native-callables",
+      "status": 0,
+      "log": ".sn/test-rust-parity-native-callables.log",
+      "sha256": "1ea80ccaa08b5aef1cd3dc797a666f54e3aec954929753582894bc3a9bfbcc1c"
+    },
+    {
+      "target": "test-rust-parity-native-variadics",
+      "status": 0,
+      "log": ".sn/test-rust-parity-native-variadics.log",
+      "sha256": "008b837d5fc20b5770b424d06c153a5cb926d1216ade95ee81c4931616459381"
+    },
+    {
+      "target": "test-rust-parity-serialization",
+      "status": 0,
+      "log": ".sn/test-rust-parity-serialization.log",
+      "sha256": "d60034e341f80a1609ea8534109926306a8b27f2236e786dee0da57dbf821f28"
+    },
+    {
+      "target": "test-rust-parity-pointer-slices",
+      "status": 0,
+      "log": ".sn/test-rust-parity-pointer-slices.log",
+      "sha256": "a5ded92a160d892cc035fb03274e7536adc92b805a01da66f7511cfba88c2d55"
+    }
+  ],
+  "independent_verifier": "Current local reports reverified against frozen source/output contracts; no hosted acceptance claimed."
+}

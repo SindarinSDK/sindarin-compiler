@@ -1,0 +1,1 @@
+{{#if rust_thread_array_param}}    let {{rust_ident name}} = {{> closure_owner}}::new({{> capture_cell}}::new({{rust_ident name}}.lock().unwrap_or_else(|e| e.into_inner()).clone()));{{else}}    let mut {{rust_ident name}} = {{#if rust_array_copy_source}}{{rust_ident rust_array_copy_source}}{{else}}{{rust_ident name}}{{/if}}.clone();{{/if}}{{nl}}

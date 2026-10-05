@@ -1,0 +1,1 @@
+({ sn_auto_arr SnArray *__act0__ = {{> expr right}}; sn_auto_arr SnArray *__act1__ = {{> expr left}}; bool __acr__ = {{#if (eq op "neq")}}!{{/if}}{{#if (eq left.type.element_type.kind "string")}}sn_array_equals_string{{else}}sn_array_equals{{/if}}(__act1__, __act0__); __acr__; }){{~!-- trim EOF --~}}

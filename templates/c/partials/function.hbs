@@ -1,5 +1,6 @@
-{{c_type return_type}} {{#if is_native}}{{name}}{{else}}__sn__{{name}}{{/if}}({{#each params}}{{#if @index}}, {{/if}}{{c_type type}} {{#if (eq mem_qual "as_ref")}}*{{/if}}{{#if needs_struct_cleanup}}__p__{{name}}{{else}}__sn__{{name}}{{/if}}{{/each}}{{#if is_variadic}}{{#if params}}, {{/if}}...{{/if}}) {
-{{#each params}}{{#if needs_struct_cleanup}}    sn_auto_{{struct_cleanup_name}} {{c_type type}} __sn__{{name}} = __p__{{name}};
+{{c_type return_type}} {{#if is_native}}{{name}}{{else}}__sn__{{name}}{{/if}}({{#each params}}{{#if @index}}, {{/if}}{{c_type type}} {{#if (eq mem_qual "as_ref")}}*{{/if}}{{#if needs_array_copy}}__p__{{name}}{{else}}{{#if needs_struct_cleanup}}__p__{{name}}{{else}}__sn__{{name}}{{/if}}{{/if}}{{/each}}{{#if is_variadic}}{{#if params}}, {{/if}}...{{/if}}) {
+{{#each params}}{{#if needs_array_copy}}    sn_auto_arr {{c_type type}} __sn__{{name}} = sn_array_copy(__p__{{name}});
+{{/if}}{{#if needs_struct_cleanup}}    sn_auto_{{struct_cleanup_name}} {{c_type type}} __sn__{{name}} = __p__{{name}};
 {{/if}}{{/each}}{{#each body}}
     {{> stmt this}}
 {{/each}}

@@ -171,6 +171,8 @@ jobs:
             make -o build test-rust-parity-native-callables
           run_gate "native variadic C adapters and ownership (54 cases)" \
             make -o build test-rust-parity-native-variadics
+          run_gate "owned as-val arrays, callable elements and method owners (45 cases)" \
+            make -o build test-rust-parity-array-values
           run_gate "owned byte-pointer slices and scalar bounds (45 cases)" \
             make -o build test-rust-parity-pointer-slices
           run_gate "serialization vtables, fields and lifetimes (117 cases)" \

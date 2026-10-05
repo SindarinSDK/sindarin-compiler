@@ -160,9 +160,11 @@ void rust_gen_model_emit_param_cleanup(json_object *param_obj, Parameter *param,
      * out of the shared model and project it as a Rust mutable borrow. */
     if (param->type->kind == TYPE_ARRAY)
     {
-        if (param->mem_qualifier == MEM_DEFAULT && !callee_is_native)
+        if ((param->mem_qualifier == MEM_DEFAULT || param->mem_qualifier == MEM_AS_VAL) && !callee_is_native)
             json_object_object_add(param_obj, "rust_default_array_ref",
                                    json_object_new_boolean(true));
+        if (param->mem_qualifier == MEM_AS_VAL)
+            json_object_object_add(param_obj, "needs_array_copy", json_object_new_boolean(true));
         return;
     }
 

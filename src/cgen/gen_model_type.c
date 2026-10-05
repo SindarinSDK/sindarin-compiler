@@ -151,7 +151,17 @@ const char *gen_model_var_cleanup_kind(Type *type, bool suppress_local)
 
 void gen_model_emit_param_cleanup(json_object *param_obj, Parameter *param, bool callee_is_native)
 {
-    if (!param->type || param->type->kind != TYPE_STRUCT) return;
+    if (!param->type) return;
+    /* as-val array parameters own a deep copy made at function entry. The
+     * incoming handle remains borrowed, including temporaries kept by the
+     * caller's chain lowering. Cleanup applies to the local copy only. */
+    if (param->type->kind == TYPE_ARRAY)
+    {
+        if (param->mem_qualifier == MEM_AS_VAL)
+            json_object_object_add(param_obj, "needs_array_copy", json_object_new_boolean(true));
+        return;
+    }
+    if (param->type->kind != TYPE_STRUCT) return;
 
     /* 'as ref' on an already-refcounted struct is redundant — refcounted
      * structs are always passed by pointer. The call-site in

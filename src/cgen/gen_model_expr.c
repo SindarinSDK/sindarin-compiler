@@ -1150,11 +1150,15 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     (expr->as.binary.operator == TOKEN_EQUAL_EQUAL ||
                      expr->as.binary.operator == TOKEN_BANG_EQUAL))
                 {
-                    if (lhs->type == EXPR_ARRAY || lhs->type == EXPR_RANGE)
+                    if (ownership_kind(lhs) == OWNERSHIP_OWNED)
                         json_object_object_add(left_obj, "is_arr_temp",
                             json_object_new_boolean(true));
-                    if (rhs->type == EXPR_ARRAY || rhs->type == EXPR_RANGE)
+                    if (ownership_kind(rhs) == OWNERSHIP_OWNED)
                         json_object_object_add(right_obj, "is_arr_temp",
+                            json_object_new_boolean(true));
+                    if (ownership_kind(lhs) == OWNERSHIP_OWNED &&
+                        ownership_kind(rhs) == OWNERSHIP_OWNED)
+                        json_object_object_add(obj, "array_compare_both_temps",
                             json_object_new_boolean(true));
                 }
             }
@@ -1479,6 +1483,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 bool member_str_push = false;
                 /* Detect push/insert on array-of-arrays — args need sn_array_copy for ownership */
                 bool member_arr_push = false;
+                bool member_fn_push = false;
                 /* Detect push/insert on composite struct arrays — lvalue args need deep copy */
                 bool member_struct_push = false;
                 const char *member_struct_push_name = NULL;
@@ -1506,6 +1511,8 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                                 member_str_push = true;
                             else if (et->kind == TYPE_ARRAY)
                                 member_arr_push = true;
+                            else if (et->kind == TYPE_FUNCTION && !et->as.function.is_native)
+                                member_fn_push = true;
                             else if (et->kind == TYPE_STRUCT &&
                                      !et->as.struct_type.pass_self_by_ref &&
                                      gen_model_type_category(et) == TYPE_CAT_COMPOSITE)
@@ -1682,7 +1689,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     }
                     /* Array-of-arrays push/insert: mirror the str rule — BORROW
                      * copies, OWNED transfers via consumes_source. */
-                    if (member_arr_push && i == 0)
+                    if ((member_arr_push || member_fn_push) && i == 0)
                     {
                         Expr *arg_expr = expr->as.call.arguments[0];
                         if (ownership_kind(arg_expr) == OWNERSHIP_BORROW)
@@ -2153,7 +2160,8 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     ownership_kind(ae) == OWNERSHIP_BORROW)
                 {
                     Type *et = ae->expr_type;
-                    if (et->kind == TYPE_STRING || et->kind == TYPE_ARRAY)
+                    if (et->kind == TYPE_STRING || et->kind == TYPE_ARRAY ||
+                        (et->kind == TYPE_FUNCTION && !et->as.function.is_native))
                     {
                         json_object_object_add(elem, "source_is_borrow",
                             json_object_new_boolean(true));
@@ -2219,6 +2227,12 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     case TYPE_STRING:
                         elem_release_fn = "(void (*)(void *))sn_cleanup_str";
                         elem_copy_fn = "sn_copy_str";
+                        break;
+                    case TYPE_FUNCTION:
+                        if (!et->as.function.is_native) {
+                            elem_release_fn = "(void (*)(void *))sn_cleanup_fn";
+                            elem_copy_fn = "sn_copy_fn";
+                        }
                         break;
                     case TYPE_ARRAY:
                         elem_release_fn = "(void (*)(void *))sn_cleanup_array";
@@ -2314,6 +2328,14 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
 
                 switch (etype->kind)
                 {
+                    case TYPE_FUNCTION:
+                        if (!etype->as.function.is_native) {
+                            elem_cleanup = "closure_ref";
+                            if (ownership_kind(expr->as.index_assign.value) == OWNERSHIP_BORROW)
+                                json_object_object_add(obj, "source_is_borrow",
+                                    json_object_new_boolean(true));
+                        }
+                        break;
                     case TYPE_STRING:
                         elem_cleanup = "free_str";
                         if (ownership_kind(expr->as.index_assign.value) == OWNERSHIP_BORROW)

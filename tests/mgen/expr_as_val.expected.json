@@ -34,7 +34,8 @@
             }
           },
           "mem_qual": "as_val",
-          "sync_mod": "none"
+          "sync_mod": "none",
+          "needs_array_copy": true
         }
       ],
       "body": [

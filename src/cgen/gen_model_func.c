@@ -534,13 +534,17 @@ json_object *gen_model_function(Arena *arena, FunctionStmt *func, SymbolTable *s
         memcpy(ncopy, func->params[i].name.start, nlen);
         ncopy[nlen] = '\0';
 
-        /* All params */
-        if (g_all_param_count % 8 == 0) {
-            char **nv = arena_alloc(arena, (g_all_param_count + 8) * sizeof(char *));
-            for (int j = 0; j < g_all_param_count; j++) nv[j] = g_all_param_names[j];
-            g_all_param_names = nv;
+        /* as-val arrays are owned locals after the entry copy. Returning one
+         * must transfer/null that local rather than return a borrowed pointer. */
+        if (!(func->params[i].mem_qualifier == MEM_AS_VAL &&
+              func->params[i].type && func->params[i].type->kind == TYPE_ARRAY)) {
+            if (g_all_param_count % 8 == 0) {
+                char **nv = arena_alloc(arena, (g_all_param_count + 8) * sizeof(char *));
+                for (int j = 0; j < g_all_param_count; j++) nv[j] = g_all_param_names[j];
+                g_all_param_names = nv;
+            }
+            g_all_param_names[g_all_param_count++] = ncopy;
         }
-        g_all_param_names[g_all_param_count++] = ncopy;
 
         if (func->params[i].mem_qualifier == MEM_AS_REF)
         {

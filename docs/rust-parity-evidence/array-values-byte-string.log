@@ -1,0 +1,12 @@
+PASS array_text_utf8: Unix C/Rust O0/O1/O2 raw bytes
+PASS byte_array_to_string: Unix C/Rust O0/O1/O2 raw bytes
+PASS split_empty_utf8: Unix C/Rust O0/O1/O2 raw bytes
+PASS string_apis: Unix C/Rust O0/O1/O2 raw bytes
+PASS struct_text_bytes: Unix C/Rust O0/O1/O2 raw bytes
+PASS invalid_utf8_concat: Unix C/Rust O0/O1/O2 raw bytes
+PASS invalid_utf8_interpolation: Unix C/Rust O0/O1/O2 raw bytes
+PASS invalid_utf8_literal: Unix C/Rust O0/O1/O2 raw bytes
+PASS invalid_utf8_pattern: Unix C/Rust O0/O1/O2 raw bytes
+PASS invalid_utf8_result: Unix C/Rust O0/O1/O2 raw bytes
+PASS raw_argv: Unix Rust O0/O1/O2 raw OS argument bytes
+PASS: 30 C/Rust raw-output pairs (60 target executions) + 3 Rust-only Unix raw-byte argv executions

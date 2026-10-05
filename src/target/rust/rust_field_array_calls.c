@@ -92,7 +92,8 @@ static bool rust_field_array_call(json_object *model, json_object *functions, js
     {
         json_object *arg = json_object_array_get_idx(args, i);
         json_object *param = json_object_array_get_idx(params, i);
-        bool field = rust_field_array_owner(arg) && json_boolean_property(param, "rust_default_array_ref");
+        bool field = rust_field_array_owner(arg) && json_boolean_property(param, "rust_default_array_ref") &&
+            !json_boolean_property(param, "needs_array_copy");
         json_object_array_add(pattern, json_object_new_boolean(field));
         selected |= field;
     }

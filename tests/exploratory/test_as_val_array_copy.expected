@@ -1,0 +1,15 @@
+Test as val array copy semantics:
+
+Test 1 - as val parameter:
+  Original before: [1, 2, 3]
+  Original after: [1, 2, 3]
+
+Test 2 - as val variable:
+  Source: [10, 20, 30]
+  Copy: [0, 20, 30, 40]
+
+Test 3 - Multiple operations on copy:
+  Data (original): [5, 5, 5]
+  Working (copy): [0, 1, 5, 5]
+
+All as val copy tests passed!

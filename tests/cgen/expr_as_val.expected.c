@@ -15,7 +15,8 @@ typedef struct __Closure__ {
 } __Closure__;
 
 
-void __sn__modify(SnArray * __sn__arr) {
+void __sn__modify(SnArray * __p__arr) {
+    sn_auto_arr SnArray * __sn__arr = sn_array_copy(__p__arr);
 
     return;}
 

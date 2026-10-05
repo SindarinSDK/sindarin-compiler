@@ -5,6 +5,62 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Array value parameters: local acceptance, 2026-10-05
+
+This increment starts from published main
+`6d608821834aacc714774133fe219b088fd11d54`. All six compiler/runtime jobs,
+all three **43-report/3684-case** platform artifacts and hosted suite counts
+are independently verified:
+[hosted proof](rust-parity-evidence/pointer-slices-main-ci-green.json).
+The serialization parent `b5efa4c7` is also fully verified:
+[hosted proof](rust-parity-evidence/serialization-main-ci-green.json).
+Publication and exact-revision hosted acceptance of this increment remain required.
+
+Ordinary function and instance/static method `as val` array parameters now own
+independent entry copies. Duplicate value inputs remain independent, while mixed
+default/value inputs preserve caller-visible mutation through the default input.
+Controls cover strings, nested arrays, owned value records, reference records,
+function elements, nil/empty identity, returns, forwarding, fields, joined
+workers, escaping snapshot captures and argument timing before entry copying.
+Methods participate in thread-owner transport and copied parameters are not
+rewritten as receiver fields. Nested push retains the defined C value-before-index
+order. The C backend's original parameter-sharing bug is repaired to the
+[documented contract](arrays.md); historical wrong output is not the oracle.
+C closure-array retain/release and owned comparison cleanup are prerequisites.
+
+Complete C/Rust suites pass with zero failures/skips, including **67** native
+positives and the existing **four** admission-error fixtures. All **44 reports /
+3729 cases** pass, including independently reverified previous **43 / 3684**.
+The mandatory platform gate adds **45 frozen comparisons**. Its unchanged
+baseline has **45 C compile successes**, **18 successful C executions**, **27 C
+signal failures**, and **36 Rust compile failures**; only the **nine** original
+closure-array pairs satisfy the new contract. The original array-value C runs
+successfully but mutates its caller contrary to the specified copy semantics.
+
+All **90 sanitizer-configured executions** satisfy independent raw-output
+oracles. An actual command/object audit confirms ASAN/UBSAN instrumentation in
+**45 generated C main objects**. Their prebuilt runtime archive is recorded
+without claiming instrumentation; all **45 Rust cases** are pure Rust and are
+not sanitizer-instrumented. Raw output/argv, native order, diagnostics and
+Windows text helper logic also pass.
+
+All **1365 original source hashes** remain unchanged. Original coverage is
+**1137 integration + 223 exploratory = 1360 / 1365 (99.63%)**, with **five
+compilation gaps**, zero runtime failures and zero skips. The newer integration
+control is separate. This percentage measures original corpus coverage, not full
+goal completion. Interfaces/iterators, mutation of closure array parameters,
+qualified closure/capture compositions, broader effectful/indexed aliases,
+heap-owning record reference parameters, SDK/native arrays and foreign callbacks,
+native disposal/global/thread lifetimes and exact hosted acceptance remain required.
+
+Evidence: [implementation and boundaries](rust-array-values.md),
+[validation and remaining gaps](rust-parity-evidence/array-values-validation.json),
+[45 frozen comparisons](rust-parity-evidence/array-values-oracles.json),
+[previous 3684-case preservation](rust-parity-evidence/array-values-preservation.json),
+[90 sanitizer-configured executions](rust-parity-evidence/array-values-asan.json),
+[actual C object audit](rust-parity-evidence/array-values-asan-object-audit.json),
+[unchanged original sources](rust-parity-evidence/array-values-source-preservation.json).
+
 ## Ordinary byte-pointer slices: local acceptance, 2026-10-05
 
 This increment starts from published main
