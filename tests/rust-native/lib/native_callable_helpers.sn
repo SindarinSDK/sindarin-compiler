@@ -1,0 +1,29 @@
+type IslandCallback = native fn(value: int): int
+
+fn plain_double(value: int): int =>
+  return value * 2
+
+fn plain_apply(callback: fn(int): int, value: int): int =>
+  return callback(value)
+
+fn typed_native_apply(callback: IslandCallback, value: int): int =>
+  return callback(value)
+
+native fn native_typed_apply(callback: IslandCallback, value: int): int =>
+  return callback(value)
+
+fn make_nested(base: int): fn(int): fn(int): int =>
+  return fn(value: int): fn(int): int =>
+    return fn(next: int): int => base + value + next
+
+fn make_owned(): fn(int): int =>
+  var text = "owned"
+  var values: int[] = {3, 7}
+  return fn(index: int): int => values[index] + text.length
+
+fn island_thread(value: int): int =>
+  var callback: IslandCallback = fn(next: int): int => next + 2
+  var result = & typed_native_apply(callback, value)
+  var native_result = & native_typed_apply(callback, value + 1)
+  [result, native_result] !
+  return result + native_result

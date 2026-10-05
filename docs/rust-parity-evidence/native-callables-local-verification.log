@@ -1,0 +1,2 @@
+linux: 39 reports, 3405 cases, 189 closure record cases, 216 owned record parameter cases, 36 native record reference +45 native record cases, 45 nested store +45 owned array +90 nil-array +72 nil-string cases, 54 indexed string +126 sizeof/reference +216 sizeof +180 match +108 main-return +153 exit +81 byte +72 character oracles verified
+Previous 39 reports / 3405 cases independently verified locally with the current compiler.

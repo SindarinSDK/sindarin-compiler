@@ -938,3 +938,17 @@ test-rust-parity-native-globals: build
 		--arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-native-globals.json
 	@$(PYTHON) scripts/check_rust_native_global_oracles.py .sn/rust-parity-native-globals.json
+
+.PHONY: test-rust-parity-native-callables
+test-rust-parity-native-callables: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/integration/test_native_callback_typedef.sn \
+		tests/integration/test_qsort_callback.sn \
+		tests/integration/test_interop_callback.sn \
+		tests/integration/test_interop_edge_cases.sn \
+		tests/rust-native/native_callable_body.sn \
+		tests/rust-native/native_callable_islands.sn \
+		tests/rust-native/native_callable_globals.sn \
+		--require-count 7 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-native-callables.json
+	@$(PYTHON) scripts/check_rust_native_callable_oracles.py .sn/rust-parity-native-callables.json

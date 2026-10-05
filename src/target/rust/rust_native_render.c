@@ -4,21 +4,18 @@
 #include <stdlib.h>
 #include <string.h>
 
-static bool impl_has_native_body(json_object *impl)
+static bool impl_has_callable_body(json_object *impl)
 {
-    json_object *functions = NULL;
-    if (!impl || !json_object_object_get_ex(impl, "functions", &functions))
-        return false;
-    size_t count = json_object_array_length(functions);
-    for (size_t i = 0; i < count; i++)
+    json_object *definitions = NULL;
+    const char *keys[] = {"functions", "lambdas", "threads", "fn_wrappers"};
+    for (size_t k = 0; k < sizeof(keys) / sizeof(keys[0]); k++)
     {
-        json_object *function = json_object_array_get_idx(functions, i);
-        json_object *is_native = NULL, *has_body = NULL;
-        if (json_object_object_get_ex(function, "is_native", &is_native) &&
-            json_object_get_boolean(is_native) &&
-            json_object_object_get_ex(function, "has_body", &has_body) &&
-            json_object_get_boolean(has_body))
-            return true;
+        if (!json_object_object_get_ex(impl, keys[k], &definitions)) continue;
+        for (size_t i = 0; i < json_object_array_length(definitions); i++)
+        {
+            json_object *definition = json_object_array_get_idx(definitions, i), *has_body = NULL;
+            if (k != 0 || (json_object_object_get_ex(definition, "has_body", &has_body) && json_object_get_boolean(has_body))) return true;
+        }
     }
     return false;
 }
@@ -55,7 +52,7 @@ bool rust_native_emit_support(RustNativePlan *plan, GeneratedFileSet *files,
 
     for (int i = 0; i < rendered->impl_count; i++)
     {
-        if (!impl_has_native_body(split->impl_models[i])) continue;
+        if (!impl_has_callable_body(split->impl_models[i])) continue;
         size_t path_size = strlen(rendered->impl_names[i]) +
                            sizeof("sn_native_bridge_.c");
         char *path = malloc(path_size);

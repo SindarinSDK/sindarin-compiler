@@ -121,64 +121,10 @@ static bool native_parameter_type(json_object *type, const char *mem)
         (kind && strcmp(kind, "string") == 0);
 }
 
-static bool native_body_has_unsupported_construct_impl(json_object *node,
-                                                        bool direct_callee)
-{
-    if (!node) return false;
-    if (json_object_is_type(node, json_type_array))
-    {
-        size_t count = json_object_array_length(node);
-        for (size_t i = 0; i < count; i++)
-            if (native_body_has_unsupported_construct_impl(
-                    json_object_array_get_idx(node, i), false)) return true;
-        return false;
-    }
-    if (!json_object_is_type(node, json_type_object)) return false;
-
-    const char *kind = native_string(node, "kind");
-    /* C emits only the resolved type for sizeof; an operand's lambda/thread
-     * metadata does not imply an evaluated construct or an ABI boundary. */
-    if (kind && strcmp(kind, "sizeof") == 0) return false;
-    if ((kind && (strcmp(kind, "lambda") == 0 ||
-                  strcmp(kind, "closure_call") == 0 ||
-                  strcmp(kind, "thread_spawn") == 0 ||
-                  strcmp(kind, "thread_sync") == 0 ||
-                  strcmp(kind, "thread_detach") == 0 ||
-                  strncmp(kind, "thread_", 7) == 0)) ||
-        native_bool(node, "is_closure_call"))
-        return true;
-
-    json_object *type = NULL;
-    if (json_object_object_get_ex(node, "type", &type))
-    {
-        const char *type_kind = native_string(type, "kind");
-        /* Local aggregates stay wholly in the projected C body. Only the
-         * public parameter/result types cross the bridge and retain their
-         * separate ABI validation. Indirect callable values still require
-         * closure definitions absent from this C-only partition. */
-        if (type_kind && strcmp(type_kind, "function") == 0 && !direct_callee)
-            return true;
-    }
-
-    json_object_object_foreach(node, key, value)
-    {
-        bool child_is_direct_callee = kind && strcmp(kind, "call") == 0 &&
-                                      strcmp(key, "callee") == 0;
-        if (native_body_has_unsupported_construct_impl(
-                value, child_is_direct_callee)) return true;
-    }
-    return false;
-}
-
-static bool native_body_has_unsupported_construct(json_object *node)
-{
-    return native_body_has_unsupported_construct_impl(node, false);
-}
-
 static bool validate_native_function(json_object *function)
 {
     const char *name = native_string(function, "name");
-    json_object *return_type = NULL, *params = NULL, *body = NULL;
+    json_object *return_type = NULL, *params = NULL;
     if (native_bool(function, "is_variadic"))
     {
         fprintf(stderr,
@@ -219,14 +165,6 @@ static bool validate_native_function(json_object *function)
                 return false;
             }
         }
-    }
-    if (json_object_object_get_ex(function, "body", &body) &&
-        native_body_has_unsupported_construct(body))
-    {
-        fprintf(stderr,
-                "Error: Rust target native function '%s' body uses a closure, thread, or indirect callable construct outside the native bridge\n",
-                name ? name : "<anonymous>");
-        return false;
     }
     return true;
 }
@@ -594,6 +532,88 @@ fail:
     return false;
 }
 
+static bool native_node_has_id(json_object *node, const char *key, int64_t id)
+{
+    if (!node) return false;
+    if (json_object_is_type(node, json_type_array))
+    {
+        for (size_t i = 0; i < json_object_array_length(node); i++)
+            if (native_node_has_id(json_object_array_get_idx(node, i), key, id)) return true;
+        return false;
+    }
+    if (!json_object_is_type(node, json_type_object)) return false;
+    json_object *value = NULL;
+    if (json_object_object_get_ex(node, key, &value) &&
+        json_object_is_type(value, json_type_int) && json_object_get_int64(value) == id) return true;
+    json_object_object_foreach(node, child_key, child)
+    {
+        if (strncmp(child_key, "rust_", 5) != 0 && native_node_has_id(child, key, id)) return true;
+    }
+    return false;
+}
+
+static bool native_metadata_contains(json_object *selected, json_object *definition)
+{
+    for (size_t i = 0; i < json_object_array_length(selected); i++)
+        if (json_object_array_get_idx(selected, i) == definition) return true;
+    return false;
+}
+
+/* Constructor snapshots and the emitted definitions can contain different
+ * nested lambda IDs. Follow the actual definitions to a fixed point, including
+ * thread and function-wrapper metadata reached through other callables. */
+static json_object *native_reachable_metadata(json_object *model,
+                                             json_object *functions,
+                                             json_object *structs,
+                                             json_object *globals)
+{
+    const char *arrays[] = {"lambdas", "threads", "fn_wrappers"};
+    const char *definition_keys[] = {"lambda_id", "thread_id", "wrapper_id"};
+    const char *reference_keys[] = {"lambda_id", "thread_id", "fn_wrapper_id"};
+    json_object *selected = json_object_new_array();
+    bool changed;
+    do
+    {
+        changed = false;
+        for (size_t k = 0; k < sizeof(arrays) / sizeof(arrays[0]); k++)
+        {
+            json_object *definitions = NULL;
+            json_object_object_get_ex(model, arrays[k], &definitions);
+            for (size_t i = 0; definitions && i < json_object_array_length(definitions); i++)
+            {
+                json_object *definition = json_object_array_get_idx(definitions, i), *value = NULL;
+                if (native_metadata_contains(selected, definition) ||
+                    !json_object_object_get_ex(definition, definition_keys[k], &value)) continue;
+                int64_t id = json_object_get_int64(value);
+                if (native_node_has_id(functions, reference_keys[k], id) ||
+                    native_node_has_id(structs, reference_keys[k], id) ||
+                    native_node_has_id(globals, reference_keys[k], id) ||
+                    native_node_has_id(selected, reference_keys[k], id))
+                {
+                    json_object_array_add(selected, json_object_get(definition));
+                    changed = true;
+                }
+            }
+        }
+    } while (changed);
+    return selected;
+}
+
+static void native_select_metadata(json_object *model, const char *array_key,
+                                    json_object *reachable)
+{
+    json_object *definitions = NULL;
+    json_object_object_get_ex(model, array_key, &definitions);
+    json_object *selected = json_object_new_array();
+    for (size_t i = 0; definitions && i < json_object_array_length(definitions); i++)
+    {
+        json_object *definition = json_object_array_get_idx(definitions, i);
+        if (native_metadata_contains(reachable, definition))
+            json_object_array_add(selected, json_object_get(definition));
+    }
+    json_object_object_add(model, array_key, selected);
+}
+
 static bool project_native_model(json_object *model,
                                  json_object **selected_function_names,
                                  json_object **selected_global_names,
@@ -660,6 +680,41 @@ static bool project_native_model(json_object *model,
                                           globals, selected_globals,
                                           global_count, &changed);
         }
+        json_object *function_roots = selected_array(functions, selected_functions, function_count);
+        json_object *struct_roots = selected_array(structs, selected_structs, struct_count);
+        json_object *global_roots = selected_array(globals, selected_globals, global_count);
+        json_object *metadata = native_reachable_metadata(model, function_roots, struct_roots, global_roots);
+        json_object_put(function_roots);
+        json_object_put(struct_roots);
+        json_object_put(global_roots);
+        mark_function_dependencies(metadata, functions, selected_functions, function_count, &changed);
+        mark_named_model_dependencies(metadata, structs, selected_structs, struct_count,
+                                      globals, selected_globals, global_count, &changed);
+        json_object *wrappers = NULL;
+        json_object_object_get_ex(model, "fn_wrappers", &wrappers);
+        for (size_t w = 0; wrappers && w < json_object_array_length(wrappers); w++)
+        {
+            json_object *wrapper = json_object_array_get_idx(wrappers, w), *id_value = NULL;
+            json_object_object_get_ex(wrapper, "wrapper_id", &id_value);
+            int64_t id = json_object_get_int64(id_value);
+            bool used = native_metadata_contains(metadata, wrapper);
+            for (size_t i = 0; !used && i < function_count; i++)
+                used = selected_functions[i] && native_node_has_id(json_object_array_get_idx(functions, i), "fn_wrapper_id", id);
+            for (size_t i = 0; !used && i < struct_count; i++)
+                used = selected_structs[i] && native_node_has_id(json_object_array_get_idx(structs, i), "fn_wrapper_id", id);
+            for (size_t i = 0; !used && i < global_count; i++)
+                used = selected_globals[i] && native_node_has_id(json_object_array_get_idx(globals, i), "fn_wrapper_id", id);
+            if (!used) continue;
+            for (size_t i = 0; i < function_count; i++)
+                if (!selected_functions[i] && function_matches_callable(json_object_array_get_idx(functions, i), native_string(wrapper, "target_name")))
+                {
+                    selected_functions[i] = true;
+                    changed = true;
+                }
+            mark_named_model_dependencies(wrapper, structs, selected_structs, struct_count,
+                globals, selected_globals, global_count, &changed);
+        }
+        json_object_put(metadata);
         for (size_t i = 0; i < global_count; i++)
         {
             if (!selected_globals[i]) continue;
@@ -784,9 +839,11 @@ static bool project_native_model(json_object *model,
     *selected_function_names = function_names;
     *selected_global_names = global_names;
     *initializer_name_out = initializer_name;
-    replace_with_empty_array(model, "lambdas");
-    replace_with_empty_array(model, "threads");
-    replace_with_empty_array(model, "fn_wrappers");
+    json_object *metadata = native_reachable_metadata(model, native_functions, native_structs, native_globals);
+    native_select_metadata(model, "lambdas", metadata);
+    native_select_metadata(model, "threads", metadata);
+    native_select_metadata(model, "fn_wrappers", metadata);
+    json_object_put(metadata);
     replace_with_empty_array(model, "type_decls");
     replace_with_empty_array(model, "top_level_statements");
 
@@ -1003,6 +1060,116 @@ static bool rust_roots_reference_callable(json_object *model,
     return false;
 }
 
+/* Ordinary helpers used exclusively by the C island must not be validated or
+ * emitted as Rust. Preserve main, every independent Rust declaration, and the
+ * full graph reachable from their bodies, globals and ordinary methods. */
+static bool native_prune_c_only_helpers(json_object *model, json_object *private_model)
+{
+    json_object *functions = NULL, *c_functions = NULL, *globals = NULL, *structs = NULL, *wrappers = NULL;
+    json_object_object_get_ex(model, "functions", &functions);
+    json_object_object_get_ex(private_model, "functions", &c_functions);
+    json_object_object_get_ex(model, "globals", &globals);
+    json_object_object_get_ex(model, "structs", &structs);
+    json_object_object_get_ex(model, "fn_wrappers", &wrappers);
+    size_t count = functions ? json_object_array_length(functions) : 0;
+    bool *c_selected = count ? calloc(count, sizeof(bool)) : NULL;
+    bool *rust_selected = count ? calloc(count, sizeof(bool)) : NULL;
+    if (count && (!c_selected || !rust_selected)) { free(c_selected); free(rust_selected); return false; }
+    json_object *methods = json_object_new_array();
+    for (size_t i = 0; structs && i < json_object_array_length(structs); i++)
+    {
+        json_object *members = NULL;
+        json_object_object_get_ex(json_object_array_get_idx(structs, i), "methods", &members);
+        for (size_t j = 0; members && j < json_object_array_length(members); j++)
+        {
+            json_object *member = json_object_array_get_idx(members, j);
+            if (!native_bool(member, "is_native")) json_object_array_add(methods, json_object_get(member));
+        }
+    }
+    for (size_t i = 0; i < count; i++)
+    {
+        json_object *function = json_object_array_get_idx(functions, i);
+        for (size_t j = 0; c_functions && j < json_object_array_length(c_functions); j++)
+            if (function_matches_callable(json_object_array_get_idx(c_functions, j), native_string(function, "name"))) c_selected[i] = true;
+        const char *name = native_string(function, "name");
+        rust_selected[i] = !native_bool(function, "is_native") && (!c_selected[i] || (name && strcmp(name, "main") == 0));
+    }
+    bool changed;
+    do
+    {
+        changed = false;
+        mark_function_dependencies(globals, functions, rust_selected, count, &changed);
+        mark_function_dependencies(methods, functions, rust_selected, count, &changed);
+        for (size_t i = 0; i < count; i++)
+            if (rust_selected[i] && !native_bool(json_object_array_get_idx(functions, i), "is_native"))
+                mark_function_dependencies(json_object_array_get_idx(functions, i), functions, rust_selected, count, &changed);
+        json_object *roots = json_object_new_array();
+        for (size_t i = 0; i < count; i++)
+            if (rust_selected[i] && !native_bool(json_object_array_get_idx(functions, i), "is_native"))
+                json_object_array_add(roots, json_object_get(json_object_array_get_idx(functions, i)));
+        json_object *metadata = native_reachable_metadata(model, roots, methods, globals);
+        json_object_put(roots);
+        mark_function_dependencies(metadata, functions, rust_selected, count, &changed);
+        for (size_t w = 0; wrappers && w < json_object_array_length(wrappers); w++)
+        {
+            json_object *wrapper = json_object_array_get_idx(wrappers, w), *id_value = NULL;
+            json_object_object_get_ex(wrapper, "wrapper_id", &id_value);
+            int64_t id = json_object_get_int64(id_value);
+            bool used = native_metadata_contains(metadata, wrapper);
+            for (size_t i = 0; !used && i < count; i++)
+                used = rust_selected[i] && !native_bool(json_object_array_get_idx(functions, i), "is_native") && native_node_has_id(json_object_array_get_idx(functions, i), "fn_wrapper_id", id);
+            if (!used) continue;
+            for (size_t i = 0; i < count; i++)
+                if (!rust_selected[i] && function_matches_callable(json_object_array_get_idx(functions, i), native_string(wrapper, "target_name"))) { rust_selected[i] = true; changed = true; }
+        }
+        json_object_put(metadata);
+    } while (changed);
+    json_object *remaining = json_object_new_array();
+    for (size_t i = 0; i < count; i++)
+    {
+        json_object *function = json_object_array_get_idx(functions, i);
+        if (native_bool(function, "is_native") || !c_selected[i] || rust_selected[i]) json_object_array_add(remaining, json_object_get(function));
+    }
+    json_object_object_add(model, "functions", remaining);
+    json_object_put(methods);
+    free(c_selected);
+    free(rust_selected);
+    return true;
+}
+
+static void native_select_rust_metadata(json_object *rust_model)
+{
+    json_object *functions = NULL, *globals = NULL, *structs = NULL;
+    json_object_object_get_ex(rust_model, "functions", &functions);
+    json_object_object_get_ex(rust_model, "globals", &globals);
+    json_object_object_get_ex(rust_model, "structs", &structs);
+    json_object *roots = json_object_new_array();
+    for (size_t i = 0; functions && i < json_object_array_length(functions); i++)
+    {
+        json_object *function = json_object_array_get_idx(functions, i);
+        if (!native_bool(function, "is_native")) json_object_array_add(roots, json_object_get(function));
+    }
+    /* Rust lowers ordinary methods; native method bodies stay in C. */
+    json_object *method_roots = json_object_new_array();
+    for (size_t i = 0; structs && i < json_object_array_length(structs); i++)
+    {
+        json_object *methods = NULL;
+        json_object_object_get_ex(json_object_array_get_idx(structs, i), "methods", &methods);
+        for (size_t j = 0; methods && j < json_object_array_length(methods); j++)
+        {
+            json_object *method = json_object_array_get_idx(methods, j);
+            if (!native_bool(method, "is_native")) json_object_array_add(method_roots, json_object_get(method));
+        }
+    }
+    json_object *metadata = native_reachable_metadata(rust_model, roots, method_roots, globals);
+    native_select_metadata(rust_model, "lambdas", metadata);
+    native_select_metadata(rust_model, "threads", metadata);
+    native_select_metadata(rust_model, "fn_wrappers", metadata);
+    json_object_put(metadata);
+    json_object_put(roots);
+    json_object_put(method_roots);
+}
+
 static void remove_c_only_native_helpers(json_object *rust_model,
                                           json_object *private_model)
 {
@@ -1037,24 +1204,6 @@ bool rust_native_partition_model(json_object *rust_model,
     bool has_managed_abi = false;
     bool has_string_parameter = false;
     json_object_object_get_ex(rust_model, "structs", &structs);
-    if (json_object_object_get_ex(rust_model, "functions", &functions))
-    {
-        size_t count = json_object_array_length(functions);
-        for (size_t i = 0; i < count; i++)
-        {
-            json_object *function = json_object_array_get_idx(functions, i);
-            if (!native_bool(function, "is_native")) continue;
-            json_object *body = NULL;
-            if (json_object_object_get_ex(function, "body", &body) &&
-                native_body_has_unsupported_construct(body))
-            {
-                fprintf(stderr,
-                        "Error: Rust target native function '%s' body uses a closure, thread, or indirect callable construct outside the native bridge\n",
-                        native_string(function, "name"));
-                return false;
-            }
-        }
-    }
 
     json_object *private_model = deep_copy(rust_model);
     RustNativePlan *plan = calloc(1, sizeof(*plan));
@@ -1078,6 +1227,16 @@ bool rust_native_partition_model(json_object *rust_model,
     }
     remove_private_helper_functions(rust_model, selected_function_names);
     remove_private_globals(rust_model, selected_global_names);
+    if (!native_prune_c_only_helpers(rust_model, private_model))
+    {
+        json_object_put(private_model);
+        json_object_put(selected_function_names);
+        json_object_put(selected_global_names);
+        free(initializer_name);
+        rust_native_plan_free(plan);
+        return false;
+    }
+    native_select_rust_metadata(rust_model);
     remove_c_only_native_helpers(rust_model, private_model);
     if (!native_prepare_records(rust_model) || !native_prepare_handles(rust_model, plan) ||
         !native_prepare_handle_atomic_owners(private_model, plan->handles))

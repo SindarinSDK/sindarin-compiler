@@ -55,7 +55,7 @@ static bool rust_type_supported(json_object *type)
         strcmp(kind, "struct") == 0;
 }
 
-static bool rust_opaque_type_declarations_supported(json_object *model)
+static bool rust_type_declarations_supported(json_object *model)
 {
     json_object *declarations = NULL;
     if (!json_object_object_get_ex(model, "type_decls", &declarations))
@@ -69,7 +69,8 @@ static bool rust_opaque_type_declarations_supported(json_object *model)
         if (!json_object_object_get_ex(declaration, "type", &type) ||
             !json_object_object_get_ex(type, "kind", &kind) ||
             !json_object_get_string(kind) ||
-            strcmp(json_object_get_string(kind), "opaque") != 0)
+            (strcmp(json_object_get_string(kind), "opaque") != 0 &&
+             strcmp(json_object_get_string(kind), "function") != 0))
             return false;
     }
     return true;
@@ -3018,7 +3019,7 @@ static bool rust_validate_model_impl(json_object *model,
 {
     const char *unsupported = NULL;
     if (!rust_validate_closures(model)) return false;
-    else if (!rust_opaque_type_declarations_supported(model))
+    else if (!rust_type_declarations_supported(model))
         unsupported = "non-opaque type declarations";
 
     json_object *pragmas = NULL;

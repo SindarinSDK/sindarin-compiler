@@ -1,0 +1,22 @@
+type PrivateCallback = native fn(value: int): int
+
+fn build_callback(base: int): PrivateCallback =>
+  var text = "own"
+  return fn(value: int): int => value + base + text.length
+
+var callback: PrivateCallback = build_callback(3)
+
+native fn global_apply(value: int): int =>
+  return callback(value)
+
+native fn replace_callback(): void =>
+  callback = build_callback(10)
+
+native fn clear_callback(): void =>
+  callback = nil
+
+fn main(): void =>
+  println($"globals {global_apply(7)} {global_apply(9)}")
+  replace_callback()
+  println($"replaced {global_apply(7)}")
+  clear_callback()

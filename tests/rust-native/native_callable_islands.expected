@@ -1,0 +1,6 @@
+rust 102 6
+rust_owned 111 8
+native 15 12 33 12 6
+threads 16 18
+helper_thread 13
+result 125

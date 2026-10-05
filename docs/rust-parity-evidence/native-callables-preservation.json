@@ -1,0 +1,249 @@
+{
+  "base_revision": "ea1098d21a35df8dc30a6ac1bfe5826f238c0cc1",
+  "state": "local preservation verified with current compiler",
+  "reports": [
+    {
+      "platform": "linux",
+      "compiler_sha256": "a8354b4301ff92b8a45d2ee4017739783e98b97f90de49a8f046cf6c7f990809",
+      "gates": [
+        {
+          "gate": "core",
+          "cases": 30,
+          "artifact_sha256": "cc3eddaea751b5f1d5cf50bc920f192a0000bf2e041811d45eada75771f48b36"
+        },
+        {
+          "gate": "concurrency",
+          "cases": 51,
+          "artifact_sha256": "6e72ef6e9ced1ec4ba42d4f171bbd6519cd8a6e7264c79a4331f0472e9424ac3"
+        },
+        {
+          "gate": "thread-ownership",
+          "cases": 207,
+          "artifact_sha256": "c8d44f3ca7f9d6ff93a064c2a0bdd77e85fd47b0c140f205585c1e78f4577ba5"
+        },
+        {
+          "gate": "thread-receivers",
+          "cases": 90,
+          "artifact_sha256": "49597d6c18fc2e3f2dcce0c7e5019215ad672f2fafd0a8fe5f6f279e56f73e07"
+        },
+        {
+          "gate": "reflection",
+          "cases": 36,
+          "artifact_sha256": "d213af505ac6ecbe9bbfdd8977c071014a860c1823df06d57ba997f638789f83"
+        },
+        {
+          "gate": "sized-defaults",
+          "cases": 27,
+          "artifact_sha256": "39b0b4dc332aa8962a245caab355da91675c83ab49cc61aa8b8d4e2b40c6a0c2"
+        },
+        {
+          "gate": "native-managed",
+          "cases": 63,
+          "artifact_sha256": "7c29e7f1934f6fb740cabcca0904a2b75a7adfa2ac844939834b4bebd2cb67ac"
+        },
+        {
+          "gate": "stdio-order",
+          "cases": 30,
+          "artifact_sha256": "8110508f4dbb6e875a5e2d6f1496e4a4b66e90c092c3934eba57313b496ef728"
+        },
+        {
+          "gate": "mixed-integral",
+          "cases": 90,
+          "artifact_sha256": "4b589975ac7ca9a81373d3541ff826207ab8170ff78859d8366c484d200d2325"
+        },
+        {
+          "gate": "mixed-integral-diagnostics",
+          "cases": 9,
+          "artifact_sha256": "864c7c15f760d72efd267126903b38e0e1d165e6788db460791798904f03249a"
+        },
+        {
+          "gate": "float-conversions",
+          "cases": 117,
+          "artifact_sha256": "fbd9bf036614011985dc2456a392f6af26236d5ade1200137b7bf79d79d63029"
+        },
+        {
+          "gate": "floating-arrays",
+          "cases": 81,
+          "artifact_sha256": "64b4fb8e98667f4bd736e78c49732025998cb106cc8b7fd2777c0bd0ffdb240e"
+        },
+        {
+          "gate": "floating-equality",
+          "cases": 36,
+          "artifact_sha256": "498b7a65ec7d8114b9f72543b853440853a99a6ada22595f7ac47190e1ad343c"
+        },
+        {
+          "gate": "numeric-places",
+          "cases": 153,
+          "artifact_sha256": "7f026256956a291bf3c647cec214aac611ef705c333fb5eca98584ecbfe09a54"
+        },
+        {
+          "gate": "capture-index",
+          "cases": 45,
+          "artifact_sha256": "ace7f38fe112ccbbe07d068a039ac5096445ae77817dc932adb6d98b566cbe1e"
+        },
+        {
+          "gate": "sync-character",
+          "cases": 45,
+          "artifact_sha256": "26fe600b9724e74eaab50a43853898e660b12bad1d176faafe33c8940c2a327d"
+        },
+        {
+          "gate": "ctype",
+          "cases": 72,
+          "artifact_sha256": "0ea2496e21f981e1ac7f118234d772189fa32597855ef8de08a72fd9e48bcc2d"
+        },
+        {
+          "gate": "byte-encoding",
+          "cases": 81,
+          "artifact_sha256": "dc593e195519d97c353ece8d66968ae4a616aee3653e4a86fac37990dec37802"
+        },
+        {
+          "gate": "exit",
+          "cases": 153,
+          "artifact_sha256": "0fb65467202faa4dbe93160f04691e0e0d5ec6279a7ff803cb01af8664ab17cb"
+        },
+        {
+          "gate": "main-return",
+          "cases": 108,
+          "artifact_sha256": "1e218f87eb27e7a881c4f28ad6ba8f8e20914115490141c1857d251f5524f0e2"
+        },
+        {
+          "gate": "match-control",
+          "cases": 180,
+          "artifact_sha256": "3a2d10010fa017f639126963a3fb8e1d64e13398b8a98a1b6df0c2814cd4d7a4"
+        },
+        {
+          "gate": "sizeof",
+          "cases": 216,
+          "artifact_sha256": "cf68142d7449636795c64b51bd6e2796da134b2e220a32df272e7b62adade284"
+        },
+        {
+          "gate": "call-reference",
+          "cases": 126,
+          "artifact_sha256": "3b3c31d4bc9eef491c7e01c5a8859129b0382443b4a0c6d323114652d23960f4"
+        },
+        {
+          "gate": "indexed-string",
+          "cases": 54,
+          "artifact_sha256": "2fad11d51f4f182ce040e2be82ad9b42049705f88df3a3abab7ffe1d0af6d039"
+        },
+        {
+          "gate": "native-scope",
+          "cases": 36,
+          "artifact_sha256": "f782f691f0dc6810c644bc9cf739ed3387fed75683230064c92d0555021b8af9"
+        },
+        {
+          "gate": "nil-string",
+          "cases": 72,
+          "artifact_sha256": "abe9167e19438af9055ec6a96b0931008a635d263233a0c914a0455e01cb8a5d"
+        },
+        {
+          "gate": "nil-array",
+          "cases": 90,
+          "artifact_sha256": "0cd5fbac5f5ad6938d5162d68c370721eb4c882d8c0008ad68ecdd513b7487a3"
+        },
+        {
+          "gate": "nested-stores",
+          "cases": 45,
+          "artifact_sha256": "5f30835848e460bcef9ffceabbe092e11d8ff7d0b161a2616e7a83bca6062e9f"
+        },
+        {
+          "gate": "owned-array-copies",
+          "cases": 45,
+          "artifact_sha256": "2cd5684d2c3e400a5c11655cb0f0c0f6a58de8348d88d36276d9b7e9d480c0d2"
+        },
+        {
+          "gate": "native-records",
+          "cases": 45,
+          "artifact_sha256": "95e553d9bf56c01060e3feb410610e056089935e461a54b6ca517aa0444cd32a"
+        },
+        {
+          "gate": "native-record-references",
+          "cases": 36,
+          "artifact_sha256": "dd9cff10845e115d4f2c4373baa9dc265eebc876256ceda4ceac2401f02ef09b"
+        },
+        {
+          "gate": "owned-record-parameters",
+          "cases": 216,
+          "artifact_sha256": "0721ab2fa51102d5474a1c98186a6c305a01ed18afdc0407f963f010b2bbf6c0"
+        },
+        {
+          "gate": "reference-records",
+          "cases": 171,
+          "artifact_sha256": "df47c5933d028d7ef2d9b0e61481923aff1514f569d1fefe5a323436a2cb85f3"
+        },
+        {
+          "gate": "scalar-parameters",
+          "cases": 126,
+          "artifact_sha256": "08adacced28a929644db7e176622de9b28f8e9b8d204f389c3df5c7496e44211"
+        },
+        {
+          "gate": "closure-records",
+          "cases": 189,
+          "artifact_sha256": "1da5da29c3f4595744a2f6ddd59d4220f2bfd7c30e1b3ec074a6c2e91153608d"
+        },
+        {
+          "gate": "native-handles",
+          "cases": 117,
+          "artifact_sha256": "286e8c719d6c40feb37fae647ccfcd38fe3f88852a5f4ca9dc0453c55264ae2c"
+        },
+        {
+          "gate": "native-arrays",
+          "cases": 27,
+          "artifact_sha256": "ef01faa65315718c5e851109a2712a77a379796e9ec91f239f1706f0f84d2f5b"
+        },
+        {
+          "gate": "native-globals",
+          "cases": 36,
+          "artifact_sha256": "1be75a68f1e9b96dbc17ce4bf0a66ba3a8133a88c794b1a0fcaa750dc400a168"
+        },
+        {
+          "gate": "native-managed-records",
+          "cases": 54,
+          "artifact_sha256": "14b9fee074db0c788795ba84032b8014147f75a8a982ff1fc36ee2456f58792b"
+        }
+      ],
+      "independent_process_exit_oracle_cases": 153,
+      "independent_new_main_return_oracle_cases": 108,
+      "independent_byte_oracle_cases": 81,
+      "independent_character_oracle_cases": 72,
+      "positive_pairs": 3051,
+      "independent_native_managed_record_cases": 54,
+      "independent_native_global_cases": 36,
+      "independent_native_array_cases": 27,
+      "independent_native_handle_cases": 117,
+      "closure_record_cases": 189,
+      "independent_closure_record_cases": 189,
+      "scalar_parameter_cases": 126,
+      "independent_scalar_parameter_cases": 126,
+      "reference_record_cases": 171,
+      "independent_reference_record_cases": 171,
+      "independent_owned_record_parameter_cases": 216,
+      "diagnostic_order_cases": 39,
+      "process_exit_cases": 153,
+      "main_return_cases": 108,
+      "nested_store_cases": 45,
+      "independent_nested_store_oracle_cases": 45,
+      "owned_array_cases": 45,
+      "independent_owned_array_oracle_cases": 45,
+      "nil_array_cases": 90,
+      "independent_nil_array_oracle_cases": 90,
+      "nil_string_cases": 72,
+      "independent_nil_string_oracle_cases": 72,
+      "native_record_reference_cases": 36,
+      "independent_native_record_reference_cases": 36,
+      "native_record_cases": 45,
+      "independent_native_record_cases": 45,
+      "native_scope_cases": 36,
+      "independent_new_native_scope_oracle_cases": 36,
+      "indexed_string_cases": 54,
+      "independent_new_indexed_string_oracle_cases": 54,
+      "call_reference_cases": 126,
+      "independent_new_call_reference_oracle_cases": 126,
+      "sizeof_cases": 216,
+      "independent_new_sizeof_oracle_cases": 216,
+      "match_control_cases": 180,
+      "independent_new_match_control_oracle_cases": 180
+    }
+  ],
+  "runs": []
+}

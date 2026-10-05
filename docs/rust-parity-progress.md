@@ -5,14 +5,76 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Native C callable definitions: local acceptance, 2026-10-05
+
+This increment starts from published main
+`ea1098d21a35df8dc30a6ac1bfe5826f238c0cc1`. That revision's compiler jobs pass
+on Linux/macOS/Windows; Linux/macOS runtime artifacts are independently verified.
+Its Windows runtime job remains active. Local acceptance for this increment is
+complete; exact integrated-revision hosted acceptance and the full parity goal
+remain required.
+
+The Rust-native projection now preserves the reachable C lambda, thread and
+resolved function-reference definitions. Selection follows actual emitted
+nested definitions to a fixed point, rather than relying solely on constructor
+snapshots. Imported C modules containing ordinary helpers are emitted. Shared
+helpers remain available to Rust and C; helpers used exclusively by C stay out
+of Rust validation and emission. Rust callable metadata is selected from Rust
+roots, including ordinary methods and globals. Resolved function aliases are
+admitted, while parameter/result types that cross the bridge retain their
+independent ABI validation.
+
+These programs use the established C closure/context representation. This does
+not establish support for passing Rust callback values through arbitrary
+foreign C function-pointer APIs. Such SDK/native transport remains required.
+
+The unchanged callback typedef, comparator, callback interop and pointer interop
+edge-case originals now pass. An unchanged former native closure-body rejection
+is promoted into the runtime suite. New controls exercise mixed Rust/C nested
+and owned string/array captures, imported ordinary and native helpers, function
+references, repeated/grouped C helper threads, and deferred C global closure
+initialization, replacement and explicit clearing. Global implicit process-exit
+cleanup remains a separate lifetime requirement.
+
+All complete C/Rust suites pass with zero failures/skips. Historical C/model/
+Rust emission expectations are unchanged. Rust native positives increase to
+**52**, with **four** remaining admission-error fixtures. All **40 reports /
+3468 cases** pass; the previous **39 / 3405** are independently verified again
+with the current compiler. CI runs the new **63-case** gate on all three
+platforms. All **126 instrumented target executions** have independently frozen
+output, zero exit statuses and empty sanitizer stderr. Actual compile commands
+contain both sanitizer flags; every generated Rust-side C object contains ASAN
+and UBSAN sites. Exact compilation paths resolve an initial audit mismatch
+caused by concurrently selecting a different build directory.
+
+On the previous main compiler, the exact final seven sources produce **63 C
+successes and 63 Rust compilation failures**. All **1365 original source hashes**
+remain unchanged. Broad original coverage is **1126 integration + 221
+exploratory = 1347 / 1365 (98.7%)**, with **18 compilation gaps**, zero runtime
+failures and zero skips. The newer integration control is counted separately.
+Raw output/argv, native printing/flush ordering, diagnostics and Windows helper
+logic also pass. Full completion still requires interface/iterator and
+serialization support, callback/native SDK boundaries, broader native record
+and array families, remaining ownership/lifetime edges, and hosted acceptance.
+
+Evidence: [validation and all 18 gaps](rust-parity-evidence/native-callables-validation.json),
+[63 frozen comparisons](rust-parity-evidence/native-callables-oracles.json),
+[previous 3405-case preservation](rust-parity-evidence/native-callables-preservation.json),
+[unchanged original sources](rust-parity-evidence/native-callables-source-preservation.json),
+[126 instrumented executions](rust-parity-evidence/native-callables-asan.json),
+[actual C compiler commands](rust-parity-evidence/native-callables-asan-compile-commands.jsonl),
+[exact final-source baseline](rust-parity-evidence/native-callables-before.json),
+[full C suite](rust-parity-evidence/native-callables-full-c.log),
+[full Rust suite](rust-parity-evidence/native-callables-full-rust.log).
+
 ## Native value records with owned strings: local acceptance, 2026-10-05
 
-This candidate starts from published main
-`b8ad9a55c5ac49c7f21451e434ad5a0cb664bf76`. That revision's compiler CI is
-successful on Linux/macOS/Windows; Linux and macOS runtime artifacts are
-independently verified. Its Windows runtime job remains live. This candidate
-has complete local acceptance; publication and exact-revision hosted acceptance
-remain required. The full parity goal is active.
+Published directly to main as
+`ea1098d21a35df8dc30a6ac1bfe5826f238c0cc1` after complete local acceptance.
+Its compiler CI passes on Linux/macOS/Windows. Linux and macOS runtime artifacts
+are independently verified at 39 reports / 3405 cases each; Windows runtime CI
+remains active. The base `b8ad9a55` now has complete exact-revision three-platform
+hosted acceptance, recorded below. The full parity goal remains active.
 
 Native-facing value records containing strings now keep persistent C-compatible
 source storage. A transparent owning field stores the C allocation itself;
@@ -73,11 +135,14 @@ Evidence: [validation and all 22 original gaps](rust-parity-evidence/native-mana
 
 ## Global native owners and joined results: local acceptance, 2026-10-04
 
-This increment starts from published main
-`c4cfbf78fa380198590c8fb1f365219f33cc5d4a`, whose complete three-platform
-acceptance is retained below. The candidate has complete local acceptance;
-publication and exact-revision Linux/macOS/Windows acceptance remain required.
-The full parity goal is active.
+Published directly to main as
+`b8ad9a55c5ac49c7f21451e434ad5a0cb664bf76` after complete local acceptance.
+All six exact-revision compiler/runtime CI jobs pass on Linux/macOS/Windows.
+All three runtime artifacts are independently verified at **38 reports / 3351
+cases** each; hosted suite logs also prove zero failures/skips and the complete
+C/Rust suite counts. Evidence: [main acceptance](rust-parity-evidence/native-globals-main-ci-green.json)
+and [hosted verification](rust-parity-evidence/native-globals-hosted-verification.log).
+The full parity goal remains active.
 
 Canonical native-reference owners now move through process-wide globals and
 threads. The Rust-private C header uses atomic reference credits; generated C

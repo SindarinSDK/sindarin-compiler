@@ -1,0 +1,31 @@
+import "lib/native_callable_helpers"
+
+native fn exercise(): int =>
+  var callback = fn(value: int): int => 10 + value
+  var outer = make_nested(10)
+  var nested = outer(20)
+  var owned = make_owned()
+  var typed: IslandCallback = fn(value: int): int => value + 2
+  var a = plain_apply(callback, 5)
+  var b = plain_apply(plain_double, 6)
+  var c = nested(3)
+  var d = owned(1)
+  var e = typed_native_apply(typed, 4)
+  var f = island_thread(4)
+  println($"native {a} {b} {c} {d} {e}")
+  var left = & plain_double(8)
+  var right = & plain_double(9)
+  [left, right] !
+  println($"threads {left} {right}")
+  println($"helper_thread {f}")
+  return a + b + c + d + e + f + left + right
+
+fn main(): void =>
+  var base = 100
+  var callback = fn(value: int): int => base + value
+  println($"rust {plain_apply(callback, 2)} {plain_double(3)}")
+  var outer = make_nested(100)
+  var nested = outer(10)
+  var owned = make_owned()
+  println($"rust_owned {nested(1)} {owned(0)}")
+  println($"result {exercise()}")
