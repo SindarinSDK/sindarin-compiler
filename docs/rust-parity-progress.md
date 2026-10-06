@@ -5,6 +5,42 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Borrowed array return ownership, 2026-10-06
+
+Returning an array parameter now creates an independent owned result in C.
+Lambda body generation saves and restores each lambda's borrowed parameter
+context, including nested lambdas; owned local/as-val return transfers retain
+their existing ownership path. Borrowed array expressions in expression-body
+lambdas copy at the return boundary. Rust also copies ordinary borrowed array
+parameters rather than emitting a mutable reference as an owned result.
+
+Three controls cover integer/string elements, named functions,
+statement/expression lambdas, nested arrays and parameter scopes, escaping
+callables, owned local transfers and empty arrays. Before repair, all nine C
+source/optimization runs fail ASAN with use-after-free; Rust also fails to compile
+the named borrowed-parameter returns. These are repaired defects, with no
+pre-existing C-positive coverage claimed. The fixed compiler passes all **27**
+independent raw-output comparisons in O0/O1/O2 and default/checked/unchecked
+arithmetic, plus **9** Linux ASAN/UBSAN/leak executions.
+
+Both complete suites pass with zero failures/skips, including **79** native
+positives. Frozen local acceptance verifies **47 reports / 3855 cases**, including
+all prior **46 / 3828**. The new gate runs on all three CI platforms, with Linux
+sanitizers mandatory. Exact-revision hosted acceptance remains required.
+
+All **1365** original source hashes remain unchanged. Original corpus coverage
+remains **1362 / 1365 (99.78%)** on the verified parent; this repair adds regression
+controls rather than closing an original Rust failure. General closure array
+mutation/alias/qualifier composition, the two interface programs, native
+interface representation and the other full-goal requirements remain work.
+
+Evidence: [validation](rust-parity-evidence/array-return-validation.json),
+[baseline](rust-parity-evidence/array-return-before.json),
+[repaired comparisons](rust-parity-evidence/array-return-after.json),
+[frozen oracles](rust-parity-evidence/array-return-oracles.json),
+[before-fix sanitizers](rust-parity-evidence/array-return-c-lifetimes-before.json),
+[repaired lifetimes](rust-parity-evidence/array-return-c-lifetimes.json).
+
 ## Managed iterator protocol, 2026-10-05
 
 Rust now accepts supported managed element, iterator and iterable types through
@@ -35,9 +71,12 @@ The frozen compiler passes **46 reports / 3828 cases**, including independent
 reverification of the prior **45 / 3756**. CI requires the new all-platform gate,
 the native fixture count, and the Linux sanitizer report.
 
-Local original corpus coverage rises to **1362 / 1365 (99.78%)**. Hosted acceptance
-of this exact increment is still required before counting it as integrated
-progress. The remaining original failures are both interface programs and array
+Original corpus coverage is **1362 / 1365 (99.78%)** on integrated main. All six
+exact-revision jobs passed for 7b5b02e69a04ef5d41ec271bcfa99df1226e217e;
+Linux, macOS and Windows artifacts independently verify **46 / 3828**, and
+Linux verifies **24** sanitizer cases. Windows runner acquisition failures were
+recovered by retrying the same revision after the runtime job completed.
+[Hosted proof](rust-parity-evidence/managed-iterators-main-ci-green.json). The remaining original failures are both interface programs and array
 mutation through closure parameters; foreign interfaces, qualifier/ownership
 composition and other full-goal requirements remain implementation work.
 

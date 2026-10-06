@@ -509,11 +509,26 @@ static const char *func_mod_str(FunctionModifier fm)
  * as (*__sn__name).field via the is_captured path.  Without this setup the
  * body would emit __sn__name.field on a pointer — a C compile error.
  *
- * Saves the caller's state into the supplied slots and populates the globals
- * with the lambda's own composite val-struct parameters. */
-static void push_lambda_as_ref_params(Arena *arena, LambdaExpr *lam,
-                                      char ***saved_names, int *saved_count)
+ * Save and restore both reference ABI and borrowed-parameter return context.
+ * Each nested lambda uses its own parameter names. As-val arrays are owned
+ * entry copies and must transfer their local owner when returned. */
+static void push_lambda_params(Arena *arena, LambdaExpr *lam,
+                                      char ***saved_names, int *saved_count,
+                                      char ***saved_all_names, int *saved_all_count)
 {
+    *saved_all_names = g_all_param_names;
+    *saved_all_count = g_all_param_count;
+    g_all_param_names = arena_alloc(arena, sizeof(char *) * (lam->param_count + 1));
+    g_all_param_count = 0;
+    for (int i = 0; i < lam->param_count; i++)
+    {
+        Parameter *p = &lam->params[i];
+        if (p->mem_qualifier == MEM_AS_VAL && p->type && p->type->kind == TYPE_ARRAY) continue;
+        char *name = arena_alloc(arena, p->name.length + 1);
+        memcpy(name, p->name.start, p->name.length);
+        name[p->name.length] = '\0';
+        g_all_param_names[g_all_param_count++] = name;
+    }
     *saved_names = g_as_ref_param_names;
     *saved_count = g_as_ref_param_count;
     g_as_ref_param_names = NULL;
@@ -546,8 +561,11 @@ static void push_lambda_as_ref_params(Arena *arena, LambdaExpr *lam,
     }
 }
 
-static void pop_lambda_as_ref_params(char **saved_names, int saved_count)
+static void pop_lambda_params(char **saved_names, int saved_count,
+                                     char **saved_all_names, int saved_all_count)
 {
+    g_all_param_names = saved_all_names;
+    g_all_param_count = saved_all_count;
     g_as_ref_param_names = saved_names;
     g_as_ref_param_count = saved_count;
 }
@@ -3065,7 +3083,10 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 g_in_lambda_body = true;
                 char **saved_ref_names;
                 int saved_ref_count;
-                push_lambda_as_ref_params(arena, lam, &saved_ref_names, &saved_ref_count);
+                char **saved_all_names;
+                int saved_all_count;
+                push_lambda_params(arena, lam, &saved_ref_names, &saved_ref_count,
+                                          &saved_all_names, &saved_all_count);
                 if (lam->has_stmt_body)
                 {
                     json_object *body = json_object_new_array();
@@ -3080,6 +3101,9 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 {
                     json_object_object_add(obj, "body",
                         gen_model_expr(arena, lam->body, symbol_table, arithmetic_mode));
+                    if (lam->return_type && lam->return_type->kind == TYPE_ARRAY &&
+                        ownership_kind(lam->body) == OWNERSHIP_BORROW)
+                        json_object_object_add(obj, "body_needs_array_copy", json_object_new_boolean(true));
 
                     /* If the lambda returns a string and the body expression is NOT
                      * already heap-producing, wrap the return in strdup() so that ALL
@@ -3093,7 +3117,8 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                             json_object_new_boolean(true));
                     }
                 }
-                pop_lambda_as_ref_params(saved_ref_names, saved_ref_count);
+                pop_lambda_params(saved_ref_names, saved_ref_count,
+                                         saved_all_names, saved_all_count);
                 g_in_lambda_body = prev_in_lambda;
             }
 
@@ -3193,7 +3218,10 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     g_in_lambda_body = true;
                     char **saved_ref_names;
                     int saved_ref_count;
-                    push_lambda_as_ref_params(arena, lam, &saved_ref_names, &saved_ref_count);
+                    char **saved_all_names;
+                    int saved_all_count;
+                    push_lambda_params(arena, lam, &saved_ref_names, &saved_ref_count,
+                                          &saved_all_names, &saved_all_count);
                     if (lam->has_stmt_body)
                     {
                         json_object *lbody = json_object_new_array();
@@ -3208,6 +3236,9 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     {
                         json_object_object_add(ldef, "body",
                             gen_model_expr(arena, lam->body, symbol_table, arithmetic_mode));
+                        if (lam->return_type && lam->return_type->kind == TYPE_ARRAY &&
+                            ownership_kind(lam->body) == OWNERSHIP_BORROW)
+                            json_object_object_add(ldef, "body_needs_array_copy", json_object_new_boolean(true));
 
                         /* If the lambda returns a string and the body expression is NOT
                          * already heap-producing, wrap the return in strdup() so that ALL
@@ -3221,7 +3252,8 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                                 json_object_new_boolean(true));
                         }
                     }
-                    pop_lambda_as_ref_params(saved_ref_names, saved_ref_count);
+                    pop_lambda_params(saved_ref_names, saved_ref_count,
+                                         saved_all_names, saved_all_count);
                     g_in_lambda_body = prev_in_lambda;
                 }
 

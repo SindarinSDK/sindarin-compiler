@@ -1034,3 +1034,13 @@ test-rust-parity-managed-iterators: build
 		--require-count 8 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-managed-iterators.json
 	@$(PYTHON) scripts/check_rust_iterator_oracles.py .sn/rust-parity-managed-iterators.json
+
+.PHONY: test-rust-parity-array-returns
+test-rust-parity-array-returns: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/rust-native/scalar_array_return_parameters.sn \
+		tests/rust-native/scalar_array_return_expressions.sn \
+		tests/rust-native/scalar_array_return_scopes.sn \
+		--require-count 3 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-array-returns.json
+	@$(PYTHON) scripts/check_rust_array_return_oracles.py .sn/rust-parity-array-returns.json

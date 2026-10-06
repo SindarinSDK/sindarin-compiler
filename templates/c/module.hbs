@@ -169,7 +169,11 @@ static {{c_type return_type}} __fn_wrap_{{wrapper_id}}__(void *__closure__{{#eac
 {{#if body_needs_strdup}}
     return strdup({{> expr body}});
 {{else}}
+{{#if body_needs_array_copy}}
+    return sn_array_copy({{> expr body}});
+{{else}}
     return {{> expr body}};
+{{/if}}
 {{/if}}
 {{/if}}
 }

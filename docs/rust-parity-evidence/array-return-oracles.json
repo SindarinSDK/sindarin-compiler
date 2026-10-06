@@ -1,0 +1,24 @@
+{
+  "source_sha256": {
+    "tests/rust-native/scalar_array_return_parameters.sn": "73ab804c61f0ed0dcb520dc4883a2741660e6f00eab4707ace606f1fd9e1c959",
+    "tests/rust-native/scalar_array_return_expressions.sn": "0fab108a43e880d7d448ce293dddf8bf9eb33e85d98acc65946fe0e21fdc5d31",
+    "tests/rust-native/scalar_array_return_scopes.sn": "ab96434c26e45aec294017d8b1120d515f1d3ca367b35cc29e4a5ac4daea1e43"
+  },
+  "stdout_hex": {
+    "tests/rust-native/scalar_array_return_parameters.sn": "747275650a747275650a747275650a747275650a",
+    "tests/rust-native/scalar_array_return_expressions.sn": "747275650a747275650a",
+    "tests/rust-native/scalar_array_return_scopes.sn": "747275650a747275650a747275650a747275650a"
+  },
+  "required_status": 0,
+  "required_stderr_hex": "",
+  "optimization_modes": [
+    "-O0",
+    "-O1",
+    "-O2"
+  ],
+  "arithmetic_modes": [
+    "default",
+    "checked",
+    "unchecked"
+  ]
+}

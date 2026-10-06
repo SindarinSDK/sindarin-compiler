@@ -1,0 +1,21 @@
+fn integers(values: int[]): int[] =>
+  return values
+
+fn strings(values: str[]): str[] =>
+  return values
+
+fn main(): void =>
+  var values: int[] = {1, 2}
+  var returned = integers(values)
+  returned[0] = 99
+  println(values[0] == 1 && returned[0] == 99)
+  var names: str[] = {"first", "second"}
+  var copied = strings(names)
+  copied[0] = "changed"
+  println(names[0] == "first" && copied[0] == "changed")
+  var identity: fn(int[]): int[] = fn(a: int[]): int[] =>
+    return a
+  var result = identity(values)
+  result[1] = 88
+  println(values[1] == 2 && result[1] == 88)
+  println(values.length == 2 && result.length == 2)

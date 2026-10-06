@@ -8,7 +8,14 @@ The 2026-10-05 managed iterator increment admits strings, arrays and supported
 value/reference records through the existing iterator lowering. It also repairs
 C cleanup for reference iterators, temporary collections and owned array length
 reads. Frozen all-mode comparisons and Linux sanitizer checks are recorded in
-the completion ledger; exact-revision hosted acceptance remains required.
+the completion ledger; exact-revision Linux/macOS/Windows acceptance is now
+verified for 7b5b02e6.
+
+The subsequent borrowed-array return repair gives C named/lambda returns an
+independent owner and fixes Rust's returned mutable-reference type mismatch.
+The completion ledger records the 27 comparisons, nine sanitizer checks and
+remaining closure/interface work; this does not increase original corpus
+coverage or claim complete ownership parity.
 
 The 2026-10-03 float/double increment adds conversions at tested scalar storage,
 call and return boundaries and mixed floating compound mutation, including

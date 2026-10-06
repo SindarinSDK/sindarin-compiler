@@ -156,9 +156,9 @@ jobs:
           run_gate "tagged native C/Rust parity (8 fixtures)" \
             python3 scripts/run_rust_tests.py rust-native-tagged --verbose \
               --require-count 8 --fail-on-skip
-          run_gate "native scalar, record and managed ABI fixtures (76 fixtures)" \
+          run_gate "native scalar, record and managed ABI fixtures (79 fixtures)" \
             python3 scripts/run_rust_tests.py rust-native-extra --verbose \
-              --require-count 76 --fail-on-skip
+              --require-count 79 --fail-on-skip
           run_gate "canonical native handle ownership (117 cases)" \
             make -o build test-rust-parity-native-handles
           run_gate "canonical native reference arrays (27 cases)" \
@@ -239,6 +239,14 @@ jobs:
           run_gate "managed iterator protocol (8 sources, all optimization/arithmetic modes)" \
             make test-rust-parity-managed-iterators
 
+          run_gate "borrowed array return ownership (3 sources, all optimization/arithmetic modes)" \
+            make test-rust-parity-array-returns
+
+          if [[ "${{ runner.os }}" == "Linux" ]]; then
+            run_gate "borrowed array returns with ASAN/UBSAN/leak checks (9 cases)" \
+              python3 scripts/check_c_array_return_lifetimes.py
+          fi
+
           if [[ "${{ runner.os }}" == "Linux" ]]; then
             run_gate "iterator C ownership with ASAN/UBSAN/leak checks (24 cases)" \
               python3 scripts/check_c_iterator_lifetimes.py
@@ -304,6 +312,7 @@ jobs:
             .sn/rust-runtime-diagnostics/
             .sn/rust-parity-*.json
             .sn/c-iterator-lifetimes.json
+            .sn/c-array-return-lifetimes.json
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 7

@@ -468,21 +468,14 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                                 strncmp(g_all_param_names[pi], vname, vlen) == 0)
                             {
                                 is_owned = false;
-                                /* The param is a borrowed reference; the caller expects the
-                                 * return edge to produce a fresh +1 credit (strdup for str,
-                                 * __sn__T_retain for ref-struct). source_is_borrow drives the
-                                 * acquire selection in return.hbs, keyed on value.type.kind /
-                                 * pass_self_by_ref. Array/function params fall through to
-                                 * plain return — the caller retains ownership and the return
-                                 * is simply a copy of the pointer. */
-                                if (rt->kind == TYPE_STRING ||
+                                /* The returned value needs an independent owner. Strings and
+                                 * arrays copy; reference records retain at the return edge. */
+                                if (rt->kind == TYPE_STRING || rt->kind == TYPE_ARRAY ||
                                     (rt->kind == TYPE_STRUCT && rt->as.struct_type.pass_self_by_ref))
                                 {
                                     json_object_object_add(obj, "source_is_borrow",
                                                            json_object_new_boolean(true));
                                 }
-                                /* For arrays/functions: just return directly — the callee doesn't
-                                 * own the param's array; the caller retains ownership. */
                                 break;
                             }
                         }

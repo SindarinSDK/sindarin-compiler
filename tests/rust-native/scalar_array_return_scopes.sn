@@ -1,0 +1,27 @@
+fn factory(): fn(int[]): int[] =>
+  var outer: fn(int[]): int[] = fn(input: int[]): int[] =>
+    var inner: fn(int[]): int[] = fn(input: int[]): int[] =>
+      return input
+    var independent = inner(input)
+    independent[0] = 7
+    return independent
+  return outer
+
+fn main(): void =>
+  var values: int[] = {1, 2}
+  var callback = factory()
+  var result = callback(values)
+  println(values[0] == 1 && result[0] == 7)
+  result[1] = 8
+  println(values[1] == 2 && result[1] == 8)
+  var owner: fn(): int[] = fn(): int[] =>
+    var local: int[] = {3, 4}
+    return local
+  var owned = owner()
+  owned.push(5)
+  println(owned.length == 3 && owned[0] == 3 && owned[2] == 5)
+  var empty: int[] = {}
+  var identity: fn(int[]): int[] = fn(input: int[]): int[] => input
+  var copied = identity(empty)
+  copied.push(9)
+  println(empty.length == 0 && copied.length == 1)

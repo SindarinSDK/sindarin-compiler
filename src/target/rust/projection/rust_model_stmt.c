@@ -357,6 +357,20 @@ json_object *rust_gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_t
                  * memset would zero the caller's struct through the pointer, destroying data
                  * when the return value is discarded (e.g., chaining: obj.method(x)) */
                 Expr *rv = stmt->as.return_stmt.value;
+                /* Ordinary default-array parameters are mutable Vec borrows.
+                 * Their returned value needs an independent owner. Lambda
+                 * parameters and as-val arrays already own their entry copy. */
+                if (!rust_g_in_lambda_body && rv->type == EXPR_VARIABLE &&
+                    rv->expr_type && rv->expr_type->kind == TYPE_ARRAY)
+                {
+                    RustVariableFacts facts = rust_variable_facts(rv);
+                    if (facts.is_parameter && facts.param_mem_qualifier != MEM_AS_VAL)
+                    {
+                        json_object *value = NULL;
+                        json_object_object_get_ex(obj, "value", &value);
+                        json_object_object_add(value, "rust_needs_clone", json_object_new_boolean(true));
+                    }
+                }
                 bool is_return_self = (rv->type == EXPR_VARIABLE &&
                     rv->as.variable.name.length == 4 &&
                     strncmp(rv->as.variable.name.start, "self", 4) == 0);
