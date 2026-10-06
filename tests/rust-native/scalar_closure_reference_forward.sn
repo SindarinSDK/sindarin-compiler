@@ -1,0 +1,13 @@
+fn main(): void =>
+  var value: int = 1
+  var inner = fn(a: int as ref, b: int as ref): int =>
+    a += 2
+    b *= 3
+    return a
+  var outer = fn(a: int as ref, b: int as ref): int =>
+    return inner(a, b)
+  println(outer(value, value) == 9)
+  println(value == 9)
+  var other: int = 2
+  println(outer(value, other) == 11)
+  println(value == 11 && other == 6)

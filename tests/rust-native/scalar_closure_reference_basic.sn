@@ -1,0 +1,7 @@
+fn main(): void =>
+  var value: int = 1
+  var change = fn(a: int as ref): int =>
+    a += 2
+    return a
+  println(change(value) == 3)
+  println(value == 3)

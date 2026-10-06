@@ -159,7 +159,7 @@ fn rhs(calls: &mut i64) -> f64 {
 }
 
 fn mutateRef(value: &mut f32, calls: &mut i64) {
-    { let (__sn_rhs, __sn_place) = (rhs(&mut *(calls)), &mut (*(value))); let __sn_next = (((*__sn_place) as f64) + (__sn_rhs as f64)) as f32; *__sn_place = __sn_next; __sn_next };
+    { let __sn_ref_previous = *(value); let (__sn_rhs, __sn_place) = (rhs(&mut *(calls)), &mut (*(value))); let __sn_next = (((__sn_ref_previous) as f64) + (__sn_rhs as f64)) as f32; *__sn_place = __sn_next; __sn_next };
 }
 
 fn mutateValue(mut value: f32, increment: f64) -> f32 {

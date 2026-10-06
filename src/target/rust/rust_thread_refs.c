@@ -251,6 +251,7 @@ static bool rust_find_scalar_reference_aliases(json_object *node,
                 json_object *arg = json_object_array_get_idx(args, i);
                 json_object *param = json_object_array_get_idx(params, i), *type = NULL;
                 json_object_object_get_ex(param, "type", &type);
+                if (json_boolean_property(param, "rust_closure_scalar_reference")) continue;
                 if (!json_string_property_equals(arg, "kind", "variable") ||
                     !json_string_property_equals(param, "mem_qual", "as_ref") ||
                     !rust_scalar_ref_parameter_type_supported(type)) continue;

@@ -1,0 +1,173 @@
+{
+  "sources": [
+    {
+      "source": "tests/rust-native/scalar_closure_reference_basic.sn",
+      "sha256": "54df2067bd1d0cf5918ed4e94bdab14e63b72bce0eb9e4ad286f1958d33b5d33",
+      "stdout_hex": "747275650a747275650a",
+      "expected_sidecar_sha256": "21d91041c5d1a59661f8936571ee5c87e96f6f0c7a532b52ec17c5b9bea8220b"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_reference_alias.sn",
+      "sha256": "a44919bc6ab6caf1e91bf10f9e5d2cc86eab03cceca17e080d464d44dc66ef51",
+      "stdout_hex": "747275650a747275650a747275650a747275650a",
+      "expected_sidecar_sha256": "a8c8704687490f20e1992b9d6a9578237617ebd0894ee14f5682acea27e3845a"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_reference_forward.sn",
+      "sha256": "40ef33ec63694ab325148cea5b9a46c3d0f67d643a356ff1eeaeac5abc5d1850",
+      "stdout_hex": "747275650a747275650a747275650a747275650a",
+      "expected_sidecar_sha256": "a8c8704687490f20e1992b9d6a9578237617ebd0894ee14f5682acea27e3845a"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_reference_fields.sn",
+      "sha256": "273f8ea3831e783bfcfaae1cd4f6d099e5bfeb67b1c5ff2672552eb294f900c8",
+      "stdout_hex": "747275650a747275650a747275650a747275650a",
+      "expected_sidecar_sha256": "a8c8704687490f20e1992b9d6a9578237617ebd0894ee14f5682acea27e3845a"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_reference_reference_field.sn",
+      "sha256": "354b9b4d9e57add82eed86cd2a22b8b5c7dbf760ba257138476eaffb52c501d0",
+      "stdout_hex": "747275650a747275650a747275650a747275650a",
+      "expected_sidecar_sha256": "a8c8704687490f20e1992b9d6a9578237617ebd0894ee14f5682acea27e3845a"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_reference_operators.sn",
+      "sha256": "2d4ddc42a1135971f91e23491656452d401b6ffcfdda23f39d861779d7dd14b6",
+      "stdout_hex": "747275650a747275650a",
+      "expected_sidecar_sha256": "21d91041c5d1a59661f8936571ee5c87e96f6f0c7a532b52ec17c5b9bea8220b"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_reference_effects.sn",
+      "sha256": "5ae2eb85fc336668dbafaef0646916b30a44a49f887b15e81df04f97c6692a68",
+      "stdout_hex": "747275650a747275650a",
+      "expected_sidecar_sha256": "21d91041c5d1a59661f8936571ee5c87e96f6f0c7a532b52ec17c5b9bea8220b"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_reference_hygiene.sn",
+      "sha256": "3e7c389e40fe37339408b8b587c7fe17aa0e815d26581b191141deb68734b052",
+      "stdout_hex": "747275650a747275650a",
+      "expected_sidecar_sha256": "21d91041c5d1a59661f8936571ee5c87e96f6f0c7a532b52ec17c5b9bea8220b"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_reference_types.sn",
+      "sha256": "43f4835c07bbcecb606ef36015785f0f25ef6effe7e2e99e929e228561ec385a",
+      "stdout_hex": "747275650a747275650a747275650a",
+      "expected_sidecar_sha256": "36768a89e8faf166700f48bc8df99361609e43956dd7d2bffebde9439ea5033c"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_reference_named_forward.sn",
+      "sha256": "a1d549d77558dbe06d4841ca69353ec0b3232c5d30adb91adcf4f0ccbe2bf15e",
+      "stdout_hex": "747275650a747275650a",
+      "expected_sidecar_sha256": "21d91041c5d1a59661f8936571ee5c87e96f6f0c7a532b52ec17c5b9bea8220b"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_reference_named_alias.sn",
+      "sha256": "e4ca4ef55429e7073ce8b8b38825ee314215fc09234bcbba6bd060ac6bbeda8c",
+      "stdout_hex": "747275650a747275650a",
+      "expected_sidecar_sha256": "21d91041c5d1a59661f8936571ee5c87e96f6f0c7a532b52ec17c5b9bea8220b"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_reference_owned_effects.sn",
+      "sha256": "05a4f4bb91c4d8075ae53d4cef1833b4b92a0d3efd5d5796a4235e2246b845a5",
+      "stdout_hex": "6b6570740a747275650a747275650a6b6570740a",
+      "expected_sidecar_sha256": "a022c6ad4138a733177827ea43b62b6f48e17548a299ed7f597d643091ddc92e"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_reference_method_alias.sn",
+      "sha256": "1bcf430eef9e46071d7f9a1d504cfaf0c5558e121c5f1e85d743d846cad7b9ee",
+      "stdout_hex": "747275650a747275650a747275650a747275650a",
+      "expected_sidecar_sha256": "a8c8704687490f20e1992b9d6a9578237617ebd0894ee14f5682acea27e3845a"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_reference_mixed_array.sn",
+      "sha256": "0add7955659aa85daf5f3a94d4e683fd087a717f28be0f293813f1dc91d65dfe",
+      "stdout_hex": "747275650a747275650a",
+      "expected_sidecar_sha256": "21d91041c5d1a59661f8936571ee5c87e96f6f0c7a532b52ec17c5b9bea8220b"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_reference_integer_order.sn",
+      "sha256": "6b0e706282b391d6bbb0d83b642aed8678cb79d96e42d19a0d7483365bdd79e5",
+      "stdout_hex": "340a340a",
+      "expected_sidecar_sha256": "1e5040b4db14ca674e235de801fd4c74b1f0448e6eb1f838d1e9d4e443d99074"
+    },
+    {
+      "source": "tests/rgen/closure_values_qualified_signature.sn",
+      "sha256": "9598edb17b860cc1cd8d01f0c5cdd987289fcef339efb607de9c9508143f12fc",
+      "stdout_hex": "310a",
+      "expected_sidecar_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    {
+      "source": "tests/rgen/shared_frontend_as_ref_method_field_arguments.sn",
+      "sha256": "b428105dc21be6d664937642a9ad03db145fe0189f4fde052cc3a254b11a1c2a",
+      "stdout_hex": "340a31330a",
+      "expected_sidecar_sha256": "6a11a42425fc3bc6a43f8c08d101f36e729b26a63fe1f26e866f8610c03957ff"
+    },
+    {
+      "source": "tests/rgen/shared_frontend_checked_ref_parameter_byte_mutations.sn",
+      "sha256": "b7125ff43deabf45c5da6174deabc18c6b3d191cc8f54f9c5cf175463d6e45c1",
+      "stdout_hex": "313720302036322030203520342032203220322032203235352030203420342031330a",
+      "expected_sidecar_sha256": "c4a0e6515a1a45dce63728328a87113f8c3d90c9adac00fd8538aefdf5972c7e"
+    },
+    {
+      "source": "tests/rgen/shared_frontend_checked_ref_parameter_int32_mutations.sn",
+      "sha256": "4febf9994763a6343a45ad196a4b220eff2caa6e09c0f537177b64fa7ca88d2b",
+      "stdout_hex": "31370a300a36320a300a350a340a320a320a320a320a323134373438333634370a2d323134373438333634380a340a340a31330a",
+      "expected_sidecar_sha256": "c593176dc7f51b277656fcd2932e373b2d1eac325cd9e49725e844f73c884d25"
+    },
+    {
+      "source": "tests/rgen/shared_frontend_checked_ref_parameter_uint32_mutations.sn",
+      "sha256": "660f270e24fa89b547806d882a4afde2d9fe79da11feae08cabfffd40ca3146c",
+      "stdout_hex": "3137203020363220302035203420322032203220322034323934393637323935203020343030303030303030302034303030303030303030203420342031330a",
+      "expected_sidecar_sha256": "7a26ccff896f43680dfcf3e9561dcea5e5cac5388318ff5f10940ec974a142c1"
+    },
+    {
+      "source": "tests/rgen/shared_frontend_checked_ref_parameter_uint_mutations.sn",
+      "sha256": "fa0766e9f284c015d109edef2f18dad18748f0e5b9065b71a49b0c7354e68818",
+      "stdout_hex": "31372030203632203020352034203220322032203220747275652074727565203020747275652074727565203420342031330a",
+      "expected_sidecar_sha256": "71f60eb86d88787f900d7ca5439eef913572c7fd207c78a5104b654748d4b326"
+    },
+    {
+      "source": "tests/rgen/shared_frontend_floating_as_ref_parameter.sn",
+      "sha256": "35c58e5627dc8a1f37d5df2ff16d3577771f9c83e35a68c7b19a0b6090e564b0",
+      "stdout_hex": "747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a",
+      "expected_sidecar_sha256": "9c674a3e3f3d5d9cb2633c4779bc92585d1b8fe4d501d90166c09acd5f183dc4"
+    },
+    {
+      "source": "tests/rgen/shared_frontend_floating_ref_parameter_mutations.sn",
+      "sha256": "dd97923b1ab880870ef3e78d6a0e7b06f247bfd7905d3ed2e560e235a3996516",
+      "stdout_hex": "747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a",
+      "expected_sidecar_sha256": "1286d61af58a1690f64e9eb63e7e185225b64b883176f09a62d4219c8e377b5e"
+    },
+    {
+      "source": "tests/rgen/checked_ref_parameter_mutations.sn",
+      "sha256": "993f9efa6c053f250bd4ffd4d4e6565389e7e06ed598abd2620d78150f7975fa",
+      "stdout_hex": "31370a300a36320a300a300a2d310a300a310a300a300a320a320a",
+      "expected_sidecar_sha256": "584b6806a5425a2fdbb559a8e763c2002fb1b7f76a18d7f061f8108ba9ae00e2"
+    },
+    {
+      "source": "tests/rgen/float_mutation_precision.sn",
+      "sha256": "52bf1d423d1e86dd02c114e8474c6603fc9c4ab05bf95d7492e975db8c329e93",
+      "stdout_hex": "747275650a310a747275650a747275650a747275650a747275650a320a747275650a747275650a330a747275650a66616c73650a747275650a",
+      "expected_sidecar_sha256": "6f6eb79b986c3975a2162f998f0b42ac18e2d7c7cbaa2b3fe21ec05c2c6cfceb"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_reference_native.sn",
+      "sha256": "55e45743c5a0562c80800fe7d67a5dee26212922b34905e7d5177dcd1ce7b6fb",
+      "stdout_hex": "747275650a747275650a747275650a747275650a747275650a747275650a",
+      "expected_sidecar_sha256": "6bbb4fb214212d1fd3d1a84b515b85180428fa070e3b98b9e1b75925b258c054"
+    }
+  ],
+  "optimizations": [
+    "-O0",
+    "-O1",
+    "-O2"
+  ],
+  "arithmetic_modes": [
+    "default",
+    "checked",
+    "unchecked"
+  ],
+  "scope": "Primitive scalar closure references, stable value/reference fields, same/distinct aliases through closure/named/static/instance/native callees, owned sibling arguments, once-only effects, mixed arrays and original scalar reference operator order.",
+  "expected_new_cases": 234,
+  "expected_linux_sanitizer_cases": 78
+}

@@ -93,7 +93,7 @@ static void __closure_{{lambda_id}}_cleanup__(void **p) {
 {{/if}}
 {{/if}}
 {{#if has_capture_cleanup}}static void __closure_{{lambda_id}}_capture_cleanup__(void *p);
-{{/if}}static {{c_type return_type}} __lambda_{{lambda_id}}__(void *__closure__{{#each params}}, {{c_type type}} __sn__{{name}}{{/each}});
+{{/if}}static {{c_type return_type}} __lambda_{{lambda_id}}__(void *__closure__{{#each params}}, {{c_type type}} {{#if (eq mem_qual "as_ref")}}*{{/if}}__sn__{{name}}{{/each}});
 {{/each}}
 {{/if}}
 {{#each fn_wrappers}}
@@ -151,7 +151,7 @@ static {{c_type return_type}} __fn_wrap_{{wrapper_id}}__(void *__closure__{{#eac
 {{else}}{{#if (eq cap_cleanup "release_closure")}}    sn_closure_release((void **)&cl->{{name}});
 {{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/each}}    free(cl);
 }
-{{/if}}static {{c_type return_type}} __lambda_{{lambda_id}}__(void *__closure__{{#each params}}, {{c_type type}} {{#if needs_array_copy}}__p__{{name}}{{else}}{{#if needs_struct_cleanup}}__p__{{name}}{{else}}__sn__{{name}}{{/if}}{{/if}}{{/each}}) {
+{{/if}}static {{c_type return_type}} __lambda_{{lambda_id}}__(void *__closure__{{#each params}}, {{c_type type}} {{#if (eq mem_qual "as_ref")}}*{{/if}}{{#if needs_array_copy}}__p__{{name}}{{else}}{{#if needs_struct_cleanup}}__p__{{name}}{{else}}__sn__{{name}}{{/if}}{{/if}}{{/each}}) {
 {{#each params}}{{#if needs_array_copy}}    sn_auto_arr {{c_type type}} __sn__{{name}} = sn_array_copy(__p__{{name}});
 {{/if}}{{#if needs_struct_cleanup}}    sn_auto_{{struct_cleanup_name}} {{c_type type}} __sn__{{name}} = __p__{{name}};
 {{/if}}{{/each}}{{#each captures}}

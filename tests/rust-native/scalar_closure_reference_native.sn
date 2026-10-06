@@ -1,0 +1,32 @@
+struct State as ref =>
+  value: int
+
+native fn update(a: int as ref, b: int as ref): int =>
+  a += 2
+  b *= 3
+  return a
+
+native fn letters(a: char as ref, b: char as ref): char =>
+  a = 'B'
+  b = 'C'
+  return a
+
+fn main(): void =>
+  var value: int = 1
+  var other: int = 2
+  var call = fn(a: int as ref, b: int as ref): int =>
+    return update(a, b)
+  println(call(value, value) == 9 && value == 9)
+  value = 1
+  println(call(value, other) == 3 && value == 3 && other == 6)
+  var original: State = { value: 1 }
+  var alias: State = original
+  println(call(original.value, alias.value) == 9)
+  println(original.value == 9 && alias.value == 9)
+  var character: char = 'A'
+  var otherCharacter: char = 'Z'
+  var charCall = fn(a: char as ref, b: char as ref): char =>
+    return letters(a, b)
+  println(charCall(character, character) == 'C' && character == 'C')
+  character = 'A'
+  println(charCall(character, otherCharacter) == 'B' && character == 'B' && otherCharacter == 'C')

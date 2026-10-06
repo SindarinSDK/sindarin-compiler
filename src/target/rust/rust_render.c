@@ -104,6 +104,15 @@ static char *rust_closure_parameter_type(json_object *type)
 {
     char *value = rust_type(type);
     const char *kind = json_kind(type);
+    json_object *scalar_ref = NULL;
+    if (value && json_object_object_get_ex(type, "rust_closure_scalar_ref_type", &scalar_ref))
+    {
+        const char *name = json_object_get_string(scalar_ref);
+        char *result = malloc(strlen(value) + strlen(name) + 8);
+        if (result) sprintf(result, "%s<'_, %s>", name, value);
+        free(value);
+        return result;
+    }
     json_object *native_handle = NULL;
     if (value && json_object_object_get_ex(type, "rust_native_reference_handle", &native_handle) && json_object_get_boolean(native_handle))
     {

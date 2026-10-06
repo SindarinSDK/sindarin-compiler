@@ -45,6 +45,18 @@ bool token_equals(Token tok, const char *str)
     return tok.length == (int)len && strncmp(tok.start, str, len) == 0;
 }
 
+/* A field borrow must retain its variable owner for the whole call. */
+static bool as_ref_argument_place(Expr *expr)
+{
+    if (!expr) return false;
+    if (expr->type == EXPR_VARIABLE) return true;
+    if (expr->type == EXPR_MEMBER && !expr->as.member.resolved_method)
+        return as_ref_argument_place(expr->as.member.object);
+    if (expr->type == EXPR_MEMBER_ACCESS)
+        return as_ref_argument_place(expr->as.member_access.object);
+    return false;
+}
+
 /* ============================================================================
  * Call Expression Type Checking
  * ============================================================================ */
@@ -511,7 +523,7 @@ Type *type_check_call_expression(Expr *expr, SymbolTable *table)
         MemoryQualifier *param_quals = callee_type->as.function.param_mem_quals;
         if (param_quals != NULL && param_quals[i] == MEM_AS_REF)
         {
-            if (arg_expr->type != EXPR_VARIABLE && arg_expr->type != EXPR_MEMBER_ACCESS)
+            if (!as_ref_argument_place(arg_expr))
             {
                 type_error(arg_expr->token,
                     "'as ref' parameter requires a variable or field, not a literal or expression");

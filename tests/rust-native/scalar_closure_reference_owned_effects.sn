@@ -1,0 +1,17 @@
+fn effect(value: int as ref): int =>
+  value += 1
+  return value
+
+fn named(value: int as ref, amount: int, text: str): int =>
+  value += amount
+  println(text)
+  return value
+
+fn main(): void =>
+  var value: int = 1
+  var text: str = "kept"
+  var call = fn(a: int as ref, label: str): int =>
+    return named(a, effect(a), label)
+  println(call(value, text) == 4)
+  println(value == 4)
+  println(text)

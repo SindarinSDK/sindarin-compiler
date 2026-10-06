@@ -432,6 +432,17 @@ Type *type_check_lambda(Expr *expr, SymbolTable *table)
         }
     }
 
-    return ast_create_function_type(table->arena, lambda->return_type,
-                                    param_types, lambda->param_count);
+    Type *function_type = ast_create_function_type(table->arena, lambda->return_type,
+                                                   param_types, lambda->param_count);
+    /* Indirect calls must use the same pointer/value ABI as the declaration. */
+    for (int i = 0; i < lambda->param_count; i++)
+    {
+        if (lambda->params[i].mem_qualifier == MEM_DEFAULT) continue;
+        function_type->as.function.param_mem_quals = arena_alloc(
+            table->arena, sizeof(MemoryQualifier) * lambda->param_count);
+        for (int p = 0; p < lambda->param_count; p++)
+            function_type->as.function.param_mem_quals[p] = lambda->params[p].mem_qualifier;
+        break;
+    }
+    return function_type;
 }

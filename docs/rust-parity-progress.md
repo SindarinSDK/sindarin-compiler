@@ -5,6 +5,67 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Scalar closure references and reference evaluation, 2026-10-06
+
+Rust scalar `as ref` closure parameters now share the caller's storage. A
+private wrapper reads/writes through short borrows of local storage or through
+the existing shared record field owner. Named functions and instance/static
+methods in these programs use the same place protocol so dynamic aliases remain
+aliases. Stable field arguments preserve their variable owner. Deferred sibling
+arguments execute once, and owned strings retain their source owner.
+
+Native forwarding reuses one guard per distinct scalar place and passes raw
+pointers through the existing C ABI adapter. Pointer grouping compares actual
+borrowed cell/shared field ownership, including two reference-record variables
+that alias the same field. Character references retain the C char adapter's
+existing grouping and conversion. A C-valid duplicate-native-reference probe
+initially panicked in Rust; the final regression includes aliased/distinct int
+and char arguments and aliased shared fields. That failure receives no credit.
+
+The shared checker carries lambda memory qualifiers into function types. C
+indirect calls now cast qualified scalar formals as pointers and pass addresses;
+resolved method qualifiers also annotate C arguments. The stable-place validator
+recognizes both field expression forms and requires a variable-rooted owner.
+Single-file C lambda signatures render the same reference ABI as modular output.
+
+Reference compound mutation reads the prior scalar value before an effectful
+RHS, preserving the observed C order. An unchanged C-valid standalone control
+prints `4/4` where the previous Rust backend printed `5/5`; GCC and Clang also
+agree on the larger reference controls. Two existing generated-code goldens
+change only to pin the prior-value read. Their original source bytes are retained
+and both targets satisfy authored runtime oracles in all nine modes.
+
+Eight former Rust rejection fixtures are promoted with source bytes unchanged.
+Rejection is not parity. The frozen reference gate checks **26** programs against
+literal raw-output/status oracles in **234** optimization/arithmetic comparisons.
+Linux ASAN/UBSAN/leak checks cover **78** executions. All **67** final acceptance
+commands pass, including the complete C/Rust suites
+and exact count-checked **156** native fixtures. Frozen evidence verifies
+**55 reports / 4647 cases**, all prior **54 / 4413** included. Source generation
+passes **499** positives and **123** negatives with no failures/skips. Exact
+revision Linux/macOS/Windows hosted acceptance remains required.
+
+The complete goal still requires structural interface storage/native ABI and
+platform-dependent empty identity, physical value-record receivers, remaining
+qualified signatures and parameter rebinding, and broader native/global/callback/
+escaping/thread ownership and evaluation compositions. These unverified contexts
+receive no completion credit. C remains the default target. Original corpus
+coverage remains **1363 / 1365 (99.85%)**, a corpus measure rather than full-goal
+completion. All 1365 corpus source hashes remain unchanged.
+
+Evidence: [validation](rust-parity-evidence/closure-reference-validation.json),
+[oracles](rust-parity-evidence/closure-reference-oracles.json),
+[comparisons](rust-parity-evidence/closure-reference-after.json),
+[C lifetimes](rust-parity-evidence/closure-reference-c-lifetimes.json),
+[source promotion](rust-parity-evidence/closure-reference-promotion.json).
+
+The prerequisite `fde9e5e6061dc57a4707182b3dbe28d22c628170` has all six CI jobs
+and **54 reports / 4413 cases** verified on each platform.
+[Qualified-array hosted proof](rust-parity-evidence/qualified-array-main-ci-green.json).
+Its prerequisite `3f3610d25167732e9563c6d215326d757c8b670f` also has six green
+jobs and **53 / 4350** independently verified on each platform.
+[Captured-method hosted proof](rust-parity-evidence/captured-method-main-ci-green.json).
+
 ## Qualified closure array parameters, 2026-10-06
 
 Rust now accepts array closure parameters declared `as val` and creates an

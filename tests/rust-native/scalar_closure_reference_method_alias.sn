@@ -1,0 +1,26 @@
+struct Ops =>
+  value: int
+
+  static fn update(a: int as ref, b: int as ref): int =>
+    a += 2
+    b *= 3
+    return a
+
+  fn bump(a: int as ref, b: int as ref): int =>
+    a += 2
+    b *= 3
+    self.value += 1
+    return a
+
+fn main(): void =>
+  var value: int = 1
+  var ops: Ops = { value: 0 }
+  var staticCall = fn(a: int as ref, b: int as ref): int =>
+    return Ops.update(a, b)
+  var instanceCall = fn(a: int as ref, b: int as ref): int =>
+    return ops.bump(a, b)
+  println(staticCall(value, value) == 9)
+  println(value == 9)
+  value = 1
+  println(instanceCall(value, value) == 9)
+  println(value == 9 && ops.value == 0)

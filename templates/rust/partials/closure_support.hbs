@@ -1,5 +1,47 @@
 {{#if rust_has_closures}}
-struct {{rust_ident rust_closure_handle_name}}<F: ?Sized>({{> closure_owner}}<F>);
+{{#if rust_has_scalar_ref_closures}}enum {{rust_ident rust_closure_scalar_storage_type}}<'a, T> {
+    Borrowed(std::cell::RefCell<&'a mut T>),
+    Shared(std::sync::Arc<std::sync::Mutex<T>>),
+}
+struct {{rust_ident rust_closure_scalar_ref_type}}<'a, T>(std::rc::Rc<{{rust_ident rust_closure_scalar_storage_type}}<'a, T>>);
+impl<'a, T: Copy> {{rust_ident rust_closure_scalar_ref_type}}<'a, T> {
+    fn new(value: &'a mut T) -> Self { Self(std::rc::Rc::new({{rust_ident rust_closure_scalar_storage_type}}::Borrowed(std::cell::RefCell::new(value)))) }
+    fn shared(value: std::sync::Arc<std::sync::Mutex<T>>) -> Self { Self(std::rc::Rc::new({{rust_ident rust_closure_scalar_storage_type}}::Shared(value))) }
+    fn get(&self) -> T { match &*self.0 {
+        {{rust_ident rust_closure_scalar_storage_type}}::Borrowed(value) => **value.borrow(),
+        {{rust_ident rust_closure_scalar_storage_type}}::Shared(value) => *value.lock().unwrap_or_else(|e| e.into_inner()),
+    } }
+    fn set(&self, next: T) { match &*self.0 {
+        {{rust_ident rust_closure_scalar_storage_type}}::Borrowed(value) => **value.borrow_mut() = next,
+        {{rust_ident rust_closure_scalar_storage_type}}::Shared(value) => *value.lock().unwrap_or_else(|e| e.into_inner()) = next,
+    } }
+    fn same_place(&self, other: &{{rust_ident rust_closure_scalar_ref_type}}<'_, T>) -> bool {
+        if std::rc::Rc::as_ptr(&self.0) as *const () == std::rc::Rc::as_ptr(&other.0) as *const () { return true; }
+        match (&*self.0, &*other.0) {
+            ({{rust_ident rust_closure_scalar_storage_type}}::Shared(a), {{rust_ident rust_closure_scalar_storage_type}}::Shared(b)) => std::sync::Arc::ptr_eq(a, b),
+            _ => false,
+        }
+    }
+    fn borrow_mut(&self) -> {{rust_ident rust_closure_scalar_guard_type}}<'_, 'a, T> { match &*self.0 {
+        {{rust_ident rust_closure_scalar_storage_type}}::Borrowed(value) => {{rust_ident rust_closure_scalar_guard_type}}::Borrowed(value.borrow_mut()),
+        {{rust_ident rust_closure_scalar_storage_type}}::Shared(value) => {{rust_ident rust_closure_scalar_guard_type}}::Shared(value.lock().unwrap_or_else(|e| e.into_inner())),
+    } }
+}
+impl<T> Clone for {{rust_ident rust_closure_scalar_ref_type}}<'_, T> {
+    fn clone(&self) -> Self { Self(self.0.clone()) }
+}
+enum {{rust_ident rust_closure_scalar_guard_type}}<'r, 'a, T> {
+    Borrowed(std::cell::RefMut<'r, &'a mut T>),
+    Shared(std::sync::MutexGuard<'r, T>),
+}
+impl<T> std::ops::Deref for {{rust_ident rust_closure_scalar_guard_type}}<'_, '_, T> {
+    type Target = T;
+    fn deref(&self) -> &T { match self { Self::Borrowed(value) => &***value, Self::Shared(value) => &**value } }
+}
+impl<T> std::ops::DerefMut for {{rust_ident rust_closure_scalar_guard_type}}<'_, '_, T> {
+    fn deref_mut(&mut self) -> &mut T { match self { Self::Borrowed(value) => &mut ***value, Self::Shared(value) => &mut **value } }
+}
+{{/if}}struct {{rust_ident rust_closure_handle_name}}<F: ?Sized>({{> closure_owner}}<F>);
 {{#if rust_has_recursive_closures}}impl<F: ?Sized> {{rust_ident rust_closure_handle_name}}<F> {
     fn recursive(build: impl FnOnce({{> closure_owner}}<{{> closure_once}}<{{> closure_weak}}<F>>>) -> {{> closure_owner}}<F>) -> Self {
         let slot = {{> closure_owner}}::new({{> closure_once}}::new());

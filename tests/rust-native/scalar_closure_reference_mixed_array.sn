@@ -1,0 +1,13 @@
+fn update(a: int as ref, b: int as ref, values: int[]): int =>
+  a += 2
+  b *= 3
+  values.push(a)
+  return a
+
+fn main(): void =>
+  var value: int = 1
+  var values: int[] = {1}
+  var call = fn(a: int as ref, b: int as ref, rows: int[]): int =>
+    return update(a, b, rows)
+  println(call(value, value, values) == 9)
+  println(value == 9 && values.length == 2 && values[1] == 9)

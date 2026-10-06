@@ -1,0 +1,11 @@
+fn change(a: int as ref, b: int as ref): int =>
+  a += 2
+  b *= 3
+  return a
+
+fn main(): void =>
+  var value: int = 1
+  var call = fn(a: int as ref, b: int as ref): int =>
+    return change(a, b)
+  println(call(value, value) == 9)
+  println(value == 9)

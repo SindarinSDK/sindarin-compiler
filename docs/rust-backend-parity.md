@@ -63,6 +63,15 @@ the complete local matrix verifies 54 reports / 4413 cases. Record-array member
 stores/field methods and broader qualifiers remain work, with preserved failing
 diagnostics receiving no parity credit. Hosted acceptance is tracked separately.
 
+The scalar closure-reference increment preserves caller storage and dynamic
+aliases through verified closure, named, instance/static and native callees.
+Shared record fields use their real owner; native aliases share one guard and
+raw C pointer. Reference operator ordering is pinned by unchanged C-valid
+programs. Eight rejected fixtures are promoted without source changes; 234
+all-mode comparisons and 78 sanitizer runs pass. Complete local acceptance
+verifies 55 reports / 4647 cases. Broader qualified signatures, native/lifetime
+compositions, interfaces and physical receivers remain required work.
+
 The 2026-10-03 float/double increment adds conversions at tested scalar storage,
 call and return boundaries and mixed floating compound mutation, including
 observable synchronized cells. Historical same-type-only exclusions below are

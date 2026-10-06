@@ -1155,3 +1155,36 @@ test-rust-parity-qualified-arrays: build
 		--require-count 7 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-qualified-arrays.json
 	@$(PYTHON) scripts/check_rust_qualified_array_oracles.py .sn/rust-parity-qualified-arrays.json
+
+.PHONY: test-rust-parity-closure-references
+test-rust-parity-closure-references: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/rust-native/scalar_closure_reference_basic.sn \
+		tests/rust-native/scalar_closure_reference_alias.sn \
+		tests/rust-native/scalar_closure_reference_forward.sn \
+		tests/rust-native/scalar_closure_reference_fields.sn \
+		tests/rust-native/scalar_closure_reference_reference_field.sn \
+		tests/rust-native/scalar_closure_reference_operators.sn \
+		tests/rust-native/scalar_closure_reference_effects.sn \
+		tests/rust-native/scalar_closure_reference_hygiene.sn \
+		tests/rust-native/scalar_closure_reference_types.sn \
+		tests/rust-native/scalar_closure_reference_named_forward.sn \
+		tests/rust-native/scalar_closure_reference_named_alias.sn \
+		tests/rust-native/scalar_closure_reference_owned_effects.sn \
+		tests/rust-native/scalar_closure_reference_method_alias.sn \
+		tests/rust-native/scalar_closure_reference_mixed_array.sn \
+		tests/rust-native/scalar_closure_reference_integer_order.sn \
+		tests/rgen/closure_values_qualified_signature.sn \
+		tests/rgen/shared_frontend_as_ref_method_field_arguments.sn \
+		tests/rgen/shared_frontend_checked_ref_parameter_byte_mutations.sn \
+		tests/rgen/shared_frontend_checked_ref_parameter_int32_mutations.sn \
+		tests/rgen/shared_frontend_checked_ref_parameter_uint32_mutations.sn \
+		tests/rgen/shared_frontend_checked_ref_parameter_uint_mutations.sn \
+		tests/rgen/shared_frontend_floating_as_ref_parameter.sn \
+		tests/rgen/shared_frontend_floating_ref_parameter_mutations.sn \
+		tests/rgen/checked_ref_parameter_mutations.sn \
+		tests/rgen/float_mutation_precision.sn \
+		tests/rust-native/scalar_closure_reference_native.sn \
+		--require-count 26 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-closure-references.json
+	@$(PYTHON) scripts/check_rust_closure_reference_oracles.py .sn/rust-parity-closure-references.json

@@ -48,23 +48,27 @@ static void rust_lower_closure_node(json_object *node, bool *uses)
 /* Shared model-wide name scan is defined later in rust_lower.c. */
 static bool rust_model_contains_string(json_object *node, const char *wanted);
 
-static void rust_closure_name_types(json_object *node, const char *name)
+static void rust_closure_name_types(json_object *node, const char *name, const char *scalar_ref)
 {
     if (!node) return;
     if (json_object_is_type(node, json_type_array))
     {
         for (size_t i = 0; i < json_object_array_length(node); i++)
-            rust_closure_name_types(json_object_array_get_idx(node, i), name);
+            rust_closure_name_types(json_object_array_get_idx(node, i), name, scalar_ref);
         return;
     }
     if (!json_object_is_type(node, json_type_object)) return;
     json_object_object_foreach(node, key, value)
     {
-        if (strcmp(key, "lambdas") != 0) rust_closure_name_types(value, name);
+        if (strcmp(key, "lambdas") != 0) rust_closure_name_types(value, name, scalar_ref);
     }
     if (json_string_property_equals(node, "kind", "function"))
         json_object_object_add(node, "rust_closure_handle_name", json_object_new_string(name));
+    if (json_boolean_property(node, "rust_closure_scalar_reference"))
+        json_object_object_add(node, "rust_closure_scalar_ref_type", json_object_new_string(scalar_ref));
 }
+
+static json_object *rust_scalar_reference_target(json_object *model, json_object *node);
 
 static void rust_lower_closure_array_arguments(json_object *model, json_object *node,
                                                 unsigned int *next_id)
@@ -130,7 +134,20 @@ static void rust_lower_closure_array_arguments(json_object *model, json_object *
         }
         return;
     }
-    if (!json_boolean_property(node, "rust_closure_call"))
+    json_object *scalar_target = json_boolean_property(model, "rust_has_scalar_ref_closures")
+        ? rust_scalar_reference_target(model, node) : NULL;
+    json_object *scalar_params = rust_closure_property(scalar_target, "params");
+    bool scalar_direct = false;
+    for (size_t p = 0; p < rust_closure_length(scalar_params); p++)
+        scalar_direct |= json_boolean_property(json_object_array_get_idx(scalar_params, p), "rust_closure_scalar_reference");
+    bool scalar_native = false;
+    if (json_boolean_property(scalar_target, "rust_native_bridge"))
+    {
+        json_object *call_args = rust_closure_property(node, "args");
+        for (size_t i = 0; i < rust_closure_length(call_args); i++)
+            scalar_native |= json_boolean_property(json_object_array_get_idx(call_args, i), "rust_closure_scalar_reference");
+    }
+    if (!json_boolean_property(node, "rust_closure_call") && !scalar_direct && !scalar_native)
     {
         json_object *callee = rust_closure_property(node, "callee");
         json_object *receiver = rust_closure_property(callee, "object");
@@ -195,6 +212,83 @@ static void rust_lower_closure_array_arguments(json_object *model, json_object *
     }
     json_object *args = NULL;
     if (!json_object_object_get_ex(node, "args", &args)) return;
+    json_object *params = rust_closure_property(rust_closure_property(
+        rust_closure_property(node, "callee"), "type"), "param_types");
+    if (scalar_direct || scalar_native) params = scalar_params;
+    bool scalar_refs = scalar_native;
+    for (size_t i = 0; i < rust_closure_length(params); i++)
+        scalar_refs |= json_boolean_property(json_object_array_get_idx(params, i), "rust_closure_scalar_reference");
+    if (scalar_refs)
+    {
+        json_object_object_add(model, "rust_has_scalar_ref_closures", json_object_new_boolean(true));
+        json_object_object_add(node, "rust_closure_array_call", json_object_new_boolean(true));
+        if (scalar_direct || scalar_native)
+            json_object_object_add(node, "rust_closure_scalar_direct_call", json_object_new_boolean(true));
+        if (scalar_native)
+            json_object_object_add(node, "rust_closure_scalar_native_call", json_object_new_boolean(true));
+        for (size_t i = 0; i < rust_closure_length(args); i++)
+        {
+            json_object *arg = json_object_array_get_idx(args, i);
+            json_object *param = i < rust_closure_length(params) ? json_object_array_get_idx(params, i) : NULL;
+            bool scalar_param = json_boolean_property(param, "rust_closure_scalar_reference") ||
+                (scalar_native && json_string_property_equals(param, "mem_qual", "as_ref") &&
+                 rust_closure_scalar_type(rust_closure_property(param, "type")));
+            if (scalar_param)
+            {
+                if (json_boolean_property(arg, "rust_thread_field"))
+                    json_object_object_add(arg, "rust_closure_scalar_shared_field", json_object_new_boolean(true));
+                const char *existing = NULL;
+                for (size_t p = 0; p < i; p++)
+                {
+                    json_object *previous = json_object_array_get_idx(args, p);
+                    if (json_string_property(previous, "rust_closure_scalar_cell_name") &&
+                        rust_same_default_array_place(arg, previous))
+                        existing = json_string_property(previous, "rust_closure_scalar_cell_name");
+                }
+                if (!existing)
+                {
+                    char name[96];
+                    if (!rust_allocate_helper_name(model, "__sn_closure_scalar_cell", name, sizeof(name))) return;
+                    json_object_object_add(arg, "rust_closure_scalar_cell_name", json_object_new_string(name));
+                    json_object_object_add(arg, "rust_closure_scalar_cell_bind", json_object_new_boolean(true));
+                }
+                else json_object_object_add(arg, "rust_closure_scalar_cell_name", json_object_new_string(existing));
+            }
+            else if (!json_string_property_equals(rust_closure_property(arg, "type"), "kind", "array") &&
+                     !json_string_property(arg, "rust_deferred_arg_name"))
+            {
+                char name[96];
+                if (!rust_allocate_helper_name(model, "__sn_closure_scalar_arg", name, sizeof(name))) return;
+                json_object_object_add(arg, "rust_deferred_arg_name", json_object_new_string(name));
+            }
+        }
+    }
+    if (scalar_native)
+    {
+        for (size_t i = 0; i < rust_closure_length(args); i++)
+        {
+            json_object *arg = json_object_array_get_idx(args, i);
+            if (!json_string_property(arg, "rust_closure_scalar_cell_name")) continue;
+            char guard[96], pointer[96];
+            if (!rust_allocate_helper_name(model, "__sn_native_scalar_guard", guard, sizeof(guard)) ||
+                !rust_allocate_helper_name(model, "__sn_native_scalar_pointer", pointer, sizeof(pointer))) return;
+            json_object_object_add(arg, "rust_closure_scalar_native_guard", json_object_new_string(guard));
+            json_object_object_add(arg, "rust_closure_scalar_native_pointer", json_object_new_string(pointer));
+            json_object *prior = json_object_new_array();
+            for (size_t p = 0; p < i; p++)
+            {
+                json_object *previous = json_object_array_get_idx(args, p);
+                if (!json_string_property(previous, "rust_closure_scalar_native_pointer") ||
+                    !rust_closure_same_type(rust_closure_property(arg, "type"), rust_closure_property(previous, "type"))) continue;
+                json_object *alias = json_object_new_object();
+                json_object_object_add(alias, "cell", json_object_get(rust_closure_property(previous, "rust_closure_scalar_cell_name")));
+                json_object_object_add(alias, "pointer", json_object_get(rust_closure_property(previous, "rust_closure_scalar_native_pointer")));
+                json_object_array_add(prior, alias);
+            }
+            json_object_object_add(arg, "rust_closure_scalar_native_prior", prior);
+        }
+    }
+    if (scalar_direct || scalar_native) return;
     for (size_t i = 0; i < json_object_array_length(args); i++)
     {
         json_object *arg = json_object_array_get_idx(args, i), *type = NULL;
@@ -289,8 +383,30 @@ static void rust_lower_closure_array_arguments(json_object *model, json_object *
     }
 }
 
+static void rust_lower_ref_previous_names(json_object *model, json_object *node)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array))
+    {
+        for (size_t i = 0; i < rust_closure_length(node); i++)
+            rust_lower_ref_previous_names(model, json_object_array_get_idx(node, i));
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
+    json_object_object_foreach(node, key, child)
+        if (strncmp(key, "rust_", 5) != 0 && strcmp(key, "lambdas") != 0)
+            rust_lower_ref_previous_names(model, child);
+    if (json_boolean_property(node, "rust_ref_old_value_before_rhs"))
+    {
+        char previous[96];
+        if (!rust_allocate_helper_name(model, "__sn_ref_previous", previous, sizeof(previous))) return;
+        json_object_object_add(node, "rust_ref_previous_name", json_object_new_string(previous));
+    }
+}
+
 static void rust_lower_closures(json_object *model)
 {
+    rust_lower_ref_previous_names(model, model);
     bool uses = false;
     rust_lower_closure_node(model, &uses);
     if (!uses) return;
@@ -305,9 +421,113 @@ static void rust_lower_closures(json_object *model)
     while (rust_model_contains_string(model, snapshot))
         snprintf(snapshot, sizeof(snapshot), "__sn_closure_record_snapshot_%u", suffix++);
     json_object_object_add(model, "rust_closure_snapshot_method", json_object_new_string(snapshot));
+    char scalar_ref[96];
+    if (!rust_allocate_helper_name(model, "__SnScalarRef", scalar_ref, sizeof(scalar_ref))) return;
+    json_object_object_add(model, "rust_closure_scalar_ref_type", json_object_new_string(scalar_ref));
+    const char *scalar_bases[] = {"__SnScalarStorage", "__SnScalarGuard"};
+    const char *scalar_keys[] = {"rust_closure_scalar_storage_type", "rust_closure_scalar_guard_type"};
+    for (size_t i = 0; i < 2; i++)
+    {
+        char helper[96];
+        if (!rust_allocate_helper_name(model, scalar_bases[i], helper, sizeof(helper))) return;
+        json_object_object_add(model, scalar_keys[i], json_object_new_string(helper));
+    }
     unsigned int argument_id = 0;
     rust_lower_closure_array_arguments(model, model, &argument_id);
-    rust_closure_name_types(model, name);
+    rust_closure_name_types(model, name, scalar_ref);
     json_object_object_add(model, "rust_closure_handle_name", json_object_new_string(name));
     json_object_object_add(model, "rust_has_closures", json_object_new_boolean(true));
+}
+
+/* A program with borrowed scalar closures uses the same shared place protocol
+ * in ordinary callees, so forwarding preserves dynamic aliases. */
+static bool rust_has_scalar_reference_lambda(json_object *node)
+{
+    if (!node) return false;
+    if (json_object_is_type(node, json_type_array))
+    {
+        for (size_t i = 0; i < rust_closure_length(node); i++)
+            if (rust_has_scalar_reference_lambda(json_object_array_get_idx(node, i))) return true;
+        return false;
+    }
+    if (!json_object_is_type(node, json_type_object)) return false;
+    if (json_string_property_equals(node, "kind", "lambda"))
+    {
+        json_object *params = rust_closure_property(node, "params");
+        for (size_t i = 0; i < rust_closure_length(params); i++)
+        {
+            json_object *param = json_object_array_get_idx(params, i);
+            if (json_string_property_equals(param, "mem_qual", "as_ref") &&
+                rust_closure_scalar_type(rust_closure_property(param, "type"))) return true;
+        }
+    }
+    json_object_object_foreach(node, key, child)
+        if (strncmp(key, "rust_", 5) != 0 && rust_has_scalar_reference_lambda(child)) return true;
+    return false;
+}
+
+static void rust_prepare_scalar_reference_callable(json_object *callable)
+{
+    if (json_boolean_property(callable, "is_native") ||
+        json_boolean_property(callable, "rust_native_bridge")) return;
+    json_object *params = rust_closure_property(callable, "params");
+    for (size_t i = 0; i < rust_closure_length(params); i++)
+    {
+        json_object *param = json_object_array_get_idx(params, i);
+        json_object *type = rust_closure_property(param, "type");
+        if (!json_string_property_equals(param, "mem_qual", "as_ref") ||
+            !rust_closure_scalar_type(type)) continue;
+        json_object_object_add(param, "rust_closure_scalar_reference", json_object_new_boolean(true));
+        json_object_object_add(param, "rust_closure_param_share", json_object_new_boolean(true));
+        json_object_object_add(param, "rust_shared_cell", json_object_new_boolean(true));
+        json_object_object_add(type, "rust_closure_scalar_reference", json_object_new_boolean(true));
+    }
+}
+
+static void rust_prepare_scalar_reference_callables(json_object *model)
+{
+    if (!rust_has_scalar_reference_lambda(model)) return;
+    json_object_object_add(model, "rust_has_scalar_ref_closures", json_object_new_boolean(true));
+    json_object *functions = rust_closure_property(model, "functions");
+    for (size_t i = 0; i < rust_closure_length(functions); i++)
+        rust_prepare_scalar_reference_callable(json_object_array_get_idx(functions, i));
+    json_object *structs = rust_closure_property(model, "structs");
+    for (size_t i = 0; i < rust_closure_length(structs); i++)
+    {
+        json_object *methods = rust_closure_property(json_object_array_get_idx(structs, i), "methods");
+        for (size_t m = 0; m < rust_closure_length(methods); m++)
+            rust_prepare_scalar_reference_callable(json_object_array_get_idx(methods, m));
+    }
+}
+
+static json_object *rust_scalar_reference_target(json_object *model, json_object *node)
+{
+    json_object *callee = rust_closure_property(node, "callee");
+    if (json_string_property_equals(callee, "kind", "variable") &&
+        json_boolean_property(callee, "rust_direct_callee"))
+    {
+        json_object *functions = rust_closure_property(model, "functions");
+        for (size_t i = 0; i < rust_closure_length(functions); i++)
+        {
+            json_object *fn = json_object_array_get_idx(functions, i);
+            if (json_string_property_equals(fn, "name", json_string_property(callee, "name"))) return fn;
+        }
+    }
+    if (json_string_property_equals(callee, "kind", "member") &&
+        !json_boolean_property(node, "is_fn_field_call"))
+    {
+        json_object *type = rust_closure_property(rust_closure_property(callee, "object"), "type");
+        if (json_string_property_equals(type, "kind", "pointer")) type = rust_closure_property(type, "base_type");
+        return rust_find_resolved_method(rust_find_struct(model, json_string_property(type, "name")),
+            json_string_property(callee, "member_name"), false);
+    }
+    if (json_string_property_equals(node, "kind", "static_call") ||
+        json_string_property_equals(node, "kind", "method_call"))
+    {
+        const char *name = json_string_property(node, "type_name");
+        if (!name) name = json_string_property(rust_closure_property(node, "struct_type"), "name");
+        return rust_find_resolved_method(rust_find_struct(model, name), json_string_property(node, "method_name"),
+            json_string_property_equals(node, "kind", "static_call") || json_boolean_property(node, "is_static"));
+    }
+    return NULL;
 }

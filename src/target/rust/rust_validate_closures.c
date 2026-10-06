@@ -114,7 +114,13 @@ static bool rust_closure_type_supported(json_object *type)
         const char *qual = i < rust_closure_length(quals)
             ? json_object_get_string(json_object_array_get_idx(quals, i)) : "default";
         if (strcmp(qual, "default") != 0 &&
-            !(strcmp(qual, "as_val") == 0 && rust_closure_array_type(param))) return false;
+            !(strcmp(qual, "as_val") == 0 && rust_closure_array_type(param)) &&
+            !(strcmp(qual, "as_ref") == 0 && rust_closure_scalar_type(param))) return false;
+        if (strcmp(qual, "as_ref") == 0 && rust_closure_scalar_type(param))
+        {
+            json_object_object_add(param, "rust_closure_scalar_reference", json_object_new_boolean(true));
+            json_object_object_add(param, "rust_closure_param_share", json_object_new_boolean(true));
+        }
         if (!rust_closure_owned_type(param)) return false;
         if (rust_closure_array_type(param) || rust_closure_reference_record_type(param))
             json_object_object_add(param, "rust_closure_param_share", json_object_new_boolean(true));
@@ -153,7 +159,7 @@ static bool rust_closure_same_type(json_object *a, json_object *b)
             ? json_object_get_string(json_object_array_get_idx(aq, i)) : "default";
         const char *bqual = i < rust_closure_length(bq)
             ? json_object_get_string(json_object_array_get_idx(bq, i)) : "default";
-        if (strcmp(aqual, bqual) != 0 ||
+        if ((strcmp(aqual, "as_ref") == 0) != (strcmp(bqual, "as_ref") == 0) ||
             !rust_closure_same_type(json_object_array_get_idx(ap, i),
                                    json_object_array_get_idx(bp, i))) return false;
     }
@@ -228,6 +234,25 @@ static bool rust_closure_named_function(RustClosureScope *scope, const char *nam
     for (size_t i = 0; i < rust_closure_length(functions); i++)
         if (json_string_property_equals(json_object_array_get_idx(functions, i), "name", name))
             return true;
+    return false;
+}
+
+static bool rust_closure_expression_calls(json_object *node)
+{
+    if (!node) return false;
+    if (json_object_is_type(node, json_type_array))
+    {
+        for (size_t i = 0; i < rust_closure_length(node); i++)
+            if (rust_closure_expression_calls(json_object_array_get_idx(node, i))) return true;
+        return false;
+    }
+    if (!json_object_is_type(node, json_type_object)) return false;
+    if (json_string_property_equals(node, "kind", "call") ||
+        json_string_property_equals(node, "kind", "static_call") ||
+        json_string_property_equals(node, "kind", "method_call")) return true;
+    json_object_object_foreach(node, key, child)
+        if (strncmp(key, "rust_", 5) != 0 && strcmp(key, "type") != 0 &&
+            rust_closure_expression_calls(child)) return true;
     return false;
 }
 
@@ -355,6 +380,14 @@ static bool rust_closure_walk_lambda(RustClosureScope *scope, json_object *node)
             rust_closure_property(node, "type"), "param_types");
         json_object *signature_param = i < rust_closure_length(signature_params)
             ? json_object_array_get_idx(signature_params, i) : NULL;
+        bool scalar_ref = rust_closure_scalar_type(rust_closure_property(p, "type")) &&
+            json_string_property_equals(p, "mem_qual", "as_ref");
+        if (scalar_ref)
+        {
+            json_object_object_add(p, "rust_closure_scalar_reference", json_object_new_boolean(true));
+            json_object_object_add(rust_closure_property(p, "type"), "rust_closure_scalar_reference", json_object_new_boolean(true));
+            json_object_object_add(p, "rust_shared_cell", json_object_new_boolean(true));
+        }
         bool shared_record = json_boolean_property(signature_param, "rust_closure_param_share");
         bool record_ref = shared_record &&
             json_string_property_equals(p, "mem_qual", "as_ref");
@@ -513,6 +546,8 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
                 json_object_object_add(node, "rust_needs_clone", json_object_new_boolean(true));
             if (json_boolean_property(b->declaration, "rust_closure_array_parameter"))
                 json_object_object_add(node, "rust_closure_array_parameter", json_object_new_boolean(true));
+            if (json_boolean_property(b->declaration, "rust_closure_scalar_reference"))
+                json_object_object_add(node, "rust_closure_scalar_reference", json_object_new_boolean(true));
             if (json_boolean_property(b->declaration, "rust_shared_cell"))
             {
                 json_object_object_add(node, "rust_shared_cell", json_object_new_boolean(true));
@@ -526,7 +561,8 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
             if ((b->capture || json_boolean_property(b->declaration, "rust_shared_cell")) &&
                 json_boolean_property(node, "is_ref_arg") && !json_boolean_property(node, "rust_thread_ref_owner") &&
                 !json_boolean_property(b->declaration, "rust_mutable_owned_snapshot") &&
-                !json_boolean_property(b->declaration, "rust_reference_record_capture"))
+                !json_boolean_property(b->declaration, "rust_reference_record_capture") &&
+                !json_boolean_property(b->declaration, "rust_closure_scalar_reference"))
                 return rust_closure_error("mutable access to snapshot closure captures");
         }
         else if (!json_boolean_property(node, "rust_direct_callee") && name &&
@@ -559,6 +595,11 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
         place = rust_closure_place(scope, rust_closure_property(node, "object"));
     else if (kind && strcmp(kind, "index_assign") == 0)
         place = rust_closure_place(scope, rust_closure_property(node, "array"));
+    if (place && !place->capture && kind && strcmp(kind, "compound_assign") == 0 &&
+        json_string_property_equals(place->declaration, "mem_qual", "as_ref") &&
+        rust_closure_scalar_type(rust_closure_property(place->declaration, "type")) &&
+        rust_closure_expression_calls(rust_closure_property(node, "value")))
+        json_object_object_add(node, "rust_ref_old_value_before_rhs", json_object_new_boolean(true));
     if (place && scope->lambda_depth > 0 && !json_string_property(place->declaration, "kind") &&
         !place->capture &&
         !json_boolean_property(place->declaration, "rust_closure_param_share"))

@@ -1511,6 +1511,9 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     pmq_count = expr->as.call.callee->expr_type->as.function.param_count;
                 }
 
+                StructMethod *resolved_call_method = expr->as.call.callee->type == EXPR_MEMBER
+                    ? expr->as.call.callee->as.member.resolved_method : NULL;
+
                 /* Detect push/insert on string arrays — args need strdup for ownership */
                 bool member_str_push = false;
                 /* Detect push/insert on array-of-arrays — args need sn_array_copy for ownership */
@@ -1577,15 +1580,18 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 {
                     json_object *arg = gen_model_expr(arena, expr->as.call.arguments[i], symbol_table, arithmetic_mode);
                     /* Override matrix: param annotation vs arg type */
-                    if (pmq && i < pmq_count)
+                    if ((pmq && i < pmq_count) ||
+                        (resolved_call_method && i < resolved_call_method->param_count))
                     {
+                        MemoryQualifier mq = resolved_call_method && i < resolved_call_method->param_count
+                            ? resolved_call_method->params[i].mem_qualifier : pmq[i];
                         Expr *arg_expr = expr->as.call.arguments[i];
                         Type *arg_type = arg_expr ? arg_expr->expr_type : NULL;
                         bool is_ref_struct = (arg_type && arg_type->kind == TYPE_STRUCT &&
                                               arg_type->as.struct_type.pass_self_by_ref);
-                        if (pmq[i] == MEM_AS_REF && !is_ref_struct)
+                        if (mq == MEM_AS_REF && !is_ref_struct)
                             json_object_object_add(arg, "is_ref_arg", json_object_new_boolean(true));
-                        else if (pmq[i] == MEM_AS_VAL && is_ref_struct)
+                        else if (mq == MEM_AS_VAL && is_ref_struct)
                         {
                             json_object_object_add(arg, "is_copy_arg", json_object_new_boolean(true));
                             json_object_object_add(arg, "copy_type_name",
@@ -1871,6 +1877,24 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     json_object_new_boolean(is_closure));
                 json_object_object_add(obj, "is_fn_field_call",
                     json_object_new_boolean(is_fn_field_call));
+                /* Only indirect casts need the qualifier's extra pointer.
+                 * Direct declarations already render their parameter qualifiers. */
+                if ((is_closure || is_fn_field_call) && pmq)
+                {
+                    json_object *call_callee = NULL, *callee_type_model = NULL, *cast_params = NULL;
+                    json_object_object_get_ex(obj, "callee", &call_callee);
+                    json_object_object_get_ex(call_callee, "type", &callee_type_model);
+                    json_object_object_get_ex(callee_type_model, "param_types", &cast_params);
+                    for (int p = 0; p < pmq_count; p++)
+                    {
+                        Type *pt = callee_param_types[p];
+                        if (pmq[p] == MEM_AS_REF &&
+                            !(pt && pt->kind == TYPE_STRUCT && pt->as.struct_type.pass_self_by_ref))
+                            json_object_object_add(json_object_array_get_idx(cast_params, p),
+                                "pass_by_ptr", json_object_new_boolean(true));
+                    }
+                }
+
 
                 /* Borrow-inference wrapping for native fn calls returning a
                  * ref-struct that aliases at least one ref-struct argument.

@@ -1,0 +1,8 @@
+fn main(): void =>
+  var __SnScalarRef: int = 1
+  var __sn_closure_scalar_cell: int = 4
+  var change = fn(__sn_closure_scalar_cell: int as ref, __sn_closure_scalar_arg: int): int =>
+    __sn_closure_scalar_cell += __sn_closure_scalar_arg
+    return __sn_closure_scalar_cell
+  println(change(__SnScalarRef, __sn_closure_scalar_cell) == 5)
+  println(__SnScalarRef == 5 && __sn_closure_scalar_cell == 4)
