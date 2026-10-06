@@ -27,6 +27,7 @@ struct RustNativePlan {
     RustNativeDeclaration *declarations;
     size_t declaration_count;
     json_object *handles;
+    json_object *array_support;
     json_object *record_support;
 };
 
@@ -39,6 +40,11 @@ ModularModel *rust_native_plan_split(RustNativePlan *plan)
 json_object *rust_native_plan_handles(RustNativePlan *plan)
 {
     return plan ? plan->handles : NULL;
+}
+
+json_object *rust_native_plan_array_support(RustNativePlan *plan)
+{
+    return plan ? plan->array_support : NULL;
 }
 
 json_object *rust_native_plan_record_support(RustNativePlan *plan)
@@ -1703,6 +1709,7 @@ void rust_native_plan_free(void *opaque)
     if (!plan) return;
     modular_model_free(plan->split);
     if (plan->handles) json_object_put(plan->handles);
+    if (plan->array_support) json_object_put(plan->array_support);
     if (plan->record_support) json_object_put(plan->record_support);
     for (size_t i = 0; i < plan->declaration_count; i++)
     {

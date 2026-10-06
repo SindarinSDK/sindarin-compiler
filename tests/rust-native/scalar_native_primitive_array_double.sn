@@ -1,0 +1,8 @@
+@source "scalar_native_primitive_array_double.sn.c"
+native fn change_array(a: double[]): void
+native fn same_array(a: double[], b: double[]): bool
+fn main(): void =>
+  var original: double[] = {1.0}
+  println(same_array(original, original))
+  change_array(original)
+  println(original.length == 2 && original[0] == 7.0 && original[1] == 9.0)

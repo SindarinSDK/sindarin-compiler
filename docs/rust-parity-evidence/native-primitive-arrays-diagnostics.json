@@ -1,0 +1,16 @@
+{
+  "old_source": "tests/rust-native/errors/managed_nonbyte_result.sn",
+  "new_source": "tests/rust-native/errors/missing_native_array_result_symbol.sn",
+  "source_sha256": "b57438a76c8f1785404005eb281c1c662b946656010e171d3c5136c4ce874a52",
+  "C_missing_symbol_log": ".sn/missing-native-C.log",
+  "Rust_missing_symbol_log": ".sn/nonbyte-result-probe.log",
+  "credit": "Diagnostic reclassification only; no executable parity credit. Real native-return positive is .sn/native-array-return.sn.",
+  "parameter_control": {
+    "old_source": "tests/rust-native/errors/managed_array_parameter.sn",
+    "new_source": "tests/rust-native/errors/missing_native_array_parameter_symbol.sn",
+    "source_sha256": "03ceee7fd1a099bdcf63598fd1d73996b4ccd63aa1a8c4ff5944fd63831584be",
+    "C_failure_log": ".sn/missing-array-param-C.log",
+    "Rust_failure_log": ".sn/missing-array-param-R.log",
+    "credit": "Missing-symbol diagnostic only, no executable parity credit."
+  }
+}

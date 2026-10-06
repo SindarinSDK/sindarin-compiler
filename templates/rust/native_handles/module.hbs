@@ -1,6 +1,15 @@
 #include "sn_types.h"
 {{#with arrays}}
 void *{{untyped_new}}(void) { return sn_array_new(sizeof(long long), 0); }
+{{#if primitive_scalars}}
+size_t {{primitive_width}}(int kind) {
+    switch (kind) { case 0: return sizeof(long long); case 1: return sizeof(int); case 2: return sizeof(unsigned long long); case 3: return sizeof(unsigned int); case 4: return sizeof(unsigned char); case 5: return sizeof(bool); case 6: return sizeof(float); case 7: return sizeof(double); default: abort(); }
+}
+size_t {{primitive_align}}(int kind) {
+    switch (kind) { case 0: return _Alignof(long long); case 1: return _Alignof(int); case 2: return _Alignof(unsigned long long); case 3: return _Alignof(unsigned int); case 4: return _Alignof(unsigned char); case 5: return _Alignof(bool); case 6: return _Alignof(float); case 7: return _Alignof(double); default: abort(); }
+}
+void *{{primitive_new}}(int kind, long long capacity) { return sn_array_new({{primitive_width}}(kind), capacity); }
+{{/if}}
 void {{free}}(void *value) { sn_array_free((SnArray *)value); }
 void *{{copy}}(void *value) { return sn_array_copy((SnArray *)value); }
 long long {{length}}(void *value) { return value ? ((SnArray *)value)->len : 0; }

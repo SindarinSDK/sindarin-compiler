@@ -1,0 +1,8 @@
+@source "scalar_native_primitive_array_bool.sn.c"
+native fn change_array(a: bool[]): void
+native fn same_array(a: bool[], b: bool[]): bool
+fn main(): void =>
+  var original: bool[] = {false}
+  println(same_array(original, original))
+  change_array(original)
+  println(original.length == 2 && original[0] == true && original[1] == false)

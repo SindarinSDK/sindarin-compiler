@@ -1,0 +1,8 @@
+@source "scalar_native_primitive_array_uint32.sn.c"
+native fn change_array(a: uint32[]): void
+native fn same_array(a: uint32[], b: uint32[]): bool
+fn main(): void =>
+  var original: uint32[] = {1u32}
+  println(same_array(original, original))
+  change_array(original)
+  println(original.length == 2 && original[0] == 7u32 && original[1] == 9u32)

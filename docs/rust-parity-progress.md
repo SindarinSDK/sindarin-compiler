@@ -117,6 +117,46 @@ Evidence: [validation](rust-parity-evidence/private-array-validation.json),
 [comparisons](rust-parity-evidence/private-array-after.json),
 [C lifetimes](rust-parity-evidence/private-array-c-lifetimes.json).
 
+## Native primitive array headers, prepared 2026-10-06
+
+Native boundaries now admit arrays of int/long/int32/uint/uint32/byte/bool/float/
+double using actual C headers, buffers and ownership callbacks. A program with a
+primitive native array boundary uses canonical C-backed storage for compatible
+primitive arrays, preserving repeated argument header identity, native element
+writes/growth and native-owned returns. Rust does not lend a Rust allocation to C
+reallocation or substitute a copied header. Hygienic allocator helpers report C
+element width/alignment and verify it against Rust before allocation. Array
+support is owned by the native plan even in programs with no native handles.
+
+Canonical arrays provide the byte-encoding view used by existing code. Byte views
+read the logical count of bytes from the actual C object representation, including
+native returns whose static byte[] type retains an int-sized C header. The prior
+width-assertion panic is retained without credit; the unchanged fixture now passes
+all nine modes and the complete byte-encoding gate. Other element views keep their
+matching-width requirement.
+
+Thirteen frozen native controls and helper hashes pass **117** mode comparisons
+and **39** Linux ASAN/UBSAN/leak runs. All **79** combined acceptance commands pass
+with frozen inputs, complete C/Rust suites, exact **234** native fixtures,
+**61 reports / 5367 cases**, **501** Rust/**107** C goldens, **121** admission-error
+cases and **four** native diagnostic cases. Existing positive sources/goldens and
+all **1365** original corpus hashes remain unchanged. Two byte-identical negative
+sources now expect missing-symbol link failures after their array types become
+admitted; both C and Rust link-failure logs are retained. They receive no
+executable parity credit; native-return positives have actual C definitions.
+
+The change is validated against private-array main `aa771e9e`; its own complete
+exact-revision hosted acceptance remains required after publication. Native
+char/string/record/nested array formats, qualifications/callback and escaping
+lifetime contexts, native string physical aliases, interfaces/native wire/empty
+physical identity and physical value-record receivers still prevent completion.
+
+Evidence: [validation](rust-parity-evidence/native-primitive-arrays-validation.json),
+[oracles](rust-parity-evidence/native-primitive-arrays-oracles.json),
+[comparisons](rust-parity-evidence/native-primitive-arrays-after.json),
+[C lifetimes](rust-parity-evidence/native-primitive-arrays-c-lifetimes.json),
+[diagnostics](rust-parity-evidence/native-primitive-arrays-diagnostics.json).
+
 ## Scalar closure RHS sequencing: CI repair, 2026-10-06
 
 macOS runtime job 112380383034 and Windows job 112380383080 for `a69da434` failed the unchanged scalar

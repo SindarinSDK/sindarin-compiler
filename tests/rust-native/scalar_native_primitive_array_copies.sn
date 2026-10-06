@@ -1,0 +1,12 @@
+@source "scalar_native_primitive_array_copies.sn.c"
+native fn same_array(a: int[], b: int[]): bool
+native fn change_array(a: int[]): void
+fn touch(a: int[]): void =>
+  change_array(a)
+fn main(): void =>
+  var original: int[] = {1, 2}
+  var copy: int[] = original
+  println(!same_array(original, copy))
+  touch(original)
+  println(original[0] == 7 && original.length == 3 && original[2] == 9)
+  println(copy[0] == 1 && copy.length == 2)

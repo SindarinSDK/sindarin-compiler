@@ -156,9 +156,9 @@ jobs:
           run_gate "tagged native C/Rust parity (8 fixtures)" \
             python3 scripts/run_rust_tests.py rust-native-tagged --verbose \
               --require-count 8 --fail-on-skip
-          run_gate "native scalar, record and managed ABI fixtures (221 fixtures)" \
+          run_gate "native scalar, record and managed ABI fixtures (234 fixtures)" \
             python3 scripts/run_rust_tests.py rust-native-extra --verbose \
-              --require-count 221 --fail-on-skip
+              --require-count 234 --fail-on-skip
           run_gate "canonical native handle ownership (117 cases)" \
             make -o build test-rust-parity-native-handles
           run_gate "canonical native reference arrays (27 cases)" \
@@ -282,6 +282,14 @@ jobs:
           if [[ "${{ runner.os }}" == "Linux" ]]; then
             run_gate "private array C lifetimes with ASAN/UBSAN/leaks (45 cases)" \
               python3 scripts/check_c_private_array_lifetimes.py
+          fi
+
+          run_gate "native primitive arrays (13 sources, all modes)" \
+            make test-rust-parity-native-primitive-arrays
+
+          if [[ "${{ runner.os }}" == "Linux" ]]; then
+            run_gate "native primitive array C lifetimes with ASAN/UBSAN/leaks (39 cases)" \
+              python3 scripts/check_c_native_primitive_array_lifetimes.py
           fi
 
           run_gate "owned as-val closure record parameters (17 sources, all modes)" \
@@ -431,6 +439,8 @@ jobs:
             .sn/c-string-rebinding-lifetimes.json
 
             .sn/c-private-array-lifetimes.json
+
+            .sn/c-native-primitive-array-lifetimes.json
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 7

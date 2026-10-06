@@ -3,9 +3,25 @@
 // Rust never asks C to realloc a Rust allocation or substitutes a copied header.
 unsafe trait {{rust_ident trait}}: Clone + PartialEq {
     unsafe fn allocate_native_array(capacity: i64) -> *mut std::ffi::c_void;
+    fn is_byte_view() -> bool { false }
 }
+{{#if primitive_scalars}}
+unsafe impl {{rust_ident trait}} for i64 { unsafe fn allocate_native_array(capacity: i64) -> *mut std::ffi::c_void { assert_eq!({{rust_ident primitive_width}}(0), std::mem::size_of::<Self>()); assert_eq!({{rust_ident primitive_align}}(0), std::mem::align_of::<Self>()); {{rust_ident primitive_new}}(0, capacity) } }
+unsafe impl {{rust_ident trait}} for i32 { unsafe fn allocate_native_array(capacity: i64) -> *mut std::ffi::c_void { assert_eq!({{rust_ident primitive_width}}(1), std::mem::size_of::<Self>()); assert_eq!({{rust_ident primitive_align}}(1), std::mem::align_of::<Self>()); {{rust_ident primitive_new}}(1, capacity) } }
+unsafe impl {{rust_ident trait}} for u64 { unsafe fn allocate_native_array(capacity: i64) -> *mut std::ffi::c_void { assert_eq!({{rust_ident primitive_width}}(2), std::mem::size_of::<Self>()); assert_eq!({{rust_ident primitive_align}}(2), std::mem::align_of::<Self>()); {{rust_ident primitive_new}}(2, capacity) } }
+unsafe impl {{rust_ident trait}} for u32 { unsafe fn allocate_native_array(capacity: i64) -> *mut std::ffi::c_void { assert_eq!({{rust_ident primitive_width}}(3), std::mem::size_of::<Self>()); assert_eq!({{rust_ident primitive_align}}(3), std::mem::align_of::<Self>()); {{rust_ident primitive_new}}(3, capacity) } }
+unsafe impl {{rust_ident trait}} for u8 { fn is_byte_view() -> bool { true } unsafe fn allocate_native_array(capacity: i64) -> *mut std::ffi::c_void { assert_eq!({{rust_ident primitive_width}}(4), std::mem::size_of::<Self>()); assert_eq!({{rust_ident primitive_align}}(4), std::mem::align_of::<Self>()); {{rust_ident primitive_new}}(4, capacity) } }
+unsafe impl {{rust_ident trait}} for bool { unsafe fn allocate_native_array(capacity: i64) -> *mut std::ffi::c_void { assert_eq!({{rust_ident primitive_width}}(5), std::mem::size_of::<Self>()); assert_eq!({{rust_ident primitive_align}}(5), std::mem::align_of::<Self>()); {{rust_ident primitive_new}}(5, capacity) } }
+unsafe impl {{rust_ident trait}} for f32 { unsafe fn allocate_native_array(capacity: i64) -> *mut std::ffi::c_void { assert_eq!({{rust_ident primitive_width}}(6), std::mem::size_of::<Self>()); assert_eq!({{rust_ident primitive_align}}(6), std::mem::align_of::<Self>()); {{rust_ident primitive_new}}(6, capacity) } }
+unsafe impl {{rust_ident trait}} for f64 { unsafe fn allocate_native_array(capacity: i64) -> *mut std::ffi::c_void { assert_eq!({{rust_ident primitive_width}}(7), std::mem::size_of::<Self>()); assert_eq!({{rust_ident primitive_align}}(7), std::mem::align_of::<Self>()); {{rust_ident primitive_new}}(7, capacity) } }
+{{/if}}
 extern "C" {
     fn {{rust_ident untyped_new}}() -> *mut std::ffi::c_void;
+{{#if primitive_scalars}}
+    fn {{rust_ident primitive_new}}(kind: std::ffi::c_int, capacity: i64) -> *mut std::ffi::c_void;
+    fn {{rust_ident primitive_width}}(kind: std::ffi::c_int) -> usize;
+    fn {{rust_ident primitive_align}}(kind: std::ffi::c_int) -> usize;
+{{/if}}
     fn {{rust_ident free}}(value: *mut std::ffi::c_void);
     fn {{rust_ident copy}}(value: *mut std::ffi::c_void) -> *mut std::ffi::c_void;
     fn {{rust_ident length}}(value: *mut std::ffi::c_void) -> i64;
@@ -42,7 +58,8 @@ impl<T: {{rust_ident trait}}> {{rust_ident type}}<T> {
         let length = self.len();
         if length == 0 { return &[]; }
         unsafe {
-            assert_eq!({{rust_ident width}}(self.pointer), std::mem::size_of::<T>(), "native reference array element width");
+            let actual_width = {{rust_ident width}}(self.pointer);
+            assert!(actual_width == std::mem::size_of::<T>() || (T::is_byte_view() && actual_width >= 1), "native array view width");
             std::slice::from_raw_parts({{rust_ident data}}(self.pointer).cast::<T>(), length)
         }
     }
@@ -50,7 +67,8 @@ impl<T: {{rust_ident trait}}> {{rust_ident type}}<T> {
         let length = self.len();
         if length == 0 { return &mut []; }
         unsafe {
-            assert_eq!({{rust_ident width}}(self.pointer), std::mem::size_of::<T>(), "native reference array element width");
+            let actual_width = {{rust_ident width}}(self.pointer);
+            assert!(actual_width == std::mem::size_of::<T>() || (T::is_byte_view() && actual_width >= 1), "native array view width");
             std::slice::from_raw_parts_mut({{rust_ident data}}(self.pointer).cast::<T>(), length)
         }
     }

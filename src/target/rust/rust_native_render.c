@@ -77,7 +77,8 @@ bool rust_native_emit_support(RustNativePlan *plan, GeneratedFileSet *files,
     }
     modular_render_result_free(rendered);
     json_object *handles = rust_native_plan_handles(plan);
-    if (handles && json_object_array_length(handles))
+    json_object *prepared_arrays = rust_native_plan_array_support(plan);
+    if ((handles && json_object_array_length(handles)) || prepared_arrays)
     {
         written = snprintf(template_dir, sizeof(template_dir),
                            "%s/templates/rust/native_handles", compiler_dir);
@@ -85,7 +86,7 @@ bool rust_native_emit_support(RustNativePlan *plan, GeneratedFileSet *files,
         json_object *model = json_object_new_object();
         json_object_object_add(model, "handles", json_object_get(handles));
         json_object *arrays = NULL;
-        if (json_object_object_get_ex(json_object_array_get_idx(handles, 0), "rust_native_handle_array_support", &arrays))
+        if ((arrays = prepared_arrays))
             json_object_object_add(model, "arrays", json_object_get(arrays));
         char *code = render_with_helpers(model, template_dir,
             gen_model_get_min_c_register_fn(), "Rust native handles");

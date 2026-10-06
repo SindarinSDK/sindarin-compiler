@@ -1290,3 +1290,23 @@ test-rust-parity-private-arrays: build
 		--require-count 15 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-private-arrays.json
 	@$(PYTHON) scripts/check_rust_private_array_oracles.py .sn/rust-parity-private-arrays.json
+
+.PHONY: test-rust-parity-native-primitive-arrays
+test-rust-parity-native-primitive-arrays: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/rust-native/scalar_native_primitive_array_alias.sn \
+		tests/rust-native/scalar_native_primitive_array_return.sn \
+		tests/rust-native/scalar_native_primitive_array_copies.sn \
+		tests/rust-native/scalar_native_primitive_array_nil.sn \
+		tests/rust-native/scalar_native_primitive_array_operations.sn \
+		tests/rust-native/scalar_native_primitive_array_int32.sn \
+		tests/rust-native/scalar_native_primitive_array_uint.sn \
+		tests/rust-native/scalar_native_primitive_array_uint32.sn \
+		tests/rust-native/scalar_native_primitive_array_byte.sn \
+		tests/rust-native/scalar_native_primitive_array_bool.sn \
+		tests/rust-native/scalar_native_primitive_array_float.sn \
+		tests/rust-native/scalar_native_primitive_array_double.sn \
+		tests/rust-native/scalar_native_primitive_array_long.sn \
+		--require-count 13 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-native-primitive-arrays.json
+	@$(PYTHON) scripts/check_rust_native_primitive_array_oracles.py .sn/rust-parity-native-primitive-arrays.json

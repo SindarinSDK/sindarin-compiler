@@ -1,0 +1,8 @@
+@source "scalar_native_primitive_array_nil.sn.c"
+native fn absent(a: int[]): bool
+native fn empty_return(): int[]
+fn main(): void =>
+  var values: int[] = nil
+  println(absent(values))
+  var result: int[] = empty_return()
+  println(result == nil)

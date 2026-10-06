@@ -30,7 +30,8 @@ static json_object *rust_native_handle_callable(json_object *model, json_object 
 
 static void rust_prepare_native_handle_nodes(json_object *model, json_object *node)
 {
-    if (!rust_nullable_child(model, "rust_native_handles")) return;
+    if (!rust_nullable_child(model, "rust_native_handles") &&
+        !rust_nullable_child(model, "rust_native_handle_array_support")) return;
     if (!node) return;
     if (json_object_is_type(node, json_type_array))
     {

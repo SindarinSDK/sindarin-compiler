@@ -1,0 +1,8 @@
+@source "scalar_native_primitive_array_byte.sn.c"
+native fn change_array(a: byte[]): void
+native fn same_array(a: byte[], b: byte[]): bool
+fn main(): void =>
+  var original: byte[] = {1b}
+  println(same_array(original, original))
+  change_array(original)
+  println(original.length == 2 && original[0] == 7b && original[1] == 9b)

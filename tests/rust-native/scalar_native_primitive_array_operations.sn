@@ -1,0 +1,12 @@
+@source "scalar_native_primitive_array_operations.sn.c"
+native fn same_array(a: int[], b: int[]): bool
+fn main(): void =>
+  var original: int[] = {1, 2, 3}
+  original.reverse()
+  original.insert(4, 1)
+  original.remove(2)
+  println(original.length == 3 && original[0] == 3 && original[1] == 4 && original[2] == 1)
+  var copy: int[] = original
+  println(!same_array(original, copy))
+  original.clear()
+  println(original.length == 0 && copy.length == 3)

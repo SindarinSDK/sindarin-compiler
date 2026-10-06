@@ -1,0 +1,7 @@
+@source "scalar_native_primitive_array_return.sn.c"
+native fn make_array(): int[]
+fn main(): void =>
+  var values: int[] = make_array()
+  println(values.length == 2 && values[0] == 4 && values[1] == 5)
+  values.push(6)
+  println(values.length == 3 && values[2] == 6)

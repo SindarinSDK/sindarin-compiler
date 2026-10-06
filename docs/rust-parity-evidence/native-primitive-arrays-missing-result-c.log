@@ -1,0 +1,12 @@
+[1mCompiling[0m tests/rust-native/errors/managed_nonbyte_result.sn...
+  Parsing... [1;36mdone[0m
+  Type checking... [1;36mdone[0m
+  Code generation... [1;36mdone[0m
+  Linking...
+/usr/bin/ld: .sn/build/managed_nonbyte_result_1129545/main.o: in function `main':
+main.c:(.text.startup+0x10): undefined reference to `unsupported'
+collect2: error: ld returned 1 exit status
+Error: linking failed
+ [1;31mfailed[0m
+
+[1;31mCompilation failed[0m

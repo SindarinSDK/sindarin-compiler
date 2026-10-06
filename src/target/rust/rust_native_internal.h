@@ -6,6 +6,7 @@
 
 ModularModel *rust_native_plan_split(RustNativePlan *plan);
 json_object *rust_native_plan_handles(RustNativePlan *plan);
+json_object *rust_native_plan_array_support(RustNativePlan *plan);
 json_object *rust_native_plan_record_support(RustNativePlan *plan);
 bool rust_native_impl_has_callable_body(json_object *impl);
 

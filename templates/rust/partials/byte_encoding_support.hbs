@@ -33,6 +33,12 @@ mod {{rust_ident rust_byte_encoding_module}} {
         fn bytes(&self) -> Cow<'_, [u8]> { T::prefix(self.as_slice()) }
         fn len(&self) -> usize { Vec::len(self) }
     }
+{{#if @root.rust_native_handle_array_support}}
+    impl<T: Scalar + super::{{rust_ident @root.rust_native_handle_array_support.trait}}> Array for super::{{rust_ident @root.rust_native_handle_array_support.type}}<T> {
+        fn bytes(&self) -> Cow<'_, [u8]> { T::prefix(self.as_slice()) }
+        fn len(&self) -> usize { super::{{rust_ident @root.rust_native_handle_array_support.type}}::len(self) }
+    }
+{{/if}}
     impl<A: Array + ?Sized> Array for &A {
         fn bytes(&self) -> Cow<'_, [u8]> { Array::bytes(&**self) }
         fn len(&self) -> usize { Array::len(&**self) }

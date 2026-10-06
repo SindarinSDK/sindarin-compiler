@@ -117,6 +117,13 @@ validated against `f8421976`; its own full platform evidence remains required.
 Primitive native array parameters and native string physical aliases remain
 required interop work without parity credit.
 
+The native primitive array increment preserves actual C headers, mutation,
+allocation and owned returns for wire-compatible scalar arrays. All 79 combined
+commands pass, 61 reports / 5367 cases, 13 frozen controls and 39 sanitizer runs.
+Existing byte object views are preserved; two missing-symbol negative fixtures
+are reclassified without executable parity credit. Complete hosted acceptance
+and the remaining interop/storage/lifetime requirements still prevent completion.
+
 The 2026-10-03 float/double increment adds conversions at tested scalar storage,
 call and return boundaries and mixed floating compound mutation, including
 observable synchronized cells. Historical same-type-only exclusions below are

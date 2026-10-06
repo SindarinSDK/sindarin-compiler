@@ -1,0 +1,43 @@
+[1mCompiling[0m tests/rust-native/errors/managed_nonbyte_result.sn...
+  Parsing... [1;36mdone[0m
+  Type checking... [1;36mdone[0m
+  Code generation... [1;36mdone[0m
+  Linking...warning: trait `__sn_native_handle_array_trait_0` should have an upper camel case name
+  --> .sn/build/rust/managed_nonbyte_result_1039614/main.rs:10:14
+   |
+10 | unsafe trait __sn_native_handle_array_trait_0: Clone + PartialEq {
+   |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper camel case: `SnNativeHandleArrayTrait0`
+   |
+   = note: `#[warn(non_camel_case_types)]` (part of `#[warn(nonstandard_style)]`) on by default
+
+warning: type `__sn_native_handle_array_type_0` should have an upper camel case name
+  --> .sn/build/rust/managed_nonbyte_result_1039614/main.rs:32:8
+   |
+32 | struct __sn_native_handle_array_type_0<T: __sn_native_handle_array_trait_0> {
+   |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper camel case: `SnNativeHandleArrayType0`
+
+warning: unused macro definition: `print`
+   --> .sn/build/rust/managed_nonbyte_result_1039614/main.rs:192:14
+    |
+192 | macro_rules! print {
+    |              ^^^^^
+    |
+    = note: `#[warn(unused_macros)]` (part of `#[warn(unused)]`) on by default
+
+error: linking with `.sn/build/rust/managed_nonbyte_result_1039614/sn_rust_linker_proxy.sh` failed: exit status: 1
+  |
+  = note:  ".sn/build/rust/managed_nonbyte_result_1039614/sn_rust_linker_proxy.sh" "/tmp/rustceTlNoH/symbols.o" "<2 object files omitted>" "-Wl,--as-needed" "-Wl,-Bstatic" "<sysroot>/lib/rustlib/aarch64-unknown-linux-gnu/lib/{libstd-*,libpanic_unwind-*,libobject-*,libmemchr-*,libaddr2line-*,libgimli-*,libcfg_if-*,librustc_demangle-*,libstd_detect-*,libhashbrown-*,librustc_std_workspace_alloc-*,libminiz_oxide-*,libadler2-*,libunwind-*,liblibc-*,librustc_std_workspace_core-*,liballoc-*,libcore-*,libcompiler_builtins-*}.rlib" "-Wl,-Bdynamic" "-lgcc_s" "-lutil" "-lrt" "-lpthread" "-lm" "-ldl" "-lc" "-L" "/tmp/rustceTlNoH/raw-dylibs" "-Wl,--eh-frame-hdr" "-Wl,-z,noexecstack" "-L" "<sysroot>/lib/rustlib/aarch64-unknown-linux-gnu/lib" "-o" ".sn/nonbyte-result-probe" "-Wl,--gc-sections" "-pie" "-Wl,-z,relro,-z,now" "-Wl,-O1" ".sn/build/rust/managed_nonbyte_result_1039614/sn_native_handles.o" "/home/gavin/code/sindarin/sindarin-native-primitive-arrays-02a677/bin/lib/gcc/libsn_runtime_min.a" "-L/home/gavin/code/sindarin/sindarin-native-primitive-arrays-02a677/bin/deps/lib" "-Wl,-rpath,/home/gavin/code/sindarin/sindarin-native-primitive-arrays-02a677/bin/deps/lib"
+  = note: some arguments are omitted. use `--verbose` to show all linker arguments
+  = note: /usr/bin/ld: .sn/nonbyte-result-probe.main.f502b002af7b5525-cgu.0.rcgu.o: in function `main::main':
+          main.f502b002af7b5525-cgu.0:(.text._ZN4main4main17h59ae6b2ff26e2dfdE+0x14): undefined reference to `unsupported'
+          collect2: error: ld returned 1 exit status
+          
+  = note: some `extern` functions couldn't be found; some native libraries may need to be installed or have their path specified
+  = note: use the `-l` flag to specify native libraries to link
+
+error: aborting due to 1 previous error; 3 warnings emitted
+
+Error: rustc failed to link generated Rust and native C objects
+ [1;31mfailed[0m
+
+[1;31mCompilation failed[0m

@@ -178,6 +178,8 @@ static bool native_prepare_handles(json_object *model, RustNativePlan *plan)
     native_handle_mark_types(model, handles);
     if (!native_prepare_handle_arrays(model, handles)) { json_object_put(handles); return false; }
     plan->handles = json_object_get(handles);
+    json_object *array_support = native_record_child(model, "rust_native_handle_array_support");
+    if (array_support) plan->array_support = json_object_get(array_support);
     if (json_object_array_length(handles)) json_object_object_add(model, "rust_native_handles", handles);
     else json_object_put(handles);
     return true;
