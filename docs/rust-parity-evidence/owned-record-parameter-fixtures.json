@@ -1,0 +1,87 @@
+{
+  "scalar_owned_record_parameter_basic.sn": {
+    "original_source": "owned-closure-record-asval.sn",
+    "before_sha256": "c2f14367ba2c34ed9cc70e0533b9030dec341fa639a578bc039ef36e182b5551",
+    "expected_hex": "747275650a747275650a"
+  },
+  "scalar_owned_record_parameter_array.sn": {
+    "original_source": "owned-closure-record-asval-array.sn",
+    "before_sha256": "fd2ff4fd241c9e7a7bdea73059019914bb0501b63e49c68ccf32f00d9fc08534",
+    "expected_hex": "747275650a747275650a"
+  },
+  "scalar_owned_record_parameter_method.sn": {
+    "original_source": "owned-record-method.sn",
+    "before_sha256": "8dac59377028cbbcb10ba2cb4237f2b964ac917f48e974387ac3684c08ceb292",
+    "expected_hex": "747275650a747275650a747275650a"
+  },
+  "scalar_owned_record_parameter_two_copies.sn": {
+    "original_source": "owned-record-two-copies.sn",
+    "before_sha256": "58dac40983766b72dceb299fa912cbc3ef190e1d97fce1e2bd9ef63576e60542",
+    "expected_hex": "747275650a747275650a"
+  },
+  "scalar_owned_record_parameter_return.sn": {
+    "original_source": "owned-record-return.sn",
+    "before_sha256": "4eb01bb640c0f5cc201d899c6d8de722ccf7e2717708c942b8441f8356ea97aa",
+    "expected_hex": "747275650a747275650a"
+  },
+  "scalar_owned_record_parameter_capture.sn": {
+    "original_source": "owned-record-capture.sn",
+    "before_sha256": "b01d6adade74377907a819b4015c36e89b6f34c41366227140683f8d161b2bf0",
+    "expected_hex": "747275650a747275650a"
+  },
+  "scalar_owned_record_parameter_nested.sn": {
+    "original_source": "owned-record-nested.sn",
+    "before_sha256": "e89b938461f64fd36ab6201961cf4691496792d1348d6b947cd4dabdbd6e37ca",
+    "expected_hex": "747275650a747275650a"
+  },
+  "scalar_owned_record_parameter_effects.sn": {
+    "original_source": "owned-record-nested-effects.sn",
+    "before_sha256": "a292f32c5cf87f273f5c9158ee06ef73288b2e516d2b9628145e228f3c88bb7a",
+    "expected_hex": "747275650a747275650a"
+  },
+  "scalar_owned_record_parameter_places.sn": {
+    "original_source": "owned-record-places.sn",
+    "before_sha256": "f84e0a99c5c43abf80f4347d3a9479d1126a625e294c604d4fe2b7d7e4a3c29f",
+    "expected_hex": "747275650a747275650a747275650a747275650a747275650a"
+  },
+  "scalar_owned_record_parameter_rebind.sn": {
+    "original_source": "owned-record-rebind.sn",
+    "before_sha256": "3f289c66170e11bc6affeb0ac6ada16ed35441cdc745bef03a718bd717677af1",
+    "expected_hex": "747275650a747275650a"
+  },
+  "scalar_owned_record_parameter_field_string.sn": {
+    "original_source": "owned-record-field-string.sn",
+    "before_sha256": "2f5ceb53539fab438fa6cf6a90a23fa033f46909f97105d9a7978db68f329c0a",
+    "expected_hex": "747275650a747275650a"
+  },
+  "scalar_owned_record_parameter_array_methods.sn": {
+    "original_source": "owned-record-nested-methods.sn",
+    "before_sha256": "6d7046b9c8fb8241db986abc1be88917adce7fcbf70dc5144ca937825491fd70",
+    "expected_hex": "747275650a747275650a"
+  },
+  "scalar_owned_record_parameter_nested_method.sn": {
+    "original_source": "owned-record-nested-instance.sn",
+    "before_sha256": "5e318f79c510723692d4981adec925643b7f88a1829c27c1c8a06752cb36f852",
+    "expected_hex": "747275650a747275650a"
+  },
+  "scalar_owned_record_parameter_method_arguments.sn": {
+    "original_source": "owned-record-nested-arguments.sn",
+    "before_sha256": "3ac935fe7075d88c9bf1ad4b710fca8727f8d4ef9ddec854e5965a16d05702c8",
+    "expected_hex": "747275650a747275650a747275650a"
+  },
+  "scalar_owned_record_parameter_receiver_alias.sn": {
+    "original_source": "owned-record-receiver-array-alias.sn",
+    "before_sha256": "1008b805c89d6f8aa9a4068571542adbb9b4aae703854c2607d2e6b35e7c9bf7",
+    "expected_hex": "747275650a747275650a747275650a"
+  },
+  "scalar_owned_record_parameter_array_alias.sn": {
+    "original_source": "owned-record-method-array-alias.sn",
+    "before_sha256": "0f7e1e1ecd330a066cee1d6f3a6bc1bfa1554a7028bb1c0a7008ff93c0cef270",
+    "expected_hex": "747275650a747275650a747275650a"
+  },
+  "scalar_owned_record_parameter_dynamic_alias.sn": {
+    "original_source": "owned-record-method-dynamic-array-final.sn",
+    "before_sha256": "0bb7ce5bc447be5440fc04c5dff83564378488826353a2080be991dcce3f75c6",
+    "expected_hex": "747275650a747275650a747275650a747275650a747275650a"
+  }
+}

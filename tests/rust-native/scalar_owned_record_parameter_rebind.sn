@@ -1,0 +1,21 @@
+struct Item =>
+  value: int
+  label: str
+  values: int[]
+
+fn main(): void =>
+  var original: Item = {
+    value: 1,
+    label: "old",
+    values: {2}
+  }
+  var change = fn(a: Item as val): Item =>
+    a = Item {
+      value: 9,
+      label: "new",
+      values: {3, 4}
+    }
+    return a
+  var result: Item = change(original)
+  println(result.value == 9 && result.label == "new" && result.values.length == 2)
+  println(original.value == 1 && original.label == "old" && original.values.length == 1)

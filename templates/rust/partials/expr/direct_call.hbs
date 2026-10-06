@@ -1,1 +1,2 @@
-{{#if rust_closure_scalar_direct_call}}{ {{> expr_scalar_reference_call_prefix this}}{{> expr_direct_call_base this}} }{{else}}{{> expr_direct_call_base this}}{{/if~}}
+{{#if rust_owned_record_method_mutation}}{ {{#each rust_owned_record_array_args}}let {{rust_ident rust_owned_record_array_arg_name}} = {{#if rust_owned_record_borrow_arg}}{{> expr_resolved_call_arg this}}{{else}}{{> expr this}}{{rust_clone_suffix this source_is_borrow}}{{/if}}; {{/each}}{{> expr_direct_call_base rust_owned_record_array_body}} }{{else}}{{#if rust_closure_scalar_direct_call}}{ {{> expr_scalar_reference_call_prefix this}}{{> expr_direct_call_base this}} }{{else}}{{> expr_direct_call_base this}}{{/if~}}
+{{/if~}}

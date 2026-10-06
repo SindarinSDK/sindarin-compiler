@@ -1,0 +1,17 @@
+struct Item =>
+  value: int
+  label: str
+  values: int[]
+
+fn main(): void =>
+  var original: Item = {
+    value: 1,
+    label: "old",
+    values: {2}
+  }
+  var change = fn(a: Item as val): int =>
+    a.value = 7
+    a.values.push(3)
+    return a.value + a.values.length
+  println(change(original) == 9)
+  println(original.value == 1 && original.label == "old" && original.values.length == 1)

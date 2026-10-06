@@ -188,19 +188,29 @@ static bool rust_call_place_has_prefix(json_object *place,
  * by `self.field`, so Rust forms only the receiver borrow.  Keep this admission
  * deliberately narrower than the prefix test; nested/indexed/produced places
  * need their own representation-aware transport. */
+static bool rust_owned_record_receiver_place(json_object *place)
+{
+    if (json_string_property_equals(place, "kind", "variable"))
+        return json_boolean_property(place, "rust_closure_record_value_parameter");
+    return json_string_property_equals(place, "kind", "member") &&
+        rust_owned_record_receiver_place(rust_closure_property(place, "object"));
+}
+
 static bool rust_direct_receiver_array_alias(json_object *receiver,
                                              json_object *arg)
 {
-    if (!json_string_property_equals(receiver, "kind", "variable") ||
+    if ((!json_string_property_equals(receiver, "kind", "variable") &&
+         !rust_owned_record_receiver_place(receiver)) ||
         !json_string_property_equals(arg, "kind", "member")) return false;
     json_object *receiver_type = NULL, *arg_object = NULL;
     if (!json_object_object_get_ex(receiver, "type", &receiver_type) ||
         !json_string_property_equals(receiver_type, "kind", "struct") ||
         json_boolean_property(receiver_type, "is_native") ||
         json_boolean_property(receiver_type, "pass_self_by_ref")) return false;
-    if (!json_object_object_get_ex(arg, "object", &arg_object) ||
-        !json_string_property_equals(arg_object, "kind", "variable"))
-        return false;
+    if (!json_object_object_get_ex(arg, "object", &arg_object)) return false;
+    if (rust_owned_record_receiver_place(receiver))
+        return rust_call_places_equal(receiver, arg_object);
+    if (!json_string_property_equals(arg_object, "kind", "variable")) return false;
     const char *receiver_name = json_string_property(receiver, "name");
     const char *arg_object_name = json_string_property(arg_object, "name");
     return receiver_name && arg_object_name &&

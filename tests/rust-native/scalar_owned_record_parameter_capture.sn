@@ -1,0 +1,21 @@
+struct Item =>
+  value: int
+  label: str
+  values: int[]
+
+fn main(): void =>
+  var original: Item = {
+    value: 1,
+    label: "old",
+    values: {2}
+  }
+  var make = fn(a: Item as val): fn(): int =>
+    a.value = 9
+    a.values.push(3)
+    var read = fn(): int => a.value + a.values.length
+    return read
+  var read = make(original)
+  original.value = 5
+  original.values.push(4)
+  println(read() == 11)
+  println(original.value == 5 && original.values.length == 2)

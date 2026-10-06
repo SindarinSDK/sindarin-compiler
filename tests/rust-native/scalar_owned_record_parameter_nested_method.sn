@@ -1,0 +1,24 @@
+struct Item =>
+  value: int
+  label: str
+  values: int[]
+
+  fn bump(): int =>
+    self.value += 1
+    self.values.push(self.value)
+    return self.value + self.values.length
+
+struct Outer =>
+  item: Item
+
+fn main(): void =>
+  var original: Outer = { item: Item {
+    value: 1,
+    label: "old",
+    values: {2}
+  } }
+  var change = fn(a: Outer as val): int =>
+    var result: int = a.item.bump()
+    return result * 10 + a.item.value
+  println(change(original) == 42)
+  println(original.item.value == 1 && original.item.values.length == 1)

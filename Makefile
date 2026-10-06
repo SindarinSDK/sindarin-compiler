@@ -1211,3 +1211,27 @@ test-rust-parity-closure-value-parameters: build
 		--require-count 16 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-closure-value-parameters.json
 	@$(PYTHON) scripts/check_rust_closure_value_parameter_oracles.py .sn/rust-parity-closure-value-parameters.json
+
+.PHONY: test-rust-parity-owned-record-parameters-closures
+test-rust-parity-owned-record-parameters-closures: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/rust-native/scalar_owned_record_parameter_basic.sn \
+		tests/rust-native/scalar_owned_record_parameter_array.sn \
+		tests/rust-native/scalar_owned_record_parameter_method.sn \
+		tests/rust-native/scalar_owned_record_parameter_two_copies.sn \
+		tests/rust-native/scalar_owned_record_parameter_return.sn \
+		tests/rust-native/scalar_owned_record_parameter_capture.sn \
+		tests/rust-native/scalar_owned_record_parameter_nested.sn \
+		tests/rust-native/scalar_owned_record_parameter_effects.sn \
+		tests/rust-native/scalar_owned_record_parameter_places.sn \
+		tests/rust-native/scalar_owned_record_parameter_rebind.sn \
+		tests/rust-native/scalar_owned_record_parameter_field_string.sn \
+		tests/rust-native/scalar_owned_record_parameter_array_methods.sn \
+		tests/rust-native/scalar_owned_record_parameter_nested_method.sn \
+		tests/rust-native/scalar_owned_record_parameter_method_arguments.sn \
+		tests/rust-native/scalar_owned_record_parameter_receiver_alias.sn \
+		tests/rust-native/scalar_owned_record_parameter_array_alias.sn \
+		tests/rust-native/scalar_owned_record_parameter_dynamic_alias.sn \
+		--require-count 17 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-owned-record-parameters-closures.json
+	@$(PYTHON) scripts/check_rust_owned_record_parameter_oracles.py .sn/rust-parity-owned-record-parameters-closures.json

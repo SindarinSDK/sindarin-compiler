@@ -156,9 +156,9 @@ jobs:
           run_gate "tagged native C/Rust parity (8 fixtures)" \
             python3 scripts/run_rust_tests.py rust-native-tagged --verbose \
               --require-count 8 --fail-on-skip
-          run_gate "native scalar, record and managed ABI fixtures (170 fixtures)" \
+          run_gate "native scalar, record and managed ABI fixtures (187 fixtures)" \
             python3 scripts/run_rust_tests.py rust-native-extra --verbose \
-              --require-count 170 --fail-on-skip
+              --require-count 187 --fail-on-skip
           run_gate "canonical native handle ownership (117 cases)" \
             make -o build test-rust-parity-native-handles
           run_gate "canonical native reference arrays (27 cases)" \
@@ -259,6 +259,14 @@ jobs:
 
           run_gate "captured value-record methods and borrowed field printing (5 sources, all modes)" \
             make test-rust-parity-captured-methods
+
+          run_gate "owned as-val closure record parameters (17 sources, all modes)" \
+            make test-rust-parity-owned-record-parameters-closures
+
+          if [[ "${{ runner.os }}" == "Linux" ]]; then
+            run_gate "owned record parameter C lifetimes with ASAN/UBSAN/leaks (51 cases)" \
+              python3 scripts/check_c_owned_record_parameter_lifetimes.py
+          fi
 
           run_gate "scalar closure value parameter mutations (16 sources, all modes)" \
             make test-rust-parity-closure-value-parameters
@@ -394,6 +402,7 @@ jobs:
             .sn/c-qualified-array-lifetimes.json
             .sn/c-closure-reference-lifetimes.json
             .sn/c-closure-value-parameter-lifetimes.json
+            .sn/c-owned-record-parameter-lifetimes.json
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 7

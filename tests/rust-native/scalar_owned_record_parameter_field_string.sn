@@ -1,0 +1,14 @@
+struct Item =>
+  value: int
+  label: str
+
+fn main(): void =>
+  var original: Item = {
+    value: 1,
+    label: "old"
+  }
+  var change = fn(a: Item as val): str =>
+    a.label = "new"
+    return a.label
+  println(change(original) == "new")
+  println(original.label == "old")

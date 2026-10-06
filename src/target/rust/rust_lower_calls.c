@@ -859,7 +859,8 @@ static bool rust_specialize_receiver_array_alias_call(json_object *model,
     if (!json_object_object_get_ex(call, "callee", &callee) ||
         !json_string_property_equals(callee, "kind", "member") ||
         !json_object_object_get_ex(callee, "object", &receiver) ||
-        !json_string_property_equals(receiver, "kind", "variable") ||
+        (!json_string_property_equals(receiver, "kind", "variable") &&
+         !rust_owned_record_receiver_place(receiver)) ||
         !json_object_object_get_ex(call, "args", &args) ||
         !json_object_is_type(args, json_type_array)) return true;
 

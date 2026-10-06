@@ -1,0 +1,23 @@
+struct Item =>
+  value: int
+  label: str
+  values: int[]
+
+struct Outer =>
+  item: Item
+
+fn main(): void =>
+  var original: Outer = { item: Item {
+    value: 1,
+    label: "old",
+    values: {2}
+  } }
+  var change = fn(a: Outer as val): int =>
+    a.item.value = 9
+    a.item.values.insert(3, 1)
+    a.item.values.reverse()
+    a.item.values.remove(1)
+    a.item.values.push(4)
+    return a.item.value + a.item.values.length
+  println(change(original) == 11)
+  println(original.item.value == 1 && original.item.values.length == 1)

@@ -134,6 +134,81 @@ static void rust_lower_closure_array_arguments(json_object *model, json_object *
         }
         return;
     }
+    if (json_string_property_equals(node, "kind", "call") &&
+        !json_boolean_property(node, "rust_owned_record_array_mutation"))
+    {
+        json_object *callee = rust_closure_property(node, "callee");
+        json_object *receiver = rust_closure_property(callee, "object");
+        json_object *root = receiver;
+        bool shared_projection = false;
+        while (json_string_property_equals(root, "kind", "member") ||
+               json_string_property_equals(root, "kind", "array_access"))
+        {
+            shared_projection |= json_boolean_property(root, "rust_thread_field");
+            root = rust_closure_property(root, json_string_property_equals(root, "kind", "member") ? "object" : "array");
+        }
+        json_object *receiver_type = rust_closure_property(receiver, "type");
+        bool record_method = json_string_property_equals(receiver_type, "kind", "struct") &&
+            rust_find_resolved_method(rust_find_struct(model, json_string_property(receiver_type, "name")),
+                json_string_property(callee, "member_name"), false);
+        if (shared_projection && json_boolean_property(root, "rust_closure_record_value_parameter") &&
+            (record_method || rust_closure_mutating_array_method(json_string_property(callee, "member_name"))))
+        {
+            if (record_method)
+            {
+                size_t alias_id = 0;
+                if (!rust_specialize_receiver_array_alias_call(model, node, &alias_id) ||
+                    !rust_specialize_default_array_alias_call(model, rust_closure_property(model, "functions"), node, &alias_id)) return;
+                if (json_boolean_property(node, "rust_dynamic_array_alias_call"))
+                {
+                    rust_lower_closure_array_arguments(model, rust_closure_property(node, "rust_array_alias_branch"), next_id);
+                    rust_lower_closure_array_arguments(model, rust_closure_property(node, "rust_array_alias_distinct_branch"), next_id);
+                    return;
+                }
+            }
+            json_object *body = NULL;
+            if (json_object_deep_copy(node, &body, NULL) != 0 || !body) return;
+            json_object *place = rust_closure_property(rust_closure_property(body, "callee"), "object");
+            json_object *walk = place;
+            while (walk)
+            {
+                json_object_object_del(walk, "rust_needs_clone");
+                if (json_boolean_property(walk, "rust_thread_field"))
+                    json_object_object_add(walk, "rust_thread_field_place", json_object_new_boolean(true));
+                if (json_boolean_property(walk, "rust_field_array_value"))
+                    json_object_object_add(walk, "rust_field_array_place", json_object_new_boolean(true));
+                if (json_string_property_equals(walk, "kind", "member")) walk = rust_closure_property(walk, "object");
+                else if (json_string_property_equals(walk, "kind", "array_access")) walk = rust_closure_property(walk, "array");
+                else break;
+            }
+            json_object *arguments = rust_closure_property(node, "args"), *refs = json_object_new_array();
+            for (size_t i = 0; i < rust_closure_length(arguments); i++)
+            {
+                json_object *arg = json_object_array_get_idx(arguments, i);
+                char name[96];
+                if (!rust_allocate_helper_name(model, "__sn_record_array_arg", name, sizeof(name))) return;
+                json_object_object_add(arg, "rust_owned_record_array_arg_name", json_object_new_string(name));
+                bool borrow_arg = record_method &&
+                    (json_boolean_property(arg, "rust_default_array_ref_arg") ||
+                     json_boolean_property(arg, "is_ref_arg") || json_boolean_property(arg, "is_borrow_tmp"));
+                if (borrow_arg)
+                    json_object_object_add(arg, "rust_owned_record_borrow_arg", json_object_new_boolean(true));
+                json_object *ref = json_object_new_object();
+                json_object_object_add(ref, "kind", json_object_new_string("variable"));
+                json_object_object_add(ref, "name", json_object_new_string(name));
+                json_object_object_add(ref, "type", json_object_get(rust_closure_property(arg, "type")));
+                if (borrow_arg)
+                    json_object_object_add(ref, "rust_owned_record_borrow_value", json_object_new_boolean(true));
+                json_object_array_add(refs, ref);
+            }
+            json_object_object_add(body, "args", refs);
+            json_object_object_add(node, "rust_owned_record_array_mutation", json_object_new_boolean(true));
+            if (record_method)
+                json_object_object_add(node, "rust_owned_record_method_mutation", json_object_new_boolean(true));
+            json_object_object_add(node, "rust_owned_record_array_args", json_object_get(arguments));
+            json_object_object_add(node, "rust_owned_record_array_body", body);
+        }
+    }
     json_object *scalar_target = json_boolean_property(model, "rust_has_scalar_ref_closures")
         ? rust_scalar_reference_target(model, node) : NULL;
     json_object *scalar_params = rust_closure_property(scalar_target, "params");

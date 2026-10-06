@@ -5,6 +5,50 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Owned record closure parameters, 2026-10-06
+
+Supported auto-copy value records declared `as val` in closure signatures now
+use independent per-call owners and mutable local bindings. Scalar/string/array
+changes stay private to the copy; returned records and escaping capture snapshots
+retain independent owners. Variable, field, array-element and temporary arguments
+are covered by unchanged C/R source controls.
+
+Nested mutable receivers project the original owned record field storage. Method
+arguments are evaluated before receiver locking, and cached reference arguments
+retain their borrowing roles. Existing array alias specialization now admits
+stable nested receivers rooted in owned record parameters. Receiver-field aliases
+and duplicate/dynamic array-formal partitions specialize before argument caching;
+selected leaves form their borrows once. Earlier clone-only receiver updates and
+RefCell alias panics are preserved as failed attempts, never counted as parity.
+
+Seventeen literal-oracle controls check **153** C/R comparisons across all nine
+optimization/arithmetic modes, with **51** Linux ASAN/UBSAN/leak executions.
+All **71** final acceptance commands pass, including the complete C/Rust suites
+and the exact count-checked **187** native fixtures. Frozen evidence verifies
+**57 reports / 4944 cases**, including all prior **56 / 4791**. Existing source
+and generation expectations remain unchanged, and all **1365** original corpus
+source hashes are verified. Exact-revision Linux/macOS/Windows hosted acceptance
+remains required.
+
+The separate record assignment-result expression crashes the C baseline, and
+string/array rebinding baseline probes also crash C; they receive no C-valid
+parity credit. A default nested forwarding helper failed C ABI compilation;
+its explicit-reference sibling is the admitted source. An insert probe used
+reversed argument roles; the corrected source follows `insert(value, index)`.
+The wrong source and false assertions are excluded from accepted fixtures.
+
+Remaining qualified record/reference/native/custom-copy contexts, owned parameter
+rebinding/lifetimes, structural interfaces and C wire ABI/empty storage, physical
+value-record receivers, and broader callback/global/escaping/thread/evaluation
+compositions remain required work. C remains the default target. Corpus coverage
+is a separate metric from full-goal completion; guards/skips/rejections do not
+count as parity.
+
+Evidence: [validation](rust-parity-evidence/owned-record-parameter-validation.json),
+[oracles](rust-parity-evidence/owned-record-parameter-oracles.json),
+[comparisons](rust-parity-evidence/owned-record-parameter-after.json),
+[C lifetimes](rust-parity-evidence/owned-record-parameter-c-lifetimes.json).
+
 ## Scalar closure value parameters, 2026-10-06
 
 Default and explicit `as val` scalar closure parameters now have mutable local

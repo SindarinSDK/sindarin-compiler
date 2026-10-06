@@ -79,6 +79,15 @@ and 48 sanitizer runs; complete local acceptance verifies 56 reports / 4791
 cases. Owned rebindings, remaining qualifiers and full interop/storage/lifetime
 work remain required. Hosted acceptance is tracked independently.
 
+The owned-record closure increment admits supported auto-copy `as val` records
+with per-call ownership, independent returns/captures and actual nested mutation
+storage. Receiver-field/static/dynamic array aliases specialize before cached
+arguments form their borrows. Seventeen controls pass 153 all-mode comparisons
+and 51 sanitizer runs; complete local acceptance verifies 57 reports / 4944
+cases. Existing expectations and original corpus sources remain unchanged.
+Remaining qualifiers, rebindings, interface/native storage and broader lifetime
+compositions are still required; hosted acceptance is tracked separately.
+
 The 2026-10-03 float/double increment adds conversions at tested scalar storage,
 call and return boundaries and mixed floating compound mutation, including
 observable synchronized cells. Historical same-type-only exclusions below are
