@@ -1126,7 +1126,8 @@ static bool rust_specialize_default_array_alias_call(json_object *model,
          !json_string_property_equals(call, "kind", "static_call")) ||
         json_boolean_property(call, "is_closure_call") ||
         json_boolean_property(call, "is_fn_field_call") ||
-        json_boolean_property(call, "rust_array_alias_specialized"))
+        json_boolean_property(call, "rust_array_alias_specialized") ||
+        json_boolean_property(call, "rust_dynamic_array_alias_call"))
         return true;
 
     json_object *callee = NULL, *args = NULL, *structure = NULL;
@@ -1203,6 +1204,45 @@ static bool rust_specialize_default_array_alias_call(json_object *model,
     }
     if (!has_duplicate)
     {
+        /* Distinct closure formals can hold the same call-site array cell.
+         * Dispatch that runtime identity to the existing coalesced function
+         * specialization before forming any exclusive Rust projections. */
+        size_t shared[2], shared_count = 0, array_count = 0;
+        for (size_t i = 0; i < count; i++)
+        {
+            json_object *arg = json_object_array_get_idx(args, i);
+            if (!json_boolean_property(arg, "rust_default_array_ref_arg")) continue;
+            array_count++;
+            if (json_boolean_property(arg, "rust_closure_array_parameter"))
+            {
+                if (shared_count < 2) shared[shared_count] = i;
+                shared_count++;
+            }
+        }
+        if (!structure && array_count == 2 && shared_count == 2)
+        {
+            json_object *branch = NULL;
+            if (json_object_deep_copy(call, &branch, NULL) != 0 || !branch)
+            {
+                free(canonical);
+                return false;
+            }
+            json_object *branch_args = rust_closure_property(branch, "args");
+            json_object *first = json_object_array_get_idx(branch_args, shared[0]);
+            json_object_array_put_idx(branch_args, shared[1], json_object_get(first));
+            if (!rust_specialize_default_array_alias_call(model, functions, branch, next_id))
+            {
+                json_object_put(branch);
+                free(canonical);
+                return false;
+            }
+            json_object_object_add(call, "rust_array_alias_left", json_object_new_string(
+                json_string_property(json_object_array_get_idx(args, shared[0]), "name")));
+            json_object_object_add(call, "rust_array_alias_right", json_object_new_string(
+                json_string_property(json_object_array_get_idx(args, shared[1]), "name")));
+            json_object_object_add(call, "rust_array_alias_branch", branch);
+            json_object_object_add(call, "rust_dynamic_array_alias_call", json_object_new_boolean(true));
+        }
         free(canonical);
         return true;
     }

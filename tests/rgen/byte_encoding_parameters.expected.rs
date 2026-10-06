@@ -451,9 +451,9 @@ fn hex(bytes: &mut impl __sn_byte_encoding::Array) -> SnString {
 fn main() {
     let mut bytes: Vec<u8> = vec![1, 2, 255];
     __sn_println_string(&(hex(&mut (bytes))));
-    let mut encode: __SnClosure<dyn Fn(Vec<u8>) -> SnString> = { self::__SnClosure::<dyn Fn(Vec<u8>) -> SnString>(std::rc::Rc::new(move |value: Vec<u8>| -> SnString { __sn_byte_encoding::base64(&(value))})) }
+    let mut encode: __SnClosure<dyn Fn(std::rc::Rc<std::cell::RefCell<&mut Vec<u8>>>) -> SnString> = { self::__SnClosure::<dyn Fn(std::rc::Rc<std::cell::RefCell<&mut Vec<u8>>>) -> SnString>(std::rc::Rc::new(move |value: std::rc::Rc<std::cell::RefCell<&mut Vec<u8>>>| -> SnString { __sn_byte_encoding::base64(&({ let __sn_array_value = value.borrow().clone(); __sn_array_value }))})) }
 ;
-    __sn_println_string(&(((encode.clone()).0)(bytes.clone())));
+    __sn_println_string(&({ let __sn_closure_array_arg_0 = std::rc::Rc::new(std::cell::RefCell::new(&mut (bytes))); ((encode.clone()).0)(__sn_closure_array_arg_0.clone()) }));
     let mut payload: Payload = Payload { bytes: vec![65, 233] };
     __sn_println_string(&(__sn_byte_encoding::latin1(&((payload).bytes))));
     let shared: __sn_concurrency0_Cell<Vec<u8>> = __sn_concurrency0_Cell::new(vec![77, 97, 110]);

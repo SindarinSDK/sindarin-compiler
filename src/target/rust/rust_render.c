@@ -22,6 +22,7 @@ static const char *json_string_property(json_object *object, const char *key)
 static char *helper_rust_ident(json_object **params, int param_count, hbs_options_t *options);
 
 static char *rust_type(json_object *type);
+static char *rust_closure_parameter_type(json_object *type);
 
 /* Closure rendering owns the function-type fallback without exposing an API. */
 #include "rust_render_closures.c"
@@ -97,6 +98,24 @@ static char *rust_type(json_object *type)
         return result;
     }
     return strdup("()");
+}
+
+static char *rust_closure_parameter_type(json_object *type)
+{
+    char *value = rust_type(type);
+    const char *kind = json_kind(type);
+    if (!value || !kind || strcmp(kind, "array") != 0) return value;
+    char *result = malloc(strlen(value) + sizeof("std::rc::Rc<std::cell::RefCell<&mut >>"));
+    if (result) sprintf(result, "std::rc::Rc<std::cell::RefCell<&mut %s>>", value);
+    free(value);
+    return result;
+}
+
+static char *helper_rust_closure_parameter_type(json_object **params, int count,
+                                               hbs_options_t *options)
+{
+    (void)options;
+    return count > 0 ? rust_closure_parameter_type(params[0]) : strdup("()");
 }
 
 static char *helper_rust_type(json_object **params, int param_count, hbs_options_t *options)
@@ -445,6 +464,7 @@ static void register_rust_helpers(hbs_env_t *env)
     hbs_register_helper(env, "eq", helper_eq);
     hbs_register_helper(env, "op_symbol", helper_op_symbol);
     hbs_register_helper(env, "rust_type", helper_rust_type);
+    hbs_register_helper(env, "rust_closure_parameter_type", helper_rust_closure_parameter_type);
     hbs_register_helper(env, "rust_ident", helper_rust_ident);
     hbs_register_helper(env, "rust_literal", helper_rust_literal);
     hbs_register_helper(env, "rust_string_literal", helper_rust_string_literal);

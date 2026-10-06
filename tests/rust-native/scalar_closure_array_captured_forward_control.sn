@@ -1,0 +1,10 @@
+fn main(): void =>
+  var values: int[] = {1, 2}
+  var change: fn(int[]): int = fn(a: int[]): int =>
+    a.push(3)
+    return a.length
+  var captured: fn(): int = fn(): int =>
+    return change(values)
+  println(captured() == 3)
+  println(captured() == 4)
+  println(values.length == 2)

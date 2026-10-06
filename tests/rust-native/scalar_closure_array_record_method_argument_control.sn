@@ -1,0 +1,21 @@
+struct Item =>
+  value: int
+  label: str
+
+  fn add(amount: int): int =>
+    self.value += amount
+    return self.value
+
+fn update(items: Item[]): int =>
+  items[0].value += 10
+  return 2
+
+fn main(): void =>
+  var items: Item[] = { Item {
+    value: 1,
+    label: "a"
+  } }
+  var change: fn(Item[]): int = fn(a: Item[]): int =>
+    return a[0].add(update(a))
+  println(change(items) == 13)
+  println(items[0].value == 13 && items[0].label == "a")

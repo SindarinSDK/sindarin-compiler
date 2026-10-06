@@ -1,0 +1,10 @@
+fn main(): void =>
+  var values: int[] = {1, 2}
+  var escaping: fn(int[]): fn(): int = fn(a: int[]): fn(): int =>
+    var delayed: fn(): int = fn(): int =>
+      return a[0]
+    a[0] += 1
+    return delayed
+  var delayed = escaping(values)
+  println(delayed())
+  println(values[0])

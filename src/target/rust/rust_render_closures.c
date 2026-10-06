@@ -13,7 +13,7 @@ static char *rust_closure_type(json_object *type)
     size_t length = strlen(result);
     for (size_t i = 0; i < json_object_array_length(params); i++)
     {
-        char *part = rust_type(json_object_array_get_idx(params, i));
+        char *part = rust_closure_parameter_type(json_object_array_get_idx(params, i));
         size_t extra = strlen(part) + (i ? 2 : 0);
         char *grown = realloc(result, length + extra + 1);
         if (!grown) { free(part); free(result); return NULL; }

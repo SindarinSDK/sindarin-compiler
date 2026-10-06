@@ -1,0 +1,13 @@
+fn pushMark(values: int[], calls: int as ref): int =>
+  calls++
+  values.push(9)
+  return calls
+
+fn main(): void =>
+  var values: int[] = {1}
+  var calls: int = 0
+  var inspect: fn(int[], int): int = fn(a: int[], count: int): int =>
+    return a.length * 100 + count
+  println(inspect(values, pushMark(values, calls)))
+  println(calls)
+  println(values.length)

@@ -1,0 +1,14 @@
+fn change(a: int[], b: int[]): int =>
+  a[0] += 2
+  b.push(4)
+  return a.length
+
+fn main(): void =>
+  var values: int[] = {1, 2}
+  var aliases: fn(int[], int[]): int = fn(a: int[], b: int[]): int =>
+    return change(a, b)
+  println(aliases(values, values) == 3)
+  println(values[0] == 3 && values.length == 3)
+  var other: int[] = {7}
+  println(aliases(values, other) == 3)
+  println(values[0] == 5 && other.length == 2 && other[1] == 4)

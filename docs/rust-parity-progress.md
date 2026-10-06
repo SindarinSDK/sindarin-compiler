@@ -5,6 +5,43 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Shared closure array parameters, 2026-10-06
+
+Default array parameters now carry shared access to the caller's array instead
+of a caller-side Vec snapshot. Repeated arguments share the same cell; selected
+rows use one cached index and safe disjoint element borrows. Temporary arrays
+have a scope owner. Escaping captures and returned arrays keep independent owned
+snapshots. Indexed record stores retain their array guard, and record methods
+mutate the stored receiver after argument callbacks finish. Named-function
+forwarding covers static aliases and two dynamically aliased array formals.
+
+The unchanged original exploratory array-mutation program and twenty controls
+pass **189** independent C/Rust output comparisons in all nine modes. All controls
+also pass the unchanged parent C backend in **63** source/optimization runs.
+Linux ASAN/UBSAN/leak checks pass **63** runs. A generated-owner name collision was
+reproduced and repaired with model-wide unique names. Only two Rust golden lines
+change for the byte encoder's array parameter representation; its source and
+runtime oracle remain unchanged.
+
+Both complete suites pass without failures or skips, including **99** native
+positives. Frozen local acceptance verifies **48 reports / 4044 cases**, including
+the prior **47 / 3855**. The new gate runs on all three CI platforms, with Linux
+sanitizers mandatory. Exact-revision hosted acceptance remains required.
+
+All **1365** original source hashes remain unchanged. Local original coverage
+is **1363 / 1365 (99.85%)**; this is corpus coverage, not full-goal completion.
+Both original interface programs remain. Broader array methods, qualified
+signatures, parameter rebinding, named function array adapters, three-or-more
+forwarded dynamic aliases, additional evaluation/ownership compositions and
+native interface ABI support remain required work.
+
+Evidence: [validation](rust-parity-evidence/closure-array-validation.json),
+[parent baseline](rust-parity-evidence/closure-array-before.json),
+[repaired comparisons](rust-parity-evidence/closure-array-after.json),
+[independent oracles](rust-parity-evidence/closure-array-oracles.json),
+[C lifetimes](rust-parity-evidence/closure-array-c-lifetimes.json),
+[name collision](rust-parity-evidence/closure-array-hygiene-before.json).
+
 ## Borrowed array return ownership, 2026-10-06
 
 Returning an array parameter now creates an independent owned result in C.
@@ -26,7 +63,10 @@ arithmetic, plus **9** Linux ASAN/UBSAN/leak executions.
 Both complete suites pass with zero failures/skips, including **79** native
 positives. Frozen local acceptance verifies **47 reports / 3855 cases**, including
 all prior **46 / 3828**. The new gate runs on all three CI platforms, with Linux
-sanitizers mandatory. Exact-revision hosted acceptance remains required.
+sanitizers mandatory. All six exact-revision jobs passed for 487bae5a;
+all three platform artifacts verify **47 / 3855** and Linux verifies the nine
+return-lifetime sanitizer cases.
+[Hosted proof](rust-parity-evidence/array-return-main-ci-green.json).
 
 All **1365** original source hashes remain unchanged. Original corpus coverage
 remains **1362 / 1365 (99.78%)** on the verified parent; this repair adds regression

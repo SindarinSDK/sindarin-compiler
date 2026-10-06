@@ -1,0 +1,12 @@
+fn mark(calls: int as ref): int =>
+  calls++
+  return 0
+
+fn main(): void =>
+  var rows: int[][] = {{1, 2}}
+  var calls: int = 0
+  var aliases: fn(int[], int[]): int = fn(a: int[], b: int[]): int =>
+    a.push(3)
+    return b.length
+  println(aliases(rows[mark(calls)], rows[mark(calls)]) == 3)
+  println(calls == 2 && rows[0].length == 3)

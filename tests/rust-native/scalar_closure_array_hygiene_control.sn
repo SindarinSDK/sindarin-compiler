@@ -1,0 +1,5 @@
+fn main(): void =>
+  var __sn_closure_array_arg_0_owner: fn(int[]): int = fn(values: int[]): int =>
+    values.push(3)
+    return values.length
+  println(__sn_closure_array_arg_0_owner({1, 2}) == 3)

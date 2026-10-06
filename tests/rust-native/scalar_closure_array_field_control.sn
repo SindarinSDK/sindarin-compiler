@@ -1,0 +1,11 @@
+struct Holder =>
+  values: int[]
+
+fn main(): void =>
+  var holder: Holder = { values: {1, 2} }
+  var aliases: fn(int[], int[]): int = fn(a: int[], b: int[]): int =>
+    a[0] += 2
+    b.push(4)
+    return a.length
+  println(aliases(holder.values, holder.values) == 3)
+  println(holder.values[0] == 3 && holder.values.length == 3)

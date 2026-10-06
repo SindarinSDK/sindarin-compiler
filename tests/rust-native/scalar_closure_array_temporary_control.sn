@@ -1,0 +1,9 @@
+fn make(): int[] =>
+  return {1, 2}
+
+fn main(): void =>
+  var mutate: fn(int[]): int = fn(a: int[]): int =>
+    a.push(3)
+    return a.length
+  println(mutate(make()) == 3)
+  println(mutate({4, 5}) == 3)

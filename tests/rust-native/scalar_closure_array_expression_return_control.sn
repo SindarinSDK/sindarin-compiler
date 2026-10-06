@@ -1,0 +1,11 @@
+fn main(): void =>
+  var values: int[] = {1, 2}
+  var identity: fn(int[]): int[] = fn(a: int[]): int[] => a
+  var result = identity(values)
+  result[0] = 99
+  println(values[0] == 1 && result[0] == 99)
+  var rows: int[][] = {{3, 4}}
+  var first: fn(int[][]): int[] = fn(a: int[][]): int[] => a[0]
+  var row = first(rows)
+  row[0] = 88
+  println(rows[0][0] == 3 && row[0] == 88)

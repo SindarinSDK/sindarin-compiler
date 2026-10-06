@@ -1602,7 +1602,8 @@ static bool rust_assign_array_join_index_names(
     bool is_join = json_boolean_property(node, "rust_array_join_stable_place");
     bool is_indexed_method =
         json_boolean_property(node, "rust_indexed_method_stable_place");
-    if (!is_join && !is_indexed_method) return true;
+    bool is_closure_array_method = json_boolean_property(node, "rust_closure_array_method_guard");
+    if (!is_join && !is_indexed_method && !is_closure_array_method) return true;
     json_object *callee = NULL, *receiver = NULL;
     if (!json_object_object_get_ex(node, "callee", &callee) ||
         !json_object_object_get_ex(callee, "object", &receiver))
@@ -1610,7 +1611,23 @@ static bool rust_assign_array_join_index_names(
     if (!rust_capture_array_join_place_owner(
             model, node, receiver, next_owner_id))
         return false;
-    return rust_assign_array_join_place_index_names(model, receiver, next_id);
+    if (!rust_assign_array_join_place_index_names(model, receiver, next_id)) return false;
+    if (is_closure_array_method)
+    {
+        json_object *actual = NULL;
+        if (json_object_deep_copy(receiver, &actual, NULL) != 0 || !actual) return false;
+        json_object *root = actual;
+        while (json_string_property_equals(root, "kind", "member") ||
+               json_string_property_equals(root, "kind", "array_access"))
+            root = rust_closure_property(root,
+                json_string_property_equals(root, "kind", "array_access") ? "array" : "object");
+        json_object_object_add(root, "rust_closure_array_store_guard", json_object_get(rust_closure_property(node, "rust_closure_array_method_guard")));
+        json_object_object_del(actual, "rust_needs_clone");
+        json_object_object_add(node, "rust_closure_array_method_place", json_object_get(receiver));
+        json_object_object_add(callee, "object", actual);
+        json_object_object_add(node, "rust_indexed_method_stable_place", json_object_new_boolean(false));
+    }
+    return true;
 }
 
 /* Prepare indexed places without retaining a mutable borrow across index

@@ -1,0 +1,18 @@
+struct Item =>
+  value: int
+  label: str
+
+  fn bump(): int =>
+    self.value += 1
+    return self.value
+
+fn main(): void =>
+  var items: Item[] = { Item {
+    value: 1,
+    label: "a"
+  } }
+  var change: fn(Item[]): int = fn(a: Item[]): int =>
+    a[0].value += 2
+    return a[0].bump()
+  println(change(items) == 4)
+  println(items[0].value == 4 && items[0].label == "a")

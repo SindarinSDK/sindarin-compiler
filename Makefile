@@ -1044,3 +1044,31 @@ test-rust-parity-array-returns: build
 		--require-count 3 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-array-returns.json
 	@$(PYTHON) scripts/check_rust_array_return_oracles.py .sn/rust-parity-array-returns.json
+
+.PHONY: test-rust-parity-closure-arrays
+test-rust-parity-closure-arrays: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/exploratory/test_array_mutation_lambda.sn \
+		tests/rust-native/scalar_closure_array_alias_control.sn \
+		tests/rust-native/scalar_closure_array_capture_control.sn \
+		tests/rust-native/scalar_closure_array_captured_forward_control.sn \
+		tests/rust-native/scalar_closure_array_distinct_index_control.sn \
+		tests/rust-native/scalar_closure_array_effects_control.sn \
+		tests/rust-native/scalar_closure_array_expression_return_control.sn \
+		tests/rust-native/scalar_closure_array_field_control.sn \
+		tests/rust-native/scalar_closure_array_forward_control.sn \
+		tests/rust-native/scalar_closure_array_hygiene_control.sn \
+		tests/rust-native/scalar_closure_array_index_alias_control.sn \
+		tests/rust-native/scalar_closure_array_named_alias_control.sn \
+		tests/rust-native/scalar_closure_array_named_distinct_control.sn \
+		tests/rust-native/scalar_closure_array_nested_forward_control.sn \
+		tests/rust-native/scalar_closure_array_nested_owned_control.sn \
+		tests/rust-native/scalar_closure_array_record_method_argument_control.sn \
+		tests/rust-native/scalar_closure_array_reference_record_method_control.sn \
+		tests/rust-native/scalar_closure_array_return_control.sn \
+		tests/rust-native/scalar_closure_array_string_control.sn \
+		tests/rust-native/scalar_closure_array_temporary_control.sn \
+		tests/rust-native/scalar_closure_array_value_record_method_control.sn \
+		--require-count 21 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-closure-arrays.json
+	@$(PYTHON) scripts/check_rust_closure_array_oracles.py .sn/rust-parity-closure-arrays.json

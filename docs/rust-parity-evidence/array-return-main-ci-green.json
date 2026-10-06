@@ -1,0 +1,1454 @@
+{
+  "revision": "487bae5a25a189752786c3711e900d5b9a9ad8d8",
+  "reports": [
+    {
+      "platform": "linux",
+      "compiler_sha256": "ba1c6bfcb8a3980a3d59520b64260ffbf1e6bd7e0ecb096a980968f75fd9ca2a",
+      "gates": [
+        {
+          "gate": "core",
+          "cases": 30,
+          "artifact_sha256": "92f4526878c4d23c40b04bbcf508a088ba60801950cfdc25edb62f8516d34fd1"
+        },
+        {
+          "gate": "concurrency",
+          "cases": 51,
+          "artifact_sha256": "a2c64b18431a80d4036aace574fe3fc3927d871bcc86668bc95654ad4dd805aa"
+        },
+        {
+          "gate": "thread-ownership",
+          "cases": 207,
+          "artifact_sha256": "0cf3c6ff46887a475043deca50c903efcbf2055e6f5102bdff09ca2a75a75196"
+        },
+        {
+          "gate": "thread-receivers",
+          "cases": 90,
+          "artifact_sha256": "902e7fb86c00400ed403515ff2fb520e78e4453d4d3966cf22e00c85d7dcb0a9"
+        },
+        {
+          "gate": "reflection",
+          "cases": 36,
+          "artifact_sha256": "6562ece364d5491ced2e0eec419290301d2d4981f8b9096fad82dc6cf2fd2e34"
+        },
+        {
+          "gate": "sized-defaults",
+          "cases": 27,
+          "artifact_sha256": "7bc8639e7e5121804c66f6aa9cb721c187a8525ca3f84b21e55ff2fe06d4fd74"
+        },
+        {
+          "gate": "native-managed",
+          "cases": 63,
+          "artifact_sha256": "112267f20cc9d8a16a198cad84c119c10ef8c24889f81a9f8651c7775972eba4"
+        },
+        {
+          "gate": "stdio-order",
+          "cases": 30,
+          "artifact_sha256": "c3d450fe92e02ebbff01d885ed1ca3f27454d896ec290bf8023958103fc841bd"
+        },
+        {
+          "gate": "mixed-integral",
+          "cases": 90,
+          "artifact_sha256": "06f446b3356e56ce0e353451235eb39676862a50b134b28d519f9f61e1d9b3a9"
+        },
+        {
+          "gate": "mixed-integral-diagnostics",
+          "cases": 9,
+          "artifact_sha256": "f07f968f19ec80fc8065d69f907bccdc896935c0ec60bf81e603a1355063570d"
+        },
+        {
+          "gate": "float-conversions",
+          "cases": 117,
+          "artifact_sha256": "f6737fb94edb339d824830093954ba8dd36960a7fd134581ac11d78cde591e4d"
+        },
+        {
+          "gate": "floating-arrays",
+          "cases": 81,
+          "artifact_sha256": "c0408788fc9ec2825ab636d8bb04bd63a71b841f14e7ac28a0836f835ed7c710"
+        },
+        {
+          "gate": "floating-equality",
+          "cases": 36,
+          "artifact_sha256": "37d43eee6a846a2ddd8e765008e8d384a60d26b4ddaff3a3b0a0adacd6ae0c54"
+        },
+        {
+          "gate": "numeric-places",
+          "cases": 153,
+          "artifact_sha256": "96aea5a82532ae5870e251106ee116978122e9baf55997687cce4704030234f7"
+        },
+        {
+          "gate": "capture-index",
+          "cases": 45,
+          "artifact_sha256": "3c413dc2c57be493f9f34d4bbe1ab7daba130cd0e47d972e5ac94c1fbca800a8"
+        },
+        {
+          "gate": "sync-character",
+          "cases": 45,
+          "artifact_sha256": "318e15e37400f814543ee78d33d33cd1ea58fc8349e418ae225989e6859113bc"
+        },
+        {
+          "gate": "ctype",
+          "cases": 72,
+          "artifact_sha256": "c264073766ea97618762c22da5326ad208f38327632b8a320e2730a3b2fa6ca8"
+        },
+        {
+          "gate": "byte-encoding",
+          "cases": 81,
+          "artifact_sha256": "6d866106d9d40b3687cfd30a34048bbf58487d3efb3d74dd6f512cee78b81a8c"
+        },
+        {
+          "gate": "exit",
+          "cases": 153,
+          "artifact_sha256": "bf89f972727c031568138c6a48995a9d18247940c980e7a830bbd6afcde4a9eb"
+        },
+        {
+          "gate": "main-return",
+          "cases": 108,
+          "artifact_sha256": "56cfe9846c5582f3146b74ba3777d3562c11a040be63dc7004378789bf863e59"
+        },
+        {
+          "gate": "match-control",
+          "cases": 180,
+          "artifact_sha256": "daeeb3b7ce0a8c65519ebb48fa6e5980339a5f43ecaa9c6604a5fbe30bce2c4a"
+        },
+        {
+          "gate": "sizeof",
+          "cases": 216,
+          "artifact_sha256": "1a9eb58d3944b323fad22786fdaefc1792dac3b87d69c87edf60eb1892a67e84"
+        },
+        {
+          "gate": "call-reference",
+          "cases": 126,
+          "artifact_sha256": "beb6c87f107cf612c6aae1a3924f5c42423fadf21b6b48622643dd1b58d9dea0"
+        },
+        {
+          "gate": "indexed-string",
+          "cases": 54,
+          "artifact_sha256": "b59b84ab5dfd9fc05f000d9a38520c4370b7675cbd2409dfd0b36cab338cef30"
+        },
+        {
+          "gate": "native-scope",
+          "cases": 36,
+          "artifact_sha256": "1ec64be2ef0fe60f3f4fb09e693643489cbc02fca5ded1f51b69bfa854333879"
+        },
+        {
+          "gate": "nil-string",
+          "cases": 72,
+          "artifact_sha256": "0f5637f8a3acd1d995c5bb1d48395f94158fe652fc019697990717e30a340d3f"
+        },
+        {
+          "gate": "nil-array",
+          "cases": 90,
+          "artifact_sha256": "808583ecbdbaf88ba342dcec7075a5f4c30a1fc7c0ab7b87a6f83870a9af21bc"
+        },
+        {
+          "gate": "nested-stores",
+          "cases": 45,
+          "artifact_sha256": "2a0be3502c64732639e11ff3820bc2d31174baf9e87e0831063fae7fffcee125"
+        },
+        {
+          "gate": "owned-array-copies",
+          "cases": 45,
+          "artifact_sha256": "4897fbb7e2bea0967b2ceacccb789a01bd4410c2b954a6459077c5b2d8ca283d"
+        },
+        {
+          "gate": "native-records",
+          "cases": 45,
+          "artifact_sha256": "266d732651319e1847ab81846f0330d4360dbd3fb28109166e8f63e4a2e0debd"
+        },
+        {
+          "gate": "native-record-references",
+          "cases": 36,
+          "artifact_sha256": "f59e13042afe0e0ab679470543c810d28816b1af9e9dc0a67aa8cc6b056f8276"
+        },
+        {
+          "gate": "owned-record-parameters",
+          "cases": 216,
+          "artifact_sha256": "41300343c638eba78a01881fc536c155ff7640365d6f4a840ff6a9926948fd18"
+        },
+        {
+          "gate": "reference-records",
+          "cases": 171,
+          "artifact_sha256": "ce9f85af3e9e504f49e60d85419fc2ca3d3f510339e37aee30c282174184e5ef"
+        },
+        {
+          "gate": "scalar-parameters",
+          "cases": 126,
+          "artifact_sha256": "9ac0813262b970790164eb345da3dd21044e2a7ed26020a6f16d2f1b449ca9fa"
+        },
+        {
+          "gate": "closure-records",
+          "cases": 189,
+          "artifact_sha256": "9d36ee158c93a5e184c4558a2e9a623b08ca764c8459d512e5c0f456b3ccbf0f"
+        },
+        {
+          "gate": "native-handles",
+          "cases": 117,
+          "artifact_sha256": "c14dcc445c57d82766cb54e31dda3d6c8bc470869076d7b8ea1471bbedbc1922"
+        },
+        {
+          "gate": "native-arrays",
+          "cases": 27,
+          "artifact_sha256": "53196f2962145a29617d02a2bf1ee2a37a5fcb933108c2b964e6702523c2c223"
+        },
+        {
+          "gate": "native-globals",
+          "cases": 36,
+          "artifact_sha256": "b6de0bd83d23e8864856c507bcde0849a97a5304b1c8ab6b602d5464b57a352a"
+        },
+        {
+          "gate": "native-managed-records",
+          "cases": 54,
+          "artifact_sha256": "5100fa8aed597bb9597ab0b8a89e23faaa4876e94f2c55043d10d303c5fd2bb8"
+        },
+        {
+          "gate": "native-callables",
+          "cases": 63,
+          "artifact_sha256": "5da4f72f02e86eab15f6c375f4669c7f4bc8067f690d409b0917c8cd510e7ce3"
+        },
+        {
+          "gate": "native-variadics",
+          "cases": 54,
+          "artifact_sha256": "ac8dcaadd2843337459b63a0d3e372f8066283a746726f917b7dea48596154c2"
+        },
+        {
+          "gate": "serialization",
+          "cases": 117,
+          "artifact_sha256": "d611604889036321fe36c5054f14082aec319368e8bf456d93843c7193e60dbd"
+        },
+        {
+          "gate": "pointer-slices",
+          "cases": 45,
+          "artifact_sha256": "eb1ff52529c8b05a3ccfe12386d4fd3e3a4415afd886ae76735dd49a1de1f6c3"
+        },
+        {
+          "gate": "array-values",
+          "cases": 45,
+          "artifact_sha256": "2d130586443d1e63c91b30fd738612aafb89bb5ef3f26d1c1e0bf2a64d4a71ed"
+        },
+        {
+          "gate": "zero-record-defaults",
+          "cases": 27,
+          "artifact_sha256": "3b8f711859a5f2add10233ad89aeabb682a6f5f05cde72560d1a6d644fdc540f"
+        },
+        {
+          "gate": "managed-iterators",
+          "cases": 72,
+          "artifact_sha256": "98d5d55eb97d561ae9acc7c4ccb8f8baf0a977f4bdbfbb2ded3586cd63259105"
+        },
+        {
+          "gate": "array-returns",
+          "cases": 27,
+          "artifact_sha256": "9d400c6af9cbbef548a24ce326597d17b58be3cc8aeaaea9c19c1fd4bb173d4b"
+        }
+      ],
+      "independent_process_exit_oracle_cases": 153,
+      "independent_new_main_return_oracle_cases": 108,
+      "independent_byte_oracle_cases": 81,
+      "independent_character_oracle_cases": 72,
+      "positive_pairs": 3501,
+      "independent_managed_iterator_cases": 72,
+      "independent_zero_record_cases": 27,
+      "independent_array_value_cases": 45,
+      "independent_pointer_slice_cases": 45,
+      "independent_serialization_cases": 117,
+      "independent_native_callable_cases": 63,
+      "independent_native_variadic_cases": 54,
+      "independent_native_managed_record_cases": 54,
+      "independent_native_global_cases": 36,
+      "independent_native_array_cases": 27,
+      "independent_native_handle_cases": 117,
+      "closure_record_cases": 189,
+      "independent_closure_record_cases": 189,
+      "scalar_parameter_cases": 126,
+      "independent_scalar_parameter_cases": 126,
+      "reference_record_cases": 171,
+      "independent_reference_record_cases": 171,
+      "independent_owned_record_parameter_cases": 216,
+      "diagnostic_order_cases": 39,
+      "process_exit_cases": 153,
+      "main_return_cases": 108,
+      "nested_store_cases": 45,
+      "independent_nested_store_oracle_cases": 45,
+      "owned_array_cases": 45,
+      "independent_owned_array_oracle_cases": 45,
+      "nil_array_cases": 90,
+      "independent_nil_array_oracle_cases": 90,
+      "nil_string_cases": 72,
+      "independent_nil_string_oracle_cases": 72,
+      "native_record_reference_cases": 36,
+      "independent_native_record_reference_cases": 36,
+      "native_record_cases": 45,
+      "independent_native_record_cases": 45,
+      "native_scope_cases": 36,
+      "independent_new_native_scope_oracle_cases": 36,
+      "indexed_string_cases": 54,
+      "independent_new_indexed_string_oracle_cases": 54,
+      "call_reference_cases": 126,
+      "independent_new_call_reference_oracle_cases": 126,
+      "sizeof_cases": 216,
+      "independent_new_sizeof_oracle_cases": 216,
+      "match_control_cases": 180,
+      "independent_new_match_control_oracle_cases": 180
+    },
+    {
+      "platform": "macos",
+      "compiler_sha256": "f688c6fc3b818f6d54878da57441596716db4fa0b3a4271cf41cd55dea099b38",
+      "gates": [
+        {
+          "gate": "core",
+          "cases": 30,
+          "artifact_sha256": "b4de8a368ab4f0e1200d2fb65bc3301775ccce2318b65df27a1add26a03277aa"
+        },
+        {
+          "gate": "concurrency",
+          "cases": 51,
+          "artifact_sha256": "3c064d34c319eebcc981267647095dda892d7c0f9e8c6b32073ba0fab61e76a7"
+        },
+        {
+          "gate": "thread-ownership",
+          "cases": 207,
+          "artifact_sha256": "2e503ce95c19163b6689c9a4f7d5d2254f4e99f41147f095ba3ffde5616bca62"
+        },
+        {
+          "gate": "thread-receivers",
+          "cases": 90,
+          "artifact_sha256": "0c947f43a2c59baac25370e7690a2bdf423236caa0f922e6c0b16dd884925415"
+        },
+        {
+          "gate": "reflection",
+          "cases": 36,
+          "artifact_sha256": "1eecb9f3b11ba72d796288d492f6fe30573dec081033358607fb987d57f7654b"
+        },
+        {
+          "gate": "sized-defaults",
+          "cases": 27,
+          "artifact_sha256": "2c210e0b3b3bb16c5ddc5fce5dd762657ed542526b40072ac08e7c2df7fb4dd1"
+        },
+        {
+          "gate": "native-managed",
+          "cases": 63,
+          "artifact_sha256": "8488547b430b899df7af32679c115e63077fa8aeb3761805dfffdc70dae809d1"
+        },
+        {
+          "gate": "stdio-order",
+          "cases": 30,
+          "artifact_sha256": "a0e22a5fa326d7e413ac912b1b0a2bf15609a1fb064d0c6e4dd190eb68290689"
+        },
+        {
+          "gate": "mixed-integral",
+          "cases": 90,
+          "artifact_sha256": "8408148994e9d9b232d018e4d1e04d76b050d877120a65b0a9bffd3d80be349b"
+        },
+        {
+          "gate": "mixed-integral-diagnostics",
+          "cases": 9,
+          "artifact_sha256": "fdeef29026fb5b01c1baee65dff5ddccd5d491850777e9565ea6b14461c8e3c8"
+        },
+        {
+          "gate": "float-conversions",
+          "cases": 117,
+          "artifact_sha256": "ba9cb792257f3ec7a22f9cc50d1c730963fa286e8329e49ec0659e99c1aa1fdb"
+        },
+        {
+          "gate": "floating-arrays",
+          "cases": 81,
+          "artifact_sha256": "e7d8a1199d3439b97cb54243ad43f7528fea73c721c71a46369c64ba881c2c8b"
+        },
+        {
+          "gate": "floating-equality",
+          "cases": 36,
+          "artifact_sha256": "8dd668ff04240fb033b01b2c1bc9503d11e9e0f3ddc2864a1f8425b49469272c"
+        },
+        {
+          "gate": "numeric-places",
+          "cases": 153,
+          "artifact_sha256": "d36d0a7e7ec2cd3b02d05494202aba47e7f91c7682e5a2b75e3e343c57bf99ca"
+        },
+        {
+          "gate": "capture-index",
+          "cases": 45,
+          "artifact_sha256": "ad3e25fd880b486cde95bdc1706fb272b236891f55bf0a87fcd4aa2c1d184997"
+        },
+        {
+          "gate": "sync-character",
+          "cases": 45,
+          "artifact_sha256": "2c7f6472df8f4a9b8349ca78654be362c911ef5c3e20bf07d53dd35f539e58b4"
+        },
+        {
+          "gate": "ctype",
+          "cases": 72,
+          "artifact_sha256": "e9c0d4248e424b90891bc716058946326700f74501f135334124afef8c1ce943"
+        },
+        {
+          "gate": "byte-encoding",
+          "cases": 81,
+          "artifact_sha256": "cc0f6b79c0dff06dae9a2467f60747c7ebdde6a1828dbf503074c04c8f6b388a"
+        },
+        {
+          "gate": "exit",
+          "cases": 153,
+          "artifact_sha256": "e180aab8c9485df1df6e96d5a41eb35340f2decaf873e9e5c85b1b43d412d22a"
+        },
+        {
+          "gate": "main-return",
+          "cases": 108,
+          "artifact_sha256": "b3b005c743c3ce353346240173ffde8ceddd952383a9171543513c27fbeb408c"
+        },
+        {
+          "gate": "match-control",
+          "cases": 180,
+          "artifact_sha256": "909eeb49a24bcf6c548bab86662772e875723c4c1138aa2b8b74d9c2aadd1f03"
+        },
+        {
+          "gate": "sizeof",
+          "cases": 216,
+          "artifact_sha256": "03ea32c8d24fc6c667fadcf68f9223bd66527db721e97e0d93116587e0e5d9cd"
+        },
+        {
+          "gate": "call-reference",
+          "cases": 126,
+          "artifact_sha256": "b6f6c9a95d5ffecdb9935840612e9ebb43ba99e5913e1d2c47a4543e6360d4c4"
+        },
+        {
+          "gate": "indexed-string",
+          "cases": 54,
+          "artifact_sha256": "7f65be7aa097e3edaf76fef3f3d50820cbd5e6a3fca82fd9a8e5c7cc05f9c125"
+        },
+        {
+          "gate": "native-scope",
+          "cases": 36,
+          "artifact_sha256": "5357b5cdb142253fa547a746552ca7e1f727780014da38abba1cfb0734a45984"
+        },
+        {
+          "gate": "nil-string",
+          "cases": 72,
+          "artifact_sha256": "c0e7ddfe40a03d80d3bd271388786c89a4f8ad299d6f1d8f25909f7fb04d5200"
+        },
+        {
+          "gate": "nil-array",
+          "cases": 90,
+          "artifact_sha256": "3aded7f302035890d9f1a0bebfc245606706ebc942295fd4556085f376587c79"
+        },
+        {
+          "gate": "nested-stores",
+          "cases": 45,
+          "artifact_sha256": "b810e6bf8d022bedf4c686ba75c856531e2b642ee03588c860b78fc19375f9c1"
+        },
+        {
+          "gate": "owned-array-copies",
+          "cases": 45,
+          "artifact_sha256": "512a31a0dec44b2922407b9e04c086e6d557aede6d620380051382f21272aaf9"
+        },
+        {
+          "gate": "native-records",
+          "cases": 45,
+          "artifact_sha256": "b2bdab3a6ecff91c16587148458cc81eaa4c780bd29ad839afd23df472c9eb9e"
+        },
+        {
+          "gate": "native-record-references",
+          "cases": 36,
+          "artifact_sha256": "15cbf047d88664aadd66a1bb4d142310fbf4173e3090f72ca3a6cf9d635da7bb"
+        },
+        {
+          "gate": "owned-record-parameters",
+          "cases": 216,
+          "artifact_sha256": "67945311ea4b920fd78fe3e1bc0834ed7a129c73b475b6edc12e57ea1c16936d"
+        },
+        {
+          "gate": "reference-records",
+          "cases": 171,
+          "artifact_sha256": "66e3178ee0f3dc4a03cd8f6f9927d19c880f5b1e1fb4b5fbe8d4e37942abf699"
+        },
+        {
+          "gate": "scalar-parameters",
+          "cases": 126,
+          "artifact_sha256": "cf6e6393eae7244ee4df358669160443ee9ad925935308ff44e8f2e0b98494e8"
+        },
+        {
+          "gate": "closure-records",
+          "cases": 189,
+          "artifact_sha256": "09869272a9d8f283a5d65147f10f5b85aaf43ff0256959b24bf8d0970fd2cec7"
+        },
+        {
+          "gate": "native-handles",
+          "cases": 117,
+          "artifact_sha256": "87b4c567777362666898b695c89b2ea182910a38a1ccdae0512b611747c28e75"
+        },
+        {
+          "gate": "native-arrays",
+          "cases": 27,
+          "artifact_sha256": "78cb2a3f7b039c537dcbd972244ab1b0c369f5dc6911776645012b17ebbed017"
+        },
+        {
+          "gate": "native-globals",
+          "cases": 36,
+          "artifact_sha256": "a9d1f05058d5e1a0726a2fc5f376d654d496307d6999ad1a0e427a8116b2ddc5"
+        },
+        {
+          "gate": "native-managed-records",
+          "cases": 54,
+          "artifact_sha256": "6cd79e8a533c5c4e6b9e93a3a168c76ed0946b5012bc7fa3901b80e4341caefe"
+        },
+        {
+          "gate": "native-callables",
+          "cases": 63,
+          "artifact_sha256": "515eb16142cf819581ebd4aab1fe758d5416a8a97f607915b1022116c73ef1d5"
+        },
+        {
+          "gate": "native-variadics",
+          "cases": 54,
+          "artifact_sha256": "10559a82832acda5a89d9e98be3ab04837ea4f149d9075561e4cf02e0bf6b16f"
+        },
+        {
+          "gate": "serialization",
+          "cases": 117,
+          "artifact_sha256": "6cb1ea9fb237d40f188a20c8b3a29af965bd297dede576d62cba57683f3a5ebe"
+        },
+        {
+          "gate": "pointer-slices",
+          "cases": 45,
+          "artifact_sha256": "fb2324ace1f9fa59eb27dcd10a6687907bebe151a0832727b480655c2322fda6"
+        },
+        {
+          "gate": "array-values",
+          "cases": 45,
+          "artifact_sha256": "65813612a0954327b705ceef8a123ce504c1412f3e0a273064156895d68d75f0"
+        },
+        {
+          "gate": "zero-record-defaults",
+          "cases": 27,
+          "artifact_sha256": "f6112a8f8a486aa55448bc0031fa434ccebbe382b1052d7443c35ad21e5a302c"
+        },
+        {
+          "gate": "managed-iterators",
+          "cases": 72,
+          "artifact_sha256": "20efb57605dbefb0d01c4b09f4ccad2e4ef68a40694211cae6bf9280f2cfe659"
+        },
+        {
+          "gate": "array-returns",
+          "cases": 27,
+          "artifact_sha256": "40f695a0de0635415991b629868294fabc9ec8c4d6d442e98b37e85882a39348"
+        }
+      ],
+      "independent_process_exit_oracle_cases": 153,
+      "independent_new_main_return_oracle_cases": 108,
+      "independent_byte_oracle_cases": 81,
+      "independent_character_oracle_cases": 72,
+      "positive_pairs": 3501,
+      "independent_managed_iterator_cases": 72,
+      "independent_zero_record_cases": 27,
+      "independent_array_value_cases": 45,
+      "independent_pointer_slice_cases": 45,
+      "independent_serialization_cases": 117,
+      "independent_native_callable_cases": 63,
+      "independent_native_variadic_cases": 54,
+      "independent_native_managed_record_cases": 54,
+      "independent_native_global_cases": 36,
+      "independent_native_array_cases": 27,
+      "independent_native_handle_cases": 117,
+      "closure_record_cases": 189,
+      "independent_closure_record_cases": 189,
+      "scalar_parameter_cases": 126,
+      "independent_scalar_parameter_cases": 126,
+      "reference_record_cases": 171,
+      "independent_reference_record_cases": 171,
+      "independent_owned_record_parameter_cases": 216,
+      "diagnostic_order_cases": 39,
+      "process_exit_cases": 153,
+      "main_return_cases": 108,
+      "nested_store_cases": 45,
+      "independent_nested_store_oracle_cases": 45,
+      "owned_array_cases": 45,
+      "independent_owned_array_oracle_cases": 45,
+      "nil_array_cases": 90,
+      "independent_nil_array_oracle_cases": 90,
+      "nil_string_cases": 72,
+      "independent_nil_string_oracle_cases": 72,
+      "native_record_reference_cases": 36,
+      "independent_native_record_reference_cases": 36,
+      "native_record_cases": 45,
+      "independent_native_record_cases": 45,
+      "native_scope_cases": 36,
+      "independent_new_native_scope_oracle_cases": 36,
+      "indexed_string_cases": 54,
+      "independent_new_indexed_string_oracle_cases": 54,
+      "call_reference_cases": 126,
+      "independent_new_call_reference_oracle_cases": 126,
+      "sizeof_cases": 216,
+      "independent_new_sizeof_oracle_cases": 216,
+      "match_control_cases": 180,
+      "independent_new_match_control_oracle_cases": 180
+    },
+    {
+      "platform": "windows",
+      "compiler_sha256": "01232c7a61197ec8080f18b5112c1b0b745a9bd542b25c5aeff96b9e6178e8de",
+      "gates": [
+        {
+          "gate": "core",
+          "cases": 30,
+          "artifact_sha256": "d265a09217dea3e251dcc04ce5d8b0f592c3138bf4faf0242ec20795530a4343"
+        },
+        {
+          "gate": "concurrency",
+          "cases": 51,
+          "artifact_sha256": "52e86048889c26be7d78e9abe7d46cf279400aec0a4ef281f684407917ea1833"
+        },
+        {
+          "gate": "thread-ownership",
+          "cases": 207,
+          "artifact_sha256": "25d9871b5875f38581e6aded4baf22406a70d365809fc89c765bfcc0d9d745fb"
+        },
+        {
+          "gate": "thread-receivers",
+          "cases": 90,
+          "artifact_sha256": "664721d94e484b60b59cdb6ac0fb3d2415cf5d631ec9cee18e2ba98a54fc0a5f"
+        },
+        {
+          "gate": "reflection",
+          "cases": 36,
+          "artifact_sha256": "983d47b83e8b2008eab07426df05e7e95fa65432b8d2121b693ced76fd543816"
+        },
+        {
+          "gate": "sized-defaults",
+          "cases": 27,
+          "artifact_sha256": "e1b31dad84028720fdc46c537833f9815e86f641b24c9e72fabc17bc48911f5b"
+        },
+        {
+          "gate": "native-managed",
+          "cases": 63,
+          "artifact_sha256": "5d1b69c73ad1f0ab4ff5acfde846a68ead352f1b16bd5608fbf42f827aee7927"
+        },
+        {
+          "gate": "stdio-order",
+          "cases": 30,
+          "artifact_sha256": "5639edb082a921929ae67d567bd1a6a9d17cd5bf71607f0ef0ba78acc06ec362"
+        },
+        {
+          "gate": "mixed-integral",
+          "cases": 90,
+          "artifact_sha256": "4cf6ab67cbf5aafb573a568515aa7abae59562e33d1cfea332e21147c94ce153"
+        },
+        {
+          "gate": "mixed-integral-diagnostics",
+          "cases": 9,
+          "artifact_sha256": "4139f3f1400099538dc1cbd39ac27ca1502a48184240b0957657d80dd50253cf"
+        },
+        {
+          "gate": "float-conversions",
+          "cases": 117,
+          "artifact_sha256": "6bc70be420badb96a4c222712bfe6e8c619d438a7852c4968a82efb7097c4618"
+        },
+        {
+          "gate": "floating-arrays",
+          "cases": 81,
+          "artifact_sha256": "e70a0b26be5d2b8f84b70c12d4a9858ab0f7eef5030e23bc9c11d99577ad1926"
+        },
+        {
+          "gate": "floating-equality",
+          "cases": 36,
+          "artifact_sha256": "64c50163509b3e144143e03991b0e633389bbed76c98844722d057cc1c9a24d7"
+        },
+        {
+          "gate": "numeric-places",
+          "cases": 153,
+          "artifact_sha256": "6e237cd1397784ea589efa4e11530de335535dc11e8da2b81b8ae1cfd3c51c9b"
+        },
+        {
+          "gate": "capture-index",
+          "cases": 45,
+          "artifact_sha256": "10ad84c913f596446eaed1b2f551c90f5b758fcf42c62ecf732e7a15f495a305"
+        },
+        {
+          "gate": "sync-character",
+          "cases": 45,
+          "artifact_sha256": "57e71cbceb7f4b504ece005ba610ec24500b516c0b8069fa01b867e789c58e9b"
+        },
+        {
+          "gate": "ctype",
+          "cases": 72,
+          "artifact_sha256": "fe05af8d2b7ba778e869f7b06fe537d39d6eea2bfd17d18dc855938bb7a39398"
+        },
+        {
+          "gate": "byte-encoding",
+          "cases": 81,
+          "artifact_sha256": "034ca1ea4d39e8296764579c114abf40a908e6e8995d8f6212ab8e63d842dcbb"
+        },
+        {
+          "gate": "exit",
+          "cases": 153,
+          "artifact_sha256": "0797a40e07a315b27d4afad3cafcd3d6b3d9245ada39ddc2b7b1a6ef64772332"
+        },
+        {
+          "gate": "main-return",
+          "cases": 108,
+          "artifact_sha256": "e6edd3c19dea5de75f796fe0e309b85352aeacaf7eb0ee1a18b3a3ee4f53195c"
+        },
+        {
+          "gate": "match-control",
+          "cases": 180,
+          "artifact_sha256": "362f1b3538b0fa872a4a2e583dfd4a8947d6382867c6f2f6ac8fbdb2c62b7941"
+        },
+        {
+          "gate": "sizeof",
+          "cases": 216,
+          "artifact_sha256": "039092d9c6780b1c31cdce5f719939fa87ec0726737b7d6ce5cddf38699017be"
+        },
+        {
+          "gate": "call-reference",
+          "cases": 126,
+          "artifact_sha256": "d89a39fbb69ef7d4bdd1aed2c65915353ed28d9b956e7309bedca2776faaae94"
+        },
+        {
+          "gate": "indexed-string",
+          "cases": 54,
+          "artifact_sha256": "2c794dc0e49ccae3bc59acc5fe8062b646eaa3fad42feaf246c7ce04d10f27f6"
+        },
+        {
+          "gate": "native-scope",
+          "cases": 36,
+          "artifact_sha256": "618e5d86555bcce14c179075fd60b7ae2a5c8000acdb189d689bd83f54a0c70f"
+        },
+        {
+          "gate": "nil-string",
+          "cases": 72,
+          "artifact_sha256": "2551d2763f5b9338aafb5fe375b9c284c9d2fb80973e1530a22bc8600d41da3d"
+        },
+        {
+          "gate": "nil-array",
+          "cases": 90,
+          "artifact_sha256": "da4431a3a468a25f2e1eb12324a11cf9df6c4a5142ee8163904c381ddb46f77f"
+        },
+        {
+          "gate": "nested-stores",
+          "cases": 45,
+          "artifact_sha256": "eef9b73557713640321948451e89187d47869da3185dc6dd6ddbb2c24e4822c8"
+        },
+        {
+          "gate": "owned-array-copies",
+          "cases": 45,
+          "artifact_sha256": "22f5f154967e102871352fd3667946768a2f6f740b567e326d16f11755b63819"
+        },
+        {
+          "gate": "native-records",
+          "cases": 45,
+          "artifact_sha256": "a43cbe26d9f4b1fd413c82c7646b11d35bc2c23581924b6f09be30ba4c18eed0"
+        },
+        {
+          "gate": "native-record-references",
+          "cases": 36,
+          "artifact_sha256": "adf0f03f825f7e8daac1b686ef6a356f3a8ec94dd9e487ff234b5b74d7be558c"
+        },
+        {
+          "gate": "owned-record-parameters",
+          "cases": 216,
+          "artifact_sha256": "66c7c83b2c55d97db2f372218842a88c419d6d374f23e5c817bafd6b7ac09e6b"
+        },
+        {
+          "gate": "reference-records",
+          "cases": 171,
+          "artifact_sha256": "12f2cda56b8c68ede2a9cd694c2a5491cfdb5050dd522ad9d2b27716e7da73da"
+        },
+        {
+          "gate": "scalar-parameters",
+          "cases": 126,
+          "artifact_sha256": "663e8144f813a30a17b4a3c21b0b723fac0e5f027ad28afbbdfb036d99f9c866"
+        },
+        {
+          "gate": "closure-records",
+          "cases": 189,
+          "artifact_sha256": "c7990329b0fcf6e9ead2bbc666788cad305cd40222dfa534ac0976dcccf2911a"
+        },
+        {
+          "gate": "native-handles",
+          "cases": 117,
+          "artifact_sha256": "556962b3c0d32323cb182e08c16afd074f86cd7ff1b4b1b431eaa96b1e6bbf9c"
+        },
+        {
+          "gate": "native-arrays",
+          "cases": 27,
+          "artifact_sha256": "206e13a87b2937729b3387bfb7ab130b4a7b8e59e85917067c2540052e5bbc3d"
+        },
+        {
+          "gate": "native-globals",
+          "cases": 36,
+          "artifact_sha256": "5dcb700e408f909d50bf8948a08a7118ac50083347c68dcdac39001a06636bca"
+        },
+        {
+          "gate": "native-managed-records",
+          "cases": 54,
+          "artifact_sha256": "fc8b080f13f4b1b17e9eccaa69acf31d610a071daa58fc1432b72af92101f758"
+        },
+        {
+          "gate": "native-callables",
+          "cases": 63,
+          "artifact_sha256": "bd29c75a7edbbd88a070f9f0eb94de9879e15892e624e07e2afb5385c30572fd"
+        },
+        {
+          "gate": "native-variadics",
+          "cases": 54,
+          "artifact_sha256": "6ca770f93f918a066031b52815338d84934208e7e909c91ea48aaafef027e2ea"
+        },
+        {
+          "gate": "serialization",
+          "cases": 117,
+          "artifact_sha256": "1dd4edd9a54c66fda24d9623be93a07a46d34a70e4538d91353c3d209c76876b"
+        },
+        {
+          "gate": "pointer-slices",
+          "cases": 45,
+          "artifact_sha256": "16d614c624055cef14ed01ff5a0ba5078ae76de95205a7623bee87bad9f21464"
+        },
+        {
+          "gate": "array-values",
+          "cases": 45,
+          "artifact_sha256": "139c68a364eaa1854942ff7e4b71d6d73e42227ce5048b7ab283e2149188da30"
+        },
+        {
+          "gate": "zero-record-defaults",
+          "cases": 27,
+          "artifact_sha256": "45cd0be5db11dbb7f4e47a435df0e3f24f9c26a710a99d76d77bdb95873cf9b6"
+        },
+        {
+          "gate": "managed-iterators",
+          "cases": 72,
+          "artifact_sha256": "19e56f2d984df6d5c1822b124c31e1159831b4ab3f6315941258a9409f8886a9"
+        },
+        {
+          "gate": "array-returns",
+          "cases": 27,
+          "artifact_sha256": "f04112e6449252d61dff4bbf220de2c97b5005375438b6ce4bb4213dd0f2a1b5"
+        }
+      ],
+      "independent_process_exit_oracle_cases": 153,
+      "independent_new_main_return_oracle_cases": 108,
+      "independent_byte_oracle_cases": 81,
+      "independent_character_oracle_cases": 72,
+      "positive_pairs": 3501,
+      "independent_managed_iterator_cases": 72,
+      "independent_zero_record_cases": 27,
+      "independent_array_value_cases": 45,
+      "independent_pointer_slice_cases": 45,
+      "independent_serialization_cases": 117,
+      "independent_native_callable_cases": 63,
+      "independent_native_variadic_cases": 54,
+      "independent_native_managed_record_cases": 54,
+      "independent_native_global_cases": 36,
+      "independent_native_array_cases": 27,
+      "independent_native_handle_cases": 117,
+      "closure_record_cases": 189,
+      "independent_closure_record_cases": 189,
+      "scalar_parameter_cases": 126,
+      "independent_scalar_parameter_cases": 126,
+      "reference_record_cases": 171,
+      "independent_reference_record_cases": 171,
+      "independent_owned_record_parameter_cases": 216,
+      "diagnostic_order_cases": 39,
+      "process_exit_cases": 153,
+      "main_return_cases": 108,
+      "nested_store_cases": 45,
+      "independent_nested_store_oracle_cases": 45,
+      "owned_array_cases": 45,
+      "independent_owned_array_oracle_cases": 45,
+      "nil_array_cases": 90,
+      "independent_nil_array_oracle_cases": 90,
+      "nil_string_cases": 72,
+      "independent_nil_string_oracle_cases": 72,
+      "native_record_reference_cases": 36,
+      "independent_native_record_reference_cases": 36,
+      "native_record_cases": 45,
+      "independent_native_record_cases": 45,
+      "native_scope_cases": 36,
+      "independent_new_native_scope_oracle_cases": 36,
+      "indexed_string_cases": 54,
+      "independent_new_indexed_string_oracle_cases": 54,
+      "call_reference_cases": 126,
+      "independent_new_call_reference_oracle_cases": 126,
+      "sizeof_cases": 216,
+      "independent_new_sizeof_oracle_cases": 216,
+      "match_control_cases": 180,
+      "independent_new_match_control_oracle_cases": 180
+    }
+  ],
+  "runs": [
+    {
+      "kind": "compiler",
+      "id": 37401446625,
+      "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37401446625",
+      "jobs": [
+        {
+          "name": "Build (windows-latest)",
+          "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37401446625/job/112069309609",
+          "conclusion": "success"
+        },
+        {
+          "name": "Build (ubuntu-latest)",
+          "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37401446625/job/112069309749",
+          "conclusion": "success"
+        },
+        {
+          "name": "Build (macos-latest)",
+          "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37401446625/job/112069309830",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "kind": "runtime",
+      "id": 37401446687,
+      "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37401446687",
+      "jobs": [
+        {
+          "name": "Rust runtime (windows-latest)",
+          "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37401446687/job/112069309693",
+          "conclusion": "success"
+        },
+        {
+          "name": "Rust runtime (ubuntu-latest)",
+          "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37401446687/job/112069309809",
+          "conclusion": "success"
+        },
+        {
+          "name": "Rust runtime (macos-latest)",
+          "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37401446687/job/112069309917",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ],
+  "hosted_logs": [
+    {
+      "kind": "compiler",
+      "sha256": "c1a596d6a8c4a78550d48239e40971fceb557eef5320c23050a5285fd9f9514f",
+      "results": [
+        {
+          "passed": 1610,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T01:56:53.6370904Z Results: 1610 passed, 0 failed  (total: 72.94ms)"
+        },
+        {
+          "passed": 107,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T01:56:53.6372864Z Results: 107 passed, 0 failed, 0 skipped  (6.90s)"
+        },
+        {
+          "passed": 79,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T01:56:53.6374250Z Results: 79 passed, 0 failed, 0 skipped  (296ms)"
+        },
+        {
+          "passed": 1142,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T01:56:53.6375622Z Results: 1142 passed, 0 failed, 0 skipped  (77.66s)"
+        },
+        {
+          "passed": 58,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T01:56:53.6377154Z Results: 58 passed, 0 failed, 0 skipped  (785ms)"
+        },
+        {
+          "passed": 224,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T01:56:53.6378335Z Results: 224 passed, 0 failed, 0 skipped  (19.69s)"
+        },
+        {
+          "passed": 11,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T01:56:53.6379385Z Results: 11 passed, 0 failed, 0 skipped  (156ms)"
+        },
+        {
+          "passed": 36,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T01:57:01.6267228Z Results: 36 passed, 0 failed, 0 skipped  (6.84s)"
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T01:57:01.7534655Z Results: 1 passed, 0 failed, 0 skipped  (12ms)"
+        },
+        {
+          "passed": 10,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T01:57:04.7196735Z Results: 10 passed, 0 failed, 0 skipped  (2.17s)"
+        },
+        {
+          "passed": 7,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T01:57:05.5470625Z Results: 7 passed, 0 failed, 0 skipped  (718ms)"
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T01:57:05.6674338Z Results: 1 passed, 0 failed, 0 skipped  (14ms)"
+        },
+        {
+          "passed": 1610,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T01:55:28.8430837Z Results: 1610 passed, 0 failed  (total: 9.39ms)"
+        },
+        {
+          "passed": 107,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T01:55:28.8432861Z Results: 107 passed, 0 failed, 0 skipped  (2.79s)"
+        },
+        {
+          "passed": 79,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T01:55:28.8434075Z Results: 79 passed, 0 failed, 0 skipped  (64ms)"
+        },
+        {
+          "passed": 1142,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T01:55:28.8435257Z Results: 1142 passed, 0 failed, 0 skipped  (30.96s)"
+        },
+        {
+          "passed": 58,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T01:55:28.8436432Z Results: 58 passed, 0 failed, 0 skipped  (46ms)"
+        },
+        {
+          "passed": 224,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T01:55:28.8437580Z Results: 224 passed, 0 failed, 0 skipped  (9.07s)"
+        },
+        {
+          "passed": 11,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T01:55:28.8438895Z Results: 11 passed, 0 failed, 0 skipped  (12ms)"
+        },
+        {
+          "passed": 36,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T01:55:31.1131425Z Results: 36 passed, 0 failed, 0 skipped  (2.12s)"
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T01:55:31.1670796Z Results: 1 passed, 0 failed, 0 skipped  (2ms)"
+        },
+        {
+          "passed": 10,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T01:55:32.2163265Z Results: 10 passed, 0 failed, 0 skipped  (913ms)"
+        },
+        {
+          "passed": 7,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T01:55:32.4996173Z Results: 7 passed, 0 failed, 0 skipped  (229ms)"
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T01:55:32.5543869Z Results: 1 passed, 0 failed, 0 skipped  (2ms)"
+        },
+        {
+          "passed": 1610,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T01:56:18.3957090Z Results: 1610 passed, 0 failed  (total: 39.21ms)"
+        },
+        {
+          "passed": 107,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T01:56:18.3959120Z Results: 107 passed, 0 failed, 0 skipped  (7.98s)"
+        },
+        {
+          "passed": 79,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T01:56:18.3960490Z Results: 79 passed, 0 failed, 0 skipped  (291ms)"
+        },
+        {
+          "passed": 1142,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T01:56:18.3961820Z Results: 1142 passed, 0 failed, 0 skipped  (80.88s)"
+        },
+        {
+          "passed": 58,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T01:56:18.3963190Z Results: 58 passed, 0 failed, 0 skipped  (824ms)"
+        },
+        {
+          "passed": 224,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T01:56:18.3967060Z Results: 224 passed, 0 failed, 0 skipped  (17.75s)"
+        },
+        {
+          "passed": 11,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T01:56:18.3970240Z Results: 11 passed, 0 failed, 0 skipped  (172ms)"
+        },
+        {
+          "passed": 36,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T01:56:25.8818820Z Results: 36 passed, 0 failed, 0 skipped  (7.05s)"
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T01:56:25.9754050Z Results: 1 passed, 0 failed, 0 skipped  (10ms)"
+        },
+        {
+          "passed": 10,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T01:56:28.0320210Z Results: 10 passed, 0 failed, 0 skipped  (1.68s)"
+        },
+        {
+          "passed": 7,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T01:56:28.9278960Z Results: 7 passed, 0 failed, 0 skipped  (818ms)"
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T01:56:29.0112040Z Results: 1 passed, 0 failed, 0 skipped  (9ms)"
+        }
+      ]
+    },
+    {
+      "kind": "runtime",
+      "sha256": "7ec90861c567b038bae7c3670bf1d3eb1ba0cb552596f1e80d36916379beb7f6",
+      "results": [
+        {
+          "passed": 8,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T01:55:58.2806744Z Results: 8 passed, 0 failed, 0 skipped  (3.21s)"
+        },
+        {
+          "passed": 79,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T01:56:38.6477179Z Results: 79 passed, 0 failed, 0 skipped  (40.19s)"
+        },
+        {
+          "passed": 4,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:25:02.4688402Z Results: 4 passed, 0 failed, 0 skipped  (120ms)"
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:29:28.1471202Z Results: 1 passed, 0 failed, 0 skipped  (542ms)"
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:29:57.0989335Z Results: 1 passed, 0 failed, 0 skipped  (855ms)"
+        },
+        {
+          "passed": 491,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:31:51.6816246Z Results: 491 passed, 0 failed, 0 skipped  (112.97s)"
+        },
+        {
+          "passed": 131,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:31:52.4619245Z Results: 131 passed, 0 failed, 0 skipped  (780ms)"
+        },
+        {
+          "passed": 8,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:31:55.5589290Z Results: 8 passed, 0 failed, 0 skipped  (3.10s)"
+        },
+        {
+          "passed": 79,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:32:35.7748574Z Results: 79 passed, 0 failed, 0 skipped  (40.22s)"
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:32:36.2825039Z Results: 1 passed, 0 failed, 0 skipped  (507ms)"
+        },
+        {
+          "passed": 4,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:32:36.3818001Z Results: 4 passed, 0 failed, 0 skipped  (99ms)"
+        },
+        {
+          "passed": 36,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:32:44.8927787Z Results: 36 passed, 0 failed, 0 skipped  (8.51s)"
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:32:44.9066783Z Results: 1 passed, 0 failed, 0 skipped  (14ms)"
+        },
+        {
+          "passed": 10,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:32:48.2439884Z Results: 10 passed, 0 failed, 0 skipped  (3.34s)"
+        },
+        {
+          "passed": 7,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:32:49.3450283Z Results: 7 passed, 0 failed, 0 skipped  (1.10s)"
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:32:49.3574195Z Results: 1 passed, 0 failed, 0 skipped  (12ms)"
+        },
+        {
+          "passed": 12,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:32:54.2573390Z Results: 12 passed, 0 failed  (4.90s)"
+        },
+        {
+          "passed": 8,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T01:55:02.3132113Z Results: 8 passed, 0 failed, 0 skipped  (1.17s)"
+        },
+        {
+          "passed": 79,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T01:55:16.6468040Z Results: 79 passed, 0 failed, 0 skipped  (14.25s)"
+        },
+        {
+          "passed": 4,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:06:23.6194442Z Results: 4 passed, 0 failed, 0 skipped  (27ms)"
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:07:55.8397316Z Results: 1 passed, 0 failed, 0 skipped  (152ms)"
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:08:05.0080683Z Results: 1 passed, 0 failed, 0 skipped  (390ms)"
+        },
+        {
+          "passed": 491,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:08:42.8532216Z Results: 491 passed, 0 failed, 0 skipped  (37.62s)"
+        },
+        {
+          "passed": 131,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:08:42.9737845Z Results: 131 passed, 0 failed, 0 skipped  (120ms)"
+        },
+        {
+          "passed": 8,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:08:44.0555870Z Results: 8 passed, 0 failed, 0 skipped  (1.08s)"
+        },
+        {
+          "passed": 79,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:08:58.0877973Z Results: 79 passed, 0 failed, 0 skipped  (14.03s)"
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:08:58.2395997Z Results: 1 passed, 0 failed, 0 skipped  (152ms)"
+        },
+        {
+          "passed": 4,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:08:58.2661219Z Results: 4 passed, 0 failed, 0 skipped  (27ms)"
+        },
+        {
+          "passed": 36,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:09:01.0509636Z Results: 36 passed, 0 failed, 0 skipped  (2.78s)"
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:09:01.0540927Z Results: 1 passed, 0 failed, 0 skipped  (3ms)"
+        },
+        {
+          "passed": 10,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:09:02.2991173Z Results: 10 passed, 0 failed, 0 skipped  (1.24s)"
+        },
+        {
+          "passed": 7,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:09:02.6195046Z Results: 7 passed, 0 failed, 0 skipped  (320ms)"
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:09:02.6223164Z Results: 1 passed, 0 failed, 0 skipped  (3ms)"
+        },
+        {
+          "passed": 12,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:09:04.2264796Z Results: 12 passed, 0 failed  (1.60s)"
+        },
+        {
+          "passed": 8,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T01:55:05.0652300Z Results: 8 passed, 0 failed, 0 skipped  (6.32s)"
+        },
+        {
+          "passed": 79,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T01:55:35.3806580Z Results: 79 passed, 0 failed, 0 skipped  (30.20s)"
+        },
+        {
+          "passed": 4,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:11:23.7837240Z Results: 4 passed, 0 failed, 0 skipped  (249ms)"
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:13:38.7506390Z Results: 1 passed, 0 failed, 0 skipped  (257ms)"
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:13:53.0894910Z Results: 1 passed, 0 failed, 0 skipped  (499ms)"
+        },
+        {
+          "passed": 491,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:15:05.5084200Z Results: 491 passed, 0 failed, 0 skipped  (72.09s)"
+        },
+        {
+          "passed": 131,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:15:05.9351130Z Results: 131 passed, 0 failed, 0 skipped  (424ms)"
+        },
+        {
+          "passed": 8,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:15:08.2350490Z Results: 8 passed, 0 failed, 0 skipped  (2.30s)"
+        },
+        {
+          "passed": 79,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:15:42.5673860Z Results: 79 passed, 0 failed, 0 skipped  (34.33s)"
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:15:42.9708580Z Results: 1 passed, 0 failed, 0 skipped  (403ms)"
+        },
+        {
+          "passed": 4,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:15:43.0959380Z Results: 4 passed, 0 failed, 0 skipped  (125ms)"
+        },
+        {
+          "passed": 36,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:15:49.7531980Z Results: 36 passed, 0 failed, 0 skipped  (6.66s)"
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:15:49.7641950Z Results: 1 passed, 0 failed, 0 skipped  (10ms)"
+        },
+        {
+          "passed": 10,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:15:52.4908230Z Results: 10 passed, 0 failed, 0 skipped  (2.73s)"
+        },
+        {
+          "passed": 7,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:15:53.5275710Z Results: 7 passed, 0 failed, 0 skipped  (1.04s)"
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:15:53.5438610Z Results: 1 passed, 0 failed, 0 skipped  (16ms)"
+        },
+        {
+          "passed": 12,
+          "failed": 0,
+          "skipped": 0,
+          "line": "2026-10-06T02:15:57.5420520Z Results: 12 passed, 0 failed  (4.00s)"
+        }
+      ]
+    }
+  ]
+}

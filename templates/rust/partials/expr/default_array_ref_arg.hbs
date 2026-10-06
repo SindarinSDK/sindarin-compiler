@@ -1,1 +1,2 @@
-{{#if rust_place_index_bindings}}{ {{#each rust_place_index_bindings}}let {{rust_ident rust_place_raw_index_name}} = {{> expr index}}; {{/each}}{{#if (eq kind "array_access")}}{{> expr this}}{{else}}&mut ({{> expr this}}){{/if}} }{{else}}{{#if is_captured}}&mut *({{> expr this}}){{else}}&mut ({{> expr this}}){{/if}}{{/if~}}
+{{#if rust_closure_array_parameter}}&mut **{{rust_ident name}}.borrow_mut(){{else}}{{#if rust_place_index_bindings}}{ {{#each rust_place_index_bindings}}let {{rust_ident rust_place_raw_index_name}} = {{> expr index}}; {{/each}}{{#if (eq kind "array_access")}}{{> expr this}}{{else}}&mut ({{> expr this}}){{/if}} }{{else}}{{#if is_captured}}&mut *({{> expr this}}){{else}}&mut ({{> expr this}}){{/if}}{{/if~}}
+{{/if}}

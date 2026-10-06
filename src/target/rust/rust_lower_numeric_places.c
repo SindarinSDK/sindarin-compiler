@@ -264,6 +264,27 @@ static bool rust_lower_numeric_places_walk(json_object *model, json_object *node
     json_object_deep_copy(place, &store, NULL);
     if (!rust_collect_place_indices_mode(model, store, store_indices, next_id, true)) return false;
     rust_numeric_place_projection(store, true);
+    /* A reference-record field guard must not outlive the temporary array
+     * cell guard used to reach its owner. Resolve the RHS first, then bind
+     * the array guard for the entire final store expression. */
+    json_object *store_root = store;
+    while (json_string_property_equals(store_root, "kind", "member") ||
+           json_string_property_equals(store_root, "kind", "member_access") ||
+           json_string_property_equals(store_root, "kind", "array_access"))
+    {
+        json_object *parent = NULL;
+        json_object_object_get_ex(store_root,
+            json_string_property_equals(store_root, "kind", "array_access") ? "array" : "object", &parent);
+        store_root = parent;
+    }
+    if (json_boolean_property(store_root, "rust_closure_array_parameter"))
+    {
+        char guard[96];
+        if (!rust_allocate_helper_name(model, "__sn_closure_array_store_guard", guard, sizeof(guard))) return false;
+        json_object_object_add(node, "rust_closure_array_store_source", json_object_new_string(json_string_property(store_root, "name")));
+        json_object_object_add(node, "rust_closure_array_store_guard", json_object_new_string(guard));
+        json_object_object_add(store_root, "rust_closure_array_store_guard", json_object_new_string(guard));
+    }
     json_object_object_add(node, "rust_numeric_store", store);
     json_object_object_add(node, "rust_numeric_store_indices", store_indices);
     json_object_object_add(node, "rust_numeric_storage_type", json_object_get(type));

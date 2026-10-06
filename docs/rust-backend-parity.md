@@ -17,6 +17,12 @@ The completion ledger records the 27 comparisons, nine sanitizer checks and
 remaining closure/interface work; this does not increase original corpus
 coverage or claim complete ownership parity.
 
+The shared closure-array increment preserves caller mutation and aliases,
+owned snapshots, selected/temporary arrays and indexed record receivers in its
+verified contexts. Its 189 comparisons and 63 lifetime checks are recorded in
+the completion ledger; broader qualifiers, native interfaces and ownership
+compositions remain required work.
+
 The 2026-10-03 float/double increment adds conversions at tested scalar storage,
 call and return boundaries and mixed floating compound mutation, including
 observable synchronized cells. Historical same-type-only exclusions below are

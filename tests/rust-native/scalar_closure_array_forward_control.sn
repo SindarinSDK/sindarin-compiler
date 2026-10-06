@@ -1,0 +1,9 @@
+fn mutate(a: int[]): int =>
+  a[0] += 3
+  return a[0]
+
+fn main(): void =>
+  var values: int[] = {1, 2}
+  var forwarding: fn(int[]): int = fn(a: int[]): int =>
+    return mutate(a)
+  println(forwarding(values) == 4 && values[0] == 4)

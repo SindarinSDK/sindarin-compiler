@@ -1,0 +1,9 @@
+fn main(): void =>
+  var values: int[] = {1, 2}
+  var returning: fn(int[]): int[] = fn(a: int[]): int[] =>
+    a[0] += 1
+    return a
+  var result = returning(values)
+  println(values[0] == 2 && result[0] == 2)
+  result[0] = 99
+  println(values[0] == 2 && result[0] == 99)
