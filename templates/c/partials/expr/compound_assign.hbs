@@ -1,4 +1,4 @@
-{{#if (eq target.type.kind "string")}}({
+{{#if c_closure_value_rhs_first}}({ __auto_type __sn_ci_rhs = {{> expr value}}; __auto_type __sn_ci_place = &({{> expr target}}); *__sn_ci_place = *__sn_ci_place {{op_symbol op}} __sn_ci_rhs; *__sn_ci_place; }){{else}}{{#if (eq target.type.kind "string")}}({
 {{#if value.is_str_temp}}    char *__sct__ = {{> expr value}};
     char *__old__ = {{> expr target}};
     {{> expr target}} = sn_str_concat({{> expr target}}, __sct__);
@@ -8,4 +8,4 @@
     {{> expr target}} = sn_str_concat({{> expr target}}, {{> expr value}});
     free(__old__);
 {{/if}}    {{> expr target}};
-}){{else}}{{> expr target}} = {{> expr target}} {{op_symbol op}} {{> expr value}}{{/if}}
+}){{else}}{{> expr target}} = {{> expr target}} {{op_symbol op}} {{> expr value}}{{/if}}{{/if}}

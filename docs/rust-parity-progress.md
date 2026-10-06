@@ -5,6 +5,42 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Scalar closure RHS sequencing: CI repair, 2026-10-06
+
+macOS runtime job 112380383034 and Windows job 112380383080 for `a69da434` failed the unchanged scalar
+value-parameter RHS control in all nine modes. C printed `false/true` where Rust
+printed `true/true`: the C assignment embedded an effectful function call in an
+unsequenced arithmetic expression. Linux GCC had produced the expected `55`,
+while macOS Clang exposed the earlier-value result. The recorded failure receives
+no parity credit; neither the source nor its literal output oracle is changed.
+
+C now sequences a call-containing RHS of a current lambda's own numeric value
+parameter before reading/updating its local mutation place. The RHS executes once
+and the target variable address is formed after the RHS. Explicit reference
+formals and captured outer-parameter bindings retain their previous paths;
+lexical AST parameter facts and the current lambda's parameter list select the
+repair. No OS condition or expected-output normalization is used.
+
+The unchanged failure fixture passes all nine modes with GCC and project-local
+Clang. All **71** final acceptance commands pass with frozen inputs, including the
+complete C/Rust suites, exact **187** native fixture requirement and all
+**57 reports / 4944 cases**. Existing C/Rust/model generation goldens and test
+sources remain unchanged after a template EOF newline regression was found
+and corrected. All **1365** original corpus source hashes are verified.
+Repaired main's exact-revision hosted acceptance remains required.
+
+Array rebinding work remains isolated and unintegrated until all repaired main
+jobs and retained platform reports are green. The full parity objective remains
+incomplete, including interfaces/native physical storage and lifetime contexts.
+
+Current main `2b74dc28` also inherited the same macOS failure in job
+112397865327; the collected log identifies only the nine RHS cases as failed.
+The repair is based on current main, preserving the record increment.
+
+Evidence: [failure](rust-parity-evidence/closure-rhs-ci-repair-failure.json),
+[GCC/Clang proof](rust-parity-evidence/closure-rhs-ci-repair-targeted-proof.json),
+[complete validation](rust-parity-evidence/closure-rhs-ci-repair-validation.json).
+
 ## Owned record closure parameters, 2026-10-06
 
 Supported auto-copy value records declared `as val` in closure signatures now

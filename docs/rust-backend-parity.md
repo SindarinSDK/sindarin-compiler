@@ -88,6 +88,12 @@ cases. Existing expectations and original corpus sources remain unchanged.
 Remaining qualifiers, rebindings, interface/native storage and broader lifetime
 compositions are still required; hosted acceptance is tracked separately.
 
+The subsequent CI repair makes effectful numeric value-closure parameter RHS
+sequencing explicit in C. The unchanged source and literal oracle pass all
+GCC/Clang mode combinations; full local acceptance passes 57 reports / 4944
+cases. The completion ledger records macOS/Windows failures without credit and
+requires repaired main's complete hosted acceptance before further integration.
+
 The 2026-10-03 float/double increment adds conversions at tested scalar storage,
 call and return boundaries and mixed floating compound mutation, including
 observable synchronized cells. Historical same-type-only exclusions below are

@@ -5,6 +5,40 @@
 
 #include "cgen/gen_model_native_method_borrow.c"
 
+static bool c_model_numeric_scalar_type(Type *type)
+{
+    if (!type) return false;
+    switch (type->kind)
+    {
+        case TYPE_INT: case TYPE_LONG: case TYPE_INT32: case TYPE_BYTE:
+        case TYPE_UINT32: case TYPE_UINT: case TYPE_FLOAT: case TYPE_DOUBLE:
+        case TYPE_CHAR: return true;
+        default: return false;
+    }
+}
+
+/* Calls in a scalar closure parameter RHS can mutate that parameter. */
+static bool c_model_expression_calls(json_object *node)
+{
+    if (!node) return false;
+    if (json_object_is_type(node, json_type_array))
+    {
+        for (size_t i = 0; i < json_object_array_length(node); i++)
+            if (c_model_expression_calls(json_object_array_get_idx(node, i))) return true;
+        return false;
+    }
+    if (!json_object_is_type(node, json_type_object)) return false;
+    json_object *kind = NULL;
+    if (json_object_object_get_ex(node, "kind", &kind))
+    {
+        const char *name = json_object_get_string(kind);
+        if (strcmp(name, "call") == 0 || strcmp(name, "static_call") == 0 || strcmp(name, "method_call") == 0) return true;
+    }
+    json_object_object_foreach(node, key, child)
+        if (strcmp(key, "type") != 0 && c_model_expression_calls(child)) return true;
+    return false;
+}
+
 /* Re-escape a string value for C output.
  * The lexer already interprets escape sequences (\n → 0x0A), but the C
  * templates need the two-character escape form so that the generated C
@@ -1018,6 +1052,24 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 json_object_object_add(ca_val, "is_str_temp",
                     json_object_new_boolean(true));
             json_object_object_add(obj, "value", ca_val);
+            Expr *target = expr->as.compound_assign.target;
+            if (g_in_lambda_body && target && target->type == EXPR_VARIABLE &&
+                target->as.variable.is_param_ref && c_model_numeric_scalar_type(target->expr_type) &&
+                c_model_expression_calls(ca_val))
+            {
+                bool current_parameter = false;
+                for (int i = 0; i < g_all_param_count; i++)
+                    if (target->as.variable.name.length == (int)strlen(g_all_param_names[i]) &&
+                        strncmp(target->as.variable.name.start, g_all_param_names[i], target->as.variable.name.length) == 0)
+                        current_parameter = true;
+                bool by_reference = false;
+                for (int i = 0; i < g_as_ref_param_count; i++)
+                    if (target->as.variable.name.length == (int)strlen(g_as_ref_param_names[i]) &&
+                        strncmp(target->as.variable.name.start, g_as_ref_param_names[i], target->as.variable.name.length) == 0)
+                        by_reference = true;
+                if (current_parameter && !by_reference)
+                    json_object_object_add(obj, "c_closure_value_rhs_first", json_object_new_boolean(true));
+            }
             break;
         }
 
