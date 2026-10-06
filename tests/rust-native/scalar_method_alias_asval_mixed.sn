@@ -1,0 +1,44 @@
+struct Ops =>
+  marker: int
+
+  fn update(a: int[], b: int[] as val, c: int[], words: str[], other: str[]): int =>
+    a[0] += self.marker
+    b[0] += 2
+    b.push(99)
+    words.push("one")
+    other.push("two")
+    c[0] += 4
+    return b[0] * 100 + b.length
+
+  static fn staticUpdate(a: int[], b: int[] as val, c: int[], words: str[], other: str[]): int =>
+    a[0] += 1
+    b[0] += 2
+    b.push(99)
+    words.push("one")
+    other.push("two")
+    c[0] += 4
+    return b[0] * 100 + b.length
+
+fn main(): void =>
+  var instance: fn(int[], int[], int[], str[], str[]): int = fn(a: int[], b: int[], c: int[], words: str[], other: str[]): int =>
+    var ops: Ops = { marker: 3 }
+    return ops.update(a, b, c, words, other)
+  var staticCall: fn(int[], int[], int[], str[], str[]): int = fn(a: int[], b: int[], c: int[], words: str[], other: str[]): int =>
+    return Ops.staticUpdate(a, b, c, words, other)
+  var same: int[] = {1, 2}
+  var words: str[] = {"start"}
+  println(instance(same, same, same, words, words) == 303)
+  println(same[0] == 8 && same.length == 2 && words.length == 3 && words[1] == "one" && words[2] == "two")
+  var next: int[] = {1, 2}
+  var nextWords: str[] = {"start"}
+  println(staticCall(next, next, next, nextWords, nextWords) == 303)
+  println(next[0] == 6 && next.length == 2 && nextWords.length == 3 && nextWords[1] == "one" && nextWords[2] == "two")
+  var a: int[] = {10}
+  var b: int[] = {20}
+  var c: int[] = {30}
+  var left: str[] = {"left"}
+  var right: str[] = {"right"}
+  println(instance(a, b, c, left, right) == 2202)
+  println(a[0] == 13 && b[0] == 20 && b.length == 1 && c[0] == 34 && left[1] == "one" && right[1] == "two")
+  println(staticCall(a, b, c, left, right) == 2202)
+  println(a[0] == 14 && b[0] == 20 && b.length == 1 && c[0] == 38 && left.length == 3 && right.length == 3)

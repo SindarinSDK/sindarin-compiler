@@ -1,0 +1,35 @@
+struct Ops =>
+  marker: int
+
+  fn update(a: int[], b: int[], c: int[], value: int): int =>
+    a[0] += self.marker + value
+    b.push(4)
+    c[0] += 2
+    return a.length
+
+  static fn staticUpdate(a: int[], b: int[], c: int[], value: int): int =>
+    a[0] += value
+    b.push(4)
+    c[0] += 2
+    return a.length
+
+fn makeOps(values: int[]): Ops =>
+  values.push(8)
+  return Ops { marker: 1 }
+
+fn mark(values: int[]): int =>
+  values.push(9)
+  return values.length
+
+fn main(): void =>
+  var instance: fn(int[], int[], int[]): int = fn(a: int[], b: int[], c: int[]): int =>
+    var ops: Ops = makeOps(a)
+    return ops.update(a, b, c, mark(a))
+  var staticCall: fn(int[], int[], int[]): int = fn(a: int[], b: int[], c: int[]): int =>
+    return Ops.staticUpdate(a, b, c, mark(a))
+  var first: int[] = {1}
+  println(instance(first, first, first) == 4)
+  println(first[0] == 7 && first[1] == 8 && first[2] == 9 && first[3] == 4)
+  var second: int[] = {1}
+  println(staticCall(second, second, second) == 3)
+  println(second[0] == 5 && second[1] == 9 && second[2] == 4)

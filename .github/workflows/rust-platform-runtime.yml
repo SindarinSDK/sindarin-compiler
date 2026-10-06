@@ -251,6 +251,14 @@ jobs:
           run_gate "closure array alias partitions (8 sources, all optimization/arithmetic modes)" \
             make test-rust-parity-array-alias-partitions
 
+          run_gate "closure array method aliases (8 sources, all optimization/arithmetic modes)" \
+            make test-rust-parity-method-aliases
+
+          if [[ "${{ runner.os }}" == "Linux" ]]; then
+            run_gate "closure array method aliases with ASAN/UBSAN/leak checks (24 cases)" \
+              python3 scripts/check_c_method_alias_lifetimes.py
+          fi
+
           if [[ "${{ runner.os }}" == "Linux" ]]; then
             run_gate "closure array alias partitions with ASAN/UBSAN/leak checks (24 cases)" \
               python3 scripts/check_c_array_alias_partition_lifetimes.py
@@ -340,6 +348,7 @@ jobs:
             .sn/c-closure-array-lifetimes.json
             .sn/c-array-method-lifetimes.json
             .sn/c-array-alias-partition-lifetimes.json
+            .sn/c-method-alias-lifetimes.json
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 7

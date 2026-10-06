@@ -1,0 +1,63 @@
+{
+  "sources": [
+    {
+      "source": "tests/rust-native/scalar_method_aliases.sn",
+      "sha256": "2e65e2602fa2819758c9b75116f9f01a4b56dec3cbb4449bd4b5862471a5c529",
+      "stdout_hex": "747275650a747275650a747275650a747275650a",
+      "expected_sidecar_sha256": "a8c8704687490f20e1992b9d6a9578237617ebd0894ee14f5682acea27e3845a"
+    },
+    {
+      "source": "tests/rust-native/scalar_method_aliases_static.sn",
+      "sha256": "4ac1f8c75f459d811899b15a1d5ebfdb56cc9873e1c4d8ce9e5d02002146ad1f",
+      "stdout_hex": "747275650a747275650a",
+      "expected_sidecar_sha256": "21d91041c5d1a59661f8936571ee5c87e96f6f0c7a532b52ec17c5b9bea8220b"
+    },
+    {
+      "source": "tests/rust-native/scalar_method_alias_partitions.sn",
+      "sha256": "d97f1a279215061ece46d2d0cb57b868c4144f4477c0e9ea24c0f2d6ce64c52d",
+      "stdout_hex": "747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a",
+      "expected_sidecar_sha256": "92a58cb96beb8f7acbe76c351b753c732bcd5ed8df42731b3169d59cc218fd0b"
+    },
+    {
+      "source": "tests/rust-native/scalar_method_alias_effects.sn",
+      "sha256": "8f36e80e522b268a16f1acc0e3dfa430596c682066632a212323d42d42014797",
+      "stdout_hex": "747275650a747275650a747275650a747275650a",
+      "expected_sidecar_sha256": "a8c8704687490f20e1992b9d6a9578237617ebd0894ee14f5682acea27e3845a"
+    },
+    {
+      "source": "tests/rust-native/scalar_method_alias_reference.sn",
+      "sha256": "58a9d30ce3d6b5693859b08504b89ec5234270dbc7cbba8503b8a5afb7ad6ca8",
+      "stdout_hex": "747275650a747275650a747275650a747275650a",
+      "expected_sidecar_sha256": "a8c8704687490f20e1992b9d6a9578237617ebd0894ee14f5682acea27e3845a"
+    },
+    {
+      "source": "tests/rust-native/scalar_method_alias_stored_receiver.sn",
+      "sha256": "0fe358faa81e15cc6c96f1dd1ae6839aba6ccba0085c3412a31eee7982f88d68",
+      "stdout_hex": "747275650a747275650a747275650a747275650a",
+      "expected_sidecar_sha256": "a8c8704687490f20e1992b9d6a9578237617ebd0894ee14f5682acea27e3845a"
+    },
+    {
+      "source": "tests/rust-native/scalar_method_alias_asval_mixed.sn",
+      "sha256": "f2bcbbbdb2074246375af81ae743b747c1adbc589ff856539a768783133f52a1",
+      "stdout_hex": "747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a",
+      "expected_sidecar_sha256": "9c674a3e3f3d5d9cb2633c4779bc92585d1b8fe4d501d90166c09acd5f183dc4"
+    },
+    {
+      "source": "tests/rust-native/scalar_method_alias_static_duplicate.sn",
+      "sha256": "4ba8919e6437be9161b70e04dca530487f6517fcc345c9a8b8d95acebbd0c5e2",
+      "stdout_hex": "747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a",
+      "expected_sidecar_sha256": "9c674a3e3f3d5d9cb2633c4779bc92585d1b8fe4d501d90166c09acd5f183dc4"
+    }
+  ],
+  "optimizations": [
+    "-O0",
+    "-O1",
+    "-O2"
+  ],
+  "arithmetic_modes": [
+    "default",
+    "checked",
+    "unchecked"
+  ],
+  "scope": "Instance/static method aliases: recursion, all15 four-formal partitions for both method families, reference/stored receivers, scalar effects, mixed types, as-val snapshots and static duplicates."
+}

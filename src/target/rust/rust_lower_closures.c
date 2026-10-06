@@ -141,6 +141,9 @@ static void rust_lower_closure_array_arguments(json_object *model, json_object *
             !rust_find_resolved_method(structure, json_string_property(callee, "member_name"), false)) return;
         char guard[96];
         if (!rust_allocate_helper_name(model, "__sn_closure_array_method_guard", guard, sizeof(guard))) return;
+        char result[96];
+        if (!rust_allocate_helper_name(model, "__sn_closure_array_method_result", result, sizeof(result))) return;
+        json_object_object_add(node, "rust_closure_array_method_result", json_object_new_string(result));
         json_object_object_add(node, "rust_closure_array_method_guard", json_object_new_string(guard));
         json_object_object_add(node, "rust_closure_array_method_source", json_object_new_string(json_string_property(root, "name")));
         json_object *original_args = rust_closure_property(node, "args");
@@ -156,6 +159,19 @@ static void rust_lower_closure_array_arguments(json_object *model, json_object *
             json_object_object_add(ref, "kind", json_object_new_string("variable"));
             json_object_object_add(ref, "name", json_object_new_string(name));
             json_object_object_add(ref, "type", json_object_get(rust_closure_property(arg, "type")));
+            if (json_boolean_property(arg, "rust_closure_array_parameter"))
+            {
+                /* Preserve shared cell identity while evaluating arguments.
+                 * Form exclusive projections only after alias dispatch. */
+                json_object_object_add(arg, "rust_closure_array_method_cell_arg",
+                                       json_object_new_boolean(true));
+                json_object_object_add(ref, "rust_closure_array_parameter",
+                                       json_object_new_boolean(true));
+                json_object_object_add(ref, "rust_default_array_ref_arg",
+                                       json_object_new_boolean(true));
+                json_object_object_add(ref, "rust_closure_array_method_cell_source",
+                                       json_object_new_string(json_string_property(arg, "name")));
+            }
             json_object_array_add(args, ref);
         }
         json_object_object_add(node, "args", args);

@@ -1186,10 +1186,13 @@ static bool rust_dispatch_closure_array_aliases(json_object *model,
         json_object_put(distinct);
         return false;
     }
-    json_object_object_add(call, "rust_array_alias_left", json_object_new_string(
-        json_string_property(json_object_array_get_idx(args, candidate), "name")));
-    json_object_object_add(call, "rust_array_alias_right", json_object_new_string(
-        json_string_property(right, "name")));
+    json_object *left = json_object_array_get_idx(args, candidate);
+    const char *left_name = json_string_property(left, "rust_closure_array_method_cell_source");
+    const char *right_name = json_string_property(right, "rust_closure_array_method_cell_source");
+    if (!left_name) left_name = json_string_property(left, "name");
+    if (!right_name) right_name = json_string_property(right, "name");
+    json_object_object_add(call, "rust_array_alias_left", json_object_new_string(left_name));
+    json_object_object_add(call, "rust_array_alias_right", json_object_new_string(right_name));
     json_object_object_add(call, "rust_array_alias_branch", same);
     json_object_object_add(call, "rust_array_alias_distinct_branch", distinct);
     json_object_object_add(call, "rust_dynamic_array_alias_call", json_object_new_boolean(true));
@@ -1288,7 +1291,7 @@ static bool rust_specialize_default_array_alias_call(json_object *model,
             }
         }
     }
-    if (!structure && !json_boolean_property(call, "rust_array_alias_partition_leaf"))
+    if (!json_boolean_property(call, "rust_array_alias_partition_leaf"))
     {
         size_t shared_count = 0;
         for (size_t i = 0; i < count; i++)
@@ -1527,7 +1530,14 @@ static void rust_lower_default_array_late_reads(json_object *model,
         bool has_copy = false;
         for (size_t i = 0; params && i < json_object_array_length(params); i++)
             has_copy |= json_boolean_property(json_object_array_get_idx(params, i), "needs_array_copy");
-        if (!has_copy) return;
+        /* Shared closure cells also need argument effects to finish before
+         * any mutable projection, including the all-distinct partition. */
+        json_object *method_args = rust_closure_property(node, "args");
+        bool has_shared_array = false;
+        for (size_t i = 0; method_args && i < json_object_array_length(method_args); i++)
+            has_shared_array |= json_boolean_property(
+                json_object_array_get_idx(method_args, i), "rust_closure_array_parameter");
+        if (!has_copy && !has_shared_array) return;
     }
     json_object *args = NULL;
     if (!json_object_object_get_ex(node, "args", &args) ||

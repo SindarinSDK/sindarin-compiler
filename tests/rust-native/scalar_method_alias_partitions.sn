@@ -1,0 +1,169 @@
+struct Ops =>
+  marker: int
+
+  fn update(a: int[], b: int[], c: int[], d: int[], depth: int): int =>
+    if depth > 0 =>
+      return self.update(a, b, c, d, depth - 1)
+    a[0] += 1 * self.marker
+    a.push(100)
+    b[0] += 2 * self.marker
+    b.push(101)
+    c[0] += 4 * self.marker
+    c.push(102)
+    d[0] += 8 * self.marker
+    d.push(103)
+    return a.length
+
+  static fn staticUpdate(a: int[], b: int[], c: int[], d: int[], depth: int): int =>
+    if depth > 0 =>
+      return Ops.staticUpdate(a, b, c, d, depth - 1)
+    a[0] += 1
+    a.push(100)
+    b[0] += 2
+    b.push(101)
+    c[0] += 4
+    c.push(102)
+    d[0] += 8
+    d.push(103)
+    return a.length
+
+fn main(): void =>
+  var instance: fn(int[], int[], int[], int[]): int = fn(a: int[], b: int[], c: int[], d: int[]): int =>
+    var ops: Ops = { marker: 3 }
+    return ops.update(a, b, c, d, 2)
+  var staticCall: fn(int[], int[], int[], int[]): int = fn(a: int[], b: int[], c: int[], d: int[]): int =>
+    return Ops.staticUpdate(a, b, c, d, 2)
+  var instance0_0: int[] = {10}
+  var resultinstance0: int = instance(instance0_0, instance0_0, instance0_0, instance0_0)
+  println(resultinstance0 == 5 && instance0_0[0] == 55 && instance0_0.length == 5 && instance0_0[1] == 100 && instance0_0[2] == 101 && instance0_0[3] == 102 && instance0_0[4] == 103)
+  var instance1_0: int[] = {10}
+  var instance1_1: int[] = {11}
+  var resultinstance1: int = instance(instance1_0, instance1_0, instance1_0, instance1_1)
+  println(resultinstance1 == 4 && instance1_0[0] == 31 && instance1_0.length == 4 && instance1_0[1] == 100 && instance1_0[2] == 101 && instance1_0[3] == 102 && instance1_1[0] == 35 && instance1_1.length == 2 && instance1_1[1] == 103)
+  var instance2_0: int[] = {10}
+  var instance2_1: int[] = {11}
+  var resultinstance2: int = instance(instance2_0, instance2_0, instance2_1, instance2_0)
+  println(resultinstance2 == 4 && instance2_0[0] == 43 && instance2_0.length == 4 && instance2_0[1] == 100 && instance2_0[2] == 101 && instance2_0[3] == 103 && instance2_1[0] == 23 && instance2_1.length == 2 && instance2_1[1] == 102)
+  var instance3_0: int[] = {10}
+  var instance3_1: int[] = {11}
+  var resultinstance3: int = instance(instance3_0, instance3_0, instance3_1, instance3_1)
+  println(resultinstance3 == 3 && instance3_0[0] == 19 && instance3_0.length == 3 && instance3_0[1] == 100 && instance3_0[2] == 101 && instance3_1[0] == 47 && instance3_1.length == 3 && instance3_1[1] == 102 && instance3_1[2] == 103)
+  var instance4_0: int[] = {10}
+  var instance4_1: int[] = {11}
+  var instance4_2: int[] = {12}
+  var resultinstance4: int = instance(instance4_0, instance4_0, instance4_1, instance4_2)
+  println(resultinstance4 == 3 && instance4_0[0] == 19 && instance4_0.length == 3 && instance4_0[1] == 100 && instance4_0[2] == 101 && instance4_1[0] == 23 && instance4_1.length == 2 && instance4_1[1] == 102 && instance4_2[0] == 36 && instance4_2.length == 2 && instance4_2[1] == 103)
+  var instance5_0: int[] = {10}
+  var instance5_1: int[] = {11}
+  var resultinstance5: int = instance(instance5_0, instance5_1, instance5_0, instance5_0)
+  println(resultinstance5 == 4 && instance5_0[0] == 49 && instance5_0.length == 4 && instance5_0[1] == 100 && instance5_0[2] == 102 && instance5_0[3] == 103 && instance5_1[0] == 17 && instance5_1.length == 2 && instance5_1[1] == 101)
+  var instance6_0: int[] = {10}
+  var instance6_1: int[] = {11}
+  var resultinstance6: int = instance(instance6_0, instance6_1, instance6_0, instance6_1)
+  println(resultinstance6 == 3 && instance6_0[0] == 25 && instance6_0.length == 3 && instance6_0[1] == 100 && instance6_0[2] == 102 && instance6_1[0] == 41 && instance6_1.length == 3 && instance6_1[1] == 101 && instance6_1[2] == 103)
+  var instance7_0: int[] = {10}
+  var instance7_1: int[] = {11}
+  var instance7_2: int[] = {12}
+  var resultinstance7: int = instance(instance7_0, instance7_1, instance7_0, instance7_2)
+  println(resultinstance7 == 3 && instance7_0[0] == 25 && instance7_0.length == 3 && instance7_0[1] == 100 && instance7_0[2] == 102 && instance7_1[0] == 17 && instance7_1.length == 2 && instance7_1[1] == 101 && instance7_2[0] == 36 && instance7_2.length == 2 && instance7_2[1] == 103)
+  var instance8_0: int[] = {10}
+  var instance8_1: int[] = {11}
+  var resultinstance8: int = instance(instance8_0, instance8_1, instance8_1, instance8_0)
+  println(resultinstance8 == 3 && instance8_0[0] == 37 && instance8_0.length == 3 && instance8_0[1] == 100 && instance8_0[2] == 103 && instance8_1[0] == 29 && instance8_1.length == 3 && instance8_1[1] == 101 && instance8_1[2] == 102)
+  var instance9_0: int[] = {10}
+  var instance9_1: int[] = {11}
+  var resultinstance9: int = instance(instance9_0, instance9_1, instance9_1, instance9_1)
+  println(resultinstance9 == 2 && instance9_0[0] == 13 && instance9_0.length == 2 && instance9_0[1] == 100 && instance9_1[0] == 53 && instance9_1.length == 4 && instance9_1[1] == 101 && instance9_1[2] == 102 && instance9_1[3] == 103)
+  var instance10_0: int[] = {10}
+  var instance10_1: int[] = {11}
+  var instance10_2: int[] = {12}
+  var resultinstance10: int = instance(instance10_0, instance10_1, instance10_1, instance10_2)
+  println(resultinstance10 == 2 && instance10_0[0] == 13 && instance10_0.length == 2 && instance10_0[1] == 100 && instance10_1[0] == 29 && instance10_1.length == 3 && instance10_1[1] == 101 && instance10_1[2] == 102 && instance10_2[0] == 36 && instance10_2.length == 2 && instance10_2[1] == 103)
+  var instance11_0: int[] = {10}
+  var instance11_1: int[] = {11}
+  var instance11_2: int[] = {12}
+  var resultinstance11: int = instance(instance11_0, instance11_1, instance11_2, instance11_0)
+  println(resultinstance11 == 3 && instance11_0[0] == 37 && instance11_0.length == 3 && instance11_0[1] == 100 && instance11_0[2] == 103 && instance11_1[0] == 17 && instance11_1.length == 2 && instance11_1[1] == 101 && instance11_2[0] == 24 && instance11_2.length == 2 && instance11_2[1] == 102)
+  var instance12_0: int[] = {10}
+  var instance12_1: int[] = {11}
+  var instance12_2: int[] = {12}
+  var resultinstance12: int = instance(instance12_0, instance12_1, instance12_2, instance12_1)
+  println(resultinstance12 == 2 && instance12_0[0] == 13 && instance12_0.length == 2 && instance12_0[1] == 100 && instance12_1[0] == 41 && instance12_1.length == 3 && instance12_1[1] == 101 && instance12_1[2] == 103 && instance12_2[0] == 24 && instance12_2.length == 2 && instance12_2[1] == 102)
+  var instance13_0: int[] = {10}
+  var instance13_1: int[] = {11}
+  var instance13_2: int[] = {12}
+  var resultinstance13: int = instance(instance13_0, instance13_1, instance13_2, instance13_2)
+  println(resultinstance13 == 2 && instance13_0[0] == 13 && instance13_0.length == 2 && instance13_0[1] == 100 && instance13_1[0] == 17 && instance13_1.length == 2 && instance13_1[1] == 101 && instance13_2[0] == 48 && instance13_2.length == 3 && instance13_2[1] == 102 && instance13_2[2] == 103)
+  var instance14_0: int[] = {10}
+  var instance14_1: int[] = {11}
+  var instance14_2: int[] = {12}
+  var instance14_3: int[] = {13}
+  var resultinstance14: int = instance(instance14_0, instance14_1, instance14_2, instance14_3)
+  println(resultinstance14 == 2 && instance14_0[0] == 13 && instance14_0.length == 2 && instance14_0[1] == 100 && instance14_1[0] == 17 && instance14_1.length == 2 && instance14_1[1] == 101 && instance14_2[0] == 24 && instance14_2.length == 2 && instance14_2[1] == 102 && instance14_3[0] == 37 && instance14_3.length == 2 && instance14_3[1] == 103)
+  var staticCall0_0: int[] = {10}
+  var resultstaticCall0: int = staticCall(staticCall0_0, staticCall0_0, staticCall0_0, staticCall0_0)
+  println(resultstaticCall0 == 5 && staticCall0_0[0] == 25 && staticCall0_0.length == 5 && staticCall0_0[1] == 100 && staticCall0_0[2] == 101 && staticCall0_0[3] == 102 && staticCall0_0[4] == 103)
+  var staticCall1_0: int[] = {10}
+  var staticCall1_1: int[] = {11}
+  var resultstaticCall1: int = staticCall(staticCall1_0, staticCall1_0, staticCall1_0, staticCall1_1)
+  println(resultstaticCall1 == 4 && staticCall1_0[0] == 17 && staticCall1_0.length == 4 && staticCall1_0[1] == 100 && staticCall1_0[2] == 101 && staticCall1_0[3] == 102 && staticCall1_1[0] == 19 && staticCall1_1.length == 2 && staticCall1_1[1] == 103)
+  var staticCall2_0: int[] = {10}
+  var staticCall2_1: int[] = {11}
+  var resultstaticCall2: int = staticCall(staticCall2_0, staticCall2_0, staticCall2_1, staticCall2_0)
+  println(resultstaticCall2 == 4 && staticCall2_0[0] == 21 && staticCall2_0.length == 4 && staticCall2_0[1] == 100 && staticCall2_0[2] == 101 && staticCall2_0[3] == 103 && staticCall2_1[0] == 15 && staticCall2_1.length == 2 && staticCall2_1[1] == 102)
+  var staticCall3_0: int[] = {10}
+  var staticCall3_1: int[] = {11}
+  var resultstaticCall3: int = staticCall(staticCall3_0, staticCall3_0, staticCall3_1, staticCall3_1)
+  println(resultstaticCall3 == 3 && staticCall3_0[0] == 13 && staticCall3_0.length == 3 && staticCall3_0[1] == 100 && staticCall3_0[2] == 101 && staticCall3_1[0] == 23 && staticCall3_1.length == 3 && staticCall3_1[1] == 102 && staticCall3_1[2] == 103)
+  var staticCall4_0: int[] = {10}
+  var staticCall4_1: int[] = {11}
+  var staticCall4_2: int[] = {12}
+  var resultstaticCall4: int = staticCall(staticCall4_0, staticCall4_0, staticCall4_1, staticCall4_2)
+  println(resultstaticCall4 == 3 && staticCall4_0[0] == 13 && staticCall4_0.length == 3 && staticCall4_0[1] == 100 && staticCall4_0[2] == 101 && staticCall4_1[0] == 15 && staticCall4_1.length == 2 && staticCall4_1[1] == 102 && staticCall4_2[0] == 20 && staticCall4_2.length == 2 && staticCall4_2[1] == 103)
+  var staticCall5_0: int[] = {10}
+  var staticCall5_1: int[] = {11}
+  var resultstaticCall5: int = staticCall(staticCall5_0, staticCall5_1, staticCall5_0, staticCall5_0)
+  println(resultstaticCall5 == 4 && staticCall5_0[0] == 23 && staticCall5_0.length == 4 && staticCall5_0[1] == 100 && staticCall5_0[2] == 102 && staticCall5_0[3] == 103 && staticCall5_1[0] == 13 && staticCall5_1.length == 2 && staticCall5_1[1] == 101)
+  var staticCall6_0: int[] = {10}
+  var staticCall6_1: int[] = {11}
+  var resultstaticCall6: int = staticCall(staticCall6_0, staticCall6_1, staticCall6_0, staticCall6_1)
+  println(resultstaticCall6 == 3 && staticCall6_0[0] == 15 && staticCall6_0.length == 3 && staticCall6_0[1] == 100 && staticCall6_0[2] == 102 && staticCall6_1[0] == 21 && staticCall6_1.length == 3 && staticCall6_1[1] == 101 && staticCall6_1[2] == 103)
+  var staticCall7_0: int[] = {10}
+  var staticCall7_1: int[] = {11}
+  var staticCall7_2: int[] = {12}
+  var resultstaticCall7: int = staticCall(staticCall7_0, staticCall7_1, staticCall7_0, staticCall7_2)
+  println(resultstaticCall7 == 3 && staticCall7_0[0] == 15 && staticCall7_0.length == 3 && staticCall7_0[1] == 100 && staticCall7_0[2] == 102 && staticCall7_1[0] == 13 && staticCall7_1.length == 2 && staticCall7_1[1] == 101 && staticCall7_2[0] == 20 && staticCall7_2.length == 2 && staticCall7_2[1] == 103)
+  var staticCall8_0: int[] = {10}
+  var staticCall8_1: int[] = {11}
+  var resultstaticCall8: int = staticCall(staticCall8_0, staticCall8_1, staticCall8_1, staticCall8_0)
+  println(resultstaticCall8 == 3 && staticCall8_0[0] == 19 && staticCall8_0.length == 3 && staticCall8_0[1] == 100 && staticCall8_0[2] == 103 && staticCall8_1[0] == 17 && staticCall8_1.length == 3 && staticCall8_1[1] == 101 && staticCall8_1[2] == 102)
+  var staticCall9_0: int[] = {10}
+  var staticCall9_1: int[] = {11}
+  var resultstaticCall9: int = staticCall(staticCall9_0, staticCall9_1, staticCall9_1, staticCall9_1)
+  println(resultstaticCall9 == 2 && staticCall9_0[0] == 11 && staticCall9_0.length == 2 && staticCall9_0[1] == 100 && staticCall9_1[0] == 25 && staticCall9_1.length == 4 && staticCall9_1[1] == 101 && staticCall9_1[2] == 102 && staticCall9_1[3] == 103)
+  var staticCall10_0: int[] = {10}
+  var staticCall10_1: int[] = {11}
+  var staticCall10_2: int[] = {12}
+  var resultstaticCall10: int = staticCall(staticCall10_0, staticCall10_1, staticCall10_1, staticCall10_2)
+  println(resultstaticCall10 == 2 && staticCall10_0[0] == 11 && staticCall10_0.length == 2 && staticCall10_0[1] == 100 && staticCall10_1[0] == 17 && staticCall10_1.length == 3 && staticCall10_1[1] == 101 && staticCall10_1[2] == 102 && staticCall10_2[0] == 20 && staticCall10_2.length == 2 && staticCall10_2[1] == 103)
+  var staticCall11_0: int[] = {10}
+  var staticCall11_1: int[] = {11}
+  var staticCall11_2: int[] = {12}
+  var resultstaticCall11: int = staticCall(staticCall11_0, staticCall11_1, staticCall11_2, staticCall11_0)
+  println(resultstaticCall11 == 3 && staticCall11_0[0] == 19 && staticCall11_0.length == 3 && staticCall11_0[1] == 100 && staticCall11_0[2] == 103 && staticCall11_1[0] == 13 && staticCall11_1.length == 2 && staticCall11_1[1] == 101 && staticCall11_2[0] == 16 && staticCall11_2.length == 2 && staticCall11_2[1] == 102)
+  var staticCall12_0: int[] = {10}
+  var staticCall12_1: int[] = {11}
+  var staticCall12_2: int[] = {12}
+  var resultstaticCall12: int = staticCall(staticCall12_0, staticCall12_1, staticCall12_2, staticCall12_1)
+  println(resultstaticCall12 == 2 && staticCall12_0[0] == 11 && staticCall12_0.length == 2 && staticCall12_0[1] == 100 && staticCall12_1[0] == 21 && staticCall12_1.length == 3 && staticCall12_1[1] == 101 && staticCall12_1[2] == 103 && staticCall12_2[0] == 16 && staticCall12_2.length == 2 && staticCall12_2[1] == 102)
+  var staticCall13_0: int[] = {10}
+  var staticCall13_1: int[] = {11}
+  var staticCall13_2: int[] = {12}
+  var resultstaticCall13: int = staticCall(staticCall13_0, staticCall13_1, staticCall13_2, staticCall13_2)
+  println(resultstaticCall13 == 2 && staticCall13_0[0] == 11 && staticCall13_0.length == 2 && staticCall13_0[1] == 100 && staticCall13_1[0] == 13 && staticCall13_1.length == 2 && staticCall13_1[1] == 101 && staticCall13_2[0] == 24 && staticCall13_2.length == 3 && staticCall13_2[1] == 102 && staticCall13_2[2] == 103)
+  var staticCall14_0: int[] = {10}
+  var staticCall14_1: int[] = {11}
+  var staticCall14_2: int[] = {12}
+  var staticCall14_3: int[] = {13}
+  var resultstaticCall14: int = staticCall(staticCall14_0, staticCall14_1, staticCall14_2, staticCall14_3)
+  println(resultstaticCall14 == 2 && staticCall14_0[0] == 11 && staticCall14_0.length == 2 && staticCall14_0[1] == 100 && staticCall14_1[0] == 13 && staticCall14_1.length == 2 && staticCall14_1[1] == 101 && staticCall14_2[0] == 16 && staticCall14_2.length == 2 && staticCall14_2[1] == 102 && staticCall14_3[0] == 21 && staticCall14_3.length == 2 && staticCall14_3[1] == 103)

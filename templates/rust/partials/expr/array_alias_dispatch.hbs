@@ -1,0 +1,1 @@
+{ if std::rc::Rc::as_ptr(&{{rust_ident rust_array_alias_left}}).cast::<()>() == std::rc::Rc::as_ptr(&{{rust_ident rust_array_alias_right}}).cast::<()>() { {{> expr rust_array_alias_branch}} } else { {{> expr rust_array_alias_distinct_branch}} } }

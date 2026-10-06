@@ -5,6 +5,45 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Dynamic array aliases through instance/static methods, 2026-10-06
+
+Instance and static methods now share the runtime alias-partition dispatch used
+by named free functions. Shared array arguments are classified before mutable
+projections, including calls with static duplicate arguments and different
+array element types. Scalar argument callbacks finish before array guards.
+Stored record receivers retain their original array storage; argument bindings
+keep shared cells until the chosen partition forms its exclusive references.
+A bound call result ends argument borrow temporaries before local cells leave
+scope. Named `as val` parameters keep independent entry-time snapshots.
+
+Eight frozen controls pass **72** independent C/Rust comparisons across all
+nine optimization/arithmetic modes. They include all **15** four-formal
+partitions for both recursive method families, persistent reference/stored
+receiver mutations, scalar effects, mixed integer/string arrays, static
+duplicates and independent value-parameter copies. All eight unchanged sources
+pass parent C in **24** source/optimization runs; all 24 parent Rust executions
+fail. Linux ASAN/UBSAN/leak checks pass **24** runs.
+
+Complete C/Rust suites pass without failures or skips, including **123** native
+positives. Frozen local acceptance verifies **51 reports / 4260 cases**, including
+all prior **50 / 4188**. Exact-revision Linux/macOS/Windows hosted acceptance
+remains required. All **1365** original sources remain unchanged; original
+corpus coverage remains **1363 / 1365 (99.85%)**, which is not goal completion.
+
+Structural interface storage/native ABI, qualified closure signatures, parameter
+rebinding, named array-function adapters, snapshot value-record method captures
+and broader receiver/evaluation/ownership compositions remain work. A separately
+preserved computed-receiver probe fails C compilation because its closure
+parameter is hoisted out of scope; it receives no parity credit. The snapshot
+value-record capture probe passes C and is still rejected by Rust. C remains
+the default target, and this increment changes no C production code.
+
+Evidence: [validation](rust-parity-evidence/method-alias-validation.json),
+[parent baseline](rust-parity-evidence/method-alias-before.json),
+[repaired comparisons](rust-parity-evidence/method-alias-after.json),
+[independent oracles](rust-parity-evidence/method-alias-oracles.json),
+[C lifetimes](rust-parity-evidence/method-alias-c-lifetimes.json).
+
 ## Closure arrays forwarded through dynamic alias partitions, 2026-10-06
 
 Named free-function calls now classify all shared closure-array arguments by
@@ -32,7 +71,7 @@ source hashes remain unchanged; original corpus coverage remains **1363 / 1365
 (99.85%)**, which is corpus coverage rather than full-goal completion.
 Exact-revision Linux/macOS/Windows hosted acceptance remains required.
 
-Dynamic alias forwarding through instance/static methods, qualified closure
+Broader method receiver alias/ownership compositions, qualified closure
 signatures, parameter rebinding, named function array adapters, additional
 ownership/evaluation compositions and structural interface storage/native ABI
 remain required work. A separately preserved mutable snapshot-capture rejection

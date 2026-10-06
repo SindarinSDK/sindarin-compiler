@@ -35,6 +35,13 @@ effects and independent named as-val snapshots. The ledger records 72 all-mode
 comparisons and 24 lifetime controls; instance/static dynamic forwarding and
 broader closure qualifiers remain required work.
 
+The subsequent method-alias increment extends the same dispatch to instance
+and static methods, preserving recursive aliases, argument effects, stored and
+reference receiver mutations, mixed element types and named as-val snapshots.
+Its 72 comparisons and 24 lifetime controls are recorded in the ledger. Snapshot
+value-record method captures and broader receiver/ownership composition remain
+required work; exact-revision hosted acceptance is tracked independently.
+
 The 2026-10-03 float/double increment adds conversions at tested scalar storage,
 call and return boundaries and mixed floating compound mutation, including
 observable synchronized cells. Historical same-type-only exclusions below are

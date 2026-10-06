@@ -1,0 +1,22 @@
+struct Ops as ref =>
+  calls: int
+
+  fn update(a: int[], b: int[], c: int[]): int =>
+    self.calls++
+    a[0] += self.calls
+    b.push(4)
+    c[0] += 2
+    return a.length
+
+fn main(): void =>
+  var ops: Ops = { calls: 0 }
+  var instance: fn(int[], int[], int[]): int = fn(a: int[], b: int[], c: int[]): int =>
+    return ops.update(a, b, c)
+  var same: int[] = {1}
+  println(instance(same, same, same) == 2)
+  println(same[0] == 4 && same[1] == 4 && ops.calls == 1)
+  var a: int[] = {10}
+  var b: int[] = {20}
+  var c: int[] = {30}
+  println(instance(a, b, c) == 1)
+  println(a[0] == 12 && b.length == 2 && b[1] == 4 && c[0] == 32 && ops.calls == 2)
