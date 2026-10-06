@@ -1,0 +1,16 @@
+struct Counter =>
+  value: int
+  fn bump(): int =>
+    self.value += 1
+    return self.value
+
+struct Holder =>
+  counter: Counter
+
+fn main(): void =>
+  var original: Holder = { counter: Counter { value: 3 } }
+  var call: fn(): int = fn(): int =>
+    return original.counter.bump()
+  println(call() == 4)
+  println(call() == 4)
+  println(original.counter.value == 3)

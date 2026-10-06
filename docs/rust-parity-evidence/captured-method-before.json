@@ -1,0 +1,884 @@
+{
+  "compiler": "/home/gavin/code/sindarin/sindarin-rust-row-receiver-aliases-67854/bin/sn",
+  "compiler_sha256": "2dd01c7df3d71985781dc9022cb93f0029e495e647c20fcfe477387680b585ee",
+  "c_ldlibs": null,
+  "arithmetic_modes": [
+    "default"
+  ],
+  "environment": {
+    "SN_CC": null,
+    "SN_CFLAGS": null,
+    "SN_RELEASE_CFLAGS": null,
+    "SN_LDLIBS": null,
+    "SN_RUSTFLAGS": null
+  },
+  "cases": [
+    {
+      "source": "tests/rust-native/scalar_captured_record_method.sn",
+      "source_sha256": "3cfea9b8e89d722911c34b941b52eed1f84487ad9fb02c2b9a1826bb1e921382",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-row-receiver-aliases-67854/bin/sn",
+              "tests/rust-native/scalar_captured_record_method.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-romoxl0a/case-0--O0-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f7363616c61725f63617074757265645f7265636f72645f6d6574686f642e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d726f6d6f786c30612f636173652d302d2d4f302d64656661756c742d632e657865202836382e39204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-romoxl0a/case-0--O0-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-row-receiver-aliases-67854/bin/sn",
+              "tests/rust-native/scalar_captured_record_method.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-romoxl0a/case-0--O0-default-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f7363616c61725f63617074757265645f7265636f72645f6d6574686f642e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420646f6573206e6f7420737570706f7274206d6574686f642063616c6c73206f6e20736e617073686f7420636c6f73757265206361707475726573207965740a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rust-native/scalar_captured_record_method.sn",
+      "source_sha256": "3cfea9b8e89d722911c34b941b52eed1f84487ad9fb02c2b9a1826bb1e921382",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-row-receiver-aliases-67854/bin/sn",
+              "tests/rust-native/scalar_captured_record_method.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-romoxl0a/case-0--O1-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f7363616c61725f63617074757265645f7265636f72645f6d6574686f642e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d726f6d6f786c30612f636173652d302d2d4f312d64656661756c742d632e657865202836382e39204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-romoxl0a/case-0--O1-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-row-receiver-aliases-67854/bin/sn",
+              "tests/rust-native/scalar_captured_record_method.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-romoxl0a/case-0--O1-default-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f7363616c61725f63617074757265645f7265636f72645f6d6574686f642e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420646f6573206e6f7420737570706f7274206d6574686f642063616c6c73206f6e20736e617073686f7420636c6f73757265206361707475726573207965740a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rust-native/scalar_captured_record_method.sn",
+      "source_sha256": "3cfea9b8e89d722911c34b941b52eed1f84487ad9fb02c2b9a1826bb1e921382",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-row-receiver-aliases-67854/bin/sn",
+              "tests/rust-native/scalar_captured_record_method.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-romoxl0a/case-0--O2-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f7363616c61725f63617074757265645f7265636f72645f6d6574686f642e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d726f6d6f786c30612f636173652d302d2d4f322d64656661756c742d632e657865202836382e39204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-romoxl0a/case-0--O2-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-row-receiver-aliases-67854/bin/sn",
+              "tests/rust-native/scalar_captured_record_method.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-romoxl0a/case-0--O2-default-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f7363616c61725f63617074757265645f7265636f72645f6d6574686f642e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420646f6573206e6f7420737570706f7274206d6574686f642063616c6c73206f6e20736e617073686f7420636c6f73757265206361707475726573207965740a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rust-native/scalar_captured_record_array_method.sn",
+      "source_sha256": "01bcce8e37dd3751a47ed46d1e164fa9cae8293f07801f7b6fb383db342511b5",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-row-receiver-aliases-67854/bin/sn",
+              "tests/rust-native/scalar_captured_record_array_method.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-romoxl0a/case-1--O0-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f7363616c61725f63617074757265645f7265636f72645f61727261795f6d6574686f642e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d726f6d6f786c30612f636173652d312d2d4f302d64656661756c742d632e657865202837302e32204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-romoxl0a/case-1--O0-default-c.exe"
+            ],
+            "status": -6,
+            "stdout_hex": "3230320a3230330a310a780a310a",
+            "stderr_hex": "6672656528293a20646f75626c65206672656520646574656374656420696e2074636163686520320a"
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-row-receiver-aliases-67854/bin/sn",
+              "tests/rust-native/scalar_captured_record_array_method.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-romoxl0a/case-1--O0-default-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f7363616c61725f63617074757265645f7265636f72645f61727261795f6d6574686f642e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420646f6573206e6f7420737570706f7274206d6574686f642063616c6c73206f6e20736e617073686f7420636c6f73757265206361707475726573207965740a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rust-native/scalar_captured_record_array_method.sn",
+      "source_sha256": "01bcce8e37dd3751a47ed46d1e164fa9cae8293f07801f7b6fb383db342511b5",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-row-receiver-aliases-67854/bin/sn",
+              "tests/rust-native/scalar_captured_record_array_method.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-romoxl0a/case-1--O1-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f7363616c61725f63617074757265645f7265636f72645f61727261795f6d6574686f642e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d726f6d6f786c30612f636173652d312d2d4f312d64656661756c742d632e657865202837302e32204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-romoxl0a/case-1--O1-default-c.exe"
+            ],
+            "status": -6,
+            "stdout_hex": "3230320a3230330a310a780a310a",
+            "stderr_hex": "6672656528293a20646f75626c65206672656520646574656374656420696e2074636163686520320a"
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-row-receiver-aliases-67854/bin/sn",
+              "tests/rust-native/scalar_captured_record_array_method.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-romoxl0a/case-1--O1-default-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f7363616c61725f63617074757265645f7265636f72645f61727261795f6d6574686f642e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420646f6573206e6f7420737570706f7274206d6574686f642063616c6c73206f6e20736e617073686f7420636c6f73757265206361707475726573207965740a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rust-native/scalar_captured_record_array_method.sn",
+      "source_sha256": "01bcce8e37dd3751a47ed46d1e164fa9cae8293f07801f7b6fb383db342511b5",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-row-receiver-aliases-67854/bin/sn",
+              "tests/rust-native/scalar_captured_record_array_method.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-romoxl0a/case-1--O2-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f7363616c61725f63617074757265645f7265636f72645f61727261795f6d6574686f642e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d726f6d6f786c30612f636173652d312d2d4f322d64656661756c742d632e657865202837302e32204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-romoxl0a/case-1--O2-default-c.exe"
+            ],
+            "status": -6,
+            "stdout_hex": "3230320a3230330a310a780a310a",
+            "stderr_hex": "6672656528293a20646f75626c65206672656520646574656374656420696e2074636163686520320a"
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-row-receiver-aliases-67854/bin/sn",
+              "tests/rust-native/scalar_captured_record_array_method.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-romoxl0a/case-1--O2-default-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f7363616c61725f63617074757265645f7265636f72645f61727261795f6d6574686f642e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420646f6573206e6f7420737570706f7274206d6574686f642063616c6c73206f6e20736e617073686f7420636c6f73757265206361707475726573207965740a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rust-native/scalar_captured_nested_method.sn",
+      "source_sha256": "69b7ed10a004a9e31dadd394d1e0aa337ca2ee836d04892c14f90edaf4275cdc",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-row-receiver-aliases-67854/bin/sn",
+              "tests/rust-native/scalar_captured_nested_method.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-romoxl0a/case-2--O0-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f7363616c61725f63617074757265645f6e65737465645f6d6574686f642e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d726f6d6f786c30612f636173652d322d2d4f302d64656661756c742d632e657865202836382e39204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-romoxl0a/case-2--O0-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-row-receiver-aliases-67854/bin/sn",
+              "tests/rust-native/scalar_captured_nested_method.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-romoxl0a/case-2--O0-default-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f7363616c61725f63617074757265645f6e65737465645f6d6574686f642e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420646f6573206e6f7420737570706f7274206d6574686f642063616c6c73206f6e20736e617073686f7420636c6f73757265206361707475726573207965740a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rust-native/scalar_captured_nested_method.sn",
+      "source_sha256": "69b7ed10a004a9e31dadd394d1e0aa337ca2ee836d04892c14f90edaf4275cdc",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-row-receiver-aliases-67854/bin/sn",
+              "tests/rust-native/scalar_captured_nested_method.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-romoxl0a/case-2--O1-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f7363616c61725f63617074757265645f6e65737465645f6d6574686f642e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d726f6d6f786c30612f636173652d322d2d4f312d64656661756c742d632e657865202836382e39204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-romoxl0a/case-2--O1-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-row-receiver-aliases-67854/bin/sn",
+              "tests/rust-native/scalar_captured_nested_method.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-romoxl0a/case-2--O1-default-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f7363616c61725f63617074757265645f6e65737465645f6d6574686f642e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420646f6573206e6f7420737570706f7274206d6574686f642063616c6c73206f6e20736e617073686f7420636c6f73757265206361707475726573207965740a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rust-native/scalar_captured_nested_method.sn",
+      "source_sha256": "69b7ed10a004a9e31dadd394d1e0aa337ca2ee836d04892c14f90edaf4275cdc",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-row-receiver-aliases-67854/bin/sn",
+              "tests/rust-native/scalar_captured_nested_method.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-romoxl0a/case-2--O2-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f7363616c61725f63617074757265645f6e65737465645f6d6574686f642e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d726f6d6f786c30612f636173652d322d2d4f322d64656661756c742d632e657865202836382e39204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-romoxl0a/case-2--O2-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-row-receiver-aliases-67854/bin/sn",
+              "tests/rust-native/scalar_captured_nested_method.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-romoxl0a/case-2--O2-default-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f7363616c61725f63617074757265645f6e65737465645f6d6574686f642e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420646f6573206e6f7420737570706f7274206d6574686f642063616c6c73206f6e20736e617073686f7420636c6f73757265206361707475726573207965740a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rust-native/scalar_captured_method_return.sn",
+      "source_sha256": "dc9bc64b0aad34f29feec2c75a470b8b8c9cfe5a16a73b28aa8c58ca424426a4",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-row-receiver-aliases-67854/bin/sn",
+              "tests/rust-native/scalar_captured_method_return.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-romoxl0a/case-3--O0-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f7363616c61725f63617074757265645f6d6574686f645f72657475726e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d726f6d6f786c30612f636173652d332d2d4f302d64656661756c742d632e657865202837302e35204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-romoxl0a/case-3--O0-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-row-receiver-aliases-67854/bin/sn",
+              "tests/rust-native/scalar_captured_method_return.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-romoxl0a/case-3--O0-default-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f7363616c61725f63617074757265645f6d6574686f645f72657475726e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420646f6573206e6f7420737570706f7274206d6574686f642063616c6c73206f6e20736e617073686f7420636c6f73757265206361707475726573207965740a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rust-native/scalar_captured_method_return.sn",
+      "source_sha256": "dc9bc64b0aad34f29feec2c75a470b8b8c9cfe5a16a73b28aa8c58ca424426a4",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-row-receiver-aliases-67854/bin/sn",
+              "tests/rust-native/scalar_captured_method_return.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-romoxl0a/case-3--O1-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f7363616c61725f63617074757265645f6d6574686f645f72657475726e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d726f6d6f786c30612f636173652d332d2d4f312d64656661756c742d632e657865202837302e35204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-romoxl0a/case-3--O1-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-row-receiver-aliases-67854/bin/sn",
+              "tests/rust-native/scalar_captured_method_return.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-romoxl0a/case-3--O1-default-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f7363616c61725f63617074757265645f6d6574686f645f72657475726e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420646f6573206e6f7420737570706f7274206d6574686f642063616c6c73206f6e20736e617073686f7420636c6f73757265206361707475726573207965740a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rust-native/scalar_captured_method_return.sn",
+      "source_sha256": "dc9bc64b0aad34f29feec2c75a470b8b8c9cfe5a16a73b28aa8c58ca424426a4",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-row-receiver-aliases-67854/bin/sn",
+              "tests/rust-native/scalar_captured_method_return.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-romoxl0a/case-3--O2-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f7363616c61725f63617074757265645f6d6574686f645f72657475726e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d726f6d6f786c30612f636173652d332d2d4f322d64656661756c742d632e657865202837302e35204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-romoxl0a/case-3--O2-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-row-receiver-aliases-67854/bin/sn",
+              "tests/rust-native/scalar_captured_method_return.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-romoxl0a/case-3--O2-default-rust.exe"
+            ],
+            "status": 1,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f7363616c61725f63617074757265645f6d6574686f645f72657475726e2e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420646f6573206e6f7420737570706f7274206d6574686f642063616c6c73206f6e20736e617073686f7420636c6f73757265206361707475726573207965740a201b5b313b33316d6661696c65641b5b306d0a0a"
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rust-native/scalar_record_print_ownership.sn",
+      "source_sha256": "cc0d78eccef720fdf52d8186c70c10e3017b0ca81acc8dba9d0220788fa77cc4",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-row-receiver-aliases-67854/bin/sn",
+              "tests/rust-native/scalar_record_print_ownership.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-romoxl0a/case-4--O0-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f7363616c61725f7265636f72645f7072696e745f6f776e6572736869702e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d726f6d6f786c30612f636173652d342d2d4f302d64656661756c742d632e657865202837302e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-romoxl0a/case-4--O0-default-c.exe"
+            ],
+            "status": -6,
+            "stdout_hex": "",
+            "stderr_hex": "6672656528293a20646f75626c65206672656520646574656374656420696e2074636163686520320a"
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-row-receiver-aliases-67854/bin/sn",
+              "tests/rust-native/scalar_record_print_ownership.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-romoxl0a/case-4--O0-default-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f7363616c61725f7265636f72645f7072696e745f6f776e6572736869702e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a207479706520605f5f736e5f636f6e63757272656e6379305f4669656c64602073686f756c64206861766520616e2075707065722063616d656c2063617365206e616d650a202d2d3e202e736e2f6275696c642f727573742f7363616c61725f7265636f72645f7072696e745f6f776e6572736869705f313034393334342f6d61696e2e72733a333a380a20207c0a33207c20737472756374205f5f736e5f636f6e63757272656e6379305f4669656c643c543e287374643a3a73796e633a3a4172633c7374643a3a73796e633a3a4d757465783c543e3e293b0a20207c20202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e2068656c703a20636f6e7665727420746865206964656e74696669657220746f2075707065722063616d656c20636173653a2060536e436f6e63757272656e6379304669656c64600a20207c0a20203d206e6f74653a2060235b7761726e286e6f6e5f63616d656c5f636173655f7479706573295d60202870617274206f662060235b7761726e286e6f6e7374616e646172645f7374796c65295d6029206f6e2062792064656661756c740a0a7761726e696e673a207479706520605f5f736e5f636f6e63757272656e6379305f5265666572656e63654669656c64602073686f756c64206861766520616e2075707065722063616d656c2063617365206e616d650a20202d2d3e202e736e2f6275696c642f727573742f7363616c61725f7265636f72645f7072696e745f6f776e6572736869705f313034393334342f6d61696e2e72733a32303a380a2020207c0a3230207c20737472756374205f5f736e5f636f6e63757272656e6379305f5265666572656e63654669656c643c543e284f7074696f6e3c7374643a3a73796e633a3a4172633c7374643a3a73796e633a3a4d757465783c543e3e3e293b0a2020207c20202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e2068656c703a20636f6e7665727420746865206964656e74696669657220746f2075707065722063616d656c20636173653a2060536e436f6e63757272656e6379305265666572656e63654669656c64600a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a2020202d2d3e202e736e2f6275696c642f727573742f7363616c61725f7265636f72645f7072696e745f6f776e6572736869705f313034393334342f6d61696e2e72733a3131393a31340a202020207c0a313139207c206d6163726f5f72756c657321207072696e74207b0a202020207c20202020202020202020202020205e5e5e5e5e0a202020207c0a202020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2033207761726e696e677320656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d726f6d6f786c30612f636173652d342d2d4f302d64656661756c742d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-romoxl0a/case-4--O0-default-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "76616c756576616c75650a747275650a76616c75650a747275650a7265666572656e63650a747275650a696e64657865640a747275650a74656d706f726172790a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rust-native/scalar_record_print_ownership.sn",
+      "source_sha256": "cc0d78eccef720fdf52d8186c70c10e3017b0ca81acc8dba9d0220788fa77cc4",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-row-receiver-aliases-67854/bin/sn",
+              "tests/rust-native/scalar_record_print_ownership.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-romoxl0a/case-4--O1-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f7363616c61725f7265636f72645f7072696e745f6f776e6572736869702e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d726f6d6f786c30612f636173652d342d2d4f312d64656661756c742d632e657865202837302e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-romoxl0a/case-4--O1-default-c.exe"
+            ],
+            "status": -6,
+            "stdout_hex": "",
+            "stderr_hex": "6672656528293a20646f75626c65206672656520646574656374656420696e2074636163686520320a"
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-row-receiver-aliases-67854/bin/sn",
+              "tests/rust-native/scalar_record_print_ownership.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-romoxl0a/case-4--O1-default-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f7363616c61725f7265636f72645f7072696e745f6f776e6572736869702e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a207479706520605f5f736e5f636f6e63757272656e6379305f4669656c64602073686f756c64206861766520616e2075707065722063616d656c2063617365206e616d650a202d2d3e202e736e2f6275696c642f727573742f7363616c61725f7265636f72645f7072696e745f6f776e6572736869705f313034393936382f6d61696e2e72733a333a380a20207c0a33207c20737472756374205f5f736e5f636f6e63757272656e6379305f4669656c643c543e287374643a3a73796e633a3a4172633c7374643a3a73796e633a3a4d757465783c543e3e293b0a20207c20202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e2068656c703a20636f6e7665727420746865206964656e74696669657220746f2075707065722063616d656c20636173653a2060536e436f6e63757272656e6379304669656c64600a20207c0a20203d206e6f74653a2060235b7761726e286e6f6e5f63616d656c5f636173655f7479706573295d60202870617274206f662060235b7761726e286e6f6e7374616e646172645f7374796c65295d6029206f6e2062792064656661756c740a0a7761726e696e673a207479706520605f5f736e5f636f6e63757272656e6379305f5265666572656e63654669656c64602073686f756c64206861766520616e2075707065722063616d656c2063617365206e616d650a20202d2d3e202e736e2f6275696c642f727573742f7363616c61725f7265636f72645f7072696e745f6f776e6572736869705f313034393936382f6d61696e2e72733a32303a380a2020207c0a3230207c20737472756374205f5f736e5f636f6e63757272656e6379305f5265666572656e63654669656c643c543e284f7074696f6e3c7374643a3a73796e633a3a4172633c7374643a3a73796e633a3a4d757465783c543e3e3e293b0a2020207c20202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e2068656c703a20636f6e7665727420746865206964656e74696669657220746f2075707065722063616d656c20636173653a2060536e436f6e63757272656e6379305265666572656e63654669656c64600a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a2020202d2d3e202e736e2f6275696c642f727573742f7363616c61725f7265636f72645f7072696e745f6f776e6572736869705f313034393936382f6d61696e2e72733a3131393a31340a202020207c0a313139207c206d6163726f5f72756c657321207072696e74207b0a202020207c20202020202020202020202020205e5e5e5e5e0a202020207c0a202020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2033207761726e696e677320656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d726f6d6f786c30612f636173652d342d2d4f312d64656661756c742d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-romoxl0a/case-4--O1-default-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "76616c756576616c75650a747275650a76616c75650a747275650a7265666572656e63650a747275650a696e64657865640a747275650a74656d706f726172790a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": false
+    },
+    {
+      "source": "tests/rust-native/scalar_record_print_ownership.sn",
+      "source_sha256": "cc0d78eccef720fdf52d8186c70c10e3017b0ca81acc8dba9d0220788fa77cc4",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-row-receiver-aliases-67854/bin/sn",
+              "tests/rust-native/scalar_record_print_ownership.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-romoxl0a/case-4--O2-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f7363616c61725f7265636f72645f7072696e745f6f776e6572736869702e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d726f6d6f786c30612f636173652d342d2d4f322d64656661756c742d632e657865202837302e33204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-romoxl0a/case-4--O2-default-c.exe"
+            ],
+            "status": -6,
+            "stdout_hex": "",
+            "stderr_hex": "6672656528293a20646f75626c65206672656520646574656374656420696e2074636163686520320a"
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-row-receiver-aliases-67854/bin/sn",
+              "tests/rust-native/scalar_record_print_ownership.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-romoxl0a/case-4--O2-default-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f727573742d6e61746976652f7363616c61725f7265636f72645f7072696e745f6f776e6572736869702e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a207479706520605f5f736e5f636f6e63757272656e6379305f4669656c64602073686f756c64206861766520616e2075707065722063616d656c2063617365206e616d650a202d2d3e202e736e2f6275696c642f727573742f7363616c61725f7265636f72645f7072696e745f6f776e6572736869705f313035303638302f6d61696e2e72733a333a380a20207c0a33207c20737472756374205f5f736e5f636f6e63757272656e6379305f4669656c643c543e287374643a3a73796e633a3a4172633c7374643a3a73796e633a3a4d757465783c543e3e293b0a20207c20202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e2068656c703a20636f6e7665727420746865206964656e74696669657220746f2075707065722063616d656c20636173653a2060536e436f6e63757272656e6379304669656c64600a20207c0a20203d206e6f74653a2060235b7761726e286e6f6e5f63616d656c5f636173655f7479706573295d60202870617274206f662060235b7761726e286e6f6e7374616e646172645f7374796c65295d6029206f6e2062792064656661756c740a0a7761726e696e673a207479706520605f5f736e5f636f6e63757272656e6379305f5265666572656e63654669656c64602073686f756c64206861766520616e2075707065722063616d656c2063617365206e616d650a20202d2d3e202e736e2f6275696c642f727573742f7363616c61725f7265636f72645f7072696e745f6f776e6572736869705f313035303638302f6d61696e2e72733a32303a380a2020207c0a3230207c20737472756374205f5f736e5f636f6e63757272656e6379305f5265666572656e63654669656c643c543e284f7074696f6e3c7374643a3a73796e633a3a4172633c7374643a3a73796e633a3a4d757465783c543e3e3e293b0a2020207c20202020202020205e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e2068656c703a20636f6e7665727420746865206964656e74696669657220746f2075707065722063616d656c20636173653a2060536e436f6e63757272656e6379305265666572656e63654669656c64600a0a7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a2020202d2d3e202e736e2f6275696c642f727573742f7363616c61725f7265636f72645f7072696e745f6f776e6572736869705f313035303638302f6d61696e2e72733a3131393a31340a202020207c0a313139207c206d6163726f5f72756c657321207072696e74207b0a202020207c20202020202020202020202020205e5e5e5e5e0a202020207c0a202020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2033207761726e696e677320656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d726f6d6f786c30612f636173652d342d2d4f322d64656661756c742d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-romoxl0a/case-4--O2-default-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "76616c756576616c75650a747275650a76616c75650a747275650a7265666572656e63650a747275650a696e64657865640a747275650a74656d706f726172790a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": false
+    }
+  ],
+  "passed": false,
+  "independent_parent_c_valid_cases": [
+    [
+      "tests/rust-native/scalar_captured_record_method.sn",
+      "-O0"
+    ],
+    [
+      "tests/rust-native/scalar_captured_record_method.sn",
+      "-O1"
+    ],
+    [
+      "tests/rust-native/scalar_captured_record_method.sn",
+      "-O2"
+    ],
+    [
+      "tests/rust-native/scalar_captured_nested_method.sn",
+      "-O0"
+    ],
+    [
+      "tests/rust-native/scalar_captured_nested_method.sn",
+      "-O1"
+    ],
+    [
+      "tests/rust-native/scalar_captured_nested_method.sn",
+      "-O2"
+    ],
+    [
+      "tests/rust-native/scalar_captured_method_return.sn",
+      "-O0"
+    ],
+    [
+      "tests/rust-native/scalar_captured_method_return.sn",
+      "-O1"
+    ],
+    [
+      "tests/rust-native/scalar_captured_method_return.sn",
+      "-O2"
+    ]
+  ],
+  "parent_c_lifetime_failures": [
+    {
+      "source": "tests/rust-native/scalar_captured_record_array_method.sn",
+      "optimization": "-O0",
+      "status": -6,
+      "stderr_hex": "6672656528293a20646f75626c65206672656520646574656374656420696e2074636163686520320a"
+    },
+    {
+      "source": "tests/rust-native/scalar_captured_record_array_method.sn",
+      "optimization": "-O1",
+      "status": -6,
+      "stderr_hex": "6672656528293a20646f75626c65206672656520646574656374656420696e2074636163686520320a"
+    },
+    {
+      "source": "tests/rust-native/scalar_captured_record_array_method.sn",
+      "optimization": "-O2",
+      "status": -6,
+      "stderr_hex": "6672656528293a20646f75626c65206672656520646574656374656420696e2074636163686520320a"
+    },
+    {
+      "source": "tests/rust-native/scalar_record_print_ownership.sn",
+      "optimization": "-O0",
+      "status": -6,
+      "stderr_hex": "6672656528293a20646f75626c65206672656520646574656374656420696e2074636163686520320a"
+    },
+    {
+      "source": "tests/rust-native/scalar_record_print_ownership.sn",
+      "optimization": "-O1",
+      "status": -6,
+      "stderr_hex": "6672656528293a20646f75626c65206672656520646574656374656420696e2074636163686520320a"
+    },
+    {
+      "source": "tests/rust-native/scalar_record_print_ownership.sn",
+      "optimization": "-O2",
+      "status": -6,
+      "stderr_hex": "6672656528293a20646f75626c65206672656520646574656374656420696e2074636163686520320a"
+    }
+  ],
+  "note": "Only successful unchanged parent C programs are baseline parity controls. Member printing lifetime failures are separately repaired and receive no before-parity credit."
+}

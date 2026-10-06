@@ -156,9 +156,9 @@ jobs:
           run_gate "tagged native C/Rust parity (8 fixtures)" \
             python3 scripts/run_rust_tests.py rust-native-tagged --verbose \
               --require-count 8 --fail-on-skip
-          run_gate "native scalar, record and managed ABI fixtures (128 fixtures)" \
+          run_gate "native scalar, record and managed ABI fixtures (133 fixtures)" \
             python3 scripts/run_rust_tests.py rust-native-extra --verbose \
-              --require-count 128 --fail-on-skip
+              --require-count 133 --fail-on-skip
           run_gate "canonical native handle ownership (117 cases)" \
             make -o build test-rust-parity-native-handles
           run_gate "canonical native reference arrays (27 cases)" \
@@ -256,6 +256,14 @@ jobs:
 
           run_gate "reference-record receivers and native closure ownership (5 sources, all modes)" \
             make test-rust-parity-reference-receivers
+
+          run_gate "captured value-record methods and borrowed field printing (5 sources, all modes)" \
+            make test-rust-parity-captured-methods
+
+          if [[ "${{ runner.os }}" == "Linux" ]]; then
+            run_gate "captured-record/field-string C lifetimes with ASAN/UBSAN/leaks (15 cases)" \
+              python3 scripts/check_c_captured_method_lifetimes.py
+          fi
 
           if [[ "${{ runner.os }}" == "Linux" ]]; then
             run_gate "reference-record C ownership with ASAN/UBSAN/leak checks (15 cases)" \
@@ -358,6 +366,7 @@ jobs:
             .sn/c-array-alias-partition-lifetimes.json
             .sn/c-method-alias-lifetimes.json
             .sn/c-reference-receiver-lifetimes.json
+            .sn/c-captured-method-lifetimes.json
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 7

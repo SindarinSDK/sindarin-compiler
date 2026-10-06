@@ -1,0 +1,27 @@
+struct Item =>
+  label: str
+
+struct Box =>
+  item: Item
+
+struct RefItem as ref =>
+  label: str
+
+fn make(): Item =>
+  return Item { label: "temporary" }
+
+fn main(): void =>
+  var item: Item = { label: "value" }
+  print(item.label)
+  println(item.label)
+  println(item.label == "value")
+  var holder: Box = { item: item }
+  println(holder.item.label)
+  println(holder.item.label == "value")
+  var reference: RefItem = { label: "reference" }
+  println(reference.label)
+  println(reference.label == "reference")
+  var values: Item[] = { Item { label: "indexed" } }
+  println(values[0].label)
+  println(values[0].label == "indexed")
+  println(make().label)

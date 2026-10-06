@@ -1,0 +1,23 @@
+struct Counter =>
+  value: int
+  label: str
+  values: int[]
+
+  fn bump(): int =>
+    self.value += 1
+    self.values.push(self.value)
+    return self.value * 100 + self.values.length
+
+fn main(): void =>
+  var original: Counter = {
+    value: 1,
+    label: "x",
+    values: {7}
+  }
+  var call: fn(): int = fn(): int =>
+    return original.bump()
+  println(call())
+  println(call())
+  println(original.value)
+  println(original.label)
+  println(original.values.length)

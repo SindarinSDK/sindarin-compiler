@@ -50,6 +50,12 @@ returns/escaping captures retain independent owners. The ledger records 45
 all-mode comparisons, 15 lifetime controls and exact count-checked acceptance.
 Value-record physical receivers and interface storage/native ABI remain work.
 
+The subsequent captured-record method increment reuses private per-invocation
+scalar snapshots and persistent captured array owners, including nested receivers
+and owned returns. It also repairs C field-string printing ownership while
+preserving printed output and owned temporary cleanup. The ledger records45
+all-mode comparisons,15 sanitizer controls and the remaining full-goal work.
+
 The 2026-10-03 float/double increment adds conversions at tested scalar storage,
 call and return boundaries and mixed floating compound mutation, including
 observable synchronized cells. Historical same-type-only exclusions below are

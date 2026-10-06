@@ -758,6 +758,21 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
                             return rust_closure_error("this nested mutable array snapshot method");
                     }
                 }
+                else if (b->capture && rust_closure_struct_type(binding_type) &&
+                         rust_closure_struct_type(receiver_type) &&
+                         !json_boolean_property(b->declaration, "rust_reference_record_capture"))
+                {
+                    rust_closure_record_snapshot_type(binding_type);
+                    json_object *structure = rust_find_struct(scope->model, json_string_property(binding_type, "name"));
+                    json_object_object_add(b->declaration, "rust_mutable_owned_snapshot", json_object_new_boolean(true));
+                    if (json_boolean_property(structure, "rust_closure_record_snapshot"))
+                        json_object_object_add(b->declaration, "rust_closure_record_snapshot", json_object_new_boolean(true));
+                    json_object *receiver = rust_closure_property(callee, "object");
+                    json_object *root = receiver;
+                    while (json_string_property_equals(root, "kind", "member") || json_string_property_equals(root, "kind", "array_access"))
+                        root = rust_closure_property(root, json_string_property_equals(root, "kind", "member") ? "object" : "array");
+                    json_object_object_add(root, "rust_capture_mutation_place", json_object_new_boolean(true));
+                }
                 else if (!rust_closure_string_type(binding_type) && !scalar_read &&
                          !json_boolean_property(b->declaration, "rust_reference_record_capture"))
                     return rust_closure_error("method calls on snapshot closure captures");

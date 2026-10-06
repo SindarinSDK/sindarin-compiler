@@ -1,0 +1,30 @@
+struct Counter =>
+  value: int
+  label: str
+  values: int[]
+
+  fn labelCopy(): str =>
+    self.value += 1
+    return self.label
+
+  fn arrayCopy(): int[] =>
+    self.value += 1
+    return self.values
+
+fn main(): void =>
+  var original: Counter = {
+    value: 1,
+    label: "owned",
+    values: {7}
+  }
+  var text: fn(): str = fn(): str =>
+    return original.labelCopy()
+  var array: fn(): int[] = fn(): int[] =>
+    return original.arrayCopy()
+  var label: str = text()
+  var copied: int[] = array()
+  copied[0] = 20
+  println(label == "owned")
+  println(copied[0] == 20 && original.values[0] == 7)
+  println(original.value == 1)
+  println(text() == "owned" && array()[0] == 7)

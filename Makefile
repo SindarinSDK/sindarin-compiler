@@ -1129,3 +1129,15 @@ test-rust-parity-reference-receivers: build
 		--require-count 5 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-reference-receivers.json
 	@$(PYTHON) scripts/check_rust_reference_receiver_oracles.py .sn/rust-parity-reference-receivers.json
+
+.PHONY: test-rust-parity-captured-methods
+test-rust-parity-captured-methods: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/rust-native/scalar_captured_record_method.sn \
+		tests/rust-native/scalar_captured_record_array_method.sn \
+		tests/rust-native/scalar_captured_nested_method.sn \
+		tests/rust-native/scalar_captured_method_return.sn \
+		tests/rust-native/scalar_record_print_ownership.sn \
+		--require-count 5 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-captured-methods.json
+	@$(PYTHON) scripts/check_rust_captured_method_oracles.py .sn/rust-parity-captured-methods.json

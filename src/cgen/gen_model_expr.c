@@ -1239,8 +1239,22 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 json_object *args = json_object_new_array();
                 for (int i = 0; i < expr->as.call.arg_count; i++)
                 {
-                    json_object_array_add(args,
-                        gen_model_expr(arena, expr->as.call.arguments[i], symbol_table, arithmetic_mode));
+                    Expr *argument = expr->as.call.arguments[i];
+                    json_object *arg = gen_model_expr(arena, argument, symbol_table, arithmetic_mode);
+                    if ((strcmp(builtin_name, "print") == 0 || strcmp(builtin_name, "println") == 0) &&
+                        argument && argument->expr_type && argument->expr_type->kind == TYPE_STRING &&
+                        argument->type == EXPR_MEMBER)
+                    {
+                        Expr *owner = argument->as.member.object;
+                        while (owner && (owner->type == EXPR_MEMBER || owner->type == EXPR_ARRAY_ACCESS))
+                            owner = owner->type == EXPR_MEMBER ? owner->as.member.object : owner->as.array_access.array;
+                        /* A live variable/member/index owner retains this field.
+                         * Heap-producing receiver lifts keep their owned-copy
+                         * cleanup path instead. Printing must not free a borrow. */
+                        if (owner && owner->type == EXPR_VARIABLE)
+                            json_object_object_add(arg, "print_borrows_string", json_object_new_boolean(true));
+                    }
+                    json_object_array_add(args, arg);
                 }
                 hoist_borrow_temps(obj, args, expr);
                 json_object_object_add(obj, "args", args);

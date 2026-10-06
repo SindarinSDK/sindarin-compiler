@@ -1,0 +1,14 @@
+struct Counter =>
+  value: int
+
+  fn bump(): int =>
+    self.value += 1
+    return self.value
+
+fn main(): void =>
+  var original: Counter = { value: 1 }
+  var call: fn(): int = fn(): int =>
+    return original.bump()
+  println(call() == 2)
+  println(call() == 2)
+  println(original.value == 1)

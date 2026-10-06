@@ -5,6 +5,49 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Captured value-record methods and borrowed field printing, 2026-10-06
+
+Methods on captured value records now use the existing mutable owned snapshot
+machinery. Scalar changes remain private to each invocation; the capture's
+private array state persists across calls. Nested value receivers and independent
+owned string/array returns use the same ownership rules. Character/string read
+methods on captured fields retain their previous behavior and generated goldens.
+
+C `print`/`println` no longer frees a borrowed string member read through a live
+variable/member/index owner. Previously a field print could free the containing
+record's string and cause a double free at owner cleanup. Owned receiver/keeper
+copies retain their cleanup. This repair changes ownership, not printed bytes.
+
+Five frozen controls pass **45** independent C/Rust comparisons across all nine
+optimization/arithmetic modes. Linux ASAN/UBSAN/leak checks pass **15** runs.
+Parent C passes **9** unchanged source/optimization controls; the other **6**
+parent executions fail their field-string lifetime contract and receive no
+before-parity credit. Final successful comparisons require both targets to
+compile/run with the independently authored output and zero stderr/status.
+
+Complete C/Rust suites pass without failures/skips, including **133** native
+positives and the exact count-checked CI command. Frozen acceptance verifies
+**53 reports / 4350 cases**, including all prior **52 / 4305**. Existing C/Rust/model
+expectations and all **1365** original source hashes remain unchanged. Original
+corpus coverage remains **1363 / 1365 (99.85%)**, not goal completion.
+Exact-revision Linux/macOS/Windows hosted acceptance remains required.
+
+The prerequisite `3e45fe317e5d03f3cefca9b285e4ac4fd9f8ebaa` has all six CI jobs
+green and **52 reports / 4305 cases** independently verified on each platform.
+[Hosted proof](rust-parity-evidence/reference-receiver-main-ci-green.json).
+
+Value-record receiver/array physical overlap, structural interface storage/native
+ABI and empty identity, qualified closure signatures, rebinding, named array
+adapters and broader mutation/lifetime/evaluation combinations remain work. The
+separately preserved captured string-reassignment diagnostic is not counted as
+verified parity. C remains the default target.
+
+Evidence: [validation](rust-parity-evidence/captured-method-validation.json),
+[parent baseline](rust-parity-evidence/captured-method-before.json),
+[repaired comparisons](rust-parity-evidence/captured-method-after.json),
+[independent oracles](rust-parity-evidence/captured-method-oracles.json),
+[C lifetimes](rust-parity-evidence/captured-method-c-lifetimes.json).
+
 ## Reference-record receiver and native closure ownership, 2026-10-06
 
 Indexed reference-record method receivers now borrow the selected handle under

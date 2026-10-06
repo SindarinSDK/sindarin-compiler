@@ -1,0 +1,45 @@
+{
+  "sources": [
+    {
+      "source": "tests/rust-native/scalar_captured_record_method.sn",
+      "sha256": "3cfea9b8e89d722911c34b941b52eed1f84487ad9fb02c2b9a1826bb1e921382",
+      "stdout_hex": "747275650a747275650a747275650a",
+      "expected_sidecar_sha256": "36768a89e8faf166700f48bc8df99361609e43956dd7d2bffebde9439ea5033c"
+    },
+    {
+      "source": "tests/rust-native/scalar_captured_record_array_method.sn",
+      "sha256": "01bcce8e37dd3751a47ed46d1e164fa9cae8293f07801f7b6fb383db342511b5",
+      "stdout_hex": "3230320a3230330a310a780a310a",
+      "expected_sidecar_sha256": "415d724a8d142f064fcdd9301c1a7d625cd17f43c085e6edf90bf0a94211c6fe"
+    },
+    {
+      "source": "tests/rust-native/scalar_captured_nested_method.sn",
+      "sha256": "69b7ed10a004a9e31dadd394d1e0aa337ca2ee836d04892c14f90edaf4275cdc",
+      "stdout_hex": "747275650a747275650a747275650a",
+      "expected_sidecar_sha256": "36768a89e8faf166700f48bc8df99361609e43956dd7d2bffebde9439ea5033c"
+    },
+    {
+      "source": "tests/rust-native/scalar_captured_method_return.sn",
+      "sha256": "dc9bc64b0aad34f29feec2c75a470b8b8c9cfe5a16a73b28aa8c58ca424426a4",
+      "stdout_hex": "747275650a747275650a747275650a747275650a",
+      "expected_sidecar_sha256": "a8c8704687490f20e1992b9d6a9578237617ebd0894ee14f5682acea27e3845a"
+    },
+    {
+      "source": "tests/rust-native/scalar_record_print_ownership.sn",
+      "sha256": "cc0d78eccef720fdf52d8186c70c10e3017b0ca81acc8dba9d0220788fa77cc4",
+      "stdout_hex": "76616c756576616c75650a747275650a76616c75650a747275650a7265666572656e63650a747275650a696e64657865640a747275650a74656d706f726172790a",
+      "expected_sidecar_sha256": "2c08ed58b1698931cc5272f222d87393e6c88af01447b924eb534e6689693a76"
+    }
+  ],
+  "optimizations": [
+    "-O0",
+    "-O1",
+    "-O2"
+  ],
+  "arithmetic_modes": [
+    "default",
+    "checked",
+    "unchecked"
+  ],
+  "scope": "Captured plain/nested/value-record methods, owned string/array returns, private persistent arrays, and borrowed string field printing through live value/reference/nested/index owners with owned receiver cleanup preserved."
+}
