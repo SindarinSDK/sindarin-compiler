@@ -5,6 +5,40 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Closure array mutation methods, 2026-10-06
+
+Closure default-array parameters and private captured snapshots now support
+reverse, clear, insert and remove through the same short-lived cell guards used
+by push/pop. Arguments and raw nested indices are evaluated before taking the
+array guard; resolved bounds are cached before projecting the mutable row.
+Nested operations mutate the stored row rather than a cloned read.
+
+Eight frozen controls pass **72** independent C/Rust output comparisons in all
+nine optimization/arithmetic modes. All eight sources pass the unchanged parent
+C backend in **24** source/optimization runs. Linux ASAN/UBSAN/leak checks pass
+**24** runs, covering strings, alias visibility, private snapshots, nested rows,
+callback-bearing indices/arguments and typed floating-variable insertion.
+The separately preserved integer-to-float insertion probe fails the shared
+frontend; a literal float probe with an incorrect assertion is not counted as
+an independent pass. No expected runtime output was weakened to accept it.
+
+Complete C/Rust suites pass without failures or skips, including **107** native
+positives. Frozen local acceptance verifies **49 reports / 4116 cases**, including
+all prior **48 / 4044**. CI requires the new all-platform gate and Linux sanitizer
+report. Exact-revision hosted acceptance remains required.
+
+All **1365** original source hashes remain unchanged. This increment adds
+composition coverage rather than closing another original corpus failure.
+Interface storage/native ABI, qualified closure signatures, parameter rebinding,
+named function array adapters, larger dynamic alias partitions and the other
+full-goal ownership/evaluation requirements remain work.
+
+Evidence: [validation](rust-parity-evidence/array-method-validation.json),
+[parent baseline](rust-parity-evidence/array-method-before.json),
+[repaired comparisons](rust-parity-evidence/array-method-after.json),
+[independent oracles](rust-parity-evidence/array-method-oracles.json),
+[C lifetimes](rust-parity-evidence/array-method-c-lifetimes.json).
+
 ## Shared closure array parameters, 2026-10-06
 
 Default array parameters now carry shared access to the caller's array instead
@@ -26,7 +60,10 @@ runtime oracle remain unchanged.
 Both complete suites pass without failures or skips, including **99** native
 positives. Frozen local acceptance verifies **48 reports / 4044 cases**, including
 the prior **47 / 3855**. The new gate runs on all three CI platforms, with Linux
-sanitizers mandatory. Exact-revision hosted acceptance remains required.
+sanitizers mandatory. All six exact-revision jobs passed for c8315346;
+all three platform artifacts independently verify **48 / 4044**, including the
+189 closure comparisons and Linux's 63 sanitizer runs.
+[Hosted proof](rust-parity-evidence/closure-array-main-ci-green.json).
 
 All **1365** original source hashes remain unchanged. Local original coverage
 is **1363 / 1365 (99.85%)**; this is corpus coverage, not full-goal completion.

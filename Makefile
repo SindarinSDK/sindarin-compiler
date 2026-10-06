@@ -1072,3 +1072,18 @@ test-rust-parity-closure-arrays: build
 		--require-count 21 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-closure-arrays.json
 	@$(PYTHON) scripts/check_rust_closure_array_oracles.py .sn/rust-parity-closure-arrays.json
+
+.PHONY: test-rust-parity-array-methods
+test-rust-parity-array-methods: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/rust-native/scalar_closure_array_required_methods.sn \
+		tests/rust-native/scalar_required_methods_argument.sn \
+		tests/rust-native/scalar_required_methods_capture.sn \
+		tests/rust-native/scalar_required_methods_floating_variable.sn \
+		tests/rust-native/scalar_required_methods_index.sn \
+		tests/rust-native/scalar_required_methods_int.sn \
+		tests/rust-native/scalar_required_methods_nested.sn \
+		tests/rust-native/scalar_required_methods_string.sn \
+		--require-count 8 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-array-methods.json
+	@$(PYTHON) scripts/check_rust_array_method_oracles.py .sn/rust-parity-array-methods.json

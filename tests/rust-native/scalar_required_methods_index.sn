@@ -1,0 +1,11 @@
+fn choose(rows: int[][]): int =>
+  rows[0].push(4)
+  return 0
+
+fn main(): void =>
+  var rows: int[][] = {{1, 2, 3}}
+  var reverse: fn(int[][]): int = fn(a: int[][]): int =>
+    a[choose(a)].reverse()
+    return a[0][0]
+  println(reverse(rows) == 4)
+  println(rows[0].length == 4 && rows[0][3] == 1)

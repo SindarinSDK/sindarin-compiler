@@ -1,0 +1,11 @@
+fn update(values: int[]): int =>
+  values.push(4)
+  return 9
+
+fn main(): void =>
+  var values: int[] = {1, 2, 3}
+  var insert: fn(int[]): int = fn(a: int[]): int =>
+    a.insert(update(a), 1)
+    return a.length
+  println(insert(values) == 5)
+  println(values[1] == 9 && values[4] == 4)

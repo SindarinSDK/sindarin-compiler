@@ -733,8 +733,6 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
                     const char *method = json_string_property(callee, "member_name");
                     if (rust_closure_mutating_array_method(method))
                     {
-                        if (strcmp(method, "push") != 0 && strcmp(method, "pop") != 0)
-                            return rust_closure_error("this mutable array snapshot method");
                         if (!json_boolean_property(b->declaration, "rust_shared_cell"))
                             json_object_object_add(b->declaration, "rust_array_snapshot_cell",
                                                    json_object_new_boolean(true));

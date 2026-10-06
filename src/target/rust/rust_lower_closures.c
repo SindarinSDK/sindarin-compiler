@@ -80,6 +80,50 @@ static void rust_lower_closure_array_arguments(json_object *model, json_object *
     json_object_object_foreach(node, key, child)
         if (strncmp(key, "rust_", 5) != 0)
             rust_lower_closure_array_arguments(model, child, next_id);
+    if (json_boolean_property(node, "rust_array_cell_mutation"))
+    {
+        json_object *callee = rust_closure_property(node, "callee");
+        const char *method = json_string_property(callee, "member_name");
+        if (method && strcmp(method, "push") != 0 && strcmp(method, "pop") != 0)
+        {
+            json_object *body = NULL;
+            if (json_object_deep_copy(node, &body, NULL) != 0 || !body) return;
+            json_object_object_del(body, "rust_array_cell_mutation");
+            json_object_object_del(body, "rust_array_cell_nested_mutation");
+            json_object *receiver = rust_closure_property(rust_closure_property(body, "callee"), "object");
+            json_object *root = receiver;
+            while (json_string_property_equals(root, "kind", "array_access"))
+            {
+                json_object_object_del(root, "rust_needs_clone");
+                root = rust_closure_property(root, "array");
+            }
+            char guard[96];
+            if (!rust_allocate_helper_name(model, "__sn_closure_array_mutation_guard", guard, sizeof(guard))) return;
+            json_object_object_add(node, "rust_array_cell_other_mutation", json_object_new_boolean(true));
+            json_object_object_add(node, "rust_array_cell_other_guard", json_object_new_string(guard));
+            json_object_object_add(node, "rust_array_cell_other_parameter", json_object_new_boolean(json_boolean_property(root, "rust_closure_array_parameter")));
+            json_object_object_add(root, "rust_array_method_guard", json_object_new_string(guard));
+            json_object_object_add(root, "rust_array_method_parameter", json_object_new_boolean(json_boolean_property(root, "rust_closure_array_parameter")));
+            json_object *original_args = rust_closure_property(node, "args");
+            json_object *args = json_object_new_array();
+            json_object_object_add(node, "rust_array_cell_other_args", json_object_get(original_args));
+            for (size_t i = 0; i < json_object_array_length(original_args); i++)
+            {
+                json_object *arg = json_object_array_get_idx(original_args, i);
+                char name[96];
+                if (!rust_allocate_helper_name(model, "__sn_closure_array_mutation_arg", name, sizeof(name))) return;
+                json_object_object_add(arg, "rust_array_cell_other_arg_name", json_object_new_string(name));
+                json_object *ref = json_object_new_object();
+                json_object_object_add(ref, "kind", json_object_new_string("variable"));
+                json_object_object_add(ref, "name", json_object_new_string(name));
+                json_object_object_add(ref, "type", json_object_get(rust_closure_property(arg, "type")));
+                json_object_array_add(args, ref);
+            }
+            json_object_object_add(body, "args", args);
+            json_object_object_add(node, "rust_array_cell_other_body", body);
+        }
+        return;
+    }
     if (!json_boolean_property(node, "rust_closure_call"))
     {
         json_object *callee = rust_closure_property(node, "callee");

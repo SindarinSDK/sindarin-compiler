@@ -1,0 +1,11 @@
+fn main(): void =>
+  var values: int[] = {1, 2, 3}
+  var mutate: fn(): int = fn(): int =>
+    values.reverse()
+    var result = values[0]
+    values.clear()
+    values.push(result)
+    return values[0]
+  println(mutate() == 3)
+  println(values.length == 3 && values[0] == 1)
+  println(mutate() == 3)

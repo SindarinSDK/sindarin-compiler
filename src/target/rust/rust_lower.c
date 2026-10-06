@@ -1603,15 +1603,19 @@ static bool rust_assign_array_join_index_names(
     bool is_indexed_method =
         json_boolean_property(node, "rust_indexed_method_stable_place");
     bool is_closure_array_method = json_boolean_property(node, "rust_closure_array_method_guard");
-    if (!is_join && !is_indexed_method && !is_closure_array_method) return true;
+    bool is_array_cell_other = json_boolean_property(node, "rust_array_cell_other_mutation");
+    if (!is_join && !is_indexed_method && !is_closure_array_method && !is_array_cell_other) return true;
+    json_object *call = is_array_cell_other ? rust_closure_property(node, "rust_array_cell_other_body") : node;
     json_object *callee = NULL, *receiver = NULL;
-    if (!json_object_object_get_ex(node, "callee", &callee) ||
+    if (!json_object_object_get_ex(call, "callee", &callee) ||
         !json_object_object_get_ex(callee, "object", &receiver))
         return false;
     if (!rust_capture_array_join_place_owner(
             model, node, receiver, next_owner_id))
         return false;
     if (!rust_assign_array_join_place_index_names(model, receiver, next_id)) return false;
+    if (is_array_cell_other)
+        json_object_object_add(node, "rust_array_cell_other_place", json_object_get(receiver));
     if (is_closure_array_method)
     {
         json_object *actual = NULL;

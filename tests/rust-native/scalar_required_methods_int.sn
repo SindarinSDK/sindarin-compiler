@@ -1,0 +1,9 @@
+fn main(): void =>
+  var values: int[] = {1, 2, 3}
+  var mutate: fn(int[], int[]): int = fn(a: int[], b: int[]): int =>
+    a.insert(9, 1)
+    a.remove(0)
+    a.reverse()
+    return b[2]
+  println(mutate(values, values) == 9)
+  println(values.length == 3 && values[0] == 3 && values[1] == 2 && values[2] == 9)
