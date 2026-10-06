@@ -1268,3 +1268,25 @@ test-rust-parity-string-rebinding: build
 		--require-count 8 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-string-rebinding.json
 	@$(PYTHON) scripts/check_rust_string_rebinding_oracles.py .sn/rust-parity-string-rebinding.json
+
+.PHONY: test-rust-parity-private-arrays
+test-rust-parity-private-arrays: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/rust-native/scalar_closure_private_array_basic.sn \
+		tests/rust-native/scalar_closure_private_array_self.sn \
+		tests/rust-native/scalar_closure_private_array_aliases.sn \
+		tests/rust-native/scalar_closure_private_array_nil.sn \
+		tests/rust-native/scalar_closure_private_array_forward.sn \
+		tests/rust-native/scalar_closure_private_array_closure_forward.sn \
+		tests/rust-native/scalar_closure_private_array_captures.sn \
+		tests/rust-native/scalar_closure_private_array_mixed_values.sn \
+		tests/rust-native/scalar_closure_private_array_nested.sn \
+		tests/rust-native/scalar_closure_private_array_partitions.sn \
+		tests/rust-native/scalar_closure_private_array_native.sn \
+		tests/rust-native/scalar_closure_private_array_native_aliases.sn \
+		tests/rust-native/scalar_closure_private_array_asval_result.sn \
+		tests/rust-native/scalar_closure_private_array_rhs_effects.sn \
+		tests/rust-native/scalar_closure_private_array_sizeof.sn \
+		--require-count 15 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-private-arrays.json
+	@$(PYTHON) scripts/check_rust_private_array_oracles.py .sn/rust-parity-private-arrays.json

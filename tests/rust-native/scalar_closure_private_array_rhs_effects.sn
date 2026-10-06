@@ -1,0 +1,13 @@
+fn replacement(a: int[], calls: int as ref): int[] =>
+  calls += 1
+  a[0] = 7
+  return {2, 3}
+fn main(): void =>
+  var original: int[] = {1}
+  var calls: int = 0
+  var change = fn(a: int[], b: int[], calls: int as ref): bool =>
+    a = replacement(a, calls)
+    return a[0] == 2 && a.length == 2 && b[0] == 7
+  println(change(original, original, calls))
+  println(original[0] == 7 && original.length == 1)
+  println(calls == 1)

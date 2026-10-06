@@ -1,0 +1,1 @@
+bool same_data(SnArray *a, SnArray *b) { return a->data == b->data; }

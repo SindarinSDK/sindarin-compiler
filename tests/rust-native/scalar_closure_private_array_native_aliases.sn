@@ -1,0 +1,27 @@
+@source "scalar_closure_private_array_native_aliases.sn.c"
+
+native struct Token as ref =>
+  id: int
+  @alias "token_dispose"
+  native fn dispose(): void
+
+native fn token_create(id: int): Token
+native fn token_refs(value: Token): int
+native fn token_alive(): int
+native fn array_same(left: Token[], right: Token[]): bool
+
+fn exercise(): void =>
+  var first: Token = token_create(1)
+  var next: Token = token_create(2)
+  var original: Token[] = {first}
+  var change = fn(a: Token[], b: Token[], value: Token): bool =>
+    var shared: bool = array_same(a, b)
+    a = {value}
+    return shared && !array_same(a, b) && a[0].id == 2 && b[0].id == 1
+  println(change(original, original, next))
+  println(original[0].id == 1)
+  println(token_refs(first) == 2 && token_refs(next) == 1)
+
+fn main(): void =>
+  exercise()
+  println(token_alive() == 0)

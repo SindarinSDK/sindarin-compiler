@@ -1,0 +1,10 @@
+@source "default-array-native.sn.c"
+native fn same_data(a: int[], b: int[]): bool
+fn main(): void =>
+  var original: int[] = {1}
+  var change = fn(a: int[], b: int[]): bool =>
+    var shared: bool = same_data(a, b)
+    a = {2}
+    return shared && !same_data(a, b)
+  println(change(original, original))
+  println(original[0] == 1)

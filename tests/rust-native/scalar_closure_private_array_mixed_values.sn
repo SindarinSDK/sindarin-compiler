@@ -1,0 +1,12 @@
+fn main(): void =>
+  var original: int[] = {1}
+  var change = fn(a: int[], b: int[] as val): bool =>
+    a[0] = 7
+    b[0] = 8
+    a = {2}
+    b = {3}
+    a.push(4)
+    b.push(5)
+    return a[0] == 2 && b[0] == 3 && a.length == 2 && b.length == 2
+  println(change(original, original))
+  println(original[0] == 7 && original.length == 1)

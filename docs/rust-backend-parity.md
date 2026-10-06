@@ -109,6 +109,14 @@ evidence remains required after publication. Native closure
 string buffer alias identity remains a separately demonstrated storage gap;
 those differing controls receive no parity credit.
 
+The prepared private array binding increment preserves caller mutations before
+rebinding and independent per-formal storage afterward, including aliases,
+forwarding, snapshots and native handle lifetimes. All 77 combined local commands pass,
+60 reports / 5250 cases, 15 literal controls and 45 sanitizer executions. It is
+validated against `f8421976`; its own full platform evidence remains required.
+Primitive native array parameters and native string physical aliases remain
+required interop work without parity credit.
+
 The 2026-10-03 float/double increment adds conversions at tested scalar storage,
 call and return boundaries and mixed floating compound mutation, including
 observable synchronized cells. Historical same-type-only exclusions below are

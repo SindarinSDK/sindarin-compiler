@@ -1,0 +1,13 @@
+fn bump(a: int[], b: int[], c: int[]): void =>
+  a[0] += 1
+  b[0] += 1
+  c[0] += 1
+fn main(): void =>
+  var original: int[] = {1}
+  var change = fn(a: int[], b: int[]): bool =>
+    bump(a, b, b)
+    a = {2}
+    bump(a, b, b)
+    return a[0] == 3 && b[0] == 6
+  println(change(original, original))
+  println(original[0] == 6)

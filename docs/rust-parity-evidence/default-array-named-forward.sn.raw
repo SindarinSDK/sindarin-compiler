@@ -1,0 +1,13 @@
+fn touch(a: int[]): void =>
+  a.push(8)
+fn main(): void =>
+  var original: int[] = {1}
+  var worker: fn(int[]): void = touch
+  var change = fn(a: int[]): int[] =>
+    worker(a)
+    a = {2}
+    worker(a)
+    return a
+  var result: int[] = change(original)
+  println(result[0] == 2 && result.length == 2 && result[1] == 8)
+  println(original[0] == 1 && original.length == 2 && original[1] == 8)

@@ -371,6 +371,8 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                 if (json_object_object_get_ex(obj, "value", &return_value) &&
                     json_object_object_get_ex(return_value, "c_string_parameter_owner", &string_owner))
                     json_object_object_add(obj, "source_is_borrow", json_object_new_boolean(true));
+                if (rv->type == EXPR_ASSIGN && rv->expr_type && rv->expr_type->kind == TYPE_ARRAY)
+                    json_object_object_add(obj, "source_is_borrow", json_object_new_boolean(true));
                 bool is_return_self = (rv->type == EXPR_VARIABLE &&
                     rv->as.variable.name.length == 4 &&
                     strncmp(rv->as.variable.name.start, "self", 4) == 0);

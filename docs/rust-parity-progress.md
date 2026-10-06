@@ -82,6 +82,41 @@ Evidence: [validation](rust-parity-evidence/string-rebinding-validation.json),
 [C lifetimes](rust-parity-evidence/string-rebinding-c-lifetimes.json),
 [native alias gap](rust-parity-evidence/string-native-alias-gap.json).
 
+## Private closure array bindings, prepared 2026-10-06
+
+Default array formals now preserve the caller's actual storage for element and
+method mutations until rebinding. A rebind replaces only that invocation's formal
+with private owned storage; other aliases retain their previous owner. C tracks
+private replacements in cleanup slots instead of freeing borrowed caller arrays,
+and copies array assignment-result returns before local cleanup. Rust uses a
+hygienic borrowed/owned enum with mapped `Ref`/`RefMut` guards in programs that
+require default-formal rebinding. Dynamic alias dispatch compares actual owner
+cell addresses; the implementation adds no unsafe Rust storage casts.
+
+Fifteen literal controls pass **135** mode comparisons and **45** Linux
+ASAN/UBSAN/leak runs. They cover self/nil/return assignment, forwarding,
+snapshots before/after rebinding, mixed default/as-val formals, nested arrays,
+dynamic partitions, real native array header identities/reference counts/zero
+live objects, once-only RHS effects and the C wire `sizeof` result. RHS borrow
+guards end before a hygienic temporary borrows the formal for replacement.
+All **77** combined acceptance commands pass with frozen inputs, including complete
+C/Rust suites, **60 reports / 5250 cases**, exact **221** native fixtures,
+**501** Rust/**107** C goldens and **121** admission-error fixtures.
+Existing sources/goldens and all **1365** original corpus hashes remain unchanged.
+
+This candidate is validated against array/string main `f8421976`. Its own
+complete exact-revision hosted verification remains required after publication. Ordinary primitive native array parameters are
+still rejected by Rust, and native string physical aliases remain different.
+An authored named-function array-forwarding probe crashes C and gets no credit;
+a captured scalar reference-forwarding control requires a separate repair.
+Interfaces/native wire/empty physical identity, physical value-record receivers
+and remaining qualifiers and lifetime/evaluation contexts prevent completion.
+
+Evidence: [validation](rust-parity-evidence/private-array-validation.json),
+[oracles](rust-parity-evidence/private-array-oracles.json),
+[comparisons](rust-parity-evidence/private-array-after.json),
+[C lifetimes](rust-parity-evidence/private-array-c-lifetimes.json).
+
 ## Scalar closure RHS sequencing: CI repair, 2026-10-06
 
 macOS runtime job 112380383034 and Windows job 112380383080 for `a69da434` failed the unchanged scalar

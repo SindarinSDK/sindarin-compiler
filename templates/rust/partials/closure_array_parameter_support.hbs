@@ -1,0 +1,30 @@
+enum {{rust_ident rust_closure_array_param_type}}<'a, T> {
+    Borrowed(std::rc::Rc<std::cell::RefCell<&'a mut T>>),
+    Owned(std::rc::Rc<std::cell::RefCell<T>>),
+}
+impl<'a, T> Clone for {{rust_ident rust_closure_array_param_type}}<'a, T> {
+    fn clone(&self) -> Self {
+        match self { Self::Borrowed(cell) => Self::Borrowed(cell.clone()), Self::Owned(cell) => Self::Owned(cell.clone()) }
+    }
+}
+impl<'a, T> {{rust_ident rust_closure_array_param_type}}<'a, T> {
+    fn borrowed(value: &'a mut T) -> Self { Self::Borrowed(std::rc::Rc::new(std::cell::RefCell::new(value))) }
+    fn owned(value: T) -> Self { Self::Owned(std::rc::Rc::new(std::cell::RefCell::new(value))) }
+    fn borrow(&self) -> std::cell::Ref<'_, T> {
+        match self { Self::Borrowed(cell) => std::cell::Ref::map(cell.borrow(), |value| &**value), Self::Owned(cell) => cell.borrow() }
+    }
+    fn borrow_mut(&self) -> std::cell::RefMut<'_, T> {
+        match self { Self::Borrowed(cell) => std::cell::RefMut::map(cell.borrow_mut(), |value| &mut **value), Self::Owned(cell) => cell.borrow_mut() }
+    }
+}
+trait {{rust_ident rust_closure_array_identity_trait}} {
+    fn {{rust_ident rust_closure_array_identity_method}}(&self) -> *const ();
+}
+impl<T> {{rust_ident rust_closure_array_identity_trait}} for std::rc::Rc<std::cell::RefCell<T>> {
+    fn {{rust_ident rust_closure_array_identity_method}}(&self) -> *const () { std::rc::Rc::as_ptr(self).cast::<()>() }
+}
+impl<'a, T> {{rust_ident rust_closure_array_identity_trait}} for {{rust_ident rust_closure_array_param_type}}<'a, T> {
+    fn {{rust_ident rust_closure_array_identity_method}}(&self) -> *const () {
+        match self { Self::Borrowed(cell) => std::rc::Rc::as_ptr(cell).cast::<()>(), Self::Owned(cell) => std::rc::Rc::as_ptr(cell).cast::<()>() }
+    }
+}

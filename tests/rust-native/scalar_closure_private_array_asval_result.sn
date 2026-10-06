@@ -1,0 +1,8 @@
+fn main(): void =>
+  var original: int[] = {1}
+  var change = fn(a: int[] as val): int[] =>
+    return a = {3, 4}
+  var result: int[] = change(original)
+  result.push(5)
+  println(result[0] == 3 && result.length == 3)
+  println(original[0] == 1 && original.length == 1)

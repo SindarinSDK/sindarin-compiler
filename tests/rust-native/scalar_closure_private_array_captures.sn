@@ -1,0 +1,10 @@
+fn main(): void =>
+  var original: int[] = {1}
+  var change = fn(a: int[]): int =>
+    var before = fn(): int => a[0]
+    a = {2}
+    var after = fn(): int => a[0]
+    a[0] = 3
+    return before() * 100 + after() * 10 + a[0]
+  println(change(original) == 123)
+  println(original[0] == 1)

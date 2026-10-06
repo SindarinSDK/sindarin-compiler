@@ -9,7 +9,7 @@
 static json_object *c_lambda_parameters = NULL;
 static int c_lambda_parameter_id = -1;
 
-static void c_model_string_parameter_mutation(json_object *model, Expr *expr)
+static void c_model_borrowed_parameter_mutation(json_object *model, Expr *expr)
 {
     Token *target_name = NULL;
     bool parameter = false;
@@ -24,8 +24,9 @@ static void c_model_string_parameter_mutation(json_object *model, Expr *expr)
         target_name = &expr->as.compound_assign.target->as.variable.name;
         parameter = expr->as.compound_assign.target->as.variable.is_param_ref;
     }
-    if (!c_lambda_parameters || !target_name || !parameter ||
-        !expr->expr_type || expr->expr_type->kind != TYPE_STRING) return;
+    if (!c_lambda_parameters || !target_name || !parameter || !expr->expr_type ||
+        (expr->expr_type->kind != TYPE_STRING && expr->expr_type->kind != TYPE_ARRAY)) return;
+    bool array = expr->expr_type->kind == TYPE_ARRAY;
     for (size_t i = 0; i < json_object_array_length(c_lambda_parameters); i++)
     {
         json_object *param = json_object_array_get_idx(c_lambda_parameters, i);
@@ -35,11 +36,13 @@ static void c_model_string_parameter_mutation(json_object *model, Expr *expr)
         const char *text = json_object_get_string(name);
         if (strlen(text) != (size_t)target_name->length ||
             strncmp(text, target_name->start, target_name->length) != 0 ||
-            strcmp(json_object_get_string(qual), "as_ref") == 0) continue;
+            strcmp(json_object_get_string(qual), "as_ref") == 0 ||
+            (array && strcmp(json_object_get_string(qual), "as_val") == 0)) continue;
         char owner[96];
-        snprintf(owner, sizeof(owner), "__sn_ci_string_owner_l%d_p%zu", c_lambda_parameter_id, i);
-        json_object_object_add(param, "c_string_parameter_owner", json_object_new_string(owner));
-        json_object_object_add(model, "c_string_parameter_owner", json_object_new_string(owner));
+        snprintf(owner, sizeof(owner), "__sn_ci_%s_owner_l%d_p%zu", array ? "array" : "string", c_lambda_parameter_id, i);
+        const char *field = array ? "c_array_parameter_owner" : "c_string_parameter_owner";
+        json_object_object_add(param, field, json_object_new_string(owner));
+        json_object_object_add(model, field, json_object_new_string(owner));
         return;
     }
 }
@@ -972,7 +975,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 }
             }
             json_object_object_add(obj, "target", json_object_new_string(aname));
-            c_model_string_parameter_mutation(obj, expr);
+            c_model_borrowed_parameter_mutation(obj, expr);
             json_object_object_add(obj, "value",
                 gen_model_expr(arena, expr->as.assign.value, symbol_table, arithmetic_mode));
             /* Check if target is captured or is an 'as ref' param (C pointer needing *) */
@@ -1093,7 +1096,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 json_object_object_add(ca_val, "is_str_temp",
                     json_object_new_boolean(true));
             json_object_object_add(obj, "value", ca_val);
-            c_model_string_parameter_mutation(obj, expr);
+            c_model_borrowed_parameter_mutation(obj, expr);
             Expr *target = expr->as.compound_assign.target;
             if (g_in_lambda_body && target && target->type == EXPR_VARIABLE &&
                 target->as.variable.is_param_ref && c_model_numeric_scalar_type(target->expr_type) &&

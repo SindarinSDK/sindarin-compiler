@@ -1,0 +1,9 @@
+fn main(): void =>
+  var original: int[] = {1}
+  var change = fn(a: int[], b: int[]): bool =>
+    a[0] = 7
+    a = {30}
+    a[0] = 31
+    return a[0] == 31 && b[0] == 7 && b.length == 1
+  println(change(original, original))
+  println(original[0] == 7 && original.length == 1)

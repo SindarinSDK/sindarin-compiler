@@ -122,6 +122,15 @@ static char *rust_closure_parameter_type(json_object *type)
         return borrowed;
     }
     if (!value || !kind || strcmp(kind, "array") != 0) return value;
+    json_object *array_name = NULL;
+    if (json_object_object_get_ex(type, "rust_closure_array_type_name", &array_name))
+    {
+        const char *name = json_object_get_string(array_name);
+        char *result = malloc(strlen(name) + strlen(value) + 10);
+        if (result) sprintf(result, "%s<'_, %s>", name, value);
+        free(value);
+        return result;
+    }
     char *result = malloc(strlen(value) + sizeof("std::rc::Rc<std::cell::RefCell<&mut >>"));
     if (result) sprintf(result, "std::rc::Rc<std::cell::RefCell<&mut %s>>", value);
     free(value);

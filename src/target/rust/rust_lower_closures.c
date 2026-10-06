@@ -146,6 +146,14 @@ static void rust_lower_closure_array_arguments(json_object *model, json_object *
             json_object_object_add(node, "rust_closure_array_member_body", body);
         }
     }
+    if (json_boolean_property(node, "rust_closure_private_array_rebind"))
+    {
+        char value[96], place[96];
+        if (!rust_allocate_helper_name(model, "__sn_array_rebind_value", value, sizeof(value)) ||
+            !rust_allocate_helper_name(model, "__sn_array_rebind_place", place, sizeof(place))) return;
+        json_object_object_add(node, "rust_closure_rebind_value", json_object_new_string(value));
+        json_object_object_add(node, "rust_closure_rebind_place", json_object_new_string(place));
+    }
     if (json_boolean_property(node, "rust_closure_array_parameter_copy"))
     {
         char owner[96];
@@ -541,6 +549,22 @@ static void rust_lower_ref_previous_names(json_object *model, json_object *node)
     }
 }
 
+static void rust_name_rebindable_array_types(json_object *node, const char *name)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array))
+    {
+        for (size_t i = 0; i < json_object_array_length(node); i++)
+            rust_name_rebindable_array_types(json_object_array_get_idx(node, i), name);
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
+    json_object_object_foreach(node, key, child)
+        if (strncmp(key, "rust_", 5) != 0) rust_name_rebindable_array_types(child, name);
+    if (json_string_property_equals(node, "kind", "array"))
+        json_object_object_add(node, "rust_closure_array_type_name", json_object_new_string(name));
+}
+
 static void rust_lower_closures(json_object *model)
 {
     rust_lower_ref_previous_names(model, model);
@@ -568,6 +592,18 @@ static void rust_lower_closures(json_object *model)
         char helper[96];
         if (!rust_allocate_helper_name(model, scalar_bases[i], helper, sizeof(helper))) return;
         json_object_object_add(model, scalar_keys[i], json_object_new_string(helper));
+    }
+    if (json_boolean_property(model, "rust_closure_rebindable_arrays"))
+    {
+        char array_type[96];
+        if (!rust_allocate_helper_name(model, "__SnClosureArray", array_type, sizeof(array_type))) return;
+        json_object_object_add(model, "rust_closure_array_param_type", json_object_new_string(array_type));
+        char identity_trait[96], identity_method[96];
+        if (!rust_allocate_helper_name(model, "__SnArrayCellIdentity", identity_trait, sizeof(identity_trait)) ||
+            !rust_allocate_helper_name(model, "__sn_array_cell_identity", identity_method, sizeof(identity_method))) return;
+        json_object_object_add(model, "rust_closure_array_identity_trait", json_object_new_string(identity_trait));
+        json_object_object_add(model, "rust_closure_array_identity_method", json_object_new_string(identity_method));
+        rust_name_rebindable_array_types(model, array_type);
     }
     unsigned int argument_id = 0;
     rust_lower_closure_array_arguments(model, model, &argument_id);

@@ -16,7 +16,8 @@
     {{#if is_captured}}*{{/if}}__sn__{{target}};
 }){{else}}{{#if (eq assign_cleanup "cleanup_arr")}}({
     SnArray *__sn_tmp__ = {{#if source_is_borrow}}sn_array_copy({{> expr value}}){{else}}{{> expr value}}{{/if}};
-    sn_cleanup_array(&{{#if is_captured}}*{{/if}}__sn__{{target}});
+    sn_cleanup_array(&{{#if c_array_parameter_owner}}{{c_array_parameter_owner}}{{else}}{{#if is_captured}}*{{/if}}__sn__{{target}}{{/if}});{{#if c_array_parameter_owner}}
+    {{c_array_parameter_owner}} = __sn_tmp__;{{/if}}
     {{#if is_captured}}*{{/if}}__sn__{{target}} = __sn_tmp__;
     {{#if is_captured}}*{{/if}}__sn__{{target}};
 }){{else}}{{#if (eq assign_cleanup "free_closure")}}({
