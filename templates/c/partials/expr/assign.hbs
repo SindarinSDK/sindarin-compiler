@@ -1,6 +1,7 @@
 {{#if (eq value.kind "thread_spawn")}}(__sn__{{target}}__th__ = {{> expr value}}){{else}}{{#if (eq assign_cleanup "free_str")}}({
     char *__sn_tmp__ = {{#if source_is_borrow}}strdup({{> expr value}}){{else}}{{> expr value}}{{/if}};
-    free({{#if is_captured}}*{{/if}}__sn__{{target}});
+    free({{#if c_string_parameter_owner}}{{c_string_parameter_owner}}{{else}}{{#if is_captured}}*{{/if}}__sn__{{target}}{{/if}});{{#if c_string_parameter_owner}}
+    {{c_string_parameter_owner}} = __sn_tmp__;{{/if}}
     {{#if is_captured}}*{{/if}}__sn__{{target}} = __sn_tmp__;
     {{#if is_captured}}*{{/if}}__sn__{{target}};
 }){{else}}{{#if (eq assign_cleanup "release_ref")}}({

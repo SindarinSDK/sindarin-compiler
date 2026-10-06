@@ -249,6 +249,7 @@ typedef struct
     Token name;
     Expr *value;
     int lhs_scope_depth; /* set by type checker; <= 0 means module-level global */
+    bool is_param_ref; /* assignment target resolves to a function parameter */
 } AssignExpr;
 
 typedef struct

@@ -1,0 +1,10 @@
+@source "string-rebind-native-alias.sn.c"
+native fn same_string_place(a: str, b: str): bool
+fn main(): void =>
+  var original: str = "old"
+  var check = fn(a: str, b: str): bool =>
+    var shared: bool = same_string_place(a, b)
+    a = "new"
+    return shared && !same_string_place(a, b)
+  println(check(original, original))
+  println(original == "old")

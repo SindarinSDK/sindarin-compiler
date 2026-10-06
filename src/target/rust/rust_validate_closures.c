@@ -114,7 +114,7 @@ static bool rust_closure_type_supported(json_object *type)
         const char *qual = i < rust_closure_length(quals)
             ? json_object_get_string(json_object_array_get_idx(quals, i)) : "default";
         if (strcmp(qual, "default") != 0 &&
-            !(strcmp(qual, "as_val") == 0 && (rust_closure_array_type(param) || rust_closure_scalar_type(param) ||
+            !(strcmp(qual, "as_val") == 0 && (rust_closure_array_type(param) || rust_closure_scalar_type(param) || rust_closure_string_type(param) ||
                                            rust_auto_copy_plain_value_struct_type(param, NULL))) &&
             !(strcmp(qual, "as_ref") == 0 && rust_closure_scalar_type(param))) return false;
         if (strcmp(qual, "as_ref") == 0 && rust_closure_scalar_type(param))
@@ -413,11 +413,15 @@ static bool rust_closure_walk_lambda(RustClosureScope *scope, json_object *node)
             json_object_object_add(p, "rust_closure_record_value_parameter", json_object_new_boolean(true));
             json_object_object_add(p, "rust_closure_mutable_parameter", json_object_new_boolean(true));
         }
+        bool string_value = rust_closure_string_type(rust_closure_property(p, "type")) &&
+            !json_string_property_equals(p, "mem_qual", "as_ref");
+        if (string_value)
+            json_object_object_add(p, "rust_closure_string_value_parameter", json_object_new_boolean(true));
         bool scalar_value = rust_closure_scalar_type(rust_closure_property(p, "type")) &&
             !json_string_property_equals(p, "mem_qual", "as_ref");
         if (scalar_value)
             json_object_object_add(p, "rust_closure_scalar_value_parameter", json_object_new_boolean(true));
-        if (!json_string_property_equals(p, "mem_qual", "default") && !record_ref && !array_copy && !scalar_value && !record_value)
+        if (!json_string_property_equals(p, "mem_qual", "default") && !record_ref && !array_copy && !scalar_value && !record_value && !string_value)
             ok = rust_closure_error("qualified closure parameters");
         else ok = rust_closure_bind(scope, p, json_string_property(p, "name"), -1, false);
     }
@@ -621,8 +625,14 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
         !place->capture &&
         !json_boolean_property(place->declaration, "rust_closure_param_share"))
     {
+        bool string_assignment = json_boolean_property(place->declaration, "rust_closure_string_value_parameter") &&
+            kind && (strcmp(kind, "assign") == 0 || strcmp(kind, "compound_assign") == 0);
+        if (string_assignment && strcmp(kind, "assign") == 0)
+            json_object_object_add(node, "rust_by_value_string_parameter_assign", json_object_new_boolean(true));
+        if (string_assignment && strcmp(kind, "compound_assign") == 0)
+            json_object_object_add(node, "rust_by_value_string_parameter_mutation", json_object_new_boolean(true));
         if (!json_boolean_property(place->declaration, "rust_closure_scalar_value_parameter") &&
-            !json_boolean_property(place->declaration, "rust_closure_record_value_parameter"))
+            !json_boolean_property(place->declaration, "rust_closure_record_value_parameter") && !string_assignment)
             return rust_closure_error("mutation of closure parameters");
         json_object_object_add(place->declaration, "rust_closure_mutable_parameter", json_object_new_boolean(true));
         if (json_boolean_property(place->declaration, "rust_closure_scalar_value_parameter"))
@@ -726,6 +736,7 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
     }
     bool shared_owned = place && rust_closure_string_type(
         rust_closure_property(place->declaration, "type")) &&
+        !json_boolean_property(place->declaration, "rust_closure_string_value_parameter") &&
         json_boolean_property(place->declaration, "rust_owned_capture_candidate");
     if (shared_owned)
     {

@@ -1,0 +1,5 @@
+fn main(): void =>
+  var original: str = "old"
+  var change = fn(a: str): str => a = "new"
+  println(change(original) == "new")
+  println(original == "old")

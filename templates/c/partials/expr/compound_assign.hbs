@@ -2,10 +2,14 @@
 {{#if value.is_str_temp}}    char *__sct__ = {{> expr value}};
     char *__old__ = {{> expr target}};
     {{> expr target}} = sn_str_concat({{> expr target}}, __sct__);
-    free(__old__);
+    free({{#if c_string_parameter_owner}}{{c_string_parameter_owner}}{{else}}__old__{{/if}});
+{{#if c_string_parameter_owner}}    {{c_string_parameter_owner}} = {{> expr target}};
+{{/if}}
     free(__sct__);
 {{else}}    char *__old__ = {{> expr target}};
     {{> expr target}} = sn_str_concat({{> expr target}}, {{> expr value}});
-    free(__old__);
+    free({{#if c_string_parameter_owner}}{{c_string_parameter_owner}}{{else}}__old__{{/if}});
+{{#if c_string_parameter_owner}}    {{c_string_parameter_owner}} = {{> expr target}};
+{{/if}}
 {{/if}}    {{> expr target}};
 }){{else}}{{> expr target}} = {{> expr target}} {{op_symbol op}} {{> expr value}}{{/if}}{{/if}}

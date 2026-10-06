@@ -85,6 +85,7 @@ Type *type_check_assign(Expr *expr, SymbolTable *table)
     /* Annotate the AST node with scope depth so codegen capture analysis
      * can distinguish module-level globals from true locals. */
     expr->as.assign.lhs_scope_depth = sym->declaration_scope_depth;
+    expr->as.assign.is_param_ref = (sym->kind == SYMBOL_PARAM);
 
     /* Check if trying to assign to a namespace */
     if (sym->is_namespace)

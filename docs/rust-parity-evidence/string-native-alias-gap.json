@@ -1,0 +1,30 @@
+{
+  "baseline": ".sn/string-closure-native-alias-baseline.json",
+  "rebind": ".sn/string-rebind-native-alias.json",
+  "C_lifetimes": ".sn/string-native-alias-c-lifetimes.json",
+  "condition": "C0 true,true vs Rust0 false,true in all nine modes, both original-main no-mutation closure and candidate rebinding closure. Same original string passed to two formals has identical C native buffer pointer; Rust call clones split buffers. All six C sanitizer runs pass. This remains required interop storage repair, no parity credit.",
+  "sources": {
+    ".sn/string-closure-native-alias-baseline.sn": "9f205bbfb86f225239f670e94001540b9b734b4ce577e614eb599cbcc35d93b7",
+    ".sn/string-closure-native-alias-baseline.sn.c": "91cfb3b4301472c9c6c1aea7f60f8cd9101e29d94cc0c0489ad2cbe7ff81dfce",
+    ".sn/string-rebind-native-alias.sn": "0125ed05568397be971be965b941b2713cf112cf76a68d44b2b48f39f792ebb7",
+    ".sn/string-rebind-native-alias.sn.c": "91cfb3b4301472c9c6c1aea7f60f8cd9101e29d94cc0c0489ad2cbe7ff81dfce"
+  },
+  "saved_source_artifacts": {
+    "docs/rust-parity-evidence/string-closure-native-alias-baseline.sn.raw": {
+      "original_source": ".sn/string-closure-native-alias-baseline.sn",
+      "sha256": "9f205bbfb86f225239f670e94001540b9b734b4ce577e614eb599cbcc35d93b7"
+    },
+    "docs/rust-parity-evidence/string-closure-native-alias-baseline.sn.c.raw": {
+      "original_source": ".sn/string-closure-native-alias-baseline.sn.c",
+      "sha256": "91cfb3b4301472c9c6c1aea7f60f8cd9101e29d94cc0c0489ad2cbe7ff81dfce"
+    },
+    "docs/rust-parity-evidence/string-rebind-native-alias.sn.raw": {
+      "original_source": ".sn/string-rebind-native-alias.sn",
+      "sha256": "0125ed05568397be971be965b941b2713cf112cf76a68d44b2b48f39f792ebb7"
+    },
+    "docs/rust-parity-evidence/string-rebind-native-alias.sn.c.raw": {
+      "original_source": ".sn/string-rebind-native-alias.sn.c",
+      "sha256": "91cfb3b4301472c9c6c1aea7f60f8cd9101e29d94cc0c0489ad2cbe7ff81dfce"
+    }
+  }
+}

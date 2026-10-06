@@ -367,6 +367,10 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                  * memset would zero the caller's struct through the pointer, destroying data
                  * when the return value is discarded (e.g., chaining: obj.method(x)) */
                 Expr *rv = stmt->as.return_stmt.value;
+                json_object *return_value = NULL, *string_owner = NULL;
+                if (json_object_object_get_ex(obj, "value", &return_value) &&
+                    json_object_object_get_ex(return_value, "c_string_parameter_owner", &string_owner))
+                    json_object_object_add(obj, "source_is_borrow", json_object_new_boolean(true));
                 bool is_return_self = (rv->type == EXPR_VARIABLE &&
                     rv->as.variable.name.length == 4 &&
                     strncmp(rv->as.variable.name.start, "self", 4) == 0);

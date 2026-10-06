@@ -1811,6 +1811,7 @@ static bool rust_validate_expr(json_object *expr)
                 !json_string_property_equals(
                     target, "parameter_mem_qual", "as_ref") &&
                 !json_boolean_property(expr, "rust_shared_owned_cell") &&
+                !json_boolean_property(expr, "rust_by_value_string_parameter_mutation") &&
                 !iterator_binding_mutation)
             {
                 fprintf(stderr,

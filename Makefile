@@ -1253,3 +1253,18 @@ test-rust-parity-array-rebinding: build
 		--require-count 11 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-array-rebinding.json
 	@$(PYTHON) scripts/check_rust_array_rebinding_oracles.py .sn/rust-parity-array-rebinding.json
+
+.PHONY: test-rust-parity-string-rebinding
+test-rust-parity-string-rebinding: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/rust-native/scalar_closure_string_rebinding_default.sn \
+		tests/rust-native/scalar_closure_string_rebinding_asval.sn \
+		tests/rust-native/scalar_closure_string_rebinding_result.sn \
+		tests/rust-native/scalar_closure_string_rebinding_self.sn \
+		tests/rust-native/scalar_closure_string_rebinding_captures.sn \
+		tests/rust-native/scalar_closure_string_rebinding_shadow.sn \
+		tests/rust-native/scalar_closure_string_rebinding_expression.sn \
+		tests/rust-native/scalar_closure_string_rebinding_compound.sn \
+		--require-count 8 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-string-rebinding.json
+	@$(PYTHON) scripts/check_rust_string_rebinding_oracles.py .sn/rust-parity-string-rebinding.json

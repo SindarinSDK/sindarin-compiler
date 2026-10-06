@@ -1,0 +1,63 @@
+{
+  "sources": [
+    {
+      "source": "tests/rust-native/scalar_closure_string_rebinding_default.sn",
+      "source_sha256": "41cc3eece8c83d764b04c9a8f94f675e228430336255936d5d81104983e0909e",
+      "expected_sha256": "21d91041c5d1a59661f8936571ee5c87e96f6f0c7a532b52ec17c5b9bea8220b",
+      "stdout_hex": "747275650a747275650a"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_string_rebinding_asval.sn",
+      "source_sha256": "8149d99010574bb354cadd7da7d7e66ed8fc1b86f3fadcb26befb3497081bf90",
+      "expected_sha256": "21d91041c5d1a59661f8936571ee5c87e96f6f0c7a532b52ec17c5b9bea8220b",
+      "stdout_hex": "747275650a747275650a"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_string_rebinding_result.sn",
+      "source_sha256": "f92cbc61ae1553430b048768cb484ac427abd3d09d5b5a9fd861d7946a8964de",
+      "expected_sha256": "21d91041c5d1a59661f8936571ee5c87e96f6f0c7a532b52ec17c5b9bea8220b",
+      "stdout_hex": "747275650a747275650a"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_string_rebinding_self.sn",
+      "source_sha256": "83c5035c9d795b44eb1ddde036d97c9898f98d1fbf45fd65fd5cf582d8cef68f",
+      "expected_sha256": "21d91041c5d1a59661f8936571ee5c87e96f6f0c7a532b52ec17c5b9bea8220b",
+      "stdout_hex": "747275650a747275650a"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_string_rebinding_captures.sn",
+      "source_sha256": "449e87509b6ac4754ca93b672b8236b12898311d1a52430a15bbdf6ce4c83536",
+      "expected_sha256": "21d91041c5d1a59661f8936571ee5c87e96f6f0c7a532b52ec17c5b9bea8220b",
+      "stdout_hex": "747275650a747275650a"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_string_rebinding_shadow.sn",
+      "source_sha256": "64da24a58d39cb0f021fd1437d8edb55de137d0d8ddb54ae3da2ddfb6154941d",
+      "expected_sha256": "21d91041c5d1a59661f8936571ee5c87e96f6f0c7a532b52ec17c5b9bea8220b",
+      "stdout_hex": "747275650a747275650a"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_string_rebinding_expression.sn",
+      "source_sha256": "e8505048ff0690e434da16867746bde3b35095d57da2b5db7ab41188b3eebb23",
+      "expected_sha256": "21d91041c5d1a59661f8936571ee5c87e96f6f0c7a532b52ec17c5b9bea8220b",
+      "stdout_hex": "747275650a747275650a"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_string_rebinding_compound.sn",
+      "source_sha256": "7b3c0ac6a087ededf0bb47d6c3659bee71db9cc00fa2558a9ccece1f60d55a7a",
+      "expected_sha256": "21d91041c5d1a59661f8936571ee5c87e96f6f0c7a532b52ec17c5b9bea8220b",
+      "stdout_hex": "747275650a747275650a"
+    }
+  ],
+  "optimizations": [
+    "-O0",
+    "-O1",
+    "-O2"
+  ],
+  "arithmetic_modes": [
+    "default",
+    "checked",
+    "unchecked"
+  ],
+  "scope": "Non-ref string closure formals: local replacement/append, caller contents and lifetimes, self/result/capture/shadow/expression behavior. Native pointer alias identity is unresolved and receives no credit."
+}

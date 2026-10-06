@@ -5,6 +5,46 @@
 
 #include "cgen/gen_model_native_method_borrow.c"
 
+/* Current lambda's own formals; nested body emission restores this context. */
+static json_object *c_lambda_parameters = NULL;
+static int c_lambda_parameter_id = -1;
+
+static void c_model_string_parameter_mutation(json_object *model, Expr *expr)
+{
+    Token *target_name = NULL;
+    bool parameter = false;
+    if (expr->type == EXPR_ASSIGN)
+    {
+        target_name = &expr->as.assign.name;
+        parameter = expr->as.assign.is_param_ref;
+    }
+    else if (expr->type == EXPR_COMPOUND_ASSIGN && expr->as.compound_assign.target &&
+             expr->as.compound_assign.target->type == EXPR_VARIABLE)
+    {
+        target_name = &expr->as.compound_assign.target->as.variable.name;
+        parameter = expr->as.compound_assign.target->as.variable.is_param_ref;
+    }
+    if (!c_lambda_parameters || !target_name || !parameter ||
+        !expr->expr_type || expr->expr_type->kind != TYPE_STRING) return;
+    for (size_t i = 0; i < json_object_array_length(c_lambda_parameters); i++)
+    {
+        json_object *param = json_object_array_get_idx(c_lambda_parameters, i);
+        json_object *name, *qual;
+        if (!json_object_object_get_ex(param, "name", &name) ||
+            !json_object_object_get_ex(param, "mem_qual", &qual)) continue;
+        const char *text = json_object_get_string(name);
+        if (strlen(text) != (size_t)target_name->length ||
+            strncmp(text, target_name->start, target_name->length) != 0 ||
+            strcmp(json_object_get_string(qual), "as_ref") == 0) continue;
+        char owner[96];
+        snprintf(owner, sizeof(owner), "__sn_ci_string_owner_l%d_p%zu", c_lambda_parameter_id, i);
+        json_object_object_add(param, "c_string_parameter_owner", json_object_new_string(owner));
+        json_object_object_add(model, "c_string_parameter_owner", json_object_new_string(owner));
+        return;
+    }
+}
+
+
 static bool c_model_numeric_scalar_type(Type *type)
 {
     if (!type) return false;
@@ -932,6 +972,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 }
             }
             json_object_object_add(obj, "target", json_object_new_string(aname));
+            c_model_string_parameter_mutation(obj, expr);
             json_object_object_add(obj, "value",
                 gen_model_expr(arena, expr->as.assign.value, symbol_table, arithmetic_mode));
             /* Check if target is captured or is an 'as ref' param (C pointer needing *) */
@@ -1052,6 +1093,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 json_object_object_add(ca_val, "is_str_temp",
                     json_object_new_boolean(true));
             json_object_object_add(obj, "value", ca_val);
+            c_model_string_parameter_mutation(obj, expr);
             Expr *target = expr->as.compound_assign.target;
             if (g_in_lambda_body && target && target->type == EXPR_VARIABLE &&
                 target->as.variable.is_param_ref && c_model_numeric_scalar_type(target->expr_type) &&
@@ -3169,6 +3211,10 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
 
             /* Body */
             {
+                json_object *previous_parameters = c_lambda_parameters;
+                int previous_parameter_id = c_lambda_parameter_id;
+                c_lambda_parameters = params;
+                c_lambda_parameter_id = lam->lambda_id;
                 bool prev_in_lambda = g_in_lambda_body;
                 g_in_lambda_body = true;
                 char **saved_ref_names;
@@ -3210,6 +3256,8 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 pop_lambda_params(saved_ref_names, saved_ref_count,
                                          saved_all_names, saved_all_count);
                 g_in_lambda_body = prev_in_lambda;
+                c_lambda_parameters = previous_parameters;
+                c_lambda_parameter_id = previous_parameter_id;
             }
 
             /* Add to global lambdas collection for forward decls and function defs */
@@ -3304,6 +3352,10 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
 
                 /* Body for the lambda function definition */
                 {
+                    json_object *previous_parameters = c_lambda_parameters;
+                    int previous_parameter_id = c_lambda_parameter_id;
+                    c_lambda_parameters = lparams;
+                    c_lambda_parameter_id = lam->lambda_id;
                     bool prev_in_lambda = g_in_lambda_body;
                     g_in_lambda_body = true;
                     char **saved_ref_names;
@@ -3345,6 +3397,8 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     pop_lambda_params(saved_ref_names, saved_ref_count,
                                          saved_all_names, saved_all_count);
                     g_in_lambda_body = prev_in_lambda;
+                    c_lambda_parameters = previous_parameters;
+                    c_lambda_parameter_id = previous_parameter_id;
                 }
 
                 json_object_array_add(g_model_lambdas, ldef);

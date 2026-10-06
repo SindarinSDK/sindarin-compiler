@@ -46,6 +46,42 @@ Evidence: [validation](rust-parity-evidence/array-rebinding-validation.json),
 [C lifetimes](rust-parity-evidence/array-rebinding-c-lifetimes.json).
 
 
+## Closure string parameter ownership, prepared 2026-10-06
+
+Default and `as val` string closure parameters now support local replacement
+and compound append with caller contents preserved. C keeps the incoming
+pointer borrowed until replacement, tracks only private replacements in a
+cleanup slot and copies assignment-expression returns before that slot exits.
+Exact AST parameter facts and the current lambda's own parameter context select
+these slots. Locals, shadowed bindings and outer captured parameter names use
+their existing ownership paths. Rust mutable value formals return independent
+assignment values; captures made before and after replacement remain snapshots.
+
+Eight unchanged-source literal controls pass **72** mode comparisons and **24**
+Linux ASAN/UBSAN/leak runs. All **75** combined acceptance commands pass with frozen
+inputs, including complete C/Rust suites, **59 reports / 5115 cases**, exact
+**206** native fixtures, **501** Rust and **107** C generation goldens and
+**121** admission-error fixtures. Existing source/goldens and all **1365**
+original corpus hashes remain unchanged. The increment is validated against array main
+`02a67749`, preserving both changes. Own exact-revision platform acceptance
+remains required after publication. Its exact-revision hosted acceptance remains required.
+
+Native physical string aliases remain a demonstrated gap. The same source string
+passed to two closure formals yields one C buffer address but separate Rust
+buffers. The no-mutation control already differs on existing main; the rebinding
+control differs on this candidate. All nine modes report C `true/true`, Rust
+`false/true` with compile/run status zero. Six C sanitizer runs pass. These
+controls receive no parity credit; this ownership increment does not solve their
+native storage contract. Interfaces/native wire/empty physical storage, physical
+value-record receivers and remaining qualifiers and lifetime/evaluation contexts
+still prevent full completion.
+
+Evidence: [validation](rust-parity-evidence/string-rebinding-validation.json),
+[oracles](rust-parity-evidence/string-rebinding-oracles.json),
+[comparisons](rust-parity-evidence/string-rebinding-after.json),
+[C lifetimes](rust-parity-evidence/string-rebinding-c-lifetimes.json),
+[native alias gap](rust-parity-evidence/string-native-alias-gap.json).
+
 ## Scalar closure RHS sequencing: CI repair, 2026-10-06
 
 macOS runtime job 112380383034 and Windows job 112380383080 for `a69da434` failed the unchanged scalar

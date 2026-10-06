@@ -102,6 +102,13 @@ and all retained platform reports are now verified; this increment requires
 its own full hosted acceptance after publication. C-invalid default rebinding and assignment-result contexts remain
 repair work without parity credit.
 
+The prepared string closure ownership increment passes 75 combined local commands,
+59 reports / 5115 cases and eight literal controls with caller preservation,
+assignment results, snapshot captures and compound appends. It is validated against array main `02a67749`; its own complete platform
+evidence remains required after publication. Native closure
+string buffer alias identity remains a separately demonstrated storage gap;
+those differing controls receive no parity credit.
+
 The 2026-10-03 float/double increment adds conversions at tested scalar storage,
 call and return boundaries and mixed floating compound mutation, including
 observable synchronized cells. Historical same-type-only exclusions below are

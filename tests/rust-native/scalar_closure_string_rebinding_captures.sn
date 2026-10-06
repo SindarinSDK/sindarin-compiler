@@ -1,0 +1,10 @@
+fn main(): void =>
+  var original: str = "old"
+  var change = fn(a: str as val): str =>
+    var before = fn(): str => a
+    a = "new"
+    var after = fn(): str => a
+    a = "last"
+    return before() + after() + a
+  println(change(original) == "oldnewlast")
+  println(original == "old")

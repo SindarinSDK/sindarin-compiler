@@ -1,0 +1,7 @@
+@source "string-closure-native-alias-baseline.sn.c"
+native fn same_string_place(a: str, b: str): bool
+fn main(): void =>
+  var original: str = "old"
+  var check = fn(a: str, b: str): bool => same_string_place(a, b)
+  println(check(original, original))
+  println(original == "old")
