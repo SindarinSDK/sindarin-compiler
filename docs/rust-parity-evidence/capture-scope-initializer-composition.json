@@ -1,0 +1,2192 @@
+{
+  "compiler": "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+  "compiler_sha256": "462463dbb06949a1daf2efd94a0aa76dad5df058df163165390258febf23263c",
+  "c_ldlibs": null,
+  "arithmetic_modes": [
+    "default",
+    "checked",
+    "unchecked"
+  ],
+  "environment": {
+    "SN_CC": null,
+    "SN_CFLAGS": null,
+    "SN_RELEASE_CFLAGS": null,
+    "SN_LDLIBS": null,
+    "SN_RUSTFLAGS": null
+  },
+  "cases": [
+    {
+      "source": ".sn/capture-nested-initializer-shadow.sn",
+      "source_sha256": "8dfef859b4d9d7b697d95f9b7f903dd5ba11b710ad48aa13f6be45e74788aeec",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-nested-initializer-shadow.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-0--O0-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d6e65737465642d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d302d2d4f302d64656661756c742d632e657865202836392e31204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-0--O0-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-nested-initializer-shadow.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-0--O0-default-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d6e65737465642d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f636170747572652d6e65737465642d696e697469616c697a65722d736861646f775f313534353530342f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d302d2d4f302d64656661756c742d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-0--O0-default-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": ".sn/capture-nested-initializer-shadow.sn",
+      "source_sha256": "8dfef859b4d9d7b697d95f9b7f903dd5ba11b710ad48aa13f6be45e74788aeec",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-nested-initializer-shadow.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-0--O1-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d6e65737465642d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d302d2d4f312d64656661756c742d632e657865202836392e31204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-0--O1-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-nested-initializer-shadow.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-0--O1-default-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d6e65737465642d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f636170747572652d6e65737465642d696e697469616c697a65722d736861646f775f313534353537342f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d302d2d4f312d64656661756c742d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-0--O1-default-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": ".sn/capture-nested-initializer-shadow.sn",
+      "source_sha256": "8dfef859b4d9d7b697d95f9b7f903dd5ba11b710ad48aa13f6be45e74788aeec",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-nested-initializer-shadow.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-0--O2-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d6e65737465642d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d302d2d4f322d64656661756c742d632e657865202836382e39204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-0--O2-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-nested-initializer-shadow.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-0--O2-default-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d6e65737465642d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f636170747572652d6e65737465642d696e697469616c697a65722d736861646f775f313534353635362f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d302d2d4f322d64656661756c742d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-0--O2-default-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": ".sn/capture-nested-initializer-shadow.sn",
+      "source_sha256": "8dfef859b4d9d7b697d95f9b7f903dd5ba11b710ad48aa13f6be45e74788aeec",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-nested-initializer-shadow.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-0--O0-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d6e65737465642d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d302d2d4f302d636865636b65642d632e657865202836392e31204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-0--O0-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-nested-initializer-shadow.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-0--O0-checked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d6e65737465642d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f636170747572652d6e65737465642d696e697469616c697a65722d736861646f775f313534353732372f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d302d2d4f302d636865636b65642d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-0--O0-checked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": ".sn/capture-nested-initializer-shadow.sn",
+      "source_sha256": "8dfef859b4d9d7b697d95f9b7f903dd5ba11b710ad48aa13f6be45e74788aeec",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-nested-initializer-shadow.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-0--O1-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d6e65737465642d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d302d2d4f312d636865636b65642d632e657865202836392e31204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-0--O1-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-nested-initializer-shadow.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-0--O1-checked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d6e65737465642d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f636170747572652d6e65737465642d696e697469616c697a65722d736861646f775f313534353739372f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d302d2d4f312d636865636b65642d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-0--O1-checked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": ".sn/capture-nested-initializer-shadow.sn",
+      "source_sha256": "8dfef859b4d9d7b697d95f9b7f903dd5ba11b710ad48aa13f6be45e74788aeec",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-nested-initializer-shadow.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-0--O2-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d6e65737465642d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d302d2d4f322d636865636b65642d632e657865202836392e31204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-0--O2-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-nested-initializer-shadow.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-0--O2-checked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d6e65737465642d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f636170747572652d6e65737465642d696e697469616c697a65722d736861646f775f313534353839362f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d302d2d4f322d636865636b65642d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-0--O2-checked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": ".sn/capture-nested-initializer-shadow.sn",
+      "source_sha256": "8dfef859b4d9d7b697d95f9b7f903dd5ba11b710ad48aa13f6be45e74788aeec",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-nested-initializer-shadow.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-0--O0-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d6e65737465642d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d302d2d4f302d756e636865636b65642d632e657865202836382e39204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-0--O0-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-nested-initializer-shadow.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-0--O0-unchecked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d6e65737465642d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f636170747572652d6e65737465642d696e697469616c697a65722d736861646f775f313534353936382f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d302d2d4f302d756e636865636b65642d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-0--O0-unchecked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": ".sn/capture-nested-initializer-shadow.sn",
+      "source_sha256": "8dfef859b4d9d7b697d95f9b7f903dd5ba11b710ad48aa13f6be45e74788aeec",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-nested-initializer-shadow.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-0--O1-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d6e65737465642d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d302d2d4f312d756e636865636b65642d632e657865202836382e39204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-0--O1-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-nested-initializer-shadow.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-0--O1-unchecked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d6e65737465642d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f636170747572652d6e65737465642d696e697469616c697a65722d736861646f775f313534363033382f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d302d2d4f312d756e636865636b65642d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-0--O1-unchecked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": ".sn/capture-nested-initializer-shadow.sn",
+      "source_sha256": "8dfef859b4d9d7b697d95f9b7f903dd5ba11b710ad48aa13f6be45e74788aeec",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-nested-initializer-shadow.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-0--O2-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d6e65737465642d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d302d2d4f322d756e636865636b65642d632e657865202836382e39204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-0--O2-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-nested-initializer-shadow.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-0--O2-unchecked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d6e65737465642d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f636170747572652d6e65737465642d696e697469616c697a65722d736861646f775f313534363132382f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d302d2d4f322d756e636865636b65642d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-0--O2-unchecked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": ".sn/capture-initializer-shadow.sn",
+      "source_sha256": "119fa36fc592b0d38d773855e213f1b9bf6a11fdaefbe536809ea3a59f1e88c3",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-initializer-shadow.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-1--O0-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d312d2d4f302d64656661756c742d632e657865202836392e30204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-1--O0-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-initializer-shadow.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-1--O0-default-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f636170747572652d696e697469616c697a65722d736861646f775f313534363233302f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d312d2d4f302d64656661756c742d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-1--O0-default-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": ".sn/capture-initializer-shadow.sn",
+      "source_sha256": "119fa36fc592b0d38d773855e213f1b9bf6a11fdaefbe536809ea3a59f1e88c3",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-initializer-shadow.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-1--O1-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d312d2d4f312d64656661756c742d632e657865202836392e30204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-1--O1-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-initializer-shadow.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-1--O1-default-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f636170747572652d696e697469616c697a65722d736861646f775f313534363330302f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d312d2d4f312d64656661756c742d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-1--O1-default-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": ".sn/capture-initializer-shadow.sn",
+      "source_sha256": "119fa36fc592b0d38d773855e213f1b9bf6a11fdaefbe536809ea3a59f1e88c3",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-initializer-shadow.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-1--O2-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d312d2d4f322d64656661756c742d632e657865202836382e39204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-1--O2-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-initializer-shadow.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-1--O2-default-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f636170747572652d696e697469616c697a65722d736861646f775f313534363337302f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d312d2d4f322d64656661756c742d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-1--O2-default-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": ".sn/capture-initializer-shadow.sn",
+      "source_sha256": "119fa36fc592b0d38d773855e213f1b9bf6a11fdaefbe536809ea3a59f1e88c3",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-initializer-shadow.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-1--O0-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d312d2d4f302d636865636b65642d632e657865202836392e30204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-1--O0-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-initializer-shadow.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-1--O0-checked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f636170747572652d696e697469616c697a65722d736861646f775f313534363434302f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d312d2d4f302d636865636b65642d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-1--O0-checked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": ".sn/capture-initializer-shadow.sn",
+      "source_sha256": "119fa36fc592b0d38d773855e213f1b9bf6a11fdaefbe536809ea3a59f1e88c3",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-initializer-shadow.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-1--O1-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d312d2d4f312d636865636b65642d632e657865202836392e30204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-1--O1-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-initializer-shadow.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-1--O1-checked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f636170747572652d696e697469616c697a65722d736861646f775f313534363531302f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d312d2d4f312d636865636b65642d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-1--O1-checked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": ".sn/capture-initializer-shadow.sn",
+      "source_sha256": "119fa36fc592b0d38d773855e213f1b9bf6a11fdaefbe536809ea3a59f1e88c3",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-initializer-shadow.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-1--O2-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d312d2d4f322d636865636b65642d632e657865202836392e30204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-1--O2-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-initializer-shadow.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-1--O2-checked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f636170747572652d696e697469616c697a65722d736861646f775f313534363538302f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d312d2d4f322d636865636b65642d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-1--O2-checked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": ".sn/capture-initializer-shadow.sn",
+      "source_sha256": "119fa36fc592b0d38d773855e213f1b9bf6a11fdaefbe536809ea3a59f1e88c3",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-initializer-shadow.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-1--O0-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d312d2d4f302d756e636865636b65642d632e657865202836382e39204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-1--O0-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-initializer-shadow.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-1--O0-unchecked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f636170747572652d696e697469616c697a65722d736861646f775f313534363635302f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d312d2d4f302d756e636865636b65642d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-1--O0-unchecked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": ".sn/capture-initializer-shadow.sn",
+      "source_sha256": "119fa36fc592b0d38d773855e213f1b9bf6a11fdaefbe536809ea3a59f1e88c3",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-initializer-shadow.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-1--O1-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d312d2d4f312d756e636865636b65642d632e657865202836382e39204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-1--O1-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-initializer-shadow.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-1--O1-unchecked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f636170747572652d696e697469616c697a65722d736861646f775f313534363732302f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d312d2d4f312d756e636865636b65642d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-1--O1-unchecked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": ".sn/capture-initializer-shadow.sn",
+      "source_sha256": "119fa36fc592b0d38d773855e213f1b9bf6a11fdaefbe536809ea3a59f1e88c3",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-initializer-shadow.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-1--O2-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d312d2d4f322d756e636865636b65642d632e657865202836382e39204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-1--O2-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-initializer-shadow.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-1--O2-unchecked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f636170747572652d696e697469616c697a65722d736861646f775f313534363739302f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d312d2d4f322d756e636865636b65642d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-1--O2-unchecked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": ".sn/capture-heap-initializer-shadow.sn",
+      "source_sha256": "6ad2651a8c62c028579108b4c89ae7f8d7290d7a1c91c2d75e68b4dc478b4812",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-heap-initializer-shadow.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-2--O0-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d686561702d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d322d2d4f302d64656661756c742d632e657865202837312e32204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-2--O0-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-heap-initializer-shadow.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-2--O0-default-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d686561702d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f636170747572652d686561702d696e697469616c697a65722d736861646f775f313534363836302f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d322d2d4f302d64656661756c742d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-2--O0-default-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": ".sn/capture-heap-initializer-shadow.sn",
+      "source_sha256": "6ad2651a8c62c028579108b4c89ae7f8d7290d7a1c91c2d75e68b4dc478b4812",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-heap-initializer-shadow.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-2--O1-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d686561702d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d322d2d4f312d64656661756c742d632e657865202837312e32204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-2--O1-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-heap-initializer-shadow.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-2--O1-default-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d686561702d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f636170747572652d686561702d696e697469616c697a65722d736861646f775f313534363933302f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d322d2d4f312d64656661756c742d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-2--O1-default-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": ".sn/capture-heap-initializer-shadow.sn",
+      "source_sha256": "6ad2651a8c62c028579108b4c89ae7f8d7290d7a1c91c2d75e68b4dc478b4812",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-heap-initializer-shadow.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-2--O2-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d686561702d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d322d2d4f322d64656661756c742d632e657865202837312e32204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-2--O2-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-heap-initializer-shadow.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-2--O2-default-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d686561702d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f636170747572652d686561702d696e697469616c697a65722d736861646f775f313534373030302f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d322d2d4f322d64656661756c742d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-2--O2-default-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": ".sn/capture-heap-initializer-shadow.sn",
+      "source_sha256": "6ad2651a8c62c028579108b4c89ae7f8d7290d7a1c91c2d75e68b4dc478b4812",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-heap-initializer-shadow.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-2--O0-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d686561702d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d322d2d4f302d636865636b65642d632e657865202837312e32204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-2--O0-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-heap-initializer-shadow.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-2--O0-checked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d686561702d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f636170747572652d686561702d696e697469616c697a65722d736861646f775f313534373038382f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d322d2d4f302d636865636b65642d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-2--O0-checked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": ".sn/capture-heap-initializer-shadow.sn",
+      "source_sha256": "6ad2651a8c62c028579108b4c89ae7f8d7290d7a1c91c2d75e68b4dc478b4812",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-heap-initializer-shadow.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-2--O1-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d686561702d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d322d2d4f312d636865636b65642d632e657865202837312e32204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-2--O1-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-heap-initializer-shadow.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-2--O1-checked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d686561702d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f636170747572652d686561702d696e697469616c697a65722d736861646f775f313534373135382f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d322d2d4f312d636865636b65642d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-2--O1-checked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": ".sn/capture-heap-initializer-shadow.sn",
+      "source_sha256": "6ad2651a8c62c028579108b4c89ae7f8d7290d7a1c91c2d75e68b4dc478b4812",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-heap-initializer-shadow.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-2--O2-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d686561702d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d322d2d4f322d636865636b65642d632e657865202837312e32204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-2--O2-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-heap-initializer-shadow.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-2--O2-checked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d686561702d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f636170747572652d686561702d696e697469616c697a65722d736861646f775f313534373232382f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d322d2d4f322d636865636b65642d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-2--O2-checked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": ".sn/capture-heap-initializer-shadow.sn",
+      "source_sha256": "6ad2651a8c62c028579108b4c89ae7f8d7290d7a1c91c2d75e68b4dc478b4812",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-heap-initializer-shadow.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-2--O0-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d686561702d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d322d2d4f302d756e636865636b65642d632e657865202837312e32204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-2--O0-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-heap-initializer-shadow.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-2--O0-unchecked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d686561702d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f636170747572652d686561702d696e697469616c697a65722d736861646f775f313534373239382f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d322d2d4f302d756e636865636b65642d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-2--O0-unchecked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": ".sn/capture-heap-initializer-shadow.sn",
+      "source_sha256": "6ad2651a8c62c028579108b4c89ae7f8d7290d7a1c91c2d75e68b4dc478b4812",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-heap-initializer-shadow.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-2--O1-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d686561702d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d322d2d4f312d756e636865636b65642d632e657865202837312e32204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-2--O1-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-heap-initializer-shadow.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-2--O1-unchecked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d686561702d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f636170747572652d686561702d696e697469616c697a65722d736861646f775f313534373338372f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d322d2d4f312d756e636865636b65642d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-2--O1-unchecked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": ".sn/capture-heap-initializer-shadow.sn",
+      "source_sha256": "6ad2651a8c62c028579108b4c89ae7f8d7290d7a1c91c2d75e68b4dc478b4812",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-heap-initializer-shadow.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-2--O2-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d686561702d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d322d2d4f322d756e636865636b65642d632e657865202837312e32204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-2--O2-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/capture-heap-initializer-shadow.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-2--O2-unchecked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f636170747572652d686561702d696e697469616c697a65722d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f636170747572652d686561702d696e697469616c697a65722d736861646f775f313534373435382f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d322d2d4f322d756e636865636b65642d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-2--O2-unchecked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": ".sn/scalar-snapshot-shadow.sn",
+      "source_sha256": "551220f12c625289f43cdeb759c25df3c226f8821641a07691ce056dae00cb58",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/scalar-snapshot-shadow.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-3--O0-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f7363616c61722d736e617073686f742d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d332d2d4f302d64656661756c742d632e657865202836382e39204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-3--O0-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/scalar-snapshot-shadow.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-3--O0-default-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f7363616c61722d736e617073686f742d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f7363616c61722d736e617073686f742d736861646f775f313534373534372f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d332d2d4f302d64656661756c742d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-3--O0-default-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": ".sn/scalar-snapshot-shadow.sn",
+      "source_sha256": "551220f12c625289f43cdeb759c25df3c226f8821641a07691ce056dae00cb58",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/scalar-snapshot-shadow.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-3--O1-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f7363616c61722d736e617073686f742d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d332d2d4f312d64656661756c742d632e657865202836382e39204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-3--O1-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/scalar-snapshot-shadow.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-3--O1-default-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f7363616c61722d736e617073686f742d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f7363616c61722d736e617073686f742d736861646f775f313534373631372f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d332d2d4f312d64656661756c742d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-3--O1-default-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": ".sn/scalar-snapshot-shadow.sn",
+      "source_sha256": "551220f12c625289f43cdeb759c25df3c226f8821641a07691ce056dae00cb58",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/scalar-snapshot-shadow.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-3--O2-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f7363616c61722d736e617073686f742d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d332d2d4f322d64656661756c742d632e657865202836382e39204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-3--O2-default-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/scalar-snapshot-shadow.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-3--O2-default-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f7363616c61722d736e617073686f742d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f7363616c61722d736e617073686f742d736861646f775f313534373638372f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d332d2d4f322d64656661756c742d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-3--O2-default-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": ".sn/scalar-snapshot-shadow.sn",
+      "source_sha256": "551220f12c625289f43cdeb759c25df3c226f8821641a07691ce056dae00cb58",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/scalar-snapshot-shadow.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-3--O0-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f7363616c61722d736e617073686f742d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d332d2d4f302d636865636b65642d632e657865202836382e39204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-3--O0-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/scalar-snapshot-shadow.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-3--O0-checked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f7363616c61722d736e617073686f742d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f7363616c61722d736e617073686f742d736861646f775f313534373735372f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d332d2d4f302d636865636b65642d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-3--O0-checked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": ".sn/scalar-snapshot-shadow.sn",
+      "source_sha256": "551220f12c625289f43cdeb759c25df3c226f8821641a07691ce056dae00cb58",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/scalar-snapshot-shadow.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-3--O1-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f7363616c61722d736e617073686f742d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d332d2d4f312d636865636b65642d632e657865202836382e39204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-3--O1-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/scalar-snapshot-shadow.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-3--O1-checked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f7363616c61722d736e617073686f742d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f7363616c61722d736e617073686f742d736861646f775f313534373834322f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d332d2d4f312d636865636b65642d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-3--O1-checked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": ".sn/scalar-snapshot-shadow.sn",
+      "source_sha256": "551220f12c625289f43cdeb759c25df3c226f8821641a07691ce056dae00cb58",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/scalar-snapshot-shadow.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-3--O2-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f7363616c61722d736e617073686f742d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d332d2d4f322d636865636b65642d632e657865202836382e39204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-3--O2-checked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/scalar-snapshot-shadow.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-3--O2-checked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f7363616c61722d736e617073686f742d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f7363616c61722d736e617073686f742d736861646f775f313534373931342f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d332d2d4f322d636865636b65642d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-3--O2-checked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": ".sn/scalar-snapshot-shadow.sn",
+      "source_sha256": "551220f12c625289f43cdeb759c25df3c226f8821641a07691ce056dae00cb58",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/scalar-snapshot-shadow.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-3--O0-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f7363616c61722d736e617073686f742d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d332d2d4f302d756e636865636b65642d632e657865202836382e39204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-3--O0-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/scalar-snapshot-shadow.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-3--O0-unchecked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f7363616c61722d736e617073686f742d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f7363616c61722d736e617073686f742d736861646f775f313534373938342f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d332d2d4f302d756e636865636b65642d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-3--O0-unchecked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": ".sn/scalar-snapshot-shadow.sn",
+      "source_sha256": "551220f12c625289f43cdeb759c25df3c226f8821641a07691ce056dae00cb58",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/scalar-snapshot-shadow.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-3--O1-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f7363616c61722d736e617073686f742d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d332d2d4f312d756e636865636b65642d632e657865202836382e39204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-3--O1-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/scalar-snapshot-shadow.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-3--O1-unchecked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f7363616c61722d736e617073686f742d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f7363616c61722d736e617073686f742d736861646f775f313534383036382f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d332d2d4f312d756e636865636b65642d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-3--O1-unchecked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "source": ".sn/scalar-snapshot-shadow.sn",
+      "source_sha256": "551220f12c625289f43cdeb759c25df3c226f8821641a07691ce056dae00cb58",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/scalar-snapshot-shadow.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-3--O2-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f7363616c61722d736e617073686f742d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d332d2d4f322d756e636865636b65642d632e657865202836382e39204b42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-3--O2-unchecked-c.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-closure-shadow-capture-5d19/bin/sn",
+              ".sn/scalar-snapshot-shadow.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-differential-bm61zm6f/case-3--O2-unchecked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "",
+            "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f7363616c61722d736e617073686f742d736861646f772e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f7363616c61722d736e617073686f742d736861646f775f313534383133382f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a7761726e696e673a2031207761726e696e6720656d69747465640a0a201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d626d36317a6d36662f636173652d332d2d4f322d756e636865636b65642d727573742e6578652028332e37204d42290a"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-differential-bm61zm6f/case-3--O2-unchecked-rust.exe"
+            ],
+            "status": 0,
+            "stdout_hex": "747275650a747275650a",
+            "stderr_hex": ""
+          }
+        }
+      },
+      "passed": true
+    }
+  ],
+  "passed": true
+}

@@ -1,0 +1,8 @@
+fn main(): void =>
+  var value: str = "old"
+  var change = fn(): str =>
+    var first: str = value
+    var value: str = "new"
+    return first + value
+  println(change() == "oldnew" && change() == "oldnew")
+  println(value == "old")

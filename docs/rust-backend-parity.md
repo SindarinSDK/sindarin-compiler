@@ -132,6 +132,13 @@ validated against `aea96d33`; full exact-revision platform acceptance remains
 required after publication. Capture scope repair and remaining interop/storage/lifetime work
 still prevent completion.
 
+The lexical capture repair preserves outer bindings across shadowing, loops,
+heap cleanup, recursive initialization and normal initializer order. Snapshot
+reference forwarding composes with these scopes. All 83 combined frozen commands
+pass, 63 reports / 5574 cases, 11 literal controls and 33 sanitizer runs. Its own
+complete platform evidence and remaining storage/interop requirements are still
+required for full completion.
+
 The 2026-10-03 float/double increment adds conversions at tested scalar storage,
 call and return boundaries and mixed floating compound mutation, including
 observable synchronized cells. Historical same-type-only exclusions below are

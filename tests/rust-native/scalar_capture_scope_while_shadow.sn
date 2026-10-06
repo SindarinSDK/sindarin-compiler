@@ -1,0 +1,10 @@
+fn main(): void =>
+  var value: int = 2
+  var change = fn(): int =>
+    var count: int = 0
+    while count < 2 =>
+      var value: int = 9
+      count += 1
+    return value + count
+  println(change() == 4 && change() == 4)
+  println(value == 2)

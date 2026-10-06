@@ -252,51 +252,6 @@ static bool mc_is_local(ModelCaptures *locals, const char *name)
 static void mc_collect_expr(Expr *expr, LambdaExpr *lam, ModelCaptures *locals, ModelCaptures *caps, Arena *arena);
 static void mc_collect_stmt(Stmt *stmt, LambdaExpr *lam, ModelCaptures *locals, ModelCaptures *caps, Arena *arena);
 
-static void mc_collect_locals(Stmt *stmt, ModelCaptures *locals, Arena *arena)
-{
-    if (!stmt) return;
-    switch (stmt->type) {
-    case STMT_VAR_DECL: {
-        char name[256];
-        int len = stmt->as.var_decl.name.length < 255 ? stmt->as.var_decl.name.length : 255;
-        strncpy(name, stmt->as.var_decl.name.start, len);
-        name[len] = '\0';
-        mc_add(locals, arena, name, stmt->as.var_decl.type);
-        break;
-    }
-    case STMT_BLOCK:
-        for (int i = 0; i < stmt->as.block.count; i++)
-            mc_collect_locals(stmt->as.block.statements[i], locals, arena);
-        break;
-    case STMT_FOR:
-        if (stmt->as.for_stmt.initializer)
-            mc_collect_locals(stmt->as.for_stmt.initializer, locals, arena);
-        mc_collect_locals(stmt->as.for_stmt.body, locals, arena);
-        break;
-    case STMT_FOR_EACH: {
-        char name[256];
-        int len = stmt->as.for_each_stmt.var_name.length < 255 ? stmt->as.for_each_stmt.var_name.length : 255;
-        strncpy(name, stmt->as.for_each_stmt.var_name.start, len);
-        name[len] = '\0';
-        /* For-each iterator type comes from the iterable's element type;
-         * use NULL here since mc_add only needs the name for lookup */
-        mc_add(locals, arena, name, NULL);
-        mc_collect_locals(stmt->as.for_each_stmt.body, locals, arena);
-        break;
-    }
-    case STMT_IF:
-        mc_collect_locals(stmt->as.if_stmt.then_branch, locals, arena);
-        if (stmt->as.if_stmt.else_branch)
-            mc_collect_locals(stmt->as.if_stmt.else_branch, locals, arena);
-        break;
-    case STMT_WHILE:
-        mc_collect_locals(stmt->as.while_stmt.body, locals, arena);
-        break;
-    default:
-        break;
-    }
-}
-
 static void mc_analyze(Arena *arena, LambdaExpr *lam, ModelCaptures *caps);
 
 static void mc_collect_expr(Expr *expr, LambdaExpr *lam, ModelCaptures *locals, ModelCaptures *caps, Arena *arena)
@@ -397,37 +352,66 @@ static void mc_collect_stmt(Stmt *stmt, LambdaExpr *lam, ModelCaptures *locals, 
     case STMT_EXPR:
         mc_collect_expr(stmt->as.expression.expression, lam, locals, caps, arena);
         break;
-    case STMT_VAR_DECL:
-        if (stmt->as.var_decl.initializer)
-            mc_collect_expr(stmt->as.var_decl.initializer, lam, locals, caps, arena);
+    case STMT_VAR_DECL: {
+        char name[256];
+        int len = stmt->as.var_decl.name.length < 255 ? stmt->as.var_decl.name.length : 255;
+        memcpy(name, stmt->as.var_decl.name.start, len);
+        name[len] = '\0';
+        bool recursive = stmt->as.var_decl.initializer &&
+            stmt->as.var_decl.initializer->type == EXPR_LAMBDA &&
+            stmt->as.var_decl.type && stmt->as.var_decl.type->kind == TYPE_FUNCTION;
+        if (recursive) mc_add(locals, arena, name, stmt->as.var_decl.type);
+        mc_collect_expr(stmt->as.var_decl.initializer, lam, locals, caps, arena);
+        if (!recursive) mc_add(locals, arena, name, stmt->as.var_decl.type);
         break;
+    }
     case STMT_RETURN:
-        if (stmt->as.return_stmt.value)
-            mc_collect_expr(stmt->as.return_stmt.value, lam, locals, caps, arena);
+        mc_collect_expr(stmt->as.return_stmt.value, lam, locals, caps, arena);
         break;
-    case STMT_BLOCK:
+    case STMT_BLOCK: {
+        int saved = locals->count;
         for (int i = 0; i < stmt->as.block.count; i++)
             mc_collect_stmt(stmt->as.block.statements[i], lam, locals, caps, arena);
+        locals->count = saved;
         break;
-    case STMT_IF:
+    }
+    case STMT_IF: {
+        int saved = locals->count;
         mc_collect_expr(stmt->as.if_stmt.condition, lam, locals, caps, arena);
         mc_collect_stmt(stmt->as.if_stmt.then_branch, lam, locals, caps, arena);
-        if (stmt->as.if_stmt.else_branch)
-            mc_collect_stmt(stmt->as.if_stmt.else_branch, lam, locals, caps, arena);
+        locals->count = saved;
+        mc_collect_stmt(stmt->as.if_stmt.else_branch, lam, locals, caps, arena);
+        locals->count = saved;
         break;
-    case STMT_WHILE:
+    }
+    case STMT_WHILE: {
+        int saved = locals->count;
         mc_collect_expr(stmt->as.while_stmt.condition, lam, locals, caps, arena);
         mc_collect_stmt(stmt->as.while_stmt.body, lam, locals, caps, arena);
+        locals->count = saved;
         break;
-    case STMT_FOR:
-        if (stmt->as.for_stmt.initializer)
-            mc_collect_stmt(stmt->as.for_stmt.initializer, lam, locals, caps, arena);
-        if (stmt->as.for_stmt.condition)
-            mc_collect_expr(stmt->as.for_stmt.condition, lam, locals, caps, arena);
-        if (stmt->as.for_stmt.increment)
-            mc_collect_expr(stmt->as.for_stmt.increment, lam, locals, caps, arena);
+    }
+    case STMT_FOR: {
+        int saved = locals->count;
+        mc_collect_stmt(stmt->as.for_stmt.initializer, lam, locals, caps, arena);
+        mc_collect_expr(stmt->as.for_stmt.condition, lam, locals, caps, arena);
+        mc_collect_expr(stmt->as.for_stmt.increment, lam, locals, caps, arena);
         mc_collect_stmt(stmt->as.for_stmt.body, lam, locals, caps, arena);
+        locals->count = saved;
         break;
+    }
+    case STMT_FOR_EACH: {
+        int saved = locals->count;
+        mc_collect_expr(stmt->as.for_each_stmt.iterable, lam, locals, caps, arena);
+        char name[256];
+        int len = stmt->as.for_each_stmt.var_name.length < 255 ? stmt->as.for_each_stmt.var_name.length : 255;
+        memcpy(name, stmt->as.for_each_stmt.var_name.start, len);
+        name[len] = '\0';
+        mc_add(locals, arena, name, NULL);
+        mc_collect_stmt(stmt->as.for_each_stmt.body, lam, locals, caps, arena);
+        locals->count = saved;
+        break;
+    }
     default:
         break;
     }
@@ -439,18 +423,116 @@ static void mc_analyze(Arena *arena, LambdaExpr *lam, ModelCaptures *caps)
     ModelCaptures locals;
     mc_init(&locals);
 
-    /* Collect local variable declarations */
-    if (lam->has_stmt_body) {
-        for (int i = 0; i < lam->body_stmt_count; i++)
-            mc_collect_locals(lam->body_stmts[i], &locals, arena);
-    }
-
     /* Collect free variables */
     if (lam->has_stmt_body) {
         for (int i = 0; i < lam->body_stmt_count; i++)
             mc_collect_stmt(lam->body_stmts[i], lam, &locals, caps, arena);
     } else if (lam->body) {
         mc_collect_expr(lam->body, lam, &locals, caps, arena);
+    }
+}
+
+static bool mc_capture_name(json_object *captures, const char *name)
+{
+    for (size_t i = 0; i < json_object_array_length(captures); i++)
+    {
+        json_object *capture = json_object_array_get_idx(captures, i), *captured_name = NULL;
+        if (json_object_object_get_ex(capture, "name", &captured_name) &&
+            strcmp(name, json_object_get_string(captured_name)) == 0) return true;
+    }
+    return false;
+}
+
+static void mc_capture_shadow_initializer(json_object *stmt, int lambda_id, size_t statement_index)
+{
+    json_object *initializer = NULL, *existing = NULL;
+    if (!json_object_object_get_ex(stmt, "initializer", &initializer) ||
+        json_object_object_get_ex(stmt, "c_capture_initializer_name", &existing)) return;
+    char temporary[100];
+    snprintf(temporary, sizeof(temporary), "__sn_ci_capture_init_l%d_s%zu", lambda_id, statement_index);
+    json_object_object_add(stmt, "c_capture_initializer_value", json_object_get(initializer));
+    json_object_object_add(stmt, "c_capture_initializer_name", json_object_new_string(temporary));
+    json_object *reference = json_object_new_object(), *type = NULL;
+    json_object_object_add(reference, "kind", json_object_new_string("variable"));
+    json_object_object_add(reference, "name", json_object_new_string(temporary));
+    json_object_object_add(reference, "c_capture_initializer_name", json_object_new_string(temporary));
+    if (json_object_object_get_ex(initializer, "type", &type)) json_object_object_add(reference, "type", json_object_get(type));
+    json_object_object_add(stmt, "initializer", reference);
+}
+
+static void mc_capture_shadow_initializers(json_object *node, json_object *captures, int lambda_id, size_t *next_id)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array))
+    {
+        for (size_t i = 0; i < json_object_array_length(node); i++)
+            mc_capture_shadow_initializers(json_object_array_get_idx(node, i), captures, lambda_id, next_id);
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
+    json_object *kind = NULL, *name = NULL;
+    if (json_object_object_get_ex(node, "kind", &kind))
+    {
+        if (strcmp(json_object_get_string(kind), "lambda") == 0) return;
+        if (strcmp(json_object_get_string(kind), "var_decl") == 0 &&
+            json_object_object_get_ex(node, "name", &name) &&
+            mc_capture_name(captures, json_object_get_string(name)))
+            mc_capture_shadow_initializer(node, lambda_id, (*next_id)++);
+    }
+    json_object_object_foreach(node, key, child)
+        if (strncmp(key, "c_", 2) != 0 && strcmp(key, "type") != 0)
+            mc_capture_shadow_initializers(child, captures, lambda_id, next_id);
+}
+
+static json_object *mc_capture_shadow_suffix(json_object *body, json_object *captures, size_t start, int lambda_id)
+{
+    json_object *result = json_object_new_array();
+    for (size_t i = start; i < json_object_array_length(body); i++)
+    {
+        json_object *stmt = json_object_array_get_idx(body, i), *kind = NULL, *name = NULL;
+        if (i > start && json_object_object_get_ex(stmt, "kind", &kind) &&
+            strcmp(json_object_get_string(kind), "var_decl") == 0 &&
+            json_object_object_get_ex(stmt, "name", &name) &&
+            mc_capture_name(captures, json_object_get_string(name)))
+        {
+            json_object *block = json_object_new_object();
+            json_object_object_add(block, "kind", json_object_new_string("block"));
+            json_object_object_add(block, "statements", mc_capture_shadow_suffix(body, captures, i, lambda_id));
+            json_object_array_add(result, block);
+            return result;
+        }
+        json_object_array_add(result, json_object_get(stmt));
+    }
+    return result;
+}
+
+static void mc_mark_capture_shadow_scopes(json_object *lambda)
+{
+    json_object *captures = NULL, *body = NULL;
+    if (!json_object_object_get_ex(lambda, "captures", &captures) ||
+        !json_object_object_get_ex(lambda, "body_stmts", &body)) return;
+    json_object *id = NULL;
+    json_object_object_get_ex(lambda, "lambda_id", &id);
+    int lambda_id = json_object_get_int(id);
+    size_t initializer_id = 0;
+    mc_capture_shadow_initializers(body, captures, lambda_id, &initializer_id);
+    for (size_t i = 0; i < json_object_array_length(body); i++)
+    {
+        json_object *stmt = json_object_array_get_idx(body, i), *kind = NULL, *name = NULL;
+        if (json_object_object_get_ex(stmt, "kind", &kind) &&
+            strcmp(json_object_get_string(kind), "var_decl") == 0 &&
+            json_object_object_get_ex(stmt, "name", &name) &&
+            mc_capture_name(captures, json_object_get_string(name)))
+        {
+            json_object *rewritten = json_object_new_array();
+            for (size_t j = 0; j < i; j++) json_object_array_add(rewritten, json_object_get(json_object_array_get_idx(body, j)));
+            json_object *block = json_object_new_object();
+            json_object_object_add(block, "kind", json_object_new_string("block"));
+            json_object_object_add(block, "statements", mc_capture_shadow_suffix(body, captures, i, lambda_id));
+            json_object_array_add(rewritten, block);
+            json_object_object_add(lambda, "body_stmts", rewritten);
+            return;
+        }
     }
 }
 
@@ -3235,6 +3317,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                             gen_model_stmt(arena, lam->body_stmts[i], symbol_table, arithmetic_mode));
                     }
                     json_object_object_add(obj, "body_stmts", body);
+                    mc_mark_capture_shadow_scopes(obj);
                 }
                 else if (lam->body)
                 {
@@ -3376,6 +3459,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                                 gen_model_stmt(arena, lam->body_stmts[i], symbol_table, arithmetic_mode));
                         }
                         json_object_object_add(ldef, "body_stmts", lbody);
+                        mc_mark_capture_shadow_scopes(ldef);
                     }
                     else if (lam->body)
                     {

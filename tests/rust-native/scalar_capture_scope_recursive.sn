@@ -1,0 +1,12 @@
+fn main(): void =>
+  var value: int = 2
+  var change = fn(): int =>
+    var recurse: fn(int): int = fn(n: int): int =>
+      if n == 0 =>
+        return value
+      return recurse(n - 1)
+    if true =>
+      var value: int = 9
+    return recurse(2)
+  println(change() == 2 && change() == 2)
+  println(value == 2)

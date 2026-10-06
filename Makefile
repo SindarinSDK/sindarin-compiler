@@ -1329,3 +1329,21 @@ test-rust-parity-scalar-snapshot-references: build
 		--require-count 12 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-scalar-snapshot-references.json
 	@$(PYTHON) scripts/check_rust_scalar_snapshot_reference_oracles.py .sn/rust-parity-scalar-snapshot-references.json
+
+.PHONY: test-rust-parity-capture-scopes
+test-rust-parity-capture-scopes: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/rust-native/scalar_capture_scope_block_shadow.sn \
+		tests/rust-native/scalar_capture_scope_heap_initializer_shadow.sn \
+		tests/rust-native/scalar_capture_scope_heap_shadow.sn \
+		tests/rust-native/scalar_capture_scope_initializer_shadow.sn \
+		tests/rust-native/scalar_capture_scope_late_shadow.sn \
+		tests/rust-native/scalar_capture_scope_loop_iterator.sn \
+		tests/rust-native/scalar_capture_scope_nested_initializer_shadow.sn \
+		tests/rust-native/scalar_capture_scope_nested_shadow.sn \
+		tests/rust-native/scalar_capture_scope_recursive.sn \
+		tests/rust-native/scalar_capture_scope_reference_shadow.sn \
+		tests/rust-native/scalar_capture_scope_while_shadow.sn \
+		--require-count 11 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-capture-scopes.json
+	@$(PYTHON) scripts/check_rust_capture_scope_oracles.py .sn/rust-parity-capture-scopes.json

@@ -1,0 +1,9 @@
+fn main(): void =>
+  var value: int = 2
+  var change = fn(): int =>
+    var sum: int = value
+    for value in {3, 4} =>
+      sum += value
+    return sum + value
+  println(change() == 11 && change() == 11)
+  println(value == 2)

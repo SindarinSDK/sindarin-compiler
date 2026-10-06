@@ -1,0 +1,13 @@
+fn main(): void =>
+  var value: int = 2
+  var change = fn(): int =>
+    var before = fn(): int => value
+    if true =>
+      var value: int = 9
+      var inside = fn(): int => value
+      if inside() != 9 =>
+        return 0
+    var after = fn(): int => value
+    return before() * 10 + after()
+  println(change() == 22 && change() == 22)
+  println(value == 2)

@@ -259,51 +259,6 @@ static bool mc_is_local(ModelCaptures *locals, const char *name)
 static void mc_collect_expr(Expr *expr, LambdaExpr *lam, ModelCaptures *locals, ModelCaptures *caps, Arena *arena);
 static void mc_collect_stmt(Stmt *stmt, LambdaExpr *lam, ModelCaptures *locals, ModelCaptures *caps, Arena *arena);
 
-static void mc_collect_locals(Stmt *stmt, ModelCaptures *locals, Arena *arena)
-{
-    if (!stmt) return;
-    switch (stmt->type) {
-    case STMT_VAR_DECL: {
-        char name[256];
-        int len = stmt->as.var_decl.name.length < 255 ? stmt->as.var_decl.name.length : 255;
-        strncpy(name, stmt->as.var_decl.name.start, len);
-        name[len] = '\0';
-        mc_add(locals, arena, name, stmt->as.var_decl.type);
-        break;
-    }
-    case STMT_BLOCK:
-        for (int i = 0; i < stmt->as.block.count; i++)
-            mc_collect_locals(stmt->as.block.statements[i], locals, arena);
-        break;
-    case STMT_FOR:
-        if (stmt->as.for_stmt.initializer)
-            mc_collect_locals(stmt->as.for_stmt.initializer, locals, arena);
-        mc_collect_locals(stmt->as.for_stmt.body, locals, arena);
-        break;
-    case STMT_FOR_EACH: {
-        char name[256];
-        int len = stmt->as.for_each_stmt.var_name.length < 255 ? stmt->as.for_each_stmt.var_name.length : 255;
-        strncpy(name, stmt->as.for_each_stmt.var_name.start, len);
-        name[len] = '\0';
-        /* For-each iterator type comes from the iterable's element type;
-         * use NULL here since mc_add only needs the name for lookup */
-        mc_add(locals, arena, name, NULL);
-        mc_collect_locals(stmt->as.for_each_stmt.body, locals, arena);
-        break;
-    }
-    case STMT_IF:
-        mc_collect_locals(stmt->as.if_stmt.then_branch, locals, arena);
-        if (stmt->as.if_stmt.else_branch)
-            mc_collect_locals(stmt->as.if_stmt.else_branch, locals, arena);
-        break;
-    case STMT_WHILE:
-        mc_collect_locals(stmt->as.while_stmt.body, locals, arena);
-        break;
-    default:
-        break;
-    }
-}
-
 static void mc_analyze(Arena *arena, LambdaExpr *lam, ModelCaptures *caps);
 
 static void mc_collect_expr(Expr *expr, LambdaExpr *lam, ModelCaptures *locals, ModelCaptures *caps, Arena *arena)
@@ -404,37 +359,66 @@ static void mc_collect_stmt(Stmt *stmt, LambdaExpr *lam, ModelCaptures *locals, 
     case STMT_EXPR:
         mc_collect_expr(stmt->as.expression.expression, lam, locals, caps, arena);
         break;
-    case STMT_VAR_DECL:
-        if (stmt->as.var_decl.initializer)
-            mc_collect_expr(stmt->as.var_decl.initializer, lam, locals, caps, arena);
+    case STMT_VAR_DECL: {
+        char name[256];
+        int len = stmt->as.var_decl.name.length < 255 ? stmt->as.var_decl.name.length : 255;
+        memcpy(name, stmt->as.var_decl.name.start, len);
+        name[len] = '\0';
+        bool recursive = stmt->as.var_decl.initializer &&
+            stmt->as.var_decl.initializer->type == EXPR_LAMBDA &&
+            stmt->as.var_decl.type && stmt->as.var_decl.type->kind == TYPE_FUNCTION;
+        if (recursive) mc_add(locals, arena, name, stmt->as.var_decl.type);
+        mc_collect_expr(stmt->as.var_decl.initializer, lam, locals, caps, arena);
+        if (!recursive) mc_add(locals, arena, name, stmt->as.var_decl.type);
         break;
+    }
     case STMT_RETURN:
-        if (stmt->as.return_stmt.value)
-            mc_collect_expr(stmt->as.return_stmt.value, lam, locals, caps, arena);
+        mc_collect_expr(stmt->as.return_stmt.value, lam, locals, caps, arena);
         break;
-    case STMT_BLOCK:
+    case STMT_BLOCK: {
+        int saved = locals->count;
         for (int i = 0; i < stmt->as.block.count; i++)
             mc_collect_stmt(stmt->as.block.statements[i], lam, locals, caps, arena);
+        locals->count = saved;
         break;
-    case STMT_IF:
+    }
+    case STMT_IF: {
+        int saved = locals->count;
         mc_collect_expr(stmt->as.if_stmt.condition, lam, locals, caps, arena);
         mc_collect_stmt(stmt->as.if_stmt.then_branch, lam, locals, caps, arena);
-        if (stmt->as.if_stmt.else_branch)
-            mc_collect_stmt(stmt->as.if_stmt.else_branch, lam, locals, caps, arena);
+        locals->count = saved;
+        mc_collect_stmt(stmt->as.if_stmt.else_branch, lam, locals, caps, arena);
+        locals->count = saved;
         break;
-    case STMT_WHILE:
+    }
+    case STMT_WHILE: {
+        int saved = locals->count;
         mc_collect_expr(stmt->as.while_stmt.condition, lam, locals, caps, arena);
         mc_collect_stmt(stmt->as.while_stmt.body, lam, locals, caps, arena);
+        locals->count = saved;
         break;
-    case STMT_FOR:
-        if (stmt->as.for_stmt.initializer)
-            mc_collect_stmt(stmt->as.for_stmt.initializer, lam, locals, caps, arena);
-        if (stmt->as.for_stmt.condition)
-            mc_collect_expr(stmt->as.for_stmt.condition, lam, locals, caps, arena);
-        if (stmt->as.for_stmt.increment)
-            mc_collect_expr(stmt->as.for_stmt.increment, lam, locals, caps, arena);
+    }
+    case STMT_FOR: {
+        int saved = locals->count;
+        mc_collect_stmt(stmt->as.for_stmt.initializer, lam, locals, caps, arena);
+        mc_collect_expr(stmt->as.for_stmt.condition, lam, locals, caps, arena);
+        mc_collect_expr(stmt->as.for_stmt.increment, lam, locals, caps, arena);
         mc_collect_stmt(stmt->as.for_stmt.body, lam, locals, caps, arena);
+        locals->count = saved;
         break;
+    }
+    case STMT_FOR_EACH: {
+        int saved = locals->count;
+        mc_collect_expr(stmt->as.for_each_stmt.iterable, lam, locals, caps, arena);
+        char name[256];
+        int len = stmt->as.for_each_stmt.var_name.length < 255 ? stmt->as.for_each_stmt.var_name.length : 255;
+        memcpy(name, stmt->as.for_each_stmt.var_name.start, len);
+        name[len] = '\0';
+        mc_add(locals, arena, name, NULL);
+        mc_collect_stmt(stmt->as.for_each_stmt.body, lam, locals, caps, arena);
+        locals->count = saved;
+        break;
+    }
     default:
         break;
     }
@@ -445,12 +429,6 @@ static void mc_analyze(Arena *arena, LambdaExpr *lam, ModelCaptures *caps)
     mc_init(caps);
     ModelCaptures locals;
     mc_init(&locals);
-
-    /* Collect local variable declarations */
-    if (lam->has_stmt_body) {
-        for (int i = 0; i < lam->body_stmt_count; i++)
-            mc_collect_locals(lam->body_stmts[i], &locals, arena);
-    }
 
     /* Collect free variables */
     if (lam->has_stmt_body) {

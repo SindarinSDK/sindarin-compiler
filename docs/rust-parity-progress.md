@@ -190,6 +190,39 @@ Evidence: [validation](rust-parity-evidence/scalar-snapshot-reference-validation
 [comparisons](rust-parity-evidence/scalar-snapshot-reference-after.json),
 [C lifetimes](rust-parity-evidence/scalar-snapshot-reference-c-lifetimes.json).
 
+## Lexical closure capture scopes, 2026-10-06
+
+Both projections discover locals in source order and restore visible names at
+block, branch and loop exits. Ordinary initializers read the prior visible
+binding; only typed recursive lambda initializers bind themselves early, matching
+type checking. A nested or later same-name local no longer suppresses an outer
+capture. C suffix blocks scope late declarations, and initializer temporaries
+evaluate captured-name RHS values before introducing the shadowing local, including
+nested body declarations. The raw helper names cannot collide with source names
+that receive the compiler's `__sn__` prefix. Heap cleanup and recursive identity
+remain intact. The snapshot-reference repair on main now composes with shadowing.
+
+Eleven frozen literal controls pass **99** mode comparisons and **33** Linux
+ASAN/UBSAN/leak runs: block/later/iterator/while shadowing, heap values, nested
+captures, recursion, scalar/heap/nested initializers and reference forwarding.
+All **83** combined acceptance commands pass with frozen inputs and complete
+C/Rust suites, exact **256** native fixtures, **63 reports / 5574 cases**,
+**502** Rust/**107** C goldens and **120** admission-error cases. Existing
+source/goldens and all **1365** original corpus hashes remain unchanged.
+The change is validated against snapshot main `ccbff0e1`; its own full
+exact-revision platform acceptance remains required after publication.
+
+Interfaces/native wire/empty physical identity, physical value-record receivers,
+native string aliases, remaining native array formats and qualifiers/callback/
+lifetime/evaluation contexts still prevent completion. The physical receiver
+control remains C-valid with sanitizer evidence while Rust still panics; no
+snapshot/reindexed receiver or rejected case receives parity credit.
+
+Evidence: [validation](rust-parity-evidence/capture-scope-validation.json),
+[oracles](rust-parity-evidence/capture-scope-oracles.json),
+[comparisons](rust-parity-evidence/capture-scope-after.json),
+[C lifetimes](rust-parity-evidence/capture-scope-c-lifetimes.json).
+
 ## Scalar closure RHS sequencing: CI repair, 2026-10-06
 
 macOS runtime job 112380383034 and Windows job 112380383080 for `a69da434` failed the unchanged scalar

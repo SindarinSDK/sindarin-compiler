@@ -1,0 +1,10 @@
+fn main(): void =>
+  var value: int = 2
+  var change = fn(): int =>
+    var first: int = value
+    if true =>
+      var value: int = 9
+      value += 1
+    return first + value
+  println(change() == 4 && change() == 4)
+  println(value == 2)
