@@ -1,0 +1,10 @@
+fn main(): void =>
+  var value: int = 3
+  var change = fn(a: int): int =>
+    var before: int = a++
+    var after: int = a += 2
+    var previous: int = a--
+    return before * 100 + after * 10 + previous
+  println(change(value) == 366)
+  println(change(value) == 366)
+  println(value == 3)

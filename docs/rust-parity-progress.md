@@ -5,6 +5,43 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Scalar closure value parameters, 2026-10-06
+
+Default and explicit `as val` scalar closure parameters now have mutable local
+bindings for each invocation. Mutations and reference forwarding affect the
+local copy and leave the caller's value intact. Type/operator checks remain
+active; the private lexical facts admit numeric mutation through the existing
+checked/wrapping/floating lowering. Nested capture snapshots and lexical
+shadowing retain their existing ownership and binding identity.
+
+Two original rejection fixtures are promoted with their source bytes unchanged.
+The gate supplies literal outputs for **16** programs in **144** comparisons
+across all nine optimization/arithmetic modes, with **48** Linux ASAN/UBSAN/leak
+runs. The float/postfix case pins `16777220` and an effectful RHS case pins `55`,
+matching authored raw output controls; initial incorrect assertions receive no
+credit. The separate floating-modulo negative is C-invalid and remains excluded
+from parity. Its diagnostic now reaches the specific unsupported operator
+instead of the former closure-parameter mutation guard.
+
+All **69** final acceptance commands pass with frozen inputs. The complete
+C/Rust suites pass, including the exact count-checked **170** native fixtures.
+Evidence verifies **56 reports / 4791 cases**, all prior **55 / 4647** included.
+Rust generation has **501** positives and **121** negatives with no failures
+or skips. All **1365** original corpus source hashes remain unchanged; no
+existing generation goldens change. Exact revision hosted acceptance remains
+required on Linux/macOS/Windows. Source/operator support outside these verified cases, owned parameter
+rebinding, remaining qualifiers, structural interfaces/native ABI and empty
+storage, physical value-record receivers and broader native/global/callback/
+escaping/thread lifetime/evaluation compositions remain required work. C stays
+the default target. Original corpus coverage is a separate measure from goal
+completion; rejected or skipped features receive no completion credit.
+
+Evidence: [validation](rust-parity-evidence/value-parameter-validation.json),
+[oracles](rust-parity-evidence/value-parameter-oracles.json),
+[comparisons](rust-parity-evidence/value-parameter-after.json),
+[C lifetimes](rust-parity-evidence/value-parameter-c-lifetimes.json),
+[promotion](rust-parity-evidence/value-parameter-promotion.json).
+
 ## Scalar closure references and reference evaluation, 2026-10-06
 
 Rust scalar `as ref` closure parameters now share the caller's storage. A

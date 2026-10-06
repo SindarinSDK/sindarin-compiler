@@ -1,0 +1,10 @@
+fn oldThenIncrement(value: int as ref): int =>
+  return value++
+
+fn main(): void =>
+  var value: int = 2
+  var change = fn(a: int): int =>
+    var result: int = a += oldThenIncrement(a)
+    return result * 10 + a
+  println(change(value) == 55)
+  println(value == 2)

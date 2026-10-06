@@ -1,0 +1,8 @@
+fn main(): void =>
+  var value: float = 16777216.0f
+  var change = fn(a: float as val): float =>
+    a += 1.00000001
+    a++
+    return a
+  println(change(value) == 16777220.0)
+  println(value == 16777216.0f)

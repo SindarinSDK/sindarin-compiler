@@ -1,0 +1,111 @@
+{
+  "sources": [
+    {
+      "source": "tests/rust-native/scalar_closure_value_parameter_default.sn",
+      "source_sha256": "c899912b2d118c8cef8bb5d27f321238006a7853fc2216a441200c2d40f78251",
+      "stdout_hex": "747275650a747275650a",
+      "expected_sha256": "21d91041c5d1a59661f8936571ee5c87e96f6f0c7a532b52ec17c5b9bea8220b"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_value_parameter_asval.sn",
+      "source_sha256": "29a4884b145b1a39f0c537fd908a031422eb38b511fffe32e6ff702cd17b576e",
+      "stdout_hex": "747275650a747275650a",
+      "expected_sha256": "21d91041c5d1a59661f8936571ee5c87e96f6f0c7a532b52ec17c5b9bea8220b"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_value_parameter_types.sn",
+      "source_sha256": "5161a2f63cb5e354ea6ec46cdda0d2acc6a18a5d1f3169a2b8a30c8a94f3944e",
+      "stdout_hex": "747275650a747275650a747275650a",
+      "expected_sha256": "36768a89e8faf166700f48bc8df99361609e43956dd7d2bffebde9439ea5033c"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_value_parameter_postfix.sn",
+      "source_sha256": "80ca9f16cf93b434b9b99ae18fdb66fdd33eb5a021149980269a18c4b0b0f342",
+      "stdout_hex": "747275650a747275650a747275650a",
+      "expected_sha256": "36768a89e8faf166700f48bc8df99361609e43956dd7d2bffebde9439ea5033c"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_value_parameter_nested.sn",
+      "source_sha256": "a983c85543a495232d69905860335e8848bef5d53094d2967fa7372d64958d2c",
+      "stdout_hex": "747275650a747275650a",
+      "expected_sha256": "21d91041c5d1a59661f8936571ee5c87e96f6f0c7a532b52ec17c5b9bea8220b"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_value_parameter_forward.sn",
+      "source_sha256": "53114ce430a4441a439285f81ee988fd152fb2ed1de857d9afd1b6434efbabc0",
+      "stdout_hex": "747275650a747275650a",
+      "expected_sha256": "21d91041c5d1a59661f8936571ee5c87e96f6f0c7a532b52ec17c5b9bea8220b"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_value_parameter_closure_forward.sn",
+      "source_sha256": "4adfb62394132836d7338be5dffed17411f0eba17b4894a6b50ec1e925fb3bda",
+      "stdout_hex": "747275650a747275650a",
+      "expected_sha256": "21d91041c5d1a59661f8936571ee5c87e96f6f0c7a532b52ec17c5b9bea8220b"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_value_parameter_shadow.sn",
+      "source_sha256": "ce30901f3c0586bcc3cf16e6ab72d51aed85f15791051d01ad8ab5d5dcf2a77e",
+      "stdout_hex": "747275650a747275650a747275650a",
+      "expected_sha256": "36768a89e8faf166700f48bc8df99361609e43956dd7d2bffebde9439ea5033c"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_value_parameter_rhs.sn",
+      "source_sha256": "9e497b5ea7ed2ea561b39dd75c19e9b02e161d51190e99e2f45c54325acd1d07",
+      "stdout_hex": "747275650a747275650a",
+      "expected_sha256": "21d91041c5d1a59661f8936571ee5c87e96f6f0c7a532b52ec17c5b9bea8220b"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_value_parameter_capture_mutation.sn",
+      "source_sha256": "5434eba2035cf5e26e9719fdd6bec2f05716fe9a16c5741ffca33367500d3c62",
+      "stdout_hex": "747275650a747275650a747275650a",
+      "expected_sha256": "36768a89e8faf166700f48bc8df99361609e43956dd7d2bffebde9439ea5033c"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_value_parameter_expression.sn",
+      "source_sha256": "02310f7b987f6122651919be5b0029ee008f39cee71221a01012af21c3591b48",
+      "stdout_hex": "747275650a747275650a747275650a",
+      "expected_sha256": "36768a89e8faf166700f48bc8df99361609e43956dd7d2bffebde9439ea5033c"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_value_parameter_boundaries.sn",
+      "source_sha256": "5259e57208ca570fe46a2845cf53443d19470f23974e7d0eda090a4a8bf82257",
+      "stdout_hex": "747275650a747275650a",
+      "expected_sha256": "21d91041c5d1a59661f8936571ee5c87e96f6f0c7a532b52ec17c5b9bea8220b"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_value_parameter_floating.sn",
+      "source_sha256": "58c84fc61939f96468faf2a80d76a226b5cfd87819c45318471d2c45cb1da401",
+      "stdout_hex": "747275650a747275650a",
+      "expected_sha256": "21d91041c5d1a59661f8936571ee5c87e96f6f0c7a532b52ec17c5b9bea8220b"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_value_parameter_hygiene.sn",
+      "source_sha256": "84d9f76626f718072a8423ae8eb7be21fe7a7bc7ef4684293f1dbebc34204fe1",
+      "stdout_hex": "747275650a747275650a",
+      "expected_sha256": "21d91041c5d1a59661f8936571ee5c87e96f6f0c7a532b52ec17c5b9bea8220b"
+    },
+    {
+      "source": "tests/rgen/closure_values_parameter_mutation.sn",
+      "source_sha256": "c0ff41adeb85bb576f5da9729a65a4a15b19a265446d7a727ff570ed4b5da19c",
+      "stdout_hex": "370a",
+      "expected_sha256": "10159baf262b43a92d95db59dae1f72c645127301661e0a3ce4e38b295a97c58"
+    },
+    {
+      "source": "tests/rgen/floating_by_value_parameter_lambda_compound_rhs_precedence.sn",
+      "source_sha256": "34fc9e4f2f893019532e5233b27d66ef001f47a182fbc68016b7700de4e6bebd",
+      "stdout_hex": "332e30303030300a",
+      "expected_sha256": "13397dc1ad166749b58a21e1bbcbd6b50624af20a3d1269bb4133d6571d922d2"
+    }
+  ],
+  "optimization": [
+    "-O0",
+    "-O1",
+    "-O2"
+  ],
+  "arithmetic_modes": [
+    "default",
+    "checked",
+    "unchecked"
+  ],
+  "scope": "Mutable per-call default/as-val scalar closure parameters, assignment/postfix results, widths/float precision, local reference forwarding, nested captures and lexical shadowing; source-defined wrapping limits and effectful RHS controls."
+}

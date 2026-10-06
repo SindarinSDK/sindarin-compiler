@@ -1,0 +1,6 @@
+fn main(): void =>
+  var value: int = 3
+  var change = fn(a: int): int => a++
+  println(change(value) == 3)
+  println(change(value) == 3)
+  println(value == 3)

@@ -1,0 +1,10 @@
+fn main(): void =>
+  var value: int = 1
+  var bump = fn(a: int as ref, b: int as ref): int =>
+    a += 2
+    b *= 3
+    return a
+  var change = fn(a: int): int =>
+    return bump(a, a)
+  println(change(value) == 9)
+  println(value == 1)

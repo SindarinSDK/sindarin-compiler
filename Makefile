@@ -1188,3 +1188,26 @@ test-rust-parity-closure-references: build
 		--require-count 26 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-closure-references.json
 	@$(PYTHON) scripts/check_rust_closure_reference_oracles.py .sn/rust-parity-closure-references.json
+
+.PHONY: test-rust-parity-closure-value-parameters
+test-rust-parity-closure-value-parameters: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/rust-native/scalar_closure_value_parameter_default.sn \
+		tests/rust-native/scalar_closure_value_parameter_asval.sn \
+		tests/rust-native/scalar_closure_value_parameter_types.sn \
+		tests/rust-native/scalar_closure_value_parameter_postfix.sn \
+		tests/rust-native/scalar_closure_value_parameter_nested.sn \
+		tests/rust-native/scalar_closure_value_parameter_forward.sn \
+		tests/rust-native/scalar_closure_value_parameter_closure_forward.sn \
+		tests/rust-native/scalar_closure_value_parameter_shadow.sn \
+		tests/rust-native/scalar_closure_value_parameter_rhs.sn \
+		tests/rust-native/scalar_closure_value_parameter_capture_mutation.sn \
+		tests/rust-native/scalar_closure_value_parameter_expression.sn \
+		tests/rust-native/scalar_closure_value_parameter_boundaries.sn \
+		tests/rust-native/scalar_closure_value_parameter_floating.sn \
+		tests/rust-native/scalar_closure_value_parameter_hygiene.sn \
+		tests/rgen/closure_values_parameter_mutation.sn \
+		tests/rgen/floating_by_value_parameter_lambda_compound_rhs_precedence.sn \
+		--require-count 16 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-closure-value-parameters.json
+	@$(PYTHON) scripts/check_rust_closure_value_parameter_oracles.py .sn/rust-parity-closure-value-parameters.json

@@ -1,0 +1,9 @@
+fn main(): void =>
+  var b: byte = 255b
+  var u: uint32 = 4294967295u32
+  var change = fn(b: byte as val, u: uint32): bool =>
+    var beforeB: byte = b++
+    var beforeU: uint32 = u++
+    return beforeB == 255b && b == 0b && beforeU == 4294967295u32 && u == 0u32
+  println(change(b, u))
+  println(b == 255b && u == 4294967295u32)

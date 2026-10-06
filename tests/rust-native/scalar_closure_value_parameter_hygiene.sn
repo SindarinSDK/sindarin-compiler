@@ -1,0 +1,8 @@
+fn main(): void =>
+  var value: int = 1
+  var change = fn(__sn_rhs: int as val, __sn_place: int): int =>
+    var __sn_previous: int = 3
+    __sn_rhs += __sn_place + __sn_previous
+    return __sn_rhs
+  println(change(value, 2) == 6)
+  println(value == 1)

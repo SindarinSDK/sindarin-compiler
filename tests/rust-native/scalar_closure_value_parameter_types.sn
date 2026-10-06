@@ -1,0 +1,22 @@
+fn main(): void =>
+  var b: byte = 1b
+  var i: int32 = 2i32
+  var u: uint32 = 3u32
+  var w: uint = 4u
+  var f: float = 1.0f
+  var d: double = 2.0
+  var c: char = 'a'
+  var flag: bool = false
+  var change = fn(b: byte, i: int32 as val, u: uint32, w: uint as val, f: float, d: double as val, c: char, flag: bool as val): bool =>
+    b += 1b
+    i += 1i32
+    u += 1u32
+    w += 1u
+    f += 0.5f
+    d += 0.5
+    c = 'z'
+    flag = true
+    return b == 2b && i == 3i32 && u == 4u32 && w == 5u && f == 1.5f && d == 2.5 && c == 'z' && flag
+  println(change(b, i, u, w, f, d, c, flag))
+  println(b == 1b && i == 2i32 && u == 3u32 && w == 4u)
+  println(f == 1.0f && d == 2.0 && c == 'a' && !flag)

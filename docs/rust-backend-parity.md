@@ -72,6 +72,13 @@ all-mode comparisons and 78 sanitizer runs pass. Complete local acceptance
 verifies 55 reports / 4647 cases. Broader qualified signatures, native/lifetime
 compositions, interfaces and physical receivers remain required work.
 
+The scalar closure-value increment adds mutable per-invocation default/as-val
+scalar parameters, preserving caller values, nested snapshots, lexical shadowing
+and local reference forwarding. Sixteen controls pass 144 all-mode comparisons
+and 48 sanitizer runs; complete local acceptance verifies 56 reports / 4791
+cases. Owned rebindings, remaining qualifiers and full interop/storage/lifetime
+work remain required. Hosted acceptance is tracked independently.
+
 The 2026-10-03 float/double increment adds conversions at tested scalar storage,
 call and return boundaries and mixed floating compound mutation, including
 observable synchronized cells. Historical same-type-only exclusions below are

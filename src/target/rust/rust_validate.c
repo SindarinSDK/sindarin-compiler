@@ -1970,6 +1970,7 @@ static bool rust_validate_expr(json_object *expr)
                     expr, "rust_by_value_floating_parameter_mutation") &&
                 !json_boolean_property(
                     expr, "rust_by_value_wrapping_parameter_mutation") &&
+                !json_boolean_property(expr, "rust_by_value_checked_parameter_mutation") &&
                 !iterator_binding_mutation)
             {
                 fprintf(stderr,
@@ -2008,6 +2009,7 @@ static bool rust_validate_expr(json_object *expr)
             !rust_checked_scalar_ref_parameter(expr, child) &&
             !json_boolean_property(
                 expr, "rust_by_value_wrapping_parameter_mutation") &&
+            !json_boolean_property(expr, "rust_by_value_checked_parameter_mutation") &&
             !iterator_binding_mutation)
         {
             fprintf(stderr,

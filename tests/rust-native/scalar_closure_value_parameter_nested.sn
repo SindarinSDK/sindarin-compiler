@@ -1,0 +1,10 @@
+fn main(): void =>
+  var value: int = 1
+  var make = fn(a: int as val): fn(): int =>
+    a += 2
+    var read = fn(): int => a
+    a += 1
+    return read
+  var read = make(value)
+  println(read() == 3)
+  println(value == 1)

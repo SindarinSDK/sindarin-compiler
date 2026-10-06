@@ -114,7 +114,7 @@ static bool rust_closure_type_supported(json_object *type)
         const char *qual = i < rust_closure_length(quals)
             ? json_object_get_string(json_object_array_get_idx(quals, i)) : "default";
         if (strcmp(qual, "default") != 0 &&
-            !(strcmp(qual, "as_val") == 0 && rust_closure_array_type(param)) &&
+            !(strcmp(qual, "as_val") == 0 && (rust_closure_array_type(param) || rust_closure_scalar_type(param))) &&
             !(strcmp(qual, "as_ref") == 0 && rust_closure_scalar_type(param))) return false;
         if (strcmp(qual, "as_ref") == 0 && rust_closure_scalar_type(param))
         {
@@ -405,7 +405,11 @@ static bool rust_closure_walk_lambda(RustClosureScope *scope, json_object *node)
             json_string_property_equals(p, "mem_qual", "as_val");
         if (array_copy)
             json_object_object_add(p, "rust_closure_array_parameter_copy", json_object_new_boolean(true));
-        if (!json_string_property_equals(p, "mem_qual", "default") && !record_ref && !array_copy)
+        bool scalar_value = rust_closure_scalar_type(rust_closure_property(p, "type")) &&
+            !json_string_property_equals(p, "mem_qual", "as_ref");
+        if (scalar_value)
+            json_object_object_add(p, "rust_closure_scalar_value_parameter", json_object_new_boolean(true));
+        if (!json_string_property_equals(p, "mem_qual", "default") && !record_ref && !array_copy && !scalar_value)
             ok = rust_closure_error("qualified closure parameters");
         else ok = rust_closure_bind(scope, p, json_string_property(p, "name"), -1, false);
     }
@@ -529,6 +533,9 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
             if (b->lambda_depth != scope->lambda_depth)
                 return rust_closure_error("missing transitive closure captures");
             json_object_object_add(node, "rust_binding_id", json_object_new_int(b->id));
+            if (json_boolean_property(node, "is_ref_arg") &&
+                json_boolean_property(b->declaration, "rust_closure_scalar_value_parameter"))
+                json_object_object_add(b->declaration, "rust_closure_mutable_parameter", json_object_new_boolean(true));
             if (b->capture && json_boolean_property(b->declaration, "rust_atomic_snapshot_value"))
                 json_object_object_del(node, "rust_cell");
             /* A by-value array capture snapshots its enclosing threaded owner
@@ -603,7 +610,21 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
     if (place && scope->lambda_depth > 0 && !json_string_property(place->declaration, "kind") &&
         !place->capture &&
         !json_boolean_property(place->declaration, "rust_closure_param_share"))
-        return rust_closure_error("mutation of closure parameters");
+    {
+        if (!json_boolean_property(place->declaration, "rust_closure_scalar_value_parameter"))
+            return rust_closure_error("mutation of closure parameters");
+        json_object_object_add(place->declaration, "rust_closure_mutable_parameter", json_object_new_boolean(true));
+        json_object *parameter_type = rust_closure_property(place->declaration, "type");
+        const char *parameter_kind = json_string_property(parameter_type, "kind");
+        if (kind && strcmp(kind, "assign") == 0)
+            json_object_object_add(node, "rust_by_value_scalar_parameter_assign", json_object_new_boolean(true));
+        else if (parameter_kind && (strcmp(parameter_kind, "float") == 0 || strcmp(parameter_kind, "double") == 0))
+            json_object_object_add(node, "rust_by_value_floating_parameter_mutation", json_object_new_boolean(true));
+        else if (parameter_kind && (strcmp(parameter_kind, "byte") == 0 || strcmp(parameter_kind, "uint32") == 0 || strcmp(parameter_kind, "uint") == 0))
+            json_object_object_add(node, "rust_by_value_wrapping_parameter_mutation", json_object_new_boolean(true));
+        else
+            json_object_object_add(node, "rust_by_value_checked_parameter_mutation", json_object_new_boolean(true));
+    }
     if (json_boolean_property(node, "is_ref_arg"))
     {
         RustClosureBinding *borrowed = rust_closure_place(scope, node);
