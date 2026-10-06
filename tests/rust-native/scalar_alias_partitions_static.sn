@@ -1,0 +1,20 @@
+fn update(a: int[], b: int[], c: int[], d: int[]): int =>
+  a[0] += 1
+  b[0] += 2
+  c[0] += 4
+  d[0] += 8
+  return a[0]
+
+fn main(): void =>
+  var forward: fn(int[], int[], int[]): int = fn(a: int[], b: int[], c: int[]): int =>
+    return update(a, a, b, c)
+  var same: int[] = {1}
+  println(forward(same, same, same) == 16)
+  println(same[0] == 16)
+  var left: int[] = {10}
+  var middle: int[] = {20}
+  var right: int[] = {30}
+  println(forward(left, middle, right) == 13)
+  println(left[0] == 13 && middle[0] == 24 && right[0] == 38)
+  println(forward(left, middle, left) == 24)
+  println(left[0] == 24 && middle[0] == 28 && right[0] == 38)

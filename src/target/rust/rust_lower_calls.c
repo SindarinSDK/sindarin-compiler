@@ -1110,6 +1110,92 @@ static bool rust_specialize_default_array_alias_calls(json_object *model,
                                                       json_object *node,
                                                       size_t *next_id);
 
+static bool rust_specialize_default_array_alias_call(json_object *model,
+                                                     json_object *functions,
+                                                     json_object *call,
+                                                     size_t *next_id);
+
+/* Classify each shared formal against the earlier representatives. Each leaf
+ * contains one actual identity partition, which the static alias lowering
+ * coalesces before it constructs any mutable references. */
+static bool rust_dispatch_closure_array_aliases(json_object *model,
+                                                json_object *functions,
+                                                json_object *call,
+                                                size_t *canonical,
+                                                size_t count,
+                                                size_t position,
+                                                size_t candidate,
+                                                size_t *next_id)
+{
+    json_object *args = rust_closure_property(call, "args");
+    while (position < count)
+    {
+        json_object *arg = json_object_array_get_idx(args, position);
+        if (canonical[position] == position &&
+            json_boolean_property(arg, "rust_closure_array_parameter") &&
+            json_boolean_property(arg, "rust_default_array_ref_arg")) break;
+        position++;
+        candidate = 0;
+    }
+    if (position == count)
+    {
+        /* Keep the source-order arguments until the complete partition is
+         * known. The existing specialization retains owned as-val copies. */
+        for (size_t i = 0; i < count; i++)
+            if (canonical[i] != i)
+                json_object_array_put_idx(args, i, json_object_get(
+                    json_object_array_get_idx(args, canonical[i])));
+        json_object_object_add(call, "rust_array_alias_partition_leaf",
+                               json_object_new_boolean(true));
+        return rust_specialize_default_array_alias_call(
+            model, functions, call, next_id);
+    }
+
+    json_object *right = json_object_array_get_idx(args, position);
+    json_object *right_type = rust_closure_property(right, "type");
+    while (candidate < position)
+    {
+        json_object *left = json_object_array_get_idx(args, candidate);
+        if (canonical[candidate] == candidate &&
+            json_boolean_property(left, "rust_default_array_ref_arg") &&
+            json_boolean_property(left, "rust_closure_array_parameter") &&
+            json_object_equal(rust_closure_property(left, "type"), right_type)) break;
+        candidate++;
+    }
+    if (candidate == position)
+        return rust_dispatch_closure_array_aliases(
+            model, functions, call, canonical, count, position + 1, 0, next_id);
+
+    json_object *same = NULL, *distinct = NULL;
+    if (json_object_deep_copy(call, &same, NULL) != 0 || !same ||
+        json_object_deep_copy(call, &distinct, NULL) != 0 || !distinct)
+    {
+        if (same) json_object_put(same);
+        if (distinct) json_object_put(distinct);
+        return false;
+    }
+    canonical[position] = candidate;
+    bool ok = rust_dispatch_closure_array_aliases(
+        model, functions, same, canonical, count, position + 1, 0, next_id);
+    canonical[position] = position;
+    if (ok) ok = rust_dispatch_closure_array_aliases(
+        model, functions, distinct, canonical, count, position, candidate + 1, next_id);
+    if (!ok)
+    {
+        json_object_put(same);
+        json_object_put(distinct);
+        return false;
+    }
+    json_object_object_add(call, "rust_array_alias_left", json_object_new_string(
+        json_string_property(json_object_array_get_idx(args, candidate), "name")));
+    json_object_object_add(call, "rust_array_alias_right", json_object_new_string(
+        json_string_property(right, "name")));
+    json_object_object_add(call, "rust_array_alias_branch", same);
+    json_object_object_add(call, "rust_array_alias_distinct_branch", distinct);
+    json_object_object_add(call, "rust_dynamic_array_alias_call", json_object_new_boolean(true));
+    return true;
+}
+
 /* Rust cannot construct two simultaneous &mut Vec references for one source
  * array handle.  For a direct call whose duplicate arguments are the same
  * stable place, emit a private specialization with those formal parameters
@@ -1202,47 +1288,26 @@ static bool rust_specialize_default_array_alias_call(json_object *model,
             }
         }
     }
-    if (!has_duplicate)
+    if (!structure && !json_boolean_property(call, "rust_array_alias_partition_leaf"))
     {
-        /* Distinct closure formals can hold the same call-site array cell.
-         * Dispatch that runtime identity to the existing coalesced function
-         * specialization before forming any exclusive Rust projections. */
-        size_t shared[2], shared_count = 0, array_count = 0;
+        size_t shared_count = 0;
         for (size_t i = 0; i < count; i++)
         {
             json_object *arg = json_object_array_get_idx(args, i);
-            if (!json_boolean_property(arg, "rust_default_array_ref_arg")) continue;
-            array_count++;
-            if (json_boolean_property(arg, "rust_closure_array_parameter"))
-            {
-                if (shared_count < 2) shared[shared_count] = i;
-                shared_count++;
-            }
+            if (canonical[i] == i &&
+                json_boolean_property(arg, "rust_default_array_ref_arg") &&
+                json_boolean_property(arg, "rust_closure_array_parameter")) shared_count++;
         }
-        if (!structure && array_count == 2 && shared_count == 2)
+        if (shared_count > 1)
         {
-            json_object *branch = NULL;
-            if (json_object_deep_copy(call, &branch, NULL) != 0 || !branch)
-            {
-                free(canonical);
-                return false;
-            }
-            json_object *branch_args = rust_closure_property(branch, "args");
-            json_object *first = json_object_array_get_idx(branch_args, shared[0]);
-            json_object_array_put_idx(branch_args, shared[1], json_object_get(first));
-            if (!rust_specialize_default_array_alias_call(model, functions, branch, next_id))
-            {
-                json_object_put(branch);
-                free(canonical);
-                return false;
-            }
-            json_object_object_add(call, "rust_array_alias_left", json_object_new_string(
-                json_string_property(json_object_array_get_idx(args, shared[0]), "name")));
-            json_object_object_add(call, "rust_array_alias_right", json_object_new_string(
-                json_string_property(json_object_array_get_idx(args, shared[1]), "name")));
-            json_object_object_add(call, "rust_array_alias_branch", branch);
-            json_object_object_add(call, "rust_dynamic_array_alias_call", json_object_new_boolean(true));
+            bool ok = rust_dispatch_closure_array_aliases(
+                model, functions, call, canonical, count, 0, 0, next_id);
+            free(canonical);
+            return ok;
         }
+    }
+    if (!has_duplicate)
+    {
         free(canonical);
         return true;
     }

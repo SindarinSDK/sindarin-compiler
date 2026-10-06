@@ -1,0 +1,83 @@
+fn update(a: int[], b: int[], c: int[], d: int[], depth: int): int =>
+  if depth > 0 =>
+    return update(a, b, c, d, depth - 1)
+  a[0] += 1
+  a.push(100)
+  b[0] += 2
+  b.push(101)
+  c[0] += 4
+  c.push(102)
+  d[0] += 8
+  d.push(103)
+  return a.length
+
+fn main(): void =>
+  var forward: fn(int[], int[], int[], int[]): int = fn(a: int[], b: int[], c: int[], d: int[]): int =>
+    return update(a, b, c, d, 2)
+  var v0_0: int[] = {10}
+  var result0: int = forward(v0_0, v0_0, v0_0, v0_0)
+  println(result0 == 5 && v0_0[0] == 25 && v0_0.length == 5 && v0_0[1] == 100 && v0_0[2] == 101 && v0_0[3] == 102 && v0_0[4] == 103)
+  var v1_0: int[] = {10}
+  var v1_1: int[] = {11}
+  var result1: int = forward(v1_0, v1_0, v1_0, v1_1)
+  println(result1 == 4 && v1_0[0] == 17 && v1_0.length == 4 && v1_0[1] == 100 && v1_0[2] == 101 && v1_0[3] == 102 && v1_1[0] == 19 && v1_1.length == 2 && v1_1[1] == 103)
+  var v2_0: int[] = {10}
+  var v2_1: int[] = {11}
+  var result2: int = forward(v2_0, v2_0, v2_1, v2_0)
+  println(result2 == 4 && v2_0[0] == 21 && v2_0.length == 4 && v2_0[1] == 100 && v2_0[2] == 101 && v2_0[3] == 103 && v2_1[0] == 15 && v2_1.length == 2 && v2_1[1] == 102)
+  var v3_0: int[] = {10}
+  var v3_1: int[] = {11}
+  var result3: int = forward(v3_0, v3_0, v3_1, v3_1)
+  println(result3 == 3 && v3_0[0] == 13 && v3_0.length == 3 && v3_0[1] == 100 && v3_0[2] == 101 && v3_1[0] == 23 && v3_1.length == 3 && v3_1[1] == 102 && v3_1[2] == 103)
+  var v4_0: int[] = {10}
+  var v4_1: int[] = {11}
+  var v4_2: int[] = {12}
+  var result4: int = forward(v4_0, v4_0, v4_1, v4_2)
+  println(result4 == 3 && v4_0[0] == 13 && v4_0.length == 3 && v4_0[1] == 100 && v4_0[2] == 101 && v4_1[0] == 15 && v4_1.length == 2 && v4_1[1] == 102 && v4_2[0] == 20 && v4_2.length == 2 && v4_2[1] == 103)
+  var v5_0: int[] = {10}
+  var v5_1: int[] = {11}
+  var result5: int = forward(v5_0, v5_1, v5_0, v5_0)
+  println(result5 == 4 && v5_0[0] == 23 && v5_0.length == 4 && v5_0[1] == 100 && v5_0[2] == 102 && v5_0[3] == 103 && v5_1[0] == 13 && v5_1.length == 2 && v5_1[1] == 101)
+  var v6_0: int[] = {10}
+  var v6_1: int[] = {11}
+  var result6: int = forward(v6_0, v6_1, v6_0, v6_1)
+  println(result6 == 3 && v6_0[0] == 15 && v6_0.length == 3 && v6_0[1] == 100 && v6_0[2] == 102 && v6_1[0] == 21 && v6_1.length == 3 && v6_1[1] == 101 && v6_1[2] == 103)
+  var v7_0: int[] = {10}
+  var v7_1: int[] = {11}
+  var v7_2: int[] = {12}
+  var result7: int = forward(v7_0, v7_1, v7_0, v7_2)
+  println(result7 == 3 && v7_0[0] == 15 && v7_0.length == 3 && v7_0[1] == 100 && v7_0[2] == 102 && v7_1[0] == 13 && v7_1.length == 2 && v7_1[1] == 101 && v7_2[0] == 20 && v7_2.length == 2 && v7_2[1] == 103)
+  var v8_0: int[] = {10}
+  var v8_1: int[] = {11}
+  var result8: int = forward(v8_0, v8_1, v8_1, v8_0)
+  println(result8 == 3 && v8_0[0] == 19 && v8_0.length == 3 && v8_0[1] == 100 && v8_0[2] == 103 && v8_1[0] == 17 && v8_1.length == 3 && v8_1[1] == 101 && v8_1[2] == 102)
+  var v9_0: int[] = {10}
+  var v9_1: int[] = {11}
+  var result9: int = forward(v9_0, v9_1, v9_1, v9_1)
+  println(result9 == 2 && v9_0[0] == 11 && v9_0.length == 2 && v9_0[1] == 100 && v9_1[0] == 25 && v9_1.length == 4 && v9_1[1] == 101 && v9_1[2] == 102 && v9_1[3] == 103)
+  var v10_0: int[] = {10}
+  var v10_1: int[] = {11}
+  var v10_2: int[] = {12}
+  var result10: int = forward(v10_0, v10_1, v10_1, v10_2)
+  println(result10 == 2 && v10_0[0] == 11 && v10_0.length == 2 && v10_0[1] == 100 && v10_1[0] == 17 && v10_1.length == 3 && v10_1[1] == 101 && v10_1[2] == 102 && v10_2[0] == 20 && v10_2.length == 2 && v10_2[1] == 103)
+  var v11_0: int[] = {10}
+  var v11_1: int[] = {11}
+  var v11_2: int[] = {12}
+  var result11: int = forward(v11_0, v11_1, v11_2, v11_0)
+  println(result11 == 3 && v11_0[0] == 19 && v11_0.length == 3 && v11_0[1] == 100 && v11_0[2] == 103 && v11_1[0] == 13 && v11_1.length == 2 && v11_1[1] == 101 && v11_2[0] == 16 && v11_2.length == 2 && v11_2[1] == 102)
+  var v12_0: int[] = {10}
+  var v12_1: int[] = {11}
+  var v12_2: int[] = {12}
+  var result12: int = forward(v12_0, v12_1, v12_2, v12_1)
+  println(result12 == 2 && v12_0[0] == 11 && v12_0.length == 2 && v12_0[1] == 100 && v12_1[0] == 21 && v12_1.length == 3 && v12_1[1] == 101 && v12_1[2] == 103 && v12_2[0] == 16 && v12_2.length == 2 && v12_2[1] == 102)
+  var v13_0: int[] = {10}
+  var v13_1: int[] = {11}
+  var v13_2: int[] = {12}
+  var result13: int = forward(v13_0, v13_1, v13_2, v13_2)
+  println(result13 == 2 && v13_0[0] == 11 && v13_0.length == 2 && v13_0[1] == 100 && v13_1[0] == 13 && v13_1.length == 2 && v13_1[1] == 101 && v13_2[0] == 24 && v13_2.length == 3 && v13_2[1] == 102 && v13_2[2] == 103)
+  var v14_0: int[] = {10}
+  var v14_1: int[] = {11}
+  var v14_2: int[] = {12}
+  var v14_3: int[] = {13}
+  var result14: int = forward(v14_0, v14_1, v14_2, v14_3)
+  println(result14 == 2 && v14_0[0] == 11 && v14_0.length == 2 && v14_0[1] == 100 && v14_1[0] == 13 && v14_1.length == 2 && v14_1[1] == 101 && v14_2[0] == 16 && v14_2.length == 2 && v14_2[1] == 102 && v14_3[0] == 21 && v14_3.length == 2 && v14_3[1] == 103)

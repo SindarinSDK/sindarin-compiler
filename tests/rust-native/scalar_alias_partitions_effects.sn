@@ -1,0 +1,21 @@
+fn mark(values: int[]): int =>
+  values.push(9)
+  return values.length
+
+fn update(a: int[], b: int[], c: int[], value: int): int =>
+  a[0] += value
+  b.push(4)
+  c[0] += 2
+  return a.length
+
+fn main(): void =>
+  var forward: fn(int[], int[], int[]): int = fn(a: int[], b: int[], c: int[]): int =>
+    return update(a, b, c, mark(a))
+  var same: int[] = {1}
+  println(forward(same, same, same) == 3)
+  println(same[0] == 5 && same[1] == 9 && same[2] == 4)
+  var left: int[] = {10}
+  var middle: int[] = {20}
+  var right: int[] = {30}
+  println(forward(left, middle, right) == 2)
+  println(left[0] == 12 && left[1] == 9 && middle[0] == 20 && middle[1] == 4 && right[0] == 32)

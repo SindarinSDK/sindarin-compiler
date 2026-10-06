@@ -1,0 +1,22 @@
+fn update(a: int[], b: str[], c: int[], d: str[], e: int[]): int =>
+  a[0] += 1
+  b.push("one")
+  c[0] += 2
+  d.push("two")
+  e[0] += 4
+  return a[0]
+
+fn main(): void =>
+  var forward: fn(int[], str[], int[], str[], int[]): int = fn(a: int[], b: str[], c: int[], d: str[], e: int[]): int =>
+    return update(a, b, c, d, e)
+  var values: int[] = {1}
+  var words: str[] = {"start"}
+  println(forward(values, words, values, words, values) == 8)
+  println(values[0] == 8 && words.length == 3 && words[1] == "one" && words[2] == "two")
+  var a: int[] = {10}
+  var b: str[] = {"left"}
+  var c: int[] = {20}
+  var d: str[] = {"right"}
+  var e: int[] = {30}
+  println(forward(a, b, c, d, e) == 11)
+  println(a[0] == 11 && c[0] == 22 && e[0] == 34 && b.length == 2 && d.length == 2 && b[1] == "one" && d[1] == "two")

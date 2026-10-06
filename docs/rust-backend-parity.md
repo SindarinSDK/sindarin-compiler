@@ -28,6 +28,13 @@ and remove for the verified parameter/capture contexts, including nested rows
 and argument/index callbacks. The completion ledger records its 72 comparisons,
 24 lifetime checks and remaining full-goal work.
 
+The subsequent dynamic alias partition increment extends default closure-array
+forwarding to named free functions for three or more shared formals, including
+recursive calls, mixed element types, static duplicates, once-only argument
+effects and independent named as-val snapshots. The ledger records 72 all-mode
+comparisons and 24 lifetime controls; instance/static dynamic forwarding and
+broader closure qualifiers remain required work.
+
 The 2026-10-03 float/double increment adds conversions at tested scalar storage,
 call and return boundaries and mixed floating compound mutation, including
 observable synchronized cells. Historical same-type-only exclusions below are

@@ -1,0 +1,63 @@
+{
+  "sources": [
+    {
+      "source": "tests/rust-native/scalar_required_three_aliases.sn",
+      "sha256": "4ca2d9447c744c7502ea086fdc5c95f3a06895ef92e40e17bc3106f700d55f9d",
+      "stdout_hex": "747275650a747275650a",
+      "expected_sidecar_sha256": "21d91041c5d1a59661f8936571ee5c87e96f6f0c7a532b52ec17c5b9bea8220b"
+    },
+    {
+      "source": "tests/rust-native/scalar_alias_partitions_3.sn",
+      "sha256": "61f67251c917b8d08b6962233057296f8bb891333285f65191aea25405c8c390",
+      "stdout_hex": "747275650a747275650a747275650a747275650a747275650a",
+      "expected_sidecar_sha256": "8d7664d3d1b2f334e2730a879a8abac018d4b3b4ea4c07b4363bef33452e7ec2"
+    },
+    {
+      "source": "tests/rust-native/scalar_alias_partitions_4.sn",
+      "sha256": "7fc89b2f67f65c766c896694e28f6529f57dc9b7aad4a42303658a5a8f176b5e",
+      "stdout_hex": "747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a",
+      "expected_sidecar_sha256": "ef3dfced4a54a7722ec145b848967d8840a9d5c37558369e08702d39f6721376"
+    },
+    {
+      "source": "tests/rust-native/scalar_alias_partitions_5.sn",
+      "sha256": "7e1b2e0a982e454051d09218dfb793e1cd684b4d51f663efd5c1cac5d611db1e",
+      "stdout_hex": "747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a",
+      "expected_sidecar_sha256": "f30ca7dc5bed09a7559844371a2069c900d4d4dfb81153a4df7f63f2d9de119f"
+    },
+    {
+      "source": "tests/rust-native/scalar_alias_partitions_effects.sn",
+      "sha256": "202d22b935a9f2119e35da5e8adba5e642e568518f4f1128083e1cd4c1dc9c60",
+      "stdout_hex": "747275650a747275650a747275650a747275650a",
+      "expected_sidecar_sha256": "a8c8704687490f20e1992b9d6a9578237617ebd0894ee14f5682acea27e3845a"
+    },
+    {
+      "source": "tests/rust-native/scalar_alias_partitions_mixed.sn",
+      "sha256": "c543cc77ae70dfbe42750962045100c532577a5f1e4423afec8c6c0bbb08f8f2",
+      "stdout_hex": "747275650a747275650a747275650a747275650a",
+      "expected_sidecar_sha256": "a8c8704687490f20e1992b9d6a9578237617ebd0894ee14f5682acea27e3845a"
+    },
+    {
+      "source": "tests/rust-native/scalar_alias_partitions_static.sn",
+      "sha256": "1633430cb442ce8ee5c2ad219cba8f6fefe9b944f912b33c6a024b277efae7b4",
+      "stdout_hex": "747275650a747275650a747275650a747275650a747275650a747275650a",
+      "expected_sidecar_sha256": "6bbb4fb214212d1fd3d1a84b515b85180428fa070e3b98b9e1b75925b258c054"
+    },
+    {
+      "source": "tests/rust-native/scalar_alias_partitions_asval.sn",
+      "sha256": "3395818c795304b3117e84e661ad8b045bd97e686af7b4c61cbe27724546b231",
+      "stdout_hex": "747275650a747275650a747275650a747275650a",
+      "expected_sidecar_sha256": "a8c8704687490f20e1992b9d6a9578237617ebd0894ee14f5682acea27e3845a"
+    }
+  ],
+  "arithmetic_modes": [
+    "default",
+    "checked",
+    "unchecked"
+  ],
+  "optimizations": [
+    "-O0",
+    "-O1",
+    "-O2"
+  ],
+  "scope": "72 independent comparisons: all 5/15/52 alias partitions for 3/4/5 default closure array parameters; recursion, caller mutations and element order, static duplicates, mixed types, once-only scalar effects and named as-val entry snapshots."
+}

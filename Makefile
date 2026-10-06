@@ -1087,3 +1087,18 @@ test-rust-parity-array-methods: build
 		--require-count 8 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-array-methods.json
 	@$(PYTHON) scripts/check_rust_array_method_oracles.py .sn/rust-parity-array-methods.json
+
+.PHONY: test-rust-parity-array-alias-partitions
+test-rust-parity-array-alias-partitions: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/rust-native/scalar_required_three_aliases.sn \
+		tests/rust-native/scalar_alias_partitions_3.sn \
+		tests/rust-native/scalar_alias_partitions_4.sn \
+		tests/rust-native/scalar_alias_partitions_5.sn \
+		tests/rust-native/scalar_alias_partitions_effects.sn \
+		tests/rust-native/scalar_alias_partitions_mixed.sn \
+		tests/rust-native/scalar_alias_partitions_static.sn \
+		tests/rust-native/scalar_alias_partitions_asval.sn \
+		--require-count 8 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-array-alias-partitions.json
+	@$(PYTHON) scripts/check_rust_array_alias_partition_oracles.py .sn/rust-parity-array-alias-partitions.json

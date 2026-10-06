@@ -1,0 +1,12 @@
+fn update(a: int[], b: int[], c: int[]): int =>
+  a[0] += 1
+  b.push(4)
+  c[0] += 2
+  return a.length
+
+fn main(): void =>
+  var values: int[] = {1, 2}
+  var call: fn(int[], int[], int[]): int = fn(a: int[], b: int[], c: int[]): int =>
+    return update(a, b, c)
+  println(call(values, values, values) == 3)
+  println(values[0] == 4 && values.length == 3)

@@ -5,6 +5,46 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Closure arrays forwarded through dynamic alias partitions, 2026-10-06
+
+Named free-function calls now classify all shared closure-array arguments by
+runtime cell identity before forming mutable references. Each identity partition
+uses the existing coalesced specialization, preserving caller-visible mutations
+without unsafe overlapping references or semantic array copies. Static duplicate
+arguments can coexist with dynamically aliased formals. Different array element
+types are classified independently; scalar argument effects occur once before
+the final borrow. Ordinary named `as val` parameters retain entry-time independent
+snapshots even when neighboring arguments alias the same caller array.
+
+The eight frozen controls cover every **5 / 15 / 52** identity partition for
+three/four/five arguments, recursive forwarding, mixed integer/string arrays,
+static duplicates, argument effects and private value-parameter copies. The new
+all-platform gate checks **72** independent C/Rust comparisons across all nine
+optimization/arithmetic modes. Parent C baseline and Linux ASAN/UBSAN/leak
+checks each cover **24** source/optimization runs. Temporary helper allocation
+resumes after its last reserved suffix while continuing to check each new name
+against the entire model; this removes the repeated occupied-name scans exposed
+by the five-parameter control. Existing generated-source goldens remain unchanged.
+
+Final local acceptance covers the complete C/Rust suites, **115** native positives,
+and **50 reports / 4188 cases**, without failures or skips. All **1365** original
+source hashes remain unchanged; original corpus coverage remains **1363 / 1365
+(99.85%)**, which is corpus coverage rather than full-goal completion.
+Exact-revision Linux/macOS/Windows hosted acceptance remains required.
+
+Dynamic alias forwarding through instance/static methods, qualified closure
+signatures, parameter rebinding, named function array adapters, additional
+ownership/evaluation compositions and structural interface storage/native ABI
+remain required work. A separately preserved mutable snapshot-capture rejection
+and its false authored C assertions are excluded from parity credit. C remains
+the default target; this increment changes no C production code.
+
+Evidence: [validation](rust-parity-evidence/array-alias-partition-validation.json),
+[parent baseline](rust-parity-evidence/array-alias-partition-before.json),
+[repaired comparisons](rust-parity-evidence/array-alias-partition-after.json),
+[independent oracles](rust-parity-evidence/array-alias-partition-oracles.json),
+[C lifetimes](rust-parity-evidence/array-alias-partition-c-lifetimes.json).
+
 ## Closure array mutation methods, 2026-10-06
 
 Closure default-array parameters and private captured snapshots now support
@@ -25,12 +65,15 @@ an independent pass. No expected runtime output was weakened to accept it.
 Complete C/Rust suites pass without failures or skips, including **107** native
 positives. Frozen local acceptance verifies **49 reports / 4116 cases**, including
 all prior **48 / 4044**. CI requires the new all-platform gate and Linux sanitizer
-report. Exact-revision hosted acceptance remains required.
+report. All six exact-revision compiler/runtime CI jobs pass on Linux, macOS
+and Windows at `4317f250065c5cceb55f51c38303cb7360cd56e2`. Each hosted
+platform independently verifies all **49 reports / 4116 cases**.
+[Hosted proof](rust-parity-evidence/array-method-main-ci-green.json).
 
 All **1365** original source hashes remain unchanged. This increment adds
 composition coverage rather than closing another original corpus failure.
 Interface storage/native ABI, qualified closure signatures, parameter rebinding,
-named function array adapters, larger dynamic alias partitions and the other
+named function array adapters, dynamic aliases through methods/static calls and the other
 full-goal ownership/evaluation requirements remain work.
 
 Evidence: [validation](rust-parity-evidence/array-method-validation.json),

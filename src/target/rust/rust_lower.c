@@ -1089,12 +1089,30 @@ static bool rust_model_contains_string(json_object *node, const char *wanted)
 static bool rust_allocate_helper_name(json_object *model, const char *base,
                                       char *name, size_t name_size)
 {
-    for (size_t suffix = 0; suffix != (size_t)-1; suffix++)
+    /* Lowering expands alias partitions into several private bodies. Resume
+     * each base's search after its last reserved suffix rather than rescanning
+     * all occupied spellings for every numeric projection in those bodies.
+     * Every new candidate still checks the complete model for user collisions. */
+    json_object *counters = NULL, *previous = NULL;
+    if (!json_object_object_get_ex(model, "rust_helper_name_counters", &counters))
+    {
+        counters = json_object_new_object();
+        if (!counters) return false;
+        json_object_object_add(model, "rust_helper_name_counters", counters);
+    }
+    size_t first = json_object_object_get_ex(counters, base, &previous)
+        ? (size_t)json_object_get_int64(previous) : 0;
+    for (size_t suffix = first; suffix != (size_t)-1; suffix++)
     {
         int written = suffix == 0 ? snprintf(name, name_size, "%s", base) :
                      snprintf(name, name_size, "%s_%zu", base, suffix);
         if (written < 0 || (size_t)written >= name_size) return false;
-        if (!rust_model_contains_string(model, name)) return true;
+        if (!rust_model_contains_string(model, name))
+        {
+            json_object_object_add(counters, base,
+                                   json_object_new_int64((int64_t)(suffix + 1)));
+            return true;
+        }
     }
     return false;
 }
