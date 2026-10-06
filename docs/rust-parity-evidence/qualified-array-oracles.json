@@ -1,0 +1,57 @@
+{
+  "sources": [
+    {
+      "source": "tests/rust-native/scalar_qualified_array_closure.sn",
+      "sha256": "f456051f0a6161dec5e15fbea519207d27279abe81657e611488d0cd1099e6c2",
+      "stdout_hex": "747275650a747275650a",
+      "expected_sidecar_sha256": "21d91041c5d1a59661f8936571ee5c87e96f6f0c7a532b52ec17c5b9bea8220b"
+    },
+    {
+      "source": "tests/rust-native/scalar_qualified_array_alias.sn",
+      "sha256": "dd27799f42896091764dc5b8f6da7f00e670930891107f2473d60f9d4eee1430",
+      "stdout_hex": "747275650a747275650a747275650a747275650a",
+      "expected_sidecar_sha256": "a8c8704687490f20e1992b9d6a9578237617ebd0894ee14f5682acea27e3845a"
+    },
+    {
+      "source": "tests/rust-native/scalar_qualified_array_return.sn",
+      "sha256": "5b182c9624401bc83992f36654da2a5a2e0c708ce4d456b033ff0dafc339587d",
+      "stdout_hex": "747275650a747275650a747275650a",
+      "expected_sidecar_sha256": "36768a89e8faf166700f48bc8df99361609e43956dd7d2bffebde9439ea5033c"
+    },
+    {
+      "source": "tests/rust-native/scalar_qualified_array_nested.sn",
+      "sha256": "f5fe0c160e1b9cb1cc35ac91aea236545ca2458420d401d9698e2c920940caa5",
+      "stdout_hex": "747275650a747275650a747275650a",
+      "expected_sidecar_sha256": "36768a89e8faf166700f48bc8df99361609e43956dd7d2bffebde9439ea5033c"
+    },
+    {
+      "source": "tests/rust-native/scalar_qualified_array_capture.sn",
+      "sha256": "80ad61009ae76e9997cf30921bcec0606dc30e337b4a45e7ba366dd618e3bdf8",
+      "stdout_hex": "747275650a747275650a",
+      "expected_sidecar_sha256": "21d91041c5d1a59661f8936571ee5c87e96f6f0c7a532b52ec17c5b9bea8220b"
+    },
+    {
+      "source": "tests/rust-native/scalar_qualified_array_hygiene.sn",
+      "sha256": "dc98823a193f6d9929981d21da8a00351ba29d7ea91225b2c85a95d0ee5d98a1",
+      "stdout_hex": "747275650a747275650a747275650a",
+      "expected_sidecar_sha256": "36768a89e8faf166700f48bc8df99361609e43956dd7d2bffebde9439ea5033c"
+    },
+    {
+      "source": "tests/rust-native/scalar_qualified_array_strings.sn",
+      "sha256": "62178d331ec22777c016e89c33c539e1fbbc2c8884928d9e97ffed5abac4c0b2",
+      "stdout_hex": "747275650a747275650a",
+      "expected_sidecar_sha256": "21d91041c5d1a59661f8936571ee5c87e96f6f0c7a532b52ec17c5b9bea8220b"
+    }
+  ],
+  "optimizations": [
+    "-O0",
+    "-O1",
+    "-O2"
+  ],
+  "arithmetic_modes": [
+    "default",
+    "checked",
+    "unchecked"
+  ],
+  "scope": "Per-invocation as-val array owners, two independent copies from aliased actuals, original shared formal mutation, nested arrays, returned arrays, escaping captures, helper hygiene and string element ownership."
+}

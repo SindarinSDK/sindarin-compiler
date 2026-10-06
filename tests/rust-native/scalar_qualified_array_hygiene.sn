@@ -1,0 +1,9 @@
+fn main(): void =>
+  var values: int[] = {1}
+  var change = fn(__sn_closure_array_copy: int[] as val): int =>
+    var __sn_closure_array_copy_0: int = 5
+    __sn_closure_array_copy.push(__sn_closure_array_copy_0)
+    return __sn_closure_array_copy.length
+  println(change(values) == 2)
+  println(change(values) == 2)
+  println(values.length == 1)

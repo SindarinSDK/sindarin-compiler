@@ -1,0 +1,8 @@
+fn main(): void =>
+  var words: str[] = {"old", "second"}
+  var changeWords = fn(a: str[] as val): str =>
+    a[0] = "new"
+    a.push("third")
+    return a[0]
+  println(changeWords(words) == "new")
+  println(words[0] == "old" && words.length == 2)

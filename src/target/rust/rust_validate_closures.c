@@ -106,14 +106,15 @@ static bool rust_closure_type_supported(json_object *type)
         json_boolean_property(type, "is_variadic") ||
         json_boolean_property(type, "has_arena_param")) return false;
     json_object *quals = rust_closure_property(type, "param_mem_quals");
-    for (size_t i = 0; i < rust_closure_length(quals); i++)
-        if (strcmp(json_object_get_string(json_object_array_get_idx(quals, i)), "default") != 0)
-            return false;
     json_object *params = rust_closure_property(type, "param_types");
     if (!params) return false;
     for (size_t i = 0; i < rust_closure_length(params); i++)
     {
         json_object *param = json_object_array_get_idx(params, i);
+        const char *qual = i < rust_closure_length(quals)
+            ? json_object_get_string(json_object_array_get_idx(quals, i)) : "default";
+        if (strcmp(qual, "default") != 0 &&
+            !(strcmp(qual, "as_val") == 0 && rust_closure_array_type(param))) return false;
         if (!rust_closure_owned_type(param)) return false;
         if (rust_closure_array_type(param) || rust_closure_reference_record_type(param))
             json_object_object_add(param, "rust_closure_param_share", json_object_new_boolean(true));
@@ -144,9 +145,18 @@ static bool rust_closure_same_type(json_object *a, json_object *b)
     json_object *ap = rust_closure_property(a, "param_types");
     json_object *bp = rust_closure_property(b, "param_types");
     if (rust_closure_length(ap) != rust_closure_length(bp)) return false;
+    json_object *aq = rust_closure_property(a, "param_mem_quals");
+    json_object *bq = rust_closure_property(b, "param_mem_quals");
     for (size_t i = 0; i < rust_closure_length(ap); i++)
-        if (!rust_closure_same_type(json_object_array_get_idx(ap, i),
+    {
+        const char *aqual = i < rust_closure_length(aq)
+            ? json_object_get_string(json_object_array_get_idx(aq, i)) : "default";
+        const char *bqual = i < rust_closure_length(bq)
+            ? json_object_get_string(json_object_array_get_idx(bq, i)) : "default";
+        if (strcmp(aqual, bqual) != 0 ||
+            !rust_closure_same_type(json_object_array_get_idx(ap, i),
                                    json_object_array_get_idx(bp, i))) return false;
+    }
     return rust_closure_same_type(rust_closure_property(a, "return_type"),
                                  rust_closure_property(b, "return_type"));
 }
@@ -358,7 +368,11 @@ static bool rust_closure_walk_lambda(RustClosureScope *scope, json_object *node)
             json_object_object_add(p, "rust_shared_owned_cell", json_object_new_boolean(true));
             json_object_object_add(p, "rust_array_snapshot_cell", json_object_new_boolean(true));
         }
-        if (!json_string_property_equals(p, "mem_qual", "default") && !record_ref)
+        bool array_copy = rust_closure_array_type(rust_closure_property(p, "type")) &&
+            json_string_property_equals(p, "mem_qual", "as_val");
+        if (array_copy)
+            json_object_object_add(p, "rust_closure_array_parameter_copy", json_object_new_boolean(true));
+        if (!json_string_property_equals(p, "mem_qual", "default") && !record_ref && !array_copy)
             ok = rust_closure_error("qualified closure parameters");
         else ok = rust_closure_bind(scope, p, json_string_property(p, "name"), -1, false);
     }

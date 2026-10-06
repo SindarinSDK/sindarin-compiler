@@ -1,0 +1,1023 @@
+{
+  "base_revision": "3f3610d25167732e9563c6d215326d757c8b670f",
+  "compiler_sha256": "aaf3fc79f729a1134280421201e11c046a988417e18f8e88ad555bf04c1cfec9",
+  "frozen_input_manifest_sha256": "cca4115fadc3f6906e1c1d6838c750567ba9eadf9cb90e86051b31e3f2fb6a07",
+  "frozen_input_count": 6568,
+  "commands": [
+    {
+      "command": [
+        "python3",
+        "scripts/run_rust_tests.py",
+        "rust-native-extra",
+        "--verbose",
+        "--no-cleanup",
+        "--parallel",
+        "8",
+        "--no-color",
+        "--require-count",
+        "140",
+        "--fail-on-skip"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-00.log",
+      "log_sha256": "04ee83106ca45f7dc2fa6d83871095df0777793bd701ca01294413f937991bab"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/run_tests.py",
+        "all",
+        "--verbose",
+        "--no-cleanup",
+        "--parallel",
+        "8",
+        "--no-color"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-01.log",
+      "log_sha256": "386ac0361a2eefebd39584d298d3601fdb71796a6c9bea3840f27a55fa103bd6"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/run_rust_tests.py",
+        "all",
+        "--verbose",
+        "--no-cleanup",
+        "--parallel",
+        "8",
+        "--no-color",
+        "--fail-on-skip"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-02.log",
+      "log_sha256": "8c38e8ba62baef72124ab79195554be577be0f7dd58fdbd6c2b8b9acb2c19427"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-core"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-03.log",
+      "log_sha256": "b06ff2bbfb1c41ac3605172ef9f8cceb20a0d72161a9b0d074178346bcd25263"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-concurrency"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-04.log",
+      "log_sha256": "8466e75e0d58540e6047549f09bf944f47ee8cbaba0cebce34996ba333ef35c2"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-sized-defaults"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-08.log",
+      "log_sha256": "250286fa9bb6c9b996e0b183a9d3a3b64d9b2e1b4cc8b47fc5a08e92846fe1d8"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-reflection"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-07.log",
+      "log_sha256": "2e40a7c0b400b13b73552373be9a78475c9b1971ce81ab43d784fd7bf3b90810"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-thread-receivers"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-06.log",
+      "log_sha256": "ac5380e693a2e49c7455d8a83f6f89d1085daa5895ec234565844e67dfb788c6"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-stdio-order"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-10.log",
+      "log_sha256": "8e9474684b30b31363506b26a704a638e501d568e6087c2f05d8f9cc48d92a22"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-managed"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-09.log",
+      "log_sha256": "556778a47c42c9b02bbc1aef90238f8438440950783672caacb5f55b51252c5f"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-float-conversions"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-12.log",
+      "log_sha256": "e52441108dd1aa60febab3750edb7b2cd5b37c2825e609b4edd892a34ae33f30"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-mixed-integral"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-11.log",
+      "log_sha256": "ad78cd83dd673b2bfb4a8559ead5a1c7aa32b846df1f2c38d67379582c492efa"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-floating-arrays"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-13.log",
+      "log_sha256": "a5587fa2ee3afc1a77ff315a94850325684e3aa063d935fb1348635eaebfabec"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-thread-ownership"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-05.log",
+      "log_sha256": "de116f8d13432bb22aaaa78d734ee32181a659f8add6a47f85e6b22d0ccc38f3"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-capture-index"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-16.log",
+      "log_sha256": "6b6b4adc512338a0d9ef9967215c88e77917dbcbb00bcd3ed742af3a8fc0d16c"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-floating-equality"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-14.log",
+      "log_sha256": "7187f4269b6f86753ac0b8178c56fcaeccb5a1171fae908b2ed48621168d261f"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-sync-character"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-17.log",
+      "log_sha256": "89093a27271347f817b860c190ea313af77f0d7e8d0ad30fcfaed1333d68e9d6"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-numeric-places"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-15.log",
+      "log_sha256": "238eab067b4feb93073624782aeb3510ed4aa55ed474713e963096371e3f5935"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-ctype"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-18.log",
+      "log_sha256": "d0a4f7d4e1b7e9877d2a03033593fe7184ea845084a8f473f6b10c05e151ff44"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-byte-encoding"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-19.log",
+      "log_sha256": "9506cd38f84da9fd182ee9c6bcda3322323ea0b195df2b3750c68b6a63bd5a7b"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-exit"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-20.log",
+      "log_sha256": "39bb4ba7be1ddc50631a1149747c45a0fd4a595b89f98ded241c6e037869aca8"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-main-return"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-21.log",
+      "log_sha256": "18c10b530595f27f9fb77c1377890e0d2fa25ecd5f0c3a58e79e98c1b546edaf"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-indexed-string"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-25.log",
+      "log_sha256": "39102823701d5164379e4881919dde8b7e88bc242e16bb0ba3a3d913ac269075"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-match-control"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-22.log",
+      "log_sha256": "38f3ed4e30db64cc5fe0f0562c4f107718f26d70519abcea25f17ea6a826b54c"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-call-reference"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-24.log",
+      "log_sha256": "51495dce7216137743fbdd2cd0200d59623e398a74ac7a655fb76174a24bd4a3"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-scope"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-26.log",
+      "log_sha256": "a2d27572c86ad27a591a1d33deeecfa53871d3c6a4bae5105393574b0cfcae12"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-records"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-27.log",
+      "log_sha256": "e08036899e062f4388b6dfd4fb4d8272ddbf9652b0d66a7e5d20a88e31c16844"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-sizeof"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-23.log",
+      "log_sha256": "a834736480b454e432ed1be7f9a1fb91bbbab1446b7504904ccb6c4c3bc364d8"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-nil-string"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-28.log",
+      "log_sha256": "7dba8896e56c7cc3758ccbe52dc9c7c8b9f5ee03bca8b3829978f9f6f6b0d4ca"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-nested-stores"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-30.log",
+      "log_sha256": "7e482bfe06e18c6998bab29e213348c643b8b236c2c4924afc62ee29994c9124"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-owned-array-copies"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-31.log",
+      "log_sha256": "deed890a861646309f4709c99669ff67e4ce6095ff296d6ab699c8cd82488005"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-nil-array"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-29.log",
+      "log_sha256": "e31f57e77c18845ba3c0bc1a82ccf49349d67ed1673f9e5a65297e9c25fa22f2"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-record-references"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-33.log",
+      "log_sha256": "1c52a45936d520712915aa2649fb41d1a0235f7e158f9c23c39ed242df3350be"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-managed-records"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-32.log",
+      "log_sha256": "88ee8d095f1f3725e5ce8f93ef3d09f4d1b370ae5b6ad6bcb68d7d9385f79b32"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-scalar-parameters"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-36.log",
+      "log_sha256": "bda67df48cbe0f3afd212931d06757e07daa059648e8e7ce0a8c5c45ef831d98"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-reference-records"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-35.log",
+      "log_sha256": "458537fbb684d3275fb38ffdde1da90a553a9e9cf59c12f41e45dd682412d01c"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-closure-records"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-37.log",
+      "log_sha256": "ee2e859a624b3b43a5d0ad0b48fb190239ab2d43d2dedfb389c36af579dea9ab"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-arrays"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-39.log",
+      "log_sha256": "13e34d0a1b06cca3e30167c557b0c209c6c84741c0b1c880c4936a71848e3734"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-owned-record-parameters"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-34.log",
+      "log_sha256": "6a0f902b80b4f981e29cb30626afddad5e70925a51e50bc830a40460c567defe"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-globals"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-40.log",
+      "log_sha256": "43639402029301af76c373c85cef545a7b6e91326e3eb9e11c6869b25d717bc2"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-callables"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-41.log",
+      "log_sha256": "1ea80ccaa08b5aef1cd3dc797a666f54e3aec954929753582894bc3a9bfbcc1c"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-handles"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-38.log",
+      "log_sha256": "4a7d98624bb4c009fd6ce61bd8f28e2716ab5418e04e9b0dca7b0eb9aaed9ad7"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-pointer-slices"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-44.log",
+      "log_sha256": "a5ded92a160d892cc035fb03274e7536adc92b805a01da66f7511cfba88c2d55"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-variadics"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-42.log",
+      "log_sha256": "008b837d5fc20b5770b424d06c153a5cb926d1216ade95ee81c4931616459381"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-array-values"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-45.log",
+      "log_sha256": "d21850fcbaa59fa4b857182982b29042a471bc1f567b2be78034935cc7836bf9"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-zero-record-defaults"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-46.log",
+      "log_sha256": "8df54bea5776623d1efb1b69cede0c3144eff998652b60928859a2f25a816412"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-array-returns"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-48.log",
+      "log_sha256": "5f6125201060791a24db8f341034aae4ec54c8f4c9bf09ccaf34cb9fc424088b"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-managed-iterators"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-47.log",
+      "log_sha256": "12c84abcb21377ae4f544453f1f190c32acadce12470175841b53394082a9893"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-array-methods"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-50.log",
+      "log_sha256": "139d34f0f94e4413c4a4d434a4c3a2815748406d3ee636d6a34ba8987d81ba53"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-closure-arrays"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-49.log",
+      "log_sha256": "56dbd888acab427ab81e4cf49aa1417c8c7ae3af7c144353518cf0af7c29a1e3"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-method-aliases"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-52.log",
+      "log_sha256": "90767ad966d9c392eb40f996b1c4698422ccdaeb3696f39d75ba26d0389ef58a"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-reference-receivers"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-53.log",
+      "log_sha256": "a8732442dcc4902356ee4b461b4997aefd9ab1a48354fc3863c8c5eee7f25d41"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-serialization"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-43.log",
+      "log_sha256": "d60034e341f80a1609ea8534109926306a8b27f2236e786dee0da57dbf821f28"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_array_return_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-56.log",
+      "log_sha256": "d3a66abe0c1ee021f84278793969e6dc9a22adb12a2f841a91cc995117d9a218"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_iterator_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-57.log",
+      "log_sha256": "ee1a3d068f943235fc3ae5cdc37f90867b7080713e97f6020db020b56104ea58"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-captured-methods"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-54.log",
+      "log_sha256": "f89ef1db2c794ed5f92e02ee554bf409046e57ccaf3b0b3766024c1cd98a898d"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_array_method_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-59.log",
+      "log_sha256": "9e7b2ec8dcc38cef023e5c66b0bc1e1bc14f6608f8379d17e54eb3bc279f6faa"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_closure_array_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-58.log",
+      "log_sha256": "56727a478387d49041fdb03e3851403a63cc5d04748f20f85c89e53720fe8444"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-qualified-arrays"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-55.log",
+      "log_sha256": "c8563df8c3089a0e6dbe4761ac209b7bd0b10fb5a8ab042d94f7b35ef0ad1cb6"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_reference_receiver_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-62.log",
+      "log_sha256": "ddf5a57b32bb2ffaecfd1a67f0c4b376455fd0546c1420d8940d74eb50b1ea6c"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_captured_method_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-63.log",
+      "log_sha256": "37093685753efd60390768224029b289e252478885817bb5b563205e45ebca6e"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_method_alias_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-61.log",
+      "log_sha256": "8ff711099cdbe4e6676853c5b515c085f6a0ae364ce7ffb96a186b1481776c52"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_qualified_array_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-64.log",
+      "log_sha256": "69955a4f9c39f50a300435e42d178bf2bdb0fa9d53fa2075be604da7339d3c9d"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_array_alias_partition_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-60.log",
+      "log_sha256": "3bc0fe71d2f1698ffb917b93ee29848066f3b79e71155d747559595744a78f3f"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-array-alias-partitions"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-validation-51.log",
+      "log_sha256": "8c0b26517f835c5cee3808f94471555b9122370f19ebb27a41959a8565902478"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/run_rust_tests.py",
+        "rust-native-extra",
+        "--verbose",
+        "--no-cleanup",
+        "--parallel",
+        "8",
+        "--no-color",
+        "--require-count",
+        "140",
+        "--fail-on-skip"
+      ],
+      "status": 0,
+      "log": ".sn/qualified-array-final-count.log",
+      "purpose": "Required native fixture gate after correcting CI display label; command behavior unchanged.",
+      "log_sha256": "0bbe9b541d17f480ae6d5c03eac0902a1e5c3cc45df2884475c7b7096e8687ac"
+    }
+  ],
+  "reports": [
+    {
+      "name": "core",
+      "cases": 30,
+      "report_sha256": "7bbe4dfd4a80b975a5fa1e810244922614defba91c0549c10b5bac8a99be39cc"
+    },
+    {
+      "name": "concurrency",
+      "cases": 51,
+      "report_sha256": "27bb1b88c46a80326cb3ee0d4aa8191c410aa90f960e2653d7a16141bc14d457"
+    },
+    {
+      "name": "thread-ownership",
+      "cases": 207,
+      "report_sha256": "5fce487e734d43d3309c0daac02a7cb1a844898c9aca626d1bb9cf8ce437779d"
+    },
+    {
+      "name": "thread-receivers",
+      "cases": 90,
+      "report_sha256": "6efcdd77b578e77222929f3f447ba32e27c7a46cc46a461498a9ff4976ee61f0"
+    },
+    {
+      "name": "reflection",
+      "cases": 36,
+      "report_sha256": "acd6edd22f596e521dec344451900eec5d063117d002067bd46e2944c61b68cc"
+    },
+    {
+      "name": "sized-defaults",
+      "cases": 27,
+      "report_sha256": "f9050a052c5c66978c4f3d7d627ad90f9ed926a747b34811ea8545181d50454e"
+    },
+    {
+      "name": "native-managed",
+      "cases": 63,
+      "report_sha256": "a0b23deca8e9f367d43aa25181590baa9fd98cc7ebcabafc2ca40b2685767ba0"
+    },
+    {
+      "name": "stdio-order",
+      "cases": 30,
+      "report_sha256": "01b809974d5e524052a34fdea089b50987eaca6f20fc3fc0a040687a1c97a4a7"
+    },
+    {
+      "name": "mixed-integral",
+      "cases": 90,
+      "report_sha256": "81f0211155047f36dd9f4942b94d2d19dcea712d78158592774d8c49b2662b32"
+    },
+    {
+      "name": "mixed-integral-diagnostics",
+      "cases": 9,
+      "report_sha256": "1ee5065cc28097bb2686092e1fdcc8a833857aec714af9caa0424cbedca83ef6"
+    },
+    {
+      "name": "float-conversions",
+      "cases": 117,
+      "report_sha256": "58f95b2b61c09714398e7537ad1b43de884d85c933d992808638493e5c93c928"
+    },
+    {
+      "name": "floating-arrays",
+      "cases": 81,
+      "report_sha256": "82b4511792f5c43fa8b7df2af3695706703d0171cadd7f8d1bd6b5f0263a165f"
+    },
+    {
+      "name": "floating-equality",
+      "cases": 36,
+      "report_sha256": "4f415eee2e70a090458f0d099c61f75deb21e1cd5c154280fa5ab06566a26706"
+    },
+    {
+      "name": "numeric-places",
+      "cases": 153,
+      "report_sha256": "36f4b1b99c20b744a3d8f0db81bd0846cd4d89e8f2138eb29c4f52193395c6ea"
+    },
+    {
+      "name": "capture-index",
+      "cases": 45,
+      "report_sha256": "a7746bf2ed5fe0c466f5c350dfacfc0b34c58a852bd930958997cd15669cd140"
+    },
+    {
+      "name": "sync-character",
+      "cases": 45,
+      "report_sha256": "3e64eb5244150a48c5d5bbe3a11cd0ca6b7a31a2832305e82ddea5c97a7a93db"
+    },
+    {
+      "name": "ctype",
+      "cases": 72,
+      "report_sha256": "beae6340f7cea9905d990657316a6373868a4df6d4bdf04b107b9f3837a8216d"
+    },
+    {
+      "name": "byte-encoding",
+      "cases": 81,
+      "report_sha256": "95f610b8ee513be5ad0d6617d25fe1712f3994fe3d09cfa3a6801af0b390ea0a"
+    },
+    {
+      "name": "exit",
+      "cases": 153,
+      "report_sha256": "497cf381c1850cc2d2a222c52bdfc4f9f68996cf089cfc2fc19b692bf5928faa"
+    },
+    {
+      "name": "main-return",
+      "cases": 108,
+      "report_sha256": "e19831e0bf738d3754766ec9b158fc7109b85507b5703368a10648bd8d6ab99d"
+    },
+    {
+      "name": "match-control",
+      "cases": 180,
+      "report_sha256": "9e4b510d0089247900990187889ecb20c2a13eabf22164ce2a4ddfeb96804833"
+    },
+    {
+      "name": "sizeof",
+      "cases": 216,
+      "report_sha256": "8190a95466e27e1694017ceb66155bebd83ee166704546a2d9eb02da5f73547d"
+    },
+    {
+      "name": "call-reference",
+      "cases": 126,
+      "report_sha256": "1e5d6d6e27917b9076e70fa01899a86cad617f945a7d02f34b8002f94df59884"
+    },
+    {
+      "name": "indexed-string",
+      "cases": 54,
+      "report_sha256": "6ea6703161b8cd99c494f9e3c389963a6838a8f262de364dbc04da61dd55adfc"
+    },
+    {
+      "name": "native-scope",
+      "cases": 36,
+      "report_sha256": "2afd6f2ca26938b221785e906300adb55df2349b6bb0fecd84a1e95b7bb91b05"
+    },
+    {
+      "name": "nil-string",
+      "cases": 72,
+      "report_sha256": "d44dc11f9eff10c1b625da7fc7404deec61cfe26ad0ac9af92a2fea6b2e1993a"
+    },
+    {
+      "name": "nil-array",
+      "cases": 90,
+      "report_sha256": "1313a6c1306f75377c8c2439e1c3ad4d892b6d5a964570c95b0c27f25c502c20"
+    },
+    {
+      "name": "nested-stores",
+      "cases": 45,
+      "report_sha256": "792c0b7e5a313be6d0b13ee40473b5b3711dbe5aa1c674950d26b9604c24cf16"
+    },
+    {
+      "name": "owned-array-copies",
+      "cases": 45,
+      "report_sha256": "310b1d0a6e19a2dc225dcfa224d2b060855c3a5bab9652cc319d7921a3a1c4b4"
+    },
+    {
+      "name": "native-records",
+      "cases": 45,
+      "report_sha256": "75a606d5543bd680a5626e63a37226e79ede789da3447936ee55b41f8964c70d"
+    },
+    {
+      "name": "native-record-references",
+      "cases": 36,
+      "report_sha256": "b4b81954112c26613266947c2f648f31138eccc399d9149aa2e0482455e51fcf"
+    },
+    {
+      "name": "owned-record-parameters",
+      "cases": 216,
+      "report_sha256": "01baeb194d4c317f21ca7bf1fa959fe4704660d9665f9feafcf1f90942c8f368"
+    },
+    {
+      "name": "reference-records",
+      "cases": 171,
+      "report_sha256": "d16ff50363963023035a81c804714985ad0cbe45a2a436a5f325169e2e0da7ad"
+    },
+    {
+      "name": "scalar-parameters",
+      "cases": 126,
+      "report_sha256": "09b3c8279033f14d1953ecbd486455f85aa4b5917543c722c6af26623ca3fba9"
+    },
+    {
+      "name": "closure-records",
+      "cases": 189,
+      "report_sha256": "e820c97d2f27dc993affa120bec76f82de21c1e70bc4463518ee2676a6903ddc"
+    },
+    {
+      "name": "native-handles",
+      "cases": 117,
+      "report_sha256": "e9fc98acb2dfba2a5b3663279fe1ae38f197ae6f234b7d51507d7e27b3c94cd0"
+    },
+    {
+      "name": "native-arrays",
+      "cases": 27,
+      "report_sha256": "6921631436818ee6e5459c264bd28969f6ed87d76ff838432f8cc35c59b7b0b0"
+    },
+    {
+      "name": "native-globals",
+      "cases": 36,
+      "report_sha256": "e9d202d37ac41790673fde2b6ad5a0e37fb31cced04b59a0cfe1cab4caa969cf"
+    },
+    {
+      "name": "native-managed-records",
+      "cases": 54,
+      "report_sha256": "38718680052f837308084a04cf9a34451d75badcc20c36cd885d0f254597ea92"
+    },
+    {
+      "name": "native-callables",
+      "cases": 63,
+      "report_sha256": "0262981340d2b746fd4be39ee219691aba1ee9c215fb5ef5b538bf5fa28dffae"
+    },
+    {
+      "name": "native-variadics",
+      "cases": 54,
+      "report_sha256": "43c90e8f2aedb6bf16ef364fb874342a47d120a71dbe426ed2acdeef5dbfbf2e"
+    },
+    {
+      "name": "serialization",
+      "cases": 117,
+      "report_sha256": "b0fc53fdaecc835759b6cd3c11df662e056236bc89f2949197b4d12c318c545f"
+    },
+    {
+      "name": "pointer-slices",
+      "cases": 45,
+      "report_sha256": "2613bdfa7004eecf4e0593782d4e17ce5f6231720918fde3afc88064648c216b"
+    },
+    {
+      "name": "array-values",
+      "cases": 45,
+      "report_sha256": "0ccc77764ea3fe04f5197c05ee7d7e74ed05284b4031068fb14cf96a81e492c0"
+    },
+    {
+      "name": "zero-record-defaults",
+      "cases": 27,
+      "report_sha256": "3aad95949167b94bc7a3dce64571e34bdaae17f2bc5703f7700800b5d0502984"
+    },
+    {
+      "name": "managed-iterators",
+      "cases": 72,
+      "report_sha256": "085dde4431a0c8bad5e7207153f8af8773f687bc01abf8beb9e7f12eb627fec3"
+    },
+    {
+      "name": "array-returns",
+      "cases": 27,
+      "report_sha256": "5756d50fd0b0500d5e1439927413fa224879fd2d174cfc37a0c25ff9020ff11b"
+    },
+    {
+      "name": "closure-arrays",
+      "cases": 189,
+      "report_sha256": "41c1473799e256e1e6f2fbc908e6c15a6f72da5166fc5bc3b2b7d0f0200f86b4"
+    },
+    {
+      "name": "array-methods",
+      "cases": 72,
+      "report_sha256": "3250961892068b2af1af325251c8d8145193ed9e41341f29a6b44db3b6af92b4"
+    },
+    {
+      "name": "array-alias-partitions",
+      "cases": 72,
+      "report_sha256": "2dc08d91d9bd93b67be4492b946d3df4a8df0eb462325fde796411b066e7808c"
+    },
+    {
+      "name": "method-aliases",
+      "cases": 72,
+      "report_sha256": "30294fa811bcebd2dc2e1c537d973cc2e9fc964fb65729671572cc80ca91bcc8"
+    },
+    {
+      "name": "reference-receivers",
+      "cases": 45,
+      "report_sha256": "9ff817380b3e0427006eab86ae67ba200904262d042f4980bed2902434f89f9a"
+    },
+    {
+      "name": "captured-methods",
+      "cases": 45,
+      "report_sha256": "48edb9861c508fc8e06fd3029b6aefe9e0de82b2bdcf9c648e0eda3c8c369217"
+    },
+    {
+      "name": "qualified-arrays",
+      "cases": 63,
+      "report_sha256": "978175f99f89316cc7f1141d8869c3d0a731090c1d2cee638736c8a9d824f703"
+    }
+  ],
+  "new_cases": 63,
+  "new_c_sanitizer_cases": 21,
+  "local_verification_log_sha256": "5b7430ce9f4f494f09dbdaaf128e2f8eb9ae28332b014e01c4a6deb10f5adc3e",
+  "all_existing_tracked_test_files_unchanged": true,
+  "initial_failed_attempts": [
+    "Copied oracle checker generation replaced digit sequences inside literal source hashes; corrected to actual SHA values before final validation. No source or output oracle was changed.",
+    "Initial scratch local verifier selected the new 21-case sanitizer report in the inherited 15-case captured-method block; restored original report path, retained both checks, and independently verified all reports."
+  ],
+  "label_only_amendment": "After all 65 frozen-input commands passed, the CI display string changed from 133 fixtures to 140 fixtures. Required CLI count was already140 throughout validation. All compiler, template and test bytes remain identical; required native fixture command passes again after label correction.",
+  "hosted_status": "Exact-revision acceptance for this increment remains pending until pushed and collected. Parent3f3610 compiler all3 and Linux/macOS runtime pass; Windows runtime still pending at current observation.",
+  "remaining_goal": "Full feature and behavioral parity, interfaces/native ABI/empty storage, physical value receivers, broader qualifiers, rebinding and lifetime/evaluation compositions remain required."
+}

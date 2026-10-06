@@ -1141,3 +1141,17 @@ test-rust-parity-captured-methods: build
 		--require-count 5 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-captured-methods.json
 	@$(PYTHON) scripts/check_rust_captured_method_oracles.py .sn/rust-parity-captured-methods.json
+
+.PHONY: test-rust-parity-qualified-arrays
+test-rust-parity-qualified-arrays: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/rust-native/scalar_qualified_array_closure.sn \
+		tests/rust-native/scalar_qualified_array_alias.sn \
+		tests/rust-native/scalar_qualified_array_return.sn \
+		tests/rust-native/scalar_qualified_array_nested.sn \
+		tests/rust-native/scalar_qualified_array_capture.sn \
+		tests/rust-native/scalar_qualified_array_hygiene.sn \
+		tests/rust-native/scalar_qualified_array_strings.sn \
+		--require-count 7 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-qualified-arrays.json
+	@$(PYTHON) scripts/check_rust_qualified_array_oracles.py .sn/rust-parity-qualified-arrays.json

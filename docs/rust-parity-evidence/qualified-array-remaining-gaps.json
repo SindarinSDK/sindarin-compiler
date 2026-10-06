@@ -1,0 +1,511 @@
+{
+  "record_array_member_store": {
+    "source": "struct Item =>\n  value: int\n  label: str\n  values: int[]\n\nfn main(): void =>\n  var words: str[] = {\"old\", \"second\"}\n  var changeWords = fn(a: str[] as val): str =>\n    a[0] = \"new\"\n    a.push(\"third\")\n    return a[0]\n  println(changeWords(words) == \"new\")\n  println(words[0] == \"old\" && words.length == 2)\n  var items: Item[] = {Item {value: 1, label: \"item\", values: {2}}}\n  var changeItems = fn(a: Item[] as val): int =>\n    a[0].value = 9\n    a[0].values[0] = 3\n    return a[0].value + a[0].values[0]\n  println(changeItems(items) == 12)\n  println(items[0].value == 1 && items[0].values[0] == 2)\n  println(changeItems(items) == 12)\n",
+    "report": {
+      "compiler": "/home/gavin/code/sindarin/sindarin-rust-qualified-closures-3f3610/bin/sn",
+      "compiler_sha256": "aaf3fc79f729a1134280421201e11c046a988417e18f8e88ad555bf04c1cfec9",
+      "c_ldlibs": null,
+      "arithmetic_modes": [
+        "default"
+      ],
+      "environment": {
+        "SN_CC": null,
+        "SN_CFLAGS": null,
+        "SN_RELEASE_CFLAGS": null,
+        "SN_LDLIBS": null,
+        "SN_RUSTFLAGS": null
+      },
+      "cases": [
+        {
+          "source": ".sn/qualified-array-owned.sn",
+          "source_sha256": "f3a2a03598790efc55745527ced37ad054da27348dc7c6a283a65354f12e49ec",
+          "optimization": "-O0",
+          "arithmetic_mode": "default",
+          "targets": {
+            "c": {
+              "compile": {
+                "command": [
+                  "/home/gavin/code/sindarin/sindarin-rust-qualified-closures-3f3610/bin/sn",
+                  ".sn/qualified-array-owned.sn",
+                  "--target",
+                  "c",
+                  "-O0",
+                  "--no-install",
+                  "-o",
+                  "/tmp/sn-differential-35kcdcpe/case-0--O0-default-c.exe"
+                ],
+                "status": 0,
+                "stdout_hex": "",
+                "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f7175616c69666965642d61727261792d6f776e65642e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d33356b63646370652f636173652d302d2d4f302d64656661756c742d632e657865202837302e34204b42290a"
+              },
+              "run": {
+                "command": [
+                  "/tmp/sn-differential-35kcdcpe/case-0--O0-default-c.exe"
+                ],
+                "status": 0,
+                "stdout_hex": "747275650a747275650a747275650a747275650a747275650a",
+                "stderr_hex": ""
+              }
+            },
+            "rust": {
+              "compile": {
+                "command": [
+                  "/home/gavin/code/sindarin/sindarin-rust-qualified-closures-3f3610/bin/sn",
+                  ".sn/qualified-array-owned.sn",
+                  "--target",
+                  "rust",
+                  "-O0",
+                  "--no-install",
+                  "-o",
+                  "/tmp/sn-differential-35kcdcpe/case-0--O0-default-rust.exe"
+                ],
+                "status": 1,
+                "stdout_hex": "",
+                "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f7175616c69666965642d61727261792d6f776e65642e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f7175616c69666965642d61727261792d6f776e65645f313532343337342f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a6572726f725b45303731365d3a2074656d706f726172792076616c75652064726f70706564207768696c6520626f72726f7765640a2020202d2d3e202e736e2f6275696c642f727573742f7175616c69666965642d61727261792d6f776e65645f313532343337342f6d61696e2e72733a3339313a3530390a202020207c0a333931207c202e2e2e303b2028287b206c6574205f5f736e5f706c6163655f6f776e65725f32203d20266d757420287b206c6574205f5f736e5f61727261795f76616c7565203d20612e626f72726f7728292e636c6f6e6528293b205f5f736e5f61727261795f76616c7565207d293b206c6574205f5f736e5f706c6163655f696e6465785f32203d205f5f736e5f696e646578285f5f736e5f706c6163655f6f776e65725f322e6c656e28292c205f5f736e5f706c6163655f7261775f696e6465785f32293b20266d7574205f5f736e5f706c6163655f6f776e65725f325b5f5f736e5f706c6163655f696e6465785f325d207d292e76616c7565203d205f5f736e5f706c6163655f76616c75655f33293b207d2e2e2e0a202020207c202020202020202d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d0a202020207c202020202020207c2020202020202020202020202020202020202020202020202020202020202020207c20202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020207c0a202020207c202020202020207c2020202020202020202020202020202020202020202020202020202020202020207c202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202074656d706f726172792076616c75652069732066726565642061742074686520656e64206f6620746869732073746174656d656e740a202020207c202020202020207c2020202020202020202020202020202020202020202020202020202020202020206372656174657320612074656d706f726172792076616c7565207768696368206973206672656564207768696c65207374696c6c20696e207573650a202020207c20202020202020626f72726f77206c61746572207573656420686572650a202020207c0a202020203d206e6f74653a20636f6e7369646572207573696e67206120606c6574602062696e64696e6720746f206372656174652061206c6f6e676572206c697665642076616c75650a0a6572726f723a2061626f7274696e672064756520746f20312070726576696f7573206572726f723b2031207761726e696e6720656d69747465640a0a466f72206d6f726520696e666f726d6174696f6e2061626f75742074686973206572726f722c2074727920607275737463202d2d6578706c61696e204530373136602e0a4572726f723a207275737463206661696c656420746f206275696c642067656e65726174656420736f757263650a201b5b313b33316d6661696c65641b5b306d0a0a1b5b313b33316d436f6d70696c6174696f6e206661696c65641b5b306d0a"
+              }
+            }
+          },
+          "passed": false
+        },
+        {
+          "source": ".sn/qualified-array-owned.sn",
+          "source_sha256": "f3a2a03598790efc55745527ced37ad054da27348dc7c6a283a65354f12e49ec",
+          "optimization": "-O1",
+          "arithmetic_mode": "default",
+          "targets": {
+            "c": {
+              "compile": {
+                "command": [
+                  "/home/gavin/code/sindarin/sindarin-rust-qualified-closures-3f3610/bin/sn",
+                  ".sn/qualified-array-owned.sn",
+                  "--target",
+                  "c",
+                  "-O1",
+                  "--no-install",
+                  "-o",
+                  "/tmp/sn-differential-35kcdcpe/case-0--O1-default-c.exe"
+                ],
+                "status": 0,
+                "stdout_hex": "",
+                "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f7175616c69666965642d61727261792d6f776e65642e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d33356b63646370652f636173652d302d2d4f312d64656661756c742d632e657865202837302e34204b42290a"
+              },
+              "run": {
+                "command": [
+                  "/tmp/sn-differential-35kcdcpe/case-0--O1-default-c.exe"
+                ],
+                "status": 0,
+                "stdout_hex": "747275650a747275650a747275650a747275650a747275650a",
+                "stderr_hex": ""
+              }
+            },
+            "rust": {
+              "compile": {
+                "command": [
+                  "/home/gavin/code/sindarin/sindarin-rust-qualified-closures-3f3610/bin/sn",
+                  ".sn/qualified-array-owned.sn",
+                  "--target",
+                  "rust",
+                  "-O1",
+                  "--no-install",
+                  "-o",
+                  "/tmp/sn-differential-35kcdcpe/case-0--O1-default-rust.exe"
+                ],
+                "status": 1,
+                "stdout_hex": "",
+                "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f7175616c69666965642d61727261792d6f776e65642e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f7175616c69666965642d61727261792d6f776e65645f313532343433352f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a6572726f725b45303731365d3a2074656d706f726172792076616c75652064726f70706564207768696c6520626f72726f7765640a2020202d2d3e202e736e2f6275696c642f727573742f7175616c69666965642d61727261792d6f776e65645f313532343433352f6d61696e2e72733a3339313a3530390a202020207c0a333931207c202e2e2e303b2028287b206c6574205f5f736e5f706c6163655f6f776e65725f32203d20266d757420287b206c6574205f5f736e5f61727261795f76616c7565203d20612e626f72726f7728292e636c6f6e6528293b205f5f736e5f61727261795f76616c7565207d293b206c6574205f5f736e5f706c6163655f696e6465785f32203d205f5f736e5f696e646578285f5f736e5f706c6163655f6f776e65725f322e6c656e28292c205f5f736e5f706c6163655f7261775f696e6465785f32293b20266d7574205f5f736e5f706c6163655f6f776e65725f325b5f5f736e5f706c6163655f696e6465785f325d207d292e76616c7565203d205f5f736e5f706c6163655f76616c75655f33293b207d2e2e2e0a202020207c202020202020202d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d0a202020207c202020202020207c2020202020202020202020202020202020202020202020202020202020202020207c20202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020207c0a202020207c202020202020207c2020202020202020202020202020202020202020202020202020202020202020207c202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202074656d706f726172792076616c75652069732066726565642061742074686520656e64206f6620746869732073746174656d656e740a202020207c202020202020207c2020202020202020202020202020202020202020202020202020202020202020206372656174657320612074656d706f726172792076616c7565207768696368206973206672656564207768696c65207374696c6c20696e207573650a202020207c20202020202020626f72726f77206c61746572207573656420686572650a202020207c0a202020203d206e6f74653a20636f6e7369646572207573696e67206120606c6574602062696e64696e6720746f206372656174652061206c6f6e676572206c697665642076616c75650a0a6572726f723a2061626f7274696e672064756520746f20312070726576696f7573206572726f723b2031207761726e696e6720656d69747465640a0a466f72206d6f726520696e666f726d6174696f6e2061626f75742074686973206572726f722c2074727920607275737463202d2d6578706c61696e204530373136602e0a4572726f723a207275737463206661696c656420746f206275696c642067656e65726174656420736f757263650a201b5b313b33316d6661696c65641b5b306d0a0a1b5b313b33316d436f6d70696c6174696f6e206661696c65641b5b306d0a"
+              }
+            }
+          },
+          "passed": false
+        },
+        {
+          "source": ".sn/qualified-array-owned.sn",
+          "source_sha256": "f3a2a03598790efc55745527ced37ad054da27348dc7c6a283a65354f12e49ec",
+          "optimization": "-O2",
+          "arithmetic_mode": "default",
+          "targets": {
+            "c": {
+              "compile": {
+                "command": [
+                  "/home/gavin/code/sindarin/sindarin-rust-qualified-closures-3f3610/bin/sn",
+                  ".sn/qualified-array-owned.sn",
+                  "--target",
+                  "c",
+                  "-O2",
+                  "--no-install",
+                  "-o",
+                  "/tmp/sn-differential-35kcdcpe/case-0--O2-default-c.exe"
+                ],
+                "status": 0,
+                "stdout_hex": "",
+                "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f7175616c69666965642d61727261792d6f776e65642e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d33356b63646370652f636173652d302d2d4f322d64656661756c742d632e657865202837302e34204b42290a"
+              },
+              "run": {
+                "command": [
+                  "/tmp/sn-differential-35kcdcpe/case-0--O2-default-c.exe"
+                ],
+                "status": 0,
+                "stdout_hex": "747275650a747275650a747275650a747275650a747275650a",
+                "stderr_hex": ""
+              }
+            },
+            "rust": {
+              "compile": {
+                "command": [
+                  "/home/gavin/code/sindarin/sindarin-rust-qualified-closures-3f3610/bin/sn",
+                  ".sn/qualified-array-owned.sn",
+                  "--target",
+                  "rust",
+                  "-O2",
+                  "--no-install",
+                  "-o",
+                  "/tmp/sn-differential-35kcdcpe/case-0--O2-default-rust.exe"
+                ],
+                "status": 1,
+                "stdout_hex": "",
+                "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f7175616c69666965642d61727261792d6f776e65642e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e7761726e696e673a20756e75736564206d6163726f20646566696e6974696f6e3a20607072696e74600a20202d2d3e202e736e2f6275696c642f727573742f7175616c69666965642d61727261792d6f776e65645f313532343439362f6d61696e2e72733a38343a31340a2020207c0a3834207c206d6163726f5f72756c657321207072696e74207b0a2020207c20202020202020202020202020205e5e5e5e5e0a2020207c0a2020203d206e6f74653a2060235b7761726e28756e757365645f6d6163726f73295d60202870617274206f662060235b7761726e28756e75736564295d6029206f6e2062792064656661756c740a0a6572726f725b45303731365d3a2074656d706f726172792076616c75652064726f70706564207768696c6520626f72726f7765640a2020202d2d3e202e736e2f6275696c642f727573742f7175616c69666965642d61727261792d6f776e65645f313532343439362f6d61696e2e72733a3336333a3530390a202020207c0a333633207c202e2e2e303b2028287b206c6574205f5f736e5f706c6163655f6f776e65725f32203d20266d757420287b206c6574205f5f736e5f61727261795f76616c7565203d20612e626f72726f7728292e636c6f6e6528293b205f5f736e5f61727261795f76616c7565207d293b206c6574205f5f736e5f706c6163655f696e6465785f32203d205f5f736e5f696e646578285f5f736e5f706c6163655f6f776e65725f322e6c656e28292c205f5f736e5f706c6163655f7261775f696e6465785f32293b20266d7574205f5f736e5f706c6163655f6f776e65725f325b5f5f736e5f706c6163655f696e6465785f325d207d292e76616c7565203d205f5f736e5f706c6163655f76616c75655f33293b207d2e2e2e0a202020207c202020202020202d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d0a202020207c202020202020207c2020202020202020202020202020202020202020202020202020202020202020207c20202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020207c0a202020207c202020202020207c2020202020202020202020202020202020202020202020202020202020202020207c202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202074656d706f726172792076616c75652069732066726565642061742074686520656e64206f6620746869732073746174656d656e740a202020207c202020202020207c2020202020202020202020202020202020202020202020202020202020202020206372656174657320612074656d706f726172792076616c7565207768696368206973206672656564207768696c65207374696c6c20696e207573650a202020207c20202020202020626f72726f77206c61746572207573656420686572650a202020207c0a202020203d206e6f74653a20636f6e7369646572207573696e67206120606c6574602062696e64696e6720746f206372656174652061206c6f6e676572206c697665642076616c75650a0a6572726f723a2061626f7274696e672064756520746f20312070726576696f7573206572726f723b2031207761726e696e6720656d69747465640a0a466f72206d6f726520696e666f726d6174696f6e2061626f75742074686973206572726f722c2074727920607275737463202d2d6578706c61696e204530373136602e0a4572726f723a207275737463206661696c656420746f206275696c642067656e65726174656420736f757263650a201b5b313b33316d6661696c65641b5b306d0a0a1b5b313b33316d436f6d70696c6174696f6e206661696c65641b5b306d0a"
+              }
+            }
+          },
+          "passed": false
+        }
+      ],
+      "passed": false
+    },
+    "credit": false
+  },
+  "record_field_array_method": {
+    "source": "struct Item =>\n  value: int\n  label: str\n  values: int[]\n\nfn main(): void =>\n  var words: str[] = {\"old\", \"second\"}\n  var changeWords = fn(a: str[] as val): str =>\n    a[0] = \"new\"\n    a.push(\"third\")\n    return a[0]\n  println(changeWords(words) == \"new\")\n  println(words[0] == \"old\" && words.length == 2)\n  var items: Item[] = {Item {value: 1, label: \"item\", values: {2}}}\n  var changeItems = fn(a: Item[] as val): int =>\n    a[0].value = 9\n    a[0].values.push(3)\n    return a[0].value + a[0].values.length\n  println(changeItems(items) == 11)\n  println(items[0].value == 1 && items[0].values.length == 1)\n  println(changeItems(items) == 11)\n",
+    "credit": false,
+    "status": "Preserved diagnostic; not included in accepted fixtures or parity counts."
+  },
+  "scalar_as_ref": {
+    "source": "fn main(): void =>\n  var value: int = 1\n  var change = fn(a: int as ref): int =>\n    a += 2\n    return a\n  println(change(value) == 3)\n  println(value == 3)\n",
+    "parent_report": {
+      "compiler": "/home/gavin/code/sindarin/sindarin-rust-captured-record-methods-3e45/bin/sn",
+      "compiler_sha256": "ed39e02b9c3f9cf6a507bf097b49deca3de230ea2e12e1824aba32de3d5115f9",
+      "c_ldlibs": null,
+      "arithmetic_modes": [
+        "default"
+      ],
+      "environment": {
+        "SN_CC": null,
+        "SN_CFLAGS": null,
+        "SN_RELEASE_CFLAGS": null,
+        "SN_LDLIBS": null,
+        "SN_RUSTFLAGS": null
+      },
+      "cases": [
+        {
+          "source": ".sn/qualified-array-closure.sn",
+          "source_sha256": "f456051f0a6161dec5e15fbea519207d27279abe81657e611488d0cd1099e6c2",
+          "optimization": "-O0",
+          "arithmetic_mode": "default",
+          "targets": {
+            "c": {
+              "compile": {
+                "command": [
+                  "/home/gavin/code/sindarin/sindarin-rust-captured-record-methods-3e45/bin/sn",
+                  ".sn/qualified-array-closure.sn",
+                  "--target",
+                  "c",
+                  "-O0",
+                  "--no-install",
+                  "-o",
+                  "/tmp/sn-differential-mgwqff58/case-0--O0-default-c.exe"
+                ],
+                "status": 0,
+                "stdout_hex": "",
+                "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f7175616c69666965642d61727261792d636c6f737572652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d6d677771666635382f636173652d302d2d4f302d64656661756c742d632e657865202837302e31204b42290a"
+              },
+              "run": {
+                "command": [
+                  "/tmp/sn-differential-mgwqff58/case-0--O0-default-c.exe"
+                ],
+                "status": 0,
+                "stdout_hex": "747275650a747275650a",
+                "stderr_hex": ""
+              }
+            },
+            "rust": {
+              "compile": {
+                "command": [
+                  "/home/gavin/code/sindarin/sindarin-rust-captured-record-methods-3e45/bin/sn",
+                  ".sn/qualified-array-closure.sn",
+                  "--target",
+                  "rust",
+                  "-O0",
+                  "--no-install",
+                  "-o",
+                  "/tmp/sn-differential-mgwqff58/case-0--O0-default-rust.exe"
+                ],
+                "status": 1,
+                "stdout_hex": "",
+                "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f7175616c69666965642d61727261792d636c6f737572652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420646f6573206e6f7420737570706f7274207175616c696669656420636c6f7375726520706172616d6574657273207965740a201b5b313b33316d6661696c65641b5b306d0a0a"
+              }
+            }
+          },
+          "passed": false
+        },
+        {
+          "source": ".sn/qualified-array-closure.sn",
+          "source_sha256": "f456051f0a6161dec5e15fbea519207d27279abe81657e611488d0cd1099e6c2",
+          "optimization": "-O1",
+          "arithmetic_mode": "default",
+          "targets": {
+            "c": {
+              "compile": {
+                "command": [
+                  "/home/gavin/code/sindarin/sindarin-rust-captured-record-methods-3e45/bin/sn",
+                  ".sn/qualified-array-closure.sn",
+                  "--target",
+                  "c",
+                  "-O1",
+                  "--no-install",
+                  "-o",
+                  "/tmp/sn-differential-mgwqff58/case-0--O1-default-c.exe"
+                ],
+                "status": 0,
+                "stdout_hex": "",
+                "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f7175616c69666965642d61727261792d636c6f737572652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d6d677771666635382f636173652d302d2d4f312d64656661756c742d632e657865202837302e31204b42290a"
+              },
+              "run": {
+                "command": [
+                  "/tmp/sn-differential-mgwqff58/case-0--O1-default-c.exe"
+                ],
+                "status": 0,
+                "stdout_hex": "747275650a747275650a",
+                "stderr_hex": ""
+              }
+            },
+            "rust": {
+              "compile": {
+                "command": [
+                  "/home/gavin/code/sindarin/sindarin-rust-captured-record-methods-3e45/bin/sn",
+                  ".sn/qualified-array-closure.sn",
+                  "--target",
+                  "rust",
+                  "-O1",
+                  "--no-install",
+                  "-o",
+                  "/tmp/sn-differential-mgwqff58/case-0--O1-default-rust.exe"
+                ],
+                "status": 1,
+                "stdout_hex": "",
+                "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f7175616c69666965642d61727261792d636c6f737572652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420646f6573206e6f7420737570706f7274207175616c696669656420636c6f7375726520706172616d6574657273207965740a201b5b313b33316d6661696c65641b5b306d0a0a"
+              }
+            }
+          },
+          "passed": false
+        },
+        {
+          "source": ".sn/qualified-array-closure.sn",
+          "source_sha256": "f456051f0a6161dec5e15fbea519207d27279abe81657e611488d0cd1099e6c2",
+          "optimization": "-O2",
+          "arithmetic_mode": "default",
+          "targets": {
+            "c": {
+              "compile": {
+                "command": [
+                  "/home/gavin/code/sindarin/sindarin-rust-captured-record-methods-3e45/bin/sn",
+                  ".sn/qualified-array-closure.sn",
+                  "--target",
+                  "c",
+                  "-O2",
+                  "--no-install",
+                  "-o",
+                  "/tmp/sn-differential-mgwqff58/case-0--O2-default-c.exe"
+                ],
+                "status": 0,
+                "stdout_hex": "",
+                "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f7175616c69666965642d61727261792d636c6f737572652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d6d677771666635382f636173652d302d2d4f322d64656661756c742d632e657865202837302e31204b42290a"
+              },
+              "run": {
+                "command": [
+                  "/tmp/sn-differential-mgwqff58/case-0--O2-default-c.exe"
+                ],
+                "status": 0,
+                "stdout_hex": "747275650a747275650a",
+                "stderr_hex": ""
+              }
+            },
+            "rust": {
+              "compile": {
+                "command": [
+                  "/home/gavin/code/sindarin/sindarin-rust-captured-record-methods-3e45/bin/sn",
+                  ".sn/qualified-array-closure.sn",
+                  "--target",
+                  "rust",
+                  "-O2",
+                  "--no-install",
+                  "-o",
+                  "/tmp/sn-differential-mgwqff58/case-0--O2-default-rust.exe"
+                ],
+                "status": 1,
+                "stdout_hex": "",
+                "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f7175616c69666965642d61727261792d636c6f737572652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420646f6573206e6f7420737570706f7274207175616c696669656420636c6f7375726520706172616d6574657273207965740a201b5b313b33316d6661696c65641b5b306d0a0a"
+              }
+            }
+          },
+          "passed": false
+        },
+        {
+          "source": ".sn/qualified-scalar-closure.sn",
+          "source_sha256": "54df2067bd1d0cf5918ed4e94bdab14e63b72bce0eb9e4ad286f1958d33b5d33",
+          "optimization": "-O0",
+          "arithmetic_mode": "default",
+          "targets": {
+            "c": {
+              "compile": {
+                "command": [
+                  "/home/gavin/code/sindarin/sindarin-rust-captured-record-methods-3e45/bin/sn",
+                  ".sn/qualified-scalar-closure.sn",
+                  "--target",
+                  "c",
+                  "-O0",
+                  "--no-install",
+                  "-o",
+                  "/tmp/sn-differential-mgwqff58/case-1--O0-default-c.exe"
+                ],
+                "status": 0,
+                "stdout_hex": "",
+                "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f7175616c69666965642d7363616c61722d636c6f737572652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d6d677771666635382f636173652d312d2d4f302d64656661756c742d632e657865202836382e39204b42290a"
+              },
+              "run": {
+                "command": [
+                  "/tmp/sn-differential-mgwqff58/case-1--O0-default-c.exe"
+                ],
+                "status": -11,
+                "stdout_hex": "",
+                "stderr_hex": ""
+              }
+            },
+            "rust": {
+              "compile": {
+                "command": [
+                  "/home/gavin/code/sindarin/sindarin-rust-captured-record-methods-3e45/bin/sn",
+                  ".sn/qualified-scalar-closure.sn",
+                  "--target",
+                  "rust",
+                  "-O0",
+                  "--no-install",
+                  "-o",
+                  "/tmp/sn-differential-mgwqff58/case-1--O0-default-rust.exe"
+                ],
+                "status": 1,
+                "stdout_hex": "",
+                "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f7175616c69666965642d7363616c61722d636c6f737572652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420646f6573206e6f7420737570706f7274207175616c696669656420636c6f7375726520706172616d6574657273207965740a201b5b313b33316d6661696c65641b5b306d0a0a"
+              }
+            }
+          },
+          "passed": false
+        },
+        {
+          "source": ".sn/qualified-scalar-closure.sn",
+          "source_sha256": "54df2067bd1d0cf5918ed4e94bdab14e63b72bce0eb9e4ad286f1958d33b5d33",
+          "optimization": "-O1",
+          "arithmetic_mode": "default",
+          "targets": {
+            "c": {
+              "compile": {
+                "command": [
+                  "/home/gavin/code/sindarin/sindarin-rust-captured-record-methods-3e45/bin/sn",
+                  ".sn/qualified-scalar-closure.sn",
+                  "--target",
+                  "c",
+                  "-O1",
+                  "--no-install",
+                  "-o",
+                  "/tmp/sn-differential-mgwqff58/case-1--O1-default-c.exe"
+                ],
+                "status": 0,
+                "stdout_hex": "",
+                "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f7175616c69666965642d7363616c61722d636c6f737572652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d6d677771666635382f636173652d312d2d4f312d64656661756c742d632e657865202836382e39204b42290a"
+              },
+              "run": {
+                "command": [
+                  "/tmp/sn-differential-mgwqff58/case-1--O1-default-c.exe"
+                ],
+                "status": -11,
+                "stdout_hex": "",
+                "stderr_hex": ""
+              }
+            },
+            "rust": {
+              "compile": {
+                "command": [
+                  "/home/gavin/code/sindarin/sindarin-rust-captured-record-methods-3e45/bin/sn",
+                  ".sn/qualified-scalar-closure.sn",
+                  "--target",
+                  "rust",
+                  "-O1",
+                  "--no-install",
+                  "-o",
+                  "/tmp/sn-differential-mgwqff58/case-1--O1-default-rust.exe"
+                ],
+                "status": 1,
+                "stdout_hex": "",
+                "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f7175616c69666965642d7363616c61722d636c6f737572652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420646f6573206e6f7420737570706f7274207175616c696669656420636c6f7375726520706172616d6574657273207965740a201b5b313b33316d6661696c65641b5b306d0a0a"
+              }
+            }
+          },
+          "passed": false
+        },
+        {
+          "source": ".sn/qualified-scalar-closure.sn",
+          "source_sha256": "54df2067bd1d0cf5918ed4e94bdab14e63b72bce0eb9e4ad286f1958d33b5d33",
+          "optimization": "-O2",
+          "arithmetic_mode": "default",
+          "targets": {
+            "c": {
+              "compile": {
+                "command": [
+                  "/home/gavin/code/sindarin/sindarin-rust-captured-record-methods-3e45/bin/sn",
+                  ".sn/qualified-scalar-closure.sn",
+                  "--target",
+                  "c",
+                  "-O2",
+                  "--no-install",
+                  "-o",
+                  "/tmp/sn-differential-mgwqff58/case-1--O2-default-c.exe"
+                ],
+                "status": 0,
+                "stdout_hex": "",
+                "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f7175616c69666965642d7363616c61722d636c6f737572652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d646966666572656e7469616c2d6d677771666635382f636173652d312d2d4f322d64656661756c742d632e657865202836382e39204b42290a"
+              },
+              "run": {
+                "command": [
+                  "/tmp/sn-differential-mgwqff58/case-1--O2-default-c.exe"
+                ],
+                "status": -11,
+                "stdout_hex": "",
+                "stderr_hex": ""
+              }
+            },
+            "rust": {
+              "compile": {
+                "command": [
+                  "/home/gavin/code/sindarin/sindarin-rust-captured-record-methods-3e45/bin/sn",
+                  ".sn/qualified-scalar-closure.sn",
+                  "--target",
+                  "rust",
+                  "-O2",
+                  "--no-install",
+                  "-o",
+                  "/tmp/sn-differential-mgwqff58/case-1--O2-default-rust.exe"
+                ],
+                "status": 1,
+                "stdout_hex": "",
+                "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f7175616c69666965642d7363616c61722d636c6f737572652e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420646f6573206e6f7420737570706f7274207175616c696669656420636c6f7375726520706172616d6574657273207965740a201b5b313b33316d6661696c65641b5b306d0a0a"
+              }
+            }
+          },
+          "passed": false
+        }
+      ],
+      "passed": false
+    },
+    "credit": false,
+    "status": "Parent C exits via SIGSEGV at all three optimizations; fix qualifier metadata and call ABI before crediting repaired behavior."
+  }
+}

@@ -53,8 +53,15 @@ Value-record physical receivers and interface storage/native ABI remain work.
 The subsequent captured-record method increment reuses private per-invocation
 scalar snapshots and persistent captured array owners, including nested receivers
 and owned returns. It also repairs C field-string printing ownership while
-preserving printed output and owned temporary cleanup. The ledger records45
-all-mode comparisons,15 sanitizer controls and the remaining full-goal work.
+preserving printed output and owned temporary cleanup. The ledger records 45
+all-mode comparisons, 15 sanitizer controls and the remaining full-goal work.
+
+The qualified closure-array increment adds per-invocation `as val` copies for
+verified alias, nested-array, return, escaping-capture and string-element
+contexts. Seven controls pass 63 all-mode comparisons and 21 C lifetime checks;
+the complete local matrix verifies 54 reports / 4413 cases. Record-array member
+stores/field methods and broader qualifiers remain work, with preserved failing
+diagnostics receiving no parity credit. Hosted acceptance is tracked separately.
 
 The 2026-10-03 float/double increment adds conversions at tested scalar storage,
 call and return boundaries and mixed floating compound mutation, including

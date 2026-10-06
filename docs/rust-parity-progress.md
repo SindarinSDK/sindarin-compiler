@@ -5,6 +5,41 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Qualified closure array parameters, 2026-10-06
+
+Rust now accepts array closure parameters declared `as val` and creates an
+independent array owner at each invocation before executing the body. Default
+array parameters retain caller-visible mutation. Two as-val formals supplied
+with the same array receive independent copies. Nested arrays, returned arrays,
+escaping captures and string elements use existing owned copy/cleanup rules.
+Function signature compatibility now includes parameter memory qualifiers;
+generated local owner names avoid all user identifiers.
+
+Seven frozen controls pass **63** independently specified C/Rust comparisons
+across all nine optimization/arithmetic modes. The unchanged parent C compiler
+passes **21** source/optimization controls while Rust rejects those signatures.
+Linux ASAN/UBSAN/leak checks pass **21** runs. C remains the default target.
+
+The complete C/Rust suites and all **65** acceptance commands pass with zero
+failures/skips. Local evidence verifies **54 reports / 4413 cases**, including
+all prior **53 / 4350**. The required CI command passes with **140** native
+fixtures; it passes again after correcting the CI display label. Exact-revision
+Linux/macOS/Windows hosted acceptance remains required. Original corpus coverage remains **1363 / 1365
+(99.85%)**, a corpus measure rather than full-goal completion.
+
+Broader qualified signatures, closure parameter rebinding, record-array member
+stores and nested field-array methods, value-record physical receivers,
+structural interfaces/native ABI and platform-dependent empty identity remain
+required work. A scalar `as ref` control crashes in the parent C backend and
+receives no parity credit. The record-array probes are preserved separately;
+no rejected or failing control is counted as successful parity.
+
+Evidence: [validation](rust-parity-evidence/qualified-array-validation.json),
+[parent baseline](rust-parity-evidence/qualified-array-before.json),
+[comparisons](rust-parity-evidence/qualified-array-after.json),
+[independent oracles](rust-parity-evidence/qualified-array-oracles.json),
+[C lifetimes](rust-parity-evidence/qualified-array-c-lifetimes.json).
+
 ## Captured value-record methods and borrowed field printing, 2026-10-06
 
 Methods on captured value records now use the existing mutable owned snapshot

@@ -1,0 +1,12 @@
+fn main(): void =>
+  var values: int[] = {1, 2}
+  var change = fn(original: int[], copy: int[] as val, second: int[] as val): int =>
+    original[0] = 7
+    copy[0] = 9
+    copy.push(3)
+    second.push(4)
+    return original[0] * 100 + second[0] * 10 + copy.length
+  println(change(values, values, values) == 713)
+  println(values[0] == 7 && values.length == 2)
+  println(change(values, values, values) == 773)
+  println(values.length == 2)

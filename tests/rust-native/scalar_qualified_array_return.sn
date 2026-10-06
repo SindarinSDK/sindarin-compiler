@@ -1,0 +1,11 @@
+fn main(): void =>
+  var values: int[] = {1, 2}
+  var change = fn(a: int[] as val): int[] =>
+    a[0] = 9
+    a.push(3)
+    return a
+  var result: int[] = change(values)
+  println(result[0] == 9 && result.length == 3)
+  println(values[0] == 1 && values.length == 2)
+  result[0] = 8
+  println(values[0] == 1)

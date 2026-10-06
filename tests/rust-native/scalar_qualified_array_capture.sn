@@ -1,0 +1,10 @@
+fn main(): void =>
+  var values: int[] = {1, 2}
+  var make = fn(a: int[] as val): fn(): int =>
+    a[0] = 9
+    var read = fn(): int => a[0]
+    return read
+  var read = make(values)
+  values[0] = 7
+  println(read() == 9)
+  println(values[0] == 7 && values.length == 2)

@@ -80,6 +80,12 @@ static void rust_lower_closure_array_arguments(json_object *model, json_object *
     json_object_object_foreach(node, key, child)
         if (strncmp(key, "rust_", 5) != 0)
             rust_lower_closure_array_arguments(model, child, next_id);
+    if (json_boolean_property(node, "rust_closure_array_parameter_copy"))
+    {
+        char owner[96];
+        if (!rust_allocate_helper_name(model, "__sn_closure_array_copy", owner, sizeof(owner))) return;
+        json_object_object_add(node, "rust_closure_array_copy_owner", json_object_new_string(owner));
+    }
     if (json_boolean_property(node, "rust_array_cell_mutation"))
     {
         json_object *callee = rust_closure_property(node, "callee");
