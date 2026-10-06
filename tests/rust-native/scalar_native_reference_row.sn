@@ -1,0 +1,33 @@
+@source "scalar_native_reference_row.sn.c"
+
+native struct Token as ref =>
+  id: int
+
+  @alias "token_dispose"
+  native fn dispose(): void
+
+  @alias "token_reversed"
+  native fn reversed(values: Token[]): int
+
+  @alias "token_removed"
+  native fn removed(values: Token[]): int
+
+native fn token_create(id: int): Token
+native fn token_alive(): int
+
+fn exercise(): void =>
+  var first: Token = token_create(7)
+  var next: Token = token_create(30)
+  var values: Token[] = {first, next}
+  var reverse: fn(Token[], Token[]): int = fn(rows: Token[], a: Token[]): int =>
+    return rows[0].reversed(a)
+  println(reverse(values, values) == 72)
+  println(values[0].id == 30 && values[1].id == 7)
+  var remove: fn(Token[], Token[]): int = fn(rows: Token[], a: Token[]): int =>
+    return rows[0].removed(a)
+  println(remove(values, values) == 311)
+  println(values.length == 1 && values[0].id == 7 && next.id == 31)
+
+fn main(): void =>
+  exercise()
+  println(token_alive() == 0)

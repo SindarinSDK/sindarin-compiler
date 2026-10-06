@@ -1,0 +1,26 @@
+@source "scalar_native_temporary_closure.sn.c"
+
+native struct Token as ref =>
+  id: int
+  @alias "token_dispose"
+  native fn dispose(): void
+
+native fn token_create(id: int): Token
+native fn token_refs(value: Token): int
+native fn token_alive(): int
+
+fn exercise(): void =>
+  var inspect: fn(Token): int = fn(item: Token): int =>
+    return token_refs(item)
+  var seen: int = inspect(token_create(7))
+  println(seen == 1)
+  println(token_alive() == 1)
+  var identity: fn(Token): Token = fn(item: Token): Token =>
+    return item
+  var returned: Token = identity(token_create(30))
+  println(returned.id == 30 && token_refs(returned) == 2)
+  println(token_alive() == 2)
+
+fn main(): void =>
+  exercise()
+  println(token_alive() == 0)

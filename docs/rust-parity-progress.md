@@ -5,6 +5,59 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Reference-record receiver and native closure ownership, 2026-10-06
+
+Indexed reference-record method receivers now borrow the selected handle under
+a short array read guard, then release that guard before entering the method.
+Reversal/removal does not redirect the receiver to a different heap object, and
+no additional reference credit is introduced. Value-record physical receivers
+remain separate required work; their live removed slots cannot be replaced by a
+snapshot or a fresh bounds-checked index lookup.
+
+Native reference objects and arrays are admitted in default closure signatures.
+Object parameters borrow their owners; native array reads borrow the original C
+header. Copied/returned arrays and escaping captures retain independent owners.
+Native methods mark array arguments/parameters as borrowed headers, lifted
+constructor temporaries retain those annotations, and nested reads extract the
+canonical pointer under a short guard after evaluating cached indices. Method
+argument bindings are processed by the same native-read lowering.
+
+Five frozen controls pass **45** independent C/Rust comparisons in all nine
+optimization/arithmetic modes, including exact native reference counts, no live
+object leaks, shared header identity, original reference-object identity through
+reversal/removal, nested arrays, copied/returned arrays, escaping snapshots and
+constructor temporary lifetimes. The unchanged parent C backend passes all
+**15** source/optimization controls. Linux ASAN/UBSAN/leak checks pass **15** runs.
+
+Complete C/Rust suites pass without failures or skips, including **128** native
+positives. Final local acceptance verifies **52 reports / 4305 cases**, all prior
+**51 / 4260** included. The exact count-checked CI command is part of the local
+acceptance matrix, and CI requires **128** native fixtures. A whitespace-only
+expression wrapper regression was caught by unchanged generated-source goldens;
+correct EOF trimming restores those goldens without changing expectations.
+Exact-revision Linux/macOS/Windows hosted acceptance remains required.
+
+All **1365** original source hashes remain unchanged; original corpus coverage
+remains **1363 / 1365 (99.85%)**, rather than full-goal completion. Structural
+interface storage/native ABI and platform-dependent empty storage, value-record
+receiver/array overlap, qualified closure signatures, parameter rebinding, named
+array-function adapters, captured value-record methods and wider lifetime/effect
+compositions remain work. C remains the default target; no C production code
+changes are included.
+
+Evidence: [validation](rust-parity-evidence/reference-receiver-validation.json),
+[parent baseline](rust-parity-evidence/reference-receiver-before.json),
+[repaired comparisons](rust-parity-evidence/reference-receiver-after.json),
+[independent oracles](rust-parity-evidence/reference-receiver-oracles.json),
+[C lifetimes](rust-parity-evidence/reference-receiver-c-lifetimes.json).
+
+The prerequisite CI repair `3e6b0ea5ed267a812980bdff57219e163450884b` is fully
+verified: all six compiler/runtime jobs pass, and every platform independently
+verifies **51 reports / 4260 cases**. Earlier `552de7ac`/`67854e22` runtime jobs
+had stale fixture-count guards; their failed jobs are not green acceptance.
+[Repair proof](rust-parity-evidence/native-count-repair-proof.json),
+[hosted acceptance](rust-parity-evidence/native-count-repair-main-ci-green.json).
+
 ## Dynamic array aliases through instance/static methods, 2026-10-06
 
 Instance and static methods now share the runtime alias-partition dispatch used

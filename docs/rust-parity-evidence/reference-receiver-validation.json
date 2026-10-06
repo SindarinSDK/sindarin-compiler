@@ -1,0 +1,1124 @@
+{
+  "base_revision": "3e6b0ea5ed267a812980bdff57219e163450884b",
+  "compiler_sha256": "2dd01c7df3d71985781dc9022cb93f0029e495e647c20fcfe477387680b585ee",
+  "frozen_input_manifest_sha256": "2a5eca483cfb32d0133fb5ba7013e00dc8eacf1bc5c5463fb67e16ce62279482",
+  "frozen_input_count": 6540,
+  "commands": [
+    {
+      "command": [
+        "python3",
+        "scripts/run_rust_tests.py",
+        "rust-native-extra",
+        "--verbose",
+        "--no-cleanup",
+        "--parallel",
+        "8",
+        "--no-color",
+        "--require-count",
+        "128",
+        "--fail-on-skip"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-00.log",
+      "log_sha256": "9f2274820868d737d6095b45b34e54fb1470f0622eab6f2f9301c077bc425d29"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/run_tests.py",
+        "all",
+        "--verbose",
+        "--no-cleanup",
+        "--parallel",
+        "8",
+        "--no-color"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-01.log",
+      "log_sha256": "c3110c5afd3befc6a0ae5d6e54b58dd4fe8577b3a3a5012a04658af48a035709"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/run_rust_tests.py",
+        "all",
+        "--verbose",
+        "--no-cleanup",
+        "--parallel",
+        "8",
+        "--no-color",
+        "--fail-on-skip"
+      ],
+      "status": 0,
+      "log": ".sn/reference-expression-whitespace-rust.log",
+      "log_sha256": "02b5110ff25ee4233c3cfe0fe1a737d906be26a41590f9ef1f77a32a19c932fa"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-core"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-03.log",
+      "log_sha256": "b06ff2bbfb1c41ac3605172ef9f8cceb20a0d72161a9b0d074178346bcd25263"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-concurrency"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-04.log",
+      "log_sha256": "8466e75e0d58540e6047549f09bf944f47ee8cbaba0cebce34996ba333ef35c2"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-sized-defaults"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-08.log",
+      "log_sha256": "250286fa9bb6c9b996e0b183a9d3a3b64d9b2e1b4cc8b47fc5a08e92846fe1d8"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-reflection"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-07.log",
+      "log_sha256": "2e40a7c0b400b13b73552373be9a78475c9b1971ce81ab43d784fd7bf3b90810"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-thread-receivers"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-06.log",
+      "log_sha256": "ac5380e693a2e49c7455d8a83f6f89d1085daa5895ec234565844e67dfb788c6"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-stdio-order"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-10.log",
+      "log_sha256": "8e9474684b30b31363506b26a704a638e501d568e6087c2f05d8f9cc48d92a22"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-managed"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-09.log",
+      "log_sha256": "556778a47c42c9b02bbc1aef90238f8438440950783672caacb5f55b51252c5f"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-mixed-integral"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-11.log",
+      "log_sha256": "ad78cd83dd673b2bfb4a8559ead5a1c7aa32b846df1f2c38d67379582c492efa"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-float-conversions"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-12.log",
+      "log_sha256": "e52441108dd1aa60febab3750edb7b2cd5b37c2825e609b4edd892a34ae33f30"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-floating-arrays"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-13.log",
+      "log_sha256": "a5587fa2ee3afc1a77ff315a94850325684e3aa063d935fb1348635eaebfabec"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-thread-ownership"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-05.log",
+      "log_sha256": "de116f8d13432bb22aaaa78d734ee32181a659f8add6a47f85e6b22d0ccc38f3"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-capture-index"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-16.log",
+      "log_sha256": "6b6b4adc512338a0d9ef9967215c88e77917dbcbb00bcd3ed742af3a8fc0d16c"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-sync-character"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-17.log",
+      "log_sha256": "89093a27271347f817b860c190ea313af77f0d7e8d0ad30fcfaed1333d68e9d6"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-floating-equality"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-14.log",
+      "log_sha256": "7187f4269b6f86753ac0b8178c56fcaeccb5a1171fae908b2ed48621168d261f"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-numeric-places"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-15.log",
+      "log_sha256": "238eab067b4feb93073624782aeb3510ed4aa55ed474713e963096371e3f5935"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-ctype"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-18.log",
+      "log_sha256": "d0a4f7d4e1b7e9877d2a03033593fe7184ea845084a8f473f6b10c05e151ff44"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-byte-encoding"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-19.log",
+      "log_sha256": "9506cd38f84da9fd182ee9c6bcda3322323ea0b195df2b3750c68b6a63bd5a7b"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-exit"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-20.log",
+      "log_sha256": "39bb4ba7be1ddc50631a1149747c45a0fd4a595b89f98ded241c6e037869aca8"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-main-return"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-21.log",
+      "log_sha256": "18c10b530595f27f9fb77c1377890e0d2fa25ecd5f0c3a58e79e98c1b546edaf"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-indexed-string"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-25.log",
+      "log_sha256": "39102823701d5164379e4881919dde8b7e88bc242e16bb0ba3a3d913ac269075"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-match-control"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-22.log",
+      "log_sha256": "38f3ed4e30db64cc5fe0f0562c4f107718f26d70519abcea25f17ea6a826b54c"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-call-reference"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-24.log",
+      "log_sha256": "51495dce7216137743fbdd2cd0200d59623e398a74ac7a655fb76174a24bd4a3"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-scope"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-26.log",
+      "log_sha256": "a2d27572c86ad27a591a1d33deeecfa53871d3c6a4bae5105393574b0cfcae12"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-records"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-27.log",
+      "log_sha256": "e08036899e062f4388b6dfd4fb4d8272ddbf9652b0d66a7e5d20a88e31c16844"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-nil-string"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-28.log",
+      "log_sha256": "7dba8896e56c7cc3758ccbe52dc9c7c8b9f5ee03bca8b3829978f9f6f6b0d4ca"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-sizeof"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-23.log",
+      "log_sha256": "a834736480b454e432ed1be7f9a1fb91bbbab1446b7504904ccb6c4c3bc364d8"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-nested-stores"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-30.log",
+      "log_sha256": "7e482bfe06e18c6998bab29e213348c643b8b236c2c4924afc62ee29994c9124"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-nil-array"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-29.log",
+      "log_sha256": "e31f57e77c18845ba3c0bc1a82ccf49349d67ed1673f9e5a65297e9c25fa22f2"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-owned-array-copies"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-31.log",
+      "log_sha256": "deed890a861646309f4709c99669ff67e4ce6095ff296d6ab699c8cd82488005"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-record-references"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-33.log",
+      "log_sha256": "1c52a45936d520712915aa2649fb41d1a0235f7e158f9c23c39ed242df3350be"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-managed-records"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-32.log",
+      "log_sha256": "88ee8d095f1f3725e5ce8f93ef3d09f4d1b370ae5b6ad6bcb68d7d9385f79b32"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-scalar-parameters"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-36.log",
+      "log_sha256": "bda67df48cbe0f3afd212931d06757e07daa059648e8e7ce0a8c5c45ef831d98"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-reference-records"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-35.log",
+      "log_sha256": "458537fbb684d3275fb38ffdde1da90a553a9e9cf59c12f41e45dd682412d01c"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-closure-records"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-37.log",
+      "log_sha256": "ee2e859a624b3b43a5d0ad0b48fb190239ab2d43d2dedfb389c36af579dea9ab"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-arrays"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-39.log",
+      "log_sha256": "13e34d0a1b06cca3e30167c557b0c209c6c84741c0b1c880c4936a71848e3734"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-owned-record-parameters"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-34.log",
+      "log_sha256": "6a0f902b80b4f981e29cb30626afddad5e70925a51e50bc830a40460c567defe"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-callables"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-41.log",
+      "log_sha256": "1ea80ccaa08b5aef1cd3dc797a666f54e3aec954929753582894bc3a9bfbcc1c"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-globals"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-40.log",
+      "log_sha256": "43639402029301af76c373c85cef545a7b6e91326e3eb9e11c6869b25d717bc2"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-handles"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-38.log",
+      "log_sha256": "4a7d98624bb4c009fd6ce61bd8f28e2716ab5418e04e9b0dca7b0eb9aaed9ad7"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-pointer-slices"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-44.log",
+      "log_sha256": "a5ded92a160d892cc035fb03274e7536adc92b805a01da66f7511cfba88c2d55"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-variadics"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-42.log",
+      "log_sha256": "008b837d5fc20b5770b424d06c153a5cb926d1216ade95ee81c4931616459381"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-array-values"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-45.log",
+      "log_sha256": "d21850fcbaa59fa4b857182982b29042a471bc1f567b2be78034935cc7836bf9"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-zero-record-defaults"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-46.log",
+      "log_sha256": "8df54bea5776623d1efb1b69cede0c3144eff998652b60928859a2f25a816412"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-array-returns"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-48.log",
+      "log_sha256": "5f6125201060791a24db8f341034aae4ec54c8f4c9bf09ccaf34cb9fc424088b"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-managed-iterators"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-47.log",
+      "log_sha256": "12c84abcb21377ae4f544453f1f190c32acadce12470175841b53394082a9893"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-array-methods"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-50.log",
+      "log_sha256": "139d34f0f94e4413c4a4d434a4c3a2815748406d3ee636d6a34ba8987d81ba53"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-closure-arrays"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-49.log",
+      "log_sha256": "56dbd888acab427ab81e4cf49aa1417c8c7ae3af7c144353518cf0af7c29a1e3"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-method-aliases"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-52.log",
+      "log_sha256": "90767ad966d9c392eb40f996b1c4698422ccdaeb3696f39d75ba26d0389ef58a"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_array_return_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-54.log",
+      "log_sha256": "d3a66abe0c1ee021f84278793969e6dc9a22adb12a2f841a91cc995117d9a218"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-reference-receivers"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-53.log",
+      "log_sha256": "a8732442dcc4902356ee4b461b4997aefd9ab1a48354fc3863c8c5eee7f25d41"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_iterator_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-55.log",
+      "log_sha256": "ee1a3d068f943235fc3ae5cdc37f90867b7080713e97f6020db020b56104ea58"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-serialization"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-43.log",
+      "log_sha256": "d60034e341f80a1609ea8534109926306a8b27f2236e786dee0da57dbf821f28"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_array_method_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-57.log",
+      "log_sha256": "9e7b2ec8dcc38cef023e5c66b0bc1e1bc14f6608f8379d17e54eb3bc279f6faa"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_closure_array_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-56.log",
+      "log_sha256": "56727a478387d49041fdb03e3851403a63cc5d04748f20f85c89e53720fe8444"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_reference_receiver_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-60.log",
+      "log_sha256": "ddf5a57b32bb2ffaecfd1a67f0c4b376455fd0546c1420d8940d74eb50b1ea6c"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_method_alias_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-59.log",
+      "log_sha256": "8ff711099cdbe4e6676853c5b515c085f6a0ae364ce7ffb96a186b1481776c52"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_array_alias_partition_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-58.log",
+      "log_sha256": "3bc0fe71d2f1698ffb917b93ee29848066f3b79e71155d747559595744a78f3f"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-array-alias-partitions"
+      ],
+      "status": 0,
+      "log": ".sn/reference-receiver-validation-51.log",
+      "log_sha256": "8c0b26517f835c5cee3808f94471555b9122370f19ebb27a41959a8565902478"
+    }
+  ],
+  "full_c_suites": [
+    {
+      "passed": 1610,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "passed": 107,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "passed": 79,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "passed": 1142,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "passed": 58,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "passed": 224,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "passed": 11,
+      "failed": 0,
+      "skipped": 0
+    }
+  ],
+  "full_rust_suites": [
+    {
+      "passed": 491,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "passed": 131,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "passed": 8,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "passed": 128,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "passed": 36,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "passed": 10,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "passed": 7,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "passed": 12,
+      "failed": 0,
+      "skipped": 0
+    }
+  ],
+  "exact_ci_count_gate": [
+    {
+      "passed": 128,
+      "failed": 0,
+      "skipped": 0
+    }
+  ],
+  "reports": [
+    {
+      "name": "core",
+      "cases": 30,
+      "report_sha256": "0ae64969bb5323e7f49729254d433eb7e146f39d48af9f17b66e6c90c732fe4e"
+    },
+    {
+      "name": "concurrency",
+      "cases": 51,
+      "report_sha256": "8ae80dc4eacd30327848bcf817872f9809d1912ab52741bdb1db87109bb87d34"
+    },
+    {
+      "name": "thread-ownership",
+      "cases": 207,
+      "report_sha256": "d77e4dca5e49e5523869220fe15e0d676aa444dbf1909232cbaa2172d7427ac0"
+    },
+    {
+      "name": "thread-receivers",
+      "cases": 90,
+      "report_sha256": "05c0f68a6824dfa881174f3cc709d3b3802a80869925e880332aacded560b979"
+    },
+    {
+      "name": "reflection",
+      "cases": 36,
+      "report_sha256": "9c8ef21de193f93ac757b48c0188b0a874940262c3c1464f49c3ee9e78c0ef20"
+    },
+    {
+      "name": "sized-defaults",
+      "cases": 27,
+      "report_sha256": "e3138766288a5b11759c3787ed4f1e64b50ee3461d37f88a617ecdc15ba8fa0d"
+    },
+    {
+      "name": "native-managed",
+      "cases": 63,
+      "report_sha256": "51a60dd8fc9f2279c61de395c62b6e7c398edc6b811a3ef5dcb8eb9d93efeb5d"
+    },
+    {
+      "name": "stdio-order",
+      "cases": 30,
+      "report_sha256": "ccaffa2d8322aadc3eaa87ecd8f422b93296daec3625407c7cd5be62409281ee"
+    },
+    {
+      "name": "mixed-integral",
+      "cases": 90,
+      "report_sha256": "89624fc6571680a1643ae5181b660bfbbaf53ae17e6a7cbe831c342a3e151254"
+    },
+    {
+      "name": "mixed-integral-diagnostics",
+      "cases": 9,
+      "report_sha256": "9f1939b594c0e4a59134761a936aa78595e1ee90fcfdf5802514baf2862bd8c3"
+    },
+    {
+      "name": "float-conversions",
+      "cases": 117,
+      "report_sha256": "7ff809c0a6f066a73539a51e37a17ab8f91d9be12240173ff7a6a72acc13e675"
+    },
+    {
+      "name": "floating-arrays",
+      "cases": 81,
+      "report_sha256": "46a8438ddbf61178a113a73ac9448788eec8b4a557a16e4a5c890cf6f586c925"
+    },
+    {
+      "name": "floating-equality",
+      "cases": 36,
+      "report_sha256": "c7d56954cddfa242e9f754dc05f3995bca5b41cf72702cef143e75d05150a66d"
+    },
+    {
+      "name": "numeric-places",
+      "cases": 153,
+      "report_sha256": "e01cc36d8a4bdbeebc325cd22bf835e13a1dca2c4890d8a47c9a18f06c75416a"
+    },
+    {
+      "name": "capture-index",
+      "cases": 45,
+      "report_sha256": "bb83a30844586808dc79b9f125cf972b2eec730bec1deddc04e697336e479b66"
+    },
+    {
+      "name": "sync-character",
+      "cases": 45,
+      "report_sha256": "e98028338f316fb8a224ef594a96a5a68c21e0a33d550ae079553f7b0b20ed1f"
+    },
+    {
+      "name": "ctype",
+      "cases": 72,
+      "report_sha256": "39d1dc9c70a6ff9b6c2048b80393f9843031fec2e8bfa980942320f22b2b344d"
+    },
+    {
+      "name": "byte-encoding",
+      "cases": 81,
+      "report_sha256": "882bb3f21f6e11db92b13626253351029a99645976dd473d2f5b58b9e644b76f"
+    },
+    {
+      "name": "exit",
+      "cases": 153,
+      "report_sha256": "838d3307a4c4f3bab87a0ed29057688d9cd3115a0e42b97698ba1a73b2a9050d"
+    },
+    {
+      "name": "main-return",
+      "cases": 108,
+      "report_sha256": "4f5bd28b7ceabf3fa8b1775dca122d7f8e3d1ca32d4a34b388cb3cdc0c80a61e"
+    },
+    {
+      "name": "match-control",
+      "cases": 180,
+      "report_sha256": "7036417483e5478ec259569ed508bda9cd794928eaa245bc99a0f36c66da6dba"
+    },
+    {
+      "name": "sizeof",
+      "cases": 216,
+      "report_sha256": "317a37be701de213bf2fb50319b8d7e5c864aea116aec7ea0225a4baf51bc17f"
+    },
+    {
+      "name": "call-reference",
+      "cases": 126,
+      "report_sha256": "c6f243bf69f055586fbffe47d7ec37602d33512169e873e7c245cd148a1b084a"
+    },
+    {
+      "name": "indexed-string",
+      "cases": 54,
+      "report_sha256": "75e3b25c12e38664494698e9a51e94ac4bf9fe52113feda2c382e998ab6007af"
+    },
+    {
+      "name": "native-scope",
+      "cases": 36,
+      "report_sha256": "10f2c8247d0e7f69cb4c20f2222b5f0172ff0729dfb326ec769f3ec15cb66b7b"
+    },
+    {
+      "name": "nil-string",
+      "cases": 72,
+      "report_sha256": "56386eb540a441202e60471fd74d3aaf98387d10ae8f1cf9c13a81bedf554149"
+    },
+    {
+      "name": "nil-array",
+      "cases": 90,
+      "report_sha256": "52aff06e6ad2b171fb4b5d2a63fe31e7fc92f9b6c826c6fc149622a667f5d3f6"
+    },
+    {
+      "name": "nested-stores",
+      "cases": 45,
+      "report_sha256": "352677ba20f656abec0060da7bf00c9a7e1b689ad2bdc4d29d0cf29263d125e9"
+    },
+    {
+      "name": "owned-array-copies",
+      "cases": 45,
+      "report_sha256": "f770e7854e146ab2a23e07754dbdf5684da66e67af3262e86360a988cb71fee8"
+    },
+    {
+      "name": "native-records",
+      "cases": 45,
+      "report_sha256": "abf587e28c6a0bd60f25c40d8afc19dda0b6db13bc853fd570ab712d4917f7c4"
+    },
+    {
+      "name": "native-record-references",
+      "cases": 36,
+      "report_sha256": "3491b898228d812943b27a93c4687b197e641dfff9e466be572070ab8a9067c0"
+    },
+    {
+      "name": "owned-record-parameters",
+      "cases": 216,
+      "report_sha256": "4843a83346ac6050a46063efc52e3c503e101dbe6512f0b14e468abeb7a63f1b"
+    },
+    {
+      "name": "reference-records",
+      "cases": 171,
+      "report_sha256": "c008ab1d15324647903c992892c65940c12a9459b255b89a90fca98b41b0430e"
+    },
+    {
+      "name": "scalar-parameters",
+      "cases": 126,
+      "report_sha256": "9d9a6752c6853b33ace55d9b1be1d17e558145cf9b3587f3678a0077367fa381"
+    },
+    {
+      "name": "closure-records",
+      "cases": 189,
+      "report_sha256": "6626db01b94178803c87d1ce8dccd4af2dc1fe10a02e942ddcedff5936cdfcc5"
+    },
+    {
+      "name": "native-handles",
+      "cases": 117,
+      "report_sha256": "64e8ffa145b9cb47353d1518024510a1b87ce93e00f18c771a1b7090fe0d6c2f"
+    },
+    {
+      "name": "native-arrays",
+      "cases": 27,
+      "report_sha256": "3a199cb3d09e73eef23097c371e16ccf45b026af7edcd311230e3978eb0513ba"
+    },
+    {
+      "name": "native-globals",
+      "cases": 36,
+      "report_sha256": "cd21ee190be537a21a84b120731277b9bb3102318e709c17385078fa436bc5a1"
+    },
+    {
+      "name": "native-managed-records",
+      "cases": 54,
+      "report_sha256": "c4438f1cca5f9e54c74eabdb5fe4eaa77df26225e5904041e74dd8aea699cd5d"
+    },
+    {
+      "name": "native-callables",
+      "cases": 63,
+      "report_sha256": "30626095a641246b3e5d7928422994cb0345adf80e3a13aaedecdececd857ad2"
+    },
+    {
+      "name": "native-variadics",
+      "cases": 54,
+      "report_sha256": "29c1d7097a7390197e0c455745c0f81032af51895de95d5b962d0fcdeb2074d1"
+    },
+    {
+      "name": "serialization",
+      "cases": 117,
+      "report_sha256": "a69aa8fb3632941ea0e1d2456cda89dddf1f9ff249842bee5736db0b8a7b5d21"
+    },
+    {
+      "name": "pointer-slices",
+      "cases": 45,
+      "report_sha256": "3ee96417de35e3cc68138eda984c0ca0a107368b88a34d2d02310c32a80c675f"
+    },
+    {
+      "name": "array-values",
+      "cases": 45,
+      "report_sha256": "8c5896c3908692d2a1090ec5467450ccc85f2e8f72d1c94cd034d1f9d10ce4fe"
+    },
+    {
+      "name": "zero-record-defaults",
+      "cases": 27,
+      "report_sha256": "1a41b9ea7a2b4ad7784a20ede824adcdf7f61925d06b9577b6cf391b4ecec42d"
+    },
+    {
+      "name": "managed-iterators",
+      "cases": 72,
+      "report_sha256": "3f0bc177f4c7fdd81bae2524a4f6ddf2eb8063348150a296c31c5f64afa4bd2a"
+    },
+    {
+      "name": "array-returns",
+      "cases": 27,
+      "report_sha256": "a80247fe7ae401608d7229291eaca086723b1c302bdb796958c543de15314d36"
+    },
+    {
+      "name": "closure-arrays",
+      "cases": 189,
+      "report_sha256": "6bf92c21df50901b9e6eff18489388c5b34f97c5042b6efd8ae493f00c891b38"
+    },
+    {
+      "name": "array-methods",
+      "cases": 72,
+      "report_sha256": "2b946402177305d8c159c2ed6aeeecee374c1186a16f877615ace3a77f667389"
+    },
+    {
+      "name": "array-alias-partitions",
+      "cases": 72,
+      "report_sha256": "c7e6c90f63e6750a7ab9b366c5ac01cebc10de5b1219e89f51a600e0e3ae5cce"
+    },
+    {
+      "name": "method-aliases",
+      "cases": 72,
+      "report_sha256": "f4c4b4189c4dc5b23e46c695575da88bc993ca7071887bb5338e43ace2748534"
+    },
+    {
+      "name": "reference-receivers",
+      "cases": 45,
+      "report_sha256": "c6146dac2ebbfaac683e2c081701ea264965538e0507ac40e2763d7059e5b101"
+    }
+  ],
+  "local_acceptance": {
+    "reports": 52,
+    "cases": 4305,
+    "new_independent_cases": 45,
+    "parent_c_cases": 15,
+    "new_sanitizer_cases": 15,
+    "verification_log_sha256": "01f90f1b49d7f7f62529a5e285e84f85d0a2c2d867e227056d5f1111955a5e4e"
+  },
+  "unchanged_original_sources": 1365,
+  "original_corpus_coverage": {
+    "accepted": 1363,
+    "total": 1365,
+    "scope": "Corpus coverage only, not full-goal completion."
+  },
+  "initial_validation_repair": {
+    "finding": "New expression wrapper added an EOF newline to existing generated-source snapshots. Corrected trim flags and reran fullRust suite; unchanged expectations pass. Only source/staged expr.hbs and native_closure_array_place.hbs whitespace changed after first frozen run; C and exact count gates remain valid; all58 remaining gates rerun under refreshed frozen inputs.",
+    "first_attempt_records": [
+      {
+        "command": [
+          "python3",
+          "scripts/run_rust_tests.py",
+          "rust-native-extra",
+          "--verbose",
+          "--no-cleanup",
+          "--parallel",
+          "8",
+          "--no-color",
+          "--require-count",
+          "128",
+          "--fail-on-skip"
+        ],
+        "status": 0,
+        "log": ".sn/reference-receiver-validation-00.log"
+      },
+      {
+        "command": [
+          "python3",
+          "scripts/run_tests.py",
+          "all",
+          "--verbose",
+          "--no-cleanup",
+          "--parallel",
+          "8",
+          "--no-color"
+        ],
+        "status": 0,
+        "log": ".sn/reference-receiver-validation-01.log"
+      },
+      {
+        "command": [
+          "python3",
+          "scripts/run_rust_tests.py",
+          "all",
+          "--verbose",
+          "--no-cleanup",
+          "--parallel",
+          "8",
+          "--no-color",
+          "--fail-on-skip"
+        ],
+        "status": 1,
+        "log": ".sn/reference-receiver-validation-02.log"
+      }
+    ]
+  },
+  "native_source_sha256": {
+    "tests/rust-native/scalar_native_reference_row.sn.c": "7b66ec7038ea1e9981a1becd22cfeab237dcd82a05f0fe739bbf74332ef14b12",
+    "tests/rust-native/scalar_native_closure_owners.sn.c": "d7aad44913b28488f5491c72fb873f28efff91c41c79f2846b4754917fe0fd6c",
+    "tests/rust-native/scalar_native_nested_closure.sn.c": "47e8244d5a7471ca8c9dd590c7573bce976575bbb78b616caac01cc5db57ec09",
+    "tests/rust-native/scalar_native_temporary_closure.sn.c": "d7aad44913b28488f5491c72fb873f28efff91c41c79f2846b4754917fe0fd6c"
+  },
+  "production_c_changes": false,
+  "default_target": "C",
+  "hosted_acceptance": "pending for this increment; prerequisite3e6 all6 fullyverified",
+  "remaining": "Value-record receiver/array physical storage, structural interface storage/native ABI/empty identity, qualified signatures/rebinding/named array adapters, captured value-record methods and broader ownership/evaluation compositions."
+}

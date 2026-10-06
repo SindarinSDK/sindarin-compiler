@@ -1,0 +1,31 @@
+@source "scalar_native_nested_closure.sn.c"
+
+native struct Token as ref =>
+  id: int
+  @alias "token_dispose"
+  native fn dispose(): void
+  @alias "token_reversed"
+  native fn reversed(values: Token[]): int
+
+native fn token_create(id: int): Token
+native fn token_refs(value: Token): int
+native fn token_alive(): int
+native fn array_same(left: Token[], right: Token[]): bool
+
+fn exercise(): void =>
+  var first: Token = token_create(7)
+  var next: Token = token_create(30)
+  var values: Token[] = {first, next}
+  var nested: Token[][] = {values}
+  var check: fn(Token[][]): bool = fn(rows: Token[][]): bool =>
+    return array_same(rows[0], rows[0]) && token_refs(rows[0][0]) == 3
+  println(check(nested))
+  var reverse: fn(Token[][]): int = fn(rows: Token[][]): int =>
+    return rows[0][0].reversed(rows[0])
+  println(reverse(nested) == 73)
+  println(nested[0][0].id == 30 && nested[0][1].id == 7)
+  println(values[0].id == 7 && token_refs(first) == 3)
+
+fn main(): void =>
+  exercise()
+  println(token_alive() == 0)

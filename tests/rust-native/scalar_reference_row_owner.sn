@@ -1,0 +1,24 @@
+struct Item as ref =>
+  value: int
+
+  fn reversed(a: Item[]): int =>
+    a.reverse()
+    return self.value
+
+  fn removed(a: Item[]): int =>
+    a.remove(0)
+    self.value += 1
+    return self.value
+
+fn main(): void =>
+  var first: Item = { value: 7 }
+  var next: Item = { value: 30 }
+  var values: Item[] = {first, next}
+  var reverse: fn(Item[], Item[]): int = fn(rows: Item[], a: Item[]): int =>
+    return rows[0].reversed(a)
+  println(reverse(values, values) == 7)
+  println(values[0].value == 30 && values[1].value == 7)
+  var remove: fn(Item[], Item[]): int = fn(rows: Item[], a: Item[]): int =>
+    return rows[0].removed(a)
+  println(remove(values, values) == 31)
+  println(values.length == 1 && values[0].value == 7 && next.value == 31)

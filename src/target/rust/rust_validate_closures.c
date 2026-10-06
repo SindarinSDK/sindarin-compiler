@@ -57,6 +57,7 @@ static bool rust_closure_owned_type(json_object *type)
     if (!rust_type_supported(type)) return false;
     if (json_string_property_equals(type, "kind", "struct"))
         return rust_auto_copy_plain_value_struct_type(type, NULL) ||
+            json_boolean_property(type, "rust_native_reference_handle") ||
             json_boolean_property(rust_find_struct(rust_validation_model,
                 json_string_property(type, "name")), "rust_thread_reference_identity");
     if (json_string_property_equals(type, "kind", "array"))
@@ -67,8 +68,9 @@ static bool rust_closure_owned_type(json_object *type)
 static bool rust_closure_reference_record_type(json_object *type)
 {
     return json_string_property_equals(type, "kind", "struct") &&
-        json_boolean_property(rust_find_struct(rust_validation_model,
-            json_string_property(type, "name")), "rust_thread_reference_identity");
+        (json_boolean_property(type, "rust_native_reference_handle") ||
+         json_boolean_property(rust_find_struct(rust_validation_model,
+            json_string_property(type, "name")), "rust_thread_reference_identity"));
 }
 
 static void rust_closure_record_snapshot_type(json_object *type)

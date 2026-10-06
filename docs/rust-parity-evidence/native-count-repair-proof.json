@@ -1,0 +1,20 @@
+{
+  "base_revision": "67854e22fd62804c085efa961d2114355e6c7412",
+  "diagnosis": "Runtime CI job112162980639 at552de7 required107 fixtures but discovered115. Current67854 has123. All115 full native tests and parity gates in the failed Linux job passed; count guard was stale.",
+  "command": [
+    "python3",
+    "scripts/run_rust_tests.py",
+    "rust-native-extra",
+    "--verbose",
+    "--require-count",
+    "123",
+    "--fail-on-skip"
+  ],
+  "status": 0,
+  "passed": 123,
+  "failed": 0,
+  "skipped": 0,
+  "log_sha256": "50484405b9197166b2b7fe8761283cf05c3d3d11ccd0b7a984cc667844e8ecfa",
+  "compiler_sha256": "37a2b86310d46b62ef62fd7dc0c904be60eb90333b3da91ac185aab68a3df433",
+  "scope": "Workflow literal count+label only; unchanged backend/test inputs already passed58 local acceptance commands and51reports/4260 cases at67854. No unrelated integration until repaired main CI is green."
+}

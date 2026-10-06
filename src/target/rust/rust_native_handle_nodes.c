@@ -43,7 +43,9 @@ static void rust_prepare_native_handle_nodes(json_object *model, json_object *no
     for (size_t p = 0; params && p < json_object_array_length(params); p++)
     {
         json_object *param = json_object_array_get_idx(params, p);
-        if (rust_native_handle_type(rust_nullable_child(param, "type")) &&
+        if ((rust_native_handle_type(rust_nullable_child(param, "type")) ||
+             (json_boolean_property(node, "rust_native_handle_method") &&
+              json_boolean_property(rust_nullable_child(param, "type"), "rust_native_handle_array"))) &&
             json_string_property_equals(param, "mem_qual", "default"))
             json_object_object_add(param, "rust_native_handle_borrow_param", json_object_new_boolean(true));
     }
@@ -68,7 +70,7 @@ static void rust_prepare_native_handle_nodes(json_object *model, json_object *no
             json_object_object_add(arg, "rust_native_handle_untyped_array", json_object_new_boolean(true));
         }
         if ((rust_native_handle_type(rust_nullable_child(param, "type")) ||
-             (json_boolean_property(function, "rust_native_bridge") && json_boolean_property(rust_nullable_child(param, "type"), "rust_native_handle_array"))) &&
+             ((json_boolean_property(function, "rust_native_bridge") || json_boolean_property(function, "rust_native_handle_method")) && json_boolean_property(rust_nullable_child(param, "type"), "rust_native_handle_array"))) &&
             json_string_property_equals(param, "mem_qual", "default"))
             json_object_object_add(json_object_array_get_idx(args, p), "rust_native_handle_borrow_arg", json_object_new_boolean(true));
     }
@@ -119,6 +121,43 @@ static void rust_prepare_native_handle_nodes(json_object *model, json_object *no
     }
     json_object_object_foreach(node, key, child)
         if (strncmp(key, "rust_", 5) != 0) rust_prepare_native_handle_nodes(model, child);
+}
+
+/* A nested native handle/header read borrows the original closure array.
+ * Resolve indices before the guard and extract only the canonical pointer;
+ * copying a Vec of native headers would add observable C element retains. */
+static void rust_native_closure_array_place(json_object *model, json_object *node)
+{
+    if (!json_string_property_equals(node, "kind", "array_access")) return;
+    json_object *parent = NULL;
+    const char *key = NULL;
+    json_object *root = rust_array_join_place_root(node, &parent, &key);
+    if (!json_boolean_property(root, "rust_closure_array_parameter")) return;
+    json_object *place = NULL;
+    if (json_object_deep_copy(node, &place, NULL) != 0 || !place) return;
+    char guard[96];
+    if (!rust_allocate_helper_name(model, "__sn_native_closure_array_guard", guard, sizeof(guard)))
+    { json_object_put(place); return; }
+    json_object *actual_root = rust_array_join_place_root(place, &parent, &key);
+    json_object_object_add(actual_root, "rust_closure_array_store_guard", json_object_new_string(guard));
+    json_object *cursor = place;
+    while (cursor)
+    {
+        json_object_object_del(cursor, "rust_needs_clone");
+        json_object_object_del(cursor, "rust_native_handle_owned_read");
+        json_object_object_del(cursor, "rust_native_handle_borrow_snapshot");
+        if (json_string_property_equals(cursor, "kind", "array_access"))
+            cursor = rust_nullable_child(cursor, "array");
+        else if (json_string_property_equals(cursor, "kind", "member"))
+            cursor = rust_nullable_child(cursor, "object");
+        else break;
+    }
+    size_t next_index = 0;
+    if (!rust_assign_array_join_place_index_names(model, place, &next_index))
+    { json_object_put(place); return; }
+    json_object_object_add(node, "rust_native_closure_array_place", place);
+    json_object_object_add(node, "rust_native_closure_array_guard", json_object_new_string(guard));
+    json_object_object_add(node, "rust_native_closure_array_source", json_object_new_string(json_string_property(root, "name")));
 }
 
 static void rust_lower_native_handle_reads(json_object *model, json_object *node, bool borrow)
@@ -172,11 +211,13 @@ static void rust_lower_native_handle_reads(json_object *model, json_object *node
         json_object_object_add(node, "rust_native_array_iter_length", json_object_new_string(length));
         json_object_object_add(node, "rust_native_array_iter_index", json_object_new_string(index));
     }
+    if (read && (handle || json_boolean_property(rust_nullable_child(node, "type"), "rust_native_handle_array")))
+        rust_native_closure_array_place(model, node);
     json_object *left_type = rust_nullable_child(rust_nullable_child(node, "left"), "type");
     json_object *right_type = rust_nullable_child(rust_nullable_child(node, "right"), "type");
     json_object_object_foreach(node, key, child)
     {
-        if (strncmp(key, "rust_", 5) == 0) continue;
+        if (strncmp(key, "rust_", 5) == 0 && strcmp(key, "rust_closure_array_method_args") != 0) continue;
         bool child_borrow = false;
         if ((strcmp(key, "object") == 0 || strcmp(key, "receiver") == 0) ||
             (strcmp(key, "operand") == 0 && json_string_property_equals(node, "kind", "sizeof")))
@@ -250,6 +291,10 @@ static void rust_native_handle_extract_expression(json_object *model, json_objec
         json_object_object_add(read, "kind", json_object_new_string("variable"));
         json_object_object_add(read, "name", json_object_new_string(name));
         json_object_object_add(read, "type", json_object_get(type));
+        const char *borrow_flags[] = {"rust_closure_native_handle_arg", "rust_native_handle_borrow_arg", NULL};
+        for (size_t f = 0; borrow_flags[f]; f++)
+            if (json_boolean_property(value, borrow_flags[f]))
+                json_object_object_add(read, borrow_flags[f], json_object_new_boolean(true));
         if (i == 0) json_object_object_add(receiver_parent, "object", read);
         else json_object_array_put_idx(args, i - 1, read);
     }

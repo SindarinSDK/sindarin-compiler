@@ -1,0 +1,43 @@
+@source "scalar_native_closure_owners.sn.c"
+
+native struct Token as ref =>
+  id: int
+  @alias "token_dispose"
+  native fn dispose(): void
+
+native fn token_create(id: int): Token
+native fn token_refs(value: Token): int
+native fn token_alive(): int
+native fn array_same(left: Token[], right: Token[]): bool
+
+fn capture(values: Token[]): fn(): int =>
+  return fn(): int =>
+    return token_refs(values[0])
+
+fn exercise(): void =>
+  var value: Token = token_create(7)
+  var inspect: fn(Token): int = fn(item: Token): int =>
+    return token_refs(item)
+  println(inspect(value) == 1)
+  var identity: fn(Token): Token = fn(item: Token): Token =>
+    return item
+  var returned: Token = identity(value)
+  println(returned.id == 7 && token_refs(value) == 2)
+  var values: Token[] = {value}
+  var observe: fn(Token[]): int = fn(a: Token[]): int =>
+    return token_refs(a[0])
+  println(observe(values) == 3)
+  var copy: fn(Token[]): Token[] = fn(a: Token[]): Token[] =>
+    return a
+  var copied: Token[] = copy(values)
+  println(!array_same(values, copied) && token_refs(value) == 4)
+  copied.clear()
+  println(token_refs(value) == 3)
+  var snapshot: fn(): int = capture(values)
+  println(snapshot() == 4)
+  values.clear()
+  println(snapshot() == 3 && token_refs(value) == 3)
+
+fn main(): void =>
+  exercise()
+  println(token_alive() == 0)

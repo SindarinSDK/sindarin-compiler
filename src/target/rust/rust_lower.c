@@ -1592,6 +1592,22 @@ static bool rust_capture_array_join_place_owner(
     return true;
 }
 
+static void rust_reference_array_length_bindings(json_object *place, json_object *bindings)
+{
+    if (json_string_property_equals(place, "kind", "member"))
+        rust_reference_array_length_bindings(rust_closure_property(place, "object"), bindings);
+    else if (json_string_property_equals(place, "kind", "array_access"))
+    {
+        json_object *array = rust_closure_property(place, "array");
+        rust_reference_array_length_bindings(array, bindings);
+        json_object *binding = json_object_new_object();
+        json_object_object_add(binding, "array", json_object_get(array));
+        json_object_object_add(binding, "index_name", json_object_get(rust_closure_property(place, "rust_array_join_index_name")));
+        json_object_object_add(binding, "raw_name", json_object_get(rust_closure_property(place, "rust_array_join_raw_index_name")));
+        json_object_array_add(bindings, binding);
+    }
+}
+
 static bool rust_assign_array_join_index_names(
     json_object *model, json_object *node, size_t *next_id,
     size_t *next_owner_id)
@@ -1646,7 +1662,31 @@ static bool rust_assign_array_join_index_names(
         json_object_object_add(root, "rust_closure_array_store_guard", json_object_get(rust_closure_property(node, "rust_closure_array_method_guard")));
         json_object_object_del(actual, "rust_needs_clone");
         json_object_object_add(node, "rust_closure_array_method_place", json_object_get(receiver));
-        json_object_object_add(callee, "object", actual);
+        const char *reference_receiver = json_string_property(node, "rust_closure_array_reference_receiver");
+        if (reference_receiver)
+        {
+            /* C loads a reference-record handle before entering its method.
+             * Borrow that handle without a retain; a moved/removed array slot
+             * does not redirect the receiver to a different heap object. */
+            json_object *cursor = actual;
+            while (cursor)
+            {
+                json_object_object_del(cursor, "rust_needs_clone");
+                if (json_string_property_equals(cursor, "kind", "array_access")) cursor = rust_closure_property(cursor, "array");
+                else if (json_string_property_equals(cursor, "kind", "member")) cursor = rust_closure_property(cursor, "object");
+                else break;
+            }
+            json_object *lengths = json_object_new_array();
+            rust_reference_array_length_bindings(actual, lengths);
+            json_object_object_add(node, "rust_closure_array_reference_lengths", lengths);
+            json_object_object_add(node, "rust_closure_array_reference_place", actual);
+            json_object *ref = json_object_new_object();
+            json_object_object_add(ref, "kind", json_object_new_string("variable"));
+            json_object_object_add(ref, "name", json_object_new_string(reference_receiver));
+            json_object_object_add(ref, "type", json_object_get(rust_closure_property(receiver, "type")));
+            json_object_object_add(callee, "object", ref);
+        }
+        else json_object_object_add(callee, "object", actual);
         json_object_object_add(node, "rust_indexed_method_stable_place", json_object_new_boolean(false));
     }
     return true;

@@ -42,6 +42,14 @@ Its 72 comparisons and 24 lifetime controls are recorded in the ledger. Snapshot
 value-record method captures and broader receiver/ownership composition remain
 required work; exact-revision hosted acceptance is tracked independently.
 
+The subsequent reference-receiver increment borrows the selected reference
+handle before method entry without retaining it, allowing its array to reverse
+or remove slots while the original object remains alive. Native closure object
+parameters borrow, native array reads preserve the original C header, and copied
+returns/escaping captures retain independent owners. The ledger records 45
+all-mode comparisons, 15 lifetime controls and exact count-checked acceptance.
+Value-record physical receivers and interface storage/native ABI remain work.
+
 The 2026-10-03 float/double increment adds conversions at tested scalar storage,
 call and return boundaries and mixed floating compound mutation, including
 observable synchronized cells. Historical same-type-only exclusions below are

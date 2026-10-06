@@ -1117,3 +1117,15 @@ test-rust-parity-method-aliases: build
 		--require-count 8 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-method-aliases.json
 	@$(PYTHON) scripts/check_rust_method_alias_oracles.py .sn/rust-parity-method-aliases.json
+
+.PHONY: test-rust-parity-reference-receivers
+test-rust-parity-reference-receivers: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/rust-native/scalar_reference_row_owner.sn \
+		tests/rust-native/scalar_native_reference_row.sn \
+		tests/rust-native/scalar_native_closure_owners.sn \
+		tests/rust-native/scalar_native_nested_closure.sn \
+		tests/rust-native/scalar_native_temporary_closure.sn \
+		--require-count 5 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-reference-receivers.json
+	@$(PYTHON) scripts/check_rust_reference_receiver_oracles.py .sn/rust-parity-reference-receivers.json

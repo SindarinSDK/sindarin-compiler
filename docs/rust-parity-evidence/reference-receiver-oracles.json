@@ -1,0 +1,51 @@
+{
+  "sources": [
+    {
+      "source": "tests/rust-native/scalar_reference_row_owner.sn",
+      "sha256": "573d5c37ae5ac3b914b7d1b996b1ea24060cbc92112a23cffcb9f055ec1f9b8f",
+      "stdout_hex": "747275650a747275650a747275650a747275650a",
+      "expected_sidecar_sha256": "a8c8704687490f20e1992b9d6a9578237617ebd0894ee14f5682acea27e3845a"
+    },
+    {
+      "source": "tests/rust-native/scalar_native_reference_row.sn",
+      "sha256": "5a5d492c20d3c68577fed75f846f5517764a054ae473df0a7f4567c2d4696802",
+      "stdout_hex": "747275650a747275650a747275650a747275650a747275650a",
+      "expected_sidecar_sha256": "8d7664d3d1b2f334e2730a879a8abac018d4b3b4ea4c07b4363bef33452e7ec2"
+    },
+    {
+      "source": "tests/rust-native/scalar_native_closure_owners.sn",
+      "sha256": "3063f2655babe47d28d0d8104d138fec850c484a988b91f78d7df68ddda96bad",
+      "stdout_hex": "747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a",
+      "expected_sidecar_sha256": "9c674a3e3f3d5d9cb2633c4779bc92585d1b8fe4d501d90166c09acd5f183dc4"
+    },
+    {
+      "source": "tests/rust-native/scalar_native_nested_closure.sn",
+      "sha256": "2b30240653bcfe32c54f7108230bbf0f16fbecc1742fb4d84f3799ae17b549c2",
+      "stdout_hex": "747275650a747275650a747275650a747275650a747275650a",
+      "expected_sidecar_sha256": "8d7664d3d1b2f334e2730a879a8abac018d4b3b4ea4c07b4363bef33452e7ec2"
+    },
+    {
+      "source": "tests/rust-native/scalar_native_temporary_closure.sn",
+      "sha256": "a476e1e59bf1f99049c3073b4d77694a5c852cb8ef6e84428c6a007c1e81760e",
+      "stdout_hex": "747275650a747275650a747275650a747275650a747275650a",
+      "expected_sidecar_sha256": "8d7664d3d1b2f334e2730a879a8abac018d4b3b4ea4c07b4363bef33452e7ec2"
+    }
+  ],
+  "native_helpers": {
+    "tests/rust-native/scalar_native_reference_row.sn.c": "7b66ec7038ea1e9981a1becd22cfeab237dcd82a05f0fe739bbf74332ef14b12",
+    "tests/rust-native/scalar_native_closure_owners.sn.c": "d7aad44913b28488f5491c72fb873f28efff91c41c79f2846b4754917fe0fd6c",
+    "tests/rust-native/scalar_native_nested_closure.sn.c": "47e8244d5a7471ca8c9dd590c7573bce976575bbb78b616caac01cc5db57ec09",
+    "tests/rust-native/scalar_native_temporary_closure.sn.c": "d7aad44913b28488f5491c72fb873f28efff91c41c79f2846b4754917fe0fd6c"
+  },
+  "optimizations": [
+    "-O0",
+    "-O1",
+    "-O2"
+  ],
+  "arithmetic_modes": [
+    "default",
+    "checked",
+    "unchecked"
+  ],
+  "scope": "Borrowed reference-record receivers, native object/header ownership, nested reads, returns/copies, escaping snapshots and lifted constructor temporaries."
+}

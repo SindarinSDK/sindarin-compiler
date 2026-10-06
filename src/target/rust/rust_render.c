@@ -104,6 +104,14 @@ static char *rust_closure_parameter_type(json_object *type)
 {
     char *value = rust_type(type);
     const char *kind = json_kind(type);
+    json_object *native_handle = NULL;
+    if (value && json_object_object_get_ex(type, "rust_native_reference_handle", &native_handle) && json_object_get_boolean(native_handle))
+    {
+        char *borrowed = malloc(strlen(value) + 2);
+        if (borrowed) sprintf(borrowed, "&%s", value);
+        free(value);
+        return borrowed;
+    }
     if (!value || !kind || strcmp(kind, "array") != 0) return value;
     char *result = malloc(strlen(value) + sizeof("std::rc::Rc<std::cell::RefCell<&mut >>"));
     if (result) sprintf(result, "std::rc::Rc<std::cell::RefCell<&mut %s>>", value);

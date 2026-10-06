@@ -143,6 +143,13 @@ static void rust_lower_closure_array_arguments(json_object *model, json_object *
         if (!rust_allocate_helper_name(model, "__sn_closure_array_method_guard", guard, sizeof(guard))) return;
         char result[96];
         if (!rust_allocate_helper_name(model, "__sn_closure_array_method_result", result, sizeof(result))) return;
+        if (json_boolean_property(type, "pass_self_by_ref"))
+        {
+            char receiver_name[96];
+            if (!rust_allocate_helper_name(model, "__sn_closure_array_reference_receiver", receiver_name, sizeof(receiver_name))) return;
+            json_object_object_add(node, "rust_closure_array_reference_receiver",
+                                   json_object_new_string(receiver_name));
+        }
         json_object_object_add(node, "rust_closure_array_method_result", json_object_new_string(result));
         json_object_object_add(node, "rust_closure_array_method_guard", json_object_new_string(guard));
         json_object_object_add(node, "rust_closure_array_method_source", json_object_new_string(json_string_property(root, "name")));
@@ -169,6 +176,9 @@ static void rust_lower_closure_array_arguments(json_object *model, json_object *
                                        json_object_new_boolean(true));
                 json_object_object_add(ref, "rust_default_array_ref_arg",
                                        json_object_new_boolean(true));
+                if (json_boolean_property(arg, "rust_native_handle_borrow_arg"))
+                    json_object_object_add(ref, "rust_native_handle_borrow_arg",
+                                           json_object_new_boolean(true));
                 json_object_object_add(ref, "rust_closure_array_method_cell_source",
                                        json_object_new_string(json_string_property(arg, "name")));
             }
@@ -183,6 +193,12 @@ static void rust_lower_closure_array_arguments(json_object *model, json_object *
     {
         json_object *arg = json_object_array_get_idx(args, i), *type = NULL;
         json_object_object_get_ex(arg, "type", &type);
+        if (json_boolean_property(type, "rust_native_reference_handle"))
+        {
+            json_object_object_add(arg, "rust_closure_native_handle_arg", json_object_new_boolean(true));
+            json_object_object_add(arg, "rust_native_handle_borrow_arg", json_object_new_boolean(true));
+            json_object_object_del(arg, "rust_closure_arg_clone");
+        }
         if (!json_string_property_equals(type, "kind", "array")) continue;
         json_object_object_add(node, "rust_closure_array_call", json_object_new_boolean(true));
         if (json_boolean_property(arg, "rust_closure_array_parameter")) continue;
