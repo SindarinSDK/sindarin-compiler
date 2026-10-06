@@ -1,0 +1,12 @@
+native fn update(a: int as ref, b: int as ref): int =>
+  a += 2
+  b *= 3
+  return a
+fn main(): void =>
+  var value: int = 1
+  var other: int = 2
+  var same = fn(): int => update(value, value)
+  var distinct = fn(): int => update(value, other)
+  println(same() == 9 && same() == 9)
+  println(distinct() == 3 && distinct() == 3)
+  println(value == 1 && other == 2)

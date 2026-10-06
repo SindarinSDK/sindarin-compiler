@@ -579,8 +579,16 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
                 json_object_object_add(node, "rust_array_snapshot_cell", json_object_new_boolean(true));
             if (json_string_property_equals(b->declaration, "rust_capture_mode", "self"))
                 json_object_object_add(node, "rust_self_read", json_object_new_boolean(true));
+            if (b->capture && json_boolean_property(node, "is_ref_arg") &&
+                json_boolean_property(b->declaration, "rust_scalar_snapshot"))
+            {
+                json_object_object_add(b->declaration, "rust_mutable_snapshot", json_object_new_boolean(true));
+                json_object_object_del(node, "rust_needs_clone");
+                json_object_object_add(node, "rust_capture_mutation_place", json_object_new_boolean(true));
+            }
             if ((b->capture || json_boolean_property(b->declaration, "rust_shared_cell")) &&
                 json_boolean_property(node, "is_ref_arg") && !json_boolean_property(node, "rust_thread_ref_owner") &&
+                !json_boolean_property(b->declaration, "rust_mutable_snapshot") &&
                 !json_boolean_property(b->declaration, "rust_mutable_owned_snapshot") &&
                 !json_boolean_property(b->declaration, "rust_reference_record_capture") &&
                 !json_boolean_property(b->declaration, "rust_closure_scalar_reference"))
@@ -653,6 +661,7 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
     {
         RustClosureBinding *borrowed = rust_closure_place(scope, node);
         if (borrowed && borrowed->capture &&
+            !json_boolean_property(borrowed->declaration, "rust_mutable_snapshot") &&
             !json_boolean_property(borrowed->declaration, "rust_mutable_owned_snapshot") &&
             !json_boolean_property(borrowed->declaration, "rust_reference_record_capture"))
             return rust_closure_error("mutable access to snapshot closure captures");

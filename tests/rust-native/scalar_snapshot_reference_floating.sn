@@ -1,0 +1,9 @@
+fn update(value: double as ref): void =>
+  value += 0.5
+fn main(): void =>
+  var value: double = 1.25
+  var change = fn(): double =>
+    update(value)
+    return value
+  println(change() == 1.75 && change() == 1.75)
+  println(value == 1.25)

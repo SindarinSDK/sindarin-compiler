@@ -124,6 +124,14 @@ Existing byte object views are preserved; two missing-symbol negative fixtures
 are reclassified without executable parity credit. Complete hosted acceptance
 and the remaining interop/storage/lifetime requirements still prevent completion.
 
+The prepared scalar snapshot reference increment supports per-invocation local
+mutation through ordinary/native/closure reference calls with real aliases and
+caller preservation. All 81 frozen combined commands pass, 62 reports / 5475 cases,
+11 new controls plus one source-identical promotion and 36 sanitizer runs. It is
+validated against `aea96d33`; full exact-revision platform acceptance remains
+required after publication. Capture scope repair and remaining interop/storage/lifetime work
+still prevent completion.
+
 The 2026-10-03 float/double increment adds conversions at tested scalar storage,
 call and return boundaries and mixed floating compound mutation, including
 observable synchronized cells. Historical same-type-only exclusions below are

@@ -1,0 +1,12 @@
+fn update(a: char as ref, b: char as ref): char =>
+  a = 'B'
+  b = 'C'
+  return a
+fn main(): void =>
+  var value: char = 'A'
+  var other: char = 'Z'
+  var same = fn(): char => update(value, value)
+  var distinct = fn(): char => update(value, other)
+  println(same() == 'C' && same() == 'C')
+  println(distinct() == 'B' && distinct() == 'B')
+  println(value == 'A' && other == 'Z')

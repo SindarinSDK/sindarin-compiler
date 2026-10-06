@@ -1,0 +1,9 @@
+fn update(value: bool as ref): void =>
+  value = !value
+fn main(): void =>
+  var value: bool = true
+  var change = fn(): bool =>
+    update(value)
+    return value
+  println(!change() && !change())
+  println(value)

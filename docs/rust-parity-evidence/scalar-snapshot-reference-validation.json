@@ -1,0 +1,1212 @@
+{
+  "base_revision": "aea96d33cfa43bb3423b8557e68be39d0861eb8a",
+  "compiler_sha256": "0453fb7101f70f06eebdbebe7b018a8167d747e9a20ffdbfce80b04c92f60eed",
+  "frozen_inputs": 6820,
+  "frozen_manifest_sha256": "046fb5d1f27321656c1f6d20eefda65f18ea635b3dd937dfcff37b24d420afa5",
+  "commands": [
+    {
+      "command": [
+        "python3",
+        "scripts/run_rust_tests.py",
+        "rust-native-extra",
+        "--verbose",
+        "--no-cleanup",
+        "--parallel",
+        "8",
+        "--no-color",
+        "--require-count",
+        "245",
+        "--fail-on-skip"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-00.log",
+      "log_sha256": "d5b457c4b731c55ab048fbd63a1f7fad278a6e98f3f29ac0ca4abe8a155826e2"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/run_tests.py",
+        "all",
+        "--verbose",
+        "--no-cleanup",
+        "--parallel",
+        "8",
+        "--no-color"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-01.log",
+      "log_sha256": "3b464b617f5a5633f1f31b9c4b500eb762202fcf9487e01bd30db8c548c583aa"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/run_rust_tests.py",
+        "all",
+        "--verbose",
+        "--no-cleanup",
+        "--parallel",
+        "8",
+        "--no-color",
+        "--fail-on-skip"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-02.log",
+      "log_sha256": "fa528278ccbc6f53ec128c44ce8b3ce9930c8bd15dff6b3206ffb1e8829407cf"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-core"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-03.log",
+      "log_sha256": "b06ff2bbfb1c41ac3605172ef9f8cceb20a0d72161a9b0d074178346bcd25263"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-concurrency"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-04.log",
+      "log_sha256": "8466e75e0d58540e6047549f09bf944f47ee8cbaba0cebce34996ba333ef35c2"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-sized-defaults"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-08.log",
+      "log_sha256": "250286fa9bb6c9b996e0b183a9d3a3b64d9b2e1b4cc8b47fc5a08e92846fe1d8"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-reflection"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-07.log",
+      "log_sha256": "2e40a7c0b400b13b73552373be9a78475c9b1971ce81ab43d784fd7bf3b90810"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-thread-receivers"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-06.log",
+      "log_sha256": "ac5380e693a2e49c7455d8a83f6f89d1085daa5895ec234565844e67dfb788c6"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-stdio-order"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-10.log",
+      "log_sha256": "8e9474684b30b31363506b26a704a638e501d568e6087c2f05d8f9cc48d92a22"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-managed"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-09.log",
+      "log_sha256": "556778a47c42c9b02bbc1aef90238f8438440950783672caacb5f55b51252c5f"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-mixed-integral"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-11.log",
+      "log_sha256": "ad78cd83dd673b2bfb4a8559ead5a1c7aa32b846df1f2c38d67379582c492efa"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-float-conversions"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-12.log",
+      "log_sha256": "e52441108dd1aa60febab3750edb7b2cd5b37c2825e609b4edd892a34ae33f30"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-floating-arrays"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-13.log",
+      "log_sha256": "a5587fa2ee3afc1a77ff315a94850325684e3aa063d935fb1348635eaebfabec"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-thread-ownership"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-05.log",
+      "log_sha256": "de116f8d13432bb22aaaa78d734ee32181a659f8add6a47f85e6b22d0ccc38f3"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-capture-index"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-16.log",
+      "log_sha256": "6b6b4adc512338a0d9ef9967215c88e77917dbcbb00bcd3ed742af3a8fc0d16c"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-sync-character"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-17.log",
+      "log_sha256": "89093a27271347f817b860c190ea313af77f0d7e8d0ad30fcfaed1333d68e9d6"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-floating-equality"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-14.log",
+      "log_sha256": "7187f4269b6f86753ac0b8178c56fcaeccb5a1171fae908b2ed48621168d261f"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-numeric-places"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-15.log",
+      "log_sha256": "238eab067b4feb93073624782aeb3510ed4aa55ed474713e963096371e3f5935"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-ctype"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-18.log",
+      "log_sha256": "d0a4f7d4e1b7e9877d2a03033593fe7184ea845084a8f473f6b10c05e151ff44"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-byte-encoding"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-19.log",
+      "log_sha256": "9506cd38f84da9fd182ee9c6bcda3322323ea0b195df2b3750c68b6a63bd5a7b"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-exit"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-20.log",
+      "log_sha256": "39bb4ba7be1ddc50631a1149747c45a0fd4a595b89f98ded241c6e037869aca8"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-main-return"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-21.log",
+      "log_sha256": "18c10b530595f27f9fb77c1377890e0d2fa25ecd5f0c3a58e79e98c1b546edaf"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-indexed-string"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-25.log",
+      "log_sha256": "39102823701d5164379e4881919dde8b7e88bc242e16bb0ba3a3d913ac269075"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-match-control"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-22.log",
+      "log_sha256": "38f3ed4e30db64cc5fe0f0562c4f107718f26d70519abcea25f17ea6a826b54c"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-call-reference"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-24.log",
+      "log_sha256": "51495dce7216137743fbdd2cd0200d59623e398a74ac7a655fb76174a24bd4a3"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-scope"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-26.log",
+      "log_sha256": "a2d27572c86ad27a591a1d33deeecfa53871d3c6a4bae5105393574b0cfcae12"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-records"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-27.log",
+      "log_sha256": "e08036899e062f4388b6dfd4fb4d8272ddbf9652b0d66a7e5d20a88e31c16844"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-nil-string"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-28.log",
+      "log_sha256": "7dba8896e56c7cc3758ccbe52dc9c7c8b9f5ee03bca8b3829978f9f6f6b0d4ca"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-sizeof"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-23.log",
+      "log_sha256": "a834736480b454e432ed1be7f9a1fb91bbbab1446b7504904ccb6c4c3bc364d8"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-nested-stores"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-30.log",
+      "log_sha256": "7e482bfe06e18c6998bab29e213348c643b8b236c2c4924afc62ee29994c9124"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-nil-array"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-29.log",
+      "log_sha256": "e31f57e77c18845ba3c0bc1a82ccf49349d67ed1673f9e5a65297e9c25fa22f2"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-owned-array-copies"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-31.log",
+      "log_sha256": "deed890a861646309f4709c99669ff67e4ce6095ff296d6ab699c8cd82488005"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-record-references"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-33.log",
+      "log_sha256": "1c52a45936d520712915aa2649fb41d1a0235f7e158f9c23c39ed242df3350be"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-managed-records"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-32.log",
+      "log_sha256": "88ee8d095f1f3725e5ce8f93ef3d09f4d1b370ae5b6ad6bcb68d7d9385f79b32"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-scalar-parameters"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-36.log",
+      "log_sha256": "bda67df48cbe0f3afd212931d06757e07daa059648e8e7ce0a8c5c45ef831d98"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-reference-records"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-35.log",
+      "log_sha256": "458537fbb684d3275fb38ffdde1da90a553a9e9cf59c12f41e45dd682412d01c"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-closure-records"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-37.log",
+      "log_sha256": "ee2e859a624b3b43a5d0ad0b48fb190239ab2d43d2dedfb389c36af579dea9ab"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-arrays"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-39.log",
+      "log_sha256": "13e34d0a1b06cca3e30167c557b0c209c6c84741c0b1c880c4936a71848e3734"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-owned-record-parameters"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-34.log",
+      "log_sha256": "6a0f902b80b4f981e29cb30626afddad5e70925a51e50bc830a40460c567defe"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-callables"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-41.log",
+      "log_sha256": "1ea80ccaa08b5aef1cd3dc797a666f54e3aec954929753582894bc3a9bfbcc1c"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-globals"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-40.log",
+      "log_sha256": "43639402029301af76c373c85cef545a7b6e91326e3eb9e11c6869b25d717bc2"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-handles"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-38.log",
+      "log_sha256": "4a7d98624bb4c009fd6ce61bd8f28e2716ab5418e04e9b0dca7b0eb9aaed9ad7"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-pointer-slices"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-44.log",
+      "log_sha256": "a5ded92a160d892cc035fb03274e7536adc92b805a01da66f7511cfba88c2d55"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-variadics"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-42.log",
+      "log_sha256": "008b837d5fc20b5770b424d06c153a5cb926d1216ade95ee81c4931616459381"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-array-values"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-45.log",
+      "log_sha256": "d21850fcbaa59fa4b857182982b29042a471bc1f567b2be78034935cc7836bf9"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-zero-record-defaults"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-46.log",
+      "log_sha256": "8df54bea5776623d1efb1b69cede0c3144eff998652b60928859a2f25a816412"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-array-returns"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-48.log",
+      "log_sha256": "5f6125201060791a24db8f341034aae4ec54c8f4c9bf09ccaf34cb9fc424088b"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-managed-iterators"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-47.log",
+      "log_sha256": "12c84abcb21377ae4f544453f1f190c32acadce12470175841b53394082a9893"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-array-methods"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-50.log",
+      "log_sha256": "139d34f0f94e4413c4a4d434a4c3a2815748406d3ee636d6a34ba8987d81ba53"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-closure-arrays"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-49.log",
+      "log_sha256": "56dbd888acab427ab81e4cf49aa1417c8c7ae3af7c144353518cf0af7c29a1e3"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-reference-receivers"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-53.log",
+      "log_sha256": "a8732442dcc4902356ee4b461b4997aefd9ab1a48354fc3863c8c5eee7f25d41"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-method-aliases"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-52.log",
+      "log_sha256": "90767ad966d9c392eb40f996b1c4698422ccdaeb3696f39d75ba26d0389ef58a"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-serialization"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-43.log",
+      "log_sha256": "d60034e341f80a1609ea8534109926306a8b27f2236e786dee0da57dbf821f28"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-captured-methods"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-54.log",
+      "log_sha256": "f89ef1db2c794ed5f92e02ee554bf409046e57ccaf3b0b3766024c1cd98a898d"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-qualified-arrays"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-55.log",
+      "log_sha256": "c8563df8c3089a0e6dbe4761ac209b7bd0b10fb5a8ab042d94f7b35ef0ad1cb6"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-array-alias-partitions"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-51.log",
+      "log_sha256": "8c0b26517f835c5cee3808f94471555b9122370f19ebb27a41959a8565902478"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-closure-value-parameters"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-57.log",
+      "log_sha256": "e5e85d6b03f3521bcb65996d009822e2774fe6a065303c444e9f9cdb08117e86"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-array-rebinding"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-59.log",
+      "log_sha256": "1d2a236149cffddb66af97a0d4324eebe66b4444081b465bce8eac5552202b13"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-owned-record-parameters-closures"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-58.log",
+      "log_sha256": "ac0f3bbd0612c8995671554d694a6c7e4169633a589848db52669330a86872f1"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-string-rebinding"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-60.log",
+      "log_sha256": "7cde0228935c8e3179a06b3f66f0286d2abdc2728a598cc2f416371422b02250"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-closure-references"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-56.log",
+      "log_sha256": "3665e54d215bd3f35115a492f68a68e7d9aaa362bac0b222bc9a7de68f25a0e2"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_array_return_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-64.log",
+      "log_sha256": "d3a66abe0c1ee021f84278793969e6dc9a22adb12a2f841a91cc995117d9a218"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_iterator_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-65.log",
+      "log_sha256": "ee1a3d068f943235fc3ae5cdc37f90867b7080713e97f6020db020b56104ea58"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_closure_array_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-66.log",
+      "log_sha256": "56727a478387d49041fdb03e3851403a63cc5d04748f20f85c89e53720fe8444"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_array_method_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-67.log",
+      "log_sha256": "9e7b2ec8dcc38cef023e5c66b0bc1e1bc14f6608f8379d17e54eb3bc279f6faa"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-scalar-snapshot-references"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-63.log",
+      "log_sha256": "8f57ace702a798f193cea584adeafdfda3af34cd8ea592cfeec99d6145bfdf31"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_array_alias_partition_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-68.log",
+      "log_sha256": "3bc0fe71d2f1698ffb917b93ee29848066f3b79e71155d747559595744a78f3f"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_method_alias_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-69.log",
+      "log_sha256": "8ff711099cdbe4e6676853c5b515c085f6a0ae364ce7ffb96a186b1481776c52"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_reference_receiver_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-70.log",
+      "log_sha256": "ddf5a57b32bb2ffaecfd1a67f0c4b376455fd0546c1420d8940d74eb50b1ea6c"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_captured_method_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-71.log",
+      "log_sha256": "37093685753efd60390768224029b289e252478885817bb5b563205e45ebca6e"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_qualified_array_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-72.log",
+      "log_sha256": "69955a4f9c39f50a300435e42d178bf2bdb0fa9d53fa2075be604da7339d3c9d"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-private-arrays"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-61.log",
+      "log_sha256": "44208ba69eb10c05ad43db1b30e553388aa27b394bfd71a31b657af8f600558c"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_closure_value_parameter_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-74.log",
+      "log_sha256": "b5e50040d1759c51bdeceef49b4835f38aa568d1dad15c9534ce17a8804641fb"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-primitive-arrays"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-62.log",
+      "log_sha256": "9646e1ac30f3fd24e1ebac60de841d69879c34cf709fe281130e04642cc6ddf4"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_owned_record_parameter_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-75.log",
+      "log_sha256": "55f6e010106cde27ba06f8feb4c3673a05bbeab4e84538fc881caf59df6b7866"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_scalar_snapshot_reference_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-76.log",
+      "log_sha256": "edaf7df5f324cca7000de3dfdfc1ce938a4a4e31ab0f42752c896cdd84f0a3dc"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_closure_reference_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-73.log",
+      "log_sha256": "c47f455db32cabbac384df0b7c1b3501e6402430f920e17ef50d10882b1a4bba"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_string_rebinding_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-78.log",
+      "log_sha256": "40502bee6a2d04dc378e877eb7eb7479a130b12464f8e123a8638eed61faf7ba"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_array_rebinding_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-77.log",
+      "log_sha256": "811fba7ff61287f99741bd5b8cacae2b50ebfb008d9c8487990b1b64ce4a06d0"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_native_primitive_array_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-80.log",
+      "log_sha256": "021fa4162403e6ddae506e141b7cab0dc61ddae6ded04e9608b1e065dbdc7b34"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_private_array_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/scalar-snapshot-validation-79.log",
+      "log_sha256": "77aa4034596567f6a591bb59f49638cf10f77175e488e479c7ef4a38bc6bf487"
+    }
+  ],
+  "reports": [
+    {
+      "name": "core",
+      "cases": 30,
+      "report_sha256": "f392ae28cbfec1d412136c5b3ddb10c0b4c1d2d5723625776362d862a6aa9cce"
+    },
+    {
+      "name": "concurrency",
+      "cases": 51,
+      "report_sha256": "90ee93c2692109912c8b722e0093d26bf45757b80aaab362790afd43111abc84"
+    },
+    {
+      "name": "thread-ownership",
+      "cases": 207,
+      "report_sha256": "56d45d34df379ac5d9b50d611f99582ec5261059c837052653d1d20b2fca5fcb"
+    },
+    {
+      "name": "thread-receivers",
+      "cases": 90,
+      "report_sha256": "9145622fe9fe0df31bbae41a68a32f2c0c3ab5331019d334684624475c290132"
+    },
+    {
+      "name": "reflection",
+      "cases": 36,
+      "report_sha256": "0868852847aebd7f71df905e83512f74424ea384b76db0c97151d4ee2dc2ffab"
+    },
+    {
+      "name": "sized-defaults",
+      "cases": 27,
+      "report_sha256": "5f4eee8485a8dc61372d31fb026f43395f7bf9e1d5587f85d8b5d90f07df8f67"
+    },
+    {
+      "name": "native-managed",
+      "cases": 63,
+      "report_sha256": "bb294a30e4cfebaf5df159c27ed681f92a3d20e978f69ffec8ce2c1767046dbc"
+    },
+    {
+      "name": "stdio-order",
+      "cases": 30,
+      "report_sha256": "a6acace90147ef31f2d9917d3507061289626b145d6cc5865e5cc8b8b4a24453"
+    },
+    {
+      "name": "mixed-integral",
+      "cases": 90,
+      "report_sha256": "1e7bfdda71bc2a3d8b60199be06df085b7c461daf716202e38e5d24314ca0b5c"
+    },
+    {
+      "name": "mixed-integral-diagnostics",
+      "cases": 9,
+      "report_sha256": "7fe4ad140927ec6b2b514df4924af612f92e30887915b3d8991bfdabc374dce4"
+    },
+    {
+      "name": "float-conversions",
+      "cases": 117,
+      "report_sha256": "24d4865099eede8603c0e554b43566a6d4119062efd3a336e5bb102cf369c102"
+    },
+    {
+      "name": "floating-arrays",
+      "cases": 81,
+      "report_sha256": "747c8169b25c1f74b48b17aa5d84a790fa403a8819983c341d665ef83d69414c"
+    },
+    {
+      "name": "floating-equality",
+      "cases": 36,
+      "report_sha256": "484b78470ef047a08be8d4e26862b85beede14668572ca7a0d26492cfe48d30a"
+    },
+    {
+      "name": "numeric-places",
+      "cases": 153,
+      "report_sha256": "2f7006209b6027d616b1859eb9a21ac8f8012af9ec4ac2388e844f66d3664684"
+    },
+    {
+      "name": "capture-index",
+      "cases": 45,
+      "report_sha256": "f92c57cfa3a4b929f617f012035c1f2abf82e9bee93ed0fa85af91c6393a1ff2"
+    },
+    {
+      "name": "sync-character",
+      "cases": 45,
+      "report_sha256": "731adc45a96bc183610b9ff93903d47fbd016596c2c81cfec8e6490d02c77337"
+    },
+    {
+      "name": "ctype",
+      "cases": 72,
+      "report_sha256": "16f47a35d7af4dab79284b9ebd65e692afae6ba2e256bcac14449b7771233e98"
+    },
+    {
+      "name": "byte-encoding",
+      "cases": 81,
+      "report_sha256": "5e5ea198617f872389d35318f1fa0023674a05beb7e8ca49f1ff1bf140a3e07a"
+    },
+    {
+      "name": "exit",
+      "cases": 153,
+      "report_sha256": "a1475c9d9d04d2baffdccbfa09db6c02f8a5e7abe14232fb8774238c1dcf730b"
+    },
+    {
+      "name": "main-return",
+      "cases": 108,
+      "report_sha256": "14ed44666d97444cb3ebf9db615a41ec859dfc4f5cca1fead8cb91d2cd4a31d6"
+    },
+    {
+      "name": "match-control",
+      "cases": 180,
+      "report_sha256": "4fd42c493629f8154cd9bf335c78a19e9da30e263773c429f88ffc6f986a754b"
+    },
+    {
+      "name": "sizeof",
+      "cases": 216,
+      "report_sha256": "701435d39a4079f39f398eb321a56c07864138ddf11815d77c60eab09349256d"
+    },
+    {
+      "name": "call-reference",
+      "cases": 126,
+      "report_sha256": "5256e034b3835b6c8b38b76373ec585b4d4a368fdd778609722bb31958da4533"
+    },
+    {
+      "name": "indexed-string",
+      "cases": 54,
+      "report_sha256": "8f7531ff6e73da68353cb8382fbecff6d1da84918c37479a3f4feda04110a687"
+    },
+    {
+      "name": "native-scope",
+      "cases": 36,
+      "report_sha256": "bc33da431624775c9532051d7197d9bf2422aab2b16124d93ce8b81df09cfd14"
+    },
+    {
+      "name": "nil-string",
+      "cases": 72,
+      "report_sha256": "99f2719e66b889b22f1940995498ac9b9cf7cbce6c539bb1857f8e394fabdc1e"
+    },
+    {
+      "name": "nil-array",
+      "cases": 90,
+      "report_sha256": "15f3887910740c5c0daca815b25c31ac82b2e44441ef25af0f398c434ea52607"
+    },
+    {
+      "name": "nested-stores",
+      "cases": 45,
+      "report_sha256": "d2981b5fd401389527365161ef5a47bd78eb4d60a28cb22b9cd5ab98fcac58ae"
+    },
+    {
+      "name": "owned-array-copies",
+      "cases": 45,
+      "report_sha256": "18bd8bb64a861a67f661b0721485a70c8d68a9e0202fba669563038654dd24c7"
+    },
+    {
+      "name": "native-records",
+      "cases": 45,
+      "report_sha256": "426f92ea4d1504ef6aa90c2fe079f5a7b449819623f6aa93d59dd0b6500acc97"
+    },
+    {
+      "name": "native-record-references",
+      "cases": 36,
+      "report_sha256": "bf4ab664bb8fcf3167e59ef195bfe3349b8f0a1bfd3912826c7fc929d8e2fea8"
+    },
+    {
+      "name": "owned-record-parameters",
+      "cases": 216,
+      "report_sha256": "23dc8a8cb964074ec55154c3a3f595bcfb5e4039429f02d67cff32c3e322f3e2"
+    },
+    {
+      "name": "reference-records",
+      "cases": 171,
+      "report_sha256": "7b2f33db62d8c374409d06a8d16269d913c98dd27b73d4e664a97650ad8609ff"
+    },
+    {
+      "name": "scalar-parameters",
+      "cases": 126,
+      "report_sha256": "080b4d17fdcf3f6e08dbad536dbe1914cbb73e3ff847e9469dbf71fa89f1c21d"
+    },
+    {
+      "name": "closure-records",
+      "cases": 189,
+      "report_sha256": "372fedb29f36fccd5c2bf2ca962fb645bbc5dc1e82e357471c7e1be18752cab1"
+    },
+    {
+      "name": "native-handles",
+      "cases": 117,
+      "report_sha256": "0b5a38ca0ffd489747567816a1ace56bbef2178ce861d3ef57faaf42c28f4e32"
+    },
+    {
+      "name": "native-arrays",
+      "cases": 27,
+      "report_sha256": "a20a59c3dce1c2164bc3acb6e78af45275e0cc710cc627933a50bc6cf80f4b69"
+    },
+    {
+      "name": "native-globals",
+      "cases": 36,
+      "report_sha256": "308dcad698a01e05e65f60a7ab06bcbc2ad859faebc663f9a90aa325a9e8b83a"
+    },
+    {
+      "name": "native-managed-records",
+      "cases": 54,
+      "report_sha256": "b88188d1bf32a4e636629728b086e85dfe1f028368adb237e46d54319c575cad"
+    },
+    {
+      "name": "native-callables",
+      "cases": 63,
+      "report_sha256": "de9dec76bc139f38192d91b37170512322511cbf37a60c459b5679cfa0aed677"
+    },
+    {
+      "name": "native-variadics",
+      "cases": 54,
+      "report_sha256": "f275d91b88bf8868f8dcfbd84bdec83e59c3f36e68aeb1b8900ae211f011fbcb"
+    },
+    {
+      "name": "serialization",
+      "cases": 117,
+      "report_sha256": "9edaabfbe67553f380be311ee437cdca3df4e72b6dabd065e768c34ac5190f16"
+    },
+    {
+      "name": "pointer-slices",
+      "cases": 45,
+      "report_sha256": "60add35889d6b4bc6c538a83c3dde96a16e63665daa1fd331f49d6429d6bb39a"
+    },
+    {
+      "name": "array-values",
+      "cases": 45,
+      "report_sha256": "716ac40eb2e35aa42be8bdd287f1b2aa694c2fd2d8920e6d2f5f8639d2752572"
+    },
+    {
+      "name": "zero-record-defaults",
+      "cases": 27,
+      "report_sha256": "5fb3d1d60964774f406f889606142a7ac012d60c7d2ef86d8b27e020cc3b79cc"
+    },
+    {
+      "name": "managed-iterators",
+      "cases": 72,
+      "report_sha256": "e186431768a956cfab5f94464dbabbd7cb800992887e086f46aee4527211e846"
+    },
+    {
+      "name": "array-returns",
+      "cases": 27,
+      "report_sha256": "b888e2083d19a41d8ab6372c21cc0e57e7d939dc728d63f4267d68d2a8aabc56"
+    },
+    {
+      "name": "closure-arrays",
+      "cases": 189,
+      "report_sha256": "f0e35f5dd5bf48d9af4c0e2c9e45ebcdb0c04d0af8f8a8257209a589d825bf53"
+    },
+    {
+      "name": "array-methods",
+      "cases": 72,
+      "report_sha256": "91ad7e51f12c09cccc52e985722d926477647394897f9144051f8f5f63b78d4a"
+    },
+    {
+      "name": "array-alias-partitions",
+      "cases": 72,
+      "report_sha256": "a864a8a3d34bdd8de729aeffd868736b9d895ce20e2e68dfa67d515bb661e5d9"
+    },
+    {
+      "name": "method-aliases",
+      "cases": 72,
+      "report_sha256": "cec52b010cf0a8fcb1bc298e38f35f69edad4dcc6edf5841ba41609bc0f5ce5c"
+    },
+    {
+      "name": "reference-receivers",
+      "cases": 45,
+      "report_sha256": "9931c3935ed3fee620287295694ddd3bf1d7afd2e434590aa2452a3210c60d35"
+    },
+    {
+      "name": "captured-methods",
+      "cases": 45,
+      "report_sha256": "9177e87cbad6b8a0fc3fc2efddac21b3283c506cb355a504705932d005604816"
+    },
+    {
+      "name": "qualified-arrays",
+      "cases": 63,
+      "report_sha256": "8936afbe9146327d8868bd836719a21a6daffe6b8e09d8494a5d6e2b9472a917"
+    },
+    {
+      "name": "closure-references",
+      "cases": 234,
+      "report_sha256": "cf749be0f93359575a7d1d32a4dfeeaf56e5ecb68789b2c1678fdb57156eef68"
+    },
+    {
+      "name": "closure-value-parameters",
+      "cases": 144,
+      "report_sha256": "4c1caea244f9c29dd30129f44bbcbb021545b4f0e3bcdf574c877cc03ade93fe"
+    },
+    {
+      "name": "owned-record-parameters-closures",
+      "cases": 153,
+      "report_sha256": "9936dc59ff9c612615b840d7e9f0e7d6613d241d105f3be8f8843c201975c0ea"
+    },
+    {
+      "name": "array-rebinding",
+      "cases": 99,
+      "report_sha256": "9e8dfc759fd088d6302fc00c9183168e1ab8fe2ea6d45ed707f58100c83dd4d3"
+    },
+    {
+      "name": "string-rebinding",
+      "cases": 72,
+      "report_sha256": "3c9e935418286bcdcca3460a132bda6407ad6ddbe2fe91b9460e40fff5c530b0"
+    },
+    {
+      "name": "private-arrays",
+      "cases": 135,
+      "report_sha256": "4f2a0f168baaa0a74dd47e497a6aeb943910bfbf788be30329a4039089c42822"
+    },
+    {
+      "name": "native-primitive-arrays",
+      "cases": 117,
+      "report_sha256": "623f8475f72b7d2077f92ecf07d6931558dcf41fd1b87aaf7ca6d42aebcc47ba"
+    },
+    {
+      "name": "scalar-snapshot-references",
+      "cases": 108,
+      "report_sha256": "1cac88ee7913a68bc52960a97595eb8d95b14dbc10718d5b3b46103b62e9e969"
+    }
+  ],
+  "new_native_sources": 11,
+  "promoted_sources": 1,
+  "new_cases": 108,
+  "new_linux_sanitizer_cases": 36,
+  "native_fixture_count": 245,
+  "rgen_count": 502,
+  "rgen_error_count": 120,
+  "original_corpus_hashes_unchanged": 1365,
+  "existing_positive_sources_and_goldens_unchanged": true,
+  "promotion_source_byte_identical": true,
+  "local_verification_log_sha256": "56c9fa7bfc5fd1ca927a1490b734a03fabef21e72fdd50bfea59c2d43434eb2a",
+  "failed_attempts_excluded": [
+    "First admission compiled but reference borrowed cloned temporary, Ctrue/Rfalse; mutation place no longer cloned",
+    "Aliased ordinary helper was prepared Rc<Cell> while local snapshot stayedscalar; existing borrowed protocol enabled before alias preparation; all72passed",
+    "Shadowed-local authored control Ccompile1 undeclaredcapture, Rustmissingtransitivecaptures; noCvalidcredit and captureanalysisgap remains",
+    ".sn/default-array-named-forward C-11 andRustE0631 inother tree; no paritycredit; stored asrequired callback/ownership gap"
+  ],
+  "hosted_status": "Combined aea96primitive/privatearray/string main plussnapshotref passesall81/frozen/strict62-5475/native245. Parentcompilerall3green/runtimepending withno reportedfailure; ownexactrevisionplatformacceptance required afterpublication.",
+  "remaining_goal": "Capture-shadow analysis/emission needs separate scoped repair; interfaces/nativewire/emptyphysicalidentity/physicalvalue-recordreceivers/nativestringaliases/primitive-nativearrayABI and otherqualifier/lifetime/evaluation contexts remain."
+}

@@ -657,9 +657,28 @@ static void rust_prepare_scalar_reference_callable(json_object *callable)
     }
 }
 
+static bool rust_lambda_has_scalar_reference_argument(json_object *node, bool in_lambda)
+{
+    if (!node) return false;
+    if (json_object_is_type(node, json_type_array))
+    {
+        for (size_t i = 0; i < json_object_array_length(node); i++)
+            if (rust_lambda_has_scalar_reference_argument(json_object_array_get_idx(node, i), in_lambda)) return true;
+        return false;
+    }
+    if (!json_object_is_type(node, json_type_object)) return false;
+    in_lambda = in_lambda || json_string_property_equals(node, "kind", "lambda");
+    if (in_lambda && json_boolean_property(node, "is_ref_arg") &&
+        rust_closure_scalar_type(rust_closure_property(node, "type"))) return true;
+    json_object_object_foreach(node, key, child)
+        if (strncmp(key, "rust_", 5) != 0 && rust_lambda_has_scalar_reference_argument(child, in_lambda)) return true;
+    return false;
+}
+
 static void rust_prepare_scalar_reference_callables(json_object *model)
 {
-    if (!rust_has_scalar_reference_lambda(model)) return;
+    if (!rust_has_scalar_reference_lambda(model) &&
+        !rust_lambda_has_scalar_reference_argument(model, false)) return;
     json_object_object_add(model, "rust_has_scalar_ref_closures", json_object_new_boolean(true));
     json_object *functions = rust_closure_property(model, "functions");
     for (size_t i = 0; i < rust_closure_length(functions); i++)

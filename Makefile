@@ -1310,3 +1310,22 @@ test-rust-parity-native-primitive-arrays: build
 		--require-count 13 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-native-primitive-arrays.json
 	@$(PYTHON) scripts/check_rust_native_primitive_array_oracles.py .sn/rust-parity-native-primitive-arrays.json
+
+.PHONY: test-rust-parity-scalar-snapshot-references
+test-rust-parity-scalar-snapshot-references: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/rust-native/scalar_snapshot_reference_reference.sn \
+		tests/rust-native/scalar_snapshot_reference_aliases.sn \
+		tests/rust-native/scalar_snapshot_reference_native.sn \
+		tests/rust-native/scalar_snapshot_reference_character.sn \
+		tests/rust-native/scalar_snapshot_reference_floating.sn \
+		tests/rust-native/scalar_snapshot_reference_boolean.sn \
+		tests/rust-native/scalar_snapshot_reference_closure.sn \
+		tests/rust-native/scalar_snapshot_reference_nested.sn \
+		tests/rust-native/scalar_snapshot_reference_native_character.sn \
+		tests/rust-native/scalar_snapshot_reference_mixed.sn \
+		tests/rust-native/scalar_snapshot_reference_byte.sn \
+		tests/rgen/closure_values_capture_ref_forward.sn \
+		--require-count 12 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-scalar-snapshot-references.json
+	@$(PYTHON) scripts/check_rust_scalar_snapshot_reference_oracles.py .sn/rust-parity-scalar-snapshot-references.json

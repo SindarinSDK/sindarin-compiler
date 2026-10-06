@@ -1,0 +1,10 @@
+fn increment(value: int as ref): void =>
+  value += 1
+fn main(): void =>
+  var original: int = 2
+  var change = fn(): int =>
+    increment(original)
+    return original
+  println(change() == 3)
+  println(change() == 3)
+  println(original == 2)

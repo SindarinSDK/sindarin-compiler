@@ -1,0 +1,9 @@
+fn main(): void =>
+  var value: int = 2
+  var update = fn(a: int as ref): void =>
+    a += 1
+  var change = fn(): int =>
+    update(value)
+    return value
+  println(change() == 3 && change() == 3)
+  println(value == 2)

@@ -1,0 +1,9 @@
+fn update(a: byte as ref): void =>
+  a += 1b
+fn main(): void =>
+  var value: byte = 10b
+  var change = fn(): byte =>
+    update(value)
+    return value
+  println(change() == 11b && change() == 11b)
+  println(value == 10b)

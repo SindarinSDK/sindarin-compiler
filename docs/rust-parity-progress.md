@@ -157,6 +157,39 @@ Evidence: [validation](rust-parity-evidence/native-primitive-arrays-validation.j
 [C lifetimes](rust-parity-evidence/native-primitive-arrays-c-lifetimes.json),
 [diagnostics](rust-parity-evidence/native-primitive-arrays-diagnostics.json).
 
+## Scalar snapshot reference forwarding, prepared 2026-10-06
+
+Captured scalar values forwarded by reference now mutate a private copy for each
+invocation, preserving the captured snapshot and caller's original. Mutation
+arguments refer to the local place instead of a cloned read temporary. Ordinary
+scalar reference callees in closure-reference programs use the existing borrowed
+reference protocol before alias preparation, so repeated arguments preserve
+actual aliases without mismatching an `Rc<Cell>` with a scalar snapshot local.
+
+Eleven new native-suite controls and one byte-identical promoted admission-error
+source pass **108** C/R comparisons and **36** Linux ASAN/UBSAN/leak runs. Coverage
+includes repeated same/distinct references, ordinary/native/closure calls,
+characters, booleans, bytes and floats, nested capture epochs and mixed caller
+references. All **81** frozen combined acceptance commands pass, complete C/Rust suites,
+**62 reports / 5475 cases**, exact **245** native fixtures, **502** Rust generation
+positives and **120** admission-error cases. Existing positive source/goldens and
+all **1365** original corpus hashes remain unchanged. The promoted source's bytes
+are identical; its original nine-mode zero-status C/R proof is retained.
+
+The candidate is validated against primitive/private-array/string main
+`aea96d33`; its own complete exact-revision hosted acceptance remains required
+after publication. A shadowed-capture control fails to compile in C and
+receives no credit; lexical capture repair remains separate work. Native string
+physical aliases, primitive native array parameters, interfaces/native wire/empty
+physical identity, physical value-record receivers and remaining qualifiers and
+lifetime/evaluation contexts still prevent full completion.
+
+Evidence: [validation](rust-parity-evidence/scalar-snapshot-reference-validation.json),
+[oracles](rust-parity-evidence/scalar-snapshot-reference-oracles.json),
+[promotion](rust-parity-evidence/scalar-snapshot-reference-promotion.json),
+[comparisons](rust-parity-evidence/scalar-snapshot-reference-after.json),
+[C lifetimes](rust-parity-evidence/scalar-snapshot-reference-c-lifetimes.json).
+
 ## Scalar closure RHS sequencing: CI repair, 2026-10-06
 
 macOS runtime job 112380383034 and Windows job 112380383080 for `a69da434` failed the unchanged scalar

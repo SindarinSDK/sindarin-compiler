@@ -1,0 +1,11 @@
+fn update(a: int as ref): void =>
+  a += 1
+fn main(): void =>
+  var value: int = 2
+  var outer = fn(): int =>
+    var before = fn(): int => value
+    update(value)
+    var after = fn(): int => value
+    return before() * 10 + after()
+  println(outer() == 23 && outer() == 23)
+  println(value == 2)

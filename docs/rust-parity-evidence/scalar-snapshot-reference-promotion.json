@@ -1,0 +1,7 @@
+{
+  "old_source": "tests/rgen/errors/closure_values_capture_ref_forward.sn",
+  "new_source": "tests/rgen/closure_values_capture_ref_forward.sn",
+  "source_sha256": "7e126a54bcfae4f3002228edf81eb42bbfb16ae0d1af717fca48e9b7e11b536b",
+  "proof": ".sn/scalar-snapshot-promotion-proof.json",
+  "expected_stdout_hex": ""
+}
