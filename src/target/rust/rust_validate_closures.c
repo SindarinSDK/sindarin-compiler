@@ -749,6 +749,10 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
             json_object_object_add(mutation_place, "rust_capture_mutation_place",
                                    json_object_new_boolean(true));
     }
+    if (place && kind && strcmp(kind, "assign") == 0 &&
+        json_boolean_property(place->declaration, "rust_closure_array_parameter") &&
+        json_string_property_equals(place->declaration, "mem_qual", "as_val"))
+        json_object_object_add(node, "rust_closure_owned_array_rebind", json_object_new_boolean(true));
     if (place && json_boolean_property(place->declaration, "rust_shared_cell"))
     {
         json_object_object_add(node, "rust_shared_cell", json_object_new_boolean(true));

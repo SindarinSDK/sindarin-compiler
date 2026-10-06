@@ -1,0 +1,26 @@
+@source "scalar_closure_array_rebinding_native.sn.c"
+
+native struct Token as ref =>
+  id: int
+  @alias "token_dispose"
+  native fn dispose(): void
+
+native fn token_create(id: int): Token
+native fn token_refs(value: Token): int
+native fn token_alive(): int
+native fn array_same(left: Token[], right: Token[]): bool
+
+fn exercise(): void =>
+  var first: Token = token_create(1)
+  var next: Token = token_create(2)
+  var original: Token[] = {first}
+  var change = fn(a: Token[] as val, value: Token): int =>
+    a = {value}
+    return a[0].id
+  println(change(original, next) == 2)
+  println(original[0].id == 1)
+  println(token_refs(first) == 2 && token_refs(next) == 1)
+
+fn main(): void =>
+  exercise()
+  println(token_alive() == 0)

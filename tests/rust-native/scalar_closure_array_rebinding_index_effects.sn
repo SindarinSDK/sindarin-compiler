@@ -1,0 +1,30 @@
+struct Item =>
+  value: int
+  label: str
+  values: int[]
+
+fn index(values: Item[]): int =>
+  values.push(Item {
+    value: 4,
+    label: "extra",
+    values: {5}
+  })
+  return 0
+
+fn main(): void =>
+  var original: Item[] = { Item {
+    value: 1,
+    label: "old",
+    values: {2}
+  } }
+  var change = fn(a: Item[] as val): Item[] =>
+    a = { Item {
+      value: 3,
+      label: "new",
+      values: {4}
+    } }
+    a[index(a)].value = 9
+    return a
+  var result: Item[] = change(original)
+  println(result[0].value == 9 && result[0].label == "new" && result.length == 2)
+  println(original[0].value == 1 && original[0].label == "old")

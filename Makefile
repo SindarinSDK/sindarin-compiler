@@ -1235,3 +1235,21 @@ test-rust-parity-owned-record-parameters-closures: build
 		--require-count 17 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-owned-record-parameters-closures.json
 	@$(PYTHON) scripts/check_rust_owned_record_parameter_oracles.py .sn/rust-parity-owned-record-parameters-closures.json
+
+.PHONY: test-rust-parity-array-rebinding
+test-rust-parity-array-rebinding: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/rust-native/scalar_closure_array_rebinding_basic.sn \
+		tests/rust-native/scalar_closure_array_rebinding_captures.sn \
+		tests/rust-native/scalar_closure_array_rebinding_self.sn \
+		tests/rust-native/scalar_closure_array_rebinding_rhs.sn \
+		tests/rust-native/scalar_closure_array_rebinding_nested.sn \
+		tests/rust-native/scalar_closure_array_rebinding_strings.sn \
+		tests/rust-native/scalar_closure_array_rebinding_records.sn \
+		tests/rust-native/scalar_closure_array_rebinding_two_copies.sn \
+		tests/rust-native/scalar_closure_array_rebinding_native.sn \
+		tests/rust-native/scalar_closure_array_rebinding_index_effects.sn \
+		tests/rust-native/scalar_closure_array_rebinding_hygiene.sn \
+		--require-count 11 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-array-rebinding.json
+	@$(PYTHON) scripts/check_rust_array_rebinding_oracles.py .sn/rust-parity-array-rebinding.json

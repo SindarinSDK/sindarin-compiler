@@ -70,6 +70,29 @@ static void rust_closure_name_types(json_object *node, const char *name, const c
 
 static json_object *rust_scalar_reference_target(json_object *model, json_object *node);
 
+static void rust_bind_closure_store_indices(json_object *place)
+{
+    if (!place || !json_object_is_type(place, json_type_object)) return;
+    json_object *parent = NULL;
+    if (json_string_property_equals(place, "kind", "array_access"))
+    {
+        json_object *index = rust_closure_property(place, "index");
+        const char *name = json_string_property(place, "rust_place_raw_index_name");
+        if (name)
+        {
+            json_object *ref = json_object_new_object();
+            json_object_object_add(ref, "kind", json_object_new_string("variable"));
+            json_object_object_add(ref, "name", json_object_new_string(name));
+            json_object_object_add(ref, "type", json_object_get(rust_closure_property(index, "type")));
+            json_object_object_add(place, "index", ref);
+        }
+        parent = rust_closure_property(place, "array");
+    }
+    else if (json_string_property_equals(place, "kind", "member"))
+        parent = rust_closure_property(place, "object");
+    rust_bind_closure_store_indices(parent);
+}
+
 static void rust_lower_closure_array_arguments(json_object *model, json_object *node,
                                                 unsigned int *next_id)
 {
@@ -84,6 +107,45 @@ static void rust_lower_closure_array_arguments(json_object *model, json_object *
     json_object_object_foreach(node, key, child)
         if (strncmp(key, "rust_", 5) != 0)
             rust_lower_closure_array_arguments(model, child, next_id);
+    if (json_string_property_equals(node, "kind", "member_assign") &&
+        !json_boolean_property(node, "rust_closure_array_member_store"))
+    {
+        json_object *object = rust_closure_property(node, "object"), *root = object;
+        while (json_string_property_equals(root, "kind", "member") ||
+               json_string_property_equals(root, "kind", "array_access"))
+            root = rust_closure_property(root, json_string_property_equals(root, "kind", "array_access") ? "array" : "object");
+        if (json_boolean_property(root, "rust_closure_array_parameter"))
+        {
+            json_object *body = NULL;
+            if (json_object_deep_copy(node, &body, NULL) != 0 || !body) return;
+            char guard[96], value[96];
+            if (!rust_allocate_helper_name(model, "__sn_closure_member_guard", guard, sizeof(guard)) ||
+                !rust_allocate_helper_name(model, "__sn_closure_member_value", value, sizeof(value))) return;
+            json_object *store = rust_closure_property(body, "object");
+            while (json_string_property_equals(store, "kind", "member") ||
+                   json_string_property_equals(store, "kind", "array_access"))
+            {
+                json_object_object_del(store, "rust_needs_clone");
+                store = rust_closure_property(store, json_string_property_equals(store, "kind", "array_access") ? "array" : "object");
+            }
+            json_object_object_add(store, "rust_closure_array_store_guard", json_object_new_string(guard));
+            json_object *indices = json_object_new_array();
+            size_t index_id = 0;
+            if (!rust_collect_place_indices(model, rust_closure_property(body, "object"), indices, &index_id)) return;
+            json_object_object_add(node, "rust_closure_array_member_indices", indices);
+            rust_bind_closure_store_indices(rust_closure_property(body, "object"));
+            json_object *ref = json_object_new_object();
+            json_object_object_add(ref, "kind", json_object_new_string("variable"));
+            json_object_object_add(ref, "name", json_object_new_string(value));
+            json_object_object_add(ref, "type", json_object_get(rust_closure_property(rust_closure_property(node, "value"), "type")));
+            json_object_object_add(body, "value", ref);
+            json_object_object_add(node, "rust_closure_array_member_store", json_object_new_boolean(true));
+            json_object_object_add(node, "rust_closure_array_member_source", json_object_new_string(json_string_property(root, "name")));
+            json_object_object_add(node, "rust_closure_array_member_guard", json_object_new_string(guard));
+            json_object_object_add(node, "rust_closure_array_member_value", json_object_new_string(value));
+            json_object_object_add(node, "rust_closure_array_member_body", body);
+        }
+    }
     if (json_boolean_property(node, "rust_closure_array_parameter_copy"))
     {
         char owner[96];

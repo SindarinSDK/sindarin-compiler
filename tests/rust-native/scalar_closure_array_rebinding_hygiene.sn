@@ -1,0 +1,8 @@
+fn main(): void =>
+  var original: int[] = {1}
+  var change = fn(__sn_value: int[] as val): int =>
+    __sn_value = {3, 4}
+    __sn_value.push(5)
+    return __sn_value.length
+  println(change(original) == 3)
+  println(original[0] == 1 && original.length == 1)

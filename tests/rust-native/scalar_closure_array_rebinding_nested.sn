@@ -1,0 +1,10 @@
+fn main(): void =>
+  var original: int[][] = {{1, 2}, {3}}
+  var change = fn(a: int[][] as val): int[][] =>
+    a[0][0] = 7
+    a = {{3, 4}, {5}}
+    a[0].push(6)
+    return a
+  var result: int[][] = change(original)
+  println(result[0][0] == 3 && result[0].length == 3)
+  println(original[0][0] == 1 && original[0].length == 2)

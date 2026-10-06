@@ -94,6 +94,14 @@ GCC/Clang mode combinations; full local acceptance passes 57 reports / 4944
 cases. The completion ledger records macOS/Windows failures without credit and
 requires repaired main's complete hosted acceptance before further integration.
 
+The prepared array rebinding increment supports per-call `as val` closure array
+replacement, original record-element stores with cached RHS/index effects and
+borrowed deferred native handles. All 73 combined local commands pass with
+58 reports / 5043 cases and exact 198 native fixtures. Repaired main's six jobs
+and all retained platform reports are now verified; this increment requires
+its own full hosted acceptance after publication. C-invalid default rebinding and assignment-result contexts remain
+repair work without parity credit.
+
 The 2026-10-03 float/double increment adds conversions at tested scalar storage,
 call and return boundaries and mixed floating compound mutation, including
 observable synchronized cells. Historical same-type-only exclusions below are

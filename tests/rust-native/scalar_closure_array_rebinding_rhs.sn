@@ -1,0 +1,13 @@
+fn produce(a: int[]): int[] =>
+  a.push(2)
+  return {3, 4}
+
+fn main(): void =>
+  var original: int[] = {1}
+  var change = fn(a: int[] as val): int[] =>
+    a = produce(a)
+    a.push(5)
+    return a
+  var result: int[] = change(original)
+  println(result[0] == 3 && result.length == 3)
+  println(original[0] == 1 && original.length == 1)

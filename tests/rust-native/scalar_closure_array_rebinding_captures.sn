@@ -1,0 +1,11 @@
+fn main(): void =>
+  var original: int[] = {1}
+  var make = fn(a: int[] as val): fn(): int =>
+    var before = fn(): int => a[0]
+    a = {3, 4}
+    var after = fn(): int => a[0]
+    a[0] = 9
+    return fn(): int => before() * 10 + after()
+  var read = make(original)
+  println(read() == 13)
+  println(original[0] == 1)

@@ -1,0 +1,84 @@
+{
+  "sources": [
+    {
+      "source": "tests/rust-native/scalar_closure_array_rebinding_basic.sn",
+      "source_sha256": "62989d50507ce8a4714b9fbf9967ee0b9807793ef23594b88f503f9be21cd425",
+      "stdout_hex": "747275650a747275650a",
+      "expected_sha256": "21d91041c5d1a59661f8936571ee5c87e96f6f0c7a532b52ec17c5b9bea8220b"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_array_rebinding_captures.sn",
+      "source_sha256": "1c0879327cddfbdce36ccc7bd21fee4083f0da61ba44be250ba51ff1dd02284c",
+      "stdout_hex": "747275650a747275650a",
+      "expected_sha256": "21d91041c5d1a59661f8936571ee5c87e96f6f0c7a532b52ec17c5b9bea8220b"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_array_rebinding_self.sn",
+      "source_sha256": "839931a7b9d7c822ba66c705ab70e9be781d928965e837455feaadc542e036a7",
+      "stdout_hex": "747275650a747275650a",
+      "expected_sha256": "21d91041c5d1a59661f8936571ee5c87e96f6f0c7a532b52ec17c5b9bea8220b"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_array_rebinding_rhs.sn",
+      "source_sha256": "7402325c5850939746e423047df8321fe9b7948ac3033f4a2e96eda8a52cda4b",
+      "stdout_hex": "747275650a747275650a",
+      "expected_sha256": "21d91041c5d1a59661f8936571ee5c87e96f6f0c7a532b52ec17c5b9bea8220b"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_array_rebinding_nested.sn",
+      "source_sha256": "b31313063a4b26e6327f2e9f95e637445edac567b2770a3dbf8c2693e0c96c87",
+      "stdout_hex": "747275650a747275650a",
+      "expected_sha256": "21d91041c5d1a59661f8936571ee5c87e96f6f0c7a532b52ec17c5b9bea8220b"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_array_rebinding_strings.sn",
+      "source_sha256": "0526bda82a0d1e987ffc3a4a2e9d6530497d0b7af21bacfb050858ddaf22e0ba",
+      "stdout_hex": "747275650a747275650a",
+      "expected_sha256": "21d91041c5d1a59661f8936571ee5c87e96f6f0c7a532b52ec17c5b9bea8220b"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_array_rebinding_records.sn",
+      "source_sha256": "be8248ab1609067293522edafd6e2eb03fda9d9551529127a0f561c374da455b",
+      "stdout_hex": "747275650a747275650a",
+      "expected_sha256": "21d91041c5d1a59661f8936571ee5c87e96f6f0c7a532b52ec17c5b9bea8220b"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_array_rebinding_two_copies.sn",
+      "source_sha256": "efc79e130f67cbddc4e3d93336cd7a7cd94e08dc27d4b6bc1685e469e57e81cd",
+      "stdout_hex": "747275650a747275650a",
+      "expected_sha256": "21d91041c5d1a59661f8936571ee5c87e96f6f0c7a532b52ec17c5b9bea8220b"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_array_rebinding_native.sn",
+      "source_sha256": "1b3f8b59748ae20a60ecddfa437f122eec06cdcf1f08475b2758df8a3cb02396",
+      "stdout_hex": "747275650a747275650a747275650a747275650a",
+      "expected_sha256": "a8c8704687490f20e1992b9d6a9578237617ebd0894ee14f5682acea27e3845a"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_array_rebinding_index_effects.sn",
+      "source_sha256": "c62b40d19370686568b938f08c8de7e470f4ab525dcab3674ec75212f288f874",
+      "stdout_hex": "747275650a747275650a",
+      "expected_sha256": "21d91041c5d1a59661f8936571ee5c87e96f6f0c7a532b52ec17c5b9bea8220b"
+    },
+    {
+      "source": "tests/rust-native/scalar_closure_array_rebinding_hygiene.sn",
+      "source_sha256": "625e65d80acd37cb2ffaee9685eb9ff24e2c0248db3643c95c0ebe1b8e3f8504",
+      "stdout_hex": "747275650a747275650a",
+      "expected_sha256": "21d91041c5d1a59661f8936571ee5c87e96f6f0c7a532b52ec17c5b9bea8220b"
+    }
+  ],
+  "native_helpers": {
+    "tests/rust-native/scalar_closure_array_rebinding_native.sn.c": "d7aad44913b28488f5491c72fb873f28efff91c41c79f2846b4754917fe0fd6c"
+  },
+  "optimization": [
+    "-O0",
+    "-O1",
+    "-O2"
+  ],
+  "arithmetic_modes": [
+    "default",
+    "checked",
+    "unchecked"
+  ],
+  "scope": "Owned as-val array rebinding with caller isolation, independent formals/captures, self/RHS evaluation, nested/string/record owners, native borrowed handles/reference counts and cleanup, and callback index effects before original-record stores."
+}

@@ -5,6 +5,47 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Owned closure array rebinding, 2026-10-06
+
+`as val` closure array assignment now replaces the per-call copied vector owner
+through its borrowed cell instead of trying to replace the reference itself.
+Caller arrays remain intact. Subsequent mutations, returned arrays, independent
+formals and captures taken before/after rebinding retain their ownership rules.
+The RHS executes before the short mutation borrow; tuple binding prevents local
+helper names from shadowing source parameter names during assignment.
+
+Record-element stores now hold a guard of the original closure-array owner for
+the final store, with RHS and raw index effects evaluated before that guard.
+Deferred native handle arguments remain borrowed across argument binding and
+call entry, preserving native reference credits and cleanup.
+
+Eleven literal-oracle fixtures cover **99** C/R comparisons across all nine
+optimization/arithmetic modes, including nested/string/record/native elements,
+snapshot captures, two independent as-val formals, self/RHS effects and hygiene.
+Linux ASAN/UBSAN/leak checks cover **33** executions. The native helper source is
+frozen and independently hashed; exact output pins native counts and zero live
+objects after cleanup. All **73** combined acceptance commands pass with frozen inputs, including
+complete C/Rust suites, exact **198** native fixtures and **58 reports / 5043
+cases**. Existing test sources and goldens and all **1365** original corpus
+hashes remain unchanged. The change is prepared against repaired main
+`5d19a3af`; all six repair jobs and retained 57 reports / 4944 cases on each
+platform are now verified. This increment is ready for publication.
+This increment requires its own exact-revision hosted acceptance after push.
+
+The array assignment-result expression crashes the C baseline and is excluded;
+default array rebinding and string default/as-val rebinding also have C lifetime
+failures and receive no parity credit. They remain required repair work.
+Remaining interfaces/native C wire/empty physical storage, physical value-record
+receivers, qualifications/custom copies, wider callbacks/globals/escaping/thread
+lifetimes and evaluation contexts remain required. C stays the default target;
+rejections, skips and unsafe C probes do not count as parity or goal completion.
+
+Evidence: [validation](rust-parity-evidence/array-rebinding-validation.json),
+[oracles](rust-parity-evidence/array-rebinding-oracles.json),
+[comparisons](rust-parity-evidence/array-rebinding-after.json),
+[C lifetimes](rust-parity-evidence/array-rebinding-c-lifetimes.json).
+
+
 ## Scalar closure RHS sequencing: CI repair, 2026-10-06
 
 macOS runtime job 112380383034 and Windows job 112380383080 for `a69da434` failed the unchanged scalar
@@ -29,8 +70,9 @@ sources remain unchanged after a template EOF newline regression was found
 and corrected. All **1365** original corpus source hashes are verified.
 Repaired main's exact-revision hosted acceptance remains required.
 
-Array rebinding work remains isolated and unintegrated until all repaired main
-jobs and retained platform reports are green. The full parity objective remains
+All six repaired-main jobs and retained platform reports are now green and
+independently verified: [hosted proof](rust-parity-evidence/closure-rhs-ci-repair-main-ci-green.json).
+Array rebinding is validated against this accepted main. The full parity objective remains
 incomplete, including interfaces/native physical storage and lifetime contexts.
 
 Current main `2b74dc28` also inherited the same macOS failure in job
