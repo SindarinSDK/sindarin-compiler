@@ -1,0 +1,80 @@
+{
+  "base_revision": "8097d31b30e29e50f5577a30bd41e4daa2daa207",
+  "failure": {
+    "revision": "f8421976f2ebc6c3e2d683767ed4614b352695fc",
+    "run": 37524599848,
+    "job": 112478288292,
+    "platform": "windows-latest",
+    "fixture": "scalar_alias_partitions_5",
+    "reason": "rust default compile error: TIMEOUT",
+    "elapsed_seconds": 60.23,
+    "result": "205 passed, 1 failed, 0 skipped",
+    "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37524599848"
+  },
+  "counter_evidence": {
+    "same_run_later_native_suite": "206 passed, 0 failed, 0 skipped",
+    "following_revision": "aa771e9e4b47b04dc6dd31b0b7ecb63101328b95",
+    "following_run": 37526767139,
+    "following_windows_job": 112485637954,
+    "result": "221 passed, 0 failed, 0 skipped; all optimization/arithmetic comparisons for scalar_alias_partitions_5 passed"
+  },
+  "repair": "Apply the existing Windows Rust minimum compile timeout of 120 seconds to both native harness paths. No retries or oracle changes; C and execution budgets unchanged; larger caller budgets preserved.",
+  "local_routing_checks": [
+    {
+      "windows": false,
+      "budget": 60,
+      "method": "_run_rust_native_parity_test_internal",
+      "passed": true
+    },
+    {
+      "windows": false,
+      "budget": 60,
+      "method": "_run_rust_native_target_test_internal",
+      "passed": true
+    },
+    {
+      "windows": false,
+      "budget": 180,
+      "method": "_run_rust_native_parity_test_internal",
+      "passed": true
+    },
+    {
+      "windows": false,
+      "budget": 180,
+      "method": "_run_rust_native_target_test_internal",
+      "passed": true
+    },
+    {
+      "windows": true,
+      "budget": 60,
+      "method": "_run_rust_native_parity_test_internal",
+      "passed": true
+    },
+    {
+      "windows": true,
+      "budget": 60,
+      "method": "_run_rust_native_target_test_internal",
+      "passed": true
+    },
+    {
+      "windows": true,
+      "budget": 180,
+      "method": "_run_rust_native_parity_test_internal",
+      "passed": true
+    },
+    {
+      "windows": true,
+      "budget": 180,
+      "method": "_run_rust_native_target_test_internal",
+      "passed": true
+    }
+  ],
+  "real_fixture": {
+    "compiler_revision": "8097d31b30e29e50f5577a30bd41e4daa2daa207",
+    "source_sha256": "7e1b2e0a982e454051d09218dfb793e1cd684b4d51f663efd5c1cac5d611db1e",
+    "result": "1 passed, 0 failed, 0 skipped",
+    "elapsed_seconds": 7.85,
+    "platform": "Linux"
+  },
+  "hosted_acceptance": "Required for the repair revision after push; no Windows repair acceptance claimed yet."
+}

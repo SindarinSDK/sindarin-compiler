@@ -1627,7 +1627,9 @@ class TestRunner:
             target_exe = f'{exe_file}.{target}{get_exe_extension()}'
             exit_code, stdout, stderr, decode_error = run_with_timeout(
                 [self.compiler, test_file, '--target', target, '-o', target_exe,
-                 '-l', '1', '--no-install'], self.compile_timeout, env=self.env)
+                 '-l', '1', '--no-install'],
+                max(self.compile_timeout, 120) if target == 'rust' and is_windows()
+                else self.compile_timeout, env=self.env)
             if decode_error:
                 return ('fail', f'{target} subprocess output decode error',
                         [decode_error, format_subprocess_failure(stdout, stderr)])
@@ -1690,7 +1692,10 @@ class TestRunner:
                 exit_code, stdout, stderr, decode_error = run_with_timeout(
                     [self.compiler, test_file, '--target', target, '-o', target_exe,
                      '-l', '1', *mode, '--no-install'],
-                    self.compile_timeout, env=self.env)
+                    # Match the Rust compilation budget used by rgen on cold
+                    # Windows runners; execution and C budgets stay unchanged.
+                    max(self.compile_timeout, 120) if target == 'rust' and is_windows()
+                    else self.compile_timeout, env=self.env)
                 label = f'{target} {mode_name}'
                 if decode_error:
                     return ('fail', f'{label} subprocess output decode error',

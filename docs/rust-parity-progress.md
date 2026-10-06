@@ -5,6 +5,20 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Windows native test compilation timeout, 2026-10-06
+
+An earlier Windows runtime job failed when `scalar_alias_partitions_5` reached
+its native harness's 60-second compilation limit. The same fixture passed later
+in that job and on the following revision. Native compilation now uses the
+existing generated-Rust test budget: at least 120 seconds for Rust on Windows.
+C compilation and program execution retain their limits; larger caller limits
+remain effective. Timeouts still fail, with no retries or oracle changes.
+
+Eight focused routing checks pass, and the unchanged fixture passes against the
+current main compiler on Linux. Exact-revision hosted checks are required after
+publication. This is a harness reliability repair and earns no feature-parity
+credit. [Evidence](rust-parity-evidence/windows-native-compile-timeout.json).
+
 ## Owned closure array rebinding, 2026-10-06
 
 `as val` closure array assignment now replaces the per-call copied vector owner
