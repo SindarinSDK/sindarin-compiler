@@ -1,0 +1,19 @@
+{
+  "nil_concat_rejected_attempt": {
+    "source": "physical-rejected-nil-concat-source.sn.raw",
+    "source_sha256": "728713bc3cd5ec9eb84c9e3fe3059734ded39db667b9fb192ca6e6dd28669498",
+    "C": "nine default/checked/unchecked optimization cases compile/run0 withtrue2;three ASAN/UBSAN/leak cases pass",
+    "Rust": "all nine ordinary comparisonsfalse2;three ASAN heap-use-after-free failures",
+    "parity_credit": false
+  },
+  "borrowed_method_self_gap": {
+    "source": "physical-borrowed-self-gap-source.sn.raw",
+    "source_sha256": "7fcf340e60c4ed14a81856c553ed4f015964bbc3c3528e084ec9cf83b015b152",
+    "contract": "Method self is borrowed by the lambda; after receiver mutation, captured read observes8 and method returns808.",
+    "C": "nine successful literaltrue2 executions;three sanitizer executions pass",
+    "Rust": "rejects borrowed/promoted closure capture before receiver lowering",
+    "parity_credit": false,
+    "initial_prediction": "708 was contradicted by C; that first oracle is excluded."
+  },
+  "note": "Failures and rejections do not count as parity. Final receiver/header implementation requires its full local matrix and exact-revision hosted acceptance."
+}

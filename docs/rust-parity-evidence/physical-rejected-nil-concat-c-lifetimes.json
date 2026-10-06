@@ -1,0 +1,51 @@
+{
+  "compiler_sha256": "2c6bc457d8070f297e9e7cd10b0b2b19acbe9d025913c44ae8413af1e23edbf0",
+  "sanitizers": [
+    "address",
+    "undefined",
+    "leak"
+  ],
+  "cases": [
+    {
+      "source": ".sn/receiver-nil-concat-capacity.sn",
+      "source_sha256": "728713bc3cd5ec9eb84c9e3fe3059734ded39db667b9fb192ca6e6dd28669498",
+      "optimization": "-O0",
+      "flags": "-g -O0 -fsanitize=address,undefined -fno-omit-frame-pointer",
+      "compile_status": 0,
+      "compile_stdout_hex": "",
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f72656365697665722d6e696c2d636f6e6361742d63617061636974792e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d61727261792d72657475726e2d6c69666574696d65732d653473656b6172662f70726f6772616d202839312e34204b42290a",
+      "passed": true,
+      "run_status": 0,
+      "stdout_hex": "747275650a747275650a",
+      "stderr_hex": ""
+    },
+    {
+      "source": ".sn/receiver-nil-concat-capacity.sn",
+      "source_sha256": "728713bc3cd5ec9eb84c9e3fe3059734ded39db667b9fb192ca6e6dd28669498",
+      "optimization": "-O1",
+      "flags": "-g -O1 -fsanitize=address,undefined -fno-omit-frame-pointer",
+      "compile_status": 0,
+      "compile_stdout_hex": "",
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f72656365697665722d6e696c2d636f6e6361742d63617061636974792e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d61727261792d72657475726e2d6c69666574696d65732d653473656b6172662f70726f6772616d202839332e34204b42290a",
+      "passed": true,
+      "run_status": 0,
+      "stdout_hex": "747275650a747275650a",
+      "stderr_hex": ""
+    },
+    {
+      "source": ".sn/receiver-nil-concat-capacity.sn",
+      "source_sha256": "728713bc3cd5ec9eb84c9e3fe3059734ded39db667b9fb192ca6e6dd28669498",
+      "optimization": "-O2",
+      "flags": "-g -O2 -fsanitize=address,undefined -fno-omit-frame-pointer",
+      "compile_status": 0,
+      "compile_stdout_hex": "",
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d202e736e2f72656365697665722d6e696c2d636f6e6361742d63617061636974792e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d61727261792d72657475726e2d6c69666574696d65732d653473656b6172662f70726f6772616d202839342e30204b42290a",
+      "passed": true,
+      "run_status": 0,
+      "stdout_hex": "747275650a747275650a",
+      "stderr_hex": ""
+    }
+  ],
+  "passed": true,
+  "independent_oracle_cases": 3
+}

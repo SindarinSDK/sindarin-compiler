@@ -1,0 +1,41 @@
+struct Item =>
+  value: int
+
+  fn inspect(a: Item[]): int =>
+    self.value += 1
+    return a[0].value * 2
+
+  fn retired(a: Item[]): int =>
+    var before: int = self.value
+    a.remove(0)
+    self.value += 1
+    return before * 100 + self.value
+
+  fn reversed(a: Item[]): int =>
+    var before: int = self.value
+    a.reverse()
+    self.value += 1
+    return before * 100 + self.value
+
+  fn pushed(a: Item[]): int =>
+    a.push(Item { value: 20 })
+    self.value += 1
+    return self.value
+
+fn main(): void =>
+  var inspect: fn(Item[], Item[]): int = fn(rows: Item[], a: Item[]): int =>
+    return rows[0].inspect(a)
+  var retired: fn(Item[], Item[]): int = fn(rows: Item[], a: Item[]): int =>
+    return rows[0].retired(a)
+  var reversed: fn(Item[], Item[]): int = fn(rows: Item[], a: Item[]): int =>
+    return rows[0].reversed(a)
+  var pushed: fn(Item[], Item[]): int = fn(rows: Item[], a: Item[]): int =>
+    return rows[0].pushed(a)
+  var first: Item[] = { Item { value: 1 } }
+  println(inspect(first, first) == 4 && first[0].value == 2)
+  var second: Item[] = { Item { value: 7 } }
+  println(retired(second, second) == 708 && second.length == 0)
+  var third: Item[] = { Item { value: 7 }, Item { value: 30 } }
+  println(reversed(third, third) == 731 && third[0].value == 31 && third[1].value == 7)
+  var fourth: Item[] = { Item { value: 7 } }
+  println(pushed(fourth, fourth) == 8 && fourth.length == 2 && fourth[1].value == 20)

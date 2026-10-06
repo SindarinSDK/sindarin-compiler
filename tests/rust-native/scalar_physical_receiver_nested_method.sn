@@ -1,0 +1,18 @@
+struct Item =>
+  value: int
+
+  fn inner(a: Item[]): int =>
+    var before: int = self.value
+    a.remove(0)
+    self.value += 1
+    return before * 100 + self.value
+
+  fn outer(a: Item[]): int =>
+    return self.inner(a)
+
+fn main(): void =>
+  var call: fn(Item[], Item[]): int = fn(rows: Item[], a: Item[]): int =>
+    return rows[0].outer(a)
+  var values: Item[] = { Item { value: 7 } }
+  println(call(values, values) == 708)
+  println(values.length == 0)

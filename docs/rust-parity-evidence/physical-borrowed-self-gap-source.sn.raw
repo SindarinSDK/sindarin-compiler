@@ -1,0 +1,14 @@
+struct Item =>
+  value: int
+
+  fn inspect(a: Item[]): int =>
+    var saved: fn(): int = fn(): int =>
+      return self.value
+    a.remove(0)
+    self.value += 1
+    return saved() * 100 + self.value
+
+fn main(): void =>
+  var values: Item[] = {Item {value: 7}}
+  println(values[0].inspect(values) == 808)
+  println(values.length == 0)

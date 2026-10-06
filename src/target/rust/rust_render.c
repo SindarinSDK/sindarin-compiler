@@ -76,7 +76,8 @@ static char *rust_type(json_object *type)
         char *element = rust_type(element_type);
         if (!element) return NULL;
         json_object *nullable = NULL;
-        const char *container = json_object_object_get_ex(type, "rust_native_handle_array_name", &nullable)
+        const char *container = json_object_object_get_ex(type, "rust_physical_array_name", &nullable)
+            ? json_object_get_string(nullable) : json_object_object_get_ex(type, "rust_native_handle_array_name", &nullable)
             ? json_object_get_string(nullable) : json_object_object_get_ex(type, "rust_nullable_array_name", &nullable)
             ? json_object_get_string(nullable) : "Vec";
         size_t length = strlen(container) + strlen(element) + sizeof("<>");
@@ -383,7 +384,8 @@ static char *helper_rust_default(json_object **params, int param_count, hbs_opti
     if (strcmp(kind, "array") == 0)
     {
         json_object *nullable = NULL;
-        if (!json_object_object_get_ex(params[0], "rust_native_handle_array_name", &nullable) &&
+        if (!json_object_object_get_ex(params[0], "rust_physical_array_name", &nullable) &&
+            !json_object_object_get_ex(params[0], "rust_native_handle_array_name", &nullable) &&
             !json_object_object_get_ex(params[0], "rust_nullable_array_name", &nullable))
             return strdup("Vec::new()");
         const char *name = json_object_get_string(nullable);

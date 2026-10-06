@@ -1,0 +1,178 @@
+{
+  "tests/rust-native/scalar_physical_receiver_retired_slot.sn": {
+    "source_sha256": "dab060980659ad3ce002bb75fe75840ef18a374425c44ea27230b28165bf647c",
+    "scratch_source": ".sn/receiver-array-retired-slot.sn",
+    "scratch_source_sha256": "3b154ac41632858fa951c858817d435ccf115f476b4d0b0426c383fa1e168ea7",
+    "stdout_hex": "747275650a747275650a",
+    "run_status": 0,
+    "stderr_hex": ""
+  },
+  "tests/rust-native/scalar_physical_receiver_self_alias.sn": {
+    "source_sha256": "1302bc4b7da87a7ef4e1762396b0eaa2ba461be4471571e4b97d20b118461021",
+    "scratch_source": ".sn/receiver-array-self-alias.sn",
+    "scratch_source_sha256": "336a0d942c1909ed6c46babb7aea3097b39b59e82537ace138d86c0d30426363",
+    "stdout_hex": "747275650a747275650a",
+    "run_status": 0,
+    "stderr_hex": ""
+  },
+  "tests/rust-native/scalar_physical_receiver_operations.sn": {
+    "source_sha256": "34f06ecdb2133fea196c55e2dd2ab55451b570c4cc255586dedc738ae68e3e41",
+    "scratch_source": ".sn/receiver-storage-operations.sn",
+    "scratch_source_sha256": "55b55482551297bf9ebbaecd590bc6f7c041077283697d1aa2501c7a078bfa52",
+    "stdout_hex": "747275650a747275650a747275650a747275650a",
+    "run_status": 0,
+    "stderr_hex": ""
+  },
+  "tests/rust-native/scalar_physical_receiver_cloned_storage.sn": {
+    "source_sha256": "14db712e4e0445667ffc184f2a960c69e7db7b8afe990f8a19b772bad9bca615",
+    "scratch_source": ".sn/receiver-cloned-storage.sn",
+    "scratch_source_sha256": "261f766766e364a309cd46fa18267625e0af16939866369b2158fe0a3bba85e9",
+    "stdout_hex": "747275650a747275650a747275650a747275650a",
+    "run_status": 0,
+    "stderr_hex": ""
+  },
+  "tests/rust-native/scalar_physical_receiver_construction.sn": {
+    "source_sha256": "f38603ac02295034ffe3d8b3e5ecde1a45e6df893f12c9112decf9e01718ae57",
+    "scratch_source": ".sn/receiver-array-construction.sn",
+    "scratch_source_sha256": "a3849e1c1a913c6881fb5e77611dd6b3c136e60a7e35a31f48651a9580a2ab58",
+    "stdout_hex": "747275650a747275650a747275650a747275650a747275650a",
+    "run_status": 0,
+    "stderr_hex": ""
+  },
+  "tests/rust-native/scalar_physical_receiver_concat.sn": {
+    "source_sha256": "6b84a4ee3eb9509e807d42201490c355d633086ea1823f946285d16eabdfbb50",
+    "scratch_source": ".sn/receiver-array-concat.sn",
+    "scratch_source_sha256": "e445362468f91f8b1e884f94eb9e1da47cd9823f70ba2a032e700182e5656f3e",
+    "stdout_hex": "747275650a747275650a747275650a",
+    "run_status": 0,
+    "stderr_hex": ""
+  },
+  "tests/rust-native/scalar_physical_receiver_sized.sn": {
+    "source_sha256": "12ccabf1cc5e9779e94fc1d7f2fd9025a9591a4df8a4b524a8e4415400856f34",
+    "scratch_source": ".sn/receiver-array-sized.sn",
+    "scratch_source_sha256": "54e8870586eee84fb4a7709be153132ac4cac44168c9006f971b2e7089252d5b",
+    "stdout_hex": "747275650a747275650a",
+    "run_status": 0,
+    "stderr_hex": ""
+  },
+  "tests/rust-native/scalar_physical_receiver_nested_method.sn": {
+    "source_sha256": "3dd80a2a1a3a59d51b26921147b097c53d956ea54e21ec39a35e0b062898fc84",
+    "scratch_source": ".sn/receiver-array-nested-method.sn",
+    "scratch_source_sha256": "e1820a12354369e3bf38157fc8007fe0f7f1b871a9c2f8c1fccd79da4f88ec66",
+    "stdout_hex": "747275650a747275650a",
+    "run_status": 0,
+    "stderr_hex": ""
+  },
+  "tests/rust-native/scalar_physical_receiver_sized_effects.sn": {
+    "source_sha256": "31f985374de7b3f57db06537cc7d40280fd6d68e02ef00efdc68368711b12796",
+    "scratch_source": ".sn/receiver-array-sized-effects.sn",
+    "scratch_source_sha256": "634583aefe67287438744bf41a6e4dc43e3ee4110cf0f2d65677f21e14da3403",
+    "stdout_hex": "747275650a747275650a747275650a",
+    "run_status": 0,
+    "stderr_hex": ""
+  },
+  "tests/rust-native/scalar_physical_receiver_recursive_method.sn": {
+    "source_sha256": "6a6f4805bdb17a836a72996cbc5150f91443239d0a24880c06623adeb768415a",
+    "scratch_source": ".sn/receiver-array-recursive-method.sn",
+    "scratch_source_sha256": "2b53220e2ef242c1b32b18d13cd6c444d602dc191b32f639c39deaa4b477185f",
+    "stdout_hex": "747275650a747275650a",
+    "run_status": 0,
+    "stderr_hex": ""
+  },
+  "tests/rust-native/scalar_physical_receiver_argument_removal.sn": {
+    "source_sha256": "af71797a267db1f2831123b47063f55a8421bc1728261905136eb55687557ea8",
+    "scratch_source": ".sn/receiver-array-argument-removal.sn",
+    "scratch_source_sha256": "5f66a6624aded6a7e4ad0341f74837d915e9c07913ef7370341b73b01faa835f",
+    "stdout_hex": "747275650a747275650a",
+    "run_status": 0,
+    "stderr_hex": ""
+  },
+  "tests/rust-native/scalar_physical_receiver_more_operations.sn": {
+    "source_sha256": "b9e3279e076eb7f6667bd68e1b640926d6fb50566a50dfe764d816aab527b58f",
+    "scratch_source": "/home/gavin/code/sindarin/sindarin-physical-receivers-named-cb36/.sn/receiver-array-more-operations.sn",
+    "scratch_source_sha256": "53fe054c258fc12a67c10696367a041ccc3bfa6fbd47c1d6ef5b43fc3a61e772",
+    "stdout_hex": "747275650a747275650a747275650a747275650a",
+    "run_status": 0,
+    "stderr_hex": ""
+  },
+  "tests/rust-native/scalar_physical_receiver_named_function.sn": {
+    "source_sha256": "85eab205d23890dc9165a826a6266756df2b2f4119fa972ee5ed8412ea0a9673",
+    "scratch_source": "/home/gavin/code/sindarin/sindarin-physical-receivers-named-cb36/.sn/receiver-named-function.sn",
+    "scratch_source_sha256": "86ba945702f7407875d1785982b151bd8e740cff5370d70c7aa95704242cef94",
+    "stdout_hex": "747275650a747275650a",
+    "run_status": 0,
+    "stderr_hex": ""
+  },
+  "tests/rust-native/scalar_physical_receiver_direct_call.sn": {
+    "source_sha256": "8ee23ae3e663f29c149a6748e57bcc15f2a22875eff608695ebfc97d92008082",
+    "scratch_source": "/home/gavin/code/sindarin/sindarin-physical-receivers-named-cb36/.sn/receiver-direct-call.sn",
+    "scratch_source_sha256": "b5a44da12fb86cacf9fdbba49c0192aa0f47a93b121f14c2866d5c7f41e9f2fa",
+    "stdout_hex": "747275650a747275650a",
+    "run_status": 0,
+    "stderr_hex": ""
+  },
+  "tests/rust-native/scalar_physical_receiver_named_index_effects.sn": {
+    "source_sha256": "92570b30cedc4a01456cbed78378dbc7e914844448fdb09ceac6452ce2cf046d",
+    "scratch_source": "/home/gavin/code/sindarin/sindarin-physical-receivers-named-cb36/.sn/receiver-named-index-effects.sn",
+    "scratch_source_sha256": "163f48ff92ce5469329bf5169c9726c64d7a9fa947849b3b8e3df38fc1f982e9",
+    "stdout_hex": "747275650a747275650a",
+    "run_status": 0,
+    "stderr_hex": ""
+  },
+  "tests/rust-native/scalar_physical_receiver_named_qualified.sn": {
+    "source_sha256": "e73ca0a63812ff275dca2c7120aeba9b4c5aa9971994a5dd57d74cbb94d82f7f",
+    "scratch_source": "/home/gavin/code/sindarin/sindarin-physical-receivers-named-cb36/.sn/receiver-named-qualified.sn",
+    "scratch_source_sha256": "b066d127f0811aff00fcf1dd58708649f1713c8fbad6f335c490a8aff7ba48dc",
+    "stdout_hex": "747275650a747275650a",
+    "run_status": 0,
+    "stderr_hex": ""
+  },
+  "tests/rust-native/scalar_physical_receiver_nil_concat_capacity.sn": {
+    "source_sha256": "6d00d0e4bba5661076c74ff1ff9b2fca3c2ad20112ac06fe93f8b1e96d961634",
+    "scratch_source": "/home/gavin/code/sindarin/sindarin-physical-receivers-named-cb36/.sn/receiver-nil-concat-capacity.sn",
+    "scratch_source_sha256": "728713bc3cd5ec9eb84c9e3fe3059734ded39db667b9fb192ca6e6dd28669498",
+    "stdout_hex": "747275650a747275650a",
+    "run_status": 0,
+    "stderr_hex": ""
+  },
+  "tests/rust-native/scalar_physical_receiver_mixed_fields.sn": {
+    "source_sha256": "dcf3e56b48004e7733db04cd5ce5a74dd662ef7a7e6e5820b5197c903515198d",
+    "scratch_source": "/home/gavin/code/sindarin/sindarin-physical-receivers-named-cb36/.sn/receiver-mixed-fields.sn",
+    "scratch_source_sha256": "99a6583d40d3bb3d9a4b8f9f6d067321679810071c24036f2e9773ed183c2b48",
+    "stdout_hex": "747275650a747275650a",
+    "run_status": 0,
+    "stderr_hex": ""
+  },
+  "tests/rust-native/scalar_physical_receiver_temporary_owner.sn": {
+    "source_sha256": "ae4f76cd45b7fe7402205aa0575826dcef3670f1a181d9d64b22ac6983bbf88c",
+    "scratch_source": "/home/gavin/code/sindarin/sindarin-physical-receivers-named-cb36/.sn/receiver-temporary-owner.sn",
+    "scratch_source_sha256": "9a12037fed1c76e790966283e02fe9d1565eda17f94af2ea7ca875eb2eb52bd1",
+    "stdout_hex": "747275650a747275650a",
+    "run_status": 0,
+    "stderr_hex": ""
+  },
+  "tests/rust-native/scalar_physical_receiver_foreach_mutation.sn": {
+    "source_sha256": "0d673d948eac6d344139f335569eec83c8e938405ef048e26005f5101f6d28f3",
+    "scratch_source": "/home/gavin/code/sindarin/sindarin-physical-receivers-named-cb36/.sn/receiver-foreach-mutation.sn",
+    "scratch_source_sha256": "d785fbd95c320a9bd7c9a4edbbf375e7e0dbc557c71718346f726373f5bf72d5",
+    "stdout_hex": "747275650a747275650a747275650a",
+    "run_status": 0,
+    "stderr_hex": ""
+  },
+  "tests/rust-native/scalar_physical_receiver_foreach_rebind.sn": {
+    "source_sha256": "ad18bfb779429e41ce560cbffc4ab00e5e87ceecf8b59fef824f780f55765ed7",
+    "scratch_source": "/home/gavin/code/sindarin/sindarin-physical-receivers-named-cb36/.sn/receiver-foreach-closure-rebind.sn",
+    "scratch_source_sha256": "8e6543966d720e18dabdf8190fc75be0988b4e8ce0b8c4d4ac107ed647f0e372",
+    "stdout_hex": "747275650a747275650a747275650a",
+    "run_status": 0,
+    "stderr_hex": ""
+  },
+  "tests/rust-native/scalar_physical_receiver_foreach_growth.sn": {
+    "source_sha256": "1fba9517a4f47099c4609c527e4160faaba1a18aa4bf70d3a6fba088ef23441f",
+    "scratch_source": "/home/gavin/code/sindarin/sindarin-physical-receivers-named-cb36/.sn/receiver-foreach-growth.sn",
+    "scratch_source_sha256": "69f7870c9e352a4b799fcfe9c8bd7141437f73c3dbab5096ff0ea11377c384b3",
+    "stdout_hex": "747275650a747275650a747275650a",
+    "run_status": 0,
+    "stderr_hex": ""
+  }
+}

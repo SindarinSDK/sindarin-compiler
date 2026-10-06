@@ -1,0 +1,15 @@
+struct Item =>
+  value: int
+
+  fn inspect(a: Item[] as val): int =>
+    a.remove(0)
+    self.value += 1
+    return self.value * 100 + a.length
+
+fn call(rows: Item[], a: Item[]): int =>
+  return rows[0].inspect(a)
+
+fn main(): void =>
+  var values: Item[] = { Item { value: 7 } }
+  println(call(values, values) == 800)
+  println(values.length == 1 && values[0].value == 8)

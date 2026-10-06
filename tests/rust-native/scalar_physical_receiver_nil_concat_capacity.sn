@@ -1,0 +1,19 @@
+struct Item =>
+  value: int
+
+  fn pushed(a: Item[]): int =>
+    a.push(Item { value: 20 })
+    self.value += 1
+    return self.value
+
+fn main(): void =>
+  var source: Item[] = { Item { value: 7 } }
+  source.push(Item { value: 1 })
+  source.push(Item { value: 2 })
+  source.push(Item { value: 3 })
+  source.push(Item { value: 4 })
+  var absent: Item[] = nil
+  var left: Item[] = absent.concat(source)
+  println(left[0].pushed(left) == 8 && left.length == 6 && source[0].value == 7)
+  var right: Item[] = source.concat(absent)
+  println(right[0].pushed(right) == 8 && right.length == 6 && source[0].value == 7)

@@ -1,0 +1,18 @@
+struct Item =>
+  value: int
+
+  fn pushed(a: Item[]): int =>
+    a.push(Item { value: 20 })
+    self.value += 1
+    return self.value
+
+fn main(): void =>
+  var pushed: fn(Item[], Item[]): int = fn(rows: Item[], a: Item[]): int =>
+    return rows[0].pushed(a)
+  var original: Item[] = { Item { value: 7 } }
+  var copied: Item[] = original.clone()
+  println(pushed(copied, copied) == 8 && copied.length == 2 && original[0].value == 7)
+  var joined: Item[] = original.concat({})
+  println(pushed(joined, joined) == 8 && joined.length == 2 && original.length == 1)
+  var sliced: Item[] = original[0..1]
+  println(pushed(sliced, sliced) == 8 && sliced.length == 2 && original[0].value == 7)

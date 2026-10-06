@@ -5,6 +5,48 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Physical value-record receivers, 2026-10-06 — unpublished
+
+The prepared Rust change gives plain scalar-field record arrays a stable owned
+header and raw buffer with C's minimum capacity and doubling policy. Clones
+retain capacity; removal and clearing retain initialized physical slots.
+Indexed calls check the source index before evaluating arguments, then pass a
+raw slot pointer into a generated method helper. Ordinary and closure calls,
+effectful indexes, nested calls and recursion use that receiver representation.
+
+Nil arrays, concatenation, slices and explicit sized-array defaults use the same
+storage. A nil concat operand copies the other operand with its original spare
+capacity. Foreach caches the original header and length, reloads its current
+buffer for each Copy value, and releases cell borrows before the body. This
+preserves reversal, growth and private parameter rebinding during iteration.
+C explicit plain-record sized defaults now assign the record to a temporary
+before pushing it; per-element effects and zero-size behavior remain intact.
+
+Twenty-two permanent fixtures pin source hashes and literal outputs for **198**
+comparisons and **66 C + 66 Rust** sanitizer executions. All **86** combined
+acceptance commands pass with frozen inputs, including the complete C/Rust
+suites, exactly **278** native fixtures and strict **64 reports / 5772 cases**.
+All **1365** original source hashes and existing goldens remain unchanged; the
+new fixtures are formatted and independently hashed. The change is prepared
+against current main `cb36f402`, with no hosted acceptance claim for this
+unpublished increment. Its new gate runs on all three platforms, with C/Rust
+sanitizers on Linux.
+
+The discarded Vec prototype and nil-concat implementation both caused Rust
+use-after-free failures under ASAN; neither receives parity credit. Borrowed
+method-self captures remain a verified gap: C's lambda observes later receiver
+mutation, while Rust rejects the capture. Managed record fields, native layouts,
+interface identity, wider lifetime/qualification/thread cases and the complete
+backend goal remain unfinished. C stays the default target. The timeout repair
+on main needs its exact-revision runtime checks green before this change lands.
+
+Evidence: [validation](rust-parity-evidence/physical-receiver-validation.json),
+[oracles](rust-parity-evidence/physical-receiver-oracles.json),
+[comparisons](rust-parity-evidence/physical-receiver-after.json),
+[C lifetimes](rust-parity-evidence/physical-receiver-c-lifetimes.json),
+[Rust lifetimes](rust-parity-evidence/physical-receiver-rust-lifetimes.json),
+[review failures and remaining gap](rust-parity-evidence/physical-review-findings.json).
+
 ## Windows native test compilation timeout, 2026-10-06
 
 An earlier Windows runtime job failed when `scalar_alias_partitions_5` reached

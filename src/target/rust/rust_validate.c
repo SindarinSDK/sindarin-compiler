@@ -1578,10 +1578,15 @@ static bool rust_validate_expr(json_object *expr)
             !rust_type_supported(element_type)) return false;
         const char *element_kind = json_string_property(element_type, "kind");
         json_object *default_value = NULL;
-        return element_kind && strcmp(element_kind, "struct") != 0 &&
-               rust_validate_expr(size) &&
-               (!json_object_object_get_ex(expr, "default_value", &default_value) ||
-                rust_validate_expr(default_value));
+        if (!element_kind || !rust_validate_expr(size)) return false;
+        bool has_default = json_object_object_get_ex(expr, "default_value", &default_value);
+        if (strcmp(element_kind, "struct") == 0) {
+            json_object *structure = rust_find_struct(rust_validation_model,
+                json_string_property(element_type, "name"));
+            if (!has_default || !rust_auto_copy_plain_value_struct_type(element_type, NULL) ||
+                json_boolean_property(structure, "has_heap_fields")) return false;
+        }
+        return !has_default || rust_validate_expr(default_value);
     }
     if (strcmp(kind, "array_access") == 0)
     {

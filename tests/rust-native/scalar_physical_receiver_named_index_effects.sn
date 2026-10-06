@@ -1,0 +1,21 @@
+struct Item =>
+  value: int
+
+  fn inspect(a: Item[]): int =>
+    var before: int = self.value
+    a.remove(0)
+    self.value += 1
+    return before * 100 + self.value
+
+fn choose(calls: int as ref): int =>
+  calls += 1
+  return 0
+
+fn call(rows: Item[], a: Item[], calls: int as ref): int =>
+  return rows[choose(calls)].inspect(a)
+
+fn main(): void =>
+  var values: Item[] = { Item { value: 7 } }
+  var calls: int = 0
+  println(call(values, values, calls) == 708)
+  println(values.length == 0 && calls == 1)

@@ -1,0 +1,17 @@
+struct Item =>
+  value: int
+
+  fn read(): int =>
+    return self.value
+
+fn main(): void =>
+  var values: Item[] = { Item { value: 7 }, Item { value: 30 } }
+  println(values[0].read() == 7)
+  var total: int = 0
+  for item in values =>
+    total += item.value
+    values.push(Item { value: 1 })
+    values.push(Item { value: 2 })
+    values.push(Item { value: 3 })
+  println(total == 37 && values.length == 8)
+  println(values[0].value == 7 && values[1].value == 30)

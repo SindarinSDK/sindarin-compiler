@@ -3196,6 +3196,10 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
             {
                 json_object_object_add(obj, "default_value",
                     gen_model_expr(arena, expr->as.sized_array_alloc.default_value, symbol_table, arithmetic_mode));
+                Type *element = expr->as.sized_array_alloc.element_type;
+                if (element && element->kind == TYPE_STRUCT &&
+                    gen_model_type_category(element) == TYPE_CAT_INERT)
+                    json_object_object_add(obj, "c_sized_record_default", json_object_new_boolean(true));
             }
             break;
         }

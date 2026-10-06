@@ -1,0 +1,15 @@
+struct Item =>
+  value: int
+
+  fn pushed(a: Item[]): int =>
+    a.push(Item { value: 20 })
+    self.value += 1
+    return self.value
+
+fn main(): void =>
+  var pushed: fn(Item[], Item[]): int = fn(rows: Item[], a: Item[]): int =>
+    return rows[0].pushed(a)
+  var sized: Item[1] = Item { value: 7 }
+  println(pushed(sized, sized) == 8 && sized.length == 2 && sized[1].value == 20)
+  var copied: Item[] = sized.clone()
+  println(pushed(copied, copied) == 9 && copied.length == 3 && sized[0].value == 8)

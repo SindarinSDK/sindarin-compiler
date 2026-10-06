@@ -1,0 +1,48 @@
+struct Item =>
+  value: int
+
+  fn cleared(a: Item[]): int =>
+    var before: int = self.value
+    a.clear()
+    self.value += 1
+    return before * 100 + self.value
+
+  fn popped(a: Item[]): int =>
+    var before: int = self.value
+    var removed: Item = a.pop()
+    self.value += 1
+    return before * 100 + self.value + removed.value * 10000
+
+  fn inserted(a: Item[]): int =>
+    var before: int = self.value
+    a.insert(Item { value: 20 }, 0)
+    self.value += 1
+    return before * 100 + self.value
+
+  fn pushed(a: Item[]): int =>
+    a.push(Item { value: 20 })
+    self.value += 1
+    return self.value
+
+fn main(): void =>
+  var cleared: fn(Item[], Item[]): int = fn(rows: Item[], a: Item[]): int =>
+    return rows[0].cleared(a)
+  var popped: fn(Item[], Item[]): int = fn(rows: Item[], a: Item[]): int =>
+    return rows[0].popped(a)
+  var inserted: fn(Item[], Item[]): int = fn(rows: Item[], a: Item[]): int =>
+    return rows[0].inserted(a)
+  var pushed: fn(Item[], Item[]): int = fn(rows: Item[], a: Item[]): int =>
+    return rows[0].pushed(a)
+  var first: Item[] = { Item { value: 7 } }
+  println(cleared(first, first) == 708 && first.length == 0)
+  var second: Item[] = { Item { value: 7 } }
+  println(popped(second, second) == 70708 && second.length == 0)
+  var third: Item[] = { Item { value: 7 } }
+  println(inserted(third, third) == 721 && third[0].value == 21 && third[1].value == 7)
+  var grown: Item[] = { Item { value: 7 } }
+  grown.push(Item { value: 1 })
+  grown.push(Item { value: 2 })
+  grown.push(Item { value: 3 })
+  grown.push(Item { value: 4 })
+  var copied: Item[] = grown.clone()
+  println(pushed(copied, copied) == 8 && copied.length == 6 && grown[0].value == 7)

@@ -1,0 +1,26 @@
+struct Item =>
+  value: int
+
+  fn pushed(a: Item[]): int =>
+    a.push(Item { value: 20 })
+    self.value += 1
+    return self.value
+
+fn bound(calls: int as ref): int =>
+  calls += 1
+  return 2
+
+fn next(calls: int as ref): Item =>
+  calls += 1
+  return Item { value: calls }
+
+fn main(): void =>
+  var pushed: fn(Item[], Item[]): int = fn(rows: Item[], a: Item[]): int =>
+    return rows[0].pushed(a)
+  var boundCalls: int = 0
+  var defaultCalls: int = 0
+  var sized: Item[bound(boundCalls)] = next(defaultCalls)
+  println(boundCalls == 4 && defaultCalls == 2 && sized[0].value == 1 && sized[1].value == 2)
+  println(pushed(sized, sized) == 2 && sized.length == 3 && sized[2].value == 20)
+  var empty: Item[0] = next(defaultCalls)
+  println(defaultCalls == 2 && empty.length == 0)

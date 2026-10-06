@@ -1,0 +1,13 @@
+struct Item =>
+  value: int
+
+  fn inspect(a: Item[], b: Item[]): int =>
+    self.value += 1
+    return a[0].value + b[0].value
+
+fn main(): void =>
+  var values: Item[] = { Item { value: 1 } }
+  var call: fn(Item[], Item[], Item[]): int = fn(rows: Item[], a: Item[], b: Item[]): int =>
+    return rows[0].inspect(a, b)
+  println(call(values, values, values) == 4)
+  println(values[0].value == 2)

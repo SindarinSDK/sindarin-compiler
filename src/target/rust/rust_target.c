@@ -370,6 +370,7 @@ static bool rust_emit(CompilerOptions *options, Module *module,
                 json_boolean_property(structure, "rust_thread_reference_identity")));
         }
     }
+    if (!rust_lower_physical_receivers(model)) { json_object_put(model); return false; }
     char *code = rust_render_model(model, template_dir);
     json_object_put(model);
     if (!code) return false;

@@ -1,0 +1,17 @@
+struct Item =>
+  value: int
+
+  fn inspect(ignored: int): int =>
+    self.value += 1
+    return self.value
+
+fn remove(a: Item[]): int =>
+  a.remove(0)
+  return 0
+
+fn main(): void =>
+  var call: fn(Item[]): int = fn(a: Item[]): int =>
+    return a[0].inspect(remove(a))
+  var values: Item[] = { Item { value: 7 } }
+  println(call(values) == 8)
+  println(values.length == 0)

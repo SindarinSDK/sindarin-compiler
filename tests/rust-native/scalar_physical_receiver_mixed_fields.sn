@@ -1,0 +1,31 @@
+struct Item =>
+  signed: int32
+  unsigned: uint32
+  marker: char
+  enabled: bool
+  fraction: float
+  measure: double
+  small: byte
+
+  fn inspect(a: Item[]): bool =>
+    a.remove(0)
+    self.signed += 1i32
+    self.unsigned += 1u32
+    self.small += 1b
+    self.enabled = !self.enabled
+    self.fraction += 0.5
+    self.measure += 0.25
+    return self.signed == 8i32 && self.unsigned == 10u32 && self.marker == 'z' && self.enabled && self.fraction == 1.5 && self.measure == 2.25 && self.small == 4b
+
+fn main(): void =>
+  var values: Item[] = { Item {
+    signed: 7i32,
+    unsigned: 9u32,
+    marker: 'z',
+    enabled: false,
+    fraction: 1.0,
+    measure: 2.0,
+    small: 3b
+  } }
+  println(values[0].inspect(values))
+  println(values.length == 0)

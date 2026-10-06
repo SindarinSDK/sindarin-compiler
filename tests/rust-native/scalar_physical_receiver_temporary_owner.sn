@@ -1,0 +1,20 @@
+struct Item =>
+  value: int
+
+  fn inspect(amount: int): int =>
+    self.value += amount
+    return self.value
+
+fn produce(calls: int as ref): Item[] =>
+  calls += 1
+  return { Item { value: 7 } }
+
+fn amount(calls: int as ref): int =>
+  calls += 1
+  return 2
+
+fn main(): void =>
+  var ownerCalls: int = 0
+  var argumentCalls: int = 0
+  println(produce(ownerCalls)[0].inspect(amount(argumentCalls)) == 9)
+  println(ownerCalls == 1 && argumentCalls == 1)

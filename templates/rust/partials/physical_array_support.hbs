@@ -1,0 +1,151 @@
+// Copy-only value records retain physical slots after logical removal.
+// The stable header owns raw storage. Array Clone copies the allocation;
+// compiler-created iterator views share only this header and load Copy values.
+// No slice or RefCell borrow spans a receiver call or iteration body.
+struct {{rust_ident rust_physical_header_name}}<T: Copy> {
+    data: std::ptr::NonNull<T>,
+    length: usize,
+    capacity: usize,
+}
+struct {{rust_ident rust_physical_array_name}}<T: Copy> {
+    header: std::sync::Arc<std::cell::UnsafeCell<{{rust_ident rust_physical_header_name}}<T>>>,
+}
+struct {{rust_ident rust_physical_iterator_name}}<T: Copy> {
+    header: std::sync::Arc<std::cell::UnsafeCell<{{rust_ident rust_physical_header_name}}<T>>>,
+    index: usize,
+    length: usize,
+}
+impl<T: Copy> Iterator for {{rust_ident rust_physical_iterator_name}}<T> {
+    type Item = T;
+    fn next(&mut self) -> Option<T> {
+        if self.index == self.length { return None; }
+        // Reload the original header's current data after each loop body.
+        let value = unsafe { (*self.header.get()).data.as_ptr().add(self.index).read() };
+        self.index += 1;
+        Some(value)
+    }
+}
+impl<T: Copy> {{rust_ident rust_physical_array_name}}<T> {
+    fn allocate(capacity: usize) -> Self {
+        assert!(std::mem::size_of::<T>() != 0);
+        let layout = std::alloc::Layout::array::<T>(capacity).expect("array allocation size");
+        let data = unsafe { std::alloc::alloc(layout).cast::<T>() };
+        let data = std::ptr::NonNull::new(data).unwrap_or_else(|| std::alloc::handle_alloc_error(layout));
+        Self { header: std::sync::Arc::new(std::cell::UnsafeCell::new({{rust_ident rust_physical_header_name}} { data, length: 0, capacity })) }
+    }
+    fn nil() -> Self { Self { header: std::sync::Arc::new(std::cell::UnsafeCell::new({{rust_ident rust_physical_header_name}} { data: std::ptr::NonNull::dangling(), length: 0, capacity: 0 })) } }
+    fn new() -> Self { Self::allocate(4) }
+    fn from_vec(values: Vec<T>) -> Self {
+        let mut result = Self::allocate(values.len().max(4));
+        for value in values { result.push(value); }
+        result
+    }
+    fn {{rust_ident rust_physical_iteration_method}}(&self) -> {{rust_ident rust_physical_iterator_name}}<T> {
+        {{rust_ident rust_physical_iterator_name}} { header: self.header.clone(), index: 0, length: self.len() }
+    }
+    fn len(&self) -> usize { unsafe { (*self.header.get()).length } }
+    fn is_empty(&self) -> bool { unsafe { (*self.header.get()).length == 0 } }
+    fn is_nil(&self) -> bool { unsafe { (*self.header.get()).capacity == 0 } }
+    // The call site checks the source index before evaluating arguments.
+    // Arguments may remove/clear the logical slot while its initialized
+    // physical storage remains in this allocation. Do not re-check length.
+    fn slot_ptr(&self, index: usize) -> *mut T { unsafe {
+        assert!(index < (*self.header.get()).capacity);
+        (*self.header.get()).data.as_ptr().add(index)
+    } }
+    fn as_slice(&self) -> &[T] { unsafe { std::slice::from_raw_parts((*self.header.get()).data.as_ptr(), (*self.header.get()).length) } }
+    fn as_mut_slice(&mut self) -> &mut [T] { unsafe { std::slice::from_raw_parts_mut((*self.header.get()).data.as_ptr(), (*self.header.get()).length) } }
+    fn reserve_one(&mut self) { unsafe {
+        assert!(!self.is_nil(), "cannot mutate nil array");
+        if (*self.header.get()).length == (*self.header.get()).capacity {
+            let capacity = (*self.header.get()).capacity.checked_mul(2).expect("array capacity overflow");
+            let old = std::alloc::Layout::array::<T>((*self.header.get()).capacity).expect("array allocation size");
+            let new = std::alloc::Layout::array::<T>(capacity).expect("array allocation size");
+            let data = std::alloc::realloc((*self.header.get()).data.as_ptr().cast(), old, new.size()).cast::<T>();
+            (*self.header.get()).data = std::ptr::NonNull::new(data).unwrap_or_else(|| std::alloc::handle_alloc_error(new));
+            (*self.header.get()).capacity = capacity;
+        }
+    } }
+    fn push(&mut self, value: T) { unsafe {
+        self.reserve_one();
+        (*self.header.get()).data.as_ptr().add((*self.header.get()).length).write(value);
+        (*self.header.get()).length += 1;
+    } }
+    fn pop(&mut self) -> Option<T> { unsafe {
+        if self.is_empty() { return None; }
+        (*self.header.get()).length -= 1;
+        Some((*self.header.get()).data.as_ptr().add((*self.header.get()).length).read())
+    } }
+    fn insert(&mut self, index: usize, value: T) { unsafe {
+        assert!(index <= (*self.header.get()).length);
+        self.reserve_one();
+        let place = (*self.header.get()).data.as_ptr().add(index);
+        std::ptr::copy(place, place.add(1), (*self.header.get()).length - index);
+        place.write(value);
+        (*self.header.get()).length += 1;
+    } }
+    fn remove(&mut self, index: usize) -> T { unsafe {
+        assert!(index < (*self.header.get()).length);
+        let place = (*self.header.get()).data.as_ptr().add(index);
+        let value = place.read();
+        std::ptr::copy(place.add(1), place, (*self.header.get()).length - index - 1);
+        (*self.header.get()).length -= 1;
+        value
+    } }
+    fn clear(&mut self) { unsafe { (*self.header.get()).length = 0; } }
+    fn reverse(&mut self) { unsafe {
+        for index in 0..(*self.header.get()).length / 2 {
+            std::ptr::swap((*self.header.get()).data.as_ptr().add(index), (*self.header.get()).data.as_ptr().add((*self.header.get()).length - index - 1));
+        }
+    } }
+    fn extend<I: IntoIterator<Item = T>>(&mut self, values: I) { for value in values { self.push(value); } }
+    fn concat_nullable(&self, other: &Self) -> Self { unsafe {
+        // C copies the non-nil operand, preserving its spare capacity.
+        if self.is_nil() { return other.clone(); }
+        if other.is_nil() { return self.clone(); }
+        let total = (*self.header.get()).length.checked_add((*other.header.get()).length).expect("array length overflow");
+        let mut result = Self::allocate(total.max(4));
+        result.extend(self.as_slice().iter().copied());
+        result.extend(other.as_slice().iter().copied());
+        result
+    } }
+}
+impl<T: Copy> Clone for {{rust_ident rust_physical_array_name}}<T> {
+    fn clone(&self) -> Self { unsafe {
+        if self.is_nil() { return Self::nil(); }
+        let result = Self::allocate((*self.header.get()).capacity);
+        std::ptr::copy_nonoverlapping((*self.header.get()).data.as_ptr(), (*result.header.get()).data.as_ptr(), (*self.header.get()).length);
+        (*result.header.get()).length = (*self.header.get()).length;
+        result
+    } }
+}
+impl<T: Copy> Drop for {{rust_ident rust_physical_header_name}}<T> {
+    fn drop(&mut self) {
+        if self.capacity != 0 {
+            unsafe { std::alloc::dealloc(self.data.as_ptr().cast(), std::alloc::Layout::array::<T>(self.capacity).expect("array allocation size")); }
+        }
+    }
+}
+impl<T: Copy> Default for {{rust_ident rust_physical_array_name}}<T> { fn default() -> Self { Self::nil() } }
+impl<T: Copy + std::fmt::Debug> std::fmt::Debug for {{rust_ident rust_physical_array_name}}<T> {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result { self.as_slice().fmt(formatter) }
+}
+impl<T: Copy + PartialEq> PartialEq for {{rust_ident rust_physical_array_name}}<T> {
+    fn eq(&self, other: &Self) -> bool { self.is_nil() == other.is_nil() && self.as_slice() == other.as_slice() }
+}
+impl<T: Copy> std::ops::Deref for {{rust_ident rust_physical_array_name}}<T> {
+    type Target = [T]; fn deref(&self) -> &[T] { self.as_slice() }
+}
+impl<T: Copy> std::ops::DerefMut for {{rust_ident rust_physical_array_name}}<T> {
+    fn deref_mut(&mut self) -> &mut [T] { self.as_mut_slice() }
+}
+impl<T: Copy> IntoIterator for {{rust_ident rust_physical_array_name}}<T> {
+    type Item = T; type IntoIter = std::vec::IntoIter<T>;
+    fn into_iter(self) -> Self::IntoIter { self.as_slice().to_vec().into_iter() }
+}
+impl<'a, T: Copy> IntoIterator for &'a {{rust_ident rust_physical_array_name}}<T> {
+    type Item = &'a T; type IntoIter = std::slice::Iter<'a, T>;
+    fn into_iter(self) -> Self::IntoIter { self.as_slice().iter() }
+}
+unsafe impl<T: Copy + Send> Send for {{rust_ident rust_physical_array_name}}<T> {}
+unsafe impl<T: Copy + Sync> Sync for {{rust_ident rust_physical_array_name}}<T> {}

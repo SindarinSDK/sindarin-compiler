@@ -15,7 +15,9 @@
 {{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}
         for (long long __si__ = 0; __si__ < (long long)({{> expr size}}); __si__++) {
 {{#if (eq element_type.kind "string")}}            sn_array_push(__sa__, &(char *){ {{#if default_value}}strdup({{> expr default_value}}){{else}}NULL{{/if}} });
+{{else}}{{#if c_sized_record_default}}            {{c_type element_type}} __sn_ci_sized_default = {{> expr default_value}};
+            sn_array_push(__sa__, &__sn_ci_sized_default);
 {{else}}            sn_array_push(__sa__, &({{c_type element_type}}){ {{#if default_value}}{{> expr default_value}}{{else}}0{{/if}} });
-{{/if}}        }
+{{/if}}{{/if}}        }
         __sa__;
     })

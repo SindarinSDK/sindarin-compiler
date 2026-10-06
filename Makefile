@@ -1347,3 +1347,32 @@ test-rust-parity-capture-scopes: build
 		--require-count 11 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-capture-scopes.json
 	@$(PYTHON) scripts/check_rust_capture_scope_oracles.py .sn/rust-parity-capture-scopes.json
+
+.PHONY: test-rust-parity-physical-receivers
+test-rust-parity-physical-receivers: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/rust-native/scalar_physical_receiver_retired_slot.sn \
+		tests/rust-native/scalar_physical_receiver_self_alias.sn \
+		tests/rust-native/scalar_physical_receiver_operations.sn \
+		tests/rust-native/scalar_physical_receiver_cloned_storage.sn \
+		tests/rust-native/scalar_physical_receiver_construction.sn \
+		tests/rust-native/scalar_physical_receiver_concat.sn \
+		tests/rust-native/scalar_physical_receiver_sized.sn \
+		tests/rust-native/scalar_physical_receiver_nested_method.sn \
+		tests/rust-native/scalar_physical_receiver_sized_effects.sn \
+		tests/rust-native/scalar_physical_receiver_recursive_method.sn \
+		tests/rust-native/scalar_physical_receiver_argument_removal.sn \
+		tests/rust-native/scalar_physical_receiver_more_operations.sn \
+		tests/rust-native/scalar_physical_receiver_named_function.sn \
+		tests/rust-native/scalar_physical_receiver_direct_call.sn \
+		tests/rust-native/scalar_physical_receiver_named_index_effects.sn \
+		tests/rust-native/scalar_physical_receiver_named_qualified.sn \
+		tests/rust-native/scalar_physical_receiver_nil_concat_capacity.sn \
+		tests/rust-native/scalar_physical_receiver_mixed_fields.sn \
+		tests/rust-native/scalar_physical_receiver_temporary_owner.sn \
+		tests/rust-native/scalar_physical_receiver_foreach_mutation.sn \
+		tests/rust-native/scalar_physical_receiver_foreach_rebind.sn \
+		tests/rust-native/scalar_physical_receiver_foreach_growth.sn \
+		--require-count 22 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-physical-receivers.json
+	@$(PYTHON) scripts/check_rust_physical_receiver_oracles.py .sn/rust-parity-physical-receivers.json

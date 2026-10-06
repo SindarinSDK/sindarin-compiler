@@ -10,4 +10,6 @@
 {{/if}}{{#each rust_array_copy_inputs}}    let {{rust_ident name}} = &mut *{{rust_ident source}};{{nl}}{{/each}}{{#each rust_array_alias_copies}}{{> array_parameter_copy this}}{{/each}}{{#each params}}{{#unless ../rust_array_alias_copies}}{{#if needs_array_copy}}{{> array_parameter_copy this}}{{/if}}{{/unless}}{{#if rust_thread_ref_local}}    let {{rust_ident name}} = {{> closure_owner}}::new({{> capture_cell}}::new({{rust_ident name}}));{{nl}}{{/if}}{{#if rust_shared_owned_cell}}    let {{rust_ident name}}: {{> closure_owner}}<{{> capture_owned_cell}}<{{rust_type type}}>> = {{> closure_owner}}::new({{> capture_owned_cell}}::new({{rust_ident name}}));{{nl}}{{/if}}{{/each}}{{#if rust_native_initializer}}    unsafe {
         {{rust_ident rust_native_initializer_extern_name}}();
     }
-{{/if}}{{#each rust_initialize_globals}}    std::sync::LazyLock::force(&{{rust_ident name}});{{nl}}{{/each}}{{#each body}}    {{> stmt this}}{{nl}}{{/each}}{{#if (eq name "main")}}{{> stdio_flush_stdout indent="    "}}{{nl}}{{/if}}{{rbrace}}{{nl}}{{/if~}}
+{{/if}}{{#each rust_initialize_globals}}    std::sync::LazyLock::force(&{{rust_ident name}});{{nl}}{{/each}}{{#if rust_physical_receiver_body}}    unsafe {
+{{/if}}{{#each body}}    {{> stmt this}}{{nl}}{{/each}}{{#if rust_physical_receiver_body}}    }
+{{/if}}{{#if (eq name "main")}}{{> stdio_flush_stdout indent="    "}}{{nl}}{{/if}}{{rbrace}}{{nl}}{{/if~}}

@@ -1,4 +1,8 @@
-{{#if rust_native_array_iter_owner}}{
+{{#if rust_physical_iteration}}{
+    let {{rust_ident rust_physical_iteration_binding}} = {{#if rust_physical_iteration_cell}}{{rust_ident rust_physical_iteration_cell}}.borrow().{{rust_ident @root.rust_physical_iteration_method}}(){{else}}({{> expr iterable}}).{{rust_ident @root.rust_physical_iteration_method}}(){{/if}};
+    for mut {{rust_ident iterator_name}} in {{rust_ident rust_physical_iteration_binding}} {
+{{#each body.statements}}        {{> stmt this}}{{nl}}{{/each}}    {{rbrace}}
+}{{else}}{{#if rust_native_array_iter_owner}}{
     let {{rust_ident rust_native_array_iter_owner}} = &({{> expr iterable}});
     let {{rust_ident rust_native_array_iter_length}} = {{rust_ident rust_native_array_iter_owner}}.len();
     let mut {{rust_ident rust_native_array_iter_index}}: usize = 0;
@@ -8,4 +12,4 @@
 {{#each body.statements}}        {{> stmt this}}{{nl}}{{/each}}
     }
 }{{else}}for mut {{rust_ident iterator_name}} in ({{> expr iterable}}).iter().cloned() {
-{{#each body.statements}}        {{> stmt this}}{{nl}}{{/each}}    {{rbrace}}{{/if}}
+{{#each body.statements}}        {{> stmt this}}{{nl}}{{/each}}    {{rbrace}}{{/if}}{{/if}}

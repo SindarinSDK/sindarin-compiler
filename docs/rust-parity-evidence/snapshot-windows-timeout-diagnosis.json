@@ -1,0 +1,15 @@
+{
+  "failed_revision": "ccbff0e18d65d04876babbac96d88b7a9a4284a0",
+  "run": 37531879047,
+  "job": 112503025601,
+  "fixture": "scalar_alias_partitions_5",
+  "reason": "Rust default compilation TIMEOUT",
+  "elapsed_seconds": 62.66,
+  "suite_result": "244 passed,1 failed,0 skipped",
+  "failed_log_sha256": "74840df94e8a4fa6d53aaba6bc67127c11e7ef197bac8b0be6f97f9b3a25aa62",
+  "repair_revision": "cb36f4022f4e8acdef453b68efbc91d6780b1ba7",
+  "repair": "Native harness nowusesminimum120secondsforRustonWindows,matchingrgen;C/runlimitsunchanged",
+  "repair_runtime_run": 37537382546,
+  "status": "RepairLinux/macOS runtimegreen,Windowslive;notacceptedallplatformsyet",
+  "integration": "No unrelatedintegrationuntilcurrentrepairCIgreen. Do notrerununchangedancestorcode."
+}
