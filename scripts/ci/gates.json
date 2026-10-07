@@ -1245,6 +1245,16 @@
       ],
       "group": "core",
       "linux_only": false
+    },
+    {
+      "id": "runtime-103",
+      "name": "native nil-result compiler stability (18 repeated mode cases)",
+      "command": [
+        "{python}",
+        "scripts/check_rust_native_nil_compiler.py"
+      ],
+      "linux_only": false,
+      "group": "callbacks"
     }
   ]
 }

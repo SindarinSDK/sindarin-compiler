@@ -1,0 +1,56 @@
+{
+  "base_main": "b08ccc388a2a7c8b272b88409e31b4d29db6c81e",
+  "kind": "corrective batch; feature publication remains frozen",
+  "windows_failure": {
+    "run": 37668525697,
+    "gate": "runtime-102",
+    "cause": "expected CRLF for a raw Rust eprintln diagnostic that emits LF",
+    "correction": "retain CRT CRLF stdout, require exact LF stderr and metadata_entries:0, preserve raw cases on failure",
+    "local_proof": "Linux-hosted emitted Rust with a CRT text-stream shim; not Windows hosted acceptance"
+  },
+  "macos_failure": {
+    "run": 37667533109,
+    "source": "tests/rust-native/scalar_native_callback_native_nil_result.sn",
+    "compile_status": -11,
+    "failing_modes": [
+      "-O0 default",
+      "-O2 default",
+      "-O0 checked"
+    ],
+    "c_program_passed": true,
+    "root_cause": "not yet reproduced or identified",
+    "latest_callback_gate": "b08ccc38 macOS callback gate completed without failure",
+    "local_diagnosis": "24 GCC ASAN compiler builds, 48 allocator-perturbed release builds, 27 optimized Clang ASAN/UBSAN mode pairs and 18 repeated Clang sanitizer compiler executions pass",
+    "new_required_regression": "18 repeated nil-result compiler cases; on macOS use malloc scribbling and retain crash reports/debugger evidence without retrying failures away"
+  },
+  "reports": {
+    ".sn/windows-crt-audit-stream-proof.json": {
+      "sha256": "d896db7e917db33e2ed03dd0caa269e8f4d744a322dc22c02b2fdf7e8dec30b1",
+      "case_count": 0,
+      "passed": true
+    },
+    ".sn/rust-interface-lifetimes.json": {
+      "sha256": "ec496f4d42a11bd4e73f5e124f2bee9da6de2f31d0e6b02951566cd61dfed699",
+      "case_count": 12,
+      "passed": true
+    },
+    ".sn/rust-parity-native-nil-compiler.json": {
+      "sha256": "6cdf0fdc6d1d299e6c876340d33ab2cdcbc4fee4fd52ed0cbe4d4ace30c8cec9",
+      "case_count": 18,
+      "passed": true
+    },
+    ".sn/native-nil-clang-compiler-repeat.json": {
+      "sha256": "efc5237ffdb50efe7bf33442b54b30732e98632ca54e8217ce6a65f9c0a0f0e9",
+      "case_count": 18,
+      "passed": true
+    },
+    ".sn/native-nil-compiler-clang-sanitized.json": {
+      "sha256": "8defc3a503d7053b518aceae76ab432fd14b5fd3ec5b77cd1b14964021f3b27f",
+      "case_count": 27,
+      "passed": true
+    }
+  },
+  "ci_groups": 26,
+  "ci_gates": 270,
+  "hosted_acceptance": "pending; no claim that the macOS crash is resolved"
+}

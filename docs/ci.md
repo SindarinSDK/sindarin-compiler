@@ -24,8 +24,9 @@ four workers with independent executable paths and deterministic report order.
 
 `scripts/ci/gates.json` retains all 98 gates from the previous Rust runtime
 workflow and the five compiler-suite gates, plus structural-interface and
-interface metadata lifetime validation. Linux executes all 105 gates;
-macOS and Windows each execute 81, retaining the original Linux-only sanitizer
+interface metadata lifetime validation and repeated native nil-result compiler
+checks. Linux executes all 106 gates;
+macOS and Windows each execute 82, retaining the original Linux-only sanitizer
 scope. The original Windows compiler-suite Rust checks keep their default ABI;
 the Rust/parity groups retain the pinned `x86_64-pc-windows-gnullvm` ABI.
 

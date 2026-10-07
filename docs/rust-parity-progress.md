@@ -5,6 +5,34 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## CI correction and native nil compiler investigation, 2026-10-07
+
+The required Windows interface lifetime audit failed because it applied the CRT
+stdout newline contract to the injected Rust stderr diagnostic. Rust `eprintln!`
+uses LF. The corrected audit retains exact CRLF Sindarin stdout on Windows and
+requires exact `metadata_entries:0\n` stderr, zero exit status and unchanged
+sources. It now writes raw observations before raising an audit error. Ten CI
+helper tests pass, including rejection of metadata leaks, nonzero exits and
+incorrect stream bytes. All twelve Linux lifetime audits pass; an emitted-Rust
+Windows CRT stream simulation confirms the mixed newline producers. Actual
+hosted Windows acceptance is still pending.
+
+Run `37667533109` also records three macOS compiler SIGSEGVs during code
+generation for the unchanged native nil-result fixture. C succeeds in each
+case. The same callback gate on `b08ccc38` passed, but that does not explain or
+close the intermittent compiler crash. GCC ASAN and allocator-perturbed release
+probes plus optimized Clang ASAN/UBSAN probes have not reproduced it locally.
+A new required 18-case repeated compiler regression uses the frozen source and
+oracle, with malloc scribbling on macOS and crash/debugger evidence retained on
+failure. Failures remain failures; diagnostic reruns receive no parity credit.
+
+This is a corrective batch. Feature publication remains frozen until complete
+Linux/macOS/Windows CI on corrected main is green. The catalog retains all prior
+checks and now requires 270 gate executions across 26 groups. The unexplained
+macOS crash remains a full-goal obligation.
+
+Evidence: [CI correction and remaining investigation](rust-parity-evidence/interface-ci-correction-validation.json).
+
 ## Interface C storage and closure scopes: local verification, 2026-10-07
 
 The recovered interface implementation now uses the selected C compiler for
