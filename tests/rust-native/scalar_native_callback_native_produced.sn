@@ -1,0 +1,7 @@
+native fn make(base: int): fn(int): int =>
+  return fn(value: int): int => 7 + value
+
+fn main(): void =>
+  var action: fn(int): int = make(7)
+  println(action(3) == 10)
+  println(action(4) == 11)

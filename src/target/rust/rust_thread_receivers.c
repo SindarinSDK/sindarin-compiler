@@ -129,6 +129,14 @@ static void rust_thread_receiver_prepare_nodes(json_object *model, json_object *
             json_object_object_add(model, "rust_uses_record_reference_assign", json_object_new_boolean(true));
         }
     }
+    if (kind && strcmp(kind, "var_decl") == 0 && rust_thread_receiver_type(type, names)) {
+        json_object *structure = rust_find_struct(model, json_string_property(rust_thread_receiver_base(type), "name"));
+        json_object *initializer = NULL;
+        json_object_object_get_ex(node, "initializer", &initializer);
+        if (json_boolean_property(structure, "rust_captured_scalar_fields") &&
+            json_string_property_equals(initializer, "kind", "variable"))
+            json_object_object_add(initializer, "rust_needs_clone", json_object_new_boolean(true));
+    }
     const char *place_key = kind && strcmp(kind, "compound_assign") == 0 ? "target" :
         kind && (strcmp(kind, "increment") == 0 || strcmp(kind, "decrement") == 0) ? "operand" : NULL;
     if (place_key && json_object_object_get_ex(node, place_key, &place) &&
@@ -170,6 +178,7 @@ static void rust_thread_capture_record_types(json_object *model, json_object *ty
         json_boolean_property(structure, "is_packed") ||
         json_boolean_property(structure, "is_serializable") ||
         json_boolean_property(structure, "has_user_copy_method") ||
+        json_boolean_property(structure, "rust_native_record_storage") ||
         json_boolean_property(structure, "rust_closure_capture_storage")) return;
     json_object_object_add(structure, "rust_closure_capture_storage", json_object_new_boolean(true));
     json_object_object_add(names, name, json_object_new_boolean(true));
@@ -253,6 +262,7 @@ static void rust_prepare_thread_receivers(json_object *model)
             if (!structure || !json_string_property_equals(structure, "mem_mode", "val") ||
                 !json_boolean_property(structure, "has_heap_fields") ||
                 json_boolean_property(structure, "is_native") ||
+                json_boolean_property(structure, "rust_native_record_storage") ||
                 json_boolean_property(structure, "is_packed") ||
                 json_boolean_property(structure, "is_serializable") ||
                 json_boolean_property(structure, "has_user_copy_method")) continue;

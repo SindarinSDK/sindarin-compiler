@@ -1,0 +1,13 @@
+@source "native_callback_string_effect_order.sn.c"
+
+native fn make(): fn(str): bool
+native fn change(): str
+native fn clear_saved(): void
+
+fn main(): void =>
+  var remember: fn(str): bool = make()
+  var value: str = "hello"
+  println(remember(value))
+  println(value.startsWith(change()))
+  println(value == "Hello")
+  clear_saved()

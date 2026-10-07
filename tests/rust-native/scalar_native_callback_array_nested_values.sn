@@ -1,0 +1,12 @@
+native fn invoke(action: fn(int[][]): int[][], values: int[][]): int[][] =>
+  return action(values)
+
+fn main(): void =>
+  var values: int[][] = {{7}}
+  var action: fn(int[][]): int[][] = fn(input: int[][]): int[][] =>
+    input.push({8})
+    return input
+  var copied: int[][] = invoke(action, values)
+  println(values.length == 2 && values[1][0] == 8)
+  copied.clear()
+  println(values.length == 2 && copied.length == 0)

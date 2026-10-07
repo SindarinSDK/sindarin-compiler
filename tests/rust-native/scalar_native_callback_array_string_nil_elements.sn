@@ -1,0 +1,12 @@
+native fn invoke(action: fn(str[]): str[], values: str[]): str[] =>
+  return action(values)
+
+fn main(): void =>
+  var values: str[] = {"a", ""}
+  values[0] = nil
+  var action: fn(str[]): str[] = fn(input: str[]): str[] => input
+  var copied: str[] = invoke(action, values)
+  println(values[0] == nil && values[1] == "" && values[1] != nil)
+  values[0] = "a"
+  values[1] = nil
+  println(values[0] == "a" && values[1] == nil && copied[0] == nil && copied[1] == "")

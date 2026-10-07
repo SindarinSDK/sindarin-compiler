@@ -1,0 +1,14 @@
+#include <stdlib.h>
+#include <stddef.h>
+#include <pthread.h>
+#define SN_CLOSURE_CREDIT_LOCK {{rust_native_callback_credit_lock}}
+#define SN_CLOSURE_CREDIT_UNLOCK {{rust_native_callback_credit_unlock}}
+#include "sn_minimal.h"
+static pthread_mutex_t credit_gate = PTHREAD_MUTEX_INITIALIZER;
+void {{rust_native_callback_credit_lock}}(void) { pthread_mutex_lock(&credit_gate); }
+void {{rust_native_callback_credit_unlock}}(void) { pthread_mutex_unlock(&credit_gate); }
+void *{{rust_native_callback_alloc}}(size_t size) { return calloc(1, size); }
+void {{rust_native_callback_free}}(void *value) { free(value); }
+void *{{rust_native_callback_retain}}(void *value) { return sn_closure_retain(value); }
+void {{rust_native_callback_release}}(void *value) { sn_closure_release(&value); }
+char *{{rust_native_callback_string_dup}}(const char *value) { return value ? strdup(value) : NULL; }

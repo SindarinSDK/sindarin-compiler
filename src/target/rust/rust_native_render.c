@@ -32,6 +32,15 @@ bool rust_native_emit_support(RustNativePlan *plan, GeneratedFileSet *files,
                            "%s/templates/c", compiler_dir);
     if (written < 0 || (size_t)written >= sizeof(template_dir)) return false;
 
+    json_object *callback_support = rust_native_plan_callback_support(plan);
+    if (callback_support) {
+        const char *keys[] = {"rust_native_callback_credit_lock", "rust_native_callback_credit_unlock"};
+        for (size_t i = 0; i < 2; i++) {
+            json_object *value = NULL;
+            json_object_object_get_ex(callback_support, keys[i], &value);
+            json_object_object_add(split->common_header, keys[i], json_object_get(value));
+        }
+    }
     ModularRenderResult *rendered = gen_model_render_modular_min_c(
         split, template_dir, gen_model_get_min_c_register_fn());
     if (!rendered)
@@ -114,6 +123,16 @@ bool rust_native_emit_support(RustNativePlan *plan, GeneratedFileSet *files,
             free(code);
             return false;
         }
+    }
+    json_object *callbacks = rust_native_plan_callback_support(plan);
+    if (callbacks)
+    {
+        snprintf(template_dir, sizeof(template_dir), "%s/templates/rust/native_callbacks", compiler_dir);
+        char *code = render_with_helpers(callbacks, template_dir,
+            gen_model_get_min_c_register_fn(), "Rust native callbacks");
+        if (!code) return false;
+        if (!generated_file_set_add(files, "sn_native_callbacks.c", code, GENERATED_SOURCE, false))
+        { free(code); return false; }
     }
     return true;
 }

@@ -40,11 +40,15 @@ extern "C" {
     {{#if @root.rust_nullable_arrays}}{{rust_ident @root.rust_nullable_array_name}}::from_vec(result){{else}}result{{/if}}
 }{{#if rust_native_retain_string_name}}{{nl}}{{nl}}
 thread_local! {
-    static {{rust_ident rust_native_retained_strings_name}}: std::cell::RefCell<Vec<Box<[u8]>>> =
+    static {{rust_ident rust_native_retained_strings_name}}: std::cell::RefCell<Vec<{{#if @root.rust_native_callback_strings}}SnString{{else}}Box<[u8]>{{/if}}>> =
         const { std::cell::RefCell::new(Vec::new()) };
 }
 
 fn {{rust_ident rust_native_retain_string_name}}(value: SnString) -> *const std::ffi::c_char {
+{{#if @root.rust_native_callback_strings}}    let pointer = value.native_pointer();
+    {{rust_ident rust_native_retained_strings_name}}.with(|retained| retained.borrow_mut().push(value));
+    return pointer;
+{{else}}
 {{#if @root.rust_nullable_strings}}    if value.is_nil() { return std::ptr::null(); }
 {{/if}}    let mut bytes = value.as_bytes().to_vec();
     bytes.push(0);
@@ -54,4 +58,4 @@ fn {{rust_ident rust_native_retain_string_name}}(value: SnString) -> *const std:
         retained.borrow_mut().push(bytes);
     });
     pointer
-}{{/if}}
+{{/if}}{{rbrace}}{{/if}}

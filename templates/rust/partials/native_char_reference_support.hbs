@@ -1,0 +1,26 @@
+{{#if rust_native_callbacks}}{{#if rust_has_scalar_ref_closures}}
+impl {{rust_ident rust_closure_scalar_ref_type}}<'_, char> {
+    fn char_place(&self) -> *mut char { match &*self.0 {
+        {{rust_ident rust_closure_scalar_storage_type}}::Borrowed(value) => { let mut value = value.borrow_mut(); &mut **value },
+{{#if rust_has_owned_borrow_captures}}        {{rust_ident rust_closure_scalar_storage_type}}::Cell(value) => value.as_ptr(),
+{{#if rust_thread_ownership}}        {{rust_ident rust_closure_scalar_storage_type}}::Capture(value) => value.0.value.get(),
+{{/if}}{{/if}}        {{rust_ident rust_closure_scalar_storage_type}}::Shared(value) => value.value.get(),
+    } }
+    fn persistent_char_pointer(&self) -> Option<*mut std::ffi::c_char> { match &*self.0 {
+{{#if rust_has_owned_borrow_captures}}        {{rust_ident rust_closure_scalar_storage_type}}::Cell(value) => Some(value.byte_ptr()),
+{{/if}}{{#if rust_has_owned_borrow_captures}}{{#if rust_thread_ownership}}        {{rust_ident rust_closure_scalar_storage_type}}::Capture(value) => Some(value.0.char_pointer()),
+{{/if}}{{/if}}        {{rust_ident rust_closure_scalar_storage_type}}::Shared(value) => Some(value.char_pointer()),
+        _ => None,
+    } }
+    fn get_char(&self) -> char { {{rust_ident rust_native_char_read}}(self.char_place()).unwrap_or_else(|| match &*self.0 {
+        {{rust_ident rust_closure_scalar_storage_type}}::Shared(value) => value.get_char(),
+{{#if rust_has_owned_borrow_captures}}{{#if rust_thread_ownership}}        {{rust_ident rust_closure_scalar_storage_type}}::Capture(value) => value.0.get_char(),
+{{/if}}{{/if}}        _ => self.get(),
+    }) }
+    fn set_char(&self, value: char) { if !{{rust_ident rust_native_char_write}}(self.char_place(), value) { match &*self.0 {
+        {{rust_ident rust_closure_scalar_storage_type}}::Shared(cell) => cell.set_char(value),
+{{#if rust_has_owned_borrow_captures}}{{#if rust_thread_ownership}}        {{rust_ident rust_closure_scalar_storage_type}}::Capture(cell) => cell.0.set_char(value),
+{{/if}}{{/if}}        _ => self.set(value),
+    } } }
+}
+{{/if}}{{/if}}{{~!-- trim callback EOF --~}}

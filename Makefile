@@ -1404,3 +1404,78 @@ test-rust-parity-borrowed-captures: build
 		--require-count 21 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-borrowed-captures.json
 	@$(PYTHON) scripts/check_rust_borrowed_capture_oracles.py .sn/rust-parity-borrowed-captures.json
+
+.PHONY: test-rust-parity-native-callbacks
+test-rust-parity-native-callbacks: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/rust-native/scalar_native_callback_array_char_values.sn \
+		tests/rust-native/scalar_native_callback_array_char_alias.sn \
+		tests/rust-native/scalar_native_callback_array_char_foreign.sn \
+		tests/rust-native/scalar_native_callback_array_char_set.sn \
+		tests/rust-native/scalar_native_callback_array_char_methods.sn \
+		tests/rust-native/scalar_native_callback_array_char_hygiene.sn \
+		tests/rust-native/scalar_native_callback_array_string_values.sn \
+		tests/rust-native/scalar_native_callback_array_string_alias.sn \
+		tests/rust-native/scalar_native_callback_array_string_foreign.sn \
+		tests/rust-native/scalar_native_callback_array_string_set.sn \
+		tests/rust-native/scalar_native_callback_array_string_methods.sn \
+		tests/rust-native/scalar_native_callback_array_string_hygiene.sn \
+		tests/rust-native/scalar_native_callback_array_string_store_order.sn \
+		tests/rust-native/scalar_native_callback_array_string_native_write.sn \
+		tests/rust-native/scalar_native_callback_array_string_nil_elements.sn \
+		tests/rust-native/scalar_native_callback_array_char_clear_iteration.sn \
+		tests/rust-native/scalar_native_callback_array_string_native_alias.sn \
+		tests/rust-native/scalar_native_callback_array_string_cell_alias.sn \
+		tests/rust-native/scalar_native_callback_array_string_cell_write.sn \
+		tests/rust-native/scalar_native_callback_array_string_cell_reentry.sn \
+		tests/rust-native/scalar_native_callback_array_string_cell_nested_mutation.sn \
+		tests/rust-native/scalar_native_callback_array_string_captured_alias.sn \
+		tests/rust-native/scalar_native_callback_array_string_captured_private_snapshot.sn \
+		tests/rust-native/scalar_native_callback_array_string_captured_repeat.sn \
+		tests/rust-native/scalar_native_callback_array_string_temporary_alias.sn \
+		tests/rust-native/scalar_native_callback_array_string_temporary_scope.sn \
+		tests/rust-native/scalar_native_callback_array_string_temporary_statement.sn \
+		tests/rust-native/scalar_native_callback_array_string_field_alias.sn \
+		tests/rust-native/scalar_native_callback_array_record_values.sn \
+		tests/rust-native/scalar_native_callback_array_record_field_mutation.sn \
+		tests/rust-native/scalar_native_callback_array_record_pod_values.sn \
+		tests/rust-native/scalar_native_callback_array_nested_values.sn \
+		tests/rust-native/scalar_native_callback_array_nested_inner_mutation.sn \
+		tests/rust-native/scalar_native_callback_array_nested_alias.sn \
+		tests/rust-native/scalar_native_callback_array_nested_element_store.sn \
+		tests/rust-native/scalar_native_callback_array_nested_string_values.sn \
+		tests/rust-native/scalar_native_callback_identity.sn \
+		tests/rust-native/scalar_native_callback_retained.sn \
+		tests/rust-native/scalar_native_callback_retained_identity.sn \
+		tests/rust-native/scalar_native_callback_native_return.sn \
+		tests/rust-native/scalar_native_callback_native_produced.sn \
+		tests/rust-native/scalar_native_callback_foreign_repeat.sn \
+		tests/rust-native/scalar_native_callback_nil_roundtrip.sn \
+		tests/rust-native/scalar_native_callback_native_nil_result.sn \
+		tests/rust-native/scalar_native_callback_optional_named.sn \
+		tests/rust-native/scalar_native_callback_optional_recursive.sn \
+		tests/rust-native/scalar_native_callback_scalar_write_reentry.sn \
+		tests/rust-native/scalar_native_callback_field_reentry.sn \
+		tests/rust-native/scalar_native_callback_char_bridge.sn \
+		tests/rust-native/scalar_native_callback_char_escaped_pointer.sn \
+		tests/rust-native/scalar_native_callback_char_retained_field.sn \
+		tests/rust-native/scalar_native_callback_char_field_c_copy.sn \
+		tests/rust-native/scalar_native_callback_thread_invoke.sn \
+		tests/rust-native/scalar_native_callback_thread_foreign.sn \
+		tests/rust-native/scalar_native_callback_thread_retained_identity.sn \
+		tests/rust-native/scalar_native_callback_parallel_credits.sn \
+		tests/rust-native/scalar_native_callback_string_invoke.sn \
+		tests/rust-native/scalar_native_callback_string_produced.sn \
+		tests/rust-native/scalar_native_callback_string_native_mutate.sn \
+		tests/rust-native/scalar_native_callback_string_retained_input.sn \
+		tests/rust-native/scalar_native_callback_string_effect_order.sn \
+		tests/rust-native/scalar_native_callback_managed_record_escape_snapshot.sn \
+		tests/rust-native/scalar_native_callback_managed_record_snapshot_fields.sn \
+		tests/rust-native/scalar_native_callback_managed_record_snapshot_escape.sn \
+		tests/rust-native/scalar_native_callback_managed_record_snapshot_nested.sn \
+		tests/rust-native/scalar_native_callback_managed_record_snapshot_forwarded.sn \
+		tests/integration/test_interop_edge_cases.sn \
+		tests/integration/test_inline_pointer_passing.sn \
+		--require-count 68 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-native-callbacks.json
+	@$(PYTHON) scripts/check_rust_native_callback_oracles.py .sn/rust-parity-native-callbacks.json

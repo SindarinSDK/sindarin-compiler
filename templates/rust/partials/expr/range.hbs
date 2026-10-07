@@ -1,1 +1,1 @@
-{{#if rust_nullable_array_value}}{{rust_ident @root.rust_nullable_array_name}}::from_vec({{/if}}({{> expr start}}..{{> expr end}}).collect::<Vec<i64>>(){{#if rust_nullable_array_value}}){{/if}}
+{{#if type.rust_native_handle_array}}{{rust_ident type.rust_native_handle_array_name}}::from_vec(({{> expr start}}..{{> expr end}}).collect::<Vec<i64>>()){{else}}{{#if rust_nullable_array_value}}{{rust_ident @root.rust_nullable_array_name}}::from_vec({{/if}}({{> expr start}}..{{> expr end}}).collect::<Vec<i64>>(){{#if rust_nullable_array_value}}){{/if}}{{/if}}

@@ -1,0 +1,17 @@
+@source "native_callback_retained.sn.c"
+
+fn make(value: int as ref): fn(): int =>
+  return fn(): int => value
+
+native fn remember(read: fn(): int): void
+native fn invoke_saved(): int
+native fn clear_saved(): void
+
+fn main(): void =>
+  var value: int = 7
+  var action: fn(): int = make(value)
+  remember(action)
+  value = 30
+  println(invoke_saved() == 30)
+  clear_saved()
+  println(action() == 30)

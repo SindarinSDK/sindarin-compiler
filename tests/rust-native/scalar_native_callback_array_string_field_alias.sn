@@ -1,0 +1,11 @@
+@source "native_callback_array_string_native_alias.sn.c"
+
+struct Storage =>
+  values: str[]
+
+native fn same(values: str[], value: str): bool
+
+fn main(): void =>
+  var state: Storage = { values: {"a"} }
+  println(same(state.values, state.values[0]))
+  println(state.values[0] == "a")

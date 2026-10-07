@@ -1,3 +1,43 @@
+static void rust_prepare_native_string_borrow_calls(json_object *model, json_object *node)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array)) { for (size_t i = 0; i < json_object_array_length(node); i++) rust_prepare_native_string_borrow_calls(model, json_object_array_get_idx(node, i)); return; }
+    if (!json_object_is_type(node, json_type_object)) return;
+    if (json_string_property_equals(node, "kind", "call")) {
+        json_object *callee = rust_closure_property(node, "callee");
+        const char *name = json_string_property(callee, "name");
+        json_object *functions = rust_closure_property(model, "functions");
+        for (size_t f = 0; name && functions && f < json_object_array_length(functions); f++) {
+            json_object *function = json_object_array_get_idx(functions, f);
+            if (!json_string_property_equals(function, "rust_callable_name", name) || !json_boolean_property(function, "rust_native_bridge")) continue;
+            json_object *args = rust_closure_property(node, "args"), *params = rust_closure_property(function, "params");
+            for (size_t a = 0; args && params && a < json_object_array_length(args) && a < json_object_array_length(params); a++) {
+                json_object *arg = json_object_array_get_idx(args, a), *param = json_object_array_get_idx(params, a);
+                if (json_string_property_equals(rust_closure_property(param, "type"), "kind", "string") && json_string_property_equals(arg, "kind", "variable"))
+                    json_object_object_add(arg, "rust_native_string_borrow_arg", json_object_new_boolean(true));
+            }
+        }
+    }
+    json_object_object_foreach(node, key, child) if (strncmp(key, "rust_", 5)) rust_prepare_native_string_borrow_calls(model, child);
+}
+
+static void rust_lower_optional_callable_defaults(json_object *node)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array)) {
+        for (size_t i = 0; i < json_object_array_length(node); i++) rust_lower_optional_callable_defaults(json_object_array_get_idx(node, i));
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
+    if (json_string_property_equals(node, "kind", "function"))
+        json_object_object_add(node, "rust_optional_callable", json_object_new_boolean(true));
+    if (json_string_property_equals(node, "value_kind", "nil") &&
+        json_string_property_equals(rust_closure_property(node, "type"), "kind", "function"))
+        json_object_object_add(node, "rust_function_nil", json_object_new_boolean(true));
+    json_object_object_foreach(node, key, child)
+        if (strncmp(key, "rust_", 5)) rust_lower_optional_callable_defaults(child);
+}
+
 /* All lexical/signature decisions are made by closure validation. This pass
  * only installs rendering flags; the shared C model is never changed. */
 static void rust_lower_closure_node(json_object *node, bool *uses)
@@ -423,6 +463,11 @@ static void rust_lower_closure_array_arguments(json_object *model, json_object *
             char guard[96], pointer[96];
             if (!rust_allocate_helper_name(model, "__sn_native_scalar_guard", guard, sizeof(guard)) ||
                 !rust_allocate_helper_name(model, "__sn_native_scalar_pointer", pointer, sizeof(pointer))) return;
+            if (rust_closure_length(rust_closure_property(model, "rust_native_callbacks")) > 0) {
+                char lease[96];
+                if (!rust_allocate_helper_name(model, "__sn_native_scalar_lease", lease, sizeof(lease))) return;
+                json_object_object_add(arg, "rust_closure_scalar_native_lease", json_object_new_string(lease));
+            }
             json_object_object_add(arg, "rust_closure_scalar_native_guard", json_object_new_string(guard));
             json_object_object_add(arg, "rust_closure_scalar_native_pointer", json_object_new_string(pointer));
             json_object *prior = json_object_new_array();
@@ -573,6 +618,7 @@ static void rust_name_rebindable_array_types(json_object *node, const char *name
 
 static void rust_lower_closures(json_object *model)
 {
+    if (rust_closure_length(rust_closure_property(model, "rust_native_callbacks"))) rust_lower_optional_callable_defaults(model);
     rust_lower_ref_previous_names(model, model);
     bool uses = false;
     rust_lower_closure_node(model, &uses);

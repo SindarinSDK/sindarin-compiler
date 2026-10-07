@@ -1,0 +1,15 @@
+native fn absent(): fn(): int =>
+  return nil
+
+native fn identity(action: fn(): int): fn(): int =>
+  return action
+
+native fn is_nil(action: fn(): int): bool =>
+  return action == nil
+
+fn main(): void =>
+  var action: fn(): int = absent()
+  var returned: fn(): int = identity(action)
+  println(returned == nil && is_nil(returned))
+  var valid: fn(): int = fn(): int => 7
+  println(!is_nil(valid) && identity(valid) == valid)

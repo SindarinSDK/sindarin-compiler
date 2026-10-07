@@ -7,7 +7,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <limits.h>
-#include "sn_minimal.h"
+{{#if rust_native_callback_credit_lock}}#define SN_CLOSURE_CREDIT_LOCK {{rust_native_callback_credit_lock}}
+#define SN_CLOSURE_CREDIT_UNLOCK {{rust_native_callback_credit_unlock}}
+{{/if}}#include "sn_minimal.h"
 {{#each pragmas}}{{#if (eq pragma_type "include")}}
 #include {{{value}}}
 {{/if}}{{/each}}

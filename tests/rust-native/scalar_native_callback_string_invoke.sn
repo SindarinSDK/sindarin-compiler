@@ -1,0 +1,8 @@
+native fn invoke(action: fn(str): str, text: str): str =>
+  return action(text)
+
+fn main(): void =>
+  var suffix: str = "!"
+  var action: fn(str): str = fn(text: str): str => text + suffix
+  println(invoke(action, "hello") == "hello!")
+  println(invoke(action, "again") == "again!" && suffix == "!")

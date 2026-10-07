@@ -1,0 +1,29 @@
+struct Pair =>
+  count: int
+  marker: str
+
+native fn invoke(action: fn(Pair): int, value: Pair as ref): int =>
+  return action(value)
+
+fn remember(value: Pair as ref): fn(): fn(): int =>
+  return fn(): fn(): int =>
+    return fn(): int => value.count + value.marker.length
+
+fn build(): fn(): fn(): int =>
+  var original: Pair = {
+    count: 7,
+    marker: "x"
+  }
+  return remember(original)
+
+fn main(): void =>
+  var factory: fn(): fn(): int = build()
+  var first: fn(): int = factory()
+  var second: fn(): int = factory()
+  println(first() == 8 && second() == 8)
+  var original: Pair = {
+    count: 20,
+    marker: "other"
+  }
+  var action: fn(Pair): int = fn(value: Pair): int => value.count
+  println(invoke(action, original) == 20 && first() == 8)

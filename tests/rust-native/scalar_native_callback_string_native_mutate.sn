@@ -1,0 +1,9 @@
+@source "native_callback_string_native_mutate.sn.c"
+
+native fn make(): fn(str): bool
+
+fn main(): void =>
+  var mutate: fn(str): bool = make()
+  var value: str = "hello"
+  println(mutate(value))
+  println(value == "Hello")

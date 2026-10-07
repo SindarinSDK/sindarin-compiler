@@ -1,0 +1,1 @@
+({ {{#if left.c_function_owned}}sn_auto_fn {{/if}}void *__sn_ci_function_left__ = {{> expr left}}; {{#if right.c_function_owned}}sn_auto_fn {{/if}}void *__sn_ci_function_right__ = {{> expr right}}; bool __sn_ci_function_result__ = __sn_ci_function_left__ {{op_symbol op}} __sn_ci_function_right__; __sn_ci_function_result__; }){{~!-- trim function comparison EOF --~}}

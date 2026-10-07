@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-char *{{rust_native_c_string_dup}}(const char *value) { return value ? strdup(value) : NULL; }
-void {{rust_native_c_string_free}}(char *value) { free(value); }
+{{#if rust_native_c_string_dup}}char *{{rust_native_c_string_dup}}(const char *value) { return value ? strdup(value) : NULL; }
+void {{rust_native_c_string_free}}(char *value) { free(value); }{{/if}}
 {{#each rust_native_records}}{{#if layout_check}}
 bool {{layout_check}}(size_t size, size_t alignment, const size_t *offsets) {
     return size == sizeof(__sn__{{source_name}}) && alignment == _Alignof(__sn__{{source_name}}){{#each fields}} && offsets[{{@index}}] == offsetof(__sn__{{../source_name}}, {{#if c_alias}}{{c_alias}}{{else}}__sn__{{name}}{{/if}}){{/each}};

@@ -1,0 +1,12 @@
+@source "native_callback_array_string_native_alias.sn.c"
+
+native fn same(values: str[], value: str): bool
+native fn invoke(action: fn(str[]): str[], values: str[]): str[] =>
+  return action(values)
+
+fn main(): void =>
+  var values: str[] = {"a"}
+  var action: fn(str[]): str[] = fn(input: str[]): str[] => input
+  var copied: str[] = invoke(action, values)
+  println(same(values, values[0]))
+  println(copied[0] == "a")

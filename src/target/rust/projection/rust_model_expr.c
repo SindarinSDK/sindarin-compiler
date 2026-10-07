@@ -181,50 +181,18 @@ static void hoist_borrow_temps(json_object *call_obj, json_object *args, Expr *c
         /* Also detect lambda expressions used as call args — these
          * malloc a __Closure__ that needs to be freed after the call.
          *
-         * CAVEAT: if the callee returns a struct, the closure may be
-         * stored in a struct field (ownership transfer).  In that case,
-         * sn_auto_fn would free the closure while the struct still
-         * references it.  Only hoist when the callee returns a
-         * non-struct type (it only borrows the closure). */
+         * Stored function parameters acquire their own field reference;
+         * temporary argument ownership ends after the call. */
         json_object *kind_obj = NULL;
         bool is_lambda = false;
         if (json_object_object_get_ex(arg, "kind", &kind_obj))
             is_lambda = strcmp(json_object_get_string(kind_obj), "lambda") == 0;
 
-        bool callee_may_store = false;
-        if (call_expr && call_expr->type == EXPR_CALL &&
-            call_expr->as.call.callee && call_expr->as.call.callee->expr_type &&
-            call_expr->as.call.callee->expr_type->kind == TYPE_FUNCTION)
-        {
-            Type *ret = call_expr->as.call.callee->expr_type->as.function.return_type;
-            if (ret && ret->kind == TYPE_STRUCT)
-                callee_may_store = true;
-        }
-        /* Preserve the same transfer exception for a fresh closure returned
-         * by a call. The chain flattener may lift this argument later; marking
-         * it consumed prevents that temporary from claiming a second cleanup
-         * while the returned struct field owns the original +1 credit. */
-        bool is_returned_closure = false;
-        json_object *arg_type_obj = NULL, *arg_type_kind_obj = NULL;
-        if (kind_obj &&
-            (strcmp(json_object_get_string(kind_obj), "call") == 0 ||
-             strcmp(json_object_get_string(kind_obj), "method_call") == 0 ||
-             strcmp(json_object_get_string(kind_obj), "static_call") == 0) &&
-            json_object_object_get_ex(arg, "type", &arg_type_obj) &&
-            json_object_object_get_ex(arg_type_obj, "kind", &arg_type_kind_obj) &&
-            strcmp(json_object_get_string(arg_type_kind_obj), "function") == 0)
-        {
-            is_returned_closure = true;
-        }
-        if (callee_may_store && is_returned_closure)
-            json_object_object_add(arg, "consumes_source",
-                json_object_new_boolean(true));
-
         json_object *consumes_obj = NULL;
         bool consumes_source =
             json_object_object_get_ex(arg, "consumes_source", &consumes_obj) &&
             json_object_get_boolean(consumes_obj);
-        if ((is_fn || is_lambda) && !callee_may_store && !consumes_source)
+        if ((is_fn || is_lambda) && !consumes_source)
         {
             char var_name[64];
             snprintf(var_name, sizeof(var_name), "__fn_tmp_%d__", i);
@@ -872,6 +840,7 @@ static int maybe_emit_fn_ref_wrapper(Arena *arena, Expr *arg_expr,
         ? symbol_table_lookup_symbol(symbol_table, arg_expr->as.variable.name)
         : NULL;
     if (!arg_sym || !arg_sym->is_function ||
+        arg_expr->as.variable.declaration_scope_depth != arg_sym->declaration_scope_depth ||
         arg_sym->kind == SYMBOL_PARAM ||
         rust_variable_facts(arg_expr).is_parameter)
     {
@@ -887,7 +856,7 @@ static int maybe_emit_fn_ref_wrapper(Arena *arena, Expr *arg_expr,
         rust_gen_model_type(arena, fn_type->as.function.return_type));
 
     json_object *wrap_params = json_object_new_array();
-    bool target_is_native = fn_type->as.function.is_native;
+    bool target_is_native = arg_sym->is_native;
     bool has_borrow = false;
     for (int p = 0; p < fn_type->as.function.param_count; p++)
     {
@@ -987,6 +956,11 @@ static void reflection_add_model_provenance(Arena *arena, json_object *obj,
             rust_gen_model_type(arena, operand->expr_type));
     json_object_object_add(obj, "reflected_is_sized_array",
         json_object_new_boolean(reflection_operand_is_sized_array(operand)));
+}
+
+int rust_gen_model_function_wrapper(Arena *arena, Expr *expr, Type *type, SymbolTable *symbol_table)
+{
+    return maybe_emit_fn_ref_wrapper(arena, expr, type, symbol_table);
 }
 
 json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
@@ -1525,6 +1499,19 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                 }
             }
 
+            if ((expr->as.binary.operator == TOKEN_EQUAL_EQUAL || expr->as.binary.operator == TOKEN_BANG_EQUAL) &&
+                ((expr->as.binary.left->expr_type && expr->as.binary.left->expr_type->kind == TYPE_FUNCTION) ||
+                 (expr->as.binary.right->expr_type && expr->as.binary.right->expr_type->kind == TYPE_FUNCTION)))
+            {
+                bool left_owned = rust_ownership_kind(expr->as.binary.left) == RUST_OWNERSHIP_OWNED;
+                bool right_owned = rust_ownership_kind(expr->as.binary.right) == RUST_OWNERSHIP_OWNED;
+                if (left_owned || right_owned)
+                {
+                    json_object_object_add(obj, "c_owned_function_comparison", json_object_new_boolean(true));
+                    json_object_object_add(left_obj, "c_function_owned", json_object_new_boolean(left_owned));
+                    json_object_object_add(right_obj, "c_function_owned", json_object_new_boolean(right_owned));
+                }
+            }
             json_object_object_add(obj, "left", left_obj);
             json_object_object_add(obj, "right", right_obj);
             json_object_object_add(obj, "arithmetic_mode",
@@ -3130,7 +3117,8 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                 if ((strcmp(field_cleanup, "free_str") == 0 ||
                      strcmp(field_cleanup, "release_ref") == 0 ||
                      strcmp(field_cleanup, "cleanup_val") == 0 ||
-                     strcmp(field_cleanup, "cleanup_arr") == 0) &&
+                     strcmp(field_cleanup, "cleanup_arr") == 0 ||
+                     strcmp(field_cleanup, "free_closure") == 0) &&
                     rust_ownership_kind(expr->as.member_assign.value) == RUST_OWNERSHIP_BORROW)
                 {
                     json_object_object_add(obj, "source_is_borrow",
@@ -3211,7 +3199,7 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                                 json_object_new_boolean(true));
                         }
                     }
-                    else if (ft->kind == TYPE_STRING || ft->kind == TYPE_ARRAY)
+                    else if (ft->kind == TYPE_STRING || ft->kind == TYPE_ARRAY || ft->kind == TYPE_FUNCTION)
                     {
                         if (k == RUST_OWNERSHIP_BORROW)
                         {
@@ -3301,6 +3289,7 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                         fv->expr_type, symbol_table);
                     if (wrap_id >= 0)
                     {
+                        json_object_object_del(f, "source_is_borrow");
                         json_object_object_add(f, "needs_closure_wrap",
                             json_object_new_boolean(true));
                         json_object_object_add(f, "fn_wrapper_id",

@@ -1,0 +1,11 @@
+native fn invoke(action: fn(int[][], int[][]): int, values: int[][]): int =>
+  return action(values, values)
+
+fn main(): void =>
+  var values: int[][] = {{7}}
+  var action: fn(int[][], int[][]): int = fn(a: int[][], b: int[][]): int =>
+    a[0].push(8)
+    b[0].push(9)
+    return a[0].length
+  println(invoke(action, values) == 3)
+  println(values[0].length == 3 && values[0][1] == 8 && values[0][2] == 9)

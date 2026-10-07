@@ -629,6 +629,17 @@ json_object *rust_gen_model_function(Arena *arena, FunctionStmt *func, SymbolTab
         json_object_object_add(p, "sync_mod",
             json_object_new_string(rust_gen_model_sync_mod_str(func->params[i].sync_modifier)));
         rust_gen_model_emit_param_cleanup(p, &func->params[i], func->is_native);
+        /* Native default value-record arguments own the caller's copy. A
+         * native body releases its managed fields when that value leaves
+         * scope; external declarations retain their existing C ABI. */
+        if (func->is_native && func->body_count > 0 &&
+            func->params[i].mem_qualifier == MEM_DEFAULT &&
+            func->params[i].type && func->params[i].type->kind == TYPE_STRUCT &&
+            !func->params[i].type->as.struct_type.pass_self_by_ref &&
+            rust_gen_model_type_has_heap_fields(func->params[i].type)) {
+            json_object_object_add(p, "needs_struct_cleanup", json_object_new_boolean(true));
+            json_object_object_add(p, "struct_cleanup_name", json_object_new_string(func->params[i].type->as.struct_type.name));
+        }
         json_object_array_add(params, p);
     }
     json_object_object_add(obj, "params", params);

@@ -5,6 +5,12 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Native callback increment: local acceptance, 2026-10-07
+
+The current Rust increment uses typed ABI thunks and C-owned closure headers with identity-preserving credits. It covers nil, scalar/pointer/string/value-record signatures, canonical primitive/character/string/record/nested arrays, actual native pointer aliases, reentry, private record and array snapshots, retained callback identity and joined-thread transport. The 68-source permanent gate passes 612 mode comparisons; 204 C and 204 Rust/native-C sanitizer cases pass. Both complete suites pass with 364 native fixtures, no failures or skips, and existing goldens unchanged.
+
+This work is prepared against `9da559c3` and is not published. Its parent’s six compiler/runtime jobs and three platform artifacts are independently accepted: 65 reports and 5,961 cases per platform. All 98 required runtime commands pass (93 executed in the combined run and five reused from exact-byte checks), and independent verification confirms 66 reports and 6,573 cases against 8,907 frozen repository inputs. Broader qualifiers, threaded reentry/concurrent buffers, additional owners/layouts and the rest of the full backend goal remain open. See [native callback contracts and limits](rust-native-callbacks.md) and [local validation](rust-parity-evidence/native-callbacks-validation.json).
+
 ## Record capture copy source: local verification, 2026-10-07
 
 A managed value record captured from an `as ref` parameter already supplies a record pointer. The C closure constructor previously took that pointer’s address and copied the stack slot as a record. The unchanged regression source triggers a stack-buffer-overflow at `-O0` and an undefined memory read at `-O1` and `-O2` under sanitizers. Both C model projections now mark pointer sources so the shared constructor copies the referenced record. Existing owned snapshot semantics and cleanup remain intact.

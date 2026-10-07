@@ -1,0 +1,7 @@
+native fn absent(): fn(): int =>
+  return nil
+
+fn main(): void =>
+  var action: fn(): int = absent()
+  println(action == nil)
+  println(action != fn(): int => 7)

@@ -4,6 +4,10 @@
 unsafe trait {{rust_ident trait}}: Clone + PartialEq {
     unsafe fn allocate_native_array(capacity: i64) -> *mut std::ffi::c_void;
     fn is_byte_view() -> bool { false }
+    fn is_value_layout() -> bool { true }
+    unsafe fn read_slot(pointer: *const std::ffi::c_void) -> Self { (&*pointer.cast::<Self>()).clone() }
+    unsafe fn take_slot(pointer: *const std::ffi::c_void) -> Self { pointer.cast::<Self>().read() }
+    fn give_to_c<F: FnOnce(*const std::ffi::c_void)>(self, write: F) { let value = std::mem::ManuallyDrop::new(self); write((&*value as *const Self).cast()); }
 }
 {{#if primitive_scalars}}
 unsafe impl {{rust_ident trait}} for i64 { unsafe fn allocate_native_array(capacity: i64) -> *mut std::ffi::c_void { assert_eq!({{rust_ident primitive_width}}(0), std::mem::size_of::<Self>()); assert_eq!({{rust_ident primitive_align}}(0), std::mem::align_of::<Self>()); {{rust_ident primitive_new}}(0, capacity) } }
@@ -14,13 +18,58 @@ unsafe impl {{rust_ident trait}} for u8 { fn is_byte_view() -> bool { true } uns
 unsafe impl {{rust_ident trait}} for bool { unsafe fn allocate_native_array(capacity: i64) -> *mut std::ffi::c_void { assert_eq!({{rust_ident primitive_width}}(5), std::mem::size_of::<Self>()); assert_eq!({{rust_ident primitive_align}}(5), std::mem::align_of::<Self>()); {{rust_ident primitive_new}}(5, capacity) } }
 unsafe impl {{rust_ident trait}} for f32 { unsafe fn allocate_native_array(capacity: i64) -> *mut std::ffi::c_void { assert_eq!({{rust_ident primitive_width}}(6), std::mem::size_of::<Self>()); assert_eq!({{rust_ident primitive_align}}(6), std::mem::align_of::<Self>()); {{rust_ident primitive_new}}(6, capacity) } }
 unsafe impl {{rust_ident trait}} for f64 { unsafe fn allocate_native_array(capacity: i64) -> *mut std::ffi::c_void { assert_eq!({{rust_ident primitive_width}}(7), std::mem::size_of::<Self>()); assert_eq!({{rust_ident primitive_align}}(7), std::mem::align_of::<Self>()); {{rust_ident primitive_new}}(7, capacity) } }
+{{#if char_elements}}
+unsafe impl {{rust_ident trait}} for char {
+    fn is_value_layout() -> bool { false }
+    unsafe fn allocate_native_array(capacity: i64) -> *mut std::ffi::c_void { assert_eq!({{rust_ident primitive_width}}(8), 1); {{rust_ident primitive_new}}(8, capacity) }
+    unsafe fn read_slot(pointer: *const std::ffi::c_void) -> Self { (*pointer.cast::<u8>()) as char }
+    unsafe fn take_slot(pointer: *const std::ffi::c_void) -> Self { Self::read_slot(pointer) }
+    fn give_to_c<F: FnOnce(*const std::ffi::c_void)>(self, write: F) { let wire = self as u32 as u8; write((&wire as *const u8).cast()); }
+}
+{{/if}}{{#if string_elements}}
+unsafe impl {{rust_ident trait}} for SnString {
+    fn is_value_layout() -> bool { false }
+    unsafe fn allocate_native_array(capacity: i64) -> *mut std::ffi::c_void { assert_eq!({{rust_ident primitive_width}}(9), std::mem::size_of::<*mut std::ffi::c_char>()); {{rust_ident primitive_new}}(9, capacity) }
+    unsafe fn read_slot(pointer: *const std::ffi::c_void) -> Self { let raw = *pointer.cast::<*mut std::ffi::c_char>(); if raw.is_null() { SnString::{{#if @root.rust_nullable_strings}}nil{{else}}new{{/if}}() } else { SnString::from_slice(std::ffi::CStr::from_ptr(raw).to_bytes()) } }
+    unsafe fn take_slot(pointer: *const std::ffi::c_void) -> Self { let result = Self::read_slot(pointer); {{rust_ident string_free}}(pointer as *mut std::ffi::c_void); result }
+    fn give_to_c<F: FnOnce(*const std::ffi::c_void)>(self, write: F) {
+        let mut bytes = self.as_bytes().to_vec(); bytes.push(0);
+        let raw = {{#if @root.rust_nullable_strings}}if self.is_nil() { std::ptr::null_mut() } else {{/if}}{ unsafe { {{rust_ident string_dup}}(bytes.as_ptr().cast()) } };
+        write((&raw as *const *mut std::ffi::c_char).cast());
+    }
+}
+{{/if}}{{/if}}
+{{#if nested_elements}}
+impl<T: {{rust_ident trait}}> {{rust_ident type}}<{{rust_ident type}}<T>> {
+    fn borrow_inner(&self, index: usize) -> std::mem::ManuallyDrop<{{rust_ident type}}<T>> {
+        assert!(index < self.len(), "native nested array index");
+        let pointer = unsafe { *{{rust_ident data}}(self.pointer).cast::<*mut std::ffi::c_void>().add(index) };
+        std::mem::ManuallyDrop::new({{rust_ident type}}::<T>::adopt(pointer))
+    }
+}
+unsafe impl<T: {{rust_ident trait}}> {{rust_ident trait}} for {{rust_ident type}}<T> {
+    fn is_value_layout() -> bool { false }
+    unsafe fn allocate_native_array(capacity: i64) -> *mut std::ffi::c_void { {{rust_ident nested_new}}(capacity) }
+    unsafe fn read_slot(slot: *const std::ffi::c_void) -> Self { Self::adopt({{rust_ident copy}}(*slot.cast::<*mut std::ffi::c_void>())) }
+    unsafe fn take_slot(slot: *const std::ffi::c_void) -> Self { Self::adopt(*slot.cast::<*mut std::ffi::c_void>()) }
+    fn give_to_c<F: FnOnce(*const std::ffi::c_void)>(self, write: F) { let pointer = self.into_raw(); write((&pointer as *const *mut std::ffi::c_void).cast()); }
+}
 {{/if}}
+{{#each record_elements}}
+unsafe impl {{rust_ident ../trait}} for {{rust_ident source_name}} {
+    unsafe fn allocate_native_array(capacity: i64) -> *mut std::ffi::c_void { {{rust_ident layout_check}}(); {{rust_ident array_new}}(capacity) }
+}
+extern "C" { fn {{rust_ident array_new}}(capacity: i64) -> *mut std::ffi::c_void; }
+{{/each}}
 extern "C" {
+{{#if nested_elements}}    fn {{rust_ident nested_new}}(capacity: i64) -> *mut std::ffi::c_void;{{nl}}{{/if}}
     fn {{rust_ident untyped_new}}() -> *mut std::ffi::c_void;
 {{#if primitive_scalars}}
     fn {{rust_ident primitive_new}}(kind: std::ffi::c_int, capacity: i64) -> *mut std::ffi::c_void;
     fn {{rust_ident primitive_width}}(kind: std::ffi::c_int) -> usize;
     fn {{rust_ident primitive_align}}(kind: std::ffi::c_int) -> usize;
+    fn {{rust_ident string_dup}}(value: *const std::ffi::c_char) -> *mut std::ffi::c_char;
+    fn {{rust_ident string_free}}(slot: *mut std::ffi::c_void);
 {{/if}}
     fn {{rust_ident free}}(value: *mut std::ffi::c_void);
     fn {{rust_ident copy}}(value: *mut std::ffi::c_void) -> *mut std::ffi::c_void;
@@ -28,6 +77,7 @@ extern "C" {
     fn {{rust_ident data}}(value: *mut std::ffi::c_void) -> *mut std::ffi::c_void;
     fn {{rust_ident width}}(value: *mut std::ffi::c_void) -> usize;
     fn {{rust_ident push}}(value: *mut std::ffi::c_void, element: *const std::ffi::c_void);
+    fn {{rust_ident set}}(value: *mut std::ffi::c_void, index: i64, element: *const std::ffi::c_void);
     fn {{rust_ident pop}}(value: *mut std::ffi::c_void) -> *mut std::ffi::c_void;
     fn {{rust_ident insert}}(value: *mut std::ffi::c_void, element: *const std::ffi::c_void, index: i64);
     fn {{rust_ident remove}}(value: *mut std::ffi::c_void, index: i64);
@@ -43,6 +93,7 @@ struct {{rust_ident type}}<T: {{rust_ident trait}}> {
 }
 impl<T: {{rust_ident trait}}> {{rust_ident type}}<T> {
     fn adopt(pointer: *mut std::ffi::c_void) -> Self { Self { pointer, element: std::marker::PhantomData } }
+    fn into_raw(self) -> *mut std::ffi::c_void { let value = std::mem::ManuallyDrop::new(self); value.pointer }
     fn nil() -> Self { Self::adopt(std::ptr::null_mut()) }
     fn untyped_empty() -> Self { unsafe { Self::adopt({{rust_ident untyped_new}}()) } }
     fn new() -> Self { unsafe { Self::adopt(T::allocate_native_array(0)) } }
@@ -55,6 +106,7 @@ impl<T: {{rust_ident trait}}> {{rust_ident type}}<T> {
     fn len(&self) -> usize { usize::try_from(unsafe { {{rust_ident length}}(self.pointer) }).expect("native array length is nonnegative") }
     fn is_empty(&self) -> bool { self.len() == 0 }
     fn as_slice(&self) -> &[T] {
+        assert!(T::is_value_layout(), "native element requires value conversion");
         let length = self.len();
         if length == 0 { return &[]; }
         unsafe {
@@ -64,6 +116,7 @@ impl<T: {{rust_ident trait}}> {{rust_ident type}}<T> {
         }
     }
     fn as_mut_slice(&mut self) -> &mut [T] {
+        assert!(T::is_value_layout(), "native element requires value conversion");
         let length = self.len();
         if length == 0 { return &mut []; }
         unsafe {
@@ -79,18 +132,26 @@ impl<T: {{rust_ident trait}}> {{rust_ident type}}<T> {
     }
     fn push(&mut self, value: T) {
         assert!(!self.is_nil(), "cannot push into a nil C array");
-        let value = std::mem::ManuallyDrop::new(value);
-        unsafe { {{rust_ident push}}(self.pointer, (&*value as *const T).cast()); }
+        T::give_to_c(value, |element| unsafe { {{rust_ident push}}(self.pointer, element); });
     }
     fn insert(&mut self, index: usize, value: T) {
         assert!(index <= self.len() && !self.is_nil(), "native array insert bounds");
-        let value = std::mem::ManuallyDrop::new(value);
-        unsafe { {{rust_ident insert}}(self.pointer, (&*value as *const T).cast(), index as i64); }
+        T::give_to_c(value, |element| unsafe { {{rust_ident insert}}(self.pointer, element, index as i64); });
     }
     fn pop(&mut self) -> Option<T> {
         if self.is_empty() { return None; }
-        unsafe { Some({{rust_ident pop}}(self.pointer).cast::<T>().read()) }
+        unsafe { Some(T::take_slot({{rust_ident pop}}(self.pointer))) }
     }
+    fn read_value(&self, index: usize) -> T {
+        assert!(index < self.len(), "native array index");
+        unsafe { T::read_slot({{rust_ident data}}(self.pointer).cast::<u8>().add(index * {{rust_ident width}}(self.pointer)).cast()) }
+    }
+    // Foreach keeps C's initial length and reads initialized physical slots,
+    // including scalar slots retained after clear/remove. The caller owns the
+    // header throughout iteration and follows the C element lifetime contract.
+    unsafe fn read_iteration_value(&self, index: usize) -> T { T::read_slot({{rust_ident data}}(self.pointer).cast::<u8>().add(index * {{rust_ident width}}(self.pointer)).cast()) }
+    fn set_value(&mut self, index: usize, value: T) { assert!(index < self.len(), "native array index"); T::give_to_c(value, |element| unsafe { {{rust_ident set}}(self.pointer, index as i64, element); }); }
+    fn to_values(&self) -> Vec<T> { (0..self.len()).map(|index| self.read_value(index)).collect() }
     fn remove(&mut self, index: usize) { unsafe { {{rust_ident remove}}(self.pointer, index as i64); } }
     fn clear(&mut self) { assert!(!self.is_nil(), "cannot clear a nil C array"); unsafe { {{rust_ident clear}}(self.pointer); } }
     fn reverse(&mut self) { unsafe { {{rust_ident reverse}}(self.pointer); } }
@@ -101,11 +162,47 @@ impl<T: {{rust_ident trait}}> {{rust_ident type}}<T> {
 // An owned header/data allocation moves with its sendable element owners.
 // Clones allocate a distinct C header; there is no shared-header Sync claim.
 unsafe impl<T: {{rust_ident trait}} + Send> Send for {{rust_ident type}}<T> {}
+{{#if string_elements}}
+// An expression view borrows the actual C string allocation. Its array binding
+// must outlive the comparison; owned language copies still use read_value.
+struct {{rust_ident string_view}}<O> { pointer: *const std::ffi::c_char, owner: O }
+{{#if @root.rust_native_retain_string_name}}
+trait {{rust_ident string_argument}} { fn native_argument(&self) -> *const std::ffi::c_char; }
+impl {{rust_ident string_argument}} for SnString { fn native_argument(&self) -> *const std::ffi::c_char { {{rust_ident @root.rust_native_retain_string_name}}({{#if @root.rust_native_callback_strings}}self.native_borrow(){{else}}self.clone(){{/if}}) } }
+impl<O> {{rust_ident string_argument}} for {{rust_ident string_view}}<O> { fn native_argument(&self) -> *const std::ffi::c_char { self.pointer } }
+{{#if @root.rust_native_c_string_storage}}
+impl {{rust_ident string_argument}} for {{rust_ident @root.rust_native_c_string_loan_type}} { fn native_argument(&self) -> *const std::ffi::c_char { self.0 } }
+{{/if}}{{/if}}
+impl<O> SnBytes for {{rust_ident string_view}}<O> {
+    fn sn_bytes(&self) -> &[u8] { if self.pointer.is_null() { &[] } else { unsafe { std::ffi::CStr::from_ptr(self.pointer).to_bytes() } } }
+}
+impl<O> PartialEq<SnString> for {{rust_ident string_view}}<O> {
+    fn eq(&self, other: &SnString) -> bool { self.sn_bytes() == other.as_bytes(){{#if @root.rust_nullable_strings}} && self.pointer.is_null() == other.is_nil(){{/if}} }
+}
+impl<O> PartialEq<{{rust_ident string_view}}<O>> for SnString { fn eq(&self, other: &{{rust_ident string_view}}<O>) -> bool { other == self } }
+impl<A, B> PartialEq<{{rust_ident string_view}}<B>> for {{rust_ident string_view}}<A> {
+    fn eq(&self, other: &{{rust_ident string_view}}<B>) -> bool { self.sn_bytes() == other.sn_bytes() && self.pointer.is_null() == other.pointer.is_null() }
+}
+impl<O> {{rust_ident string_view}}<O> {
+    unsafe fn from_header(owner: O, header: *mut std::ffi::c_void, index: usize) -> Self {
+        assert!(index < usize::try_from({{rust_ident length}}(header)).expect("native array length"), "native string array index");
+        let pointer = *{{rust_ident data}}(header).cast::<*const std::ffi::c_char>().add(index);
+        Self { pointer, owner }
+    }
+}
+impl {{rust_ident type}}<SnString> {
+    fn string_view(&self, index: usize) -> {{rust_ident string_view}}<&Self> {
+        assert!(index < self.len(), "native string array index");
+        let pointer = unsafe { *{{rust_ident data}}(self.pointer).cast::<*const std::ffi::c_char>().add(index) };
+        {{rust_ident string_view}} { pointer, owner: self }
+    }
+}
+{{/if}}
 impl<T: {{rust_ident trait}}> Default for {{rust_ident type}}<T> { fn default() -> Self { Self::nil() } }
 impl<T: {{rust_ident trait}}> Clone for {{rust_ident type}}<T> { fn clone(&self) -> Self { unsafe { Self::adopt({{rust_ident copy}}(self.pointer)) } } }
 impl<T: {{rust_ident trait}}> Drop for {{rust_ident type}}<T> { fn drop(&mut self) { unsafe { {{rust_ident free}}(self.pointer); } } }
 impl<T: {{rust_ident trait}}> PartialEq for {{rust_ident type}}<T> {
-    fn eq(&self, other: &Self) -> bool { self.is_nil() == other.is_nil() && self.as_slice() == other.as_slice() }
+    fn eq(&self, other: &Self) -> bool { self.is_nil() == other.is_nil() && self.len() == other.len() && (0..self.len()).all(|index| self.read_value(index) == other.read_value(index)) }
 }
 impl<T: {{rust_ident trait}}> std::ops::Deref for {{rust_ident type}}<T> {
     type Target = [T]; fn deref(&self) -> &[T] { self.as_slice() }

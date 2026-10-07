@@ -1,0 +1,148 @@
+// Storage stays at one address. Native leases lock other threads out while
+// same-thread callbacks read/write that actual storage through raw pointers.
+#[derive(Debug)]
+struct {{rust_ident rust_native_reentry_cell}}<T> {
+    value: std::cell::UnsafeCell<T>,
+    character: std::cell::UnsafeCell<u8>,
+    character_active: std::sync::atomic::AtomicBool,
+    gate: std::sync::Mutex<()>,
+    native: std::sync::Mutex<Option<(std::thread::ThreadId, usize)>>,
+}
+unsafe impl<T: Send> Send for {{rust_ident rust_native_reentry_cell}}<T> {}
+unsafe impl<T: Send> Sync for {{rust_ident rust_native_reentry_cell}}<T> {}
+struct {{rust_ident rust_native_reentry_guard}}<'a, T> {
+    cell: &'a {{rust_ident rust_native_reentry_cell}}<T>,
+    gate: std::sync::MutexGuard<'a, ()>,
+}
+impl<T> std::ops::Deref for {{rust_ident rust_native_reentry_guard}}<'_, T> {
+    type Target = T;
+    fn deref(&self) -> &T { unsafe { &*self.cell.value.get() } }
+}
+impl<T> std::ops::DerefMut for {{rust_ident rust_native_reentry_guard}}<'_, T> {
+    fn deref_mut(&mut self) -> &mut T { unsafe { &mut *self.cell.value.get() } }
+}
+struct {{rust_ident rust_native_reentry_lease}}<'a, T> {
+    cell: &'a {{rust_ident rust_native_reentry_cell}}<T>,
+    gate: Option<std::sync::MutexGuard<'a, ()>>,
+}
+impl<T> {{rust_ident rust_native_reentry_lease}}<'_, T> {
+    fn pointer(&self) -> *mut T { self.cell.value.get() }
+}
+impl<T> Drop for {{rust_ident rust_native_reentry_lease}}<'_, T> {
+    fn drop(&mut self) {
+        let mut native = self.cell.native.lock().unwrap_or_else(|e| e.into_inner());
+        let (_, depth) = native.as_mut().expect("native lease active");
+        *depth -= 1;
+        if *depth == 0 { *native = None; }
+    }
+}
+impl<T> {{rust_ident rust_native_reentry_cell}}<T> {
+    fn new(value: T) -> Self { Self { value: std::cell::UnsafeCell::new(value), character: std::cell::UnsafeCell::new(0), character_active: std::sync::atomic::AtomicBool::new(false), gate: std::sync::Mutex::new(()), native: std::sync::Mutex::new(None) } }
+    fn native_active(&self) -> bool { self.native.lock().unwrap_or_else(|e| e.into_inner()).as_ref().is_some_and(|(owner, _)| *owner == std::thread::current().id()) }
+    fn lock(&self) -> std::sync::LockResult<{{rust_ident rust_native_reentry_guard}}<'_, T>> {
+        assert!(!self.native_active(), "native callback must use scalar accessors");
+        Ok({{rust_ident rust_native_reentry_guard}} { cell: self, gate: self.gate.lock().unwrap_or_else(|e| e.into_inner()) })
+    }
+    fn native_lease(&self) -> {{rust_ident rust_native_reentry_lease}}<'_, T> {
+        let owner = std::thread::current().id();
+        {
+            let mut native = self.native.lock().unwrap_or_else(|e| e.into_inner());
+            if let Some((active, depth)) = native.as_mut() {
+                if *active == owner { *depth += 1; return {{rust_ident rust_native_reentry_lease}} { cell: self, gate: None }; }
+            }
+        }
+        let gate = self.gate.lock().unwrap_or_else(|e| e.into_inner());
+        *self.native.lock().unwrap_or_else(|e| e.into_inner()) = Some((owner, 1));
+        {{rust_ident rust_native_reentry_lease}} { cell: self, gate: Some(gate) }
+    }
+    fn set(&self, next: T) {
+        if self.native_active() { unsafe { *self.value.get() = next; } }
+        else { *self.lock().unwrap_or_else(|e| e.into_inner()) = next; }
+    }
+}
+impl<T: Clone> {{rust_ident rust_native_reentry_cell}}<T> {
+    fn get(&self) -> T {
+        if self.native_active() { unsafe { (*self.value.get()).clone() } }
+        else { self.lock().unwrap_or_else(|e| e.into_inner()).clone() }
+    }
+}
+
+thread_local! { static {{rust_ident rust_native_char_wires}}: std::cell::RefCell<Vec<(*mut char, *mut std::ffi::c_char)>> = const { std::cell::RefCell::new(Vec::new()) }; }
+struct {{rust_ident rust_native_char_scope}}(usize);
+impl {{rust_ident rust_native_char_scope}} {
+    fn new() -> Self { Self({{rust_ident rust_native_char_wires}}.with(|wires| wires.borrow().len())) }
+    unsafe fn bind(&self, source: *mut char, temporary: *mut std::ffi::c_char) -> *mut std::ffi::c_char {
+        {{rust_ident rust_native_char_wires}}.with(|wires| {
+            let mut wires = wires.borrow_mut();
+            if let Some((_, pointer)) = wires.iter().rev().find(|(place, _)| *place == source) { return *pointer; }
+            wires.push((source, temporary)); temporary
+        })
+    }
+}
+impl Drop for {{rust_ident rust_native_char_scope}} {
+    fn drop(&mut self) { {{rust_ident rust_native_char_wires}}.with(|wires| wires.borrow_mut().truncate(self.0)); }
+}
+fn {{rust_ident rust_native_char_read}}(source: *mut char) -> Option<char> {
+    {{rust_ident rust_native_char_wires}}.with(|wires| wires.borrow().iter().rev().find(|(place, _)| *place == source).map(|(_, pointer)| unsafe { char::from_u32((**pointer as u8) as u32).expect("C char is an 8-bit value") }))
+}
+fn {{rust_ident rust_native_char_write}}(source: *mut char, value: char) -> bool {
+    {{rust_ident rust_native_char_wires}}.with(|wires| {
+        if let Some((_, pointer)) = wires.borrow().iter().rev().find(|(place, _)| *place == source) { unsafe { **pointer = (value as u32 as u8) as std::ffi::c_char; } true } else { false }
+    })
+}
+
+trait {{rust_ident rust_native_scalar_trait}}: Copy {
+    type Storage: Copy;
+    fn into_storage(self) -> Self::Storage;
+    fn from_storage(value: Self::Storage) -> Self;
+}
+macro_rules! {{rust_ident rust_native_scalar_trait}} {
+    ($($type:ty),*) => { $(impl {{rust_ident rust_native_scalar_trait}} for $type {
+        type Storage = Self;
+        fn into_storage(self) -> Self { self }
+        fn from_storage(value: Self) -> Self { value }
+    })* };
+}
+{{rust_ident rust_native_scalar_trait}}!(i64, i32, u64, u32, u8, bool, f32, f64);
+impl {{rust_ident rust_native_scalar_trait}} for char {
+    type Storage = u8;
+    fn into_storage(self) -> u8 { self as u32 as u8 }
+    fn from_storage(value: u8) -> Self { char::from_u32(value as u32).expect("C char is an 8-bit value") }
+}
+struct {{rust_ident rust_native_scalar_cell}}<T: {{rust_ident rust_native_scalar_trait}}>(std::cell::Cell<T::Storage>);
+impl<T: {{rust_ident rust_native_scalar_trait}}> {{rust_ident rust_native_scalar_cell}}<T> {
+    fn new(value: T) -> Self { Self(std::cell::Cell::new(value.into_storage())) }
+    fn get(&self) -> T { T::from_storage(self.0.get()) }
+    fn set(&self, value: T) { self.0.set(value.into_storage()); }
+    fn as_ptr(&self) -> *mut T { self.0.as_ptr().cast() }
+}
+impl {{rust_ident rust_native_scalar_cell}}<char> { fn byte_ptr(&self) -> *mut std::ffi::c_char { self.0.as_ptr().cast() } }
+
+unsafe fn {{rust_ident rust_native_char_load}}(source: *mut char) -> char {
+    {{rust_ident rust_native_char_read}}(source).unwrap_or_else(|| *source)
+}
+unsafe fn {{rust_ident rust_native_char_store}}(source: *mut char, value: char) {
+    if !{{rust_ident rust_native_char_write}}(source, value) { *source = value; }
+}
+
+impl {{rust_ident rust_native_reentry_cell}}<char> {
+    fn char_pointer(&self) -> *mut std::ffi::c_char {
+        if !self.character_active.load(std::sync::atomic::Ordering::Acquire) {
+            let value = self.get();
+            unsafe { *self.character.get() = value as u32 as u8; }
+            self.character_active.store(true, std::sync::atomic::Ordering::Release);
+        }
+        self.character.get().cast()
+    }
+    fn get_char(&self) -> char {
+        if !self.character_active.load(std::sync::atomic::Ordering::Acquire) { return self.get(); }
+        let lease = self.native_lease();
+        let value = unsafe { *self.character.get() };
+        char::from_u32(value as u32).expect("C char is an 8-bit value")
+    }
+    fn set_char(&self, next: char) {
+        let lease = self.native_lease();
+        unsafe { *self.character.get() = next as u32 as u8; *self.value.get() = next; }
+        self.character_active.store(true, std::sync::atomic::Ordering::Release);
+    }
+}

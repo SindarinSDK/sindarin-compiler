@@ -1,0 +1,12 @@
+@source "native_callback_parallel_credits.sn.c"
+
+native fn invoke(action: fn(int): int, value: int): int
+
+fn main(): void =>
+  var base: int = 7
+  var action: fn(int): int = fn(value: int): int => base + value
+  var first: int = & invoke(action, 3)
+  var second: int = & invoke(action, 4)
+  [first, second] !
+  println(first == 10 && second == 11)
+  println(action(5) == 12)

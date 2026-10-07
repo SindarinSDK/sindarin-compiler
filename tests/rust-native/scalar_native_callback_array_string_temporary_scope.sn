@@ -1,0 +1,10 @@
+@source "native_callback_array_string_temporary_alias.sn.c"
+
+native fn produce(): str[]
+native fn same(value: str): bool
+native fn retained(): bool
+
+fn main(): void =>
+  var first: bool = same(produce()[0])
+  println(first)
+  println(retained())

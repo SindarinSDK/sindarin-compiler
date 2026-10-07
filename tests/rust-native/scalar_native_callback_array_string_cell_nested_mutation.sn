@@ -1,0 +1,18 @@
+@source "native_callback_array_string_native_alias.sn.c"
+
+native fn same(values: str[], value: str): bool
+native fn invoke(action: fn(str[]): bool, values: str[]): bool =>
+  return action(values)
+
+native fn inspect(value: str, action: fn(str[]): bool, values: str[]): bool =>
+  return value == "a" && action(values)
+
+fn main(): void =>
+  var values: str[] = {"a"}
+  var action: fn(str[]): bool = fn(input: str[]): bool =>
+    var check: fn(str[]): bool = fn(nested: str[]): bool =>
+      nested.push("b")
+      return same(nested, nested[0])
+    return inspect(input[0], check, input)
+  println(invoke(action, values))
+  println(values.length == 2 && values[0] == "a" && values[1] == "b")

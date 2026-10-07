@@ -1,0 +1,18 @@
+@source "native_callback_retained_identity.sn.c"
+
+native fn remember(read: fn(): int): void
+native fn same_saved(read: fn(): int): bool
+native fn clear_saved(): void
+
+fn compare(action: fn(): int): bool =>
+  return same_saved(action)
+
+fn main(): void =>
+  var value: int = 7
+  var action: fn(): int = fn(): int => value
+  remember(action)
+  var result: bool = & compare(action)
+  result !
+  println(result)
+  clear_saved()
+  println(action() == 7)

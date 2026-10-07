@@ -1,0 +1,11 @@
+native fn invoke(action: fn(char[]): char[], values: char[]): char[] =>
+  return action(values)
+
+fn main(): void =>
+  var values: char[] = {'a'}
+  var action: fn(char[]): char[] = fn(input: char[]): char[] =>
+    input.push('b')
+    return input
+  var result: char[] = invoke(action, values)
+  println(values.length == 2 && values[1] == 'b')
+  println(result.length == 2 && result[1] == 'b')

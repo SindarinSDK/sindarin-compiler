@@ -84,15 +84,35 @@ typedef struct {
     int __rc__;
 } __SnClosureHeader__;
 
+#ifdef SN_CLOSURE_CREDIT_LOCK
+void SN_CLOSURE_CREDIT_LOCK(void);
+void SN_CLOSURE_CREDIT_UNLOCK(void);
+#endif
+
 static inline void *sn_closure_retain(void *p) {
-    if (p) ((__SnClosureHeader__ *)p)->__rc__++;
+    if (p) {
+#ifdef SN_CLOSURE_CREDIT_LOCK
+        SN_CLOSURE_CREDIT_LOCK();
+#endif
+        ((__SnClosureHeader__ *)p)->__rc__++;
+#ifdef SN_CLOSURE_CREDIT_LOCK
+        SN_CLOSURE_CREDIT_UNLOCK();
+#endif
+    }
     return p;
 }
 
 static inline void sn_closure_release(void **p) {
     if (*p) {
         __SnClosureHeader__ *h = (__SnClosureHeader__ *)*p;
-        if (--h->__rc__ == 0) {
+#ifdef SN_CLOSURE_CREDIT_LOCK
+        SN_CLOSURE_CREDIT_LOCK();
+#endif
+        bool final = --h->__rc__ == 0;
+#ifdef SN_CLOSURE_CREDIT_LOCK
+        SN_CLOSURE_CREDIT_UNLOCK();
+#endif
+        if (final) {
             if (h->__cleanup__)
                 h->__cleanup__(*p);
             else

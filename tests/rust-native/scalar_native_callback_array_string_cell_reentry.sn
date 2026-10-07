@@ -1,0 +1,16 @@
+@source "native_callback_array_string_native_alias.sn.c"
+
+native fn same(values: str[], value: str): bool
+native fn invoke(action: fn(str[]): bool, values: str[]): bool =>
+  return action(values)
+
+native fn inspect(value: str, action: fn(): bool): bool =>
+  return value == "a" && action()
+
+fn main(): void =>
+  var values: str[] = {"a"}
+  var action: fn(str[]): bool = fn(input: str[]): bool =>
+    var check: fn(): bool = fn(): bool => same(input, input[0])
+    return inspect(input[0], check)
+  println(invoke(action, values))
+  println(values[0] == "a")

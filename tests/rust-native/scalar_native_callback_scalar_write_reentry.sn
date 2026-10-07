@@ -1,0 +1,14 @@
+fn make(value: int as ref): fn(): int =>
+  return fn(): int =>
+    value += 2
+    return value
+
+native fn observe(value: int as ref, read: fn(): int): int =>
+  value += 1
+  return read()
+
+fn main(): void =>
+  var value: int = 7
+  var action: fn(): int = make(value)
+  println(observe(value, action) == 10)
+  println(value == 10 && action() == 12)

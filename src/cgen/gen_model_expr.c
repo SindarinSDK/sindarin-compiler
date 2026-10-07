@@ -220,26 +220,15 @@ static void hoist_borrow_temps(json_object *call_obj, json_object *args, Expr *c
         /* Also detect lambda expressions used as call args — these
          * malloc a __Closure__ that needs to be freed after the call.
          *
-         * CAVEAT: if the callee returns a struct, the closure may be
-         * stored in a struct field (ownership transfer).  In that case,
-         * sn_auto_fn would free the closure while the struct still
-         * references it.  Only hoist when the callee returns a
-         * non-struct type (it only borrows the closure). */
+         * A stored function parameter acquires its own reference at the
+         * field boundary; the temporary's initial reference still ends
+         * after the call, including when the callee returns a struct. */
         json_object *kind_obj = NULL;
         bool is_lambda = false;
         if (json_object_object_get_ex(arg, "kind", &kind_obj))
             is_lambda = strcmp(json_object_get_string(kind_obj), "lambda") == 0;
 
-        bool callee_may_store = false;
-        if (call_expr && call_expr->type == EXPR_CALL &&
-            call_expr->as.call.callee && call_expr->as.call.callee->expr_type &&
-            call_expr->as.call.callee->expr_type->kind == TYPE_FUNCTION)
-        {
-            Type *ret = call_expr->as.call.callee->expr_type->as.function.return_type;
-            if (ret && ret->kind == TYPE_STRUCT)
-                callee_may_store = true;
-        }
-        if ((is_fn || is_lambda) && !callee_may_store)
+        if (is_fn || is_lambda)
         {
             char var_name[64];
             snprintf(var_name, sizeof(var_name), "__fn_tmp_%d__", i);
@@ -832,6 +821,7 @@ static int maybe_emit_fn_ref_wrapper(Arena *arena, Expr *arg_expr,
         ? symbol_table_lookup_symbol(symbol_table, arg_expr->as.variable.name)
         : NULL;
     if (!arg_sym || !arg_sym->is_function ||
+        arg_expr->as.variable.declaration_scope_depth != arg_sym->declaration_scope_depth ||
         arg_sym->kind == SYMBOL_PARAM ||
         arg_expr->as.variable.is_param_ref)
     {
@@ -847,7 +837,7 @@ static int maybe_emit_fn_ref_wrapper(Arena *arena, Expr *arg_expr,
         gen_model_type(arena, fn_type->as.function.return_type));
 
     json_object *wrap_params = json_object_new_array();
-    bool target_is_native = fn_type->as.function.is_native;
+    bool target_is_native = arg_sym->is_native;
     bool has_borrow = false;
     for (int p = 0; p < fn_type->as.function.param_count; p++)
     {
@@ -877,6 +867,11 @@ static int maybe_emit_fn_ref_wrapper(Arena *arena, Expr *arg_expr,
 
     json_object_array_add(g_model_fn_wrappers, wrapper);
     return wrap_id;
+}
+
+int gen_model_function_wrapper(Arena *arena, Expr *expr, Type *type, SymbolTable *symbol_table)
+{
+    return maybe_emit_fn_ref_wrapper(arena, expr, type, symbol_table);
 }
 
 json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
@@ -1392,6 +1387,19 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 }
             }
 
+            if ((expr->as.binary.operator == TOKEN_EQUAL_EQUAL || expr->as.binary.operator == TOKEN_BANG_EQUAL) &&
+                ((expr->as.binary.left->expr_type && expr->as.binary.left->expr_type->kind == TYPE_FUNCTION) ||
+                 (expr->as.binary.right->expr_type && expr->as.binary.right->expr_type->kind == TYPE_FUNCTION)))
+            {
+                bool left_owned = ownership_kind(expr->as.binary.left) == OWNERSHIP_OWNED;
+                bool right_owned = ownership_kind(expr->as.binary.right) == OWNERSHIP_OWNED;
+                if (left_owned || right_owned)
+                {
+                    json_object_object_add(obj, "c_owned_function_comparison", json_object_new_boolean(true));
+                    json_object_object_add(left_obj, "c_function_owned", json_object_new_boolean(left_owned));
+                    json_object_object_add(right_obj, "c_function_owned", json_object_new_boolean(right_owned));
+                }
+            }
             json_object_object_add(obj, "left", left_obj);
             json_object_object_add(obj, "right", right_obj);
             json_object_object_add(obj, "arithmetic_mode",
@@ -2907,7 +2915,8 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 if ((strcmp(field_cleanup, "free_str") == 0 ||
                      strcmp(field_cleanup, "release_ref") == 0 ||
                      strcmp(field_cleanup, "cleanup_val") == 0 ||
-                     strcmp(field_cleanup, "cleanup_arr") == 0) &&
+                     strcmp(field_cleanup, "cleanup_arr") == 0 ||
+                     strcmp(field_cleanup, "free_closure") == 0) &&
                     ownership_kind(expr->as.member_assign.value) == OWNERSHIP_BORROW)
                 {
                     json_object_object_add(obj, "source_is_borrow",
@@ -2999,7 +3008,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                                 json_object_new_boolean(true));
                         }
                     }
-                    else if (ft->kind == TYPE_STRING || ft->kind == TYPE_ARRAY)
+                    else if (ft->kind == TYPE_STRING || ft->kind == TYPE_ARRAY || ft->kind == TYPE_FUNCTION)
                     {
                         if (k == OWNERSHIP_BORROW)
                         {
@@ -3082,6 +3091,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                         fv->expr_type, symbol_table);
                     if (wrap_id >= 0)
                     {
+                        json_object_object_del(f, "source_is_borrow");
                         json_object_object_add(f, "needs_closure_wrap",
                             json_object_new_boolean(true));
                         json_object_object_add(f, "fn_wrapper_id",

@@ -1,0 +1,11 @@
+native fn invoke(action: fn(str[], str[]): int, values: str[]): int =>
+  return action(values, values)
+
+fn main(): void =>
+  var values: str[] = {"a"}
+  var action: fn(str[], str[]): int = fn(a: str[], b: str[]): int =>
+    a.push("b")
+    b.push("c")
+    return a.length
+  println(invoke(action, values) == 3)
+  println(values.length == 3 && values[1] == "b" && values[2] == "c")

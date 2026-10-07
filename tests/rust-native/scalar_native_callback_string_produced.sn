@@ -1,0 +1,7 @@
+native fn make(): fn(str): str =>
+  return fn(text: str): str => text + "!"
+
+fn main(): void =>
+  var action: fn(str): str = make()
+  println(action("hello") == "hello!")
+  println(action("again") == "again!")

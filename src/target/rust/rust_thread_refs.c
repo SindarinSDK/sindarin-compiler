@@ -186,6 +186,8 @@ static bool rust_thread_ref_walk(json_object *node, json_object *functions,
                     json_string_property_equals(param, "mem_qual", "as_ref") &&
                     rust_scalar_ref_parameter_type_supported(rust_closure_property(param, "type"))) {
                     json_object_object_add(arg, "rust_closure_scalar_owned_source", json_object_new_boolean(true));
+                    if (json_boolean_property(source->declaration, "rust_closure_scalar_reference"))
+                        json_object_object_add(arg, "rust_closure_scalar_reference", json_object_new_boolean(true));
                     json_object_object_add(model, "rust_has_scalar_ref_closures", json_object_new_boolean(true));
                 }
             }

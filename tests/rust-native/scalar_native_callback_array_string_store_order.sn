@@ -1,0 +1,19 @@
+native fn invoke(action: fn(str[]): str[], values: str[]): str[] =>
+  return action(values)
+
+fn index(trace: int as ref): int =>
+  trace = trace * 10 + 1
+  return 0
+
+fn replacement(trace: int as ref): str =>
+  trace = trace * 10 + 2
+  return "c"
+
+fn main(): void =>
+  var values: str[] = {"a"}
+  var action: fn(str[]): str[] = fn(input: str[]): str[] => input
+  var copied: str[] = invoke(action, values)
+  var trace: int = 0
+  values[index(trace)] = replacement(trace)
+  println(trace == 12)
+  println(values[0] == "c" && copied[0] == "a")

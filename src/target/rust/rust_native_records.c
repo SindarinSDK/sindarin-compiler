@@ -159,6 +159,35 @@ static void native_record_mark_types(json_object *node, json_object *records)
         }
     json_object_object_foreach(node, key, child)
         if (strncmp(key, "rust_", 5) != 0) native_record_mark_types(child, records);
+    if (kind && !strcmp(kind, "function")) {
+        json_object *params = native_record_child(node, "param_types");
+        for (size_t i = 0; params && i < json_object_array_length(params); i++) {
+            json_object *param = json_object_array_get_idx(params, i);
+            if (native_bool(param, "pass_by_ptr") && native_bool(param, "rust_native_record_storage"))
+                json_object_object_add(param, "rust_native_callback_record_borrow", json_object_new_boolean(true));
+        }
+    }
+}
+
+static bool native_record_register_callable_types(json_object *model, json_object *type, json_object *records)
+{
+    if (!type) return true;
+    if (native_string(type, "kind") && !strcmp(native_string(type, "kind"), "array")) {
+        json_object *element = native_record_child(type, "element_type");
+        if (native_record_is_supported(model, element)) {
+            if (!native_record_register(model, element, records)) return false;
+            native_record_reference_storage(model, element, records);
+            json_object_object_add(native_record_struct(model, native_string(element, "name")), "rust_native_array_record", json_object_new_boolean(true));
+        }
+        return native_record_register_callable_types(model, element, records);
+    }
+    if (native_record_is_supported(model, type)) return native_record_register(model, type, records);
+    if (!native_string(type, "kind") || strcmp(native_string(type, "kind"), "function")) return true;
+    if (!native_record_register_callable_types(model, native_record_child(type, "return_type"), records)) return false;
+    json_object *params = native_record_child(type, "param_types");
+    for (size_t i = 0; params && i < json_object_array_length(params); i++)
+        if (!native_record_register_callable_types(model, json_object_array_get_idx(params, i), records)) return false;
+    return true;
 }
 
 static bool native_prepare_records(json_object *model)
@@ -171,12 +200,12 @@ static bool native_prepare_records(json_object *model)
         json_object *function = json_object_array_get_idx(functions, i);
         if (!native_bool(function, "is_native")) continue;
         json_object *type = native_record_child(function, "return_type");
-        if (native_record_is_supported(model, type) && !native_record_register(model, type, records)) goto fail;
+        if (!native_record_register_callable_types(model, type, records)) goto fail;
         json_object *params = native_record_child(function, "params");
         for (size_t p = 0; params && p < json_object_array_length(params); p++)
         {
             type = native_record_child(json_object_array_get_idx(params, p), "type");
-            if (native_record_is_supported(model, type) && !native_record_register(model, type, records)) goto fail;
+            if (!native_record_register_callable_types(model, type, records)) goto fail;
         }
     }
     /* Select persistent source layouts only for records exposed by reference.
@@ -200,7 +229,7 @@ static bool native_prepare_records(json_object *model)
     {
         json_object *record = json_object_array_get_idx(records, i);
         json_object *structure = native_record_struct(model, native_string(record, "source_name"));
-        if (native_bool(structure, "has_heap_fields"))
+        if (native_bool(structure, "has_heap_fields") || native_bool(structure, "rust_native_array_record"))
         {
             json_object *type = json_object_new_object();
             json_object_object_add(type, "kind", json_object_new_string("struct"));
@@ -214,8 +243,11 @@ static bool native_prepare_records(json_object *model)
             if (!check) goto fail;
             json_object_object_add(record, "layout_check", json_object_new_string(check));
             free(check);
-            json_object_object_add(model, "rust_native_c_string_storage", json_object_new_boolean(true));
+            if (native_bool(structure, "has_heap_fields"))
+                json_object_object_add(model, "rust_native_c_string_storage", json_object_new_boolean(true));
         }
+        if (native_bool(structure, "rust_native_array_record"))
+            json_object_object_add(record, "rust_native_array_record", json_object_new_boolean(true));
         if (native_bool(structure, "rust_native_record_storage"))
             json_object_object_add(record, "rust_native_record_storage", json_object_new_boolean(true));
     }

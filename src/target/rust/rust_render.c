@@ -120,6 +120,12 @@ static char *rust_closure_parameter_type(json_object *type)
         free(value);
         return result;
     }
+    json_object *record_borrow = NULL;
+    if (value && json_object_object_get_ex(type, "rust_native_callback_record_borrow", &record_borrow) && json_object_get_boolean(record_borrow)) {
+        char *result = malloc(strlen(value) + sizeof("*mut "));
+        if (result) sprintf(result, "*mut %s", value);
+        free(value); return result;
+    }
     json_object *native_handle = NULL;
     if (value && json_object_object_get_ex(type, "rust_native_reference_handle", &native_handle) && json_object_get_boolean(native_handle))
     {
@@ -400,6 +406,16 @@ static char *helper_rust_default(json_object **params, int param_count, hbs_opti
         if (result) snprintf(result, length, "%s::nil()", name);
         return result;
     }
+    json_object *optional_callable = NULL;
+    if (strcmp(kind, "function") == 0 && json_object_object_get_ex(params[0], "rust_optional_callable", &optional_callable) && json_object_get_boolean(optional_callable))
+    {
+        char *type = rust_type(params[0]);
+        if (!type) return NULL;
+        size_t size = strlen(type) + sizeof("<>::nil()");
+        char *result = malloc(size);
+        if (result) snprintf(result, size, "<%s>::nil()", type);
+        free(type); return result;
+    }
     if (strcmp(kind, "pointer") == 0 || strcmp(kind, "opaque") == 0)
         return strdup("std::ptr::null_mut()");
     if (strcmp(kind, "void") == 0) return strdup("()");
@@ -431,6 +447,10 @@ static char *helper_rust_clone_suffix(json_object **params, int param_count,
         (json_object_object_get_ex(params[0], "rust_native_handle_borrow_arg", &borrowed) && json_object_get_boolean(borrowed)) ||
         (json_object_object_get_ex(params[0], "rust_native_handle_read_acquired", &acquired) && json_object_get_boolean(acquired))) return strdup("");
 
+    json_object *native_string_borrow = NULL;
+    if (json_object_object_get_ex(params[0], "rust_native_string_borrow_arg", &native_string_borrow) && json_object_get_boolean(native_string_borrow)) return strdup("");
+    json_object *function_read = NULL;
+    if (json_object_object_get_ex(params[0], "rust_function_read", &function_read) && json_object_get_boolean(function_read)) return strdup("");
     const char *kind = json_string_property(params[0], "kind");
     if (kind && (strcmp(kind, "variable") == 0 || strcmp(kind, "member") == 0 ||
                  strcmp(kind, "array_access") == 0))

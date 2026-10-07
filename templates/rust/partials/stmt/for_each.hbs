@@ -3,11 +3,11 @@
     for mut {{rust_ident iterator_name}} in {{rust_ident rust_physical_iteration_binding}} {
 {{#each body.statements}}        {{> stmt this}}{{nl}}{{/each}}    {{rbrace}}
 }{{else}}{{#if rust_native_array_iter_owner}}{
-    let {{rust_ident rust_native_array_iter_owner}} = &({{> expr iterable}});
+    let {{rust_ident rust_native_array_iter_owner}} = {{#if needs_iterable_cleanup}}{{> expr iterable}}{{else}}std::mem::ManuallyDrop::new(<{{rust_type iterable.type}}>::adopt(({{> expr iterable}}).pointer)){{/if}};
     let {{rust_ident rust_native_array_iter_length}} = {{rust_ident rust_native_array_iter_owner}}.len();
     let mut {{rust_ident rust_native_array_iter_index}}: usize = 0;
     while {{rust_ident rust_native_array_iter_index}} < {{rust_ident rust_native_array_iter_length}} {
-        let mut {{rust_ident iterator_name}} = unsafe { {{rust_ident rust_native_array_iter_owner}}.borrow_iteration_slot({{rust_ident rust_native_array_iter_index}}) };
+        let mut {{rust_ident iterator_name}} = {{#if element_type.rust_native_reference_handle}}unsafe { {{rust_ident rust_native_array_iter_owner}}.borrow_iteration_slot({{rust_ident rust_native_array_iter_index}}) }{{else}}unsafe { {{rust_ident rust_native_array_iter_owner}}.read_iteration_value({{rust_ident rust_native_array_iter_index}}) }{{/if}};
 {{rust_ident rust_native_array_iter_index}} += 1;
 {{#each body.statements}}        {{> stmt this}}{{nl}}{{/each}}
     }

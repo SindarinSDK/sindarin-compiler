@@ -1,0 +1,9 @@
+native fn identity(action: fn(): int): fn(): int =>
+  return action
+
+fn main(): void =>
+  var value: int = 7
+  var action: fn(): int = fn(): int => value
+  var returned: fn(): int = identity(action)
+  println(returned() == 7)
+  println(returned == action)

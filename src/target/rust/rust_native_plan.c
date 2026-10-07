@@ -29,6 +29,7 @@ struct RustNativePlan {
     json_object *handles;
     json_object *array_support;
     json_object *record_support;
+    json_object *callback_support;
 };
 
 /* Shared privately by the Rust-native rendering/build translation units. */
@@ -50,6 +51,11 @@ json_object *rust_native_plan_array_support(RustNativePlan *plan)
 json_object *rust_native_plan_record_support(RustNativePlan *plan)
 {
     return plan ? plan->record_support : NULL;
+}
+
+json_object *rust_native_plan_callback_support(RustNativePlan *plan)
+{
+    return plan ? plan->callback_support : NULL;
 }
 
 static const char *native_string(json_object *object, const char *key)
@@ -109,12 +115,16 @@ static bool native_handle_array_type(json_object *type)
     return native_bool(type, "rust_native_handle_array");
 }
 
+static bool native_callback_type_supported(json_object *type);
+
 static bool native_result_type(json_object *type)
 {
     const char *kind = native_string(type, "kind");
-    return native_handle_array_type(type) || native_bool(type, "rust_native_reference_handle") || native_string(type, "rust_native_record_wire") || native_scalar_type(type, true) ||
+    return native_callback_type_supported(type) || native_handle_array_type(type) || native_bool(type, "rust_native_reference_handle") || native_string(type, "rust_native_record_wire") || native_scalar_type(type, true) ||
         (kind && strcmp(kind, "string") == 0) || native_byte_array_type(type);
 }
+
+static bool native_callback_type_supported(json_object *type);
 
 static bool native_parameter_type(json_object *type, const char *mem)
 {
@@ -123,7 +133,7 @@ static bool native_parameter_type(json_object *type, const char *mem)
         return !mem || strcmp(mem, "default") == 0;
     if (mem && strcmp(mem, "as_ref") == 0)
         return native_string(type, "rust_native_record_wire") || (kind && native_scalar_kind(kind, false));
-    return native_string(type, "rust_native_record_wire") || native_scalar_type(type, false) ||
+    return native_callback_type_supported(type) || native_string(type, "rust_native_record_wire") || native_scalar_type(type, false) ||
         (kind && strcmp(kind, "string") == 0);
 }
 
@@ -490,6 +500,7 @@ static char *unique_private_name(json_object *functions, json_object *structs,
     return NULL;
 }
 
+#include "rust_native_callbacks.c"
 #include "rust_native_records.c"
 #include "rust_native_handles.c"
 
@@ -1259,7 +1270,7 @@ bool rust_native_partition_model(json_object *rust_model,
     }
     if (!native_prepare_pointer_slice_char_bounds(rust_model, private_model, options->source_file) ||
         !native_prepare_serial_types(rust_model, private_model, options->source_file) ||
-        !native_prepare_records(rust_model) || !native_prepare_handles(rust_model, plan) ||
+        !native_prepare_records(rust_model) || !native_prepare_handles(rust_model, plan) || !native_prepare_callbacks(rust_model, plan) ||
         !native_prepare_handle_atomic_owners(private_model, plan->handles))
     {
         json_object_put(private_model);
@@ -1269,7 +1280,9 @@ bool rust_native_partition_model(json_object *rust_model,
         rust_native_plan_free(plan);
         return false;
     }
-    if (native_bool(rust_model, "rust_native_c_string_storage"))
+    json_object *prepared_records = NULL;
+    json_object_object_get_ex(rust_model, "rust_native_records", &prepared_records);
+    if (native_bool(rust_model, "rust_native_c_string_storage") || (prepared_records && json_object_array_length(prepared_records)))
     {
         plan->record_support = json_object_new_object();
         const char *keys[] = {"rust_native_records", "rust_native_c_string_dup", "rust_native_c_string_free"};
@@ -1297,6 +1310,15 @@ bool rust_native_partition_model(json_object *rust_model,
         has_managed_abi |= native_function_uses_managed_abi(function);
         has_string_parameter |= native_function_has_string_parameter(function);
         native_count++;
+    }
+    if (plan->callback_support)
+    {
+        const char *keys[] = {"rust_native_callback_credit_lock", "rust_native_callback_credit_unlock"};
+        for (size_t i = 0; i < 2; i++) {
+            json_object *value = NULL;
+            json_object_object_get_ex(plan->callback_support, keys[i], &value);
+            json_object_object_add(private_model, keys[i], json_object_get(value));
+        }
     }
     /* The C projection owns aggregate temporaries. Apply the same lifetime
      * pass used by the C target before splitting; nested owning method results
@@ -1711,6 +1733,7 @@ void rust_native_plan_free(void *opaque)
     if (plan->handles) json_object_put(plan->handles);
     if (plan->array_support) json_object_put(plan->array_support);
     if (plan->record_support) json_object_put(plan->record_support);
+    if (plan->callback_support) json_object_put(plan->callback_support);
     for (size_t i = 0; i < plan->declaration_count; i++)
     {
         free(plan->declarations[i].rust_callable_name);

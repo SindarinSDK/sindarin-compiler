@@ -1,10 +1,28 @@
 static bool native_primitive_array_element(json_object *type)
 {
     const char *kind = native_string(type, "kind");
+    if (kind && !strcmp(kind, "array"))
+        return native_primitive_array_element(native_record_child(type, "element_type"));
+    if (kind && !strcmp(kind, "struct"))
+        return native_bool(type, "rust_native_record_storage") && native_string(type, "rust_native_record_wire");
     return kind && (strcmp(kind, "int") == 0 || strcmp(kind, "long") == 0 ||
         strcmp(kind, "int32") == 0 || strcmp(kind, "uint") == 0 ||
         strcmp(kind, "uint32") == 0 || strcmp(kind, "byte") == 0 ||
+        strcmp(kind, "char") == 0 || strcmp(kind, "string") == 0 ||
         strcmp(kind, "bool") == 0 || strcmp(kind, "float") == 0 || strcmp(kind, "double") == 0);
+}
+
+static bool native_primitive_array_callable_type(json_object *type)
+{
+    const char *kind = native_string(type, "kind");
+    if (!kind) return false;
+    if (!strcmp(kind, "array")) return native_primitive_array_element(native_record_child(type, "element_type"));
+    if (strcmp(kind, "function")) return false;
+    if (native_primitive_array_callable_type(native_record_child(type, "return_type"))) return true;
+    json_object *params = native_record_child(type, "param_types");
+    for (size_t i = 0; params && i < json_object_array_length(params); i++)
+        if (native_primitive_array_callable_type(json_object_array_get_idx(params, i))) return true;
+    return false;
 }
 
 static bool native_primitive_array_boundary(json_object *node)
@@ -20,6 +38,7 @@ static bool native_primitive_array_boundary(json_object *node)
     if (native_bool(node, "is_native"))
     {
         json_object *result = native_record_child(node, "return_type");
+        if (native_primitive_array_callable_type(result)) return true;
         const char *result_kind = native_string(result, "kind");
         const char *result_element = native_string(native_record_child(result, "element_type"), "kind");
         if (result_kind && result_element && strcmp(result_kind, "array") == 0 &&
@@ -28,6 +47,7 @@ static bool native_primitive_array_boundary(json_object *node)
         for (size_t i = 0; params && i < json_object_array_length(params); i++)
         {
             json_object *type = native_record_child(json_object_array_get_idx(params, i), "type");
+            if (native_primitive_array_callable_type(type)) return true;
             const char *kind = native_string(type, "kind");
             const char *element = native_string(native_record_child(type, "element_type"), "kind");
             if (kind && element && strcmp(kind, "array") == 0 && native_primitive_array_element(native_record_child(type, "element_type"))) return true;
@@ -72,6 +92,11 @@ static void native_handle_array_mark(json_object *node, json_object *support)
          (native_bool(support, "primitive_scalars") &&
           native_primitive_array_element(native_record_child(node, "element_type"))))) {
         json_object_object_add(node, "rust_native_handle_array", json_object_new_boolean(true));
+        const char *element_kind = native_string(native_record_child(node, "element_type"), "kind");
+        if (element_kind && (!strcmp(element_kind, "char") || !strcmp(element_kind, "string") || !strcmp(element_kind, "array"))) {
+            json_object_object_add(node, "rust_native_array_codec", json_object_new_boolean(true));
+            json_object_object_add(support, !strcmp(element_kind, "char") ? "char_elements" : !strcmp(element_kind, "string") ? "string_elements" : "nested_elements", json_object_new_boolean(true));
+        }
         json_object_object_add(node, "rust_native_handle_array_name", json_object_get(native_record_child(support, "type")));
     }
     json_object_object_foreach(node, key, child)
@@ -88,7 +113,7 @@ static bool native_prepare_handle_arrays(json_object *model, json_object *handle
     if (!native_handle_array_collect(model) && !primitive_scalars) return true;
     json_object *support = json_object_new_object();
     if (primitive_scalars) json_object_object_add(support, "primitive_scalars", json_object_new_boolean(true));
-    const char *roles[] = {"type", "trait", "untyped_new", "free", "copy", "length", "data", "width", "push", "pop", "insert", "remove", "clear", "reverse", "slice", "concat", NULL};
+    const char *roles[] = {"type", "trait", "untyped_new", "free", "copy", "length", "data", "width", "push", "pop", "insert", "remove", "clear", "reverse", "slice", "concat", "set", "string_dup", "string_free", "string_copy", "string_view", "string_argument", "nested_new", "nested_free", "nested_copy", NULL};
     for (int i = 0; roles[i]; i++) {
         char stem[160]; snprintf(stem, sizeof(stem), "__sn_native_handle_array_%s", roles[i]);
         char *name = unique_private_name(native_record_child(model, "functions"), native_record_child(model, "structs"), native_record_child(model, "globals"), stem);
@@ -115,7 +140,25 @@ static bool native_prepare_handle_arrays(json_object *model, json_object *handle
         if (!name) { json_object_put(support); return false; }
         json_object_object_add(handle, "rust_native_handle_array_new", json_object_new_string(name)); free(name);
     }
+    json_object *records = native_record_child(model, "rust_native_records");
+    json_object *array_records = json_object_new_array();
+    for (size_t i = 0; records && i < json_object_array_length(records); i++) {
+        json_object *record = json_object_array_get_idx(records, i);
+        if (!native_bool(record, "rust_native_array_record")) continue;
+        char stem[160];
+        snprintf(stem, sizeof(stem), "__sn_native_record_array_%zu_new", i);
+        char *name = unique_private_name(native_record_child(model, "functions"), native_record_child(model, "structs"), native_record_child(model, "globals"), stem);
+        if (!name) { json_object_put(array_records); json_object_put(support); return false; }
+        json_object_object_add(record, "array_new", json_object_new_string(name));
+        free(name);
+        json_object_array_add(array_records, json_object_get(record));
+    }
+    json_object_object_add(support, "record_elements", array_records);
     native_handle_array_mark(model, support);
+    if (native_bool(support, "string_elements")) {
+        json_object_object_add(model, "rust_native_array_string_args", json_object_new_boolean(true));
+        json_object_object_add(model, "rust_native_array_string_arg_trait", json_object_get(native_record_child(support, "string_argument")));
+    }
     json_object_object_add(model, "rust_native_handle_array_support", support);
     return true;
 }

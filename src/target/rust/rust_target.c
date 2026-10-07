@@ -372,6 +372,25 @@ static bool rust_emit(CompilerOptions *options, Module *module,
     }
     if (!rust_lower_physical_receivers(model)) { json_object_put(model); return false; }
     rust_prepare_native_record_field_owners(model);
+    if (rust_nullable_child(model, "rust_native_callback_strings")) rust_prepare_native_string_borrow_calls(model, model);
+    if (rust_nullable_child(model, "rust_native_callbacks")) {
+        json_object *structures = rust_nullable_child(model, "structs");
+        json_object *types = json_object_new_array();
+        for (size_t s = 0; structures && s < json_object_array_length(structures); s++) {
+            json_object *structure = json_object_array_get_idx(structures, s);
+            if (!json_boolean_property(structure, "rust_thread_fields")) continue;
+            json_object *fields = rust_nullable_child(structure, "fields");
+            for (size_t f = 0; fields && f < json_object_array_length(fields); f++) {
+                json_object *type = rust_nullable_child(json_object_array_get_idx(fields, f), "type");
+                bool exists = false;
+                for (size_t t = 0; t < json_object_array_length(types); t++)
+                    exists |= json_object_equal(json_object_array_get_idx(types, t), type);
+                if (!exists) json_object_array_add(types, json_object_get(type));
+            }
+        }
+        json_object_object_add(model, "rust_native_field_types", types);
+    }
+
     char *code = rust_render_model(model, template_dir);
     json_object_put(model);
     if (!code) return false;

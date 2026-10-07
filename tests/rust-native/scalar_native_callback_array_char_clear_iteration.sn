@@ -1,0 +1,14 @@
+native fn invoke(action: fn(char[]): char[], values: char[]): char[] =>
+  return action(values)
+
+fn main(): void =>
+  var values: char[] = {'a', 'b'}
+  var action: fn(char[]): char[] = fn(input: char[]): char[] => input
+  var copied: char[] = invoke(action, values)
+  var count: int = 0
+  for value in values =>
+    if value == 'a' || value == 'b' =>
+      count = count + 1
+    values.clear()
+  println(count == 2 && values.length == 0)
+  println(copied.length == 2 && copied[0] == 'a' && copied[1] == 'b')

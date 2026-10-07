@@ -1,0 +1,15 @@
+struct State =>
+  value: int
+
+fn make(value: int as ref): fn(): int =>
+  return fn(): int => value
+
+native fn observe(value: int as ref, read: fn(): int): int =>
+  value += 1
+  return read()
+
+fn main(): void =>
+  var state: State = { value: 7 }
+  var action: fn(): int = make(state.value)
+  println(observe(state.value, action) == 8)
+  println(state.value == 8 && action() == 8)

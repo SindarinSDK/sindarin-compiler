@@ -1,0 +1,10 @@
+native fn identical(a: fn(): int, b: fn(): int): bool =>
+  return a == b
+
+fn main(): void =>
+  var value: int = 7
+  var action: fn(): int = fn(): int => value
+  var alias = action
+  var other: fn(): int = fn(): int => value
+  println(identical(action, alias))
+  println(!identical(action, other))

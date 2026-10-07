@@ -1,0 +1,12 @@
+native fn observe(value: char as ref, read: fn(): char): char =>
+  value = 'b'
+  return read()
+
+fn make(value: char as ref): fn(): char =>
+  return fn(): char => value
+
+fn main(): void =>
+  var value: char = 'a'
+  var action: fn(): char = make(value)
+  println(observe(value, action) == 'b')
+  println(value == 'b' && action() == 'b')

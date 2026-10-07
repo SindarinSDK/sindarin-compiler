@@ -1,0 +1,15 @@
+{{#if rust_native_callbacks}}
+struct {{rust_ident rust_native_callable_owner}}<F: ?Sized>(Option<{{> closure_owner}}<F>>);
+impl<F: ?Sized> {{rust_ident rust_native_callable_owner}}<F> {
+    fn new(value: {{> closure_owner}}<F>) -> Self { Self(Some(value)) }
+    fn nil() -> Self { Self(None) }
+    fn owner(&self) -> &{{> closure_owner}}<F> { self.0.as_ref().expect("nil callable invocation") }
+}
+impl<F: ?Sized> Clone for {{rust_ident rust_native_callable_owner}}<F> {
+    fn clone(&self) -> Self { Self(self.0.clone()) }
+}
+impl<F: ?Sized> std::ops::Deref for {{rust_ident rust_native_callable_owner}}<F> {
+    type Target = F;
+    fn deref(&self) -> &F { &**self.owner() }
+}
+{{/if}}{{~!-- trim optional callable EOF --~}}

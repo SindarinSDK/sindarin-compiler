@@ -1,0 +1,1055 @@
+{
+  "base": "9da559c3aef70a2bdae8285f97a831c5df4aec35",
+  "stage": "Local combined acceptance verified; unpublished.",
+  "commands": {
+    "completed_from_exact_current_checks": [
+      "native callback ABI and ownership (68 sources, all modes)",
+      "native callback C lifetimes (204 sanitizer cases)",
+      "native callback Rust/C bridge lifetimes (204 sanitizer cases)",
+      "native scalar, record and managed ABI fixtures (364 fixtures)",
+      "tagged native C/Rust parity (8 fixtures)"
+    ],
+    "commands": [
+      {
+        "name": "canonical native handle ownership (117 cases)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "-o",
+          "build",
+          "test-rust-parity-native-handles"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-002.log"
+      },
+      {
+        "name": "canonical native reference arrays (27 cases)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "-o",
+          "build",
+          "test-rust-parity-native-arrays"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-003.log"
+      },
+      {
+        "name": "global native owners and joined thread results (36 cases)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "-o",
+          "build",
+          "test-rust-parity-native-globals"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-004.log"
+      },
+      {
+        "name": "native record value transport (45 cases)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "-o",
+          "build",
+          "test-rust-parity-native-records"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-005.log"
+      },
+      {
+        "name": "native C callable definitions, globals and threads (63 cases)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "-o",
+          "build",
+          "test-rust-parity-native-callables"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-006.log"
+      },
+      {
+        "name": "native variadic C adapters and ownership (54 cases)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "-o",
+          "build",
+          "test-rust-parity-native-variadics"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-007.log"
+      },
+      {
+        "name": "owned as-val arrays, callable elements and method owners (45 cases)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "-o",
+          "build",
+          "test-rust-parity-array-values"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-008.log"
+      },
+      {
+        "name": "owned byte-pointer slices and scalar bounds (45 cases)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "-o",
+          "build",
+          "test-rust-parity-pointer-slices"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-009.log"
+      },
+      {
+        "name": "serialization vtables, fields and lifetimes (117 cases)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "-o",
+          "build",
+          "test-rust-parity-serialization"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-010.log"
+      },
+      {
+        "name": "native managed record storage and ownership (54 cases)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "-o",
+          "build",
+          "test-rust-parity-native-managed-records"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-011.log"
+      },
+      {
+        "name": "native record references and stable storage (36 cases)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "-o",
+          "build",
+          "test-rust-parity-native-record-references"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-012.log"
+      },
+      {
+        "name": "owned record parameters, aliases and field forwarding (216 cases)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "-o",
+          "build",
+          "test-rust-parity-owned-record-parameters"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-013.log"
+      },
+      {
+        "name": "reference records, return lifetimes and copy hooks (171 cases)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "-o",
+          "build",
+          "test-rust-parity-reference-records"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-014.log"
+      },
+      {
+        "name": "scalar parameter characters, aliases and storage conversions (126 cases)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "-o",
+          "build",
+          "test-rust-parity-scalar-parameters"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-015.log"
+      },
+      {
+        "name": "closure record lifetimes, aliases and mutation (189 cases)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "-o",
+          "build",
+          "test-rust-parity-closure-records"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-016.log"
+      },
+      {
+        "name": "native ABI admission diagnostics (4 fixtures)",
+        "command": [
+          "python3",
+          "scripts/run_rust_tests.py",
+          "rust-native-errors",
+          "--verbose",
+          "--require-count",
+          "4",
+          "--fail-on-skip"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-017.log"
+      },
+      {
+        "name": "nested array stores and copy independence (45 cases)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "-o",
+          "build",
+          "test-rust-parity-nested-stores"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-018.log"
+      },
+      {
+        "name": "owned struct and nested array copies (45 cases)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "-o",
+          "build",
+          "test-rust-parity-owned-array-copies"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-019.log"
+      },
+      {
+        "name": "nil array state and native transport (90 cases)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "-o",
+          "build",
+          "test-rust-parity-nil-array"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-020.log"
+      },
+      {
+        "name": "nil string state and native transport (72 cases)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "-o",
+          "build",
+          "test-rust-parity-nil-string"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-021.log"
+      },
+      {
+        "name": "C-only native helper scope (36 cases)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "-o",
+          "build",
+          "test-rust-parity-native-scope"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-022.log"
+      },
+      {
+        "name": "imported native alias origin (1 fixture)",
+        "command": [
+          "python3",
+          "scripts/run_rust_tests.py",
+          "rust-native-origin",
+          "--verbose",
+          "--require-count",
+          "1",
+          "--fail-on-skip"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-023.log"
+      },
+      {
+        "name": "platform-specific raw byte-string behavior",
+        "command": [
+          "python3",
+          "tests/rgen/byte_string_compare.py"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-024.log"
+      },
+      {
+        "name": "exact Rust/C text output, native flush, and diagnostics",
+        "command": [
+          "python3",
+          "tests/rgen/windows_text_transport_compare.py"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-025.log"
+      },
+      {
+        "name": "indexed member Rust runtime composition",
+        "command": [
+          "python3",
+          "scripts/run_rust_tests.py",
+          "rgen",
+          "--filter",
+          "indexed_member_assignment",
+          "--verbose",
+          "--require-count",
+          "1",
+          "--fail-on-skip"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-026.log"
+      },
+      {
+        "name": "Windows text helper logic",
+        "command": [
+          "python3",
+          "tests/rgen/windows_text_helpers.py"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-027.log"
+      },
+      {
+        "name": "complete Rust generation, diagnostics, native, closure, concurrency and toolchain suites",
+        "command": [
+          "python3",
+          "scripts/run_rust_tests.py",
+          "all",
+          "--verbose",
+          "--fail-on-skip"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-028.log"
+      },
+      {
+        "name": "core C/Rust differential coverage at O0/O1/O2",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-core"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-029.log"
+      },
+      {
+        "name": "concurrency C/Rust differential coverage (17 sources, O0/O1/O2)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-concurrency"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-030.log"
+      },
+      {
+        "name": "thread ownership and array identity (23 sources, all optimization/arithmetic modes)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-thread-ownership"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-031.log"
+      },
+      {
+        "name": "thread receiver and aggregate ownership (10 sources, all optimization/arithmetic modes)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-thread-receivers"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-032.log"
+      },
+      {
+        "name": "reflection metadata and sized arrays (4 sources, all optimization/arithmetic modes)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-reflection"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-033.log"
+      },
+      {
+        "name": "sized-array defaults and evaluation effects (3 sources, all optimization/arithmetic modes)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-sized-defaults"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-034.log"
+      },
+      {
+        "name": "zero-initialized value records (3 sources, all optimization/arithmetic modes)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-zero-record-defaults"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-035.log"
+      },
+      {
+        "name": "managed iterator protocol (8 sources, all optimization/arithmetic modes)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-managed-iterators"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-036.log"
+      },
+      {
+        "name": "borrowed array return ownership (3 sources, all optimization/arithmetic modes)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-array-returns"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-037.log"
+      },
+      {
+        "name": "closure array mutation, ownership and aliases (21 sources, all optimization/arithmetic modes)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-closure-arrays"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-038.log"
+      },
+      {
+        "name": "closure array mutation methods (8 sources, all optimization/arithmetic modes)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-array-methods"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-039.log"
+      },
+      {
+        "name": "closure array alias partitions (8 sources, all optimization/arithmetic modes)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-array-alias-partitions"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-040.log"
+      },
+      {
+        "name": "closure array method aliases (8 sources, all optimization/arithmetic modes)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-method-aliases"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-041.log"
+      },
+      {
+        "name": "reference-record receivers and native closure ownership (5 sources, all modes)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-reference-receivers"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-042.log"
+      },
+      {
+        "name": "captured value-record methods and borrowed field printing (5 sources, all modes)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-captured-methods"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-043.log"
+      },
+      {
+        "name": "owned as-val closure array rebinding (11 sources, all modes)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-array-rebinding"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-044.log"
+      },
+      {
+        "name": "owned array rebinding C lifetimes with ASAN/UBSAN/leaks (33 cases)",
+        "command": [
+          "python3",
+          "scripts/check_c_array_rebinding_lifetimes.py"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-045.log"
+      },
+      {
+        "name": "owned closure string rebinding (8 sources, all modes)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-string-rebinding"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-046.log"
+      },
+      {
+        "name": "string rebinding C lifetimes with ASAN/UBSAN/leaks (24 cases)",
+        "command": [
+          "python3",
+          "scripts/check_c_string_rebinding_lifetimes.py"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-047.log"
+      },
+      {
+        "name": "private closure array rebinding (15 sources, all modes)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-private-arrays"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-048.log"
+      },
+      {
+        "name": "private array C lifetimes with ASAN/UBSAN/leaks (45 cases)",
+        "command": [
+          "python3",
+          "scripts/check_c_private_array_lifetimes.py"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-049.log"
+      },
+      {
+        "name": "native primitive arrays (13 sources, all modes)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-native-primitive-arrays"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-050.log"
+      },
+      {
+        "name": "native primitive array C lifetimes with ASAN/UBSAN/leaks (39 cases)",
+        "command": [
+          "python3",
+          "scripts/check_c_native_primitive_array_lifetimes.py"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-051.log"
+      },
+      {
+        "name": "scalar snapshot reference forwarding (12 sources, all modes)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-scalar-snapshot-references"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-052.log"
+      },
+      {
+        "name": "scalar snapshot C lifetimes with ASAN/UBSAN/leaks (36 cases)",
+        "command": [
+          "python3",
+          "scripts/check_c_scalar_snapshot_reference_lifetimes.py"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-053.log"
+      },
+      {
+        "name": "lexical capture scopes (11 sources, all modes)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-capture-scopes"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-054.log"
+      },
+      {
+        "name": "capture scope C lifetimes with ASAN/UBSAN/leaks (33 cases)",
+        "command": [
+          "python3",
+          "scripts/check_c_capture_scope_lifetimes.py"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-055.log"
+      },
+      {
+        "name": "physical value-record receivers (22 sources, all modes)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-physical-receivers"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-056.log"
+      },
+      {
+        "name": "physical receiver C lifetimes with ASAN/UBSAN/leaks (66 cases)",
+        "command": [
+          "python3",
+          "scripts/check_c_physical_receiver_lifetimes.py"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-057.log"
+      },
+      {
+        "name": "physical receiver Rust lifetimes with ASAN/leaks (66 cases)",
+        "command": [
+          "python3",
+          "scripts/check_rust_physical_receiver_lifetimes.py"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-058.log"
+      },
+      {
+        "name": "borrowed scalar captures (21 sources, all modes)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-borrowed-captures"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-062.log"
+      },
+      {
+        "name": "borrowed scalar C lifetimes with ASAN/UBSAN/leaks (63 cases)",
+        "command": [
+          "python3",
+          "scripts/check_c_borrowed_capture_lifetimes.py"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-063.log"
+      },
+      {
+        "name": "borrowed scalar Rust lifetimes with ASAN/leaks (63 cases)",
+        "command": [
+          "python3",
+          "scripts/check_rust_borrowed_capture_lifetimes.py"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-064.log"
+      },
+      {
+        "name": "owned as-val closure record parameters (17 sources, all modes)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-owned-record-parameters-closures"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-065.log"
+      },
+      {
+        "name": "owned record parameter C lifetimes with ASAN/UBSAN/leaks (51 cases)",
+        "command": [
+          "python3",
+          "scripts/check_c_owned_record_parameter_lifetimes.py"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-066.log"
+      },
+      {
+        "name": "scalar closure value parameter mutations (16 sources, all modes)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-closure-value-parameters"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-067.log"
+      },
+      {
+        "name": "scalar closure value parameter C lifetimes with ASAN/UBSAN/leaks (48 cases)",
+        "command": [
+          "python3",
+          "scripts/check_c_closure_value_parameter_lifetimes.py"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-068.log"
+      },
+      {
+        "name": "scalar closure reference storage and evaluation (26 sources, all modes)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-closure-references"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-069.log"
+      },
+      {
+        "name": "scalar closure reference C lifetimes with ASAN/UBSAN/leaks (78 cases)",
+        "command": [
+          "python3",
+          "scripts/check_c_closure_reference_lifetimes.py"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-070.log"
+      },
+      {
+        "name": "qualified closure array copies (7 sources, all modes)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-qualified-arrays"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-071.log"
+      },
+      {
+        "name": "qualified closure array C lifetimes with ASAN/UBSAN/leaks (21 cases)",
+        "command": [
+          "python3",
+          "scripts/check_c_qualified_array_lifetimes.py"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-072.log"
+      },
+      {
+        "name": "captured-record/field-string C lifetimes with ASAN/UBSAN/leaks (15 cases)",
+        "command": [
+          "python3",
+          "scripts/check_c_captured_method_lifetimes.py"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-073.log"
+      },
+      {
+        "name": "reference-record C ownership with ASAN/UBSAN/leak checks (15 cases)",
+        "command": [
+          "python3",
+          "scripts/check_c_reference_receiver_lifetimes.py"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-074.log"
+      },
+      {
+        "name": "closure array method aliases with ASAN/UBSAN/leak checks (24 cases)",
+        "command": [
+          "python3",
+          "scripts/check_c_method_alias_lifetimes.py"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-075.log"
+      },
+      {
+        "name": "closure array alias partitions with ASAN/UBSAN/leak checks (24 cases)",
+        "command": [
+          "python3",
+          "scripts/check_c_array_alias_partition_lifetimes.py"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-076.log"
+      },
+      {
+        "name": "closure array methods with ASAN/UBSAN/leak checks (24 cases)",
+        "command": [
+          "python3",
+          "scripts/check_c_array_method_lifetimes.py"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-077.log"
+      },
+      {
+        "name": "closure array C ownership with ASAN/UBSAN/leak checks (63 cases)",
+        "command": [
+          "python3",
+          "scripts/check_c_closure_array_lifetimes.py"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-078.log"
+      },
+      {
+        "name": "borrowed array returns with ASAN/UBSAN/leak checks (9 cases)",
+        "command": [
+          "python3",
+          "scripts/check_c_array_return_lifetimes.py"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-079.log"
+      },
+      {
+        "name": "iterator C ownership with ASAN/UBSAN/leak checks (24 cases)",
+        "command": [
+          "python3",
+          "scripts/check_c_iterator_lifetimes.py"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-080.log"
+      },
+      {
+        "name": "native managed results and scalar references (7 sources, all optimization/arithmetic modes)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-native-managed"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-081.log"
+      },
+      {
+        "name": "C diagnostic statuses and stdout/stderr order (30 paired cases, 120 executions)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-stdio-order"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-082.log"
+      },
+      {
+        "name": "mixed integer conversions (90 positive pairs, 9 checked diagnostic cases)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-mixed-integral"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-083.log"
+      },
+      {
+        "name": "floating storage, calls and mixed mutation precision (117 positive pairs)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-float-conversions"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-084.log"
+      },
+      {
+        "name": "floating array argument representation and mutation (81 positive pairs)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-floating-arrays"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-085.log"
+      },
+      {
+        "name": "floating array byte equality (36 positive pairs)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-floating-equality"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-086.log"
+      },
+      {
+        "name": "computed numeric mutation and owner timing (153 positive pairs)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-numeric-places"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-087.log"
+      },
+      {
+        "name": "captured array indexed writes and callback visibility (45 positive pairs)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-capture-index"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-088.log"
+      },
+      {
+        "name": "synchronized character mutation and wraparound (45 positive pairs)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-sync-character"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-089.log"
+      },
+      {
+        "name": "character methods and C locale string semantics (72 positive pairs)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-ctype"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-090.log"
+      },
+      {
+        "name": "byte encodings and native object views (81 positive pairs)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-byte-encoding"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-091.log"
+      },
+      {
+        "name": "process exit statuses, buffered streams and CRT lifecycle (153 cases)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-exit"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-092.log"
+      },
+      {
+        "name": "normal main return, buffered streams and CRT callbacks (108 cases)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-main-return"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-093.log"
+      },
+      {
+        "name": "match control flow, character places and local atomic locks (180 positive pairs)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-match-control"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-094.log"
+      },
+      {
+        "name": "C sizeof layouts and native-local aggregates (216 positive pairs)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-sizeof"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-095.log"
+      },
+      {
+        "name": "C sizeof fallback and borrowed reference calls (126 positive pairs)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-call-reference"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-096.log"
+      },
+      {
+        "name": "Indexed string copies, lifetimes and evaluation order (54 positive pairs)",
+        "command": [
+          "make",
+          "-o",
+          "build",
+          "test-rust-parity-indexed-string"
+        ],
+        "exit_code": 0,
+        "log": ".sn/native-callback-acceptance-097.log"
+      }
+    ],
+    "passed": true
+  },
+  "strict_runtime": {
+    "reports": 66,
+    "cases": 6573,
+    "report_sha256": "ef272026ead3b703d7605c52e9bc195790d8d70d7bf6101d010b0cf5b3266e07"
+  },
+  "callback_mode_pairs": 612,
+  "sanitizer_cases_per_backend": 204,
+  "frozen_input_count": 8907,
+  "frozen_inputs_sha256": "b282ce1b5f7f6d0cd070e08118b78437de3e63cdda4f4374cb7967c0018a8f2a",
+  "full_suites": {
+    "c": "all passed;1143 integration and1610 unit",
+    "rust": "all passed;503 rgen119 errors364 native"
+  },
+  "limits": "Wider qualifiers/threaded reentry/concurrent buffer access/external-library credits/unsupported layouts remain open; broader backend interfaces and borrowed-self goals unfinished."
+}

@@ -1,0 +1,12 @@
+@source "native_callback_array_string_native_write.sn.c"
+
+native fn mutate(values: str[]): str
+native fn invoke(action: fn(str[]): str[], values: str[]): str[] =>
+  return action(values)
+
+fn main(): void =>
+  var values: str[] = {"a"}
+  var action: fn(str[]): str[] = fn(input: str[]): str[] => input
+  var copied: str[] = invoke(action, values)
+  println(values[0] == mutate(values))
+  println(values[0] == "b" && copied[0] == "a")

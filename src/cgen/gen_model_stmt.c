@@ -191,6 +191,14 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
             {
                 json_object *init_expr = gen_model_expr(arena, stmt->as.var_decl.initializer, symbol_table, arithmetic_mode);
                 json_object_object_add(obj, "initializer", init_expr);
+                if (vtype && vtype->kind == TYPE_FUNCTION &&
+                    stmt->as.var_decl.initializer->type == EXPR_VARIABLE) {
+                    int wrapper = gen_model_function_wrapper(arena, stmt->as.var_decl.initializer, vtype, symbol_table);
+                    if (wrapper >= 0) {
+                        json_object_object_add(obj, "c_named_function_initializer", json_object_new_boolean(true));
+                        json_object_object_add(obj, "fn_wrapper_id", json_object_new_int(wrapper));
+                    }
+                }
                 /* Mark typeOf initializers as assigned so the template skips
                  * self-cleaning (the variable's sn_auto_TypeInfo handles it). */
                 if (stmt->as.var_decl.initializer->type == EXPR_TYPEOF)
@@ -477,7 +485,7 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                                 is_owned = false;
                                 /* The returned value needs an independent owner. Strings and
                                  * arrays copy; reference records retain at the return edge. */
-                                if (rt->kind == TYPE_STRING || rt->kind == TYPE_ARRAY ||
+                                if (rt->kind == TYPE_STRING || rt->kind == TYPE_ARRAY || rt->kind == TYPE_FUNCTION ||
                                     (rt->kind == TYPE_STRUCT && rt->as.struct_type.pass_self_by_ref))
                                 {
                                     json_object_object_add(obj, "source_is_borrow",

@@ -1,0 +1,23 @@
+struct State =>
+  value: char
+
+@source "native_callback_char_field_write.sn.c"
+
+fn make(value: char as ref): fn(): char =>
+  return fn(): char => value
+
+native fn remember(value: char as ref, read: fn(): char): bool
+native fn read_saved(): char
+native fn write_saved(): void
+native fn clear_saved(): void
+
+fn main(): void =>
+  var state: State = { value: 'a' }
+  var action: fn(): char = make(state.value)
+  println(remember(state.value, action))
+  write_saved()
+  var copy: State = state
+  println(state.value == 'd' && action() == 'd' && copy.value == 'd')
+  state.value = 'c'
+  println(read_saved() == 'c')
+  clear_saved()

@@ -1,0 +1,13 @@
+native fn invoke(action: fn(str[][]): str[][], values: str[][]): str[][] =>
+  return action(values)
+
+fn main(): void =>
+  var values: str[][] = {{"a"}}
+  var action: fn(str[][]): str[][] = fn(input: str[][]): str[][] =>
+    input[0].push("b")
+    input[0][0] = "changed"
+    return input
+  var copied: str[][] = invoke(action, values)
+  println(values[0].length == 2 && values[0][0] == "changed" && values[0][1] == "b")
+  copied[0].clear()
+  println(values[0].length == 2 && copied[0].length == 0)

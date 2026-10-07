@@ -1,0 +1,12 @@
+@source "native_callback_string_retained_input.sn.c"
+
+native fn make(): fn(str): bool
+native fn same_saved(value: str): bool
+native fn clear_saved(): void
+
+fn main(): void =>
+  var remember: fn(str): bool = make()
+  var value: str = "hello"
+  println(remember(value))
+  println(same_saved(value))
+  clear_saved()

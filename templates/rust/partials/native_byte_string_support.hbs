@@ -1,0 +1,256 @@
+#[derive({{#unless @root.rust_native_callback_strings}}Clone, {{/unless}}{{#unless @root.rust_nullable_strings}}Default,{{/unless}}{{#unless @root.rust_native_callback_strings}} PartialEq, Eq, PartialOrd, Ord, Hash{{/unless}})]
+struct SnString(Vec<u8>{{#if @root.rust_nullable_strings}}, bool{{/if}}{{#if @root.rust_native_callback_strings}}, std::sync::Arc<std::sync::OnceLock<{{rust_ident @root.rust_native_callback_header}}StringBuffer>>{{/if}});{{#if @root.rust_nullable_strings}}
+
+impl Default for SnString {
+    fn default() -> Self { Self::nil() }
+}{{/if}}
+
+{{#if @root.rust_native_callback_strings}}
+impl PartialEq for SnString { fn eq(&self, other: &Self) -> bool { self.as_bytes() == other.as_bytes(){{#if @root.rust_nullable_strings}} && self.1 == other.1{{/if}} } }
+impl Eq for SnString {}
+impl PartialOrd for SnString { fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> { Some(self.cmp(other)) } }
+impl Ord for SnString { fn cmp(&self, other: &Self) -> std::cmp::Ordering { {{#if @root.rust_nullable_strings}}(self.as_bytes(), self.1).cmp(&(other.as_bytes(), other.1)){{else}}self.as_bytes().cmp(other.as_bytes()){{/if}} } }
+impl std::hash::Hash for SnString { fn hash<H: std::hash::Hasher>(&self, state: &mut H) { self.as_bytes().hash(state); {{#if @root.rust_nullable_strings}}self.1.hash(state);{{/if}} } }
+{{/if}}{{#if @root.rust_native_callback_strings}}
+impl Clone for SnString {
+    fn clone(&self) -> Self { Self(self.as_bytes().to_vec(){{#if @root.rust_nullable_strings}}, self.1{{/if}}, std::sync::Arc::new(std::sync::OnceLock::new())) }
+}
+impl SnString {
+    fn native_borrow(&self) -> Self { let _ = self.native_pointer(); Self(self.as_bytes().to_vec(){{#if @root.rust_nullable_strings}}, self.1{{/if}}, self.{{#if @root.rust_nullable_strings}}2{{else}}1{{/if}}.clone()) }
+    fn native_pointer(&self) -> *mut std::ffi::c_char {
+{{#if @root.rust_nullable_strings}}        if self.is_nil() { return std::ptr::null_mut(); }
+{{/if}}        self.{{#if @root.rust_nullable_strings}}2{{else}}1{{/if}}.get_or_init(|| {{rust_ident @root.rust_native_callback_header}}StringBuffer::new(&self.0)).pointer.as_ptr()
+    }
+}
+{{/if}}
+trait SnBytes {
+    fn sn_bytes(&self) -> &[u8];
+}
+
+impl SnBytes for SnString {
+    fn sn_bytes(&self) -> &[u8] { {{#if @root.rust_native_callback_strings}}self.as_bytes(){{else}}&self.0{{/if}} }
+}
+
+impl SnBytes for str {
+    fn sn_bytes(&self) -> &[u8] { self.as_bytes() }
+}
+
+impl SnBytes for String {
+    fn sn_bytes(&self) -> &[u8] { self.as_bytes() }
+}
+
+impl SnString {
+{{#if @root.rust_nullable_strings}}
+    fn nil() -> Self { Self(Vec::new(), true{{#if @root.rust_native_callback_strings}}, std::sync::Arc::new(std::sync::OnceLock::new()){{/if}}) }
+
+    fn is_nil(&self) -> bool { self.1 }
+
+{{/if}}    fn new() -> Self { Self(Vec::new(){{#if @root.rust_nullable_strings}}, false{{/if}}{{#if @root.rust_native_callback_strings}}, std::sync::Arc::new(std::sync::OnceLock::new()){{/if}}) }
+
+    fn from_bytes(bytes: Vec<u8>) -> Self { Self(bytes{{#if @root.rust_nullable_strings}}, false{{/if}}{{#if @root.rust_native_callback_strings}}, std::sync::Arc::new(std::sync::OnceLock::new()){{/if}}) }
+
+    fn from_slice(bytes: &[u8]) -> Self { Self(bytes.to_vec(){{#if @root.rust_nullable_strings}}, false{{/if}}{{#if @root.rust_native_callback_strings}}, std::sync::Arc::new(std::sync::OnceLock::new()){{/if}}) }
+
+    fn from_c_bytes(bytes: &[u8]) -> Self {
+        let end = bytes.iter().position(|byte| *byte == 0).unwrap_or(bytes.len());
+        Self(bytes[..end].to_vec(){{#if @root.rust_nullable_strings}}, false{{/if}}{{#if @root.rust_native_callback_strings}}, std::sync::Arc::new(std::sync::OnceLock::new()){{/if}})
+    }
+
+    fn as_bytes(&self) -> &[u8] {
+{{#if @root.rust_native_callback_strings}}        if let Some(buffer) = self.{{#if @root.rust_nullable_strings}}2{{else}}1{{/if}}.get() { return unsafe { std::ffi::CStr::from_ptr(buffer.pointer.as_ptr()).to_bytes() }; }
+{{/if}}        &self.0
+    }
+
+    fn len(&self) -> usize { {{#if @root.rust_native_callback_strings}}self.as_bytes().len(){{else}}self.0.len(){{/if}} }
+
+    fn is_empty(&self) -> bool { {{#if @root.rust_native_callback_strings}}self.as_bytes().is_empty(){{else}}self.0.is_empty(){{/if}} }
+
+    fn push_str<T: SnBytes + ?Sized>(&mut self, value: &T) {
+{{#if @root.rust_native_callback_strings}}        self.0 = self.as_bytes().to_vec();
+        self.{{#if @root.rust_nullable_strings}}2{{else}}1{{/if}} = std::sync::Arc::new(std::sync::OnceLock::new());
+{{/if}}
+{{#if @root.rust_nullable_strings}}        self.1 = false;
+{{/if}}        self.0.extend_from_slice(value.sn_bytes());
+    }
+
+    fn push_char(&mut self, value: char) {
+{{#if @root.rust_native_callback_strings}}        self.0 = self.as_bytes().to_vec();
+        self.{{#if @root.rust_nullable_strings}}2{{else}}1{{/if}} = std::sync::Arc::new(std::sync::OnceLock::new());
+{{/if}}
+        if value != '\0' { self.0.push(value as u32 as u8); }
+    }
+
+    fn contains(&self, needle: &Self) -> bool {
+        __sn_find_bytes({{#if @root.rust_native_callback_strings}}self.as_bytes(), needle.as_bytes(){{else}}&self.0, &needle.0{{/if}}).is_some()
+    }
+
+    fn starts_with(&self, prefix: &Self) -> bool { {{#if @root.rust_native_callback_strings}}self.as_bytes().starts_with(prefix.as_bytes()){{else}}self.0.starts_with(&prefix.0){{/if}} }
+
+    fn ends_with(&self, suffix: &Self) -> bool { {{#if @root.rust_native_callback_strings}}self.as_bytes().ends_with(suffix.as_bytes()){{else}}self.0.ends_with(&suffix.0){{/if}} }
+
+    fn trim_ascii(&self) -> Self {
+        let mut start = 0;
+        {{#if @root.rust_native_callback_strings}}let bytes = self.as_bytes();{{/if}}
+        let mut end = {{#if @root.rust_native_callback_strings}}bytes{{else}}self.0{{/if}}.len();
+        while start < end && {{#if @root.rust_native_callback_strings}}bytes{{else}}self.0{{/if}}[start].is_ascii_whitespace() { start += 1; }
+        while end > start && {{#if @root.rust_native_callback_strings}}bytes{{else}}self.0{{/if}}[end - 1].is_ascii_whitespace() { end -= 1; }
+        Self({{#if @root.rust_native_callback_strings}}bytes{{else}}self.0{{/if}}[start..end].to_vec(){{#if @root.rust_nullable_strings}}, false{{/if}}{{#if @root.rust_native_callback_strings}}, std::sync::Arc::new(std::sync::OnceLock::new()){{/if}})
+    }
+
+    fn to_ascii_uppercase(&self) -> Self {
+        Self({{#if @root.rust_native_callback_strings}}self.as_bytes(){{else}}self.0{{/if}}.iter().map(u8::to_ascii_uppercase).collect(){{#if @root.rust_nullable_strings}}, false{{/if}}{{#if @root.rust_native_callback_strings}}, std::sync::Arc::new(std::sync::OnceLock::new()){{/if}})
+    }
+
+    fn to_ascii_lowercase(&self) -> Self {
+        Self({{#if @root.rust_native_callback_strings}}self.as_bytes(){{else}}self.0{{/if}}.iter().map(u8::to_ascii_lowercase).collect(){{#if @root.rust_nullable_strings}}, false{{/if}}{{#if @root.rust_native_callback_strings}}, std::sync::Arc::new(std::sync::OnceLock::new()){{/if}})
+    }
+}
+
+impl From<&str> for SnString {
+    fn from(value: &str) -> Self { Self(value.as_bytes().to_vec(){{#if @root.rust_nullable_strings}}, false{{/if}}{{#if @root.rust_native_callback_strings}}, std::sync::Arc::new(std::sync::OnceLock::new()){{/if}}) }
+}
+
+impl From<String> for SnString {
+    fn from(value: String) -> Self { Self(value.into_bytes(){{#if @root.rust_nullable_strings}}, false{{/if}}{{#if @root.rust_native_callback_strings}}, std::sync::Arc::new(std::sync::OnceLock::new()){{/if}}) }
+}
+
+#[cfg(unix)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::unix::ffi::OsStrExt;
+    std::env::args_os()
+        .map(|value| SnString::from_slice(value.as_os_str().as_bytes()))
+        .collect()
+}
+
+#[cfg(windows)]
+fn __sn_push_wtf8(bytes: &mut Vec<u8>, value: u32) {
+    if value <= 0x7f {
+        bytes.push(value as u8);
+    } else if value <= 0x7ff {
+        bytes.push((0xc0 | (value >> 6)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else if value <= 0xffff {
+        bytes.push((0xe0 | (value >> 12)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    } else {
+        bytes.push((0xf0 | (value >> 18)) as u8);
+        bytes.push((0x80 | ((value >> 12) & 0x3f)) as u8);
+        bytes.push((0x80 | ((value >> 6) & 0x3f)) as u8);
+        bytes.push((0x80 | (value & 0x3f)) as u8);
+    }
+}
+
+#[cfg(windows)]
+fn __sn_args() -> Vec<SnString> {
+    use std::os::windows::ffi::OsStrExt;
+    std::env::args_os().map(|value| {
+        let mut bytes = Vec::new();
+        let mut units = value.as_os_str().encode_wide().peekable();
+        while let Some(unit) = units.next() {
+            let scalar = if (0xd800..=0xdbff).contains(&unit) {
+                match units.peek().copied() {
+                    Some(low) if (0xdc00..=0xdfff).contains(&low) => {
+                        units.next();
+                        0x10000 + (((unit as u32 - 0xd800) << 10) |
+                                   (low as u32 - 0xdc00))
+                    }
+                    _ => unit as u32,
+                }
+            } else {
+                unit as u32
+            };
+            __sn_push_wtf8(&mut bytes, scalar);
+        }
+        SnString::from_bytes(bytes)
+    }).collect()
+}
+
+#[cfg(not(any(unix, windows)))]
+compile_error!("Sindarin Rust argv byte transport supports Unix and Windows targets");
+
+impl std::fmt::Debug for SnString {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("\"")?;
+        for byte in {{#if @root.rust_native_callback_strings}}self.as_bytes(){{else}}&self.0{{/if}} {
+            match *byte {
+                b'\\' => f.write_str("\\\\")?,
+                b'\"' => f.write_str("\\\"")?,
+                b'\n' => f.write_str("\\n")?,
+                b'\r' => f.write_str("\\r")?,
+                b'\t' => f.write_str("\\t")?,
+                0x20..=0x7e => f.write_str(&char::from(*byte).to_string())?,
+                _ => write!(f, "\\x{:02x}", byte)?,
+            }
+        }
+        f.write_str("\"")
+    }
+}
+
+fn __sn_find_bytes(haystack: &[u8], needle: &[u8]) -> Option<usize> {
+    if needle.is_empty() { return Some(0); }
+    haystack.windows(needle.len()).position(|window| window == needle)
+}
+
+fn __sn_write_bytes(bytes: &[u8]) {
+    crate::{{rust_ident @root.rust_windows_stdout_name}}(bytes);
+}
+
+fn __sn_print_string(value: &SnString) { __sn_write_bytes(value.as_bytes()); }
+
+fn __sn_println_string(value: &SnString) {
+    __sn_write_bytes(&[value.as_bytes(), b"\n"].concat());
+}
+
+fn __sn_print_char(value: char) { __sn_write_bytes(&[value as u32 as u8]); }
+
+fn __sn_println_char(value: char) {
+    __sn_write_bytes(&[value as u32 as u8, b'\n']);
+}
+
+fn __sn_string_join(values: &[SnString], delimiter: &SnString) -> SnString {
+    let capacity = values.iter().map(SnString::len).sum::<usize>()
+        + delimiter.len().saturating_mul(values.len().saturating_sub(1));
+    let mut result = SnString(Vec::with_capacity(capacity){{#if @root.rust_nullable_strings}}, false{{/if}}{{#if @root.rust_native_callback_strings}}, std::sync::Arc::new(std::sync::OnceLock::new()){{/if}});
+    for (index, value) in values.iter().enumerate() {
+        if index != 0 { result.push_str(delimiter); }
+        result.push_str(value);
+    }
+    result
+}
+
+fn __sn_byte_array_to_string(values: &[u8]) -> SnString {
+    SnString::from_c_bytes(values)
+}
+
+fn __sn_string_to_bytes(value: &SnString) -> Vec<u8> { value.as_bytes().to_vec() }
+
+fn __sn_string_append(value: &SnString, suffix: &SnString) -> SnString {
+    let mut result = SnString(Vec::with_capacity(value.len() + suffix.len()){{#if @root.rust_nullable_strings}}, false{{/if}}{{#if @root.rust_native_callback_strings}}, std::sync::Arc::new(std::sync::OnceLock::new()){{/if}});
+    result.push_str(value);
+    result.push_str(suffix);
+    result
+}
+
+unsafe extern "C" {
+    fn strtoll(value: *const std::ffi::c_char,
+               end: *mut *mut std::ffi::c_char, base: std::ffi::c_int) -> i64;
+    fn strtod(value: *const std::ffi::c_char,
+              end: *mut *mut std::ffi::c_char) -> f64;
+}
+
+fn __sn_nul_terminated(value: &SnString) -> Vec<u8> {
+    let mut bytes = value.as_bytes().to_vec();
+    bytes.push(0);
+    bytes
+}
+
+fn __sn_string_to_int(value: &SnString) -> i64 {
+    let bytes = __sn_nul_terminated(value);
+    unsafe { strtoll(bytes.as_ptr().cast(), std::ptr::null_mut(), 10) }
+}
+
+fn __sn_string_to_double(value: &SnString) -> f64 {
+    let bytes = __sn_nul_terminated(value);
+    unsafe { strtod(bytes.as_ptr().cast(), std::ptr::null_mut()) }
+}

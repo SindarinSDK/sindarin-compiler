@@ -1,0 +1,46 @@
+{{#if rust_native_callbacks}}{{#if rust_uses_thread_fields}}
+trait {{rust_ident rust_native_field_read_trait}}: Clone {
+    fn field_write(cell: &{{rust_ident rust_native_reentry_cell}}<Self>, next: Self);
+    fn field_read(cell: &{{rust_ident rust_native_reentry_cell}}<Self>) -> Self;
+}
+{{#each rust_native_field_types}}impl {{rust_ident @root.rust_native_field_read_trait}} for {{rust_type this}} {
+    fn field_write(cell: &{{rust_ident @root.rust_native_reentry_cell}}<Self>, next: Self) { cell.{{#if (eq kind "char")}}set_char{{else}}set{{/if}}(next); }
+    fn field_read(cell: &{{rust_ident @root.rust_native_reentry_cell}}<Self>) -> Self { cell.{{#if (eq kind "char")}}get_char{{else}}get{{/if}}() }
+}
+{{/each}}
+{{/if}}{{/if}}{{#if rust_native_callbacks}}{{#if rust_uses_thread_fields}}
+struct {{rust_ident rust_native_char_guard}}<'a> {
+    cell: &'a {{rust_ident rust_native_reentry_cell}}<char>,
+    lease: {{rust_ident rust_native_reentry_lease}}<'a, char>,
+    value: char,
+}
+impl std::ops::Deref for {{rust_ident rust_native_char_guard}}<'_> {
+    type Target = char;
+    fn deref(&self) -> &char { &self.value }
+}
+impl std::ops::DerefMut for {{rust_ident rust_native_char_guard}}<'_> {
+    fn deref_mut(&mut self) -> &mut char { &mut self.value }
+}
+impl Drop for {{rust_ident rust_native_char_guard}}<'_> {
+    fn drop(&mut self) { self.cell.set_char(self.value); }
+}
+impl {{rust_ident rust_thread_field_type}}<char> {
+    fn lock_char(&self) -> {{rust_ident rust_native_char_guard}}<'_> {
+        let lease = self.0.native_lease();
+        let value = self.0.get_char();
+        {{rust_ident rust_native_char_guard}} { cell: &self.0, lease, value }
+    }
+    fn read_char(&self) -> char { self.0.get_char() }
+    fn set_char(&self, next: char) { self.0.set_char(next); }
+}
+{{#if rust_uses_reference_records}}impl {{rust_ident rust_reference_field_type}}<char> {
+    fn lock_char(&self) -> {{rust_ident rust_native_char_guard}}<'_> {
+        let cell = self.0.as_ref().expect("nil record field access");
+        let lease = cell.native_lease();
+        let value = cell.get_char();
+        {{rust_ident rust_native_char_guard}} { cell, lease, value }
+    }
+    fn read_char(&self) -> char { self.0.as_ref().expect("nil record field access").get_char() }
+    fn set_char(&self, next: char) { self.0.as_ref().expect("nil record field access").set_char(next); }
+}
+{{/if}}{{/if}}{{/if}}{{~!-- trim callback EOF --~}}

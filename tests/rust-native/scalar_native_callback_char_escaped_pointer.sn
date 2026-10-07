@@ -1,0 +1,16 @@
+@source "native_callback_char_escaped_pointer.sn.c"
+
+fn make(value: char as ref): fn(): char =>
+  return fn(): char => value
+
+native fn remember(value: char as ref, read: fn(): char): bool
+native fn read_saved(): char
+native fn clear_saved(): void
+
+fn main(): void =>
+  var value: char = 'a'
+  var action: fn(): char = make(value)
+  println(remember(value, action))
+  value = 'c'
+  println(read_saved() == 'c')
+  clear_saved()

@@ -3,19 +3,58 @@
 void *{{untyped_new}}(void) { return sn_array_new(sizeof(long long), 0); }
 {{#if primitive_scalars}}
 size_t {{primitive_width}}(int kind) {
-    switch (kind) { case 0: return sizeof(long long); case 1: return sizeof(int); case 2: return sizeof(unsigned long long); case 3: return sizeof(unsigned int); case 4: return sizeof(unsigned char); case 5: return sizeof(bool); case 6: return sizeof(float); case 7: return sizeof(double); default: abort(); }
+    switch (kind) { case 0: return sizeof(long long); case 1: return sizeof(int); case 2: return sizeof(unsigned long long); case 3: return sizeof(unsigned int); case 4: return sizeof(unsigned char); case 5: return sizeof(bool); case 6: return sizeof(float); case 7: return sizeof(double); case 8: return sizeof(char); case 9: return sizeof(char *); default: abort(); }
 }
 size_t {{primitive_align}}(int kind) {
-    switch (kind) { case 0: return _Alignof(long long); case 1: return _Alignof(int); case 2: return _Alignof(unsigned long long); case 3: return _Alignof(unsigned int); case 4: return _Alignof(unsigned char); case 5: return _Alignof(bool); case 6: return _Alignof(float); case 7: return _Alignof(double); default: abort(); }
+    switch (kind) { case 0: return _Alignof(long long); case 1: return _Alignof(int); case 2: return _Alignof(unsigned long long); case 3: return _Alignof(unsigned int); case 4: return _Alignof(unsigned char); case 5: return _Alignof(bool); case 6: return _Alignof(float); case 7: return _Alignof(double); case 8: return _Alignof(char); case 9: return _Alignof(char *); default: abort(); }
 }
-void *{{primitive_new}}(int kind, long long capacity) { return sn_array_new({{primitive_width}}(kind), capacity); }
+char *{{string_dup}}(const char *value) { return value ? strdup(value) : NULL; }
+void {{string_free}}(void *element) { free(*(char **)element); }
+void {{string_copy}}(const void *source, void *destination) { *(char **)destination = {{string_dup}}(*(char *const *)source); }
+void *{{primitive_new}}(int kind, long long capacity) {
+    SnArray *array = sn_array_new({{primitive_width}}(kind), capacity);
+    if (kind == 0) array->elem_tag = SN_TAG_INT;
+    if (kind == 4) array->elem_tag = SN_TAG_BYTE;
+    if (kind == 5) array->elem_tag = SN_TAG_BOOL;
+    if (kind == 6 || kind == 7) array->elem_tag = SN_TAG_DOUBLE;
+    if (kind == 8) array->elem_tag = SN_TAG_CHAR;
+    if (kind == 9) { array->elem_tag = SN_TAG_STRING; array->elem_release = {{string_free}}; array->elem_copy = {{string_copy}}; }
+    return array;
+}
 {{/if}}
+{{#if nested_elements}}
+void {{nested_free}}(void *slot) { sn_array_free(*(SnArray **)slot); }
+void {{nested_copy}}(const void *source, void *destination) { *(SnArray **)destination = sn_array_copy(*(SnArray *const *)source); }
+void *{{nested_new}}(long long capacity) {
+    SnArray *array = sn_array_new(sizeof(SnArray *), capacity);
+    array->elem_release = {{nested_free}};
+    array->elem_copy = {{nested_copy}};
+    array->elem_tag = SN_TAG_ARRAY;
+    return array;
+}
+{{/if}}
+{{#each record_elements}}
+void *{{array_new}}(long long capacity) {
+    SnArray *array = sn_array_new(sizeof(__sn__{{source_name}}), capacity);
+    array->elem_release = __sn__{{source_name}}_cleanup_elem;
+    array->elem_copy = __sn__{{source_name}}_copy_into;
+    array->elem_tag = SN_TAG_STRUCT;
+    return array;
+}
+{{/each}}
 void {{free}}(void *value) { sn_array_free((SnArray *)value); }
 void *{{copy}}(void *value) { return sn_array_copy((SnArray *)value); }
 long long {{length}}(void *value) { return value ? ((SnArray *)value)->len : 0; }
 void *{{data}}(void *value) { return value ? ((SnArray *)value)->data : NULL; }
 size_t {{width}}(void *value) { return value ? ((SnArray *)value)->elem_size : 0; }
 void {{push}}(void *value, const void *element) { sn_array_push((SnArray *)value, element); }
+void {{set}}(void *value, long long index, const void *element) {
+    SnArray *array = value;
+    if (!array || index < 0 || index >= array->len) abort();
+    void *slot = (char *)array->data + (size_t)index * array->elem_size;
+    if (array->elem_release) array->elem_release(slot);
+    memcpy(slot, element, array->elem_size);
+}
 void *{{pop}}(void *value) { return sn_array_pop_ref((SnArray *)value); }
 void {{insert}}(void *value, const void *element, long long index) { sn_array_insert((SnArray *)value, element, index); }
 void {{remove}}(void *value, long long index) { sn_array_remove((SnArray *)value, index); }

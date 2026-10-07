@@ -1,0 +1,2 @@
+{{#if rust_native_handle_array}}*mut std::ffi::c_void{{else}}{{#if rust_native_callback_record_borrow}}*mut {{rust_ident rust_native_record_wire}}{{else}}{{#if rust_native_record_wire}}{{rust_ident rust_native_record_wire}}{{else}}{{#if (eq kind "string")}}*mut std::ffi::c_char{{else}}{{#if (eq kind "char")}}std::ffi::c_char{{else}}{{rust_type this}}{{/if}}{{/if}}{{~!-- wire EOF --~}}
+{{/if}}{{~!-- record wire EOF --~}}{{/if}}{{~!-- managed wire EOF --~}}{{/if}}{{~!-- array wire EOF --~}}

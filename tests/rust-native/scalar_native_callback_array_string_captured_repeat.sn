@@ -1,0 +1,13 @@
+native fn length(values: str[]): int =>
+  return values.length
+
+native fn invoke(action: fn(): int): int =>
+  return action()
+
+fn main(): void =>
+  var values: str[] = {"a"}
+  var action: fn(): int = fn(): int =>
+    values.push("b")
+    return length(values)
+  println(invoke(action) == 2)
+  println(invoke(action) == 3 && values.length == 1)

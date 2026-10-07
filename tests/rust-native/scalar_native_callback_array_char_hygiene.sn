@@ -1,0 +1,13 @@
+native fn invoke(action: fn(char[]): char[], values: char[]): char[] =>
+  return action(values)
+
+fn main(): void =>
+  var values: char[] = {'a', 'b'}
+  var action: fn(char[]): char[] = fn(input: char[]): char[] => input
+  var result: char[] = invoke(action, values)
+  var __sn_native_array_codec_owner_0: int = 0
+  var __sn_native_array_codec_index_0: int = 1
+  var __sn_native_array_codec_value_0: int = 1
+  result[__sn_native_array_codec_owner_0] = 'b'
+  println(result[__sn_native_array_codec_index_0] == 'b' && result[0] == 'b')
+  println(values[0] == 'a' && __sn_native_array_codec_value_0 == 1)

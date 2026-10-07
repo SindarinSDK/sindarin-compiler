@@ -3147,6 +3147,7 @@ static bool rust_validate_model_impl(json_object *model,
                         (has_param_type && strcmp(mem_qual, "as_ref") == 0 &&
                          (rust_heap_free_named_struct_type(param_type) ||
                           (native && json_string_property(param_type, "rust_native_record_wire")) ||
+                          json_boolean_property(param_type, "rust_native_record_storage") ||
                           rust_scalar_ref_parameter_type_supported(param_type) ||
                           (native && json_string_property_equals(
                               param_type, "kind", "char")))) ||

@@ -1,0 +1,24 @@
+struct Pair =>
+  count: int
+  label: str
+
+native fn invoke(action: fn(Pair[]): Pair[], values: Pair[]): Pair[] =>
+  return action(values)
+
+fn main(): void =>
+  var first: Pair = {
+    count: 7,
+    label: "a"
+  }
+  var values: Pair[] = {first}
+  var action: fn(Pair[]): Pair[] = fn(input: Pair[]): Pair[] =>
+    var next: Pair = {
+      count: 8,
+      label: "b"
+    }
+    input.push(next)
+    return input
+  var copied: Pair[] = invoke(action, values)
+  println(values.length == 2 && values[1].count == 8 && values[1].label == "b")
+  copied.clear()
+  println(values.length == 2 && copied.length == 0)

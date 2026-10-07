@@ -174,6 +174,7 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                             ArithmeticMode arithmetic_mode);
 
 /* Expression emission */
+int gen_model_function_wrapper(Arena *arena, Expr *expr, Type *type, SymbolTable *symbol_table);
 json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                             ArithmeticMode arithmetic_mode);
 

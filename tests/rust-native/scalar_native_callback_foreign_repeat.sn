@@ -1,0 +1,14 @@
+@source "native_callback_foreign_repeat.sn.c"
+
+native fn initialize(): void
+native fn get(): fn(int): int
+native fn clear(): void
+
+fn main(): void =>
+  initialize()
+  var first: fn(int): int = get()
+  var second: fn(int): int = get()
+  println(first(3) == 10 && second(4) == 11)
+  println(first == second)
+  clear()
+  println(first(5) == 12)

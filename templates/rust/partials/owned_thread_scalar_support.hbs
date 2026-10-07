@@ -1,15 +1,15 @@
 enum {{rust_ident rust_owned_thread_scalar_type}}<T> {
-    Shared(std::sync::Arc<std::sync::Mutex<T>>),
+    Shared(std::sync::Arc<{{#if @root.rust_native_callbacks}}{{rust_ident @root.rust_native_reentry_cell}}{{else}}std::sync::Mutex{{/if}}<T>>),
     Capture(std::sync::Arc<{{rust_ident rust_thread_capture_cell}}<T>>),
 }
 impl<T> Clone for {{rust_ident rust_owned_thread_scalar_type}}<T> {
     fn clone(&self) -> Self { match self { Self::Shared(value) => Self::Shared(value.clone()), Self::Capture(value) => Self::Capture(value.clone()) } }
 }
 impl<T: Copy + 'static> {{rust_ident rust_owned_thread_scalar_type}}<T> {
-    fn shared(value: std::sync::Arc<std::sync::Mutex<T>>) -> Self { Self::Shared(value) }
+    fn shared(value: std::sync::Arc<{{#if @root.rust_native_callbacks}}{{rust_ident @root.rust_native_reentry_cell}}{{else}}std::sync::Mutex{{/if}}<T>>) -> Self { Self::Shared(value) }
     fn capture(value: std::sync::Arc<{{rust_ident rust_thread_capture_cell}}<T>>) -> Self { Self::Capture(value) }
-    fn get(&self) -> T { match self { Self::Shared(value) => *value.lock().unwrap_or_else(|e| e.into_inner()), Self::Capture(value) => value.get() } }
-    fn set(&self, next: T) { match self { Self::Shared(value) => *value.lock().unwrap_or_else(|e| e.into_inner()) = next, Self::Capture(value) => value.set(next) } }
+    fn get(&self) -> T { match self { Self::Shared(value) => {{#if @root.rust_native_callbacks}}value.get(){{else}}*value.lock().unwrap_or_else(|e| e.into_inner()){{/if}}, Self::Capture(value) => value.get() } }
+    fn set(&self, next: T) { match self { Self::Shared(value) => {{#if @root.rust_native_callbacks}}value.set(next){{else}}*value.lock().unwrap_or_else(|e| e.into_inner()) = next{{/if}}, Self::Capture(value) => value.set(next) } }
     fn scoped(&self) -> {{rust_ident rust_closure_scalar_ref_type}}<'static, T> { match self {
         Self::Shared(value) => {{rust_ident rust_closure_scalar_ref_type}}::shared(value.clone()),
         Self::Capture(value) => {{rust_ident rust_closure_scalar_ref_type}}::capture(value.clone()),

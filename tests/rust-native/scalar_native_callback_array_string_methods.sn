@@ -1,0 +1,17 @@
+native fn invoke(action: fn(str[]): str[], values: str[]): str[] =>
+  return action(values)
+
+fn main(): void =>
+  var values: str[] = {"a"}
+  var action: fn(str[]): str[] = fn(input: str[]): str[] =>
+    input.insert("b", 1)
+    input.reverse()
+    return input
+  var result: str[] = invoke(action, values)
+  var joined: str = ""
+  for value in result =>
+    joined = joined + value
+  println(joined == "ba" && result.join("-") == "b-a")
+  var popped: str = result.pop()
+  result.remove(0)
+  println(popped == "a" && result.length == 0 && values.length == 2)

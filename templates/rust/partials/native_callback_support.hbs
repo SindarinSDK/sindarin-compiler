@@ -1,0 +1,187 @@
+{{#if rust_native_callbacks}}
+#[repr(C)]
+struct {{rust_ident rust_native_callback_header}} {
+    function: *const std::ffi::c_void,
+    size: usize,
+    cleanup: Option<unsafe extern "C" fn(*mut std::ffi::c_void)>,
+    refs: i32,
+}
+extern "C" {
+    fn {{rust_ident rust_native_callback_alloc}}(size: usize) -> *mut std::ffi::c_void;
+    fn {{rust_ident rust_native_callback_free}}(value: *mut std::ffi::c_void);
+    fn {{rust_ident rust_native_callback_retain}}(value: *mut std::ffi::c_void) -> *mut std::ffi::c_void;
+    fn {{rust_ident rust_native_callback_release}}(value: *mut std::ffi::c_void);
+    fn {{rust_ident rust_native_callback_credit_lock}}();
+    fn {{rust_ident rust_native_callback_credit_unlock}}();
+    fn {{rust_ident rust_native_callback_string_dup}}(value: *const std::ffi::c_char) -> *mut std::ffi::c_char;
+}
+{{#if rust_native_callback_strings}}
+#[derive(Debug)]
+struct {{rust_ident rust_native_callback_header}}StringBuffer { pointer: std::ptr::NonNull<std::ffi::c_char> }
+// The owned buffer has a stable C allocation. Mutation remains governed by
+// source string borrowing/thread rules, like other native storage owners.
+unsafe impl Send for {{rust_ident rust_native_callback_header}}StringBuffer {}
+unsafe impl Sync for {{rust_ident rust_native_callback_header}}StringBuffer {}
+impl {{rust_ident rust_native_callback_header}}StringBuffer {
+    fn new(bytes: &[u8]) -> Self { let mut terminated=bytes.to_vec(); terminated.push(0); let raw=unsafe { {{rust_ident rust_native_callback_string_dup}}(terminated.as_ptr().cast()) }; Self { pointer: std::ptr::NonNull::new(raw).expect("native string allocation") } }
+}
+impl Drop for {{rust_ident rust_native_callback_header}}StringBuffer { fn drop(&mut self) { unsafe { {{rust_ident rust_native_callback_free}}(self.pointer.as_ptr().cast()); } } }
+impl PartialEq for {{rust_ident rust_native_callback_header}}StringBuffer { fn eq(&self, other: &Self) -> bool { unsafe { std::ffi::CStr::from_ptr(self.pointer.as_ptr()) == std::ffi::CStr::from_ptr(other.pointer.as_ptr()) } } }
+impl Eq for {{rust_ident rust_native_callback_header}}StringBuffer {}
+impl PartialOrd for {{rust_ident rust_native_callback_header}}StringBuffer { fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> { Some(self.cmp(other)) } }
+impl Ord for {{rust_ident rust_native_callback_header}}StringBuffer { fn cmp(&self, other: &Self) -> std::cmp::Ordering { unsafe { std::ffi::CStr::from_ptr(self.pointer.as_ptr()).to_bytes().cmp(std::ffi::CStr::from_ptr(other.pointer.as_ptr()).to_bytes()) } } }
+impl std::hash::Hash for {{rust_ident rust_native_callback_header}}StringBuffer { fn hash<H: std::hash::Hasher>(&self, state: &mut H) { unsafe { std::ffi::CStr::from_ptr(self.pointer.as_ptr()).to_bytes().hash(state); } } }
+impl {{rust_ident rust_native_callback_header}} {
+    unsafe fn read_string(raw: *const std::ffi::c_char) -> SnString {
+        if raw.is_null() { return SnString::{{#if rust_nullable_strings}}nil{{else}}new{{/if}}(); }
+        SnString::from_slice(std::ffi::CStr::from_ptr(raw).to_bytes())
+    }
+    fn own_string(value: SnString) -> *mut std::ffi::c_char {
+{{#if rust_nullable_strings}}        if value.is_nil() { return std::ptr::null_mut(); }
+{{/if}}        let mut bytes = value.as_bytes().to_vec(); bytes.push(0);
+        let result = unsafe { {{rust_ident rust_native_callback_string_dup}}(bytes.as_ptr().cast()) };
+        assert!(!result.is_null(), "native callback string allocation failed"); result
+    }
+    unsafe fn take_string(raw: *mut std::ffi::c_char) -> SnString {
+        let result = Self::read_string(raw); {{rust_ident rust_native_callback_free}}(raw.cast()); result
+    }
+}
+{{/if}}{{#each rust_native_callbacks}}
+#[repr(C)]
+struct {{rust_ident name}} {
+    header: {{rust_ident @root.rust_native_callback_header}},
+    payload: *mut {{rust_type type}},
+}
+struct {{rust_ident name}}Registry(Vec<({{> closure_weak}}<dyn Fn({{#each type.param_types}}{{#if @index}}, {{/if}}{{rust_closure_parameter_type this}}{{/each}}) -> {{rust_type type.return_type}}{{#if @root.rust_thread_ownership}} + Send + Sync{{/if}}>, *mut std::ffi::c_void)>);
+struct {{rust_ident name}}ForeignRegistry(Vec<(*mut std::ffi::c_void, {{> closure_weak}}<dyn Fn({{#each type.param_types}}{{#if @index}}, {{/if}}{{rust_closure_parameter_type this}}{{/each}}) -> {{rust_type type.return_type}}{{#if @root.rust_thread_ownership}} + Send + Sync{{/if}}>)>);
+impl Drop for {{rust_ident name}}ForeignRegistry {
+    fn drop(&mut self) { for (raw, _) in self.0.drain(..) { unsafe { {{rust_ident name}}::release(raw); } } }
+}
+{{#if @root.rust_thread_ownership}}
+// Registry pointers own a C reference; access and removal are mutex-protected.
+// The corresponding callable owner has the explicit Send+Sync signature.
+unsafe impl Send for {{rust_ident name}}ForeignRegistry {}
+struct {{rust_ident name}}ForeignAccess(std::sync::Mutex<{{rust_ident name}}ForeignRegistry>);
+static {{rust_ident name}}FOREIGN: {{rust_ident name}}ForeignAccess = {{rust_ident name}}ForeignAccess(std::sync::Mutex::new({{rust_ident name}}ForeignRegistry(Vec::new())));
+impl {{rust_ident name}}ForeignAccess {
+    fn with<R>(&self, action: impl FnOnce(&std::cell::RefCell<&mut {{rust_ident name}}ForeignRegistry>) -> R) -> R {
+        let mut guard = self.0.lock().unwrap_or_else(|e| e.into_inner());
+        action(&std::cell::RefCell::new(&mut *guard))
+    }
+}
+{{else}}thread_local! { static {{rust_ident name}}FOREIGN: std::cell::RefCell<{{rust_ident name}}ForeignRegistry> = const { std::cell::RefCell::new({{rust_ident name}}ForeignRegistry(Vec::new())) }; }{{/if}}
+impl Drop for {{rust_ident name}}Registry {
+    fn drop(&mut self) { for (_, raw) in self.0.drain(..) { unsafe { {{rust_ident name}}::release(raw); } } }
+}
+{{#if @root.rust_thread_ownership}}unsafe impl Send for {{rust_ident name}}Registry {}
+struct {{rust_ident name}}Access(std::sync::Mutex<{{rust_ident name}}Registry>);
+static {{rust_ident name}}REGISTRY: {{rust_ident name}}Access = {{rust_ident name}}Access(std::sync::Mutex::new({{rust_ident name}}Registry(Vec::new())));
+impl {{rust_ident name}}Access {
+    fn with<R>(&self, action: impl FnOnce(&std::cell::RefCell<&mut {{rust_ident name}}Registry>) -> R) -> R {
+        let mut guard = self.0.lock().unwrap_or_else(|e| e.into_inner());
+        action(&std::cell::RefCell::new(&mut *guard))
+    }
+}
+{{else}}thread_local! { static {{rust_ident name}}REGISTRY: std::cell::RefCell<{{rust_ident name}}Registry> = const { std::cell::RefCell::new({{rust_ident name}}Registry(Vec::new())) }; }{{/if}}
+impl {{rust_ident name}} {
+    unsafe extern "C" fn invoke(raw: *mut std::ffi::c_void{{#each type.param_types}}, arg{{@index}}: {{> native_callback_wire_type this}}{{/each}}) -> {{> native_callback_wire_type type.return_type}} {
+{{#each type.param_types}}{{#if rust_native_handle_array}}        let mut array_owner{{@index}} = std::mem::ManuallyDrop::new(<{{rust_type this}}>::adopt(arg{{@index}}));
+{{/if}}{{/each}}        let result = ((*(*(raw as *mut Self)).payload).0)({{#each type.param_types}}{{#if @index}}, {{/if}}{{> native_callback_from_wire this}}{{/each}});
+        {{#if type.return_type.rust_native_handle_array}}result.into_raw(){{else}}{{#if type.return_type.rust_native_record_wire}}<{{rust_ident type.return_type.rust_native_record_wire}}>::from(result){{else}}{{#if (eq type.return_type.kind "string")}}{{rust_ident @root.rust_native_callback_header}}::own_string(result){{else}}{{#if (eq type.return_type.kind "char")}}(result as u32 as u8) as std::ffi::c_char{{else}}result{{/if}}{{/if}}{{/if}}{{/if}}
+    }
+    unsafe extern "C" fn cleanup(raw: *mut std::ffi::c_void) {
+        drop(Box::from_raw((*(raw as *mut Self)).payload));
+        {{rust_ident @root.rust_native_callback_free}}(raw);
+    }
+    fn new(callback: {{rust_type type}}) -> *mut std::ffi::c_void {
+        if callback.0.0.is_none() { return std::ptr::null_mut(); }
+        if let Some(raw) = {{rust_ident name}}FOREIGN.with(|registry| {
+            let mut registry = registry.borrow_mut();
+            let mut index = 0;
+            while index < registry.0.len() {
+                if registry.0[index].1.strong_count() == 0 {
+                    let (raw, _) = registry.0.swap_remove(index); unsafe { Self::release(raw); }
+                } else { index += 1; }
+            }
+            registry.0.iter().find_map(|(raw, owner)| owner.upgrade().filter(|owner| {{> closure_owner}}::ptr_eq(owner, callback.0.owner())).map(|_| *raw))
+        }) { return unsafe { Self::retain(raw) }; }
+        {{rust_ident name}}REGISTRY.with(|registry| {
+            let mut registry = registry.borrow_mut();
+            let mut index = 0;
+            while index < registry.0.len() {
+                let raw = registry.0[index].1;
+                let header = raw as *mut {{rust_ident @root.rust_native_callback_header}};
+                let credit = unsafe { {{rust_ident @root.rust_native_callback_credit_lock}}(); let credit = (*header).refs; {{rust_ident @root.rust_native_callback_credit_unlock}}(); credit };
+                if credit == 1 && registry.0[index].0.strong_count() == 1 {
+                    registry.0.swap_remove(index);
+                    unsafe { Self::release(raw); }
+                } else { index += 1; }
+            }
+            for (owner, raw) in &registry.0 {
+                if let Some(owner) = owner.upgrade() {
+                    if {{> closure_owner}}::ptr_eq(&owner, callback.0.owner()) { return unsafe { Self::retain(*raw) }; }
+                }
+            }
+            let owner = {{> closure_owner}}::downgrade(callback.0.owner());
+            let raw = Self::allocate(callback);
+            registry.0.push((owner, raw));
+            unsafe { Self::retain(raw) }
+        })
+    }
+    fn allocate(callback: {{rust_type type}}) -> *mut std::ffi::c_void {
+        unsafe {
+            let raw = {{rust_ident @root.rust_native_callback_alloc}}(std::mem::size_of::<Self>()) as *mut Self;
+            assert!(!raw.is_null(), "native callback allocation failed");
+            raw.write(Self { header: {{rust_ident @root.rust_native_callback_header}} { function: Self::invoke as *const std::ffi::c_void, size: std::mem::size_of::<Self>(), cleanup: Some(Self::cleanup), refs: 1 }, payload: Box::into_raw(Box::new(callback)) });
+            raw.cast()
+        }
+    }
+{{#if has_native_result}}    unsafe fn adopt(raw: *mut std::ffi::c_void) -> {{rust_type type}} {
+        if raw.is_null() { return {{rust_ident type.rust_closure_handle_name}}({{rust_ident @root.rust_native_callable_owner}}::nil()); }
+        let existing = {{rust_ident name}}REGISTRY.with(|registry| registry.borrow().0.iter().find(|(_, pointer)| *pointer == raw).and_then(|(owner, _)| owner.upgrade()));
+        if let Some(owner) = existing { Self::release(raw); return {{rust_ident type.rust_closure_handle_name}}({{rust_ident @root.rust_native_callable_owner}}::new(owner)); }
+        let existing = {{rust_ident name}}FOREIGN.with(|registry| registry.borrow().0.iter().find(|(pointer, _)| *pointer == raw).and_then(|(_, owner)| owner.upgrade()));
+        if let Some(owner) = existing { Self::release(raw); return {{rust_ident type.rust_closure_handle_name}}({{rust_ident @root.rust_native_callable_owner}}::new(owner)); }
+{{#if @root.rust_thread_ownership}}        struct Owner { pointer: std::ptr::NonNull<std::ffi::c_void>, gate: std::sync::Mutex<()> }
+        // The wrapper owns one C reference. Shared Rust calls serialize access;
+        // Arc drops that reference only after all worker handles are gone.
+        unsafe impl Send for Owner {}
+        unsafe impl Sync for Owner {}
+        impl Drop for Owner { fn drop(&mut self) { unsafe { {{rust_ident name}}::release(self.pointer.as_ptr()); } } }
+        impl Owner { fn pointer(&self) -> *mut std::ffi::c_void { self.pointer.as_ptr() } }
+        let owner = std::sync::Arc::new(Owner { pointer: std::ptr::NonNull::new(raw).expect("nonnull callback"), gate: std::sync::Mutex::new(()) });
+{{else}}        struct Owner(*mut std::ffi::c_void);
+        impl Drop for Owner { fn drop(&mut self) { unsafe { {{rust_ident name}}::release(self.0); } } }
+        impl Owner { fn pointer(&self) -> *mut std::ffi::c_void { self.0 } }
+        let owner = Owner(raw);{{/if}}
+        let result: {{rust_type type}} = {{rust_ident type.rust_closure_handle_name}}({{rust_ident @root.rust_native_callable_owner}}::new({{> closure_owner}}::new(move |{{#each type.param_types}}{{#if @index}}, {{/if}}arg{{@index}}: {{rust_closure_parameter_type this}}{{/each}}| -> {{rust_type type.return_type}} {
+{{#if @root.rust_thread_ownership}}            let guard = owner.gate.lock().unwrap_or_else(|e| e.into_inner());
+{{/if}}            let pointer = owner.pointer();
+            let header = pointer as *mut {{rust_ident @root.rust_native_callback_header}};
+            let function: unsafe extern "C" fn(*mut std::ffi::c_void{{#each type.param_types}}, {{> native_callback_wire_type this}}{{/each}}) -> {{> native_callback_wire_type type.return_type}} = unsafe { std::mem::transmute((*header).function) };
+{{#if (eq type.return_type.kind "string")}}            unsafe { {{rust_ident @root.rust_native_callback_header}}::take_string(function(pointer{{#each type.param_types}}, {{#if rust_native_handle_array}}arg{{@index}}.borrow().pointer{{else}}{{#if rust_native_record_wire}}{{#if rust_native_callback_record_borrow}}arg{{@index}}.cast::<{{rust_ident rust_native_record_wire}}>(){{else}}<{{rust_ident rust_native_record_wire}}>::from(arg{{@index}}){{/if}}{{else}}{{#if (eq kind "string")}}arg{{@index}}.native_pointer(){{else}}arg{{@index}}{{/if}}{{/if}}{{/if}}{{/each}})) }
+{{else}}            {{#if type.return_type.rust_native_handle_array}}<{{rust_type type.return_type}}>::adopt({{/if}}{{#if type.return_type.rust_native_record_wire}}<{{rust_type type.return_type}}>::from({{/if}}{{#if (eq type.return_type.kind "char")}}char::from_u32(({{/if}}unsafe { function(pointer{{#each type.param_types}}, {{#if rust_native_handle_array}}arg{{@index}}.borrow().pointer{{else}}{{#if rust_native_record_wire}}{{#if rust_native_callback_record_borrow}}arg{{@index}}.cast::<{{rust_ident rust_native_record_wire}}>(){{else}}<{{rust_ident rust_native_record_wire}}>::from(arg{{@index}}){{/if}}{{else}}{{#if (eq kind "string")}}arg{{@index}}.native_pointer(){{else}}{{#if (eq kind "char")}}(arg{{@index}} as u32 as u8) as std::ffi::c_char{{else}}arg{{@index}}{{/if}}{{/if}}{{/if}}{{/if}}{{/each}}) }{{#if (eq type.return_type.kind "char")}} as u8) as u32).expect("C char is an 8-bit value"){{/if}}{{#if type.return_type.rust_native_record_wire}}){{/if}}{{#if type.return_type.rust_native_handle_array}}){{/if}}{{/if}}
+        })));
+        let weak = {{> closure_owner}}::downgrade(result.0.owner());
+        Self::retain(raw);
+        {{rust_ident name}}FOREIGN.with(|registry| registry.borrow_mut().0.push((raw, weak)));
+        result
+    }
+{{/if}}{{#if @root.rust_thread_ownership}}    fn clear_registry() {
+        let ordinary = {{rust_ident name}}REGISTRY.with(|registry| std::mem::take(&mut registry.borrow_mut().0));
+        let foreign = {{rust_ident name}}FOREIGN.with(|registry| std::mem::take(&mut registry.borrow_mut().0));
+        for (_, raw) in ordinary { unsafe { Self::release(raw); } }
+        for (raw, _) in foreign { unsafe { Self::release(raw); } }
+    }
+{{/if}}    unsafe fn retain(raw: *mut std::ffi::c_void) -> *mut std::ffi::c_void {
+        {{rust_ident @root.rust_native_callback_retain}}(raw)
+    }
+    unsafe fn release(raw: *mut std::ffi::c_void) {
+        {{rust_ident @root.rust_native_callback_release}}(raw);
+    }
+}
+{{/each}}{{#if rust_thread_ownership}}struct {{rust_ident rust_native_callback_header}}Cleanup;
+impl Drop for {{rust_ident rust_native_callback_header}}Cleanup {
+    fn drop(&mut self) { {{#each rust_native_callbacks}}{{rust_ident name}}::clear_registry(); {{/each}} }
+}
+{{/if}}{{/if}}{{~!-- trim callback EOF --~}}

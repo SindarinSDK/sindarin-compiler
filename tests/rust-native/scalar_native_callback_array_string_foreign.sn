@@ -1,0 +1,11 @@
+@source "native_callback_array_string_foreign.sn.c"
+
+native fn make(): fn(str[]): str[]
+
+fn main(): void =>
+  var action: fn(str[]): str[] = make()
+  var values: str[] = {"a"}
+  var result: str[] = action(values)
+  println(values.length == 2 && values[1] == "b")
+  result.clear()
+  println(values.length == 2 && result.length == 0)

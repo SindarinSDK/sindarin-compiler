@@ -1,0 +1,10 @@
+native fn invoke(action: fn(int): int, value: int): int =>
+  return action(value)
+
+fn main(): void =>
+  var action: fn(int): int = fn(n: int): int =>
+    if n < 1 =>
+      return 1
+    return action(n - 1)
+  println(invoke(action, 3) == 1)
+  println(action(5) == 1)

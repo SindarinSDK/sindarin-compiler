@@ -1,0 +1,19 @@
+struct Pair =>
+  count: int
+  marker: char
+
+native fn invoke(action: fn(Pair[]): Pair[], values: Pair[]): Pair[] =>
+  return action(values)
+
+fn main(): void =>
+  var values: Pair[] = { Pair {
+    count: 7,
+    marker: 'a'
+  } }
+  var action: fn(Pair[]): Pair[] = fn(input: Pair[]): Pair[] =>
+    input[0].marker = 'b'
+    return input
+  var copied: Pair[] = invoke(action, values)
+  println(values[0].count == 7 && values[0].marker == 'b')
+  copied.clear()
+  println(values.length == 1 && copied.length == 0)
