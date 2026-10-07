@@ -1,22 +1,21 @@
-# Unified CI/CD workflow for Sindarin Compiler
-# Builds and tests on Linux, Windows, and macOS using the same Make targets
-# developers use locally (make setup, make build, make test-*).
-
+# One build per platform feeds isolated C, Rust and parity jobs.
 name: Compiler
-
-on:
+'on':
   push:
-    branches: [main, master]
-    paths-ignore:
-      - 'docs/**'
-      - '*.md'
+    branches:
+    - main
+    - master
   pull_request:
-    branches: [main, master, develop]
-    paths-ignore:
-      - 'docs/**'
-      - '*.md'
-  workflow_dispatch:
-
+    branches:
+    - main
+    - master
+    - develop
+  workflow_dispatch: null
+permissions:
+  contents: read
+concurrency:
+  group: compiler-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 jobs:
   build:
     name: Build (${{ matrix.os }})
@@ -24,224 +23,247 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - os: ubuntu-latest
-            artifact_name: sn-linux-x64
-            exe_ext: ''
-            runtime_dir: gcc
-            sn_cc: gcc
-            sn_cflags: ''
-            sn_exclude_tests: ''
-
-          - os: windows-latest
-            artifact_name: sn-windows-x64
-            exe_ext: '.exe'
-            runtime_dir: clang
-            sn_cc: clang
-            sn_cflags: '--target=x86_64-w64-mingw32 -fuse-ld=lld -rtlib=compiler-rt -unwindlib=none'
-            sn_release_cflags: '-O3 -fwrapv'
-            sn_exclude_tests: ''
-
-          - os: macos-latest
-            artifact_name: sn-darwin-x64
-            exe_ext: ''
-            runtime_dir: gcc
-            sn_cc: clang
-            sn_cflags: ''
-            sn_exclude_tests: ''
-
+        include: &platforms
+        - os: ubuntu-latest
+          artifact_name: sn-linux-x64
+          exe_ext: ''
+          runtime_dir: gcc
+          sn_cc: gcc
+          sn_cflags: ''
+          sn_release_cflags: ''
+          rust_target: ''
+          rust_flags: ''
+        - os: windows-latest
+          artifact_name: sn-windows-x64
+          exe_ext: .exe
+          runtime_dir: clang
+          sn_cc: clang
+          sn_cflags: --target=x86_64-w64-mingw32 -fuse-ld=lld -rtlib=compiler-rt -unwindlib=none
+          sn_release_cflags: -O3 -fwrapv
+          rust_target: x86_64-pc-windows-gnullvm
+          rust_flags: --target=x86_64-pc-windows-gnullvm -C linker=clang
+        - os: macos-latest
+          artifact_name: sn-darwin-x64
+          exe_ext: ''
+          runtime_dir: gcc
+          sn_cc: clang
+          sn_cflags: ''
+          sn_release_cflags: ''
+          rust_target: ''
+          rust_flags: ''
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
-
-      #------------------------------------------------------------------------
-      # Platform Pre-steps (minimal: ensure make, C compiler, python exist)
-      #------------------------------------------------------------------------
-      - name: Setup Prerequisites (Linux)
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential python3
-
-      - name: Setup Prerequisites (macOS)
-        if: runner.os == 'macOS'
-        run: brew install python3
-
-      - name: Install LLVM-MinGW (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          # LLVM 19's ASan cannot decode the Windows 11 24H2 CRT prologue.
-          $version = "20260616"
-          $url = "https://github.com/mstorsjo/llvm-mingw/releases/download/$version/llvm-mingw-$version-ucrt-x86_64.zip"
-          $zipPath = "$env:TEMP\llvm-mingw.zip"
-          $extractPath = Join-Path $env:GITHUB_WORKSPACE ".sn\toolchains\llvm-mingw"
-
-          Write-Host "Downloading LLVM-MinGW $version..."
-          Invoke-WebRequest -Uri $url -OutFile $zipPath
-          $expectedHash = "b9b68a4d276e16fa25802aaba458e4638f64b3884c290aaccdc2d87083b6ca35"
-          if ((Get-FileHash $zipPath -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expectedHash) {
-            throw "LLVM-MinGW archive SHA-256 mismatch"
-          }
-
-          Write-Host "Extracting to $extractPath..."
-          Expand-Archive -Path $zipPath -DestinationPath $extractPath -Force
-
-          $llvmDir = Get-ChildItem -Path $extractPath -Directory | Select-Object -First 1
-          $binPath = Join-Path $llvmDir.FullName "bin"
-
-          Write-Host "LLVM-MinGW installed at: $($llvmDir.FullName)"
-          echo "$binPath" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-
-      - name: Install Make and Ninja (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: choco install make ninja -y
-
-      - name: Pin Rust toolchain
-        run: |
-          rustup toolchain install 1.93.1 --profile minimal
-          rustup default 1.93.1
-          rustc --version --verbose
-
-      #------------------------------------------------------------------------
-      # Unified Build Steps (same for all platforms)
-      #------------------------------------------------------------------------
-      - name: Checkout Windows build dependencies
-        if: runner.os == 'Windows'
-        uses: actions/checkout@v6
-        with:
-          repository: SindarinSDK/sindarin-pkg-libs
-          ref: 793df6f63d07146d19dffa8f6c172a1f56660b4a
-          path: .sn/sindarin-pkg-libs
-          persist-credentials: false
-
-      - name: Install Windows build dependencies
-        if: runner.os == 'Windows'
-        shell: pwsh
-        working-directory: .sn/sindarin-pkg-libs
-        run: |
-          & ./scripts/install.ps1
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if (-not (Test-Path 'libs/windows/lib') -or -not (Test-Path 'libs/windows/include')) {
-            throw 'Windows dependency archive did not provide libraries and headers'
-          }
-
-      - name: Setup libs
-        if: runner.os != 'Windows'
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-          SN_SKIP_PREREQS: ${{ runner.os == 'Windows' && '1' || '' }}
-        run: make setup
-
-      - name: Verify pinned Windows compiler after setup
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          $toolchainRoot = Join-Path $env:GITHUB_WORKSPACE ".sn\toolchains\llvm-mingw"
-          $toolchain = Get-ChildItem $toolchainRoot -Directory | Select-Object -First 1
-          $expected = Join-Path $toolchain.FullName "bin\clang.exe"
-          $selected = (Get-Command clang.exe).Source
-          if ($selected -ne $expected) { throw "Expected pinned clang $expected, selected $selected" }
-          clang --version
-
-      - name: Build
-        shell: bash
-        run: make build
-
-      - name: Verify build outputs
-        shell: bash
-        run: |
-          echo "Checking for compiler executable..."
-          if [ ! -f "bin/sn${{ matrix.exe_ext }}" ]; then
-            echo "ERROR: bin/sn${{ matrix.exe_ext }} not found"
-            exit 1
-          fi
-          echo "Found: bin/sn${{ matrix.exe_ext }}"
-
-          echo "Checking for test executable..."
-          if [ ! -f "bin/tests${{ matrix.exe_ext }}" ]; then
-            echo "ERROR: bin/tests${{ matrix.exe_ext }} not found"
-            exit 1
-          fi
-          echo "Found: bin/tests${{ matrix.exe_ext }}"
-
-          echo "Checking for runtime library..."
-          if [ ! -f "bin/lib/${{ matrix.runtime_dir }}/libsn_runtime_min.a" ]; then
-            echo "ERROR: bin/lib/${{ matrix.runtime_dir }}/libsn_runtime_min.a not found"
-            exit 1
-          fi
-          echo "Found: bin/lib/${{ matrix.runtime_dir }}/libsn_runtime_min.a"
-
-          echo ""
-          echo "Build outputs verified successfully!"
-
-      #------------------------------------------------------------------------
-      # Format Check
-      #------------------------------------------------------------------------
-      - name: Check formatting
-        shell: bash
-        run: bin/sn${{ matrix.exe_ext }} --format --check
-
-      #------------------------------------------------------------------------
-      # Run Tests
-      #------------------------------------------------------------------------
-      - name: Run all tests
-        shell: bash
-        env:
-          SN_CC: ${{ matrix.sn_cc }}
-          SN_CFLAGS: ${{ matrix.sn_cflags }}
-          SN_RELEASE_CFLAGS: ${{ matrix.sn_release_cflags }}
-          SN_EXCLUDE_TESTS: ${{ matrix.sn_exclude_tests }}
-        run: make test ${{ runner.os == 'Windows' && 'ARENA_SANITIZE=' || '' }}
-
-      - name: Run promoted Rust closure tests
-        shell: bash
-        run: make test-rust-closures
-
-      - name: Verify record reference capture snapshots
-        shell: bash
-        run: python3 scripts/check_record_reference_snapshots.py
-
-      - name: Retain record reference snapshot evidence
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: record-reference-snapshots-${{ matrix.os }}
-          path: .sn/record-reference-snapshots.json
-          include-hidden-files: true
-          if-no-files-found: warn
-
-      - name: Verify static callback temporary ownership
-        shell: bash
-        run: python3 scripts/check_static_callback_ownership.py
-
-      - name: Retain static callback ownership evidence
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: static-callback-ownership-${{ matrix.os }}
-          path: .sn/static-callback-ownership.json
-          include-hidden-files: true
-          if-no-files-found: warn
-
-      - name: Run Rust concurrency tests
-        shell: bash
-        run: make test-rust-concurrency
-
-      #------------------------------------------------------------------------
-      # Upload Artifacts
-      #------------------------------------------------------------------------
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v7
-        if: success()
-        with:
-          name: ${{ matrix.artifact_name }}
-          path: |
-            bin/sn${{ matrix.exe_ext }}
-            bin/tests${{ matrix.exe_ext }}
-            bin/lib/${{ matrix.runtime_dir }}/libsn_runtime_min.a
-            bin/include/**/*
-            bin/*.cfg
-          retention-days: 7
+    - &checkout
+      name: Checkout repository
+      uses: actions/checkout@v7
+      with:
+        ref: ${{ github.sha }}
+    - name: Setup compiler toolchain
+      uses: ./.github/actions/compiler-toolchain
+      with:
+        rust_target: ${{ matrix.rust_target }}
+        build_deps: 'true'
+    - name: Verify CI artifact and coverage helpers
+      shell: bash
+      run: python3 -m unittest discover -s tests/ci -v
+    - name: Build compiler once
+      shell: bash
+      run: make build
+    - name: Verify staged outputs
+      shell: bash
+      run: |
+        test -f "bin/sn${{ matrix.exe_ext }}"
+        test -f "bin/tests${{ matrix.exe_ext }}"
+        test -f "bin/lib/${{ matrix.runtime_dir }}/libsn_runtime_min.a"
+    - name: Check formatting
+      shell: bash
+      run: bin/sn${{ matrix.exe_ext }} --format --check
+    - name: Package compiler and project libraries
+      shell: bash
+      run: python3 scripts/ci/build_bundle.py pack .sn/compiler-bundle.tar.gz
+    - name: Share the exact build with test jobs
+      uses: actions/upload-artifact@v7
+      with:
+        name: compiler-bundle-${{ matrix.os }}
+        path: .sn/compiler-bundle.tar.gz
+        include-hidden-files: true
+        compression-level: 0
+        if-no-files-found: error
+        retention-days: 7
+  tests:
+    name: Tests / ${{ matrix.group }} (${{ matrix.os }})
+    needs: build
+    if: ${{ always() && !cancelled() }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+        - ubuntu-latest
+        - windows-latest
+        - macos-latest
+        group:
+        - c
+        - rust
+        - core
+        - native
+        - arrays
+        - closures
+        - callbacks
+        - numeric-io
+        - sanitizers
+        - callback-sanitizers
+        include: *platforms
+        exclude:
+        - os: windows-latest
+          group: sanitizers
+        - os: windows-latest
+          group: callback-sanitizers
+        - os: macos-latest
+          group: sanitizers
+        - os: macos-latest
+          group: callback-sanitizers
+    env:
+      SN_CC: ${{ matrix.sn_cc }}
+      SN_CFLAGS: ${{ matrix.sn_cflags }}
+      SN_RELEASE_CFLAGS: ${{ matrix.sn_release_cflags }}
+      SN_RUSTFLAGS: ${{ matrix.rust_flags }}
+      SN_EXCLUDE_TESTS: ''
+      SN_PARITY_WORKERS: '4'
+      PYTHONUNBUFFERED: '1'
+    steps:
+    - *checkout
+    - name: Setup compiler toolchain
+      uses: ./.github/actions/compiler-toolchain
+      with:
+        rust_target: ${{ matrix.rust_target }}
+    - name: Download the platform build
+      uses: actions/download-artifact@v8
+      with:
+        name: compiler-bundle-${{ matrix.os }}
+        path: .sn/artifact
+    - name: Restore and verify compiler bundle
+      shell: bash
+      run: python3 scripts/ci/build_bundle.py restore .sn/artifact/compiler-bundle.tar.gz
+    - name: Run ${{ matrix.group }} validation
+      shell: bash
+      run: python3 scripts/ci/run_gates.py --group "${{ matrix.group }}"
+    - name: Retain gate logs and runtime evidence
+      if: always()
+      uses: actions/upload-artifact@v7
+      with:
+        name: ci-evidence-${{ matrix.os }}-${{ matrix.group }}
+        path: |
+          .sn/ci-reports/
+          .sn/rust-runtime-diagnostics/
+          .sn/rust-parity-*.json
+          .sn/*-lifetimes.json
+          .sn/static-callback-ownership.json
+          .sn/record-reference-snapshots.json
+        include-hidden-files: true
+        if-no-files-found: error
+        retention-days: 7
+  evidence:
+    name: Verify complete CI coverage
+    needs:
+    - build
+    - tests
+    if: ${{ always() && !cancelled() }}
+    runs-on: ubuntu-latest
+    steps:
+    - *checkout
+    - name: Download every test report
+      uses: actions/download-artifact@v8
+      with:
+        pattern: ci-evidence-*
+        path: .sn/ci-evidence/incoming
+    - name: Require every platform and gate
+      shell: bash
+      run: python3 scripts/ci/collect_reports.py .sn/ci-evidence/incoming .sn/ci-evidence/complete
+    - name: Retain ubuntu-latest runtime diagnostics
+      if: always()
+      uses: actions/upload-artifact@v7
+      with:
+        name: rust-runtime-diagnostics-ubuntu-latest
+        path: .sn/ci-evidence/complete/ubuntu-latest
+        include-hidden-files: true
+        if-no-files-found: warn
+        retention-days: 7
+    - name: Retain windows-latest runtime diagnostics
+      if: always()
+      uses: actions/upload-artifact@v7
+      with:
+        name: rust-runtime-diagnostics-windows-latest
+        path: .sn/ci-evidence/complete/windows-latest
+        include-hidden-files: true
+        if-no-files-found: warn
+        retention-days: 7
+    - name: Retain macos-latest runtime diagnostics
+      if: always()
+      uses: actions/upload-artifact@v7
+      with:
+        name: rust-runtime-diagnostics-macos-latest
+        path: .sn/ci-evidence/complete/macos-latest
+        include-hidden-files: true
+        if-no-files-found: warn
+        retention-days: 7
+    - name: Retain CI coverage summary
+      if: always()
+      uses: actions/upload-artifact@v7
+      with:
+        name: compiler-ci-coverage
+        path: .sn/ci-evidence/complete/summary.json
+        include-hidden-files: true
+        if-no-files-found: warn
+        retention-days: 7
+  publish:
+    name: Validated artifacts (${{ matrix.os }})
+    needs: evidence
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include: *platforms
+    steps:
+    - *checkout
+    - name: Download validated build
+      uses: actions/download-artifact@v8
+      with:
+        name: compiler-bundle-${{ matrix.os }}
+        path: .sn/artifact
+    - name: Restore validated build
+      shell: bash
+      run: python3 scripts/ci/build_bundle.py restore .sn/artifact/compiler-bundle.tar.gz
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ matrix.artifact_name }}
+        path: |
+          bin/sn${{ matrix.exe_ext }}
+          bin/tests${{ matrix.exe_ext }}
+          bin/lib/${{ matrix.runtime_dir }}/libsn_runtime_min.a
+          bin/include/**/*
+          bin/*.cfg
+        retention-days: 7
+  check:
+    name: Compiler CI
+    needs:
+    - build
+    - tests
+    - evidence
+    - publish
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+    - name: Require all validation jobs
+      shell: bash
+      env:
+        RESULTS: ${{ toJSON(needs) }}
+      run: |
+        python3 - <<'PY'
+        import json, os
+        results = json.loads(os.environ['RESULTS'])
+        failed = [name for name, result in results.items() if result['result'] != 'success']
+        if failed:
+            raise SystemExit('CI incomplete or failed: ' + ', '.join(failed))
+        print('All compiler, C/Rust, parity and lifetime checks passed.')
+        PY
