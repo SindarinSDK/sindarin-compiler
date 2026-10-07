@@ -60,6 +60,7 @@ jobs:
       with:
         ref: ${{ github.sha }}
     - name: Setup compiler toolchain
+      timeout-minutes: 30
       uses: ./.github/actions/compiler-toolchain
       with:
         rust_target: ${{ matrix.rust_target }}
@@ -135,6 +136,7 @@ jobs:
     steps:
     - *checkout
     - name: Setup compiler toolchain
+      timeout-minutes: 15
       uses: ./.github/actions/compiler-toolchain
       with:
         rust_target: ${{ matrix.rust_target }}

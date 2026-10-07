@@ -9,6 +9,12 @@ request revisions share a group by PR number and cancel superseded checks.
 This lets development continue while earlier main revisions finish validation.
 Final acceptance requires complete green CI on the final integrated revision.
 
+Toolchain setup has a 30-minute deadline in build jobs and a 15-minute deadline
+in test jobs. Linux setup uses the runner's existing GCC, Make and Python when
+available; package downloads have bounded network retries and connection
+timeouts. A stalled bootstrap fails explicitly rather than holding validation
+for hours. These deadlines apply to setup, preserving the complete test matrix.
+
 Three build jobs produce one compiler bundle for each of Linux, macOS and
 Windows. The bundle contains the staged `bin` tree and installed project
 libraries. A tar archive preserves executable modes; a file manifest binds the

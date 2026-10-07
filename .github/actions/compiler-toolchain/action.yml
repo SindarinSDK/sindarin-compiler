@@ -13,8 +13,10 @@ runs:
   - name: Setup prerequisites (Linux)
     if: runner.os == 'Linux'
     run: |
-      sudo apt-get update
-      sudo apt-get install -y build-essential python3
+      if ! command -v gcc >/dev/null || ! command -v make >/dev/null || ! command -v python3 >/dev/null; then
+        sudo apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 update
+        sudo apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 install -y build-essential python3
+      fi
     shell: bash
   - name: Setup prerequisites (macOS)
     if: runner.os == 'macOS'
