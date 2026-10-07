@@ -204,6 +204,15 @@ jobs:
         shell: bash
         run: python3 scripts/check_static_callback_ownership.py
 
+      - name: Retain static callback ownership evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: static-callback-ownership-${{ matrix.os }}
+          path: .sn/static-callback-ownership.json
+          include-hidden-files: true
+          if-no-files-found: warn
+
       - name: Run Rust concurrency tests
         shell: bash
         run: make test-rust-concurrency

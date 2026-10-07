@@ -28,10 +28,16 @@ def execute(compiler, source, executable, optimization, mode, target, environmen
             'passed': False}
     if build.returncode == 0:
         result = subprocess.run([str(executable)], capture_output=True, env=environment, timeout=10)
+        expected = ORACLES[source]
+        if os.name == 'nt':
+            expected = expected.replace(b'\n', b'\r\n')
         case.update(run_status=result.returncode, stdout_hex=result.stdout.hex(),
                     stderr_hex=result.stderr.hex(),
-                    passed=result.returncode == 0 and result.stdout == ORACLES[source]
+                    expected_stdout_hex=expected.hex(),
+                    passed=result.returncode == 0 and result.stdout == expected
                     and not result.stderr)
+    if not case['passed']:
+        print(json.dumps(case, sort_keys=True), flush=True)
     return case
 
 
