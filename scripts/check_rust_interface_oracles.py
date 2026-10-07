@@ -154,10 +154,20 @@ EMPTY_LOCAL_COMPARISON = {
     'tests/rust-native/native_interface_field_arrays.sn': 16,
 }
 PROBE_ORACLES = {'tests/rust-interfaces/scope_managed.sn': b'true\ntrue\n'}
-PROBE_SHA256 = {'tests/rust-interfaces/empty_capture_identity.sn': 'c64e7829d878eb51e1b6f21f32d29af676c7cab8486d9804d4f14fda91e813dd', 'tests/rust-interfaces/scope_identity.sn': '0717e521f873f5f6e492f6eb102f129e09eb336f14da3d10bfc34d3d8773a3df', 'tests/rust-interfaces/scope_managed.sn': 'f7ccdf4d298a2aacf4eaaa9abe7cc619664be3a755ced392d0b9ded5c04870a3'}
+PROBE_SHA256 = {'tests/rust-interfaces/empty_capture_identity.sn': 'c64e7829d878eb51e1b6f21f32d29af676c7cab8486d9804d4f14fda91e813dd', 'tests/rust-interfaces/scope_identity.sn': 'ca86dc55d4c37ba68dc0ec4eebb2e3ec80110e47c2d607b95b8253c5b1872dd2', 'tests/rust-interfaces/scope_managed.sn': 'f7ccdf4d298a2aacf4eaaa9abe7cc619664be3a755ced392d0b9ded5c04870a3'}
+
+
+def verify_sources():
+    for source, expected in (SOURCE_SHA256 | PROBE_SHA256 | HELPER_SHA256).items():
+        if hashlib.sha256(Path(source).read_bytes()).hexdigest() != expected:
+            raise ValueError(f'source changed: {source}')
+    for source, expected in (ORACLES | PROBE_ORACLES).items():
+        if Path(source).with_suffix('.expected').read_bytes() != expected:
+            raise ValueError(f'stale fixture oracle: {source}')
 
 
 def verify(path):
+    verify_sources()
     report = json.loads(path.read_text())
     required = {(source, optimization, mode) for source in (*ORACLES, *PROBE_SHA256)
                 for optimization in ('-O0', '-O1', '-O2')

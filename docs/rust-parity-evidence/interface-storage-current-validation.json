@@ -56,6 +56,13 @@
       "cases": 12,
       "passed": true,
       "compiler_sha256": "51b7efef4579c1742f8c64fd0e022565620d81fba7594c619a78c46490909fa8"
+    },
+    "gcc_committed_fixture": {
+      "path": ".sn/interface-formatted-gcc.json",
+      "sha256": "1b774951451962f95ba0b80532a57dc4c7a7e2122075b9b44f921cd0c48b9060",
+      "cases": 198,
+      "passed": true,
+      "compiler_sha256": "51b7efef4579c1742f8c64fd0e022565620d81fba7594c619a78c46490909fa8"
     }
   },
   "logs": {
@@ -111,5 +118,15 @@
     "retained native storage, native callbacks and ownership composition",
     "complete original 1365-source Rust corpus audit",
     "other documented backend gaps"
-  ]
+  ],
+  "ci_formatter_followup": {
+    "run": 37666016870,
+    "failed_step": "frozen source verification after 198 successful comparisons",
+    "reason": "pre-commit formatter expanded two new struct literals after the source hash was pinned",
+    "source": "tests/rust-interfaces/scope_identity.sn",
+    "committed_source_sha256": "ca86dc55d4c37ba68dc0ec4eebb2e3ec80110e47c2d607b95b8253c5b1872dd2",
+    "correction": "pin committed bytes and verify frozen sources before running the matrix",
+    "hosted_linux_actual_comparisons": 198,
+    "hosted_linux_report_sha256": "e8243b3b0ffe7cef354f713bb01894d7ae1403cd6d1dbdd355a910fd5073d5dd"
+  }
 }

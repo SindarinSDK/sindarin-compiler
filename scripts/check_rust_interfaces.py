@@ -6,7 +6,7 @@ from pathlib import Path
 import subprocess
 import sys
 
-from check_rust_interface_oracles import ORACLES, PROBE_SHA256, verify
+from check_rust_interface_oracles import ORACLES, PROBE_SHA256, verify, verify_sources
 
 
 def main():
@@ -14,6 +14,7 @@ def main():
     parser.add_argument('--output', type=Path,
                         default=Path('.sn/rust-parity-interfaces.json'))
     args = parser.parse_args()
+    verify_sources()
     fixtures = [*ORACLES, *PROBE_SHA256]
     output = args.output
     command = [sys.executable, 'scripts/check_rust_parity.py', *fixtures,

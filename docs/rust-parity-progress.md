@@ -28,6 +28,13 @@ the catalog retains every previous gate and now requires 267 executions across
 26 groups. Hosted acceptance of this increment is pending. Base main `d928d615`
 has green three-platform CI: [run 37657799360](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37657799360).
 
+
+The first hosted run passed all 198 Linux comparisons but the source verifier
+rejected the new mixed-scope fixture: the pre-commit hook formatted two struct
+literals after its hash had been frozen. The follow-up pins the committed bytes,
+checks all frozen sources before compilation, and verifies the hosted Linux
+report successfully. Existing source programs and output expectations are unchanged.
+
 Native opaque interface parameters remain rejected. A fresh C-valid field
 read/write and identity probe passes C in all nine modes while Rust rejects its
 native signature. Native ABI and retained storage are next implementation work;
