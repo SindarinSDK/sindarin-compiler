@@ -5,6 +5,28 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Value-record reference capture snapshots: local verification, 2026-10-07
+
+Rust previously rejected the unchanged C regression
+`test_lambda_capture_record_ref_snapshot` as a borrowed capture. Its C model
+specifies `struct_copy`: the closure owns a snapshot copied from the referenced
+value record. Rust now admits that existing ownership contract for supported
+auto-copy plain value records, retaining the separate guards for shared mutable
+captures, reference-record handles and user copy hooks.
+
+The original source is copied byte-for-byte into a Rust generation/runtime
+fixture. A second source checks nested strings and arrays, forwarding, escaping
+scope owners, caller mutations after capture and nested closure snapshots.
+Both complete local suites pass without failures or skips, with existing
+goldens unchanged. The frozen ownership gate passes 36 literal C/Rust oracle
+executions in all nine optimization/arithmetic modes and six sanitizer runs
+per backend on Linux. This gate is required by three-platform compiler CI.
+Hosted acceptance is pending. This closes a newer C regression source's Rust
+rejection; it does not change the 1365-source original corpus denominator or
+establish full backend completion.
+
+Evidence: [local validation](rust-parity-evidence/record-reference-snapshot-validation.json).
+
 ## Static callback temporary cleanup: local verification, 2026-10-07
 
 Current main `16cf5b7f` fails Linux Compiler CI because the unchanged

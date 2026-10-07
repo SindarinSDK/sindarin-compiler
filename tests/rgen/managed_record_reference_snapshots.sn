@@ -1,0 +1,50 @@
+struct SnapshotLeaf =>
+  label: str
+  values: int[]
+
+struct SnapshotRecord =>
+  count: int
+  leaf: SnapshotLeaf
+
+fn rememberRecord(value: SnapshotRecord as ref): fn(): str =>
+  return fn(): str => $"{value.count}:{value.leaf.label}:{value.leaf.values[0]}"
+
+fn forwardRecord(value: SnapshotRecord as ref): fn(): str =>
+  return rememberRecord(value)
+
+fn escapedRecord(): fn(): str =>
+  var local: SnapshotRecord = {
+    count: 7,
+    leaf: SnapshotLeaf {
+      label: "escaped",
+      values: {9}
+    }
+  }
+  return forwardRecord(local)
+
+fn nestedRecord(value: SnapshotRecord as ref): fn(): fn(): str =>
+  return fn(): fn(): str =>
+    return fn(): str => $"{value.count}:{value.leaf.label}:{value.leaf.values[0]}"
+
+fn main(): void =>
+  var original: SnapshotRecord = {
+    count: 1,
+    leaf: SnapshotLeaf {
+      label: "original",
+      values: {2}
+    }
+  }
+  var snapshot = rememberRecord(original)
+  original.count = 3
+  original.leaf.label = "changed"
+  original.leaf.values[0] = 4
+  println(snapshot())
+  var escaped = escapedRecord()
+  println(escaped())
+  var factory = nestedRecord(original)
+  original.count = 5
+  original.leaf.label = "later"
+  original.leaf.values[0] = 6
+  var child = factory()
+  println(child())
+  println($"{original.count}:{original.leaf.label}:{original.leaf.values[0]}")
