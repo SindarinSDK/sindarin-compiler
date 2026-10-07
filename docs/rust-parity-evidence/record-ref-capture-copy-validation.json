@@ -1,0 +1,43 @@
+{
+  "base": "c5b6d3dd7d5ca5045210b165e85ecb8333b9f561",
+  "source": "tests/integration/test_lambda_capture_record_ref_snapshot.sn",
+  "source_sha256": "b53682939ad5f1e8ac6eec43b3af252da4cd004b1bbf8145d05ce87513e83d5b",
+  "baseline_binary_origin": "d0b44ecf64a9198089c7ca14607f57ef2fed676c; C generator and lambda template unchanged in c5b6d3dd",
+  "local_checks": "9 C optimization/arithmetic runs and 3 C address/undefined/leak sanitizer runs all return exact true three times, no stderr",
+  "suites": {
+    "C": {
+      "sha256": "ba49ef70a63bd0bd11ccd0c2fdb73bcc985ce827cd6dda0c104a72ccc8432a3e",
+      "summaries": [
+        "Results: \u001b[0;32m1610 passed\u001b[0m, \u001b[0;31m0 failed\u001b[0m  (total: 20.17ms)",
+        "Results: 107 passed, 0 failed, 0 skipped  (898ms)",
+        "Results: 79 passed, 0 failed, 0 skipped  (47ms)",
+        "Results: 1143 passed, 0 failed, 0 skipped  (10.99s)",
+        "Results: 58 passed, 0 failed, 0 skipped  (29ms)",
+        "Results: 224 passed, 0 failed, 0 skipped  (14.25s)",
+        "Results: 11 passed, 0 failed, 0 skipped  (9ms)"
+      ]
+    },
+    "Rust": {
+      "sha256": "e62a8a2deaf4509705825ba38ad981093be206f52fc002617fd401b45edce842",
+      "summaries": [
+        "Results: 503 passed, 0 failed, 0 skipped  (17.28s)",
+        "Results: 119 passed, 0 failed, 0 skipped  (47ms)",
+        "Results: 8 passed, 0 failed, 0 skipped  (524ms)",
+        "Results: 298 passed, 0 failed, 0 skipped  (14.50s)",
+        "Results: 1 passed, 0 failed, 0 skipped  (265ms)",
+        "Results: 4 passed, 0 failed, 0 skipped  (289ms)",
+        "Results: 36 passed, 0 failed, 0 skipped  (1.41s)",
+        "Results: 1 passed, 0 failed, 0 skipped  (3ms)",
+        "Results: 10 passed, 0 failed, 0 skipped  (600ms)",
+        "Results: 7 passed, 0 failed, 0 skipped  (229ms)",
+        "Results: 1 passed, 0 failed, 0 skipped  (2ms)",
+        "Results: 12 passed, 0 failed  (1.76s)"
+      ]
+    }
+  },
+  "scope": "C constructor copy source repair in both model projections. Rust ordinary borrowed managed-record captures and native closure callback support remain separate unpublished work.",
+  "excluded": {
+    ".sn/native-record-ref-capture.sn": "Both C and Rust reject native lambda capture under the language contract. No parity credit."
+  },
+  "hosted_status": "Not published. Parent c5b6d3dd all6 compiler/runtime jobs verified green; Linux/macOS/Windows each65reports5961cases and hosted suite counts verified."
+}

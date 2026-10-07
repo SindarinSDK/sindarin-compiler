@@ -5,11 +5,19 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
-## Borrowed scalar captures: local acceptance verified, 2026-10-07
+## Record capture copy source: local verification, 2026-10-07
 
-The pending increment preserves the caller’s scalar storage in escaping and nested closures. It covers all scalar kinds, aliased references, qualified factory copies, globals, thread transport, record fields and nested fields, owner-preserving record assignments, native scalar mutation, and native record value arguments/results. The original borrowed-capture source is promoted byte-for-byte from an error fixture. C closure capture fields now hold and dereference caller pointers, and copied function handles retain their closure owners.
+A managed value record captured from an `as ref` parameter already supplies a record pointer. The C closure constructor previously took that pointer’s address and copied the stack slot as a record. The unchanged regression source triggers a stack-buffer-overflow at `-O0` and an undefined memory read at `-O1` and `-O2` under sanitizers. Both C model projections now mark pointer sources so the shared constructor copies the referenced record. Existing owned snapshot semantics and cleanup remain intact.
 
-The permanent gate passes all 21 sources and 189 optimization/arithmetic comparisons, with 63 sanitizer executions per backend. Both complete local suites pass without failures or skips. All 89 required commands pass after repairing a fixed-count packaging mistake. The strict verifier confirms 65 reports and 5,961 cases against 6,925 frozen inputs. All 1,365 original corpus sources are unchanged. The discarded packaging run is retained separately. This increment has not been published.
+The new C integration fixture checks snapshots after original scalar/string mutation, after source scope exit through a forwarded parameter, and through nested closures. All nine optimization/arithmetic runs and three address/undefined/leak sanitizer runs pass with exact output. Both full local suites pass without failures or skips; existing goldens are unchanged. This small increment is prepared against `c5b6d3dd` and has not been published. Ordinary borrowed managed-record captures in Rust, native callbacks, and wider array wire formats remain unfinished.
+
+Evidence: [original failure](rust-parity-evidence/record-ref-capture-copy-before.json), [fixed executions](rust-parity-evidence/record-ref-capture-copy-after.json), [validation and limits](rust-parity-evidence/record-ref-capture-copy-validation.json).
+
+## Borrowed scalar captures: published as `d0b44ecf`, 2026-10-07
+
+The published increment preserves the caller’s scalar storage in escaping and nested closures. It covers all scalar kinds, aliased references, qualified factory copies, globals, thread transport, record fields and nested fields, owner-preserving record assignments, native scalar mutation, and native record value arguments/results. The original borrowed-capture source is promoted byte-for-byte from an error fixture. C closure capture fields now hold and dereference caller pointers, and copied function handles retain their closure owners.
+
+The permanent gate passes all 21 sources and 189 optimization/arithmetic comparisons, with 63 sanitizer executions per backend. Both complete local suites pass without failures or skips. All 89 required commands pass after repairing a fixed-count packaging mistake. The strict verifier confirms 65 reports and 5,961 cases against 6,925 frozen inputs. All 1,365 original corpus sources are unchanged. The discarded packaging run is retained separately. This increment is on main as `d0b44ecf`. Windows setup then failed before building because the bootstrap compiler rejected GitHub’s certificate. Repair `c5b6d3dd` uses an authenticated pinned dependency checkout. Its compiler and runtime jobs pass on all three platforms. Each Linux, macOS and Windows runtime artifact independently verifies 65 reports and 5,961 cases, with all six hosted suite logs checked.
 
 Native record references combined with captured fields remain rejected: source fields use shared owner storage while C requires a persistent compatible record layout and may retain the actual record address. Temporary copy-back is insufficient. Native closure callbacks also remain rejected. These are unresolved parity gaps, alongside borrowed method-self captures, interface identity, native string aliases and wider native array formats and lifetimes.
 
@@ -35,18 +43,14 @@ comparisons and **66 C + 66 Rust** sanitizer executions. All **86** combined
 acceptance commands pass with frozen inputs, including the complete C/Rust
 suites, exactly **278** native fixtures and strict **64 reports / 5772 cases**.
 All **1365** original source hashes and existing goldens remain unchanged; the
-new fixtures are formatted and independently hashed. The change is prepared
-against current main `cb36f402`, with no hosted acceptance claim for this
-unpublished increment. Its new gate runs on all three platforms, with C/Rust
-sanitizers on Linux.
+new fixtures are formatted and independently hashed. The change is published as `adaf1351`. Its compiler and runtime jobs passed on all three platforms; each runtime artifact independently verified 64 reports and 5,772 cases. Its new gate runs on all three platforms, with C/Rust sanitizers on Linux.
 
 The discarded Vec prototype and nil-concat implementation both caused Rust
 use-after-free failures under ASAN; neither receives parity credit. Borrowed
 method-self captures remain a verified gap: C's lambda observes later receiver
 mutation, while Rust rejects the capture. Managed record fields, native layouts,
 interface identity, wider lifetime/qualification/thread cases and the complete
-backend goal remain unfinished. C stays the default target. The timeout repair
-on main needs its exact-revision runtime checks green before this change lands.
+backend goal remain unfinished. C stays the default target. The physical receiver increment has full hosted acceptance; the broader backend goal remains open.
 
 Evidence: [validation](rust-parity-evidence/physical-receiver-validation.json),
 [oracles](rust-parity-evidence/physical-receiver-oracles.json),

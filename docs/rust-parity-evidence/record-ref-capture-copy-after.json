@@ -1,0 +1,266 @@
+{
+  "source": "tests/integration/test_lambda_capture_record_ref_snapshot.sn",
+  "source_sha256": "b53682939ad5f1e8ac6eec43b3af252da4cd004b1bbf8145d05ce87513e83d5b",
+  "compiler_sha256": "1463e2c6b47a5d349e6ba6f033bcf1d696788e4a48ebd08e876d756142cd703e",
+  "cases": [
+    {
+      "optimization": 0,
+      "arithmetic_mode": "default",
+      "sanitizer": false,
+      "command": [
+        "/home/gavin/code/sindarin/sindarin-record-capture-copy-c5b6/bin/sn",
+        "tests/integration/test_lambda_capture_record_ref_snapshot.sn",
+        "--target",
+        "c",
+        "-O0",
+        "--no-install",
+        "-o",
+        "/tmp/sn-record-capture-check-iw1f__zy/program"
+      ],
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f6c616d6264615f636170747572655f7265636f72645f7265665f736e617073686f742e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d7265636f72642d636170747572652d636865636b2d697731665f5f7a792f70726f6772616d202836392e37204b42290a",
+      "passed": true,
+      "run_status": 0,
+      "stdout_hex": "747275650a747275650a747275650a",
+      "stderr_hex": ""
+    },
+    {
+      "optimization": 1,
+      "arithmetic_mode": "default",
+      "sanitizer": false,
+      "command": [
+        "/home/gavin/code/sindarin/sindarin-record-capture-copy-c5b6/bin/sn",
+        "tests/integration/test_lambda_capture_record_ref_snapshot.sn",
+        "--target",
+        "c",
+        "-O1",
+        "--no-install",
+        "-o",
+        "/tmp/sn-record-capture-check-iw1f__zy/program"
+      ],
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f6c616d6264615f636170747572655f7265636f72645f7265665f736e617073686f742e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d7265636f72642d636170747572652d636865636b2d697731665f5f7a792f70726f6772616d202836392e37204b42290a",
+      "passed": true,
+      "run_status": 0,
+      "stdout_hex": "747275650a747275650a747275650a",
+      "stderr_hex": ""
+    },
+    {
+      "optimization": 2,
+      "arithmetic_mode": "default",
+      "sanitizer": false,
+      "command": [
+        "/home/gavin/code/sindarin/sindarin-record-capture-copy-c5b6/bin/sn",
+        "tests/integration/test_lambda_capture_record_ref_snapshot.sn",
+        "--target",
+        "c",
+        "-O2",
+        "--no-install",
+        "-o",
+        "/tmp/sn-record-capture-check-iw1f__zy/program"
+      ],
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f6c616d6264615f636170747572655f7265636f72645f7265665f736e617073686f742e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d7265636f72642d636170747572652d636865636b2d697731665f5f7a792f70726f6772616d202836392e35204b42290a",
+      "passed": true,
+      "run_status": 0,
+      "stdout_hex": "747275650a747275650a747275650a",
+      "stderr_hex": ""
+    },
+    {
+      "optimization": 0,
+      "arithmetic_mode": "checked",
+      "sanitizer": false,
+      "command": [
+        "/home/gavin/code/sindarin/sindarin-record-capture-copy-c5b6/bin/sn",
+        "tests/integration/test_lambda_capture_record_ref_snapshot.sn",
+        "--target",
+        "c",
+        "-O0",
+        "--no-install",
+        "-o",
+        "/tmp/sn-record-capture-check-iw1f__zy/program",
+        "--checked"
+      ],
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f6c616d6264615f636170747572655f7265636f72645f7265665f736e617073686f742e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d7265636f72642d636170747572652d636865636b2d697731665f5f7a792f70726f6772616d202836392e37204b42290a",
+      "passed": true,
+      "run_status": 0,
+      "stdout_hex": "747275650a747275650a747275650a",
+      "stderr_hex": ""
+    },
+    {
+      "optimization": 1,
+      "arithmetic_mode": "checked",
+      "sanitizer": false,
+      "command": [
+        "/home/gavin/code/sindarin/sindarin-record-capture-copy-c5b6/bin/sn",
+        "tests/integration/test_lambda_capture_record_ref_snapshot.sn",
+        "--target",
+        "c",
+        "-O1",
+        "--no-install",
+        "-o",
+        "/tmp/sn-record-capture-check-iw1f__zy/program",
+        "--checked"
+      ],
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f6c616d6264615f636170747572655f7265636f72645f7265665f736e617073686f742e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d7265636f72642d636170747572652d636865636b2d697731665f5f7a792f70726f6772616d202836392e37204b42290a",
+      "passed": true,
+      "run_status": 0,
+      "stdout_hex": "747275650a747275650a747275650a",
+      "stderr_hex": ""
+    },
+    {
+      "optimization": 2,
+      "arithmetic_mode": "checked",
+      "sanitizer": false,
+      "command": [
+        "/home/gavin/code/sindarin/sindarin-record-capture-copy-c5b6/bin/sn",
+        "tests/integration/test_lambda_capture_record_ref_snapshot.sn",
+        "--target",
+        "c",
+        "-O2",
+        "--no-install",
+        "-o",
+        "/tmp/sn-record-capture-check-iw1f__zy/program",
+        "--checked"
+      ],
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f6c616d6264615f636170747572655f7265636f72645f7265665f736e617073686f742e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d7265636f72642d636170747572652d636865636b2d697731665f5f7a792f70726f6772616d202836392e37204b42290a",
+      "passed": true,
+      "run_status": 0,
+      "stdout_hex": "747275650a747275650a747275650a",
+      "stderr_hex": ""
+    },
+    {
+      "optimization": 0,
+      "arithmetic_mode": "unchecked",
+      "sanitizer": false,
+      "command": [
+        "/home/gavin/code/sindarin/sindarin-record-capture-copy-c5b6/bin/sn",
+        "tests/integration/test_lambda_capture_record_ref_snapshot.sn",
+        "--target",
+        "c",
+        "-O0",
+        "--no-install",
+        "-o",
+        "/tmp/sn-record-capture-check-iw1f__zy/program",
+        "--unchecked"
+      ],
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f6c616d6264615f636170747572655f7265636f72645f7265665f736e617073686f742e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d7265636f72642d636170747572652d636865636b2d697731665f5f7a792f70726f6772616d202836392e35204b42290a",
+      "passed": true,
+      "run_status": 0,
+      "stdout_hex": "747275650a747275650a747275650a",
+      "stderr_hex": ""
+    },
+    {
+      "optimization": 1,
+      "arithmetic_mode": "unchecked",
+      "sanitizer": false,
+      "command": [
+        "/home/gavin/code/sindarin/sindarin-record-capture-copy-c5b6/bin/sn",
+        "tests/integration/test_lambda_capture_record_ref_snapshot.sn",
+        "--target",
+        "c",
+        "-O1",
+        "--no-install",
+        "-o",
+        "/tmp/sn-record-capture-check-iw1f__zy/program",
+        "--unchecked"
+      ],
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f6c616d6264615f636170747572655f7265636f72645f7265665f736e617073686f742e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d7265636f72642d636170747572652d636865636b2d697731665f5f7a792f70726f6772616d202836392e35204b42290a",
+      "passed": true,
+      "run_status": 0,
+      "stdout_hex": "747275650a747275650a747275650a",
+      "stderr_hex": ""
+    },
+    {
+      "optimization": 2,
+      "arithmetic_mode": "unchecked",
+      "sanitizer": false,
+      "command": [
+        "/home/gavin/code/sindarin/sindarin-record-capture-copy-c5b6/bin/sn",
+        "tests/integration/test_lambda_capture_record_ref_snapshot.sn",
+        "--target",
+        "c",
+        "-O2",
+        "--no-install",
+        "-o",
+        "/tmp/sn-record-capture-check-iw1f__zy/program",
+        "--unchecked"
+      ],
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f6c616d6264615f636170747572655f7265636f72645f7265665f736e617073686f742e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d7265636f72642d636170747572652d636865636b2d697731665f5f7a792f70726f6772616d202836392e35204b42290a",
+      "passed": true,
+      "run_status": 0,
+      "stdout_hex": "747275650a747275650a747275650a",
+      "stderr_hex": ""
+    },
+    {
+      "optimization": 0,
+      "arithmetic_mode": "default",
+      "sanitizer": true,
+      "command": [
+        "/home/gavin/code/sindarin/sindarin-record-capture-copy-c5b6/bin/sn",
+        "tests/integration/test_lambda_capture_record_ref_snapshot.sn",
+        "--target",
+        "c",
+        "-O0",
+        "--no-install",
+        "-o",
+        "/tmp/sn-record-capture-check-iw1f__zy/program"
+      ],
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f6c616d6264615f636170747572655f7265636f72645f7265665f736e617073686f742e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d7265636f72642d636170747572652d636865636b2d697731665f5f7a792f70726f6772616d202839372e38204b42290a",
+      "passed": true,
+      "run_status": 0,
+      "stdout_hex": "747275650a747275650a747275650a",
+      "stderr_hex": ""
+    },
+    {
+      "optimization": 1,
+      "arithmetic_mode": "default",
+      "sanitizer": true,
+      "command": [
+        "/home/gavin/code/sindarin/sindarin-record-capture-copy-c5b6/bin/sn",
+        "tests/integration/test_lambda_capture_record_ref_snapshot.sn",
+        "--target",
+        "c",
+        "-O1",
+        "--no-install",
+        "-o",
+        "/tmp/sn-record-capture-check-iw1f__zy/program"
+      ],
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f6c616d6264615f636170747572655f7265636f72645f7265665f736e617073686f742e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d7265636f72642d636170747572652d636865636b2d697731665f5f7a792f70726f6772616d20283130352e34204b42290a",
+      "passed": true,
+      "run_status": 0,
+      "stdout_hex": "747275650a747275650a747275650a",
+      "stderr_hex": ""
+    },
+    {
+      "optimization": 2,
+      "arithmetic_mode": "default",
+      "sanitizer": true,
+      "command": [
+        "/home/gavin/code/sindarin/sindarin-record-capture-copy-c5b6/bin/sn",
+        "tests/integration/test_lambda_capture_record_ref_snapshot.sn",
+        "--target",
+        "c",
+        "-O2",
+        "--no-install",
+        "-o",
+        "/tmp/sn-record-capture-check-iw1f__zy/program"
+      ],
+      "compile_status": 0,
+      "compile_stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f696e746567726174696f6e2f746573745f6c616d6264615f636170747572655f7265636f72645f7265665f736e617073686f742e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e201b5b313b33366d646f6e651b5b306d0a20204c696e6b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a1b5b313b33366d446f6e651b5b306d3a202f746d702f736e2d7265636f72642d636170747572652d636865636b2d697731665f5f7a792f70726f6772616d20283130342e36204b42290a",
+      "passed": true,
+      "run_status": 0,
+      "stdout_hex": "747275650a747275650a747275650a",
+      "stderr_hex": ""
+    }
+  ],
+  "passed": true
+}

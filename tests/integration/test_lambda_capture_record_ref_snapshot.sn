@@ -1,0 +1,36 @@
+struct CapturedRecord =>
+  count: int
+  marker: str
+
+fn remember(value: CapturedRecord as ref): fn(): int =>
+  return fn(): int => value.count + value.marker.length
+
+fn forward(value: CapturedRecord as ref): fn(): int =>
+  return remember(value)
+
+fn build(): fn(): int =>
+  var original: CapturedRecord = {
+    count: 7,
+    marker: "x"
+  }
+  return forward(original)
+
+fn nested(value: CapturedRecord as ref): fn(): fn(): int =>
+  return fn(): fn(): int =>
+    return fn(): int => value.count + value.marker.length
+
+fn main(): void =>
+  var original: CapturedRecord = {
+    count: 7,
+    marker: "x"
+  }
+  var read: fn(): int = remember(original)
+  original.count = 20
+  original.marker = "changed"
+  println(read() == 8)
+  var escaped: fn(): int = build()
+  println(escaped() == 8)
+  var factory: fn(): fn(): int = nested(original)
+  var child: fn(): int = factory()
+  original.count = 30
+  println(child() == 27)

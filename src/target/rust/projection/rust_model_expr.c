@@ -3541,6 +3541,13 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                 }
                 json_object_object_add(cap, "is_ref", json_object_new_boolean(is_ref));
 
+                if (!is_ref && caps.types[i] && caps.types[i]->kind == TYPE_STRUCT &&
+                    !caps.types[i]->as.struct_type.pass_self_by_ref && rust_gen_model_type_has_heap_fields(caps.types[i])) {
+                    for (int p = 0; p < rust_g_as_ref_param_count; p++)
+                        if (!strcmp(rust_g_as_ref_param_names[p], caps.names[i]))
+                            json_object_object_add(cap, "c_struct_capture_pointer_source", json_object_new_boolean(true));
+                }
+
                 /* Emit per-capture cap_action / cap_cleanup so the closure owns
                  * its captured heap data. Without this, str / refcounted-struct /
                  * array captures share pointers with the caller and trigger a
