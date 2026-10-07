@@ -144,14 +144,26 @@ SOURCE_SHA256 = {'tests/integration/test_builtin_interfaces.sn': '6c26c2c105a8a5
  'tests/rust-native/native_structural_interfaces.sn': '814a2e90f1dcff939d249b2c27dbeca03f0944c4f61bce8a33d313def293629e'}
 HELPER_SHA256 = {'tests/integration/test_serializable.sn.c': '9bd612be9fb5842e0912ba765257a2bee026035d7a429e4281a096e663b2edd0'}
 
+# These four fixtures observe addresses of two distinct zero-sized C locals.
+# Their historical GCC oracle remains frozen. C compilers may allocate the
+# locals together instead, changing only this explicit source comparison.
+EMPTY_LOCAL_COMPARISON = {
+    'tests/rust-native/native_interface_array_copies.sn': 16,
+    'tests/rust-native/native_interface_captured_field_arrays.sn': 16,
+    'tests/rust-native/native_interface_empty_array.sn': 16,
+    'tests/rust-native/native_interface_field_arrays.sn': 16,
+}
+PROBE_ORACLES = {'tests/rust-interfaces/scope_managed.sn': b'true\ntrue\n'}
+PROBE_SHA256 = {'tests/rust-interfaces/empty_capture_identity.sn': 'c64e7829d878eb51e1b6f21f32d29af676c7cab8486d9804d4f14fda91e813dd', 'tests/rust-interfaces/scope_identity.sn': '0717e521f873f5f6e492f6eb102f129e09eb336f14da3d10bfc34d3d8773a3df', 'tests/rust-interfaces/scope_managed.sn': 'f7ccdf4d298a2aacf4eaaa9abe7cc619664be3a755ced392d0b9ded5c04870a3'}
+
 
 def verify(path):
     report = json.loads(path.read_text())
-    required = {(source, optimization, mode) for source in ORACLES
+    required = {(source, optimization, mode) for source in (*ORACLES, *PROBE_SHA256)
                 for optimization in ('-O0', '-O1', '-O2')
                 for mode in ('default', 'checked', 'unchecked')}
     if not report['passed'] or len(report['cases']) != len(required):
-        raise ValueError('expected 171 successful structural interface cases')
+        raise ValueError(f'expected {len(required)} successful structural interface cases')
     seen = set()
     for case in report['cases']:
         source = case['source'].replace('\\', '/')
@@ -159,32 +171,45 @@ def verify(path):
         if not case['passed'] or identity not in required or identity in seen:
             raise ValueError(f'unexpected or duplicate case: {identity}')
         seen.add(identity)
-        if (hashlib.sha256(Path(source).read_bytes()).hexdigest() != SOURCE_SHA256[source]
-                or case['source_sha256'] != SOURCE_SHA256[source]):
+        expected_hash = (SOURCE_SHA256 | PROBE_SHA256)[source]
+        if (hashlib.sha256(Path(source).read_bytes()).hexdigest() != expected_hash
+                or case['source_sha256'] != expected_hash):
             raise ValueError(f'source changed: {source}')
-        expected = ORACLES[source]
-        if Path(source).with_suffix('.expected').read_bytes() != expected:
+        expected = (ORACLES | PROBE_ORACLES).get(source)
+        if expected is not None and Path(source).with_suffix('.expected').read_bytes() != expected:
             raise ValueError(f'stale fixture oracle: {source}')
-        if os.name == 'nt':
+        alternatives = {expected} if expected is not None else set()
+        if source in EMPTY_LOCAL_COMPARISON:
+            lines = expected.splitlines(keepends=True)
+            assert lines[EMPTY_LOCAL_COMPARISON[source]] == b'true\n'
+            lines[EMPTY_LOCAL_COMPARISON[source]] = b'false\n'
+            alternatives.add(b''.join(lines))
+        if os.name == 'nt' and expected is not None:
             expected = expected.replace(b'\n', b'\r\n')
+            alternatives = {value.replace(b'\n', b'\r\n') for value in alternatives}
         if set(case['targets']) != {'c', 'rust'}:
             raise ValueError(f'missing target: {identity}')
         for target in ('c', 'rust'):
             result = case['targets'][target]
             if result['compile']['status'] != 0 or result['run']['status'] != 0:
                 raise ValueError(f'unsuccessful execution: {identity} {target}')
-            if result['run']['stdout_hex'] != expected.hex() or result['run']['stderr_hex']:
+            if result['run']['stderr_hex'] or (alternatives and
+                    bytes.fromhex(result['run']['stdout_hex']) not in alternatives):
                 raise ValueError(f'independent output mismatch: {identity} {target}')
+        if (case['targets']['c']['run']['stdout_hex'] != case['targets']['rust']['run']['stdout_hex']):
+            raise ValueError(f'C/Rust storage identity mismatch: {identity}')
     if seen != required:
         raise ValueError('incomplete optimization/arithmetic coverage')
-    report['independent_oracle_cases'] = len(seen)
+    report['independent_oracle_cases'] = 9 * (len(ORACLES) + len(PROBE_ORACLES))
+    report['storage_probe_cases'] = 9 * (len(PROBE_SHA256) - len(PROBE_ORACLES))
     for source, expected_hash in HELPER_SHA256.items():
         if hashlib.sha256(Path(source).read_bytes()).hexdigest() != expected_hash:
             raise ValueError(f'helper changed: {source}')
     report['helper_source_sha256'] = HELPER_SHA256
     report['oracle_scope'] = 'Structural interface arguments, source slot identity, aliases and copies, inline C offsets, native serialization handles, readonly aggregate transport, empty and record arrays, mutation, temporary/captured values, source closure snapshots and metadata lifetime ownership. Foreign interface ABI remains a separate full-goal requirement.'
     path.write_text(json.dumps(report, indent=2) + '\n')
-    print('PASS: 171 independent structural interface C/Rust oracles')
+    print(f'PASS: {len(seen)} structural interface C/Rust cases, '
+          f"{report['independent_oracle_cases']} independent output oracles")
 
 
 if __name__ == '__main__':

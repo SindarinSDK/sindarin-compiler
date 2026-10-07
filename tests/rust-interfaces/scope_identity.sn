@@ -1,0 +1,60 @@
+interface IdentityValue =>
+  fn toString(): str
+
+struct ScopeEmpty =>
+  fn toString(): str =>
+    return "empty"
+
+struct ScopeValue =>
+  value: int
+
+  fn toString(): str =>
+    return "value"
+
+struct ScopeParent =>
+  empty: ScopeEmpty
+  value: int
+
+  fn toString(): str =>
+    return "parent"
+
+struct ScopeZeroParent =>
+  empty: ScopeEmpty
+
+  fn toString(): str =>
+    return "zero parent"
+
+fn sameScope(left: IdentityValue, right: IdentityValue): bool =>
+  return left == right
+
+fn scopeAddress(value: IdentityValue): IdentityValue =>
+  return value
+
+fn sameParameters(left: ScopeEmpty, right: ScopeEmpty): bool =>
+  return sameScope(left, right)
+
+fn main(): void =>
+  var first: ScopeEmpty = {}
+  var value: ScopeValue = { value: 1 }
+  var second: ScopeEmpty = {}
+  var parent: ScopeParent = {
+    empty: ScopeEmpty {},
+    value: 2
+  }
+  var zero: ScopeZeroParent = { empty: ScopeEmpty {} }
+  println(sameScope(first, second))
+  println(sameScope(first, value))
+  println(sameScope(value, second))
+  println(sameScope(parent, parent.empty))
+  println(sameScope(zero, zero.empty))
+  println(sameParameters(first, second))
+  var before: IdentityValue = scopeAddress(parent)
+  parent = ScopeParent {
+    empty: ScopeEmpty {},
+    value: 3
+  }
+  println(before == scopeAddress(parent))
+  println(scopeAddress(parent) == scopeAddress(parent.empty))
+  if parent.value == 3 =>
+    var nested: ScopeEmpty = {}
+    println(sameScope(first, nested))

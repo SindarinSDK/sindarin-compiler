@@ -1,0 +1,115 @@
+{
+  "base_main": "d928d615444600e82a28d0f9549b3c19ca97d559",
+  "compiler_sha256": "51b7efef4579c1742f8c64fd0e022565620d81fba7594c619a78c46490909fa8",
+  "platform": "aarch64 Linux",
+  "hosted_acceptance": "pending",
+  "reports": {
+    "gcc_interfaces": {
+      "path": ".sn/interface-final-gcc.json",
+      "sha256": "9f3e33e730ea85841e9c0b804c72eaed93835da7f271e7e08517342abcc5aae6",
+      "cases": 198,
+      "passed": true,
+      "compiler_sha256": "51b7efef4579c1742f8c64fd0e022565620d81fba7594c619a78c46490909fa8",
+      "independent_oracle_cases": 180,
+      "storage_probe_cases": 18,
+      "environment": {
+        "SN_CC": null,
+        "SN_CFLAGS": null,
+        "SN_RELEASE_CFLAGS": null,
+        "SN_LDLIBS": null,
+        "SN_RUSTFLAGS": null
+      }
+    },
+    "gcc_closure_regression": {
+      "path": ".sn/interface-closure-scopes-gcc.json",
+      "sha256": "f5d3319010081b0a17c8cc55af062dc582579ee16984825c40fe0d0161ffe2d8",
+      "cases": 18,
+      "passed": true,
+      "compiler_sha256": "51b7efef4579c1742f8c64fd0e022565620d81fba7594c619a78c46490909fa8"
+    },
+    "clang_interfaces": {
+      "path": ".sn/interface-final-clang.json",
+      "sha256": "9bd1700e83b39369431c6895f46d1dbe2e80ba252a37faafb8ac8daaaf6c0ec5",
+      "cases": 198,
+      "passed": true,
+      "compiler_sha256": "51b7efef4579c1742f8c64fd0e022565620d81fba7594c619a78c46490909fa8",
+      "independent_oracle_cases": 180,
+      "storage_probe_cases": 18,
+      "environment": {
+        "SN_CC": "/home/gavin/code/sindarin/sindarin-rust-parity-goal/build/toolchains/clang18/extracted/usr/lib/llvm-18/bin/clang",
+        "SN_CFLAGS": null,
+        "SN_RELEASE_CFLAGS": null,
+        "SN_LDLIBS": null,
+        "SN_RUSTFLAGS": null
+      }
+    },
+    "rust_asan_scopes": {
+      "path": ".sn/interface-scopes-rust-asan.json",
+      "sha256": "d19d50d911d16613e58793aff0f52103c7ea213efde9aabe2016bcc2b2b76858",
+      "cases": 9,
+      "passed": true,
+      "compiler_sha256": "51b7efef4579c1742f8c64fd0e022565620d81fba7594c619a78c46490909fa8"
+    },
+    "metadata_lifetimes": {
+      "path": ".sn/rust-interface-lifetimes.json",
+      "sha256": "953ee5463189a2cf276f25a39f49c42172221d0be8bd35ed1d7ebe602f2c0df5",
+      "cases": 12,
+      "passed": true,
+      "compiler_sha256": "51b7efef4579c1742f8c64fd0e022565620d81fba7594c619a78c46490909fa8"
+    }
+  },
+  "logs": {
+    "clang_full_matrix": {
+      "path": ".sn/interface-final-clang.log",
+      "sha256": "36128f3974ff1eaf58218546831a7b39a7d52d5b9b5b576f5670c1423daecb0d",
+      "summary": [
+        "PASS: 198 structural interface C/Rust cases, 180 independent output oracles"
+      ]
+    },
+    "gcc_full_matrix": {
+      "path": ".sn/interface-final-gcc.log",
+      "sha256": "d54f1b1d0a1ba0610fa93fe06a1cff5ebdd280033f91a1ddb71d976a4cc961b4",
+      "summary": [
+        "PASS: 198 structural interface C/Rust cases, 180 independent output oracles"
+      ]
+    },
+    "c_suites": {
+      "path": ".sn/interface-c-suite.log",
+      "sha256": "6e9b2ca63d1b46ad3dee10d798d0a2091a16459c83ca0928a76459f6c3d16079",
+      "summary": [
+        "Results: 1610 passed, 0 failed  (total: 16.82ms)",
+        "Results: 107 passed, 0 failed, 0 skipped  (446ms)",
+        "Results: 79 passed, 0 failed, 0 skipped  (49ms)",
+        "Results: 1145 passed, 0 failed, 0 skipped  (4.85s)",
+        "Results: 58 passed, 0 failed, 0 skipped  (38ms)",
+        "Results: 224 passed, 0 failed, 0 skipped  (9.44s)",
+        "Results: 11 passed, 0 failed, 0 skipped  (8ms)"
+      ]
+    },
+    "native_suite": {
+      "path": ".sn/interface-native-full.log",
+      "sha256": "839cf1405b435836136ed0dcd1e19b24118c72947d575f19d89cfe6aed7c3ae7",
+      "summary": [
+        "Results: 377 passed, 0 failed, 0 skipped  (20.16s)"
+      ]
+    }
+  },
+  "c_suite_checks": 3234,
+  "rust_suite_checks": 1081,
+  "rust_generated_goldens_and_original_c_sources": "unchanged",
+  "ci_groups": 26,
+  "ci_gates": 267,
+  "remaining_native_abi_probe": {
+    "path": ".sn/interface-native-boundary-current.json",
+    "c_passed": 9,
+    "rust_rejected": 9,
+    "expected_stdout_hex": "370a31320a747275650a66616c73650a"
+  },
+  "remaining_obligations": [
+    "Linux/macOS/Windows acceptance of this increment",
+    "native opaque interface pointer ABI and field access",
+    "retained native storage, native callbacks and ownership composition",
+    "complete original 1365-source Rust corpus audit",
+    "other documented backend gaps"
+  ]
+}

@@ -1,0 +1,17 @@
+interface ScopedIdentity =>
+  fn toString(): str
+struct ScopedEmpty =>
+  fn toString(): str =>
+    return "empty"
+struct ScopedManaged =>
+  values: int[]
+  fn toString(): str =>
+    return "managed"
+fn sameScoped(left: ScopedIdentity, right: ScopedIdentity): bool =>
+  return left == right
+fn main(): void =>
+  var empty: ScopedEmpty = {}
+  var managed: ScopedManaged = { values: {1, 2} }
+  println(sameScoped(managed, managed))
+  var inspect = fn(): bool => sameScoped(empty, empty) && sameScoped(managed, managed)
+  println(inspect())

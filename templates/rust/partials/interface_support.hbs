@@ -31,7 +31,7 @@ impl {{rust_ident rust_interface_registry_type}} {
         Self::links().lock().unwrap_or_else(|e| e.into_inner()).retain(|_, edge| edge.3 != owner);
     }
     fn native_storage(key: {{rust_ident rust_interface_key_type}}) -> bool {
-        false{{#each structs}}{{#if rust_native_record_storage}} || key.kind == std::any::TypeId::of::<{{rust_ident name}}>() || key.kind == std::any::TypeId::of::<Vec<{{rust_ident name}}>>(){{/if}}{{/each}}
+        key.kind == std::any::TypeId::of::<*mut std::ffi::c_void>(){{#each structs}}{{#if rust_native_record_storage}} || key.kind == std::any::TypeId::of::<{{rust_ident name}}>() || key.kind == std::any::TypeId::of::<Vec<{{rust_ident name}}>>(){{/if}}{{/each}}
     }
     fn identity(key: {{rust_ident rust_interface_key_type}}) -> {{rust_ident rust_interface_identity_type}} {
         fn resolve(links: &std::collections::HashMap<{{rust_ident rust_interface_key_type}}, ({{rust_ident rust_interface_key_type}}, usize, bool, usize)>, key: {{rust_ident rust_interface_key_type}}, seen: &mut std::collections::HashSet<{{rust_ident rust_interface_key_type}}>) -> ({{rust_ident rust_interface_identity_type}}, bool) {

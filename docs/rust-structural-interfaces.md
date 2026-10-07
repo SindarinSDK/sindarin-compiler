@@ -1,63 +1,59 @@
 # Structural interfaces: implementation in progress
 
-This unpublished recovery applies the earlier `b7e0686c` prototype to current
-backend work based on `1faf07ea`, preserving subsequent native callback,
-physical receiver and closure changes. It is not accepted interface parity.
+Structural interface parameters preserve C storage identity across value and
+reference records, arrays, inline fields, copies, assignments and captures.
+The shared front end still checks structural satisfaction; this representation
+adds no dynamic dispatch or changes to the language contract.
 
-The original two interface sources pass 18 GCC C/Rust mode comparisons locally.
-The complete Rust suite passes with 381 native fixtures, existing goldens
-unchanged, and no failures or skips. Twelve metadata lifetime audits pass.
-The independent Clang gate still fails 18 of 36 comparisons: empty locals in
-`native_interface_empty_array` and `native_interface_array_copies` compare equal
-in C and distinct in Rust at all nine modes. These failures receive no parity
-credit. Actual C storage behavior must be preserved; an OS-specific identity
-constant or changed output oracle would not establish completion.
+The original two interface programs and twenty controls pass all 198 C/Rust
+comparisons at O0/O1/O2 with default, checked and unchecked arithmetic, using
+both GCC and Clang on ARM64 Linux. Of these, 180 comparisons also enforce
+independent literal output contracts; eighteen examine compiler-selected
+zero-sized storage directly against C. All existing source files and expected
+outputs remain unchanged. Three new controls cover mixed scopes, escaping and
+nested empty captures, and managed records beside empty storage.
 
-Current evidence: [local recovery and limits](rust-parity-evidence/interface-recovery-current-validation.json).
-The ownership repair for record-reference snapshots is developed separately.
-All native interface ABI, empty-storage, ownership composition and hosted
-acceptance obligations remain required before publication.
+The selected C compiler now owns zero-sized local and parameter storage through
+small C scope support functions. Rust executes the source body inside that
+scope and retains its cleanup and panic handling. Closure trampolines get
+invocation-local capture identities: returning a nested closure does not retain
+the creator's expired stack slot. Assignment preserves the destination's slot
+while evaluating the right-hand side first.
 
-The rest of this document describes the recovered prototype and historical
-evidence, not acceptance of current main.
+Four preserved controls observe two distinct zero-sized C locals. Their frozen
+GCC oracle is retained; a second explicit contract changes only the seventeenth
+comparison when C allocates those locals together. Rust must match the actual
+C execution byte for byte in every mode. These four controls run in the required
+interface matrix rather than the general fixed-output native suite, which now
+contains 377 fixtures. No source or historical oracle is rewritten.
 
-The shared front end checks structural satisfaction. Interface parameters in C
-carry a borrowed opaque pointer; equality observes the identity of source storage.
-Rust now transports a private storage descriptor and tracks typed relationships
-between storage slots using actual C field offsets. This adds no dynamic dispatch
-or shared satisfaction changes. Native interface ABI transport remains required.
+`make test-rust-parity-interfaces` requires the complete 22-source matrix,
+frozen source hashes, successful C/Rust execution, exact raw output equality,
+and the independent contracts. Twelve further audits require zero provenance
+metadata entries after scope exit, array growth, escaping captures and returned
+arrays. Both gates are required on Linux, macOS and Windows in unified CI.
+Local validation passes; hosted acceptance of this increment is pending.
 
-Field metadata caches its storage key during construction and refreshes nested
-relationships after replacement. Identity lookup can therefore preserve a
-borrowed argument without reacquiring its payload lock. Readonly aggregate
-transport retains the caller's storage origin; owning copies clear that origin.
-Compiler-private origin state is excluded from normal value equality and reflection.
+Evidence: [storage and closure validation](rust-parity-evidence/interface-storage-current-validation.json),
+[earlier recovery](rust-parity-evidence/interface-recovery-current-validation.json).
+Native interface ABI remains unfinished: C can pass a borrowed opaque pointer
+into native code for field reads and writes, whereas Rust still rejects that
+boundary. Retained native storage, native callbacks and ownership composition
+require further implementation and evidence before full backend completion.
 
-Nineteen sources pass 171 independent raw-output comparisons over O0/O1/O2
-and default, checked and unchecked arithmetic. They include the two unchanged
-original interface tests, value/reference/capture/temporary controls,
-serialization handles, inline parent/field aliases, readonly borrowed parameters,
-distinct empty locals, zero-stride empty arrays, retained interface values across
-replacement, destination assignment and copying, array copies/slices/growth,
-field/captured arrays and uninitialized records. Existing C closure snapshot
-semantics are preserved; identity reads borrow the snapshot's storage.
+For executable compilation use `--target rust`; `SN_CC` selects the C compiler
+for scope support. `--emit-rust` reports an error for programs requiring C scope
+storage because one Rust source file cannot include the required C unit.
+Programs without that support requirement retain ordinary Rust source emission.
 
-Provenance edges belong to shared lifetime tokens. The final owner removes its
-edges, including edges created before moves and reallocations. Owning copies get
-new tokens; readonly shared transports retain their token. This state is private
-and excluded from source value equality, reflection and native C record layouts.
-Twelve mandatory emitted-Rust audits require zero remaining metadata entries
-after 1,000 scope exits, array growth, escaping captures and returned arrays, at
-all three optimization levels. Complete local C and Rust suites pass with zero
-failures/skips. All 1365 original source hashes remain unchanged.
+## Metadata ownership
 
-The historical gate was `make test-rust-parity-interfaces`; it is not yet
-restored to the acceptance matrix because the portability failure is unresolved.
-Its source hashes and raw output contracts are retained in
-`scripts/check_rust_interface_oracles.py`.
-Lifetime audits run through `scripts/check_rust_interface_lifetimes.py`. Current local
-fixture discovery includes 381 positive native fixtures; none of this interface
-recovery has been added to hosted CI.
+Field metadata caches its storage key and refreshes nested relationships after
+replacement. Readonly aggregate transport retains its origin, while owning
+copies receive independent metadata owners. Provenance edges belong to lifetime
+tokens; the final owner removes its edges, including links created before moves
+and reallocations. Compiler-private state is excluded from value equality,
+reflection and native C record layouts.
 
 ## C layouts and identity requirements
 
@@ -85,8 +81,8 @@ synthetic header offsets. This audit is Linux evidence; other platforms still
 require their own acceptance.
 
 The implementation preserves the checked relationships between copies, aliases
-and destination slots. Empty source values receive private Rust storage while
-array provenance uses the C element stride, including zero stride. Record-array
+and destination slots. Empty source locals use C scope storage; array provenance uses the C element
+stride, including zero stride. Record-array
 literals reserve C's minimum initial capacity, and tested mutations refresh their
 storage relationships.
 
@@ -108,5 +104,4 @@ Local records are retained under `.sn/interface-owned-metadata-main-validation.j
 `.sn/interface-c-layout-audit.json`,
 `.sn/interface-identity-layout-audit.json` and their referenced reports. Source
 admission, complete C/Rust suites, mandatory platform gates, current-main
-composition and Linux/macOS/Windows hosted evidence are required before publishing
-this implementation as accepted.
+composition and Linux/macOS/Windows hosted evidence are required for full backend completion.

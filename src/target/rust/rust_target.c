@@ -1,6 +1,7 @@
 #include "target/target.h"
 #include "target/rust/rust_render.h"
 #include "target/rust/rust_native.h"
+#include "target/rust/rust_native_internal.h"
 #include "target/rust/projection/rust_model.h"
 #include "debug.h"
 #include <ctype.h>
@@ -156,6 +157,7 @@ static bool rust_check_toolchain(const CompilerOptions *options)
 #include "rust_native_handle_nodes.c"
 #include "rust_zero_records.c"
 #include "rust_interfaces.c"
+#include "rust_interface_scopes.c"
 
 static bool rust_emit(CompilerOptions *options, Module *module,
                       TargetEmitMode mode, GeneratedFileSet *result)
@@ -404,6 +406,12 @@ static bool rust_emit(CompilerOptions *options, Module *module,
         json_object_object_add(model, "rust_native_field_types", types);
     }
 
+    if (!rust_prepare_interface_scopes(model, native_plan)) { json_object_put(model); return false; }
+    if (mode == TARGET_EMIT_SINGLE && rust_native_plan_has_work(native_plan))
+    {
+        fprintf(stderr, "Error: --emit-rust cannot represent C interface scope storage; build the Rust target executable instead\n");
+        json_object_put(model); return false;
+    }
     char *code = rust_render_model(model, template_dir);
     json_object_put(model);
     if (!code) return false;

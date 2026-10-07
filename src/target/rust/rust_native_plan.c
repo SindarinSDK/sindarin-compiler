@@ -30,6 +30,7 @@ struct RustNativePlan {
     json_object *array_support;
     json_object *record_support;
     json_object *callback_support;
+    json_object *interface_support;
 };
 
 /* Shared privately by the Rust-native rendering/build translation units. */
@@ -56,6 +57,18 @@ json_object *rust_native_plan_record_support(RustNativePlan *plan)
 json_object *rust_native_plan_callback_support(RustNativePlan *plan)
 {
     return plan ? plan->callback_support : NULL;
+}
+
+json_object *rust_native_plan_interface_support(RustNativePlan *plan)
+{
+    return plan ? plan->interface_support : NULL;
+}
+
+bool rust_native_plan_set_interface_support(RustNativePlan *plan, json_object *support)
+{
+    if (!plan || plan->interface_support || !support) return false;
+    plan->interface_support = json_object_get(support);
+    return true;
 }
 
 static const char *native_string(json_object *object, const char *key)
@@ -1714,7 +1727,7 @@ bool rust_native_validate_declaration(const RustNativePlan *plan,
 bool rust_native_plan_has_work(const RustNativePlan *plan)
 {
     if (!plan) return false;
-    if (plan->declaration_count > 0 ||
+    if (plan->interface_support || plan->declaration_count > 0 ||
         (plan->handles && json_object_array_length(plan->handles) > 0) ||
         (plan->split && (plan->split->source_file_count > 0 ||
                          plan->split->link_lib_count > 0))) return true;
@@ -1734,6 +1747,7 @@ void rust_native_plan_free(void *opaque)
     if (plan->array_support) json_object_put(plan->array_support);
     if (plan->record_support) json_object_put(plan->record_support);
     if (plan->callback_support) json_object_put(plan->callback_support);
+    if (plan->interface_support) json_object_put(plan->interface_support);
     for (size_t i = 0; i < plan->declaration_count; i++)
     {
         free(plan->declarations[i].rust_callable_name);

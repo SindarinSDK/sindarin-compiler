@@ -1,0 +1,20 @@
+interface CaptureIdentity =>
+  fn toString(): str
+struct CaptureEmpty =>
+  fn toString(): str =>
+    return "empty"
+fn sameCapture(left: CaptureIdentity, right: CaptureIdentity): bool =>
+  return left == right
+fn captureEmpty(left: CaptureEmpty, right: CaptureEmpty): fn(): bool =>
+  return fn(): bool => sameCapture(left, right)
+fn nestedEmpty(left: CaptureEmpty, right: CaptureEmpty): fn(): fn(): bool =>
+  return fn(): fn(): bool =>
+    return fn(): bool => sameCapture(left, right)
+fn main(): void =>
+  var first: CaptureEmpty = {}
+  var second: CaptureEmpty = {}
+  var check = captureEmpty(first, second)
+  println(check())
+  var factory = nestedEmpty(first, second)
+  var child = factory()
+  println(child())

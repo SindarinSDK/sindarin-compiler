@@ -134,5 +134,18 @@ bool rust_native_emit_support(RustNativePlan *plan, GeneratedFileSet *files,
         if (!generated_file_set_add(files, "sn_native_callbacks.c", code, GENERATED_SOURCE, false))
         { free(code); return false; }
     }
+    json_object *interfaces = rust_native_plan_interface_support(plan);
+    if (interfaces)
+    {
+        written = snprintf(template_dir, sizeof(template_dir),
+                           "%s/templates/rust/native_interfaces", compiler_dir);
+        if (written < 0 || (size_t)written >= sizeof(template_dir)) return false;
+        char *code = render_with_helpers(interfaces, template_dir,
+            gen_model_get_min_c_register_fn(), "Rust interface scope storage");
+        if (!code) return false;
+        if (!generated_file_set_add(files, "sn_interface_scopes.c", code,
+                                    GENERATED_SOURCE, false))
+        { free(code); return false; }
+    }
     return true;
 }

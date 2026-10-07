@@ -1,0 +1,19 @@
+{{#each rust_interface_scopes}}extern "C" {
+    fn {{rust_ident name}}({{#each parameters}}_: {{rust_type layout_type}}, {{/each}}state: *mut std::ffi::c_void, body: unsafe extern "C" fn(*mut std::ffi::c_void, *const *mut std::ffi::c_void));
+}
+fn {{rust_ident rust_name}}<F, R>(body: F) -> R where F: FnOnce(&[*mut std::ffi::c_void]) -> R {
+    struct State<F, R> { body: Option<F>, result: Option<std::thread::Result<R>> }
+    unsafe extern "C" fn invoke<F, R>(state: *mut std::ffi::c_void, addresses: *const *mut std::ffi::c_void) where F: FnOnce(&[*mut std::ffi::c_void]) -> R {
+        let state = &mut *(state as *mut State<F, R>);
+        let body = state.body.take().expect("interface scope executes once");
+        state.result = Some(std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| body(std::slice::from_raw_parts(addresses, {{count}})))));
+    }
+    let mut state = State { body: Some(body), result: None };
+    unsafe { {{rust_ident name}}({{#each parameters}}std::mem::zeroed::<{{rust_type layout_type}}>(), {{/each}}(&mut state as *mut State<F, R>).cast(), invoke::<F, R>); }
+    match state.result.expect("interface scope returned") {
+        Ok(value) => value,
+        Err(payload) => std::panic::resume_unwind(payload),
+    }
+}
+
+{{/each}}{{~!-- trim EOF --~}}

@@ -29,14 +29,14 @@
       "group": "rust"
     },
     {
-      "name": "native scalar, record and managed ABI fixtures (364 fixtures)",
+      "name": "native scalar, record and managed ABI fixtures (377 fixtures)",
       "command": [
         "{python}",
         "scripts/run_rust_tests.py",
         "rust-native-extra",
         "--verbose",
         "--require-count",
-        "364",
+        "377",
         "--fail-on-skip"
       ],
       "linux_only": false,
@@ -1223,6 +1223,28 @@
       "env": {
         "SN_RUSTFLAGS": ""
       }
+    },
+    {
+      "id": "runtime-101",
+      "name": "structural interfaces and C storage scopes (198 cases)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-interfaces"
+      ],
+      "group": "core",
+      "linux_only": false
+    },
+    {
+      "id": "runtime-102",
+      "name": "interface metadata lifetime ownership (12 audits)",
+      "command": [
+        "{python}",
+        "scripts/check_rust_interface_lifetimes.py"
+      ],
+      "group": "core",
+      "linux_only": false
     }
   ]
 }

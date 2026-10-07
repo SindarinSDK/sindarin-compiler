@@ -5,6 +5,37 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Interface C storage and closure scopes: local verification, 2026-10-07
+
+The recovered interface implementation now uses the selected C compiler for
+zero-sized function, method and closure scope storage. C closure bodies copy
+captured value records into invocation-local slots; Rust now preserves that
+identity for escaping and nested captures as well. Assignments retain the
+existing destination identity and evaluate the source value first.
+
+The required matrix passes all 198 comparisons across 22 frozen sources under
+both GCC and Clang on ARM64 Linux, covering nine optimization/arithmetic modes.
+It includes both unchanged original interface programs. Existing sources and
+oracles are preserved. Four compiler-sensitive empty-local controls retain their
+historical literal oracle plus one explicit C-supported alternative, with exact
+C/Rust output equality still mandatory. Eighteen new storage probes additionally
+compare actual compiler-selected identity directly against C.
+
+All 505 Rust generation tests, 119 rejection tests, 377 fixed-output native
+fixtures and twelve provenance lifetime audits pass locally. Complete C suites
+pass. Interface matrix and lifetime gates are added to all three CI platforms;
+the catalog retains every previous gate and now requires 267 executions across
+26 groups. Hosted acceptance of this increment is pending. Base main `d928d615`
+has green three-platform CI: [run 37657799360](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37657799360).
+
+Native opaque interface parameters remain rejected. A fresh C-valid field
+read/write and identity probe passes C in all nine modes while Rust rejects its
+native signature. Native ABI and retained storage are next implementation work;
+this increment does not establish full goal completion or corpus-wide acceptance.
+
+Evidence: [current validation](rust-parity-evidence/interface-storage-current-validation.json),
+[implementation and limits](rust-structural-interfaces.md).
+
 ## Value-record reference capture snapshots: local verification, 2026-10-07
 
 Rust previously rejected the unchanged C regression

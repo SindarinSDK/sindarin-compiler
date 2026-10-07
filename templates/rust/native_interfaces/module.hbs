@@ -1,0 +1,26 @@
+#include <stdbool.h>
+#include <stdint.h>
+#include <stddef.h>
+
+{{#each layouts}}typedef struct {{#if packed}}__attribute__((packed)) {{/if}}{
+{{#each fields}}    {{c_type type}} {{name}};
+{{/each}}
+} __sn__{{name}};
+
+{{/each}}static bool __sn_interface_parameter_same(void *left, void *right) {
+    return left == right;
+}
+
+{{#each scopes}}void {{name}}({{#each parameters}}{{c_type layout_type}} parameter_{{index}}, {{/each}}void *state, void (*body)(void *, void *const *)) {
+{{#each bindings}}    {{c_type layout_type}} storage_{{index}};
+{{/each}}    void *addresses[] = { {{#each bindings}}{{#if @index}}, {{/if}}&storage_{{index}}{{/each}} };
+    /* An optimizer may distinguish empty formal objects even when the ABI
+       assigns them the same numeric address. Keep the source compiler's
+       object comparison rather than deriving it from erased address bits. */
+{{#each parameters}}{{#each prior_parameters}}    if (__sn_interface_parameter_same(&parameter_{{../index}}, &parameter_{{index}}))
+        addresses[{{../index}}] = addresses[{{index}}];
+{{/each}}{{/each}}
+    body(state, addresses);
+}
+
+{{/each}}

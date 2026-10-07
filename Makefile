@@ -1479,3 +1479,7 @@ test-rust-parity-native-callbacks: build
 		--require-count 68 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-native-callbacks.json
 	@$(PYTHON) scripts/check_rust_native_callback_oracles.py .sn/rust-parity-native-callbacks.json
+
+.PHONY: test-rust-parity-interfaces
+test-rust-parity-interfaces: build
+	@$(PYTHON) scripts/check_rust_interfaces.py
