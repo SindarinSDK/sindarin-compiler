@@ -727,7 +727,10 @@
       ],
       "linux_only": false,
       "id": "runtime-060",
-      "group": "callbacks"
+      "group": "callbacks",
+      "env": {
+        "SN_COMPILER_BACKTRACE": "1"
+      }
     },
     {
       "name": "native callback C lifetimes (204 sanitizer cases)",

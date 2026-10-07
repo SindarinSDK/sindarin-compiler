@@ -71,13 +71,14 @@ def main():
     if os.name == 'nt':
         expected = expected.replace(b'\n', b'\r\n')
     environment = os.environ.copy()
+    environment['SN_COMPILER_BACKTRACE'] = '1'
     if platform.system() == 'Darwin':
         environment.update(MallocScribble='1', MallocPreScribble='1')
     report = {'compiler_sha256': hashlib.sha256(compiler.read_bytes()).hexdigest(),
               'source': SOURCE, 'source_sha256': source_hash,
               'platform': platform.system(), 'repeat': args.repeat, 'cases': [],
               'environment': {key: environment.get(key) for key in
-                              ('MallocScribble', 'MallocPreScribble')}}
+                              ('SN_COMPILER_BACKTRACE', 'MallocScribble', 'MallocPreScribble')}}
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix='sn-native-nil-compiler-') as folder:
         executable = Path(folder) / 'program.exe'

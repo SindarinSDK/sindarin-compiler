@@ -5,6 +5,34 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Actual-process compiler crash tracing and original corpus audit, 2026-10-07
+
+The Windows core gate now passes on corrective run `37677690009`. The macOS
+native nil compiler crash recurred in both the full callback gate and the
+repeated regression. Its LLDB diagnostic invocation succeeded, so that log does
+not explain the original fault. An opt-in `SN_COMPILER_BACKTRACE=1` handler now
+records the stack inside the actual faulting compiler process on macOS/Linux,
+while preserving the fatal signal. Callback CI and the repeated compiler gate
+enable it; normal compiler invocation retains its default signal behaviour.
+The local forced-SIGSEGV contract preserves exit status -11 with tracing either
+on or off. The unchanged native nil source passes its eighteen local repeated
+cases and all nine C/Rust mode comparisons with tracing enabled. Mac root cause
+and hosted acceptance remain pending; feature publication remains frozen.
+
+A fresh original-program audit executes all 1,365 tagged integration/exploratory
+programs through Rust with their unchanged C-harness contracts at O0/debug on
+Linux. All pass, with zero skips. All 1,155 tagged output-oracle files match.
+One historical fixture differs from the tag: the current closure-array control
+adds synchronization. The audit stages and compiles the exact original bytes
+separately, leaving the synchronized current file intact. This execution result
+does not establish defined concurrent-race semantics or all-mode raw parity.
+An initial custom executable basename violated the `test_main_args` argv[0]
+contract; that invalid harness result is retained and the case passes using its
+standard test filename. No program or expected output is changed for this audit.
+
+Evidence: [crash trace contract](rust-parity-evidence/compiler-crash-trace-validation.json),
+[original corpus result and limits](rust-parity-evidence/original-corpus-current-validation.json).
+
 ## CI correction and native nil compiler investigation, 2026-10-07
 
 The required Windows interface lifetime audit failed because it applied the CRT

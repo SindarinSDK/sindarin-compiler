@@ -10,6 +10,7 @@
 #include "cgen/gen_model.h"
 #include "cgen/gen_model_render.h"
 #include "cgen/gen_model_split.h"
+#include "compiler_crash_trace.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -216,6 +217,7 @@ static int compile_to_executable(CompilerOptions *options, CCBackendConfig *cc_c
 
 int main(int argc, char **argv)
 {
+    compiler_install_crash_trace();
     CompilerOptions options;
     CCBackendConfig cc_config;
 
