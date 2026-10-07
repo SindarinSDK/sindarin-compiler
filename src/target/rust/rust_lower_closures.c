@@ -66,6 +66,8 @@ static void rust_closure_name_types(json_object *node, const char *name, const c
         json_object_object_add(node, "rust_closure_handle_name", json_object_new_string(name));
     if (json_boolean_property(node, "rust_closure_scalar_reference"))
         json_object_object_add(node, "rust_closure_scalar_ref_type", json_object_new_string(scalar_ref));
+    if (json_boolean_property(node, "rust_owned_scalar_parameter"))
+        json_object_object_add(node, "rust_closure_scalar_ref_type", json_object_new_string(scalar_ref));
 }
 
 static json_object *rust_scalar_reference_target(json_object *model, json_object *node);
@@ -290,7 +292,11 @@ static void rust_lower_closure_array_arguments(json_object *model, json_object *
     {
         json_object *call_args = rust_closure_property(node, "args");
         for (size_t i = 0; i < rust_closure_length(call_args); i++)
-            scalar_native |= json_boolean_property(json_object_array_get_idx(call_args, i), "rust_closure_scalar_reference");
+            scalar_native |= json_boolean_property(json_object_array_get_idx(call_args, i), "rust_closure_scalar_reference") ||
+                json_boolean_property(json_object_array_get_idx(call_args, i), "rust_closure_scalar_owned_source") ||
+                (json_boolean_property(model, "rust_has_owned_borrow_captures") &&
+                 json_boolean_property(json_object_array_get_idx(call_args, i), "rust_thread_field") &&
+                 json_boolean_property(json_object_array_get_idx(call_args, i), "is_ref_arg"));
     }
     if (!json_boolean_property(node, "rust_closure_call") && !scalar_direct && !scalar_native)
     {

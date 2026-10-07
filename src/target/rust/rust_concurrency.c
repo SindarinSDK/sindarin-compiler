@@ -71,6 +71,10 @@ static json_object *rust_concurrency_bind_args(json_object *call, const char *pr
         json_object_object_del(read, "rust_cell");
         json_object_object_del(read, "rust_global");
         json_object_object_del(read, "rust_thread_array_global");
+        if (json_boolean_property(arg, "rust_owned_scalar_place_arg")) {
+            json_object_object_add(read, "rust_owned_scalar_place_parameter", json_object_new_boolean(true));
+            json_object_object_del(read, "rust_owned_scalar_place_field");
+        }
         if (json_boolean_property(arg, "rust_thread_default_array_arg")) {
             /* Own the staged array across spawn; borrow that owned value only
              * inside the worker to satisfy the ordinary function signature. */
@@ -179,6 +183,11 @@ static void rust_concurrency_annotate(json_object *node, const char *prefix,
     if ((strcmp(kind, "increment") == 0 || strcmp(kind, "decrement") == 0) &&
         !json_boolean_property(node, "rust_tagged_sync_postfix"))
         json_object_object_add(node, "mutation_sync", json_object_new_boolean(false));
+    if (json_boolean_property(node, "rust_owned_scalar_parameter") &&
+        json_string_property(model, "rust_owned_thread_scalar_type")) {
+        rust_concurrency_string(node, "rust_closure_scalar_ref_type", json_string_property(model, "rust_owned_thread_scalar_type"));
+        json_object_object_add(node, "rust_owned_scalar_thread_type", json_object_new_boolean(true));
+    }
     if (strcmp(kind, "function") == 0 && json_boolean_property(model, "rust_thread_ownership"))
         json_object_object_add(node, "rust_thread_ownership", json_object_new_boolean(true));
     if (json_boolean_property(node, "rust_thread_array_read"))
@@ -374,9 +383,18 @@ static void rust_lower_concurrency(json_object *model)
         for (size_t i = 0; i < json_object_array_length(declared_globals); i++)
             json_object_object_add(json_object_array_get_idx(declared_globals, i),
                 "rust_global", json_object_new_boolean(true));
-    json_object_object_add(model, "rust_thread_ownership", json_object_new_boolean(!array_is_empty(model, "threads")));
+    bool shared_global_owner = false;
+    for (size_t i = 0; declared_globals && i < json_object_array_length(declared_globals); i++)
+        shared_global_owner |= json_boolean_property(json_object_array_get_idx(declared_globals, i), "rust_thread_ref_storage");
+    json_object_object_add(model, "rust_thread_ownership", json_object_new_boolean(
+        !array_is_empty(model, "threads") || shared_global_owner));
     char capture_name[160]; snprintf(capture_name, sizeof(capture_name), "%sCapture", prefix);
     rust_concurrency_string(model, "rust_thread_capture_cell", capture_name);
+    if (json_boolean_property(model, "rust_has_owned_borrow_captures") &&
+        json_boolean_property(model, "rust_thread_ownership")) {
+        char owner_name[160]; snprintf(owner_name, sizeof(owner_name), "%sOwnedScalar", prefix);
+        rust_concurrency_string(model, "rust_owned_thread_scalar_type", owner_name);
+    }
     rust_concurrency_annotate(model, prefix, join_name, model);
     rust_concurrency_string(model, "rust_join_type", join_name);
     char cell_type[160];

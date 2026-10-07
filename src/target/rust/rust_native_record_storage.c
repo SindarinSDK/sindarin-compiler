@@ -121,3 +121,24 @@ static void rust_lower_native_record_storage(json_object *model, json_object *no
         }
     }
 }
+/* Native wire descriptors precede closure ownership preparation. Refresh the
+ * source-field representation after that preparation, before rendering. */
+static void rust_prepare_native_record_field_owners(json_object *model)
+{
+    json_object *records = rust_nullable_child(model, "rust_native_records");
+    json_object *structures = rust_nullable_child(model, "structs");
+    for (size_t r = 0; records && r < json_object_array_length(records); r++)
+    {
+        json_object *record = json_object_array_get_idx(records, r);
+        for (size_t s = 0; structures && s < json_object_array_length(structures); s++)
+        {
+            json_object *structure = json_object_array_get_idx(structures, s);
+            if (!json_string_property_equals(structure, "name", json_string_property(record, "source_name"))) continue;
+            if (!json_boolean_property(structure, "rust_thread_fields")) break;
+            json_object *fields = rust_nullable_child(record, "fields");
+            for (size_t f = 0; fields && f < json_object_array_length(fields); f++)
+                json_object_object_add(json_object_array_get_idx(fields, f), "rust_native_owned_field", json_object_new_boolean(true));
+            break;
+        }
+    }
+}

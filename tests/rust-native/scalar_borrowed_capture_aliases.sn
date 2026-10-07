@@ -1,0 +1,14 @@
+fn make(a: int as ref, b: int as ref): fn(): int =>
+  return fn(): int =>
+    a += 1
+    b += 2
+    return a * 100 + b
+
+fn main(): void =>
+  var same: int = 7
+  var shared: fn(): int = make(same, same)
+  println(shared() == 1010 && same == 10)
+  var first: int = 7
+  var second: int = 20
+  var distinct: fn(): int = make(first, second)
+  println(distinct() == 822 && first == 8 && second == 22)

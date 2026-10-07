@@ -371,6 +371,7 @@ static bool rust_emit(CompilerOptions *options, Module *module,
         }
     }
     if (!rust_lower_physical_receivers(model)) { json_object_put(model); return false; }
+    rust_prepare_native_record_field_owners(model);
     char *code = rust_render_model(model, template_dir);
     json_object_put(model);
     if (!code) return false;

@@ -1,0 +1,14 @@
+fn make(value: int as ref): fn(): int =>
+  return fn(): int => value
+
+native fn update(a: int as ref, b: int as ref): int =>
+  a += 1
+  b += 2
+  return a
+
+fn main(): void =>
+  var value: int = 7
+  var action: fn(): int = make(value)
+  println(update(value, value) == 10 && value == 10 && action() == 10)
+  var other: int = 20
+  println(update(value, other) == 11 && value == 11 && other == 22 && action() == 11)

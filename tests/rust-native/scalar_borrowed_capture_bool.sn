@@ -1,0 +1,9 @@
+fn make(value: bool as ref): fn(): bool =>
+  return fn(): bool => value
+
+fn main(): void =>
+  var value: bool = false
+  var action: fn(): bool = make(value)
+  println(!action())
+  value = true
+  println(action())

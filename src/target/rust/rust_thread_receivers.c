@@ -122,6 +122,13 @@ static void rust_thread_receiver_prepare_nodes(json_object *model, json_object *
     }
     json_object *place = NULL;
     const char *kind = json_string_property(node, "kind");
+    if (kind && strcmp(kind, "assign") == 0 && rust_thread_receiver_type(type, names)) {
+        json_object *structure = rust_find_struct(model, json_string_property(rust_thread_receiver_base(type), "name"));
+        if (json_boolean_property(structure, "rust_captured_scalar_fields")) {
+            json_object_object_add(node, "rust_record_reference_assign", json_object_new_boolean(true));
+            json_object_object_add(model, "rust_uses_record_reference_assign", json_object_new_boolean(true));
+        }
+    }
     const char *place_key = kind && strcmp(kind, "compound_assign") == 0 ? "target" :
         kind && (strcmp(kind, "increment") == 0 || strcmp(kind, "decrement") == 0) ? "operand" : NULL;
     if (place_key && json_object_object_get_ex(node, place_key, &place) &&
@@ -309,6 +316,13 @@ static void rust_thread_receiver_lower(json_object *node, json_object *names, js
             if (json_string_property_equals(json_object_array_get_idx(fields, i), "name", field_name))
             {
                 json_object_object_add(node, "rust_thread_field", json_object_new_boolean(true));
+                json_object *field = json_object_array_get_idx(fields, i);
+                if (json_string_property_equals(node, "kind", "member_assign") &&
+                    json_boolean_property(field, "rust_captured_scalar_nested_field"))
+                {
+                    json_object_object_add(node, "rust_captured_scalar_nested_assign", json_object_new_boolean(true));
+                    json_object_object_add(model, "rust_uses_record_reference_assign", json_object_new_boolean(true));
+                }
                 if (json_boolean_property(structure, "rust_thread_reference_identity"))
                     json_object_object_add(node, "rust_reference_field", json_object_new_boolean(true));
                 /* Project a nested record through shared field owners. A deep

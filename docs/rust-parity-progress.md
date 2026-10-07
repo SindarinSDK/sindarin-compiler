@@ -5,7 +5,15 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
-## Physical value-record receivers, 2026-10-06 — unpublished
+## Borrowed scalar captures: local acceptance verified, 2026-10-07
+
+The pending increment preserves the caller’s scalar storage in escaping and nested closures. It covers all scalar kinds, aliased references, qualified factory copies, globals, thread transport, record fields and nested fields, owner-preserving record assignments, native scalar mutation, and native record value arguments/results. The original borrowed-capture source is promoted byte-for-byte from an error fixture. C closure capture fields now hold and dereference caller pointers, and copied function handles retain their closure owners.
+
+The permanent gate passes all 21 sources and 189 optimization/arithmetic comparisons, with 63 sanitizer executions per backend. Both complete local suites pass without failures or skips. All 89 required commands pass after repairing a fixed-count packaging mistake. The strict verifier confirms 65 reports and 5,961 cases against 6,925 frozen inputs. All 1,365 original corpus sources are unchanged. The discarded packaging run is retained separately. This increment has not been published.
+
+Native record references combined with captured fields remain rejected: source fields use shared owner storage while C requires a persistent compatible record layout and may retain the actual record address. Temporary copy-back is insufficient. Native closure callbacks also remain rejected. These are unresolved parity gaps, alongside borrowed method-self captures, interface identity, native string aliases and wider native array formats and lifetimes.
+
+## Physical value-record receivers, 2026-10-06 — published as `adaf1351`
 
 The prepared Rust change gives plain scalar-field record arrays a stable owned
 header and raw buffer with C's minimum capacity and doubling policy. Clones

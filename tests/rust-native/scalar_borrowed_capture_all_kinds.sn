@@ -1,0 +1,81 @@
+fn make_int(value: int as ref): fn(): int =>
+  return fn(): int => value
+
+fn make_long(value: long as ref): fn(): long =>
+  return fn(): long => value
+
+fn make_int32(value: int32 as ref): fn(): int32 =>
+  return fn(): int32 => value
+
+fn make_uint(value: uint as ref): fn(): uint =>
+  return fn(): uint => value
+
+fn make_uint32(value: uint32 as ref): fn(): uint32 =>
+  return fn(): uint32 => value
+
+fn make_byte(value: byte as ref): fn(): byte =>
+  return fn(): byte => value
+
+fn make_float(value: float as ref): fn(): float =>
+  return fn(): float => value
+
+fn make_double(value: double as ref): fn(): double =>
+  return fn(): double => value
+
+fn make_char(value: char as ref): fn(): char =>
+  return fn(): char => value
+
+fn make_bool(value: bool as ref): fn(): bool =>
+  return fn(): bool => value
+
+fn main(): void =>
+  var value_int: int = 7
+  var action_int: fn(): int = make_int(value_int)
+  println(action_int() == 7)
+  value_int = 9
+  println(action_int() == 9)
+  var value_long: long = 7
+  var action_long: fn(): long = make_long(value_long)
+  println(action_long() == 7)
+  value_long = 9
+  println(action_long() == 9)
+  var value_int32: int32 = 7i32
+  var action_int32: fn(): int32 = make_int32(value_int32)
+  println(action_int32() == 7i32)
+  value_int32 = 9i32
+  println(action_int32() == 9i32)
+  var value_uint: uint = 7u
+  var action_uint: fn(): uint = make_uint(value_uint)
+  println(action_uint() == 7u)
+  value_uint = 9u
+  println(action_uint() == 9u)
+  var value_uint32: uint32 = 7u32
+  var action_uint32: fn(): uint32 = make_uint32(value_uint32)
+  println(action_uint32() == 7u32)
+  value_uint32 = 9u32
+  println(action_uint32() == 9u32)
+  var value_byte: byte = 7b
+  var action_byte: fn(): byte = make_byte(value_byte)
+  println(action_byte() == 7b)
+  value_byte = 9b
+  println(action_byte() == 9b)
+  var value_float: float = 1.0
+  var action_float: fn(): float = make_float(value_float)
+  println(action_float() == 1.0)
+  value_float = 2.5
+  println(action_float() == 2.5)
+  var value_double: double = 1.0
+  var action_double: fn(): double = make_double(value_double)
+  println(action_double() == 1.0)
+  value_double = 2.5
+  println(action_double() == 2.5)
+  var value_char: char = 'a'
+  var action_char: fn(): char = make_char(value_char)
+  println(action_char() == 'a')
+  value_char = 'z'
+  println(action_char() == 'z')
+  var value_bool: bool = false
+  var action_bool: fn(): bool = make_bool(value_bool)
+  println(action_bool() == false)
+  value_bool = true
+  println(action_bool() == true)

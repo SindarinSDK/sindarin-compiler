@@ -1,0 +1,11 @@
+fn make(value: int as ref): fn(): int =>
+  return fn(): int =>
+    value += 1
+    return value
+
+fn main(): void =>
+  var value: int = 7
+  var action: fn(): int = make(value)
+  println(action() == 8 && value == 8)
+  value = 20
+  println(action() == 21 && value == 21)

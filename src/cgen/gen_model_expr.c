@@ -137,11 +137,14 @@ static const char *c_escape_string(Arena *arena, const char *src)
 typedef struct {
     char **names;
     Type **types;
+    bool *borrowed_refs;
     int count;
     int capacity;
 } ModelCaptures;
 
-static void mc_init(ModelCaptures *mc) { mc->names = NULL; mc->types = NULL; mc->count = 0; mc->capacity = 0; }
+static ModelCaptures *c_borrowed_capture_context = NULL;
+
+static void mc_init(ModelCaptures *mc) { mc->names = NULL; mc->types = NULL; mc->borrowed_refs = NULL; mc->count = 0; mc->capacity = 0; }
 
 static void mc_add(ModelCaptures *mc, Arena *arena, const char *name, Type *type)
 {
@@ -151,12 +154,31 @@ static void mc_add(ModelCaptures *mc, Arena *arena, const char *name, Type *type
         int new_cap = mc->capacity == 0 ? 4 : mc->capacity * 2;
         char **nn = arena_alloc(arena, new_cap * sizeof(char *));
         Type **nt = arena_alloc(arena, new_cap * sizeof(Type *));
-        for (int i = 0; i < mc->count; i++) { nn[i] = mc->names[i]; nt[i] = mc->types[i]; }
-        mc->names = nn; mc->types = nt; mc->capacity = new_cap;
+        bool *nr = arena_alloc(arena, new_cap * sizeof(bool));
+        for (int i = 0; i < mc->count; i++) { nn[i] = mc->names[i]; nt[i] = mc->types[i]; nr[i] = mc->borrowed_refs[i]; }
+        mc->names = nn; mc->types = nt; mc->borrowed_refs = nr; mc->capacity = new_cap;
     }
     mc->names[mc->count] = arena_strdup(arena, name);
     mc->types[mc->count] = type;
+    mc->borrowed_refs[mc->count] = false;
     mc->count++;
+}
+
+static void mc_mark_borrowed_ref(ModelCaptures *caps, const char *name)
+{
+    for (int i = 0; i < caps->count; i++)
+        if (strcmp(caps->names[i], name) == 0) caps->borrowed_refs[i] = true;
+}
+
+static void mc_mark_borrowed_source(ModelCaptures *caps, const char *name, Type *type, bool parameter)
+{
+    if (!parameter || !type || !(c_model_numeric_scalar_type(type) || type->kind == TYPE_BOOL)) return;
+    for (int i = 0; i < g_as_ref_param_count; i++)
+        if (strcmp(g_as_ref_param_names[i], name) == 0) mc_mark_borrowed_ref(caps, name);
+    if (c_borrowed_capture_context)
+        for (int i = 0; i < c_borrowed_capture_context->count; i++)
+            if (c_borrowed_capture_context->borrowed_refs[i] && strcmp(c_borrowed_capture_context->names[i], name) == 0)
+                mc_mark_borrowed_ref(caps, name);
 }
 
 /* Hoist borrow-tmp args out of inline statement expressions.
@@ -273,8 +295,10 @@ static void mc_collect_expr(Expr *expr, LambdaExpr *lam, ModelCaptures *locals, 
             if (expr->as.variable.declaration_scope_depth > 0 &&
                 expr->as.variable.declaration_scope_depth <= g_prescan_function_entry_depth)
                 break;
-            if (expr->expr_type)
+            if (expr->expr_type) {
                 mc_add(caps, arena, name, expr->expr_type);
+                mc_mark_borrowed_source(caps, name, expr->expr_type, expr->as.variable.is_param_ref);
+            }
         }
         break;
     }
@@ -296,7 +320,10 @@ static void mc_collect_expr(Expr *expr, LambdaExpr *lam, ModelCaptures *locals, 
             if (!mc_is_param(lam, name) && !mc_is_local(locals, name) && expr->expr_type &&
                 !(expr->as.assign.lhs_scope_depth > 0 &&
                   expr->as.assign.lhs_scope_depth <= g_prescan_function_entry_depth))
+            {
                 mc_add(caps, arena, name, expr->expr_type);
+                mc_mark_borrowed_source(caps, name, expr->expr_type, expr->as.assign.is_param_ref);
+            }
         }
         break;
     case EXPR_COMPOUND_ASSIGN:
@@ -333,6 +360,7 @@ static void mc_collect_expr(Expr *expr, LambdaExpr *lam, ModelCaptures *locals, 
         for (int i = 0; i < nested_caps.count; i++) {
             if (!mc_is_param(lam, nested_caps.names[i]) && !mc_is_local(locals, nested_caps.names[i])) {
                 mc_add(caps, arena, nested_caps.names[i], nested_caps.types[i]);
+                if (nested_caps.borrowed_refs[i]) mc_mark_borrowed_ref(caps, nested_caps.names[i]);
             }
         }
         break;
@@ -1016,6 +1044,10 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                         }
                     }
                 }
+                if (!mark_captured && expr->as.variable.is_param_ref && c_borrowed_capture_context)
+                    for (int i = 0; i < c_borrowed_capture_context->count; i++)
+                        if (c_borrowed_capture_context->borrowed_refs[i] && strcmp(c_borrowed_capture_context->names[i], stored_name) == 0)
+                            mark_captured = true;
                 if (mark_captured)
                     json_object_object_add(obj, "is_captured", json_object_new_boolean(true));
             }
@@ -3251,6 +3283,8 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     if (strcmp(g_captured_vars[ci], caps.names[i]) == 0) { is_ref = true; break; }
                 }
                 json_object_object_add(cap, "is_ref", json_object_new_boolean(is_ref));
+                if (caps.borrowed_refs[i])
+                    json_object_object_add(cap, "c_borrowed_ref_capture", json_object_new_boolean(true));
 
                 /* Emit per-capture cap_action / cap_cleanup so the closure owns
                  * its captured heap data. Without this, str / refcounted-struct /
@@ -3304,6 +3338,8 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 int previous_parameter_id = c_lambda_parameter_id;
                 c_lambda_parameters = params;
                 c_lambda_parameter_id = lam->lambda_id;
+                ModelCaptures *saved_borrowed_captures = c_borrowed_capture_context;
+                c_borrowed_capture_context = &caps;
                 bool prev_in_lambda = g_in_lambda_body;
                 g_in_lambda_body = true;
                 char **saved_ref_names;
@@ -3346,6 +3382,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 pop_lambda_params(saved_ref_names, saved_ref_count,
                                          saved_all_names, saved_all_count);
                 g_in_lambda_body = prev_in_lambda;
+                c_borrowed_capture_context = saved_borrowed_captures;
                 c_lambda_parameters = previous_parameters;
                 c_lambda_parameter_id = previous_parameter_id;
             }
@@ -3396,6 +3433,8 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                         if (strcmp(g_captured_vars[ci], caps.names[i]) == 0) { lc_is_ref = true; break; }
                     }
                     json_object_object_add(lc, "is_ref", json_object_new_boolean(lc_is_ref));
+                    if (caps.borrowed_refs[i])
+                        json_object_object_add(lc, "c_borrowed_ref_capture", json_object_new_boolean(true));
 
                     if (mc_emit_capture_actions(lc, caps.types[i], lc_is_ref))
                         ldef_has_capture_cleanup = true;
@@ -3446,6 +3485,8 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     int previous_parameter_id = c_lambda_parameter_id;
                     c_lambda_parameters = lparams;
                     c_lambda_parameter_id = lam->lambda_id;
+                    ModelCaptures *saved_borrowed_captures = c_borrowed_capture_context;
+                    c_borrowed_capture_context = &caps;
                     bool prev_in_lambda = g_in_lambda_body;
                     g_in_lambda_body = true;
                     char **saved_ref_names;
@@ -3488,6 +3529,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     pop_lambda_params(saved_ref_names, saved_ref_count,
                                          saved_all_names, saved_all_count);
                     g_in_lambda_body = prev_in_lambda;
+                    c_borrowed_capture_context = saved_borrowed_captures;
                     c_lambda_parameters = previous_parameters;
                     c_lambda_parameter_id = previous_parameter_id;
                 }

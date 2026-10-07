@@ -4,6 +4,8 @@ Current integration progress and verification evidence are maintained in the
 [completion ledger](rust-parity-progress.md). The dated checkpoints below retain
 their historical scope; they do not define the current parity denominator.
 
+The borrowed scalar capture increment passes escaping/nested captures, all scalar kinds, aliases, factory copies, globals, thread transport, field mutation and owner-preserving assignments, native scalar mutation, and native record value argument/result conversion. Its ledger records 189 comparisons and 63 sanitizer cases per backend. Captured-field/native-record reference composition and native callbacks remain unresolved.
+
 The 2026-10-05 managed iterator increment admits strings, arrays and supported
 value/reference records through the existing iterator lowering. It also repairs
 C cleanup for reference iterators, temporary collections and owned array length

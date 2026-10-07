@@ -1376,3 +1376,31 @@ test-rust-parity-physical-receivers: build
 		--require-count 22 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-physical-receivers.json
 	@$(PYTHON) scripts/check_rust_physical_receiver_oracles.py .sn/rust-parity-physical-receivers.json
+
+.PHONY: test-rust-parity-borrowed-captures
+test-rust-parity-borrowed-captures: build
+	@$(PYTHON) scripts/check_rust_parity.py \
+		tests/rust-native/scalar_borrowed_capture_visible.sn \
+		tests/rust-native/scalar_borrowed_capture_nested.sn \
+		tests/rust-native/scalar_borrowed_capture_shadow.sn \
+		tests/rust-native/scalar_borrowed_capture_write_only.sn \
+		tests/rust-native/scalar_borrowed_capture_bool.sn \
+		tests/rust-native/scalar_borrowed_capture_all_kinds.sn \
+		tests/rust-native/scalar_borrowed_capture_aliases.sn \
+		tests/rust-native/scalar_borrowed_capture_native.sn \
+		tests/rust-native/scalar_borrowed_capture_global.sn \
+		tests/rust-native/scalar_borrowed_capture_native_global.sn \
+		tests/rust-native/scalar_borrowed_capture_field.sn \
+		tests/rust-native/scalar_borrowed_capture_field_reassign.sn \
+		tests/rust-native/scalar_borrowed_capture_nested_field.sn \
+		tests/rust-native/scalar_borrowed_capture_native_field.sn \
+		tests/rust-native/scalar_borrowed_capture_nested_reassign.sn \
+		tests/rust-native/scalar_borrowed_capture_subrecord_reassign.sn \
+		tests/rust-native/scalar_borrowed_capture_thread.sn \
+		tests/rust-native/scalar_borrowed_capture_factory.sn \
+		tests/rust-native/scalar_borrowed_capture_factory_alias.sn \
+		tests/rgen/closure_values_borrowed_capture.sn \
+		tests/rust-native/scalar_borrowed_capture_native_record_value.sn \
+		--require-count 21 --arithmetic-mode default --arithmetic-mode checked \
+		--arithmetic-mode unchecked --output .sn/rust-parity-borrowed-captures.json
+	@$(PYTHON) scripts/check_rust_borrowed_capture_oracles.py .sn/rust-parity-borrowed-captures.json

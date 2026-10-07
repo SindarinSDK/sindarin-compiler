@@ -119,11 +119,7 @@ void *__thread_wrapper_{{thread_id}}__(void *arg) {
 {{/if}}{{#if needs_array_copy}}    sn_auto_arr {{c_type type}} __sn__{{name}} = sn_array_copy(__p__{{name}});
 {{/if}}{{#if needs_struct_cleanup}}    sn_auto_{{struct_cleanup_name}} {{c_type type}} __sn__{{name}} = __p__{{name}};
 {{/if}}{{/each}}{{#each captures}}
-{{#if is_ref}}
-    {{c_type type}} *__sn__{{name}} = ((__closure_{{../lambda_id}}__ *)__closure__)->{{name}};
-{{else}}
-    {{c_type type}} __sn__{{name}} = ((__closure_{{../lambda_id}}__ *)__closure__)->{{name}};
-{{/if}}
+    {{c_type type}} {{#if is_ref}}*{{else}}{{#if c_borrowed_ref_capture}}*{{/if}}{{/if}}__sn__{{name}} = ((__closure_{{../lambda_id}}__ *)__closure__)->{{name}};
 {{/each}}
 {{#if body_stmts}}
 {{#each body_stmts}}

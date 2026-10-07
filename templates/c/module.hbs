@@ -20,7 +20,7 @@
 {{/if}}{{/each}}{{#each threads}}
 typedef struct {
 {{#each args}}
-    {{c_type type}} {{#if is_ref}}*{{/if}}{{name}};
+    {{c_type type}} {{#if is_ref}}*{{else}}{{#if c_borrowed_ref_capture}}*{{/if}}{{/if}}{{name}};
 {{/each}}
     int _padding;
 } __ThreadArgs_{{thread_id}}__;
@@ -69,13 +69,13 @@ typedef struct __closure_{{lambda_id}}__ {
     void (*__cleanup__)(void *);
     int __rc__;
 {{#each captures}}
-    {{c_type type}} {{#if is_ref}}*{{/if}}{{name}};
+    {{c_type type}} {{#if is_ref}}*{{else}}{{#if c_borrowed_ref_capture}}*{{/if}}{{/if}}{{name}};
 {{/each}}
 } __closure_{{lambda_id}}__;
 {{#if has_ref_captures}}
 static void __closure_{{lambda_id}}_free__(void *p) {
     __closure_{{lambda_id}}__ *cl = (__closure_{{lambda_id}}__ *)p;
-{{#each captures}}{{#if is_ref}}    free(cl->{{name}});
+{{#each captures}}{{#if is_ref}}{{#unless c_borrowed_ref_capture}}    free(cl->{{name}});{{/unless}}
 {{else}}{{#if (eq cap_cleanup "free")}}    free(cl->{{name}});
 {{else}}{{#if (eq cap_cleanup "release")}}    __sn__{{cap_struct_type_name}}_release(&cl->{{name}});
 {{else}}{{#if (eq cap_cleanup "cleanup_array")}}    sn_cleanup_array(&cl->{{name}});
@@ -157,11 +157,7 @@ static {{c_type return_type}} __fn_wrap_{{wrapper_id}}__(void *__closure__{{#eac
 {{/if}}{{#if needs_array_copy}}    sn_auto_arr {{c_type type}} __sn__{{name}} = sn_array_copy(__p__{{name}});
 {{/if}}{{#if needs_struct_cleanup}}    sn_auto_{{struct_cleanup_name}} {{c_type type}} __sn__{{name}} = __p__{{name}};
 {{/if}}{{/each}}{{#each captures}}
-{{#if is_ref}}
-    {{c_type type}} *__sn__{{name}} = ((__closure_{{../lambda_id}}__ *)__closure__)->{{name}};
-{{else}}
-    {{c_type type}} __sn__{{name}} = ((__closure_{{../lambda_id}}__ *)__closure__)->{{name}};
-{{/if}}
+    {{c_type type}} {{#if is_ref}}*{{else}}{{#if c_borrowed_ref_capture}}*{{/if}}{{/if}}__sn__{{name}} = ((__closure_{{../lambda_id}}__ *)__closure__)->{{name}};
 {{/each}}
 {{#if body_stmts}}
 {{#each body_stmts}}

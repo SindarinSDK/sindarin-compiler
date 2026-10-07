@@ -307,7 +307,20 @@ static bool rust_closure_walk_lambda(RustClosureScope *scope, json_object *node)
             json_object_object_add(b->declaration, "rust_shared_owned_cell",
                                    json_object_new_boolean(true));
         }
-        if (json_string_property_equals(b->declaration, "mem_qual", "as_ref") ||
+        bool borrowed_scalar = rust_closure_scalar_type(cap_type) &&
+            (json_string_property_equals(b->declaration, "mem_qual", "as_ref") ||
+             json_boolean_property(b->declaration, "rust_owned_borrow_capture"));
+        if (borrowed_scalar) {
+            json_object_object_add(scope->model, "rust_has_owned_borrow_captures", json_object_new_boolean(true));
+            json_object_object_add(b->declaration, "rust_thread_ref_param", json_object_new_boolean(true));
+            json_object_object_add(b->declaration, "rust_shared_cell", json_object_new_boolean(true));
+            json_object_object_add(b->declaration, "rust_owned_scalar_parameter", json_object_new_boolean(true));
+            json_object_object_add(rust_closure_property(b->declaration, "type"), "rust_owned_scalar_parameter", json_object_new_boolean(true));
+            json_object *signature = rust_closure_property(b->declaration, "rust_owned_capture_signature_type");
+            if (signature) json_object_object_add(signature, "rust_owned_scalar_parameter", json_object_new_boolean(true));
+            json_object_object_add(cap, "rust_owned_borrow_capture", json_object_new_boolean(true));
+        }
+        if ((!borrowed_scalar && json_string_property_equals(b->declaration, "mem_qual", "as_ref")) ||
             (json_boolean_property(b->declaration, "is_captured") &&
              !json_boolean_property(b->declaration, "rust_shared_cell")))
             return rust_closure_error("borrowed or promoted closure captures");
@@ -316,7 +329,7 @@ static bool rust_closure_walk_lambda(RustClosureScope *scope, json_object *node)
         json_object_object_add(cap, "rust_binding_id", json_object_new_int(b->id));
         if (rust_closure_reference_record_type(cap_type))
             json_object_object_add(cap, "rust_reference_record_capture", json_object_new_boolean(true));
-        bool shared = json_boolean_property(cap, "is_ref") ||
+        bool shared = borrowed_scalar || json_boolean_property(cap, "is_ref") ||
             (owned_candidate &&
              json_boolean_property(b->declaration, "rust_shared_owned_cell"));
         if (array_candidate && json_boolean_property(b->declaration, "rust_closure_array_parameter"))
@@ -385,6 +398,7 @@ static bool rust_closure_walk_lambda(RustClosureScope *scope, json_object *node)
             json_string_property_equals(p, "mem_qual", "as_ref");
         if (scalar_ref)
         {
+            if (signature_param) json_object_object_add(p, "rust_owned_capture_signature_type", json_object_get(signature_param));
             json_object_object_add(p, "rust_closure_scalar_reference", json_object_new_boolean(true));
             json_object_object_add(rust_closure_property(p, "type"), "rust_closure_scalar_reference", json_object_new_boolean(true));
             json_object_object_add(p, "rust_shared_cell", json_object_new_boolean(true));
@@ -520,6 +534,12 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
     if (kind && strcmp(kind, "var_decl") == 0)
     {
         if (!rust_closure_walk(scope, rust_closure_property(node, "initializer"))) return false;
+        json_object *initializer = rust_closure_property(node, "initializer");
+        json_object *decl_params = rust_closure_property(rust_closure_property(node, "type"), "param_types");
+        json_object *init_params = rust_closure_property(rust_closure_property(initializer, "type"), "param_types");
+        for (size_t i = 0; i < rust_closure_length(decl_params) && i < rust_closure_length(init_params); i++)
+            if (json_boolean_property(json_object_array_get_idx(init_params, i), "rust_owned_scalar_parameter"))
+                json_object_object_add(json_object_array_get_idx(decl_params, i), "rust_owned_scalar_parameter", json_object_new_boolean(true));
         if (json_string_property_equals(rust_closure_property(node, "type"), "kind", "function") &&
             !rust_closure_property(node, "initializer"))
             return rust_closure_error("uninitialized function values");
@@ -545,6 +565,11 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
             if (b->lambda_depth != scope->lambda_depth)
                 return rust_closure_error("missing transitive closure captures");
             json_object_object_add(node, "rust_binding_id", json_object_new_int(b->id));
+            json_object *decl_params = rust_closure_property(rust_closure_property(b->declaration, "type"), "param_types");
+            json_object *read_params = rust_closure_property(rust_closure_property(node, "type"), "param_types");
+            for (size_t i = 0; i < rust_closure_length(decl_params) && i < rust_closure_length(read_params); i++)
+                if (json_boolean_property(json_object_array_get_idx(decl_params, i), "rust_owned_scalar_parameter"))
+                    json_object_object_add(json_object_array_get_idx(read_params, i), "rust_owned_scalar_parameter", json_object_new_boolean(true));
             if (json_boolean_property(node, "is_ref_arg") &&
                 json_boolean_property(b->declaration, "rust_closure_scalar_value_parameter"))
                 json_object_object_add(b->declaration, "rust_closure_mutable_parameter", json_object_new_boolean(true));
@@ -586,12 +611,22 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
                 json_object_object_del(node, "rust_needs_clone");
                 json_object_object_add(node, "rust_capture_mutation_place", json_object_new_boolean(true));
             }
+            if (json_boolean_property(node, "is_ref_arg") &&
+                rust_closure_scalar_type(rust_closure_property(node, "type")) &&
+                (json_boolean_property(b->declaration, "rust_thread_ref_storage") ||
+                 json_boolean_property(b->declaration, "rust_thread_ref_param") ||
+                 json_boolean_property(b->declaration, "rust_owned_borrow_capture")))
+            {
+                json_object_object_add(node, "rust_closure_scalar_owned_source", json_object_new_boolean(true));
+                json_object_object_add(scope->model, "rust_has_scalar_ref_closures", json_object_new_boolean(true));
+            }
             if ((b->capture || json_boolean_property(b->declaration, "rust_shared_cell")) &&
                 json_boolean_property(node, "is_ref_arg") && !json_boolean_property(node, "rust_thread_ref_owner") &&
                 !json_boolean_property(b->declaration, "rust_mutable_snapshot") &&
                 !json_boolean_property(b->declaration, "rust_mutable_owned_snapshot") &&
                 !json_boolean_property(b->declaration, "rust_reference_record_capture") &&
-                !json_boolean_property(b->declaration, "rust_closure_scalar_reference"))
+                !json_boolean_property(b->declaration, "rust_closure_scalar_reference") &&
+                !json_boolean_property(node, "rust_closure_scalar_owned_source"))
                 return rust_closure_error("mutable access to snapshot closure captures");
         }
         else if (!json_boolean_property(node, "rust_direct_callee") && name &&

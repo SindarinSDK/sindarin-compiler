@@ -1,0 +1,12 @@
+struct State =>
+  value: int
+
+fn make(value: int as ref): fn(): int =>
+  return fn(): int => value
+
+fn main(): void =>
+  var state: State = { value: 7 }
+  var action: fn(): int = make(state.value)
+  println(action() == 7)
+  state.value = 20
+  println(action() == 20)

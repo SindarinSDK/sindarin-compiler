@@ -3015,11 +3015,16 @@ static bool rust_validate_stmt(json_object *stmt)
 /* A method needs &mut self only when its mutation place is rooted in self.
  * Local values (including their fields, indices, and arrays) must not turn an
  * otherwise read-only instance method into a mutable receiver method. */
+static bool rust_prepare_thread_references(json_object *model);
+
 static bool rust_validate_model_impl(json_object *model,
                                      const RustNativePlan *native_plan)
 {
     const char *unsupported = NULL;
     if (!rust_validate_closures(model)) return false;
+    if (json_boolean_property(model, "rust_has_owned_borrow_captures")) {
+        if (!rust_prepare_thread_references(model) || !rust_validate_closures(model)) return false;
+    }
     else if (!rust_type_declarations_supported(model))
         unsupported = "non-opaque type declarations";
 

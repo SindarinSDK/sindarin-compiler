@@ -35,7 +35,7 @@ typedef struct {
     __Closure__ *__closure_fn;
 {{/if}}
 {{#each args}}
-    {{c_type type}} {{#if is_ref}}*{{/if}}{{name}};
+    {{c_type type}} {{#if is_ref}}*{{else}}{{#if c_borrowed_ref_capture}}*{{/if}}{{/if}}{{name}};
 {{/each}}
     int _padding;
 } __ThreadArgs_{{thread_id}}__;
@@ -50,13 +50,13 @@ typedef struct __closure_{{lambda_id}}__ {
     void (*__cleanup__)(void *);
     int __rc__;
 {{#each captures}}
-    {{c_type type}} {{#if is_ref}}*{{/if}}{{name}};
+    {{c_type type}} {{#if is_ref}}*{{else}}{{#if c_borrowed_ref_capture}}*{{/if}}{{/if}}{{name}};
 {{/each}}
 } __closure_{{lambda_id}}__;
 {{#if has_ref_captures}}
 static void __closure_{{lambda_id}}_free__(void *p) {
     __closure_{{lambda_id}}__ *cl = (__closure_{{lambda_id}}__ *)p;
-{{#each captures}}{{#if is_ref}}    free(cl->{{name}});
+{{#each captures}}{{#if is_ref}}{{#unless c_borrowed_ref_capture}}    free(cl->{{name}});{{/unless}}
 {{else}}{{#if (eq cap_cleanup "free")}}    free(cl->{{name}});
 {{else}}{{#if (eq cap_cleanup "release")}}    __sn__{{cap_struct_type_name}}_release(&cl->{{name}});
 {{else}}{{#if (eq cap_cleanup "cleanup_array")}}    sn_cleanup_array(&cl->{{name}});

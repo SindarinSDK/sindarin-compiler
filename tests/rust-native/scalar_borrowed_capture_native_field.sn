@@ -1,0 +1,16 @@
+struct State =>
+  value: int
+
+fn make(value: int as ref): fn(): int =>
+  return fn(): int => value
+
+native fn update(a: int as ref, b: int as ref): int =>
+  a += 1
+  b += 2
+  return a
+
+fn main(): void =>
+  var state: State = { value: 7 }
+  var action: fn(): int = make(state.value)
+  println(update(state.value, state.value) == 10 && action() == 10)
+  println(state.value == 10)

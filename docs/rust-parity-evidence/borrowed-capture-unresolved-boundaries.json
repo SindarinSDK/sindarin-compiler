@@ -1,0 +1,20 @@
+{
+  "scope": "Unresolved composition boundaries; no Rust parity credit.",
+  "sources": {
+    ".sn/borrowed-field-native-record-ref.sn": "0a67410db66e256e59a92be6ac4c4d955f1f4f5a524b3925efb05aaa5fa56e03",
+    ".sn/borrowed-capture-native-callback.sn": "3ff1369470ee95a8499658d5a12c0d34018f8d5b023323069c4dffd3dbd807b6",
+    ".sn/borrowed-capture-native-typed-callback.sn": "5f0fc9bc10f28d15ea364e6ae076039e117102d1ab539e7a81f89140cafea1cb"
+  },
+  "native_record_reference": {
+    "report": ".sn/borrowed-field-native-record-ref-contract.json",
+    "c_valid": true,
+    "c_stdout": "true\ntrue\n",
+    "rust": "Rejected: stable C layout conflicts with captured field owner representation.",
+    "requirement": "Persistent actual C record storage must preserve retained record addresses, field captures, aliases, and later mutations."
+  },
+  "native_callbacks": {
+    "report": ".sn/borrowed-native-callback-gap.json",
+    "rust": "Native bridge rejects function parameter.",
+    "requirement": "C-compatible closure calling and ownership with mutation visible across callbacks."
+  }
+}

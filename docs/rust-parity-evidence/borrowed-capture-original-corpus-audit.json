@@ -1,0 +1,7 @@
+{
+  "manifest": "docs/rust-parity-evidence/floating-array-equality-corpus-sources.json",
+  "manifest_sha256": "83f91f8ba2ae363b080e281b63ddd7e8b70633a795054068c6df8c568cd14123",
+  "source_count": 1365,
+  "changed_sources": [],
+  "scope": "Source bytes only; no new admission/execution parity claim."
+}

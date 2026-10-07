@@ -1,0 +1,9 @@
+fn make(value: int as ref): fn(): void =>
+  return fn(): void =>
+    value = 30
+
+fn main(): void =>
+  var value: int = 7
+  var action: fn(): void = make(value)
+  action()
+  println(value == 30)

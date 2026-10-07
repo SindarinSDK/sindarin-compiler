@@ -109,8 +109,14 @@ static char *rust_closure_parameter_type(json_object *type)
     if (value && json_object_object_get_ex(type, "rust_closure_scalar_ref_type", &scalar_ref))
     {
         const char *name = json_object_get_string(scalar_ref);
-        char *result = malloc(strlen(value) + strlen(name) + 8);
-        if (result) sprintf(result, "%s<'_, %s>", name, value);
+        if (json_string_property(type, "rust_owned_scalar_thread_type")) {
+            char *result = malloc(strlen(value) + strlen(name) + 3);
+            if (result) sprintf(result, "%s<%s>", name, value);
+            free(value); return result;
+        }
+        const char *lifetime = json_string_property(type, "rust_owned_scalar_parameter") ? "'static" : "'_";
+        char *result = malloc(strlen(value) + strlen(name) + strlen(lifetime) + 7);
+        if (result) sprintf(result, "%s<%s, %s>", name, lifetime, value);
         free(value);
         return result;
     }

@@ -239,6 +239,7 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                 bool want_acquire =
                     (vtype && vtype->kind == TYPE_STRING) ||
                     (vtype && vtype->kind == TYPE_ARRAY) ||
+                    (vtype && vtype->kind == TYPE_FUNCTION) ||
                     gen_model_type_category(vtype) == TYPE_CAT_COMPOSITE ||
                     gen_model_type_category(vtype) == TYPE_CAT_REFCOUNTED;
                 if (want_acquire &&

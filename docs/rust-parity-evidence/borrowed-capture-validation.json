@@ -1,0 +1,909 @@
+{
+  "commands": [
+    {
+      "command": [
+        "python3",
+        "scripts/run_rust_tests.py",
+        "rust-native-extra",
+        "--verbose",
+        "--no-cleanup",
+        "--parallel",
+        "8",
+        "--no-color",
+        "--require-count",
+        "298",
+        "--fail-on-skip"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-00.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/run_tests.py",
+        "all",
+        "--verbose",
+        "--no-cleanup",
+        "--parallel",
+        "8",
+        "--no-color"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-01.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/run_rust_tests.py",
+        "all",
+        "--verbose",
+        "--no-cleanup",
+        "--parallel",
+        "8",
+        "--no-color",
+        "--fail-on-skip"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-02.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-core"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-03.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-concurrency"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-04.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-sized-defaults"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-08.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-reflection"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-07.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-thread-receivers"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-06.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-stdio-order"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-10.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-managed"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-09.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-float-conversions"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-12.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-mixed-integral"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-11.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-floating-arrays"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-13.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-thread-ownership"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-05.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-capture-index"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-16.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-sync-character"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-17.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-floating-equality"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-14.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-numeric-places"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-15.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-byte-encoding"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-19.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-ctype"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-18.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-exit"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-20.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-main-return"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-21.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-indexed-string"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-25.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-call-reference"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-24.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-match-control"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-match-control-repaired.log",
+      "superseded_failure": ".sn/borrowed-capture-validation-22.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-scope"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-26.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-records"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-27.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-nil-string"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-28.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-sizeof"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-23.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-nested-stores"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-30.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-owned-array-copies"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-31.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-nil-array"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-29.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-record-references"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-33.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-managed-records"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-32.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-scalar-parameters"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-36.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-reference-records"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-35.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-closure-records"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-37.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-arrays"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-39.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-owned-record-parameters"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-34.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-callables"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-41.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-globals"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-40.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-handles"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-38.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-pointer-slices"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-44.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-variadics"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-42.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-array-values"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-45.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-zero-record-defaults"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-46.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-array-returns"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-48.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-managed-iterators"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-47.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-array-methods"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-50.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-closure-arrays"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-49.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-reference-receivers"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-53.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-method-aliases"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-52.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-serialization"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-43.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-captured-methods"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-54.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-qualified-arrays"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-55.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-closure-value-parameters"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-57.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-array-alias-partitions"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-51.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-owned-record-parameters-closures"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-58.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-string-rebinding"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-60.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-closure-references"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-56.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-array-rebinding"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-59.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-scalar-snapshot-references"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-63.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-capture-scopes"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-64.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-private-arrays"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-61.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_array_return_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-67.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-primitive-arrays"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-62.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_iterator_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-68.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_array_method_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-70.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_closure_array_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-69.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_method_alias_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-72.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_reference_receiver_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-73.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_captured_method_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-74.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_qualified_array_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-75.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_array_alias_partition_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-71.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_closure_value_parameter_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-77.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_closure_reference_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-76.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_owned_record_parameter_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-78.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_capture_scope_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-79.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_string_rebinding_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-81.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_array_rebinding_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-80.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_native_primitive_array_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-83.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_private_array_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-82.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_scalar_snapshot_reference_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-84.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-borrowed-captures"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-66.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_physical_receiver_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-85.log"
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-physical-receivers"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-65.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_borrowed_capture_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-87.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_rust_physical_receiver_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-86.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_rust_borrowed_capture_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-capture-validation-88.log"
+    }
+  ],
+  "all_passed": true,
+  "initial_packaging_failure_preserved": ".sn/borrowed-capture-validation-commands.json",
+  "repaired_command": {
+    "command": [
+      "make",
+      "-o",
+      "build",
+      "test-rust-parity-match-control"
+    ],
+    "status": 0,
+    "log": ".sn/borrowed-match-control-repaired.log"
+  },
+  "frozen_inputs": 6925,
+  "frozen_manifest_sha256": "d6c6fccc52ec3980236baf60686d2b5ee7f27969cf95947334a18e62931f8dd2",
+  "post_hook_validation": [
+    {
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-borrowed-captures"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-post-hook-0.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_c_borrowed_capture_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-post-hook-1.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_rust_borrowed_capture_lifetimes.py"
+      ],
+      "status": 0,
+      "log": ".sn/borrowed-post-hook-2.log"
+    }
+  ]
+}

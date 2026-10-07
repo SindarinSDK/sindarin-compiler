@@ -1,0 +1,10 @@
+{
+  "command": [
+    "make",
+    "-o",
+    "build",
+    "test-rust-parity-match-control"
+  ],
+  "status": 0,
+  "log": ".sn/borrowed-match-control-repaired.log"
+}

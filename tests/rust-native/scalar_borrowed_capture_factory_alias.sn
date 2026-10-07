@@ -1,0 +1,11 @@
+type Reader = fn(): int
+
+fn main(): void =>
+  var factory = fn(value: int as ref): Reader =>
+    return fn(): int => value
+  var alias = factory
+  var value: int = 7
+  var action: Reader = alias(value)
+  println(action() == 7)
+  value = 20
+  println(action() == 20)

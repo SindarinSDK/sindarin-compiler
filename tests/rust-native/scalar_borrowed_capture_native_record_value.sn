@@ -1,0 +1,21 @@
+struct State =>
+  value: int
+
+fn make(value: int as ref): fn(): int =>
+  return fn(): int => value
+
+native fn read_record(state: State): int =>
+  return state.value
+
+native fn next_record(state: State): State =>
+  state.value += 1
+  return state
+
+fn main(): void =>
+  var state: State = { value: 7 }
+  var action: fn(): int = make(state.value)
+  println(read_record(state) == 7 && action() == 7)
+  var next: State = next_record(state)
+  println(read_record(next) == 8 && action() == 7)
+  state = next_record(state)
+  println(read_record(state) == 8 && action() == 8)

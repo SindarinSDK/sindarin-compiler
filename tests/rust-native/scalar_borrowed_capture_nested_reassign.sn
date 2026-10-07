@@ -1,0 +1,15 @@
+struct State =>
+  value: int
+
+struct Holder =>
+  state: State
+
+fn make(value: int as ref): fn(): int =>
+  return fn(): int => value
+
+fn main(): void =>
+  var holder: Holder = { state: State { value: 7 } }
+  var action: fn(): int = make(holder.state.value)
+  println(action() == 7)
+  holder = Holder { state: State { value: 20 } }
+  println(action() == 20)

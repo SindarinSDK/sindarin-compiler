@@ -85,7 +85,11 @@ static json_object *rust_thread_ref_target(json_object *model, json_object *func
     if (json_string_property_equals(call, "kind", "call")) {
         json_object_object_get_ex(call, "callee", &callee);
         if (json_string_property_equals(callee, "kind", "variable"))
-            return rust_default_array_function(functions, json_string_property(callee, "name"));
+        {
+            json_object *target = rust_default_array_function(functions, json_string_property(callee, "name"));
+            return target && !json_boolean_property(target, "is_native") &&
+                !json_boolean_property(target, "rust_native_bridge") ? target : NULL;
+        }
         if (!json_string_property_equals(callee, "kind", "member")) return NULL;
         json_object_object_get_ex(callee, "object", &object);
         json_object_object_get_ex(object, "type", &type);
@@ -99,6 +103,8 @@ static json_object *rust_thread_ref_target(json_object *model, json_object *func
     json_object *target = rust_find_resolved_method(rust_find_struct(model, structure_name), name, is_static);
     return target && !json_boolean_property(target, "is_native") ? target : NULL;
 }
+
+static void rust_thread_receiver_prepare_nodes(json_object *model, json_object *node, json_object *names);
 
 static bool rust_thread_ref_walk(json_object *node, json_object *functions,
                                  json_object *model, RustThreadRefBinding *scope, bool *changed)
@@ -140,11 +146,50 @@ static bool rust_thread_ref_walk(json_object *node, json_object *functions,
     }
     if ((json_string_property_equals(node, "kind", "call") ||
          json_string_property_equals(node, "kind", "method_call") ||
-         json_string_property_equals(node, "kind", "static_call")) &&
-        !json_boolean_property(node, "is_closure_call")) {
+         json_string_property_equals(node, "kind", "static_call"))) {
         json_object *args = NULL;
         json_object_object_get_ex(node, "args", &args);
         json_object *fn = rust_thread_ref_target(model, functions, node), *params = NULL;
+        json_object *callee = rust_closure_property(node, "callee");
+        if (json_string_property_equals(callee, "kind", "variable") &&
+            json_boolean_property(model, "rust_has_owned_borrow_captures")) {
+            RustThreadRefBinding *callable = rust_thread_ref_lookup(scope, json_string_property(callee, "name"));
+            json_object *initializer = callable ? rust_closure_property(callable->declaration, "initializer") : NULL;
+            while (json_string_property_equals(initializer, "kind", "variable")) {
+                json_object *id = rust_closure_property(initializer, "rust_binding_id");
+                RustThreadRefBinding *source = scope;
+                while (source) {
+                    json_object *source_id = rust_closure_property(source->declaration, "rust_binding_id");
+                    if ((id && source_id && json_object_get_int64(id) == json_object_get_int64(source_id)) ||
+                        (!id && json_string_property_equals(source->declaration, "name", json_string_property(initializer, "name")))) break;
+                    source = source->next;
+                }
+                if (!source || source == callable) break;
+                callable = source;
+                initializer = rust_closure_property(source->declaration, "initializer");
+            }
+            if (json_string_property_equals(initializer, "kind", "lambda")) fn = initializer;
+        }
+        json_object *native_target = NULL;
+        if (json_string_property_equals(callee, "kind", "variable"))
+            for (size_t i = 0; i < json_object_array_length(functions); i++) {
+                json_object *candidate = json_object_array_get_idx(functions, i);
+                if (json_string_property_equals(candidate, "name", json_string_property(callee, "name")) &&
+                    json_boolean_property(candidate, "rust_native_bridge")) { native_target = candidate; break; }
+            }
+        if (native_target && json_boolean_property(native_target, "rust_native_bridge")) {
+            json_object *native_params = rust_closure_property(native_target, "params");
+            for (size_t i = 0; args && native_params && i < json_object_array_length(args) && i < json_object_array_length(native_params); i++) {
+                json_object *arg = json_object_array_get_idx(args, i), *param = json_object_array_get_idx(native_params, i);
+                RustThreadRefBinding *source = rust_thread_ref_lookup(scope, json_string_property(arg, "name"));
+                if (source && json_boolean_property(source->declaration, "rust_thread_ref_storage") &&
+                    json_string_property_equals(param, "mem_qual", "as_ref") &&
+                    rust_scalar_ref_parameter_type_supported(rust_closure_property(param, "type"))) {
+                    json_object_object_add(arg, "rust_closure_scalar_owned_source", json_object_new_boolean(true));
+                    json_object_object_add(model, "rust_has_scalar_ref_closures", json_object_new_boolean(true));
+                }
+            }
+        }
         if (fn) {
             json_object_object_get_ex(fn, "params", &params);
             for (size_t i = 0; args && params && i < json_object_array_length(params) && i < json_object_array_length(args); i++) {
@@ -188,11 +233,34 @@ static bool rust_thread_ref_walk(json_object *node, json_object *functions,
                     continue;
                 }
                 if (!json_boolean_property(param, "rust_thread_ref_param")) continue;
+                bool owned_scalar = json_boolean_property(model, "rust_has_owned_borrow_captures") && rust_scalar_ref_parameter_type_supported(param_type);
+                if (owned_scalar) {
+                    json_object_object_add(model, "rust_has_scalar_ref_closures", json_object_new_boolean(true));
+                    json_object_object_add(param, "rust_owned_scalar_parameter", json_object_new_boolean(true));
+                    json_object_object_add(param_type, "rust_owned_scalar_parameter", json_object_new_boolean(true));
+                    json_object_object_add(param, "rust_closure_scalar_reference", json_object_new_boolean(true));
+                    json_object_object_add(arg, "rust_owned_scalar_place_arg", json_object_new_boolean(true));
+                }
+                if (owned_scalar && json_string_property_equals(arg, "kind", "member")) {
+                    json_object *object = rust_closure_property(arg, "object"), *object_type = rust_closure_property(object, "type");
+                    json_object *structure = rust_find_struct(model, json_string_property(object_type, "name"));
+                    if (!structure || json_boolean_property(structure, "is_native") || json_boolean_property(structure, "is_packed")) return false;
+                    json_object *names = rust_closure_property(model, "rust_thread_receiver_names");
+                    json_object_object_add(names, json_string_property(structure, "name"), json_object_new_boolean(true));
+                    json_object_object_add(structure, "rust_thread_fields", json_object_new_boolean(true));
+                    json_object_object_add(structure, "rust_captured_scalar_fields", json_object_new_boolean(true));
+                    json_object_object_add(arg, "rust_owned_scalar_place_field", json_object_new_boolean(true));
+                    json_object_object_del(arg, "is_ref_arg");
+                    continue;
+                }
                 if (!binding || !json_string_property_equals(arg, "kind", "variable")) {
                     fprintf(stderr, "Error: Rust thread reference lowering still requires an owned scalar variable place; aggregate/global reference projections remain unimplemented\n");
                     return false;
                 }
                 json_object *decl = binding->declaration;
+                if (owned_scalar && !json_string_property_equals(decl, "kind", "var_decl") &&
+                    !json_boolean_property(decl, "rust_thread_global_binding"))
+                    json_object_object_add(arg, "rust_owned_scalar_place_parameter", json_object_new_boolean(true));
                 json_object_object_add(decl, "rust_thread_ref_storage", json_object_new_boolean(true));
                 if (!json_boolean_property(decl, "rust_shared_cell")) {
                     json_object_object_add(decl, "rust_shared_cell", json_object_new_boolean(true));
@@ -288,7 +356,8 @@ static bool rust_prepare_thread_references(json_object *model)
     json_object_object_get_ex(model, "functions", &functions);
     json_object_object_get_ex(model, "globals", &globals);
     bool aliases = rust_find_scalar_reference_aliases(model, functions);
-    if (array_is_empty(model, "threads") && !aliases) return true;
+    if (array_is_empty(model, "threads") && !aliases &&
+        !json_boolean_property(model, "rust_has_owned_borrow_captures")) return true;
     rust_thread_ref_find_targets(model, functions);
     json_object *callables = json_object_new_array(), *structures = NULL;
     for (size_t i = 0; functions && i < json_object_array_length(functions); i++)
@@ -349,5 +418,31 @@ static bool rust_prepare_thread_references(json_object *model)
         }
     } while (changed);
     json_object_put(callables);
+    if (json_boolean_property(model, "rust_has_owned_borrow_captures")) {
+        json_object *names = rust_closure_property(model, "rust_thread_receiver_names");
+        bool added;
+        do {
+            added = false;
+            for (size_t i = 0; structures && i < json_object_array_length(structures); i++) {
+                json_object *parent = json_object_array_get_idx(structures, i);
+                if (json_boolean_property(parent, "is_native") || json_boolean_property(parent, "is_packed")) continue;
+                json_object *fields = rust_closure_property(parent, "fields");
+                for (size_t j = 0; j < json_object_array_length(fields); j++) {
+                    json_object *field = json_object_array_get_idx(fields, j), *type = rust_closure_property(field, "type");
+                    if (!json_string_property_equals(type, "kind", "struct") || json_boolean_property(type, "pass_self_by_ref")) continue;
+                    json_object *child = rust_find_struct(model, json_string_property(type, "name"));
+                    if (!json_boolean_property(child, "rust_captured_scalar_fields")) continue;
+                    json_object_object_add(field, "rust_captured_scalar_nested_field", json_object_new_boolean(true));
+                    if (!json_boolean_property(parent, "rust_captured_scalar_fields")) {
+                        json_object_object_add(parent, "rust_captured_scalar_fields", json_object_new_boolean(true));
+                        json_object_object_add(parent, "rust_thread_fields", json_object_new_boolean(true));
+                        json_object_object_add(names, json_string_property(parent, "name"), json_object_new_boolean(true));
+                        added = true;
+                    }
+                }
+            }
+        } while (added);
+        rust_thread_receiver_prepare_nodes(model, model, names);
+    }
     return true;
 }
