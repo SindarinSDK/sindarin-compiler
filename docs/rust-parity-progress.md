@@ -5,6 +5,25 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Integrated interface and CI correction acceptance, 2026-10-07
+
+Corrective main `45fc52be` passes complete Linux/macOS/Windows compiler CI.
+The final coverage artifact verifies all 26 groups and 270 gate executions,
+with one compiler checksum per platform and the exact integrated revision.
+The Windows lifetime audit passes with its producer-specific raw stream oracle;
+macOS passes all 612 callback comparisons and all eighteen repeated nil compiler
+cases with tracing and malloc scribbling enabled. This accepts the integrated
+interface storage and audit increments and lifts the required-CI publication
+freeze. It does not explain the earlier intermittent macOS compiler SIGSEGVs,
+which remain open investigation work. No full backend completion is claimed.
+The follow-up compiler stability gate exercises both ordinary and traced
+compilation (nine mode cases each) because tracing can change the conditions
+of the intermittent fault. All eighteen cases pass locally; hosted acceptance
+of this follow-up remains pending.
+
+Evidence: [hosted acceptance and remaining limits](rust-parity-evidence/interface-storage-main-ci-green.json),
+[workflow run](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37681576979).
+
 ## Actual-process compiler crash tracing and original corpus audit, 2026-10-07
 
 The Windows core gate now passes on corrective run `37677690009`. The macOS

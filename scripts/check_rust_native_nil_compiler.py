@@ -71,18 +71,21 @@ def main():
     if os.name == 'nt':
         expected = expected.replace(b'\n', b'\r\n')
     environment = os.environ.copy()
-    environment['SN_COMPILER_BACKTRACE'] = '1'
     if platform.system() == 'Darwin':
         environment.update(MallocScribble='1', MallocPreScribble='1')
     report = {'compiler_sha256': hashlib.sha256(compiler.read_bytes()).hexdigest(),
               'source': SOURCE, 'source_sha256': source_hash,
               'platform': platform.system(), 'repeat': args.repeat, 'cases': [],
+              'compiler_backtrace_modes': ['0', '1'],
               'environment': {key: environment.get(key) for key in
-                              ('SN_COMPILER_BACKTRACE', 'MallocScribble', 'MallocPreScribble')}}
+                              ('MallocScribble', 'MallocPreScribble')}}
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix='sn-native-nil-compiler-') as folder:
         executable = Path(folder) / 'program.exe'
         for repeat in range(args.repeat):
+            # Exercise ordinary compilation too: diagnostic setup can change
+            # allocator/stack layout and hide the intermittent fault.
+            environment['SN_COMPILER_BACKTRACE'] = '1' if repeat % 2 else '0'
             for level in range(3):
                 for mode in ('default', 'checked', 'unchecked'):
                     command = [str(compiler), '--no-install', '--target', 'rust',
@@ -93,6 +96,7 @@ def main():
                     build = subprocess.run(command, capture_output=True,
                                            env=environment, timeout=120)
                     case = {'repeat': repeat, 'optimization': level,
+                            'compiler_backtrace': environment['SN_COMPILER_BACKTRACE'],
                             'arithmetic_mode': mode, 'compile_status': build.returncode,
                             'compile_stdout_hex': build.stdout.hex(),
                             'compile_stderr_hex': build.stderr.hex(), 'passed': False}

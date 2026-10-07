@@ -1,0 +1,31 @@
+{
+  "run": 37681576979,
+  "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37681576979",
+  "revision": "45fc52bed7191b8decfd88cc1fed5d52f564774c",
+  "passed": true,
+  "coverage": {
+    "revision": "45fc52bed7191b8decfd88cc1fed5d52f564774c",
+    "groups": 26,
+    "gates": 270,
+    "compilers": {
+      "Linux": "6ae3e79c355b3f3a18b210251a290b084eea300bd8635be2d610c277e6e1be2c",
+      "Darwin": "cffc453c3aa1f0b6ce97ae41fd533adcc79b8aca23e3367a683e4da1c7a6da0c",
+      "Windows": "fa91756309bdf5140ed0918a6144e4539ed0db0e442402bd888e90b662aefeec"
+    },
+    "passed": true
+  },
+  "coverage_sha256": "3a912717fd0275bd14997be889d85f13ca4f434bb637471a71fce87334b1091a",
+  "macos_callback_report_sha256": "3ae0197891a3ff91fe1c7160a15bf1b16e6bf4c5dd0e6b2b9dcdaf81f1c41c6c",
+  "macos_nil_repeated_report_sha256": "59d92981a6ad5b1440adfee9abfd14602eaaee333e2da8f46fa8041a47e8da9b",
+  "root_cause_status": "Earlier intermittent macOS compiler crash is not explained; passing traced tests are hosted acceptance of this revision, not proof of a root-cause fix.",
+  "completion_status": "Full Rust backend goal remains incomplete: native interface ABI and other documented gaps require implementation and final all-mode/lifetime audit.",
+  "followup_default_mode_regression": {
+    "local_report": ".sn/native-nil-trace-mixed.json",
+    "local_report_sha256": "a9c5fbff34668aff213ac7975fd8a1eec8d4a45ba3541d48634cd3d013e67a59",
+    "passed": true,
+    "cases": 18,
+    "mode_scope": "nine ordinary compiler cases followed by nine traced compiler cases, unchanged source and output oracle",
+    "reason": "a diagnostic setup can change allocator/stack layout; a passing traced test cannot close the earlier ordinary-mode crash",
+    "hosted_acceptance": "pending for this follow-up; 45fc52be acceptance above remains verified"
+  }
+}
