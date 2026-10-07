@@ -1,0 +1,18 @@
+{
+  "failed_revision": "d0b44ecf64a9198089c7ca14607f57ef2fed676c",
+  "failed_run": 37556481871,
+  "failed_job": 112583807652,
+  "diagnosis": "Released bootstrap compiler libgit2 rejected github.com certificate before compiler build.",
+  "repair": "Windows workflows checkout exact dependency revision with actions/checkout@v6, then run dependency installer in package directory and verify lib/include directories.",
+  "dependency_revision": "793df6f63d07146d19dffa8f6c172a1f56660b4a",
+  "validation": [
+    "Both workflow YAML parses and bash steps syntax pass",
+    "Archive HTTP200 and647entries with lib/include verified"
+  ],
+  "archive": {
+    "sha256": "26ac7b3d4d20507cab69ae13cd61478781ea733d80e3efd8fffaad146d0c7f80",
+    "entries": 647,
+    "lib_headers_present": true
+  },
+  "remaining": "Actual Windows PowerShell execution and full three-platform CI must verify repair."
+}

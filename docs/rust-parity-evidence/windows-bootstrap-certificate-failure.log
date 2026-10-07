@@ -1,0 +1,430 @@
+﻿2026-10-07T01:19:11.4805036Z Current runner version: '2.337.0'
+2026-10-07T01:19:11.5041624Z ##[group]Runner Image Provisioner
+2026-10-07T01:19:11.5042526Z Hosted Compute Agent
+2026-10-07T01:19:11.5043096Z Version: 20260901.588
+2026-10-07T01:19:11.5043744Z Commit: f88ec8081b781fac6c440065ac7ff9e710ce3d0b
+2026-10-07T01:19:11.5044477Z Build Date: 2026-09-01T19:56:44Z
+2026-10-07T01:19:11.5045184Z Worker ID: {936c022d-d01a-4c7f-abb5-b6d7ac3cdde2}
+2026-10-07T01:19:11.5045948Z Azure Region: northcentralus
+2026-10-07T01:19:11.5046577Z ##[endgroup]
+2026-10-07T01:19:11.5047845Z ##[group]Operating System
+2026-10-07T01:19:11.5048489Z Microsoft Windows Server 2025
+2026-10-07T01:19:11.5049114Z 10.0.26100
+2026-10-07T01:19:11.5050059Z Datacenter
+2026-10-07T01:19:11.5050655Z ##[endgroup]
+2026-10-07T01:19:11.5051217Z ##[group]Runner Image
+2026-10-07T01:19:11.5051794Z Image: windows-2025-vs2026
+2026-10-07T01:19:11.5052471Z Version: 20260925.250.1
+2026-10-07T01:19:11.5053961Z Included Software: https://github.com/actions/runner-images/blob/win25-vs2026/20260925.250/images/windows/Windows2025-VS2026-Readme.md
+2026-10-07T01:19:11.5055572Z Image Release: https://github.com/actions/runner-images/releases/tag/win25-vs2026%2F20260925.250
+2026-10-07T01:19:11.5056570Z ##[endgroup]
+2026-10-07T01:19:11.5057707Z ##[group]GITHUB_TOKEN Permissions
+2026-10-07T01:19:11.5059842Z Contents: read
+2026-10-07T01:19:11.5060395Z Metadata: read
+2026-10-07T01:19:11.5060941Z Packages: read
+2026-10-07T01:19:11.5061510Z ##[endgroup]
+2026-10-07T01:19:11.5063606Z Secret source: Actions
+2026-10-07T01:19:11.5064498Z Cache mode: write
+2026-10-07T01:19:11.5065160Z Prepare workflow directory
+2026-10-07T01:19:11.5979099Z Prepare all required actions
+2026-10-07T01:19:11.6030305Z Getting action download info
+2026-10-07T01:19:11.8111588Z Download action repository 'actions/checkout@v7' (SHA:3d3c42e5aac5ba805825da76410c181273ba90b1)
+2026-10-07T01:19:11.9889401Z Download action repository 'actions/upload-artifact@v7' (SHA:043fb46d1a93c77aae656e7c1c64a875d1fc6a0a)
+2026-10-07T01:19:12.4049025Z Complete job name: Build (windows-latest)
+2026-10-07T01:19:13.1300994Z ##[group]Run actions/checkout@v7
+2026-10-07T01:19:13.1302074Z with:
+2026-10-07T01:19:13.1302527Z   repository: SindarinSDK/sindarin-compiler
+2026-10-07T01:19:13.1306665Z   token: ***
+2026-10-07T01:19:13.1307058Z   ssh-strict: true
+2026-10-07T01:19:13.1307446Z   ssh-user: git
+2026-10-07T01:19:13.1307842Z   persist-credentials: true
+2026-10-07T01:19:13.1308295Z   clean: true
+2026-10-07T01:19:13.1308712Z   sparse-checkout-cone-mode: true
+2026-10-07T01:19:13.1309186Z   fetch-depth: 1
+2026-10-07T01:19:13.1309565Z   fetch-tags: false
+2026-10-07T01:19:13.1309960Z   show-progress: true
+2026-10-07T01:19:13.1310363Z   lfs: false
+2026-10-07T01:19:13.1310741Z   submodules: false
+2026-10-07T01:19:13.1311154Z   set-safe-directory: true
+2026-10-07T01:19:13.1311616Z   allow-unsafe-pr-checkout: false
+2026-10-07T01:19:13.1312328Z ##[endgroup]
+2026-10-07T01:19:13.3158696Z Syncing repository: SindarinSDK/sindarin-compiler
+2026-10-07T01:19:13.3160574Z ##[group]Getting Git version info
+2026-10-07T01:19:13.3161777Z Working directory is 'D:\a\sindarin-compiler\sindarin-compiler'
+2026-10-07T01:19:13.3948828Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-10-07T01:19:13.6975304Z git version 2.55.0.windows.5
+2026-10-07T01:19:13.7021168Z ##[endgroup]
+2026-10-07T01:19:13.7051528Z Temporarily overriding HOME='D:\a\_temp\44a2de29-439a-4c43-9abc-857f7995b055' before making global git config changes
+2026-10-07T01:19:13.7052793Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-07T01:19:13.7054029Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\sindarin-compiler\sindarin-compiler
+2026-10-07T01:19:13.7646919Z Deleting the contents of 'D:\a\sindarin-compiler\sindarin-compiler'
+2026-10-07T01:19:13.7651958Z ##[group]Determining repository object format
+2026-10-07T01:19:13.7654349Z ##[endgroup]
+2026-10-07T01:19:13.7655462Z ##[group]Initializing the repository
+2026-10-07T01:19:13.7721738Z [command]"C:\Program Files\Git\bin\git.exe" init D:\a\sindarin-compiler\sindarin-compiler
+2026-10-07T01:19:13.8469479Z Initialized empty Git repository in D:/a/sindarin-compiler/sindarin-compiler/.git/
+2026-10-07T01:19:13.8522197Z [command]"C:\Program Files\Git\bin\git.exe" remote add origin https://github.com/SindarinSDK/sindarin-compiler
+2026-10-07T01:19:13.9160550Z ##[endgroup]
+2026-10-07T01:19:13.9161711Z ##[group]Disabling automatic garbage collection
+2026-10-07T01:19:13.9169401Z [command]"C:\Program Files\Git\bin\git.exe" config --local gc.auto 0
+2026-10-07T01:19:13.9460875Z ##[endgroup]
+2026-10-07T01:19:13.9462527Z ##[group]Setting up auth
+2026-10-07T01:19:13.9463791Z Removing SSH command configuration
+2026-10-07T01:19:13.9471926Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-10-07T01:19:13.9763350Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-10-07T01:19:16.0375481Z Removing HTTP extra header
+2026-10-07T01:19:16.0394211Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-07T01:19:16.1052017Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-10-07T01:19:17.1471007Z Removing includeIf entries pointing to credentials config files
+2026-10-07T01:19:17.1485696Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-07T01:19:17.2545437Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-10-07T01:19:18.8944364Z [command]"C:\Program Files\Git\bin\git.exe" config --file D:\a\_temp\git-credentials-033b140c-1ccd-4a8c-ae16-e40f2c9dcfe3.config http.https://github.com/.extraheader "AUTHORIZATION: basic ***"
+2026-10-07T01:19:19.0582668Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:D:/a/sindarin-compiler/sindarin-compiler/.git.path D:\a\_temp\git-credentials-033b140c-1ccd-4a8c-ae16-e40f2c9dcfe3.config
+2026-10-07T01:19:19.2247033Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:D:/a/sindarin-compiler/sindarin-compiler/.git/worktrees/*.path D:\a\_temp\git-credentials-033b140c-1ccd-4a8c-ae16-e40f2c9dcfe3.config
+2026-10-07T01:19:19.3821871Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-033b140c-1ccd-4a8c-ae16-e40f2c9dcfe3.config
+2026-10-07T01:19:19.5158528Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-033b140c-1ccd-4a8c-ae16-e40f2c9dcfe3.config
+2026-10-07T01:19:19.6572046Z ##[endgroup]
+2026-10-07T01:19:19.6572834Z ##[group]Fetching the repository
+2026-10-07T01:19:19.6585227Z [command]"C:\Program Files\Git\bin\git.exe" -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +d0b44ecf64a9198089c7ca14607f57ef2fed676c:refs/remotes/origin/main
+2026-10-07T01:19:36.9711843Z From https://github.com/SindarinSDK/sindarin-compiler
+2026-10-07T01:19:36.9713486Z  * [new ref]         d0b44ecf64a9198089c7ca14607f57ef2fed676c -> origin/main
+2026-10-07T01:19:36.9774764Z [command]"C:\Program Files\Git\bin\git.exe" branch --list --remote origin/main
+2026-10-07T01:19:37.0126582Z   origin/main
+2026-10-07T01:19:37.0175615Z [command]"C:\Program Files\Git\bin\git.exe" rev-parse refs/remotes/origin/main
+2026-10-07T01:19:37.0447482Z d0b44ecf64a9198089c7ca14607f57ef2fed676c
+2026-10-07T01:19:37.0481257Z ##[endgroup]
+2026-10-07T01:19:37.0483193Z ##[group]Determining the checkout info
+2026-10-07T01:19:37.0483828Z ##[endgroup]
+2026-10-07T01:19:37.0492764Z [command]"C:\Program Files\Git\bin\git.exe" sparse-checkout disable
+2026-10-07T01:19:37.0919612Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all extensions.worktreeConfig
+2026-10-07T01:19:37.1222288Z ##[group]Checking out the ref
+2026-10-07T01:19:37.1231690Z [command]"C:\Program Files\Git\bin\git.exe" checkout --progress --force -B main refs/remotes/origin/main
+2026-10-07T01:19:38.1874700Z Updating files:  36% (3201/8738)
+2026-10-07T01:19:38.2034534Z Updating files:  37% (3234/8738)
+2026-10-07T01:19:38.2185506Z Updating files:  38% (3321/8738)
+2026-10-07T01:19:38.2344942Z Updating files:  39% (3408/8738)
+2026-10-07T01:19:38.2487618Z Updating files:  40% (3496/8738)
+2026-10-07T01:19:38.2640957Z Updating files:  41% (3583/8738)
+2026-10-07T01:19:38.2796688Z Updating files:  42% (3670/8738)
+2026-10-07T01:19:38.2945673Z Updating files:  43% (3758/8738)
+2026-10-07T01:19:38.3097235Z Updating files:  44% (3845/8738)
+2026-10-07T01:19:38.3271806Z Updating files:  45% (3933/8738)
+2026-10-07T01:19:38.3419545Z Updating files:  46% (4020/8738)
+2026-10-07T01:19:38.3570908Z Updating files:  47% (4107/8738)
+2026-10-07T01:19:38.3724436Z Updating files:  48% (4195/8738)
+2026-10-07T01:19:38.3869497Z Updating files:  49% (4282/8738)
+2026-10-07T01:19:38.4032686Z Updating files:  50% (4369/8738)
+2026-10-07T01:19:38.4183271Z Updating files:  51% (4457/8738)
+2026-10-07T01:19:38.4338610Z Updating files:  52% (4544/8738)
+2026-10-07T01:19:38.4494071Z Updating files:  53% (4632/8738)
+2026-10-07T01:19:38.4650816Z Updating files:  54% (4719/8738)
+2026-10-07T01:19:38.4832318Z Updating files:  55% (4806/8738)
+2026-10-07T01:19:38.4989824Z Updating files:  56% (4894/8738)
+2026-10-07T01:19:38.5142925Z Updating files:  57% (4981/8738)
+2026-10-07T01:19:38.5304957Z Updating files:  58% (5069/8738)
+2026-10-07T01:19:38.5457298Z Updating files:  59% (5156/8738)
+2026-10-07T01:19:38.5609849Z Updating files:  60% (5243/8738)
+2026-10-07T01:19:38.5768743Z Updating files:  61% (5331/8738)
+2026-10-07T01:19:38.5939788Z Updating files:  62% (5418/8738)
+2026-10-07T01:19:38.6100119Z Updating files:  63% (5505/8738)
+2026-10-07T01:19:38.6257219Z Updating files:  64% (5593/8738)
+2026-10-07T01:19:38.6440328Z Updating files:  65% (5680/8738)
+2026-10-07T01:19:38.6614850Z Updating files:  66% (5768/8738)
+2026-10-07T01:19:38.6795118Z Updating files:  67% (5855/8738)
+2026-10-07T01:19:38.6982311Z Updating files:  68% (5942/8738)
+2026-10-07T01:19:38.7161117Z Updating files:  69% (6030/8738)
+2026-10-07T01:19:38.7322140Z Updating files:  70% (6117/8738)
+2026-10-07T01:19:38.7501980Z Updating files:  71% (6204/8738)
+2026-10-07T01:19:38.7667129Z Updating files:  72% (6292/8738)
+2026-10-07T01:19:38.7829068Z Updating files:  73% (6379/8738)
+2026-10-07T01:19:38.7982638Z Updating files:  74% (6467/8738)
+2026-10-07T01:19:38.8141961Z Updating files:  75% (6554/8738)
+2026-10-07T01:19:38.8311545Z Updating files:  76% (6641/8738)
+2026-10-07T01:19:38.8475112Z Updating files:  77% (6729/8738)
+2026-10-07T01:19:38.8644156Z Updating files:  78% (6816/8738)
+2026-10-07T01:19:38.8808968Z Updating files:  79% (6904/8738)
+2026-10-07T01:19:38.8986270Z Updating files:  80% (6991/8738)
+2026-10-07T01:19:38.9173896Z Updating files:  81% (7078/8738)
+2026-10-07T01:19:38.9352077Z Updating files:  82% (7166/8738)
+2026-10-07T01:19:38.9517680Z Updating files:  83% (7253/8738)
+2026-10-07T01:19:38.9692607Z Updating files:  84% (7340/8738)
+2026-10-07T01:19:38.9859338Z Updating files:  85% (7428/8738)
+2026-10-07T01:19:39.0219993Z Updating files:  86% (7515/8738)
+2026-10-07T01:19:39.1090195Z Updating files:  87% (7603/8738)
+2026-10-07T01:19:39.1261167Z Updating files:  88% (7690/8738)
+2026-10-07T01:19:39.1424622Z Updating files:  89% (7777/8738)
+2026-10-07T01:19:39.1575586Z Updating files:  90% (7865/8738)
+2026-10-07T01:19:39.1732056Z Updating files:  91% (7952/8738)
+2026-10-07T01:19:39.1815657Z Updating files:  92% (8039/8738)
+2026-10-07T01:19:39.1887715Z Updating files:  92% (8086/8738)
+2026-10-07T01:19:39.2042413Z Updating files:  93% (8127/8738)
+2026-10-07T01:19:39.2210106Z Updating files:  94% (8214/8738)
+2026-10-07T01:19:39.2366210Z Updating files:  95% (8302/8738)
+2026-10-07T01:19:39.2540500Z Updating files:  96% (8389/8738)
+2026-10-07T01:19:39.2723095Z Updating files:  97% (8476/8738)
+2026-10-07T01:19:39.2953610Z Updating files:  98% (8564/8738)
+2026-10-07T01:19:39.3199889Z Updating files:  99% (8651/8738)
+2026-10-07T01:19:39.3200956Z Updating files: 100% (8738/8738)
+2026-10-07T01:19:39.3201505Z Updating files: 100% (8738/8738), done.
+2026-10-07T01:19:39.3425489Z Switched to a new branch 'main'
+2026-10-07T01:19:39.3481817Z branch 'main' set up to track 'origin/main'.
+2026-10-07T01:19:39.3565720Z ##[endgroup]
+2026-10-07T01:19:39.3968847Z [command]"C:\Program Files\Git\bin\git.exe" log -1 --format=%H
+2026-10-07T01:19:39.4235130Z d0b44ecf64a9198089c7ca14607f57ef2fed676c
+2026-10-07T01:19:39.4756048Z ##[group]Run # LLVM 19's ASan cannot decode the Windows 11 24H2 CRT prologue.
+2026-10-07T01:19:39.4756745Z [36;1m# LLVM 19's ASan cannot decode the Windows 11 24H2 CRT prologue.[0m
+2026-10-07T01:19:39.4757111Z [36;1m$version = "20260616"[0m
+2026-10-07T01:19:39.4757673Z [36;1m$url = "https://github.com/mstorsjo/llvm-mingw/releases/download/$version/llvm-mingw-$version-ucrt-x86_64.zip"[0m
+2026-10-07T01:19:39.4758215Z [36;1m$zipPath = "$env:TEMP\llvm-mingw.zip"[0m
+2026-10-07T01:19:39.4758611Z [36;1m$extractPath = Join-Path $env:GITHUB_WORKSPACE ".sn\toolchains\llvm-mingw"[0m
+2026-10-07T01:19:39.4759406Z [36;1m[0m
+2026-10-07T01:19:39.4759761Z [36;1mWrite-Host "Downloading LLVM-MinGW $version..."[0m
+2026-10-07T01:19:39.4760126Z [36;1mInvoke-WebRequest -Uri $url -OutFile $zipPath[0m
+2026-10-07T01:19:39.4760582Z [36;1m$expectedHash = "b9b68a4d276e16fa25802aaba458e4638f64b3884c290aaccdc2d87083b6ca35"[0m
+2026-10-07T01:19:39.4761224Z [36;1mif ((Get-FileHash $zipPath -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expectedHash) {[0m
+2026-10-07T01:19:39.4761713Z [36;1m  throw "LLVM-MinGW archive SHA-256 mismatch"[0m
+2026-10-07T01:19:39.4761973Z [36;1m}[0m
+2026-10-07T01:19:39.4762132Z [36;1m[0m
+2026-10-07T01:19:39.4762341Z [36;1mWrite-Host "Extracting to $extractPath..."[0m
+2026-10-07T01:19:39.4762748Z [36;1mExpand-Archive -Path $zipPath -DestinationPath $extractPath -Force[0m
+2026-10-07T01:19:39.4763129Z [36;1m[0m
+2026-10-07T01:19:39.4763459Z [36;1m$llvmDir = Get-ChildItem -Path $extractPath -Directory | Select-Object -First 1[0m
+2026-10-07T01:19:39.4763913Z [36;1m$binPath = Join-Path $llvmDir.FullName "bin"[0m
+2026-10-07T01:19:39.4764171Z [36;1m[0m
+2026-10-07T01:19:39.4764420Z [36;1mWrite-Host "LLVM-MinGW installed at: $($llvmDir.FullName)"[0m
+2026-10-07T01:19:39.4764867Z [36;1mecho "$binPath" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append[0m
+2026-10-07T01:19:39.5192585Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-07T01:19:39.5192971Z ##[endgroup]
+2026-10-07T01:19:39.9670710Z Downloading LLVM-MinGW 20260616...
+2026-10-07T01:19:41.7913098Z Extracting to D:\a\sindarin-compiler\sindarin-compiler\.sn\toolchains\llvm-mingw...
+2026-10-07T01:19:57.6916458Z LLVM-MinGW installed at: D:\a\sindarin-compiler\sindarin-compiler\.sn\toolchains\llvm-mingw\llvm-mingw-20260616-ucrt-x86_64
+2026-10-07T01:19:57.7448015Z ##[group]Run choco install make ninja -y
+2026-10-07T01:19:57.7448395Z [36;1mchoco install make ninja -y[0m
+2026-10-07T01:19:57.7520447Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-07T01:19:57.7520803Z ##[endgroup]
+2026-10-07T01:20:01.4869137Z Chocolatey v2.7.4
+2026-10-07T01:20:01.7421046Z Installing the following packages:
+2026-10-07T01:20:01.7426442Z make;ninja
+2026-10-07T01:20:01.7429827Z By installing, you accept licenses for the packages.
+2026-10-07T01:20:04.3672509Z Downloading package from source 'https://community.chocolatey.org/api/v2/'
+2026-10-07T01:20:04.5212791Z 
+2026-10-07T01:20:04.5213755Z Progress: Downloading make 4.4.1... %
+2026-10-07T01:20:04.5214288Z Progress: Downloading make 4.4.1... 1%
+2026-10-07T01:20:04.5214779Z Progress: Downloading make 4.4.1... 1%
+2026-10-07T01:20:04.5217129Z Progress: Downloading make 4.4.1... 1%
+2026-10-07T01:20:04.5217782Z Progress: Downloading make 4.4.1... 2%
+2026-10-07T01:20:04.5218291Z Progress: Downloading make 4.4.1... 2%
+2026-10-07T01:20:04.5220869Z Progress: Downloading make 4.4.1... 2%
+2026-10-07T01:20:04.5221652Z Progress: Downloading make 4.4.1... 3%
+2026-10-07T01:20:04.5222683Z Progress: Downloading make 4.4.1... 3%
+2026-10-07T01:20:04.5223166Z Progress: Downloading make 4.4.1... 3%
+2026-10-07T01:20:04.5223603Z Progress: Downloading make 4.4.1... 4%
+2026-10-07T01:20:04.5224010Z Progress: Downloading make 4.4.1... 4%
+2026-10-07T01:20:04.5224413Z Progress: Downloading make 4.4.1... 4%
+2026-10-07T01:20:04.5224819Z Progress: Downloading make 4.4.1... 5%
+2026-10-07T01:20:04.5225226Z Progress: Downloading make 4.4.1... 5%
+2026-10-07T01:20:04.5225641Z Progress: Downloading make 4.4.1... 5%
+2026-10-07T01:20:04.5226031Z Progress: Downloading make 4.4.1... 6%
+2026-10-07T01:20:04.5226422Z Progress: Downloading make 4.4.1... 6%
+2026-10-07T01:20:04.5226830Z Progress: Downloading make 4.4.1... 6%
+2026-10-07T01:20:04.5227248Z Progress: Downloading make 4.4.1... 6%
+2026-10-07T01:20:04.5227676Z Progress: Downloading make 4.4.1... 7%
+2026-10-07T01:20:04.5228092Z Progress: Downloading make 4.4.1... 7%
+2026-10-07T01:20:04.5228485Z Progress: Downloading make 4.4.1... 7%
+2026-10-07T01:20:04.5228873Z Progress: Downloading make 4.4.1... 8%
+2026-10-07T01:20:04.5229277Z Progress: Downloading make 4.4.1... 8%
+2026-10-07T01:20:04.5229684Z Progress: Downloading make 4.4.1... 8%
+2026-10-07T01:20:04.5230086Z Progress: Downloading make 4.4.1... 9%
+2026-10-07T01:20:04.5230494Z Progress: Downloading make 4.4.1... 9%
+2026-10-07T01:20:04.5230906Z Progress: Downloading make 4.4.1... 9%
+2026-10-07T01:20:04.5231323Z Progress: Downloading make 4.4.1... 10%
+2026-10-07T01:20:04.5231751Z Progress: Downloading make 4.4.1... 10%
+2026-10-07T01:20:04.5232164Z Progress: Downloading make 4.4.1... 10%
+2026-10-07T01:20:04.5232572Z Progress: Downloading make 4.4.1... 11%
+2026-10-07T01:20:04.5233005Z Progress: Downloading make 4.4.1... 11%
+2026-10-07T01:20:04.5233408Z Progress: Downloading make 4.4.1... 11%
+2026-10-07T01:20:04.5233818Z Progress: Downloading make 4.4.1... 12%
+2026-10-07T01:20:04.5234230Z Progress: Downloading make 4.4.1... 12%
+2026-10-07T01:20:04.5234642Z Progress: Downloading make 4.4.1... 12%
+2026-10-07T01:20:04.5235078Z Progress: Downloading make 4.4.1... 13%
+2026-10-07T01:20:04.5235488Z Progress: Downloading make 4.4.1... 13%
+2026-10-07T01:20:04.5235900Z Progress: Downloading make 4.4.1... 13%
+2026-10-07T01:20:04.5236320Z Progress: Downloading make 4.4.1... 14%
+2026-10-07T01:20:04.5236722Z Progress: Downloading make 4.4.1... 15%
+2026-10-07T01:20:04.5237139Z Progress: Downloading make 4.4.1... 16%
+2026-10-07T01:20:04.5237562Z Progress: Downloading make 4.4.1... 17%
+2026-10-07T01:20:04.5237970Z Progress: Downloading make 4.4.1... 18%
+2026-10-07T01:20:04.5238377Z Progress: Downloading make 4.4.1... 19%
+2026-10-07T01:20:04.5238779Z Progress: Downloading make 4.4.1... 20%
+2026-10-07T01:20:04.5240736Z Progress: Downloading make 4.4.1... 21%
+2026-10-07T01:20:04.5244048Z Progress: Downloading make 4.4.1... 22%
+2026-10-07T01:20:04.5244600Z Progress: Downloading make 4.4.1... 23%
+2026-10-07T01:20:04.5245039Z Progress: Downloading make 4.4.1... 24%
+2026-10-07T01:20:04.5245457Z Progress: Downloading make 4.4.1... 25%
+2026-10-07T01:20:04.5245874Z Progress: Downloading make 4.4.1... 26%
+2026-10-07T01:20:04.5246287Z Progress: Downloading make 4.4.1... 28%
+2026-10-07T01:20:04.5246714Z Progress: Downloading make 4.4.1... 29%
+2026-10-07T01:20:04.5247140Z Progress: Downloading make 4.4.1... 30%
+2026-10-07T01:20:04.5247559Z Progress: Downloading make 4.4.1... 30%
+2026-10-07T01:20:04.5247978Z Progress: Downloading make 4.4.1... 31%
+2026-10-07T01:20:04.5249230Z Progress: Downloading make 4.4.1... 32%
+2026-10-07T01:20:04.5249647Z Progress: Downloading make 4.4.1... 33%
+2026-10-07T01:20:04.5250035Z Progress: Downloading make 4.4.1... 34%
+2026-10-07T01:20:04.5250427Z Progress: Downloading make 4.4.1... 35%
+2026-10-07T01:20:04.5250799Z Progress: Downloading make 4.4.1... 36%
+2026-10-07T01:20:04.5251347Z Progress: Downloading make 4.4.1... 37%
+2026-10-07T01:20:04.5251807Z Progress: Downloading make 4.4.1... 38%
+2026-10-07T01:20:04.5252221Z Progress: Downloading make 4.4.1... 39%
+2026-10-07T01:20:04.5252629Z Progress: Downloading make 4.4.1... 40%
+2026-10-07T01:20:04.5253027Z Progress: Downloading make 4.4.1... 42%
+2026-10-07T01:20:04.5253423Z Progress: Downloading make 4.4.1... 43%
+2026-10-07T01:20:04.5253804Z Progress: Downloading make 4.4.1... 44%
+2026-10-07T01:20:04.5254190Z Progress: Downloading make 4.4.1... 45%
+2026-10-07T01:20:04.5254587Z Progress: Downloading make 4.4.1... 46%
+2026-10-07T01:20:04.5254984Z Progress: Downloading make 4.4.1... 46%
+2026-10-07T01:20:04.5255392Z Progress: Downloading make 4.4.1... 47%
+2026-10-07T01:20:04.5255784Z Progress: Downloading make 4.4.1... 48%
+2026-10-07T01:20:04.5256177Z Progress: Downloading make 4.4.1... 49%
+2026-10-07T01:20:04.5256574Z Progress: Downloading make 4.4.1... 50%
+2026-10-07T01:20:04.5256964Z Progress: Downloading make 4.4.1... 51%
+2026-10-07T01:20:04.5257688Z Progress: Downloading make 4.4.1... 52%
+2026-10-07T01:20:04.5258091Z Progress: Downloading make 4.4.1... 53%
+2026-10-07T01:20:04.5258488Z Progress: Downloading make 4.4.1... 55%
+2026-10-07T01:20:04.5258877Z Progress: Downloading make 4.4.1... 57%
+2026-10-07T01:20:04.5259248Z Progress: Downloading make 4.4.1... 59%
+2026-10-07T01:20:04.5259605Z Progress: Downloading make 4.4.1... 61%
+2026-10-07T01:20:04.5260001Z Progress: Downloading make 4.4.1... 63%
+2026-10-07T01:20:04.5260669Z Progress: Downloading make 4.4.1... 65%
+2026-10-07T01:20:04.5260920Z Progress: Downloading make 4.4.1... 68%
+2026-10-07T01:20:04.5261199Z Progress: Downloading make 4.4.1... 70%
+2026-10-07T01:20:04.5261441Z Progress: Downloading make 4.4.1... 72%
+2026-10-07T01:20:04.5261687Z Progress: Downloading make 4.4.1... 74%
+2026-10-07T01:20:04.5261936Z Progress: Downloading make 4.4.1... 76%
+2026-10-07T01:20:04.5262174Z Progress: Downloading make 4.4.1... 78%
+2026-10-07T01:20:04.5262434Z Progress: Downloading make 4.4.1... 78%
+2026-10-07T01:20:04.5262678Z Progress: Downloading make 4.4.1... 80%
+2026-10-07T01:20:04.5262917Z Progress: Downloading make 4.4.1... 82%
+2026-10-07T01:20:04.5263154Z Progress: Downloading make 4.4.1... 84%
+2026-10-07T01:20:04.5263411Z Progress: Downloading make 4.4.1... 86%
+2026-10-07T01:20:04.5263651Z Progress: Downloading make 4.4.1... 88%
+2026-10-07T01:20:04.5263888Z Progress: Downloading make 4.4.1... 90%
+2026-10-07T01:20:04.5264128Z Progress: Downloading make 4.4.1... 92%
+2026-10-07T01:20:04.5264369Z Progress: Downloading make 4.4.1... 94%
+2026-10-07T01:20:04.5264606Z Progress: Downloading make 4.4.1... 96%
+2026-10-07T01:20:04.5264846Z Progress: Downloading make 4.4.1... 98%
+2026-10-07T01:20:04.5265093Z Progress: Downloading make 4.4.1... 100%
+2026-10-07T01:20:04.8006729Z 
+2026-10-07T01:20:04.8007255Z make v4.4.1 [Approved]
+2026-10-07T01:20:04.8287557Z make package files install completed. Performing other installation steps.
+2026-10-07T01:20:05.7030964Z  ShimGen has successfully created a shim for make.exe
+2026-10-07T01:20:05.7491027Z  The install of make was successful.
+2026-10-07T01:20:05.7493856Z   Deployed to 'C:\ProgramData\chocolatey\lib\make'
+2026-10-07T01:20:05.8752251Z ninja v1.13.2 already installed.
+2026-10-07T01:20:05.8752734Z  Use --force to reinstall, specify a version to install, or try upgrade.
+2026-10-07T01:20:05.8840857Z 
+2026-10-07T01:20:05.8841445Z Chocolatey installed 1/2 packages. 
+2026-10-07T01:20:05.8842088Z  See the log for details (C:\ProgramData\chocolatey\logs\chocolatey.log).
+2026-10-07T01:20:05.8844720Z 
+2026-10-07T01:20:05.8848166Z Warnings:
+2026-10-07T01:20:05.8853312Z  - ninja - ninja v1.13.2 already installed.
+2026-10-07T01:20:05.8853998Z  Use --force to reinstall, specify a version to install, or try upgrade.
+2026-10-07T01:20:06.0376060Z ##[group]Run rustup toolchain install 1.93.1 --profile minimal
+2026-10-07T01:20:06.0377077Z [36;1mrustup toolchain install 1.93.1 --profile minimal[0m
+2026-10-07T01:20:06.0377413Z [36;1mrustup default 1.93.1[0m
+2026-10-07T01:20:06.0377662Z [36;1mrustc --version --verbose[0m
+2026-10-07T01:20:06.0444595Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-07T01:20:06.0444965Z ##[endgroup]
+2026-10-07T01:20:06.8813050Z info: syncing channel updates for 1.93.1-x86_64-pc-windows-msvc
+2026-10-07T01:20:07.4235015Z info: latest update on 2026-02-12 for version 1.93.1 (01f6ddf75 2026-02-11)
+2026-10-07T01:20:07.4312046Z info: downloading 3 components
+2026-10-07T01:20:15.0412348Z 
+2026-10-07T01:20:15.0719812Z   1.93.1-x86_64-pc-windows-msvc installed - rustc 1.93.1 (01f6ddf75 2026-02-11)
+2026-10-07T01:20:15.0720233Z 
+2026-10-07T01:20:15.0984294Z info: using existing install for 1.93.1-x86_64-pc-windows-msvc
+2026-10-07T01:20:15.1022125Z info: default toolchain set to 1.93.1-x86_64-pc-windows-msvc
+2026-10-07T01:20:15.1064223Z 
+2026-10-07T01:20:15.1266071Z   1.93.1-x86_64-pc-windows-msvc unchanged - rustc 1.93.1 (01f6ddf75 2026-02-11)
+2026-10-07T01:20:15.1266426Z 
+2026-10-07T01:20:15.7099653Z rustc 1.93.1 (01f6ddf75 2026-02-11)
+2026-10-07T01:20:15.7099987Z binary: rustc
+2026-10-07T01:20:15.7100253Z commit-hash: 01f6ddf7588f42ae2d7eb0a2f21d44e8e96674cf
+2026-10-07T01:20:15.7100564Z commit-date: 2026-02-11
+2026-10-07T01:20:15.7100969Z host: x86_64-pc-windows-msvc
+2026-10-07T01:20:15.7101205Z release: 1.93.1
+2026-10-07T01:20:15.7103539Z LLVM version: 21.1.8
+2026-10-07T01:20:15.8710393Z ##[group]Run make setup
+2026-10-07T01:20:15.8710709Z [36;1mmake setup[0m
+2026-10-07T01:20:15.8727178Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-10-07T01:20:15.8727576Z env:
+2026-10-07T01:20:15.8730536Z   GH_TOKEN: ***
+2026-10-07T01:20:15.8730753Z   SN_SKIP_PREREQS: 1
+2026-10-07T01:20:15.8730953Z ##[endgroup]
+2026-10-07T01:20:16.0708208Z Setting up build dependencies for Windows...
+2026-10-07T01:20:17.6516182Z 
+2026-10-07T01:20:17.6532279Z ========================================
+2026-10-07T01:20:17.6539552Z     Sindarin Compiler Installer
+2026-10-07T01:20:17.6547045Z ========================================
+2026-10-07T01:20:17.6551063Z 
+2026-10-07T01:20:17.6691094Z [*] Using prerequisites supplied by caller (SN_SKIP_PREREQS=1)
+2026-10-07T01:20:17.6728900Z [*] Fetching latest version...
+2026-10-07T01:20:18.2448163Z [+] Found release: v0.0.83
+2026-10-07T01:20:18.2717213Z [*] Downloading sindarin-0.0.83-windows-x64.zip...
+2026-10-07T01:20:29.5629215Z [+] Download complete
+2026-10-07T01:20:29.5724159Z [*] Extracting to C:\Users\runneradmin\.sn...
+2026-10-07T01:20:32.1672425Z [*] Flattening nested directory structure...
+2026-10-07T01:20:32.1762293Z [+] Extraction complete
+2026-10-07T01:20:32.1837246Z [*] Configuring PATH...
+2026-10-07T01:20:32.1856482Z [*] GitHub Actions detected, registering in GITHUB_PATH...
+2026-10-07T01:20:32.2047690Z [+] Added C:\Users\runneradmin\.sn\bin to GITHUB_PATH
+2026-10-07T01:20:32.2052649Z 
+2026-10-07T01:20:32.2062150Z [+] Sindarin compiler installed successfully!
+2026-10-07T01:20:32.2066746Z 
+2026-10-07T01:20:32.2074912Z   Installed to: C:\Users\runneradmin\.sn
+2026-10-07T01:20:32.2082769Z   Version:      v0.0.83
+2026-10-07T01:20:32.2087790Z 
+2026-10-07T01:20:32.2095521Z   ============================================
+2026-10-07T01:20:32.2104433Z   IMPORTANT: Please restart your terminal
+2026-10-07T01:20:32.2112583Z   for PATH changes to take effect.
+2026-10-07T01:20:32.2120136Z   ============================================
+2026-10-07T01:20:32.2123868Z 
+2026-10-07T01:20:32.2131187Z   After restarting, you can compile Sindarin programs:
+2026-10-07T01:20:32.2138174Z     sn myprogram.sn -o myprogram.exe
+2026-10-07T01:20:32.2142405Z 
+2026-10-07T01:20:32.3431095Z Installing dependencies from sn.yaml...
+2026-10-07T01:20:47.4436760Z [1;31merror[0m: git clone: user rejected certificate for github.com
+2026-10-07T01:20:47.4458632Z   sindarin-pkg-libs (main) ... [1;31mclone failed[0m
+2026-10-07T01:20:47.4514491Z make: *** [Makefile:332: setup] Error 1
+2026-10-07T01:20:47.4603319Z ##[error]Process completed with exit code 2.
+2026-10-07T01:20:47.4873280Z Post job cleanup.
+2026-10-07T01:20:47.6677937Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-10-07T01:20:47.6965180Z git version 2.55.0.windows.5
+2026-10-07T01:20:47.7032359Z Temporarily overriding HOME='D:\a\_temp\baaa095f-1cf5-4fed-974e-b806d956b703' before making global git config changes
+2026-10-07T01:20:47.7033496Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-07T01:20:47.7043121Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\sindarin-compiler\sindarin-compiler
+2026-10-07T01:20:47.7343754Z Removing SSH command configuration
+2026-10-07T01:20:47.7354154Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-10-07T01:20:47.7655619Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-10-07T01:20:48.3347747Z Removing HTTP extra header
+2026-10-07T01:20:48.3358226Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-07T01:20:48.3661803Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-10-07T01:20:48.9051694Z Removing includeIf entries pointing to credentials config files
+2026-10-07T01:20:48.9063347Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-07T01:20:48.9323885Z includeif.gitdir:D:/a/sindarin-compiler/sindarin-compiler/.git.path
+2026-10-07T01:20:48.9324465Z includeif.gitdir:D:/a/sindarin-compiler/sindarin-compiler/.git/worktrees/*.path
+2026-10-07T01:20:48.9324885Z includeif.gitdir:/github/workspace/.git.path
+2026-10-07T01:20:48.9325399Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-07T01:20:48.9371734Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/sindarin-compiler/sindarin-compiler/.git.path
+2026-10-07T01:20:48.9628469Z D:\a\_temp\git-credentials-033b140c-1ccd-4a8c-ae16-e40f2c9dcfe3.config
+2026-10-07T01:20:48.9673973Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/sindarin-compiler/sindarin-compiler/.git.path D\:\\a\\_temp\\git\-credentials\-033b140c\-1ccd\-4a8c\-ae16\-e40f2c9dcfe3\.config
+2026-10-07T01:20:48.9977566Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/sindarin-compiler/sindarin-compiler/.git/worktrees/*.path
+2026-10-07T01:20:49.0239577Z D:\a\_temp\git-credentials-033b140c-1ccd-4a8c-ae16-e40f2c9dcfe3.config
+2026-10-07T01:20:49.0283008Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/sindarin-compiler/sindarin-compiler/.git/worktrees/*.path D\:\\a\\_temp\\git\-credentials\-033b140c\-1ccd\-4a8c\-ae16\-e40f2c9dcfe3\.config
+2026-10-07T01:20:49.0583786Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-10-07T01:20:49.0836533Z /github/runner_temp/git-credentials-033b140c-1ccd-4a8c-ae16-e40f2c9dcfe3.config
+2026-10-07T01:20:49.0875694Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:/github/workspace/.git.path \/github\/runner_temp\/git\-credentials\-033b140c\-1ccd\-4a8c\-ae16\-e40f2c9dcfe3\.config
+2026-10-07T01:20:49.1170923Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-07T01:20:49.1423780Z /github/runner_temp/git-credentials-033b140c-1ccd-4a8c-ae16-e40f2c9dcfe3.config
+2026-10-07T01:20:49.1501249Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-033b140c\-1ccd\-4a8c\-ae16\-e40f2c9dcfe3\.config
+2026-10-07T01:20:49.1806865Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-10-07T01:20:49.7295492Z Removing credentials config 'D:\a\_temp\git-credentials-033b140c-1ccd-4a8c-ae16-e40f2c9dcfe3.config'
+2026-10-07T01:20:49.7492412Z Cleaning up orphan processes

@@ -107,7 +107,28 @@ jobs:
       #------------------------------------------------------------------------
       # Unified Build Steps (same for all platforms)
       #------------------------------------------------------------------------
+      - name: Checkout Windows build dependencies
+        if: runner.os == 'Windows'
+        uses: actions/checkout@v6
+        with:
+          repository: SindarinSDK/sindarin-pkg-libs
+          ref: 793df6f63d07146d19dffa8f6c172a1f56660b4a
+          path: .sn/sindarin-pkg-libs
+          persist-credentials: false
+
+      - name: Install Windows build dependencies
+        if: runner.os == 'Windows'
+        shell: pwsh
+        working-directory: .sn/sindarin-pkg-libs
+        run: |
+          & ./scripts/install.ps1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if (-not (Test-Path 'libs/windows/lib') -or -not (Test-Path 'libs/windows/include')) {
+            throw 'Windows dependency archive did not provide libraries and headers'
+          }
+
       - name: Setup libs
+        if: runner.os != 'Windows'
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
