@@ -27,6 +27,22 @@ establish full backend completion.
 
 Evidence: [local validation](rust-parity-evidence/record-reference-snapshot-validation.json).
 
+## Interface recovery on current backend: unpublished research, 2026-10-07
+
+The earlier `b7e0686c` interface implementation is recovered onto current code,
+with the intervening callback and ownership paths preserved. Both original
+interface sources pass all 18 GCC C/Rust mode comparisons. Complete Rust suites
+and all 12 metadata lifetime audits pass locally, with existing goldens unchanged.
+
+Clang independently reproduces the portability failure: empty source locals
+compare equal in C and distinct in Rust. Two preserved controls fail all nine
+modes, yielding 18 failures in the 36-case focused Clang matrix. This work is
+unpublished, receives no accepted parity credit, and requires a real storage
+repair plus native ABI and ownership composition before hosted acceptance.
+
+Evidence: [current recovery](rust-parity-evidence/interface-recovery-current-validation.json),
+[implementation and limits](rust-structural-interfaces.md).
+
 ## Static callback temporary cleanup: local verification, 2026-10-07
 
 Current main `16cf5b7f` fails Linux Compiler CI because the unchanged

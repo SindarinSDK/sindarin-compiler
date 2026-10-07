@@ -1,0 +1,27 @@
+interface Named =>
+  fn toString(): str
+
+struct Item =>
+  name: str
+  fn toString(): str =>
+    return self.name
+
+struct Holder =>
+  value: Item
+
+fn same(a: Named, b: Named): bool =>
+  return a == b
+
+fn make(): fn(): bool =>
+  var items: Item[] = { Item { name: "one" }, Item { name: "two" } }
+  return fn(): bool => same(items[0], items[0])
+
+fn exercise(): bool =>
+  var inspect: fn(): bool = make()
+  return inspect()
+
+fn main(): void =>
+  var ok: bool = true
+  for var i: int = 0; i < 1000; i++ =>
+    ok = exercise() && ok
+  println(ok)

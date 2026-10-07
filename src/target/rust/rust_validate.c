@@ -52,7 +52,7 @@ static bool rust_type_supported(json_object *type)
         strcmp(kind, "double") == 0 || strcmp(kind, "float") == 0 ||
         strcmp(kind, "bool") == 0 || strcmp(kind, "char") == 0 ||
         strcmp(kind, "byte") == 0 || strcmp(kind, "string") == 0 ||
-        strcmp(kind, "struct") == 0;
+        strcmp(kind, "struct") == 0 || strcmp(kind, "interface") == 0;
 }
 
 static bool rust_type_declarations_supported(json_object *model)

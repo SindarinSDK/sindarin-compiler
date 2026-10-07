@@ -1,0 +1,22 @@
+interface Numbered =>
+  fn number(): int
+
+struct Item =>
+  value: int
+  fn number(): int =>
+    return self.value
+
+fn address(value: Numbered): Numbered =>
+  return value
+
+fn consume(value: Item): int =>
+  return value.value
+
+fn main(): void =>
+  var original: Item = { value: 7 }
+  var copied = original
+  println(copied.value == original.value && address(copied) != address(original))
+  copied.value = 8
+  println(original.value == 7 && copied.value == 8)
+  println(consume(original) == 7 && consume(original) == 7)
+  println(original.value == 7 && copied.value == 8)

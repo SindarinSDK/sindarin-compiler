@@ -1,0 +1,27 @@
+{
+  "base_revision": "1faf07ea",
+  "recovered_from": "b7e0686cd6d4a5fd383ce4c7ddf42354ad4e3382",
+  "state": "Unpublished local interface recovery; known Clang empty-storage mismatches; no hosted acceptance",
+  "original_interface_pairs": 18,
+  "original_interface_pairs_passed": true,
+  "metadata_lifetime_cases": 12,
+  "metadata_lifetimes_passed": true,
+  "full_rust_suite": "All passed: 503 rgen, 119 errors, 381 native, existing closure/concurrency/toolchain suites; zero skips. Existing goldens unchanged.",
+  "gcc_corpus": "1143/1144 current integration programs and 224/224 exploratory programs; the remaining integration rejection is the newer record-reference snapshot fixture, repaired separately.",
+  "clang_probe": {
+    "total": 36,
+    "passed": 18,
+    "failed": 18,
+    "failed_sources": [
+      "tests/rust-native/native_interface_array_copies.sn",
+      "tests/rust-native/native_interface_empty_array.sn"
+    ],
+    "raw_report_sha256": "c1c66173ae450e756a2447891ca706869eebc32b0fffbc769d74c363018e7603"
+  },
+  "required_remaining": [
+    "Preserve actual empty-record storage identities across compiler/platform/mode combinations",
+    "Native interface ABI with real compatible storage and ownership",
+    "Compose interface metadata with current callback, record, array, qualifier and threading paths",
+    "Full differential and platform acceptance before publication"
+  ]
+}

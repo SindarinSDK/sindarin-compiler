@@ -1,6 +1,9 @@
-{{#if rust_native_reference_handle}}{{#if rust_native_serial_handle}}{{> native_serial_struct}}{{else}}{{> native_handle_struct}}{{/if}}{{else}}{{#if rust_thread_fields}}#[derive({{#unless rust_thread_reference_identity}}Clone, {{/unless}} Debug{{#unless rust_thread_reference_identity}}, PartialEq{{/unless}})]
+{{#if rust_native_reference_handle}}{{#if rust_native_serial_handle}}{{> native_serial_struct}}{{else}}{{> native_handle_struct}}{{/if}}{{else}}{{#if rust_thread_fields}}#[derive({{#unless rust_thread_reference_identity}}{{#unless rust_interface_owned_metadata}}Clone, {{/unless}}{{/unless}} Debug{{#unless rust_thread_reference_identity}}{{#unless rust_interface_owned_metadata}}, PartialEq{{/unless}}{{/unless}})]
 struct {{rust_ident name}} {
-{{#if rust_thread_reference_identity}}    {{rust_ident @root.rust_record_identity_field}}: Option<std::sync::Arc<()>>,
+{{#if rust_interface_owned_metadata}}    {{rust_ident @root.rust_interface_owner_field}}: std::sync::Arc<{{rust_ident @root.rust_interface_owner_type}}>,
+{{/if}}{{#if rust_interface_borrow_origin}}    {{rust_ident @root.rust_interface_origin_field}}: Option<{{rust_ident @root.rust_interface_key_type}}>,
+{{/if}}{{#if rust_interface_empty}}    {{rust_ident @root.rust_interface_empty_field}}: u8,
+{{/if}}{{#if rust_thread_reference_identity}}    {{rust_ident @root.rust_record_identity_field}}: Option<std::sync::Arc<()>>,
 {{/if}}{{#each fields}}    {{rust_ident name}}: {{#if ../rust_thread_reference_identity}}{{rust_ident @root.rust_reference_field_type}}{{else}}{{rust_ident @root.rust_thread_field_type}}{{/if}}<{{rust_type type}}>,
 {{/each}}{{rbrace}}{{#if methods}}
 
@@ -8,7 +11,7 @@ impl {{rust_ident name}} {
 {{#each methods}}{{> struct_method this}}{{/each}}{{rbrace}}{{/if}}
 {{#if rust_thread_fields}}impl {{rust_ident name}} {
 {{#if rust_closure_record_snapshot}}    fn {{rust_ident @root.rust_closure_snapshot_method}}(&self) -> Self {
-        Self { {{#each fields}}{{rust_ident name}}: {{#if rust_closure_array_owner}}self.{{rust_ident name}}.share(){{else}}{{#if rust_closure_nested_snapshot}}{{rust_ident @root.rust_thread_field_type}}::new(self.{{rust_ident name}}.map_read(|value| value.{{rust_ident @root.rust_closure_snapshot_method}}())){{else}}self.{{rust_ident name}}.clone(){{/if}}{{/if}}, {{/each}} }
+        Self { {{#if rust_interface_owned_metadata}}{{rust_ident @root.rust_interface_owner_field}}: std::sync::Arc::new({{rust_ident @root.rust_interface_owner_type}}), {{/if}}{{#if rust_interface_borrow_origin}}{{rust_ident @root.rust_interface_origin_field}}: None, {{/if}}{{#if rust_interface_empty}}{{rust_ident @root.rust_interface_empty_field}}: 0, {{/if}}{{#each fields}}{{rust_ident name}}: {{#if rust_closure_array_owner}}self.{{rust_ident name}}.share(){{else}}{{#if rust_closure_nested_snapshot}}{{rust_ident @root.rust_thread_field_type}}::new(self.{{rust_ident name}}.map_read(|value| value.{{rust_ident @root.rust_closure_snapshot_method}}())){{else}}self.{{rust_ident name}}.clone(){{/if}}{{/if}}, {{/each}} }
     }
 
 {{/if}}{{#if @root.rust_uses_record_reference_assign}}    fn {{rust_ident @root.rust_record_assign_method}}(&self, value: Self) -> Self {
@@ -18,18 +21,18 @@ impl {{rust_ident name}} {
     }
 
 {{/if}}    fn {{rust_ident @root.rust_thread_share_method}}(&self) -> Self {
-        Self { {{#if rust_thread_reference_identity}}{{rust_ident @root.rust_record_identity_field}}: self.{{rust_ident @root.rust_record_identity_field}}.clone(), {{/if}}{{#each fields}}{{rust_ident name}}: self.{{rust_ident name}}.share(), {{/each}} }
+        Self { {{#if rust_interface_owned_metadata}}{{rust_ident @root.rust_interface_owner_field}}: self.{{rust_ident @root.rust_interface_owner_field}}.clone(), {{/if}}{{#if rust_interface_borrow_origin}}{{rust_ident @root.rust_interface_origin_field}}: Some(self.{{rust_ident @root.rust_interface_key_method}}()), {{/if}}{{#if rust_interface_empty}}{{rust_ident @root.rust_interface_empty_field}}: 0, {{/if}}{{#if rust_thread_reference_identity}}{{rust_ident @root.rust_record_identity_field}}: self.{{rust_ident @root.rust_record_identity_field}}.clone(), {{/if}}{{#each fields}}{{rust_ident name}}: self.{{rust_ident name}}.share(), {{/each}} }
     }
 }
 {{/if}}
 {{#if rust_thread_reference_identity}}impl {{rust_ident name}} {
     fn {{rust_ident @root.rust_record_nil_method}}() -> Self {
-        Self { {{rust_ident @root.rust_record_identity_field}}: None, {{#each fields}}{{rust_ident name}}: {{rust_ident @root.rust_reference_field_type}}::nil(), {{/each}} }
+        Self { {{#if rust_interface_owned_metadata}}{{rust_ident @root.rust_interface_owner_field}}: std::sync::Arc::new({{rust_ident @root.rust_interface_owner_type}}), {{/if}}{{rust_ident @root.rust_record_identity_field}}: None, {{#each fields}}{{rust_ident name}}: {{rust_ident @root.rust_reference_field_type}}::nil(), {{/each}} }
     }
 
     fn {{rust_ident @root.rust_record_snapshot_method}}(&self) -> Self {
         if self.{{rust_ident @root.rust_record_identity_field}}.is_none() { return Self::{{rust_ident @root.rust_record_nil_method}}(); }
-        Self { {{rust_ident @root.rust_record_identity_field}}: Some(std::sync::Arc::new(())), {{#each fields}}{{rust_ident name}}: self.{{rust_ident name}}.clone(), {{/each}} }
+        Self { {{#if rust_interface_owned_metadata}}{{rust_ident @root.rust_interface_owner_field}}: std::sync::Arc::new({{rust_ident @root.rust_interface_owner_type}}), {{/if}}{{rust_ident @root.rust_record_identity_field}}: Some(std::sync::Arc::new(())), {{#each fields}}{{rust_ident name}}: self.{{rust_ident name}}.clone(), {{/each}} }
     }
 }
 impl PartialEq for {{rust_ident name}} {
@@ -44,9 +47,12 @@ impl PartialEq for {{rust_ident name}} {
 impl Clone for {{rust_ident name}} {
     fn clone(&self) -> Self { self.{{rust_ident @root.rust_thread_share_method}}() }
 }
-{{/if}}{{else}}{{#if rust_native_record_storage}}#[repr(C)]{{nl}}{{/if}}#[derive(Clone{{#unless has_heap_fields}}, Copy{{/unless}}, Debug, PartialEq)]
+{{/if}}{{else}}{{#if rust_native_record_storage}}#[repr(C)]{{nl}}{{/if}}#[derive({{#unless rust_interface_owned_metadata}}Clone{{#unless has_heap_fields}}, Copy{{/unless}}, {{/unless}}Debug{{#unless rust_interface_owned_metadata}}, PartialEq{{/unless}})]
 struct {{rust_ident name}} {
-{{#each fields}}    {{rust_ident name}}: {{#if rust_native_c_string_storage}}{{rust_ident @root.rust_native_c_string_type}}{{else}}{{#if rust_native_c_char_storage}}std::ffi::c_char{{else}}{{rust_type type}}{{/if}}{{/if}},
+{{#if rust_interface_owned_metadata}}    {{rust_ident @root.rust_interface_owner_field}}: std::sync::Arc<{{rust_ident @root.rust_interface_owner_type}}>,
+{{/if}}{{#if rust_interface_borrow_origin}}    {{rust_ident @root.rust_interface_origin_field}}: Option<{{rust_ident @root.rust_interface_key_type}}>,
+{{/if}}{{#if rust_interface_empty}}    {{rust_ident @root.rust_interface_empty_field}}: u8,
+{{/if}}{{#each fields}}    {{rust_ident name}}: {{#if rust_native_c_string_storage}}{{rust_ident @root.rust_native_c_string_type}}{{else}}{{#if rust_native_c_char_storage}}std::ffi::c_char{{else}}{{rust_type type}}{{/if}}{{/if}},
 {{/each}}{{rbrace}}{{#if methods}}
 
 impl {{rust_ident name}} {
@@ -68,4 +74,13 @@ impl {{rust_ident name}} {
         self.{{rust_ident @root.rust_array_text_method_name}}()
     }
 }{{/if~}}
-{{/if}}
+{{/if}}{{#if rust_interface_record}}{{> interface_record_support}}{{nl}}{{/if~}}
+{{#if rust_interface_owned_metadata}}{{#unless rust_thread_reference_identity}}impl Clone for {{rust_ident name}} {
+    fn clone(&self) -> Self {
+        Self { {{#if rust_interface_owned_metadata}}{{rust_ident @root.rust_interface_owner_field}}: std::sync::Arc::new({{rust_ident @root.rust_interface_owner_type}}), {{/if}}{{#if rust_interface_borrow_origin}}{{rust_ident @root.rust_interface_origin_field}}: None, {{/if}} {{#if rust_interface_empty}}{{rust_ident @root.rust_interface_empty_field}}: 0, {{/if}}{{#each fields}}{{rust_ident name}}: self.{{rust_ident name}}.clone(), {{/each}} }
+    }
+}
+impl PartialEq for {{rust_ident name}} {
+    fn eq(&self, other: &Self) -> bool { true{{#each fields}} && self.{{rust_ident name}} == other.{{rust_ident name}}{{/each}} }
+}
+{{/unless}}{{/if}}

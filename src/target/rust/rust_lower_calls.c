@@ -1755,8 +1755,33 @@ static void rust_lower_indexed_array_mutations(json_object *model, json_object *
     else json_object_put(prefix);
 }
 
+static bool rust_model_has_interface_arguments(json_object *node)
+{
+    if (json_object_is_type(node, json_type_array))
+    {
+        for (size_t i = 0; i < json_object_array_length(node); i++)
+            if (rust_model_has_interface_arguments(json_object_array_get_idx(node, i)))
+                return true;
+    }
+    else if (json_object_is_type(node, json_type_object))
+    {
+        if (json_string_property_equals(node, "kind", "sizeof") ||
+            json_boolean_property(node, "rust_c_layout_only")) return false;
+        if (json_boolean_property(node, "rust_interface_argument") ||
+            json_string_property_equals(node, "kind", "interface")) return true;
+        json_object_object_foreach(node, key, child)
+        {
+            if (strncmp(key, "rust_", 5) != 0 && rust_model_has_interface_arguments(child))
+                return true;
+        }
+    }
+    return false;
+}
+
 static bool rust_lower_calls(json_object *model)
 {
+    if (rust_model_has_interface_arguments(model))
+        json_object_object_add(model, "rust_has_interface_arguments", json_object_new_boolean(true));
     rust_lower_reference_record_reads(model, model);
     rust_lower_split_lines_accesses(model);
     json_object *functions = NULL;

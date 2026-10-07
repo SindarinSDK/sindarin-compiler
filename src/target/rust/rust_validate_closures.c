@@ -1466,8 +1466,11 @@ static RustValidationResult rust_validate_closure_call(json_object *expr)
         json_object *actual = rust_closure_property(arg, "type");
         json_object *wanted = json_object_array_get_idx(params, i);
         /* C converts value arguments at the signature boundary. */
+        bool interface_argument = json_boolean_property(arg, "rust_interface_argument") &&
+            json_string_property_equals(wanted, "kind", "interface") &&
+            json_string_property_equals(actual, "kind", "struct");
         if ((!rust_closure_same_type(actual, wanted) &&
-             !rust_float_conversion_pair(actual, wanted)) ||
+             !rust_float_conversion_pair(actual, wanted) && !interface_argument) ||
             (json_boolean_property(arg, "is_ref_arg") &&
              !json_boolean_property(wanted, "rust_closure_param_share")))
         {
@@ -1482,7 +1485,7 @@ static RustValidationResult rust_validate_closure_call(json_object *expr)
         if (rust_closure_array_type(wanted))
             json_object_object_add(arg, "rust_default_array_ref_arg", json_object_new_boolean(true));
         const char *kind = json_string_property(arg, "kind");
-        if (!json_boolean_property(wanted, "rust_closure_param_share") &&
+        if (!interface_argument && !json_boolean_property(wanted, "rust_closure_param_share") &&
                  kind && (strcmp(kind, "variable") == 0 || strcmp(kind, "member") == 0 ||
                           strcmp(kind, "array_access") == 0))
         {
