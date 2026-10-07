@@ -5,6 +5,43 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Callable replacement and nullable transport: local verification, 2026-10-08
+
+An unchanged local control crashes the C executable in all nine modes when a
+callable variable is reassigned a named function; Rust succeeds. C initialization
+already worked, so the earlier initializer warning was stale. Reassignment now
+creates its owned closure prefix and retains borrowed function values before
+releasing the previous owner. Self-assignment and aliases remain valid, including
+captured string storage after the original owner is cleared.
+
+Rust nullable callable storage is now independent of native callback declarations.
+Contextual nil transport covers function/lambda returns, arguments, static and
+instance methods, record fields, array literals and assignments, default locals,
+sized callable arrays and nested recursive captures. Two new hashed regressions
+extend the required matrix to 24 sources and 216 mode comparisons, with 198
+independent output contracts. Existing sources, positive runtime oracles and
+existing generation goldens remain unchanged. The former uninitialized-callable
+limitation source moves unchanged to an emission/runtime-failure test; its old
+compiler diagnostic is archived. The invalid nil invocation is not credited as
+a positive C/Rust parity case.
+
+Local results and compiler/report hashes are recorded in the linked evidence.
+The closure ownership gate retains its original record-reference sources and
+adds both callable regressions: 96 executions, including 24 sanitizer cases on
+Linux. The CI catalog retains 26 groups and 270 gate executions. Hosted
+acceptance of this batch is pending; no backend completion is claimed.
+
+Main follow-up run `37687229537` has no failing completed jobs, but one Linux
+job remains in toolchain setup. Older main runs also have live Linux setup jobs;
+their previously observed Windows stream and macOS compiler failures are
+retained. Infrastructure commit `b267f35f` is published on main with setup deadlines and
+without unnecessary Linux prerequisite downloads. Its independent unified run
+`37702160175` uses the second validation slot; the Linux build already passes
+setup and completes. The callable batch remains local until a slot clears. The intermittent macOS compiler crash and native interface
+ABI remain required work.
+
+Evidence: [callable ownership validation](rust-parity-evidence/callable-ownership-current-validation.json).
+
 ## Integrated interface and CI correction acceptance, 2026-10-07
 
 Corrective main `45fc52be` passes complete Linux/macOS/Windows compiler CI.

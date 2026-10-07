@@ -278,6 +278,18 @@ static bool rust_closure_walk_scope(RustClosureScope *scope, json_object *node)
     return ok;
 }
 
+/* Nil acquires its callable signature from the receiving source context.
+ * The nullable owner is a language value and does not require a C callback. */
+static void rust_closure_contextual_nil(RustClosureScope *scope, json_object *value,
+                                        json_object *expected)
+{
+    if (!json_string_property_equals(expected, "kind", "function") ||
+        !json_string_property_equals(value, "value_kind", "nil")) return;
+    json_object_object_add(scope->model, "rust_optional_callables", json_object_new_boolean(true));
+    json_object_object_add(value, "type", json_object_get(expected));
+    json_object_object_add(value, "rust_function_nil", json_object_new_boolean(true));
+}
+
 static bool rust_closure_walk_lambda(RustClosureScope *scope, json_object *node)
 {
     if (!rust_closure_type_supported(rust_closure_property(node, "type")) ||
@@ -473,6 +485,7 @@ static bool rust_closure_walk_lambda(RustClosureScope *scope, json_object *node)
         else ok = rust_closure_bind(scope, p, json_string_property(p, "name"), -1, false);
     }
     json_object *body_value = rust_closure_property(node, "body");
+    rust_closure_contextual_nil(scope, body_value, scope->return_type);
     if (ok && body_value && json_string_property_equals(scope->return_type, "kind", "function") &&
         !rust_closure_same_type(scope->return_type, rust_closure_property(body_value, "type")))
         ok = rust_closure_error("incompatible function-value signatures");
@@ -515,17 +528,11 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
         json_string_property_equals(rust_closure_property(node, "type"), "kind", "function") &&
         !json_boolean_property(node, "rust_closure_discarded"))
         return rust_closure_error("consumed function field or index assignment results");
-    if (kind && strcmp(kind, "binary") == 0 && rust_closure_property(scope->model, "rust_native_callbacks")) {
+    if (kind && strcmp(kind, "binary") == 0) {
         json_object *left = rust_closure_property(node, "left"), *right = rust_closure_property(node, "right");
         json_object *lt = rust_closure_property(left, "type"), *rt = rust_closure_property(right, "type");
-        if (json_string_property_equals(lt, "kind", "function") && json_string_property_equals(right, "value_kind", "nil")) {
-            json_object_object_add(right, "type", json_object_get(lt));
-            json_object_object_add(right, "rust_function_nil", json_object_new_boolean(true));
-        }
-        if (json_string_property_equals(rt, "kind", "function") && json_string_property_equals(left, "value_kind", "nil")) {
-            json_object_object_add(left, "type", json_object_get(rt));
-            json_object_object_add(left, "rust_function_nil", json_object_new_boolean(true));
-        }
+        rust_closure_contextual_nil(scope, right, lt);
+        rust_closure_contextual_nil(scope, left, rt);
     }
     if (kind && strcmp(kind, "binary") == 0 &&
         (json_string_property_equals(node, "op", "lt") || json_string_property_equals(node, "op", "lte") ||
@@ -545,15 +552,30 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
         json_object_object_add(edge_value, "rust_native_handle_owned_read", json_object_new_boolean(true));
         json_object_object_add(edge_value, "rust_native_array_return_owner", json_object_new_boolean(true));
     }
-    if (edge_value && json_string_property_equals(expected, "kind", "function") &&
-        json_string_property_equals(edge_value, "value_kind", "nil") &&
-        rust_closure_property(scope->model, "rust_native_callbacks")) {
-        json_object_object_add(edge_value, "type", json_object_get(expected));
-        json_object_object_add(edge_value, "rust_function_nil", json_object_new_boolean(true));
-    }
+    rust_closure_contextual_nil(scope, edge_value, expected);
     if (edge_value && json_string_property_equals(expected, "kind", "function") &&
         !rust_closure_same_type(expected, rust_closure_property(edge_value, "type")))
         return rust_closure_error("incompatible function-value signatures");
+    if (kind && (strcmp(kind, "static_call") == 0 || strcmp(kind, "method_call") == 0))
+    {
+        const char *name = strcmp(kind, "static_call") == 0
+            ? json_string_property(node, "type_name")
+            : json_string_property(rust_closure_property(node, "struct_type"), "name");
+        json_object *structure = rust_find_struct(scope->model, name);
+        json_object *methods = rust_closure_property(structure, "methods");
+        json_object *args = rust_closure_property(node, "args");
+        bool is_static = strcmp(kind, "static_call") == 0 || json_boolean_property(node, "is_static");
+        for (size_t m = 0; m < rust_closure_length(methods); m++)
+        {
+            json_object *method = json_object_array_get_idx(methods, m);
+            if (!json_string_property_equals(method, "name", json_string_property(node, "method_name")) ||
+                json_boolean_property(method, "is_static") != is_static) continue;
+            json_object *params = rust_closure_property(method, "params");
+            for (size_t i = 0; i < rust_closure_length(args) && i < rust_closure_length(params); i++)
+                rust_closure_contextual_nil(scope, json_object_array_get_idx(args, i),
+                    rust_closure_property(json_object_array_get_idx(params, i), "type"));
+        }
+    }
     if (kind && strcmp(kind, "struct_literal") == 0)
     {
         json_object *structure = rust_find_struct(scope->model, json_string_property(node, "struct_name"));
@@ -566,6 +588,8 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
             {
                 json_object *decl = json_object_array_get_idx(decls, d);
                 json_object *wanted = rust_closure_property(decl, "type");
+                if (json_string_property_equals(decl, "name", json_string_property(field, "name")))
+                    rust_closure_contextual_nil(scope, rust_closure_property(field, "value"), wanted);
                 if (json_string_property_equals(decl, "name", json_string_property(field, "name")) &&
                     json_string_property_equals(wanted, "kind", "function") &&
                     !rust_closure_same_type(wanted, rust_closure_property(rust_closure_property(field, "value"), "type")))
@@ -581,15 +605,15 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
             for (size_t i = 0; i < rust_closure_length(elements); i++)
             {
                 json_object *element = json_object_array_get_idx(elements, i);
+                rust_closure_contextual_nil(scope, element, element_type);
                 if (!json_string_property_equals(element, "kind", "spread") &&
                     !rust_closure_same_type(element_type, rust_closure_property(element, "type")))
                     return rust_closure_error("incompatible function-value signatures");
             }
     }
     if (kind && strcmp(kind, "sized_array") == 0 &&
-        json_string_property_equals(rust_closure_property(node, "element_type"), "kind", "function") &&
-        !rust_closure_property(scope->model, "rust_native_callbacks"))
-        return rust_closure_error("sized arrays of function values");
+        json_string_property_equals(rust_closure_property(node, "element_type"), "kind", "function"))
+        json_object_object_add(scope->model, "rust_optional_callables", json_object_new_boolean(true));
     if (kind && strcmp(kind, "var_decl") == 0)
     {
         if (!rust_closure_walk(scope, rust_closure_property(node, "initializer"))) return false;
@@ -601,7 +625,7 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
                 json_object_object_add(json_object_array_get_idx(decl_params, i), "rust_owned_scalar_parameter", json_object_new_boolean(true));
         if (json_string_property_equals(rust_closure_property(node, "type"), "kind", "function") &&
             !rust_closure_property(node, "initializer"))
-            return rust_closure_error("uninitialized function values");
+            json_object_object_add(scope->model, "rust_optional_callables", json_object_new_boolean(true));
         return rust_closure_bind(scope, node, json_string_property(node, "name"), -1, false);
     }
     if (kind && strcmp(kind, "variable") == 0)
@@ -913,6 +937,7 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
         {
             json_object *wanted = json_object_array_get_idx(params, i);
             json_object *arg = json_object_array_get_idx(args, i);
+            rust_closure_contextual_nil(scope, arg, wanted);
             if (json_string_property_equals(wanted, "kind", "function") &&
                 !rust_closure_same_type(wanted, rust_closure_property(arg, "type")))
                 return rust_closure_error("incompatible function-value signatures");

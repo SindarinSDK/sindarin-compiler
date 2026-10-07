@@ -1,4 +1,4 @@
-{{#if rust_native_callbacks}}
+{{#if rust_optional_callables}}
 struct {{rust_ident rust_native_callable_owner}}<F: ?Sized>(Option<{{> closure_owner}}<F>>);
 impl<F: ?Sized> {{rust_ident rust_native_callable_owner}}<F> {
     fn new(value: {{> closure_owner}}<F>) -> Self { Self(Some(value)) }

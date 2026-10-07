@@ -1,0 +1,51 @@
+struct CallableContainer =>
+  action: fn(int): int
+
+  static fn absentStatic(action: fn(int): int): bool =>
+    return action == nil
+
+  fn absentMethod(action: fn(int): int): bool =>
+    return action == nil
+
+  fn absentResult(): fn(int): int =>
+    return nil
+
+fn emptyCallable(): fn(int): int =>
+  return nil
+
+fn isAbsent(action: fn(int): int): bool =>
+  return action == nil
+
+fn main(): void =>
+  var nothing: fn(int): int = nil
+  println(nothing == nil)
+  println(nil == nothing)
+  println(isAbsent(nil))
+  println(isAbsent(emptyCallable()))
+  var container: CallableContainer = { action: nil }
+  println(container.action == nil)
+  container.action = nil
+  println(container.action == nil)
+  var callbacks: (fn(int): int)[] = {nil}
+  println(callbacks[0] == nil)
+  callbacks[0] = nil
+  println(callbacks[0] == nil)
+  var defaultAction: fn(int): int
+  println(defaultAction == nil)
+  var makeNil: fn(): fn(int): int = fn(): fn(int): int => nil
+  println(isAbsent(makeNil()))
+  var action: fn(int): int = fn(n: int): int =>
+    if n < 1 =>
+      return 1
+    var next: fn(): int = fn(): int => action(n - 1)
+    return next() + 1
+  println(action(3))
+  action = nil
+  println(action == nil)
+  var sized: (fn(int): int)[2]
+  println(sized.length == 2)
+  println(sized[0] == nil)
+  println(sized[1] == nil)
+  println(CallableContainer.absentStatic(nil))
+  println(container.absentMethod(nil))
+  println(isAbsent(container.absentResult()))

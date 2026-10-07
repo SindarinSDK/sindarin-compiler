@@ -1,0 +1,115 @@
+{
+  "date": "2026-10-08",
+  "updated_at_utc": "2026-10-07T23:27:54.425947+00:00",
+  "status": "locally_verified_hosted_acceptance_pending",
+  "base_main": "b267f35fbb5a38533dcc8e1618ee3531025f4e3a",
+  "compiler_sha256": "6946fc3f296ba35a46098aebb20635404ec7762346c24a9ccc0eecf32a74bc61",
+  "sources": {
+    "tests/rust-interfaces/named_callable_assignment.sn": {
+      "sha256": "001981a3bab917147596b0badd817517b5d77a18818eda0a3fb146809990c210",
+      "expected_stdout_hex": "747275650a66616c73650a66616c73650a747275650a66616c73650a747275650a66616c73650a747275650a66616c73650a747275650a747275650a747275650a6f776e656420636170747572650a6f776e656420636170747572650a747275650a"
+    },
+    "tests/rust-interfaces/nullable_callable_transport.sn": {
+      "sha256": "fefd243946c76e78433f18a820d4cda490cc8b77da92f4c4df6297c99d7d6e62",
+      "expected_stdout_hex": "747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a340a747275650a747275650a747275650a747275650a747275650a747275650a747275650a"
+    }
+  },
+  "reports": {
+    "gcc_interfaces": {
+      "path": ".sn/callable-correction-interfaces-gcc-final.json",
+      "sha256": "0291dd47da35f49407093baf4f6103e76c6c87695a978b2a4b69c1ba4a89a9b1",
+      "compiler_sha256": "6946fc3f296ba35a46098aebb20635404ec7762346c24a9ccc0eecf32a74bc61",
+      "cases": 216,
+      "passed": true,
+      "independent_oracles": 198
+    },
+    "clang_interfaces": {
+      "path": ".sn/callable-correction-interfaces-clang-final.json",
+      "sha256": "f1708d4876ff9707f4055fce32f30566055568deadf0e7c42057cc9e8c88f521",
+      "compiler_sha256": "6946fc3f296ba35a46098aebb20635404ec7762346c24a9ccc0eecf32a74bc61",
+      "cases": 216,
+      "passed": true,
+      "independent_oracles": 198
+    },
+    "closure_owners": {
+      "path": ".sn/record-reference-snapshots.json",
+      "sha256": "8b56cd9252fff9816ca3f8f72c08e2bd5a48f46e004434d1f4efd20a186eb0e0",
+      "compiler_sha256": "6946fc3f296ba35a46098aebb20635404ec7762346c24a9ccc0eecf32a74bc61",
+      "cases": 96,
+      "passed": true,
+      "sanitized_cases": 24
+    },
+    "native_callbacks": {
+      "passed": true,
+      "cases": 612,
+      "path": ".sn/rust-parity-native-callbacks.json",
+      "sha256": "62864eb1994b8ddd156d3e471b0ecc8ab4d162c96be6ae6af307831bb30bce17",
+      "compiler_sha256": "6946fc3f296ba35a46098aebb20635404ec7762346c24a9ccc0eecf32a74bc61"
+    },
+    "native_nil_compiler": {
+      "passed": true,
+      "cases": 18,
+      "path": ".sn/rust-parity-native-nil-compiler.json",
+      "sha256": "104af11f07a6efd428219f63986b7edfa1a5f4f3874b0f203168845a1d39da7c",
+      "compiler_sha256": "6946fc3f296ba35a46098aebb20635404ec7762346c24a9ccc0eecf32a74bc61"
+    }
+  },
+  "unchanged_before_after_control": {
+    "source": "callable-assignment-before-probe.sn.raw",
+    "source_sha256": "e79570116c04db600e923db914634e882ee8b335f51540d7d6d98957acd121ab",
+    "before": "callable-assignment-before.json",
+    "before_sha256": "d344cf56fdd8c8f90cda03e6a7209aa40221f1fa567556ded7a77ce999f08ed0",
+    "after": "All nine C/Rust modes exit zero, empty stderr and exact true/false/true/false stdout",
+    "after_sha256": "08e031cf946823c94376af6667b0be6e0669498f0c108989b6d22eeeaae78f36",
+    "before_c_signal": "SIGBUS (-7) in all nine modes; Rust exits zero"
+  },
+  "default_null_invocation": {
+    "unchanged_source_sha256": "8f676401d14998123d398bc4c8b6c0e5b39b55311599a586c7ff24faa72a55c5",
+    "historical_compiler_diagnostic_preserved": true,
+    "runtime_check": {
+      "compile_status": 0,
+      "run_status": 101,
+      "stdout_hex": "",
+      "stderr_hex": "0a74687265616420276d61696e27202833353433353235292070616e69636b6564206174202e736e2f6275696c642f727573742f636c6f737572655f76616c7565735f756e696e697469616c697a65645f333534333433312f6d61696e2e72733a39383a35383a0a6e696c2063616c6c61626c6520696e766f636174696f6e0a6e6f74653a2072756e20776974682060525553545f4241434b54524143453d316020656e7669726f6e6d656e74207661726961626c6520746f20646973706c61792061206261636b74726163650a"
+    },
+    "parity_credit": false,
+    "reason": "Invalid nil invocation is a Rust runtime-failure regression; no positive C/Rust behavioral claim is made."
+  },
+  "ci": {
+    "groups": 26,
+    "required_gate_executions": 270,
+    "interface_cases_per_platform": 216,
+    "callable_batch_hosted_status": "not_published",
+    "setup_fix_main": "b267f35fbb5a38533dcc8e1618ee3531025f4e3a",
+    "setup_fix_run": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37702160175",
+    "setup_fix_status": "in_progress",
+    "prior_followup_run": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37687229537",
+    "prior_followup_status": "in_progress_in_Linux_toolchain_setup"
+  },
+  "remaining_goal": [
+    "Native opaque interface ABI and retained C-compatible payloads",
+    "Unexplained intermittent macOS native-nil compiler SIGSEGV",
+    "All documented ownership, aliasing, closure, concurrency, SDK and language obligations",
+    "Full final corpus, suites, sanitizers and three-platform integrated-main acceptance"
+  ],
+  "complete_suites": {
+    "C": {
+      "checks": 3234,
+      "passed": true,
+      "log": ".sn/callable-correction-c-suite-current.log",
+      "sha256": "c33fd500aa26c240dcd4cce961c6b6d04dad743674ac7f94689daadbc6d8a12e"
+    },
+    "Rust": {
+      "checks": 1081,
+      "passed": true,
+      "log": ".sn/callable-correction-rust-suite-final.log",
+      "sha256": "368e094595a48e86f53da91eff2050dd63064e07783932d401afebad11f17713"
+    }
+  },
+  "ci_helper_tests": {
+    "passed": true,
+    "count": 10,
+    "path": ".sn/callable-correction-ci-helper-tests-final.log",
+    "sha256": "ef52d25fee025bc02a20d24a554ad933b3f03f0545e7e3590a0dcfef901affc2"
+  }
+}

@@ -1216,7 +1216,7 @@
     },
     {
       "id": "c-record-snapshots",
-      "name": "record reference capture snapshots",
+      "name": "closure owners: record snapshots, replacement and nullable transport",
       "command": [
         "{python}",
         "scripts/check_record_reference_snapshots.py"
@@ -1229,7 +1229,7 @@
     },
     {
       "id": "runtime-101",
-      "name": "structural interfaces and C storage scopes (198 cases)",
+      "name": "structural interfaces, callable ownership and C storage scopes (216 cases)",
       "command": [
         "make",
         "-o",

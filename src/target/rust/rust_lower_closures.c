@@ -618,7 +618,18 @@ static void rust_name_rebindable_array_types(json_object *node, const char *name
 
 static void rust_lower_closures(json_object *model)
 {
-    if (rust_closure_length(rust_closure_property(model, "rust_native_callbacks"))) rust_lower_optional_callable_defaults(model);
+    if (rust_closure_length(rust_closure_property(model, "rust_native_callbacks")))
+        json_object_object_add(model, "rust_optional_callables", json_object_new_boolean(true));
+    if (json_boolean_property(model, "rust_optional_callables"))
+    {
+        if (!json_string_property(model, "rust_native_callable_owner"))
+        {
+            char owner[96];
+            if (!rust_allocate_helper_name(model, "__SnOptionalCallable", owner, sizeof(owner))) return;
+            json_object_object_add(model, "rust_native_callable_owner", json_object_new_string(owner));
+        }
+        rust_lower_optional_callable_defaults(model);
+    }
     rust_lower_ref_previous_names(model, model);
     bool uses = false;
     rust_lower_closure_node(model, &uses);

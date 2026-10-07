@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check copied record captures across reference calls, modes and scope exits."""
+"""Check closure owners across record snapshots, replacement and nullable transport."""
 import hashlib
 import json
 import os
@@ -8,6 +8,7 @@ import platform
 import subprocess
 import tempfile
 
+from check_rust_interface_oracles import PROBE_ORACLES, PROBE_SHA256
 
 ORACLES = {
     'tests/integration/test_lambda_capture_record_ref_snapshot.sn': b'true\ntrue\ntrue\n',
@@ -16,6 +17,11 @@ ORACLES = {
 }
 
 SOURCE_SHA256 = {'tests/integration/test_lambda_capture_record_ref_snapshot.sn': 'b53682939ad5f1e8ac6eec43b3af252da4cd004b1bbf8145d05ce87513e83d5b', 'tests/integration/test_managed_record_reference_snapshots.sn': '8980d4e55a85b1d9c94fa6d72d540c5e9db08d43975180a3dbdf254c73a26b04'}
+
+for source in ('tests/rust-interfaces/named_callable_assignment.sn',
+               'tests/rust-interfaces/nullable_callable_transport.sn'):
+    ORACLES[source] = PROBE_ORACLES[source]
+    SOURCE_SHA256[source] = PROBE_SHA256[source]
 
 
 def execute(compiler, source, executable, target, optimization, mode, sanitized):

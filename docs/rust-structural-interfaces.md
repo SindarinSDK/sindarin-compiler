@@ -27,12 +27,13 @@ C execution byte for byte in every mode. These four controls run in the required
 interface matrix rather than the general fixed-output native suite, which now
 contains 377 fixtures. No source or historical oracle is rewritten.
 
-`make test-rust-parity-interfaces` requires the complete 22-source matrix,
+`make test-rust-parity-interfaces` requires the complete 24-source matrix,
 frozen source hashes, successful C/Rust execution, exact raw output equality,
 and the independent contracts. Twelve further audits require zero provenance
 metadata entries after scope exit, array growth, escaping captures and returned
 arrays. Both gates are required on Linux, macOS and Windows in unified CI.
-Local validation passes; hosted acceptance of this increment is pending.
+The earlier storage increment has hosted acceptance on main `45fc52be`.
+The current 24-source extension passes locally; hosted acceptance is pending.
 
 Evidence: [storage and closure validation](rust-parity-evidence/interface-storage-current-validation.json),
 [earlier recovery](rust-parity-evidence/interface-recovery-current-validation.json).
@@ -94,9 +95,12 @@ lifetimes. Rejection is not parity credit. Effectful receivers, qualified/global
 ownership, concurrency and SDK/foreign boundaries remain full-goal work.
 
 Self-to-interface conversion in the attempted method probe is rejected by the
-shared front end for both targets; it is not a passing parity case. The separate
-named-function initializer probe exposes a C closure representation failure and
-remains repair work. Qualified parameters, escaping/captured identities,
+shared front end for both targets; it is not a passing parity case. Named callable initialization works on current main. Reassignment previously
+stored a bare C function pointer instead of an owned closure and failed in all
+nine modes. Reassignment now constructs the closure and retains borrowed
+function owners before releasing the destination, including self-assignment.
+The frozen regression also preserves captured strings after the source owner
+is cleared. Qualified parameters, escaping/captured identities,
 concurrency, native SDK interfaces and foreign callbacks remain in the full goal.
 
 Local records are retained under `.sn/interface-owned-metadata-main-validation.json`,
@@ -105,3 +109,27 @@ Local records are retained under `.sn/interface-owned-metadata-main-validation.j
 `.sn/interface-identity-layout-audit.json` and their referenced reports. Source
 admission, complete C/Rust suites, mandatory platform gates, current-main
 composition and Linux/macOS/Windows hosted evidence are required for full backend completion.
+
+## Nullable callable transport
+
+Rust callable values can hold nil without a native callback declaration. Nil
+acquires the receiving signature at declarations, assignments, returns, function
+and method arguments, record fields and array literals. Default local callables
+and sized callable arrays start as nil. Ordinary and recursive closures use the
+same nullable owner; nested captures retain their callable independently.
+
+The two added regressions require eighteen exact C/Rust comparisons and frozen
+literal output contracts, including managed closure replacement and nil transport
+through static/instance methods and recursive captures. The complete interface
+matrix now requires 216 comparisons over 24 unchanged, hashed sources, with 198
+independent output oracles. The closure ownership gate additionally exercises
+both new regressions at every optimization level, including C ASAN/UBSAN/leak
+checks and Rust ASAN on Linux.
+
+The former Rust-only `closure_values_uninitialized` limitation source now emits
+successfully and is checked as a runtime failure: calling its default-null value
+traps. Its source bytes are preserved, and its old compiler diagnostic remains
+in `docs/restoration/post-tag-fixtures`. This invalid call receives no positive
+C/Rust parity credit. Existing generation goldens and positive runtime oracles
+are unchanged. Foreign interface ABI and the other full-goal obligations above
+remain unfinished.

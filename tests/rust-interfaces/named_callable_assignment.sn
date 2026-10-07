@@ -1,0 +1,49 @@
+interface CallableIdentity =>
+  fn toString(): str
+
+struct CallableValue =>
+  value: int
+
+  fn toString(): str =>
+    return "value"
+
+fn sameValue(left: CallableIdentity, right: CallableIdentity): bool =>
+  return left == right
+
+fn differentValue(left: CallableIdentity, right: CallableIdentity): bool =>
+  return left != right
+
+fn main(): void =>
+  var first: CallableValue = { value: 7 }
+  var second: CallableValue = { value: 9 }
+  var same: fn(CallableIdentity, CallableIdentity): bool = sameValue
+  println(same(first, first))
+  println(same(first, second))
+  same = differentValue
+  println(same(first, first))
+  println(same(first, second))
+  var saved: fn(CallableIdentity, CallableIdentity): bool = same
+  same = sameValue
+  println(saved(first, first))
+  println(saved(first, second))
+  same = saved
+  saved = sameValue
+  println(same(first, first))
+  println(same(first, second))
+  same = same
+  println(same(first, first))
+  println(same(first, second))
+  same = fn(left: CallableIdentity, right: CallableIdentity): bool => true
+  println(same(first, second))
+  same = nil
+  println(same == nil)
+  var message: str = "owned capture"
+  var source: fn(): str = fn(): str => message
+  var owner: fn(): str = fn(): str => "replaced"
+  owner = source
+  source = nil
+  println(owner())
+  owner = owner
+  println(owner())
+  owner = nil
+  println(owner == nil)

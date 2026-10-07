@@ -1,0 +1,17 @@
+interface CallableIdentity =>
+  fn toString(): str
+struct CallableValue =>
+  value: int
+  fn toString(): str =>
+    return "value"
+fn sameValue(left: CallableIdentity, right: CallableIdentity): bool =>
+  return left == right
+fn main(): void =>
+  var first: CallableValue = { value: 7 }
+  var second: CallableValue = { value: 9 }
+  var same: fn(CallableIdentity, CallableIdentity): bool = sameValue
+  println(same(first, first))
+  println(same(first, second))
+  same = sameValue
+  println(same(first, first))
+  println(same(first, second))

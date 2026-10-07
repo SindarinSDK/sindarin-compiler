@@ -62,8 +62,8 @@ impl<T> std::ops::Deref for {{rust_ident rust_closure_scalar_guard_type}}<'_, '_
 impl<T> std::ops::DerefMut for {{rust_ident rust_closure_scalar_guard_type}}<'_, '_, T> {
     fn deref_mut(&mut self) -> &mut T { match self { Self::Borrowed(value) => &mut ***value, Self::Shared(value) => &mut **value } }
 }
-{{#if rust_owned_thread_scalar_type}}{{> owned_thread_scalar_support this}}{{/if}}{{/if}}struct {{rust_ident rust_closure_handle_name}}<F: ?Sized>({{#if rust_native_callbacks}}{{rust_ident rust_native_callable_owner}}{{else}}{{> closure_owner}}{{/if}}<F>);
-{{#if rust_native_callbacks}}impl<F: ?Sized> {{rust_ident rust_closure_handle_name}}<F> {
+{{#if rust_owned_thread_scalar_type}}{{> owned_thread_scalar_support this}}{{/if}}{{/if}}struct {{rust_ident rust_closure_handle_name}}<F: ?Sized>({{#if rust_optional_callables}}{{rust_ident rust_native_callable_owner}}{{else}}{{> closure_owner}}{{/if}}<F>);
+{{#if rust_optional_callables}}impl<F: ?Sized> {{rust_ident rust_closure_handle_name}}<F> {
     fn nil() -> Self { Self({{rust_ident rust_native_callable_owner}}::nil()) }
 }
 {{/if}}{{#if rust_has_recursive_closures}}impl<F: ?Sized> {{rust_ident rust_closure_handle_name}}<F> {
@@ -71,7 +71,7 @@ impl<T> std::ops::DerefMut for {{rust_ident rust_closure_scalar_guard_type}}<'_,
         let slot = {{> closure_owner}}::new({{> closure_once}}::new());
         let callable = build(slot.clone());
         let _ = slot.set({{> closure_owner}}::downgrade(&callable));
-        Self({{#if @root.rust_native_callbacks}}{{rust_ident @root.rust_native_callable_owner}}::new({{/if}}callable{{#if @root.rust_native_callbacks}}){{/if}})
+        Self({{#if @root.rust_optional_callables}}{{rust_ident @root.rust_native_callable_owner}}::new({{/if}}callable{{#if @root.rust_optional_callables}}){{/if}})
     }
 }
 {{/if}}impl<F: ?Sized> Clone for {{rust_ident rust_closure_handle_name}}<F> {
@@ -83,6 +83,6 @@ impl<F: ?Sized> std::fmt::Debug for {{rust_ident rust_closure_handle_name}}<F> {
     }
 }
 impl<F: ?Sized> PartialEq for {{rust_ident rust_closure_handle_name}}<F> {
-    fn eq(&self, other: &Self) -> bool { {{#if @root.rust_native_callbacks}}match (&self.0.0, &other.0.0) { (Some(left), Some(right)) => {{> closure_owner}}::ptr_eq(left, right), (None, None) => true, _ => false }{{else}}{{> closure_owner}}::ptr_eq(&self.0, &other.0){{/if}} }
+    fn eq(&self, other: &Self) -> bool { {{#if @root.rust_optional_callables}}match (&self.0.0, &other.0.0) { (Some(left), Some(right)) => {{> closure_owner}}::ptr_eq(left, right), (None, None) => true, _ => false }{{else}}{{> closure_owner}}::ptr_eq(&self.0, &other.0){{/if}} }
 }
 {{/if~}}

@@ -1164,6 +1164,17 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                         break;
                     case TYPE_FUNCTION:
                         assign_cleanup = "free_closure";
+                        {
+                            int wrap_id = maybe_emit_fn_ref_wrapper(arena,
+                                expr->as.assign.value, atype, symbol_table);
+                            if (wrap_id >= 0)
+                            {
+                                json_object_object_add(obj, "needs_closure_wrap",
+                                    json_object_new_boolean(true));
+                                json_object_object_add(obj, "fn_wrapper_id",
+                                    json_object_new_int(wrap_id));
+                            }
+                        }
                         break;
                     default:
                         break;
@@ -1180,7 +1191,8 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     (strcmp(assign_cleanup, "free_str") == 0 ||
                      strcmp(assign_cleanup, "release_ref") == 0 ||
                      strcmp(assign_cleanup, "cleanup_val") == 0 ||
-                     strcmp(assign_cleanup, "cleanup_arr") == 0))
+                     strcmp(assign_cleanup, "cleanup_arr") == 0 ||
+                     strcmp(assign_cleanup, "free_closure") == 0))
                 {
                     json_object_object_add(obj, "source_is_borrow",
                         json_object_new_boolean(true));
