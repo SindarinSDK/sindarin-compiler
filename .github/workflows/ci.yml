@@ -14,8 +14,10 @@ name: Compiler
 permissions:
   contents: read
 concurrency:
-  group: compiler-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  # Preserve every main revision while development continues alongside CI.
+  # PR revisions share a group so only their latest checks need to finish.
+  group: compiler-${{ github.event_name }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
   build:
     name: Build (${{ matrix.os }})

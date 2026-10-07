@@ -3,6 +3,12 @@
 `.github/workflows/ci.yml` is the single C/Rust compiler validation pipeline.
 Release packaging remains in the release workflow.
 
+Every push and manual run has a concurrency group containing its unique run ID,
+so later pushes cannot replace either running or pending main validation. Pull
+request revisions share a group by PR number and cancel superseded checks.
+This lets development continue while earlier main revisions finish validation.
+Final acceptance requires complete green CI on the final integrated revision.
+
 Three build jobs produce one compiler bundle for each of Linux, macOS and
 Windows. The bundle contains the staged `bin` tree and installed project
 libraries. A tar archive preserves executable modes; a file manifest binds the
