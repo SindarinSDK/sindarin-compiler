@@ -1,0 +1,1228 @@
+{
+  "version": 1,
+  "groups": [
+    "c",
+    "rust",
+    "core",
+    "native",
+    "arrays",
+    "closures",
+    "callbacks",
+    "numeric-io",
+    "sanitizers",
+    "callback-sanitizers"
+  ],
+  "gates": [
+    {
+      "name": "tagged native C/Rust parity (8 fixtures)",
+      "command": [
+        "{python}",
+        "scripts/run_rust_tests.py",
+        "rust-native-tagged",
+        "--verbose",
+        "--require-count",
+        "8",
+        "--fail-on-skip"
+      ],
+      "linux_only": false,
+      "id": "runtime-001",
+      "group": "rust"
+    },
+    {
+      "name": "native scalar, record and managed ABI fixtures (364 fixtures)",
+      "command": [
+        "{python}",
+        "scripts/run_rust_tests.py",
+        "rust-native-extra",
+        "--verbose",
+        "--require-count",
+        "364",
+        "--fail-on-skip"
+      ],
+      "linux_only": false,
+      "id": "runtime-002",
+      "group": "rust"
+    },
+    {
+      "name": "canonical native handle ownership (117 cases)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-handles"
+      ],
+      "linux_only": false,
+      "id": "runtime-003",
+      "group": "native"
+    },
+    {
+      "name": "canonical native reference arrays (27 cases)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-arrays"
+      ],
+      "linux_only": false,
+      "id": "runtime-004",
+      "group": "native"
+    },
+    {
+      "name": "global native owners and joined thread results (36 cases)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-globals"
+      ],
+      "linux_only": false,
+      "id": "runtime-005",
+      "group": "native"
+    },
+    {
+      "name": "native record value transport (45 cases)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-records"
+      ],
+      "linux_only": false,
+      "id": "runtime-006",
+      "group": "native"
+    },
+    {
+      "name": "native C callable definitions, globals and threads (63 cases)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-callables"
+      ],
+      "linux_only": false,
+      "id": "runtime-007",
+      "group": "native"
+    },
+    {
+      "name": "native variadic C adapters and ownership (54 cases)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-variadics"
+      ],
+      "linux_only": false,
+      "id": "runtime-008",
+      "group": "native"
+    },
+    {
+      "name": "owned as-val arrays, callable elements and method owners (45 cases)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-array-values"
+      ],
+      "linux_only": false,
+      "id": "runtime-009",
+      "group": "arrays"
+    },
+    {
+      "name": "owned byte-pointer slices and scalar bounds (45 cases)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-pointer-slices"
+      ],
+      "linux_only": false,
+      "id": "runtime-010",
+      "group": "arrays"
+    },
+    {
+      "name": "serialization vtables, fields and lifetimes (117 cases)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-serialization"
+      ],
+      "linux_only": false,
+      "id": "runtime-011",
+      "group": "native"
+    },
+    {
+      "name": "native managed record storage and ownership (54 cases)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-managed-records"
+      ],
+      "linux_only": false,
+      "id": "runtime-012",
+      "group": "native"
+    },
+    {
+      "name": "native record references and stable storage (36 cases)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-record-references"
+      ],
+      "linux_only": false,
+      "id": "runtime-013",
+      "group": "native"
+    },
+    {
+      "name": "owned record parameters, aliases and field forwarding (216 cases)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-owned-record-parameters"
+      ],
+      "linux_only": false,
+      "id": "runtime-014",
+      "group": "arrays"
+    },
+    {
+      "name": "reference records, return lifetimes and copy hooks (171 cases)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-reference-records"
+      ],
+      "linux_only": false,
+      "id": "runtime-015",
+      "group": "arrays"
+    },
+    {
+      "name": "scalar parameter characters, aliases and storage conversions (126 cases)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-scalar-parameters"
+      ],
+      "linux_only": false,
+      "id": "runtime-016",
+      "group": "core"
+    },
+    {
+      "name": "closure record lifetimes, aliases and mutation (189 cases)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-closure-records"
+      ],
+      "linux_only": false,
+      "id": "runtime-017",
+      "group": "closures"
+    },
+    {
+      "name": "native ABI admission diagnostics (4 fixtures)",
+      "command": [
+        "{python}",
+        "scripts/run_rust_tests.py",
+        "rust-native-errors",
+        "--verbose",
+        "--require-count",
+        "4",
+        "--fail-on-skip"
+      ],
+      "linux_only": false,
+      "id": "runtime-018",
+      "group": "rust"
+    },
+    {
+      "name": "nested array stores and copy independence (45 cases)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-nested-stores"
+      ],
+      "linux_only": false,
+      "id": "runtime-019",
+      "group": "arrays"
+    },
+    {
+      "name": "owned struct and nested array copies (45 cases)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-owned-array-copies"
+      ],
+      "linux_only": false,
+      "id": "runtime-020",
+      "group": "arrays"
+    },
+    {
+      "name": "nil array state and native transport (90 cases)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-nil-array"
+      ],
+      "linux_only": false,
+      "id": "runtime-021",
+      "group": "arrays"
+    },
+    {
+      "name": "nil string state and native transport (72 cases)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-nil-string"
+      ],
+      "linux_only": false,
+      "id": "runtime-022",
+      "group": "arrays"
+    },
+    {
+      "name": "C-only native helper scope (36 cases)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-scope"
+      ],
+      "linux_only": false,
+      "id": "runtime-023",
+      "group": "native"
+    },
+    {
+      "name": "imported native alias origin (1 fixture)",
+      "command": [
+        "{python}",
+        "scripts/run_rust_tests.py",
+        "rust-native-origin",
+        "--verbose",
+        "--require-count",
+        "1",
+        "--fail-on-skip"
+      ],
+      "linux_only": false,
+      "id": "runtime-024",
+      "group": "rust"
+    },
+    {
+      "name": "platform-specific raw byte-string behavior",
+      "command": [
+        "{python}",
+        "tests/rgen/byte_string_compare.py"
+      ],
+      "linux_only": false,
+      "id": "runtime-025",
+      "group": "rust"
+    },
+    {
+      "name": "exact Rust/C text output, native flush, and diagnostics",
+      "command": [
+        "{python}",
+        "tests/rgen/windows_text_transport_compare.py"
+      ],
+      "linux_only": false,
+      "id": "runtime-026",
+      "group": "rust"
+    },
+    {
+      "name": "indexed member Rust runtime composition",
+      "command": [
+        "{python}",
+        "scripts/run_rust_tests.py",
+        "rgen",
+        "--filter",
+        "indexed_member_assignment",
+        "--verbose",
+        "--require-count",
+        "1",
+        "--fail-on-skip"
+      ],
+      "linux_only": false,
+      "id": "runtime-027",
+      "group": "rust"
+    },
+    {
+      "name": "Windows text helper logic",
+      "command": [
+        "{python}",
+        "tests/rgen/windows_text_helpers.py"
+      ],
+      "linux_only": false,
+      "id": "runtime-028",
+      "group": "rust"
+    },
+    {
+      "name": "complete Rust generation, diagnostics, native, closure, concurrency and toolchain suites",
+      "command": [
+        "{python}",
+        "scripts/run_rust_tests.py",
+        "all",
+        "--verbose",
+        "--fail-on-skip"
+      ],
+      "linux_only": false,
+      "id": "runtime-029",
+      "group": "rust"
+    },
+    {
+      "name": "core C/Rust differential coverage at O0/O1/O2",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-core"
+      ],
+      "linux_only": false,
+      "id": "runtime-030",
+      "group": "core"
+    },
+    {
+      "name": "concurrency C/Rust differential coverage (17 sources, O0/O1/O2)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-concurrency"
+      ],
+      "linux_only": false,
+      "id": "runtime-031",
+      "group": "core"
+    },
+    {
+      "name": "thread ownership and array identity (23 sources, all optimization/arithmetic modes)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-thread-ownership"
+      ],
+      "linux_only": false,
+      "id": "runtime-032",
+      "group": "core"
+    },
+    {
+      "name": "thread receiver and aggregate ownership (10 sources, all optimization/arithmetic modes)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-thread-receivers"
+      ],
+      "linux_only": false,
+      "id": "runtime-033",
+      "group": "core"
+    },
+    {
+      "name": "reflection metadata and sized arrays (4 sources, all optimization/arithmetic modes)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-reflection"
+      ],
+      "linux_only": false,
+      "id": "runtime-034",
+      "group": "core"
+    },
+    {
+      "name": "sized-array defaults and evaluation effects (3 sources, all optimization/arithmetic modes)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-sized-defaults"
+      ],
+      "linux_only": false,
+      "id": "runtime-035",
+      "group": "core"
+    },
+    {
+      "name": "zero-initialized value records (3 sources, all optimization/arithmetic modes)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-zero-record-defaults"
+      ],
+      "linux_only": false,
+      "id": "runtime-036",
+      "group": "core"
+    },
+    {
+      "name": "managed iterator protocol (8 sources, all optimization/arithmetic modes)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-managed-iterators"
+      ],
+      "linux_only": false,
+      "id": "runtime-037",
+      "group": "arrays"
+    },
+    {
+      "name": "borrowed array return ownership (3 sources, all optimization/arithmetic modes)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-array-returns"
+      ],
+      "linux_only": false,
+      "id": "runtime-038",
+      "group": "arrays"
+    },
+    {
+      "name": "closure array mutation, ownership and aliases (21 sources, all optimization/arithmetic modes)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-closure-arrays"
+      ],
+      "linux_only": false,
+      "id": "runtime-039",
+      "group": "closures"
+    },
+    {
+      "name": "closure array mutation methods (8 sources, all optimization/arithmetic modes)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-array-methods"
+      ],
+      "linux_only": false,
+      "id": "runtime-040",
+      "group": "closures"
+    },
+    {
+      "name": "closure array alias partitions (8 sources, all optimization/arithmetic modes)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-array-alias-partitions"
+      ],
+      "linux_only": false,
+      "id": "runtime-041",
+      "group": "closures"
+    },
+    {
+      "name": "closure array method aliases (8 sources, all optimization/arithmetic modes)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-method-aliases"
+      ],
+      "linux_only": false,
+      "id": "runtime-042",
+      "group": "closures"
+    },
+    {
+      "name": "reference-record receivers and native closure ownership (5 sources, all modes)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-reference-receivers"
+      ],
+      "linux_only": false,
+      "id": "runtime-043",
+      "group": "closures"
+    },
+    {
+      "name": "captured value-record methods and borrowed field printing (5 sources, all modes)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-captured-methods"
+      ],
+      "linux_only": false,
+      "id": "runtime-044",
+      "group": "closures"
+    },
+    {
+      "name": "owned as-val closure array rebinding (11 sources, all modes)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-array-rebinding"
+      ],
+      "linux_only": false,
+      "id": "runtime-045",
+      "group": "closures"
+    },
+    {
+      "name": "owned array rebinding C lifetimes with ASAN/UBSAN/leaks (33 cases)",
+      "command": [
+        "{python}",
+        "scripts/check_c_array_rebinding_lifetimes.py"
+      ],
+      "linux_only": true,
+      "id": "runtime-046",
+      "group": "sanitizers"
+    },
+    {
+      "name": "owned closure string rebinding (8 sources, all modes)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-string-rebinding"
+      ],
+      "linux_only": false,
+      "id": "runtime-047",
+      "group": "closures"
+    },
+    {
+      "name": "string rebinding C lifetimes with ASAN/UBSAN/leaks (24 cases)",
+      "command": [
+        "{python}",
+        "scripts/check_c_string_rebinding_lifetimes.py"
+      ],
+      "linux_only": true,
+      "id": "runtime-048",
+      "group": "sanitizers"
+    },
+    {
+      "name": "private closure array rebinding (15 sources, all modes)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-private-arrays"
+      ],
+      "linux_only": false,
+      "id": "runtime-049",
+      "group": "closures"
+    },
+    {
+      "name": "private array C lifetimes with ASAN/UBSAN/leaks (45 cases)",
+      "command": [
+        "{python}",
+        "scripts/check_c_private_array_lifetimes.py"
+      ],
+      "linux_only": true,
+      "id": "runtime-050",
+      "group": "sanitizers"
+    },
+    {
+      "name": "native primitive arrays (13 sources, all modes)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-primitive-arrays"
+      ],
+      "linux_only": false,
+      "id": "runtime-051",
+      "group": "closures"
+    },
+    {
+      "name": "native primitive array C lifetimes with ASAN/UBSAN/leaks (39 cases)",
+      "command": [
+        "{python}",
+        "scripts/check_c_native_primitive_array_lifetimes.py"
+      ],
+      "linux_only": true,
+      "id": "runtime-052",
+      "group": "sanitizers"
+    },
+    {
+      "name": "scalar snapshot reference forwarding (12 sources, all modes)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-scalar-snapshot-references"
+      ],
+      "linux_only": false,
+      "id": "runtime-053",
+      "group": "closures"
+    },
+    {
+      "name": "scalar snapshot C lifetimes with ASAN/UBSAN/leaks (36 cases)",
+      "command": [
+        "{python}",
+        "scripts/check_c_scalar_snapshot_reference_lifetimes.py"
+      ],
+      "linux_only": true,
+      "id": "runtime-054",
+      "group": "sanitizers"
+    },
+    {
+      "name": "lexical capture scopes (11 sources, all modes)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-capture-scopes"
+      ],
+      "linux_only": false,
+      "id": "runtime-055",
+      "group": "closures"
+    },
+    {
+      "name": "capture scope C lifetimes with ASAN/UBSAN/leaks (33 cases)",
+      "command": [
+        "{python}",
+        "scripts/check_c_capture_scope_lifetimes.py"
+      ],
+      "linux_only": true,
+      "id": "runtime-056",
+      "group": "sanitizers"
+    },
+    {
+      "name": "physical value-record receivers (22 sources, all modes)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-physical-receivers"
+      ],
+      "linux_only": false,
+      "id": "runtime-057",
+      "group": "arrays"
+    },
+    {
+      "name": "physical receiver C lifetimes with ASAN/UBSAN/leaks (66 cases)",
+      "command": [
+        "{python}",
+        "scripts/check_c_physical_receiver_lifetimes.py"
+      ],
+      "linux_only": true,
+      "id": "runtime-058",
+      "group": "sanitizers"
+    },
+    {
+      "name": "physical receiver Rust lifetimes with ASAN/leaks (66 cases)",
+      "command": [
+        "{python}",
+        "scripts/check_rust_physical_receiver_lifetimes.py"
+      ],
+      "linux_only": true,
+      "id": "runtime-059",
+      "group": "sanitizers"
+    },
+    {
+      "name": "native callback ABI and ownership (68 sources, all modes)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-callbacks"
+      ],
+      "linux_only": false,
+      "id": "runtime-060",
+      "group": "callbacks"
+    },
+    {
+      "name": "native callback C lifetimes (204 sanitizer cases)",
+      "command": [
+        "{python}",
+        "scripts/check_c_native_callback_lifetimes.py"
+      ],
+      "linux_only": true,
+      "id": "runtime-061",
+      "group": "callback-sanitizers"
+    },
+    {
+      "name": "native callback Rust/C bridge lifetimes (204 sanitizer cases)",
+      "command": [
+        "{python}",
+        "scripts/check_rust_native_callback_lifetimes.py"
+      ],
+      "linux_only": true,
+      "id": "runtime-062",
+      "group": "callback-sanitizers"
+    },
+    {
+      "name": "borrowed scalar captures (21 sources, all modes)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-borrowed-captures"
+      ],
+      "linux_only": false,
+      "id": "runtime-063",
+      "group": "closures"
+    },
+    {
+      "name": "borrowed scalar C lifetimes with ASAN/UBSAN/leaks (63 cases)",
+      "command": [
+        "{python}",
+        "scripts/check_c_borrowed_capture_lifetimes.py"
+      ],
+      "linux_only": true,
+      "id": "runtime-064",
+      "group": "sanitizers"
+    },
+    {
+      "name": "borrowed scalar Rust lifetimes with ASAN/leaks (63 cases)",
+      "command": [
+        "{python}",
+        "scripts/check_rust_borrowed_capture_lifetimes.py"
+      ],
+      "linux_only": true,
+      "id": "runtime-065",
+      "group": "sanitizers"
+    },
+    {
+      "name": "owned as-val closure record parameters (17 sources, all modes)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-owned-record-parameters-closures"
+      ],
+      "linux_only": false,
+      "id": "runtime-066",
+      "group": "closures"
+    },
+    {
+      "name": "owned record parameter C lifetimes with ASAN/UBSAN/leaks (51 cases)",
+      "command": [
+        "{python}",
+        "scripts/check_c_owned_record_parameter_lifetimes.py"
+      ],
+      "linux_only": true,
+      "id": "runtime-067",
+      "group": "sanitizers"
+    },
+    {
+      "name": "scalar closure value parameter mutations (16 sources, all modes)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-closure-value-parameters"
+      ],
+      "linux_only": false,
+      "id": "runtime-068",
+      "group": "closures"
+    },
+    {
+      "name": "scalar closure value parameter C lifetimes with ASAN/UBSAN/leaks (48 cases)",
+      "command": [
+        "{python}",
+        "scripts/check_c_closure_value_parameter_lifetimes.py"
+      ],
+      "linux_only": true,
+      "id": "runtime-069",
+      "group": "sanitizers"
+    },
+    {
+      "name": "scalar closure reference storage and evaluation (26 sources, all modes)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-closure-references"
+      ],
+      "linux_only": false,
+      "id": "runtime-070",
+      "group": "closures"
+    },
+    {
+      "name": "scalar closure reference C lifetimes with ASAN/UBSAN/leaks (78 cases)",
+      "command": [
+        "{python}",
+        "scripts/check_c_closure_reference_lifetimes.py"
+      ],
+      "linux_only": true,
+      "id": "runtime-071",
+      "group": "sanitizers"
+    },
+    {
+      "name": "qualified closure array copies (7 sources, all modes)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-qualified-arrays"
+      ],
+      "linux_only": false,
+      "id": "runtime-072",
+      "group": "closures"
+    },
+    {
+      "name": "qualified closure array C lifetimes with ASAN/UBSAN/leaks (21 cases)",
+      "command": [
+        "{python}",
+        "scripts/check_c_qualified_array_lifetimes.py"
+      ],
+      "linux_only": true,
+      "id": "runtime-073",
+      "group": "sanitizers"
+    },
+    {
+      "name": "captured-record/field-string C lifetimes with ASAN/UBSAN/leaks (15 cases)",
+      "command": [
+        "{python}",
+        "scripts/check_c_captured_method_lifetimes.py"
+      ],
+      "linux_only": true,
+      "id": "runtime-074",
+      "group": "sanitizers"
+    },
+    {
+      "name": "reference-record C ownership with ASAN/UBSAN/leak checks (15 cases)",
+      "command": [
+        "{python}",
+        "scripts/check_c_reference_receiver_lifetimes.py"
+      ],
+      "linux_only": true,
+      "id": "runtime-075",
+      "group": "sanitizers"
+    },
+    {
+      "name": "closure array method aliases with ASAN/UBSAN/leak checks (24 cases)",
+      "command": [
+        "{python}",
+        "scripts/check_c_method_alias_lifetimes.py"
+      ],
+      "linux_only": true,
+      "id": "runtime-076",
+      "group": "sanitizers"
+    },
+    {
+      "name": "closure array alias partitions with ASAN/UBSAN/leak checks (24 cases)",
+      "command": [
+        "{python}",
+        "scripts/check_c_array_alias_partition_lifetimes.py"
+      ],
+      "linux_only": true,
+      "id": "runtime-077",
+      "group": "sanitizers"
+    },
+    {
+      "name": "closure array methods with ASAN/UBSAN/leak checks (24 cases)",
+      "command": [
+        "{python}",
+        "scripts/check_c_array_method_lifetimes.py"
+      ],
+      "linux_only": true,
+      "id": "runtime-078",
+      "group": "sanitizers"
+    },
+    {
+      "name": "closure array C ownership with ASAN/UBSAN/leak checks (63 cases)",
+      "command": [
+        "{python}",
+        "scripts/check_c_closure_array_lifetimes.py"
+      ],
+      "linux_only": true,
+      "id": "runtime-079",
+      "group": "sanitizers"
+    },
+    {
+      "name": "borrowed array returns with ASAN/UBSAN/leak checks (9 cases)",
+      "command": [
+        "{python}",
+        "scripts/check_c_array_return_lifetimes.py"
+      ],
+      "linux_only": true,
+      "id": "runtime-080",
+      "group": "sanitizers"
+    },
+    {
+      "name": "iterator C ownership with ASAN/UBSAN/leak checks (24 cases)",
+      "command": [
+        "{python}",
+        "scripts/check_c_iterator_lifetimes.py"
+      ],
+      "linux_only": true,
+      "id": "runtime-081",
+      "group": "sanitizers"
+    },
+    {
+      "name": "native managed results and scalar references (7 sources, all optimization/arithmetic modes)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-native-managed"
+      ],
+      "linux_only": false,
+      "id": "runtime-082",
+      "group": "native"
+    },
+    {
+      "name": "C diagnostic statuses and stdout/stderr order (30 paired cases, 120 executions)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-stdio-order"
+      ],
+      "linux_only": false,
+      "id": "runtime-083",
+      "group": "numeric-io"
+    },
+    {
+      "name": "mixed integer conversions (90 positive pairs, 9 checked diagnostic cases)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-mixed-integral"
+      ],
+      "linux_only": false,
+      "id": "runtime-084",
+      "group": "numeric-io"
+    },
+    {
+      "name": "floating storage, calls and mixed mutation precision (117 positive pairs)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-float-conversions"
+      ],
+      "linux_only": false,
+      "id": "runtime-085",
+      "group": "numeric-io"
+    },
+    {
+      "name": "floating array argument representation and mutation (81 positive pairs)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-floating-arrays"
+      ],
+      "linux_only": false,
+      "id": "runtime-086",
+      "group": "numeric-io"
+    },
+    {
+      "name": "floating array byte equality (36 positive pairs)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-floating-equality"
+      ],
+      "linux_only": false,
+      "id": "runtime-087",
+      "group": "numeric-io"
+    },
+    {
+      "name": "computed numeric mutation and owner timing (153 positive pairs)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-numeric-places"
+      ],
+      "linux_only": false,
+      "id": "runtime-088",
+      "group": "numeric-io"
+    },
+    {
+      "name": "captured array indexed writes and callback visibility (45 positive pairs)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-capture-index"
+      ],
+      "linux_only": false,
+      "id": "runtime-089",
+      "group": "closures"
+    },
+    {
+      "name": "synchronized character mutation and wraparound (45 positive pairs)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-sync-character"
+      ],
+      "linux_only": false,
+      "id": "runtime-090",
+      "group": "numeric-io"
+    },
+    {
+      "name": "character methods and C locale string semantics (72 positive pairs)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-ctype"
+      ],
+      "linux_only": false,
+      "id": "runtime-091",
+      "group": "numeric-io"
+    },
+    {
+      "name": "byte encodings and native object views (81 positive pairs)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-byte-encoding"
+      ],
+      "linux_only": false,
+      "id": "runtime-092",
+      "group": "numeric-io"
+    },
+    {
+      "name": "process exit statuses, buffered streams and CRT lifecycle (153 cases)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-exit"
+      ],
+      "linux_only": false,
+      "id": "runtime-093",
+      "group": "numeric-io"
+    },
+    {
+      "name": "normal main return, buffered streams and CRT callbacks (108 cases)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-main-return"
+      ],
+      "linux_only": false,
+      "id": "runtime-094",
+      "group": "numeric-io"
+    },
+    {
+      "name": "match control flow, character places and local atomic locks (180 positive pairs)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-match-control"
+      ],
+      "linux_only": false,
+      "id": "runtime-095",
+      "group": "numeric-io"
+    },
+    {
+      "name": "C sizeof layouts and native-local aggregates (216 positive pairs)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-sizeof"
+      ],
+      "linux_only": false,
+      "id": "runtime-096",
+      "group": "numeric-io"
+    },
+    {
+      "name": "C sizeof fallback and borrowed reference calls (126 positive pairs)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-call-reference"
+      ],
+      "linux_only": false,
+      "id": "runtime-097",
+      "group": "numeric-io"
+    },
+    {
+      "name": "Indexed string copies, lifetimes and evaluation order (54 positive pairs)",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-parity-indexed-string"
+      ],
+      "linux_only": false,
+      "id": "runtime-098",
+      "group": "numeric-io"
+    },
+    {
+      "id": "c-default",
+      "name": "C default unit, generation, model, integration and exploratory suites",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test"
+      ],
+      "group": "c",
+      "linux_only": false,
+      "env": {
+        "SN_RUSTFLAGS": ""
+      }
+    },
+    {
+      "id": "c-closures",
+      "name": "promoted Rust closure coverage with compiler workflow toolchain",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-closures"
+      ],
+      "group": "c",
+      "linux_only": false,
+      "env": {
+        "SN_RUSTFLAGS": ""
+      }
+    },
+    {
+      "id": "c-concurrency",
+      "name": "Rust concurrency coverage with compiler workflow toolchain",
+      "command": [
+        "make",
+        "-o",
+        "build",
+        "test-rust-concurrency"
+      ],
+      "group": "c",
+      "linux_only": false,
+      "env": {
+        "SN_RUSTFLAGS": ""
+      }
+    },
+    {
+      "id": "c-static-callbacks",
+      "name": "static callback temporary ownership",
+      "command": [
+        "{python}",
+        "scripts/check_static_callback_ownership.py"
+      ],
+      "group": "c",
+      "linux_only": false,
+      "env": {
+        "SN_RUSTFLAGS": ""
+      }
+    },
+    {
+      "id": "c-record-snapshots",
+      "name": "record reference capture snapshots",
+      "command": [
+        "{python}",
+        "scripts/check_record_reference_snapshots.py"
+      ],
+      "group": "c",
+      "linux_only": false,
+      "env": {
+        "SN_RUSTFLAGS": ""
+      }
+    }
+  ]
+}

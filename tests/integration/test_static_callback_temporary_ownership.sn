@@ -1,0 +1,34 @@
+# Static-call temporaries release their initial reference while stored callbacks
+# retain an independent owner, including escaping captured strings.
+
+struct CallbackBox =>
+  callback: fn(): str
+
+  static fn keep(callback: fn(): str): CallbackBox =>
+    return CallbackBox { callback: callback }
+
+  static fn choose(first: fn(): str, second: fn(): str, useFirst: bool): CallbackBox =>
+    if useFirst =>
+      return CallbackBox { callback: first }
+    return CallbackBox { callback: second }
+
+fn named(): str =>
+  return "named"
+
+fn escaping(label: str): CallbackBox =>
+  return CallbackBox.keep(fn(): str => label)
+
+fn main(): void =>
+  var direct: CallbackBox = CallbackBox.keep(named)
+  var copied: CallbackBox = direct
+  print($"{direct.callback()} {copied.callback()}\n")
+
+  var captured: CallbackBox = escaping("captured")
+  var capturedCopy: CallbackBox = captured
+  print($"{captured.callback()} {capturedCopy.callback()}\n")
+
+  var selected: CallbackBox = CallbackBox.choose(named, fn(): str => "second", false)
+  print($"{selected.callback()}\n")
+
+  var other: CallbackBox = CallbackBox.choose(fn(): str => "first", named, true)
+  print($"{other.callback()}\n")

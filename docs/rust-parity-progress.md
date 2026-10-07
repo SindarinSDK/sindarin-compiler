@@ -5,6 +5,49 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Value-record reference capture snapshots: local verification, 2026-10-07
+
+Rust previously rejected the unchanged C regression
+`test_lambda_capture_record_ref_snapshot` as a borrowed capture. Its C model
+specifies `struct_copy`: the closure owns a snapshot copied from the referenced
+value record. Rust now admits that existing ownership contract for supported
+auto-copy plain value records, retaining the separate guards for shared mutable
+captures, reference-record handles and user copy hooks.
+
+The original source is copied byte-for-byte into a Rust generation/runtime
+fixture. A second source checks nested strings and arrays, forwarding, escaping
+scope owners, caller mutations after capture and nested closure snapshots.
+Both complete local suites pass without failures or skips, with existing
+goldens unchanged. The frozen ownership gate passes 36 literal C/Rust oracle
+executions in all nine optimization/arithmetic modes and six sanitizer runs
+per backend on Linux. This gate is required by three-platform compiler CI.
+Hosted acceptance is pending. This closes a newer C regression source's Rust
+rejection; it does not change the 1365-source original corpus denominator or
+establish full backend completion.
+
+Evidence: [local validation](rust-parity-evidence/record-reference-snapshot-validation.json).
+
+## Static callback temporary cleanup: local verification, 2026-10-07
+
+Current main `16cf5b7f` fails Linux Compiler CI because the unchanged
+`test_fn_ref_static_method_arg` leaks a 32-byte closure header. Static-call
+projection already marks function argument temporaries for cleanup, but its C
+template ignored those annotations. The template now creates scoped
+`sn_auto_fn` owners and passes them to the callee. Stored and returned function
+handles retain their independent credits; escaping captured callbacks remain
+usable after the call.
+
+The original failure reproduces on this aarch64 worker when LeakSanitizer
+ignores dead register/stack roots. Both unchanged original and new retained,
+copy, capture and multiple-argument controls pass 36 literal-oracle executions
+across C/Rust and all nine optimization/arithmetic modes, plus six C
+ASAN/UBSAN/leak executions. Complete C and Rust suites pass with no failures or
+skips and existing goldens unchanged. Compiler CI now requires this ownership
+gate on all three platforms, with sanitizers on Linux. Hosted acceptance is
+pending; interfaces and the complete backend objective remain unfinished.
+
+Evidence: [local validation](rust-parity-evidence/static-callback-ownership-validation.json).
+
 ## Native callback increment: local acceptance, 2026-10-07
 
 The current Rust increment uses typed ABI thunks and C-owned closure headers with identity-preserving credits. It covers nil, scalar/pointer/string/value-record signatures, canonical primitive/character/string/record/nested arrays, actual native pointer aliases, reentry, private record and array snapshots, retained callback identity and joined-thread transport. The 68-source permanent gate passes 612 mode comparisons; 204 C and 204 Rust/native-C sanitizer cases pass. Both complete suites pass with 364 native fixtures, no failures or skips, and existing goldens unchanged.

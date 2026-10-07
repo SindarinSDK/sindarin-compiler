@@ -1,0 +1,112 @@
+{
+  "base_revision": "16cf5b7f9b9b50a5f9101ff3bf07c139baf13fdf",
+  "state": "Local validation; hosted acceptance pending",
+  "compiler_sha256": "6dbc15f98daec11237f0d3c91b154095fcda93d7cdaf445bfba495be3e405c9a",
+  "source_sha256": {
+    "tests/integration/test_fn_ref_static_method_arg.sn": "728ee3fd39ab1b8eaa6a3d078ffd4f8e539b6b70f344f2a13fc35da5a9e6b99c",
+    "tests/integration/test_static_callback_temporary_ownership.sn": "c2fed662e6320935070e38149448c0ddf77af7416a5d4ed616d32da7e626842e"
+  },
+  "regression": "32-byte closure-header leak in unchanged test_fn_ref_static_method_arg; reproduced on aarch64 using LSAN_OPTIONS=use_registers=0:use_stacks=0",
+  "before_status": 1,
+  "after_status": 0,
+  "oracle_executions": 36,
+  "sanitizer_executions": 6,
+  "all_oracles_passed": true,
+  "full_suites": {
+    "c": [
+      {
+        "passed": 107,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "passed": 79,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "passed": 1144,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "passed": 58,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "passed": 224,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "passed": 11,
+        "failed": 0,
+        "skipped": 0
+      }
+    ],
+    "rust": [
+      {
+        "passed": 503,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "passed": 119,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "passed": 8,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "passed": 364,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "passed": 4,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "passed": 36,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "passed": 7,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "passed": 12,
+        "failed": 0,
+        "skipped": 0
+      }
+    ]
+  },
+  "remaining": "Interfaces and all other backend parity requirements remain active."
+}

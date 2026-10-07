@@ -338,7 +338,16 @@ static bool rust_closure_walk_lambda(RustClosureScope *scope, json_object *node)
              json_boolean_property(b->declaration, "rust_native_callback_record_parameter"));
         if (native_record_snapshot)
             json_object_object_add(cap, "rust_native_record_snapshot_source", json_object_new_boolean(true));
-        if ((!borrowed_scalar && !native_record_snapshot && json_string_property_equals(b->declaration, "mem_qual", "as_ref")) ||
+        /* C copies a plain value record out of referenced parameter storage
+         * when capturing it. The captured record owns its fields independently
+         * of the parameter's borrowed lifetime. Reference-record handles and
+         * explicit mutable captures retain their separate sharing contract. */
+        bool value_record_snapshot = !json_boolean_property(cap, "is_ref") &&
+            json_string_property_equals(cap, "cap_action", "struct_copy") &&
+            rust_auto_copy_plain_value_struct_type(cap_type, NULL) &&
+            json_string_property_equals(b->declaration, "mem_qual", "as_ref");
+        if ((!borrowed_scalar && !native_record_snapshot && !value_record_snapshot &&
+             json_string_property_equals(b->declaration, "mem_qual", "as_ref")) ||
             (json_boolean_property(b->declaration, "is_captured") &&
              !json_boolean_property(b->declaration, "rust_shared_cell")))
             return rust_closure_error("borrowed or promoted closure captures");

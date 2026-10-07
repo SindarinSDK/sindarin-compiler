@@ -1,0 +1,109 @@
+{
+  "base_revision": "1faf07ea",
+  "state": "Local validation; hosted acceptance pending",
+  "compiler_sha256": "cebb1288f356f2a59e8fcb7efab36507f6a54ec20bdce74e334cee6f33be4655",
+  "source_sha256": {
+    "tests/integration/test_managed_record_reference_snapshots.sn": "8980d4e55a85b1d9c94fa6d72d540c5e9db08d43975180a3dbdf254c73a26b04",
+    "tests/integration/test_lambda_capture_record_ref_snapshot.sn": "b53682939ad5f1e8ac6eec43b3af252da4cd004b1bbf8145d05ce87513e83d5b"
+  },
+  "all_cases_passed": true,
+  "oracle_executions": 36,
+  "sanitizer_executions": 12,
+  "full_suites": {
+    "c": [
+      {
+        "passed": 107,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "passed": 79,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "passed": 1145,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "passed": 58,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "passed": 224,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "passed": 11,
+        "failed": 0,
+        "skipped": 0
+      }
+    ],
+    "rust": [
+      {
+        "passed": 505,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "passed": 119,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "passed": 8,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "passed": 364,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "passed": 4,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "passed": 36,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "passed": 7,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "passed": 12,
+        "failed": 0,
+        "skipped": 0
+      }
+    ]
+  },
+  "remaining": "Interfaces, borrowed method-self captures, native captured-field record references and other full-backend parity requirements remain unfinished."
+}

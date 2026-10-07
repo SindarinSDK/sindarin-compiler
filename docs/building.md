@@ -433,7 +433,20 @@ Platform-specific differences are handled via environment variables:
 
 See `.github/workflows/ci.yml` for the full configuration.
 
-The Rust Platform Runtime workflow additionally runs all Rust suites and the
+The Compiler workflow builds once per platform and shares the staged compiler,
+runtime, templates, headers and project libraries with isolated C, Rust and parity
+jobs. All jobs verify the same revision and compiler hash before testing. The
+gate inventory is maintained in `scripts/ci/gates.json`; the final `Compiler CI`
+check requires every platform, group and gate to succeed. Logs and runtime JSON
+reports are retained even when a test group fails. The former separate Rust
+Platform Runtime workflow is consolidated into this pipeline.
+
+Parity cases use four bounded workers while retaining their original report
+ordering, raw output comparisons and optimization/arithmetic coverage. Test jobs
+use `make -o build` so they exercise the shared compiler without rebuilding it.
+Windows toolchain downloads are cached at the pinned version and archive hash.
+
+The pipeline runs all Rust suites and the
 C/Rust differential core and 17-source concurrency gate at O0/O1/O2 on all
 three platforms. The concurrency gate records an explicit C-only `-latomic`
 supplement on Linux for GCC floating atomic postfix; normal compiler link
