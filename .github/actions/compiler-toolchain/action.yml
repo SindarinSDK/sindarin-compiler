@@ -60,8 +60,8 @@ runs:
       fi
       rustc --version --verbose
       if [ "$RUNNER_OS" = "Windows" ]; then clang --version; fi
-  - name: Checkout Windows build dependencies
-    if: runner.os == 'Windows' && inputs.build_deps == 'true'
+  - name: Checkout pinned build dependencies
+    if: inputs.build_deps == 'true'
     uses: actions/checkout@v6
     with:
       repository: SindarinSDK/sindarin-pkg-libs
@@ -78,12 +78,10 @@ runs:
       if (-not (Test-Path 'libs/windows/lib') -or -not (Test-Path 'libs/windows/include')) {
         throw 'Windows dependency archive did not provide libraries and headers'
       }
-  - name: Setup libs
+  - name: Install Unix build dependencies
     if: runner.os != 'Windows' && inputs.build_deps == 'true'
     shell: bash
-    env:
-      GH_TOKEN: ${{ github.token }}
-    run: make setup
+    run: bash scripts/ci/install_unix_deps.sh .sn/sindarin-pkg-libs
   - name: Verify pinned Windows compiler after setup
     if: runner.os == 'Windows'
     shell: pwsh

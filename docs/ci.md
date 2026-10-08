@@ -15,6 +15,17 @@ available; package downloads have bounded network retries and connection
 timeouts. A stalled bootstrap fails explicitly rather than holding validation
 for hours. These deadlines apply to setup, preserving the complete test matrix.
 
+All build jobs check out the same pinned `sindarin-pkg-libs` revision. Unix
+builds run its project-library installer directly with three download retries,
+a 30-second connection timeout, a 180-second attempt timeout and a 600-second
+retry budget. Required headers and static libraries must be nonempty before the
+build starts. Installer errors propagate to the setup step. The CI bootstrap
+therefore does not depend on installing a released compiler first.
+
+The Unix bootstrap tests exercise real interrupted HTTP downloads, installer
+failure and missing build inputs on Linux/macOS. Their Windows skips are explicit
+because Windows retains its PowerShell dependency installer.
+
 Three build jobs produce one compiler bundle for each of Linux, macOS and
 Windows. The bundle contains the staged `bin` tree and installed project
 libraries. A tar archive preserves executable modes; a file manifest binds the

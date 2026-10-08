@@ -5,6 +5,26 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Linux dependency bootstrap correction, 2026-10-08
+
+Run `37832718573` verifies the nil-model repair on macOS: its build and every
+macOS test group pass, including the complete Rust suite and callback matrix.
+The Windows groups pass as well. Linux fails during bootstrap after the native
+library archive download is reset. The released compiler's installer reports a
+warning but returns success; compilation then lacks `json-c/json.h`. No Linux
+compiler bundle is produced, causing ten downstream artifact-download failures.
+These do not represent ten failed runtime test groups.
+
+CI now checks out the same pinned library revision on every platform and invokes
+the Unix project-library installer directly. Download retries and timeouts are
+bounded, installer errors propagate, and actual compiler headers/static libraries
+are checked before compilation. This removes the release-compiler prerequisite
+from Unix CI bootstrap. Thirteen CI helper tests pass locally, including recovery
+from two real local HTTP connection interruptions, rejection of installer failure
+and rejection of missing build inputs. Shell syntax and workflow validation pass.
+Full hosted acceptance remains pending; feature publication stays frozen until
+corrected integrated main has green Linux/macOS/Windows CI.
+
 ## Native nil compiler crash: verified model lifetime repair, 2026-10-08
 
 Main `b267f35f` fails two macOS gates on the unchanged native nil-result source.
