@@ -522,6 +522,9 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
             json_object_object_add(right, "type", json_object_get(lt));
             json_object_object_add(right, "rust_function_nil", json_object_new_boolean(true));
         }
+        /* Replacing right.type releases its previous object. Refresh this
+         * borrowed pointer before inspecting the other operand. */
+        rt = rust_closure_property(right, "type");
         if (json_string_property_equals(rt, "kind", "function") && json_string_property_equals(left, "value_kind", "nil")) {
             json_object_object_add(left, "type", json_object_get(rt));
             json_object_object_add(left, "rust_function_nil", json_object_new_boolean(true));

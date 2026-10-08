@@ -5,6 +5,34 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Native nil compiler crash: verified model lifetime repair, 2026-10-08
+
+Main `b267f35f` fails two macOS gates on the unchanged native nil-result source.
+The callback gate records three compiler SIGSEGVs, with the actual-process stack
+in `json_string_property_equals` called from `rust_closure_walk`. The ordinary
+Rust suite also fails compiling that source. The repeated eighteen-case gate
+passes, so its clean result alone does not establish compiler stability.
+
+The comparison validator borrows both operand type objects. Replacing the right
+nil operand's type releases its old JSON object, leaving the cached right type
+dangling before the second comparison. An ASAN-poison guard around JSON model
+lookups deterministically reproduces this in the actual compiler on Linux and
+records the free at the type replacement. Refreshing the borrowed right type
+before the second comparison fixes the lifetime. Both the unchanged source and
+a new left/right nil-comparison control pass all eighteen guarded compilations
+and exact runtime oracles after the repair.
+
+The new frozen control extends the required callback matrix to 69 sources and
+621 C/Rust comparisons, and the fixed-output native suite to 378 sources. The
+existing eighteen-case ordinary/traced compiler gate remains mandatory. Existing
+sources and oracles are unchanged. Full local suites and matrix results are
+recorded in the linked evidence; hosted acceptance is pending. This correction
+is isolated from the unpublished callable transport batch. Feature publication
+remains frozen until full Linux/macOS/Windows CI on corrected main is green.
+Native interface ABI and the remaining full-goal obligations are unfinished.
+
+Evidence: [nil model lifetime repair](rust-parity-evidence/native-nil-model-lifetime-validation.json).
+
 ## Integrated interface and CI correction acceptance, 2026-10-07
 
 Corrective main `45fc52be` passes complete Linux/macOS/Windows compiler CI.

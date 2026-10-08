@@ -29,14 +29,14 @@
       "group": "rust"
     },
     {
-      "name": "native scalar, record and managed ABI fixtures (377 fixtures)",
+      "name": "native scalar, record and managed ABI fixtures (378 fixtures)",
       "command": [
         "{python}",
         "scripts/run_rust_tests.py",
         "rust-native-extra",
         "--verbose",
         "--require-count",
-        "377",
+        "378",
         "--fail-on-skip"
       ],
       "linux_only": false,
@@ -718,7 +718,7 @@
       "group": "sanitizers"
     },
     {
-      "name": "native callback ABI and ownership (68 sources, all modes)",
+      "name": "native callback ABI and ownership (69 sources, all modes)",
       "command": [
         "make",
         "-o",

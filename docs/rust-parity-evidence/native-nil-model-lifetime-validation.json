@@ -1,0 +1,70 @@
+{
+  "date": "2026-10-08",
+  "status": "local_validation_passed_hosted_acceptance_pending",
+  "base_main": "b267f35fbb5a38533dcc8e1618ee3531025f4e3a",
+  "failing_run": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37702160175",
+  "root_cause": "Replacing right.type releases its previous JSON object; closure comparison then inspected the cached borrowed right-type pointer. Refreshing that pointer before the second comparison prevents the invalid access.",
+  "compiler_sha256": "1b89d373e1ed20e65eaedbe5e654084415bb86bfae32ff15e2a5b592c0b79589",
+  "new_regression": {
+    "source": "tests/rust-native/scalar_native_callback_nil_comparisons.sn",
+    "source_sha256": "f1024b473b4fd76de204c1f2c16c62c8e26d7be80a5c52a1ec2ef170802635a3",
+    "expected_stdout_hex": "747275650a747275650a66616c73650a66616c73650a66616c73650a66616c73650a747275650a747275650a"
+  },
+  "artifacts": {
+    "native-nil-model-lifetime-before.json": {
+      "sha256": "9b8932f4b54be717f4226a06f5bb56891d8acae43c52b452b29fe4e6835c32b8"
+    },
+    "native-nil-model-lifetime-after.json": {
+      "sha256": "1e60d39ae08d24942e118d27dc5a37c150154cd93f53149553b230102b309cdc"
+    },
+    "native-nil-model-lifetime-macos-failures.json": {
+      "sha256": "a192d72590079afd659d2a447138f522a8b79573ceda373075683569503b95ab"
+    },
+    "native-nil-model-lifetime-guard.c.raw": {
+      "sha256": "032596ea530b0c5bae491aa8ae58483dad7abbedee8f0008e4ae6e194e6a03e0"
+    }
+  },
+  "guarded_compiler_validation": {
+    "before": "deterministic failure in actual compiler under ASAN-poison checks at JSON API lookups",
+    "after_cases": 18,
+    "after_passed": true
+  },
+  "complete_local_suites": {
+    "C": {
+      "passed": true,
+      "checks": 3234,
+      "log": ".sn/native-nil-lifetime-c-suite.log",
+      "log_sha256": "6d1ee31370eff6b607f19b26cbf986e3ca61f88e171c928ede963794c96285b9"
+    },
+    "Rust": {
+      "passed": true,
+      "checks": 1082,
+      "log": ".sn/native-nil-lifetime-rust-suite.log",
+      "log_sha256": "cfe43cccf12a6f100271f2e040237bbc0918f78e69bae2317d81ce991d31993c"
+    }
+  },
+  "reports": {
+    "callback_matrix": {
+      "passed": true,
+      "cases": 621,
+      "path": ".sn/rust-parity-native-callbacks.json",
+      "sha256": "5e603ee8ef7a72557d521e0df9b0757aae6a54485c9f91b9055738472d261ae7",
+      "compiler_sha256": "1b89d373e1ed20e65eaedbe5e654084415bb86bfae32ff15e2a5b592c0b79589"
+    },
+    "repeated_nil_compiler": {
+      "passed": true,
+      "cases": 18,
+      "path": ".sn/rust-parity-native-nil-compiler.json",
+      "sha256": "9e2d9587087f08037c451cedaddc24025d2c81440d279111ecc7e030f6ec2007",
+      "compiler_sha256": "1b89d373e1ed20e65eaedbe5e654084415bb86bfae32ff15e2a5b592c0b79589"
+    }
+  },
+  "ci_helper_tests": {
+    "passed": true,
+    "count": 10,
+    "log_sha256": "adb349323fd5ec1912ba24f4f0df971d25b6965ed2561f2b4adb0e2961506a24"
+  },
+  "hosted_acceptance": "pending",
+  "publication_rules": "Only this isolated correction is published; feature pushes stay frozen until complete Linux/macOS/Windows CI on corrected main is green.",
+  "remaining_goal": "Native interface ABI and all remaining documented parity obligations still require completion; no full backend acceptance is claimed."
+}

@@ -1,0 +1,14 @@
+native fn absent(): fn(): int =>
+  return nil
+
+fn main(): void =>
+  var missing: fn(): int = absent()
+  var present: fn(): int = fn(): int => 7
+  println(missing == nil)
+  println(nil == missing)
+  println(missing != nil)
+  println(nil != missing)
+  println(present == nil)
+  println(nil == present)
+  println(present != nil)
+  println(nil != present)
