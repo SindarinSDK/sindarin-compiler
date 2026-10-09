@@ -1336,6 +1336,21 @@
       ],
       "group": "core",
       "linux_only": false
+    },
+    {
+      "id": "runtime-111",
+      "name": "generated native provider exports: owned values and lifetime sanitizers",
+      "command": [
+        "{python}",
+        "tests/package/native_artifacts.py",
+        "NativeArtifactTests.test_generated_exports_are_independent_typed_abi_artifacts"
+      ],
+      "env": {
+        "SN_CC": "gcc -fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1"
+      },
+      "group": "sanitizers",
+      "linux_only": true
     }
   ]
 }

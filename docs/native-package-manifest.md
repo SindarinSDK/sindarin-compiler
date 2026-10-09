@@ -93,6 +93,9 @@ later goal.
 
 ## Binding contracts
 
+`symbol` names the C-callable wire export. Optional `function` names an ordinary
+backing-language function and selects [generated provider adapters](native-package-imports.md#generated-provider-exports).
+When omitted, the backing implementation supplies the wire export itself.
 `convention` must be `C`. Foreign layouts do not enter the ABI through a cast.
 Generated export/import adapters must use the declared signatures, shared ABI and
 ownership metadata, respecting exposed layouts and language-visible identity,

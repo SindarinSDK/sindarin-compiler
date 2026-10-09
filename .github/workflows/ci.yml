@@ -141,7 +141,7 @@ jobs:
       with:
         rust_target: ${{ matrix.rust_target }}
     - name: Setup Go for shared runtime ABI clients
-      if: matrix.group == 'core'
+      if: matrix.group == 'core' || matrix.group == 'sanitizers'
       timeout-minutes: 10
       uses: actions/setup-go@v7
       with:

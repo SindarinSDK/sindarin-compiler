@@ -521,6 +521,8 @@ static void test_native_manifest_invalid_contracts(void)
         {"borrowed_from: self", "borrowed_from: []"},
         {"parameters: {path: borrowed}", "parameters: []"},
         {"symbol: native_open", "symbol: \"\""},
+        {"symbol: native_open", "symbol: native_open\n      function: \"\""},
+        {"symbol: native_open", "symbol: native_open\n      function: []"},
         {"symbol: native_open", "symbol: native_open\n      symbol: other"},
         {"native:", "native: {abi: 1.0}\nnative:"},
         {"declarations: [src/api.sn]", "declarations: []"},

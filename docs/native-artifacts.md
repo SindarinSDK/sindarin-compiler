@@ -1,8 +1,8 @@
 # Native backing artifacts
 
 Status: the compiler can inspect native plans and build independent native backing
-archives. Complete Sindarin package compilation, signature/type verification,
-generated export/import adapters and SDK decoupling remain required work in the
+archives. Complete Sindarin package compilation, type descriptors and SDK
+decoupling remain required work in the
 [Rust completion goal](rust-completion-goal.md). These artifacts explicitly carry
 `complete_package: false`. Supported native declaration imports consume them
 through [generated consumer adapters](native-package-imports.md); complete Sindarin
@@ -28,9 +28,12 @@ are recorded in the plan/cache context; native tool optimization follows the lev
 
 Each C build unit compiles its declared sources and creates a static archive. Each
 RS unit compiles its declared crate root with Rust into a static library. Each GO
-unit builds its original Go main/bridge module with `c-archive`. Backing exports
-must currently already provide the declared C-callable symbols; missing exports
-are diagnosed. Automatic export shim generation remains a later integration step.
+unit builds a Go main/bridge module with `c-archive`. Bindings without `function`
+supply their own C-callable exports. Bindings naming ordinary backing functions
+resolve typed declarations and generate provider shims for supported scalar/string
+contracts, preserving original backing source and toolchains. Missing exports and
+C/Rust/Go implementation signature mismatches are diagnosed. See the
+[provider contract](native-package-imports.md#generated-provider-exports).
 Native build commands do not compile Sindarin implementation bodies or implement
 a Sindarin Go target.
 

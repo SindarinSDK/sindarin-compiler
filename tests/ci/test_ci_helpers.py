@@ -97,7 +97,7 @@ class CoverageTests(unittest.TestCase):
         self.collect()
         report = json.loads((self.output / 'summary.json').read_text())
         self.assertEqual(report['groups'], 26)
-        self.assertEqual(report['gates'], 287)
+        self.assertEqual(report['gates'], 288)
 
     def test_missing_group_fails(self):
         self.reports[-1].unlink()

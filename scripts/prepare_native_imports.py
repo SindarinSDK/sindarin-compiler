@@ -9,18 +9,7 @@ import contextlib
 import io
 from build_native_package import build
 
-TYPES = {'int': ('long long', 'int64_t'), 'long': ('long long', 'int64_t'),
-         'uint': ('uint64_t', 'uint64_t'), 'int32': ('int32_t', 'int32_t'),
-         'uint32': ('uint32_t', 'uint32_t'), 'byte': ('unsigned char', 'uint8_t'),
-         'char': ('char', 'uint8_t'), 'bool': ('bool', 'uint8_t'),
-         'float': ('float', 'float'), 'double': ('double', 'double'),
-         'string': ('char *', 'SnAbiValue *'), 'void': ('void', 'void')}
-
-
-def kind(value):
-    name = value['kind']
-    if name not in TYPES: raise ValueError(f'package adapter ABI type is not implemented: {name}')
-    return name
+from native_contract import TYPES, kind, validate
 
 
 def adapter(signature, package):
@@ -28,17 +17,9 @@ def adapter(signature, package):
     symbol, alias = binding['symbol'], signature['adapter']
     if not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*', symbol):
         raise ValueError('package native export is not a C-callable identifier')
-    ownership, params = binding['ownership'], signature['params']
+    validate(signature)
+    params = signature['params']
     result = kind(signature['return_type'])
-    names = {p['name'] for p in params}
-    if set(ownership['parameters']) != names:
-        raise ValueError('package parameter ownership does not match the resolved declaration')
-    if ownership['result'] != ('owned' if result == 'string' else 'value'):
-        raise ValueError('package result ownership requires an implemented owned-string or plain-value contract')
-    for p in params:
-        expected = 'borrowed' if kind(p['type']) == 'string' else 'value'
-        if ownership['parameters'][p['name']] != expected:
-            raise ValueError('package input ownership requires an implemented borrowed-string or plain-value contract')
     wire_params = [TYPES[kind(p['type'])][1] for p in params]
     status = binding['failure'] == 'status'
     if status and result != 'void': wire_params.append(TYPES[result][1] + ' *')
@@ -108,7 +89,14 @@ def main():
     header=compiler.parent/'include/runtime/sn_abi.h'
     source_lines.append('#include '+json.dumps(str(header).replace('\\','/')))
     go_units=0
+    exports={}
     for package in request['packages']:
+        for signature in package['signatures']:
+            symbol=signature['binding']['symbol']
+            previous=exports.get(symbol)
+            if previous and previous!=package['manifest']:
+                raise ValueError(f"native export symbol '{symbol}' is shared by packages '{previous}' and '{package['manifest']}'")
+            exports[symbol]=package['manifest']
         # Validate ownership/representations before running a backing toolchain.
         adapters=[adapter(s,package['manifest']) for s in package['signatures']]
         for signature in package['signatures']:

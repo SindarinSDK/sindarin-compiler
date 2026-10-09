@@ -1,8 +1,8 @@
 # Generated native package imports
 
-Status: implemented consumer adapters for resolved scalar and string function
-contracts. Complete independent Sindarin package bodies, SDK artifact imports,
-managed record/interface/array/callback contracts and generated provider shims
+Status: implemented consumer and provider adapters for resolved scalar and string
+function contracts. Complete independent Sindarin package bodies, SDK artifact imports,
+managed record/interface/array/callback contracts and wider package graph planning
 remain required by the [Rust completion goal](rust-completion-goal.md).
 
 A C- or Rust-targeted Sindarin application can import declaration modules from
@@ -29,9 +29,8 @@ inheritance. This does not implement a Sindarin Go backend.
   exports return a status and place a non-void result in an output parameter.
   A failed status produces the same C diagnostic/exit through both app targets.
 
-Native backing must currently provide the declared C-callable wire exports.
-Consumer adapters are generated; automatic provider export shims for ordinary
-Rust/Go functions remain later work. The compiler rejects unsupported types,
+Native backing can provide declared C-callable wire exports, or select generated
+provider exports with the optional `function` binding field described below. The compiler rejects unsupported types,
 reference qualifiers, ownership policies and mismatched declaration/parameter
 metadata. Native symbols must be callable C identifiers.
 
@@ -45,6 +44,81 @@ Native-bearing API modules cannot also compile per-application `@source` backing
 that can silently shadow the independent archive. Legacy manifests without native
 metadata retain their established C source/include/link behaviour. Complete SDK
 facades and wider package migration still need explicit artifact/type planning.
+
+## Generated provider exports
+
+A binding can name an ordinary backing-language function separately from its
+exported wire symbol:
+
+```yaml
+- declaration: src/api.sn::echo
+  build: backing
+  symbol: example_echo_v1
+  function: echo
+  convention: C
+  failure: status
+  ownership: {parameters: {text: borrowed}, result: owned}
+```
+
+The existing Sindarin declaration is `native fn echo(text: str): str`. Both
+`--build-native` and normal application imports resolve and type-check that
+public declaration; no application is needed to build the package. The backing
+function uses these representations:
+
+| Contract | C backing | Rust backing | Go backing |
+| --- | --- | --- | --- |
+| 64-bit signed integer | `long long` | `i64` | `int64` |
+| 64-bit unsigned integer | `uint64_t` | `u64` | `uint64` |
+| 32-bit integers | `int32_t` / `uint32_t` | `i32` / `u32` | `int32` / `uint32` |
+| byte / char | `unsigned char` / `char` | `u8` | `uint8` |
+| boolean | `bool` | `bool` | `bool` |
+| float / double | `float` / `double` | `f32` / `f64` | `float32` / `float64` |
+| borrowed string input | `char *` | `Option<&[u8]>` | `*string` |
+| owned string result | malloc-owned `char *` | `Option<Vec<u8>>` | `*string` |
+
+Nil uses NULL/None/nil; an empty value remains non-nil. Strings preserve non-UTF-8
+bytes and follow existing C string semantics through the first NUL. Borrowed
+inputs are read-only during the call and cannot be retained without an independent
+copy. Providers copy results into the shared C runtime before releasing backing
+storage. C results must use allocation compatible with `free`; generated code
+releases them after the copy. Go results are copied synchronously before leaving
+the Go call and no Go pointer becomes a retained C value.
+
+For `failure: abort`, an ordinary function returns its declared result directly.
+For `failure: status`, C returns `uint32_t` and receives a final result output
+pointer; Rust returns `Result<T, u32>`; Go returns `(T, uint32)`. Void status
+functions use no C result pointer, `Result<(), u32>` in Rust and only `uint32` in
+Go. Zero means success. Outputs are published only after success and remain
+unchanged after an invalid input, explicit error or contained panic. Backing code
+keeps cleanup responsibility for any provisional result on its failure path.
+
+Rust export shims catch unwinding panics and Go shims recover call-frame panics,
+including legacy `panic(nil)`, returning `SN_ABI_FOREIGN_ERROR` (6). Rust's normal
+panic hook still runs. Abort-policy calls retain terminal failure; fatal process
+termination and panics on unrelated Go goroutines cannot become call statuses.
+Status providers reject Rust `panic=abort` flags.
+
+C builds force-include generated backing prototypes into original source units,
+so implementation signature mismatches fail compilation. Declared C backing
+functions receive package/build-specific link names through the generated header;
+ordinary source and calls are preserved while identically named functions in two
+packages remain independent. Rust crate identities also include package identity. Rust builds the original
+crate as an rlib, preserving its crate-relative modules, then builds a separate
+C-callable export crate. Go builds a bridge main module importing the original
+library; module requirements and relative replacements are preserved without
+editing original go.mod/source files. Both export and consumer adapters are
+compiler-generated; backing functions need no handwritten C ABI annotations.
+
+Current provider functions must be public/root-level where the backing language
+requires it; C functions must have external linkage. Declared wire symbols must
+be unique across imported packages; collisions produce a diagnostic. Complete
+automatic wire-symbol allocation and broader native namespace isolation remain
+package-planning work. A generated C symbol must differ from its backing function. One build
+unit currently selects generated or handwritten exports throughout. Qualified
+methods, managed records/arrays/interfaces/callbacks and reference qualifiers need
+further ABI work and are diagnosed. Artifact metadata retains resolved provider
+signatures and generated export symbols; these remain partial native artifacts,
+not complete independent Sindarin/SDK packages.
 
 ## Linking and validation
 
@@ -61,6 +135,10 @@ error exits, and reject ownership mismatches. A Rust application also uses SDK
 TextFile resources/arrays with all three backing languages and a portable Sindarin
 request-line module. The SDK call path in that test remains its existing C
 compatibility path; it does not prove an independent SDK artifact import.
+
+The unified Linux sanitizer group also runs generated provider ABI clients with
+address/undefined sanitizers and leak detection, covering all three backing
+languages. It retains the existing platform matrix and C/Rust gates.
 
 Full corpus/mode/platform parity and complete mixed-package SDK acceptance remain
 outstanding. Passing these fixtures does not satisfy the entire Rust completion goal.

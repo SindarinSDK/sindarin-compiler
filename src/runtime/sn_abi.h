@@ -22,6 +22,7 @@ typedef uint32_t SnAbiStatus;
 #define SN_ABI_UNSUPPORTED UINT32_C(3)
 #define SN_ABI_WRONG_KIND UINT32_C(4)
 #define SN_ABI_OUT_OF_RANGE UINT32_C(5)
+#define SN_ABI_FOREIGN_ERROR UINT32_C(6)
 
 typedef struct SnAbiValue SnAbiValue;
 
@@ -67,6 +68,9 @@ SnAbiStatus sn_abi_v1_buffer_copy(const uint8_t *data, uint64_t length, SnAbiVal
  * data[length] is NUL; that terminator is not included in length. Nil yields
  * {NULL, 0}. Do not free the view or cast it to a Rust/Go owned representation. */
 SnAbiStatus sn_abi_v1_bytes(const SnAbiValue *value, SnAbiBytes *out);
+/* String-only borrowed view. Rejects buffers, which need not be terminated.
+ * Outputs remain unchanged on failure; nil gives {NULL, 0}. */
+SnAbiStatus sn_abi_v1_string_bytes(const SnAbiValue *value, SnAbiBytes *out);
 
 /* Plain-value arrays use the existing C SnArray implementation. Element size
  * is an explicit wire-layout commitment. These operations do not provide managed

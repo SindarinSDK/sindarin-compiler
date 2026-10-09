@@ -156,6 +156,7 @@ bool package_prepare_native_imports(CompilerOptions *options, Module *module,
                 function = import_find_function(modules[i], file, separator + 2);
             if (!function || !function->as.function.is_native || function->as.function.body_count ||
                 function->as.function.is_variadic || function->as.function.type_param_count ||
+                function->as.function.return_mem_qualifier != MEM_DEFAULT ||
                 !import_type(function->as.function.return_type)) {
                 fprintf(stderr, "error: %s: native binding '%s' requires a supported native declaration without a Sindarin body\n",
                         manifest, json_object_get_string(decl));

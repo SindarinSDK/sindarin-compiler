@@ -103,7 +103,7 @@ static bool validate_native_plan(json_object *plan, const char *path)
     static const char *const root_fields[] = {"abi", "declarations", "builds", "bindings", NULL};
     static const char *const build_fields[] = {"name", "language", "sources", "entry", "module",
                                              "include_dirs", "libraries", NULL};
-    static const char *const binding_fields[] = {"declaration", "build", "symbol", "convention",
+    static const char *const binding_fields[] = {"declaration", "build", "symbol", "function", "convention",
                                                "ownership", "failure", NULL};
     static const char *const ownership_fields[] = {"parameters", "result", "borrowed_from", NULL};
     if (!native_fields(plan, root_fields, path)) return false;
@@ -159,6 +159,9 @@ static bool validate_native_plan(json_object *plan, const char *path)
         const char *symbol = native_text(binding, "symbol");
         const char *convention = native_text(binding, "convention");
         const char *failure = native_text(binding, "failure");
+        json_object *function = NULL;
+        if (json_object_object_get_ex(binding, "function", &function) && !native_text(binding, "function"))
+            return yaml_config_error(path, "native function must be a nonempty backing function name");
         if (!declaration || !build_name || !symbol || !convention || strcmp(convention, "C") != 0 ||
             !failure || (strcmp(failure, "abort") != 0 && strcmp(failure, "status") != 0))
             return yaml_config_error(path, "native binding requires declaration/build/symbol, convention C and failure abort/status");

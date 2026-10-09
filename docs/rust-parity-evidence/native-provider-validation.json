@@ -1,0 +1,201 @@
+{
+  "base_revision": "8c3678928b186e1e40837707bb65ce9f0a308778",
+  "scope": "Generated scalar/string provider exports and consumer imports; partial native artifacts, not complete Sindarin/SDK package or full Rust parity acceptance",
+  "source_sha256": {
+    ".github/workflows/ci.yml": "4e08fb06c24c25e4df3191c1e067cf681350aa71d03bc35a22aa100bad90150a",
+    "CMakeLists.txt": "44ad39de6961437895ac4eadbb54f0df730273b62ff04267c809684b5a77ac23",
+    "scripts/build_native_package.py": "6ee8a5a6ce3790464cc544192e4f114e46c6fef097014882928ada39d667b180",
+    "scripts/ci/gates.json": "36b0409dc2551584246fb2e666db58e01c29e77d3c841b81d5be92abf6c208b4",
+    "scripts/native_contract.py": "3a74f8e2312495cf5a84a0706aa05f2019002ac467b69b773383e43d5ca714be",
+    "scripts/native_provider.py": "a0318d9218131d2d64ee543ede6e3e967776a3615734fb6ec0c8401463f8f2a5",
+    "scripts/prepare_native_imports.py": "e9e0717e0f51138ce874fc002f405443da7f331c61786c758638e362bc550af2",
+    "src/package/package_import.c": "2480d900328c5fe470a0bcb65a4b44b36abab2d2832526cb88e6f678b0d23869",
+    "src/package/package_native_command.c": "7ae8b511334ad61926a3c2618a9dc756f4d7da583a4fdf2d31df5a9675f86055",
+    "src/package/package_native_command.h": "2f73c087cf3cda8ac0ff46d1b9ed30f08b42c35072fc2e0d6daed3556125fdf8",
+    "src/package/package_yaml_native.c": "0fd85237e16377019535da660f36759689ecb196269d8a58bf5f56f88e0bd506",
+    "src/runtime/sn_abi.c": "4a8b40b09191621303183196db763ddfe8b195fc699b94fd43510448486d735a",
+    "src/runtime/sn_abi.h": "087b3f149f4079aff5e316df827e68c7cebde0972d3714f904f576a8b9af7837",
+    "tests/ci/test_ci_helpers.py": "04c7b5dd9e52805887f1a13ac8513133cac4a5d131660e2509cb2e797fd11fea",
+    "tests/package/native_artifacts.py": "d1d73d5b5d276cbe2469e263c8884ee9a06d1000819f224dca70f97f312b8aaf",
+    "tests/package/native_imports.py": "c16707758e3bbcee3cb01340a31eb001ac48750602a3e069b66f63c6a21cd1ac",
+    "tests/runtime_abi/client.c": "a0bd891cd307bb03d0d152be6650940133a3417995433d19787a35837f565a7b",
+    "tests/unit/package/package_tests.c": "7522353cd91abdea60af3a14718f20219084e07012d8b792c9304bd7baa99611"
+  },
+  "compiler_sha256": "55f53fbe3e38391a591c7313207a856a9e3198ac66339b3e00047eda10ce96f0",
+  "asan_compiler_sha256": "85d49222505dd8e92894d9959deef79cd016b1b510d178d59d7d7207b3d1aefc",
+  "base_ci": {
+    "run": 37986936909,
+    "revision": "8c3678928b186e1e40837707bb65ce9f0a308778",
+    "conclusion": "success"
+  },
+  "validation": {
+    "C": {
+      "passed": 3240,
+      "groups": [
+        {
+          "passed": 1616,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 107,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 79,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1145,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 58,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 224,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 11,
+          "failed": 0,
+          "skipped": 0
+        }
+      ],
+      "log_sha256": "962af93ff18872d45339fc4ca56259dee75e3dce830b3edcc42f0a3e18cddc57"
+    },
+    "Rust": {
+      "passed": 1083,
+      "groups": [
+        {
+          "passed": 506,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 118,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 8,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 379,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 4,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 36,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 10,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 7,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 12,
+          "failed": 0,
+          "skipped": 0
+        }
+      ],
+      "log_sha256": "fe4c2381b1fb99e46bb961ecac0d811a24263b23a45d34a2435b64645bd5160a"
+    },
+    "native_imports": {
+      "tests": 15,
+      "log_sha256": "1f9cae29973b270a6c835e8b084cfe061d378c71b47dcf3defa836ce930b60a4"
+    },
+    "native_imports_asan": {
+      "tests": 15,
+      "log_sha256": "4c58b5c857fbe99a7fdc87a85bdd669c71d58aa46aad43a929cf313f8f1a39fa"
+    },
+    "native_artifacts": {
+      "tests": 8,
+      "log_sha256": "16af6178023866d7e86155a61117577dc38970a122390996219afe948c866863"
+    },
+    "package_contract": {
+      "tests": 14,
+      "log_sha256": "8fdb447b4ec7c67d377568d1f5363484704f163f71c8625cdda8b05a54ed3af2"
+    },
+    "all_ci_helpers": {
+      "tests": 13,
+      "log_sha256": "0ec9370d9096a4aa87f15a9afeb12eb9c75fcc957d2358abad22ee72abe3c9c3"
+    },
+    "provider_address_undefined_leak_sanitizers": {
+      "tests": 1,
+      "log_sha256": "6c6f6c0b95c6adc6e4dfb93956a13ec8611e25aefed4f03672497d04d471e8cf"
+    },
+    "runtime_abi": {
+      "passed": true,
+      "log_sha256": "49e32ecab0957edbdb421efff68abce37e09ecf25812ed2eed74e85c37332665"
+    },
+    "runtime_abi_sanitizers": {
+      "passed": true,
+      "log_sha256": "c73a9b66c247f3b6c5b59d88274f5a381ec143447d2458123896a08918b39104"
+    },
+    "actionlint": {
+      "passed": true
+    }
+  },
+  "asan_units": 1616,
+  "namespace_regression_before": {
+    "output": "11\n11\n33\n44\n",
+    "expected": "11\n22\n33\n44\n",
+    "targets": [
+      "C",
+      "Rust"
+    ],
+    "log_sha256": "14025db22bc9cb82d41e230b6ef4e9a3fb7f036dd41aa831358afcef512b6a9e"
+  },
+  "provider_sanitizers": {
+    "languages": [
+      "C",
+      "RS",
+      "GO"
+    ],
+    "cc": "gcc -fsanitize=address,undefined -fno-omit-frame-pointer",
+    "detect_leaks": true
+  },
+  "required_ci": {
+    "groups": 26,
+    "gate_executions": 288,
+    "new_gate": "runtime-111"
+  },
+  "hosted_acceptance": "pending",
+  "passed": true
+}

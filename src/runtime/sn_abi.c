@@ -49,6 +49,7 @@ const char *sn_abi_v1_status_message(SnAbiStatus status)
         case SN_ABI_UNSUPPORTED: return "unsupported runtime ABI capability";
         case SN_ABI_WRONG_KIND: return "incorrect ABI value kind";
         case SN_ABI_OUT_OF_RANGE: return "runtime ABI index or length out of range";
+        case SN_ABI_FOREIGN_ERROR: return "native backing function panicked";
         default: return "unknown runtime ABI status";
     }
 }
@@ -141,6 +142,13 @@ SnAbiStatus sn_abi_v1_bytes(const SnAbiValue *value, SnAbiBytes *out)
     SnAbiBytes bytes = {value->payload.bytes.data, value->payload.bytes.length};
     *out = bytes;
     return SN_ABI_OK;
+}
+
+SnAbiStatus sn_abi_v1_string_bytes(const SnAbiValue *value, SnAbiBytes *out)
+{
+    if (!out) return SN_ABI_INVALID_ARGUMENT;
+    if (value && value->kind != ABI_STRING) return SN_ABI_WRONG_KIND;
+    return sn_abi_v1_bytes(value, out);
 }
 
 SnAbiStatus sn_abi_v1_array_new(uint64_t element_size, SnAbiValue **out)

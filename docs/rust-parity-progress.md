@@ -7,6 +7,47 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Generated native provider exports: local validation, 2026-10-09
+
+Optional binding `function` metadata now resolves typed native declarations and
+builds generated C-ABI exports for ordinary C, Rust and Go backing functions.
+Standalone package builds and application imports share this path. C prototypes
+are enforced during source compilation; Rust retains its original crate/module
+structure; Go imports the original library and rebases relative module replacements.
+Original backing source and manifests are preserved. Supported contracts currently
+cover plain scalars, borrowed strings, owned string results and abort/status errors.
+
+C backing function link names and Rust crate identities include package/build
+identity. A regression previously called the first C implementation from both
+packages; it now preserves each package's output. Duplicate public wire exports
+across imported packages are diagnosed. Complete automatic export-name allocation
+and wider namespace/graph planning remain outstanding.
+
+String-only views reject ABI buffers before backing code can assume termination.
+Nil/empty/non-UTF-8 values, result lifetime, failure outputs, scalar conversions,
+void returns and call-frame panic containment have integration regressions. Go's
+legacy `panic(nil)` is contained; Rust panic hooks retain existing behaviour.
+Independent ABI clients consume all three generated provider languages. These
+remain partial native artifacts; complete Sindarin/SDK artifacts, managed
+record/interface/array/callback contracts, Go aggregation and full parity remain
+required by the goal. Local suites pass 3,240 C and 1,083 Rust checks, fifteen
+normal/ASAN import tests, eight artifact tests, fourteen package-contract tests
+and thirteen CI helper tests. The shared-runtime clients and strict
+provider lifetime sanitizer clients pass. A new Linux sanitizer gate keeps the
+26 groups and brings required executions to 288. Hosted acceptance for this
+provider batch is pending.
+
+[Provider contract](native-package-imports.md#generated-provider-exports).
+Evidence: [provider validation](rust-parity-evidence/native-provider-validation.json).
+
+## Native import platform correction: hosted acceptance, 2026-10-09
+
+Corrected main `8c367892` passes complete Linux/macOS/Windows unified CI,
+including all three core gates and validated artifacts. This lifts the feature
+publication hold and supersedes the earlier pending/frozen descriptions below.
+
+[Accepted correction](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37986936909).
+
 ## Native import platform correction: local validation, 2026-10-09
 
 Main `a84c3346` fails the macOS and Windows core jobs in run `37984504278`.

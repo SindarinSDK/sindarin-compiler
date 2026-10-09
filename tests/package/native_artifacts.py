@@ -143,6 +143,69 @@ class NativeArtifactTests(unittest.TestCase):
         mode, _ = self.build(extra=('-O0', '--unchecked'))
         self.assertNotEqual(mode['assembly'], changed['assembly'])
 
+    def test_generated_exports_are_independent_typed_abi_artifacts(self):
+        sources = {
+            'C': '#include <stdlib.h>\n#include <string.h>\n#include <stdint.h>\n#include <stdbool.h>\n'
+                 'uint32_t echo(char *v, char **out) { *out = v ? strdup(v) : NULL; return 0; }\n'
+                 'uint32_t fail(long long *out) { return 5; }\nbool flip(bool v) { return !v; }\n',
+            'RS': 'pub fn echo(v: Option<&[u8]>) -> Result<Option<Vec<u8>>,u32> { Ok(v.map(|v| v.to_vec())) }\n'
+                  'pub fn fail() -> Result<i64,u32> { Err(5) }\npub fn flip(v:bool)->bool { !v }\n',
+            'GO': 'package backing\nimport helper "sindarin.test/helper"\n'
+                  'func Echo(v *string) (*string,uint32) { if v == nil { return nil,0 }; text := helper.Copy(*v); return &text,0 }\n'
+                  'func Fail() (int64,uint32) { return 99,5 }\nfunc Flip(v bool) bool { return !v }\n'}
+        self.write('native/helper/go.mod','module sindarin.test/helper\n\ngo 1.26.0\n')
+        self.write('native/helper/helper.go','package helper\nfunc Copy(v string) string { return v }\n')
+        cc=shlex.split(os.environ.get('SN_CC','clang' if os.name=='nt' or os.sys.platform=='darwin' else 'gcc'))
+        for language,source in sources.items():
+            with self.subTest(language=language):
+                path={'C':'native/value.c','RS':'native/value.rs','GO':'native/go/main.go'}[language]
+                self.write(path,source)
+                self.manifest([language])
+                if language=='GO':
+                    self.write('native/go/go.mod','module sindarin.test/native-package\n\ngo 1.26.0\n'
+                               'require sindarin.test/helper v0.0.0\nreplace sindarin.test/helper => ../helper\n')
+                self.write('src/api.sn','native fn echo(text: str): str\nnative fn fail(): int\nnative fn flip(flag: bool): bool\n')
+                manifest=self.root/'sn.yaml'
+                text=manifest.read_text().split('  bindings:')[0]+'  bindings:\n'
+                build={'C':'c','RS':'rs','GO':'go'}[language]
+                for name,result,parameters,failure in (('echo','owned','{text: borrowed}','status'),('fail','value','{}','status'),('flip','value','{flag: value}','abort')):
+                    function=name.capitalize() if language=='GO' else name
+                    text+=(f'    - declaration: src/api.sn::{name}\n      build: {build}\n'
+                           f'      symbol: provider_{name}\n      function: {function}\n      convention: C\n'
+                           f'      failure: {failure}\n      ownership: {{parameters: {parameters}, result: {result}}}\n')
+                manifest.write_text(text)
+                original={p:p.read_bytes() for p in (manifest,self.root/path,self.root/'native/go/go.mod')}
+                summary,metadata=self.build()
+                self.assertEqual(metadata['units'][0]['generated_provider_exports'],['provider_echo','provider_fail','provider_flip'])
+                self.assertEqual(len(metadata['provider_signatures']),3)
+                for p,expected in original.items(): self.assertEqual(p.read_bytes(),expected)
+                base=Path(summary['assembly']).parent
+                self.write('provider-client.c', '#include <assert.h>\n#include <string.h>\n#include "sn_abi.h"\n'
+                           'uint32_t provider_echo(SnAbiValue*,SnAbiValue**);\nuint32_t provider_fail(int64_t*);\nuint8_t provider_flip(uint8_t);\n'
+                           'int main(void) { SnAbiValue *text=NULL,*out=NULL,*buffer=NULL; SnAbiBytes bytes;\n'
+                           ' char data[]={65,(char)255,0,66,0};\n'
+                           ' assert(sn_abi_v1_string_copy(data,&text)==0); assert(provider_echo(text,&out)==0);\n'
+                           ' sn_abi_v1_release(text); assert(sn_abi_v1_bytes(out,&bytes)==0);\n'
+                           ' assert(bytes.length==2 && bytes.data[0]==65 && bytes.data[1]==255); sn_abi_v1_release(out);\n'
+                           ' assert(provider_echo(NULL,&out)==0 && out==NULL);\n'
+                           ' assert(sn_abi_v1_string_copy("",&text)==0); assert(provider_echo(text,&out)==0 && out!=NULL);\n'
+                           ' assert(sn_abi_v1_bytes(out,&bytes)==0 && bytes.length==0 && bytes.data!=NULL); sn_abi_v1_release(out);\n'
+                           ' assert(sn_abi_v1_buffer_copy((const uint8_t*)"abc",3,&buffer)==0); out=text;\n'
+                           ' assert(provider_echo(buffer,&out)==SN_ABI_WRONG_KIND && out==text);\n'
+                           ' assert(provider_echo(text,NULL)==SN_ABI_INVALID_ARGUMENT);\n'
+                           ' int64_t preserved=123; assert(provider_fail(&preserved)==5 && preserved==123);\n'
+                           ' assert(provider_fail(NULL)==SN_ABI_INVALID_ARGUMENT);\n'
+                           ' assert(provider_flip(0)==1 && provider_flip(1)==0);\n'
+                           ' sn_abi_v1_release(buffer); sn_abi_v1_release(text); return 0; }\n')
+                unit=metadata['units'][0]
+                executable=self.root/'provider-client.exe'
+                built=subprocess.run(cc+['-I',str(COMPILER.parent/'include/runtime'),str(self.root/'provider-client.c'),
+                                         str(base/unit['archive']),metadata['shared_runtime']['archive']]+unit['native_link_flags']+
+                                     ['-o',str(executable)],capture_output=True,timeout=120)
+                self.assertEqual(built.returncode,0,built.stderr.decode(errors='replace'))
+                run=subprocess.run([str(executable)],capture_output=True,timeout=15)
+                self.assertEqual(run.returncode,0,run.stderr.decode(errors='replace'))
+
     def test_plan_inheritance_and_command_diagnostics(self):
         self.manifest(['C'])
         manifest = self.root / 'sn.yaml'

@@ -1,5 +1,10 @@
 #include "package_native_command.h"
 #include "../package.h"
+#include "../parser.h"
+#include "../type_checker.h"
+#include "../file.h"
+#include "../diagnostic.h"
+#include "../cgen/gen_model.h"
 #include <json-c/json.h>
 #include <errno.h>
 #include <stdlib.h>
@@ -10,6 +15,93 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #endif
+
+/* Resolve provider contracts without compiling an application or recursively
+ * invoking its import-adapter pipeline. Each API file has an isolated scope. */
+static bool native_provider_signatures(CompilerOptions *options, json_object *native)
+{
+    json_object *bindings = NULL, *declarations = NULL;
+    json_object_object_get_ex(native, "bindings", &bindings);
+    json_object_object_get_ex(native, "declarations", &declarations);
+    json_object *signatures = json_object_new_array();
+    for (size_t b = 0; b < json_object_array_length(bindings); b++) {
+        json_object *binding = json_object_array_get_idx(bindings, b), *function = NULL;
+        if (!json_object_object_get_ex(binding, "function", &function)) continue;
+        json_object *decl = NULL;
+        json_object_object_get_ex(binding, "declaration", &decl);
+        char *identity = strdup(json_object_get_string(decl));
+        char *separator = strstr(identity, "::");
+        bool listed = false;
+        if (separator) {
+            *separator = 0;
+            for (size_t d = 0; d < json_object_array_length(declarations); d++)
+                if (!strcmp(identity, json_object_get_string(json_object_array_get_idx(declarations, d)))) listed = true;
+        }
+        if (!listed) {
+            fprintf(stderr, "error: provider binding '%s' must name a function in native.declarations\n", json_object_get_string(decl));
+            free(identity); json_object_put(signatures); return false;
+        }
+        char path[4096];
+        const char *slash = strrchr(options->native_manifest, '/');
+#ifdef _WIN32
+        const char *back = strrchr(options->native_manifest, '\\');
+        if (back && (!slash || back > slash)) slash = back;
+#endif
+        int prefix = slash ? (int)(slash - options->native_manifest + 1) : 0;
+        if (snprintf(path, sizeof(path), "%.*s%s", prefix, options->native_manifest, identity) >= (int)sizeof(path)) {
+            free(identity); json_object_put(signatures); return false;
+        }
+        Arena *arena = &options->arena;
+        const char *filename = arena_strdup(arena, path);
+        SymbolTable symbols;
+        symbol_table_init(arena, &symbols);
+        char *source = file_read(arena, filename);
+        Module *module = NULL;
+        if (source) {
+            diagnostic_init(filename, source);
+            char **imports = NULL;
+            Module **modules = NULL;
+            bool *direct = NULL, *emitted = NULL;
+            int count = 0, capacity = 0;
+            module = parse_module_with_imports(arena, &symbols, filename, &imports, &count,
+                &capacity, &modules, &direct, &emitted, options->compiler_dir);
+            if (module && !type_check_module(module, &symbols)) module = NULL;
+        }
+        FunctionStmt *fn = NULL;
+        for (int i = 0; module && i < module->count; i++) {
+            Stmt *stmt = module->statements[i];
+            if (stmt->type == STMT_FUNCTION && stmt->as.function.name.filename &&
+                !strcmp(stmt->as.function.name.filename, path) &&
+                !strcmp(stmt->as.function.name.start, separator + 2)) fn = &stmt->as.function;
+        }
+        bool valid = fn && fn->is_native && !fn->body_count && !fn->is_variadic &&
+                     !fn->type_param_count && fn->return_mem_qualifier == MEM_DEFAULT;
+        if (valid) {
+            json_object *signature = json_object_new_object(), *params = json_object_new_array();
+            json_object_object_add(signature, "binding", json_object_get(binding));
+            json_object_object_add(signature, "return_type", gen_model_type(arena, fn->return_type));
+            json_object_object_add(signature, "params", params);
+            for (int i = 0; i < fn->param_count; i++) {
+                Parameter *param = &fn->params[i];
+                if (param->mem_qualifier != MEM_DEFAULT) { valid = false; break; }
+                json_object *entry = json_object_new_object();
+                json_object_object_add(entry, "name", json_object_new_string(param->name.start));
+                json_object_object_add(entry, "type", gen_model_type(arena, param->type));
+                json_object_array_add(params, entry);
+            }
+            json_object_array_add(signatures, signature);
+        }
+        symbol_table_cleanup(&symbols);
+        free(identity);
+        if (!valid) {
+            fprintf(stderr, "error: provider binding '%s' requires a native declaration without a body or reference qualifiers\n", json_object_get_string(decl));
+            json_object_put(signatures); return false;
+        }
+    }
+    if (json_object_array_length(signatures)) json_object_object_add(native, "signatures", signatures);
+    else json_object_put(signatures);
+    return true;
+}
 
 /* Invoke argv directly: paths and metadata are never interpreted by a shell. */
 int package_native_run_driver(char *const *args)
@@ -68,7 +160,7 @@ int package_native_run_driver(char *const *args)
 #endif
 }
 
-int package_native_command(const CompilerOptions *options)
+int package_native_command(CompilerOptions *options)
 {
     if (options->native_mode == 2) {
         char driver[4096], compiler[4096], optimization[16];
@@ -100,6 +192,7 @@ int package_native_command(const CompilerOptions *options)
     if (!package_yaml_parse(options->native_manifest, &config) ||
         !package_yaml_native_plan(options->native_manifest, &native)) return 1;
     if (!native) { fprintf(stderr, "error: manifest has no native build metadata\n"); return 1; }
+    if (!native_provider_signatures(options, native)) { json_object_put(native); return 1; }
     json_object *plan = json_object_new_object();
     json_object *package = json_object_new_object();
     json_object_object_add(package, "name", json_object_new_string(config.name));

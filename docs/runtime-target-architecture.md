@@ -4,8 +4,9 @@ Status: agreed architectural direction, 2026-10-09. This is the reference for
 implementation work, not a claim that package assemblies, automatic cross-language
 adapters or the Go backend already exist. The runtime manifest field and import
 compatibility checks are implemented. The shared C ABI has an implemented
-[value-transport foundation](runtime-abi.md); independent package compilation,
-complete record/interface contracts and generated adapters remain pending.
+[value-transport foundation](runtime-abi.md); independent Sindarin package compilation and complete record/interface contracts
+remain pending. Scalar/string native imports and provider exports have generated
+adapters; this does not complete SDK/package artifact migration.
 
 ## Decision
 
@@ -99,7 +100,7 @@ not change the final application's target and does not translate foreign source
 files into the selected language. Native sources also need explicit build inputs
 and binding metadata, defined in the [native manifest contract](native-package-manifest.md).
 Its parser/preservation and [native backing artifact builds](native-artifacts.md)
-are implemented. Complete package compilation and generated adapters remain work. For example, an RS package can still declare an explicit C dependency.
+are implemented. Complete Sindarin package compilation and wider adapter contracts remain work. For example, an RS package can still declare an explicit C dependency.
 
 For a package consisting only of portable Sindarin source, an omitted runtime
 inherits the application's target. Its artifact is therefore cached separately
@@ -131,8 +132,9 @@ The application's CLI target remains independent of the runtime declared in its
 own manifest; imports belonging to that same manifest follow the application
 target. Existing native C directives keep their C backing language even for RS
 packages. Native build-plan execution produces independent C/Rust/Go backing archives.
-Complete Sindarin package artifacts, binding/type verification, generated adapters
-and final package-graph linking remain required implementation work.
+Complete Sindarin package artifacts, wider type/ownership verification and final
+package-graph linking remain required implementation work. Supported native scalar
+and string declarations generate both consumer adapters and optional provider exports.
 
 ## Mixed-package example
 

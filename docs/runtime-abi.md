@@ -3,7 +3,7 @@
 Status: implemented value-transport foundation, ABI 1.0 (`0x00010000`). This is
 part of the [runtime and package architecture](runtime-target-architecture.md).
 It does not yet provide complete package record/interface contracts, managed
-array elements, generated bindings, independent SDK artifacts or compiler-wide
+array elements, complete generated bindings, independent SDK artifacts or compiler-wide
 adoption. Those remain required by the [Rust completion goal](rust-completion-goal.md).
 
 The public header is `src/runtime/sn_abi.h`, staged at
@@ -76,6 +76,9 @@ String copy consumes a borrowed NUL-terminated C string synchronously and copies
 bytes through its first terminator. Non-UTF-8 octets are preserved. Nil is distinct
 from empty: NULL input gives nil; a non-NULL empty string gives a live empty handle.
 The returned view excludes the trailing terminator, available at `data[length]`.
+`sn_abi_v1_string_bytes` provides a string-only view and rejects buffers without
+changing its output, so provider adapters never assume an arbitrary buffer has
+a terminator. Existing general byte views retain their established behaviour.
 Concatenation follows the existing C string operation, including nil operands
 producing an empty string when both operands are nil.
 
@@ -145,3 +148,8 @@ all remaining language parity requirements are still outstanding.
 
 References: [Rust FFI](https://doc.rust-lang.org/nomicon/ffi.html),
 [Go cgo and pointer rules](https://pkg.go.dev/cmd/cgo).
+
+Generated status providers return `SN_ABI_FOREIGN_ERROR` (6) for contained
+backing-language panics. Existing status numbers and ABI 1.0 layouts remain
+unchanged. String provider artifacts require the string-view runtime entry point;
+their provenance/cache identity includes the exact runtime archive and header.

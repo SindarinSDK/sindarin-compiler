@@ -50,6 +50,7 @@ int main(void)
     assert(sn_abi_v1_query(SN_ABI_V1_VERSION, 0, NULL, sizeof(info)) == SN_ABI_INVALID_ARGUMENT);
     assert(strcmp(sn_abi_v1_status_message(SN_ABI_WRONG_KIND), "incorrect ABI value kind") == 0);
     assert(strcmp(sn_abi_v1_status_message(99), "unknown runtime ABI status") == 0);
+    assert(strcmp(sn_abi_v1_status_message(SN_ABI_FOREIGN_ERROR), "native backing function panicked") == 0);
     assert(sn_abi_v1_retain(NULL) == NULL);
     sn_abi_v1_release(NULL);
 
@@ -61,6 +62,9 @@ int main(void)
     SnAbiBytes bytes;
     assert(sn_abi_v1_bytes(nil, &bytes) == SN_ABI_OK && bytes.data == NULL && bytes.length == 0);
     assert(sn_abi_v1_bytes(empty, &bytes) == SN_ABI_OK && bytes.data != NULL && bytes.length == 0);
+    assert(sn_abi_v1_string_bytes(nil, &bytes) == SN_ABI_OK && bytes.data == NULL && bytes.length == 0);
+    assert(sn_abi_v1_string_bytes(empty, &bytes) == SN_ABI_OK && bytes.data != NULL && bytes.length == 0);
+    assert(sn_abi_v1_string_bytes(text, NULL) == SN_ABI_INVALID_ARGUMENT);
     SnAbiValue *alias = sn_abi_v1_retain(text);
     assert(alias == text);
     sn_abi_v1_release(text);
@@ -80,6 +84,9 @@ int main(void)
     assert(sn_abi_v1_buffer_copy(binary, sizeof(binary), &buffer) == SN_ABI_OK);
     assert(sn_abi_v1_bytes(buffer, &bytes) == SN_ABI_OK && bytes.length == sizeof(binary));
     assert(memcmp(bytes.data, binary, sizeof(binary)) == 0 && bytes.data != binary);
+    SnAbiBytes preserved_bytes = bytes;
+    assert(sn_abi_v1_string_bytes(buffer, &bytes) == SN_ABI_WRONG_KIND);
+    assert(bytes.data == preserved_bytes.data && bytes.length == preserved_bytes.length);
     SnAbiValue *output = buffer;
     assert(sn_abi_v1_buffer_copy(NULL, 1, &output) == SN_ABI_INVALID_ARGUMENT && output == buffer);
     assert(sn_abi_v1_string_concat(buffer, NULL, &output) == SN_ABI_WRONG_KIND && output == buffer);

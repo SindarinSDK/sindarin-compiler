@@ -146,11 +146,13 @@
       "log_sha256": "1ac5c93562cb0cb4ccc9ee0d82d5e6517c7010216d347cae7988904262389d34"
     },
     "ci_helpers": {
-      "tests": 13,
+      "tests": 6,
       "log_sha256": "f17da5d988908a69e311f5a5c77fcf2e872d4055259d7a30a1f1a22a542da673"
     }
   },
   "asan_units": 1616,
-  "hosted_acceptance": "pending",
-  "feature_publication": "frozen until corrected integrated CI succeeds"
+  "hosted_acceptance": "success",
+  "feature_publication": "resumed after corrected integrated CI succeeded",
+  "accepted_revision": "8c3678928b186e1e40837707bb65ce9f0a308778",
+  "accepted_ci": 37986936909
 }

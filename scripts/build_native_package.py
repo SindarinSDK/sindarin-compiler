@@ -15,6 +15,7 @@ import subprocess
 import sys
 import tempfile
 import uuid
+from native_provider import contracts, c_header, c_provider, rust_provider, go_provider
 
 
 def sha(path):
@@ -176,6 +177,14 @@ def build(args):
     plan = json.loads(run([compiler, '--native-plan', args.manifest.resolve(), '--target', args.target,
                            '-O' + args.optimization, '--' + args.arithmetic]))
     native = plan['native']
+    providers = {u['name']: contracts(native, u) for u in native['builds']}
+    generated_exports = set()
+    for signatures in providers.values():
+        for signature in signatures:
+            symbol = signature['binding']['symbol']
+            if symbol in generated_exports:
+                raise ValueError('duplicate generated provider export symbol across build units: ' + symbol)
+            generated_exports.add(symbol)
     go_builds = [u for u in native['builds'] if u['language'] == 'GO']
     if len(go_builds) > 1:
         raise ValueError('multiple Go build units require one aggregate bridge; aggregation is not implemented yet')
@@ -216,6 +225,8 @@ def build(args):
             path = source_path(root, name); inputs[str(path)] = sha(path)
     identity = {'plan': plan, 'tools': tools, 'inputs': inputs,
                 'driver_sha256': sha(Path(__file__)), 'compiler_sha256': sha(compiler),
+                'provider_sha256': sha(Path(__file__).with_name('native_provider.py')),
+                'contract_sha256': sha(Path(__file__).with_name('native_contract.py')),
                 'environment_sha256': key(dict(os.environ)), 'runtime_sha256': sha(runtime),
                 'abi_header_sha256': sha(header), 'system': platform.system(),
                 'machine': platform.machine(), 'pointer_bits': struct.calcsize('P') * 8}
@@ -230,37 +241,64 @@ def build(args):
         work = Path(folder)
         units, deps = [], dict(inputs)
         for index, unit in enumerate(native['builds']):
-            stem = f'sn_native_{index:03d}_' + key(unit['name'])[:12]
+            stem = f'sn_native_{index:03d}_' + key({'package':plan['package'], 'build':unit['name']})[:12]
             archive = work / ('lib' + stem + '.a')
             includes = [str((root / p).resolve()) for p in unit.get('include_dirs', [])]
             includes.append(str(header.parent))
             native_link_flags = []
+            signatures = providers[unit['name']]
+            def capture_dependencies(depfile):
+                for name in dependencies(depfile):
+                    dependency = (root / name).resolve()
+                    # Generated inputs are covered by plan/helper fingerprints;
+                    # their temporary paths cannot enter reusable cache keys.
+                    if not dependency.is_relative_to(work):
+                        deps[str(dependency)] = sha(dependency)
             if unit['language'] == 'C':
                 objects = []
-                for number, source in enumerate(unit['sources']):
+                sources = [source_path(root, source) for source in unit['sources']]
+                contract_flags = []
+                if signatures:
+                    provider = work / (stem + '_provider.c')
+                    provider.write_text(c_provider(signatures))
+                    sources.append(provider)
+                    backing_header = work / (stem + '_backing.h')
+                    backing_header.write_text(c_header(signatures, stem))
+                    contract_flags = ['-include', str(backing_header)]
+                for number, source in enumerate(sources):
                     obj, depfile = work / f'{stem}-{number}.o', work / f'{stem}-{number}.d'
                     flags = ['-std=c11', '-D_GNU_SOURCE', '-Werror=implicit-function-declaration', '-O' + args.optimization, '-fno-lto']
                     for directory in includes: flags += ['-I', directory]
-                    run(cc + flags + shlex.split(os.environ.get('SN_CFLAGS', '')) +
-                        ['-MD', '-MF', depfile, '-c', source_path(root, source), '-o', obj], cwd=root)
-                    for path in dependencies(depfile):
-                        dependency = (root / path).resolve()
-                        deps[str(dependency)] = sha(dependency)
+                    run(cc + flags + contract_flags + shlex.split(os.environ.get('SN_CFLAGS', '')) +
+                        ['-MD', '-MF', depfile, '-c', source, '-o', obj], cwd=root)
+                    capture_dependencies(depfile)
                     objects.append(obj)
                 run(ar + ['rcs', archive] + objects)
             elif unit['language'] == 'RS':
                 flags = shlex.split(os.environ.get('SN_RUSTFLAGS', ''))
+                source = source_path(root, unit['entry'])
+                extra = []
+                if signatures:
+                    if any(s['binding']['failure'] == 'status' for s in signatures) and any('panic=abort' in f for f in flags):
+                        raise ValueError('status provider exports require Rust panic=unwind')
+                    backing_crate = stem + '_backing'
+                    backing = work / ('lib' + backing_crate + '.rlib')
+                    run(rustc + ['--edition=2021', '--crate-type=rlib', '--crate-name', backing_crate,
+                                 '--emit=dep-info,link', '-C', 'opt-level=' + args.optimization,
+                                 source, '-o', backing] + flags, cwd=root)
+                    capture_dependencies(backing.with_suffix('.d'))
+                    source = work / (stem + '_provider.rs')
+                    source.write_text(rust_provider(signatures, backing_crate))
+                    extra = ['--extern', backing_crate + '=' + str(backing)]
                 compile_args = rustc + ['--edition=2021', '--crate-type=staticlib', '--crate-name', stem,
                              '--emit=dep-info,link', '-C', 'opt-level=' + args.optimization,
-                             source_path(root, unit['entry']), '-o', archive] + flags
+                             source, '-o', archive] + flags + extra
                 diagnostics = run(compile_args + ['--print=native-static-libs'], cwd=root, include_stderr=True)
                 run(compile_args, cwd=root)
                 libraries = re.search(r'native-static-libs:\s*(.*)', diagnostics)
                 if not libraries: raise ValueError('Rust toolchain did not report native static library dependencies')
                 native_link_flags = shlex.split(libraries.group(1))
-                for path in dependencies(archive.with_suffix('.d')):
-                    dependency = (root / path).resolve()
-                    deps[str(dependency)] = sha(dependency)
+                capture_dependencies(archive.with_suffix('.d'))
                 # External crate files supplied through rustc flags affect the archive.
                 for flag in flags:
                     candidate = flag.split('=', 1)[-1]
@@ -274,12 +312,35 @@ def build(args):
                 env['CGO_CPPFLAGS'] = shlex.join(['-I' + p for p in includes])
                 env['CGO_LDFLAGS'] = shlex.join(['-L' + str(runtime.parent), '-lsn_runtime_min'] +
                                                ['-l' + p for p in unit.get('libraries', [])])
-                go_inputs, native_link_flags = go_dependencies(go, root, unit, env)
-                deps.update(go_inputs)
+                module = (root / unit['module']).resolve()
+                go_unit = unit
+                if signatures:
+                    env['GOWORK'] = 'off'
+                    config = json.loads(run(go + ['mod', 'edit', '-json'], cwd=module, env=env))
+                    module_name = config['Module']['Path']
+                    major = re.search(r'(?:/v|\.v)([2-9][0-9]*)$', module_name)
+                    version = 'v' + (major.group(1) if major else '0') + '.0.0'
+                    bridge = work / (stem + '_go_provider')
+                    bridge.mkdir()
+                    shutil.copyfile(module / 'go.mod', bridge / 'go.mod')
+                    if (module / 'go.sum').is_file(): shutil.copyfile(module / 'go.sum', bridge / 'go.sum')
+                    edits = ['-module=sindarin.generated/' + stem, '-require=' + module_name + '@' + version,
+                             '-replace=' + module_name + '=' + str(module)]
+                    for replace in config.get('Replace') or []:
+                        new = replace['New']
+                        if not new.get('Version') and not Path(new['Path']).is_absolute():
+                            old = replace['Old']['Path'] + ('@' + replace['Old']['Version'] if replace['Old'].get('Version') else '')
+                            edits.append('-replace=' + old + '=' + str((module / new['Path']).resolve()))
+                    run(go + ['mod', 'edit'] + edits, cwd=bridge, env=env)
+                    (bridge / 'main.go').write_text(go_provider(signatures, module_name))
+                    module = bridge
+                    go_unit = dict(unit, module=str(bridge))
+                go_inputs, native_link_flags = go_dependencies(go, root, go_unit, env)
+                deps.update({p: v for p,v in go_inputs.items() if not Path(p).is_relative_to(work)})
                 if os.name != 'nt' and '-pthread' not in native_link_flags:
                     native_link_flags.append('-pthread')
                 run(go + ['build', '-mod=readonly', '-buildmode=c-archive', '-o', archive, '.'],
-                    cwd=(root / unit['module']).resolve(), env=env)
+                    cwd=module, env=env)
             symbols = {line.split()[-1] for line in run(nm + ['-g', '-U' if sys.platform == 'darwin' else '--defined-only', archive]).splitlines()
                        if line.split() and not line.rstrip().endswith(':')}
             exports = [b['symbol'] for b in native['bindings'] if b['build'] == unit['name']]
@@ -290,6 +351,7 @@ def build(args):
                           'archive_sha256': sha(archive), 'symbols': exports,
                           'libraries': unit.get('libraries', []), 'native_link_flags': native_link_flags,
                           'initialization': 'Go toolchain runtime' if unit['language'] == 'GO' else 'native toolchain',
+                          'generated_provider_exports': [s['binding']['symbol'] for s in signatures],
                           'requires_go_aggregation': unit['language'] == 'GO'})
         current = tree_inputs(root, output)
         for name in native['declarations']:
@@ -304,6 +366,7 @@ def build(args):
                     'requires_generated_adapters': True, 'fingerprint': fingerprint,
                     'package': plan['package'], 'abi': native['abi'], 'declarations': declarations,
                     'bindings': native['bindings'], 'units': units, 'provenance': identity,
+                    'provider_signatures': native.get('signatures', []),
                     'compatibility': {k: identity[k] for k in ('system', 'machine', 'pointer_bits')},
                     'shared_runtime': {'sha256': sha(runtime), 'archive': str(runtime)},
                     'dependency_sha256': deps,
