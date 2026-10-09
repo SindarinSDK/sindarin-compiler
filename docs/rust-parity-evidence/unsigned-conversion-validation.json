@@ -1,0 +1,202 @@
+{
+  "base_revision": "5cc8fc8bc33d52831d4e7b2e1f72482c5acd1fc7",
+  "scope": "Unsigned-to-int/long conversions, boundary behaviour and unchanged-source promotions; broader ABI/SDK/full parity remain unfinished",
+  "source_sha256": {
+    "src/target/rust/rust_validate_calls.c": "f7e65f816c0dedc636011c1a2f517ac8e8a99a266cc5dda9af4c685a557fa68d",
+    "scripts/run_rust_tests.py": "1304a800941eb1b3480bd3a02c29a3a1cd39bb9fd49888d2577cb01759a03aa3",
+    "scripts/ci/gates.json": "9d214694ff38c632e3de08f661713fd716782d54c6d4df30b0087ae457664698",
+    "tests/ci/test_ci_helpers.py": "295a5d5cf69439f80ea96340e869f4b0aba3546a062da93367121b5fdac2e0a6",
+    "tests/rust-native/scalar_primitive_unsigned_to_signed.sn": "0164c8a3e6b143edd676ab54220713d480cf73957c885a69742526a84a460027"
+  },
+  "compiler_sha256": "7dc03dde75025af11eff0f821c4f3c36e72599c15d39c545ee91dc40d9aa5d6c",
+  "validation": {
+    "C": {
+      "passed": 3240,
+      "groups": [
+        {
+          "passed": 1616,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 107,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 79,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1145,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 58,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 224,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 11,
+          "failed": 0,
+          "skipped": 0
+        }
+      ],
+      "log_sha256": "8881d3b08fc669ff29d5dfc4c06c1685658cf22f4a06cef8eec5616560ff7db7"
+    },
+    "Rust": {
+      "passed": 1084,
+      "groups": [
+        {
+          "passed": 506,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 118,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 8,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 380,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 4,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 36,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 10,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 7,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 12,
+          "failed": 0,
+          "skipped": 0
+        }
+      ],
+      "log_sha256": "e1316e6da35cc5baa291caa9e6f760a7c090964c0321f01c9b12807e85f71623"
+    },
+    "promotion": {
+      "passed": true,
+      "log_sha256": "3474130a2affb6977f5506c6afcc122d20346890c1c12d69fccd2ddf6bf42540"
+    },
+    "closure_promotion": {
+      "passed": true,
+      "log_sha256": "bb0d736216fc205b2fb25238e1ebf1a0e587c263b83f2fa084442004319b0496"
+    },
+    "boundaries": {
+      "passed": true,
+      "log_sha256": "a5d0466403946f76f7a1fb4a7543aae0ac5d9e5f8a45082c4513867f199739d7"
+    },
+    "asan_promotion": {
+      "passed": true,
+      "log_sha256": "d14a1d7729924388eb4b42cc9e843c57af1849527c12ae38220955ca6a55d5b9"
+    },
+    "asan_closure": {
+      "passed": true,
+      "log_sha256": "495e9b5c299c3de5f2391c4620b9d91c71988510cfcfb6bc4fe000fd3941ff25"
+    },
+    "asan_boundaries": {
+      "passed": true,
+      "log_sha256": "215f31e2844bfa24e586c737c27723deb0ca7343ae095d66f28cabf5c3e6d8e9"
+    }
+  },
+  "ci_helpers": 15,
+  "native_inventory": 380,
+  "promotions": {
+    "primitive_conversion_uint_to_int": {
+      "source_sha256": "ef74d7ca9640699a160ac20b5d44dde7ee54455afba798738c4874cc06a7e9a3",
+      "legacy_oracle_sha256": "77b85a0990e4273bdb2ee8cdd5cc699703982c9f2fc21e59aeeae90e30cd9d51",
+      "stdout_hex": "",
+      "exit": 0,
+      "reason": "C-supported unsigned-to-signed conversion; historical rejection no longer defines backend behaviour"
+    },
+    "closure_values_unsupported_body": {
+      "source_sha256": "eafe23f3c5e598951f80a2c2623f8e297127a99cf85dea15fa4ece2c3c9dc518",
+      "legacy_oracle_sha256": "77b85a0990e4273bdb2ee8cdd5cc699703982c9f2fc21e59aeeae90e30cd9d51",
+      "stdout_hex": "310a",
+      "exit": 0,
+      "reason": "C-supported unsigned-to-signed conversion; historical rejection no longer defines backend behaviour"
+    }
+  },
+  "promotion_profiles": [
+    [],
+    [
+      "-O0"
+    ],
+    [
+      "-O1"
+    ],
+    [
+      "-O2"
+    ],
+    [
+      "-O0",
+      "--unchecked"
+    ],
+    [
+      "-O1",
+      "--unchecked"
+    ],
+    [
+      "-O2",
+      "--unchecked"
+    ],
+    [
+      "-O0",
+      "-g"
+    ],
+    [
+      "-O0",
+      "-g",
+      "--unchecked"
+    ]
+  ],
+  "base_ci": {
+    "run": 37992420228,
+    "status": "pending at publication"
+  },
+  "hosted_acceptance": "pending",
+  "passed": true
+}

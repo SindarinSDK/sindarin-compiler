@@ -128,5 +128,38 @@ class CoverageTests(unittest.TestCase):
             self.collect()
 
 
+class ParityPromotionTests(unittest.TestCase):
+    def test_changed_historical_source_or_oracle_is_rejected(self):
+        sys.path.insert(0, str(ROOT / 'scripts'))
+        import run_rust_tests
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder); source=root/'case.sn'; oracle=root/'case.expected'; marker=root/'case.parity.json'
+            source.write_bytes(b'original source\n'); oracle.write_bytes(b'historical rejection\n')
+            contract={'source_sha256':hashlib.sha256(source.read_bytes()).hexdigest(),
+                      'legacy_oracle_sha256':hashlib.sha256(oracle.read_bytes()).hexdigest(),
+                      'stdout_hex':'', 'exit':0}
+            marker.write_text(json.dumps(contract))
+            runner=run_rust_tests.TestRunner('unused')
+            for changed in (source,oracle):
+                original=changed.read_bytes(); changed.write_bytes(b'changed\n')
+                with patch.object(run_rust_tests,'run_with_timeout') as compile_call:
+                    result=runner._run_promoted_rejection(str(source),str(oracle),str(root/'out.rs'),marker)
+                    self.assertEqual(result[0],'fail'); compile_call.assert_not_called()
+                changed.write_bytes(original)
+
+    def test_c_rejection_does_not_count_as_promoted_parity(self):
+        sys.path.insert(0, str(ROOT / 'scripts'))
+        import run_rust_tests
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder); source=root/'case.sn'; oracle=root/'case.expected'; marker=root/'case.parity.json'
+            source.write_bytes(b'original source\n'); oracle.write_bytes(b'historical rejection\n')
+            marker.write_text(json.dumps({'source_sha256':hashlib.sha256(source.read_bytes()).hexdigest(),
+                'legacy_oracle_sha256':hashlib.sha256(oracle.read_bytes()).hexdigest(),'stdout_hex':'','exit':0}))
+            runner=run_rust_tests.TestRunner('unused')
+            with patch.object(run_rust_tests,'run_with_timeout',return_value=(1,'','C rejects this','')):
+                result=runner._run_promoted_rejection(str(source),str(oracle),str(root/'out.rs'),marker)
+            self.assertEqual(result[0],'fail')
+
+
 if __name__ == '__main__':
     unittest.main()

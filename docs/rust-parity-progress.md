@@ -7,6 +7,30 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Unsigned-to-signed primitive conversions: local validation, 2026-10-09
+
+Rust now accepts existing `uint.toInt()` and `uint.toLong()` methods, using the
+same 64-bit narrowing/wrapping behaviour as supported C targets. Boundaries cover
+zero, representative values, the signed limit, the unsigned high half and maximum,
+plus an effectful receiver evaluated once. No Sindarin syntax or C implementation
+changes are required.
+
+Two historical rejection fixtures now pass unchanged through C/Rust in nine
+profiles. Their original source and rejection oracles remain byte-identical;
+explicit parity records seal those files and provide positive output/exit evidence.
+The runner executes promoted cases instead of skipping them or claiming matching
+rejection as support. Guard tests reject altered originals and C compilation failure.
+The closure-body case now returns its original output (`1`). New semantic coverage
+raises the native inventory to 380 without removing original fixtures.
+
+Local suites pass 3,240 C and 1,084 Rust checks, promoted/boundary cases under the
+ASAN compiler, and fifteen CI helper checks. Aggregation CI remains pending at
+publication; this conversion batch is independent and uses the second permitted
+slot. Hosted acceptance is pending. Double/character conversions, wider managed
+ABI contracts, SDK artifacts and remaining full parity requirements remain open.
+
+Evidence: [unsigned conversion validation](rust-parity-evidence/unsigned-conversion-validation.json).
+
 ## Go package graph aggregation: local validation, 2026-10-09
 
 Multiple generated-provider Go libraries now compile through one bridge/runtime

@@ -29,14 +29,14 @@
       "group": "rust"
     },
     {
-      "name": "native scalar, record and managed ABI fixtures (379 fixtures)",
+      "name": "native scalar, record and managed ABI fixtures (380 fixtures)",
       "command": [
         "{python}",
         "scripts/run_rust_tests.py",
         "rust-native-extra",
         "--verbose",
         "--require-count",
-        "379",
+        "380",
         "--fail-on-skip"
       ],
       "linux_only": false,

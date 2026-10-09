@@ -1598,9 +1598,44 @@ class TestRunner:
                                                     f"got:      {normalized_output!r}"])
         return ('pass', '', None)
 
+    def _run_promoted_rejection(self, test_file: str, legacy_oracle: str, rs_file: str,
+                                marker: Path) -> Tuple[str, str, Optional[List[str]]]:
+        """Keep historical source/diagnostics frozen while proving new support."""
+        try:
+            contract = json.loads(marker.read_text())
+            digest = lambda p: hashlib.sha256(Path(p).read_bytes().replace(b'\r\n', b'\n')).hexdigest()
+            if digest(test_file) != contract['source_sha256'] or digest(legacy_oracle) != contract['legacy_oracle_sha256']:
+                return ('fail', 'promoted fixture identity changed', None)
+            expected = bytes.fromhex(contract['stdout_hex'])
+        except (OSError, ValueError, KeyError, TypeError) as error:
+            return ('fail', 'invalid parity promotion record', [str(error)])
+        modes = [[], ['-O0'], ['-O1'], ['-O2'], ['-O0', '--unchecked'],
+                 ['-O1', '--unchecked'], ['-O2', '--unchecked'],
+                 ['-O0', '-g'], ['-O0', '-g', '--unchecked']]
+        for index, options in enumerate(modes):
+            for target in ('c', 'rust'):
+                executable = str(Path(rs_file).with_suffix(f'.{target}.{index}.exe'))
+                code, stdout, stderr, decode_error = run_with_timeout(
+                    [self.compiler, test_file, '--target', target, '--no-install',
+                     '-o', executable] + options, self.compile_timeout, env=self.env)
+                if code or decode_error:
+                    return ('fail', 'promoted C/Rust compilation failed',
+                            [f'{target} {options}', format_subprocess_failure(stdout, stderr)])
+                code, output, failure = run_bytes_with_timeout([executable], self.run_timeout, env=self.env)
+                # Checkout newlines affect source identity, not the byte oracle.
+                wanted = expected.replace(b'\n', b'\r\n') if is_windows() else expected
+                if failure or code != contract['exit'] or output != wanted:
+                    return ('fail', 'promoted C/Rust behaviour mismatch',
+                            [f'{target} {options}', f'exit={code}, failure={failure}',
+                             f'expected={wanted!r}', f'actual={output!r}'])
+        return ('pass', 'promoted C/Rust parity', None)
+
     def _run_rgen_error_test_internal(self, test_file: str, expected_file: str,
                                       rs_file: str) -> Tuple[str, str, Optional[List[str]]]:
         """Verify that an unsupported Rust construct fails during emission."""
+        promotion = Path(test_file).with_suffix('.parity.json')
+        if promotion.is_file():
+            return self._run_promoted_rejection(test_file, expected_file, rs_file, promotion)
         if not os.path.isfile(expected_file):
             return ('skip', 'no .expected', None)
 

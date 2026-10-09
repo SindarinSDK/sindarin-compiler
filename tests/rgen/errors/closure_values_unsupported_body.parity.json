@@ -1,0 +1,7 @@
+{
+  "source_sha256": "eafe23f3c5e598951f80a2c2623f8e297127a99cf85dea15fa4ece2c3c9dc518",
+  "legacy_oracle_sha256": "77b85a0990e4273bdb2ee8cdd5cc699703982c9f2fc21e59aeeae90e30cd9d51",
+  "stdout_hex": "310a",
+  "exit": 0,
+  "reason": "C-supported unsigned-to-signed conversion; historical rejection no longer defines backend behaviour"
+}

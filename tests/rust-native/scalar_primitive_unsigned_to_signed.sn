@@ -1,0 +1,16 @@
+fn bumpAndReturn(counter: int as ref): uint =>
+  counter += 1
+  return 18446744073709551615u
+
+fn main(): void =>
+  var zero: uint = 0u
+  var low: uint = 42u
+  var half: uint = 9223372036854775807u
+  var upper: uint = half + 1u
+  var maximum: uint = half * 2u + 1u
+  var minimum: int = -9223372036854775807 - 1
+  var counter: int = 0
+  var called: int = bumpAndReturn(counter).toInt()
+  println($"{zero.toInt() == 0 && low.toInt() == 42 && half.toInt() == 9223372036854775807 && upper.toInt() == minimum && maximum.toInt() == -1}")
+  println($"{zero.toLong() == 0l && low.toLong() == 42l && maximum.toLong() == -1l}")
+  println($"{counter == 1 && called == -1}")
