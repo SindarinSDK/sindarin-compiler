@@ -45,6 +45,19 @@ extern "C" {
         out: *mut *mut Value,
     ) -> u32;
     fn sn_abi_v1_resource_data(value: *const Value, out: *mut *mut c_void) -> u32;
+    fn sn_abi_v1_resource_new_typed(
+        identity: *const c_char,
+        data: *mut c_void,
+        destroy: extern "C" fn(*mut c_void, usize),
+        context: usize,
+        out: *mut *mut Value,
+    ) -> u32;
+    fn sn_abi_v1_resource_data_typed(
+        value: *const Value,
+        identity: *const c_char,
+        out: *mut *mut c_void,
+    ) -> u32;
+    fn sn_abi_v1_resource_type(value: *const Value, out: *mut *const c_char) -> u32;
 }
 #[cfg(go_bridge)]
 #[link(name = "go_runtime_abi", kind = "static")]
@@ -174,6 +187,36 @@ fn main() {
         assert_eq!(borrowed, data);
         sn_abi_v1_release(alias);
         assert_eq!(DESTROYED.load(Ordering::SeqCst), 1);
+        let identity = CString::new("pkg.RustResource@1").unwrap();
+        let data = Box::into_raw(Box::new(42i64)).cast::<c_void>();
+        let mut typed = std::ptr::null_mut();
+        assert_eq!(
+            sn_abi_v1_resource_new_typed(identity.as_ptr(), data, destroy, 1, &mut typed),
+            0
+        );
+        drop(identity);
+        let mut type_name = std::ptr::null();
+        assert_eq!(sn_abi_v1_resource_type(typed, &mut type_name), 0);
+        assert_eq!(
+            std::ffi::CStr::from_ptr(type_name).to_bytes(),
+            b"pkg.RustResource@1"
+        );
+        let wrong = CString::new("pkg.OtherResource@1").unwrap();
+        borrowed = data;
+        assert_eq!(
+            sn_abi_v1_resource_data_typed(typed, wrong.as_ptr(), &mut borrowed),
+            4
+        );
+        assert_eq!(borrowed, data);
+        let alias = sn_abi_v1_retain(typed);
+        sn_abi_v1_release(typed);
+        assert_eq!(
+            sn_abi_v1_resource_data_typed(alias, type_name, &mut borrowed),
+            0
+        );
+        assert_eq!(*(borrowed as *const i64), 42);
+        sn_abi_v1_release(alias);
+        assert_eq!(DESTROYED.load(Ordering::SeqCst), 2);
         #[cfg(go_bridge)]
         {
             let mut native = std::ptr::null_mut();

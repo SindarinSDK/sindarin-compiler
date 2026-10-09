@@ -7,6 +7,34 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Typed runtime resources: local validation, 2026-10-09
+
+The C runtime can adopt resources with a copied package/type/ABI identity and
+reject incompatible live handles before publishing payload pointers. Identity
+views borrow the owner's lifetime; retain preserves aliases and final release
+invokes cleanup exactly once. Generic resources and existing public ABI layouts,
+status values and version remain unchanged. Typed entry points are prerequisites
+for generated managed-resource adapters, not complete record/interface support.
+
+C/Rust/Go runtime clients cover copied identities, mismatches, unchanged failure
+outputs, aliases, thread/reentry lifecycle and nil. The SDK TextFile C module has
+local typed-handle factory/path/readLine/dispose/isOpen bridges using the existing
+C implementation. All 24 SDK legacy/native checks and its sanitizer check pass
+locally, including new C/Rust/Go handle clients. SDK publication is held until this
+runtime prerequisite passes integrated CI; compiler-generated SDK artifact imports,
+full SDK migration and wider managed ABI/parity remain outstanding.
+
+Local suites pass 3,240 C and 1,084 Rust checks. Hosted acceptance is pending.
+Evidence: [typed-resource validation](rust-parity-evidence/typed-resource-validation.json).
+
+## Go package graph aggregation: hosted acceptance, 2026-10-09
+
+Main `5cc8fc8b` passes complete Linux/macOS/Windows unified CI, including multi-Go
+module/package graphs, original caller paths and strict graph archive sanitizers.
+This supersedes earlier pending acceptance below.
+
+[Accepted aggregation batch](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37992420228).
+
 ## Unsigned-to-signed primitive conversions: local validation, 2026-10-09
 
 Rust now accepts existing `uint.toInt()` and `uint.toLong()` methods, using the

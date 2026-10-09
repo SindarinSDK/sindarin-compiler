@@ -172,6 +172,8 @@
     "groups": 26,
     "gate_executions": 288
   },
-  "hosted_acceptance": "pending",
-  "passed": true
+  "hosted_acceptance": "success",
+  "passed": true,
+  "accepted_revision": "5cc8fc8bc33d52831d4e7b2e1f72482c5acd1fc7",
+  "accepted_ci": 37992420228
 }

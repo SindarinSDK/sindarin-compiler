@@ -4,6 +4,7 @@ package main
 #include "sn_abi.h"
 #include <stdlib.h>
 SnAbiStatus sn_test_go_resource(uintptr_t context, SnAbiValue **out);
+SnAbiStatus sn_test_go_typed_resource(uintptr_t context, SnAbiValue **out);
 */
 import "C"
 import (
@@ -124,6 +125,23 @@ func main() {
 	C.sn_abi_v1_release(value)
 	runtime.GC()
 	check(state.destroyed == 0)
+	C.sn_abi_v1_release(alias)
+	check(state.destroyed == 1 && state.value == 42)
+	state = &resourceState{}
+	handle = cgo.NewHandle(state)
+	check(C.sn_test_go_typed_resource(C.uintptr_t(handle), &value) == C.SN_ABI_OK)
+	var identity *C.char
+	check(C.sn_abi_v1_resource_type(value, &identity) == C.SN_ABI_OK)
+	check(C.GoString(identity) == "pkg.GoResource@1")
+	wrong := C.CString("pkg.OtherResource@1")
+	var data unsafe.Pointer
+	check(C.sn_abi_v1_resource_data_typed(value, wrong, &data) == C.SN_ABI_WRONG_KIND)
+	C.free(unsafe.Pointer(wrong))
+	alias = C.sn_abi_v1_retain(value)
+	C.sn_abi_v1_release(value)
+	runtime.GC()
+	check(state.destroyed == 0)
+	check(C.sn_abi_v1_resource_data_typed(alias, identity, &data) == C.SN_ABI_OK)
 	C.sn_abi_v1_release(alias)
 	check(state.destroyed == 1 && state.value == 42)
 	fmt.Println("shared runtime ABI: pass")

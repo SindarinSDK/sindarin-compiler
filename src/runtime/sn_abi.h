@@ -90,6 +90,16 @@ SnAbiStatus sn_abi_v1_array_set(SnAbiValue *array, uint64_t index,
 SnAbiStatus sn_abi_v1_resource_new(void *resource, SnAbiDestroy destroy,
                                  uintptr_t context, SnAbiValue **out);
 SnAbiStatus sn_abi_v1_resource_data(const SnAbiValue *value, void **out);
+/* Package/type/ABI identity is copied by the runtime. Adoption occurs only on
+ * success. Typed access rejects untyped or differently tagged live resources;
+ * nil remains nil-safe. Outputs remain unchanged on any error. */
+SnAbiStatus sn_abi_v1_resource_new_typed(const char *type_identity, void *resource,
+                                       SnAbiDestroy destroy, uintptr_t context, SnAbiValue **out);
+SnAbiStatus sn_abi_v1_resource_data_typed(const SnAbiValue *value, const char *type_identity,
+                                        void **out);
+/* Borrowed identity view; valid while the resource has a live credit. Generic
+ * resources and nil have no identity. Does not expose private resource layout. */
+SnAbiStatus sn_abi_v1_resource_type(const SnAbiValue *value, const char **out);
 
 #ifdef __cplusplus
 }

@@ -153,3 +153,24 @@ Generated status providers return `SN_ABI_FOREIGN_ERROR` (6) for contained
 backing-language panics. Existing status numbers and ABI 1.0 layouts remain
 unchanged. String provider artifacts require the string-view runtime entry point;
 their provenance/cache identity includes the exact runtime archive and header.
+
+## Typed resource identity
+
+Package adapters can adopt resources with `sn_abi_v1_resource_new_typed` and a
+package/type/ABI identity such as `SindarinSDK/sindarin-pkg-sdk:io.TextFile@1`.
+The runtime copies the identity; caller storage may be changed or freed after
+construction. Retain preserves handle identity and final release invokes the
+backing destructor exactly once before releasing the identity storage.
+
+`sn_abi_v1_resource_data_typed` rejects generic, non-resource and differently
+tagged live values before publishing a payload pointer. Nil remains nil-safe.
+Invalid arguments/type mismatches leave outputs unchanged and failed construction
+does not adopt cleanup responsibility. `sn_abi_v1_resource_type` borrows the
+identity while an owner credit remains live. The tag is an ABI producer's type
+assertion; it does not validate an arbitrary pointer's internal layout.
+
+Existing generic resource calls, public layouts, status numbers and ABI version
+remain unchanged. Typed-resource users require these runtime entry points;
+complete package artifact compatibility must check their availability/provenance.
+This foundation does not implement complete record/interface field contracts or
+compiler-generated managed-resource imports. Those remain goal requirements.

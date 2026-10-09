@@ -14,7 +14,7 @@ struct SnAbiValue {
     union {
         struct { uint8_t *data; uint64_t length; } bytes;
         SnArray *array;
-        struct { void *data; SnAbiDestroy destroy; uintptr_t context; } resource;
+        struct { void *data; SnAbiDestroy destroy; uintptr_t context; char *type_identity; } resource;
     } payload;
 };
 
@@ -84,6 +84,7 @@ void sn_abi_v1_release(SnAbiValue *value)
             if (value->payload.resource.destroy)
                 value->payload.resource.destroy(value->payload.resource.data,
                                                   value->payload.resource.context);
+            free(value->payload.resource.type_identity);
             break;
     }
     free(value);
@@ -248,5 +249,38 @@ SnAbiStatus sn_abi_v1_resource_data(const SnAbiValue *value, void **out)
     if (!out) return SN_ABI_INVALID_ARGUMENT;
     if (value && value->kind != ABI_RESOURCE) return SN_ABI_WRONG_KIND;
     *out = value ? value->payload.resource.data : NULL;
+    return SN_ABI_OK;
+}
+
+SnAbiStatus sn_abi_v1_resource_new_typed(const char *type_identity, void *resource,
+                                       SnAbiDestroy destroy, uintptr_t context, SnAbiValue **out)
+{
+    if (!out || !type_identity || !type_identity[0]) return SN_ABI_INVALID_ARGUMENT;
+    SnAbiValue *value = new_value(ABI_RESOURCE);
+    size_t length = strlen(type_identity);
+    value->payload.resource.type_identity = sn_malloc(length + 1);
+    memcpy(value->payload.resource.type_identity, type_identity, length + 1);
+    value->payload.resource.data = resource;
+    value->payload.resource.destroy = destroy;
+    value->payload.resource.context = context;
+    *out = value;
+    return SN_ABI_OK;
+}
+
+SnAbiStatus sn_abi_v1_resource_data_typed(const SnAbiValue *value, const char *type_identity,
+                                        void **out)
+{
+    if (!out || !type_identity || !type_identity[0]) return SN_ABI_INVALID_ARGUMENT;
+    if (value && (value->kind != ABI_RESOURCE || !value->payload.resource.type_identity ||
+        strcmp(value->payload.resource.type_identity, type_identity))) return SN_ABI_WRONG_KIND;
+    *out = value ? value->payload.resource.data : NULL;
+    return SN_ABI_OK;
+}
+
+SnAbiStatus sn_abi_v1_resource_type(const SnAbiValue *value, const char **out)
+{
+    if (!out) return SN_ABI_INVALID_ARGUMENT;
+    if (value && value->kind != ABI_RESOURCE) return SN_ABI_WRONG_KIND;
+    *out = value ? value->payload.resource.type_identity : NULL;
     return SN_ABI_OK;
 }

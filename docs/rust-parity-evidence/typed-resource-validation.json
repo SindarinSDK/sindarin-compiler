@@ -1,0 +1,42 @@
+{
+  "base_revision": "47d06f315eb797abc69e65ae56853f9e7f5220e8",
+  "scope": "Typed resource identity, adoption and checked payload access; SDK bridge locally validated but unpublished; complete generated record/SDK imports remain required",
+  "source_sha256": {
+    "src/runtime/sn_abi.h": "321d43b14cd439c998bd9c2e8b2597de81a742a70800157a99424dd0dc894656",
+    "src/runtime/sn_abi.c": "d6e02e88fcd8a0dcf8fde2a3af160fca2d00e0e44c6f90e3e3febc4c7c538220",
+    "tests/runtime_abi/client.c": "8959693561fc77a37b13341375a447816fd878bd3555025b87ab9f8530f7aea8",
+    "tests/runtime_abi/client.rs": "ed3ff5c8515d06b73c5071a2ae23c29f6902c9feca9e8414cc97481483501d66",
+    "tests/runtime_abi/go/bridge.c": "aa5f8f292deeb2a88abf0439a3895120e74e259aeb30fbfc0c43d916cfb917f7",
+    "tests/runtime_abi/go/main.go": "d5d56f3ad6a5732ebae27d968d061140f3b283d320514fbec79068c281dc79d7"
+  },
+  "validation": {
+    "C": {
+      "passed": 3240,
+      "log_sha256": "3c37d888eaa16286e35fd7a2fda43258e6afd47340e712ee727e5399a91e9e74"
+    },
+    "Rust": {
+      "passed": 1084,
+      "log_sha256": "d07b15a959bed895b4f76c80b7ec1476c7063cf01bc15f1045e66ca327959ead"
+    },
+    "runtime": {
+      "passed": true,
+      "log_sha256": "49e32ecab0957edbdb421efff68abce37e09ecf25812ed2eed74e85c37332665"
+    },
+    "runtime_sanitizers": {
+      "passed": true,
+      "log_sha256": "c73a9b66c247f3b6c5b59d88274f5a381ec143447d2458123896a08918b39104"
+    },
+    "local_sdk": {
+      "passed": true,
+      "log_sha256": "143e77fbb19b0269b7f1d1c9cf4cb0ca492cacc203c0c6ef58d5fa8cad7f2847"
+    },
+    "local_sdk_sanitizers": {
+      "passed": true,
+      "log_sha256": "90fb7d2ceb17578311c70b450613fd11e739f78f19f04d77e5f5ae0490a9efc4"
+    }
+  },
+  "capabilities": "Existing resource mask/public layouts/status numbers unchanged; typed consumers require new entry points",
+  "sdk_publication": "held until runtime prerequisite CI succeeds",
+  "hosted_acceptance": "pending",
+  "passed": true
+}
