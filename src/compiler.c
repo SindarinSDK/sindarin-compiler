@@ -19,6 +19,8 @@ void compiler_init(CompilerOptions *options, int argc, char **argv)
         exit(1);
     }
 
+    /* Defaults and early argument-error cleanup must not read prior storage. */
+    memset(options, 0, sizeof(*options));
     arena_init(&options->arena, 4096);
     options->source_file = NULL;
     options->output_file = NULL;
@@ -36,6 +38,7 @@ void compiler_init(CompilerOptions *options, int argc, char **argv)
     options->output_kind = OUTPUT_EXECUTABLE;
     options->keep_generated = 0;
     options->debug_build = 0;
+    options->profile_build = 0;
     options->do_init = 0;
     options->do_install = 0;
     options->install_target = NULL;

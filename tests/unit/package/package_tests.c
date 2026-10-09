@@ -541,6 +541,7 @@ static void test_native_manifest_invalid_contracts(void)
         strcpy(text + prefix, invalid[i].replace);
         strcpy(text + prefix + strlen(invalid[i].replace), found + strlen(invalid[i].find));
         write_package_test_yaml(text);
+        char *original_bytes = read_package_test_yaml();
         json_object *out = (json_object *)(uintptr_t)1;
         assert(!package_yaml_native_plan(test_yaml_path(), &out));
         assert(out == (json_object *)(uintptr_t)1);
@@ -548,9 +549,19 @@ static void test_native_manifest_invalid_contracts(void)
         strcpy(dep.name, "extra");
         assert(!package_yaml_add_dependency(test_yaml_path(), &dep));
         char *unchanged = read_package_test_yaml();
-        assert(strcmp(text, unchanged) == 0);
-        free(text); free(unchanged);
+        assert(strcmp(original_bytes, unchanged) == 0);
+        free(original_bytes); free(text); free(unchanged);
     }
+    /* Binary fixture verifies byte preservation for CRLF input on every host. */
+    FILE *crlf = fopen(test_yaml_path(), "wb");
+    const char *crlf_text = "native:\r\n  abi: 2.0\r\n";
+    assert(crlf && fputs(crlf_text, crlf) >= 0 && fclose(crlf) == 0);
+    PackageDependency dep = {0};
+    strcpy(dep.name, "extra");
+    assert(!package_yaml_add_dependency(test_yaml_path(), &dep));
+    char *unchanged_crlf = read_package_test_yaml();
+    assert(strcmp(crlf_text, unchanged_crlf) == 0);
+    free(unchanged_crlf);
     write_package_test_yaml("native: &cycle {abi: *cycle}\n");
     json_object *out = NULL;
     assert(!package_yaml_native_plan(test_yaml_path(), &out));

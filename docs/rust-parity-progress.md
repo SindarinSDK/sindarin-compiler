@@ -7,6 +7,33 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Windows validation correction: local verification, 2026-10-09
+
+Run `37964376134` fails the Windows C and Rust groups. The C unit suite compares
+LF fixture text with actual bytes written by the Windows text stream as CRLF.
+The rejected-manifest test now captures the file's bytes before the edit and
+requires the same bytes afterward. A binary CRLF control requires exact unchanged
+bytes on every platform. No original Sindarin source or runtime oracle is changed.
+
+The Rust/native suite records nine C `-O0 -g` compilation failures reporting a
+profile/debug conflict despite no `-p` flag. `compiler_init` omitted profile_build
+initialization. Compiler option storage is now initialized before argument parsing,
+including a false profile default and valid early-cleanup state. A regression
+prefills options with three nonzero patterns; without the initialization fix it
+deterministically reproduces the same conflict. All nine formerly failing sources
+compile and execute with their exact existing byte oracles after the repair.
+
+Local complete suites pass 3,240 C checks and 1,082 Rust checks. The 1,616-check
+unit suite passes under AddressSanitizer; fourteen compiler package-contract tests
+and thirteen CI helper tests pass. The 26-group/277-execution required CI catalog
+is unchanged. Evidence is recorded in
+[Windows validation correction](rust-parity-evidence/windows-driver-correction.json).
+
+Both roots are combined into one correction batch. Feature publication remains
+frozen until complete Linux/macOS/Windows CI on corrected integrated main passes.
+The native artifact builder remains local and unpublished; native manifest
+acceptance and the full Rust/shared-runtime/SDK goal remain unfinished.
+
 ## Native build/binding metadata: local validation, 2026-10-09
 
 Native package manifests now declare shared ABI version, API declaration modules,

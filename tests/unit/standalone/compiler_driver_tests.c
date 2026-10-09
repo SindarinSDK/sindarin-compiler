@@ -675,6 +675,21 @@ static void test_many_flags(void)
     arena_free(&options.arena);
 }
 
+static void test_compiler_init_overwrites_profile_default(void)
+{
+    const unsigned char fills[] = {0xa5, 0x5a, 0xff};
+    for (size_t i = 0; i < sizeof(fills); i++) {
+        CompilerOptions options;
+        memset(&options, fills[i], sizeof(options));
+        char *args[] = {"bin/sn", "test.sn", "--emit-c", "-g"};
+        compiler_init(&options, 4, args);
+        assert(options.profile_build == 0);
+        assert(options.debug_build == 1);
+        assert(options.target == TARGET_C);
+        compiler_cleanup(&options);
+    }
+}
+
 /* ============================================================================
  * Test Runner
  * ============================================================================ */
@@ -702,6 +717,7 @@ void test_compiler_driver_main(void)
     TEST_SECTION("Compiler Driver - Debug Options");
     TEST_RUN("verbose_flag", test_verbose_flag);
     TEST_RUN("debug_flag", test_debug_flag);
+    TEST_RUN("compiler_init_overwrites_profile_default", test_compiler_init_overwrites_profile_default);
     TEST_RUN("log_level_flag", test_log_level_flag);
     TEST_RUN("log_level_verbose", test_log_level_verbose);
 

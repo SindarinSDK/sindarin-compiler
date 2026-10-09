@@ -1,0 +1,253 @@
+{
+  "base_revision": "814eb280ed0a8ca08d20f59b8d9a195c2f6913a0",
+  "failed_ci_run": 37964376134,
+  "root_failures": [
+    {
+      "job": 113935668512,
+      "cause": "expected LF fixture text compared to Windows-written CRLF file bytes"
+    },
+    {
+      "job": 113935668313,
+      "cause": "profile_build not initialized; nine C debug-mode compilations falsely report profile/debug conflict"
+    }
+  ],
+  "source_sha256": {
+    "src/compiler.c": "48f75fd19c87be3e982df45056c789b31b9bdbb16a2043048fb6974ca1dc43ea",
+    "tests/unit/package/package_tests.c": "3f331b021cc0a8affae5fd3fb8df19b97725c2a0108f5b865e3f75a564eb5f3a",
+    "tests/unit/standalone/compiler_driver_tests.c": "54660c15f69ee450a011b3117b2e2991e9bf2924f06fe01aa2303dd878d5d1ba"
+  },
+  "compiler_sha256": "07b27fa85667fb4361df88f8512f2b00b41234c1f1b6df9f06f66fe2081bf783",
+  "validation": [
+    {
+      "language": "C",
+      "command": [
+        "python3",
+        "scripts/run_tests.py",
+        "all",
+        "--no-cleanup",
+        "--parallel",
+        "4"
+      ],
+      "total_passed": 3240,
+      "groups": [
+        {
+          "passed": 1616,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 107,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 79,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1145,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 58,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 224,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 11,
+          "failed": 0,
+          "skipped": 0
+        }
+      ],
+      "log_sha256": "99b10b85cc720b5d72242aeff4d39475b2ee2bcc20262ab1d3b9ccd15acfba11"
+    },
+    {
+      "language": "Rust",
+      "command": [
+        "python3",
+        "scripts/run_rust_tests.py",
+        "all",
+        "--no-cleanup",
+        "--parallel",
+        "4"
+      ],
+      "total_passed": 1082,
+      "groups": [
+        {
+          "passed": 506,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 118,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 8,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 378,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 4,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 36,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 10,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 7,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 12,
+          "failed": 0,
+          "skipped": 0
+        }
+      ],
+      "log_sha256": "c6092af9babc8348e4f79324dca4f1ac4dd8fa39eebec2eb027d1cc5a3bda333"
+    },
+    {
+      "local_log": ".sn/windows-driver-correction-package.log",
+      "tests_passed": 14,
+      "log_sha256": "951d3f96cbdde1f8b43394a0b48bb43005f11aa76696a1d5a8ffc1ac71b29a5f"
+    },
+    {
+      "local_log": ".sn/windows-driver-correction-ci.log",
+      "tests_passed": 13,
+      "log_sha256": "dc9ffe6d3be966ee8cda6e89e75d519e8ce22a661601f2ab3ab30e18432b8ee8"
+    }
+  ],
+  "asan_units": {
+    "passed": 1616,
+    "log_sha256": "ed6941faa884f82bff846c4caf20550d002c10e5756dbc76b2eb3d30c3e1a73d"
+  },
+  "seeded_constructor_control": {
+    "fills": [
+      "a5",
+      "5a",
+      "ff"
+    ],
+    "before_reproduces_conflict": true,
+    "before_log_sha256": "21c32bc7c83503e5de80ed38c97073c2145a4831cffe1bdd555771bb1fa2ae19",
+    "after_passes": true
+  },
+  "formerly_failed_debug_sources": [
+    {
+      "source": "native_as_ref_char_same_place",
+      "source_sha256": "0404006526194aaffdb54699ea780f701103e74fe696e61eb68ed13ee9a42333",
+      "compile_status": 0,
+      "runtime_status": 0,
+      "stdout_hex": "430a",
+      "passed": true
+    },
+    {
+      "source": "native_as_ref_char_temp_collision",
+      "source_sha256": "973bd2dad246980c291934cc58166056fb7f137b149f540ced6d606b3cb58a8f",
+      "compile_status": 0,
+      "runtime_status": 0,
+      "stdout_hex": "5a0a",
+      "passed": true
+    },
+    {
+      "source": "native_as_ref_same_place",
+      "source_sha256": "6edfa5a3e6f1c2dbf9e48a584bfb50625dfe9bb34c23492ffae9ae5c484b5a6f",
+      "compile_status": 0,
+      "runtime_status": 0,
+      "stdout_hex": "330a",
+      "passed": true
+    },
+    {
+      "source": "native_flush_parameter_collision",
+      "source_sha256": "c67001833038befd1319042d15f3d7ea5a053eb36bd84cdc1f796b787618a00d",
+      "compile_status": 0,
+      "runtime_status": 0,
+      "stdout_hex": "370a",
+      "passed": true
+    },
+    {
+      "source": "native_string_escape",
+      "source_sha256": "afed582e900902c37b977832e535f34097d68751ecfa1aac8c0725eb017662b5",
+      "compile_status": 0,
+      "runtime_status": 0,
+      "stdout_hex": "680a",
+      "passed": true
+    },
+    {
+      "source": "scalar_bool_char",
+      "source_sha256": "b71985948b51da5f01cf880272764257bd9e4ed4831a0a61e10d2394e24cb6d3",
+      "compile_status": 0,
+      "runtime_status": 0,
+      "stdout_hex": "747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a",
+      "passed": true
+    },
+    {
+      "source": "scalar_managed_pointer_bridge",
+      "source_sha256": "352dfb3bc4029894311b1a215c18a0147d894ab984e0574a89a47c37d03bb5c7",
+      "compile_status": 0,
+      "runtime_status": 0,
+      "stdout_hex": "41ff420a747275650a747275650a747275650a747275650a747275650a747275650a747275650a747275650a",
+      "passed": true
+    },
+    {
+      "source": "scalar_pointer_bridge",
+      "source_sha256": "fb16526800f00b0806c088e363c1c0a7f8d4aedefcca21f5a60e9874bf488f5c",
+      "compile_status": 0,
+      "runtime_status": 0,
+      "stdout_hex": "747275650a747275650a747275650a350a747275650a747275650a747275650a747275650a747275650a747275650a747275650a",
+      "passed": true
+    },
+    {
+      "source": "scalar_tagged_char_control",
+      "source_sha256": "5e64840a177f14180a049096dced7ae3d125de123672c0fd964b0bfc10b933ce",
+      "compile_status": 0,
+      "runtime_status": 0,
+      "stdout_hex": "747275650a",
+      "passed": true
+    }
+  ],
+  "existing_source_and_oracle_contracts": "unchanged",
+  "required_ci": {
+    "groups": 26,
+    "gate_executions": 277
+  },
+  "hosted_acceptance": "pending",
+  "feature_publication": "frozen",
+  "passed": true
+}
