@@ -1,0 +1,22 @@
+{
+  "failed_compiler_run": 37978810233,
+  "failed_job": 113984565756,
+  "cause": "Windows Git CRLF checkout was translated to CRT bytes a second time",
+  "sdk_revision": "52bd4e4a688c0465f1e8d9648eced23bf42ffa77",
+  "sdk_ci": {
+    "run": 37980671870,
+    "conclusion": "success",
+    "jobs_passed": 4
+  },
+  "local_checks": {
+    "native_sdk_checks": 24,
+    "oracle_regressions": 2,
+    "native_log_sha256": "143e77fbb19b0269b7f1d1c9cf4cb0ca492cacc203c0c6ef58d5fa8cad7f2847"
+  },
+  "SDK_source_and_oracle_fixtures": "unchanged; exact platform byte comparison retained",
+  "workflow_sha256": "73bc188534aa07989d929ada077144f7e080d1a5e79d971acdad5e99c1b7e83b",
+  "SDK_checker_sha256": "da8f135bf4d2a94e257498aa7f7cdc069a9a7b13ad5619b2b5d6a0cc72ca8477",
+  "hosted_compiler_acceptance": "pending",
+  "feature_publication": "frozen",
+  "passed": true
+}

@@ -7,6 +7,25 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## SDK Windows oracle correction: local validation, 2026-10-09
+
+Compiler run `37978810233` passes the Windows native artifact and SDK native
+C/Rust/Go clients, then fails its SDK legacy oracle. Git's Windows checkout
+already contains CRLF in the expected file; applying CRT translation again
+produces CRCRLF. SDK correction `52bd4e4` converts either LF or CRLF checkout bytes
+to Windows CRT bytes exactly once. All other bytes remain significant, and no
+original SDK source/expected fixture is rewritten.
+
+Two regressions verify both checkout forms and preservation of non-UTF-8, NUL
+and isolated CR bytes. The SDK's oracle job and full Linux/macOS/Windows standard
+CI pass. All 24 native/legacy SDK checks pass locally with accepted compiler main.
+The compiler workflow now pins the correction. Full native integration acceptance
+is pending, and feature publication remains frozen until corrected integrated
+compiler main is green. The package adapter implementation remains local/unpublished.
+
+[Accepted SDK correction](https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/37980671870).
+Evidence: [SDK oracle correction](rust-parity-evidence/sdk-oracle-correction.json).
+
 ## Independent TextFile SDK module: published; integration CI pending, 2026-10-09
 
 SDK main `723b3e2` now builds TextFile native backing independently with its
