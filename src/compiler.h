@@ -53,6 +53,8 @@ typedef struct
     int keep_generated;               /* Keep generated target files after compilation */
     int debug_build;                 /* -g: Include debug symbols and sanitizers in GCC output */
     int profile_build;               /* -p: Profile build (optimized with frame pointers, no ASAN/LTO) */
+    int native_mode;                /* 1 = inspect plan, 2 = build native backing */
+    char *native_manifest;          /* Native package manifest path */
     int do_init;                     /* --init: Initialize new package */
     int do_install;                  /* --install: Install packages */
     char *install_target;            /* Package URL@ref for --install */

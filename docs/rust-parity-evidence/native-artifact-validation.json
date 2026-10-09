@@ -1,0 +1,182 @@
+{
+  "base_revision": "d563f1b316be432e0af6f502cd8de48e7f8abb67",
+  "scope": "Independent native backing artifacts, original C/Rust/Go builds, declaration/binding/link metadata and conservative cache validation. Complete packages and generated adapters remain outstanding.",
+  "source_sha256": {
+    "CMakeLists.txt": "6deb7c61b33df146337b985d4be8d3c9decbedd4d6e2430a99e554119cbb4ea3",
+    "src/compiler.c": "4a6f2e934ea001ad7a7fbe5da6aa8c258ee91b65618687ea873948516ff45664",
+    "src/compiler.h": "dfbf38d231300ad5bac3072a1f671f34fd3fe821b4e7945eb2699e3335a288cd",
+    "src/main.c": "c431f4b46c17398ae2988b38f285ade45f55016acae0c6b80c11b0a5d03ef564",
+    "src/package/package_native_command.c": "4ae9c8585be9c874fbe6a2ef3855bd991ec46e70b85b49b1d62dc25a1e9d0487",
+    "src/package/package_native_command.h": "6d191742aa643b0e45015bc3477f7bab6d8cc66691f83d759603c46e389ffc4d",
+    "scripts/build_native_package.py": "1fdd1ce2825261011d8aa4d21920931f71832df18edfd1159b2155316ac8c859",
+    "tests/package/native_artifacts.py": "efaa130137c2300c80bc28ee4a9f746d74344600868b6f17115ad1eb62fa057e",
+    "scripts/ci/gates.json": "939e0b2fe3952c6ac4c861e89aed79523ac7a1ab1a93925e9d4c621f430addab",
+    "tests/ci/test_ci_helpers.py": "421c60db31c190c037b15668713a18ff3cfe4adc069b4899f70e09b21d39c748"
+  },
+  "compiler_sha256": "bcbcf68dca39ee4923c1a7344bd8324c82c202d77475d0ec0670bcabc42b7b2f",
+  "validation": [
+    {
+      "language": "C",
+      "passed": 3240,
+      "groups": [
+        {
+          "passed": 1616,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 107,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 79,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1145,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 58,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 224,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 11,
+          "failed": 0,
+          "skipped": 0
+        }
+      ],
+      "log_sha256": "0b1c68ee573780ceb121640e21d90e0eff620331c45356b3c81eb6810652fed3"
+    },
+    {
+      "language": "Rust",
+      "passed": 1082,
+      "groups": [
+        {
+          "passed": 506,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 118,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 8,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 378,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 4,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 36,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 10,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 7,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 12,
+          "failed": 0,
+          "skipped": 0
+        }
+      ],
+      "log_sha256": "a24dbd139b3be90c7cd068c5e2c67db864333b02ca729662d8326474f688afaa"
+    },
+    {
+      "log": ".sn/native-artifact-contract.log",
+      "tests_passed": 6,
+      "log_sha256": "893f403dfbad852611f1fdbc6a379ca2044e32c16ce08a94926fd07606d1ca10"
+    },
+    {
+      "log": ".sn/native-artifact-asan-contract.log",
+      "tests_passed": 6,
+      "log_sha256": "b50942d5b6055ba6972e4fcfe38d070d93b65f060524985e95cd63835e2a7d77"
+    },
+    {
+      "log": ".sn/native-artifact-package-contract.log",
+      "tests_passed": 14,
+      "log_sha256": "d6a4e8f5636c693be6f88b3f464eb2faf597801b61b7dd888bc394f51ed5c164"
+    },
+    {
+      "log": ".sn/native-artifact-ci-helpers.log",
+      "tests_passed": 13,
+      "log_sha256": "0d8ae14b046367a369f1b77e59331f4d8a8a0f916e53eae17b14c657918aa470"
+    }
+  ],
+  "asan_unit_checks": 1616,
+  "asan_unit_log_sha256": "8d4edae5f1bea43fdd6ec09257700787d1258ca867a1d3c5bb573efe8e4f385c",
+  "abi_clients": {
+    "passed": 4,
+    "log_sha256": "49e32ecab0957edbdb421efff68abce37e09ecf25812ed2eed74e85c37332665"
+  },
+  "contracts": [
+    "C and Rust consumers link all three original backing archives",
+    "Go shared-runtime string copied, inspected and released by both consumers",
+    "package path containing spaces",
+    "C/Rust cache reuse validates archives, metadata and discovered dependencies",
+    "external header changes invalidate reuse",
+    "old generations are not overwritten",
+    "missing input/export/toolchain and build failure do not publish",
+    "manifest runtime inheritance",
+    "application/debug/maintenance command conflicts rejected"
+  ],
+  "limitations": [
+    "Native backing artifacts are not complete Sindarin packages.",
+    "Application import adapters, type/layout verification, SDK decoupling and Go bridge aggregation remain incomplete.",
+    "Native backing must already provide C-callable exports.",
+    "Go artifact cache reuse is disabled pending complete cgo header capture.",
+    "Only host-compatible builds are accepted."
+  ],
+  "base_ci": {
+    "run": 37967502055,
+    "conclusion": "success"
+  },
+  "required_ci": {
+    "groups": 26,
+    "gate_executions": 280
+  },
+  "hosted_acceptance": "pending",
+  "passed": true
+}

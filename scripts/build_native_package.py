@@ -1,0 +1,341 @@
+#!/usr/bin/env python3
+"""Build native backing archives from compiler-validated package metadata."""
+import argparse
+import base64
+import hashlib
+import json
+import os
+from pathlib import Path
+import platform
+import re
+import shlex
+import shutil
+import struct
+import subprocess
+import sys
+import tempfile
+import uuid
+
+
+def sha(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def key(data):
+    return hashlib.sha256(json.dumps(data, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+
+
+def run(args, cwd=None, env=None, include_stderr=False, input_bytes=None):
+    result = subprocess.run([str(a) for a in args], cwd=cwd, env=env,
+                            capture_output=True, timeout=300, input=input_bytes)
+    if result.returncode:
+        raise ValueError(f'native tool failed ({result.returncode}): {args[0]}\n'
+                         + result.stderr.decode(errors='replace'))
+    return (result.stdout + (result.stderr if include_stderr else b'')).decode(errors='replace')
+
+
+def command(env, default):
+    return shlex.split(os.environ.get(env) or default)
+
+
+def tool_identity(args, version_args=None, optional_version=False):
+    executable = shutil.which(args[0])
+    if not executable:
+        raise ValueError(f'native toolchain unavailable: {args[0]}')
+    try:
+        version = run(args + (version_args or ['--version'])).strip()
+    except ValueError:
+        if not optional_version: raise
+        version = None  # BSD tools may have no version option; binary hash is authoritative.
+    return {'command': args, 'executable_sha256': sha(executable), 'version': version}
+
+
+def host_target(languages, cc, rustc, go):
+    expected_arch = {'amd64': 'x86_64', 'x86_64': 'x86_64', 'arm64': 'aarch64',
+                     'aarch64': 'aarch64'}.get(platform.machine().lower())
+    expected_os = {'Linux': 'linux', 'Darwin': 'macos', 'Windows': 'windows'}[platform.system()]
+    bits = struct.calcsize('P') * 8
+    if languages & {'C', 'GO'}:
+        macros = run(cc + shlex.split(os.environ.get('SN_CFLAGS', '')) +
+                     ['-dM', '-E', '-x', 'c', '-'], input_bytes=b'')
+        arch = 'x86_64' if '#define __x86_64__ ' in macros else 'aarch64' if '#define __aarch64__ ' in macros else None
+        system = 'windows' if '#define _WIN32 ' in macros else 'macos' if '#define __APPLE__ ' in macros else 'linux' if '#define __linux__ ' in macros else None
+        width = re.search(r'^#define __SIZEOF_POINTER__ (\d+)$', macros, re.M)
+        if (arch, system, int(width.group(1)) * 8 if width else None) != (expected_arch, expected_os, bits):
+            raise ValueError('C native target differs from this compiler/runtime host; cross-platform artifact builds are not implemented')
+    if 'RS' in languages:
+        cfg = run(rustc + ['--print', 'cfg'] + shlex.split(os.environ.get('SN_RUSTFLAGS', '')))
+        values = dict(re.findall(r'^(target_arch|target_os|target_pointer_width)="([^"]+)"$', cfg, re.M))
+        if (values.get('target_arch'), values.get('target_os'), values.get('target_pointer_width')) != (expected_arch, expected_os, str(bits)):
+            raise ValueError('Rust native target differs from this compiler/runtime host; cross-platform artifact builds are not implemented')
+    if 'GO' in languages:
+        values = run(go + ['env', 'GOOS', 'GOARCH']).splitlines()
+        go_arch = {'x86_64': 'amd64', 'aarch64': 'arm64'}.get(expected_arch)
+        go_os = 'darwin' if expected_os == 'macos' else expected_os
+        if values != [go_os, go_arch]:
+            raise ValueError('Go native target differs from this compiler/runtime host; cross-platform artifact builds are not implemented')
+
+
+def source_path(root, value):
+    path = (root / value).resolve()
+    if not path.is_file():
+        raise ValueError(f'native input is missing: {path}')
+    return path
+
+
+def tree_inputs(root, output):
+    files = {}
+    for folder, directories, names in os.walk(root):
+        directory = Path(folder)
+        directories[:] = [d for d in directories if d not in ('.git', '.sn') and
+                          not (directory / d).resolve().is_relative_to(output)]
+        for name in names:
+            path = directory / name
+            if path.is_file() and not path.resolve().is_relative_to(output):
+                files[str(path.resolve())] = sha(path)
+    return files
+
+
+def dependencies(path):
+    """Read the first Make dep-info rule, including escaped spaces/drive paths."""
+    text = path.read_text().replace('\\\n', '')
+    line = next((s for s in text.splitlines() if re.search(r'(?<!\\):\s', s)), '')
+    match = re.search(r'(?<!\\):\s', line)
+    if not match:
+        raise ValueError(f'native dependency information is missing: {path}')
+    words, word = [], ''
+    i = match.end()
+    while i < len(line):
+        char = line[i]
+        if char == '\\' and i + 1 < len(line) and (line[i + 1].isspace() or line[i + 1] in '\\#$:'):
+            i += 1
+            word += line[i]
+        elif char == '$' and i + 1 < len(line) and line[i + 1] == '$':
+            word += '$'
+            i += 1
+        elif char.isspace():
+            if word: words.append(word); word = ''
+        else:
+            word += char
+        i += 1
+    if word: words.append(word)
+    return words
+
+
+def go_dependencies(go, root, unit, env):
+    text = run(go + ['list', '-mod=readonly', '-deps', '-json', '.'],
+               cwd=(root / unit['module']).resolve(), env=env)
+    decoder, position, files, flags = json.JSONDecoder(), 0, {}, []
+    while position < len(text):
+        while position < len(text) and text[position].isspace(): position += 1
+        if position == len(text): break
+        package, position = decoder.raw_decode(text, position)
+        if not package.get('Dir'): continue
+        directory = Path(package['Dir'])
+        for field in ('GoFiles', 'CgoFiles', 'CFiles', 'HFiles', 'CXXFiles', 'FFiles', 'SFiles', 'SysoFiles'):
+            for name in package.get(field, []):
+                path = (directory / name).resolve()
+                if path.is_file(): files[str(path)] = sha(path)
+        module = package.get('Module') or {}
+        for name in ('GoMod',):
+            if module.get(name) and Path(module[name]).is_file():
+                path = Path(module[name]).resolve(); files[str(path)] = sha(path)
+        for flag in package.get('CgoLDFLAGS', []):
+            flag = flag.replace('${SRCDIR}', str(directory))
+            if flag.startswith('-L') and len(flag) > 2 and not Path(flag[2:]).is_absolute():
+                flag = '-L' + str((directory / flag[2:]).resolve())
+            flags.append(flag)
+    return files, flags
+
+
+def cached(entry, fingerprint):
+    pointer = entry / 'current.json'
+    if not pointer.is_file():
+        return None
+    try:
+        generation = json.loads(pointer.read_text())['generation']
+        if not re.fullmatch(r'[0-9a-f]{64}', generation): return None
+        metadata = entry / generation / 'assembly.json'
+        result = json.loads(metadata.read_text())
+        if key(result) != generation: return None
+        if result['fingerprint'] != fingerprint or not result['cache_reusable']:
+            return None
+        for name, expected in result['dependency_sha256'].items():
+            if sha(name) != expected: return None
+        for unit in result['units']:
+            if sha(metadata.parent / unit['archive']) != unit['archive_sha256']: return None
+        return metadata
+    except (OSError, ValueError, KeyError, TypeError):
+        return None
+
+
+def build(args):
+    root = args.manifest.resolve().parent
+    output = args.out_dir.resolve()
+    compiler = args.compiler.resolve()
+    plan = json.loads(run([compiler, '--native-plan', args.manifest.resolve(), '--target', args.target,
+                           '-O' + args.optimization, '--' + args.arithmetic]))
+    native = plan['native']
+    go_builds = [u for u in native['builds'] if u['language'] == 'GO']
+    if len(go_builds) > 1:
+        raise ValueError('multiple Go build units require one aggregate bridge; aggregation is not implemented yet')
+    compiler_dir = Path(plan['compiler_dir']).resolve()
+    runtime = compiler_dir / 'lib' / ('clang' if os.name == 'nt' else 'gcc') / 'libsn_runtime_min.a'
+    header = compiler_dir / 'include/runtime/sn_abi.h'
+    if not runtime.is_file() or not header.is_file():
+        raise ValueError('shared C runtime archive/header is missing from this compiler installation')
+    cc = command('SN_CC', 'clang' if os.name == 'nt' or sys.platform == 'darwin' else 'gcc')
+    rustc = command('SN_RUSTC', 'rustc')
+    go = command('SN_GO', 'go')
+    ar = command('SN_AR', 'llvm-ar' if shutil.which('llvm-ar') else 'ar')
+    nm = command('SN_NM', 'llvm-nm' if shutil.which('llvm-nm') else 'nm')
+    tools = {'nm': tool_identity(nm, optional_version=True)}
+    languages = {u['language'] for u in native['builds']}
+    if languages & {'C', 'GO'}: tools['cc'] = tool_identity(cc)
+    if 'C' in languages: tools['ar'] = tool_identity(ar, optional_version=True)
+    if 'RS' in languages: tools['rustc'] = tool_identity(rustc)
+    if 'GO' in languages: tools['go'] = tool_identity(go, ['version'])
+    host_target(languages, cc, rustc, go)
+    for unit in native['builds']:
+        for path in unit['sources']: source_path(root, path)
+        if unit['language'] == 'RS': source_path(root, unit['entry'])
+        for path in unit.get('include_dirs', []):
+            if not (root / path).is_dir(): raise ValueError(f'native include directory is missing: {path}')
+        if unit['language'] == 'GO' and not (root / unit['module'] / 'go.mod').is_file():
+            raise ValueError(f'Go module go.mod is missing: {unit["module"]}')
+    declarations = []
+    for name in native['declarations']:
+        path = source_path(root, name)
+        declarations.append({'path': name, 'sha256': sha(path),
+                             'source_base64': base64.b64encode(path.read_bytes()).decode()})
+    inputs = tree_inputs(root, output)
+    for name in native['declarations']:
+        path = source_path(root, name); inputs[str(path)] = sha(path)
+    for unit in native['builds']:
+        for name in unit['sources']:
+            path = source_path(root, name); inputs[str(path)] = sha(path)
+    identity = {'plan': plan, 'tools': tools, 'inputs': inputs,
+                'driver_sha256': sha(Path(__file__)), 'compiler_sha256': sha(compiler),
+                'environment_sha256': key(dict(os.environ)), 'runtime_sha256': sha(runtime),
+                'abi_header_sha256': sha(header), 'system': platform.system(),
+                'machine': platform.machine(), 'pointer_bits': struct.calcsize('P') * 8}
+    fingerprint = key(identity)
+    output.mkdir(parents=True, exist_ok=True)
+    entry = output / fingerprint
+    previous = cached(entry, fingerprint)
+    if previous:
+        print(json.dumps({'assembly': str(previous), 'cache_hit': True}))
+        return
+    with tempfile.TemporaryDirectory(prefix='.native-build-', dir=output) as folder:
+        work = Path(folder)
+        units, deps = [], dict(inputs)
+        for index, unit in enumerate(native['builds']):
+            stem = f'sn_native_{index:03d}_' + key(unit['name'])[:12]
+            archive = work / ('lib' + stem + '.a')
+            includes = [str((root / p).resolve()) for p in unit.get('include_dirs', [])]
+            includes.append(str(header.parent))
+            native_link_flags = []
+            if unit['language'] == 'C':
+                objects = []
+                for number, source in enumerate(unit['sources']):
+                    obj, depfile = work / f'{stem}-{number}.o', work / f'{stem}-{number}.d'
+                    flags = ['-std=c11', '-O' + args.optimization, '-fno-lto']
+                    for directory in includes: flags += ['-I', directory]
+                    run(cc + flags + shlex.split(os.environ.get('SN_CFLAGS', '')) +
+                        ['-MD', '-MF', depfile, '-c', source_path(root, source), '-o', obj], cwd=root)
+                    for path in dependencies(depfile):
+                        dependency = (root / path).resolve()
+                        deps[str(dependency)] = sha(dependency)
+                    objects.append(obj)
+                run(ar + ['rcs', archive] + objects)
+            elif unit['language'] == 'RS':
+                flags = shlex.split(os.environ.get('SN_RUSTFLAGS', ''))
+                compile_args = rustc + ['--edition=2021', '--crate-type=staticlib', '--crate-name', stem,
+                             '--emit=dep-info,link', '-C', 'opt-level=' + args.optimization,
+                             source_path(root, unit['entry']), '-o', archive] + flags
+                diagnostics = run(compile_args + ['--print=native-static-libs'], cwd=root, include_stderr=True)
+                run(compile_args, cwd=root)
+                libraries = re.search(r'native-static-libs:\s*(.*)', diagnostics)
+                if not libraries: raise ValueError('Rust toolchain did not report native static library dependencies')
+                native_link_flags = shlex.split(libraries.group(1))
+                for path in dependencies(archive.with_suffix('.d')):
+                    dependency = (root / path).resolve()
+                    deps[str(dependency)] = sha(dependency)
+                # External crate files supplied through rustc flags affect the archive.
+                for flag in flags:
+                    candidate = flag.split('=', 1)[-1]
+                    if (root / candidate).is_file():
+                        path = (root / candidate).resolve(); deps[str(path)] = sha(path)
+            else:
+                env = os.environ.copy()
+                env['CC'] = shlex.join(cc)
+                env['CGO_ENABLED'] = '1'
+                env['GOTOOLCHAIN'] = 'local'
+                env['CGO_CPPFLAGS'] = shlex.join(['-I' + p for p in includes])
+                env['CGO_LDFLAGS'] = shlex.join(['-L' + str(runtime.parent), '-lsn_runtime_min'] +
+                                               ['-l' + p for p in unit.get('libraries', [])])
+                go_inputs, native_link_flags = go_dependencies(go, root, unit, env)
+                deps.update(go_inputs)
+                if os.name != 'nt' and '-pthread' not in native_link_flags:
+                    native_link_flags.append('-pthread')
+                run(go + ['build', '-mod=readonly', '-buildmode=c-archive', '-o', archive, '.'],
+                    cwd=(root / unit['module']).resolve(), env=env)
+            symbols = {line.split()[-1] for line in run(nm + ['-g', '-U' if sys.platform == 'darwin' else '--defined-only', archive]).splitlines()
+                       if line.split() and not line.rstrip().endswith(':')}
+            exports = [b['symbol'] for b in native['bindings'] if b['build'] == unit['name']]
+            for symbol in exports:
+                if symbol not in symbols and '_' + symbol not in symbols:
+                    raise ValueError(f'native export missing: {unit["name"]}::{symbol}')
+            units.append({'name': unit['name'], 'language': unit['language'], 'archive': archive.name,
+                          'archive_sha256': sha(archive), 'symbols': exports,
+                          'libraries': unit.get('libraries', []), 'native_link_flags': native_link_flags,
+                          'initialization': 'Go toolchain runtime' if unit['language'] == 'GO' else 'native toolchain',
+                          'requires_go_aggregation': unit['language'] == 'GO'})
+        current = tree_inputs(root, output)
+        for name in native['declarations']:
+            path = source_path(root, name); current[str(path)] = sha(path)
+        for unit in native['builds']:
+            for name in unit['sources']:
+                path = source_path(root, name); current[str(path)] = sha(path)
+        if (current != inputs or any(sha(path) != expected for path, expected in deps.items()) or
+                sha(runtime) != identity['runtime_sha256'] or sha(header) != identity['abi_header_sha256']):
+            raise ValueError('package/dependency inputs changed during the native build; no artifact was published')
+        metadata = {'schema': 1, 'kind': 'native-backing-artifacts', 'complete_package': False,
+                    'requires_generated_adapters': True, 'fingerprint': fingerprint,
+                    'package': plan['package'], 'abi': native['abi'], 'declarations': declarations,
+                    'bindings': native['bindings'], 'units': units, 'provenance': identity,
+                    'compatibility': {k: identity[k] for k in ('system', 'machine', 'pointer_bits')},
+                    'shared_runtime': {'sha256': sha(runtime), 'archive': str(runtime)},
+                    'dependency_sha256': deps,
+                    # Go's own compiler cache remains active. Artifact reuse waits
+                    # for complete module/cgo transitive input capture and aggregation.
+                    'cache_reusable': not go_builds, 'publication_nonce': uuid.uuid4().hex}
+        (work / 'assembly.json').write_text(json.dumps(metadata, indent=2) + '\n')
+        entry.mkdir(exist_ok=True)
+        generation = key(metadata)
+        destination = entry / generation
+        # Published generations are immutable. A new build cannot overwrite
+        # archives referenced by a consumer already using an older generation.
+        os.rename(work, destination)
+        fd, pointer = tempfile.mkstemp(prefix='.current-', dir=entry)
+        try:
+            with os.fdopen(fd, 'w') as stream: json.dump({'generation': generation}, stream)
+            os.replace(pointer, entry / 'current.json')
+        finally:
+            if os.path.exists(pointer): os.unlink(pointer)
+    print(json.dumps({'assembly': str(destination / 'assembly.json'), 'cache_hit': False}))
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--compiler', type=Path, required=True)
+    parser.add_argument('--manifest', type=Path, required=True)
+    parser.add_argument('--out-dir', type=Path, required=True)
+    parser.add_argument('--target', choices=('c', 'rust'), required=True)
+    parser.add_argument('--optimization', choices=('0', '1', '2'), required=True)
+    parser.add_argument('--arithmetic', choices=('checked', 'unchecked'), required=True)
+    try:
+        build(parser.parse_args())
+    except (OSError, ValueError, subprocess.TimeoutExpired) as error:
+        print(f'error: {error}', file=sys.stderr)
+        sys.exit(1)

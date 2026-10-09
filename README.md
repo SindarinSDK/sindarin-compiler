@@ -95,6 +95,7 @@ fn main(): void =>
 | [Overview](docs/readme.md) | Language philosophy, syntax overview, examples |
 | [Building](docs/building.md) | Build instructions for Linux, macOS, Windows |
 | [Runtime and package architecture](docs/runtime-target-architecture.md) | Shared C runtime ABI, package runtime selection and generated adapters (implementation reference) |
+| [Native backing artifacts](docs/native-artifacts.md) | Independent C/Rust/Go archives, metadata, compatibility and cache validation |
 | [Native package metadata](docs/native-package-manifest.md) | Backing-language build inputs, binding contracts and ownership metadata |
 | [Shared runtime ABI](docs/runtime-abi.md) | Versioned C value transport, resource ownership and C/Rust/Go client validation |
 | [Rust completion goal](docs/rust-completion-goal.md) | Required implementation, workflow and acceptance evidence for Rust completion |

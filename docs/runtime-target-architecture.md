@@ -98,8 +98,8 @@ runtime: GO
 not change the final application's target and does not translate foreign source
 files into the selected language. Native sources also need explicit build inputs
 and binding metadata, defined in the [native manifest contract](native-package-manifest.md).
-Its parser/preservation is implemented; native artifact builds and generated
-adapters remain implementation work. For example, an RS package can still declare an explicit C dependency.
+Its parser/preservation and [native backing artifact builds](native-artifacts.md)
+are implemented. Complete package compilation and generated adapters remain work. For example, an RS package can still declare an explicit C dependency.
 
 For a package consisting only of portable Sindarin source, an omitted runtime
 inherits the application's target. Its artifact is therefore cached separately
@@ -129,8 +129,9 @@ for native-bearing manifests until that pipeline is implemented.
 The application's CLI target remains independent of the runtime declared in its
 own manifest; imports belonging to that same manifest follow the application
 target. Existing native C directives keep their C backing language even for RS
-packages. Independent artifacts, native build-plan execution, binding/type verification and
-Go package builds remain required implementation work.
+packages. Native build-plan execution produces independent C/Rust/Go backing archives.
+Complete Sindarin package artifacts, binding/type verification, generated adapters
+and final package-graph linking remain required implementation work.
 
 ## Mixed-package example
 

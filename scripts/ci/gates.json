@@ -1289,6 +1289,16 @@
       ],
       "group": "sanitizers",
       "linux_only": true
+    },
+    {
+      "id": "runtime-107",
+      "name": "independent C/Rust/Go native backing artifacts and cache validation",
+      "command": [
+        "{python}",
+        "tests/package/native_artifacts.py"
+      ],
+      "group": "core",
+      "linux_only": false
     }
   ]
 }

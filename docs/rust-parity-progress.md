@@ -7,6 +7,45 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Native backing artifact builds: local validation, 2026-10-09
+
+The compiler now provides `--native-plan` and `--build-native`. An optional staged
+Python 3 driver builds original C sources, Rust crate roots and Go bridge modules
+with their own toolchains. It emits archives plus declaration/binding/ownership,
+platform/runtime, initialization and native-link metadata. Export presence is
+verified; incomplete artifacts explicitly remain `complete_package: false`.
+
+C and Rust consumers link all three native backing languages, including a Go
+export returning a string allocated by the shared C runtime. Conservative C/Rust
+cache reuse checks metadata/archive bytes and compiler-discovered dependencies;
+external header changes and corruption trigger rebuilding. Published generations
+are immutable. Go inputs/link flags are recorded, but native Go artifact reuse and
+multi-Go bridge aggregation remain pending. Incompatible host targets are rejected.
+
+Local complete suites pass 3,240 C checks and 1,082 Rust checks. Six actual native
+artifact tests pass normally and with the compiler under AddressSanitizer; all
+1,616 sanitizer unit checks, fourteen existing package tests, four shared ABI
+clients and thirteen CI helper tests pass. The new core gate retains 26 groups
+and increases hosted validation to 280 gate executions. Existing source/oracle
+contracts remain unchanged. Hosted acceptance of this batch is pending.
+
+Usage and limits: [native backing artifacts](native-artifacts.md).
+Evidence: [native artifact validation](rust-parity-evidence/native-artifact-validation.json).
+
+Complete Sindarin package bodies, signature/type/layout verification, generated
+export/import adapters, SDK decoupling, package graph linking and full Rust parity
+remain required. Application compilation still diagnoses native-bearing manifests
+as needing the incomplete package/adapters pipeline. No Go Sindarin target is claimed.
+
+## Windows correction: hosted acceptance, 2026-10-09
+
+Corrected main `d563f1b3` passes complete unified Linux/macOS/Windows CI. The
+manifest byte-preservation controls and compiler profile initialization repair are
+accepted; this lifts the feature publication freeze. The earlier pending/frozen
+entry below describes the failing revision and is superseded by this acceptance.
+
+[Accepted correction run](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37967502055).
+
 ## Windows validation correction: local verification, 2026-10-09
 
 Run `37964376134` fails the Windows C and Rust groups. The C unit suite compares

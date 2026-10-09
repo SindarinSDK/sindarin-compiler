@@ -212,6 +212,7 @@ set(SN_PACKAGE_SOURCES
     src/package.c
     src/package/package_yaml.c
     src/package/package_runtime.c
+    src/package/package_native_command.c
     src/package/package_git.c
     src/package/lfs/package_lfs.c
 )
@@ -409,6 +410,20 @@ add_custom_target(sn_stage_artifacts ALL
     COMMENT "Staging compiler artifacts in bin"
 )
 
+# Stage the optional native build driver alongside the compiler. Existing app
+# compilation does not require Python; native artifact building uses Python 3.
+file(MAKE_DIRECTORY "${CMAKE_SOURCE_DIR}/bin/tools" "${CMAKE_BINARY_DIR}/bin/tools")
+add_custom_target(sn_native_build_tool
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_SOURCE_DIR}/scripts/build_native_package.py"
+            "${CMAKE_SOURCE_DIR}/bin/tools/build_native_package.py"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_SOURCE_DIR}/scripts/build_native_package.py"
+            "${CMAKE_BINARY_DIR}/bin/tools/build_native_package.py"
+    DEPENDS "${CMAKE_SOURCE_DIR}/scripts/build_native_package.py"
+)
+add_dependencies(sn sn_native_build_tool)
+
 #------------------------------------------------------------------------------
 # Setup Include and Config Directories
 #------------------------------------------------------------------------------
@@ -513,6 +528,8 @@ add_custom_target(run-integration-tests
 include(GNUInstallDirs)
 
 set(SN_SDK_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/sindarin)
+install(FILES "${CMAKE_SOURCE_DIR}/scripts/build_native_package.py"
+        DESTINATION ${SN_SDK_INSTALL_DIR}/tools COMPONENT compiler)
 
 # Install compiler binary into SDK root
 install(TARGETS sn

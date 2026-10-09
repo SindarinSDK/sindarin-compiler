@@ -1,0 +1,212 @@
+#!/usr/bin/env python3
+"""Compile original C/Rust/Go backing into archives and consume them independently."""
+import hashlib
+import json
+import os
+from pathlib import Path
+import shlex
+import subprocess
+import tempfile
+import unittest
+
+ROOT = Path(__file__).resolve().parents[2]
+COMPILER = Path(os.environ.get('SN_COMPILER', ROOT / 'bin' / ('sn.exe' if os.name == 'nt' else 'sn'))).resolve()
+
+
+class NativeArtifactTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix='sn-native-artifacts-')
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name) / 'package with spaces'
+        self.root.mkdir()
+        self.output = self.root / '.sn/artifacts'
+        self.write('src/api.sn', 'native fn fromC(): int\nnative fn fromRust(): int\nnative fn fromGo(): int\nnative fn goText(): str\n')
+        self.write('native/value.h', '#define NATIVE_VALUE 11\n')
+        self.write('native/value.c', '#include "value.h"\nlong long from_c(void) { return NATIVE_VALUE; }\n')
+        self.write('native/value.rs', '#[no_mangle]\npub extern "C" fn from_rs() -> i64 { 22 }\n')
+        self.write('native/go/go.mod', 'module sindarin.test/native-package\n\ngo 1.26.0\n')
+        self.write('native/go/main.go', 'package main\n\n/* #include <stdint.h>\n#include <stdlib.h>\n#include "sn_abi.h" */\nimport "C"\nimport "unsafe"\n'
+                   '//export from_go\nfunc from_go() C.int64_t { return 33 }\n'
+                   '//export from_go_string\nfunc from_go_string(out **C.SnAbiValue) C.uint32_t {\n'
+                   ' text := C.CString("native Go backing")\n status := C.sn_abi_v1_string_copy(text, out)\n'
+                   ' C.free(unsafe.Pointer(text))\n return status\n}\nfunc main() {}\n')
+        self.manifest(['C', 'RS', 'GO'])
+
+    def write(self, path, text):
+        target = self.root / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(text)
+
+    def manifest(self, languages):
+        text = 'name: native-package\nversion: 1.0.0\nruntime: RS\nnative:\n  abi: 1.0\n'
+        text += '  declarations: [src/api.sn]\n  builds:\n'
+        for lang in languages:
+            stem, source = {'C': ('c', 'native/value.c'), 'RS': ('rs', 'native/value.rs'),
+                            'GO': ('go', 'native/go/main.go')}[lang]
+            text += f'    - name: {stem}\n      language: {lang}\n      sources: [{source}]\n'
+            if lang == 'RS': text += f'      entry: {source}\n'
+            if lang == 'GO': text += '      module: native/go\n'
+        text += '  bindings:\n'
+        for lang in languages:
+            stem = {'C': 'c', 'RS': 'rs', 'GO': 'go'}[lang]
+            text += (f'    - declaration: src/api.sn::{dict(C="fromC", RS="fromRust", GO="fromGo")[lang]}\n      build: {stem}\n'
+                     f'      symbol: from_{stem}\n      convention: C\n      failure: abort\n'
+                     '      ownership: {parameters: {}, result: value}\n')
+        if 'GO' in languages:
+            text += ('    - declaration: src/api.sn::goText\n      build: go\n'
+                     '      symbol: from_go_string\n      convention: C\n      failure: status\n'
+                     '      ownership: {parameters: {}, result: owned}\n')
+        self.write('sn.yaml', text)
+
+    def build(self, success=True, extra=()):
+        command = [str(COMPILER), '--build-native', str(self.root / 'sn.yaml'),
+                   '--target', 'rust', '-o', str(self.output)] + list(extra)
+        result = subprocess.run(command, capture_output=True, timeout=300)
+        if not success:
+            self.assertNotEqual(result.returncode, 0)
+            return result
+        self.assertEqual(result.returncode, 0, result.stderr.decode(errors='replace'))
+        summary = json.loads(result.stdout)
+        metadata = json.loads(Path(summary['assembly']).read_text())
+        return summary, metadata
+
+    def test_original_three_language_archives_link_in_c_and_rust(self):
+        summary, metadata = self.build()
+        self.assertFalse(metadata['complete_package'])
+        self.assertTrue(metadata['requires_generated_adapters'])
+        self.assertFalse(metadata['cache_reusable'])
+        self.assertEqual({u['language'] for u in metadata['units']}, {'C', 'RS', 'GO'})
+        self.assertEqual(metadata['package']['runtime'], 'RS')
+        base = Path(summary['assembly']).parent
+        archives = [base / u['archive'] for u in metadata['units']]
+        cc = shlex.split(os.environ.get('SN_CC', 'clang' if os.name == 'nt' or os.sys.platform == 'darwin' else 'gcc'))
+        executable = self.root / 'consumer.exe'
+        self.write('consumer.c', '#include <stdio.h>\n#include <string.h>\n#include "sn_abi.h"\n'
+                   'SnAbiStatus from_go_string(SnAbiValue **out);\nlong long from_c(void); long long from_rs(void); '
+                   'long long from_go(void);\nint main(void) { SnAbiValue *value = NULL; SnAbiBytes bytes;\n'
+                   ' if (from_go_string(&value) || sn_abi_v1_bytes(value, &bytes) || bytes.length != 17 || '
+                   'memcmp(bytes.data, "native Go backing", 17)) return 1;\n sn_abi_v1_release(value);\n'
+                   ' printf("%lld,%lld,%lld\\n", from_c(), from_rs(), from_go()); }\n')
+        flags = [flag for unit in metadata['units'] for flag in unit['native_link_flags']]
+        if os.name != 'nt': flags.append('-pthread')
+        build = subprocess.run(cc + ['-I', str(COMPILER.parent / 'include/runtime'), str(self.root / 'consumer.c')] +
+                               [str(p) for p in archives] + [metadata['shared_runtime']['archive']] + flags + ['-o', str(executable)], capture_output=True, timeout=120)
+        self.assertEqual(build.returncode, 0, build.stderr.decode(errors='replace'))
+        run = subprocess.run([str(executable)], capture_output=True, timeout=10)
+        self.assertEqual(run.returncode, 0, run.stderr.decode(errors='replace'))
+        self.assertEqual(run.stdout.splitlines(), [b'11,22,33'])
+        links = '#[link(name="sn_runtime_min", kind="static")] extern "C" {}\n' + '\n'.join(f'#[link(name="{p.stem.removeprefix("lib")}", kind="static")] extern "C" {{}}' for p in archives)
+        self.write('consumer.rs', links + '\nextern "C" { fn from_c()->i64; fn from_rs()->i64; fn from_go()->i64; }\n'
+                   '#[repr(C)] struct V { opaque: [u8; 0] }\n#[repr(C)] struct Bytes { data: *const u8, len: u64 }\n'
+                   'extern "C" { fn from_go_string(out: *mut *mut V)->u32; fn sn_abi_v1_bytes(v:*const V,b:*mut Bytes)->u32; fn sn_abi_v1_release(v:*mut V); }\n'
+                   'fn main() { unsafe { let mut v = std::ptr::null_mut(); let mut b = Bytes { data: std::ptr::null(), len: 0 }; '
+                   'assert_eq!(from_go_string(&mut v), 0); assert_eq!(sn_abi_v1_bytes(v, &mut b), 0); '
+                   'assert_eq!(std::slice::from_raw_parts(b.data,b.len as usize), b"native Go backing"); sn_abi_v1_release(v); '
+                   'println!("{},{},{}", from_c(), from_rs(), from_go()); } }\n')
+        rustc = shlex.split(os.environ.get('SN_RUSTC', 'rustc'))
+        rustflags = shlex.split(os.environ.get('SN_RUSTFLAGS', ''))
+        build = subprocess.run(rustc + ['--edition=2021', str(self.root / 'consumer.rs'), '-L', str(base), '-L', str(Path(metadata['shared_runtime']['archive']).parent),
+                                      '-o', str(executable)] + rustflags +
+                               (['-C', 'link-arg=-pthread'] if os.name != 'nt' else []),
+                               capture_output=True, timeout=120)
+        self.assertEqual(build.returncode, 0, build.stderr.decode(errors='replace'))
+        run = subprocess.run([str(executable)], capture_output=True, timeout=10)
+        self.assertEqual(run.returncode, 0, run.stderr.decode(errors='replace'))
+        self.assertEqual(run.stdout.splitlines(), [b'11,22,33'])
+
+    def test_cache_validates_headers_sources_and_artifact_bytes(self):
+        self.manifest(['C', 'RS'])
+        first, original = self.build()
+        again, _ = self.build()
+        self.assertTrue(again['cache_hit'])
+        self.assertEqual(first['assembly'], again['assembly'])
+        base = Path(first['assembly']).parent
+        archive = base / original['units'][0]['archive']
+        archive.write_bytes(b'corrupt')
+        repaired, _ = self.build()
+        self.assertFalse(repaired['cache_hit'])
+        rebuilt = json.loads(Path(repaired['assembly']).read_text())
+        rebuilt_archive = Path(repaired['assembly']).parent / rebuilt['units'][0]['archive']
+        self.assertNotEqual(rebuilt_archive.read_bytes(), b'corrupt')
+        self.assertEqual(archive.read_bytes(), b'corrupt')  # older generations are never overwritten
+        self.assertNotEqual(repaired['assembly'], first['assembly'])
+        corrupted_metadata = Path(repaired['assembly'])
+        corrupt = json.loads(corrupted_metadata.read_text())
+        corrupt['bindings'][0]['symbol'] = 'wrong_symbol'
+        corrupted_metadata.write_text(json.dumps(corrupt))
+        fixed, _ = self.build()
+        self.assertFalse(fixed['cache_hit'])
+        self.write('native/value.h', '#define NATIVE_VALUE 12\n')
+        changed, _ = self.build()
+        self.assertFalse(changed['cache_hit'])
+        self.assertNotEqual(changed['assembly'], first['assembly'])
+        mode, _ = self.build(extra=('-O0', '--unchecked'))
+        self.assertNotEqual(mode['assembly'], changed['assembly'])
+
+    def test_plan_inheritance_and_command_diagnostics(self):
+        self.manifest(['C'])
+        manifest = self.root / 'sn.yaml'
+        manifest.write_text(manifest.read_text().replace('runtime: RS\n', ''))
+        result = subprocess.run([str(COMPILER), '--native-plan', str(manifest), '--target', 'rust'],
+                                capture_output=True, timeout=30)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        plan = json.loads(result.stdout)
+        self.assertEqual(plan['package']['runtime'], 'RS')
+        original = manifest.read_bytes()
+        bad = subprocess.run([str(COMPILER), '--build-native', str(manifest), '--emit-rust'],
+                             capture_output=True, timeout=30)
+        self.assertNotEqual(bad.returncode, 0)
+        self.assertIn(b'cannot combine', bad.stderr)
+        self.assertEqual(manifest.read_bytes(), original)
+        self.assertFalse(self.output.exists())
+        bad = subprocess.run([str(COMPILER), '--build-native', str(manifest), '--clean'],
+                             capture_output=True, timeout=30)
+        self.assertNotEqual(bad.returncode, 0)
+        self.assertIn(b'cannot combine', bad.stderr)
+        self.assertEqual(manifest.read_bytes(), original)
+
+    def test_external_headers_invalidate_cached_generation(self):
+        self.manifest(['C'])
+        external = Path(self.temp.name) / 'external'
+        external.mkdir()
+        header = external / 'outside.h'
+        header.write_text('#define OUTSIDE_VALUE 17\n')
+        self.write('native/value.c', '#include "../../external/outside.h"\n'
+                   'long long from_c(void) { return OUTSIDE_VALUE; }\n')
+        first, original = self.build()
+        self.assertIn(str(header.resolve()), original['dependency_sha256'])
+        again, _ = self.build()
+        self.assertTrue(again['cache_hit'])
+        header.write_text('#define OUTSIDE_VALUE 18\n')
+        changed, _ = self.build()
+        self.assertFalse(changed['cache_hit'])
+        self.assertNotEqual(first['assembly'], changed['assembly'])
+
+    def test_missing_toolchain_is_diagnosed_without_publication(self):
+        self.manifest(['C'])
+        env = os.environ.copy()
+        env['SN_CC'] = 'sindarin-toolchain-that-does-not-exist'
+        result = subprocess.run([str(COMPILER), '--build-native', str(self.root / 'sn.yaml'),
+                                 '-o', str(self.output)], capture_output=True, timeout=30, env=env)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn(b'native toolchain unavailable', result.stderr)
+        self.assertFalse(self.output.exists())
+
+    def test_missing_input_export_and_tool_failure_do_not_publish(self):
+        self.manifest(['C'])
+        self.write('native/value.c', 'long long wrong_export(void) { return 0; }\n')
+        failure = self.build(success=False)
+        self.assertIn(b'native export missing', failure.stderr)
+        self.assertFalse(list(self.output.rglob('assembly.json')))
+        self.write('native/value.c', 'this is not valid C\n')
+        failure = self.build(success=False)
+        self.assertIn(b'native tool failed', failure.stderr)
+        self.assertFalse(list(self.output.rglob('assembly.json')))
+        (self.root / 'native/value.c').unlink()
+        failure = self.build(success=False)
+        self.assertIn(b'native input is missing', failure.stderr)
+        self.assertFalse(list(self.output.rglob('assembly.json')))
+
+
+if __name__ == '__main__':
+    unittest.main(verbosity=2)

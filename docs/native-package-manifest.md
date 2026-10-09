@@ -1,8 +1,9 @@
 # Native package build and binding metadata
 
 Status: manifest validation, plan extraction and preserving dependency edits are
-implemented. Native artifact compilation, declaration/type validation and generated
-export/import adapters remain required implementation work. A manifest using this
+implemented. [Native backing archives](native-artifacts.md) can now be built with
+`--build-native`. Complete package compilation, declaration/type validation and
+generated export/import adapters remain required implementation work. A manifest using this
 metadata currently receives an explicit unavailable-pipeline diagnostic during
 application compilation, including source/model emission and `--no-install`.
 

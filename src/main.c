@@ -6,6 +6,7 @@
 #include "gcc_backend.h"
 #include "version.h"
 #include "package.h"
+#include "package/package_native_command.h"
 #include "formatter.h"
 #include "cgen/gen_model.h"
 #include "cgen/gen_model_render.h"
@@ -226,6 +227,11 @@ int main(int argc, char **argv)
 
     /* ---- Standalone commands (no compilation) ---- */
 
+    if (options.native_mode) {
+        int result = package_native_command(&options);
+        compiler_cleanup(&options);
+        return result;
+    }
     if (options.do_init)
     {
         bool ok = package_init();

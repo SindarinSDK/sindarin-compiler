@@ -39,6 +39,8 @@ void compiler_init(CompilerOptions *options, int argc, char **argv)
     options->keep_generated = 0;
     options->debug_build = 0;
     options->profile_build = 0;
+    options->native_mode = 0;
+    options->native_manifest = NULL;
     options->do_init = 0;
     options->do_install = 0;
     options->install_target = NULL;
@@ -76,6 +78,21 @@ void compiler_cleanup(CompilerOptions *options)
 
 int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
 {
+    bool native_requested = false;
+    for (int i = 1; i < argc; i++)
+        if (strcmp(argv[i], "--native-plan") == 0 || strcmp(argv[i], "--build-native") == 0)
+            native_requested = true;
+    if (native_requested) {
+        for (int i = 1; i < argc; i++) {
+            if (strcmp(argv[i], "--init") == 0 || strcmp(argv[i], "--install") == 0 ||
+                strcmp(argv[i], "--clean") == 0 || strcmp(argv[i], "--clear-cache") == 0 ||
+                strcmp(argv[i], "--format") == 0) {
+                fprintf(stderr, "Error: native commands cannot combine package/format maintenance commands\n");
+                return 0;
+            }
+        }
+    }
+
     /* Check for standalone commands first */
     for (int i = 1; i < argc; i++)
     {
@@ -155,6 +172,8 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
                 "  --version          Show version information\n"
                 "\n"
                 "Package management:\n"
+                "  --native-plan <yaml>  Inspect validated native build/binding metadata (-o JSON)\n"
+                "  --build-native <yaml> Build native backing artifacts (-o output directory)\n"
                 "  --init             Initialize a new project (creates sn.yaml)\n"
                 "  --install          Install dependencies from sn.yaml\n"
                 "  --install <url>    Install a package (e.g., https://github.com/user/lib.git@v1.0)\n"
@@ -205,7 +224,16 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
     /* Second pass: parse all arguments */
     for (int i = 1; i < argc; i++)
     {
-        if (strcmp(argv[i], "-o") == 0 && i + 1 < argc)
+        if (strcmp(argv[i], "--native-plan") == 0 || strcmp(argv[i], "--build-native") == 0)
+        {
+            if (options->native_mode || i + 1 >= argc || argv[i + 1][0] == '-') {
+                fprintf(stderr, "Error: native command requires one manifest path\n");
+                return 0;
+            }
+            options->native_mode = strcmp(argv[i], "--native-plan") == 0 ? 1 : 2;
+            options->native_manifest = arena_strdup(&options->arena, argv[++i]);
+        }
+        else if (strcmp(argv[i], "-o") == 0 && i + 1 < argc)
         {
             i++;
             options->output_file = arena_strdup(&options->arena, argv[i]);
@@ -336,6 +364,15 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
     {
         fprintf(stderr, "Error: -p (profile) and -g (debug) cannot be used together\n");
         return 0;
+    }
+
+    if (options->native_mode) {
+        if (options->source_file || options->output_kind != OUTPUT_EXECUTABLE ||
+            options->emit_model || options->keep_generated || options->debug_build || options->profile_build) {
+            fprintf(stderr, "Error: native commands cannot combine application sources or emit/debug flags\n");
+            return 0;
+        }
+        return 1;
     }
 
     if (options->source_file == NULL)
