@@ -94,6 +94,7 @@ fn main(): void =>
 |----------|-------------|
 | [Overview](docs/readme.md) | Language philosophy, syntax overview, examples |
 | [Building](docs/building.md) | Build instructions for Linux, macOS, Windows |
+| [Runtime and package architecture](docs/runtime-target-architecture.md) | Shared C runtime ABI, package runtime selection and generated adapters (implementation reference) |
 | [Strings](docs/strings.md) | String methods and interpolation |
 | [Arrays](docs/arrays.md) | Array operations and slicing |
 | [Structs](docs/structs.md) | Struct declarations and C interop |

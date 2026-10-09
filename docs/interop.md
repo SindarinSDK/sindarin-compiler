@@ -4,7 +4,14 @@ description: "Calling C code and native function bindings"
 permalink: /language/interop/
 ---
 
-Since Sindarin compiles to C, interoperability is natural but requires explicit declarations for external functions, headers, and linking.
+The existing native interoperability path uses the C ABI and explicit declarations
+for external functions, headers and linking.
+
+The [runtime and mixed-language package architecture](runtime-target-architecture.md)
+records the planned shared runtime ABI, `sn.yaml` runtime selection, independent
+package artifacts and generated adapters. Those package build capabilities are
+an implementation reference; the new manifest field and Go support are not
+available compiler features yet.
 
 ---
 
