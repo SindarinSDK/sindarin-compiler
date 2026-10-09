@@ -228,8 +228,14 @@ use generated records and constructors such as `__sn__TextFile__new()`. The curr
 Rust backend already compiles native C code and generates private interop adapters;
 it has not rewritten the SDK in Rust.
 
-To produce reusable SDK/package artifacts, decouple SDK implementation from
-per-application generated C declarations. Define the runtime/SDK ABI and preserve
+The TextFile native module now has a package-owned C record/constructor and an
+independent build path reusing its existing C implementation. Its unchanged
+Sindarin declarations and generated C compatibility path are preserved; native
+C/Rust/Go clients and SDK standard platform CI are verified. The pinned compiler
+integration gates provide hosted acceptance for that pilot.
+
+To produce complete reusable SDK/package artifacts, extend this decoupling from
+per-application generated C declarations to the wider SDK and generated adapters. Define the runtime/SDK ABI and preserve
 compatibility adapters for the current C API, layouts, allocation and release
 behaviour. Existing native fields must be inventoried as API-visible; underscore
 names are not permission to remove them.

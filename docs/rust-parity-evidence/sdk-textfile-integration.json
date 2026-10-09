@@ -1,0 +1,42 @@
+{
+  "base_revision": "d33276889a29b9e2868b3ca0cacaf4bc57cca086",
+  "compiler_base_ci": {
+    "run": 37975706163,
+    "conclusion": "success"
+  },
+  "sdk_revision": "723b3e2f59cad24504d8f83b23c132032fe641cc",
+  "sdk_standard_ci": {
+    "run": 37978097898,
+    "conclusion": "success"
+  },
+  "scope": "Pin and require SDK independent TextFile C/Rust/Go consumers and legacy compatibility within unified compiler CI.",
+  "local_validation": {
+    "native_checks": 24,
+    "native_log_sha256": "143e77fbb19b0269b7f1d1c9cf4cb0ca492cacc203c0c6ef58d5fa8cad7f2847",
+    "resource_sanitizer_checks": 1,
+    "sanitizer_log_sha256": "90fb7d2ceb17578311c70b450613fd11e739f78f19f04d77e5f5ae0490a9efc4",
+    "ci_helper_tests": 13,
+    "ci_helper_log_sha256": "3d2da8fcbef7141b1b73e24de01544e06fe42bc4797100cf9e8371b087ff1a24",
+    "actionlint": "passes"
+  },
+  "sdk_source_sha256": {
+    "src/io/textfile.sn": "cdff312be708a055409d97d108e77bc050a734fd375bb7fdd1d6b19eb9ef10a7",
+    "src/io/textfile.sn.c": "83ef97406e865836c0a5dcb399cc01b83bc562e9b34a0c610e10030ba9395e65",
+    "src/io/textfile.native.c": "32115f71185a1ce7c50f415c858f15b4d3af631fae708239c31c078d39fc8ac4",
+    "src/io/textfile.native.h": "ae52b2576719da162bb84ea5343cdaa149ce718ad3d1da56ee673b5cc3bb6cc3",
+    "scripts/check_textfile_native.py": "4e94cce4df5e9a6775e1f88d19a681cbeb1916ff3770cf52da3f981d283f7a9e"
+  },
+  "integration_source_sha256": {
+    ".github/workflows/ci.yml": "29709f6740dfc298c642475789b70cc27b9a3c4d73dca7549fb5bc7f9ec791d1",
+    "scripts/ci/gates.json": "12b73fb1020158181e8c066aba9d6c46e6f6671de713f9921324e0ba8087326e",
+    "tests/ci/test_ci_helpers.py": "309a4d131862f251dd8b0bed4c4e4cd1400fbba8003605bb17e01e8357959242"
+  },
+  "required_ci": {
+    "groups": 26,
+    "gate_executions": 284
+  },
+  "hosted_native_integration_acceptance": "pending",
+  "complete_sdk_package": false,
+  "generated_package_adapters": "not implemented",
+  "passed": true
+}

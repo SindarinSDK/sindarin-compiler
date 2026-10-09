@@ -7,6 +7,34 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Independent TextFile SDK module: published; integration CI pending, 2026-10-09
+
+SDK main `723b3e2` now builds TextFile native backing independently with its
+existing C implementation. Its package-owned record/constructor and compatibility
+layout checks preserve the reference-count prefix, existing fields and unchanged
+Sindarin declarations. Atomic retain/release, explicit/final close and shared-
+runtime path transport are available without a Rust/Go SDK logic port.
+
+The SDK's complete standard Linux/macOS/Windows CI passes using the released
+compiler. Compiler dependency `d3327688` also passes complete unified platform CI.
+Twenty-four local integration checks cover independent C/Rust/Go clients, GC-safe
+ownership, strings/arrays, field layout, errors/exits, aliases, pointer sizeof and
+all nine-mode unchanged SDK callers. Actual C module/runtime resource sanitizers
+and thirteen CI helper tests pass. The two new required integration gates pin the
+SDK revision in compiler CI; 26 test groups now require 284 executions. Hosted
+acceptance of the native integration gates is pending.
+
+[SDK standard acceptance](https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/37978097898).
+[Compiler dependency acceptance](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37975706163).
+[Native module and contracts](https://github.com/SindarinSDK/sindarin-pkg-sdk/blob/723b3e2f59cad24504d8f83b23c132032fe641cc/docs/native/textfile.md).
+Evidence: [SDK TextFile integration](rust-parity-evidence/sdk-textfile-integration.json).
+
+This proves one independently built SDK C resource module, not complete SDK package
+artifacts or generated Sindarin import/export adapters. The wider SDK migration,
+complete package compilation/linking, shared ABI record/interface/callback/error
+contracts, mixed-package Sindarin application and remaining Rust parity gaps remain
+required full-goal work. The earlier local/pending descriptions below are historical.
+
 ## SDK field and lifetime preparation: local validation, 2026-10-09
 
 A reusable C TextFile module has been prepared in the SDK using its original C
