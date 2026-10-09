@@ -1,8 +1,9 @@
 # Runtime and mixed-language package architecture
 
 Status: agreed architectural direction, 2026-10-09. This is the reference for
-implementation work, not a claim that package assemblies, the manifest extension,
-automatic cross-language adapters or the Go backend already exist.
+implementation work, not a claim that package assemblies, automatic cross-language
+adapters or the Go backend already exist. The runtime manifest field and import
+compatibility checks are implemented; independent package compilation is pending.
 
 ## Decision
 
@@ -69,9 +70,9 @@ Package initialization is distinct from application `main`; dependencies must no
 produce competing executable entry points. Exported symbols are namespaced by
 package identity, and dependency initialization follows a documented graph order.
 
-## Proposed sn.yaml runtime field
+## sn.yaml runtime field
 
-The proposed values are `C`, `RS` and `GO`:
+The supported manifest values are `C`, `RS` and `GO`:
 
 ```yaml
 name: sindarin-pkg-sdk
@@ -107,10 +108,23 @@ target, pure Sindarin imports follow the selected target, and existing C native
 source/include/link directives remain C interop. Adding the new architecture must
 not silently reinterpret or remove those directives.
 
-The existing manifest parser does not implement `runtime` yet. Adding this field
-today does not select a package runtime. C/Rust application target selection exists;
-Go target selection and Go package build support remain future work. Unsupported
-runtimes must be diagnosed before compiling or linking.
+The manifest parser validates and preserves `runtime`, including dependency add
+and update operations. Omission is distinct from an explicit C selection. Runtime
+values must match the spellings above; duplicate or malformed runtime declarations
+produce errors. Nested extension metadata does not select a package runtime.
+
+The compiler checks the manifests owning imported modules, including transitive,
+relative and SDK imports, before code emission. Matching C/RS selections currently
+use the existing source compilation path. Cross-runtime package imports report
+that independent package artifacts and generated ABI adapters are not implemented
+yet; GO imports report that the Go backend and native package bridge are pending.
+These checks also apply with `--no-install` and source/model emission.
+
+The application's CLI target remains independent of the runtime declared in its
+own manifest; imports belonging to that same manifest follow the application
+target. Existing native C directives keep their C backing language even for RS
+packages. Independent artifacts, native build/binding metadata and Go package
+builds remain required implementation work.
 
 ## Mixed-package example
 

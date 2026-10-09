@@ -318,6 +318,101 @@ static void test_yaml_update_dependency(void)
     cleanup_test_yaml();
 }
 
+static void write_package_test_yaml(const char *text)
+{
+    FILE *f = fopen(test_yaml_path(), "w");
+    assert(f != NULL);
+    assert(fputs(text, f) >= 0);
+    assert(fclose(f) == 0);
+}
+
+static void test_yaml_runtime_contract(void)
+{
+    PackageConfig config;
+    const PackageRuntime runtimes[] = {PACKAGE_RUNTIME_C, PACKAGE_RUNTIME_RS, PACKAGE_RUNTIME_GO};
+    const char *names[] = {"C", "RS", "GO"};
+    for (int i = 0; i < 3; i++) {
+        char text[128];
+        snprintf(text, sizeof(text), "name: package\nruntime: %s\n", names[i]);
+        write_package_test_yaml(text);
+        assert(package_yaml_parse(test_yaml_path(), &config));
+        assert(config.runtime == runtimes[i]);
+        assert(strcmp(package_runtime_name(config.runtime), names[i]) == 0);
+        assert(package_runtime_resolve(config.runtime, PACKAGE_RUNTIME_RS) == runtimes[i]);
+        assert(package_yaml_write(test_yaml_path(), &config));
+        memset(&config, 0, sizeof(config));
+        assert(package_yaml_parse(test_yaml_path(), &config));
+        assert(config.runtime == runtimes[i]);
+        PackageDependency dep = {0};
+        strcpy(dep.name, "extra");
+        strcpy(dep.git_url, "https://example.com/extra.git");
+        strcpy(dep.tag, "v1");
+        assert(package_yaml_add_dependency(test_yaml_path(), &dep));
+        strcpy(dep.tag, "v2");
+        assert(package_yaml_add_dependency(test_yaml_path(), &dep));
+        assert(package_yaml_parse(test_yaml_path(), &config));
+        assert(config.runtime == runtimes[i]);
+        assert(config.dependency_count == 1);
+        assert(strcmp(config.dependencies[0].tag, "v2") == 0);
+    }
+    write_package_test_yaml("name: legacy\n");
+    assert(package_yaml_parse(test_yaml_path(), &config));
+    assert(config.runtime == PACKAGE_RUNTIME_INHERIT);
+    assert(package_runtime_resolve(config.runtime, PACKAGE_RUNTIME_C) == PACKAGE_RUNTIME_C);
+    assert(package_runtime_resolve(config.runtime, PACKAGE_RUNTIME_RS) == PACKAGE_RUNTIME_RS);
+    assert(package_runtime_name(config.runtime) == NULL);
+    assert(package_yaml_write(test_yaml_path(), &config));
+    FILE *f = fopen(test_yaml_path(), "r");
+    char text[256] = {0};
+    assert(f != NULL);
+    assert(fread(text, 1, sizeof(text) - 1, f) > 0);
+    fclose(f);
+    assert(strstr(text, "runtime") == NULL);
+    cleanup_test_yaml();
+}
+
+static void test_yaml_runtime_errors(void)
+{
+    const char *invalid[] = {
+        "runtime: rust\n", "runtime: c\n", "runtime: RSX\n", "runtime: null\n",
+        "runtime: \"\"\n", "runtime: []\n", "runtime: {name: C}\n",
+        "runtime: C\nruntime: RS\n", "runtime: RS\n---\nruntime: C\n",
+        "runtime: \"C\\0junk\"\n", "runtime: [\n"
+    };
+    for (size_t i = 0; i < sizeof(invalid) / sizeof(invalid[0]); i++) {
+        write_package_test_yaml(invalid[i]);
+        PackageConfig config;
+        assert(!package_yaml_parse(test_yaml_path(), &config));
+        assert(config.runtime == PACKAGE_RUNTIME_INHERIT);
+    }
+    write_package_test_yaml("name: preserved\n");
+    PackageConfig config = {0};
+    config.runtime = (PackageRuntime)99;
+    assert(!package_yaml_write(test_yaml_path(), &config));
+    assert(package_yaml_parse(test_yaml_path(), &config));
+    assert(strcmp(config.name, "preserved") == 0);
+    cleanup_test_yaml();
+}
+
+static void test_yaml_nested_metadata(void)
+{
+    /* Nested unknown metadata must not choose a runtime or swallow later keys. */
+    write_package_test_yaml("extension:\n  runtime: GO\n  nested: [C, RS]\n"
+        "name: outer\ndependencies:\n  - name: dep\n    extra: {runtime: GO}\n"
+        "    git: https://example.com/dep.git\n    branch: main\nruntime: RS\n");
+    PackageConfig config;
+    assert(package_yaml_parse(test_yaml_path(), &config));
+    assert(strcmp(config.name, "outer") == 0);
+    assert(config.runtime == PACKAGE_RUNTIME_RS);
+    assert(config.dependency_count == 1);
+    assert(strcmp(config.dependencies[0].git_url, "https://example.com/dep.git") == 0);
+    assert(strcmp(config.dependencies[0].branch, "main") == 0);
+    write_package_test_yaml("extension: {runtime: GO}\nname: legacy\n");
+    assert(package_yaml_parse(test_yaml_path(), &config));
+    assert(config.runtime == PACKAGE_RUNTIME_INHERIT);
+    cleanup_test_yaml();
+}
+
 #endif /* SN_HAS_PACKAGE_MANAGER */
 
 /* ============================================================================
@@ -347,5 +442,8 @@ void test_package_main(void)
     TEST_RUN("yaml_write_with_dependencies", test_yaml_write_with_dependencies);
     TEST_RUN("yaml_add_dependency", test_yaml_add_dependency);
     TEST_RUN("yaml_update_dependency", test_yaml_update_dependency);
+    TEST_RUN("yaml_runtime_contract", test_yaml_runtime_contract);
+    TEST_RUN("yaml_runtime_errors", test_yaml_runtime_errors);
+    TEST_RUN("yaml_nested_metadata", test_yaml_nested_metadata);
 #endif
 }

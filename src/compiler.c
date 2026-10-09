@@ -5,6 +5,7 @@
 #include "optimizer.h"
 #include "gcc_backend.h"
 #include "target/target.h"
+#include "package.h"
 #include "version.h"
 #include <stdlib.h>
 #include <string.h>
@@ -421,6 +422,10 @@ Module* compiler_compile(CompilerOptions *options)
     Module *module = parse_module_with_imports(&options->arena, &options->symbol_table,
         options->source_file, &imported, &imported_count, &imported_capacity,
         &imported_modules, &imported_directly, &namespace_code_emitted, options->compiler_dir);
+    if (module && !package_check_import_runtimes(options->source_file,
+            (const char *const *)imported, imported_count,
+            options->target == TARGET_RUST ? PACKAGE_RUNTIME_RS : PACKAGE_RUNTIME_C))
+        module = NULL;
     if (!module)
     {
         diagnostic_phase_failed(PHASE_PARSING);

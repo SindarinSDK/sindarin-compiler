@@ -1,0 +1,182 @@
+{
+  "base_revision": "40670069d2f5b3c1c8cf0b3fbeb8a2443997feb2",
+  "scope": "Runtime manifest contract and imported package diagnostics; independent artifacts, shared ABI and adapters remain unfinished.",
+  "compiler_sha256": "9922938d86e0cff99b1722e5e9d3747d85c13e376042bb0d470938867f430212",
+  "asan_compiler_sha256": "12553b02a85d5b6a0099296f07f15e47580cac37cefc47c393257da1af4507fa",
+  "source_sha256": {
+    "CMakeLists.txt": "64ed89b96814ebcde7298b1f8abf585878cc4aff35250f0dcbf0b2b6ffab87e0",
+    "src/compiler.c": "3ace3959ebd0270666b0f9453aabdd8bab703c463fa37727efe1b10e7566463b",
+    "src/package.h": "a60fe804cb78f0d9a24e273210bf71f99a97d9f72728928da467aef844308327",
+    "src/package/package_yaml.c": "776141d414da2b39b575d40483c3702c077301250495195b6271992eb9e87110",
+    "src/package/package_runtime.c": "58d17961b8e6cad11dbcb8749b0ada38038c949a326c6ab73f379a5c662c4454",
+    "tests/unit/package/package_tests.c": "0461648e8940f14ecbbf91c0bbc8563ff6498fb4621a26a16e2f3608c088f590",
+    "tests/package/runtime_contract.py": "437860901a11be6ec51d507b23f0cd5725473660678f7cdc779c8324c286e820",
+    "scripts/ci/gates.json": "e0d4a0fba3bc50debf8e0029af62eaa4aeec1aad26ca33f61ffae1083a26bea2",
+    "tests/ci/test_ci_helpers.py": "7361a283674c1d462f37c7d615f183df2ed4ed51c002356c50749b478b3c60e1"
+  },
+  "validation": [
+    {
+      "language": "C",
+      "command": [
+        "python3",
+        "scripts/run_tests.py",
+        "all",
+        "--no-cleanup",
+        "--parallel",
+        "4"
+      ],
+      "total_passed": 3237,
+      "groups": [
+        {
+          "passed": 1613,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 107,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 79,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1145,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 58,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 224,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 11,
+          "failed": 0,
+          "skipped": 0
+        }
+      ],
+      "local_log": ".sn/package-runtime-c-full.log",
+      "log_sha256": "c78f30c7c32a01a64b0f16416cee98c6ad531fb97c12230d95fc61a376edbba1"
+    },
+    {
+      "language": "Rust",
+      "command": [
+        "python3",
+        "scripts/run_rust_tests.py",
+        "all",
+        "--no-cleanup",
+        "--parallel",
+        "4"
+      ],
+      "total_passed": 1082,
+      "groups": [
+        {
+          "passed": 506,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 118,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 8,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 378,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 4,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 36,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 10,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 7,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 12,
+          "failed": 0,
+          "skipped": 0
+        }
+      ],
+      "local_log": ".sn/package-runtime-rust-full.log",
+      "log_sha256": "d13e80a3276fd310d082c27261a403d206bf1a7137b084993351c9b52d221b2b"
+    },
+    {
+      "local_log": ".sn/package-runtime-contract.log",
+      "tests_passed": 11,
+      "log_sha256": "6bffe9fe16f0a90a0e9bfb07ee62fec149e1043b2f058b0eb3bcfb90d32f7168"
+    },
+    {
+      "local_log": ".sn/package-runtime-asan-contract.log",
+      "tests_passed": 11,
+      "log_sha256": "1102250b717e392084d3c7c0263c9f527650dd5bfa295ab2cc667bd1f79e0bc1"
+    },
+    {
+      "local_log": ".sn/package-runtime-ci-helpers.log",
+      "tests_passed": 13,
+      "log_sha256": "3ae2638dfe50f651ead7ca97b6e74db5751b435c86295bb55acf0ffa3012ece2"
+    }
+  ],
+  "compiler_contract": {
+    "test_methods": 11,
+    "compiler_invocations": 34,
+    "executables_checked": 8,
+    "platform_local": "Linux aarch64",
+    "asan": "34 actual compiler invocations pass with AddressSanitizer and existing JSON lifetime guard; no sanitizer options disabled by this invocation."
+  },
+  "ci": {
+    "base_run": 37946012526,
+    "base_conclusion": "success",
+    "groups": 26,
+    "gate_executions_after_change": 273,
+    "batch_hosted_acceptance": "pending"
+  },
+  "limitations": [
+    "Cross-runtime package artifacts and adapters are not yet available.",
+    "GO metadata is supported but Go compilation and native bridge building remain pending.",
+    "Current same-runtime packages use the existing source compilation path.",
+    "Unix import symlinks are canonicalized; Windows uses absolute lexical paths and the symlink regression is explicitly limited by host privileges."
+  ],
+  "passed": true
+}

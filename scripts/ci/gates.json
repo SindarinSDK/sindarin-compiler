@@ -1258,6 +1258,16 @@
       ],
       "linux_only": false,
       "group": "callbacks"
+    },
+    {
+      "id": "runtime-104",
+      "name": "package runtime manifests, imports and native C compatibility",
+      "command": [
+        "{python}",
+        "tests/package/runtime_contract.py"
+      ],
+      "group": "core",
+      "linux_only": false
     }
   ]
 }

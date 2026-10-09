@@ -14,6 +14,7 @@
  *   author: "John Doe"
  *   description: "A Sindarin project"
  *   license: MIT
+ *   runtime: C                 # Optional: C, RS, GO; omitted inherits consumer
  *   dependencies:
  *     - name: utils
  *       git: https://github.com/user/sn-utils.git
@@ -48,12 +49,20 @@ typedef struct {
 } PackageDependency;
 
 /* Represents the project's package configuration (sn.yaml) */
+typedef enum {
+    PACKAGE_RUNTIME_INHERIT = 0,
+    PACKAGE_RUNTIME_C,
+    PACKAGE_RUNTIME_RS,
+    PACKAGE_RUNTIME_GO
+} PackageRuntime;
+
 typedef struct {
     char name[PKG_MAX_NAME_LEN];
     char version[PKG_MAX_VERSION_LEN];
     char author[PKG_MAX_NAME_LEN];
     char description[PKG_MAX_URL_LEN];
     char license[PKG_MAX_NAME_LEN];
+    PackageRuntime runtime;
     PackageDependency dependencies[PKG_MAX_DEPS];
     int dependency_count;
 } PackageConfig;
@@ -111,6 +120,19 @@ bool package_yaml_write(const char *path, const PackageConfig *config);
 /* Add a dependency to sn.yaml
  * Returns true on success, false on failure */
 bool package_yaml_add_dependency(const char *path, const PackageDependency *dep);
+
+/* Manifest spelling, or NULL for inherit/invalid values. */
+const char *package_runtime_name(PackageRuntime runtime);
+
+/* Resolve an omitted package runtime using the application's target. */
+PackageRuntime package_runtime_resolve(PackageRuntime declared, PackageRuntime application);
+
+/* Validate manifests owning imported sources before emission. The application
+ * manifest does not override the CLI target. Cross-runtime package compilation
+ * requires the independent artifact/adapter pipeline, which is not available yet. */
+bool package_check_import_runtimes(const char *application_source,
+                                  const char *const *imported_sources, int count,
+                                  PackageRuntime application_runtime);
 
 /* ============================================================================
  * Git Operations (package_git.c)

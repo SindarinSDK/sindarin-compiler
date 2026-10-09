@@ -211,6 +211,7 @@ set(SN_BACKEND_SOURCES
 set(SN_PACKAGE_SOURCES
     src/package.c
     src/package/package_yaml.c
+    src/package/package_runtime.c
     src/package/package_git.c
     src/package/lfs/package_lfs.c
 )

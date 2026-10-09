@@ -1,9 +1,49 @@
 # Rust backend completion ledger
 
-Goal: verified feature and behavioral parity with C on integrated main, preserving
-the established language contract and C as the default target. Rejections are
+Goal: verified feature and behavioral parity with C on integrated main using the
+shared C runtime and mixed-language package architecture, preserving the language
+contract, C-backed SDK and C as the default target. Required scope and acceptance
+are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
+
+## Package runtime manifest contract: local validation, 2026-10-09
+
+The manifest now parses and serializes explicit `runtime: C / RS / GO`, retaining
+omission as target inheritance and preserving runtime on dependency add/update.
+Direct YAML mapping traversal isolates nested extension metadata from root fields
+and dependency entries. Malformed/duplicate runtime declarations produce errors.
+
+Compilation checks each imported source's owning manifest, including transitive,
+namespaced, relative and canonicalized Unix symlink imports, before source/model
+emission or linking. The application's manifest does not override its CLI target.
+Matching/inherited packages retain existing source compilation and C sidecar
+behaviour. Unsupported cross-runtime and GO dependencies fail explicitly instead
+of being silently compiled for the consumer's target.
+
+This establishes package selection metadata and diagnostics. Independent package
+artifacts, native build/binding metadata, shared ABI, generated adapters and Go
+native bridges remain unimplemented requirements. Full Rust parity is unfinished.
+The new compiler-level package contract gate runs on all three hosted platforms;
+only Windows symlink creation has an explicit host-privilege limitation. Existing
+CI gates remain required: 26 test groups now cover 273 gate executions.
+
+Local validation passes 3,237 C checks, 1,082 Rust checks, all eleven actual-
+compiler package contract tests (34 compilations and eight executions), the same
+contract under AddressSanitizer, and thirteen CI helper tests. Existing source
+fixtures and behavioural oracles remain unchanged. Evidence is recorded in
+[package runtime validation](rust-parity-evidence/package-runtime-validation.json).
+Hosted acceptance of this implementation batch is pending.
+
+## Accepted main before package runtime work, 2026-10-09
+
+Callable integration `27ac5010` and the architecture/goal documents through
+`40670069` pass their complete unified CI runs. The historical pending and frozen
+entries below describe earlier revisions. The shared architecture and new goal
+are persisted; implementation has resumed from accepted main. No outstanding main
+CI remained when this batch started.
+
+[Accepted main run](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37946012526).
 
 ## Callable integration on accepted main: local verification, 2026-10-09
 
