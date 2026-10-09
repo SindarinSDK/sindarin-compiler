@@ -174,7 +174,7 @@ def build(args):
     root = args.manifest.resolve().parent
     output = args.out_dir.resolve()
     compiler = args.compiler.resolve()
-    plan = json.loads(run([compiler, '--native-plan', args.manifest.resolve(), '--target', args.target,
+    plan = getattr(args, 'validated_plan', None) or json.loads(run([compiler, '--native-plan', args.manifest.resolve(), '--target', args.target,
                            '-O' + args.optimization, '--' + args.arithmetic]))
     native = plan['native']
     providers = {u['name']: contracts(native, u) for u in native['builds']}
@@ -185,9 +185,9 @@ def build(args):
             if symbol in generated_exports:
                 raise ValueError('duplicate generated provider export symbol across build units: ' + symbol)
             generated_exports.add(symbol)
-    go_builds = [u for u in native['builds'] if u['language'] == 'GO']
-    if len(go_builds) > 1:
-        raise ValueError('multiple Go build units require one aggregate bridge; aggregation is not implemented yet')
+    skip_go = getattr(args, 'skip_go', False)
+    selected_builds = [u for u in native['builds'] if not (skip_go and u['language'] == 'GO')]
+    go_builds = [u for u in selected_builds if u['language'] == 'GO']
     compiler_dir = Path(plan['compiler_dir']).resolve()
     runtime = compiler_dir / 'lib' / ('clang' if os.name == 'nt' else 'gcc') / 'libsn_runtime_min.a'
     header = compiler_dir / 'include/runtime/sn_abi.h'
@@ -199,7 +199,7 @@ def build(args):
     ar = command('SN_AR', 'llvm-ar' if shutil.which('llvm-ar') else 'ar')
     nm = command('SN_NM', 'llvm-nm' if shutil.which('llvm-nm') else 'nm')
     tools = {'nm': tool_identity(nm, optional_version=True)}
-    languages = {u['language'] for u in native['builds']}
+    languages = {u['language'] for u in selected_builds}
     if languages & {'C', 'GO'}: tools['cc'] = tool_identity(cc)
     if 'C' in languages: tools['ar'] = tool_identity(ar, optional_version=True)
     if 'RS' in languages: tools['rustc'] = tool_identity(rustc)
@@ -223,7 +223,7 @@ def build(args):
     for unit in native['builds']:
         for name in unit['sources']:
             path = source_path(root, name); inputs[str(path)] = sha(path)
-    identity = {'plan': plan, 'tools': tools, 'inputs': inputs,
+    identity = {'plan': plan, 'skip_go': skip_go, 'tools': tools, 'inputs': inputs,
                 'driver_sha256': sha(Path(__file__)), 'compiler_sha256': sha(compiler),
                 'provider_sha256': sha(Path(__file__).with_name('native_provider.py')),
                 'contract_sha256': sha(Path(__file__).with_name('native_contract.py')),
@@ -237,10 +237,13 @@ def build(args):
     if previous:
         print(json.dumps({'assembly': str(previous), 'cache_hit': True}))
         return
+    aggregate_go = (build_go_graph([{'manifest':str(args.manifest.resolve()), 'plan':plan}], compiler,
+                    output/'go-graphs', args.optimization, args.arithmetic, input_exclusion=output)
+                    if len(go_builds) > 1 else None)
     with tempfile.TemporaryDirectory(prefix='.native-build-', dir=output) as folder:
         work = Path(folder)
         units, deps = [], dict(inputs)
-        for index, unit in enumerate(native['builds']):
+        for index, unit in enumerate(selected_builds):
             stem = f'sn_native_{index:03d}_' + key({'package':plan['package'], 'build':unit['name']})[:12]
             archive = work / ('lib' + stem + '.a')
             includes = [str((root / p).resolve()) for p in unit.get('include_dirs', [])]
@@ -304,6 +307,12 @@ def build(args):
                     candidate = flag.split('=', 1)[-1]
                     if (root / candidate).is_file():
                         path = (root / candidate).resolve(); deps[str(path)] = sha(path)
+            elif aggregate_go:
+                archive = work / 'libsn_go_graph.a'
+                if not archive.exists(): shutil.copyfile(aggregate_go['archive'], archive)
+                native_link_flags = aggregate_go['native_link_flags']
+                aggregate_metadata = json.loads(Path(aggregate_go['assembly']).read_text())
+                deps.update(aggregate_metadata['dependency_sha256'])
             else:
                 env = os.environ.copy()
                 env['CC'] = shlex.join(cc)
@@ -387,6 +396,138 @@ def build(args):
         finally:
             if os.path.exists(pointer): os.unlink(pointer)
     print(json.dumps({'assembly': str(destination / 'assembly.json'), 'cache_hit': False}))
+
+
+def build_go_graph(packages, compiler, out_dir, optimization, arithmetic, input_exclusion=None):
+    """Build one Go runtime bridge from original library modules in a graph."""
+    compiler = Path(compiler).resolve()
+    output = Path(out_dir).resolve()
+    excluded = Path(input_exclusion).resolve() if input_exclusion else output
+    cc = command('SN_CC', 'clang' if os.name == 'nt' or sys.platform == 'darwin' else 'gcc')
+    go, nm = command('SN_GO', 'go'), command('SN_NM', 'llvm-nm' if shutil.which('llvm-nm') else 'nm')
+    tools = {'cc': tool_identity(cc), 'go': tool_identity(go, ['version']),
+             'nm': tool_identity(nm, optional_version=True)}
+    host_target({'GO'}, cc, [], go)
+    runtime = compiler.parent / 'lib' / ('clang' if os.name == 'nt' else 'gcc') / 'libsn_runtime_min.a'
+    header = compiler.parent / 'include/runtime/sn_abi.h'
+    modules, units, inputs, roots, explicit = {}, [], {}, [], {}
+    replacements, includes, libraries, sums, versions = {}, [str(header.parent)], [], set(), []
+    env = os.environ.copy()
+    env.update(CC=shlex.join(cc), CGO_ENABLED='1', GOTOOLCHAIN='local', GOWORK='off')
+    for package in packages:
+        root = Path(package['manifest']).resolve().parent
+        plan = package['plan']
+        roots.append(root)
+        inputs.update(tree_inputs(root, excluded))
+        for declaration in plan['native']['declarations']:
+            path = source_path(root, declaration); explicit[str(path)] = sha(path)
+        for unit in plan['native']['builds']:
+            if unit['language'] != 'GO': continue
+            signatures = contracts(plan['native'], unit)
+            bindings = [b for b in plan['native']['bindings'] if b['build'] == unit['name']]
+            if any('function' not in b for b in bindings):
+                raise ValueError('Go graph aggregation requires generated providers from importable library modules; handwritten main archives cannot be combined')
+            for source in unit['sources']:
+                path = source_path(root, source); explicit[str(path)] = sha(path)
+            directory = (root / unit['module']).resolve()
+            config = json.loads(run(go + ['mod', 'edit', '-json'], cwd=directory, env=env))
+            for filename in ('go.mod', 'go.sum'):
+                path = directory / filename
+                if path.is_file(): explicit[str(path)] = sha(path)
+            module = config['Module']['Path']
+            if module in modules and modules[module] != str(directory):
+                raise ValueError('Go module path refers to different source roots in the package graph: ' + module)
+            modules[module] = str(directory)
+            versions.append(config.get('Go') or '1.16')
+            if (directory / 'go.sum').is_file(): sums.update((directory / 'go.sum').read_text().splitlines())
+            for item in config.get('Replace') or []:
+                old, new = item['Old'], dict(item['New'])
+                if not new.get('Version'): new['Path'] = str((directory / new['Path']).resolve())
+                identity = (old['Path'], old.get('Version', ''))
+                if identity in replacements and replacements[identity] != new:
+                    raise ValueError('conflicting Go module replacements in the package graph: ' + old['Path'])
+                replacements[identity] = new
+            for value in unit.get('include_dirs', []):
+                path = (root / value).resolve()
+                if not path.is_dir(): raise ValueError('native include directory is missing: ' + str(path))
+                includes.append(str(path))
+            libraries += unit.get('libraries', [])
+            units.append({'manifest': str(Path(package['manifest']).resolve()), 'name':unit['name'],
+                          'module':module, 'source_root':str(directory), 'signatures':signatures})
+    for module, directory in modules.items():
+        # Dependency replacements cannot silently redirect an explicitly selected
+        # root library. Version-specific redirects of those roots are ambiguous.
+        for identity, replacement in list(replacements.items()):
+            if identity[0] == module and (identity[1] or replacement.get('Version') or replacement['Path'] != directory):
+                raise ValueError('Go replacement conflicts with selected root module: ' + module)
+        replacements[(module, '')] = {'Path':directory}
+    env['CGO_CPPFLAGS'] = shlex.join(['-I' + p for p in dict.fromkeys(includes)])
+    env['CGO_LDFLAGS'] = shlex.join(['-L' + str(runtime.parent), '-lsn_runtime_min'] +
+                                  ['-l' + p for p in dict.fromkeys(libraries)])
+    inputs.update(explicit)
+    identity = {'packages':packages, 'tools':tools, 'inputs':inputs,
+                'compiler_sha256':sha(compiler), 'driver_sha256':sha(Path(__file__)),
+                'provider_sha256':sha(Path(__file__).with_name('native_provider.py')),
+                'contract_sha256':sha(Path(__file__).with_name('native_contract.py')),
+                'runtime_sha256':sha(runtime), 'abi_header_sha256':sha(header),
+                'environment_sha256':key(dict(os.environ)), 'optimization':optimization,
+                'arithmetic':arithmetic, 'system':platform.system(), 'machine':platform.machine(),
+                'pointer_bits':struct.calcsize('P') * 8}
+    fingerprint = key(identity)
+    output.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix='.go-graph-', dir=output) as folder:
+        work = Path(folder)
+        bridge = work / 'bridge'; bridge.mkdir()
+        go_version = max(versions, key=lambda v:tuple(int(p) for p in v.split('.')))
+        (bridge / 'go.mod').write_text('module sindarin.generated/graph\n\ngo ' + go_version + '\n')
+        if sums: (bridge / 'go.sum').write_text('\n'.join(sorted(sums)) + '\n')
+        edits = []
+        for module in modules:
+            major = re.search(r'(?:/v|\.v)([2-9][0-9]*)$', module)
+            edits.append('-require=' + module + '@v' + (major.group(1) if major else '0') + '.0.0')
+        for (module, version), replacement in replacements.items():
+            old = module + ('@' + version if version else '')
+            new = replacement['Path'] + ('@' + replacement['Version'] if replacement.get('Version') else '')
+            edits.append('-replace=' + old + '=' + new)
+        run(go + ['mod', 'edit'] + edits, cwd=bridge, env=env)
+        (bridge / 'main.go').write_text('package main\nfunc main() {}\n')
+        exports = []
+        for index, unit in enumerate(units):
+            (bridge / f'exports_{index:03d}.go').write_text(go_provider(unit['signatures'], unit['module'], main=False))
+            exports += [s['binding']['symbol'] for s in unit['signatures']]
+        if len(set(exports)) != len(exports): raise ValueError('duplicate Go export symbols in the package graph')
+        # Resolve the combined module graph into generated files only. Original
+        # manifests and sources remain readonly; Go applies its normal MVS rules.
+        run(go + ['list', '-mod=mod', '-deps', '.'], cwd=bridge, env=env)
+        deps, flags = go_dependencies(go, bridge, {'module':str(bridge)}, env)
+        deps = {p:v for p,v in deps.items() if not Path(p).is_relative_to(work)}
+        if os.name != 'nt' and '-pthread' not in flags: flags.append('-pthread')
+        flags += ['-l' + p for p in dict.fromkeys(libraries)]
+        archive = work / 'libsn_go_graph.a'
+        run(go + ['build', '-mod=readonly', '-buildmode=c-archive', '-o', archive, '.'], cwd=bridge, env=env)
+        symbols = {line.split()[-1] for line in run(nm + ['-g', '-U' if sys.platform == 'darwin' else '--defined-only', archive]).splitlines()
+                   if line.split() and not line.rstrip().endswith(':')}
+        if any(s not in symbols and '_' + s not in symbols for s in exports):
+            raise ValueError('generated Go graph is missing an export')
+        current = {}
+        for root in roots: current.update(tree_inputs(root, excluded))
+        current.update({p:sha(p) for p in explicit})
+        if (current != inputs or any(sha(p) != v for p,v in deps.items()) or
+                sha(runtime) != identity['runtime_sha256'] or sha(header) != identity['abi_header_sha256']):
+            raise ValueError('Go graph inputs changed during build; no artifact was published')
+        metadata = {'schema':1, 'kind':'aggregate-go-native-bridge', 'complete_package':False,
+                    'fingerprint':fingerprint, 'units':units, 'archive':archive.name,
+                    'archive_sha256':sha(archive), 'native_link_flags':flags,
+                    'provenance':identity, 'dependency_sha256':deps,
+                    'module_manifest':(bridge/'go.mod').read_text(),
+                    'shared_runtime':{'archive':str(runtime),'sha256':sha(runtime)},
+                    'cache_reusable':False, 'publication_nonce':uuid.uuid4().hex}
+        (work / 'assembly.json').write_text(json.dumps(metadata, indent=2) + '\n')
+        destination = output / fingerprint / key(metadata)
+        destination.parent.mkdir(exist_ok=True)
+        os.rename(work, destination)
+    return {'archive':str(destination / archive.name), 'native_link_flags':flags,
+            'assembly':str(destination/'assembly.json')}
 
 
 if __name__ == '__main__':

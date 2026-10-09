@@ -102,6 +102,73 @@ class NativeImports(unittest.TestCase):
         for target in ('c','rust'):
             with self.subTest(target=target): self.execute(target,b'11\n22\n33\n44\n')
 
+    def test_two_go_packages_share_one_runtime_and_module_instance(self):
+        self.write('shared/go.mod','module sindarin.test/shared\n\ngo 1.26.0\n')
+        self.write('shared/counter.go','package shared\nvar count int64\nfunc Next() int64 { count++; return count }\n')
+        originals={}
+        for name,base in (('firstgo',100),('secondgo',200)):
+            self.package(name,'GO',f'package backing\nimport "sindarin.test/shared"\n'
+                         f'func Provide() int64 {{ return {base}+shared.Next() }}\n',function='Provide')
+            module=self.root/f'.sn/{name}/src/go.mod'
+            module.write_text(module.read_text()+'require sindarin.test/shared v0.0.0\n'
+                              'replace sindarin.test/shared => ../../../shared\n')
+            originals[module]=module.read_bytes()
+        self.write('main.sn','import "firstgo/src/api" as First\nimport "secondgo/src/api" as Second\n'
+                   'fn main(): void =>\n  println(First.provide())\n  println(Second.provide())\n  println(First.provide())\n')
+        for target in ('c','rust'):
+            with self.subTest(target=target): self.execute(target,b'101\n202\n103\n')
+        for path,expected in originals.items(): self.assertEqual(path.read_bytes(),expected)
+        import json
+        responses=list((self.root/'.sn/build/native-imports').glob('response-*.json'))
+        self.assertEqual(len(responses),2)
+        for response in responses:
+            links=json.loads(response.read_text())['links']
+            go_archives=[p for p in links if p.endswith('libsn_go_graph.a')]
+            self.assertEqual(len(go_archives),1,links)
+            self.assertFalse(any('artifacts/' in p and p.endswith('.a') for p in links),links)
+
+    def test_go_graph_rejects_conflicting_module_replacements(self):
+        for name,value in (('firstgo',1),('secondgo',2)):
+            self.package(name,'GO',f'package backing\nfunc Provide() int64 {{ return {value} }}\n',function='Provide')
+            self.write(f'{name}/go.mod','module sindarin.test/shared\n\ngo 1.26.0\n')
+            self.write(f'{name}/helper.go','package shared\n')
+            module=self.root/f'.sn/{name}/src/go.mod'
+            module.write_text(module.read_text()+f'replace sindarin.test/shared => ../../../{name}\n')
+        self.write('main.sn','import "firstgo/src/api" as First\nimport "secondgo/src/api" as Second\n'
+                   'fn main(): void =>\n  println(First.provide()+Second.provide())\n')
+        result=subprocess.run([str(COMPILER),'main.sn','--target','rust','--no-install','-o','main.exe'],
+                              cwd=self.root,capture_output=True,timeout=90)
+        self.assertNotEqual(result.returncode,0)
+        self.assertIn(b'conflicting Go module replacements',result.stderr)
+        self.assertFalse((self.root/'main.exe').exists())
+
+    def test_go_graph_owned_strings_keep_nil_and_call_lifetimes(self):
+        for name,prefix in (('firstgo','one:'),('secondgo','two:')):
+            self.package(name,'GO',f'package backing\nfunc Echo(v *string) (*string,uint32) {{ '
+                         f'if v==nil {{ return nil,0 }}; text:="{prefix}"+*v; return &text,0 }}\n',
+                         result='owned',failure='status',function='Echo')
+            self.write(f'.sn/{name}/src/api.sn','native fn provide(text: str): str\n')
+            manifest=self.root/f'.sn/{name}/sn.yaml'
+            manifest.write_text(manifest.read_text().replace('parameters: {}','parameters: {text: borrowed}'))
+        self.write('main.sn','import "firstgo/src/api" as First\nimport "secondgo/src/api" as Second\n'
+                   'fn main(): void =>\n  var original: str = "alive"\n  var first: str = First.provide(original)\n'
+                   '  var second: str = Second.provide(original)\n  original = "changed"\n'
+                   '  println(first)\n  println(second)\n  println(First.provide(nil)==nil)\n  println(Second.provide(""))\n')
+        for target in ('c','rust'):
+            with self.subTest(target=target): self.execute(target,b'one:alive\ntwo:alive\ntrue\ntwo:\n')
+
+    def test_go_graph_rejects_handwritten_main_archive_combination(self):
+        self.package('legacygo','GO','package main\n/* #include <stdint.h> */\nimport "C"\n'
+                     '//export native_legacygo\nfunc native_legacygo() C.int64_t { return 11 }\nfunc main() {}\n')
+        self.package('othergo','GO','package backing\nfunc Provide() int64 { return 22 }\n',function='Provide')
+        self.write('main.sn','import "legacygo/src/api" as Legacy\nimport "othergo/src/api" as Other\n'
+                   'fn main(): void =>\n  println(Legacy.provide()+Other.provide())\n')
+        result=subprocess.run([str(COMPILER),'main.sn','--target','rust','--no-install','-o','main.exe'],
+                              cwd=self.root,capture_output=True,timeout=90)
+        self.assertNotEqual(result.returncode,0)
+        self.assertIn(b'handwritten main archives cannot be combined',result.stderr)
+        self.assertFalse((self.root/'main.exe').exists())
+
     def test_packages_cannot_silently_shadow_the_same_wire_export(self):
         for name,value in (('first',11),('second',22)):
             self.package(name,'C',f'long long provide_impl(void) {{ return {value}; }}\n',function='provide_impl')

@@ -7,6 +7,40 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Go package graph aggregation: local validation, 2026-10-09
+
+Multiple generated-provider Go libraries now compile through one bridge/runtime
+archive consumed by C/Rust Sindarin applications. Normal Go module resolution runs
+in generated bridge files, preserving original manifests/source and shared module
+instances. Conflicting replacements and duplicate module roots are diagnosed;
+legacy handwritten main archives remain valid individually and cannot be silently
+combined. A package with several GO build units also builds one independent
+archive, referenced once by its unit metadata/link plan.
+
+A shared-counter regression observes one dependency instance from both application
+targets. String regressions preserve borrowed input/owned result lifetimes and nil
+across multiple libraries. Standalone C clients link multi-unit Go packages through
+one archive; original single-Go/C/Rust paths remain covered. Aggregate artifacts
+are immutable and carry input/dependency/runtime/toolchain metadata, but do not yet
+provide complete source-independent package consumption or transitive cgo cache
+reuse. SDK artifacts, wider managed ABI contracts and all remaining Rust parity
+requirements remain open. Local suites pass 3,240 C and 1,083 Rust checks,
+nineteen normal/ASAN imports, nine artifact tests, fourteen package-contract
+tests and thirteen CI helpers. Strict provider/graph address, undefined-behaviour
+and leak sanitizer clients pass; the existing Linux provider gate now includes
+multi-unit Go archives without changing the 26 groups or 288 executions.
+Hosted acceptance of this batch is pending.
+
+Evidence: [Go graph validation](rust-parity-evidence/go-package-graph-validation.json).
+
+## Generated provider exports: hosted acceptance, 2026-10-09
+
+Main `95c780f6` passes complete Linux/macOS/Windows unified CI, including generated
+providers, original mixed callers and strict Linux provider lifetime sanitizers.
+This supersedes the earlier pending acceptance below.
+
+[Accepted provider batch](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37989867688).
+
 ## Generated native provider exports: local validation, 2026-10-09
 
 Optional binding `function` metadata now resolves typed native declarations and

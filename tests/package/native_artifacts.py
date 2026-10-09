@@ -206,6 +206,32 @@ class NativeArtifactTests(unittest.TestCase):
                 run=subprocess.run([str(executable)],capture_output=True,timeout=15)
                 self.assertEqual(run.returncode,0,run.stderr.decode(errors='replace'))
 
+    def test_multiple_go_build_units_produce_one_independent_archive(self):
+        self.write('src/api.sn','native fn first(): int\nnative fn second(): int\n')
+        builds,bindings=[],[]
+        for name,value in (('first',11),('second',22)):
+            self.write(f'native/{name}/go.mod',f'module sindarin.test/{name}\n\ngo 1.26.0\n')
+            self.write(f'native/{name}/impl.go',f'package backing\nfunc Provide() int64 {{ return {value} }}\n')
+            builds.append(f'    - name: {name}\n      language: GO\n      sources: [native/{name}/impl.go]\n      module: native/{name}\n')
+            bindings.append(f'    - declaration: src/api.sn::{name}\n      build: {name}\n      symbol: native_{name}\n'
+                            '      function: Provide\n      convention: C\n      failure: abort\n      ownership: {parameters: {}, result: value}\n')
+        self.write('sn.yaml','name: multiple-go\nnative:\n  abi: 1.0\n  declarations: [src/api.sn]\n  builds:\n'+''.join(builds)+'  bindings:\n'+''.join(bindings))
+        summary,metadata=self.build()
+        self.assertEqual(len(metadata['units']),2)
+        self.assertEqual(len({u['archive'] for u in metadata['units']}),1)
+        self.assertFalse(metadata['cache_reusable'])
+        base=Path(summary['assembly']).parent
+        self.write('aggregate-client.c','#include <assert.h>\n#include <stdint.h>\nint64_t native_first(void); int64_t native_second(void);\n'
+                   'int main(void) { assert(native_first()==11); assert(native_second()==22); return 0; }\n')
+        cc=shlex.split(os.environ.get('SN_CC','clang' if os.name=='nt' or os.sys.platform=='darwin' else 'gcc'))
+        executable=self.root/'aggregate-client.exe'
+        built=subprocess.run(cc+[str(self.root/'aggregate-client.c'),str(base/metadata['units'][0]['archive']),
+                                 metadata['shared_runtime']['archive']]+metadata['units'][0]['native_link_flags']+
+                             ['-o',str(executable)],capture_output=True,timeout=120)
+        self.assertEqual(built.returncode,0,built.stderr.decode(errors='replace'))
+        run=subprocess.run([str(executable)],capture_output=True,timeout=15)
+        self.assertEqual(run.returncode,0,run.stderr.decode(errors='replace'))
+
     def test_plan_inheritance_and_command_diagnostics(self):
         self.manifest(['C'])
         manifest = self.root / 'sn.yaml'

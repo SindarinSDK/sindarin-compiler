@@ -27,8 +27,10 @@ whether a cached artifact was reused. `-O0/-O1/-O2` and checked/unchecked select
 are recorded in the plan/cache context; native tool optimization follows the level.
 
 Each C build unit compiles its declared sources and creates a static archive. Each
-RS unit compiles its declared crate root with Rust into a static library. Each GO
-unit builds a Go main/bridge module with `c-archive`. Bindings without `function`
+RS unit compiles its declared crate root with Rust into a static library. GO
+units build a Go main/bridge module with `c-archive`. Multiple generated-provider
+GO units in one package produce one archive; their unit records reference that
+same archive, which consumers link once. Bindings without `function`
 supply their own C-callable exports. Bindings naming ordinary backing functions
 resolve typed declarations and generate provider shims for supported scalar/string
 contracts, preserving original backing source and toolchains. Missing exports and
@@ -105,3 +107,10 @@ Linux, macOS and Windows.
 This is not final SDK/mixed-Sindarin-package acceptance. Managed record/interface
 contracts, generated adapters, portable package bodies, SDK resources and full
 Rust/C parity remain outstanding.
+
+Applications importing several generated-provider Go libraries use one aggregate
+bridge archive. The Go toolchain builds original library modules and their shared
+dependencies together, preserving one Go runtime. Incompatible module roots or
+replacement directives are diagnosed; unrelated handwritten main archives cannot
+be combined. Complete prebuilt/source-independent Go package consumption remains
+part of the wider package artifact work.

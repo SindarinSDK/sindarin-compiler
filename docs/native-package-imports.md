@@ -125,8 +125,19 @@ not complete independent Sindarin/SDK packages.
 The compiler passes archive paths and discovered native library options to the
 C and Rust linker plans. Ordinary library names retain legacy translation and
 configuration overrides. The shared runtime resolves the generated value adapters.
-More than one Go archive in a final graph requires aggregate bridge planning and
-currently produces a diagnostic rather than linking incompatible Go runtimes.
+Multiple generated-provider Go libraries now build one aggregate bridge/runtime
+archive for the application. Each bridge file imports its original library module;
+normal Go dependency resolution selects the combined module graph. Shared module
+instances and initialization remain under the Go toolchain. Original source and
+module manifests are preserved, and artifact metadata records the selected module
+manifest, input hashes, exports and runtime/toolchain provenance.
+
+Conflicting replacements or a module path mapped to different source roots are
+diagnosed. Legacy handwritten Go main archives remain supported individually;
+combining them requires an importable library/provider contract and produces a
+clear diagnostic. Go graph artifacts are immutable and currently rebuilt rather
+than reused until complete transitive cgo input capture is available. This still
+does not implement a Sindarin Go backend.
 
 Run `python3 tests/package/native_imports.py` with the pinned SDK integration
 checkout available. Tests build C/Rust/Go native packages, use generated adapters

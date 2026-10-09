@@ -153,10 +153,12 @@ rewritten as Rust. This design also permits a C application to consume RS/GO
 package artifacts through the same boundary.
 
 Go's `c-archive` and `c-shared` modes build a bridge main package and its imported
-packages, exposing cgo-exported functions. Multiple Go dependencies may need one
-aggregate bridge/runtime build. Individually buildable package units do not imply
-that arbitrary independent Go runtime archives can be linked together. Artifact
-planning must preserve these toolchain constraints.
+packages, exposing cgo-exported functions. Multiple generated-provider Go libraries now use one
+aggregate bridge/runtime build, including several GO build units in one package. Individually buildable package units do not imply
+that arbitrary independent Go runtime archives can be linked together. The generated bridge preserves original Go library sources and module
+dependencies; conflicting module roots/replacements and incompatible handwritten
+main archive combinations are diagnosed. Complete artifact planning must preserve
+these toolchain constraints.
 
 ## Common runtime and package ABI
 

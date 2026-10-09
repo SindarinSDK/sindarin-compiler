@@ -7,7 +7,7 @@ from types import SimpleNamespace
 import re
 import contextlib
 import io
-from build_native_package import build
+from build_native_package import build, build_go_graph, run
 
 from native_contract import TYPES, kind, validate
 
@@ -88,9 +88,16 @@ def main():
     runtime=compiler.parent/'lib'/('clang' if __import__('os').name=='nt' else 'gcc')/'libsn_runtime_min.a'
     header=compiler.parent/'include/runtime/sn_abi.h'
     source_lines.append('#include '+json.dumps(str(header).replace('\\','/')))
-    go_units=0
-    exports={}
+    plans=[]
     for package in request['packages']:
+        plan=json.loads(run([compiler,'--native-plan',Path(package['manifest']).resolve(),
+                             '--target',request['target'],'-O'+str(request['optimization']),
+                             '--'+request['arithmetic']]))
+        plans.append({'manifest':package['manifest'],'plan':plan})
+    go_units=sum(u['language']=='GO' for p in plans for u in p['plan']['native']['builds'])
+    aggregate=go_units>1
+    exports={}
+    for package,planned in zip(request['packages'],plans):
         for signature in package['signatures']:
             symbol=signature['binding']['symbol']
             previous=exports.get(symbol)
@@ -105,19 +112,23 @@ def main():
             prototypes.append(f'{TYPES[result][0]} {signature["adapter"]}({parameters});')
         build_args=SimpleNamespace(compiler=compiler,manifest=Path(package['manifest']),
                                   out_dir=args.contract.parent/'artifacts',target=request['target'],
-                                  optimization=str(request['optimization']),arithmetic=request['arithmetic'])
+                                  optimization=str(request['optimization']),arithmetic=request['arithmetic'],
+                                  validated_plan=planned['plan'],skip_go=aggregate)
         output=io.StringIO()
         with contextlib.redirect_stdout(output): build(build_args)
         built=json.loads(output.getvalue())
         assembly=Path(built['assembly'])
         metadata=json.loads(assembly.read_text())
         for unit in metadata['units']:
-            if unit['language']=='GO': go_units+=1
             links.append(str(assembly.parent/unit['archive']))
             links += native_link_options(unit['native_link_flags'])
             links += ['-l'+name for name in unit['libraries']]
         source_lines+=adapters
-    if go_units>1: raise ValueError('native package graph requires Go bridge aggregation, which is not implemented yet')
+    if aggregate:
+        graph=build_go_graph(plans,compiler,args.contract.parent/'go-graphs',
+                             str(request['optimization']),request['arithmetic'])
+        links.append(graph['archive'])
+        links+=native_link_options(graph['native_link_flags'])
     links.append(str(runtime))
     source=args.contract.with_suffix('.c').resolve()
     source.write_text('\n\n'.join(source_lines)+'\n')

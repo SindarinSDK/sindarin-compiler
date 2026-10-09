@@ -196,6 +196,8 @@
     "gate_executions": 288,
     "new_gate": "runtime-111"
   },
-  "hosted_acceptance": "pending",
-  "passed": true
+  "hosted_acceptance": "success",
+  "passed": true,
+  "accepted_revision": "95c780f6830d9e42828572d4f65b7c12814883da",
+  "accepted_ci": 37989867688
 }

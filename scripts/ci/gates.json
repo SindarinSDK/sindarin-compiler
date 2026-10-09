@@ -1343,7 +1343,8 @@
       "command": [
         "{python}",
         "tests/package/native_artifacts.py",
-        "NativeArtifactTests.test_generated_exports_are_independent_typed_abi_artifacts"
+        "NativeArtifactTests.test_generated_exports_are_independent_typed_abi_artifacts",
+        "NativeArtifactTests.test_multiple_go_build_units_produce_one_independent_archive"
       ],
       "env": {
         "SN_CC": "gcc -fsanitize=address,undefined -fno-omit-frame-pointer",

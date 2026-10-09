@@ -1,0 +1,177 @@
+{
+  "base_revision": "95c780f6830d9e42828572d4f65b7c12814883da",
+  "base_ci": {
+    "run": 37989867688,
+    "conclusion": "success"
+  },
+  "scope": "One Go runtime archive for generated-provider library graphs and multi-unit packages; complete SDK/Sindarin artifacts and full parity remain required",
+  "source_sha256": {
+    "scripts/build_native_package.py": "cbdaacc08f0ddfa94cdc7ddfd8dbee196b9359625bb69b3c50100c22f0dc79c5",
+    "scripts/native_provider.py": "411b44af6e761579fa903b89eec699efe142d2d8e710d0ef76573d51b6773ede",
+    "scripts/prepare_native_imports.py": "116bd3b060506ccd4c9028eb4a7193221d1620793664d50eb6db4388305cb946",
+    "tests/package/native_imports.py": "e72689c39a960aaddfd649a6d516daeb3260e210bc40c2164c44ac2e5dcc1699",
+    "tests/package/native_artifacts.py": "2d62b02c8be6ed3e686827966375b58c221b95c49b19ca8fc3eab1c186d0edd0",
+    "scripts/ci/gates.json": "0613704d1886ccab2e713cf360843315fe7ea275beb7e98265be56cc5b49d75c"
+  },
+  "compiler_sha256": "55f53fbe3e38391a591c7313207a856a9e3198ac66339b3e00047eda10ce96f0",
+  "asan_compiler_sha256": "85d49222505dd8e92894d9959deef79cd016b1b510d178d59d7d7207b3d1aefc",
+  "validation": {
+    "C": {
+      "passed": 3240,
+      "groups": [
+        {
+          "passed": 1616,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 107,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 79,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1145,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 58,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 224,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 11,
+          "failed": 0,
+          "skipped": 0
+        }
+      ],
+      "log_sha256": "062a43923c4787d5f3248fa752fd81f0f24eb4065c31451ed5fa0c63c452b5b5"
+    },
+    "Rust": {
+      "passed": 1083,
+      "groups": [
+        {
+          "passed": 506,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 118,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 8,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 379,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 4,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 36,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 10,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 7,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 12,
+          "failed": 0,
+          "skipped": 0
+        }
+      ],
+      "log_sha256": "5630270fd0e3b8fdeca94f019f0877f52c0140830dd56201d90780d7525896a6"
+    },
+    "imports": {
+      "tests": 19,
+      "log_sha256": "cc69dde1a251a4a7000f6b250f1184c8c9381774fba04d5bfd041e45a58be1a9"
+    },
+    "imports_asan": {
+      "tests": 19,
+      "log_sha256": "40c613d98891f290e3cfaf1ca8674620bd03a5f40d57671f0aa509761bba1e33"
+    },
+    "artifacts": {
+      "tests": 9,
+      "log_sha256": "f5cabe114d67d85f64859539b35a71ae67a734efbeffc2e3f1e829989baee710"
+    },
+    "package_contract": {
+      "tests": 14,
+      "log_sha256": "72963777ea8e758cd4f751b8d17d169fe5e715b5a312354f4201bc51557c0fa7"
+    },
+    "ci_helpers": {
+      "tests": 13,
+      "log_sha256": "f4bfb6b002edd52628aaf41b008e69c87954e66cde0fd1bc3791e04d7fe3d2d2"
+    },
+    "provider_graph_address_undefined_leak_sanitizers": {
+      "tests": 2,
+      "log_sha256": "73ea96dfb64388bbdd21e5ad3c6a735d5b483aaa09ac2e83e70de4706a67337a"
+    }
+  },
+  "shared_module_counter": {
+    "C": [
+      101,
+      202,
+      103
+    ],
+    "Rust": [
+      101,
+      202,
+      103
+    ],
+    "linked_go_archives": 1
+  },
+  "original_go_manifests": "byte-preservation asserted after C/Rust builds",
+  "diagnostics": [
+    "conflicting module replacements",
+    "duplicate source roots for a module path",
+    "handwritten main archive combination"
+  ],
+  "cache_reusable": false,
+  "required_ci": {
+    "groups": 26,
+    "gate_executions": 288
+  },
+  "hosted_acceptance": "pending",
+  "passed": true
+}

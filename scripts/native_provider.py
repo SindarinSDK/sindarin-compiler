@@ -135,9 +135,9 @@ def rust_provider(signatures, backing_crate):
     return '\n'.join(lines)+'\n'
 
 
-def go_provider(signatures, module):
+def go_provider(signatures, module, main=True):
     lines = ['package main', '/* #include <stdint.h>\n#include <stdlib.h>\n#include "sn_abi.h" */', 'import "C"',
-             f'import backing {json.dumps(module)}']
+             f'import {"backing" if signatures else "_"} {json.dumps(module)}']
     if any(kind(p['type']) == 'string' for s in signatures for p in s['params']) or any(kind(s['return_type']) == 'string' for s in signatures):
         lines.append('import "unsafe"')
     wire = lambda k: '*C.SnAbiValue' if k == 'string' else 'C.'+TYPES[k][1] if k != 'void' else ''
@@ -183,5 +183,5 @@ def go_provider(signatures, module):
             lines.append('  '+normal_return('0'))
         elif result != 'void': lines.append(f'  return {value}')
         lines.append('}')
-    lines.append('func main() {}')
+    if main: lines.append('func main() {}')
     return '\n'.join(lines)+'\n'
