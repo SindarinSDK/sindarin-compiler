@@ -1,0 +1,156 @@
+{
+  "base_revision": "a84c3346893dd16e9f24b8be274222533f51a928",
+  "failed_ci": {
+    "run": 37984504278,
+    "root_jobs": {
+      "macOS core": 114003755069,
+      "Windows core": 114003755121
+    }
+  },
+  "changes": [
+    "Dynamically size the complete C library argument list",
+    "Preserve paired framework/link-driver options",
+    "Compare canonical manifest paths in terminal-error regression"
+  ],
+  "source_sha256": {
+    "src/gcc_backend.c": "9f70b83a26bc0f9ffe7841090943c62ea5158b4c118513f245ce1f4243922b7a",
+    "scripts/prepare_native_imports.py": "53927caff7ab9c61e58d45c709d97e8f42e9439a0dcc3bd6bcca248843d6d23b",
+    "tests/package/native_imports.py": "44fd437472412026fe855cbaae4ccf480f6278f1dbb05afcd05cd60e2743e58f"
+  },
+  "compiler_sha256": "99dc1f7b6c3536ceec865a7eb2634bb5fa8daa9d4b1cf1cbad07aad2d6ad47ac",
+  "asan_compiler_sha256": "edd385bf583f6296255b3cf8f09f4ac3f4e252de0e5ae2bd910827912c790554",
+  "before_fix": {
+    "test": "test_c_links_dependency_graph_larger_than_path_limit",
+    "failed": true,
+    "diagnostic": "native package link options exceed the linker argument buffer",
+    "log_sha256": "31342e0113cf2b0d7013b7a09953f7c0b06bd4b29ec150190494bc45209f75b5"
+  },
+  "validation": {
+    "C": {
+      "passed": 3240,
+      "groups": [
+        {
+          "passed": 1616,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 107,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 79,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1145,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 58,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 224,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 11,
+          "failed": 0,
+          "skipped": 0
+        }
+      ],
+      "log_sha256": "3f6f53bbbcde5a23ac0114a3fcc08e6b9b7e764e606cdd295ad326ceb77a4b25"
+    },
+    "Rust": {
+      "passed": 1083,
+      "groups": [
+        {
+          "passed": 506,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 118,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 8,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 379,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 4,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 36,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 10,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 7,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 12,
+          "failed": 0,
+          "skipped": 0
+        }
+      ],
+      "log_sha256": "86758f547ddb430eb25a6115f89059d176e3928613bed4970a025a5967a92e75"
+    },
+    "native_imports": {
+      "tests": 8,
+      "log_sha256": "2d27042a25035eeffb9fdba7ebd4148167a02a7323e29e388db35e68523cdef7"
+    },
+    "native_imports_asan": {
+      "tests": 8,
+      "log_sha256": "ce3655f87f2a79d9a37f63520cbbd84c081e6806db7343323c6c697b2bec5331"
+    },
+    "package_contract": {
+      "tests": 14,
+      "log_sha256": "1ac5c93562cb0cb4ccc9ee0d82d5e6517c7010216d347cae7988904262389d34"
+    },
+    "ci_helpers": {
+      "tests": 13,
+      "log_sha256": "f17da5d988908a69e311f5a5c77fcf2e872d4055259d7a30a1f1a22a542da673"
+    }
+  },
+  "asan_units": 1616,
+  "hosted_acceptance": "pending",
+  "feature_publication": "frozen until corrected integrated CI succeeds"
+}

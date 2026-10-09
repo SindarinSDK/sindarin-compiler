@@ -14,7 +14,7 @@ class NativeImports(unittest.TestCase):
     def setUp(self):
         self.temp=tempfile.TemporaryDirectory(prefix='sn-native-import-')
         self.addCleanup(self.temp.cleanup)
-        self.root=Path(self.temp.name)
+        self.root=Path(self.temp.name).resolve()
 
     def write(self,path,text):
         file=self.root/path
@@ -50,6 +50,25 @@ class NativeImports(unittest.TestCase):
         self.write('main.sn','import "cdep/src/api" as CDep\nimport "rsdep/src/api" as RSDep\nimport "godep/src/api" as GoDep\nimport "portable/src/api"\nfn main(): void =>\n  println(portable(CDep.provide() + RSDep.provide() + GoDep.provide()))\n')
         for target in ('c','rust'):
             with self.subTest(target=target):self.execute(target,b'67\n')
+
+    def test_c_links_dependency_graph_larger_than_path_limit(self):
+        imports, calls = [], []
+        for i in range(20):
+            name=f'dep{i}'
+            self.package(name,'C',f'#include <stdint.h>\nint64_t native_{name}(void) {{ return {i}; }}\n')
+            imports.append(f'import "{name}/src/api" as Dep{i}')
+            calls.append(f'Dep{i}.provide()')
+        self.write('main.sn','\n'.join(imports)+'\nfn main(): void =>\n  println('+ ' + '.join(calls)+')\n')
+        self.execute('c',b'190\n')
+
+    def test_linker_options_preserve_framework_argument_pairs(self):
+        import sys
+        sys.path.insert(0,str(ROOT/'scripts'))
+        from prepare_native_imports import native_link_options
+        self.assertEqual(native_link_options(['-lc','-framework','CoreFoundation','-framework','Security','-L','a path','-l','pthread']),
+                         ['-lc','-Wl,-framework,CoreFoundation','-Wl,-framework,Security','-La path','-lpthread'])
+        with self.assertRaisesRegex(ValueError,'missing its argument'):
+            native_link_options(['-framework'])
 
     def test_rust_mixed_app_retains_c_sdk_resources(self):
         sdk=ROOT/'.sn/sdk-native-integration'
@@ -102,7 +121,7 @@ class NativeImports(unittest.TestCase):
                 run=subprocess.run([str(output)],cwd=self.root,capture_output=True,timeout=15)
                 self.assertEqual(run.returncode,1)
                 self.assertEqual(run.stdout,b'')
-                expected=b"native package '"+str(self.root/'.sn/failed/sn.yaml').encode()+b"' export 'native_failed' failed: runtime ABI index or length out of range\n"
+                expected=b"native package '"+(self.root/'.sn/failed/sn.yaml').as_posix().encode()+b"' export 'native_failed' failed: runtime ABI index or length out of range\n"
                 if os.name=='nt':expected=expected.replace(b'\n',b'\r\n')
                 self.assertEqual(run.stderr,expected)
 

@@ -74,6 +74,26 @@ def adapter(signature, package):
     return '\n'.join(code)
 
 
+def native_link_options(flags):
+    """Keep paired driver options intact across individual @link pragmas."""
+    result = []
+    iterator = iter(flags)
+    for flag in iterator:
+        if flag in ('-framework', '-weak_framework', '-Xlinker', '-L', '-F', '-l'):
+            argument = next(iterator, None)
+            if argument is None:
+                raise ValueError('native linker option is missing its argument: ' + flag)
+            if flag in ('-framework', '-weak_framework'):
+                result.append('-Wl,' + flag + ',' + argument)
+            elif flag == '-Xlinker':
+                result.append('-Wl,' + argument)
+            else:
+                result.append(flag + argument)
+        else:
+            result.append(flag)
+    return result
+
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--contract', type=Path, required=True)
@@ -106,7 +126,7 @@ def main():
         for unit in metadata['units']:
             if unit['language']=='GO': go_units+=1
             links.append(str(assembly.parent/unit['archive']))
-            links += unit['native_link_flags']
+            links += native_link_options(unit['native_link_flags'])
             links += ['-l'+name for name in unit['libraries']]
         source_lines+=adapters
     if go_units>1: raise ValueError('native package graph requires Go bridge aggregation, which is not implemented yet')

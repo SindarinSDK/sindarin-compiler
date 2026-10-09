@@ -7,6 +7,28 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Native import platform correction: local validation, 2026-10-09
+
+Main `a84c3346` fails the macOS and Windows core jobs in run `37984504278`.
+Feature publication is frozen. Windows uses `PATH_MAX` (260) for the entire C
+library argument list; this correction grows that list from actual arguments and
+preserves all dependencies. Native toolchain framework/option pairs are converted
+to single driver options before separate link pragmas can reinterpret their
+arguments as library names. Diagnostic tests use canonical, forward-slash package
+paths, matching the compiler on macOS and Windows.
+
+A twenty-package C application fails with the original linker buffer and passes
+with the correction. Paired framework options and missing option arguments have
+focused regressions; the unchanged mixed-language tests exercise actual macOS
+framework linking in hosted CI. Original Sindarin source/oracles are preserved.
+Eight native import tests pass locally through normal and ASAN compilers; all
+1,616 ASAN unit tests pass. Complete local suites pass 3,240 C and 1,083 Rust
+checks; fourteen package-contract and thirteen CI helper tests also pass.
+Complete hosted acceptance remains pending. Provider
+export generation stays local until corrected integrated CI is green.
+
+Evidence: [native platform correction](rust-parity-evidence/native-import-platform-correction.json).
+
 ## Generated native package imports: local validation, 2026-10-09
 
 Resolved native declarations now drive generated C consumer adapters and automatic

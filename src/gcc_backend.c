@@ -813,43 +813,36 @@ bool gcc_compile_modular(const CCBackendConfig *config, const char *build_dir,
     }
 
     /* ---- Step 3: Link all .o files ---- */
-    char extra_libs[PATH_MAX];
-    extra_libs[0] = '\0';
-    if (link_libs && link_lib_count > 0)
-    {
-        int offset = 0;
-        for (int i = 0; i < link_lib_count && offset < (int)sizeof(extra_libs) - 8; i++)
-        {
-            const char *lib = link_libs[i];
-            char *artifact = package_link_token(lib);
-            if (artifact) {
-                int written = snprintf(extra_libs + offset, sizeof(extra_libs) - offset, " %s", artifact);
-                free(artifact);
-                if (written < 0 || written >= (int)sizeof(extra_libs) - offset) {
-                    fprintf(stderr, "Error: native package link options exceed the linker argument buffer\n");
-                    return false;
-                }
-                offset += written;
-                continue;
+    /* A dependency graph's arguments are unrelated to a single path's
+     * maximum length (PATH_MAX is only 260 on Windows). Grow as needed and
+     * never silently omit later dependencies. */
+    char *extra_libs = calloc(1, 1);
+    size_t extra_length = 0;
+    if (!extra_libs) {
+        for (int j = 0; j < obj_count; j++) free(obj_files[j]);
+        return false;
+    }
+    for (int i = 0; link_libs && i < link_lib_count; i++) {
+        const char *lib = link_libs[i];
+        char *artifact = package_link_token(lib);
+        const char *option = artifact ? artifact : get_ldlibs_for_lib(lib);
+        const char *prefix = " ";
+        if (!option) { option = translate_lib_name(lib); prefix = " -l"; }
+        if (option[0]) {
+            size_t added = strlen(prefix) + strlen(option);
+            char *grown = realloc(extra_libs, extra_length + added + 1);
+            if (!grown) {
+                fprintf(stderr, "Error: out of memory building package link arguments\n");
+                free(artifact); free(extra_libs);
+                for (int j = 0; j < obj_count; j++) free(obj_files[j]);
+                return false;
             }
-            const char *override = get_ldlibs_for_lib(lib);
-            if (override)
-            {
-                /* SN_LDLIBS_<name> is a full replacement — empty means suppress */
-                if (override[0])
-                {
-                    int written = snprintf(extra_libs + offset, sizeof(extra_libs) - offset, " %s", override);
-                    if (written > 0) offset += written;
-                }
-            }
-            else
-            {
-                /* No config entry: default to -l<name> with platform lib name translation */
-                const char *translated = translate_lib_name(lib);
-                int written = snprintf(extra_libs + offset, sizeof(extra_libs) - offset, " -l%s", translated);
-                if (written > 0) offset += written;
-            }
+            extra_libs = grown;
+            memcpy(extra_libs + extra_length, prefix, strlen(prefix));
+            memcpy(extra_libs + extra_length + strlen(prefix), option, strlen(option) + 1);
+            extra_length += added;
         }
+        free(artifact);
     }
 
     /* Build the link command with all .o files, deduplicating any
@@ -866,6 +859,7 @@ bool gcc_compile_modular(const CCBackendConfig *config, const char *build_dir,
     if (!all_objs)
     {
         fprintf(stderr, "Error: out of memory building link command\n");
+        free(extra_libs);
         for (int j = 0; j < obj_count; j++) free(obj_files[j]);
         return false;
     }
@@ -904,6 +898,7 @@ bool gcc_compile_modular(const CCBackendConfig *config, const char *build_dir,
     if (!link_command)
     {
         fprintf(stderr, "Error: out of memory building link command\n");
+        free(extra_libs);
         free(all_objs);
         for (int j = 0; j < obj_count; j++) free(obj_files[j]);
         return false;
@@ -920,6 +915,7 @@ bool gcc_compile_modular(const CCBackendConfig *config, const char *build_dir,
 
     bool link_ok = run_compile_cmd(link_command, error_file, verbose);
 
+    free(extra_libs);
     free(link_command);
     free(all_objs);
 
