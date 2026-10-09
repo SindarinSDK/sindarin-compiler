@@ -140,6 +140,13 @@ jobs:
       uses: ./.github/actions/compiler-toolchain
       with:
         rust_target: ${{ matrix.rust_target }}
+    - name: Setup Go for shared runtime ABI clients
+      if: matrix.group == 'core'
+      timeout-minutes: 10
+      uses: actions/setup-go@v7
+      with:
+        go-version: '1.26.0'
+        cache: false
     - name: Download the platform build
       uses: actions/download-artifact@v8
       with:

@@ -1268,6 +1268,27 @@
       ],
       "group": "core",
       "linux_only": false
+    },
+    {
+      "id": "runtime-105",
+      "name": "shared C runtime ABI: C, Rust and Go clients",
+      "command": [
+        "{python}",
+        "scripts/check_runtime_abi.py"
+      ],
+      "group": "core",
+      "linux_only": false
+    },
+    {
+      "id": "runtime-106",
+      "name": "shared C runtime ABI: reference lifetimes and address/undefined sanitizers",
+      "command": [
+        "{python}",
+        "scripts/check_runtime_abi.py",
+        "--sanitize"
+      ],
+      "group": "sanitizers",
+      "linux_only": true
     }
   ]
 }

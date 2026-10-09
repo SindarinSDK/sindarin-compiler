@@ -354,6 +354,7 @@ if(NOT MSVC)
 
     # Runtime library (minimal runtime)
     set(SN_RUNTIME_LIB_SOURCES
+        ${CMAKE_SOURCE_DIR}/src/runtime/sn_abi.c
         ${CMAKE_SOURCE_DIR}/src/runtime/sn_array.c
         ${CMAKE_SOURCE_DIR}/src/runtime/sn_string.c
         ${CMAKE_SOURCE_DIR}/src/runtime/sn_byte.c
@@ -368,6 +369,7 @@ if(NOT MSVC)
     endif()
     target_compile_options(sn_runtime_min PRIVATE -O2 -fno-lto)
     set_target_properties(sn_runtime_min PROPERTIES
+        C_STANDARD 11
         ARCHIVE_OUTPUT_DIRECTORY ${SN_RUNTIME_BUILD_DIR}
         OUTPUT_NAME sn_runtime_min
     )

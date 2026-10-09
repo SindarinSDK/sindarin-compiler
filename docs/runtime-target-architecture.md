@@ -3,7 +3,9 @@
 Status: agreed architectural direction, 2026-10-09. This is the reference for
 implementation work, not a claim that package assemblies, automatic cross-language
 adapters or the Go backend already exist. The runtime manifest field and import
-compatibility checks are implemented; independent package compilation is pending.
+compatibility checks are implemented. The shared C ABI has an implemented
+[value-transport foundation](runtime-abi.md); independent package compilation,
+complete record/interface contracts and generated adapters remain pending.
 
 ## Decision
 

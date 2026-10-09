@@ -7,6 +7,48 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Shared C runtime ABI foundation: local validation, 2026-10-09
+
+The staged C runtime archive now exports versioned value-transport operations.
+Negotiation checks version, capabilities, layout size and host widths. Opaque
+credits distinguish nil/empty strings and binary buffers, support borrowed views,
+plain-value C arrays with copy/alias semantics, and resource destructor callbacks.
+String concatenation and array allocation/growth/copy reuse the existing C runtime.
+Reference credits are atomic; mutable payloads still require caller synchronization.
+
+C, Rust and Go clients consume the same C archive. A native Go archive exports
+C-ABI functions returning shared strings/resources; a Rust client consumes those
+exports and performs final Go-resource cleanup on a worker thread. Registry tokens
+retain Go state without retaining a Go object pointer in C. Cleanup runs exactly
+once and reenters runtime services. Go builds use the stronger cgo pointer check.
+
+Local validation passes all four clients, the actual C implementation under
+AddressSanitizer/UndefinedBehaviorSanitizer (160,000 concurrent credit operations),
+3,237 C checks, 1,082 Rust checks and thirteen CI helper tests. Existing fixtures
+and oracles remain unchanged. The new ABI gates retain all existing coverage and
+increase hosted acceptance to 277 executions across the same 26 groups. Go 1.26.0
+is configured only for core-group clients; the sanitizer gate remains Linux-only.
+
+The contract and limits are in [the shared runtime ABI reference](runtime-abi.md).
+Evidence is in [ABI foundation validation](rust-parity-evidence/runtime-abi-validation.json).
+Hosted acceptance of this batch is pending.
+
+This is a transport foundation, not complete Rust parity or generated Sindarin
+interop. Managed elements, public record/interface layouts, general callable/error
+contracts, independent package artifacts, SDK decoupling, build/binding metadata,
+automatic adapters and the full mixed-package Sindarin application remain required.
+Existing generated Rust services have not yet migrated to the shared ABI.
+
+## Package runtime contract: hosted acceptance, 2026-10-09
+
+Main `39645c97` passes complete unified CI, including the newly required package
+runtime contract gate on Linux, macOS and Windows. This accepts runtime manifest
+selection/preservation and import diagnostics; all package/runtime/SDK architecture
+and remaining parity requirements remain in force. The older pending entry below
+is superseded by this acceptance.
+
+[Accepted package-runtime run](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37958281690).
+
 ## Package runtime manifest contract: local validation, 2026-10-09
 
 The manifest now parses and serializes explicit `runtime: C / RS / GO`, retaining

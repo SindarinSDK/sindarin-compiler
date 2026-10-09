@@ -1,0 +1,220 @@
+{
+  "base_revision": "39645c97f88911ffff7fd40165f30ecab96f773b",
+  "scope": "Versioned C runtime value/credit/resource transport foundation and original Go archive consumption from Rust. Full SDK/package/generated adapter integration remains outstanding.",
+  "clients": {
+    "runtime-abi": {
+      "platform": "Linux",
+      "runtime_sha256": "bce5ee2453722fc0d07b629c3e6e340ca2dbff9cfde73d81fde70e5195c53ac3",
+      "cases": [
+        {
+          "client": "C",
+          "passed": true,
+          "sanitized": false,
+          "reference_credit_operations": 160000
+        },
+        {
+          "client": "Rust",
+          "passed": true
+        },
+        {
+          "client": "Go",
+          "passed": true,
+          "cgo_pointer_check": "cgocheck2"
+        },
+        {
+          "client": "Rust with Go-native archive",
+          "passed": true,
+          "go_archive_sha256": "44220705ddbf76c2d64cf6c7e2b85695be1f3ecac3be0c547cd6e229a79d7f87"
+        }
+      ],
+      "scope": "C runtime ABI value and resource transport; generated package adapters remain required.",
+      "passed": true,
+      "source_sha256": {
+        "tests/runtime_abi/client.c": "b75c8dadb61d4ae3c0d8ea85efa958fe74dd69f5430c4df04e62cf41807f2794",
+        "tests/runtime_abi/client.rs": "c6d6f455be8802bbf450dcf5d9dd2ad65b95b62afe1134d2bd3b365120e08c74",
+        "tests/runtime_abi/go/bridge.c": "23269a19755c8057dfb14df012fba4dc18f4290b16ad8f8af51c1b0a2a49c42e",
+        "tests/runtime_abi/go/go.mod": "59c81de41b166cdf5df4a5fd5c7fedfbc291e059254dde2dc4b9039c9015265e",
+        "tests/runtime_abi/go/main.go": "d661c637a5b4e2bbd5baf4e9cf118c3a7ac6d7b5dd27de4489db4c71083073e2",
+        "src/runtime/sn_abi.c": "d046543ba41b47341aebf99671fd1e09c2fa98984b962e4562c2e4f0fc1b03fa",
+        "src/runtime/sn_abi.h": "f2e80055d03082b9c9744521e4bb85e48b79fdd3f81360c6f4f741d22410f527",
+        "scripts/check_runtime_abi.py": "e02677df8955c58d0f3ca9c6e234499bd0a0e28dd9102fd9e09b9d151bdb68f5"
+      }
+    },
+    "runtime-abi-sanitizers": {
+      "platform": "Linux",
+      "runtime_sha256": "bce5ee2453722fc0d07b629c3e6e340ca2dbff9cfde73d81fde70e5195c53ac3",
+      "cases": [
+        {
+          "client": "C",
+          "passed": true,
+          "sanitized": true,
+          "reference_credit_operations": 160000
+        }
+      ],
+      "scope": "C runtime ABI value and resource transport; generated package adapters remain required.",
+      "passed": true,
+      "source_sha256": {
+        "tests/runtime_abi/client.c": "b75c8dadb61d4ae3c0d8ea85efa958fe74dd69f5430c4df04e62cf41807f2794",
+        "tests/runtime_abi/client.rs": "c6d6f455be8802bbf450dcf5d9dd2ad65b95b62afe1134d2bd3b365120e08c74",
+        "tests/runtime_abi/go/bridge.c": "23269a19755c8057dfb14df012fba4dc18f4290b16ad8f8af51c1b0a2a49c42e",
+        "tests/runtime_abi/go/go.mod": "59c81de41b166cdf5df4a5fd5c7fedfbc291e059254dde2dc4b9039c9015265e",
+        "tests/runtime_abi/go/main.go": "d661c637a5b4e2bbd5baf4e9cf118c3a7ac6d7b5dd27de4489db4c71083073e2",
+        "src/runtime/sn_abi.c": "d046543ba41b47341aebf99671fd1e09c2fa98984b962e4562c2e4f0fc1b03fa",
+        "src/runtime/sn_abi.h": "f2e80055d03082b9c9744521e4bb85e48b79fdd3f81360c6f4f741d22410f527",
+        "scripts/check_runtime_abi.py": "e02677df8955c58d0f3ca9c6e234499bd0a0e28dd9102fd9e09b9d151bdb68f5"
+      }
+    }
+  },
+  "regressions": [
+    {
+      "language": "C",
+      "command": [
+        "python3",
+        "scripts/run_tests.py",
+        "all",
+        "--no-cleanup",
+        "--parallel",
+        "4"
+      ],
+      "total_passed": 3237,
+      "groups": [
+        {
+          "passed": 1613,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 107,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 79,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1145,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 58,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 224,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 11,
+          "failed": 0,
+          "skipped": 0
+        }
+      ],
+      "log_sha256": "a3def8027cba6977cb2303b1a73c9901f052652731d4b06a44624a5417929428"
+    },
+    {
+      "language": "Rust",
+      "command": [
+        "python3",
+        "scripts/run_rust_tests.py",
+        "all",
+        "--no-cleanup",
+        "--parallel",
+        "4"
+      ],
+      "total_passed": 1082,
+      "groups": [
+        {
+          "passed": 506,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 118,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 8,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 378,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 4,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 36,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 10,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 7,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 12,
+          "failed": 0,
+          "skipped": 0
+        }
+      ],
+      "log_sha256": "502a1f7d385ca5a109b8a011615eadd2cee093ea1e915bbc72c4cace8c3fd8c6"
+    }
+  ],
+  "ci_helpers": {
+    "passed": 13,
+    "log_sha256": "b23ce1586366308785d4ad8065f9916d996667691babbf007bd6b413d59c5756"
+  },
+  "workflow_validation": "actionlint passes",
+  "base_ci": {
+    "run": 37958281690,
+    "conclusion": "success"
+  },
+  "hosted_acceptance": "pending",
+  "required_ci": {
+    "groups": 26,
+    "gate_executions": 277
+  },
+  "compiler_sha256": "9922938d86e0cff99b1722e5e9d3747d85c13e376042bb0d470938867f430212",
+  "source_sha256": {
+    "src/runtime/sn_abi.c": "d046543ba41b47341aebf99671fd1e09c2fa98984b962e4562c2e4f0fc1b03fa",
+    "src/runtime/sn_abi.h": "f2e80055d03082b9c9744521e4bb85e48b79fdd3f81360c6f4f741d22410f527",
+    "scripts/check_runtime_abi.py": "e02677df8955c58d0f3ca9c6e234499bd0a0e28dd9102fd9e09b9d151bdb68f5",
+    "CMakeLists.txt": "2348278dc3f89137586b527db419ed52b0b93f43f53a993f2def6aacbfcc11ea",
+    ".github/workflows/ci.yml": "e54c49a436e8a9f35579e506a9b1b03e134b18461fdda72f1f5935232e45be63",
+    "scripts/ci/gates.json": "48b0f771ebdb26e54ff8bac5a7c8623e1f9c2a62f1a1992d79f7f68f49321394",
+    "tests/ci/test_ci_helpers.py": "e312a6f8e8792b2f1a5a0f358d09c14b12d46b46a138f9debcda5fc38915dad7"
+  },
+  "passed": true
+}
