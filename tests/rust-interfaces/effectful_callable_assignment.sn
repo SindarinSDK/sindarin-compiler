@@ -1,0 +1,9 @@
+struct Dispatcher =>
+  static fn replace(action: (fn(): str) as ref): fn(): str =>
+    action = fn(): str => "nested"
+    return fn(): str => "final"
+
+fn main(): void =>
+  var action: fn(): str = fn(): str => "original"
+  action = Dispatcher.replace(action)
+  println(action())

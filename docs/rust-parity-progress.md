@@ -5,6 +5,100 @@ the established language contract and C as the default target. Rejections are
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Callable integration on accepted main: local verification, 2026-10-09
+
+The preserved callable work is merged with accepted main `8ad475b9`, retaining
+both the compiler lifetime repair and the pinned-library CI bootstrap. The
+nullable comparison helper refreshes right-side metadata before processing the
+left operand. Thirty-six actual-compiler checks with an ASAN JSON-lifetime guard
+cover the original macOS failure, both nil operand orders, standalone nullable
+transport and effectful replacement across all nine modes.
+
+A further unchanged control exposed a C runtime failure when the assignment's
+right-hand side replaces the same callable through a static method's reference
+parameter. C captured the prior owner before executing that side effect. The
+assignment now acquires the result first, then captures and releases the current
+destination owner. All nine C/Rust comparisons require exact `final\n` output;
+managed-owner sanitizers also cover the repair. This preserves the established
+right-hand-side-first contract.
+
+The required interface/callable matrix now has 25 frozen sources and 225 mode
+comparisons, with 207 independent output oracles. The closure ownership gate
+retains both record-reference fixtures and all three callable regressions: 120
+executions, including 30 Linux sanitizer cases. Complete C/Rust suites, the
+621-case callback matrix and CI helper checks are verified in the linked record.
+Existing source/oracle contracts and generation goldens remain unchanged; the
+previous uninitialized-callable limitation source remains preserved in the
+archive and its runtime-failure test. Hosted acceptance of this integrated batch
+is pending. Native interface ABI and all remaining documented ownership,
+concurrency, SDK and language obligations remain full-goal work.
+
+Evidence: [integrated callable validation](rust-parity-evidence/callable-integrated-validation.json).
+
+## Integrated main acceptance and callable integration, 2026-10-09
+
+Main `8ad475b9` passes all 34 unified CI jobs, including all 26 test groups and
+270 gate executions across Linux, macOS and Windows. The nil-model lifetime
+repair and direct pinned-library bootstrap are accepted. No main runs remain
+queued or running at this checkpoint. The earlier pending/frozen descriptions
+below are historical and superseded by this acceptance.
+
+The preserved callable batch is being integrated onto that accepted revision.
+Its nullable comparison lowering refreshes right-side type metadata after
+replacement, retaining the compiler lifetime fix. Hosted acceptance of the
+callable integration is pending. Native interface ABI and all other documented
+full-goal obligations remain required work.
+
+[Accepted main run](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37845945158).
+
+## Linux dependency bootstrap correction, 2026-10-08
+
+Run `37832718573` verifies the nil-model repair on macOS: its build and every
+macOS test group pass, including the complete Rust suite and callback matrix.
+The Windows groups pass as well. Linux fails during bootstrap after the native
+library archive download is reset. The released compiler's installer reports a
+warning but returns success; compilation then lacks `json-c/json.h`. No Linux
+compiler bundle is produced, causing ten downstream artifact-download failures.
+These do not represent ten failed runtime test groups.
+
+CI now checks out the same pinned library revision on every platform and invokes
+the Unix project-library installer directly. Download retries and timeouts are
+bounded, installer errors propagate, and actual compiler headers/static libraries
+are checked before compilation. This removes the release-compiler prerequisite
+from Unix CI bootstrap. Thirteen CI helper tests pass locally, including recovery
+from two real local HTTP connection interruptions, rejection of installer failure
+and rejection of missing build inputs. Shell syntax and workflow validation pass.
+Full hosted acceptance remains pending; feature publication stays frozen until
+corrected integrated main has green Linux/macOS/Windows CI.
+
+## Native nil compiler crash: verified model lifetime repair, 2026-10-08
+
+Main `b267f35f` fails two macOS gates on the unchanged native nil-result source.
+The callback gate records three compiler SIGSEGVs, with the actual-process stack
+in `json_string_property_equals` called from `rust_closure_walk`. The ordinary
+Rust suite also fails compiling that source. The repeated eighteen-case gate
+passes, so its clean result alone does not establish compiler stability.
+
+The comparison validator borrows both operand type objects. Replacing the right
+nil operand's type releases its old JSON object, leaving the cached right type
+dangling before the second comparison. An ASAN-poison guard around JSON model
+lookups deterministically reproduces this in the actual compiler on Linux and
+records the free at the type replacement. Refreshing the borrowed right type
+before the second comparison fixes the lifetime. Both the unchanged source and
+a new left/right nil-comparison control pass all eighteen guarded compilations
+and exact runtime oracles after the repair.
+
+The new frozen control extends the required callback matrix to 69 sources and
+621 C/Rust comparisons, and the fixed-output native suite to 378 sources. The
+existing eighteen-case ordinary/traced compiler gate remains mandatory. Existing
+sources and oracles are unchanged. Full local suites and matrix results are
+recorded in the linked evidence; hosted acceptance is pending. This correction
+is isolated from the unpublished callable transport batch. Feature publication
+remains frozen until full Linux/macOS/Windows CI on corrected main is green.
+Native interface ABI and the remaining full-goal obligations are unfinished.
+
+Evidence: [nil model lifetime repair](rust-parity-evidence/native-nil-model-lifetime-validation.json).
+
 ## Callable replacement and nullable transport: local verification, 2026-10-08
 
 An unchanged local control crashes the C executable in all nine modes when a
@@ -41,6 +135,7 @@ setup and completes. The callable batch remains local until a slot clears. The i
 ABI remain required work.
 
 Evidence: [callable ownership validation](rust-parity-evidence/callable-ownership-current-validation.json).
+
 
 ## Integrated interface and CI correction acceptance, 2026-10-07
 

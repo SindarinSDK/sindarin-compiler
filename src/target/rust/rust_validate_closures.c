@@ -532,6 +532,8 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
         json_object *left = rust_closure_property(node, "left"), *right = rust_closure_property(node, "right");
         json_object *lt = rust_closure_property(left, "type"), *rt = rust_closure_property(right, "type");
         rust_closure_contextual_nil(scope, right, lt);
+        /* Contextual typing can release the previous right.type object. */
+        rt = rust_closure_property(right, "type");
         rust_closure_contextual_nil(scope, left, rt);
     }
     if (kind && strcmp(kind, "binary") == 0 &&

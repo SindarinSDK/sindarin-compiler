@@ -1452,6 +1452,7 @@ test-rust-parity-native-callbacks: build
 		tests/rust-native/scalar_native_callback_foreign_repeat.sn \
 		tests/rust-native/scalar_native_callback_nil_roundtrip.sn \
 		tests/rust-native/scalar_native_callback_native_nil_result.sn \
+		tests/rust-native/scalar_native_callback_nil_comparisons.sn \
 		tests/rust-native/scalar_native_callback_optional_named.sn \
 		tests/rust-native/scalar_native_callback_optional_recursive.sn \
 		tests/rust-native/scalar_native_callback_scalar_write_reentry.sn \
@@ -1476,7 +1477,7 @@ test-rust-parity-native-callbacks: build
 		tests/rust-native/scalar_native_callback_managed_record_snapshot_forwarded.sn \
 		tests/integration/test_interop_edge_cases.sn \
 		tests/integration/test_inline_pointer_passing.sn \
-		--require-count 68 --arithmetic-mode default --arithmetic-mode checked \
+		--require-count 69 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-native-callbacks.json
 	@$(PYTHON) scripts/check_rust_native_callback_oracles.py .sn/rust-parity-native-callbacks.json
 

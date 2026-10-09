@@ -1,0 +1,13 @@
+#include <json-c/json.h>
+#include <sanitizer/asan_interface.h>
+#include <stdio.h>
+#include <stdlib.h>
+extern json_bool __real_json_object_object_get_ex(const json_object *, const char *, json_object **);
+json_bool __wrap_json_object_object_get_ex(const json_object *object, const char *key, json_object **value) {
+    if (object && __asan_address_is_poisoned(object)) {
+        fputs("ERROR: compiler read a freed JSON model object\n", stderr);
+        __asan_describe_address((void *)object);
+        abort();
+    }
+    return __real_json_object_object_get_ex(object, key, value);
+}

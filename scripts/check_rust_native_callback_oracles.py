@@ -180,6 +180,9 @@ HELPER_SHA256 = {'tests/rust-native/native_callback_array_char_foreign.sn.c': 'b
  'tests/rust-native/native_callback_string_retained_input.sn.c': 'e6f19f5f13c1ad89938e985b644030e8c894f7854ef8d2003e90cbe86ed55fd7'}
 
 
+ORACLES['tests/rust-native/scalar_native_callback_nil_comparisons.sn'] = b'true\ntrue\nfalse\nfalse\nfalse\nfalse\ntrue\ntrue\n'
+SOURCE_SHA256['tests/rust-native/scalar_native_callback_nil_comparisons.sn'] = 'f1024b473b4fd76de204c1f2c16c62c8e26d7be80a5c52a1ec2ef170802635a3'
+
 def verify(path):
     for helper, expected_hash in HELPER_SHA256.items():
         if hashlib.sha256(Path(helper).read_bytes()).hexdigest() != expected_hash:
@@ -219,7 +222,7 @@ def verify(path):
     report['native_source_sha256'] = HELPER_SHA256
     report['oracle_scope'] = 'Real C callback headers, identity, nil, scalar/string/record/array transport, reentry, retained pointers, snapshots and joined thread ownership; broader qualifier and concurrent access guarantees remain separate.'
     path.write_text(json.dumps(report, indent=2) + '\n')
-    print('PASS: 612 independent native callback C/Rust oracles')
+    print(f'PASS: {len(seen)} independent native callback C/Rust oracles')
 
 
 if __name__ == '__main__':

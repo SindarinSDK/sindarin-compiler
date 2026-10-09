@@ -27,13 +27,13 @@ C execution byte for byte in every mode. These four controls run in the required
 interface matrix rather than the general fixed-output native suite, which now
 contains 377 fixtures. No source or historical oracle is rewritten.
 
-`make test-rust-parity-interfaces` requires the complete 24-source matrix,
+`make test-rust-parity-interfaces` requires the complete 25-source matrix,
 frozen source hashes, successful C/Rust execution, exact raw output equality,
 and the independent contracts. Twelve further audits require zero provenance
 metadata entries after scope exit, array growth, escaping captures and returned
 arrays. Both gates are required on Linux, macOS and Windows in unified CI.
 The earlier storage increment has hosted acceptance on main `45fc52be`.
-The current 24-source extension passes locally; hosted acceptance is pending.
+The current 25-source extension passes locally; hosted acceptance is pending.
 
 Evidence: [storage and closure validation](rust-parity-evidence/interface-storage-current-validation.json),
 [earlier recovery](rust-parity-evidence/interface-recovery-current-validation.json).
@@ -118,12 +118,12 @@ and method arguments, record fields and array literals. Default local callables
 and sized callable arrays start as nil. Ordinary and recursive closures use the
 same nullable owner; nested captures retain their callable independently.
 
-The two added regressions require eighteen exact C/Rust comparisons and frozen
+The three added regressions require twenty-seven exact C/Rust comparisons and frozen
 literal output contracts, including managed closure replacement and nil transport
 through static/instance methods and recursive captures. The complete interface
-matrix now requires 216 comparisons over 24 unchanged, hashed sources, with 198
+matrix now requires 225 comparisons over 25 unchanged, hashed sources, with 207
 independent output oracles. The closure ownership gate additionally exercises
-both new regressions at every optimization level, including C ASAN/UBSAN/leak
+all three callable regressions at every optimization level, including C ASAN/UBSAN/leak
 checks and Rust ASAN on Linux.
 
 The former Rust-only `closure_values_uninitialized` limitation source now emits
@@ -133,3 +133,10 @@ in `docs/restoration/post-tag-fixtures`. This invalid call receives no positive
 C/Rust parity credit. Existing generation goldens and positive runtime oracles
 are unchanged. Foreign interface ABI and the other full-goal obligations above
 remain unfinished.
+
+Callable assignment evaluates and acquires the incoming value before reading the
+current destination owner. This preserves the updated owner when a static helper
+changes the same callable through a reference while producing the replacement.
+The previous ordering captured an expired owner and crashed all nine C controls;
+the frozen effectful-assignment regression now requires exact `final\n` output
+from both targets, including sanitizer validation.

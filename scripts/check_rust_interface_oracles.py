@@ -156,6 +156,8 @@ EMPTY_LOCAL_COMPARISON = {
 PROBE_ORACLES = {'tests/rust-interfaces/scope_managed.sn': b'true\ntrue\n', 'tests/rust-interfaces/named_callable_assignment.sn': b'true\nfalse\nfalse\ntrue\nfalse\ntrue\nfalse\ntrue\nfalse\ntrue\ntrue\ntrue\nowned capture\nowned capture\ntrue\n', 'tests/rust-interfaces/nullable_callable_transport.sn': b'true\ntrue\ntrue\ntrue\ntrue\ntrue\ntrue\ntrue\ntrue\ntrue\n4\ntrue\ntrue\ntrue\ntrue\ntrue\ntrue\ntrue\n'}
 PROBE_SHA256 = {'tests/rust-interfaces/empty_capture_identity.sn': 'c64e7829d878eb51e1b6f21f32d29af676c7cab8486d9804d4f14fda91e813dd', 'tests/rust-interfaces/scope_identity.sn': 'ca86dc55d4c37ba68dc0ec4eebb2e3ec80110e47c2d607b95b8253c5b1872dd2', 'tests/rust-interfaces/scope_managed.sn': 'f7ccdf4d298a2aacf4eaaa9abe7cc619664be3a755ced392d0b9ded5c04870a3'}
 PROBE_SHA256.update({'tests/rust-interfaces/named_callable_assignment.sn': '001981a3bab917147596b0badd817517b5d77a18818eda0a3fb146809990c210', 'tests/rust-interfaces/nullable_callable_transport.sn': 'fefd243946c76e78433f18a820d4cda490cc8b77da92f4c4df6297c99d7d6e62'})
+PROBE_ORACLES['tests/rust-interfaces/effectful_callable_assignment.sn'] = b'final\n'
+PROBE_SHA256['tests/rust-interfaces/effectful_callable_assignment.sn'] = '28c1afe45e62f6ab26ec2934b71b168248deb1215a9a6f818c52e625e8a0f5e9'
 
 
 def verify_sources():

@@ -1,0 +1,86 @@
+{
+  "date": "2026-10-09",
+  "status": "locally_verified_hosted_acceptance_pending",
+  "base_main": "8ad475b9b42511931c864b79c4839c4a46903ee6",
+  "base_main_accepted_run": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37845945158",
+  "compiler_sha256": "181c4d7a92690d111c3b2ec36d4bc6957b67de7741eff9067451cfccd39c2d0a",
+  "reports": {
+    "gcc_interfaces": {
+      "passed": true,
+      "cases": 225,
+      "path": ".sn/callable-integrated-interfaces-gcc.json",
+      "sha256": "9f87559a8c80cc998efc07472075d0c012a536a74c91bb55bd3bcc9beddf6349",
+      "compiler_sha256": "181c4d7a92690d111c3b2ec36d4bc6957b67de7741eff9067451cfccd39c2d0a"
+    },
+    "clang_interfaces": {
+      "passed": true,
+      "cases": 225,
+      "path": ".sn/callable-integrated-interfaces-clang.json",
+      "sha256": "af96da4ff8d8c4eb6b4cd213c482d3f21cd5fdc8381af3be9e4886ec5b572e18",
+      "compiler_sha256": "181c4d7a92690d111c3b2ec36d4bc6957b67de7741eff9067451cfccd39c2d0a"
+    },
+    "owners": {
+      "passed": true,
+      "cases": 120,
+      "path": ".sn/record-reference-snapshots.json",
+      "sha256": "56e6feba4eb9f488c76c1f62aa805a510d9e9df0f0cd21c3ac2417ef3c7fe2d3",
+      "compiler_sha256": "181c4d7a92690d111c3b2ec36d4bc6957b67de7741eff9067451cfccd39c2d0a",
+      "sanitized": 30
+    },
+    "native_callbacks": {
+      "passed": true,
+      "cases": 621,
+      "path": ".sn/rust-parity-native-callbacks.json",
+      "sha256": "e07d3d79a8ccd9c0f6eccfa6d8cf85cd9c1acd96a34ce637b7e32ebefd8ab9df",
+      "compiler_sha256": "181c4d7a92690d111c3b2ec36d4bc6957b67de7741eff9067451cfccd39c2d0a"
+    },
+    "compiler_repeat": {
+      "passed": true,
+      "cases": 18,
+      "path": ".sn/rust-parity-native-nil-compiler.json",
+      "sha256": "ca5c0c23acbc8fe69cb5bbb93da4eaefe36254020e91c0db471f69ed741dca81",
+      "compiler_sha256": "181c4d7a92690d111c3b2ec36d4bc6957b67de7741eff9067451cfccd39c2d0a"
+    },
+    "guarded_compiler": {
+      "passed": true,
+      "cases": 36,
+      "path": ".sn/callable-integrated-compiler-guard.json",
+      "sha256": "c5bfe841a07e7c9e8aed7fb6cca15c5565ae04426a7ed5682a755a5c8bb7eba0",
+      "compiler_sha256": "a5c4d3b5be8ff814420ad7ec9a51551865c43184ca18d7e7963f2c643d6d71ec"
+    }
+  },
+  "complete_local_suites": {
+    "C": {
+      "passed": true,
+      "checks": 3234,
+      "log": ".sn/callable-integrated-c-suite.log",
+      "sha256": "cd475e2a188fc4288eb9971f9fdae6be551395c8e702f5649f413039278a4b6b"
+    },
+    "Rust": {
+      "passed": true,
+      "checks": 1082,
+      "log": ".sn/callable-integrated-rust-suite.log",
+      "sha256": "296360398fb09e362d470faa69cd8e5b58e50b679157811c568ceb7d126803c4"
+    }
+  },
+  "ci_helper_checks": 13,
+  "ci_groups": 26,
+  "ci_gate_executions": 270,
+  "changes": [
+    "Integrated nullable callable lowering with the accepted JSON lifetime repair",
+    "C callable assignment constructs named-function owners and retains aliases",
+    "C assignment evaluates/acquires the right-hand side before reading the current destination owner",
+    "Nullable callable transport works without a native callback declaration"
+  ],
+  "effectful_control": {
+    "before": "callable-effectful-before.json",
+    "before_sha256": "af398aa5a6d6652f85f8647716da894f6b65b72ed8f794ceba2c538f13075674",
+    "after": "callable-effectful-after.json",
+    "after_sha256": "af10022ef961ffbcd564a1c2d24bd69331b24319b78e4bb13fde9319ea0f9379",
+    "source": "tests/rust-interfaces/effectful_callable_assignment.sn",
+    "source_sha256": "28c1afe45e62f6ab26ec2934b71b168248deb1215a9a6f818c52e625e8a0f5e9",
+    "expected_stdout_hex": "66696e616c0a"
+  },
+  "hosted_acceptance": "pending",
+  "remaining_goal": "Native interface ABI and all remaining documented ownership, concurrency, SDK and language obligations; complete final corpus/mode/platform acceptance remains required."
+}
