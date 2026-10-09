@@ -8,6 +8,19 @@
 #include <string.h>
 
 static unsigned destroyed;
+static unsigned reentered_array;
+static void replace_resource(void *resource, uintptr_t context)
+{
+    assert(resource == NULL);
+    SnAbiValue *array = (SnAbiValue *)context, *element = NULL;
+    assert(sn_abi_v1_value_array_get(array, 0, &element) == SN_ABI_OK);
+    SnAbiBytes bytes;
+    assert(sn_abi_v1_bytes(element, &bytes) == SN_ABI_OK && bytes.length == 3);
+    assert(memcmp(bytes.data, "new", 3) == 0);
+    sn_abi_v1_release(element);
+    for (int i = 0; i < 32; i++) assert(sn_abi_v1_value_array_push(array, NULL) == SN_ABI_OK);
+    reentered_array++;
+}
 static void destroy_resource(void *resource, uintptr_t context)
 {
     assert(context == 91);
@@ -183,6 +196,49 @@ int main(void)
     assert(sn_abi_v1_resource_data_typed(resource, "pkg.Type@1", &borrowed) == SN_ABI_WRONG_KIND && borrowed == &destroyed);
     sn_abi_v1_release(resource);
     assert(sn_abi_v1_resource_data_typed(NULL, "pkg.Type@1", &borrowed) == SN_ABI_OK && borrowed == NULL);
+    assert(sn_abi_v1_query(SN_ABI_V1_VERSION, SN_ABI_CAP_VALUE_ARRAYS, &info, sizeof(info)) == SN_ABI_UNSUPPORTED);
+    assert(sn_abi_v1_query(SN_ABI_V1_1_VERSION, SN_ABI_CAP_VALUE_ARRAYS | SN_ABI_CAP_TYPED_RESOURCES, &info, sizeof(info)) == SN_ABI_OK);
+    assert(info.abi_version == SN_ABI_V1_1_VERSION && info.capabilities == 31);
+    assert(sn_abi_v1_query(SN_ABI_V1_VERSION, 7, &info, sizeof(info)) == SN_ABI_OK && info.capabilities == 7);
+    SnAbiValue *values = NULL, *element = NULL;
+    assert(sn_abi_v1_value_array_new(&values) == SN_ABI_OK);
+    assert(sn_abi_v1_string_copy("one", &text) == SN_ABI_OK);
+    assert(sn_abi_v1_value_array_push(values, text) == SN_ABI_OK);
+    sn_abi_v1_release(text);
+    assert(sn_abi_v1_value_array_push(values, NULL) == SN_ABI_OK);
+    length = 99;
+    assert(sn_abi_v1_value_array_length(values, &length) == SN_ABI_OK && length == 2);
+    assert(sn_abi_v1_value_array_copy(values, &copy) == SN_ABI_OK && copy != values);
+    alias = sn_abi_v1_retain(values);
+    sn_abi_v1_release(values);
+    assert(sn_abi_v1_value_array_get(alias, 0, &element) == SN_ABI_OK);
+    assert(sn_abi_v1_value_array_set(alias, 0, element) == SN_ABI_OK); /* self-assignment */
+    sn_abi_v1_release(element);
+    assert(sn_abi_v1_string_copy("changed", &text) == SN_ABI_OK);
+    assert(sn_abi_v1_value_array_set(alias, 0, text) == SN_ABI_OK);
+    sn_abi_v1_release(text);
+    assert(sn_abi_v1_value_array_get(copy, 0, &element) == SN_ABI_OK);
+    sn_abi_v1_release(copy);
+    assert(sn_abi_v1_bytes(element, &bytes) == SN_ABI_OK && bytes.length == 3 && memcmp(bytes.data, "one", 3) == 0);
+    sn_abi_v1_release(element);
+    assert(sn_abi_v1_value_array_get(alias, 1, &element) == SN_ABI_OK && element == NULL);
+    element = alias;
+    assert(sn_abi_v1_value_array_get(alias, 99, &element) == SN_ABI_OUT_OF_RANGE && element == alias);
+    assert(sn_abi_v1_value_array_get(NULL, 0, &element) == SN_ABI_OUT_OF_RANGE && element == alias);
+    assert(sn_abi_v1_array_length(alias, &length) == SN_ABI_WRONG_KIND && length == 2);
+    sn_abi_v1_release(alias);
+    assert(sn_abi_v1_value_array_new(&values) == SN_ABI_OK);
+    assert(sn_abi_v1_resource_new(NULL, replace_resource, (uintptr_t)values, &resource) == SN_ABI_OK);
+    assert(sn_abi_v1_value_array_push(values, resource) == SN_ABI_OK);
+    sn_abi_v1_release(resource);
+    assert(sn_abi_v1_string_copy("new", &text) == SN_ABI_OK);
+    assert(sn_abi_v1_value_array_set(values, 0, text) == SN_ABI_OK);
+    sn_abi_v1_release(text);
+    assert(reentered_array == 1);
+    assert(sn_abi_v1_value_array_length(values, &length) == SN_ABI_OK && length == 33);
+    sn_abi_v1_release(values);
+    assert(sn_abi_v1_value_array_copy(NULL, &nil) == SN_ABI_OK && nil == NULL);
+    assert(sn_abi_v1_value_array_length(NULL, &length) == SN_ABI_OK && length == 0);
     puts("shared runtime ABI: pass");
     return 0;
 }

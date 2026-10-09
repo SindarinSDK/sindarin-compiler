@@ -1,0 +1,60 @@
+{
+  "base_revision": "23f528998d8b4dcf72e96184c1fe9426087186b9",
+  "scope": "ABI 1.1 managed-value arrays and capability negotiation; language record/SDK artifact adapters remain required",
+  "source_sha256": {
+    "src/runtime/sn_abi.h": "8148f10edb63e80e319e260fd460c09508389488d3ebe1c92af6b74389fe1f84",
+    "src/runtime/sn_abi.c": "ec0a7c71b66ace507e18e6f0beed54d34fd1441df7c04c64758a7415b0fb283a",
+    "tests/runtime_abi/client.c": "e9237ac3c788ef60840219b24f41f2ead9bbd6411d9efdb002b37644a84976ba",
+    "tests/runtime_abi/client.rs": "00b9128aaad9272fdccd0237b500a73ae84d0ab9e27075b7df434ac35e0e3441",
+    "tests/runtime_abi/go/main.go": "6bd8bcc2c1a9cd4dd64e9c3899b769f37eab066c38db1dccbe2aed53cb663a1d"
+  },
+  "validation": {
+    "C": {
+      "passed": 3240,
+      "log_sha256": "22ac18acb3d919a60c3ca56ba120596adc8670316264c858bf0d72b86aa9fed6"
+    },
+    "Rust": {
+      "passed": 1084,
+      "log_sha256": "328a307727d2af4858c60c7792bc2567082bac5657b45cba14b1fe66847384dc"
+    },
+    "runtime": {
+      "passed": true,
+      "log_sha256": "49e32ecab0957edbdb421efff68abce37e09ecf25812ed2eed74e85c37332665"
+    },
+    "runtime_sanitizers": {
+      "passed": true,
+      "log_sha256": "c73a9b66c247f3b6c5b59d88274f5a381ec143447d2458123896a08918b39104"
+    },
+    "local_sdk": {
+      "passed": true,
+      "log_sha256": "143e77fbb19b0269b7f1d1c9cf4cb0ca492cacc203c0c6ef58d5fa8cad7f2847"
+    },
+    "local_sdk_sanitizers": {
+      "passed": true,
+      "log_sha256": "90fb7d2ceb17578311c70b450613fd11e739f78f19f04d77e5f5ae0490a9efc4"
+    },
+    "imports": {
+      "tests": 19,
+      "log_sha256": "fe011e7d47315c285ddf2945578cdf9c101e743b9541c39f29ed06528444570f"
+    },
+    "artifacts": {
+      "tests": 9,
+      "log_sha256": "10ad4bb58e8d7bbf22c99d0b236e26ceb79c8029e990c0409aab40144e79b17a"
+    },
+    "ci_helpers": {
+      "tests": 15,
+      "log_sha256": "48143acb32eccfc892e9101143163dbb00378be5dbd8417c84f0dea0bad4a66b"
+    }
+  },
+  "legacy_query": {
+    "version": "1.0",
+    "capabilities": 7
+  },
+  "new_query": {
+    "version": "1.1",
+    "capabilities": 31
+  },
+  "publication": "held until required typed-resource runtime CI succeeds",
+  "hosted_acceptance": "pending",
+  "passed": true
+}

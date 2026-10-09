@@ -6,7 +6,7 @@
 _Static_assert(CHAR_BIT == 8 && sizeof(long long) == 8, "ABI v1 requires 8-bit bytes and 64-bit int");
 _Static_assert(sizeof(float) == 4 && sizeof(double) == 8, "ABI v1 requires 32/64-bit float widths");
 
-enum SnAbiKind { ABI_STRING, ABI_BUFFER, ABI_ARRAY, ABI_RESOURCE };
+enum SnAbiKind { ABI_STRING, ABI_BUFFER, ABI_ARRAY, ABI_RESOURCE, ABI_VALUE_ARRAY };
 
 struct SnAbiValue {
     atomic_size_t credits;
@@ -29,11 +29,12 @@ static SnAbiValue *new_value(enum SnAbiKind kind)
 SnAbiStatus sn_abi_v1_query(uint32_t version, uint64_t required_capabilities,
                           SnAbiInfo *out, uint32_t out_size)
 {
-    const uint64_t capabilities = SN_ABI_CAP_VALUES | SN_ABI_CAP_POD_ARRAYS | SN_ABI_CAP_RESOURCES;
+    uint64_t capabilities = SN_ABI_CAP_VALUES | SN_ABI_CAP_POD_ARRAYS | SN_ABI_CAP_RESOURCES;
     if (!out || out_size < sizeof(*out)) return SN_ABI_INVALID_ARGUMENT;
-    if (version != SN_ABI_V1_VERSION) return SN_ABI_VERSION_MISMATCH;
+    if (version != SN_ABI_V1_VERSION && version != SN_ABI_V1_1_VERSION) return SN_ABI_VERSION_MISMATCH;
+    if (version == SN_ABI_V1_1_VERSION) capabilities |= SN_ABI_CAP_VALUE_ARRAYS | SN_ABI_CAP_TYPED_RESOURCES;
     if (required_capabilities & ~capabilities) return SN_ABI_UNSUPPORTED;
-    SnAbiInfo info = { SN_ABI_V1_VERSION, sizeof(void *) * CHAR_BIT, capabilities,
+    SnAbiInfo info = { version, sizeof(void *) * CHAR_BIT, capabilities,
                        sizeof(long long) * CHAR_BIT, CHAR_BIT,
                        sizeof(float) * CHAR_BIT, sizeof(double) * CHAR_BIT };
     *out = info;
@@ -78,7 +79,8 @@ void sn_abi_v1_release(SnAbiValue *value)
     switch (value->kind) {
         case ABI_STRING:
         case ABI_BUFFER: free(value->payload.bytes.data); break;
-        case ABI_ARRAY: sn_array_free(value->payload.array); break;
+        case ABI_ARRAY:
+        case ABI_VALUE_ARRAY: sn_array_free(value->payload.array); break;
         case ABI_RESOURCE:
             /* No runtime lock is held: resource callbacks may reenter. */
             if (value->payload.resource.destroy)
@@ -282,5 +284,79 @@ SnAbiStatus sn_abi_v1_resource_type(const SnAbiValue *value, const char **out)
     if (!out) return SN_ABI_INVALID_ARGUMENT;
     if (value && value->kind != ABI_RESOURCE) return SN_ABI_WRONG_KIND;
     *out = value ? value->payload.resource.type_identity : NULL;
+    return SN_ABI_OK;
+}
+
+static void abi_value_slot_release(void *slot)
+{
+    sn_abi_v1_release(*(SnAbiValue **)slot);
+}
+
+static void abi_value_slot_copy(const void *source, void *destination)
+{
+    *(SnAbiValue **)destination = sn_abi_v1_retain(*(SnAbiValue *const *)source);
+}
+
+SnAbiStatus sn_abi_v1_value_array_new(SnAbiValue **out)
+{
+    if (!out) return SN_ABI_INVALID_ARGUMENT;
+    SnAbiValue *value = new_value(ABI_VALUE_ARRAY);
+    value->payload.array = sn_array_new(sizeof(SnAbiValue *), 4);
+    value->payload.array->elem_release = abi_value_slot_release;
+    value->payload.array->elem_copy = abi_value_slot_copy;
+    *out = value;
+    return SN_ABI_OK;
+}
+
+SnAbiStatus sn_abi_v1_value_array_copy(const SnAbiValue *array, SnAbiValue **out)
+{
+    if (!out) return SN_ABI_INVALID_ARGUMENT;
+    if (!array) { *out = NULL; return SN_ABI_OK; }
+    if (array->kind != ABI_VALUE_ARRAY) return SN_ABI_WRONG_KIND;
+    SnAbiValue *copy = new_value(ABI_VALUE_ARRAY);
+    copy->payload.array = sn_array_copy(array->payload.array);
+    *out = copy;
+    return SN_ABI_OK;
+}
+
+SnAbiStatus sn_abi_v1_value_array_length(const SnAbiValue *array, uint64_t *out)
+{
+    if (!out) return SN_ABI_INVALID_ARGUMENT;
+    if (array && array->kind != ABI_VALUE_ARRAY) return SN_ABI_WRONG_KIND;
+    *out = array ? (uint64_t)array->payload.array->len : 0;
+    return SN_ABI_OK;
+}
+
+SnAbiStatus sn_abi_v1_value_array_push(SnAbiValue *array, SnAbiValue *element)
+{
+    if (!array) return SN_ABI_INVALID_ARGUMENT;
+    if (array->kind != ABI_VALUE_ARRAY) return SN_ABI_WRONG_KIND;
+    SnArray *storage = array->payload.array;
+    if (storage->len >= LLONG_MAX || (uint64_t)storage->len >= SIZE_MAX / sizeof(SnAbiValue *) / 2)
+        return SN_ABI_OUT_OF_RANGE;
+    SnAbiValue *owned = sn_abi_v1_retain(element);
+    sn_array_push(storage, &owned);
+    return SN_ABI_OK;
+}
+
+SnAbiStatus sn_abi_v1_value_array_get(const SnAbiValue *array, uint64_t index, SnAbiValue **out)
+{
+    if (!out) return SN_ABI_INVALID_ARGUMENT;
+    if (array && array->kind != ABI_VALUE_ARRAY) return SN_ABI_WRONG_KIND;
+    if (!array || index >= (uint64_t)array->payload.array->len) return SN_ABI_OUT_OF_RANGE;
+    *out = sn_abi_v1_retain(((SnAbiValue **)array->payload.array->data)[index]);
+    return SN_ABI_OK;
+}
+
+SnAbiStatus sn_abi_v1_value_array_set(SnAbiValue *array, uint64_t index, SnAbiValue *element)
+{
+    if (array && array->kind != ABI_VALUE_ARRAY) return SN_ABI_WRONG_KIND;
+    if (!array || index >= (uint64_t)array->payload.array->len) return SN_ABI_OUT_OF_RANGE;
+    SnAbiValue **slot = &((SnAbiValue **)array->payload.array->data)[index];
+    SnAbiValue *previous = *slot;
+    *slot = sn_abi_v1_retain(element);
+    /* Publish before cleanup: a destructor may reenter this array and resize it.
+     * No slot pointer is accessed after invoking the previous owner's cleanup. */
+    sn_abi_v1_release(previous);
     return SN_ABI_OK;
 }

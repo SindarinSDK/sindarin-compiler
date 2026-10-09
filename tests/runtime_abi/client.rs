@@ -58,6 +58,11 @@ extern "C" {
         out: *mut *mut c_void,
     ) -> u32;
     fn sn_abi_v1_resource_type(value: *const Value, out: *mut *const c_char) -> u32;
+    fn sn_abi_v1_value_array_new(out: *mut *mut Value) -> u32;
+    fn sn_abi_v1_value_array_push(array: *mut Value, value: *mut Value) -> u32;
+    fn sn_abi_v1_value_array_copy(array: *const Value, out: *mut *mut Value) -> u32;
+    fn sn_abi_v1_value_array_set(array: *mut Value, index: u64, value: *mut Value) -> u32;
+    fn sn_abi_v1_value_array_get(array: *const Value, index: u64, out: *mut *mut Value) -> u32;
 }
 #[cfg(go_bridge)]
 #[link(name = "go_runtime_abi", kind = "static")]
@@ -217,6 +222,29 @@ fn main() {
         assert_eq!(*(borrowed as *const i64), 42);
         sn_abi_v1_release(alias);
         assert_eq!(DESTROYED.load(Ordering::SeqCst), 2);
+        assert_eq!(sn_abi_v1_query(0x10001, 8 | 16, &mut info, 32), 0);
+        assert_eq!((info.version, info.capabilities), (0x10001, 31));
+        let mut array = std::ptr::null_mut();
+        assert_eq!(sn_abi_v1_value_array_new(&mut array), 0);
+        assert_eq!(
+            sn_abi_v1_string_copy(b"managed\0".as_ptr().cast(), &mut value),
+            0
+        );
+        assert_eq!(sn_abi_v1_value_array_push(array, value), 0);
+        sn_abi_v1_release(value);
+        let mut copy = std::ptr::null_mut();
+        assert_eq!(sn_abi_v1_value_array_copy(array, &mut copy), 0);
+        assert_ne!(copy, array);
+        assert_eq!(sn_abi_v1_value_array_set(array, 0, std::ptr::null_mut()), 0);
+        sn_abi_v1_release(array);
+        assert_eq!(sn_abi_v1_value_array_get(copy, 0, &mut value), 0);
+        sn_abi_v1_release(copy);
+        assert_eq!(sn_abi_v1_bytes(value, &mut view), 0);
+        assert_eq!(
+            std::slice::from_raw_parts(view.data, view.length as usize),
+            b"managed"
+        );
+        sn_abi_v1_release(value);
         #[cfg(go_bridge)]
         {
             let mut native = std::ptr::null_mut();

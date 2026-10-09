@@ -7,6 +7,30 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Managed-value runtime arrays: local validation, 2026-10-09
+
+ABI 1.1 negotiates managed-value arrays and typed-resource capabilities while
+ABI 1.0 retains its existing query mask/layouts. Arrays own element credits;
+get returns an owned element, copy creates independent slots retaining their
+values and retain aliases one array. Slot replacement acquires/publishes the new
+owner before releasing the old, supporting reentrant cleanup that resizes the array.
+POD/managed kind mismatches and bounds failures preserve outputs. Higher-level
+language copy hooks, managed graph cycles and complete generated adapters remain
+separate goal requirements; this slot-copy operation does not imply deep copying.
+
+C/Rust/Go clients pass lifetime/copy/alias checks. C address/undefined sanitizers
+exercise reentrant replacement and original ABI 1.0 clients remain covered. Local
+SDK C readLines bridges copy canonical C output into managed strings; C/Rust/Go
+clients verify retrieved lines survive both array and file release. All 24 existing
+SDK checks and its sanitizer check pass, with original Sindarin/C sources unchanged.
+
+Local suites pass 3,240 C and 1,084 Rust checks, nineteen package imports, nine
+artifact tests and fifteen CI helpers. Publication and SDK updates are held until
+typed-resource prerequisite CI succeeds. Full record/interface/SDK artifacts and
+Rust parity remain unfinished.
+
+Evidence: [managed-value array validation](rust-parity-evidence/managed-value-array-validation.json).
+
 ## Typed runtime resources: local validation, 2026-10-09
 
 The C runtime can adopt resources with a copied package/type/ABI identity and

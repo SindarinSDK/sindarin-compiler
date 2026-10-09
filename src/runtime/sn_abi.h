@@ -11,9 +11,12 @@ extern "C" {
 #endif
 
 #define SN_ABI_V1_VERSION UINT32_C(0x00010000)
+#define SN_ABI_V1_1_VERSION UINT32_C(0x00010001)
 #define SN_ABI_CAP_VALUES UINT64_C(1)
 #define SN_ABI_CAP_POD_ARRAYS UINT64_C(2)
 #define SN_ABI_CAP_RESOURCES UINT64_C(4)
+#define SN_ABI_CAP_VALUE_ARRAYS UINT64_C(8)
+#define SN_ABI_CAP_TYPED_RESOURCES UINT64_C(16)
 
 typedef uint32_t SnAbiStatus;
 #define SN_ABI_OK UINT32_C(0)
@@ -84,6 +87,16 @@ SnAbiStatus sn_abi_v1_array_get(const SnAbiValue *array, uint64_t index,
                               void *out, uint64_t size);
 SnAbiStatus sn_abi_v1_array_set(SnAbiValue *array, uint64_t index,
                               const void *element, uint64_t size);
+/* ABI 1.1 managed-value arrays. Push/set acquire a credit from a borrowed input;
+ * get returns an owned credit. Array copy creates independent slots retaining
+ * their elements, while retain aliases the same array. Caller serializes mutation
+ * and avoids ownership cycles (this runtime uses reference counting). */
+SnAbiStatus sn_abi_v1_value_array_new(SnAbiValue **out);
+SnAbiStatus sn_abi_v1_value_array_copy(const SnAbiValue *array, SnAbiValue **out);
+SnAbiStatus sn_abi_v1_value_array_length(const SnAbiValue *array, uint64_t *out);
+SnAbiStatus sn_abi_v1_value_array_push(SnAbiValue *array, SnAbiValue *element);
+SnAbiStatus sn_abi_v1_value_array_get(const SnAbiValue *array, uint64_t index, SnAbiValue **out);
+SnAbiStatus sn_abi_v1_value_array_set(SnAbiValue *array, uint64_t index, SnAbiValue *element);
 
 /* Resource adoption transfers cleanup responsibility only on success. Adapters
  * keep resource layouts private or expose documented fields through accessors. */

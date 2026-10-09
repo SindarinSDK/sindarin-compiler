@@ -1,6 +1,7 @@
 # Shared runtime ABI
 
-Status: implemented value-transport foundation, ABI 1.0 (`0x00010000`). This is
+Status: implemented value-transport foundation, ABI 1.0 (`0x00010000`) and
+optional managed-value capabilities through ABI 1.1 (`0x00010001`). This is
 part of the [runtime and package architecture](runtime-target-architecture.md).
 It does not yet provide complete package record/interface contracts, managed
 array elements, complete generated bindings, independent SDK artifacts or compiler-wide
@@ -174,3 +175,30 @@ remain unchanged. Typed-resource users require these runtime entry points;
 complete package artifact compatibility must check their availability/provenance.
 This foundation does not implement complete record/interface field contracts or
 compiler-generated managed-resource imports. Those remain goal requirements.
+
+## ABI 1.1 managed-value arrays
+
+Query `SN_ABI_V1_1_VERSION` to negotiate managed-value arrays (`8`) and typed
+resources (`16`), in addition to the original capabilities (`1/2/4`). ABI 1.1
+reports capabilities `31`; ABI 1.0 queries retain their exact existing `7` mask
+and layouts. Asking ABI 1.0 for new capabilities returns unsupported. Older
+runtimes reject the 1.1 version explicitly rather than claiming its contracts.
+
+Managed-value arrays hold C-runtime handle credits. Push/set borrow their input
+and retain a credit; get returns an owned credit. Nil elements remain nil. Retain
+aliases one array; copy creates independent slots retaining the same element
+values. Strings are immutable through this ABI; mutable resource/array elements
+retain their identity. Language copy hooks/deep-copy qualifiers require explicit
+higher-level adapters and are not implied by this slot copy operation.
+
+Replacing a slot acquires the incoming credit, publishes it, then releases the
+previous owner. Destructors can reenter and grow a live array without leaving a
+stale slot reference. Final array release drops all element credits. Callers
+serialize mutation and avoid reference-count ownership cycles; these operations
+do not introduce garbage collection or claim language-level cycle handling.
+
+POD and managed arrays have different private kinds. Mixed calls are rejected,
+bounds are checked and failure outputs remain unchanged. Nil copy remains nil
+and nil length is zero. C/Rust/Go clients prove element lifetime after array
+release, independent slot copies and ownership; C address/undefined sanitizers
+also exercise reentrant destruction that resizes the array.
