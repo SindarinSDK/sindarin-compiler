@@ -5,6 +5,16 @@
 
 #include "cgen/gen_model_native_method_borrow.c"
 
+/* C field aliases are wire names; retain the Sindarin name in the model for
+ * other targets, and annotate only the C spelling used by member templates. */
+static void c_model_field_alias(json_object *model, Type *type, const char *name)
+{
+    if (!type || type->kind != TYPE_STRUCT || !type->as.struct_type.is_native || !name) return;
+    StructField *field = ast_struct_get_field(type, name);
+    if (field && field->c_alias)
+        json_object_object_add(model, "c_field_name", json_object_new_string(field->c_alias));
+}
+
 /* Current lambda's own formals; nested body emission restores this context. */
 static json_object *c_lambda_parameters = NULL;
 static int c_lambda_parameter_id = -1;
@@ -2780,6 +2790,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     gen_model_expr(arena, expr->as.member.object, symbol_table, arithmetic_mode));
                 json_object_object_add(obj, "member_name",
                     json_object_new_string(mname));
+                c_model_field_alias(obj, obj_type, mname);
 
                 /* Issue #49: Member access on a value-struct rvalue with
                  * non-trivial cleanup (e.g. `build().probs`).  Without
@@ -2851,6 +2862,8 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 json_object_new_string(expr->as.member_access.field_name.start));
             json_object_object_add(obj, "field_index",
                 json_object_new_int(expr->as.member_access.field_index));
+            c_model_field_alias(obj, expr->as.member_access.object->expr_type,
+                                expr->as.member_access.field_name.start);
             break;
         }
 
@@ -2861,6 +2874,8 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 gen_model_expr(arena, expr->as.member_assign.object, symbol_table, arithmetic_mode));
             json_object_object_add(obj, "field_name",
                 json_object_new_string(expr->as.member_assign.field_name.start));
+            c_model_field_alias(obj, expr->as.member_assign.object->expr_type,
+                                expr->as.member_assign.field_name.start);
             json_object_object_add(obj, "value",
                 gen_model_expr(arena, expr->as.member_assign.value, symbol_table, arithmetic_mode));
             /* Field assignment cleanup annotations for c-min codegen */

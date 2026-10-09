@@ -7,6 +7,43 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## SDK field and lifetime preparation: local validation, 2026-10-09
+
+A reusable C TextFile module has been prepared in the SDK using its original C
+implementation and a package-owned layout/constructor. Existing Sindarin imports,
+fields and methods retain the generated compatibility path. The SDK pilot is
+locally verified with independent C/Rust clients, strings/arrays, exact field
+layout, shared identity, explicit/final close and sanitizers. It remains unpublished
+until compiler integration is accepted; full SDK/package adapters remain unfinished.
+
+This exposed two compiler gaps. Native C field reads/assignments ignored physical
+C aliases. The fix annotates native fields only, preserving ordinary serialization
+aliases. Rust native handle fields now provide C string accessors with owned copies
+and lifetime-preserving reads/stores. Compound field updates use the canonical
+C getter/setter and existing arithmetic lowering, preserving shared native storage.
+A frozen regression covers scalar/string mutation, aliases and pointer sizeof.
+
+Independent C artifact builds now use the normal compiler's GNU feature macro and
+reject implicit function declarations. A real strdup/free backing regression
+prevents the pointer truncation exposed by the SDK pilot. Local suites pass 3,240
+C checks and 1,083 Rust checks, 1,616 ASAN units, the nine-mode native field
+comparison under the ASAN compiler, seven native artifact tests and thirteen CI
+helper tests. The native fixture inventory grows to 379; existing fixture/oracle
+contracts remain unchanged. Hosted acceptance is pending.
+
+Evidence: [SDK field access validation](rust-parity-evidence/sdk-field-access-validation.json).
+Generated package adapters, complete SDK decoupling and all full-goal requirements
+remain outstanding.
+
+## Native artifact builder: hosted acceptance, 2026-10-09
+
+Main `f73853d6` passes complete unified Linux/macOS/Windows CI, including native
+C/Rust/Go artifact builds, C/Rust consumers and cache controls. This accepts the
+native backing stage; complete package compilation and generated adapters remain
+unimplemented requirements. The earlier pending entry below is superseded.
+
+[Accepted native artifact run](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37970177022).
+
 ## Native backing artifact builds: local validation, 2026-10-09
 
 The compiler now provides `--native-plan` and `--build-native`. An optional staged

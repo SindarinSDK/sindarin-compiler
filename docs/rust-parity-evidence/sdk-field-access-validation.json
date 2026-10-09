@@ -1,0 +1,147 @@
+{
+  "scope": "Native public C field aliases, Rust string/native field mutation and C artifact feature declarations. SDK TextFile independent module is locally validated and remains unpublished.",
+  "base_revision": "f73853d6649a668ba5a6e4813895b3916e692765",
+  "source_sha256": {
+    "scripts/build_native_package.py": "a8c4264c7f3a455b685590989d3e7b5b899bbb3b5744a52abf7545b1da78b6e1",
+    "scripts/ci/gates.json": "a06cbb28225050d676b2691b78f81fb1215c05bf0de4354baa190daec79918bc",
+    "src/cgen/gen_model_expr.c": "d1d9eea36b2f6df297fefd7d0ea46fe2afbba7c14c6bc20533398679d2720daa",
+    "src/target/rust/rust_native_handle_nodes.c": "f2129eddb894f34a5851148b31c6b8747605b01083bfd7ecbb29a6d955ddc158",
+    "src/target/rust/rust_native_handles.c": "0112ce04e3fcfdb610909559d7c0778bdfd847f6c6dfaab8d701ecdb35dff43b",
+    "src/target/rust/rust_target.c": "4c181261fc58cc9788dc3ae5b6a15e03a206fdb5edbe25037f6120754179157a",
+    "src/target/rust/rust_validate.c": "4b43478da931fba14c8b0ac67b3d320801b3158217ca1adb61533b5342518393",
+    "templates/c/partials/expr/member.hbs": "c758870ea169c3df25b6c77210c426feba4403fe785142a00938bde271e8bfee",
+    "templates/c/partials/expr/member_access.hbs": "1cbdcb3cf589d5e9f61fb71d1abe70110ce6fb7446fb77f96825763f0d180535",
+    "templates/c/partials/expr/member_assign.hbs": "a814aae745c3982a168e7f4384e3f6d8573516d9dfdf9a168bad63d364fa7e50",
+    "templates/rust/native_handles/module.hbs": "ff1a8a926c8dc55bf6a06bb9a207ce396c012f01b739882b41520da1b5de5ff5",
+    "templates/rust/partials/expr/compound_assign.hbs": "9d3801465ab743e310eab134d408c1ae2986876b9c190f6d17c863c5596fc625",
+    "templates/rust/partials/expr/member.hbs": "3a96898a0d876b3923fe886040c9b10612f9c932452c8c355ba8b0f444825c24",
+    "templates/rust/partials/expr/member_assign.hbs": "cc91c68af158b5d17ae64486fb831a6a119916cbeacc6cb2536d79cd0ce321d0",
+    "templates/rust/partials/native_handle_struct.hbs": "33afd289efe209df5e9e9abd6317d10455aa5ca4fbb00a8b8958f7a3b1b2df0c",
+    "tests/package/native_artifacts.py": "f41c8ad6a2c4b2f2b366fa327a1cbd89e84811790d21152b4c74456f31340dc3",
+    "tests/rust-native/scalar_native_field_alias_public.expected": "6eb6c13695155c7d4cf506aafefebba02b35291144edc62ba6f1ca0fe593d809",
+    "tests/rust-native/scalar_native_field_alias_public.sn": "f9005b331833de4af9b52c1f7939715333a49c81dcd82bdfa2f573ee525e9050",
+    "tests/rust-native/scalar_native_field_alias_public.abi-matrix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests/rust-native/scalar_native_field_alias_public.sn.c": "7036e3693f470392b4c4b447777a299f3fbced0f0dd0a86fd9d345c6f1a46b9d"
+  },
+  "validation": [
+    {
+      "language": "C",
+      "total": 3240,
+      "groups": [
+        {
+          "passed": 1616,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 107,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 79,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1145,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 58,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 224,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 11,
+          "failed": 0,
+          "skipped": 0
+        }
+      ],
+      "log_sha256": "a270abf308e434abfcc6f222d2f99d392ffde1c231190e998eb6e2364c28f233"
+    },
+    {
+      "language": "Rust",
+      "total": 1083,
+      "groups": [
+        {
+          "passed": 506,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 118,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 8,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 379,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 4,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 36,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 10,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 7,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 12,
+          "failed": 0,
+          "skipped": 0
+        }
+      ],
+      "log_sha256": "b7b88c77a2187f160be2115e74d23e949f4fdaccb2a2dd0c97ecdf0bb0c661d6"
+    }
+  ],
+  "asan_units": 1616,
+  "asan_native_field_matrix": "passes original C/Rust nine-mode comparisons through ASAN compiler",
+  "artifact_tests_passed": 7,
+  "ci_helpers_passed": 13,
+  "base_ci": {
+    "run": 37970177022,
+    "conclusion": "success"
+  },
+  "hosted_acceptance": "pending",
+  "passed": true
+}

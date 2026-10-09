@@ -124,6 +124,64 @@ static void rust_prepare_native_handle_nodes(json_object *model, json_object *no
         if (strncmp(key, "rust_", 5) != 0) rust_prepare_native_handle_nodes(model, child);
 }
 
+static void rust_native_handle_compounds(json_object *model, json_object *node)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array)) {
+        for (size_t i = 0; i < json_object_array_length(node); i++)
+            rust_native_handle_compounds(model, json_object_array_get_idx(node, i));
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
+    json_object_object_foreach(node, key, child)
+        if (strncmp(key, "rust_", 5) != 0) rust_native_handle_compounds(model, child);
+    if (!json_string_property_equals(node, "kind", "compound_assign")) return;
+    json_object *target = rust_nullable_child(node, "target");
+    json_object *object = rust_nullable_child(target, "object");
+    json_object *type = rust_nullable_child(object, "type");
+    if (!rust_native_handle_type(type) || !json_string_property(target, "rust_native_handle_get")) return;
+    json_object *structure = rust_find_struct(model, json_string_property(type, "name"));
+    json_object *fields = rust_nullable_child(structure, "fields");
+    const char *setter = NULL;
+    for (size_t i = 0; fields && i < json_object_array_length(fields); i++) {
+        json_object *field = json_object_array_get_idx(fields, i);
+        if (json_string_property_equals(field, "name", json_string_property(target, "member_name")))
+            setter = json_string_property(field, "rust_native_handle_set");
+    }
+    if (!setter) return;
+    char owner[96], value[96], rhs[96];
+    if (!rust_allocate_helper_name(model, "__sn_native_field_owner", owner, sizeof(owner)) ||
+        !rust_allocate_helper_name(model, "__sn_native_field_value", value, sizeof(value)) ||
+        !rust_allocate_helper_name(model, "__sn_native_field_rhs", rhs, sizeof(rhs))) return;
+    json_object *body = NULL, *getter = NULL;
+    if (json_object_deep_copy(node, &body, NULL) || json_object_deep_copy(target, &getter, NULL)) {
+        if (body) json_object_put(body);
+        if (getter) json_object_put(getter);
+        return;
+    }
+    json_object *local = json_object_new_object();
+    json_object_object_add(local, "kind", json_object_new_string("variable"));
+    json_object_object_add(local, "name", json_object_new_string(owner));
+    json_object_object_add(local, "type", json_object_get(type));
+    json_object_object_add(getter, "object", local);
+    local = json_object_new_object();
+    json_object_object_add(local, "kind", json_object_new_string("variable"));
+    json_object_object_add(local, "name", json_object_new_string(value));
+    json_object_object_add(local, "type", json_object_get(rust_nullable_child(target, "type")));
+    json_object_object_add(body, "target", local);
+    local = json_object_new_object();
+    json_object_object_add(local, "kind", json_object_new_string("variable"));
+    json_object_object_add(local, "name", json_object_new_string(rhs));
+    json_object_object_add(local, "type", json_object_get(rust_nullable_child(rust_nullable_child(node, "value"), "type")));
+    json_object_object_add(body, "value", local);
+    json_object_object_add(node, "rust_native_compound_body", body);
+    json_object_object_add(node, "rust_native_compound_get", getter);
+    json_object_object_add(node, "rust_native_compound_set", json_object_new_string(setter));
+    json_object_object_add(node, "rust_native_compound_owner", json_object_new_string(owner));
+    json_object_object_add(node, "rust_native_compound_value", json_object_new_string(value));
+    json_object_object_add(node, "rust_native_compound_rhs", json_object_new_string(rhs));
+}
+
 /* A nested native handle/header read borrows the original closure array.
  * Resolve indices before the guard and extract only the canonical pointer;
  * copying a Vec of native headers would add observable C element retains. */

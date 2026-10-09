@@ -12,8 +12,8 @@ extern "C" {
     fn {{rust_ident rust_native_handle_retain}}(_: *mut std::ffi::c_void);
     fn {{rust_ident rust_native_handle_release}}(_: *mut std::ffi::c_void);
     fn {{rust_ident rust_native_handle_refs}}(_: *mut std::ffi::c_void) -> i32;
-{{#each fields}}{{#if rust_native_handle_get}}    fn {{rust_ident rust_native_handle_get}}(_: *mut std::ffi::c_void) -> {{#if (eq type.kind "char")}}std::ffi::c_char{{else}}{{rust_type type}}{{/if}};
-{{#if rust_native_handle_set}}    fn {{rust_ident rust_native_handle_set}}(_: *mut std::ffi::c_void, _: {{#if (eq type.kind "char")}}std::ffi::c_char{{else}}{{rust_type type}}{{/if}});
+{{#each fields}}{{#if rust_native_handle_get}}    fn {{rust_ident rust_native_handle_get}}(_: *mut std::ffi::c_void) -> {{#if (eq type.kind "string")}}*const std::ffi::c_char{{else}}{{#if (eq type.kind "char")}}std::ffi::c_char{{else}}{{rust_type type}}{{/if}}{{/if}};
+{{#if rust_native_handle_set}}    fn {{rust_ident rust_native_handle_set}}(_: *mut std::ffi::c_void, _: {{#if (eq type.kind "string")}}*const std::ffi::c_char{{else}}{{#if (eq type.kind "char")}}std::ffi::c_char{{else}}{{rust_type type}}{{/if}}{{/if}});
 {{/if}}{{/if}}{{/each}}
 }
 impl {{rust_ident name}} {

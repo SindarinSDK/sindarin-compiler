@@ -192,6 +192,22 @@ class NativeArtifactTests(unittest.TestCase):
         self.assertIn(b'native toolchain unavailable', result.stderr)
         self.assertFalse(self.output.exists())
 
+    def test_c_backing_preserves_posix_string_declarations(self):
+        self.manifest(['C'])
+        self.write('native/value.c', '#include <stdlib.h>\n#include <string.h>\n'
+                   'long long from_c(void) { char *s = strdup("native"); '
+                   'long long size = (long long)strlen(s); free(s); return size; }\n')
+        summary, metadata = self.build()
+        archive = Path(summary['assembly']).parent / metadata['units'][0]['archive']
+        self.write('posix.c', 'long long from_c(void); int main(void) { return from_c() == 6 ? 0 : 1; }\n')
+        cc = shlex.split(os.environ.get('SN_CC') or ('clang' if os.name == 'nt' or os.sys.platform == 'darwin' else 'gcc'))
+        executable = self.root / 'posix.exe'
+        built = subprocess.run(cc + [str(self.root / 'posix.c'), str(archive), '-o', str(executable)],
+                               capture_output=True, timeout=120)
+        self.assertEqual(built.returncode, 0, built.stderr.decode(errors='replace'))
+        run = subprocess.run([str(executable)], capture_output=True, timeout=10)
+        self.assertEqual(run.returncode, 0, run.stderr.decode(errors='replace'))
+
     def test_missing_input_export_and_tool_failure_do_not_publish(self):
         self.manifest(['C'])
         self.write('native/value.c', 'long long wrong_export(void) { return 0; }\n')

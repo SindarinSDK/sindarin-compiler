@@ -99,6 +99,10 @@ int {{rust_native_handle_refs}}(void *pointer) {
 }
 {{#if rust_native_handle_set}}
 void {{rust_native_handle_set}}(void *pointer, {{c_type type}} value) {
-    ((__sn__{{../name}} *)pointer)->{{#if c_alias}}{{c_alias}}{{else}}__sn__{{name}}{{/if}} = value;
+{{#if (eq type.kind "string")}}    char *copy = value ? strdup(value) : NULL;
+    free(((__sn__{{../name}} *)pointer)->{{#if c_alias}}{{c_alias}}{{else}}__sn__{{name}}{{/if}});
+    ((__sn__{{../name}} *)pointer)->{{#if c_alias}}{{c_alias}}{{else}}__sn__{{name}}{{/if}} = copy;
+{{else}}    ((__sn__{{../name}} *)pointer)->{{#if c_alias}}{{c_alias}}{{else}}__sn__{{name}}{{/if}} = value;
+{{/if}}
 }
 {{/if}}{{/if}}{{/each}}{{/each}}

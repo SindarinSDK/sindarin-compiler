@@ -1778,6 +1778,13 @@ static bool rust_validate_expr(json_object *expr)
     }
     if (strcmp(kind, "compound_assign") == 0)
     {
+        json_object *native_body = NULL;
+        if (json_object_object_get_ex(expr, "rust_native_compound_body", &native_body)) {
+            json_object *target = NULL, *value = NULL;
+            return json_object_object_get_ex(expr, "target", &target) &&
+                   json_object_object_get_ex(expr, "value", &value) &&
+                   rust_validate_expr(target) && rust_validate_expr(value) && rust_validate_expr(native_body);
+        }
         json_object *target = NULL, *value = NULL, *target_type = NULL, *value_type = NULL;
         const char *target_kind = NULL, *value_kind = NULL;
         if (!json_object_object_get_ex(expr, "target", &target) ||

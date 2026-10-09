@@ -239,7 +239,7 @@ def build(args):
                 objects = []
                 for number, source in enumerate(unit['sources']):
                     obj, depfile = work / f'{stem}-{number}.o', work / f'{stem}-{number}.d'
-                    flags = ['-std=c11', '-O' + args.optimization, '-fno-lto']
+                    flags = ['-std=c11', '-D_GNU_SOURCE', '-Werror=implicit-function-declaration', '-O' + args.optimization, '-fno-lto']
                     for directory in includes: flags += ['-I', directory]
                     run(cc + flags + shlex.split(os.environ.get('SN_CFLAGS', '')) +
                         ['-MD', '-MF', depfile, '-c', source_path(root, source), '-o', obj], cwd=root)

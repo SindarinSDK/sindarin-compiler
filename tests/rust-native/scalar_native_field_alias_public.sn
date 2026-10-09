@@ -1,0 +1,25 @@
+@source "scalar_native_field_alias_public.sn.c"
+
+native struct PublicFields as ref =>
+  @alias "count"
+  _count: int
+  @alias "text"
+  _text: str
+  @alias "pointer"
+  _pointer: *void
+
+native fn make_public_fields(): PublicFields
+
+fn main(): void =>
+  var value: PublicFields = make_public_fields()
+  var alias: PublicFields = value
+  println(value._count)
+  value._count += 3
+  println(alias._count)
+  value._text = "updated"
+  println(alias._text)
+  value._text = alias._text
+  value._text += "!"
+  println(alias._text)
+  println(value._pointer == nil)
+  println(sizeof(PublicFields))

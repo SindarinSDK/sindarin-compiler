@@ -1,1 +1,1 @@
-{{#if object.type.pass_self_by_ref}}{{> expr object}}->__sn__{{field_name}}{{else}}{{> expr object}}.__sn__{{field_name}}{{/if}}
+{{#if object.type.pass_self_by_ref}}{{> expr object}}->{{#if c_field_name}}{{c_field_name}}{{else}}__sn__{{field_name}}{{/if}}{{else}}{{> expr object}}.{{#if c_field_name}}{{c_field_name}}{{else}}__sn__{{field_name}}{{/if}}{{/if}}

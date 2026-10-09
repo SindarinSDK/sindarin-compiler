@@ -159,7 +159,12 @@ static bool native_prepare_handles(json_object *model, RustNativePlan *plan)
         json_object *fields = native_record_child(structure, "fields");
         for (size_t f = 0; fields && f < json_object_array_length(fields); f++) {
             json_object *field = json_object_array_get_idx(fields, f);
-            if (!native_scalar_type(native_record_child(field, "type"), false)) continue;
+            json_object *field_type = native_record_child(field, "type");
+            bool string_field = native_string(field_type, "kind") &&
+                                strcmp(native_string(field_type, "kind"), "string") == 0;
+            if (!native_scalar_type(field_type, false) && !string_field) continue;
+            if (string_field)
+                json_object_object_add(model, "rust_nullable_strings", json_object_new_boolean(true));
             char stem[160]; snprintf(stem, sizeof(stem), "__sn_native_handle_%zu_get_%zu", i, f);
             char *getter = unique_private_name(native_record_child(model, "functions"), structures,
                 native_record_child(model, "globals"), stem);
