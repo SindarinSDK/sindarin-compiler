@@ -9,6 +9,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <yaml.h>
+#include <json-c/json.h>
+#include <stdint.h>
 
 #include "colors.h"
 
@@ -35,6 +37,8 @@ static bool yaml_config_error(const char *path, const char *message)
     fprintf(stderr, "%serror%s: %s: %s\n", COLOR_RED, COLOR_RESET, path, message);
     return false;
 }
+
+#include "package_yaml_native.c"
 
 /* Read direct mapping entries only. Nested extension fields must never become
  * root fields (especially runtime), nor corrupt dependency parsing. */
@@ -69,13 +73,13 @@ static bool parse_dependency(yaml_document_t *document, yaml_node_t *node,
 }
 
 static bool parse_config_document(yaml_document_t *document, PackageConfig *config,
-                                  const char *path)
+                                  const char *path, json_object **native_plan)
 {
     yaml_node_t *root = yaml_document_get_root_node(document);
     if (!root) return true; /* Preserve empty legacy manifests. */
     if (root->type != YAML_MAPPING_NODE)
         return yaml_config_error(path, "package manifest must be a mapping");
-    bool runtime_seen = false;
+    bool runtime_seen = false, native_seen = false, dependencies_seen = false;
     for (yaml_node_pair_t *pair = root->data.mapping.pairs.start;
          pair < root->data.mapping.pairs.top; pair++) {
         yaml_node_t *key = yaml_document_get_node(document, pair->key);
@@ -98,7 +102,17 @@ static bool parse_config_document(yaml_document_t *document, PackageConfig *conf
             else if (strcmp(spelling, "RS") == 0) config->runtime = PACKAGE_RUNTIME_RS;
             else if (strcmp(spelling, "GO") == 0) config->runtime = PACKAGE_RUNTIME_GO;
             else return yaml_config_error(path, "runtime must be C, RS or GO");
+        } else if (strcmp(name, "native") == 0) {
+            if (native_seen) return yaml_config_error(path, "duplicate native metadata field");
+            native_seen = true;
+            json_object *plan = native_yaml_json(document, value, path, 0);
+            if (!plan) return false;
+            if (!validate_native_plan(plan, path)) { json_object_put(plan); return false; }
+            *native_plan = plan;
+            config->has_native = true;
         } else if (strcmp(name, "dependencies") == 0) {
+            if (dependencies_seen) return yaml_config_error(path, "duplicate dependencies field");
+            dependencies_seen = true;
             if (value->type != YAML_SEQUENCE_NODE)
                 return yaml_config_error(path, "dependencies must be a sequence");
             for (yaml_node_item_t *item = value->data.sequence.items.start;
@@ -128,7 +142,7 @@ static bool parse_config_document(yaml_document_t *document, PackageConfig *conf
     return true;
 }
 
-bool package_yaml_parse(const char *path, PackageConfig *config)
+static bool parse_yaml_config(const char *path, PackageConfig *config, json_object **native_out)
 {
     if (!path || !config) return false;
     memset(config, 0, sizeof(*config));
@@ -138,9 +152,10 @@ bool package_yaml_parse(const char *path, PackageConfig *config)
     if (!yaml_parser_initialize(&parser)) { fclose(f); return false; }
     yaml_parser_set_input_file(&parser, f);
     yaml_document_t document;
+    json_object *native_plan = NULL;
     bool success = yaml_parser_load(&parser, &document) != 0;
     if (success) {
-        success = parse_config_document(&document, config, path);
+        success = parse_config_document(&document, config, path, &native_plan);
         yaml_document_delete(&document);
         /* A manifest is one document; never combine runtime declarations from
          * multiple YAML documents or overlook an invalid trailing document. */
@@ -158,7 +173,21 @@ bool package_yaml_parse(const char *path, PackageConfig *config)
     yaml_parser_delete(&parser);
     fclose(f);
     if (!success) memset(config, 0, sizeof(*config));
+    if (success && native_out) *native_out = native_plan;
+    else if (native_plan) json_object_put(native_plan);
     return success;
+}
+
+bool package_yaml_parse(const char *path, PackageConfig *config)
+{
+    return parse_yaml_config(path, config, NULL);
+}
+
+bool package_yaml_native_plan(const char *path, json_object **out)
+{
+    if (!out) return false;
+    PackageConfig config;
+    return parse_yaml_config(path, &config, out);
 }
 
 /* ============================================================================
@@ -192,6 +221,9 @@ bool package_yaml_write(const char *path, const PackageConfig *config)
     if (path == NULL || config == NULL) {
         return false;
     }
+
+    if (config->has_native)
+        return yaml_config_error(path, "PackageConfig cannot serialize native metadata; use the preserving dependency editor");
 
     if ((config->runtime != PACKAGE_RUNTIME_INHERIT && !package_runtime_name(config->runtime)) ||
         config->dependency_count < 0 || config->dependency_count > PKG_MAX_DEPS) {
@@ -307,36 +339,4 @@ error:
     return false;
 }
 
-bool package_yaml_add_dependency(const char *path, const PackageDependency *dep)
-{
-    if (path == NULL || dep == NULL) {
-        return false;
-    }
-
-    /* Parse existing config */
-    PackageConfig config;
-    if (!package_yaml_parse(path, &config)) {
-        return false;
-    }
-
-    /* Check if dependency already exists */
-    for (int i = 0; i < config.dependency_count; i++) {
-        if (strcmp(config.dependencies[i].name, dep->name) == 0) {
-            /* Update existing dependency */
-            config.dependencies[i] = *dep;
-            return package_yaml_write(path, &config);
-        }
-    }
-
-    /* Add new dependency */
-    if (config.dependency_count >= PKG_MAX_DEPS) {
-        fprintf(stderr, "%serror%s: maximum number of dependencies reached\n",
-                COLOR_RED, COLOR_RESET);
-        return false;
-    }
-
-    config.dependencies[config.dependency_count] = *dep;
-    config.dependency_count++;
-
-    return package_yaml_write(path, &config);
-}
+#include "package_yaml_edit.c"

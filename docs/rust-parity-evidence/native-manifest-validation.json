@@ -1,0 +1,192 @@
+{
+  "base_revision": "c0167613e8db84db49561ce199787172e5f798e1",
+  "scope": "Native build/binding manifest structure, owned plan extraction, preserving dependency edits and explicit unsupported-pipeline diagnostics. Artifact compilation and generated adapters remain required.",
+  "source_sha256": {
+    "src/package.h": "4392b642f06556da2700b6725132f9fc87b99d9a2d262b904a689b0334a76542",
+    "src/package/package_yaml.c": "d9e0d02a96e5c960c00d7f6b5e04a9950d357e8e21ca740b2594173abbadedf2",
+    "src/package/package_yaml_native.c": "79f7097940b1831048a79e51d528c8d0ce2f7af8cd306b5a7879d41bc3b40281",
+    "src/package/package_yaml_edit.c": "edeb92bdbce37ebe7da68cb85f3f894cc8c09817a78b27d8155442c2b5bd9188",
+    "src/package/package_runtime.c": "7dc8b315209d2662f191c572784a8e10b10e6a247ee0b5a744a364c87857d232",
+    "tests/unit/package/package_tests.c": "c39753f847440ccdd5eb9e6b6f8017b411222da0dfe2e3c77d53cb6417ba3cbc",
+    "tests/package/runtime_contract.py": "0cc9eaf38074c2db18b5cd39d595fb20c29c39fa6fabd0cf674069012cb8c635"
+  },
+  "compiler_sha256": "9b17da09ae00a0aec002204ec4367d6eab4d06fab4afead2393b607ea549b8f3",
+  "asan_compiler_sha256": "d75e1ce6828fbcab2f96e5e50c00492ce35e328f7ae56e574e331fb477481018",
+  "validation": [
+    {
+      "language": "C",
+      "command": [
+        "python3",
+        "scripts/run_tests.py",
+        "all",
+        "--no-cleanup",
+        "--parallel",
+        "4"
+      ],
+      "total_passed": 3239,
+      "groups": [
+        {
+          "passed": 1615,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 107,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 79,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1145,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 58,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 224,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 11,
+          "failed": 0,
+          "skipped": 0
+        }
+      ],
+      "local_log": ".sn/native-manifest-c-full.log",
+      "log_sha256": "8b35c203cd9e821d7d46a192f77879c8928ab002ba3601bb55cf8d96ee791bd8"
+    },
+    {
+      "language": "Rust",
+      "command": [
+        "python3",
+        "scripts/run_rust_tests.py",
+        "all",
+        "--no-cleanup",
+        "--parallel",
+        "4"
+      ],
+      "total_passed": 1082,
+      "groups": [
+        {
+          "passed": 506,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 118,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 8,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 378,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 4,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 36,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 10,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 7,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 12,
+          "failed": 0,
+          "skipped": 0
+        }
+      ],
+      "local_log": ".sn/native-manifest-rust-full.log",
+      "log_sha256": "882cb8025d9eba4b2196512990768e7d0b739c6a81ca36cd6132ad9042d72b98"
+    },
+    {
+      "local_log": ".sn/native-manifest-contract.log",
+      "tests_passed": 14,
+      "log_sha256": "186b217a2958d245a50723c64c6cb9e111a5fcda214c03682a35b5994e9f4c29"
+    },
+    {
+      "local_log": ".sn/native-manifest-asan-contract.log",
+      "tests_passed": 14,
+      "log_sha256": "8dcac5a0c7e4a7b4d68e5278dd564721505eb338b8989fdd3248103d6fd83f8d"
+    },
+    {
+      "local_log": ".sn/native-manifest-ci-helpers.log",
+      "tests_passed": 13,
+      "log_sha256": "1ad402319a06b9a2aa1cdd5f08499e991be4aa4834e0b1e2de92dca6e2e983b0"
+    },
+    {
+      "local_log": ".sn/native-manifest-asan-unit.log",
+      "checks_passed": 1615,
+      "sanitizer": "AddressSanitizer with existing JSON lifetime guard; no sanitizer settings disabled",
+      "log_sha256": "8647439af47278dbe11578edbcbb84bcd24fcde9418193e80b7f90c2042c548b"
+    }
+  ],
+  "native_contract": {
+    "backing_languages": [
+      "C",
+      "RS",
+      "GO"
+    ],
+    "abi": "1.0",
+    "invalid_structural_contracts": 26,
+    "recursive_alias_rejection": true,
+    "native_plan_preserved_on_dependency_add_update": true,
+    "unknown_root_and_dependency_metadata_preserved": true,
+    "unrelated_dependency_alias_preserved": true,
+    "scalar_config_writer_rejects_native_data_loss": true,
+    "compiler_contract_methods": 14,
+    "actual_compiler_invocations": 42,
+    "executables_checked": 8
+  },
+  "base_ci": {
+    "run": 37961423741,
+    "conclusion": "success"
+  },
+  "required_ci": {
+    "groups": 26,
+    "gate_executions": 277
+  },
+  "hosted_acceptance": "pending",
+  "passed": true
+}

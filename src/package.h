@@ -63,6 +63,7 @@ typedef struct {
     char description[PKG_MAX_URL_LEN];
     char license[PKG_MAX_NAME_LEN];
     PackageRuntime runtime;
+    bool has_native;               /* Full native contract is loaded separately */
     PackageDependency dependencies[PKG_MAX_DEPS];
     int dependency_count;
 } PackageConfig;
@@ -120,6 +121,12 @@ bool package_yaml_write(const char *path, const PackageConfig *config);
 /* Add a dependency to sn.yaml
  * Returns true on success, false on failure */
 bool package_yaml_add_dependency(const char *path, const PackageDependency *dep);
+
+struct json_object;
+/* Load a validated native build/binding plan. Success returns an owned JSON
+ * reference, or NULL when native metadata is omitted. Caller json_object_puts
+ * a non-NULL plan. Failure leaves the output unchanged. */
+bool package_yaml_native_plan(const char *path, struct json_object **out);
 
 /* Manifest spelling, or NULL for inherit/invalid values. */
 const char *package_runtime_name(PackageRuntime runtime);

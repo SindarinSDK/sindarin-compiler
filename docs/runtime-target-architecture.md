@@ -97,8 +97,9 @@ runtime: GO
 `runtime` chooses how that package's Sindarin implementation is compiled. It does
 not change the final application's target and does not translate foreign source
 files into the selected language. Native sources also need explicit build inputs
-and binding metadata; the exact schema for those fields remains implementation
-work. For example, an RS package can still declare an explicit C dependency.
+and binding metadata, defined in the [native manifest contract](native-package-manifest.md).
+Its parser/preservation is implemented; native artifact builds and generated
+adapters remain implementation work. For example, an RS package can still declare an explicit C dependency.
 
 For a package consisting only of portable Sindarin source, an omitted runtime
 inherits the application's target. Its artifact is therefore cached separately
@@ -120,13 +121,16 @@ relative and SDK imports, before code emission. Matching C/RS selections current
 use the existing source compilation path. Cross-runtime package imports report
 that independent package artifacts and generated ABI adapters are not implemented
 yet; GO imports report that the Go backend and native package bridge are pending.
-These checks also apply with `--no-install` and source/model emission.
+These checks also apply with `--no-install` and source/model emission. Native
+build/binding metadata is structurally validated and retained when editing
+dependencies; compilation reports the unavailable package artifact/adapter pipeline
+for native-bearing manifests until that pipeline is implemented.
 
 The application's CLI target remains independent of the runtime declared in its
 own manifest; imports belonging to that same manifest follow the application
 target. Existing native C directives keep their C backing language even for RS
-packages. Independent artifacts, native build/binding metadata and Go package
-builds remain required implementation work.
+packages. Independent artifacts, native build-plan execution, binding/type verification and
+Go package builds remain required implementation work.
 
 ## Mixed-package example
 

@@ -97,6 +97,11 @@ bool package_check_import_runtimes(const char *application_source,
     if (app_manifest) {
         manifests[manifest_count++] = app_manifest;
         success = package_yaml_parse(app_manifest, &config);
+        if (success && config.has_native) {
+            fprintf(stderr, "error: %s: native build/binding metadata requires the independent "
+                    "package artifact and generated adapter pipeline, which is not implemented yet\n", app_manifest);
+            success = false;
+        }
     }
     for (int i = 0; success && i < count; i++) {
         char *manifest = source_manifest(imported_sources[i]);
@@ -107,6 +112,13 @@ bool package_check_import_runtimes(const char *application_source,
         if (seen) { free(manifest); continue; }
         manifests[manifest_count++] = manifest;
         if (!package_yaml_parse(manifest, &config)) { success = false; break; }
+        if (config.has_native) {
+            fprintf(stderr, "error: %s: package '%s' declares native build/binding metadata; "
+                    "independent package artifacts and generated adapters are not implemented yet\n",
+                    manifest, config.name);
+            success = false;
+            break;
+        }
         PackageRuntime runtime = package_runtime_resolve(config.runtime, application_runtime);
         if (runtime == PACKAGE_RUNTIME_GO) {
             fprintf(stderr, "error: %s: package '%s' selects runtime GO; the Sindarin Go backend "

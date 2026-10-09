@@ -121,6 +121,31 @@ class PackageRuntimeTests(unittest.TestCase):
             with self.subTest(target=target):
                 self.assert_runs(target)
 
+    def native_contract(self):
+        return ('native:\n  abi: 1.0\n  declarations: [src/value.sn]\n'
+                '  builds:\n    - name: backing\n      language: C\n'
+                '      sources: [src/value.c]\n'
+                '  bindings:\n    - declaration: src/value.sn::native_value\n'
+                '      build: backing\n      symbol: native_value\n'
+                '      convention: C\n      failure: abort\n'
+                '      ownership: {parameters: {}, result: value}\n')
+
+    def test_native_build_contract_is_not_silently_ignored(self):
+        self.write('.sn/dep/sn.yaml', 'name: dep\n' + self.native_contract())
+        for target in ('c', 'rust'):
+            for mode in (None, '--emit-source', '--emit-model'):
+                with self.subTest(target=target, mode=mode):
+                    self.assert_rejected(target, 'independent package artifacts and generated adapters', mode)
+
+    def test_invalid_native_build_reference_is_diagnosed(self):
+        self.write('.sn/dep/sn.yaml', 'name: dep\n' +
+                   self.native_contract().replace('build: backing', 'build: missing'))
+        self.assert_rejected('rust', 'native binding refers to an unknown build')
+
+    def test_root_native_contract_is_not_silently_ignored(self):
+        self.write('sn.yaml', 'name: application\n' + self.native_contract())
+        self.assert_rejected('rust', 'native build/binding metadata requires the independent')
+
     def test_symlink_import_uses_dependency_manifest(self):
         if os.name == 'nt':
             self.skipTest('symlink creation needs Windows host privileges; other ownership cases remain required')

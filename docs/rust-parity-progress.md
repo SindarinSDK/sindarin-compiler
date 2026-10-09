@@ -7,6 +7,49 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Native build/binding metadata: local validation, 2026-10-09
+
+Native package manifests now declare shared ABI version, API declaration modules,
+C/RS/GO build inputs, Rust crate roots, Go module directories, C-callable symbols,
+parameter/result ownership, borrowed-result owners and explicit failure policies.
+The reader extracts an owned JSON plan without dynamically owned data in recursive
+package-manager configuration frames. Structural validation rejects malformed,
+duplicate or unsupported contracts and unresolved build references.
+
+Dependency add/update edits the original YAML document, preserving native plans
+and unrelated root/dependency extensions. Sequence replacement preserves unrelated
+aliases of the original dependency list. Node IDs are refreshed across libyaml
+allocations. Invalid contracts and scalar-only native-config serialization are
+rejected before replacing the destination.
+
+Local validation passes 3,239 C checks and 1,082 Rust checks, all 1,615 unit tests
+under AddressSanitizer, fourteen compiler package contract tests (42 compiler
+invocations and eight executions), the same compiler contract under AddressSanitizer,
+and thirteen CI helper tests. The existing package contract gate runs these new
+checks on all three platforms; the 26-group/277-execution CI inventory is retained.
+Existing Sindarin fixtures and output oracles remain unchanged.
+
+The schema and implementation limits are documented in
+[native package metadata](native-package-manifest.md); evidence is in
+[native manifest validation](rust-parity-evidence/native-manifest-validation.json).
+Hosted acceptance of this batch is pending.
+
+This implements metadata reading/preservation and honest diagnostics. Native
+artifact build execution, declaration/type validation, generated adapters, independent
+SDK/package artifacts and all remaining full-goal obligations are unfinished.
+Native-bearing manifests report the unavailable artifact/adapter pipeline during
+application compilation instead of silently ignoring their declared backing.
+
+## Shared C ABI foundation: hosted acceptance, 2026-10-09
+
+Main `c0167613` passes complete unified Linux/macOS/Windows CI, including C/Rust/Go
+clients and native Go archive consumption from Rust on each platform, and the
+actual C implementation's address/undefined sanitizer lifetime gate on Linux.
+This accepts the transport foundation, not complete generated package integration
+or Rust parity. The historical pending entry below is superseded.
+
+[Accepted shared-ABI run](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37961423741).
+
 ## Shared C runtime ABI foundation: local validation, 2026-10-09
 
 The staged C runtime archive now exports versioned value-transport operations.

@@ -13,6 +13,7 @@
 
 #include "../test_harness.h"
 #include "../../../src/package.h"
+#include <json-c/json.h>
 
 /* ============================================================================
  * URL Parsing Tests
@@ -413,6 +414,149 @@ static void test_yaml_nested_metadata(void)
     cleanup_test_yaml();
 }
 
+static const char *native_manifest_fixture =
+    "name: mixed-native\nruntime: RS\n"
+    "extension: &extra {note: must-survive, versions: [1, 2]}\n"
+    "dependencies:\n  - name: old\n    git: https://example.com/old.git\n"
+    "    tag: v1\n    extension: *extra\n"
+    "native:\n  abi: 1.0\n  declarations: [src/api.sn]\n"
+    "  builds:\n    - name: c_io\n      language: C\n      sources: [native/io.c]\n"
+    "      include_dirs: [include]\n      libraries: [z]\n"
+    "    - name: rs_codec\n      language: RS\n      sources: [native/lib.rs, native/value.rs]\n"
+    "      entry: native/lib.rs\n"
+    "    - name: go_codec\n      language: GO\n      sources: [native/go/main.go, native/go/go.mod]\n"
+    "      module: native/go\n"
+    "  bindings:\n    - declaration: src/api.sn::open\n      build: c_io\n"
+    "      symbol: native_open\n      convention: C\n      failure: status\n"
+    "      ownership: {parameters: {path: borrowed}, result: owned}\n"
+    "    - declaration: src/api.sn::view\n      build: rs_codec\n"
+    "      symbol: native_view\n      convention: C\n      failure: abort\n"
+    "      ownership: {parameters: {self: borrowed}, result: borrowed, borrowed_from: self}\n"
+    "    - declaration: src/api.sn::consume\n      build: go_codec\n"
+    "      symbol: native_consume\n      convention: C\n      failure: status\n"
+    "      ownership: {parameters: {input: owned, count: value}, result: value}\n";
+
+static char *read_package_test_yaml(void)
+{
+    FILE *f = fopen(test_yaml_path(), "rb");
+    assert(f && fseek(f, 0, SEEK_END) == 0);
+    long size = ftell(f);
+    assert(size >= 0 && fseek(f, 0, SEEK_SET) == 0);
+    char *text = malloc((size_t)size + 1);
+    assert(text && fread(text, 1, (size_t)size, f) == (size_t)size);
+    text[size] = 0;
+    fclose(f);
+    return text;
+}
+
+static void test_native_manifest_plan_and_dependency_edit(void)
+{
+    write_package_test_yaml(native_manifest_fixture);
+    json_object *before = NULL, *after = NULL;
+    assert(package_yaml_native_plan(test_yaml_path(), &before));
+    assert(before != NULL);
+    json_object *builds = NULL, *bindings = NULL;
+    assert(json_object_object_get_ex(before, "builds", &builds));
+    assert(json_object_array_length(builds) == 3);
+    assert(json_object_object_get_ex(before, "bindings", &bindings));
+    assert(json_object_array_length(bindings) == 3);
+    PackageConfig config;
+    assert(package_yaml_parse(test_yaml_path(), &config));
+    assert(config.has_native && config.runtime == PACKAGE_RUNTIME_RS);
+    char *preserved = read_package_test_yaml();
+    assert(!package_yaml_write(test_yaml_path(), &config));
+    char *unchanged = read_package_test_yaml();
+    assert(strcmp(preserved, unchanged) == 0);
+    free(preserved); free(unchanged);
+    PackageDependency dep = {0};
+    strcpy(dep.name, "extra");
+    strcpy(dep.git_url, "https://example.com/extra.git");
+    strcpy(dep.tag, "v3");
+    assert(package_yaml_add_dependency(test_yaml_path(), &dep));
+    strcpy(dep.name, "old");
+    dep.tag[0] = 0;
+    strcpy(dep.branch, "main");
+    assert(package_yaml_add_dependency(test_yaml_path(), &dep));
+    assert(package_yaml_native_plan(test_yaml_path(), &after));
+    assert(json_object_equal(before, after));
+    assert(package_yaml_parse(test_yaml_path(), &config));
+    assert(config.runtime == PACKAGE_RUNTIME_RS && config.has_native);
+    assert(config.dependency_count == 2);
+    assert(config.dependencies[0].tag[0] == 0);
+    assert(strcmp(config.dependencies[0].branch, "main") == 0);
+    preserved = read_package_test_yaml();
+    assert(strstr(preserved, "must-survive") && strstr(preserved, "extension"));
+    /* Verify the unknown dependency extension survives as well as the root. */
+    const char *first = strstr(preserved, "extension:");
+    assert(first && strstr(first + 1, "extension:"));
+    free(preserved);
+    json_object_put(before); json_object_put(after);
+    write_package_test_yaml("dependencies: &original\n  - name: old\n"
+        "    git: https://example.com/old.git\n    tag: v1\nextension: *original\n");
+    assert(package_yaml_add_dependency(test_yaml_path(), &dep));
+    assert(package_yaml_parse(test_yaml_path(), &config));
+    assert(config.dependencies[0].tag[0] == 0);
+    preserved = read_package_test_yaml();
+    assert(strstr(preserved, "tag: v1")); /* the unrelated alias retains its value */
+    free(preserved);
+    write_package_test_yaml("name: legacy\n");
+    after = (json_object *)(uintptr_t)1;
+    assert(package_yaml_native_plan(test_yaml_path(), &after) && after == NULL);
+    cleanup_test_yaml();
+}
+
+static void test_native_manifest_invalid_contracts(void)
+{
+    struct { const char *find; const char *replace; } invalid[] = {
+        {"abi: 1.0", "abi: 2.0"}, {"abi: 1.0", "unknown: 1.0"},
+        {"language: C", "language: Rust"}, {"sources: [native/io.c]", "sources: []"},
+        {"sources: [native/io.c]", "sources: native/io.c"},
+        {"include_dirs: [include]", "include_dirs: {}"},
+        {"entry: native/lib.rs", "entry: nonexistent.rs"},
+        {"module: native/go", "module: []"},
+        {"name: rs_codec", "name: c_io"}, {"build: c_io", "build: missing"},
+        {"convention: C", "convention: Rust"}, {"failure: status", "failure: unwind"},
+        {"result: owned", "result: copied"}, {"path: borrowed", "path: retained"},
+        {"borrowed_from: self", "borrowed_from: path"},
+        {"borrowed_from: self", "borrowed_from: []"},
+        {"parameters: {path: borrowed}", "parameters: []"},
+        {"symbol: native_open", "symbol: \"\""},
+        {"symbol: native_open", "symbol: native_open\n      symbol: other"},
+        {"native:", "native: {abi: 1.0}\nnative:"},
+        {"declarations: [src/api.sn]", "declarations: []"},
+        {"declarations: [src/api.sn]", "declarations: [\"a\\0b\"]"},
+        {"result: borrowed, borrowed_from: self", "result: borrowed"},
+        {"result: borrowed, borrowed_from: self", "result: value, borrowed_from: self"},
+        {"ownership: {parameters: {path: borrowed}, result: owned}", "extension: {}"},
+        {"src/api.sn::view", "src/api.sn::open"},
+    };
+    for (size_t i = 0; i < sizeof(invalid) / sizeof(invalid[0]); i++) {
+        const char *found = strstr(native_manifest_fixture, invalid[i].find);
+        assert(found);
+        size_t prefix = (size_t)(found - native_manifest_fixture);
+        size_t size = strlen(native_manifest_fixture) + strlen(invalid[i].replace) + 1;
+        char *text = malloc(size);
+        assert(text);
+        memcpy(text, native_manifest_fixture, prefix);
+        strcpy(text + prefix, invalid[i].replace);
+        strcpy(text + prefix + strlen(invalid[i].replace), found + strlen(invalid[i].find));
+        write_package_test_yaml(text);
+        json_object *out = (json_object *)(uintptr_t)1;
+        assert(!package_yaml_native_plan(test_yaml_path(), &out));
+        assert(out == (json_object *)(uintptr_t)1);
+        PackageDependency dep = {0};
+        strcpy(dep.name, "extra");
+        assert(!package_yaml_add_dependency(test_yaml_path(), &dep));
+        char *unchanged = read_package_test_yaml();
+        assert(strcmp(text, unchanged) == 0);
+        free(text); free(unchanged);
+    }
+    write_package_test_yaml("native: &cycle {abi: *cycle}\n");
+    json_object *out = NULL;
+    assert(!package_yaml_native_plan(test_yaml_path(), &out));
+    cleanup_test_yaml();
+}
+
 #endif /* SN_HAS_PACKAGE_MANAGER */
 
 /* ============================================================================
@@ -445,5 +589,7 @@ void test_package_main(void)
     TEST_RUN("yaml_runtime_contract", test_yaml_runtime_contract);
     TEST_RUN("yaml_runtime_errors", test_yaml_runtime_errors);
     TEST_RUN("yaml_nested_metadata", test_yaml_nested_metadata);
+    TEST_RUN("native_manifest_plan_and_dependency_edit", test_native_manifest_plan_and_dependency_edit);
+    TEST_RUN("native_manifest_invalid_contracts", test_native_manifest_invalid_contracts);
 #endif
 }
