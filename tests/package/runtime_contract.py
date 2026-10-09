@@ -144,7 +144,7 @@ class PackageRuntimeTests(unittest.TestCase):
 
     def test_root_native_contract_is_not_silently_ignored(self):
         self.write('sn.yaml', 'name: application\n' + self.native_contract())
-        self.assert_rejected('rust', 'native build/binding metadata requires the independent')
+        self.assert_rejected('rust', 'requires a supported native declaration')
 
     def test_symlink_import_uses_dependency_manifest(self):
         if os.name == 'nt':

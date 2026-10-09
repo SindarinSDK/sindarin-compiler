@@ -4,7 +4,9 @@ Status: the compiler can inspect native plans and build independent native backi
 archives. Complete Sindarin package compilation, signature/type verification,
 generated export/import adapters and SDK decoupling remain required work in the
 [Rust completion goal](rust-completion-goal.md). These artifacts explicitly carry
-`complete_package: false` and cannot yet replace normal application imports.
+`complete_package: false`. Supported native declaration imports consume them
+through [generated consumer adapters](native-package-imports.md); complete Sindarin
+package bodies and SDK artifact imports remain incomplete.
 
 ## Commands
 
@@ -58,8 +60,9 @@ verified type/layout/reflection or generic specialization contract.
 The final package/link pipeline must select one compatible shared C runtime and
 validate complete package ABI contracts. This builder does not infer custom
 initialization/shutdown hooks, error wire signatures, foreign layouts, or callback
-lifetimes from native source. Application imports continue to report unavailable
-package adapters for native-bearing manifests until that pipeline is implemented.
+lifetimes from native source. Supported scalar/string native declaration imports use generated consumer
+adapters. Unsupported complete package bodies and managed contracts retain
+explicit diagnostics until those pipelines are implemented.
 
 ## Cache and publication
 

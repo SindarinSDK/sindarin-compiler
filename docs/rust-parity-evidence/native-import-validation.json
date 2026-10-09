@@ -1,0 +1,166 @@
+{
+  "base_revision": "0e463a1d1921921c1c26d148a13d704b93cac47e",
+  "scope": "Automatic consumer adapters and original native backing artifact linking for scalar/string package function contracts. SDK compatibility consumption verified; independent SDK artifact imports/provider shims remain incomplete.",
+  "source_sha256": {
+    "CMakeLists.txt": "1a21adaa0c49a1ad946310914b3c8372ccaf1ea7b52c4e1fd13d7e1a3222fbd7",
+    "scripts/ci/gates.json": "69ac16d1e82fffa58a1822690e27b429ef1fed1d8a1adc6707bbd2d80e8a288f",
+    "src/compiler.c": "37384347a1015569c32d5d73e8e718b2b6814a1542cfee9dae1c7565ae2f9c59",
+    "src/gcc_backend.c": "25cdc85222b81fc6bfbcd3edca016af3e0ccf3a475fc81518ab9105f2fce9e7d",
+    "src/package.h": "38aeb384528eb68b0c08bd8c593317c1aea137a20a8dd2b8d93b3441a02c4385",
+    "src/package/package_native_command.c": "7ae14cd9accfbcb18743695b3ef2bd6f4da97efa55f13e0d51651bca74e6aee1",
+    "src/package/package_native_command.h": "dcffe102b6030912cb45358b11e45a551bbcbffb93585ad740211cd869aad7d0",
+    "src/package/package_runtime.c": "8f41d0a0541457920a10a0575611f05cdc6a8e301b8a1966c7a5e628f745098f",
+    "src/target/rust/cc_sidecar.c": "fb0ced9a93838ee8a930462f402ff14f46be5eb8d631a922fcc5728ef641e3ba",
+    "tests/ci/test_ci_helpers.py": "04a5f93070aa123570965f08b26da82decb7ba8abe578d3f5bcb2ce8bd2b35af",
+    "tests/package/runtime_contract.py": "fb4c194ea115a78ef4c98ce8d446a8ea22bad2728f845ad3989c31711f50e7c7",
+    "scripts/prepare_native_imports.py": "5ebd71be4174413e4993c453ee873245fcf484cc9d8c16ab9c7f560871b56f12",
+    "src/package/package_import.c": "ce62ab00c4f6f6fc69faddec095503cfaef6ba26d633c2add18c93567eebd87a",
+    "src/package/package_import.h": "4062b68fbfadb611b1337b33655767b0de0a836a85bfd16ca49c1e0edb0b957c",
+    "src/package/package_link.c": "7a35939e457095fbc8333af968a78b8344886bbf00805ea86c175d8735934f43",
+    "src/package/package_link.h": "3546cb9c18d3d512700df9f5fb200028ec583bd0a2c20dbd4f98d33ce4e30bdb",
+    "tests/package/native_imports.py": "4a8d861bfb65fd0baf1d1a30d72451773f5d56d50aa100ef7d8399b82258debe"
+  },
+  "compiler_sha256": "ad7eca8409a608c385ea93b7e73fbc2970ae567bfe6a83b691de59ac75502b17",
+  "validation": [
+    {
+      "suite": "C",
+      "total": 3240,
+      "groups": [
+        {
+          "passed": 1616,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 107,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 79,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1145,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 58,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 224,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 11,
+          "failed": 0,
+          "skipped": 0
+        }
+      ],
+      "log_sha256": "8f9cbcd884cc605147988c3bde811c54cf48a6fc5954ab09f23a945e69149cb5"
+    },
+    {
+      "suite": "Rust",
+      "total": 1083,
+      "groups": [
+        {
+          "passed": 506,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 118,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 8,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 379,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 4,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 36,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 10,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 7,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 12,
+          "failed": 0,
+          "skipped": 0
+        }
+      ],
+      "log_sha256": "6cc8e55922da79c92ab9031d6160ddb1e85b3fd3831e2b15cdaf1b5f0c93b8aa"
+    },
+    {
+      "log": ".sn/native-import-tests.log",
+      "tests_passed": 6,
+      "log_sha256": "34585bacb77c8f6085b0dcc1db1d2b8c9b202874a12a837b1dce1b707911f7fd"
+    },
+    {
+      "log": ".sn/native-import-asan-tests.log",
+      "tests_passed": 6,
+      "log_sha256": "b91fe1965646bcaf0a7819525250b6dff14928a551539555e8acaa84d08e5b21"
+    },
+    {
+      "log": ".sn/native-import-existing-package.log",
+      "tests_passed": 14,
+      "log_sha256": "b3de84f195f586f5339011e424bddcd234b355f90b952bb9a7557fb2b781385b"
+    },
+    {
+      "log": ".sn/native-import-ci-helpers.log",
+      "tests_passed": 13,
+      "log_sha256": "9772553afba19f162904880d718a095470b2b5f81094ed7408b1e5ebe04b446f"
+    }
+  ],
+  "asan_units": 1616,
+  "base_ci": {
+    "run": 37981073019,
+    "conclusion": "success"
+  },
+  "required_ci": {
+    "groups": 26,
+    "gate_executions": 287
+  },
+  "hosted_acceptance": "pending",
+  "passed": true
+}

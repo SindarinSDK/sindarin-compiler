@@ -7,6 +7,37 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Generated native package imports: local validation, 2026-10-09
+
+Resolved native declarations now drive generated C consumer adapters and automatic
+original-language archive linking for C/Rust Sindarin applications. Scalar values,
+borrowed string inputs, owned string results and explicit status failures cross the
+shared C ABI. Native-only C/RS/GO declaration packages can differ from the consumer;
+unsupported body/type/ownership contracts retain diagnostics. Ordinary imports and
+legacy source directives remain their existing paths. Mixed per-application
+@source/native-artifact backing is rejected to prevent silent symbol shadowing.
+
+Six integration tests pass through the normal and ASAN compilers. A real Rust
+Sindarin app combines C/Rust/Go native packages, portable request-line code and C
+SDK TextFile resources/arrays. SDK calls still use the legacy compatibility path.
+Local suites pass 3,240 C checks, 1,083 Rust checks, 1,616 ASAN units, fourteen
+package-contract tests and thirteen CI helper tests. A native-import core gate
+retains 26 groups and increases required executions to 287. Hosted acceptance is
+pending; independent SDK artifact imports, complete package bodies/type descriptors,
+provider export shims, graph aggregation and full Rust parity remain required work.
+
+[Contract/limits](native-package-imports.md).
+Evidence: [native import validation](rust-parity-evidence/native-import-validation.json).
+
+## SDK oracle correction: hosted acceptance, 2026-10-09
+
+Corrected compiler main `0e463a1d` passes full Linux/macOS/Windows unified CI,
+including pinned SDK native clients and the exact Windows text oracle. SDK
+correction `52bd4e4` also passes all four SDK jobs. This lifts the publication
+freeze and supersedes the earlier pending/frozen descriptions below.
+
+[Accepted compiler correction](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37981073019).
+
 ## SDK Windows oracle correction: local validation, 2026-10-09
 
 Compiler run `37978810233` passes the Windows native artifact and SDK native

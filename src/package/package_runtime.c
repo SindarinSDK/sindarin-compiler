@@ -26,7 +26,7 @@ PackageRuntime package_runtime_resolve(PackageRuntime declared, PackageRuntime a
 /* Return the nearest enclosing manifest, using canonical absolute paths so
  * relative, parent and symlink imports identify the same package. The caller
  * owns the result. Existing source files are required by the compilation path. */
-static char *source_manifest(const char *source)
+char *package_source_manifest(const char *source)
 {
 #ifdef _WIN32
     char *directory = _fullpath(NULL, source, 0);
@@ -93,18 +93,14 @@ bool package_check_import_runtimes(const char *application_source,
     int manifest_count = 0;
     bool success = true;
     PackageConfig config;
-    char *app_manifest = source_manifest(application_source);
+    char *app_manifest = package_source_manifest(application_source);
     if (app_manifest) {
         manifests[manifest_count++] = app_manifest;
         success = package_yaml_parse(app_manifest, &config);
-        if (success && config.has_native) {
-            fprintf(stderr, "error: %s: native build/binding metadata requires the independent "
-                    "package artifact and generated adapter pipeline, which is not implemented yet\n", app_manifest);
-            success = false;
-        }
+
     }
     for (int i = 0; success && i < count; i++) {
-        char *manifest = source_manifest(imported_sources[i]);
+        char *manifest = package_source_manifest(imported_sources[i]);
         if (!manifest) continue;
         bool seen = false;
         for (int j = 0; j < manifest_count; j++)
@@ -112,13 +108,7 @@ bool package_check_import_runtimes(const char *application_source,
         if (seen) { free(manifest); continue; }
         manifests[manifest_count++] = manifest;
         if (!package_yaml_parse(manifest, &config)) { success = false; break; }
-        if (config.has_native) {
-            fprintf(stderr, "error: %s: package '%s' declares native build/binding metadata; "
-                    "independent package artifacts and generated adapters are not implemented yet\n",
-                    manifest, config.name);
-            success = false;
-            break;
-        }
+        if (config.has_native) continue; /* resolved by the typed import adapter pass */
         PackageRuntime runtime = package_runtime_resolve(config.runtime, application_runtime);
         if (runtime == PACKAGE_RUNTIME_GO) {
             fprintf(stderr, "error: %s: package '%s' selects runtime GO; the Sindarin Go backend "

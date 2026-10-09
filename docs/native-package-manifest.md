@@ -2,10 +2,11 @@
 
 Status: manifest validation, plan extraction and preserving dependency edits are
 implemented. [Native backing archives](native-artifacts.md) can now be built with
-`--build-native`. Complete package compilation, declaration/type validation and
-generated export/import adapters remain required implementation work. A manifest using this
-metadata currently receives an explicit unavailable-pipeline diagnostic during
-application compilation, including source/model emission and `--no-install`.
+`--build-native`. Complete package compilation and managed type/layout/provider export contracts
+remain required work. [Generated native imports](native-package-imports.md) resolve
+scalar/string declarations, build original backings and generate consumer adapters.
+Unsupported bodies, types and ownership policies receive diagnostics, including
+source/model emission and `--no-install`.
 
 This is part of the [runtime/package architecture](runtime-target-architecture.md)
 and [Rust completion goal](rust-completion-goal.md). It extends package build

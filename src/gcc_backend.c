@@ -1,4 +1,5 @@
 #include "gcc_backend.h"
+#include "package/package_link.h"
 #include "gcc_backend_config.h"
 #include "gcc_backend_pkgconfig.h"
 #include "debug.h"
@@ -820,6 +821,17 @@ bool gcc_compile_modular(const CCBackendConfig *config, const char *build_dir,
         for (int i = 0; i < link_lib_count && offset < (int)sizeof(extra_libs) - 8; i++)
         {
             const char *lib = link_libs[i];
+            char *artifact = package_link_token(lib);
+            if (artifact) {
+                int written = snprintf(extra_libs + offset, sizeof(extra_libs) - offset, " %s", artifact);
+                free(artifact);
+                if (written < 0 || written >= (int)sizeof(extra_libs) - offset) {
+                    fprintf(stderr, "Error: native package link options exceed the linker argument buffer\n");
+                    return false;
+                }
+                offset += written;
+                continue;
+            }
             const char *override = get_ldlibs_for_lib(lib);
             if (override)
             {

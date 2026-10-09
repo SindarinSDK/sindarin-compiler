@@ -12,7 +12,7 @@
 #endif
 
 /* Invoke argv directly: paths and metadata are never interpreted by a shell. */
-static int native_driver_run(char *const *args)
+int package_native_run_driver(char *const *args)
 {
 #ifdef _WIN32
     size_t size = 1;
@@ -93,7 +93,7 @@ int package_native_command(const CompilerOptions *options)
             options->target == TARGET_RUST ? "rust" : "c", "--optimization", optimization,
             "--arithmetic", options->arithmetic_mode == ARITH_CHECKED ? "checked" : "unchecked",
             "--out-dir", options->output_file ? options->output_file : ".sn/build/native", NULL};
-        return native_driver_run(args);
+        return package_native_run_driver(args);
     }
     PackageConfig config;
     json_object *native = NULL;

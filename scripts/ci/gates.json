@@ -1326,6 +1326,16 @@
       ],
       "group": "sanitizers",
       "linux_only": true
+    },
+    {
+      "id": "runtime-110",
+      "name": "generated native package imports, ownership and mixed Sindarin callers",
+      "command": [
+        "{python}",
+        "tests/package/native_imports.py"
+      ],
+      "group": "core",
+      "linux_only": false
     }
   ]
 }

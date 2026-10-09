@@ -118,13 +118,14 @@ produce errors. Nested extension metadata does not select a package runtime.
 
 The compiler checks the manifests owning imported modules, including transitive,
 relative and SDK imports, before code emission. Matching C/RS selections currently
-use the existing source compilation path. Cross-runtime package imports report
-that independent package artifacts and generated ABI adapters are not implemented
-yet; GO imports report that the Go backend and native package bridge are pending.
+use the existing source compilation path. Native-only packages with implemented scalar/string contracts can cross runtimes
+through [generated consumer adapters](native-package-imports.md). Cross-runtime
+Sindarin implementation bodies still require complete independent package
+compilation; GO implementation bodies report the unsupported Go backend.
 These checks also apply with `--no-install` and source/model emission. Native
 build/binding metadata is structurally validated and retained when editing
-dependencies; compilation reports the unavailable package artifact/adapter pipeline
-for native-bearing manifests until that pipeline is implemented.
+dependencies; supported native declaration imports build their original backing language and
+connect generated call adapters; unsupported contracts are diagnosed.
 
 The application's CLI target remains independent of the runtime declared in its
 own manifest; imports belonging to that same manifest follow the application

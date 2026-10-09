@@ -128,6 +128,9 @@ struct json_object;
  * a non-NULL plan. Failure leaves the output unchanged. */
 bool package_yaml_native_plan(const char *path, struct json_object **out);
 
+/* Owned nearest manifest path, or NULL when the source has no manifest. */
+char *package_source_manifest(const char *source);
+
 /* Manifest spelling, or NULL for inherit/invalid values. */
 const char *package_runtime_name(PackageRuntime runtime);
 

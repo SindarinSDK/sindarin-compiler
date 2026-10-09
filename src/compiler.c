@@ -6,6 +6,7 @@
 #include "gcc_backend.h"
 #include "target/target.h"
 #include "package.h"
+#include "package/package_import.h"
 #include "version.h"
 #include <stdlib.h>
 #include <string.h>
@@ -478,6 +479,12 @@ Module* compiler_compile(CompilerOptions *options)
     diagnostic_phase_start(PHASE_TYPE_CHECK);
     if (!type_check_module(module, &options->symbol_table))
     {
+        diagnostic_phase_failed(PHASE_TYPE_CHECK);
+        diagnostic_compile_failed();
+        return NULL;
+    }
+    if (!package_prepare_native_imports(options, module, (const char *const *)imported,
+                                       imported_modules, imported_count)) {
         diagnostic_phase_failed(PHASE_TYPE_CHECK);
         diagnostic_compile_failed();
         return NULL;

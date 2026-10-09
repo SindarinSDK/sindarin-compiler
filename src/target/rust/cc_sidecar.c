@@ -1,4 +1,5 @@
 #include "cc_sidecar.h"
+#include "package/package_link.h"
 #include "gcc_backend_pkgconfig.h"
 #include "debug.h"
 #include <errno.h>
@@ -432,6 +433,14 @@ static bool resolve_environment(const CCBackendConfig *config,
         for (int i = 0; i < request->link_library_count; i++)
         {
             const char *lib = request->link_libraries[i];
+            char *artifact = package_link_token(lib);
+            if (artifact) {
+                bool added = add_owned_string(&plan->requested_link_options,
+                                               &plan->requested_link_option_count, artifact);
+                free(artifact);
+                if (!added) return false;
+                continue;
+            }
             char replacement[1024];
             bool has_replacement = false;
             if (!rust_sidecar_link_override(plan->sdk_root, lib, replacement,
