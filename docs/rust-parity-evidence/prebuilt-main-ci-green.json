@@ -1,0 +1,10 @@
+{
+  "run": {
+    "conclusion": "success",
+    "headSha": "94e8a31f026ab64b3153eabdee305a8e3945cd5e",
+    "status": "completed",
+    "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38050952649"
+  },
+  "scope": "Complete unified platform CI for prebuilt consumption; whole Rust/package goal incomplete",
+  "passed": true
+}

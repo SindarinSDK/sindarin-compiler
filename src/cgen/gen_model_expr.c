@@ -1387,6 +1387,20 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     json_object_object_add(right_obj, "is_str_temp",
                         json_object_new_boolean(true));
             }
+            if (expr->as.binary.operator == TOKEN_EQUAL_EQUAL || expr->as.binary.operator == TOKEN_BANG_EQUAL)
+            {
+                json_object *left_kind = NULL, *right_kind = NULL, *left_temp = NULL, *right_temp = NULL;
+                bool left_nil = json_object_object_get_ex(left_obj, "value_kind", &left_kind) &&
+                    strcmp(json_object_get_string(left_kind), "nil") == 0;
+                bool right_nil = json_object_object_get_ex(right_obj, "value_kind", &right_kind) &&
+                    strcmp(json_object_get_string(right_kind), "nil") == 0;
+                bool owned_left = json_object_object_get_ex(left_obj, "is_str_temp", &left_temp) && json_object_get_boolean(left_temp);
+                bool owned_right = json_object_object_get_ex(right_obj, "is_str_temp", &right_temp) && json_object_get_boolean(right_temp);
+                if ((right_nil && owned_left) || (left_nil && owned_right)) {
+                    json_object_object_add(obj, "c_owned_nil_string_comparison", json_object_new_boolean(true));
+                    json_object_object_add(obj, "c_owned_nil_string_left", json_object_new_boolean(owned_left));
+                }
+            }
             /* For array binary ops (== / !=), mark array literal operands
              * for temp cleanup so the inline array is freed after comparison */
             {

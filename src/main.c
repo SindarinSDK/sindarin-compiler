@@ -335,6 +335,20 @@ int main(int argc, char **argv)
         diagnostic_phase_start(PHASE_CODE_GEN);
         json_object *model = gen_model_build(&options.arena, module,
                                               &options.symbol_table, options.arithmetic_mode);
+        if (options.package_body) {
+            json_object *declarations = json_object_new_array();
+            for (int i = 0; i < module->count; i++) {
+                Stmt *stmt = module->statements[i];
+                if (stmt->type != STMT_FUNCTION) continue;
+                FunctionStmt *fn = &stmt->as.function;
+                json_object *entry = json_object_new_object();
+                json_object_object_add(entry, "name", json_object_new_string(fn->name.start));
+                json_object_object_add(entry, "return_mem_qual", json_object_new_string(gen_model_mem_qual_str(fn->return_mem_qualifier)));
+                json_object_object_add(entry, "type_param_count", json_object_new_int(fn->type_param_count));
+                json_object_array_add(declarations, entry);
+            }
+            json_object_object_add(model, "package_implementation_declarations", declarations);
+        }
         int wr = gen_model_write(model, options.output_file);
         json_object_put(model);
         diagnostic_phase_done(PHASE_CODE_GEN, 0);

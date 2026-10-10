@@ -1,0 +1,86 @@
+{
+  "base_revision": "94e8a31f026ab64b3153eabdee305a8e3945cd5e",
+  "date": "2026-10-10",
+  "scope": "Independent stateless C/RS Sindarin function libraries, typed export validation, native/prebuilt reuse and nullable C ownership repairs",
+  "source_sha256": {
+    "CMakeLists.txt": "d52a732c604765e49638855714d43dff15813db65ad5aa73d2777e5a7778854b",
+    "scripts/build_native_package.py": "f99cc14fa21b3f4b6e3af1df9a87bf18b829df21b6305d41c93a2f86c451d0dc",
+    "scripts/ci/gates.json": "4f9ad98dd259bb321e4209a906c3695ed1bd9c80a6021e11061aa6af66e316e6",
+    "src/cgen/gen_model_expr.c": "d0031f791e2551bf4201e9ee1d36e84b5eaaa43c8bdbf99098541a2917fd4c15",
+    "src/compiler.c": "8e3655c10bcd18dacfbb69c10506845aaff1b79a9543b1caf0fe843b8f85192b",
+    "src/compiler.h": "c3cfe5826f83ea3f2ce5f6ac962d624f4a34d10ae85d9460416b6c2d7bc0f302",
+    "src/main.c": "7773f1af467331ac0009f399fd0ee2b1fc591e57ba45d540c512a3edbf4e29b1",
+    "src/package/package_import.c": "09cf6b0dccf71ce74ef52db099a908bd41f5fa5613b23331a37b31a2903718f1",
+    "src/package/package_yaml_native.c": "5c866544175fbb76f6ac9fd7df81c4164ab809ddc79cc8788be75135ab61a3b8",
+    "src/parser_import_util.c": "9ead014a8330df466be4939507b3c6075b8527dd0d9391ad74de4bfc76bad678",
+    "src/target/rust/rust_nullable_strings.c": "fa99d9d50b4e17774b43ffc1dbf4061bf0dfd8223da1c7b1ba4766d3928c77fc",
+    "src/target/rust/rust_target.c": "53d61ef5dcc70d57575607ff30fccd7adb15cda3740bfd4d865e864726d4cd75",
+    "templates/c/partials/expr/binary.hbs": "fe4a8773d43c7fc472ab5f51e757f21231d875f46d12d96e254733f776ee334c",
+    "templates/c/partials/stmt/return.hbs": "e23b0d4223a5612f18182cdc9da6e422fe750f911c0aaae5f74034537566838d",
+    "tests/package/native_artifacts.py": "55e00b24ac834817e10971b693499f9ae96088c33f7a99bdddfe32ad9020265b",
+    "tests/package/native_imports.py": "0df5b6bf666a9091b1d95b3242c2d099507f161c55b42b70a407fe5addaf3ab2",
+    "scripts/sindarin_library.py": "9da413df6fa16fbe817287ed70497c0998d4be8cec54bdc30a6c87dd88f5a463",
+    "templates/c/partials/expr/string_nil_compare_owned.hbs": "70456f24553728e86b24dbf2a12b9f0ea63e74685c72ed9919f1b350d94ee34b",
+    "tests/rust-native/scalar_nil_string_borrowed_return.abi-matrix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests/rust-native/scalar_nil_string_borrowed_return.expected": "697ae2063ca6ece9402d4312e4dee4dae25837970e74f3c196e3e324f8637520",
+    "tests/rust-native/scalar_nil_string_borrowed_return.sn": "67700d4dc6d82342cea8b0d2ac4da5c4616f227aaa2b13fbaae11a9f901c5e65"
+  },
+  "validation": {
+    "C": {
+      "checks": 3240,
+      "passed": true,
+      "log_sha256": "a59d4aa275f3fbd31e421ae39c69296cec4762b37ecbc61dfdcd745cba858c49"
+    },
+    "Rust": {
+      "checks": 1090,
+      "passed": true,
+      "log_sha256": "536fab43bcc03bdfb350144e8a1aa832cf6559643d73d735ef53f7ecf7326864"
+    },
+    "imports": {
+      "checks": 30,
+      "passed": true,
+      "log_sha256": "2cfa5f980125d1dfa65d3aa3cab92a37ebc4d966859f8134af6539a41334b363"
+    },
+    "artifacts": {
+      "checks": 13,
+      "passed": true,
+      "log_sha256": "05cb900cfc874c2824b7af2df9efbd3931d332fdbe3c54511c443906ff88b16f"
+    },
+    "ci_helpers": {
+      "checks": 15,
+      "passed": true,
+      "log_sha256": "73e5697ef108d807964235c4480db4517c72b9b05a4b9ce90a8d3c7c5f67fb66"
+    },
+    "export_status": {
+      "checks": 1,
+      "passed": true,
+      "log_sha256": "6e5465576969574efaa5bfc44bc3564ae649baf7a4ade7df27bc1ddcfb29a1ce"
+    },
+    "provider_sanitizers": {
+      "checks": 1,
+      "passed": true,
+      "log_sha256": "64caa37c6b33e11b17cb4972e821d0e46c15b9534aaebd6022608187032e935a"
+    }
+  },
+  "nil_return_parity": {
+    "passed": true,
+    "cases": 9,
+    "report_sha256": "7a1893ecf274cae720d1f90f5b842612716a20c473b56a4b941a9738ca87081c"
+  },
+  "capabilities": [
+    "fixed C and RS body implementations consumed by both app targets",
+    "target inheritance",
+    "imported helper bodies compiled inside independent archive",
+    "direct and status scalar/string ABI exports",
+    "sealed relocated consumption after implementation sources/caches are removed",
+    "source/model flags avoid recursive self-artifact adapters and competing main"
+  ],
+  "limitations": [
+    "package globals and initialization/shutdown pipeline remain incomplete",
+    "managed body array/record/interface/callback exports require further implementation",
+    "full SDK facade artifact migration remains incomplete",
+    "full Sindarin Go backend remains out of scope"
+  ],
+  "hosted_acceptance": "pending publication",
+  "passed": true
+}

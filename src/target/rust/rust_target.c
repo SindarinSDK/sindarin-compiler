@@ -166,6 +166,8 @@ static bool rust_emit(CompilerOptions *options, Module *module,
                                                &options->symbol_table,
                                                options->arithmetic_mode);
     if (!model) return false;
+    if (options->package_body)
+        json_object_object_add(model, "package_body", json_object_new_boolean(true));
     RustNativePlan *native_plan = NULL;
     if (!rust_native_partition_model(model, options, &native_plan))
     {

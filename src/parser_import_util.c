@@ -48,6 +48,14 @@ static char *normalize_path(Arena *arena, const char *path)
     char *result = arena_alloc(arena, len + 1);
     if (!result) return NULL;
     size_t j = 0;
+    /* Keep absolute source paths absolute. Dropping this separator made sibling
+     * imports from independently compiled package entries resolve under cwd. */
+    if (len && (path[0] == '/' || path[0] == '\\')) {
+        result[j++] = '/';
+#ifdef _WIN32
+        if (len > 1 && (path[1] == '/' || path[1] == '\\')) result[j++] = '/';
+#endif
+    }
     for (int i = 0; i < comp_count; i++) {
         if (i > 0) result[j++] = '/';
         memcpy(result + j, components[i], comp_lens[i]);

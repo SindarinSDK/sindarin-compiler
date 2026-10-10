@@ -16,6 +16,7 @@ import sys
 import tempfile
 import uuid
 from native_provider import contracts, c_header, c_provider, rust_provider, go_provider
+from sindarin_library import build_library
 
 
 def sha(path):
@@ -225,6 +226,8 @@ def validate_prebuilt(plan, manifest, compiler):
                 unit.get('initialization') != initialization or
                 unit.get('requires_go_aggregation') != (build_unit['language']=='GO')):
             raise ValueError('prebuilt native assembly build/export/initialization contract differs: '+unit['name'])
+        if build_unit['language']=='SN' and unit.get('implementation_runtime')!=plan['package']['runtime']:
+            raise ValueError('prebuilt Sindarin implementation runtime differs')
         if not isinstance(unit.get('native_link_flags'),list) or not all(isinstance(f,str) for f in unit['native_link_flags']):
             raise ValueError('prebuilt native assembly linker options must be strings')
         archive = (descriptor.parent / unit['archive']).resolve()
@@ -277,6 +280,10 @@ def build(args):
     nm = command('SN_NM', 'llvm-nm' if shutil.which('llvm-nm') else 'nm')
     tools = {'nm': tool_identity(nm, optional_version=True)}
     languages = {u['language'] for u in selected_builds}
+    if 'SN' in languages:
+        if plan['package']['runtime']=='GO':
+            raise ValueError('Sindarin package bodies select GO; the Sindarin Go backend is not implemented')
+        languages.remove('SN');languages.add(plan['package']['runtime'])
     if languages & {'C', 'GO'}: tools['cc'] = tool_identity(cc)
     if 'C' in languages: tools['ar'] = tool_identity(ar, optional_version=True)
     if 'RS' in languages: tools['rustc'] = tool_identity(rustc)
@@ -284,7 +291,7 @@ def build(args):
     host_target(languages, cc, rustc, go)
     for unit in native['builds']:
         for path in unit['sources']: source_path(root, path)
-        if unit['language'] == 'RS': source_path(root, unit['entry'])
+        if unit['language'] in ('RS','SN'): source_path(root, unit['entry'])
         for path in unit.get('include_dirs', []):
             if not (root / path).is_dir(): raise ValueError(f'native include directory is missing: {path}')
         if unit['language'] == 'GO' and not (root / unit['module'] / 'go.mod').is_file():
@@ -303,6 +310,7 @@ def build(args):
     identity = {'plan': plan, 'skip_go': skip_go, 'tools': tools, 'inputs': inputs,
                 'driver_sha256': sha(Path(__file__)), 'compiler_sha256': sha(compiler),
                 'provider_sha256': sha(Path(__file__).with_name('native_provider.py')),
+                'library_driver_sha256': sha(Path(__file__).with_name('sindarin_library.py')),
                 'contract_sha256': sha(Path(__file__).with_name('native_contract.py')),
                 'environment_sha256': key(dict(os.environ)), 'runtime_sha256': sha(runtime),
                 'abi_header_sha256': sha(header), 'system': platform.system(),
@@ -334,7 +342,12 @@ def build(args):
                     # their temporary paths cannot enter reusable cache keys.
                     if not dependency.is_relative_to(work):
                         deps[str(dependency)] = sha(dependency)
-            if unit['language'] == 'C':
+            if unit['language'] == 'SN':
+                archive,native_link_flags,depfiles,library_model,body_sources=build_library(args,root,work,stem,unit,plan,signatures,
+                    {'cc':cc,'rustc':rustc,'ar':ar},run)
+                for depfile in depfiles:capture_dependencies(depfile)
+                for source in body_sources:deps[str(source)]=sha(source)
+            elif unit['language'] == 'C':
                 objects = []
                 sources = [source_path(root, source) for source in unit['sources']]
                 contract_flags = []
@@ -430,6 +443,8 @@ def build(args):
             symbols = {line.split()[-1] for line in run(nm + ['-g', '-U' if sys.platform == 'darwin' else '--defined-only', archive]).splitlines()
                        if line.split() and not line.rstrip().endswith(':')}
             exports = [b['symbol'] for b in native['bindings'] if b['build'] == unit['name']]
+            if unit['language']=='SN' and ('main' in symbols or '_main' in symbols):
+                raise ValueError('Sindarin implementation archive contains a competing application main')
             for symbol in exports:
                 if symbol not in symbols and '_' + symbol not in symbols:
                     raise ValueError(f'native export missing: {unit["name"]}::{symbol}')
@@ -439,6 +454,10 @@ def build(args):
                           'initialization': 'Go toolchain runtime' if unit['language'] == 'GO' else 'native toolchain',
                           'generated_provider_exports': [s['binding']['symbol'] for s in signatures],
                           'requires_go_aggregation': unit['language'] == 'GO'})
+            if unit['language']=='SN':
+                units[-1]['implementation_runtime']=plan['package']['runtime']
+                units[-1]['implementation_exports']=[{'name':s['binding']['function'],
+                    'return_type':s['return_type'],'params':s['params']} for s in signatures]
         current = tree_inputs(root, output)
         for name in native['declarations']:
             path = source_path(root, name); current[str(path)] = sha(path)

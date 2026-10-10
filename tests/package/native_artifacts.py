@@ -364,6 +364,29 @@ class NativeArtifactTests(unittest.TestCase):
                 self.assertEqual(run.stdout,b'')
                 if condition!='compatible':self.assertIn(b'requires a compatible shared runtime ABI',run.stderr)
 
+    def test_sindarin_bodies_export_owned_values_as_independent_archives(self):
+        cc=shlex.split(os.environ.get('SN_CC','clang' if os.name=='nt' or os.sys.platform=='darwin' else 'gcc'))
+        for runtime in ('C','RS'):
+            with self.subTest(runtime=runtime):
+                self.write('src/api.sn','native fn provide(): str\n')
+                self.write('src/body.sn','fn provide(): str =>\n  var text: str = "library lifetime"\n  return text\n')
+                self.write('sn.yaml',f'name: library\nruntime: {runtime}\nnative:\n  abi: 1.0\n  declarations: [src/api.sn]\n  builds:\n'
+                           '    - name: body\n      language: SN\n      entry: src/body.sn\n      sources: [src/body.sn]\n  bindings:\n'
+                           '    - declaration: src/api.sn::provide\n      function: provide\n      symbol: library_provide\n      build: body\n'
+                           '      convention: C\n      failure: abort\n      ownership: {parameters: {}, result: owned}\n')
+                summary,metadata=self.build();unit=metadata['units'][0];base=Path(summary['assembly']).parent
+                self.assertEqual(unit['implementation_runtime'],runtime)
+                self.write('library-client.c','#include <assert.h>\n#include <string.h>\n#include "sn_abi.h"\n'
+                           'SnAbiValue *library_provide(void);\nint main(void) { SnAbiValue *a=library_provide(),*b=library_provide(); SnAbiBytes bytes;\n'
+                           'assert(sn_abi_v1_string_bytes(a,&bytes)==0 && bytes.length==16 && memcmp(bytes.data,"library lifetime",16)==0);\n'
+                           'sn_abi_v1_release(a); assert(sn_abi_v1_string_bytes(b,&bytes)==0 && bytes.length==16); sn_abi_v1_release(b); return 0; }\n')
+                executable=self.root/'library-client.exe'
+                built=subprocess.run(cc+['-I',str(COMPILER.parent/'include/runtime'),str(self.root/'library-client.c'),
+                    str(base/unit['archive']),metadata['shared_runtime']['archive']]+unit['native_link_flags']+['-o',str(executable)],capture_output=True,timeout=120)
+                self.assertEqual(built.returncode,0,built.stderr.decode(errors='replace'))
+                run=subprocess.run([str(executable)],capture_output=True,timeout=15)
+                self.assertEqual(run.returncode,0,run.stderr.decode(errors='replace'))
+
     def test_plan_inheritance_and_command_diagnostics(self):
         self.manifest(['C'])
         manifest = self.root / 'sn.yaml'

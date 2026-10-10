@@ -42,6 +42,7 @@ void compiler_init(CompilerOptions *options, int argc, char **argv)
     options->profile_build = 0;
     options->native_mode = 0;
     options->native_manifest = NULL;
+    options->package_body = 0;
     options->do_init = 0;
     options->do_install = 0;
     options->install_target = NULL;
@@ -81,7 +82,7 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
 {
     bool native_requested = false;
     for (int i = 1; i < argc; i++)
-        if (strcmp(argv[i], "--native-plan") == 0 || strcmp(argv[i], "--build-native") == 0)
+        if (strcmp(argv[i], "--native-plan") == 0 || strcmp(argv[i], "--build-native") == 0 || strcmp(argv[i], "--build-package") == 0)
             native_requested = true;
     if (native_requested) {
         for (int i = 1; i < argc; i++) {
@@ -152,6 +153,8 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
                 "  --emit-c           Alias for --target c --emit-source\n"
                 "  --emit-rust        Alias for --target rust --emit-source\n"
                 "  --emit-model       Output JSON model, don't generate C\n"
+                "  --package-body     Emit a Sindarin implementation library body\n"
+                "  --build-package    Build declared native/Sindarin package units\n"
                 "  --keep-generated   Keep generated target files after compilation\n"
                 "  --keep-c           Compatibility alias for --keep-generated\n"
                 "\n"
@@ -225,7 +228,7 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
     /* Second pass: parse all arguments */
     for (int i = 1; i < argc; i++)
     {
-        if (strcmp(argv[i], "--native-plan") == 0 || strcmp(argv[i], "--build-native") == 0)
+        if (strcmp(argv[i], "--native-plan") == 0 || strcmp(argv[i], "--build-native") == 0 || strcmp(argv[i], "--build-package") == 0)
         {
             if (options->native_mode || i + 1 >= argc || argv[i + 1][0] == '-') {
                 fprintf(stderr, "Error: native command requires one manifest path\n");
@@ -233,6 +236,10 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
             }
             options->native_mode = strcmp(argv[i], "--native-plan") == 0 ? 1 : 2;
             options->native_manifest = arena_strdup(&options->arena, argv[++i]);
+        }
+        else if (strcmp(argv[i], "--package-body") == 0)
+        {
+            options->package_body = 1;
         }
         else if (strcmp(argv[i], "-o") == 0 && i + 1 < argc)
         {
@@ -369,7 +376,7 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
 
     if (options->native_mode) {
         if (options->source_file || options->output_kind != OUTPUT_EXECUTABLE ||
-            options->emit_model || options->keep_generated || options->debug_build || options->profile_build) {
+            options->emit_model || options->keep_generated || options->debug_build || options->profile_build || options->package_body) {
             fprintf(stderr, "Error: native commands cannot combine application sources or emit/debug flags\n");
             return 0;
         }
@@ -389,6 +396,10 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
     /* Tagged --emit-model takes precedence regardless of option order. */
     if (options->emit_model) options->output_kind = OUTPUT_MODEL;
     options->emit_c = options->output_kind == OUTPUT_SOURCE;
+    if (options->package_body && options->output_kind == OUTPUT_EXECUTABLE) {
+        fprintf(stderr, "Error: --package-body requires source or model emission\n");
+        return 0;
+    }
     options->keep_c = options->keep_generated;
 
     if (options->output_kind == OUTPUT_MODEL)
@@ -472,6 +483,15 @@ Module* compiler_compile(CompilerOptions *options)
         diagnostic_phase_failed(PHASE_PARSING);
         diagnostic_compile_failed();
         return NULL;
+    }
+    if (options->package_body) {
+        for (int i = 0; i < module->count; i++) {
+            Stmt *stmt = module->statements[i];
+            if (stmt->type == STMT_FUNCTION && !strcmp(stmt->as.function.name.start, "main")) {
+                fprintf(stderr, "Error: Sindarin package bodies cannot contain an application main\n");
+                return NULL;
+            }
+        }
     }
     diagnostic_phase_done(PHASE_PARSING, 0);
 

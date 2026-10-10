@@ -98,10 +98,12 @@ bool package_prepare_native_imports(CompilerOptions *options, Module *module,
     }
     int seen_count = 0;
     bool success = true;
+    char *body_manifest = options->package_body ? package_source_manifest(options->source_file) : NULL;
     for (int p = -1; success && p < count; p++) {
         const char *source = p < 0 ? options->source_file : paths[p];
         char *manifest = package_source_manifest(source);
         if (!manifest) continue;
+        if (body_manifest && import_same(manifest, body_manifest)) { free(manifest); continue; }
         bool duplicate = false;
         for (int i = 0; i < seen_count; i++) if (import_same(manifest, seen[i])) duplicate = true;
         if (duplicate) { free(manifest); continue; }
@@ -234,6 +236,7 @@ bool package_prepare_native_imports(CompilerOptions *options, Module *module,
         else json_object_put(contract);
     }
     for (int i = 0; i < seen_count; i++) free(seen[i]);
+    free(body_manifest);
     free(seen);
     if (!success || json_object_array_length(contracts) == 0) { json_object_put(contracts); return success; }
     if (!import_directory(".sn") || !import_directory(".sn/build") || !import_directory(".sn/build/native-imports"))

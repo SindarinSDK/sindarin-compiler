@@ -1,0 +1,19 @@
+fn copy(value: str): str =>
+  return value
+
+fn missing(counter: int as ref): str =>
+  counter += 1
+  return nil
+
+fn main(): void =>
+  var nilValue: str = nil
+  var nilCopy: str = copy(nilValue)
+  println(nilCopy == nil)
+  println(copy("") == nil)
+  var original: str = "before"
+  var copied: str = copy(original)
+  original = "after"
+  println(copied)
+  var counter: int = 0
+  println(copy(missing(counter)) == nil && counter == 1)
+  println(nil != copy("owned") && nil == copy(missing(counter)) && counter == 2)

@@ -440,7 +440,13 @@ add_custom_target(sn_native_build_tool
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "${CMAKE_SOURCE_DIR}/scripts/native_contract.py"
             "${CMAKE_BINARY_DIR}/bin/tools/native_contract.py"
-    DEPENDS "${CMAKE_SOURCE_DIR}/scripts/build_native_package.py" "${CMAKE_SOURCE_DIR}/scripts/prepare_native_imports.py" "${CMAKE_SOURCE_DIR}/scripts/native_provider.py" "${CMAKE_SOURCE_DIR}/scripts/native_contract.py"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_SOURCE_DIR}/scripts/sindarin_library.py"
+            "${CMAKE_SOURCE_DIR}/bin/tools/sindarin_library.py"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_SOURCE_DIR}/scripts/sindarin_library.py"
+            "${CMAKE_BINARY_DIR}/bin/tools/sindarin_library.py"
+    DEPENDS "${CMAKE_SOURCE_DIR}/scripts/build_native_package.py" "${CMAKE_SOURCE_DIR}/scripts/prepare_native_imports.py" "${CMAKE_SOURCE_DIR}/scripts/native_provider.py" "${CMAKE_SOURCE_DIR}/scripts/native_contract.py" "${CMAKE_SOURCE_DIR}/scripts/sindarin_library.py"
 )
 add_dependencies(sn sn_native_build_tool)
 
@@ -552,6 +558,7 @@ install(FILES "${CMAKE_SOURCE_DIR}/scripts/build_native_package.py"
               "${CMAKE_SOURCE_DIR}/scripts/prepare_native_imports.py"
               "${CMAKE_SOURCE_DIR}/scripts/native_provider.py"
               "${CMAKE_SOURCE_DIR}/scripts/native_contract.py"
+              "${CMAKE_SOURCE_DIR}/scripts/sindarin_library.py"
         DESTINATION ${SN_SDK_INSTALL_DIR}/tools COMPONENT compiler)
 
 # Install compiler binary into SDK root

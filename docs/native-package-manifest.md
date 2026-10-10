@@ -14,6 +14,14 @@ configuration; it does not extend Sindarin language syntax or port native backin
 logic into another language. Existing manifests and C source/include/link directives
 retain their existing behaviour.
 
+Build language `SN` identifies a Sindarin implementation unit. It requires an
+`entry` listed in `sources`; the package's runtime selects C/RS, and omission
+inherits the application target. GO implementation bodies produce an explicit
+unsupported-backend diagnostic. `--build-package` aliases the artifact builder.
+Public native declarations remain the typed ABI contract, with `function`
+selecting the separately compiled implementation function. See
+[Sindarin body libraries](native-artifacts.md#sindarin-implementation-libraries).
+
 ## Schema
 
 ```yaml

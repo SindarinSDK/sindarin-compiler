@@ -142,7 +142,8 @@ static void rust_mark_nullable_string_types(json_object *node)
 static void rust_prepare_nullable_strings(json_object *model)
 {
     if (!rust_prepare_nullable_string_nodes(model, NULL, NULL, model) &&
-        !json_boolean_property(model, "rust_native_c_string_storage")) return;
+        !json_boolean_property(model, "rust_native_c_string_storage") &&
+        !json_boolean_property(model, "package_body")) return;
     rust_mark_nullable_string_types(model);
     json_object_object_add(model, "rust_nullable_strings", json_object_new_boolean(true));
 }

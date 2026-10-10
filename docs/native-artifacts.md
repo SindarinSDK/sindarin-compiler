@@ -38,7 +38,8 @@ contracts, preserving original backing source and toolchains. Missing exports an
 C/Rust/Go implementation signature mismatches are diagnosed. See the
 [provider contract](native-package-imports.md#generated-provider-exports).
 Native build commands do not compile Sindarin implementation bodies or implement
-a Sindarin Go target.
+a Sindarin Go target. `language: SN` units now compile Sindarin function bodies
+through the selected C/RS backend, as described below.
 
 Tool selectors are `SN_CC`, `SN_AR`, `SN_NM`, `SN_RUSTC` and `SN_GO`. C flags use
 `SN_CFLAGS`; Rust flags use `SN_RUSTFLAGS`. Subprocesses receive argument arrays,
@@ -95,6 +96,55 @@ artifacts can be reused independently of that source-build cache.
 The default output `.sn/build/native` is removed by normal build-cache cleanup.
 Custom output directories are controlled by the caller.
 
+## Sindarin implementation libraries
+
+An implementation unit can compile original Sindarin code independently of the
+application. Its package runtime selects C/RS; an omitted runtime inherits the
+application target. Public declarations and bindings describe the ABI exports:
+
+```yaml
+name: example-library
+runtime: C
+native:
+  abi: 1.0
+  declarations: [src/api.sn]
+  builds:
+    - name: implementation
+      language: SN
+      entry: src/body.sn
+      sources: [src/body.sn, src/helper.sn]
+  bindings:
+    - declaration: src/api.sn::echo
+      function: echo
+      symbol: example_echo_v1
+      build: implementation
+      convention: C
+      failure: abort
+      ownership: {parameters: {text: borrowed}, result: owned}
+```
+
+Here `api.sn` contains `native fn echo(text: str): str`, while `body.sn` contains
+the original ordinary `fn echo(text: str): str` implementation. `--build-package`
+builds the declared units into reusable archives. Generated facades and provider
+exports adapt the implementation's values to the shared C ABI. Consumers import
+the public API, link the compiled library and retain their own application target.
+Public and implementation types/qualifiers must agree. C implementation symbols
+are package-scoped; Rust implementations use distinct crate identities.
+
+Scalar/string exports currently support direct and status wire protocols, nil
+versus empty strings and non-UTF-8 bytes. Package-body emission has no application
+entry; competing `main` symbols are rejected. Implementation/dependency source
+hashes and selected runtime are recorded. These units can also be consumed as
+sealed prebuilt artifacts after implementation sources are removed.
+
+Full package initialization/shutdown, implementation globals, managed array/record
+body exports, generic public APIs and complete native-backed SDK facade migration
+remain required work. Unsupported contracts fail clearly. RS body emission that
+needs native C sidecars still requires the modular library lifecycle extension;
+native C/Go backing is kept in its original language. An SN unit selecting GO
+reports the unimplemented Sindarin Go backend. This initial body-library path
+does not satisfy the whole Rust completion goal.
+
 ## Consuming a prebuilt artifact
 
 A distribution can retain its public `.sn` declarations and manifest while
@@ -133,7 +183,7 @@ A prebuilt Go assembly can contain several units referencing one aggregate
 runtime archive. Combining it with another Go assembly or source Go package
 requires rebuilding one aggregate source graph and currently produces a clear
 diagnostic. Complete source-independent multi-package Go composition remains
-required work, along with independent Sindarin bodies and SDK artifact imports.
+required work, along with full Sindarin package lifecycle and SDK artifact imports.
 
 ## Validation
 

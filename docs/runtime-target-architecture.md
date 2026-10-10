@@ -4,8 +4,10 @@ Status: agreed architectural direction, 2026-10-09. This is the reference for
 implementation work, not a claim that package assemblies, automatic cross-language
 adapters or the Go backend already exist. The runtime manifest field and import
 compatibility checks are implemented. The shared C ABI has an implemented
-[value-transport foundation](runtime-abi.md); independent Sindarin package compilation and complete record/interface contracts
-remain pending. Scalar/string native imports and provider exports have generated
+[value-transport foundation](runtime-abi.md). Independent Sindarin function libraries
+can compile for C/RS with verified scalar/string ABI exports; full package lifecycle,
+managed-body exports and complete record/interface contracts remain pending.
+Scalar/string native imports and provider exports have generated
 adapters; this does not complete SDK/package artifact migration.
 
 ## Decision

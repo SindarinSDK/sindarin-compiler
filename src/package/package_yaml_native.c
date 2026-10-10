@@ -132,8 +132,8 @@ static bool validate_native_plan(json_object *plan, const char *path)
         if (!native_fields(build, build_fields, path)) return false;
         const char *name = native_text(build, "name"), *language = native_text(build, "language");
         if (!name || !language || (strcmp(language, "C") != 0 &&
-            strcmp(language, "RS") != 0 && strcmp(language, "GO") != 0))
-            return yaml_config_error(path, "native build requires name and language C, RS or GO");
+            strcmp(language, "RS") != 0 && strcmp(language, "GO") != 0 && strcmp(language, "SN") != 0))
+            return yaml_config_error(path, "native build requires name and language C, RS, GO or SN");
         for (size_t j = 0; j < i; j++)
             if (strcmp(name, native_text(json_object_array_get_idx(builds, j), "name")) == 0)
                 return yaml_config_error(path, "duplicate native build name");
@@ -143,17 +143,17 @@ static bool validate_native_plan(json_object *plan, const char *path)
         json_object *entry = NULL, *module = NULL;
         bool has_entry = json_object_object_get_ex(build, "entry", &entry);
         bool has_module = json_object_object_get_ex(build, "module", &module);
-        if (strcmp(language, "RS") == 0) {
+        if (strcmp(language, "RS") == 0 || strcmp(language, "SN") == 0) {
             const char *root = native_text(build, "entry");
             if (!root || has_module)
-                return yaml_config_error(path, "RS build requires entry and cannot declare a Go module");
+                return yaml_config_error(path, "RS/SN build requires entry and cannot declare a Go module");
             json_object *sources = NULL;
             json_object_object_get_ex(build, "sources", &sources);
             bool found = false;
             for (size_t j = 0; j < json_object_array_length(sources); j++)
                 if (strcmp(root, json_object_get_string(json_object_array_get_idx(sources, j))) == 0)
                     found = true;
-            if (!found) return yaml_config_error(path, "RS entry must appear in sources");
+            if (!found) return yaml_config_error(path, "RS/SN entry must appear in sources");
         } else if (strcmp(language, "GO") == 0) {
             if (!native_text(build, "module") || has_entry)
                 return yaml_config_error(path, "GO build requires module and cannot declare an RS entry");

@@ -7,6 +7,51 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Independent Sindarin function libraries: local validation, 2026-10-10
+
+`language: SN` build units compile original implementation bodies for the package's
+C/RS runtime; omitted runtime inherits the application's target. `--build-package`
+builds reusable archives with generated typed export facades, selected runtime,
+implementation export contracts and dependency hashes. The public native API is
+checked against actual implementation signatures before emission. C symbols are
+package-scoped and Rust crate identities stay distinct. Applications consume the
+compiled package through shared C-ABI adapters, including fixed C libraries from
+Rust and fixed RS libraries from C. No competing application entry is emitted.
+
+Tests cover direct/status wire protocols, imported private helpers, nullable and
+empty strings, independent result lifetimes, inheritance and relocated prebuilt
+reuse after all implementation sources/caches are removed. Standalone C clients
+consume C/RS body exports, with strict address/undefined/leak sanitizer checks.
+GO implementation bodies, mismatched signatures, application main functions and
+implementation globals fail clearly. Full package initialization/shutdown,
+managed array/record body exports, generic public contracts, modular RS native
+sidecars and unchanged SDK facade migration remain required work.
+
+This exposed absolute import normalization dropping the leading separator;
+package entry compilation now preserves absolute/UNC roots. C borrowed-string
+returns now use existing nil-aware duplication. The native regression also found
+an owned temporary leaking during nil comparison; equality/inequality now acquire
+one temporary owner and release it after the comparison. Nil/empty distinctions,
+caller isolation and once-only effects pass nine optimization/arithmetic profiles
+and debug sanitizers. All original sources and execution/code-generation oracles
+are unchanged. The native inventory rises to 386.
+
+Complete local suites pass 3,240 C and 1,090 Rust checks. All 30 import tests,
+13 artifact tests and 15 CI helper tests pass. Focused status/export and sanitizer
+checks pass. Exact-revision hosted acceptance is pending publication; this does
+not complete the full package/SDK architecture or Rust parity goal.
+
+Evidence: [Sindarin body library validation](rust-parity-evidence/sindarin-library-validation.json).
+
+## Prebuilt consumption: hosted acceptance, 2026-10-10
+
+Main `94e8a31f` passes complete Linux/macOS/Windows unified CI, accepting the sealed
+prebuilt loader, ABI runtime guards, C provider hygiene and package body-boundary
+diagnostics. This supersedes that batch's earlier pending acceptance notes below.
+
+[Accepted prebuilt run](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38050952649).
+Evidence: [hosted acceptance](rust-parity-evidence/prebuilt-main-ci-green.json).
+
 ## Verified prebuilt native consumption: local validation, 2026-10-10
 
 Manifests can select a sealed `native.assembly` descriptor. C/Rust applications

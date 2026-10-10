@@ -34,6 +34,58 @@ class NativeImports(unittest.TestCase):
         if function: manifest += f'      function: {function}\n'
         self.write(f'.sn/{name}/sn.yaml',manifest)
 
+    def test_independent_sindarin_function_libraries_select_package_runtime(self):
+        import hashlib,json
+        for runtime in ('C','RS',None):
+            name='body'+(runtime.lower() if runtime else 'inherited')
+            self.write(f'.sn/{name}/src/api.sn','native fn provide(text: str): str\nnative fn calculate(value: int): int\n')
+            self.write(f'.sn/{name}/src/body.sn','import "./helper"\nfn echo(text: str): str =>\n  return text\n'
+                       'fn calculate(value: int): int =>\n  return increment(value) + value\n')
+            self.write(f'.sn/{name}/src/helper.sn','fn increment(value: int): int =>\n  return value + 1\n')
+            text='name: '+name+'\n'+('runtime: '+runtime+'\n' if runtime else '')
+            text+='native:\n  abi: 1.0\n  declarations: [src/api.sn]\n  builds:\n    - name: body\n      language: SN\n      entry: src/body.sn\n      sources: [src/body.sn, src/helper.sn]\n  bindings:\n'
+            for declaration,function,symbol,parameter,result in (
+                    ('provide','echo','native_'+name,'text: borrowed','owned'),
+                    ('calculate','calculate','calculate_'+name,'value: value','value')):
+                failure='status' if declaration=='calculate' else 'abort'
+                text+=f'    - declaration: src/api.sn::{declaration}\n      function: {function}\n      symbol: {symbol}\n      build: body\n      convention: C\n      failure: {failure}\n      ownership: {{parameters: {{{parameter}}}, result: {result}}}\n'
+            self.write(f'.sn/{name}/sn.yaml',text)
+            self.write('main.sn',f'import "{name}/src/api"\nfn main(): void =>\n'
+                       '  var input: str = "body lifetime"\n  var output: str = provide(input)\n'
+                       '  input = "changed"\n  println(output)\n  println(provide(nil) == nil)\n'
+                       '  println(provide("") == nil)\n  println(calculate(20))\n')
+            for target in ('c','rust'):
+                with self.subTest(runtime=runtime,target=target):self.execute(target,b'body lifetime\ntrue\nfalse\n41\n')
+            if runtime:
+                package=self.root/'.sn'/name;manifest=package/'sn.yaml'
+                built=subprocess.run([str(COMPILER),'--build-package',str(manifest),'--target','rust','-o',str(package/'.sn/published')],capture_output=True,timeout=180)
+                self.assertEqual(built.returncode,0,built.stderr.decode(errors='replace'))
+                descriptor=Path(json.loads(built.stdout)['assembly']);metadata=json.loads(descriptor.read_text())
+                self.assertEqual(metadata['units'][0]['implementation_runtime'],runtime)
+                destination=package/'dist';shutil.copytree(descriptor.parent,destination)
+                digest=hashlib.sha256((destination/'assembly.json').read_bytes()).hexdigest()
+                manifest.write_text(text.replace('native:\n','native:\n  assembly: {path: dist/assembly.json, sha256: '+digest+'}\n'))
+                (package/'src/body.sn').unlink();(package/'src/helper.sn').unlink();shutil.rmtree(package/'.sn')
+                for target in ('c','rust'):
+                    with self.subTest(prebuilt=runtime,target=target):self.execute(target,b'body lifetime\ntrue\nfalse\n41\n')
+
+    def test_sindarin_library_contracts_and_go_backend_are_not_silently_replaced(self):
+        self.write('.sn/body/src/api.sn','native fn provide(): int\n')
+        self.write('main.sn','import "body/src/api"\nfn main(): void =>\n  println(provide())\n')
+        template='name: body\nruntime: {runtime}\nnative:\n  abi: 1.0\n  declarations: [src/api.sn]\n  builds:\n    - name: body\n      language: SN\n      entry: src/body.sn\n      sources: [src/body.sn]\n  bindings:\n    - declaration: src/api.sn::provide\n      function: provide\n      symbol: body_provide\n      build: body\n      convention: C\n      failure: abort\n      ownership: {{parameters: {{}}, result: value}}\n'
+        for runtime,source,message in (
+                ('GO','fn provide(): int =>\n  return 11\n',b'Sindarin Go backend is not implemented'),
+                ('C','fn provide(): str =>\n  return "wrong type"\n',b'implementation type/ownership differs'),
+                ('C','var state: int = 11\nfn provide(): int =>\n  return state\n',b'library global/storage initialization'),
+                ('C','fn main(): void =>\n  println("not a library")\nfn provide(): int =>\n  return 11\n',b'cannot contain an application main')):
+            with self.subTest(runtime=runtime,source=source):
+                self.write('.sn/body/sn.yaml',template.format(runtime=runtime))
+                self.write('.sn/body/src/body.sn',source)
+                result=subprocess.run([str(COMPILER),'main.sn','--target','rust','--no-install','-o','rejected.exe'],cwd=self.root,capture_output=True,timeout=90)
+                self.assertNotEqual(result.returncode,0)
+                self.assertIn(message,result.stderr)
+                self.assertFalse((self.root/'rejected.exe').exists())
+
     def test_generated_providers_keep_ordinary_backing_functions(self):
         self.package('cdep','C','long long provide_impl(void) {return 11;}\n',function='provide_impl')
         self.package('rsdep','RS','fn internal() -> i64 { 22 }\npub fn provide_impl() -> i64 { crate::internal() }\n',function='provide_impl')
