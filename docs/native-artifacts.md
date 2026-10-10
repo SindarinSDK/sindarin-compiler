@@ -5,7 +5,8 @@ archives. Complete Sindarin package compilation, type descriptors and SDK
 decoupling remain required work in the
 [Rust completion goal](rust-completion-goal.md). These artifacts explicitly carry
 `complete_package: false`. Supported native declaration imports consume them
-through [generated consumer adapters](native-package-imports.md); complete Sindarin
+through [generated consumer adapters](native-package-imports.md), including verified
+prebuilt consumption without original backing sources; complete Sindarin
 package bodies and SDK artifact imports remain incomplete.
 
 ## Commands
@@ -85,14 +86,54 @@ changes detected during a build prevent publication. Missing inputs, unavailable
 toolchains, failed builds and missing exports produce diagnostics and no new
 publication marker.
 
-Go source/module inputs and cgo link dependencies are recorded. Native Go artifact
-reuse is currently disabled pending complete cgo transitive-header capture and
-bridge aggregation; Go's own compiler cache remains active. More than one GO unit
-in one native plan is rejected with an aggregation diagnostic. Combining Go
-backings across the final package graph remains required implementation work.
+Go source/module inputs and cgo link dependencies are recorded. Native Go build
+cache reuse is disabled pending complete cgo transitive-header capture; Go's own
+compiler cache remains active. Source builds aggregate multiple generated-provider
+Go units/packages into one bridge/runtime archive. Explicit sealed prebuilt
+artifacts can be reused independently of that source-build cache.
 
 The default output `.sn/build/native` is removed by normal build-cache cleanup.
 Custom output directories are controlled by the caller.
+
+## Consuming a prebuilt artifact
+
+A distribution can retain its public `.sn` declarations and manifest while
+shipping the immutable generation's archives and `assembly.json`. Original
+C/Rust/Go backing source, backing headers, Go modules and producing toolchains are unnecessary
+for consumption. Keep the build and binding entries as declarations of the
+backing-language/export contract, then select the sealed descriptor:
+
+```yaml
+native:
+  abi: 1.0
+  assembly:
+    path: dist/assembly.json
+    sha256: <SHA-256 of the exact descriptor bytes>
+  declarations: [src/api.sn]
+  # Retain the original builds and bindings metadata.
+```
+
+The reader checks the descriptor seal, schema, package identity/version/runtime,
+ABI, platform/architecture/pointer width, exact declaration bytes, resolved provider
+types, ownership/binding contracts, build/export/initialization inventory and
+archive hashes. Archives must stay within the descriptor's generation directory.
+An incompatible or corrupt artifact fails explicitly; it does not trigger a
+source rebuild. Applications still need their own C/Rust target toolchains,
+headers explicitly referenced by public API pragmas, and declared external link
+libraries.
+
+The application links its current canonical C runtime. Producer paths, toolchain
+fingerprints and runtime hashes remain provenance. ABI 1.0 transport remains
+supported by ABI 1.1. Consumer adapters query the live runtime's version,
+capabilities and scalar/pointer widths before making a foreign call. For explicit
+`--build-native` selection, the JSON result includes the consumer `shared_runtime`
+alongside `assembly`, `prebuilt: true` and `cache_hit: true`.
+
+A prebuilt Go assembly can contain several units referencing one aggregate
+runtime archive. Combining it with another Go assembly or source Go package
+requires rebuilding one aggregate source graph and currently produces a clear
+diagnostic. Complete source-independent multi-package Go composition remains
+required work, along with independent Sindarin bodies and SDK artifact imports.
 
 ## Validation
 

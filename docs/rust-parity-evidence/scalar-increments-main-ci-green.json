@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-10",
+  "runs": [
+    {
+      "conclusion": "success",
+      "headSha": "f805570a77e801c544a315aedc358b45e330c582",
+      "status": "completed",
+      "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38046184242"
+    },
+    {
+      "conclusion": "success",
+      "headSha": "5d295716e9fac8c38cc554da2ffb5f02fcee8b55",
+      "status": "completed",
+      "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38047206995"
+    },
+    {
+      "conclusion": "success",
+      "headSha": "7c3b132ff9738dd3e21b5b1b1d0e1d63519da184",
+      "status": "completed",
+      "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38048129178"
+    }
+  ],
+  "scope": "Complete unified platform CI for character, finite-double and signed-postfix increments; full goal remains incomplete",
+  "passed": true
+}

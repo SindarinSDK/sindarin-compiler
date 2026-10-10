@@ -170,6 +170,78 @@ def cached(entry, fingerprint):
         return None
 
 
+def load_prebuilt(plan, manifest, compiler):
+    """Validate a sealed package artifact without opening backing sources/tools."""
+    try:
+        return validate_prebuilt(plan,manifest,compiler)
+    except (KeyError,TypeError,AttributeError) as error:
+        raise ValueError('malformed prebuilt native assembly descriptor: '+str(error)) from error
+
+
+def validate_prebuilt(plan, manifest, compiler):
+    root = Path(manifest).resolve().parent
+    native = plan['native']
+    reference = native['assembly']
+    descriptor = (root / reference['path']).resolve()
+    if not descriptor.is_file() or sha(descriptor) != reference['sha256']:
+        raise ValueError('prebuilt native assembly descriptor is missing or its sha256 differs')
+    metadata = json.loads(descriptor.read_text())
+    if metadata.get('schema') != 1 or metadata.get('kind') != 'native-backing-artifacts':
+        raise ValueError('unsupported prebuilt native assembly schema/kind')
+    if metadata.get('package') != plan['package']:
+        raise ValueError('prebuilt native assembly package identity/version/runtime differs')
+    if metadata.get('abi') != native['abi'] or native['abi'] not in ('1.0','1.1'):
+        raise ValueError('prebuilt native assembly ABI differs from the declared supported ABI')
+    host = {'system':platform.system(), 'machine':platform.machine(),
+            'pointer_bits':struct.calcsize('P') * 8}
+    if metadata.get('compatibility') != host:
+        raise ValueError('prebuilt native assembly platform/architecture/pointer width differs')
+    if metadata.get('bindings') != native['bindings']:
+        raise ValueError('prebuilt native assembly binding/ownership contract differs')
+    if metadata.get('provider_signatures',[]) != native.get('signatures',[]):
+        raise ValueError('prebuilt native assembly resolved provider type contract differs')
+    for unit in native['builds']:
+        contracts(native,unit)
+    declarations = metadata.get('declarations',[])
+    if [item.get('path') for item in declarations] != native['declarations']:
+        raise ValueError('prebuilt native assembly public declaration inventory differs')
+    for item in declarations:
+        source = source_path(root,item['path'])
+        recorded = base64.b64decode(item['source_base64'],validate=True)
+        if hashlib.sha256(recorded).hexdigest() != item['sha256'] or source.read_bytes() != recorded:
+            raise ValueError('prebuilt native assembly public declaration bytes differ: '+item['path'])
+    units = metadata.get('units',[])
+    builds = native['builds']
+    if [unit.get('name') for unit in units] != [unit['name'] for unit in builds]:
+        raise ValueError('prebuilt native assembly build-unit inventory differs')
+    archives = set()
+    for unit,build_unit in zip(units,builds):
+        symbols = [b['symbol'] for b in native['bindings'] if b['build']==unit['name']]
+        generated = [b['symbol'] for b in native['bindings'] if b['build']==unit['name'] and 'function' in b]
+        initialization = 'Go toolchain runtime' if build_unit['language']=='GO' else 'native toolchain'
+        if (unit.get('language') != build_unit['language'] or unit.get('symbols') != symbols or
+                unit.get('generated_provider_exports') != generated or
+                unit.get('libraries') != build_unit.get('libraries',[]) or
+                unit.get('initialization') != initialization or
+                unit.get('requires_go_aggregation') != (build_unit['language']=='GO')):
+            raise ValueError('prebuilt native assembly build/export/initialization contract differs: '+unit['name'])
+        if not isinstance(unit.get('native_link_flags'),list) or not all(isinstance(f,str) for f in unit['native_link_flags']):
+            raise ValueError('prebuilt native assembly linker options must be strings')
+        archive = (descriptor.parent / unit['archive']).resolve()
+        if (not archive.is_relative_to(descriptor.parent) or not archive.is_file() or
+                sha(archive) != unit['archive_sha256']):
+            raise ValueError('prebuilt native assembly archive is missing, outside the generation or corrupt: '+unit['name'])
+        if unit['language']=='GO': archives.add(archive)
+    if len(archives)>1:
+        raise ValueError('prebuilt native assembly contains multiple Go runtime archives; one aggregate bridge is required')
+    runtime = Path(compiler).resolve().parent/'lib'/('clang' if os.name=='nt' else 'gcc')/'libsn_runtime_min.a'
+    if not runtime.is_file(): raise ValueError('consumer shared C runtime archive is missing')
+    # Transport ABI 1.0 remains supported by 1.1. Producer locations/hashes are
+    # provenance; the application links the consumer's canonical shared runtime.
+    result = dict(metadata,shared_runtime={'archive':str(runtime),'sha256':sha(runtime)})
+    return result,descriptor
+
+
 def build(args):
     root = args.manifest.resolve().parent
     output = args.out_dir.resolve()
@@ -177,6 +249,11 @@ def build(args):
     plan = getattr(args, 'validated_plan', None) or json.loads(run([compiler, '--native-plan', args.manifest.resolve(), '--target', args.target,
                            '-O' + args.optimization, '--' + args.arithmetic]))
     native = plan['native']
+    if 'assembly' in native:
+        metadata, descriptor = load_prebuilt(plan, args.manifest, compiler)
+        print(json.dumps({'assembly':str(descriptor), 'cache_hit':True, 'prebuilt':True,
+                          'shared_runtime':metadata['shared_runtime']}))
+        return
     providers = {u['name']: contracts(native, u) for u in native['builds']}
     generated_exports = set()
     for signatures in providers.values():
@@ -263,7 +340,7 @@ def build(args):
                 contract_flags = []
                 if signatures:
                     provider = work / (stem + '_provider.c')
-                    provider.write_text(c_provider(signatures))
+                    provider.write_text(c_provider(signatures, stem))
                     sources.append(provider)
                     backing_header = work / (stem + '_backing.h')
                     backing_header.write_text(c_header(signatures, stem))

@@ -1,0 +1,73 @@
+{
+  "date": "2026-10-10",
+  "base_revision": "04f04549c1c748a1474e8f40e82a0e8a1197029a",
+  "scope": "Sealed prebuilt native package consumption without backing sources/tools; live runtime ABI guards and C provider hygiene",
+  "source_sha256": {
+    "scripts/build_native_package.py": "494c04f6c2ce1e65a9fd1c3d9f196169b0abb89179423c63d1527d181dbb9a3c",
+    "scripts/ci/gates.json": "c6ab7800e397f428e91fc4c6e1c1646c83a7fc3a2a48f06d9d41e06827bf0477",
+    "scripts/native_provider.py": "5f023f16885d935e41d1fc250e16b6da88df4cf4edcde9305f738d821ad50345",
+    "scripts/prepare_native_imports.py": "92bed3250f89410c597944eb90d8a85b32ecae6640951be6544d45437018eb3c",
+    "src/package/package_import.c": "e8b6d5b985eadaf8b7ef38de16ab2426264da837d0df18691ec744269a02b4ef",
+    "src/package/package_yaml_native.c": "fbf8ecb71cd6c47220343ab8fb22f22fd472bf383911d39374cdb01d023126ae",
+    "tests/package/native_artifacts.py": "c7d3c875714dce43b4eedc97e08637b2f00d99c05be8d2a29c62e3d36aff36ff",
+    "tests/package/native_imports.py": "24d383deda6f0c50b53865ea682ba25625bf65056e224f7b835ced420add7a1e"
+  },
+  "validation": {
+    "C": {
+      "passed": true,
+      "checks": 3240,
+      "log_sha256": "3bdfc5fef9e3d9968bc141e340fecb959bb69b06fd400e3f33a88882b1ab5226"
+    },
+    "Rust": {
+      "passed": true,
+      "checks": 1089,
+      "log_sha256": "81969920c6e35254709f62b9d6b609c90a84a271511ed9bb4d1915fcf3a4fc71"
+    },
+    "imports": {
+      "passed": true,
+      "checks": 28,
+      "log_sha256": "5ff7e21f609b2aebdba136fb9d9148fd4ac0b0a5d398bd41cc726167160d9c0d"
+    },
+    "artifacts": {
+      "passed": true,
+      "checks": 12,
+      "log_sha256": "f90e79d23f27e38468dfb557787cadfe73d0671f0c23a441758d7665b6b5fc9a"
+    },
+    "provider_sanitizers": {
+      "passed": true,
+      "checks": 5,
+      "log_sha256": "833743b8dd0965d110103b1c0a22fcda183f7c671a851f0e0e2f0ea71ec23cbf"
+    },
+    "ci_helpers": {
+      "passed": true,
+      "checks": 15,
+      "log_sha256": "995a03f101d6cea1af1565dc429d81a8b5ee0f7471aad8b2fdcfa03002d6aee9"
+    },
+    "prebuilt_direct_consumption": {
+      "passed": true,
+      "checks": 1,
+      "log_sha256": "49054bf58184b006a2232233bf50d473fcfa3ee7e1c2d25f4f5ea47511018910"
+    },
+    "final_contract_guards": {
+      "passed": true,
+      "checks": 2,
+      "log_sha256": "47ae907f060c2b42499f15ebac403bc192d33ae3836d2b42ade7238dcb2262b5"
+    }
+  },
+  "capabilities": [
+    "C/Rust consumers of relocated C/Rust/Go archives",
+    "backing source/module/cache removal and unavailable producer tools",
+    "descriptor/archive hashes and public typed contracts verified",
+    "consumer canonical runtime selected independently of producer paths",
+    "live ABI version/capability/width guards before foreign calls",
+    "invalid contracts fail without rebuilding or publishing a binary",
+    "foreign-runtime method bodies/globals cannot silently compile through the application target"
+  ],
+  "limitations": [
+    "complete Sindarin package bodies and SDK artifact imports remain incomplete",
+    "public declarations and their API headers/external link libraries remain required",
+    "multiple prebuilt Go runtime graphs require source aggregation"
+  ],
+  "hosted_acceptance": "pending publication",
+  "passed": true
+}

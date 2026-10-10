@@ -1346,7 +1346,8 @@
         "NativeArtifactTests.test_generated_exports_are_independent_typed_abi_artifacts",
         "NativeArtifactTests.test_multiple_go_build_units_produce_one_independent_archive",
         "NativeArtifactTests.test_generated_owned_string_arrays_have_wire_lifetime_contracts",
-        "NativeArtifactTests.test_borrowed_string_array_provider_errors_aliases_and_lifetimes"
+        "NativeArtifactTests.test_borrowed_string_array_provider_errors_aliases_and_lifetimes",
+        "NativeArtifactTests.test_consumer_rejects_runtime_incompatibility_before_foreign_call"
       ],
       "env": {
         "SN_CC": "gcc -fsanitize=address,undefined -fno-omit-frame-pointer",

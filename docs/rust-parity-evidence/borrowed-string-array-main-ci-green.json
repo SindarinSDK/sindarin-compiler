@@ -1,0 +1,10 @@
+{
+  "run": {
+    "conclusion": "success",
+    "headSha": "04f04549c1c748a1474e8f40e82a0e8a1197029a",
+    "status": "completed",
+    "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38048978802"
+  },
+  "scope": "Complete unified Linux/macOS/Windows acceptance of borrowed string arrays and C nil-element copying; full goal incomplete",
+  "passed": true
+}

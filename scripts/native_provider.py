@@ -50,8 +50,13 @@ def c_header(signatures, namespace):
     return '#include <stdint.h>\n#include <stdbool.h>\n#include \"sn_array.h\"\n'+'\n'.join(names+[c_declaration(s) for s in signatures])+'\n'
 
 
-def c_provider(signatures):
-    lines = ['#include <stdint.h>', '#include <stdbool.h>', '#include <stdlib.h>', '#include "sn_abi.h"']
+def c_provider(signatures, namespace):
+    # Backing units use macros to namespace ordinary function identifiers. The
+    # provider calls those final names explicitly; macros must not rename its
+    # locals when a backing function happens to be called value/status/out.
+    lines = ['#undef '+name for name in sorted({s['binding']['function'] for s in signatures})]
+    signatures = [dict(s,binding=dict(s['binding'],function=f'__sn_{namespace}_impl_{s["binding"]["function"]}')) for s in signatures]
+    lines += ['#include <stdint.h>', '#include <stdbool.h>', '#include <stdlib.h>', '#include "sn_abi.h"']
     if any(kind(p['type']) == 'string_array' for s in signatures for p in s['params']):
         lines += ['#include <string.h>',
                   'static void sn_package_borrowed_slot_free(void *p) { free(*(char **)p); }',

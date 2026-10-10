@@ -7,6 +7,67 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Verified prebuilt native consumption: local validation, 2026-10-10
+
+Manifests can select a sealed `native.assembly` descriptor. C/Rust applications
+consume relocated C/Rust/Go archives after original backing sources/modules and
+producer build caches are removed. Go/archive/symbol tools and a Rust backing
+compiler are unnecessary for C consumers. Public Sindarin declaration bytes,
+binding/ownership/type contracts, platform/architecture/pointer width,
+build/export/initialization inventories and archive hashes are verified before
+linking. Incompatibility fails without source rebuilds or fallback implementations.
+
+Consumers select their current canonical C runtime rather than producer paths.
+Adapters query its ABI version/capabilities and scalar/pointer widths before
+foreign calls. ABI 1.0 transport remains supported. Runtime rejection tests prove
+unsupported versions/widths fail before the backing function runs. Multiple Go
+units inside one prebuilt aggregate archive work under the existing graph model;
+combining prebuilt Go runtimes with another Go package requires an aggregate
+source rebuild and is explicitly diagnosed. Complete source-independent multi-Go
+composition and independent Sindarin bodies/SDK artifacts remain required work.
+
+The corruption matrix rejects descriptor/schema, package identity, ABI/platform,
+public declarations, provider types, ownership, exports, initialization, archive
+hash/path and malformed descriptor errors. A C provider hygiene repair removes
+backing-name macros before rendering adapter locals and calls the explicit private
+symbol: an ordinary backing function named `value` no longer shadows its call
+with the generated local `value` variable. Original backing sources are preserved.
+
+The runtime boundary also rejects foreign-runtime package method bodies and
+globals that previously escaped the free-function body check. They require real
+independent package compilation rather than silent application-target emission.
+Matching C package/application callers retain their tested source path.
+
+Local suites pass 3,240 C and 1,089 Rust checks. All 28 import tests, 12 artifact
+tests, 15 CI helper tests and five strict provider/runtime-guard sanitizer tests
+pass. Existing source/oracle inventories remain intact. This prebuilt scalar/string
+path is independent of the pending borrowed-array batch and uses the already
+accepted transport/provider foundation. Hosted acceptance is pending publication.
+
+Evidence: [prebuilt consumption validation](rust-parity-evidence/prebuilt-native-consumption-validation.json).
+
+## Scalar conversion prerequisites: hosted acceptance, 2026-10-10
+
+Character-conversion main `f805570a`
+([run 38046184242](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38046184242)),
+finite-double main `5d295716`
+([run 38047206995](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38047206995)),
+and signed-postfix main `7c3b132f`
+([run 38048129178](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38048129178))
+pass complete Linux/macOS/Windows unified CI. These runs supersede the earlier
+pending descriptions for those increments. The borrowed-array batch is published
+on main `04f04549`, with exact-revision
+[run 38048978802](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38048978802)
+still pending. Full goal acceptance remains unfinished.
+
+Evidence: [accepted scalar increments](rust-parity-evidence/scalar-increments-main-ci-green.json).
+
+The borrowed-array main `04f04549` has subsequently passed complete unified
+Linux/macOS/Windows CI
+([run 38048978802](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38048978802)).
+This supersedes the pending note above and that increment's earlier local entry.
+Evidence: [borrowed-array hosted acceptance](rust-parity-evidence/borrowed-string-array-main-ci-green.json).
+
 ## Borrowed string-array package inputs: local validation, 2026-10-10
 
 ABI 1.1 native declarations now accept read-only borrowed `str[]` inputs through

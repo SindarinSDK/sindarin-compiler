@@ -100,7 +100,7 @@ static bool native_ownership_name(const char *name)
 
 static bool validate_native_plan(json_object *plan, const char *path)
 {
-    static const char *const root_fields[] = {"abi", "declarations", "builds", "bindings", NULL};
+    static const char *const root_fields[] = {"abi", "declarations", "builds", "bindings", "assembly", NULL};
     static const char *const build_fields[] = {"name", "language", "sources", "entry", "module",
                                              "include_dirs", "libraries", NULL};
     static const char *const binding_fields[] = {"declaration", "build", "symbol", "function", "convention",
@@ -110,6 +110,18 @@ static bool validate_native_plan(json_object *plan, const char *path)
     const char *abi = native_text(plan, "abi");
     if (!abi || (strcmp(abi, "1.0") != 0 && strcmp(abi, "1.1") != 0))
         return yaml_config_error(path, "native abi must be 1.0 or 1.1");
+    json_object *assembly = NULL;
+    if (json_object_object_get_ex(plan, "assembly", &assembly)) {
+        static const char *const fields[] = {"path", "sha256", NULL};
+        if (!native_fields(assembly, fields, path) || !native_text(assembly, "path"))
+            return yaml_config_error(path, "native assembly requires a path and descriptor sha256");
+        const char *digest = native_text(assembly, "sha256");
+        if (!digest || strlen(digest) != 64)
+            return yaml_config_error(path, "native assembly sha256 must contain 64 lowercase hexadecimal digits");
+        for (int i = 0; i < 64; i++)
+            if (!((digest[i] >= '0' && digest[i] <= '9') || (digest[i] >= 'a' && digest[i] <= 'f')))
+                return yaml_config_error(path, "native assembly sha256 must contain 64 lowercase hexadecimal digits");
+    }
     if (!native_list(plan, "declarations", true, path)) return false;
     json_object *builds = NULL, *bindings = NULL;
     if (!json_object_object_get_ex(plan, "builds", &builds) ||

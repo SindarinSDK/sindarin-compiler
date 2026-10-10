@@ -204,11 +204,24 @@ bool package_prepare_native_imports(CompilerOptions *options, Module *module,
             Module *owner = i < 0 ? module : modules[i];
             for (int s = 0; owner && s < owner->count; s++) {
                 Stmt *stmt = owner->statements[s];
-                if (stmt->type != STMT_FUNCTION || !stmt->as.function.name.filename) continue;
-                char *owned_manifest = package_source_manifest(stmt->as.function.name.filename);
+                const char *origin = NULL;
+                bool implementation = false;
+                if (stmt->type == STMT_FUNCTION) {
+                    origin = stmt->as.function.name.filename;
+                    implementation = stmt->as.function.body_count > 0;
+                } else if (stmt->type == STMT_STRUCT_DECL) {
+                    origin = stmt->as.struct_decl.name.filename;
+                    for (int m = 0; m < stmt->as.struct_decl.method_count; m++)
+                        if (stmt->as.struct_decl.methods[m].body_count > 0) implementation = true;
+                } else if (stmt->type == STMT_VAR_DECL) {
+                    origin = stmt->as.var_decl.name.filename;
+                    implementation = true; /* Package-owned storage needs package initialization. */
+                }
+                if (!implementation || !origin) continue;
+                char *owned_manifest = package_source_manifest(origin);
                 bool belongs = owned_manifest && import_same(owned_manifest, manifest);
                 free(owned_manifest);
-                if (belongs && stmt->as.function.body_count && runtime !=
+                if (belongs && runtime !=
                         (options->target == TARGET_RUST ? PACKAGE_RUNTIME_RS : PACKAGE_RUNTIME_C)) {
                     fprintf(stderr, "error: %s: Sindarin package bodies require independent %s compilation; that package pipeline is not implemented\n",
                             manifest, package_runtime_name(runtime));

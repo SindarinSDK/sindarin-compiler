@@ -7,7 +7,7 @@ from types import SimpleNamespace
 import re
 import contextlib
 import io
-from build_native_package import build, build_go_graph, run
+from build_native_package import build, build_go_graph, load_prebuilt, run
 
 from native_contract import TYPES, kind, validate
 
@@ -26,6 +26,15 @@ def adapter(signature, package):
     return_wire = 'uint32_t' if status else TYPES[result][1]
     code = [f'extern {return_wire} {symbol}({", ".join(wire_params) or "void"});',
             f'{TYPES[result][0]} {alias}(' + ', '.join(f'{TYPES[kind(p["type"])][0]} p{i}' for i,p in enumerate(params)) + ') {']
+    version = 'SN_ABI_V1_1_VERSION' if signature.get('abi') == '1.1' else 'SN_ABI_V1_VERSION'
+    arrays = result == 'string_array' or any(kind(p['type']) == 'string_array' for p in params)
+    capabilities = 'SN_ABI_CAP_VALUES | SN_ABI_CAP_VALUE_ARRAYS' if arrays else 'SN_ABI_CAP_VALUES'
+    message = json.dumps(f"native package '{package}' requires a compatible shared runtime ABI\n")
+    code += ['  SnAbiInfo abi_info;',
+             f'  if (sn_abi_v1_query({version}, {capabilities}, &abi_info, sizeof(abi_info)) != SN_ABI_OK ||',
+             '      abi_info.pointer_bits != sizeof(void *) * 8 || abi_info.int_bits != 64 ||',
+             '      abi_info.char_bits != 8 || abi_info.float_bits != 32 || abi_info.double_bits != 64) {',
+             f'    fprintf(stderr, {message}); exit(1);', '  }']
     for i,p in enumerate(params):
         if kind(p['type']) == 'string':
             code += [f'  SnAbiValue *w{i} = NULL;',
@@ -120,8 +129,12 @@ def main():
                              '--target',request['target'],'-O'+str(request['optimization']),
                              '--'+request['arithmetic']]))
         plans.append({'manifest':package['manifest'],'plan':plan})
-    go_units=sum(u['language']=='GO' for p in plans for u in p['plan']['native']['builds'])
-    aggregate=go_units>1
+    prebuilt_go=sum(any(u['language']=='GO' for u in p['plan']['native']['builds'])
+                    for p in plans if 'assembly' in p['plan']['native'])
+    source_go=sum(u['language']=='GO' for p in plans if 'assembly' not in p['plan']['native'] for u in p['plan']['native']['builds'])
+    if prebuilt_go and (prebuilt_go>1 or source_go):
+        raise ValueError('prebuilt Go runtime archives cannot be combined with other Go packages; rebuild one aggregate source graph')
+    aggregate=source_go>1
     exports={}
     for package,planned in zip(request['packages'],plans):
         for signature in package['signatures']:
@@ -140,18 +153,21 @@ def main():
                                   out_dir=args.contract.parent/'artifacts',target=request['target'],
                                   optimization=str(request['optimization']),arithmetic=request['arithmetic'],
                                   validated_plan=planned['plan'],skip_go=aggregate)
-        output=io.StringIO()
-        with contextlib.redirect_stdout(output): build(build_args)
-        built=json.loads(output.getvalue())
-        assembly=Path(built['assembly'])
-        metadata=json.loads(assembly.read_text())
+        if 'assembly' in planned['plan']['native']:
+            metadata,assembly=load_prebuilt(planned['plan'],package['manifest'],compiler)
+        else:
+            output=io.StringIO()
+            with contextlib.redirect_stdout(output): build(build_args)
+            built=json.loads(output.getvalue())
+            assembly=Path(built['assembly'])
+            metadata=json.loads(assembly.read_text())
         for unit in metadata['units']:
             links.append(str(assembly.parent/unit['archive']))
             links += native_link_options(unit['native_link_flags'])
             links += ['-l'+name for name in unit['libraries']]
         source_lines+=adapters
     if aggregate:
-        graph=build_go_graph(plans,compiler,args.contract.parent/'go-graphs',
+        graph=build_go_graph([p for p in plans if 'assembly' not in p['plan']['native']],compiler,args.contract.parent/'go-graphs',
                              str(request['optimization']),request['arithmetic'])
         links.append(graph['archive'])
         links+=native_link_options(graph['native_link_flags'])

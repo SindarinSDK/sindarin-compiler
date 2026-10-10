@@ -48,6 +48,130 @@ class NativeImports(unittest.TestCase):
         import json
         self.assertTrue(json.loads(result.stdout)['cache_hit'])
 
+    def test_prebuilt_archives_consume_without_backing_sources_or_foreign_tools(self):
+        import hashlib,json
+        for language,source,function in (
+                ('C','#include <stdlib.h>\n#include <string.h>\nchar *echo(char *text) { return text ? strdup(text) : NULL; }\n','echo'),
+                ('RS','pub fn echo(text:Option<&[u8]>)->Option<Vec<u8>> { text.map(|s|s.to_vec()) }\n','echo'),
+                ('GO','package backing\nfunc Echo(text *string) *string { if text==nil { return nil }; copy:=*text; return &copy }\n','Echo')):
+            with self.subTest(language=language):
+                name='prebuilt'+language.lower()
+                self.package(name,language,source,result='owned',function=function)
+                package=self.root/'.sn'/name
+                self.write(f'.sn/{name}/src/api.sn','native fn provide(text: str): str\n')
+                manifest=package/'sn.yaml';text=manifest.read_text().replace('parameters: {}','parameters: {text: borrowed}')
+                manifest.write_text(text)
+                built=subprocess.run([str(COMPILER),'--build-native',str(manifest),'--target','rust','-o',str(package/'.sn/artifacts')],
+                                     capture_output=True,timeout=180)
+                self.assertEqual(built.returncode,0,built.stderr.decode(errors='replace'))
+                descriptor=Path(json.loads(built.stdout)['assembly'])
+                destination=package/'dist';shutil.copytree(descriptor.parent,destination)
+                # Producer locations are provenance, not consumer link locations.
+                metadata=json.loads((destination/'assembly.json').read_text())
+                metadata['shared_runtime']['archive']='/missing/producer/runtime/libsn_runtime_min.a'
+                (destination/'assembly.json').write_text(json.dumps(metadata,indent=2)+'\n')
+                digest=hashlib.sha256((destination/'assembly.json').read_bytes()).hexdigest()
+                manifest.write_text(text.replace('native:\n','native:\n  assembly: {path: dist/assembly.json, sha256: '+digest+'}\n'))
+                for path in list((package/'src').iterdir()):
+                    if path.suffix!='.sn':path.unlink()
+                shutil.rmtree(package/'.sn')
+                self.write('main.sn',f'import "{name}/src/api"\nfn main(): void =>\n'
+                           '  var source: str = "owned lifetime"\n  var result: str = provide(source)\n'
+                           '  source = "changed"\n  println(result)\n  println(provide(nil) == nil)\n  println(provide("") == nil)\n')
+                previous={key:os.environ.get(key) for key in ('SN_GO','SN_AR','SN_NM')}
+                try:
+                    for key in previous:os.environ[key]=str(self.root/'missing-foreign-tool')
+                    rustc=os.environ.get('SN_RUSTC')
+                    os.environ['SN_RUSTC']=str(self.root/'missing-backing-rustc')
+                    try:
+                        selected=subprocess.run([str(COMPILER),'--build-native',str(manifest),'--target','c','-o',str(package/'.sn/unneeded')],capture_output=True,timeout=90)
+                        self.assertEqual(selected.returncode,0,selected.stderr.decode(errors='replace'))
+                        selection=json.loads(selected.stdout)
+                        self.assertTrue(selection['prebuilt'] and selection['cache_hit'])
+                        self.assertTrue(Path(selection['shared_runtime']['archive']).is_file())
+                        self.execute('c',b'owned lifetime\ntrue\nfalse\n')
+                    finally:
+                        if rustc is None:os.environ.pop('SN_RUSTC',None)
+                        else:os.environ['SN_RUSTC']=rustc
+                    self.execute('rust',b'owned lifetime\ntrue\nfalse\n')
+                finally:
+                    for key,value in previous.items():
+                        if value is None:os.environ.pop(key,None)
+                        else:os.environ[key]=value
+                # No backing build cache is recreated when consuming the artifact.
+                self.assertFalse((package/'.sn').exists())
+
+    def test_prebuilt_artifact_rejects_corruption_and_incompatible_contracts(self):
+        import copy,hashlib,json
+        self.package('sealed','C','long long value(void) { return 11; }\n',function='value')
+        package=self.root/'.sn/sealed';manifest=package/'sn.yaml';original=manifest.read_text()
+        built=subprocess.run([str(COMPILER),'--build-native',str(manifest),'--target','rust','-o',str(package/'.sn/artifacts')],
+                             capture_output=True,timeout=120)
+        self.assertEqual(built.returncode,0,built.stderr.decode(errors='replace'))
+        descriptor=Path(json.loads(built.stdout)['assembly']);metadata=json.loads(descriptor.read_text())
+        self.write('main.sn','import "sealed/src/api"\nfn main(): void =>\n  println(provide())\n')
+        def change(mapping,path,value):
+            for key in path[:-1]:mapping=mapping[key]
+            mapping[path[-1]]=value
+        cases=[(('schema',),2,b'unsupported prebuilt native assembly schema'),
+               (('package','version'),'incompatible',b'package identity/version/runtime differs'),
+               (('abi',),'1.1',b'assembly ABI differs'),
+               (('compatibility','pointer_bits'),8,b'platform/architecture/pointer width differs'),
+               (('bindings',0,'ownership','result'),'owned',b'binding/ownership contract differs'),
+               (('provider_signatures',0,'return_type','kind'),'string',b'resolved provider type contract differs'),
+               (('declarations',0,'sha256'),'0'*64,b'public declaration bytes differ'),
+               (('units',0,'symbols'),[],b'build/export/initialization contract differs'),
+               (('units',0,'initialization'),'unsupported',b'build/export/initialization contract differs'),
+               (('units',0,'archive_sha256'),'0'*64,b'archive is missing, outside the generation or corrupt'),
+               (('units',0,'archive'),'../escape.a',b'archive is missing, outside the generation or corrupt'),
+               (('units',),None,b'malformed prebuilt native assembly descriptor')]
+        for path,value,message in cases:
+            with self.subTest(path=path):
+                corrupt=copy.deepcopy(metadata);change(corrupt,path,value)
+                descriptor.write_text(json.dumps(corrupt)+'\n')
+                digest=hashlib.sha256(descriptor.read_bytes()).hexdigest()
+                manifest.write_text(original.replace('native:\n','native:\n  assembly: {path: '+descriptor.as_posix()+', sha256: '+digest+'}\n'))
+                product=self.root/'rejected.exe'
+                result=subprocess.run([str(COMPILER),'main.sn','--target','rust','--no-install','-o',str(product)],
+                                      cwd=self.root,capture_output=True,timeout=90)
+                self.assertNotEqual(result.returncode,0)
+                self.assertIn(message,result.stderr)
+                self.assertFalse(product.exists())
+        descriptor.write_text(json.dumps(metadata)+'\n')
+        manifest.write_text(original.replace('native:\n','native:\n  assembly: {path: '+descriptor.as_posix()+', sha256: '+'0'*64+'}\n'))
+        result=subprocess.run([str(COMPILER),'main.sn','--target','c','--no-install','-o','rejected.exe'],cwd=self.root,capture_output=True,timeout=90)
+        self.assertNotEqual(result.returncode,0)
+        self.assertIn(b'assembly descriptor is missing or its sha256 differs',result.stderr)
+        self.assertFalse((self.root/'rejected.exe').exists())
+
+    def test_cross_runtime_package_methods_and_globals_require_package_compilation(self):
+        self.package('fixed','C','long long value(void) { return 11; }\n',function='value')
+        self.write('main.sn','import "fixed/src/api"\nfn main(): void =>\n  println(provide())\n')
+        for body in ('struct Helper =>\n  fn result(): int =>\n    return 42\n',
+                     'var packageState: int = 42\n'):
+            with self.subTest(body=body):
+                self.write('.sn/fixed/src/api.sn','native fn provide(): int\n'+body)
+                result=subprocess.run([str(COMPILER),'main.sn','--target','rust','--no-install','-o','rejected.exe'],cwd=self.root,capture_output=True,timeout=90)
+                self.assertNotEqual(result.returncode,0)
+                self.assertIn(b'Sindarin package bodies require independent C compilation',result.stderr)
+                self.assertFalse((self.root/'rejected.exe').exists())
+                self.execute('c',b'11\n')
+
+    def test_prebuilt_go_archives_require_one_runtime_graph(self):
+        import hashlib,json
+        for name,value in (('gofirst',11),('gosecond',22)):
+            self.package(name,'GO',f'package backing\nfunc Provide() int64 {{ return {value} }}\n',function='Provide')
+            package=self.root/'.sn'/name;manifest=package/'sn.yaml';text=manifest.read_text()
+            result=subprocess.run([str(COMPILER),'--build-native',str(manifest),'--target','rust','-o',str(package/'.sn/artifacts')],capture_output=True,timeout=180)
+            self.assertEqual(result.returncode,0,result.stderr.decode(errors='replace'))
+            descriptor=Path(json.loads(result.stdout)['assembly']);digest=hashlib.sha256(descriptor.read_bytes()).hexdigest()
+            manifest.write_text(text.replace('native:\n','native:\n  assembly: {path: '+descriptor.as_posix()+', sha256: '+digest+'}\n'))
+        self.write('main.sn','import "gofirst/src/api" as First\nimport "gosecond/src/api" as Second\nfn main(): void =>\n  println(First.provide()+Second.provide())\n')
+        result=subprocess.run([str(COMPILER),'main.sn','--target','rust','--no-install','-o','rejected.exe'],cwd=self.root,capture_output=True,timeout=90)
+        self.assertNotEqual(result.returncode,0)
+        self.assertIn(b'prebuilt Go runtime archives cannot be combined',result.stderr)
+        self.assertFalse((self.root/'rejected.exe').exists())
+
     def test_generated_string_array_results_keep_nil_elements_and_mutation(self):
         sources={
             'C': '#include "sn_array.h"\n#include <stdlib.h>\n#include <string.h>\n'

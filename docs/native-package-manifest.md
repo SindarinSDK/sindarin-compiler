@@ -150,3 +150,10 @@ runtime-selection and C interop regressions remain required.
 
 `abi: 1.1` selects managed-value array contracts. Borrowed `str[]` inputs and owned results require
 that version; `abi: 1.0` preserves existing scalar/string/native artifact behaviour.
+
+Optional `native.assembly` is a mapping with nonempty `path` and a 64-digit
+lowercase hexadecimal `sha256` sealing the exact descriptor bytes. Public
+declarations and build/binding contracts remain required. A selected assembly
+is verified and consumed without reading backing sources or invoking their
+toolchains; no source-build fallback occurs on incompatibility. See
+[prebuilt artifacts](native-artifacts.md#consuming-a-prebuilt-artifact).

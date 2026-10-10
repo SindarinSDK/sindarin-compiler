@@ -340,6 +340,30 @@ class NativeArtifactTests(unittest.TestCase):
                 run=subprocess.run([str(executable)],capture_output=True,timeout=15)
                 self.assertEqual(run.returncode,0,run.stderr.decode(errors='replace'))
 
+    def test_consumer_rejects_runtime_incompatibility_before_foreign_call(self):
+        import sys
+        sys.path.insert(0,str(ROOT/'scripts'))
+        from prepare_native_imports import adapter
+        signature={'abi':'1.1','binding':{'symbol':'probe','failure':'abort','ownership':{'parameters':{},'result':'value'}},
+                   'params':[],'return_type':{'kind':'int'},'adapter':'call_probe'}
+        cc=shlex.split(os.environ.get('SN_CC','clang' if os.name=='nt' or os.sys.platform=='darwin' else 'gcc'))
+        for condition in ('compatible','query_error','width_error'):
+            with self.subTest(condition=condition):
+                source='#include <stdint.h>\n#include <stdio.h>\n#include <stdlib.h>\n#include <assert.h>\n#include "sn_abi.h"\n'
+                source+='static int calls; int64_t probe(void) { calls++; return 42; }\n'
+                source+='const char *sn_abi_v1_status_message(uint32_t code) { return "runtime mismatch"; }\n'
+                source+='uint32_t sn_abi_v1_query(uint32_t version,uint64_t caps,SnAbiInfo *out,uint32_t size) { '
+                source+='return SN_ABI_VERSION_MISMATCH; }\n' if condition=='query_error' else (
+                    '*out=(SnAbiInfo){version,'+('1' if condition=='width_error' else 'sizeof(void*)*8')+',caps,64,8,32,64}; return 0; }\n')
+                source+=adapter(signature,'sealed-package')+'\nint main(void) { assert(call_probe()==42 && calls==1); return 0; }\n'
+                self.write('runtime-guard.c',source);executable=self.root/'runtime-guard.exe'
+                built=subprocess.run(cc+shlex.split(os.environ.get('SN_CFLAGS',''))+['-I',str(COMPILER.parent/'include/runtime'),str(self.root/'runtime-guard.c'),'-o',str(executable)],capture_output=True,timeout=90)
+                self.assertEqual(built.returncode,0,built.stderr.decode(errors='replace'))
+                run=subprocess.run([str(executable)],capture_output=True,timeout=15)
+                self.assertEqual(run.returncode,0 if condition=='compatible' else 1)
+                self.assertEqual(run.stdout,b'')
+                if condition!='compatible':self.assertIn(b'requires a compatible shared runtime ABI',run.stderr)
+
     def test_plan_inheritance_and_command_diagnostics(self):
         self.manifest(['C'])
         manifest = self.root / 'sn.yaml'
