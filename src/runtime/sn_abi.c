@@ -31,8 +31,9 @@ SnAbiStatus sn_abi_v1_query(uint32_t version, uint64_t required_capabilities,
 {
     uint64_t capabilities = SN_ABI_CAP_VALUES | SN_ABI_CAP_POD_ARRAYS | SN_ABI_CAP_RESOURCES;
     if (!out || out_size < sizeof(*out)) return SN_ABI_INVALID_ARGUMENT;
-    if (version != SN_ABI_V1_VERSION && version != SN_ABI_V1_1_VERSION) return SN_ABI_VERSION_MISMATCH;
-    if (version == SN_ABI_V1_1_VERSION) capabilities |= SN_ABI_CAP_VALUE_ARRAYS | SN_ABI_CAP_TYPED_RESOURCES;
+    if (version != SN_ABI_V1_VERSION && version != SN_ABI_V1_1_VERSION && version != SN_ABI_V1_2_VERSION) return SN_ABI_VERSION_MISMATCH;
+    if (version != SN_ABI_V1_VERSION) capabilities |= SN_ABI_CAP_VALUE_ARRAYS | SN_ABI_CAP_TYPED_RESOURCES;
+    if (version == SN_ABI_V1_2_VERSION) capabilities |= SN_ABI_CAP_PACKAGE_LIFECYCLE;
     if (required_capabilities & ~capabilities) return SN_ABI_UNSUPPORTED;
     SnAbiInfo info = { version, sizeof(void *) * CHAR_BIT, capabilities,
                        sizeof(long long) * CHAR_BIT, CHAR_BIT,
@@ -51,6 +52,8 @@ const char *sn_abi_v1_status_message(SnAbiStatus status)
         case SN_ABI_WRONG_KIND: return "incorrect ABI value kind";
         case SN_ABI_OUT_OF_RANGE: return "runtime ABI index or length out of range";
         case SN_ABI_FOREIGN_ERROR: return "native backing function panicked";
+        case SN_ABI_PACKAGE_BUSY: return "package lifecycle cannot close an active reentrant call";
+        case SN_ABI_PACKAGE_CLOSED: return "package lifecycle is closed";
         default: return "unknown runtime ABI status";
     }
 }

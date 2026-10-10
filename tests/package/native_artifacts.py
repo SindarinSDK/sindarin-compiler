@@ -387,6 +387,34 @@ class NativeArtifactTests(unittest.TestCase):
                 run=subprocess.run([str(executable)],capture_output=True,timeout=15)
                 self.assertEqual(run.returncode,0,run.stderr.decode(errors='replace'))
 
+    def test_sindarin_library_global_shutdown_preserves_owned_results(self):
+        cc=shlex.split(os.environ.get('SN_CC','clang' if os.name=='nt' or os.sys.platform=='darwin' else 'gcc'))
+        for runtime in ('C','RS'):
+            with self.subTest(runtime=runtime):
+                self.write('src/api.sn','native fn provide(): str\n')
+                self.write('src/body.sn','var label: str = makeLabel()\nfn makeLabel(): str =>\n  return "global lifetime"\nfn provide(): str =>\n  return label\n')
+                self.write('sn.yaml',f'name: globals-library\nruntime: {runtime}\nnative:\n  abi: 1.0\n  declarations: [src/api.sn]\n  builds:\n'
+                           '    - name: body\n      language: SN\n      entry: src/body.sn\n      sources: [src/body.sn]\n  bindings:\n'
+                           '    - declaration: src/api.sn::provide\n      function: provide\n      symbol: global_provide\n      build: body\n'
+                           '      convention: C\n      failure: status\n      ownership: {parameters: {}, result: owned}\n')
+                summary,metadata=self.build();unit=metadata['units'][0];base=Path(summary['assembly']).parent;life=unit['package_lifecycle']
+                self.assertEqual(life['abi'],'1.2')
+                self.write('global-client.c','#include <assert.h>\n#include <string.h>\n#include "sn_abi.h"\n'
+                           f'uint32_t {life["initialize"]}(void); uint32_t {life["shutdown"]}(void);\n'
+                           'uint32_t global_provide(SnAbiValue**);\nint main(void) { SnAbiValue *out=NULL; SnAbiBytes bytes;\n'
+                           f'assert({life["initialize"]}()==0); assert({life["initialize"]}()==0);\n'
+                           'assert(global_provide(&out)==0);\n'
+                           f'assert({life["shutdown"]}()==0); assert({life["shutdown"]}()==0);\n'
+                           'assert(sn_abi_v1_string_bytes(out,&bytes)==0 && bytes.length==15 && memcmp(bytes.data,"global lifetime",15)==0);\n'
+                           'SnAbiValue *preserved=out; assert(global_provide(&out)==SN_ABI_PACKAGE_CLOSED && out==preserved);\n'
+                           'sn_abi_v1_release(out); return 0; }\n')
+                executable=self.root/'global-client.exe'
+                built=subprocess.run(cc+['-I',str(COMPILER.parent/'include/runtime'),str(self.root/'global-client.c'),
+                    str(base/unit['archive']),metadata['shared_runtime']['archive']]+unit['native_link_flags']+['-o',str(executable)],capture_output=True,timeout=120)
+                self.assertEqual(built.returncode,0,built.stderr.decode(errors='replace'))
+                run=subprocess.run([str(executable)],capture_output=True,timeout=15)
+                self.assertEqual(run.returncode,0,run.stderr.decode(errors='replace'))
+
     def test_plan_inheritance_and_command_diagnostics(self):
         self.manifest(['C'])
         manifest = self.root / 'sn.yaml'

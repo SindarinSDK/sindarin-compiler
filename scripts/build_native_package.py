@@ -228,6 +228,11 @@ def validate_prebuilt(plan, manifest, compiler):
             raise ValueError('prebuilt native assembly build/export/initialization contract differs: '+unit['name'])
         if build_unit['language']=='SN' and unit.get('implementation_runtime')!=plan['package']['runtime']:
             raise ValueError('prebuilt Sindarin implementation runtime differs')
+        if 'package_lifecycle' in unit:
+            stem='sn_native_'+f'{native["builds"].index(build_unit):03d}_'+key({'package':plan['package'],'build':build_unit['name']})[:12]
+            expected={'abi':'1.2','initialize':'__sn_'+stem+'_initialize','shutdown':'__sn_'+stem+'_shutdown'}
+            if build_unit['language']!='SN' or unit['package_lifecycle']!=expected:
+                raise ValueError('prebuilt package lifecycle contract differs')
         if not isinstance(unit.get('native_link_flags'),list) or not all(isinstance(f,str) for f in unit['native_link_flags']):
             raise ValueError('prebuilt native assembly linker options must be strings')
         archive = (descriptor.parent / unit['archive']).resolve()
@@ -458,6 +463,11 @@ def build(args):
                 units[-1]['implementation_runtime']=plan['package']['runtime']
                 units[-1]['implementation_exports']=[{'name':s['binding']['function'],
                     'return_type':s['return_type'],'params':s['params']} for s in signatures]
+                if library_model.get('globals'):
+                    lifecycle={'abi':'1.2','initialize':'__sn_'+stem+'_initialize','shutdown':'__sn_'+stem+'_shutdown'}
+                    for name in (lifecycle['initialize'],lifecycle['shutdown']):
+                        if name not in symbols and '_'+name not in symbols:raise ValueError('package lifecycle export missing: '+name)
+                    units[-1]['package_lifecycle']=lifecycle
         current = tree_inputs(root, output)
         for name in native['declarations']:
             path = source_path(root, name); current[str(path)] = sha(path)

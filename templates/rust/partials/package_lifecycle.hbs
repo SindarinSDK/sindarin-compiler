@@ -1,0 +1,53 @@
+#[repr(C)] struct __sn_package_handle { _opaque:[u8;0] }
+#[repr(C)] pub struct __sn_package_call { _opaque:[u8;0] }
+extern "C" {
+    fn sn_abi_v1_package_new(init:Option<unsafe extern "C" fn(*mut __sn_package_handle,usize)->u32>,cleanup:Option<unsafe extern "C" fn(*mut __sn_package_handle,usize)>,context:usize,out:*mut *mut __sn_package_handle)->u32;
+    fn sn_abi_v1_package_begin(package:*mut __sn_package_handle,out:*mut *mut __sn_package_call)->u32;
+    fn sn_abi_v1_package_end(call:*mut __sn_package_call);
+    fn sn_abi_v1_package_shutdown(package:*mut __sn_package_handle)->u32;
+    fn sn_abi_v1_package_release(package:*mut __sn_package_handle);
+    fn atexit(callback:extern "C" fn())->std::ffi::c_int;
+}
+static __SN_PACKAGE:std::sync::OnceLock<usize>=std::sync::OnceLock::new();
+{{#each globals}}static __SN_INITIALIZED_{{@index}}:std::sync::atomic::AtomicBool=std::sync::atomic::AtomicBool::new(false);
+{{/each}}
+fn __sn_package_clear() {
+{{#each package_cleanup_globals}}    if __SN_INITIALIZED_{{package_global_index}}.swap(false,std::sync::atomic::Ordering::AcqRel) {
+        std::sync::LazyLock::force(&{{rust_ident name}}).clear();
+    }
+{{/each}}
+}
+unsafe extern "C" fn __sn_package_initialize(_: *mut __sn_package_handle,_:usize)->u32 {
+    let result=std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+{{#each globals}}        std::sync::LazyLock::force(&{{rust_ident name}});
+        __SN_INITIALIZED_{{@index}}.store(true,std::sync::atomic::Ordering::Release);
+{{/each}}{{#each globals}}{{#if is_deferred}}        let value = {{#if initializer}}{{> expr initializer}}{{else}}{{rust_default type}}{{/if}};
+        *{{rust_ident name}}.lock().unwrap_or_else(|e|e.into_inner()) = value;
+{{/if}}{{/each}}    }));
+    if result.is_err() { __sn_package_clear(); 6 } else { 0 }
+}
+unsafe extern "C" fn __sn_package_cleanup(_: *mut __sn_package_handle,_:usize) {
+    if std::panic::catch_unwind(std::panic::AssertUnwindSafe(__sn_package_clear)).is_err() { std::process::abort(); }
+}
+extern "C" fn __sn_package_process_cleanup() { unsafe {
+    if let Some(value)=__SN_PACKAGE.get() {
+        let package=*value as *mut __sn_package_handle;
+        let _=sn_abi_v1_package_shutdown(package); sn_abi_v1_package_release(package);
+    }
+} }
+struct __sn_package_guard(*mut __sn_package_call);
+impl Drop for __sn_package_guard { fn drop(&mut self) { unsafe { sn_abi_v1_package_end(self.0); } } }
+fn __sn_package_get()->*mut __sn_package_handle { unsafe {
+    let value=__SN_PACKAGE.get_or_init(|| {
+        let mut package=std::ptr::null_mut();
+        if sn_abi_v1_package_new(Some(__sn_package_initialize),Some(__sn_package_cleanup),0,&mut package)!=0 { std::process::abort(); }
+        if atexit(__sn_package_process_cleanup)!=0 { std::process::abort(); } package as usize
+    });
+    *value as *mut __sn_package_handle
+} }
+pub fn __sn_body_initialize()->u32 { match __sn_package_enter() { Ok(_call)=>0, Err(code)=>code } }
+pub fn __sn_body_shutdown()->u32 { unsafe { sn_abi_v1_package_shutdown(__sn_package_get()) } }
+fn __sn_package_enter()->Result<__sn_package_guard,u32> { unsafe {
+    let mut call=std::ptr::null_mut(); let code=sn_abi_v1_package_begin(__sn_package_get(),&mut call);
+    if code!=0 { Err(code) } else { Ok(__sn_package_guard(call)) }
+} }

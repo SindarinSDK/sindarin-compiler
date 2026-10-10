@@ -370,7 +370,15 @@ int main(int argc, char **argv)
         diagnostic_phase_start(PHASE_CODE_GEN);
         json_object *model = gen_model_build(&options.arena, module,
                                               &options.symbol_table, options.arithmetic_mode);
+        if (options.package_body) json_object_object_add(model, "package_body", json_object_new_boolean(true));
         gen_model_flatten_chains(model);
+        if (options.package_body) {
+            json_object *globals = NULL, *cleanup = json_object_new_array();
+            json_object_object_get_ex(model, "globals", &globals);
+            for (size_t i = json_object_array_length(globals); i > 0; i--)
+                json_object_array_add(cleanup, json_object_get(json_object_array_get_idx(globals, i - 1)));
+            json_object_object_add(model, "package_cleanup_globals", cleanup);
+        }
         char td[1024];
         snprintf(td, sizeof(td), "%s/templates/c", options.compiler_dir);
         char *code = gen_model_render_min_c(model, td);

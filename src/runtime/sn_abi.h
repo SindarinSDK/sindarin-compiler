@@ -12,11 +12,13 @@ extern "C" {
 
 #define SN_ABI_V1_VERSION UINT32_C(0x00010000)
 #define SN_ABI_V1_1_VERSION UINT32_C(0x00010001)
+#define SN_ABI_V1_2_VERSION UINT32_C(0x00010002)
 #define SN_ABI_CAP_VALUES UINT64_C(1)
 #define SN_ABI_CAP_POD_ARRAYS UINT64_C(2)
 #define SN_ABI_CAP_RESOURCES UINT64_C(4)
 #define SN_ABI_CAP_VALUE_ARRAYS UINT64_C(8)
 #define SN_ABI_CAP_TYPED_RESOURCES UINT64_C(16)
+#define SN_ABI_CAP_PACKAGE_LIFECYCLE UINT64_C(32)
 
 typedef uint32_t SnAbiStatus;
 #define SN_ABI_OK UINT32_C(0)
@@ -26,6 +28,8 @@ typedef uint32_t SnAbiStatus;
 #define SN_ABI_WRONG_KIND UINT32_C(4)
 #define SN_ABI_OUT_OF_RANGE UINT32_C(5)
 #define SN_ABI_FOREIGN_ERROR UINT32_C(6)
+#define SN_ABI_PACKAGE_BUSY UINT32_C(7)
+#define SN_ABI_PACKAGE_CLOSED UINT32_C(8)
 
 typedef struct SnAbiValue SnAbiValue;
 
@@ -113,6 +117,25 @@ SnAbiStatus sn_abi_v1_resource_data_typed(const SnAbiValue *value, const char *t
 /* Borrowed identity view; valid while the resource has a live credit. Generic
  * resources and nil have no identity. Does not expose private resource layout. */
 SnAbiStatus sn_abi_v1_resource_type(const SnAbiValue *value, const char **out);
+
+/* ABI 1.2 package lifecycle. Initialization executes once without holding the
+ * gate lock. A same-thread initializer may reenter; other threads wait. Init
+ * failures are sticky and the initializer owns rollback of provisional state.
+ * Call credits keep the package alive and must end on their creating thread.
+ * Shutdown rejects an active same-thread call, drains other calls, and invokes
+ * cleanup once outside the lock. Calls after shutdown preserve outputs/fail.
+ * Callers own context and callbacks must not unwind across the C boundary. */
+typedef struct SnAbiPackage SnAbiPackage;
+typedef struct SnAbiPackageCall SnAbiPackageCall;
+typedef SnAbiStatus (*SnAbiPackageInit)(SnAbiPackage *package, uintptr_t context);
+typedef void (*SnAbiPackageCleanup)(SnAbiPackage *package, uintptr_t context);
+SnAbiStatus sn_abi_v1_package_new(SnAbiPackageInit initialize, SnAbiPackageCleanup cleanup,
+                                 uintptr_t context, SnAbiPackage **out);
+SnAbiPackage *sn_abi_v1_package_retain(SnAbiPackage *package);
+void sn_abi_v1_package_release(SnAbiPackage *package);
+SnAbiStatus sn_abi_v1_package_begin(SnAbiPackage *package, SnAbiPackageCall **out);
+void sn_abi_v1_package_end(SnAbiPackageCall *call);
+SnAbiStatus sn_abi_v1_package_shutdown(SnAbiPackage *package);
 
 #ifdef __cplusplus
 }

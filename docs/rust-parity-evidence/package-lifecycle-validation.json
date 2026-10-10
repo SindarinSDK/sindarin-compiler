@@ -1,0 +1,106 @@
+{
+  "base_revision": "89c23570e708f305db7aa803ee7145a0f490a83b",
+  "date": "2026-10-10",
+  "scope": "ABI 1.2 canonical package lifecycle and ordinary C/RS implementation global initialization/cleanup",
+  "source_sha256": {
+    "CMakeLists.txt": "863b887add9484510c1e8544bd215efb4af3977cc1a87bbb05b4eaa0ae6cc6f3",
+    "scripts/build_native_package.py": "d4559a2ddcf8104fd297cd73b84e4e138aa273fa2920e5404296d5a900b70441",
+    "scripts/ci/gates.json": "d9ae129d33e5628517a3e5a65dc0c657658833f697fc1c685986bf47a9a76335",
+    "scripts/sindarin_library.py": "055c80c422bc6b4cb262917ffae84e3c689074166dba73ebe92e5c1439cd1250",
+    "src/main.c": "f66ad077c64fa7931de904fb51329a6d310f41c83caf5b57f5288f0c39da3dcf",
+    "src/runtime/sn_abi.c": "ec40e227958e9ab163c8345bfc675aac46bbe30e10b507c27b8a45fccf4b62ee",
+    "src/runtime/sn_abi.h": "2fe016930cdd0961c9e255ef6bf86dc14cd751a79f047b9b44d94ad46f88a214",
+    "src/target/rust/rust_target.c": "053121d6298f254f5c38d57f0149f549a8d6eeca7482bd0669b9e6e74516761c",
+    "templates/c/module.hbs": "d2e4683b8bd590cedc859fe59f0b14040d43e163bb80aa628ec12791939973d5",
+    "templates/rust/module.hbs": "f141458dbdb896721517b5b4ed7bcd881d71afbd0d036b4e27f76c2a2c8a39e2",
+    "templates/rust/partials/cell_support.hbs": "00d18bc554fcf35aaacbe2ac2574c151a9600fad210a379ad368badaee923d69",
+    "templates/rust/partials/globals.hbs": "ccbddec63367eba4dfe52b46d894b44df9b45dc22d248be6362251c45f0b21b7",
+    "tests/ci/test_ci_helpers.py": "7a54dd5b12a558dcf6dd039976e417e20fe8874eace70e6c58db72412447b661",
+    "tests/package/native_artifacts.py": "43e3562e34639eede1fa6df83101d6833de65e6989463bac467dfdab792df652",
+    "tests/package/native_imports.py": "631986bf48a5e4ece0af9916d4ee1a480b3a2edf9988a92e8c641826b65c806a",
+    "scripts/check_package_lifecycle.py": "0a01e6785c3ca1e1cb2b39e2716314f557d62c02a75245975e3d66bed8016959",
+    "src/runtime/sn_package.c": "fc6fb297519e59ca94070dfddd35e31a4a8b21491a1ea57d40dd55f2f23d92fc",
+    "templates/c/partials/package_lifecycle.hbs": "ef9d0851c253354994a35204a0de384681bd113f76a50657fcde7e3ca446745d",
+    "templates/rust/partials/package_cell_support.hbs": "c11d8399b06240193fd96cec6a631f2751a6852a4d52472784206b62fa6c06b0",
+    "templates/rust/partials/package_lifecycle.hbs": "8bc7715e40f5b7c3384abbe1929aa0360d206109020a94c1b2642c2a8c6ee5a2",
+    "tests/runtime_abi/package_go/bridge.c": "ef42324af281db45c8a3512d6c9dc12f852806313fd5456b4911aceeb6f69221",
+    "tests/runtime_abi/package_go/go.mod": "54e2c0f5ac28a73d55aad0a13370e1ffe41fc1ae8836a5643227143f8c4c94a7",
+    "tests/runtime_abi/package_go/main.go": "99cae60f143806698aa7ba2122778b1b6fd71e1ca5000958f72af068a8f9133e",
+    "tests/runtime_abi/package_lifecycle.c": "c38f956a6ba675c911bd9112b9411fab8967ed67d03f8d392020f12499d808c8",
+    "tests/runtime_abi/package_lifecycle.rs": "f9031046855452ba209b217d7ffcce21e8b5d6d2dd5470155e15d96f211ccbc6"
+  },
+  "validation": {
+    "C": {
+      "checks": 3240,
+      "passed": true,
+      "log_sha256": "3a98908a98bda581ddaa930691586b31ecc0ab0ab772549fe843af818f2a6aa8"
+    },
+    "Rust": {
+      "checks": 1090,
+      "passed": true,
+      "log_sha256": "c2c976e9e41aecb930f5b3e3754e7b8b19adb71dc8d49d9bcb7fc9f973e034d1"
+    },
+    "imports": {
+      "checks": 31,
+      "passed": true,
+      "log_sha256": "cd9529826eb4e0e8bebf9a884e0e36290ea45519d423fd563e3c10fe509d75e8"
+    },
+    "artifacts": {
+      "checks": 14,
+      "passed": true,
+      "log_sha256": "ed95651a3e846ea3fd213319c554e7b2f9d0133dbae52caea9bc758ae8ff5b48"
+    },
+    "ci_helpers": {
+      "checks": 15,
+      "passed": true,
+      "log_sha256": "964872bf104b45f5ea2ab0bf3994852984a8d4d8c2109386f28868967ec55bf1"
+    },
+    "global_cleanup_sanitizers": {
+      "checks": 1,
+      "passed": true,
+      "log_sha256": "22c06f692dd2a033da921fc8516aa2749f7db17ac74a11da7732b354082e6e23"
+    },
+    "prebuilt_globals": {
+      "checks": 1,
+      "passed": true,
+      "log_sha256": "a2fe8115d9e6c6b91f38f6ff0a0624f9df7da6e4647cfcbe7332d07629133cd4"
+    },
+    "legacy_abi": {
+      "passed": true,
+      "log_sha256": "49e32ecab0957edbdb421efff68abce37e09ecf25812ed2eed74e85c37332665"
+    },
+    "legacy_abi_sanitizers": {
+      "passed": true,
+      "log_sha256": "c73a9b66c247f3b6c5b59d88274f5a381ec143447d2458123896a08918b39104"
+    },
+    "package_clients": {
+      "passed": true,
+      "log_sha256": "098cde1e2753ec909260e36d47d0d85061bca0c79c6cf5c5e2c3c27eef427f9b"
+    },
+    "package_sanitizers": {
+      "passed": true,
+      "log_sha256": "2236e87f32a5372dd761ca60ca81e6facd858a308b3ce95fbf1b31a9bc9e613d"
+    }
+  },
+  "abi_versions": {
+    "1.0": 7,
+    "1.1": 31,
+    "1.2": 63
+  },
+  "capabilities": [
+    "once-only initialization and concurrent call draining",
+    "same-thread init/cleanup reentry without lock-held callbacks",
+    "sticky initialization failure and unchanged outputs",
+    "owned call credits pin package lifetime",
+    "explicit and automatic global shutdown",
+    "C/Rust returned strings survive global cleanup",
+    "prebuilt lifecycle contracts verified and consumed without bodies"
+  ],
+  "limitations": [
+    "package-global thread and shared-handle captures remain unsupported",
+    "modular RS native sidecars and wider managed body exports remain required",
+    "full SDK artifact migration and final corpus/platform/mode parity remain unproven"
+  ],
+  "hosted_acceptance": "pending publication",
+  "passed": true
+}

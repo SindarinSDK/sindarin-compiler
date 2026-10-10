@@ -358,6 +358,7 @@ if(NOT MSVC)
     # Runtime library (minimal runtime)
     set(SN_RUNTIME_LIB_SOURCES
         ${CMAKE_SOURCE_DIR}/src/runtime/sn_abi.c
+        ${CMAKE_SOURCE_DIR}/src/runtime/sn_package.c
         ${CMAKE_SOURCE_DIR}/src/runtime/sn_array.c
         ${CMAKE_SOURCE_DIR}/src/runtime/sn_string.c
         ${CMAKE_SOURCE_DIR}/src/runtime/sn_byte.c

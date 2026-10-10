@@ -1,7 +1,8 @@
 # Shared runtime ABI
 
 Status: implemented value-transport foundation, ABI 1.0 (`0x00010000`) and
-optional managed-value capabilities through ABI 1.1 (`0x00010001`). This is
+optional managed-value capabilities through ABI 1.1 (`0x00010001`) and package
+lifecycle coordination through ABI 1.2 (`0x00010002`). This is
 part of the [runtime and package architecture](runtime-target-architecture.md).
 It does not yet provide complete package record/interface contracts, managed
 array elements, complete generated bindings, independent SDK artifacts or compiler-wide
@@ -46,7 +47,35 @@ Capabilities currently cover values/bytes (`1`), plain-value arrays (`2`) and
 resources with destructor callbacks (`4`). Unimplemented capabilities are not
 advertised. The C, Rust and Go clients verify the negotiated widths and layouts.
 
-## Ownership and identity
+## Package lifecycle (ABI 1.2)
+
+Capability `32` adds opaque package controls and owned call credits. ABI 1.2
+advertises mask `63`; queries for 1.0 and 1.1 retain masks `7` and `31` and reject
+the lifecycle bit. Value/resource layouts and earlier status values are unchanged.
+
+`package_new` captures initializer, cleanup and a native-sized context token.
+`package_begin` initializes once, waiting for concurrent initialization. The
+initializer runs outside the gate lock and may reenter on its own thread; other
+callers see completed initialization. A failed status is sticky and preserves
+call outputs. Initializers own rollback of provisional state on failure.
+
+Call credits hold package ownership until `package_end`. End must run on the
+creating OS thread; Go callers should pin that thread across a call with
+`runtime.LockOSThread`. Calls can end in any order on their owning thread.
+
+Shutdown rejects a same-thread active call/initializer with `PACKAGE_BUSY` (`7`)
+rather than deadlocking. It blocks new calls, drains existing calls and invokes
+cleanup once outside the lock. Cleanup may reenter shutdown; calls during/after
+closing fail with `PACKAGE_CLOSED` (`8`) and preserve outputs. Last-credit release
+also shuts down an initialized package. An uninitialized/failed control does not
+invoke cleanup. Callback package pointers are borrowed; contexts belong to their
+backing implementation and callbacks must not unwind through C.
+
+`scripts/check_package_lifecycle.py` exercises C/Rust/Go callbacks, sixteen
+concurrent C callers, reentry, shutdown draining, sticky failure, aliases and final
+call-credit release. Its sanitizer mode instruments the canonical C implementation.
+
+## Value ownership and identity
 
 Every successful non-nil constructor or copy returns one owned credit. Retain
 returns the same handle and another credit; release drops one credit. The final

@@ -1,0 +1,29 @@
+#include "sn_abi.h"
+#include <pthread.h>
+static SnAbiPackage *__sn_package_control;
+static pthread_once_t __sn_package_once = PTHREAD_ONCE_INIT;
+static SnAbiStatus __sn_package_initialize(SnAbiPackage *package, uintptr_t context) {
+    (void)package; (void)context;
+{{#each globals}}{{#if is_deferred}}    __sn__{{name}} = {{#if source_is_borrow}}sn_strdup({{> expr initializer}}){{else}}{{> expr initializer}}{{/if}};
+{{/if}}{{/each}}    return SN_ABI_OK;
+}
+static void __sn_package_cleanup(SnAbiPackage *package, uintptr_t context) {
+    (void)package; (void)context;
+{{#each package_cleanup_globals}}{{#if needs_cleanup}}{{#if (eq cleanup_kind "str")}}    free(__sn__{{name}}); __sn__{{name}} = NULL;
+{{else}}{{#if (eq cleanup_kind "arr")}}    sn_cleanup_array(&__sn__{{name}});
+{{else}}{{#if (eq cleanup_kind "release")}}    __sn__{{type.name}}_release(&__sn__{{name}});
+{{else}}{{#if (eq cleanup_kind "val_cleanup")}}    __sn__{{type.name}}_cleanup(&__sn__{{name}});
+{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/each}}
+}
+static void __sn_package_process_cleanup(void) {
+    (void)sn_abi_v1_package_shutdown(__sn_package_control);
+    sn_abi_v1_package_release(__sn_package_control);
+}
+static void __sn_package_create(void) {
+    if (sn_abi_v1_package_new(__sn_package_initialize, __sn_package_cleanup, 0, &__sn_package_control)) abort();
+    if (atexit(__sn_package_process_cleanup)) abort();
+}
+static SnAbiStatus __sn_package_begin(SnAbiPackageCall **out) {
+    if (pthread_once(&__sn_package_once, __sn_package_create)) return SN_ABI_FOREIGN_ERROR;
+    return sn_abi_v1_package_begin(__sn_package_control, out);
+}

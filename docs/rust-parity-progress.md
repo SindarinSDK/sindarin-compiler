@@ -7,6 +7,48 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Shared package lifecycle and implementation globals: local validation, 2026-10-10
+
+ABI 1.2 adds canonical C package controls and owned call credits. Initialization
+runs once outside the lock; concurrent callers wait, same-thread initialization
+can reenter, and failures remain sticky. Shutdown blocks new calls, drains active
+calls and runs cleanup once. Active same-thread shutdown returns BUSY rather than
+deadlocking; closed calls preserve outputs. Retain/release and call credits keep
+controls alive until the last operation ends. C/Rust/Go clients and strict
+address/undefined/leak sanitizers pass concurrency/reentry/failure/alias checks.
+ABI 1.0/1.1 layouts, query masks and behaviours remain verified independently.
+
+Independent C/RS libraries now initialize ordinary globals before export calls.
+Static/default storage is seeded before deferred expressions, preserving C's
+later-literal visibility; deferred initializers retain source order. Rust global
+cells hold an optional value so shutdown can drop owned state without leaking
+static LazyLock payloads. Initializer panic rolls back initialized Rust slots.
+Cleanup follows reverse declaration order, with automatic process cleanup and
+explicit initialize/shutdown exports recorded in artifact metadata. Returned owned
+strings remain valid after shutdown, later status calls preserve outputs, and
+relocated prebuilt global libraries work without implementation source/caches.
+
+Package-global thread/handle captures, modular RS native sidecars, managed body
+exports and full SDK artifact migration remain unfinished. Unsupported lifecycle
+cases are diagnosed and receive no completion credit.
+
+Local full suites pass 3,240 C and 1,090 Rust checks, 31 imports, 14 artifact tests
+and 15 CI helpers. Earlier ABI clients, C/Rust/Go lifecycle clients, runtime
+sanitizers and C/RS library cleanup sanitizers pass. The unified catalog keeps
+26 groups and now covers 292 platform gate executions. Hosted acceptance of this
+integrated lifecycle batch is pending publication.
+
+Evidence: [package lifecycle validation](rust-parity-evidence/package-lifecycle-validation.json).
+
+## Function libraries: hosted acceptance, 2026-10-10
+
+Main `89c23570` passes complete unified Linux/macOS/Windows CI, accepting the
+independent stateless body libraries, typed exports and nullable ownership repairs.
+This supersedes the earlier pending entry below; full goal acceptance remains open.
+
+[Accepted function-library run](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38053669489).
+Evidence: [hosted acceptance](rust-parity-evidence/function-library-main-ci-green.json).
+
 ## Independent Sindarin function libraries: local validation, 2026-10-10
 
 `language: SN` build units compile original implementation bodies for the package's

@@ -76,7 +76,6 @@ class NativeImports(unittest.TestCase):
         for runtime,source,message in (
                 ('GO','fn provide(): int =>\n  return 11\n',b'Sindarin Go backend is not implemented'),
                 ('C','fn provide(): str =>\n  return "wrong type"\n',b'implementation type/ownership differs'),
-                ('C','var state: int = 11\nfn provide(): int =>\n  return state\n',b'library global/storage initialization'),
                 ('C','fn main(): void =>\n  println("not a library")\nfn provide(): int =>\n  return 11\n',b'cannot contain an application main')):
             with self.subTest(runtime=runtime,source=source):
                 self.write('.sn/body/sn.yaml',template.format(runtime=runtime))
@@ -85,6 +84,35 @@ class NativeImports(unittest.TestCase):
                 self.assertNotEqual(result.returncode,0)
                 self.assertIn(message,result.stderr)
                 self.assertFalse((self.root/'rejected.exe').exists())
+
+    def test_sindarin_library_globals_initialize_once_and_owned_returns_survive(self):
+        import hashlib,json
+        for runtime in ('C','RS'):
+            name='globals'+runtime.lower()
+            self.write(f'.sn/{name}/src/api.sn','native fn next(): int\nnative fn read(): str\n')
+            self.write(f'.sn/{name}/src/body.sn','var count: int = 0\nvar label: str = initialize()\nvar later: int = 42\n'
+                       'fn initialize(): str =>\n  count += 1\n  if later != 42 =>\n    return "wrong initialization order"\n  return "initialized"\n'
+                       'fn next(): int =>\n  count += 1\n  return count\n'
+                       'fn read(): str =>\n  return label\n')
+            text=f'name: {name}\nruntime: {runtime}\nnative:\n  abi: 1.0\n  declarations: [src/api.sn]\n  builds:\n'
+            text+='    - name: body\n      language: SN\n      entry: src/body.sn\n      sources: [src/body.sn]\n  bindings:\n'
+            for function,result in (('next','value'),('read','owned')):
+                text+=f'    - declaration: src/api.sn::{function}\n      function: {function}\n      symbol: {name}_{function}\n      build: body\n'
+                text+=f'      convention: C\n      failure: status\n      ownership: {{parameters: {{}}, result: {result}}}\n'
+            self.write(f'.sn/{name}/sn.yaml',text)
+            self.write('main.sn',f'import "{name}/src/api"\nfn main(): void =>\n'
+                       '  println(next())\n  var result: str = read()\n  println(next())\n  println(result)\n')
+            for target in ('c','rust'):
+                with self.subTest(runtime=runtime,target=target):self.execute(target,b'2\n3\ninitialized\n')
+            package=self.root/'.sn'/name;manifest=package/'sn.yaml'
+            built=subprocess.run([str(COMPILER),'--build-package',str(manifest),'--target','rust','-o',str(package/'.sn/published')],capture_output=True,timeout=180)
+            self.assertEqual(built.returncode,0,built.stderr.decode(errors='replace'))
+            descriptor=Path(json.loads(built.stdout)['assembly']);destination=package/'dist';shutil.copytree(descriptor.parent,destination)
+            digest=hashlib.sha256((destination/'assembly.json').read_bytes()).hexdigest()
+            manifest.write_text(text.replace('native:\n','native:\n  assembly: {path: dist/assembly.json, sha256: '+digest+'}\n'))
+            (package/'src/body.sn').unlink();shutil.rmtree(package/'.sn')
+            for target in ('c','rust'):
+                with self.subTest(prebuilt=runtime,target=target):self.execute(target,b'2\n3\ninitialized\n')
 
     def test_generated_providers_keep_ordinary_backing_functions(self):
         self.package('cdep','C','long long provide_impl(void) {return 11;}\n',function='provide_impl')

@@ -1,0 +1,23 @@
+struct {{rust_ident rust_cell_type}}<T> {
+    value: std::sync::Mutex<Option<T>>,
+    gate: std::sync::Mutex<()>,
+}
+struct __sn_package_value_guard<'a,T>(std::sync::MutexGuard<'a,Option<T>>);
+impl<T> std::ops::Deref for __sn_package_value_guard<'_,T> {
+    type Target=T;
+    fn deref(&self)->&T { self.0.as_ref().expect("package global is closed") }
+}
+impl<T> std::ops::DerefMut for __sn_package_value_guard<'_,T> {
+    fn deref_mut(&mut self)->&mut T { self.0.as_mut().expect("package global is closed") }
+}
+impl<T> {{rust_ident rust_cell_type}}<T> {
+    fn new(value:T)->Self { Self { value:std::sync::Mutex::new(Some(value)), gate:std::sync::Mutex::new(()) } }
+    fn lock(&self)->std::sync::LockResult<__sn_package_value_guard<'_,T>> {
+        match self.value.lock() {
+            Ok(value)=>Ok(__sn_package_value_guard(value)),
+            Err(error)=>Err(std::sync::PoisonError::new(__sn_package_value_guard(error.into_inner()))),
+        }
+    }
+    fn guard(&self)->std::sync::MutexGuard<'_,()> { self.gate.lock().unwrap_or_else(|e|e.into_inner()) }
+    fn clear(&self) { let value=self.value.lock().unwrap_or_else(|e|e.into_inner()).take(); drop(value); }
+}

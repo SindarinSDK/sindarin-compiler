@@ -176,4 +176,4 @@ static {{c_type return_type}} __fn_wrap_{{wrapper_id}}__(void *__closure__{{#eac
 {{/if}}
 }
 {{/each}}
-{{/if}}
+{{/if}}{{#if package_body}}{{#if globals}}{{> package_lifecycle this}}{{/if}}{{/if}}

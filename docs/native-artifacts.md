@@ -137,8 +137,17 @@ entry; competing `main` symbols are rejected. Implementation/dependency source
 hashes and selected runtime are recorded. These units can also be consumed as
 sealed prebuilt artifacts after implementation sources are removed.
 
-Full package initialization/shutdown, implementation globals, managed array/record
-body exports, generic public APIs and complete native-backed SDK facade migration
+Ordinary implementation globals now initialize once before exports and clean up
+in reverse declaration order. C/Rust libraries use the shared C lifecycle gate;
+active call credits prevent concurrent teardown. Artifact metadata carries explicit
+initialize/shutdown symbols and ABI 1.2 requirements. Returned owned values survive
+shutdown, later exports fail without publishing results, and process cleanup is
+registered for initialized library controls. Rust initialization first seeds static
+defaults/constants, preserving C's visibility of later literal globals, then runs
+deferred initializers in source order. Partial initialization rolls back on panic.
+
+Managed package thread/global-handle lifetimes, managed array/record body exports,
+generic public APIs and complete native-backed SDK facade migration
 remain required work. Unsupported contracts fail clearly. RS body emission that
 needs native C sidecars still requires the modular library lifecycle extension;
 native C/Go backing is kept in its original language. An SN unit selecting GO

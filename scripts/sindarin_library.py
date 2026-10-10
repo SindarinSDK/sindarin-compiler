@@ -24,8 +24,11 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
               '-O'+args.optimization,'--'+args.arithmetic]
     run(common+['--emit-model','-o',model_path],cwd=root)
     model = json.loads(model_path.read_text())
-    if model.get('globals') or model.get('top_level_statements'):
-        raise ValueError('Sindarin library global/storage initialization requires the package lifecycle pipeline')
+    if model.get('top_level_statements'):
+        raise ValueError('Sindarin library top-level statements require explicit package initializer contracts')
+    lifecycle = bool(model.get('globals'))
+    if lifecycle and model.get('threads'):
+        raise ValueError('Package-global thread lifetimes require managed lifecycle adapters')
     def sources(node):
         if isinstance(node,dict):
             path=node.get('source_file')
@@ -67,6 +70,8 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
     if runtime=='C':
         # Generated functions and methods are internal to this package unit.
         names = {'__sn__'+f['name'] for f in model['functions'] if not f.get('is_native')}
+        names.update('__sn__'+g['name'] for g in model.get('globals',[]))
+        names.update('__sn__'+g['name']+'_mutex' for g in model.get('globals',[]) if g.get('sync_mod')=='atomic')
         for structure in model.get('structs',[]):
             names.update('__sn__'+structure['name']+'_'+m['name'] for m in structure.get('methods',[]) if not m.get('is_native'))
         prefix = '\n'.join('#define '+name+' __sn_'+stem+'_body_'+name for name in sorted(names))+'\n'
@@ -77,11 +82,22 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
             parameters=[TYPES[kind(p['type'])][0]+f' p{i}' for i,p in enumerate(signature['params'])]
             if status and result!='void':parameters.append(TYPES[result][0]+' *out')
             code += ('uint32_t' if status else TYPES[result][0])+' '+signature['binding']['function']+'('+(', '.join(parameters) or 'void')+') {\n'
+            if lifecycle:
+                code += '  SnAbiPackageCall *call = NULL; uint32_t initialized = __sn_package_begin(&call);\n'
+                code += '  if (initialized) { '+('return initialized;' if status else 'abort();')+' }\n'
             call='__sn__'+function['name']+'('+', '.join('p'+str(i) for i in range(len(signature['params'])))+')'
-            code += ('  *out = ' if status and result!='void' else '  return ' if not status and result!='void' else '  ')+call+';\n'
+            if lifecycle and result!='void':
+                code+='  '+TYPES[result][0]+' result = '+call+';\n'
+            else:code += ('  *out = ' if status and result!='void' else '  return ' if not status and result!='void' else '  ')+call+';\n'
+            if lifecycle:
+                code+='  sn_abi_v1_package_end(call);\n'
+                if result!='void':code+=('  *out = result;\n' if status else '  return result;\n')
             if status:code+='  return SN_ABI_OK;\n'
             code+='}\n'
         code += c_provider(adjusted,stem)
+        if lifecycle:
+            code += f'uint32_t __sn_{stem}_initialize(void) {{ SnAbiPackageCall *call = NULL; uint32_t code = __sn_package_begin(&call); if (!code) sn_abi_v1_package_end(call); return code; }}\n'
+            code += f'uint32_t __sn_{stem}_shutdown(void) {{ if (pthread_once(&__sn_package_once, __sn_package_create)) return SN_ABI_FOREIGN_ERROR; return sn_abi_v1_package_shutdown(__sn_package_control); }}\n'
         emitted.write_text(code)
         obj=work/(stem+'.o');dep=work/(stem+'.d')
         flags=['-std=c11','-D_GNU_SOURCE','-Werror=implicit-function-declaration','-O'+args.optimization,'-fwrapv','-fno-lto']
@@ -91,6 +107,7 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
         run(tools['ar']+['rcs',archive,obj])
         # The parent builder captures the compiler dependency file before publication.
         links=[]
+        if lifecycle:links.append('-pthread')
         for pragma in model.get('pragmas',[]):
             if pragma.get('pragma_type')!='link':continue
             tokens=shlex.split(pragma['value'])
@@ -111,6 +128,8 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
         # Raw identifiers preserve source names that are Rust keywords.
         name='r#'+function['name']
         code+='pub fn '+signature['binding']['function']+'('+', '.join(parameters)+') -> '+output+' {\n'
+        if lifecycle:
+            code+='  let _call = __sn_package_enter()'+('?' if status else '.unwrap_or_else(|_|std::process::abort())')+';\n'
         code+='  let value = '+name+'('+', '.join(arguments)+');\n'
         value='if value.is_nil() { None } else { Some(value.as_bytes().to_vec()) }' if result=='string' else 'value as u32 as u8' if result=='char' else 'value'
         code+='  '+('Ok('+value+')' if status else value)+'\n}\n'
@@ -119,10 +138,16 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
     flags=shlex.split(os.environ.get('SN_RUSTFLAGS',''))
     compile_args=tools['rustc']+['--edition=2021','--crate-type=rlib','--crate-name',crate,'--emit=dep-info,link','-C','opt-level='+args.optimization,emitted,'-o',backing]+flags
     run(compile_args,cwd=root)
-    provider=work/(stem+'_exports.rs');provider.write_text(rust_provider(adjusted,crate))
+    provider=work/(stem+'_exports.rs');exports=rust_provider(adjusted,crate)
+    if lifecycle:
+        exports+=f'#[no_mangle] pub extern "C" fn __sn_{stem}_initialize()->u32 {{ backing::__sn_body_initialize() }}\n'
+        exports+=f'#[no_mangle] pub extern "C" fn __sn_{stem}_shutdown()->u32 {{ backing::__sn_body_shutdown() }}\n'
+    provider.write_text(exports)
     compile_args=tools['rustc']+['--edition=2021','--crate-type=staticlib','--crate-name',stem,'--emit=dep-info,link','-C','opt-level='+args.optimization,provider,'--extern',crate+'='+str(backing),'-o',archive]+flags
     diagnostics=run(compile_args+['--print=native-static-libs'],cwd=root,include_stderr=True)
     run(compile_args,cwd=root)
     libraries=re.search(r'native-static-libs:\s*(.*)',diagnostics)
     if not libraries:raise ValueError('Rust library did not report native link dependencies')
-    return archive,shlex.split(libraries.group(1)),[backing.with_suffix('.d'),archive.with_suffix('.d')],model,dependencies
+    native_links=shlex.split(libraries.group(1))
+    if lifecycle:native_links.append('-pthread')
+    return archive,native_links,[backing.with_suffix('.d'),archive.with_suffix('.d')],model,dependencies

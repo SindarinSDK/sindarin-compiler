@@ -415,6 +415,25 @@ static bool rust_emit(CompilerOptions *options, Module *module,
         fprintf(stderr, "Error: --emit-rust cannot represent C interface scope storage; build the Rust target executable instead\n");
         json_object_put(model); return false;
     }
+    if (options->package_body) {
+        json_object *globals = rust_nullable_child(model, "globals");
+        if (globals && json_object_array_length(globals)) {
+            json_object *cleanup = json_object_new_array();
+            for (size_t i = 0; i < json_object_array_length(globals); i++) {
+                json_object *global = json_object_array_get_idx(globals, i);
+                if (json_boolean_property(global, "rust_thread_ref_storage") ||
+                    json_boolean_property(global, "rust_thread_array_storage")) {
+                    fprintf(stderr, "Error: package globals using shared thread handles need managed lifecycle adapters\n");
+                    json_object_put(cleanup); json_object_put(model); return false;
+                }
+                json_object_object_add(global, "package_global_index", json_object_new_int64((int64_t)i));
+            }
+            for (size_t i = json_object_array_length(globals); i > 0; i--)
+                json_object_array_add(cleanup, json_object_get(json_object_array_get_idx(globals, i - 1)));
+            json_object_object_add(model, "package_cleanup_globals", cleanup);
+            json_object_object_add(model, "rust_package_lifecycle", json_object_new_boolean(true));
+        }
+    }
     char *code = rust_render_model(model, template_dir);
     json_object_put(model);
     if (!code) return false;

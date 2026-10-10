@@ -1348,12 +1348,34 @@
         "NativeArtifactTests.test_generated_owned_string_arrays_have_wire_lifetime_contracts",
         "NativeArtifactTests.test_borrowed_string_array_provider_errors_aliases_and_lifetimes",
         "NativeArtifactTests.test_consumer_rejects_runtime_incompatibility_before_foreign_call",
-        "NativeArtifactTests.test_sindarin_bodies_export_owned_values_as_independent_archives"
+        "NativeArtifactTests.test_sindarin_bodies_export_owned_values_as_independent_archives",
+        "NativeArtifactTests.test_sindarin_library_global_shutdown_preserves_owned_results"
       ],
       "env": {
         "SN_CC": "gcc -fsanitize=address,undefined -fno-omit-frame-pointer",
         "ASAN_OPTIONS": "detect_leaks=1"
       },
+      "group": "sanitizers",
+      "linux_only": true
+    },
+    {
+      "id": "runtime-113",
+      "name": "shared package lifecycle: once-only init, call credits, reentry and shutdown",
+      "command": [
+        "{python}",
+        "scripts/check_package_lifecycle.py"
+      ],
+      "group": "core",
+      "linux_only": false
+    },
+    {
+      "id": "runtime-114",
+      "name": "shared package lifecycle: concurrency and cleanup sanitizers",
+      "command": [
+        "{python}",
+        "scripts/check_package_lifecycle.py",
+        "--sanitize"
+      ],
       "group": "sanitizers",
       "linux_only": true
     }
