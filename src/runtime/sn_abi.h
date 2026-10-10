@@ -14,6 +14,7 @@ extern "C" {
 #define SN_ABI_V1_1_VERSION UINT32_C(0x00010001)
 #define SN_ABI_V1_2_VERSION UINT32_C(0x00010002)
 #define SN_ABI_V1_3_VERSION UINT32_C(0x00010003)
+#define SN_ABI_V1_4_VERSION UINT32_C(0x00010004)
 #define SN_ABI_CAP_VALUES UINT64_C(1)
 #define SN_ABI_CAP_POD_ARRAYS UINT64_C(2)
 #define SN_ABI_CAP_RESOURCES UINT64_C(4)
@@ -21,6 +22,7 @@ extern "C" {
 #define SN_ABI_CAP_TYPED_RESOURCES UINT64_C(16)
 #define SN_ABI_CAP_PACKAGE_LIFECYCLE UINT64_C(32)
 #define SN_ABI_CAP_ARRAY_REPLACEMENT UINT64_C(64)
+#define SN_ABI_CAP_ARRAY_MUTATION UINT64_C(128)
 
 typedef uint32_t SnAbiStatus;
 #define SN_ABI_OK UINT32_C(0)
@@ -110,6 +112,19 @@ SnAbiStatus sn_abi_v1_value_array_set(SnAbiValue *array, uint64_t index, SnAbiVa
  * no-op. Destructors may reenter and mutate the newly published array; an
  * operation credit keeps the destination alive through that cleanup. */
 SnAbiStatus sn_abi_v1_value_array_assign(SnAbiValue *destination, const SnAbiValue *source);
+/* ABI 1.4 mutation preserves the array handle and retained aliases. Insert
+ * borrows/acquires an element credit; take/pop transfer a slot's owned credit.
+ * Remove/clear publish their mutation before releasing detached elements, so
+ * destructors can inspect or mutate the current array. An operation credit
+ * protects the array through that cleanup. Indices are unsigned, zero-based;
+ * adapters resolve language-specific negative indices before calling. Failed
+ * operations preserve contents and output arguments. */
+SnAbiStatus sn_abi_v1_value_array_insert(SnAbiValue *array, uint64_t index, SnAbiValue *element);
+SnAbiStatus sn_abi_v1_value_array_take(SnAbiValue *array, uint64_t index, SnAbiValue **out);
+SnAbiStatus sn_abi_v1_value_array_pop(SnAbiValue *array, SnAbiValue **out);
+SnAbiStatus sn_abi_v1_value_array_remove(SnAbiValue *array, uint64_t index);
+SnAbiStatus sn_abi_v1_value_array_clear(SnAbiValue *array);
+SnAbiStatus sn_abi_v1_value_array_reverse(SnAbiValue *array);
 
 /* Resource adoption transfers cleanup responsibility only on success. Adapters
  * keep resource layouts private or expose documented fields through accessors. */

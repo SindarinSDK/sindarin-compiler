@@ -1,0 +1,1054 @@
+{
+  "revision": "4a88f178b217cd4e433159066603891156caefce",
+  "platform": "Linux aarch64",
+  "compiler_sha256": "25a789f443f1ce9a5df0c31efa440480821b38d0aad3f72385859968a5de86af",
+  "source_count": 1365,
+  "complete_unique_mode_cases": 12285,
+  "optimizations": [
+    "-O0",
+    "-O1",
+    "-O2"
+  ],
+  "arithmetic_modes": [
+    "default",
+    "checked",
+    "unchecked"
+  ],
+  "compile_failures": 0,
+  "both_targets_compiled": 24570,
+  "raw_discovery_counts": {
+    "raw_match_requires_oracle_and_defined_behavior_review": 12269,
+    "c_undefined_historical_race": 9,
+    "raw_output_mismatch": 3,
+    "exit_mismatch": 4
+  },
+  "adjudicated_counts": {
+    "raw match requiring independent oracle and defined behavior review": 12263,
+    "C undefined unsynchronized concurrent mutation": 18,
+    "C undefined integer division by zero": 4
+  },
+  "discovery_differences": [
+    {
+      "source": "tests/exploratory/test_limitation_closure_array.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "status": "c_undefined_historical_race",
+      "source_sha256": "182d6478a812915ecfcc40bc130b7cc88cb841bf7d3a7ec41ef0b6299ae36978",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-goal/bin/sn",
+              "/tmp/sn-original-matrix-fxx1nn7k/test_limitation_closure_array.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-original-matrix-fxx1nn7k/c/test_limitation_closure_array"
+            ],
+            "status": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "ad8f91cd6753dcab369352ba070fdafbce30763ea317c772225b06755d6751ad"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-original-matrix-fxx1nn7k/c/test_limitation_closure_array"
+            ],
+            "status": 0,
+            "stdout_hex": "4172726179206c656e6774683a20330a3120322033200a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-goal/bin/sn",
+              "/tmp/sn-original-matrix-fxx1nn7k/test_limitation_closure_array.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--no-install",
+              "-o",
+              "/tmp/sn-original-matrix-fxx1nn7k/rust/test_limitation_closure_array"
+            ],
+            "status": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "4ae0b1a9465aa630cf238ffa9353ffc10b59996f62e62d41b14fcc9496ca1a7c"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-original-matrix-fxx1nn7k/rust/test_limitation_closure_array"
+            ],
+            "status": 0,
+            "stdout_hex": "4172726179206c656e6774683a20330a3120322033200a",
+            "stderr_hex": ""
+          }
+        }
+      }
+    },
+    {
+      "source": "tests/exploratory/test_limitation_closure_array.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "status": "c_undefined_historical_race",
+      "source_sha256": "182d6478a812915ecfcc40bc130b7cc88cb841bf7d3a7ec41ef0b6299ae36978",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-goal/bin/sn",
+              "/tmp/sn-original-matrix-s7mvjpnt/test_limitation_closure_array.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-original-matrix-s7mvjpnt/c/test_limitation_closure_array"
+            ],
+            "status": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "4d783e492057ce4ebcdc2a216b181f22783b189ae851bafaa5ad19f9283ec865"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-original-matrix-s7mvjpnt/c/test_limitation_closure_array"
+            ],
+            "status": 0,
+            "stdout_hex": "4172726179206c656e6774683a20330a3120322033200a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-goal/bin/sn",
+              "/tmp/sn-original-matrix-s7mvjpnt/test_limitation_closure_array.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-original-matrix-s7mvjpnt/rust/test_limitation_closure_array"
+            ],
+            "status": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "039438fcb0f7eb92ac37b4cba8a8be35b28b95f790e3a2e5107c659d1f328224"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-original-matrix-s7mvjpnt/rust/test_limitation_closure_array"
+            ],
+            "status": 0,
+            "stdout_hex": "4172726179206c656e6774683a20330a3120322033200a",
+            "stderr_hex": ""
+          }
+        }
+      }
+    },
+    {
+      "source": "tests/exploratory/test_limitation_closure_array.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "status": "c_undefined_historical_race",
+      "source_sha256": "182d6478a812915ecfcc40bc130b7cc88cb841bf7d3a7ec41ef0b6299ae36978",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-goal/bin/sn",
+              "/tmp/sn-original-matrix-ulc7ivva/test_limitation_closure_array.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-original-matrix-ulc7ivva/c/test_limitation_closure_array"
+            ],
+            "status": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "83b16e10f9ff13ca6904403b37d969b6c087cffd89c7c7832a94d41ad82735fd"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-original-matrix-ulc7ivva/c/test_limitation_closure_array"
+            ],
+            "status": 0,
+            "stdout_hex": "4172726179206c656e6774683a20330a3120322033200a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-goal/bin/sn",
+              "/tmp/sn-original-matrix-ulc7ivva/test_limitation_closure_array.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-original-matrix-ulc7ivva/rust/test_limitation_closure_array"
+            ],
+            "status": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "a59a9a6356cb03781f5ae5c9225282b7b310c37e4a473405b2578a296aaf3f4f"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-original-matrix-ulc7ivva/rust/test_limitation_closure_array"
+            ],
+            "status": 0,
+            "stdout_hex": "4172726179206c656e6774683a20330a3120322033200a",
+            "stderr_hex": ""
+          }
+        }
+      }
+    },
+    {
+      "source": "tests/exploratory/test_limitation_closure_mutable.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "status": "raw_output_mismatch",
+      "source_sha256": "f637b87a82d07238ad3684b7b64b5a8b4878e81d53bf06120452785bc5db0bcf",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-goal/bin/sn",
+              "tests/exploratory/test_limitation_closure_mutable.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-original-matrix-pkrexhyv/c/test_limitation_closure_mutable"
+            ],
+            "status": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "149c6bd7fa98fc7d61e1cb4afcb36cae3311349095b238238e11715ebaa78ecb"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-original-matrix-pkrexhyv/c/test_limitation_closure_mutable"
+            ],
+            "status": 0,
+            "stdout_hex": "526573756c74733a20322c20312c20330a436f756e7465723a20330a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-goal/bin/sn",
+              "tests/exploratory/test_limitation_closure_mutable.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-original-matrix-pkrexhyv/rust/test_limitation_closure_mutable"
+            ],
+            "status": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "c9fa3dfd3ecfc1c4f56ef3199fd2e5bbf9314cfa903b701040616bc60835d440"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-original-matrix-pkrexhyv/rust/test_limitation_closure_mutable"
+            ],
+            "status": 0,
+            "stdout_hex": "526573756c74733a20312c20322c20330a436f756e7465723a20330a",
+            "stderr_hex": ""
+          }
+        }
+      }
+    },
+    {
+      "source": "tests/integration/test_thread_panic_propagate.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "status": "exit_mismatch",
+      "source_sha256": "bd30fcea8645c43374581e59501a53a475c00fe184523f245df2c8bcce657cc4",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-goal/bin/sn",
+              "tests/integration/test_thread_panic_propagate.sn",
+              "--target",
+              "c",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-original-matrix-hc6rjrun/c/test_thread_panic_propagate"
+            ],
+            "status": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "60b3da3cc40ade7cf7de7b57d166e8bbd668fc1451cb6a7875870bcc266a42ca"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-original-matrix-hc6rjrun/c/test_thread_panic_propagate"
+            ],
+            "status": 0,
+            "stdout_hex": "54657374696e67207468726561642070616e69632070726f7061676174696f6e0a4641494c5552453a2053686f756c64206e6f742072656163682068657265202d2070616e69632073686f756c6420686176652070726f706167617465640a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-goal/bin/sn",
+              "tests/integration/test_thread_panic_propagate.sn",
+              "--target",
+              "rust",
+              "-O0",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-original-matrix-hc6rjrun/rust/test_thread_panic_propagate"
+            ],
+            "status": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "c1d59ff57524d2001350ddecd1ad250c38ff6deaea9f29f0c21c0ebec8b15568"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-original-matrix-hc6rjrun/rust/test_thread_panic_propagate"
+            ],
+            "status": 101,
+            "stdout_hex": "54657374696e67207468726561642070616e69632070726f7061676174696f6e0a",
+            "stderr_hex": "0a74687265616420273c756e6e616d65643e27202831303730303632292070616e69636b6564206174202e736e2f6275696c642f727573742f746573745f7468726561645f70616e69635f70726f7061676174655f313036393832382f6d61696e2e72733a3335323a31323a0a617474656d707420746f20646976696465206279207a65726f0a6e6f74653a2072756e20776974682060525553545f4241434b54524143453d316020656e7669726f6e6d656e74207661726961626c6520746f20646973706c61792061206261636b74726163650a"
+          }
+        }
+      }
+    },
+    {
+      "source": "tests/exploratory/test_limitation_closure_array.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "status": "c_undefined_historical_race",
+      "source_sha256": "182d6478a812915ecfcc40bc130b7cc88cb841bf7d3a7ec41ef0b6299ae36978",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-goal/bin/sn",
+              "/tmp/sn-original-matrix-t7sgzrjk/test_limitation_closure_array.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-original-matrix-t7sgzrjk/c/test_limitation_closure_array"
+            ],
+            "status": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "2db32c4e4c16c8b622cdfa39e78263865d2375cbfda81bbab6ab22b510f99048"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-original-matrix-t7sgzrjk/c/test_limitation_closure_array"
+            ],
+            "status": 0,
+            "stdout_hex": "4172726179206c656e6774683a20330a3120322033200a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-goal/bin/sn",
+              "/tmp/sn-original-matrix-t7sgzrjk/test_limitation_closure_array.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--no-install",
+              "-o",
+              "/tmp/sn-original-matrix-t7sgzrjk/rust/test_limitation_closure_array"
+            ],
+            "status": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "116e2018bd115b0a86843b95b7882ea654d23699e19d281786c97cccbf29dd45"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-original-matrix-t7sgzrjk/rust/test_limitation_closure_array"
+            ],
+            "status": 0,
+            "stdout_hex": "4172726179206c656e6774683a20330a3120322033200a",
+            "stderr_hex": ""
+          }
+        }
+      }
+    },
+    {
+      "source": "tests/exploratory/test_limitation_closure_array.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "status": "c_undefined_historical_race",
+      "source_sha256": "182d6478a812915ecfcc40bc130b7cc88cb841bf7d3a7ec41ef0b6299ae36978",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-goal/bin/sn",
+              "/tmp/sn-original-matrix-2xt1rs0k/test_limitation_closure_array.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-original-matrix-2xt1rs0k/c/test_limitation_closure_array"
+            ],
+            "status": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "4d096ddc774ae167d44547d5a2e2cd65652c156accea4b828281b5ec43963869"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-original-matrix-2xt1rs0k/c/test_limitation_closure_array"
+            ],
+            "status": 0,
+            "stdout_hex": "4172726179206c656e6774683a20330a3120322033200a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-goal/bin/sn",
+              "/tmp/sn-original-matrix-2xt1rs0k/test_limitation_closure_array.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-original-matrix-2xt1rs0k/rust/test_limitation_closure_array"
+            ],
+            "status": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "020858c1a1a42601a52eb29c75ec38094df3cd5595e1d5aa0c22cc5108747692"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-original-matrix-2xt1rs0k/rust/test_limitation_closure_array"
+            ],
+            "status": 0,
+            "stdout_hex": "4172726179206c656e6774683a20330a3120322033200a",
+            "stderr_hex": ""
+          }
+        }
+      }
+    },
+    {
+      "source": "tests/exploratory/test_limitation_closure_mutable.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "status": "raw_output_mismatch",
+      "source_sha256": "f637b87a82d07238ad3684b7b64b5a8b4878e81d53bf06120452785bc5db0bcf",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-goal/bin/sn",
+              "tests/exploratory/test_limitation_closure_mutable.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-original-matrix-oriks6qz/c/test_limitation_closure_mutable"
+            ],
+            "status": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "bc1ab758ac4a9dd45a5c2bc0e6f8899b26424eadf2397db754cd67eae3882200"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-original-matrix-oriks6qz/c/test_limitation_closure_mutable"
+            ],
+            "status": 0,
+            "stdout_hex": "526573756c74733a20322c20312c20330a436f756e7465723a20330a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-goal/bin/sn",
+              "tests/exploratory/test_limitation_closure_mutable.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-original-matrix-oriks6qz/rust/test_limitation_closure_mutable"
+            ],
+            "status": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "d5491aca3e56782b615ac22162c4fda7a8cf608737263631067807e90b2cc4ec"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-original-matrix-oriks6qz/rust/test_limitation_closure_mutable"
+            ],
+            "status": 0,
+            "stdout_hex": "526573756c74733a20312c20322c20330a436f756e7465723a20330a",
+            "stderr_hex": ""
+          }
+        }
+      }
+    },
+    {
+      "source": "tests/exploratory/test_limitation_closure_array.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "status": "c_undefined_historical_race",
+      "source_sha256": "182d6478a812915ecfcc40bc130b7cc88cb841bf7d3a7ec41ef0b6299ae36978",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-goal/bin/sn",
+              "/tmp/sn-original-matrix-z4rkajxz/test_limitation_closure_array.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-original-matrix-z4rkajxz/c/test_limitation_closure_array"
+            ],
+            "status": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "a300a0d6a23aa775e363b7804f798f4c17b43d72ceb7d840559e4bc427df12d9"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-original-matrix-z4rkajxz/c/test_limitation_closure_array"
+            ],
+            "status": 0,
+            "stdout_hex": "4172726179206c656e6774683a20330a3120322033200a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-goal/bin/sn",
+              "/tmp/sn-original-matrix-z4rkajxz/test_limitation_closure_array.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-original-matrix-z4rkajxz/rust/test_limitation_closure_array"
+            ],
+            "status": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "de2536edad23d8f3f2016b956284548db8c075d7f2b09216d9544413cdebf4aa"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-original-matrix-z4rkajxz/rust/test_limitation_closure_array"
+            ],
+            "status": 0,
+            "stdout_hex": "4172726179206c656e6774683a20330a3120322033200a",
+            "stderr_hex": ""
+          }
+        }
+      }
+    },
+    {
+      "source": "tests/integration/test_thread_panic_propagate.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "status": "exit_mismatch",
+      "source_sha256": "bd30fcea8645c43374581e59501a53a475c00fe184523f245df2c8bcce657cc4",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-goal/bin/sn",
+              "tests/integration/test_thread_panic_propagate.sn",
+              "--target",
+              "c",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-original-matrix-9gkvhcsv/c/test_thread_panic_propagate"
+            ],
+            "status": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "12979fbe3558d6402d4e7534f9fcbca59cc579d825b7e24277eee8b13549947d"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-original-matrix-9gkvhcsv/c/test_thread_panic_propagate"
+            ],
+            "status": 0,
+            "stdout_hex": "54657374696e67207468726561642070616e69632070726f7061676174696f6e0a4641494c5552453a2053686f756c64206e6f742072656163682068657265202d2070616e69632073686f756c6420686176652070726f706167617465640a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-goal/bin/sn",
+              "tests/integration/test_thread_panic_propagate.sn",
+              "--target",
+              "rust",
+              "-O1",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-original-matrix-9gkvhcsv/rust/test_thread_panic_propagate"
+            ],
+            "status": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "c4ff4e6344ea94733cd47e83b324eaa2677de30203de51660978e58051f90c48"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-original-matrix-9gkvhcsv/rust/test_thread_panic_propagate"
+            ],
+            "status": 101,
+            "stdout_hex": "54657374696e67207468726561642070616e69632070726f7061676174696f6e0a",
+            "stderr_hex": "0a74687265616420273c756e6e616d65643e27202831333936303734292070616e69636b6564206174202e736e2f6275696c642f727573742f746573745f7468726561645f70616e69635f70726f7061676174655f313339353830352f6d61696e2e72733a3335323a31323a0a617474656d707420746f20646976696465206279207a65726f0a6e6f74653a2072756e20776974682060525553545f4241434b54524143453d316020656e7669726f6e6d656e74207661726961626c6520746f20646973706c61792061206261636b74726163650a"
+          }
+        }
+      }
+    },
+    {
+      "source": "tests/exploratory/test_limitation_closure_array.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "status": "c_undefined_historical_race",
+      "source_sha256": "182d6478a812915ecfcc40bc130b7cc88cb841bf7d3a7ec41ef0b6299ae36978",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-goal/bin/sn",
+              "/tmp/sn-original-matrix-a2wbghr0/test_limitation_closure_array.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-original-matrix-a2wbghr0/c/test_limitation_closure_array"
+            ],
+            "status": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "41ce77d4281e4497a55d1ea0f40b909ad9f570e1f49fb74aab56b1567b1c7a66"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-original-matrix-a2wbghr0/c/test_limitation_closure_array"
+            ],
+            "status": 0,
+            "stdout_hex": "4172726179206c656e6774683a20330a3120322033200a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-goal/bin/sn",
+              "/tmp/sn-original-matrix-a2wbghr0/test_limitation_closure_array.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-original-matrix-a2wbghr0/rust/test_limitation_closure_array"
+            ],
+            "status": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "cab981502f0c6fa17016ca11b3ead7219903bc0ea189b8561f9fa89a72f1a6af"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-original-matrix-a2wbghr0/rust/test_limitation_closure_array"
+            ],
+            "status": 0,
+            "stdout_hex": "4172726179206c656e6774683a20330a3120322033200a",
+            "stderr_hex": ""
+          }
+        }
+      }
+    },
+    {
+      "source": "tests/integration/test_thread_panic_propagate.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "status": "exit_mismatch",
+      "source_sha256": "bd30fcea8645c43374581e59501a53a475c00fe184523f245df2c8bcce657cc4",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-goal/bin/sn",
+              "tests/integration/test_thread_panic_propagate.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-original-matrix-qbpchoam/c/test_thread_panic_propagate"
+            ],
+            "status": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "6fafd2e5b110b1f1154cd5e863e562a218c91d152c71553083128b80cd8b57bd"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-original-matrix-qbpchoam/c/test_thread_panic_propagate"
+            ],
+            "status": 0,
+            "stdout_hex": "54657374696e67207468726561642070616e69632070726f7061676174696f6e0a4641494c5552453a2053686f756c64206e6f742072656163682068657265202d2070616e69632073686f756c6420686176652070726f706167617465640a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-goal/bin/sn",
+              "tests/integration/test_thread_panic_propagate.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--no-install",
+              "-o",
+              "/tmp/sn-original-matrix-qbpchoam/rust/test_thread_panic_propagate"
+            ],
+            "status": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "556d60c98e8f0541dfe0d50fc2342bbfac56eeb13b27f937efb68d3800edc9bd"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-original-matrix-qbpchoam/rust/test_thread_panic_propagate"
+            ],
+            "status": 101,
+            "stdout_hex": "54657374696e67207468726561642070616e69632070726f7061676174696f6e0a",
+            "stderr_hex": "0a74687265616420273c756e6e616d65643e27202831343934323638292070616e69636b6564206174202e736e2f6275696c642f727573742f746573745f7468726561645f70616e69635f70726f7061676174655f313439343038362f6d61696e2e72733a3335323a31323a0a617474656d707420746f20646976696465206279207a65726f0a6e6f74653a2072756e20776974682060525553545f4241434b54524143453d316020656e7669726f6e6d656e74207661726961626c6520746f20646973706c61792061206261636b74726163650a"
+          }
+        }
+      }
+    },
+    {
+      "source": "tests/exploratory/test_limitation_closure_array.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "status": "c_undefined_historical_race",
+      "source_sha256": "182d6478a812915ecfcc40bc130b7cc88cb841bf7d3a7ec41ef0b6299ae36978",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-goal/bin/sn",
+              "/tmp/sn-original-matrix-vs9bv16u/test_limitation_closure_array.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-original-matrix-vs9bv16u/c/test_limitation_closure_array"
+            ],
+            "status": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "68bb6dffdc3b6342df164a67b948456d22b3289657a1cf258c6c9f09ddfb7d45"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-original-matrix-vs9bv16u/c/test_limitation_closure_array"
+            ],
+            "status": 0,
+            "stdout_hex": "4172726179206c656e6774683a20330a3120322033200a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-goal/bin/sn",
+              "/tmp/sn-original-matrix-vs9bv16u/test_limitation_closure_array.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--checked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-original-matrix-vs9bv16u/rust/test_limitation_closure_array"
+            ],
+            "status": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "ab3ccc9651b830958b9e59e0b51954d562e04c8219206656bdee448fbd99f12d"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-original-matrix-vs9bv16u/rust/test_limitation_closure_array"
+            ],
+            "status": 0,
+            "stdout_hex": "4172726179206c656e6774683a20330a3120322033200a",
+            "stderr_hex": ""
+          }
+        }
+      }
+    },
+    {
+      "source": "tests/exploratory/test_limitation_closure_array.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "status": "c_undefined_historical_race",
+      "source_sha256": "182d6478a812915ecfcc40bc130b7cc88cb841bf7d3a7ec41ef0b6299ae36978",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-goal/bin/sn",
+              "/tmp/sn-original-matrix-yuyalkzn/test_limitation_closure_array.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-original-matrix-yuyalkzn/c/test_limitation_closure_array"
+            ],
+            "status": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "d8d7174b6434765970efb20efa20d5d0d8baf833deb078d0f3752744c08ec478"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-original-matrix-yuyalkzn/c/test_limitation_closure_array"
+            ],
+            "status": 0,
+            "stdout_hex": "4172726179206c656e6774683a20330a3120322033200a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-goal/bin/sn",
+              "/tmp/sn-original-matrix-yuyalkzn/test_limitation_closure_array.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-original-matrix-yuyalkzn/rust/test_limitation_closure_array"
+            ],
+            "status": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "919c5bff42a9a4abadef82cc1aba4292935531dd0b71ca97a4646a0426adc455"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-original-matrix-yuyalkzn/rust/test_limitation_closure_array"
+            ],
+            "status": 0,
+            "stdout_hex": "4172726179206c656e6774683a20330a3120322033200a",
+            "stderr_hex": ""
+          }
+        }
+      }
+    },
+    {
+      "source": "tests/exploratory/test_limitation_closure_mutable.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "status": "raw_output_mismatch",
+      "source_sha256": "f637b87a82d07238ad3684b7b64b5a8b4878e81d53bf06120452785bc5db0bcf",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-goal/bin/sn",
+              "tests/exploratory/test_limitation_closure_mutable.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-original-matrix-e7m1hpqo/c/test_limitation_closure_mutable"
+            ],
+            "status": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "ed96ea17cc3458ac80463a90530f092416abf79dda7e630d46bbde6c9c44378f"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-original-matrix-e7m1hpqo/c/test_limitation_closure_mutable"
+            ],
+            "status": 0,
+            "stdout_hex": "526573756c74733a20332c20312c20320a436f756e7465723a20330a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-goal/bin/sn",
+              "tests/exploratory/test_limitation_closure_mutable.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-original-matrix-e7m1hpqo/rust/test_limitation_closure_mutable"
+            ],
+            "status": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "230bbad375ea46ca1eb7d0363c15429e7bf3868dda01e7140fb78053ed85bd43"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-original-matrix-e7m1hpqo/rust/test_limitation_closure_mutable"
+            ],
+            "status": 0,
+            "stdout_hex": "526573756c74733a20312c20332c20320a436f756e7465723a20330a",
+            "stderr_hex": ""
+          }
+        }
+      }
+    },
+    {
+      "source": "tests/integration/test_thread_panic_propagate.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "status": "exit_mismatch",
+      "source_sha256": "bd30fcea8645c43374581e59501a53a475c00fe184523f245df2c8bcce657cc4",
+      "targets": {
+        "c": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-goal/bin/sn",
+              "tests/integration/test_thread_panic_propagate.sn",
+              "--target",
+              "c",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-original-matrix-s24hiyuc/c/test_thread_panic_propagate"
+            ],
+            "status": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "a503e0fe8291f45dd628db23eaac3f6f3b94b482a0dd8053737abe55732b8e16"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-original-matrix-s24hiyuc/c/test_thread_panic_propagate"
+            ],
+            "status": 0,
+            "stdout_hex": "54657374696e67207468726561642070616e69632070726f7061676174696f6e0a4641494c5552453a2053686f756c64206e6f742072656163682068657265202d2070616e69632073686f756c6420686176652070726f706167617465640a",
+            "stderr_hex": ""
+          }
+        },
+        "rust": {
+          "compile": {
+            "command": [
+              "/home/gavin/code/sindarin/sindarin-rust-parity-goal/bin/sn",
+              "tests/integration/test_thread_panic_propagate.sn",
+              "--target",
+              "rust",
+              "-O2",
+              "--unchecked",
+              "--no-install",
+              "-o",
+              "/tmp/sn-original-matrix-s24hiyuc/rust/test_thread_panic_propagate"
+            ],
+            "status": 0,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "c32642ea95308257d3e931625ed3340f62070a3103d627fa557ed4daac2aea5c"
+          },
+          "run": {
+            "command": [
+              "/tmp/sn-original-matrix-s24hiyuc/rust/test_thread_panic_propagate"
+            ],
+            "status": 101,
+            "stdout_hex": "54657374696e67207468726561642070616e69632070726f7061676174696f6e0a",
+            "stderr_hex": "0a74687265616420273c756e6e616d65643e27202831363931303333292070616e69636b6564206174202e736e2f6275696c642f727573742f746573745f7468726561645f70616e69635f70726f7061676174655f313639303835302f6d61696e2e72733a3335323a31323a0a617474656d707420746f20646976696465206279207a65726f0a6e6f74653a2072756e20776974682060525553545f4241434b54524143453d316020656e7669726f6e6d656e74207661726961626c6520746f20646973706c61792061206261636b74726163650a"
+          }
+        }
+      }
+    }
+  ],
+  "adjudications": {
+    "audit_revision": "4a88f178b217cd4e433159066603891156caefce",
+    "compiler_sha256": "25a789f443f1ce9a5df0c31efa440480821b38d0aad3f72385859968a5de86af",
+    "adjudications": [
+      {
+        "source": "tests/exploratory/test_limitation_closure_mutable.sn",
+        "modes": "all",
+        "classification": "C undefined concurrent mutation",
+        "reason": "Three pthread workers invoke one captured counter pointer. The emitted lambda reads/writes the plain long long without a mutex or atomic access; observed result permutations cannot establish a deterministic parity oracle.",
+        "generated_source": "#include <stdlib.h>\n#include <string.h>\n#include <stdio.h>\n#include <stdbool.h>\n#include <stdint.h>\n#include <limits.h>\n#include \"sn_minimal.h\"\n\nlong long __sn__run_closure(void *);\n\ntypedef struct {\n    void * arg0;\n    int _padding;\n} __ThreadArgs_0__;\n\nstatic void *__thread_wrapper_0__(void *arg) {\n    SnThread *__th__ = (SnThread *)arg;\n    __ThreadArgs_0__ *args = (__ThreadArgs_0__ *)__th__->result;\n    __ThreadArgs_0__ __args_copy__ = *args;\n    args = &__args_copy__;\n\n    long long __result__ = __sn__run_closure(args->arg0);\n    free(__th__->result); __th__->result = NULL;\n    if (!__th__->result) __th__->result = calloc(1, sizeof(long long));\n    *(long long *)__th__->result = __result__;\n    sn_thread_release(__th__);\n    return NULL;\n}\n\ntypedef struct {\n    void * arg0;\n    int _padding;\n} __ThreadArgs_1__;\n\nstatic void *__thread_wrapper_1__(void *arg) {\n    SnThread *__th__ = (SnThread *)arg;\n    __ThreadArgs_1__ *args = (__ThreadArgs_1__ *)__th__->result;\n    __ThreadArgs_1__ __args_copy__ = *args;\n    args = &__args_copy__;\n\n    long long __result__ = __sn__run_closure(args->arg0);\n    free(__th__->result); __th__->result = NULL;\n    if (!__th__->result) __th__->result = calloc(1, sizeof(long long));\n    *(long long *)__th__->result = __result__;\n    sn_thread_release(__th__);\n    return NULL;\n}\n\ntypedef struct {\n    void * arg0;\n    int _padding;\n} __ThreadArgs_2__;\n\nstatic void *__thread_wrapper_2__(void *arg) {\n    SnThread *__th__ = (SnThread *)arg;\n    __ThreadArgs_2__ *args = (__ThreadArgs_2__ *)__th__->result;\n    __ThreadArgs_2__ __args_copy__ = *args;\n    args = &__args_copy__;\n\n    long long __result__ = __sn__run_closure(args->arg0);\n    free(__th__->result); __th__->result = NULL;\n    if (!__th__->result) __th__->result = calloc(1, sizeof(long long));\n    *(long long *)__th__->result = __result__;\n    sn_thread_release(__th__);\n    return NULL;\n}\ntypedef struct __Closure__ {\n    void *fn;\n    size_t size;\n    void (*__cleanup__)(void *);\n    int __rc__;\n} __Closure__;\n\ntypedef struct __closure_0__ {\n    void *fn;\n    size_t size;\n    void (*__cleanup__)(void *);\n    int __rc__;\n    long long *counter;\n} __closure_0__;\nstatic void __closure_0_free__(void *p) {\n    __closure_0__ *cl = (__closure_0__ *)p;\n    free(cl->counter);\n    free(cl);\n}\nstatic void __closure_0_cleanup__(void **p) {\n    if (*p) {\n        free(*p);\n    }\n    *p = NULL;\n}\n#define sn_auto_closure_0 __attribute__((cleanup(__closure_0_cleanup__)))\nstatic long long __lambda_0__(void *__closure__);\n\n\nlong long __sn__run_closure(void * __sn__f) {\n\n    return ((long long (*)(void *))((__Closure__ *)__sn__f)->fn)(__sn__f);}\n\nint main() {\n    sn_auto_capture long long *__sn__counter = malloc(sizeof(long long)); *__sn__counter = 0LL;\n    sn_auto_closure_0 void * __sn__increment = ({\n        __closure_0__ *__cl__ = malloc(sizeof(__closure_0__));\n        __cl__->fn = (void *)__lambda_0__;\n        __cl__->size = sizeof(__closure_0__);\n        __cl__->__cleanup__ = NULL;\n        __cl__->__rc__ = 1;\n        __cl__->counter = __sn__counter;\n        __cl__;\n    });\n    long long __sn__r1 = 0; sn_auto_thread SnThread * __sn__r1__th__ = ({\n        SnThread *__th__ = sn_thread_create();\n    \n        __ThreadArgs_0__ *__args__ = malloc(sizeof(__ThreadArgs_0__));\n        __args__->arg0 = __sn__increment;\n        __th__->result = __args__;\n        __th__->result_size = sizeof(long long);\n        pthread_create(&__th__->thread, NULL, __thread_wrapper_0__, __th__);\n        __th__;\n    });\n    long long __sn__r2 = 0; sn_auto_thread SnThread * __sn__r2__th__ = ({\n        SnThread *__th__ = sn_thread_create();\n    \n        __ThreadArgs_1__ *__args__ = malloc(sizeof(__ThreadArgs_1__));\n        __args__->arg0 = __sn__increment;\n        __th__->result = __args__;\n        __th__->result_size = sizeof(long long);\n        pthread_create(&__th__->thread, NULL, __thread_wrapper_1__, __th__);\n        __th__;\n    });\n    long long __sn__r3 = 0; sn_auto_thread SnThread * __sn__r3__th__ = ({\n        SnThread *__th__ = sn_thread_create();\n    \n        __ThreadArgs_2__ *__args__ = malloc(sizeof(__ThreadArgs_2__));\n        __args__->arg0 = __sn__increment;\n        __th__->result = __args__;\n        __th__->result_size = sizeof(long long);\n        pthread_create(&__th__->thread, NULL, __thread_wrapper_2__, __th__);\n        __th__;\n    });\n    long long __sn__v1 = ({\n        sn_auto_thread SnThread *__sync_th__ = __sn__r1__th__; __sn__r1__th__ = NULL;\n        if (__sync_th__) { sn_thread_join(__sync_th__); __sn__r1 = *(long long *)__sync_th__->result; }\n        __sn__r1; })\n    ;\n    long long __sn__v2 = ({\n        sn_auto_thread SnThread *__sync_th__ = __sn__r2__th__; __sn__r2__th__ = NULL;\n        if (__sync_th__) { sn_thread_join(__sync_th__); __sn__r2 = *(long long *)__sync_th__->result; }\n        __sn__r2; })\n    ;\n    long long __sn__v3 = ({\n        sn_auto_thread SnThread *__sync_th__ = __sn__r3__th__; __sn__r3__th__ = NULL;\n        if (__sync_th__) { sn_thread_join(__sync_th__); __sn__r3 = *(long long *)__sync_th__->result; }\n        __sn__r3; })\n    ;\n    { sn_auto_str char *__ps__ = ({\n            sn_auto_str char *__is_p0__ = sn_strdup(\"Results: \");\n            sn_auto_str char *__is_p1__ = sn_str_fmt(\"%lld\", (long long)(__sn__v1));\n            sn_auto_str char *__is_p2__ = sn_strdup(\", \");\n            sn_auto_str char *__is_p3__ = sn_str_fmt(\"%lld\", (long long)(__sn__v2));\n            sn_auto_str char *__is_p4__ = sn_strdup(\", \");\n            sn_auto_str char *__is_p5__ = sn_str_fmt(\"%lld\", (long long)(__sn__v3));\n            sn_auto_str char *__is_p6__ = sn_strdup(\"\\n\");\n            sn_str_concat_multi(7, __is_p0__, __is_p1__, __is_p2__, __is_p3__, __is_p4__, __is_p5__, __is_p6__);\n        }); sn_print(__ps__); };\n    \n    { sn_auto_str char *__ps__ = ({\n            sn_auto_str char *__is_p0__ = sn_strdup(\"Counter: \");\n            sn_auto_str char *__is_p1__ = sn_str_fmt(\"%lld\", (long long)((*__sn__counter)));\n            sn_auto_str char *__is_p2__ = sn_strdup(\"\\n\");\n            sn_str_concat_multi(3, __is_p0__, __is_p1__, __is_p2__);\n        }); sn_print(__ps__); };\n    \n    fflush(stdout);\n    return 0;\n}\n\nstatic long long __lambda_0__(void *__closure__) {\n\n    long long *__sn__counter = ((__closure_0__ *)__closure__)->counter;\n\n    (*__sn__counter = ((*__sn__counter) + 1LL));\n    \n    return (*__sn__counter);}\n"
+      },
+      {
+        "source": "tests/integration/test_thread_panic_propagate.sn",
+        "modes": "unchecked at all optimizations and default O2",
+        "classification": "C undefined integer division by zero",
+        "reason": "The generated unchecked function computes 10LL / x and the source passes zero. C output/exit differences in these modes do not establish Rust parity obligations; checked modes retain their original panic oracle.",
+        "generated_source": "#include <stdlib.h>\n#include <string.h>\n#include <stdio.h>\n#include <stdbool.h>\n#include <stdint.h>\n#include <limits.h>\n#include \"sn_minimal.h\"\n\nlong long __sn__will_panic(long long);\n\ntypedef struct {\n    long long arg0;\n    int _padding;\n} __ThreadArgs_0__;\n\nstatic void *__thread_wrapper_0__(void *arg) {\n    SnThread *__th__ = (SnThread *)arg;\n    __ThreadArgs_0__ *args = (__ThreadArgs_0__ *)__th__->result;\n    __ThreadArgs_0__ __args_copy__ = *args;\n    args = &__args_copy__;\n\n    long long __result__ = __sn__will_panic(args->arg0);\n    free(__th__->result); __th__->result = NULL;\n    if (!__th__->result) __th__->result = calloc(1, sizeof(long long));\n    *(long long *)__th__->result = __result__;\n    sn_thread_release(__th__);\n    return NULL;\n}\ntypedef struct __Closure__ {\n    void *fn;\n    size_t size;\n    void (*__cleanup__)(void *);\n    int __rc__;\n} __Closure__;\n\n\nlong long __sn__will_panic(long long __sn__x) {\n\n    return (10LL / __sn__x);}\n\nint main() {\n    sn_print(\"Testing thread panic propagation\\n\");\n    \n    long long __sn__r = 0; sn_auto_thread SnThread * __sn__r__th__ = ({\n        SnThread *__th__ = sn_thread_create();\n    \n        __ThreadArgs_0__ *__args__ = malloc(sizeof(__ThreadArgs_0__));\n        __args__->arg0 = 0LL;\n        __th__->result = __args__;\n        __th__->result_size = sizeof(long long);\n        pthread_create(&__th__->thread, NULL, __thread_wrapper_0__, __th__);\n        __th__;\n    });\n    ({\n        sn_auto_thread SnThread *__sync_th__ = __sn__r__th__; __sn__r__th__ = NULL;\n        if (__sync_th__) { sn_thread_join(__sync_th__); __sn__r = *(long long *)__sync_th__->result; }\n        __sn__r; })\n    ;\n    \n    sn_print(\"FAILURE: Should not reach here - panic should have propagated\\n\");\n    \n    fflush(stdout);\n    return 0;\n}\n"
+      }
+    ],
+    "source_sha256": {
+      "tests/exploratory/test_limitation_closure_mutable.sn": "f637b87a82d07238ad3684b7b64b5a8b4878e81d53bf06120452785bc5db0bcf",
+      "tests/integration/test_thread_panic_propagate.sn": "bd30fcea8645c43374581e59501a53a475c00fe184523f245df2c8bcce657cc4"
+    },
+    "evidence_sha256": {
+      "/tmp/sindarin-closure-mutable-original.c": "1b56aa3ff96a740976f5c8ebcb219015601e213942a16322a2b714b9b8a804f6",
+      "/tmp/sindarin-thread-panic-unchecked.c": "8c14b807f09be788fcf584fc8e5d4a885b6a4bb70ba4d7e541b7730cd9605240"
+    },
+    "acceptance": "This adjudicates specific discovery differences; it does not classify all other corpus programs as C-defined or prove final parity."
+  },
+  "full_report": {
+    "path": ".sn/original-current-matrix.json",
+    "sha256": "731eacc3de838e1a5b45b22f632867d758f8db5eab4e79694da1f84bf3cf5fdb",
+    "compressed_path": ".sn/original-current-matrix.json.gz",
+    "compressed_sha256": "6b2a09ae4602bf73e466536c55bed54bb4bac2200da01f666c74ecfb8b15d7cb",
+    "retained_compressed_path": "docs/rust-parity-evidence/original-corpus-all-mode-discovery.json.gz"
+  },
+  "runner": {
+    "path": "/tmp/sindarin-original-matrix-audit.py",
+    "sha256": "a58458a1a1a10962dd25e36159382b6b24262880593db08307673e16d2aa5521"
+  },
+  "source_manifest": {
+    "path": "docs/rust-parity-evidence/original-corpus-current-validation.json",
+    "sha256": "c09bb74bda50d9aa34cf6029daa1f12a8f26a79fb90e906f04a0dae831371320"
+  },
+  "original_source_handling": "All 1365 source hashes enforced; the exact tagged historical closure-array source is staged temporarily rather than changing the synchronized current fixture.",
+  "scope_limitations": [
+    "Raw C/Rust matches do not prove every independent original-output oracle or freedom from all C undefined behavior.",
+    "This completes Linux discovery across all optimization/arithmetic modes, not macOS/Windows corpus acceptance.",
+    "The three specified C-undefined source/mode categories receive no parity credit.",
+    "Native package/SDK/mutable body adapter and other documented language gaps remain required."
+  ],
+  "elapsed_seconds": 1090.311,
+  "final_parity_acceptance": false,
+  "discovery_complete": true
+}

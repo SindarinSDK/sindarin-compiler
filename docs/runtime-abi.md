@@ -3,10 +3,11 @@
 Status: implemented value-transport foundation, ABI 1.0 (`0x00010000`) and
 optional managed-value capabilities through ABI 1.1 (`0x00010001`) and package
 lifecycle coordination through ABI 1.2 (`0x00010002`) and managed-array slot
-replacement through ABI 1.3 (`0x00010003`). This is
+replacement through ABI 1.3 (`0x00010003`) and managed-array mutation through
+ABI 1.4 (`0x00010004`). This is
 part of the [runtime and package architecture](runtime-target-architecture.md).
-It does not yet provide complete package record/interface contracts, managed
-array elements, complete generated bindings, independent SDK artifacts or compiler-wide
+It does not yet provide complete package record/interface contracts,
+complete generated bindings, independent SDK artifacts or compiler-wide
 adoption. Those remain required by the [Rust completion goal](rust-completion-goal.md).
 
 The public header is `src/runtime/sn_abi.h`, staged at
@@ -268,3 +269,48 @@ mutable body-input adapters, live callback visibility, Rust default-array alias
 partitioning, public record/interface contracts or complete SDK migration. The
 existing native `borrowed` array provider view remains read-only. Those higher
 level contracts are required work for the completion goal.
+
+## ABI 1.4 managed-array mutation
+
+Query `SN_ABI_V1_4_VERSION` with `SN_ABI_CAP_ARRAY_MUTATION` (`128`) before using
+the new entry points. ABI 1.4 advertises `255`; ABI 1.0/1.1/1.2/1.3 retain
+their exact `7`/`31`/`63`/`127` capability masks and reject the new capability
+without changing output fields. Existing public layouts and operations remain
+compatible. This runtime capability does not enable a new package manifest
+contract by itself.
+
+| Operation | Ownership and mutation |
+| --- | --- |
+| `value_array_insert(array, index, element)` | Acquire one element credit and insert a slot; nil elements are allowed |
+| `value_array_take(array, index, out)` | Remove the slot and transfer its owned element credit to `out` |
+| `value_array_pop(array, out)` | Take the final slot; empty/nil arrays return out-of-range |
+| `value_array_remove(array, index)` | Remove the slot, then release its detached credit |
+| `value_array_clear(array)` | Publish an empty array, then release detached slots |
+| `value_array_reverse(array)` | Reverse the slots without changing element credits |
+
+All entry-point names have the `sn_abi_v1_` prefix. Mutation preserves the array
+handle, so retained aliases observe current slots. Independent array copies
+retain their own element credits. Taken or popped elements survive releasing
+the array; the caller releases the transferred credit. A successful nil-element
+take writes NULL, which owns no credit.
+
+Indices are unsigned, zero-based; insertion permits `index == length`, while
+take/remove require an existing slot. Adapters implement language-specific
+negative-index rules before transport. Wrong-kind, invalid-output and bounds
+errors preserve contents and outputs. Nil insert/clear/reverse are invalid;
+nil take/pop/remove are out-of-range. Read-only array views and the caller's
+serialization responsibility remain unchanged.
+
+Remove and clear publish their new slot state before resource destruction.
+Destructors may inspect, grow, clear, reverse or replace that state. An operation
+credit protects the array even when cleanup consumes the caller's external
+credit. Nested changes survive the outer operation; no relocated slot pointer
+is used after reentry. Ownership cycles remain forbidden.
+
+C/Rust/Go and Rust-consuming-Go clients exercise nil/empty/non-UTF-8 values,
+aliases, independent copies, error preservation, resource identity, transferred
+element lifetimes and reentry after consuming an external credit. C sanitizer
+controls additionally cover slot relocation and nested clear/reverse/insert.
+Complete staged and hosted validation is required before acceptance of this
+increment. Mutable body-input adapters, live foreign callback visibility,
+Rust parameter alias/rebind semantics and wider SDK/package contracts remain work.

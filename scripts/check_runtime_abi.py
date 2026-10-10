@@ -38,7 +38,7 @@ def main():
     if digest(ROOT / 'bin/include/runtime/sn_abi.h') != digest(ROOT / 'src/runtime/sn_abi.h'):
         raise ValueError('staged ABI header does not match the implementation source')
     report = {'platform': platform.system(), 'runtime_sha256': digest(runtime), 'cases': [],
-              'scope': 'C runtime ABI values, resources, and ABI 1.3 array replacement; mutable package adapters remain required.'}
+              'scope': 'C runtime ABI values, resources, ABI 1.3 replacement and ABI 1.4 array mutation; mutable package adapters remain required.'}
     output = ROOT / '.sn' / ('runtime-abi-sanitizers.json' if args.sanitize else 'runtime-abi.json')
     output.parent.mkdir(exist_ok=True)
     cc = shlex.split(os.environ.get('SN_CC') or ('clang' if windows or platform.system() == 'Darwin' else 'gcc'))
@@ -47,7 +47,8 @@ def main():
         executable = work / ('client.exe' if windows else 'client')
         flags = ['-Wall', '-Wextra', '-Werror', '-UNDEBUG', '-I', ROOT / 'bin/include/runtime']
         for source, label, wanted in [('client.c', 'C', b'shared runtime ABI: pass'),
-                                     ('value_array_assign.c', 'C array replacement', b'managed array replacement: pass')]:
+                                     ('value_array_assign.c', 'C array replacement', b'managed array replacement: pass'),
+                                     ('value_array_mutation.c', 'C array mutation', b'managed array mutation: pass')]:
             if args.sanitize:
                 runtime_sources = [ROOT / 'src/runtime' / name for name in
                                    ('sn_abi.c', 'sn_array.c', 'sn_string.c', 'sn_byte.c')]
@@ -65,7 +66,8 @@ def main():
             rustc = shlex.split(os.environ.get('SN_RUSTC', 'rustc'))
             rustflags = shlex.split(os.environ.get('SN_RUSTFLAGS', ''))
             for source, label, wanted in [('client.rs', 'Rust', b'shared runtime ABI: pass'),
-                                         ('value_array_assign.rs', 'Rust array replacement', b'managed array replacement: pass')]:
+                                         ('value_array_assign.rs', 'Rust array replacement', b'managed array replacement: pass'),
+                                         ('value_array_mutation.rs', 'Rust array mutation', b'managed array mutation: pass')]:
                 checked(rustc + ['--edition=2021', SOURCES / source, '-L', runtime.parent,
                                 '-o', executable] + rustflags)
                 run = checked([executable])

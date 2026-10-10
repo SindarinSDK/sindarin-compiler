@@ -163,5 +163,6 @@ func main() {
 	check(string(C.GoBytes(unsafe.Pointer(view.data), C.int(view.length))) == "managed")
 	C.sn_abi_v1_release(value)
 	checkArrayAssignment()
+	checkArrayMutation()
 	fmt.Println("shared runtime ABI: pass")
 }

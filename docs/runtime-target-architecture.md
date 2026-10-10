@@ -8,7 +8,11 @@ compatibility checks are implemented. The shared C ABI has an implemented
 can compile for C/RS with verified scalar/string and owned string-array ABI exports.
 ABI 1.2 coordinates initialization, call leases and shutdown; ordinary library
 globals use these shared controls. ABI 1.3 adds managed-array replacement that
-preserves destination aliases, as a prerequisite for mutable body-input transport. Package dependency lifecycle graphs, wider
+preserves destination aliases, as a prerequisite for mutable body-input transport.
+ABI 1.4 adds slot insertion/removal, ownership-transferring take/pop, clear and
+reverse, with publication before reentrant cleanup. These remain runtime
+prerequisites; generated mutable body-input adapters are not yet implemented.
+Package dependency lifecycle graphs, wider
 managed-body exports and complete record/interface contracts remain pending.
 Scalar/string native imports and provider exports have generated
 adapters; this does not complete SDK/package artifact migration.

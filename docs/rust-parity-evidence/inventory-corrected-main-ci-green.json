@@ -1,0 +1,234 @@
+{
+  "run": {
+    "conclusion": "success",
+    "headSha": "951d44f218b191e44eb290d99219a4e0c3d3201a",
+    "jobs": [
+      {
+        "name": "Build (windows-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "databaseId": 114314422879
+      },
+      {
+        "name": "Build (ubuntu-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "databaseId": 114314423005
+      },
+      {
+        "name": "Build (macos-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "databaseId": 114314423017
+      },
+      {
+        "name": "Tests / c (ubuntu-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "databaseId": 114314774412
+      },
+      {
+        "name": "Tests / arrays (ubuntu-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "databaseId": 114314774428
+      },
+      {
+        "name": "Tests / rust (ubuntu-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "databaseId": 114314774435
+      },
+      {
+        "name": "Tests / native (windows-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "databaseId": 114314774452
+      },
+      {
+        "name": "Tests / closures (ubuntu-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "databaseId": 114314774456
+      },
+      {
+        "name": "Tests / c (windows-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "databaseId": 114314774457
+      },
+      {
+        "name": "Tests / sanitizers (ubuntu-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "databaseId": 114314774458
+      },
+      {
+        "name": "Tests / arrays (windows-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "databaseId": 114314774459
+      },
+      {
+        "name": "Tests / core (ubuntu-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "databaseId": 114314774465
+      },
+      {
+        "name": "Tests / arrays (macos-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "databaseId": 114314774470
+      },
+      {
+        "name": "Tests / numeric-io (ubuntu-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "databaseId": 114314774472
+      },
+      {
+        "name": "Tests / rust (windows-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "databaseId": 114314774473
+      },
+      {
+        "name": "Tests / callbacks (ubuntu-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "databaseId": 114314774477
+      },
+      {
+        "name": "Tests / rust (macos-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "databaseId": 114314774488
+      },
+      {
+        "name": "Tests / core (windows-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "databaseId": 114314774489
+      },
+      {
+        "name": "Tests / closures (windows-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "databaseId": 114314774491
+      },
+      {
+        "name": "Tests / closures (macos-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "databaseId": 114314774500
+      },
+      {
+        "name": "Tests / native (ubuntu-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "databaseId": 114314774501
+      },
+      {
+        "name": "Tests / core (macos-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "databaseId": 114314774521
+      },
+      {
+        "name": "Tests / native (macos-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "databaseId": 114314774526
+      },
+      {
+        "name": "Tests / callbacks (windows-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "databaseId": 114314774532
+      },
+      {
+        "name": "Tests / c (macos-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "databaseId": 114314774537
+      },
+      {
+        "name": "Tests / callbacks (macos-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "databaseId": 114314774539
+      },
+      {
+        "name": "Tests / numeric-io (windows-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "databaseId": 114314774545
+      },
+      {
+        "name": "Tests / callback-sanitizers (ubuntu-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "databaseId": 114314774573
+      },
+      {
+        "name": "Tests / numeric-io (macos-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "databaseId": 114314774652
+      },
+      {
+        "name": "Verify complete CI coverage",
+        "status": "completed",
+        "conclusion": "success",
+        "databaseId": 114317956478
+      },
+      {
+        "name": "Validated artifacts (ubuntu-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "databaseId": 114318009071
+      },
+      {
+        "name": "Validated artifacts (windows-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "databaseId": 114318009097
+      },
+      {
+        "name": "Validated artifacts (macos-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "databaseId": 114318009113
+      },
+      {
+        "name": "Compiler CI",
+        "status": "completed",
+        "conclusion": "success",
+        "databaseId": 114318101166
+      }
+    ],
+    "status": "completed",
+    "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38086642421"
+  },
+  "revision": "951d44f218b191e44eb290d99219a4e0c3d3201a",
+  "coverage": {
+    "revision": "951d44f218b191e44eb290d99219a4e0c3d3201a",
+    "groups": 26,
+    "gates": 292,
+    "compilers": {
+      "Linux": "9d808a7421b6d00e15fa447959f01fcc42f6bed9821a36285afc0a8ec09279c7",
+      "Darwin": "d96f90526982bb8b68bacbd89681d93415929eed69aa67185558a0892a8c3812",
+      "Windows": "d714faa86c92e1bd24eee9f9977187bb5e15e56dcba382619253729c340e0d89"
+    },
+    "passed": true
+  },
+  "coverage_summary_sha256": "b3d15e13c965cceeed8345a053a9b647ede57755246e0a0ca376bad0f908bfea",
+  "accepted_batches": [
+    "4a88f178b217cd4e433159066603891156caefce",
+    "2f1153bd4956deb2e2ae816498c6cf5f2003593c",
+    "951d44f218b191e44eb290d99219a4e0c3d3201a"
+  ],
+  "scope": "Integrated acceptance of integer compound comparison repair, 391-fixture inventory count and Windows glob regression correction. Unpublished ABI mutation draft is excluded; the larger Rust completion goal remains paused and incomplete.",
+  "passed": true
+}

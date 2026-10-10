@@ -1,0 +1,180 @@
+{
+  "base_revision": "2f1153bd4956deb2e2ae816498c6cf5f2003593c",
+  "scope": "ABI 1.4 canonical C managed-array insertion/take/pop/remove/clear/reverse, with destination identity, credit transfer and published-state reentrant cleanup. Generated mutable body adapters remain required.",
+  "counts": {
+    "C": {
+      "passed": 3240,
+      "failed": 0,
+      "skipped": 0
+    },
+    "Rust": {
+      "passed": 1095,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "artifact_tests": 15,
+  "import_tests": 32,
+  "ci_helper_tests": 22,
+  "abi": {
+    "platform": "Linux",
+    "runtime_sha256": "dc72516af4fe490a5a9034c94e785adb55a4bca7faef720856083f43f540c57e",
+    "cases": [
+      {
+        "client": "C",
+        "passed": true,
+        "sanitized": false,
+        "reference_credit_operations": 160000
+      },
+      {
+        "client": "C array replacement",
+        "passed": true,
+        "sanitized": false
+      },
+      {
+        "client": "C array mutation",
+        "passed": true,
+        "sanitized": false
+      },
+      {
+        "client": "Rust",
+        "passed": true
+      },
+      {
+        "client": "Rust array replacement",
+        "passed": true
+      },
+      {
+        "client": "Rust array mutation",
+        "passed": true
+      },
+      {
+        "client": "Go",
+        "passed": true,
+        "cgo_pointer_check": "cgocheck2"
+      },
+      {
+        "client": "Rust with Go-native archive",
+        "passed": true,
+        "go_archive_sha256": "8d5af4dba3aed9a5472c1daf756510e15f9c45588e8eea6ffff77d189a79a548"
+      }
+    ],
+    "scope": "C runtime ABI values, resources, ABI 1.3 replacement and ABI 1.4 array mutation; mutable package adapters remain required.",
+    "passed": true,
+    "source_sha256": {
+      "tests/runtime_abi/client.c": "e9237ac3c788ef60840219b24f41f2ead9bbd6411d9efdb002b37644a84976ba",
+      "tests/runtime_abi/client.rs": "43386e2545c7f6d964cf5ca35246620beccb22b46dcab69679cf337a9dc33769",
+      "tests/runtime_abi/go/bridge.c": "2f45c99faeb2f47743c73164b8908942a70e023431fd45f0fcc8fc79bb4d747b",
+      "tests/runtime_abi/go/go.mod": "59c81de41b166cdf5df4a5fd5c7fedfbc291e059254dde2dc4b9039c9015265e",
+      "tests/runtime_abi/go/main.go": "5ae4afebe6e50bbb0c856246ebae5d90a34d829dbeb2ffd193b8442ae7c71ab7",
+      "tests/runtime_abi/go/value_array_assign.go": "7c7d5708914a5d4a3a180fed616a9c011655f4a981a408405babd83560f283de",
+      "tests/runtime_abi/go/value_array_mutation.go": "b666577057b4f99f9cf5168d19ed290ddf8c02cd953229163f4ec439b0a2a1a9",
+      "tests/runtime_abi/package_go/bridge.c": "ef42324af281db45c8a3512d6c9dc12f852806313fd5456b4911aceeb6f69221",
+      "tests/runtime_abi/package_go/go.mod": "54e2c0f5ac28a73d55aad0a13370e1ffe41fc1ae8836a5643227143f8c4c94a7",
+      "tests/runtime_abi/package_go/main.go": "99cae60f143806698aa7ba2122778b1b6fd71e1ca5000958f72af068a8f9133e",
+      "tests/runtime_abi/package_lifecycle.c": "c38f956a6ba675c911bd9112b9411fab8967ed67d03f8d392020f12499d808c8",
+      "tests/runtime_abi/package_lifecycle.rs": "f9031046855452ba209b217d7ffcce21e8b5d6d2dd5470155e15d96f211ccbc6",
+      "tests/runtime_abi/value_array_assign.c": "a2e7617457277f6cdd36ed8fd59a60006f7d3c117d2d611ccbbaf0ef79f6af2f",
+      "tests/runtime_abi/value_array_assign.rs": "e72764236659c7d65b2f6f16ce9b2131c3e7ed9398c86b615b0eb93da525bb52",
+      "tests/runtime_abi/value_array_mutation.c": "aced9ce2e5c0054181dc27c53fdbe7fce4318b8f666177d6f4977f782cc2daa6",
+      "tests/runtime_abi/value_array_mutation.rs": "e3bfe0490d076bb32cc682743519f5388ec1dab971cd95b14a69e70bd17cc334",
+      "src/runtime/sn_abi.c": "0756234fcb1159665649d593395a1b078165b98b056cce939ebcd7eb99225342",
+      "src/runtime/sn_abi.h": "a6a34d39a76274affdba83c79f8320f7818610f3aa7003975cf96f61f6406b5d",
+      "scripts/check_runtime_abi.py": "0efb205e01a017d8161cece0e7d0c55bc5265088ca9b0e6c0c4758a76637caf7"
+    }
+  },
+  "sanitizers": {
+    "platform": "Linux",
+    "runtime_sha256": "dc72516af4fe490a5a9034c94e785adb55a4bca7faef720856083f43f540c57e",
+    "cases": [
+      {
+        "client": "C",
+        "passed": true,
+        "sanitized": true,
+        "reference_credit_operations": 160000
+      },
+      {
+        "client": "C array replacement",
+        "passed": true,
+        "sanitized": true
+      },
+      {
+        "client": "C array mutation",
+        "passed": true,
+        "sanitized": true
+      }
+    ],
+    "scope": "C runtime ABI values, resources, ABI 1.3 replacement and ABI 1.4 array mutation; mutable package adapters remain required.",
+    "passed": true,
+    "source_sha256": {
+      "tests/runtime_abi/client.c": "e9237ac3c788ef60840219b24f41f2ead9bbd6411d9efdb002b37644a84976ba",
+      "tests/runtime_abi/client.rs": "43386e2545c7f6d964cf5ca35246620beccb22b46dcab69679cf337a9dc33769",
+      "tests/runtime_abi/go/bridge.c": "2f45c99faeb2f47743c73164b8908942a70e023431fd45f0fcc8fc79bb4d747b",
+      "tests/runtime_abi/go/go.mod": "59c81de41b166cdf5df4a5fd5c7fedfbc291e059254dde2dc4b9039c9015265e",
+      "tests/runtime_abi/go/main.go": "5ae4afebe6e50bbb0c856246ebae5d90a34d829dbeb2ffd193b8442ae7c71ab7",
+      "tests/runtime_abi/go/value_array_assign.go": "7c7d5708914a5d4a3a180fed616a9c011655f4a981a408405babd83560f283de",
+      "tests/runtime_abi/go/value_array_mutation.go": "b666577057b4f99f9cf5168d19ed290ddf8c02cd953229163f4ec439b0a2a1a9",
+      "tests/runtime_abi/package_go/bridge.c": "ef42324af281db45c8a3512d6c9dc12f852806313fd5456b4911aceeb6f69221",
+      "tests/runtime_abi/package_go/go.mod": "54e2c0f5ac28a73d55aad0a13370e1ffe41fc1ae8836a5643227143f8c4c94a7",
+      "tests/runtime_abi/package_go/main.go": "99cae60f143806698aa7ba2122778b1b6fd71e1ca5000958f72af068a8f9133e",
+      "tests/runtime_abi/package_lifecycle.c": "c38f956a6ba675c911bd9112b9411fab8967ed67d03f8d392020f12499d808c8",
+      "tests/runtime_abi/package_lifecycle.rs": "f9031046855452ba209b217d7ffcce21e8b5d6d2dd5470155e15d96f211ccbc6",
+      "tests/runtime_abi/value_array_assign.c": "a2e7617457277f6cdd36ed8fd59a60006f7d3c117d2d611ccbbaf0ef79f6af2f",
+      "tests/runtime_abi/value_array_assign.rs": "e72764236659c7d65b2f6f16ce9b2131c3e7ed9398c86b615b0eb93da525bb52",
+      "tests/runtime_abi/value_array_mutation.c": "aced9ce2e5c0054181dc27c53fdbe7fce4318b8f666177d6f4977f782cc2daa6",
+      "tests/runtime_abi/value_array_mutation.rs": "e3bfe0490d076bb32cc682743519f5388ec1dab971cd95b14a69e70bd17cc334",
+      "src/runtime/sn_abi.c": "0756234fcb1159665649d593395a1b078165b98b056cce939ebcd7eb99225342",
+      "src/runtime/sn_abi.h": "a6a34d39a76274affdba83c79f8320f7818610f3aa7003975cf96f61f6406b5d",
+      "scripts/check_runtime_abi.py": "0efb205e01a017d8161cece0e7d0c55bc5265088ca9b0e6c0c4758a76637caf7"
+    }
+  },
+  "logs": {
+    "C": {
+      "path": "/tmp/sindarin-array-mutation-c.log",
+      "sha256": "0682e90bca7691f16aa5c16009761c31f3386684487206b41f98ce2923116b68"
+    },
+    "Rust": {
+      "path": "/tmp/sindarin-array-mutation-rust.log",
+      "sha256": "a65d824e1dcb6970a40c57ceb4d4795913fdaf996aa02bfb9ba6dad370dea088"
+    },
+    "artifacts": {
+      "path": "/tmp/sindarin-array-mutation-artifacts.log",
+      "sha256": "e69fc5d599b7862ca96785c29f6dc759eb057ad3a7b17fdb95eb7a0b711eba9e"
+    },
+    "imports": {
+      "path": "/tmp/sindarin-array-mutation-imports.log",
+      "sha256": "010a1eda352cf28c720ac3b7399f9db7450f8f7020232d87437295b13f6401c5"
+    },
+    "lifecycle": {
+      "path": "/tmp/sindarin-array-mutation-lifecycle.log",
+      "sha256": "098cde1e2753ec909260e36d47d0d85061bca0c79c6cf5c5e2c3c27eef427f9b"
+    },
+    "abi": {
+      "path": "/tmp/sindarin-array-mutation-abi.log",
+      "sha256": "e7fd7df9ff11456154e7b628748e362cab0da9507a45fc096bf338050b0e73bd"
+    },
+    "sanitizers": {
+      "path": "/tmp/sindarin-array-mutation-sanitizers.log",
+      "sha256": "2f4ebe21abbf2ec5b44c712a92857a83bea3544c70048770df1c4fe18c8fa3fc"
+    },
+    "ci_helpers": {
+      "path": "/tmp/sindarin-fixture-inventory-separators-ci-helpers.log",
+      "sha256": "ca00368c1a972497e08a1048eb5fe5a7cd285b4c35288350512fd6aec9121231"
+    }
+  },
+  "source_sha256": {
+    "src/runtime/sn_abi.c": "0756234fcb1159665649d593395a1b078165b98b056cce939ebcd7eb99225342",
+    "src/runtime/sn_abi.h": "a6a34d39a76274affdba83c79f8320f7818610f3aa7003975cf96f61f6406b5d",
+    "scripts/check_runtime_abi.py": "0efb205e01a017d8161cece0e7d0c55bc5265088ca9b0e6c0c4758a76637caf7",
+    "tests/runtime_abi/value_array_mutation.c": "aced9ce2e5c0054181dc27c53fdbe7fce4318b8f666177d6f4977f782cc2daa6",
+    "tests/runtime_abi/value_array_mutation.rs": "e3bfe0490d076bb32cc682743519f5388ec1dab971cd95b14a69e70bd17cc334",
+    "tests/runtime_abi/go/value_array_mutation.go": "b666577057b4f99f9cf5168d19ed290ddf8c02cd953229163f4ec439b0a2a1a9",
+    "tests/runtime_abi/go/main.go": "5ae4afebe6e50bbb0c856246ebae5d90a34d829dbeb2ffd193b8442ae7c71ab7",
+    "tests/runtime_abi/go/bridge.c": "2f45c99faeb2f47743c73164b8908942a70e023431fd45f0fcc8fc79bb4d747b",
+    "tests/runtime_abi/client.rs": "43386e2545c7f6d964cf5ca35246620beccb22b46dcab69679cf337a9dc33769"
+  },
+  "compatibility": "Versions 1.0/1.1/1.2/1.3 retain masks 7/31/63/127 and reject the new capability without altering outputs; ABI 1.4 advertises 255.",
+  "publication": "Ready for publication after complete base CI acceptance in run 38086642421; ABI 1.4 requires its own complete hosted validation.",
+  "passed": true,
+  "publication_base": "951d44f218b191e44eb290d99219a4e0c3d3201a"
+}

@@ -7,6 +7,57 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Managed-array mutation: local validation, 2026-10-10
+
+ABI 1.4 adds insertion, ownership-transferring take/pop, removal, clear and
+reverse to the canonical C managed-array transport. Array handles and retained
+aliases preserve identity. Removal and clear publish changed slots before
+reentrant destruction; an operation credit protects the array when cleanup
+consumes its external credit, relocates slots and performs nested mutations.
+Older version layouts, masks and failed-output preservation remain unchanged.
+
+All eight staged C/Rust/Go and Rust-consuming-Go ABI clients pass. Three C clients
+pass strict address/undefined/leak checks. Complete local suites pass 3,240 C and
+1,095 Rust checks, with no failures/skips; all 15 artifact, 32 import and 22 CI
+helper checks and package lifecycle clients pass. Original programs, runtime
+oracles and existing Rust snapshots are unchanged. Corrected integrated main is
+accepted; this ABI batch is ready for publication and requires its own complete
+hosted acceptance. Mutable body-input adapters, live callback visibility, Rust
+default-array alias/rebind semantics and wider SDK/package contracts remain work.
+
+Evidence: [array mutation validation](rust-parity-evidence/array-mutation-validation.json).
+
+## Original corpus: complete Linux all-mode discovery, 2026-10-10
+
+Compiler `4a88f178` compiles all 1,365 original programs through both targets in
+all nine O0/O1/O2 and default/checked/unchecked combinations: 12,285 unique
+mode cases and 24,570 successful target compilations. All source hashes are
+enforced, including temporary staging of the exact historical closure-array
+source. The compiler binary remained unchanged throughout the complete scan.
+
+There are 12,263 raw C/Rust matches outside the specifically adjudicated
+C-undefined cases: 18 unsynchronized concurrent mutations and four unchecked
+division-by-zero cases. Those undefined cases receive no parity credit. Raw
+matching alone does not prove every independent original oracle or freedom from
+all other C undefined behavior. Original-oracle review and macOS/Windows corpus
+acceptance remain required; this is a complete discovery inventory, not final
+corpus acceptance. The full compressed report is retained with its sealed hashes.
+
+Evidence: [all-mode discovery](rust-parity-evidence/original-corpus-all-mode-discovery.json).
+
+## Inventory corrections: hosted acceptance, 2026-10-10
+
+Main `951d44f2` passes all 34 jobs in
+[complete unified CI 38086642421](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38086642421).
+The retained summary verifies 26 groups and 292 gate executions using one compiler
+per Linux/macOS/Windows platform. This accepts the integrated integer compound
+comparison repair, 391-fixture count and Windows inventory guard correction,
+superseding their earlier failed/pending runs. The CI feature freeze is lifted;
+the larger completion goal has resumed, and the subsequent ABI mutation work
+requires separate hosted acceptance.
+
+Evidence: [corrected inventory main](rust-parity-evidence/inventory-corrected-main-ci-green.json).
+
 ## Inventory guard Windows correction: local validation, 2026-10-10
 
 Correction main `2f1153bd` failed its Windows build in
@@ -18,8 +69,8 @@ same root. The real native inventory remains 391 and its strict guard is intact.
 
 The helper now normalizes injected patterns and exercises both incoming path
 separators and Windows-form returned fixture paths. The complete 22 helper tests
-pass locally. The preceding correction run is now terminal, and this focused
-test-only correction is prepared for publication. Feature publication remains
+pass locally. The focused correction `951d44f2` is published on main; complete hosted
+acceptance is pending [CI 38086642421](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38086642421). Feature publication remains
 frozen until complete corrected integrated main CI is green.
 
 Evidence: [separator correction](rust-parity-evidence/inventory-separator-correction.json).
