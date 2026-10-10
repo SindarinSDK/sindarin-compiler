@@ -7,6 +7,29 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Bitwise and shift compound comparisons: local validation, 2026-10-10
+
+Rust now preserves raw C operator precedence for integral bitwise and shift
+compound assignments used as comparison operands. Bitwise operations combine the
+old value with the comparison boolean and return the stored value's truthiness;
+shifts compare the promoted operation and store the boolean. Checked strict
+comparisons keep their helper boundary, and calling lambda value parameters keep
+their isolated updates. Captured and reference scalar bitwise operations are
+supported, including promoted byte shifts before narrowing to storage.
+
+Complete local suites pass 3,240 C and 1,097 Rust checks with no failures/skips.
+The numeric gate passes 207 differential checks and 54 independent exact-output
+oracles across all nine optimization/arithmetic combinations. Sixteen C/Rust
+address/undefined/leak controls and all 22 CI helpers pass. The strict native
+inventory is updated to 393 and its discovery guard passes. Existing source
+programs, output oracles and Rust snapshots are unchanged. Undefined shift and
+arithmetic cases receive no parity credit. This batch is independent of pending
+ABI 1.4; its shared integral comparison prerequisite has hosted acceptance.
+Complete hosted acceptance for this batch, original-corpus independent-oracle
+and platform acceptance, and package/SDK work remain required.
+
+Evidence: [bitwise comparisons](rust-parity-evidence/bitwise-compound-comparison-validation.json).
+
 ## Managed-array mutation: local validation, 2026-10-10
 
 ABI 1.4 adds insertion, ownership-transferring take/pop, removal, clear and
@@ -21,8 +44,9 @@ pass strict address/undefined/leak checks. Complete local suites pass 3,240 C an
 1,095 Rust checks, with no failures/skips; all 15 artifact, 32 import and 22 CI
 helper checks and package lifecycle clients pass. Original programs, runtime
 oracles and existing Rust snapshots are unchanged. Corrected integrated main is
-accepted; this ABI batch is ready for publication and requires its own complete
-hosted acceptance. Mutable body-input adapters, live callback visibility, Rust
+accepted; ABI main `e8d56990` is published and awaits complete
+[hosted acceptance in CI 38089634563](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38089634563).
+Mutable body-input adapters, live callback visibility, Rust
 default-array alias/rebind semantics and wider SDK/package contracts remain work.
 
 Evidence: [array mutation validation](rust-parity-evidence/array-mutation-validation.json).

@@ -12,7 +12,9 @@ RAW = 'tests/rust-native/scalar_floating_compound_comparisons.sn'
 STRICT = 'tests/rust-native/scalar_floating_compound_strict_comparisons.sn'
 INTEGRAL = 'tests/rust-native/scalar_integral_compound_comparisons.sn'
 INTEGRAL_STRICT = 'tests/rust-native/scalar_integral_compound_strict_comparisons.sn'
-SOURCES = (RAW, STRICT, INTEGRAL, INTEGRAL_STRICT)
+BITWISE = 'tests/rust-native/scalar_bitwise_compound_comparisons.sn'
+BITWISE_STRICT = 'tests/rust-native/scalar_bitwise_compound_strict_comparisons.sn'
+SOURCES = (RAW, STRICT, INTEGRAL, INTEGRAL_STRICT, BITWISE, BITWISE_STRICT)
 
 
 def verify(report, windows=None):
@@ -32,14 +34,17 @@ def verify(report, windows=None):
         seen.add(identity)
         if case['source_sha256'] != hashlib.sha256((ROOT / source).read_bytes()).hexdigest():
             raise ValueError(f'compound comparison source changed: {source}')
-        if source in (RAW, INTEGRAL):
+        if source in (RAW, INTEGRAL, BITWISE):
             wanted = (ROOT / source).with_suffix('.expected').read_text()
         else:
             # Default O2 selects unchecked arithmetic. Explicit --checked keeps
             # C's strict-comparison helper boundary at every optimization level.
             raw = case['arithmetic_mode'] == 'unchecked' or (
                 case['arithmetic_mode'] == 'default' and case['optimization'] == '-O2')
-            if source == INTEGRAL_STRICT:
+            if source == BITWISE_STRICT:
+                wanted = ('true\n1\ntrue\n4\ntrue\n3\ntrue\n1\nfalse\n0\n' if raw else
+                          'true\n2\ntrue\n6\nfalse\n1\ntrue\n4\nfalse\n2\n')
+            elif source == INTEGRAL_STRICT:
                 wanted = 'true\n1\nfalse\n0\n' if raw else 'true\n3\nfalse\n3\n'
             else:
                 wanted = ('true\n1\ntrue\n1\ntrue\n1.00000\n' if raw else
@@ -57,7 +62,7 @@ def verify(report, windows=None):
                 for optimization in ('-O0', '-O1', '-O2')}
     if seen != required:
         raise ValueError('incomplete compound comparison mode/optimization coverage')
-    print('36 independent compound comparison oracles passed')
+    print(f'{len(required)} independent compound comparison oracles passed')
 
 
 if __name__ == '__main__':

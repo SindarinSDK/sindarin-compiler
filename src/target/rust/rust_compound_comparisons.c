@@ -1,6 +1,7 @@
-/* C renders a scalar compound assignment without parentheses. A raw comparison
- * containing it therefore assigns the comparison's boolean result, rather than
- * comparing a previously stored arithmetic result. Checked < and > are helper
+/* C renders a scalar compound assignment without parentheses. Arithmetic and
+ * shifts assign the raw comparison's boolean result. Bitwise operators instead
+ * combine the old value with that boolean because their precedence is lower.
+ * Checked < and > are helper
  * calls and keep their argument boundary. Keep this compatibility in Rust's
  * private projection; the source, frontend and C renderer remain unchanged. */
 static bool rust_lower_compound_comparisons(json_object *model, json_object *node)
@@ -43,6 +44,7 @@ static bool rust_lower_compound_comparisons(json_object *model, json_object *nod
     bool floating = rust_float_arithmetic_pair(target_type, value_type);
     const char *compound_op = json_string_property(left, "op");
     const char *method = NULL;
+    bool bitwise = false, shift = false;
     if (!floating)
     {
         if (!rust_fixed_integral_kind(target_kind) ||
@@ -52,21 +54,27 @@ static bool rust_lower_compound_comparisons(json_object *model, json_object *nod
         else if (strcmp(compound_op, "multiply") == 0) method = "wrapping_mul";
         else if (strcmp(compound_op, "divide") == 0) method = "wrapping_div";
         else if (strcmp(compound_op, "modulo") == 0) method = "wrapping_rem";
-        /* Bitwise assignments have lower precedence than comparisons in C;
-         * they require a different expression tree. */
+        else if (strcmp(compound_op, "shl") == 0)
+        { method = "wrapping_shl"; shift = true; }
+        else if (strcmp(compound_op, "shr") == 0)
+        { method = "wrapping_shr"; shift = true; }
+        else if (strcmp(compound_op, "bitand") == 0 ||
+                 strcmp(compound_op, "bitor") == 0 ||
+                 strcmp(compound_op, "bitxor") == 0) bitwise = true;
         else return true;
     }
     const char *arithmetic = floating ?
         (strcmp(target_kind, "double") == 0 || strcmp(rhs_kind, "double") == 0 ? "f64" : "f32") :
-        rust_integral_promotion_type(target_kind, rhs_kind, compound_op);
+        rust_integral_promotion_type(target_kind, bitwise ? "int32" : rhs_kind, compound_op);
     const char *arithmetic_kind = floating ?
         (strcmp(arithmetic, "f64") == 0 ? "double" : "float") :
         (strcmp(arithmetic, "u64") == 0 ? "uint" :
          strcmp(arithmetic, "i64") == 0 ? "int" :
          strcmp(arithmetic, "u32") == 0 ? "uint32" : "int32");
-    const char *comparison = floating || rust_numeric_floating_kind(right_kind) ?
-        (strcmp(arithmetic_kind, "double") == 0 || strcmp(right_kind, "double") == 0 ? "f64" : "f32") :
-        rust_integral_promotion_type(arithmetic_kind, right_kind, op);
+    const char *comparison_left = bitwise ? rhs_kind : arithmetic_kind;
+    const char *comparison = rust_numeric_floating_kind(comparison_left) || rust_numeric_floating_kind(right_kind) ?
+        (strcmp(comparison_left, "double") == 0 || strcmp(right_kind, "double") == 0 ? "f64" : "f32") :
+        rust_integral_promotion_type(comparison_left, right_kind, op);
     json_object *rhs = NULL, *other = NULL;
     if (json_object_deep_copy(value, &rhs, NULL) != 0 ||
         json_object_deep_copy(right, &other, NULL) != 0)
@@ -83,6 +91,9 @@ static bool rust_lower_compound_comparisons(json_object *model, json_object *nod
     json_object_object_add(node, "rust_compound_compare_other", other);
     json_object_object_add(node, "rust_compound_compare_arithmetic", json_object_new_string(arithmetic));
     json_object_object_add(node, "rust_compound_compare_common", json_object_new_string(comparison));
+    json_object_object_add(node, "rust_compound_compare_rhs_type",
+        json_object_new_string(shift ? "u32" : arithmetic));
+    json_object_object_add(node, "rust_compound_compare_bitwise", json_object_new_boolean(bitwise));
     if (method)
         json_object_object_add(node, "rust_compound_compare_method", json_object_new_string(method));
     json_object_object_add(node, "rust_compound_compare_storage",

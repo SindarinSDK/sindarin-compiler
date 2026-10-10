@@ -1322,6 +1322,18 @@ static bool rust_validate_closure_cell_mutation(json_object *expr)
         return rust_validate_capture_floating_compound(expr, place, rhs);
     const char *op = compound ? json_string_property(expr, "op") :
         (json_string_property_equals(expr, "kind", "increment") ? "add" : "subtract");
+    if (compound && rust_integer_type(kind) && op &&
+        (strcmp(op, "bitand") == 0 || strcmp(op, "bitor") == 0 ||
+         strcmp(op, "bitxor") == 0 || strcmp(op, "shl") == 0 || strcmp(op, "shr") == 0))
+    {
+        if (!rust_closure_same_type(type, rust_closure_property(rhs, "type")))
+            return rust_closure_error("mixed-type shared scalar mutation");
+        json_object_object_add(expr, "rust_cell_bitwise", json_object_new_boolean(true));
+        if (strcmp(op, "shl") == 0 || strcmp(op, "shr") == 0)
+            json_object_object_add(expr, "rust_cell_shift_method",
+                json_object_new_string(strcmp(op, "shl") == 0 ? "wrapping_shl" : "wrapping_shr"));
+        return rust_validate_expr(place) && rust_validate_expr(rhs);
+    }
     const char *method = NULL, *error_name = NULL;
     if (op && strcmp(op, "add") == 0) { method = "checked_add"; error_name = "addition"; }
     else if (op && strcmp(op, "subtract") == 0) { method = "checked_sub"; error_name = "subtraction"; }

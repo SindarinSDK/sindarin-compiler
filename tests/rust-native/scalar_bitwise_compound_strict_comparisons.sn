@@ -1,0 +1,16 @@
+fn main(): void =>
+  var value: int = 3
+  println((value &= 2) < 3)
+  println(value)
+  value = 4
+  println((value |= 2) > 4)
+  println(value)
+  value = 3
+  println((value ^= 2) < 0)
+  println(value)
+  value = 1
+  println((value <<= 2) < 5)
+  println(value)
+  value = 8
+  println((value >>= 2) > 3)
+  println(value)

@@ -1,0 +1,556 @@
+{
+  "base_revision": "e8d569901dd9c2966b4dec4050dd4fcf7383a06f",
+  "compiler_sha256": "c6f35f8bd7af444ad1e0614d208011f0e7bc49e83ee5fe021469762519c822da",
+  "implementation": "Preserve raw C precedence, integral promotions and truthiness for bitwise/shift compound comparisons, and admit captured/reference scalar bitwise operations with byte shift promotion. Checked strict helper boundaries and calling lambda parameter isolation are preserved.",
+  "counts": {
+    "c": {
+      "passed": 3240,
+      "failed": 0,
+      "skipped": 0
+    },
+    "rust": {
+      "passed": 1097,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "numeric_pairs": 207,
+  "numeric_report": {
+    "path": ".sn/rust-parity-float-conversions.json",
+    "sha256": "c5bba16aa15d94977e58972385c8fe3063bbd5637f80720787e8ec3e3c3d650d"
+  },
+  "independent_compound_comparison_oracles": 54,
+  "ci_helper_tests": 22,
+  "strict_native_inventory": 393,
+  "sanitizers": {
+    "compiler_sha256": "c6f35f8bd7af444ad1e0614d208011f0e7bc49e83ee5fe021469762519c822da",
+    "environment": {
+      "SN_CC": "gcc",
+      "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1"
+    },
+    "cases": [
+      {
+        "source": "tests/rust-native/scalar_bitwise_compound_comparisons.sn",
+        "source_sha256": "e98afb0031b917e9a4e4b065dd57de50ae556440fd6aa3321d6a23d814603c34",
+        "target": "c",
+        "flags": [
+          "-O0"
+        ],
+        "compile_status": 0,
+        "run_status": 0,
+        "stdout_hex": "747275650a310a747275650a350a747275650a320a66616c73650a300a66616c73650a300a747275650a340a747275650a310a747275650a310a66616c73650a300a747275650a307830310a747275650a307830310a747275650a310a747275650a350a747275650a310a747275650a310a747275650a320a747275650a310a310a747275650a310a747275650a350a747275650a320a320a340a320a300a330a747275650a310a747275650a350a747275650a310a747275650a320a747275650a350a747275650a320a747275650a350a307830300a307830340a307830320a747275650a320a747275650a",
+        "stderr_hex": "",
+        "passed": true
+      },
+      {
+        "source": "tests/rust-native/scalar_bitwise_compound_comparisons.sn",
+        "source_sha256": "e98afb0031b917e9a4e4b065dd57de50ae556440fd6aa3321d6a23d814603c34",
+        "target": "c",
+        "flags": [
+          "-O1"
+        ],
+        "compile_status": 0,
+        "run_status": 0,
+        "stdout_hex": "747275650a310a747275650a350a747275650a320a66616c73650a300a66616c73650a300a747275650a340a747275650a310a747275650a310a66616c73650a300a747275650a307830310a747275650a307830310a747275650a310a747275650a350a747275650a310a747275650a310a747275650a320a747275650a310a310a747275650a310a747275650a350a747275650a320a320a340a320a300a330a747275650a310a747275650a350a747275650a310a747275650a320a747275650a350a747275650a320a747275650a350a307830300a307830340a307830320a747275650a320a747275650a",
+        "stderr_hex": "",
+        "passed": true
+      },
+      {
+        "source": "tests/rust-native/scalar_bitwise_compound_comparisons.sn",
+        "source_sha256": "e98afb0031b917e9a4e4b065dd57de50ae556440fd6aa3321d6a23d814603c34",
+        "target": "c",
+        "flags": [
+          "-O2"
+        ],
+        "compile_status": 0,
+        "run_status": 0,
+        "stdout_hex": "747275650a310a747275650a350a747275650a320a66616c73650a300a66616c73650a300a747275650a340a747275650a310a747275650a310a66616c73650a300a747275650a307830310a747275650a307830310a747275650a310a747275650a350a747275650a310a747275650a310a747275650a320a747275650a310a310a747275650a310a747275650a350a747275650a320a320a340a320a300a330a747275650a310a747275650a350a747275650a310a747275650a320a747275650a350a747275650a320a747275650a350a307830300a307830340a307830320a747275650a320a747275650a",
+        "stderr_hex": "",
+        "passed": true
+      },
+      {
+        "source": "tests/rust-native/scalar_bitwise_compound_comparisons.sn",
+        "source_sha256": "e98afb0031b917e9a4e4b065dd57de50ae556440fd6aa3321d6a23d814603c34",
+        "target": "c",
+        "flags": [
+          "-O0",
+          "-g"
+        ],
+        "compile_status": 0,
+        "run_status": 0,
+        "stdout_hex": "747275650a310a747275650a350a747275650a320a66616c73650a300a66616c73650a300a747275650a340a747275650a310a747275650a310a66616c73650a300a747275650a307830310a747275650a307830310a747275650a310a747275650a350a747275650a310a747275650a310a747275650a320a747275650a310a310a747275650a310a747275650a350a747275650a320a320a340a320a300a330a747275650a310a747275650a350a747275650a310a747275650a320a747275650a350a747275650a320a747275650a350a307830300a307830340a307830320a747275650a320a747275650a",
+        "stderr_hex": "",
+        "passed": true
+      },
+      {
+        "source": "tests/rust-native/scalar_bitwise_compound_comparisons.sn",
+        "source_sha256": "e98afb0031b917e9a4e4b065dd57de50ae556440fd6aa3321d6a23d814603c34",
+        "target": "rust",
+        "flags": [
+          "-O0"
+        ],
+        "compile_status": 0,
+        "run_status": 0,
+        "stdout_hex": "747275650a310a747275650a350a747275650a320a66616c73650a300a66616c73650a300a747275650a340a747275650a310a747275650a310a66616c73650a300a747275650a307830310a747275650a307830310a747275650a310a747275650a350a747275650a310a747275650a310a747275650a320a747275650a310a310a747275650a310a747275650a350a747275650a320a320a340a320a300a330a747275650a310a747275650a350a747275650a310a747275650a320a747275650a350a747275650a320a747275650a350a307830300a307830340a307830320a747275650a320a747275650a",
+        "stderr_hex": "",
+        "passed": true
+      },
+      {
+        "source": "tests/rust-native/scalar_bitwise_compound_comparisons.sn",
+        "source_sha256": "e98afb0031b917e9a4e4b065dd57de50ae556440fd6aa3321d6a23d814603c34",
+        "target": "rust",
+        "flags": [
+          "-O1"
+        ],
+        "compile_status": 0,
+        "run_status": 0,
+        "stdout_hex": "747275650a310a747275650a350a747275650a320a66616c73650a300a66616c73650a300a747275650a340a747275650a310a747275650a310a66616c73650a300a747275650a307830310a747275650a307830310a747275650a310a747275650a350a747275650a310a747275650a310a747275650a320a747275650a310a310a747275650a310a747275650a350a747275650a320a320a340a320a300a330a747275650a310a747275650a350a747275650a310a747275650a320a747275650a350a747275650a320a747275650a350a307830300a307830340a307830320a747275650a320a747275650a",
+        "stderr_hex": "",
+        "passed": true
+      },
+      {
+        "source": "tests/rust-native/scalar_bitwise_compound_comparisons.sn",
+        "source_sha256": "e98afb0031b917e9a4e4b065dd57de50ae556440fd6aa3321d6a23d814603c34",
+        "target": "rust",
+        "flags": [
+          "-O2"
+        ],
+        "compile_status": 0,
+        "run_status": 0,
+        "stdout_hex": "747275650a310a747275650a350a747275650a320a66616c73650a300a66616c73650a300a747275650a340a747275650a310a747275650a310a66616c73650a300a747275650a307830310a747275650a307830310a747275650a310a747275650a350a747275650a310a747275650a310a747275650a320a747275650a310a310a747275650a310a747275650a350a747275650a320a320a340a320a300a330a747275650a310a747275650a350a747275650a310a747275650a320a747275650a350a747275650a320a747275650a350a307830300a307830340a307830320a747275650a320a747275650a",
+        "stderr_hex": "",
+        "passed": true
+      },
+      {
+        "source": "tests/rust-native/scalar_bitwise_compound_comparisons.sn",
+        "source_sha256": "e98afb0031b917e9a4e4b065dd57de50ae556440fd6aa3321d6a23d814603c34",
+        "target": "rust",
+        "flags": [
+          "-O0",
+          "-g"
+        ],
+        "compile_status": 0,
+        "run_status": 0,
+        "stdout_hex": "747275650a310a747275650a350a747275650a320a66616c73650a300a66616c73650a300a747275650a340a747275650a310a747275650a310a66616c73650a300a747275650a307830310a747275650a307830310a747275650a310a747275650a350a747275650a310a747275650a310a747275650a320a747275650a310a310a747275650a310a747275650a350a747275650a320a320a340a320a300a330a747275650a310a747275650a350a747275650a310a747275650a320a747275650a350a747275650a320a747275650a350a307830300a307830340a307830320a747275650a320a747275650a",
+        "stderr_hex": "",
+        "passed": true
+      },
+      {
+        "source": "tests/rust-native/scalar_bitwise_compound_strict_comparisons.sn",
+        "source_sha256": "af570c826ece26ac28f2ecd8d757cd326b2969a4099b4728dd8315268db4ec20",
+        "target": "c",
+        "flags": [
+          "-O0"
+        ],
+        "compile_status": 0,
+        "run_status": 0,
+        "stdout_hex": "747275650a320a747275650a360a66616c73650a310a747275650a340a66616c73650a320a",
+        "stderr_hex": "",
+        "passed": true
+      },
+      {
+        "source": "tests/rust-native/scalar_bitwise_compound_strict_comparisons.sn",
+        "source_sha256": "af570c826ece26ac28f2ecd8d757cd326b2969a4099b4728dd8315268db4ec20",
+        "target": "c",
+        "flags": [
+          "-O1"
+        ],
+        "compile_status": 0,
+        "run_status": 0,
+        "stdout_hex": "747275650a320a747275650a360a66616c73650a310a747275650a340a66616c73650a320a",
+        "stderr_hex": "",
+        "passed": true
+      },
+      {
+        "source": "tests/rust-native/scalar_bitwise_compound_strict_comparisons.sn",
+        "source_sha256": "af570c826ece26ac28f2ecd8d757cd326b2969a4099b4728dd8315268db4ec20",
+        "target": "c",
+        "flags": [
+          "-O2"
+        ],
+        "compile_status": 0,
+        "run_status": 0,
+        "stdout_hex": "747275650a310a747275650a340a747275650a330a747275650a310a66616c73650a300a",
+        "stderr_hex": "",
+        "passed": true
+      },
+      {
+        "source": "tests/rust-native/scalar_bitwise_compound_strict_comparisons.sn",
+        "source_sha256": "af570c826ece26ac28f2ecd8d757cd326b2969a4099b4728dd8315268db4ec20",
+        "target": "c",
+        "flags": [
+          "-O0",
+          "-g"
+        ],
+        "compile_status": 0,
+        "run_status": 0,
+        "stdout_hex": "747275650a320a747275650a360a66616c73650a310a747275650a340a66616c73650a320a",
+        "stderr_hex": "",
+        "passed": true
+      },
+      {
+        "source": "tests/rust-native/scalar_bitwise_compound_strict_comparisons.sn",
+        "source_sha256": "af570c826ece26ac28f2ecd8d757cd326b2969a4099b4728dd8315268db4ec20",
+        "target": "rust",
+        "flags": [
+          "-O0"
+        ],
+        "compile_status": 0,
+        "run_status": 0,
+        "stdout_hex": "747275650a320a747275650a360a66616c73650a310a747275650a340a66616c73650a320a",
+        "stderr_hex": "",
+        "passed": true
+      },
+      {
+        "source": "tests/rust-native/scalar_bitwise_compound_strict_comparisons.sn",
+        "source_sha256": "af570c826ece26ac28f2ecd8d757cd326b2969a4099b4728dd8315268db4ec20",
+        "target": "rust",
+        "flags": [
+          "-O1"
+        ],
+        "compile_status": 0,
+        "run_status": 0,
+        "stdout_hex": "747275650a320a747275650a360a66616c73650a310a747275650a340a66616c73650a320a",
+        "stderr_hex": "",
+        "passed": true
+      },
+      {
+        "source": "tests/rust-native/scalar_bitwise_compound_strict_comparisons.sn",
+        "source_sha256": "af570c826ece26ac28f2ecd8d757cd326b2969a4099b4728dd8315268db4ec20",
+        "target": "rust",
+        "flags": [
+          "-O2"
+        ],
+        "compile_status": 0,
+        "run_status": 0,
+        "stdout_hex": "747275650a310a747275650a340a747275650a330a747275650a310a66616c73650a300a",
+        "stderr_hex": "",
+        "passed": true
+      },
+      {
+        "source": "tests/rust-native/scalar_bitwise_compound_strict_comparisons.sn",
+        "source_sha256": "af570c826ece26ac28f2ecd8d757cd326b2969a4099b4728dd8315268db4ec20",
+        "target": "rust",
+        "flags": [
+          "-O0",
+          "-g"
+        ],
+        "compile_status": 0,
+        "run_status": 0,
+        "stdout_hex": "747275650a320a747275650a360a66616c73650a310a747275650a340a66616c73650a320a",
+        "stderr_hex": "",
+        "passed": true
+      }
+    ],
+    "passed": true
+  },
+  "original_contract_preservation": {
+    "original_source_inventory": 1365,
+    "original_source_hashes_matching": 1364,
+    "unchanged_historical_source_deviation": [
+      "tests/exploratory/test_limitation_closure_array.sn"
+    ],
+    "original_output_oracles": 1155,
+    "original_output_oracle_changes": [],
+    "tracked_source_oracle_or_snapshot_changes": []
+  },
+  "source_sha256": {
+    "Makefile": "d2ac35a974e07a8b037374c7a5e7c59168bda20b27342b0298e05d9cdb4859fd",
+    "scripts/check_compound_comparison_oracles.py": "686eee959dc481ec9248b096c542cfe3d35c42e70c43c612d31b78f4b2b4ce9d",
+    "scripts/ci/gates.json": "cf3e131056b87bac16c699a68153f7ec2a5c4c975ad2e7f3b24d2100caed2365",
+    "src/target/rust/rust_compound_comparisons.c": "5e2d8927670ffd319174a0dd0cd5a386e8ce2ad1a1292da251183546d3ce454b",
+    "src/target/rust/rust_validate_closures.c": "ddd72a3f86cb9a3023e4f5503b73c23aa028b0246e21c1d6235a5ab8690e0b95",
+    "templates/rust/partials/expr/compound_assign.hbs": "181247d60391957baa19d70b630f5075cd7655a49400f3079061af2405c74960",
+    "templates/rust/partials/expr/rust_compound_compare.hbs": "aa160e815d0f8b994d60fe19a3c08916f63b5b7e89f1f4501513f2e6dfb9cc9b",
+    "templates/rust/partials/expr/rust_cell_bitwise.hbs": "42ace77b1952be811aaad1452ac147c0bb1210ba4678606ac35a5b7dfd429e5e",
+    "tests/ci/test_compound_comparison_oracles.py": "7956aaaf38fc3952b46e4e30151b12a2ee0cd7d902e9db1f62885e11fc0f0b0a",
+    "tests/rust-native/scalar_bitwise_compound_comparisons.abi-matrix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests/rust-native/scalar_bitwise_compound_comparisons.expected": "7d6857ebdde24d3da67a2c4f92d2e71ad1a27e3359256d2b0f4acfe369d9fd4f",
+    "tests/rust-native/scalar_bitwise_compound_comparisons.sn": "e98afb0031b917e9a4e4b065dd57de50ae556440fd6aa3321d6a23d814603c34",
+    "tests/rust-native/scalar_bitwise_compound_strict_comparisons.c-parity": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests/rust-native/scalar_bitwise_compound_strict_comparisons.expected": "2dd58807e9610a8e0dce267518127ad05696a085447d0f2e0b960659d01094d9",
+    "tests/rust-native/scalar_bitwise_compound_strict_comparisons.sn": "af570c826ece26ac28f2ecd8d757cd326b2969a4099b4728dd8315268db4ec20"
+  },
+  "log_sha256": {
+    "/tmp/sindarin-bitwise-c.log": "cffd99b25ee757210270c19ae972f1ed63701247e9a5c8d39530bbd601473122",
+    "/tmp/sindarin-bitwise-rust.log": "20ed139481b0a84a6186a52d2792e6f17f7a8a7fbb72c298cbe79f92790f1231",
+    "/tmp/sindarin-bitwise-matrix.log": "e7a011cd9f637b6424259ee40f93d841eec84b4aa1ca49cb3db4f878902f860d",
+    "/tmp/sindarin-bitwise-sanitizers.log": "872a2654e08cf06f67495ad5abc792fd900cd140d509f869b36d5d7d3ed4df9e",
+    "/tmp/sindarin-bitwise-ci-helpers.log": "72e0f3b7991f17dd0c0f5b25083cdac2a23d359bb9736b055138a49d08c18dff"
+  },
+  "before": {
+    "source_sha256": "88806d1d06766e9461a3ad4ed8f8b469d97587fb308df8b5459ab4301348e1e3",
+    "compiler_sha256": "25a789f443f1ce9a5df0c31efa440480821b38d0aad3f72385859968a5de86af",
+    "cases": [
+      {
+        "optimization": "-O0",
+        "arithmetic_mode": "default",
+        "passed": false,
+        "targets": {
+          "c": {
+            "compile_status": 0,
+            "run": {
+              "command": [
+                "/tmp/sn-differential-1_m3huyv/case-0--O0-default-c.exe"
+              ],
+              "status": 0,
+              "stdout_hex": "747275650a310a747275650a350a747275650a320a747275650a310a747275650a310a",
+              "stderr_hex": ""
+            }
+          },
+          "rust": {
+            "compile_status": 0,
+            "run": {
+              "command": [
+                "/tmp/sn-differential-1_m3huyv/case-0--O0-default-rust.exe"
+              ],
+              "status": 0,
+              "stdout_hex": "747275650a320a66616c73650a360a66616c73650a310a747275650a340a747275650a2d320a",
+              "stderr_hex": ""
+            }
+          }
+        }
+      },
+      {
+        "optimization": "-O1",
+        "arithmetic_mode": "default",
+        "passed": false,
+        "targets": {
+          "c": {
+            "compile_status": 0,
+            "run": {
+              "command": [
+                "/tmp/sn-differential-1_m3huyv/case-0--O1-default-c.exe"
+              ],
+              "status": 0,
+              "stdout_hex": "747275650a310a747275650a350a747275650a320a747275650a310a747275650a310a",
+              "stderr_hex": ""
+            }
+          },
+          "rust": {
+            "compile_status": 0,
+            "run": {
+              "command": [
+                "/tmp/sn-differential-1_m3huyv/case-0--O1-default-rust.exe"
+              ],
+              "status": 0,
+              "stdout_hex": "747275650a320a66616c73650a360a66616c73650a310a747275650a340a747275650a2d320a",
+              "stderr_hex": ""
+            }
+          }
+        }
+      },
+      {
+        "optimization": "-O2",
+        "arithmetic_mode": "default",
+        "passed": false,
+        "targets": {
+          "c": {
+            "compile_status": 0,
+            "run": {
+              "command": [
+                "/tmp/sn-differential-1_m3huyv/case-0--O2-default-c.exe"
+              ],
+              "status": 0,
+              "stdout_hex": "747275650a310a747275650a350a747275650a320a747275650a310a747275650a310a",
+              "stderr_hex": ""
+            }
+          },
+          "rust": {
+            "compile_status": 0,
+            "run": {
+              "command": [
+                "/tmp/sn-differential-1_m3huyv/case-0--O2-default-rust.exe"
+              ],
+              "status": 0,
+              "stdout_hex": "747275650a320a66616c73650a360a66616c73650a310a747275650a340a747275650a2d320a",
+              "stderr_hex": ""
+            }
+          }
+        }
+      },
+      {
+        "optimization": "-O0",
+        "arithmetic_mode": "checked",
+        "passed": false,
+        "targets": {
+          "c": {
+            "compile_status": 0,
+            "run": {
+              "command": [
+                "/tmp/sn-differential-1_m3huyv/case-0--O0-checked-c.exe"
+              ],
+              "status": 0,
+              "stdout_hex": "747275650a310a747275650a350a747275650a320a747275650a310a747275650a310a",
+              "stderr_hex": ""
+            }
+          },
+          "rust": {
+            "compile_status": 0,
+            "run": {
+              "command": [
+                "/tmp/sn-differential-1_m3huyv/case-0--O0-checked-rust.exe"
+              ],
+              "status": 0,
+              "stdout_hex": "747275650a320a66616c73650a360a66616c73650a310a747275650a340a747275650a2d320a",
+              "stderr_hex": ""
+            }
+          }
+        }
+      },
+      {
+        "optimization": "-O1",
+        "arithmetic_mode": "checked",
+        "passed": false,
+        "targets": {
+          "c": {
+            "compile_status": 0,
+            "run": {
+              "command": [
+                "/tmp/sn-differential-1_m3huyv/case-0--O1-checked-c.exe"
+              ],
+              "status": 0,
+              "stdout_hex": "747275650a310a747275650a350a747275650a320a747275650a310a747275650a310a",
+              "stderr_hex": ""
+            }
+          },
+          "rust": {
+            "compile_status": 0,
+            "run": {
+              "command": [
+                "/tmp/sn-differential-1_m3huyv/case-0--O1-checked-rust.exe"
+              ],
+              "status": 0,
+              "stdout_hex": "747275650a320a66616c73650a360a66616c73650a310a747275650a340a747275650a2d320a",
+              "stderr_hex": ""
+            }
+          }
+        }
+      },
+      {
+        "optimization": "-O2",
+        "arithmetic_mode": "checked",
+        "passed": false,
+        "targets": {
+          "c": {
+            "compile_status": 0,
+            "run": {
+              "command": [
+                "/tmp/sn-differential-1_m3huyv/case-0--O2-checked-c.exe"
+              ],
+              "status": 0,
+              "stdout_hex": "747275650a310a747275650a350a747275650a320a747275650a310a747275650a310a",
+              "stderr_hex": ""
+            }
+          },
+          "rust": {
+            "compile_status": 0,
+            "run": {
+              "command": [
+                "/tmp/sn-differential-1_m3huyv/case-0--O2-checked-rust.exe"
+              ],
+              "status": 0,
+              "stdout_hex": "747275650a320a66616c73650a360a66616c73650a310a747275650a340a747275650a2d320a",
+              "stderr_hex": ""
+            }
+          }
+        }
+      },
+      {
+        "optimization": "-O0",
+        "arithmetic_mode": "unchecked",
+        "passed": false,
+        "targets": {
+          "c": {
+            "compile_status": 0,
+            "run": {
+              "command": [
+                "/tmp/sn-differential-1_m3huyv/case-0--O0-unchecked-c.exe"
+              ],
+              "status": 0,
+              "stdout_hex": "747275650a310a747275650a350a747275650a320a747275650a310a747275650a310a",
+              "stderr_hex": ""
+            }
+          },
+          "rust": {
+            "compile_status": 0,
+            "run": {
+              "command": [
+                "/tmp/sn-differential-1_m3huyv/case-0--O0-unchecked-rust.exe"
+              ],
+              "status": 0,
+              "stdout_hex": "747275650a320a66616c73650a360a66616c73650a310a747275650a340a747275650a2d320a",
+              "stderr_hex": ""
+            }
+          }
+        }
+      },
+      {
+        "optimization": "-O1",
+        "arithmetic_mode": "unchecked",
+        "passed": false,
+        "targets": {
+          "c": {
+            "compile_status": 0,
+            "run": {
+              "command": [
+                "/tmp/sn-differential-1_m3huyv/case-0--O1-unchecked-c.exe"
+              ],
+              "status": 0,
+              "stdout_hex": "747275650a310a747275650a350a747275650a320a747275650a310a747275650a310a",
+              "stderr_hex": ""
+            }
+          },
+          "rust": {
+            "compile_status": 0,
+            "run": {
+              "command": [
+                "/tmp/sn-differential-1_m3huyv/case-0--O1-unchecked-rust.exe"
+              ],
+              "status": 0,
+              "stdout_hex": "747275650a320a66616c73650a360a66616c73650a310a747275650a340a747275650a2d320a",
+              "stderr_hex": ""
+            }
+          }
+        }
+      },
+      {
+        "optimization": "-O2",
+        "arithmetic_mode": "unchecked",
+        "passed": false,
+        "targets": {
+          "c": {
+            "compile_status": 0,
+            "run": {
+              "command": [
+                "/tmp/sn-differential-1_m3huyv/case-0--O2-unchecked-c.exe"
+              ],
+              "status": 0,
+              "stdout_hex": "747275650a310a747275650a350a747275650a320a747275650a310a747275650a310a",
+              "stderr_hex": ""
+            }
+          },
+          "rust": {
+            "compile_status": 0,
+            "run": {
+              "command": [
+                "/tmp/sn-differential-1_m3huyv/case-0--O2-unchecked-rust.exe"
+              ],
+              "status": 0,
+              "stdout_hex": "747275650a320a66616c73650a360a66616c73650a310a747275650a340a747275650a2d320a",
+              "stderr_hex": ""
+            }
+          }
+        }
+      }
+    ]
+  },
+  "scope_limitations": [
+    "C-undefined signed left-shift overflow, invalid shift counts, and invalid arithmetic receive no parity credit.",
+    "Mixed-type captured scalar mutation outside supported comparison contracts remains an existing restriction.",
+    "Complete original-corpus independent-oracle/platform acceptance and package/SDK migration remain required."
+  ],
+  "hosted_acceptance": "Locally validated feature batch; requires complete Linux/macOS/Windows acceptance. Independent of ABI 1.4 pending run 38089634563; the shared integral comparison prerequisite was accepted in run 38086642421."
+}

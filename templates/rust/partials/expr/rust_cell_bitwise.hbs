@@ -1,0 +1,1 @@
+{{#if rust_cell_shift_method}}{{#if (eq target.type.kind "byte")}}(__sn_previous as i32).{{rust_cell_shift_method}}(__sn_rhs as u32) as u8{{else}}__sn_previous.{{rust_cell_shift_method}}(__sn_rhs as u32){{/if}}{{else}}__sn_previous {{op_symbol op}} __sn_rhs{{/if}}{{~!-- trim EOF --~}}

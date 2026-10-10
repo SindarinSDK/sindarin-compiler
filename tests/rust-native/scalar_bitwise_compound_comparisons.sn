@@ -1,0 +1,155 @@
+@source "../integration/test_native_ref_return_evaluation_helper.c"
+
+var globalNumber: int32 = 4
+
+native struct Token as ref =>
+  id: int
+  @alias "token_dispose"
+  native fn dispose(): void
+  @alias "token_create"
+  native static fn create(id: int): Token
+  @alias "token_live"
+  native static fn live(): int
+
+struct Number =>
+  value: int
+
+struct ReferenceNumber as ref =>
+  value: int
+
+fn amount(): int =>
+  return 2
+
+fn other(calls: int as ref): int =>
+  calls++
+  return 2
+
+fn reference(value: int as ref): bool =>
+  return (value &= 2) == 2
+
+fn nativeComparison(): void =>
+  var token: Token = Token.create(3)
+  var alias = token
+  println((token.id ^= 2) == 2)
+  println(alias.id)
+
+fn main(): void =>
+  var value: int = 3
+  println((value &= 2) == 2)
+  println(value)
+  value = 4
+  println((value |= 2) == 2)
+  println(value)
+  value = 3
+  println((value ^= 2) == 2)
+  println(value)
+  value = 1
+  println((value ^= 2) == 2)
+  println(value)
+  value = 3
+  println((value &= 2) != 2)
+  println(value)
+  value = 4
+  println((value |= 2) <= 1)
+  println(value)
+  value = 1
+  println((value <<= 2) == 4)
+  println(value)
+  value = -8
+  println((value >>= 2) == -2)
+  println(value)
+  value = 8
+  println((value >>= 2) >= 3)
+  println(value)
+  var narrow: byte = 128
+  var one: byte = 1
+  println((narrow <<= one) == 256)
+  println(narrow)
+  narrow = 255
+  println((narrow &= one) == 1)
+  println(narrow)
+  var unsigned: uint32 = 2147483648
+  var count: uint32 = 1
+  println((unsigned <<= count) == 0)
+  println(unsigned)
+  unsigned = 4
+  println((unsigned |= count) == 1)
+  println(unsigned)
+  var signed: int32 = -1
+  println((signed &= count) == 1)
+  println(signed)
+  var wide: uint = 0
+  var increment: uint = 1
+  wide -= increment
+  println((wide >>= increment) == 9223372036854775807)
+  println(wide)
+  value = 3
+  println((value ^= 2) == 2.0)
+  println(value)
+  var calls: int = 0
+  value = 3
+  println((value &= amount()) == other(calls))
+  println(value)
+  println(calls)
+  var localReference: int = 3
+  println(reference(localReference))
+  println(localReference)
+  var fields: Number = { value: 4 }
+  println((fields.value |= 2) == 2)
+  println(fields.value)
+  var values: int[] = {3}
+  println((values[0] ^= 2) == 2)
+  println(values[0])
+  var captured: int = 3
+  var action = fn(): bool =>
+    return (captured &= 2) == 2
+  var direct = fn(): void =>
+    captured &= 2
+    println(captured)
+    captured = 1
+    captured <<= 2
+    println(captured)
+    captured >>= 1
+    println(captured)
+    captured ^= 2
+    println(captured)
+    captured |= 3
+    println(captured)
+  direct()
+  println(action())
+  println(captured)
+  println((globalNumber |= 2) == 2)
+  println(globalNumber)
+  var plain = fn(value: int): int =>
+    println((value &= 2) == 2)
+    return value
+  println(plain(3))
+  var isolated = fn(value: int): int =>
+    println((value &= amount()) == 2)
+    return value
+  println(isolated(3))
+  sync var synchronized: int = 4
+  println((synchronized |= 2) == 2)
+  println(synchronized)
+  var record: ReferenceNumber = { value: 3 }
+  var recordAlias = record
+  var records: ReferenceNumber[] = {record}
+  println((records[0].value ^= 2) == 2)
+  println(recordAlias.value)
+  var __sn_compound_compare_old: int = 4
+  var __sn_compound_compare_rhs: int = 2
+  var __sn_compound_compare_result: int = 2
+  println((__sn_compound_compare_old |= __sn_compound_compare_rhs) == __sn_compound_compare_result)
+  println(__sn_compound_compare_old)
+  var capturedByte: byte = 1b
+  var byteAction = fn(): void =>
+    capturedByte <<= 8b
+    println(capturedByte)
+    capturedByte = 1b
+    capturedByte <<= 2b
+    println(capturedByte)
+    capturedByte >>= 1b
+    println(capturedByte)
+  byteAction()
+  nativeComparison()
+  println(Token.live() == 0)

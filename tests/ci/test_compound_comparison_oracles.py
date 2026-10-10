@@ -31,8 +31,12 @@ class CompoundComparisonOracleTests(unittest.TestCase):
             for (mode, optimization), strict_output in strict.items():
                 if source == checker.RAW:
                     output = raw
-                elif source == checker.INTEGRAL:
+                elif source in (checker.INTEGRAL, checker.BITWISE):
                     output = (ROOT / source).with_suffix('.expected').read_text().encode()
+                elif source == checker.BITWISE_STRICT:
+                    output = (b'true\n1\ntrue\n4\ntrue\n3\ntrue\n1\nfalse\n0\n' if mode == 'unchecked' or
+                              (mode == 'default' and optimization == '-O2') else
+                              b'true\n2\ntrue\n6\nfalse\n1\ntrue\n4\nfalse\n2\n')
                 elif source == checker.INTEGRAL_STRICT:
                     output = (b'true\n1\nfalse\n0\n' if mode == 'unchecked' or
                               (mode == 'default' and optimization == '-O2') else
