@@ -7,6 +7,46 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Corrected integrated main: hosted acceptance, 2026-10-10
+
+Main `25c69e5b` passes all 34 jobs in
+[complete unified CI 38082597871](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38082597871).
+The retained summary verifies 26 groups and 292 gate executions with one compiler
+per Linux/macOS/Windows platform. This accepts the integrated mixed floating
+compound arithmetic/comparisons, ABI 1.3 managed-array replacement and Windows
+fixture-path correction, superseding their earlier pending and failed runs.
+The feature publication freeze is lifted. Whole-corpus, mutable body adapters,
+independent SDK migration and wider language/package acceptance remain required.
+
+Evidence: [corrected main acceptance](rust-parity-evidence/corrected-integrated-main-ci-green.json).
+
+## Integral compound comparisons: local validation, 2026-10-10
+
+Rust now preserves the raw C comparison/store behaviour for arithmetic compound
+assignments with integral operands. C integer promotions apply before comparison;
+unsigned arithmetic wraps at the promoted width, and the comparison boolean is
+stored in the declared target. Checked strict comparisons retain their helper
+argument boundary. Lambda value parameters with calling right-hand sides retain
+their isolated update. Controls cover arithmetic operators, byte promotion,
+mixed signed/unsigned widths, floating comparisons, fields/indexes, reference and
+native-resource aliases, captures, synchronized variables and helper collisions.
+
+Complete local suites pass 3,240 C and 1,095 Rust checks with no failures/skips.
+The expanded numeric gate passes 189 C/Rust pairs and 36 independent exact-output
+oracles across O0/O1/O2 and default/checked/unchecked modes. Twenty CI helpers and
+eight C/Rust native address/undefined/leak sanitizer controls pass. Existing Rust
+snapshots and tracked original programs/oracles are unchanged; all 1,155 original
+output oracles match the tag. The known historical closure-array source deviation
+predates this batch and is unchanged; the earlier original-source staging remains
+required for that program's audit.
+
+Corrected integrated main is accepted; this validated batch is ready for publication.
+Bitwise compound contexts require different C precedence lowering and remain
+work. C-undefined arithmetic is not credited, and complete original-corpus,
+package/SDK and platform acceptance remain required.
+
+Evidence: [integral comparisons](rust-parity-evidence/integral-compound-comparison-validation.json).
+
 ## Windows comparison report correction: local validation, 2026-10-10
 
 Arithmetic implementation `aac3cae8` failed Windows numeric CI in
@@ -14,7 +54,9 @@ Arithmetic implementation `aac3cae8` failed Windows numeric CI in
 All 171 actual differential cases passed. The independent checker filtered on
 forward-slash fixture IDs, whereas Windows reports use backslashes, so it skipped
 both comparison fixtures and incorrectly reported incomplete mode coverage.
-Integrated `ee2a0ffd` contains the same checker blob and requires this correction.
+Integrated `ee2a0ffd` failed
+[run 38081916057](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38081916057)
+with the same checker blob and the same Windows path-selection failure.
 
 The checker now normalizes only fixture identifiers. Source hashes, successful
 compile/exit requirements, exact raw output and complete unique mode/optimization
@@ -24,8 +66,9 @@ Linux report passes its 18 independent oracles. The complete 20-test CI helper
 suite includes focused separator, transport, missing/duplicate case, source hash,
 compile failure and stderr controls. Compiler, runtime and language fixtures are
 unchanged by this correction. Feature publication is frozen until complete
-Linux/macOS/Windows CI on corrected integrated main is green; hosted correction
-acceptance is pending publication.
+Linux/macOS/Windows CI on corrected integrated main is green. Correction
+`25c69e5b` is published; complete hosted acceptance is pending
+[run 38082597871](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38082597871).
 
 Evidence: [Windows path correction](rust-parity-evidence/windows-compound-path-correction.json).
 

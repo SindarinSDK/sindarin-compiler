@@ -27,9 +27,18 @@ class CompoundComparisonOracleTests(unittest.TestCase):
             ('unchecked', '-O2'): b'true\n1\ntrue\n1\ntrue\n1.00000\n',
         }
         cases = []
-        for source in (checker.RAW, checker.STRICT):
+        for source in checker.SOURCES:
             for (mode, optimization), strict_output in strict.items():
-                output = raw if source == checker.RAW else strict_output
+                if source == checker.RAW:
+                    output = raw
+                elif source == checker.INTEGRAL:
+                    output = (ROOT / source).with_suffix('.expected').read_text().encode()
+                elif source == checker.INTEGRAL_STRICT:
+                    output = (b'true\n1\nfalse\n0\n' if mode == 'unchecked' or
+                              (mode == 'default' and optimization == '-O2') else
+                              b'true\n3\nfalse\n3\n')
+                else:
+                    output = strict_output
                 if windows:
                     output = output.replace(b'\n', b'\r\n')
                 result = {'compile': {'status': 0}, 'run': {

@@ -484,11 +484,13 @@ test-rust-parity-float-conversions: build
 		tests/rust-native/scalar_mixed_floating_compound.sn \
 		tests/rust-native/scalar_floating_compound_comparisons.sn \
 		tests/rust-native/scalar_floating_compound_strict_comparisons.sn \
+		tests/rust-native/scalar_integral_compound_comparisons.sn \
+		tests/rust-native/scalar_integral_compound_strict_comparisons.sn \
 		tests/rgen/errors/floating_compound_mixed_float_integer.sn \
 		tests/rgen/errors/floating_compound_integer_target_double_rhs.sn \
 		tests/rgen/errors/floating_compound_integer_target_float_rhs.sn \
 		$(RUST_CONCURRENCY_C_LINK_ARGS) \
-		--require-count 19 --arithmetic-mode default --arithmetic-mode checked \
+		--require-count 21 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-float-conversions.json
 	@$(PYTHON) scripts/check_compound_comparison_oracles.py .sn/rust-parity-float-conversions.json
 

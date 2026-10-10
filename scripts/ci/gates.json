@@ -989,7 +989,7 @@
       "group": "numeric-io"
     },
     {
-      "name": "floating storage, calls and mixed mutation precision (171 positive pairs)",
+      "name": "numeric storage, calls and compound comparison precision (189 positive pairs)",
       "command": [
         "make",
         "-o",

@@ -36,15 +36,37 @@ static bool rust_lower_compound_comparisons(json_object *model, json_object *nod
     json_object_object_get_ex(left, "value", &value);
     json_object_object_get_ex(target, "type", &target_type);
     json_object_object_get_ex(value, "type", &value_type);
-    if (!rust_float_arithmetic_pair(target_type, value_type)) return true;
     const char *target_kind = json_string_property(target_type, "kind");
     const char *rhs_kind = rust_numeric_c_kind(value);
     const char *right_kind = rust_numeric_c_kind(right);
     if (!rhs_kind || !right_kind) return true;
-    const char *arithmetic = strcmp(target_kind, "double") == 0 ||
-                             strcmp(rhs_kind, "double") == 0 ? "f64" : "f32";
-    const char *comparison = strcmp(arithmetic, "f64") == 0 ||
-                             strcmp(right_kind, "double") == 0 ? "f64" : "f32";
+    bool floating = rust_float_arithmetic_pair(target_type, value_type);
+    const char *compound_op = json_string_property(left, "op");
+    const char *method = NULL;
+    if (!floating)
+    {
+        if (!rust_fixed_integral_kind(target_kind) ||
+            !rust_fixed_integral_kind(rhs_kind) || !compound_op) return true;
+        if (strcmp(compound_op, "add") == 0) method = "wrapping_add";
+        else if (strcmp(compound_op, "subtract") == 0) method = "wrapping_sub";
+        else if (strcmp(compound_op, "multiply") == 0) method = "wrapping_mul";
+        else if (strcmp(compound_op, "divide") == 0) method = "wrapping_div";
+        else if (strcmp(compound_op, "modulo") == 0) method = "wrapping_rem";
+        /* Bitwise assignments have lower precedence than comparisons in C;
+         * they require a different expression tree. */
+        else return true;
+    }
+    const char *arithmetic = floating ?
+        (strcmp(target_kind, "double") == 0 || strcmp(rhs_kind, "double") == 0 ? "f64" : "f32") :
+        rust_integral_promotion_type(target_kind, rhs_kind, compound_op);
+    const char *arithmetic_kind = floating ?
+        (strcmp(arithmetic, "f64") == 0 ? "double" : "float") :
+        (strcmp(arithmetic, "u64") == 0 ? "uint" :
+         strcmp(arithmetic, "i64") == 0 ? "int" :
+         strcmp(arithmetic, "u32") == 0 ? "uint32" : "int32");
+    const char *comparison = floating || rust_numeric_floating_kind(right_kind) ?
+        (strcmp(arithmetic_kind, "double") == 0 || strcmp(right_kind, "double") == 0 ? "f64" : "f32") :
+        rust_integral_promotion_type(arithmetic_kind, right_kind, op);
     json_object *rhs = NULL, *other = NULL;
     if (json_object_deep_copy(value, &rhs, NULL) != 0 ||
         json_object_deep_copy(right, &other, NULL) != 0)
@@ -61,6 +83,8 @@ static bool rust_lower_compound_comparisons(json_object *model, json_object *nod
     json_object_object_add(node, "rust_compound_compare_other", other);
     json_object_object_add(node, "rust_compound_compare_arithmetic", json_object_new_string(arithmetic));
     json_object_object_add(node, "rust_compound_compare_common", json_object_new_string(comparison));
+    if (method)
+        json_object_object_add(node, "rust_compound_compare_method", json_object_new_string(method));
     json_object_object_add(node, "rust_compound_compare_storage",
         json_object_new_string(rust_numeric_type_name(target_kind)));
     const char *bases[] = {"__sn_compound_compare_old", "__sn_compound_compare_rhs",

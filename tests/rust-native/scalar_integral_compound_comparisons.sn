@@ -1,0 +1,117 @@
+@source "../integration/test_native_ref_return_evaluation_helper.c"
+
+var globalNumber: int32 = 1
+
+native struct Token as ref =>
+  id: int
+  @alias "token_dispose"
+  native fn dispose(): void
+  @alias "token_create"
+  native static fn create(id: int): Token
+  @alias "token_live"
+  native static fn live(): int
+
+fn nativeComparison(): void =>
+  var token: Token = Token.create(1)
+  var alias = token
+  println((token.id += 2) == 3)
+  println(alias.id)
+
+fn amount(): int =>
+  return 2
+
+fn other(calls: int as ref): int =>
+  calls++
+  return 3
+
+fn reference(value: int as ref): bool =>
+  return (value += 2) == 3
+
+struct Number =>
+  value: int
+
+struct ReferenceNumber as ref =>
+  value: int
+
+fn main(): void =>
+  var value: int = 1
+  println((value += 2) == 3)
+  println(value)
+  value = 5
+  println((value -= 2) != 3)
+  println(value)
+  value = -3
+  println((value *= 2) <= -6)
+  println(value)
+  value = -7
+  println((value /= 2) >= -3)
+  println(value)
+  value = -7
+  println((value %= 2) == -1)
+  println(value)
+  var narrow: byte = 255
+  var one: byte = 1
+  println((narrow += one) == 256)
+  println(narrow)
+  var wide: uint = 0
+  var increment: uint = 1
+  wide -= increment
+  println((wide += increment) == 0)
+  println(wide)
+  var unsigned: uint32 = 4294967295
+  var increment32: uint32 = 1
+  println((unsigned += increment32) == 0)
+  println(unsigned)
+  unsigned = 4294967295
+  println((unsigned += 1) == 4294967296)
+  println(unsigned)
+  var signed: int32 = -1
+  println((signed += increment32) == 0)
+  println(signed)
+  value = 1
+  println((value += 2) == 3.0)
+  println(value)
+  var calls: int = 0
+  value = 1
+  println((value += amount()) == other(calls))
+  println(value)
+  println(calls)
+  var localReference: int = 1
+  println(reference(localReference))
+  println(localReference)
+  var fields: Number = { value: 1 }
+  println((fields.value += 2) == 3)
+  println(fields.value)
+  var values: int[] = {1}
+  println((values[0] += 2) == 3)
+  println(values[0])
+  var captured: int = 1
+  var action = fn(): bool =>
+    return (captured += 2) == 3
+  println(action())
+  println(captured)
+  println((globalNumber += 2) == 3)
+  println(globalNumber)
+  var plain = fn(value: int): int =>
+    println((value += 2) == 3)
+    return value
+  println(plain(1))
+  var isolated = fn(value: int): int =>
+    println((value += amount()) == 3)
+    return value
+  println(isolated(1))
+  sync var synchronized: int = 1
+  println((synchronized += 2) == 3)
+  println(synchronized)
+  var record: ReferenceNumber = { value: 1 }
+  var recordAlias = record
+  var records: ReferenceNumber[] = {record}
+  println((records[0].value += 2) == 3)
+  println(recordAlias.value)
+  var __sn_compound_compare_old: int = 1
+  var __sn_compound_compare_rhs: int = 2
+  var __sn_compound_compare_result: int = 3
+  println((__sn_compound_compare_old += __sn_compound_compare_rhs) == __sn_compound_compare_result)
+  println(__sn_compound_compare_old)
+  nativeComparison()
+  println(Token.live() == 0)
