@@ -1,0 +1,98 @@
+@source "../integration/test_native_ref_return_evaluation_helper.c"
+
+var globalNumber: double = 1.0
+
+native struct Token as ref =>
+  id: int
+  @alias "token_dispose"
+  native fn dispose(): void
+  @alias "token_create"
+  native static fn create(id: int): Token
+  @alias "token_refs"
+  native fn refs(): int
+  @alias "token_live"
+  native static fn live(): int
+
+fn nativeComparison(): void =>
+  var token: Token = Token.create(1)
+  var alias = token
+  println((token.id += 2.75) == 3)
+  println(alias.id)
+  println(token.refs() == 2)
+
+fn fraction(): double =>
+  return 2.75
+
+fn other(calls: int as ref): double =>
+  calls++
+  return 3.75
+
+fn reference(value: int as ref): bool =>
+  return (value += 2.75) == 3
+
+struct Number =>
+  value: int
+
+struct ReferenceNumber as ref =>
+  value: int
+
+fn main(): void =>
+  var integer: int = 1
+  println((integer += 2.75) == 3)
+  println(integer)
+  integer = 1
+  println((integer += 2.75) != 3)
+  println(integer)
+  integer = 1
+  println((integer *= 1.5) <= 1)
+  println(integer)
+  integer = 1
+  println((integer /= 1.5) >= 1)
+  println(integer)
+  var floating: float = 1.5f
+  println((floating += 2) == 3.5f)
+  println(floating)
+  var precise: double = 1.0
+  var calls: int = 0
+  println((precise += fraction()) == other(calls))
+  println(precise)
+  println(calls)
+  var localReference: int = 1
+  println(reference(localReference))
+  println(localReference)
+  var fields: Number = { value: 1 }
+  println((fields.value += 2.75) == 3)
+  println(fields.value)
+  var values: int[] = {1}
+  println((values[0] += 2.75) == 3)
+  println(values[0])
+  var captured: int = 1
+  var action = fn(): bool =>
+    return (captured += 2.75) == 3
+  println(action())
+  println(captured)
+  println((globalNumber += 2.75) == 3.75)
+  println(globalNumber)
+  var plain = fn(value: double): double =>
+    println((value += 2.75) == 3.75)
+    return value
+  println(plain(1.0))
+  var isolated = fn(value: double): double =>
+    println((value += fraction()) == 3.75)
+    return value
+  println(isolated(1.0))
+  var __sn_compound_compare_old: double = 1.0
+  var __sn_compound_compare_rhs: double = 2.75
+  var __sn_compound_compare_result: double = 3.75
+  println((__sn_compound_compare_old += __sn_compound_compare_rhs) == __sn_compound_compare_result)
+  println(__sn_compound_compare_old)
+  sync var synchronized: double = 1.0
+  println((synchronized += 2.75) == 3.75)
+  println(synchronized)
+  var record: ReferenceNumber = { value: 1 }
+  var recordAlias = record
+  var records: ReferenceNumber[] = {record}
+  println((records[0].value += 2.75) == 3)
+  println(recordAlias.value)
+  nativeComparison()
+  println(Token.live() == 0)

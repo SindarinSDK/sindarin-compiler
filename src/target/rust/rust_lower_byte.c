@@ -356,13 +356,13 @@ static void rust_lower_byte_arithmetic(json_object *node)
                     json_string_property_equals(
                         node, "mutation_arithmetic_mode", "unchecked")));
         }
-        else if (place_kind &&
+        else if (place_kind && rust_fixed_integral_kind(value_kind) &&
             (strcmp(place_kind, "byte") == 0 || strcmp(place_kind, "uint") == 0 ||
              strcmp(place_kind, "uint32") == 0) &&
             rust_wrapping_compound_op(node, op))
             json_object_object_add(node, "rust_wrapping_compound_assign",
                                    json_object_new_boolean(true));
-        else if (place_kind &&
+        else if (place_kind && rust_fixed_integral_kind(value_kind) &&
                  (strcmp(place_kind, "int") == 0 ||
                   strcmp(place_kind, "long") == 0 ||
                   strcmp(place_kind, "int32") == 0) &&

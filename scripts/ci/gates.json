@@ -29,14 +29,14 @@
       "group": "rust"
     },
     {
-      "name": "native scalar, record and managed ABI fixtures (386 fixtures)",
+      "name": "native scalar, record and managed ABI fixtures (389 fixtures)",
       "command": [
         "{python}",
         "scripts/run_rust_tests.py",
         "rust-native-extra",
         "--verbose",
         "--require-count",
-        "386",
+        "389",
         "--fail-on-skip"
       ],
       "linux_only": false,
@@ -989,7 +989,7 @@
       "group": "numeric-io"
     },
     {
-      "name": "floating storage, calls and mixed mutation precision (117 positive pairs)",
+      "name": "floating storage, calls and mixed mutation precision (171 positive pairs)",
       "command": [
         "make",
         "-o",

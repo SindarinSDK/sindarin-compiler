@@ -1,0 +1,7 @@
+{
+  "source_sha256": "f7d91ce234b7871f6ab02946f5ae0caf618db528bbfad0022d77c4698cd6f5f0",
+  "legacy_oracle_sha256": "0aa0604fc3b132945212165de5d0d8cd1bc85c5b84a367b17f9b5f72309b0653",
+  "stdout_hex": "",
+  "exit": 0,
+  "reason": "C-supported mixed floating/integer compound arithmetic; successful execution required, original source and rejection oracle preserved"
+}

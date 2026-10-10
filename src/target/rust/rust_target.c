@@ -150,6 +150,7 @@ static bool rust_check_toolchain(const CompilerOptions *options)
 #include "rust_thread_refs.c"
 #include "rust_thread_receivers.c"
 #include "rust_lower_float.c"
+#include "rust_compound_comparisons.c"
 #include "rust_nullable_strings.c"
 #include "rust_nullable_arrays.c"
 #include "rust_reference_records.c"
@@ -299,6 +300,12 @@ static bool rust_emit(CompilerOptions *options, Module *module,
     if (!rust_lower_numeric_places(model, model, &place_temp_id))
     {
         fprintf(stderr, "Error: Rust target could not lower computed numeric mutation\n");
+        json_object_put(model);
+        return false;
+    }
+    if (!rust_lower_compound_comparisons(model, model))
+    {
+        fprintf(stderr, "Error: Rust target could not preserve C compound comparison storage\n");
         json_object_put(model);
         return false;
     }

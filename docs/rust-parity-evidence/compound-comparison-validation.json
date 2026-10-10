@@ -1,0 +1,179 @@
+{
+  "source_text": "fn main(): void =>\n  var value: int = 1\n  println((value += 2.75) == 3)\n  println(value)\n",
+  "source_sha256": "cd3b8883eaf21abeb17d3e278de1de5dc7e825b7797ea4a336f5b4bceb7ea129",
+  "compiler_sha256": "87b61fc28ab2d89aaf6bcac64507ba8e5f8de96ee96d4d6a328df8f4f54bc6f7",
+  "classification": "Resolved C raw-comparison storage for floating compound arithmetic",
+  "pre_fix": {
+    "source_text": "fn main(): void =>\n  var value: int = 1\n  println((value += 2.75) == 3)\n  println(value)\n",
+    "classification": "C-defined compiler-rendering precedence discrepancy; unresolved Rust parity gap",
+    "targets": {
+      "c": {
+        "exit": 0,
+        "stdout_hex": "66616c73650a300a",
+        "stderr_hex": ""
+      },
+      "rust": {
+        "exit": 0,
+        "stdout_hex": "747275650a330a",
+        "stderr_hex": ""
+      }
+    },
+    "scope": "Unresolved comparison context; excluded from arithmetic feature-completion credit"
+  },
+  "cases": [
+    {
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "exit": 0,
+          "stdout_hex": "66616c73650a300a",
+          "stderr_hex": ""
+        },
+        "rust": {
+          "exit": 0,
+          "stdout_hex": "66616c73650a300a",
+          "stderr_hex": ""
+        }
+      },
+      "passed": true
+    },
+    {
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "exit": 0,
+          "stdout_hex": "66616c73650a300a",
+          "stderr_hex": ""
+        },
+        "rust": {
+          "exit": 0,
+          "stdout_hex": "66616c73650a300a",
+          "stderr_hex": ""
+        }
+      },
+      "passed": true
+    },
+    {
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "targets": {
+        "c": {
+          "exit": 0,
+          "stdout_hex": "66616c73650a300a",
+          "stderr_hex": ""
+        },
+        "rust": {
+          "exit": 0,
+          "stdout_hex": "66616c73650a300a",
+          "stderr_hex": ""
+        }
+      },
+      "passed": true
+    },
+    {
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "targets": {
+        "c": {
+          "exit": 0,
+          "stdout_hex": "66616c73650a300a",
+          "stderr_hex": ""
+        },
+        "rust": {
+          "exit": 0,
+          "stdout_hex": "66616c73650a300a",
+          "stderr_hex": ""
+        }
+      },
+      "passed": true
+    },
+    {
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "targets": {
+        "c": {
+          "exit": 0,
+          "stdout_hex": "66616c73650a300a",
+          "stderr_hex": ""
+        },
+        "rust": {
+          "exit": 0,
+          "stdout_hex": "66616c73650a300a",
+          "stderr_hex": ""
+        }
+      },
+      "passed": true
+    },
+    {
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "targets": {
+        "c": {
+          "exit": 0,
+          "stdout_hex": "66616c73650a300a",
+          "stderr_hex": ""
+        },
+        "rust": {
+          "exit": 0,
+          "stdout_hex": "66616c73650a300a",
+          "stderr_hex": ""
+        }
+      },
+      "passed": true
+    },
+    {
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "targets": {
+        "c": {
+          "exit": 0,
+          "stdout_hex": "66616c73650a300a",
+          "stderr_hex": ""
+        },
+        "rust": {
+          "exit": 0,
+          "stdout_hex": "66616c73650a300a",
+          "stderr_hex": ""
+        }
+      },
+      "passed": true
+    },
+    {
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "targets": {
+        "c": {
+          "exit": 0,
+          "stdout_hex": "66616c73650a300a",
+          "stderr_hex": ""
+        },
+        "rust": {
+          "exit": 0,
+          "stdout_hex": "66616c73650a300a",
+          "stderr_hex": ""
+        }
+      },
+      "passed": true
+    },
+    {
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "targets": {
+        "c": {
+          "exit": 0,
+          "stdout_hex": "66616c73650a300a",
+          "stderr_hex": ""
+        },
+        "rust": {
+          "exit": 0,
+          "stdout_hex": "66616c73650a300a",
+          "stderr_hex": ""
+        }
+      },
+      "passed": true
+    }
+  ],
+  "passed": true
+}

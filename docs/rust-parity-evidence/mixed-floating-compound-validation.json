@@ -1,0 +1,73 @@
+{
+  "date": "2026-10-10",
+  "base_revision": "9af4f46700d45edb2afe0317952e766562faa2f2",
+  "scope": "Mixed floating/integer compound arithmetic and C floating compound comparison storage",
+  "compiler_sha256": "87b61fc28ab2d89aaf6bcac64507ba8e5f8de96ee96d4d6a328df8f4f54bc6f7",
+  "source_sha256": {
+    "Makefile": "c0e08bcabd6de07c82ea300bf433162cfe47b0e7ed8396be7b50e0bee12cea19",
+    "scripts/ci/gates.json": "f7d1a1d8f01d151addc78bd9ae25ccb5ef40533c815c8342e69ab907584a9de9",
+    "scripts/check_compound_comparison_oracles.py": "b6d99aad6cc6ab07bf5c8512ec71ed37e982beeff8186e5324d29b770c9cec5f",
+    "src/target/rust/rust_lower.c": "66b71ea457154c06a93aac2ec2f46450959888fb1a857b0d84174c2a44655d56",
+    "src/target/rust/rust_lower_byte.c": "dd5626461fc64199d84310e6797a786ad13ea33007bb70cca3a033d6f2fcbad1",
+    "src/target/rust/rust_lower_float.c": "5c9e32ed17f15800b760304e246986df8fb2fcf7442cb1566f69ffe04cf31b39",
+    "src/target/rust/rust_validate.c": "c0aa661ccff0f120aba42f5261c37718042ec1c43292bc64eddedf9598610b26",
+    "src/target/rust/rust_validate_closures.c": "dfab5c2c2da6d4b716d0cd5b468ee7e93d77b4692ea9046944a1b04ba2d7c24d",
+    "src/target/rust/rust_target.c": "a53f40a70f168d9cfe7c1e90f3b773bdb92efd4ad617dde4835b04adbbc1d6f0",
+    "src/target/rust/rust_compound_comparisons.c": "ed46dc67b268fac713c44101c155979f123467c80b552b6299b34739161be1b4",
+    "templates/rust/partials/expr/compound_assign.hbs": "b51d5aba6b83154f2fad19737ce65a7eb0d490604754e77801e1d02ee0336286",
+    "templates/rust/partials/expr/binary.hbs": "22daa23948848086f09c5caad1e7024e2beeffbc1bb0f82eba729c1c0caa962f",
+    "templates/rust/partials/expr/rust_compound_compare.hbs": "760f7c0149556f0357d04826fb32abc1907b4270320555e56c343fa87781100b",
+    "tests/rust-native/scalar_mixed_floating_compound.sn": "eeecc84bae9b8cf0a42540d8e8972d24883b4b81304bc2e78c706a860024a4b6",
+    "tests/rust-native/scalar_mixed_floating_compound.expected": "e548cf05798d02f5ad93203ebeac0f946b3de1f2ae9a4488279c775d32043cd2",
+    "tests/rust-native/scalar_floating_compound_comparisons.sn": "6652c6e24eaf60b1ca34d870336e25aa4931914ac09063d0135facb3b49e6c00",
+    "tests/rust-native/scalar_floating_compound_comparisons.expected": "ed540501b8b693ade2d3922def13f2c41e557f985c7356a7e851a53c4ebc17c8",
+    "tests/rust-native/scalar_floating_compound_strict_comparisons.sn": "01f47deb7c42fe59cc6f3c73527e6842b86f288bccac30726abc3dcda15f48c9",
+    "tests/rust-native/scalar_floating_compound_strict_comparisons.expected": "ded5d380f65244ea5a4d2e3397cebfc15a4433a4dd98f3b8f4340b1700910aed",
+    "tests/integration/test_native_ref_return_evaluation_helper.c": "bfabd1480485d73f7ac0952c5d51edadf35a9165e43e93cbb8c3fe69f2370ec2"
+  },
+  "validation": {
+    "C": {
+      "checks": 3240,
+      "passed": true,
+      "log_sha256": "3f4594019ae4e8361decac867fcd14039fe8f79605120930022ece38a07cded5"
+    },
+    "Rust": {
+      "checks": 1093,
+      "passed": true,
+      "log_sha256": "8d67f1b071cea0527abfa77056df8049ab2ce240beffcd99128124c3d4449508"
+    },
+    "C_Rust_native_C_sanitizers": {
+      "checks": 1,
+      "passed": true,
+      "log_sha256": "88fd024c953b77e8c56fb5a8c059fde289a1fcf062e5a83c2d69d83f63bfd6ff"
+    },
+    "arithmetic_gate": {
+      "checks": 171,
+      "independent_comparison_oracles": 18,
+      "passed": true,
+      "report_sha256": "d86e47a4efc4f4cfdb9c3e4134eeabe283ce0c0a482f0d8c4d3f92bf8465e676",
+      "log_sha256": "4971f472978d4fa709167a5fcc4dd3db83e0d2a3953e0ba7b92b72da43539214"
+    },
+    "ci_helpers": {
+      "checks": 15,
+      "passed": true,
+      "log_sha256": "fd217a65f8315717a589401927d15924d1313a45ce28670e289a0e7e77fb8935"
+    }
+  },
+  "capabilities": [
+    "C floating operand widths and final storage conversions",
+    "by-value/reference parameters, indexed fields, synchronized storage, captures and globals",
+    "raw comparisons store booleans before returning; checked strict-comparison helpers keep argument boundaries",
+    "lambda by-value call RHS keeps C statement-expression isolation",
+    "native C resource aliases observe comparison stores with clean cleanup",
+    "helper-name collisions reserved across projected expressions"
+  ],
+  "preservation": "No tracked source, runtime oracle or generated Rust snapshot changed; three rejection sources have hash-checked positive promotion records",
+  "remaining": [
+    "Wider integral/bitwise compound-expression precedence contexts still require inventory and repair",
+    "C-undefined floating-to-integral overflow/NaN/infinite conversions receive no parity credit",
+    "Whole original-corpus/platform/mode and shared SDK/package completion remains open"
+  ],
+  "hosted_acceptance": "pending publication",
+  "passed": true
+}

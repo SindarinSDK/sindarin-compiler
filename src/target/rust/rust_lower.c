@@ -437,14 +437,16 @@ static void rust_lower_floating_mutations(json_object *node)
         rust_lower_floating_mutations(value);
     }
 
-    json_object *target = NULL, *type = NULL;
+    json_object *target = NULL, *type = NULL, *rhs = NULL, *value_type = NULL;
     const char *kind = json_string_property(node, "kind");
     const char *op = json_string_property(node, "op");
     if (kind && strcmp(kind, "compound_assign") == 0)
     {
         if (!json_object_object_get_ex(node, "target", &target) ||
             !json_object_object_get_ex(target, "type", &type) ||
-            !rust_floating_type(type) || !op ||
+            !json_object_object_get_ex(node, "value", &rhs) ||
+            !json_object_object_get_ex(rhs, "type", &value_type) ||
+            !rust_float_arithmetic_pair(type, value_type) || !op ||
             (strcmp(op, "add") != 0 && strcmp(op, "subtract") != 0 &&
              strcmp(op, "multiply") != 0 && strcmp(op, "divide") != 0))
             return;

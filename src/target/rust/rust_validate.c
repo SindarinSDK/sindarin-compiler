@@ -97,6 +97,19 @@ static bool json_string_property_equals(json_object *object, const char *key,
     return value && strcmp(value, wanted) == 0;
 }
 
+static bool rust_integer_type(const char *kind);
+static bool rust_float_type(const char *kind);
+
+/* C's compound arithmetic converts only at the final storage boundary. */
+static bool rust_float_arithmetic_pair(json_object *left, json_object *right)
+{
+    const char *l = json_string_property(left, "kind");
+    const char *r = json_string_property(right, "kind");
+    return (rust_float_type(l) || rust_float_type(r)) &&
+        (rust_float_type(l) || rust_integer_type(l)) &&
+        (rust_float_type(r) || rust_integer_type(r));
+}
+
 static bool rust_float_conversion_pair(json_object *left, json_object *right)
 {
     return (json_string_property_equals(left, "kind", "float") &&
@@ -452,7 +465,7 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
                     !json_object_object_get_ex(value, "type", &value_type) ||
                     !(value_kind = json_string_property(value_type, "kind")) ||
                     (strcmp(param_kind, value_kind) != 0 &&
-                     !rust_float_conversion_pair(param_type, value_type)))
+                     !rust_float_arithmetic_pair(param_type, value_type)))
                 {
                     fprintf(stderr, "%s",
                         wrapping_parameter
@@ -474,6 +487,7 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
                 json_object_object_add(param, "rust_by_value_mutated",
                                        json_object_new_boolean(true));
                 json_object_object_add(node,
+                    rust_float_arithmetic_pair(param_type, value_type) ? "rust_by_value_floating_parameter_mutation" :
                     wrapping_parameter ? "rust_by_value_wrapping_parameter_mutation" :
                         checked_parameter ? "rust_by_value_checked_parameter_mutation" :
                                             "rust_by_value_floating_parameter_mutation",
@@ -1850,10 +1864,10 @@ static bool rust_validate_expr(json_object *expr)
         if (target_floating || value_floating)
         {
             const char *op = json_string_property(expr, "op");
-            if (!target_floating || !value_floating)
+            if (!rust_float_arithmetic_pair(target_type, value_type))
             {
                 fprintf(stderr,
-                        "Error: Rust target currently supports floating-point compound assignment only between float or double operands\n");
+                        "Error: Rust target currently supports floating-point compound assignment only between numeric operands\n");
                 return false;
             }
             if (!op || (strcmp(op, "add") != 0 &&
@@ -1886,6 +1900,7 @@ static bool rust_validate_expr(json_object *expr)
             }
             if (!json_string_property_equals(expr, "mutation_storage", "local") &&
                 !rust_floating_ref_parameter(expr, target) &&
+                !rust_checked_scalar_ref_parameter(expr, target) &&
                 !json_boolean_property(
                     expr, "rust_by_value_floating_parameter_mutation") &&
                 !iterator_binding_mutation)

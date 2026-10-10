@@ -7,6 +7,45 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Mixed floating compound arithmetic and comparisons: local validation, 2026-10-10
+
+Rust accepts C-supported mixed float/integer compound operations, computes at the
+actual C operand width and converts once at storage. By-value/reference parameters,
+fields, indexes, captures, synchronized storage and globals retain their semantics.
+Three original rejection sources have hash-checked positive promotion records;
+their source bytes and old diagnostic oracles remain preserved.
+
+A raw C comparison around a scalar floating compound expression stores its
+boolean result in the target. Rust now preserves that ordering rather than first
+rounding/truncating and storing the arithmetic result. Checked strict-comparison
+helpers keep their argument boundary. Lambda by-value parameters with a calling
+RHS keep C's isolated statement-expression behaviour. Comparison controls observe
+stored values through reference-record and native C resource aliases, call counts,
+cleanup and helper-name collisions. Eighteen independent fixed-output cases cover
+all O0/O1/O2 and default/checked/unchecked identities, including default O2's
+unchecked selection. The original false/zero reproducer passes nine further
+fixed-output C/Rust controls.
+
+Complete local suites pass 3,240 C and 1,093 Rust checks without failures/skips.
+All 171 arithmetic pairs, 18 independent comparison oracles, native C/Rust
+address/undefined/float-cast sanitizer controls, 15 CI helpers and formatting pass.
+Existing generated Rust snapshots, original sources and behavioural oracles are
+unchanged. Hosted acceptance of this implementation batch is pending publication.
+Wider integral/bitwise compound-expression contexts, C-undefined conversions and
+whole original-corpus/platform/package/SDK acceptance remain required work.
+
+Evidence: [mixed arithmetic validation](rust-parity-evidence/mixed-floating-compound-validation.json)
+and [comparison repair](rust-parity-evidence/compound-comparison-validation.json).
+
+## Owned body array exports: hosted acceptance, 2026-10-10
+
+Main `9af4f467` passes all 34 jobs in complete unified Linux/macOS/Windows CI.
+The retained coverage summary verifies 26 groups and 292 gate executions with one
+recorded compiler per platform. This supersedes the earlier pending array entry.
+
+[Accepted array-export run](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38078893550).
+Evidence: [hosted acceptance](rust-parity-evidence/owned-body-arrays-main-ci-green.json).
+
 ## Owned body array exports: local validation, 2026-10-10
 
 Independent C/RS Sindarin libraries now export owned `str[]` results through the

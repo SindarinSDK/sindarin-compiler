@@ -1,0 +1,10 @@
+fn main(): void =>
+  var integer: int = 1
+  println((integer += 2.75) < 4)
+  println(integer)
+  integer = 1
+  println((integer += 2.75) > 3)
+  println(integer)
+  var floating: float = 1.5f
+  println((floating += 2) > 3.0f)
+  println(floating)

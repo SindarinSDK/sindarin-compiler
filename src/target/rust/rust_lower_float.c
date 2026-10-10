@@ -120,12 +120,14 @@ static void rust_lower_float_conversions(json_object *model, json_object *node,
         const char *target_kind = json_string_property(target_type, "kind");
         const char *value_kind = json_string_property(value, "rust_c_float_expression_kind");
         if (!value_kind) value_kind = json_string_property(value_type, "kind");
-        if (rust_numeric_floating_kind(target_kind) && rust_numeric_floating_kind(value_kind) &&
+        if (rust_float_arithmetic_pair(target_type, value_type) &&
             strcmp(target_kind, value_kind) != 0)
         {
-            /* C computes the mixed expression in double, then converts back
-             * to the place's width. Do not round the RHS before arithmetic. */
-            json_object_object_add(node, "rust_float_compound_type", json_object_new_string("f64"));
+            /* Source float literals are C double expressions. Compute at the
+             * actual operand width, then convert once when storing. */
+            json_object_object_add(node, "rust_float_compound_type",
+                json_object_new_string(strcmp(target_kind, "double") == 0 ||
+                    strcmp(value_kind, "double") == 0 ? "f64" : "f32"));
             json_object_object_add(node, "rust_float_compound_storage_type",
                 json_object_new_string(rust_numeric_type_name(json_string_property(target_type, "kind"))));
         }

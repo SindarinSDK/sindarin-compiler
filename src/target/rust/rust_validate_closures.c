@@ -778,11 +778,18 @@ static bool rust_closure_walk(RustClosureScope *scope, json_object *node)
             json_object_object_add(node, "mutation_storage", json_object_new_string("local"));
         if (json_boolean_property(place->declaration, "rust_closure_scalar_value_parameter"))
         {
+            /* C isolates this lambda-parameter update in a statement expression
+             * when its RHS calls a function. Outer comparisons stay outside. */
+            if (kind && strcmp(kind, "compound_assign") == 0 &&
+                rust_closure_expression_calls(rust_closure_property(node, "value")))
+                json_object_object_add(node, "rust_c_compound_isolated", json_object_new_boolean(true));
             json_object *parameter_type = rust_closure_property(place->declaration, "type");
             const char *parameter_kind = json_string_property(parameter_type, "kind");
             if (kind && strcmp(kind, "assign") == 0)
                 json_object_object_add(node, "rust_by_value_scalar_parameter_assign", json_object_new_boolean(true));
-            else if (parameter_kind && (strcmp(parameter_kind, "float") == 0 || strcmp(parameter_kind, "double") == 0))
+            else if (rust_float_arithmetic_pair(parameter_type,
+                rust_closure_property(rust_closure_property(node, "value"), "type")) ||
+                (parameter_kind && (strcmp(parameter_kind, "float") == 0 || strcmp(parameter_kind, "double") == 0)))
                 json_object_object_add(node, "rust_by_value_floating_parameter_mutation", json_object_new_boolean(true));
             else if (parameter_kind && (strcmp(parameter_kind, "byte") == 0 || strcmp(parameter_kind, "uint32") == 0 || strcmp(parameter_kind, "uint") == 0))
                 json_object_object_add(node, "rust_by_value_wrapping_parameter_mutation", json_object_new_boolean(true));
@@ -1276,6 +1283,22 @@ static bool rust_validate_lambda(json_object *expr)
 
 /* Captured scalar places have C's unchecked storage annotation. Validate the
  * cell operation here without weakening ordinary parameter/place validation. */
+static bool rust_validate_capture_floating_compound(json_object *expr,
+                                                    json_object *place,
+                                                    json_object *value)
+{
+    const char *op = json_string_property(expr, "op");
+    if (!op || (strcmp(op, "add") != 0 && strcmp(op, "subtract") != 0 &&
+                strcmp(op, "multiply") != 0 && strcmp(op, "divide") != 0))
+    {
+        fprintf(stderr,
+                "Error: Rust target supports floating-point compound assignment only for +=, -=, *=, and /=\n");
+        rust_validation_reported_error = true;
+        return false;
+    }
+    return rust_validate_expr(place) && rust_validate_expr(value);
+}
+
 static bool rust_validate_closure_cell_mutation(json_object *expr)
 {
     bool compound = json_string_property_equals(expr, "kind", "compound_assign");
@@ -1294,6 +1317,9 @@ static bool rust_validate_closure_cell_mutation(json_object *expr)
                                json_object_new_boolean(true));
         return rust_validate_expr(place);
     }
+    json_object *rhs = rust_closure_property(expr, "value");
+    if (compound && rust_float_arithmetic_pair(type, rust_closure_property(rhs, "type")))
+        return rust_validate_capture_floating_compound(expr, place, rhs);
     const char *op = compound ? json_string_property(expr, "op") :
         (json_string_property_equals(expr, "kind", "increment") ? "add" : "subtract");
     const char *method = NULL, *error_name = NULL;
@@ -1351,6 +1377,8 @@ static bool rust_validate_closure_snapshot_mutation(json_object *expr)
     if (compound)
     {
         json_object *value = rust_closure_property(expr, "value");
+        if (rust_float_arithmetic_pair(type, rust_closure_property(value, "type")))
+            return rust_validate_capture_floating_compound(expr, place, value);
         if (!rust_closure_same_type(type, rust_closure_property(value, "type")) &&
             !rust_float_conversion_pair(type, rust_closure_property(value, "type")))
             return rust_closure_error("mixed-type mutable scalar snapshot operation");
@@ -1426,6 +1454,8 @@ static bool rust_validate_closure_struct_snapshot_mutation(json_object *expr)
     if (compound)
     {
         json_object *value = rust_closure_property(expr, "value");
+        if (rust_float_arithmetic_pair(type, rust_closure_property(value, "type")))
+            return rust_validate_capture_floating_compound(expr, place, value);
         if (!rust_closure_same_type(type, rust_closure_property(value, "type")))
             return rust_closure_error("mixed-type mutable struct snapshot field operation");
         const char *op = json_string_property(expr, "op");
