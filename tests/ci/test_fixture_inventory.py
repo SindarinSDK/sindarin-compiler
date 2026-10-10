@@ -62,16 +62,25 @@ class FixtureInventoryTests(unittest.TestCase):
         original_glob = harness.glob.glob
 
         def added_fixture(pattern, **options):
+            pattern = pattern.replace('\\', '/')
             fixtures = original_glob(pattern, **options)
             if pattern == 'tests/rust-native/scalar_*.sn':
                 fixtures.append('tests/rust-native/scalar_inventory_probe.sn')
             return fixtures
 
-        with patch.object(harness.glob, 'glob', side_effect=added_fixture):
-            passed, fixtures, output = self.discover('rust-native-extra', count)
-        self.assertFalse(passed)
-        self.assertEqual(fixtures, [])
-        self.assertIn(f'required {count} fixtures, found {count + 1}', output)
+        for windows_paths in (False, True):
+            with self.subTest(windows_paths=windows_paths):
+                def catalog_glob(pattern, **options):
+                    if windows_paths:
+                        pattern = pattern.replace('/', '\\')
+                    fixtures = added_fixture(pattern, **options)
+                    return [path.replace('/', '\\') for path in fixtures] if windows_paths else fixtures
+
+                with patch.object(harness.glob, 'glob', side_effect=catalog_glob):
+                    passed, fixtures, output = self.discover('rust-native-extra', count)
+                self.assertFalse(passed)
+                self.assertEqual(fixtures, [])
+                self.assertIn(f'required {count} fixtures, found {count + 1}', output)
 
 
 if __name__ == '__main__':

@@ -7,6 +7,23 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Inventory guard Windows correction: local validation, 2026-10-10
+
+Correction main `2f1153bd` failed its Windows build in
+[CI 38084602628](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38084602628).
+The new negative inventory helper matched only forward-slash glob patterns, so
+Windows did not inject its simulated extra fixture. The resulting failed build
+never published the compiler bundle; downstream missing-artifact errors have the
+same root. The real native inventory remains 391 and its strict guard is intact.
+
+The helper now normalizes injected patterns and exercises both incoming path
+separators and Windows-form returned fixture paths. The complete 22 helper tests
+pass locally. The preceding correction run is now terminal, and this focused
+test-only correction is prepared for publication. Feature publication remains
+frozen until complete corrected integrated main CI is green.
+
+Evidence: [separator correction](rust-parity-evidence/inventory-separator-correction.json).
+
 ## Native fixture count correction: local validation, 2026-10-10
 
 Integral comparison main `4a88f178` failed the strict native-extra inventory gate
@@ -23,7 +40,8 @@ reproduces the published 389-versus-391 failure. All 22 CI helpers and the real
 391-case strict native suite pass locally with no failures/skips. This correction
 changes inventory metadata and its guard only. Unpublished ABI mutation work is
 excluded. Feature pushes remain frozen until complete corrected integrated main
-CI is green; the focused correction is prepared for publication.
+CI is green. Correction `2f1153bd` is published; its hosted run exposed the
+test-only Windows issue described above.
 
 Evidence: [inventory correction](rust-parity-evidence/native-inventory-count-correction.json).
 

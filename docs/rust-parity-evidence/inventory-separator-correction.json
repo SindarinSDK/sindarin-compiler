@@ -1,0 +1,37 @@
+{
+  "failing_revision": "2f1153bd4956deb2e2ae816498c6cf5f2003593c",
+  "run": 38084602628,
+  "build_job": 114308398745,
+  "cascade_job": 114308673733,
+  "root_cause": "The simulated added-fixture test matched only forward-slash glob patterns. Windows os.path.join generated backslashes, so the fixture was not added and the negative assertion failed. The Windows bundle was never built; downstream missing-artifact failures follow from that build failure.",
+  "correction": "Normalize only the injected glob pattern and exercise both incoming separator forms and returned Windows fixture paths against the real catalog.",
+  "local_validation": {
+    "complete_ci_helpers": 22,
+    "passed": true,
+    "separator_forms": [
+      "forward-slash",
+      "backslash"
+    ],
+    "strict_gate_cardinality_preserved": 391
+  },
+  "logs": {
+    "/tmp/sindarin-fixture-inventory-windows-build-failure.log": {
+      "sha256": "24c5e416c09144d368707a4cf2d5b0e34d26a1c5f8b3d0bf58b6d19f7affec89"
+    },
+    "/tmp/sindarin-fixture-inventory-windows-cascade.log": {
+      "sha256": "a13549cc67708364fa9e48029cddca7c5523a2ae61904198e6183a6f4b133011"
+    },
+    "/tmp/sindarin-fixture-inventory-separators-ci-helpers.log": {
+      "sha256": "ca00368c1a972497e08a1048eb5fe5a7cd285b4c35288350512fd6aec9121231"
+    },
+    "/tmp/sindarin-windows-inventory-publish-tests.log": {
+      "sha256": "6998b393d5b0d4f3ee4a440eedf560548b0d6e1736af39c3d51c53c35f932dff"
+    }
+  },
+  "source_sha256": {
+    "tests/ci/test_fixture_inventory.py": "c3d8b1f792499ed5d2ba3b5d93b6645332f6f1a629fc04e7672ac89c9e069616"
+  },
+  "publication": "Prior correction run 38084602628 is terminal; focused Windows helper correction prepared for publication. Feature pushes remain frozen until complete corrected integrated main CI passes.",
+  "scope": "CI helper test only; no compiler/runtime/source fixture/oracle change",
+  "passed": true
+}
