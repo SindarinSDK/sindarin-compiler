@@ -7,6 +7,43 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Rust body source bundles and live inputs: local validation, 2026-10-11
+
+RS implementation libraries now emit complete source bundles, compile canonical
+array support and original native C sources with C, and index those objects into
+Rust archives. Generated helper names include package/build identity, preserving
+external backing symbols and literal bytes. Package-local C forwarding supports
+header-only native callbacks. Borrowed input guards preserve actual C headers and
+release newly owned local storage; comparisons avoid extra C copy hooks and
+string stores retain the C cleanup contract.
+
+Complete local suites pass 3,240 C and 1,097 Rust checks with no failures/skips.
+All 18 artifact, 37 import, 14 runtime-contract and 22 CI-helper tests pass. RS
+body array controls cover 36 C/Rust target/mode/source-or-prebuilt combinations;
+those controls and the native-owner/copy-hook/error/shutdown client pass strict
+address/undefined/leak checks. Two independently built RS bodies link together
+with distinct C helper symbols and C source-backed initializers. Bundle emission
+requires no toolchain execution or main. The pinned SDK integration clone was
+restored at the unchanged CI revision after the first run found it absent; the
+complete import suite then passed. Original sources/oracles/snapshots are unchanged.
+
+Reference-qualified rebinding, managed record/interface/callback contracts,
+dependency lifecycle graphs, SDK artifact migration and complete corpus/platform
+acceptance remain required. This batch requires separate complete hosted CI.
+
+Evidence: [Rust body bundles](rust-parity-evidence/rust-body-source-bundle-validation.json).
+
+## Mutable adapters: hosted acceptance, 2026-10-11
+
+Integrated main `63dc5137` passes all 34 jobs in
+[complete unified CI 38093383215](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38093383215).
+The retained summary verifies 26 groups, 292 gate executions and one compiler per
+Linux/macOS/Windows platform. This accepts C body and C/Rust/Go native live-input
+adapters. Subsequent RS body emission and full SDK/corpus requirements need
+separate acceptance.
+
+Evidence: [mutable adapter acceptance](rust-parity-evidence/mutable-string-array-adapter-ci-green.json).
+
 ## Live mutable string-array adapters: local validation, 2026-10-10
 
 Native package ABI 1.5 now connects generated C Sindarin body exports and ordinary

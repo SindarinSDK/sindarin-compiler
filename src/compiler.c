@@ -154,6 +154,9 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
                 "  --emit-rust        Alias for --target rust --emit-source\n"
                 "  --emit-model       Output JSON model, don't generate C\n"
                 "  --package-body     Emit a Sindarin implementation library body\n"
+                "  --emit-source-bundle  Emit a Rust package body and its C support directory\n"
+                "  --package-native-arrays  Use canonical C arrays in a Rust package body\n"
+                "  --package-native-namespace <name>  Namespace generated package native helpers\n"
                 "  --build-package    Build declared native/Sindarin package units\n"
                 "  --keep-generated   Keep generated target files after compilation\n"
                 "  --keep-c           Compatibility alias for --keep-generated\n"
@@ -240,6 +243,31 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
         else if (strcmp(argv[i], "--package-body") == 0)
         {
             options->package_body = 1;
+        }
+        else if (strcmp(argv[i], "--emit-source-bundle") == 0)
+        {
+            options->emit_source_bundle = 1;
+            options->output_kind = OUTPUT_SOURCE;
+        }
+        else if (strcmp(argv[i], "--package-native-arrays") == 0)
+        {
+            options->package_native_arrays = 1;
+        }
+        else if (strcmp(argv[i], "--package-native-namespace") == 0)
+        {
+            if (i + 1 >= argc || argv[i + 1][0] == '-') {
+                fprintf(stderr, "Error: --package-native-namespace requires an identifier\n");
+                return 0;
+            }
+            options->package_native_namespace = arena_strdup(&options->arena, argv[++i]);
+            const unsigned char *name = (const unsigned char *)options->package_native_namespace;
+            if (!((*name >= 'A' && *name <= 'Z') || (*name >= 'a' && *name <= 'z') || *name == '_')) {
+                fprintf(stderr, "Error: package native namespace must be an ASCII identifier\n"); return 0;
+            }
+            for (name++; *name; name++) if (!((*name >= 'A' && *name <= 'Z') ||
+                (*name >= 'a' && *name <= 'z') || (*name >= '0' && *name <= '9') || *name == '_')) {
+                fprintf(stderr, "Error: package native namespace must be an ASCII identifier\n"); return 0;
+            }
         }
         else if (strcmp(argv[i], "-o") == 0 && i + 1 < argc)
         {
@@ -368,6 +396,15 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
         options->arithmetic_mode = ARITH_UNCHECKED;
 
     /* Validate conflicting flags */
+    if ((options->emit_source_bundle || options->package_native_arrays || options->package_native_namespace) &&
+        (!options->package_body || options->target != TARGET_RUST || options->emit_model ||
+         options->output_kind != OUTPUT_SOURCE)) {
+        fprintf(stderr, "Error: package native emission requires --package-body --target rust and source emission\n");
+        return 0;
+    }
+    if (options->emit_source_bundle && !options->output_file) {
+        fprintf(stderr, "Error: --emit-source-bundle requires an explicit output directory\n"); return 0;
+    }
     if (options->profile_build && options->debug_build)
     {
         fprintf(stderr, "Error: -p (profile) and -g (debug) cannot be used together\n");

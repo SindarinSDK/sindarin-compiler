@@ -169,6 +169,10 @@ static bool rust_emit(CompilerOptions *options, Module *module,
     if (!model) return false;
     if (options->package_body)
         json_object_object_add(model, "package_body", json_object_new_boolean(true));
+    if (options->package_native_namespace)
+        json_object_object_add(model, "package_native_namespace", json_object_new_string(options->package_native_namespace));
+    if (options->package_native_arrays)
+        json_object_object_add(model, "package_native_arrays", json_object_new_boolean(true));
     RustNativePlan *native_plan = NULL;
     if (!rust_native_partition_model(model, options, &native_plan))
     {
@@ -441,6 +445,9 @@ static bool rust_emit(CompilerOptions *options, Module *module,
             json_object_object_add(model, "rust_package_lifecycle", json_object_new_boolean(true));
         }
     }
+    if (options->emit_source_bundle && !generated_file_set_add(result, "body_model.json",
+            strdup(json_object_to_json_string_ext(model, JSON_C_TO_STRING_PRETTY)), GENERATED_SUPPORT, false))
+    { json_object_put(model); return false; }
     char *code = rust_render_model(model, template_dir);
     json_object_put(model);
     if (!code) return false;

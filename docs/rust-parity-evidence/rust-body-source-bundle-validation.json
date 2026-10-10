@@ -1,0 +1,109 @@
+{
+  "base_revision": "63dc51374caa65d1badb360d1ac0730bed02cd40",
+  "compiler_sha256": "838553e6757c477b96e988f394410231c91f91a53e66ecb6eefc9d37cffb1c68",
+  "implementation": "Rust package source bundles compile canonical C array support/native C sources into independent archives; package-native helper namespaces, header-only forwarding, scoped borrowed input guards and C-compatible string store/comparison behaviour preserve aliases, callbacks and hooks.",
+  "counts": {
+    "c": {
+      "passed": 3240,
+      "failed": 0,
+      "skipped": 0
+    },
+    "rust": {
+      "passed": 1097,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "artifact_tests": 18,
+  "import_tests": 37,
+  "ci_helper_tests": 22,
+  "runtime_contract_tests": 14,
+  "exact_rust_body_array_target_mode_archive_cases": 36,
+  "strict_sanitizer_cases": {
+    "rust_body_array_target_mode_archive_cases": 36,
+    "rust_body_native_owner_copy_hook_error_and_shutdown_client": true,
+    "environment": {
+      "SN_CC": "gcc",
+      "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1"
+    }
+  },
+  "namespace_native_source_controls": "Two RS body archives link together in C/Rust applications, use separate generated C helper symbols, retain helper-like literal bytes, compile original C source/header-backed initializers and preserve independent globals. Final archive indexing and quoted-path resolution follow-up passes.",
+  "source_bundle_cli": "Emits complete source/support manifest and projected model without a Rust toolchain or main; invalid flag/namespace combinations preserve absent outputs.",
+  "sdk_validation": {
+    "pinned_revision": "f7e77277258fde42010ef9577907169c2b1045ca",
+    "checkout_restored": "Initial import run lacked its ignored pinned SDK directory; restored a project-local clone at the exact CI revision, and the unchanged 37-test suite then passed."
+  },
+  "original_contract_preservation": {
+    "inventory": 1365,
+    "source_hashes_matching": 1364,
+    "unchanged_historical_source_deviation": [
+      "tests/exploratory/test_limitation_closure_array.sn"
+    ],
+    "unchanged_original_output_oracles": 1155,
+    "existing_sources_oracles_and_snapshots_unchanged": true
+  },
+  "source_sha256": {
+    "docs/native-artifacts.md": "d3713a7f5f02b09d08ed786788c9b24a000b1c6d0c94d90e1c630766ce10ffaf",
+    "docs/native-package-imports.md": "bb37056c65b7d119d39722149b657e4475634f37a6c8c57d77b809cadf17390c",
+    "docs/native-package-manifest.md": "787a3e56d7cae72fb79afd741d117a978a4f4985349babacd2ef9562d2761f0c",
+    "docs/runtime-abi.md": "2bf027c60611c70746dda49f114f0da882336db4af7688dce23d96f08e1c0255",
+    "docs/runtime-target-architecture.md": "8977a069f3d5024545fa0944823e4151578bba1e77e8d0e5c54742f2db6ed38f",
+    "scripts/sindarin_library.py": "df89d77ca9afff320d899e3a2101715076027cf074da51d9b6eb442556a8bb6b",
+    "src/compiler.c": "cba1a08babf3422063c1809955c82900dd2ecf875e0c005e1ade19f7a5ba18a7",
+    "src/compiler.h": "a13fa1d232bca9cc035cb8d0f10f285c22168f89d974a5975f02be2ba8694813",
+    "src/target/rust/rust_native_callbacks.c": "0f8c703ef353222b826a8dece832f64496fe0e8a4a11a1b5055795107b3a39ea",
+    "src/target/rust/rust_native_handle_arrays.c": "62bc756a2a09eb640a62740ca1eb136052eed27405ce9fd55d309091024b757a",
+    "src/target/rust/rust_native_handle_nodes.c": "4155bcabc1e8c8ea214b9f3e671b975656645a79cd8d64b03aaafe747d56a6fe",
+    "src/target/rust/rust_native_handles.c": "ec521e49b42a986c791322543c0f16a7ed9e0ee7bce266e5042768582c33edca",
+    "src/target/rust/rust_native_internal.h": "6ae4dbffe5f8444baed7c58e6616b54b37d25502c655951a20ca47f1fec8bdc2",
+    "src/target/rust/rust_native_plan.c": "d19a40fc77443c02afd07faa4eda3c43a2619adc7d3baea03dc82f688cbcec34",
+    "src/target/rust/rust_native_pointer_slices.c": "a3f18671623411e131839682a78904ecb3dcc21a3e7e33ced4677f4d14086f23",
+    "src/target/rust/rust_native_records.c": "83cb59cd673b019ffe12a112478bbf827892edc0cf71c22bdede0539039df320",
+    "src/target/rust/rust_native_render.c": "3011b0d07b5241a19e29813404c99599ed27b26613d337cccf35d722317d8993",
+    "src/target/rust/rust_native_serial.c": "58ff4160f98ebcfb7204e88bc0f523a620beada8f2b2da76fec4ea24cd44c508",
+    "src/target/rust/rust_native_variadics.c": "18a98988438b1fff77ac245b02d8d768e3da8bce7894bd44fb625d67e05da967",
+    "src/target/rust/rust_target.c": "0fbc3c10a5af1604ed3ea79f39d4d94958ad16f8186acdd518b5ccb209689fc0",
+    "src/target/target.c": "310d66fb46abbcdb02baeead94f2417a517372cf4dc44d9dfe3264e2e8a9922c",
+    "templates/rust/native_handles/module.hbs": "2da6cb8d9671780604f55eed2d3dec6fe7b3dea2f5eb4e3321451f7642d41fa3",
+    "templates/rust/partials/function.hbs": "60bc2946dcb0b66f8519603fa9880941e7030405edf558a158273a7ade0c0832",
+    "templates/rust/partials/native_handle_array_support.hbs": "f145ea360427cbe538f61ed65383375ac81e8f300901807b5749c4c61f9f653e",
+    "tests/package/native_artifacts.py": "1810e1978731e2b231383e7c6509238a7876b9817bdda73944781f9b55edf214",
+    "tests/package/native_imports.py": "1105866d16c308cf79355b34a79242be6f5f36f331a3897b94ff29058b7cfe21",
+    "templates/rust/native_declarations/module.hbs": "24dc461756cb4fbf2063c01b4861a43932d8e04a3798c9c3b450002ddd931c2b"
+  },
+  "log_sha256": {
+    "/tmp/sindarin-rust-body-bundle-imports.log": "25a5b76bceab405515e3d1d774ec435fb83f67ab762fd76adc4dec45dedb684d",
+    "/tmp/sindarin-rust-body-bundle-cli.log": "198f13e1947b9eb920ab64f1cca96437633d5b5c8497fd7b0681b27642e63298",
+    "/tmp/sindarin-rust-body-bundle-rustc.log": "f246517bdaa00b275dccf7d5c8b36c600f439d08a40000673a19606dcd6d8023",
+    "/tmp/sindarin-rust-body-bundle-array-asan.log": "76db114dd990ebd59261b8939acfa4e4396bb5d39741619d3a1eae0b688e8dd9",
+    "/tmp/sindarin-rust-body-bundle-probe.log": "6cff5e19a662fdaad739cbdcd0caf5501549b6fd01bf3a311e9977385b84aa3b",
+    "/tmp/sindarin-rust-body-bundle-c.log": "5ffeb9b1a25329e22579ad3003507b560433e5c3cf9805b05d9c06eec3480f67",
+    "/tmp/sindarin-rust-body-bundle-arrays.log": "9ddecdf05bf908c0a0d283bf6a472347e48615eebecf7d16ba70b12d89a93585",
+    "/tmp/sindarin-rust-body-bundle-ci-helpers.log": "244da00d3f214b54ec890ff04e6985e7fda69cb47d1178b2bb2d4f725fda16b3",
+    "/tmp/sindarin-rust-body-bundle-owner-asan.log": "8e37e24996524db6b965d7f266dbcaf7cc819a7de5a2558c63e1e22cf6f8c4a4",
+    "/tmp/sindarin-rust-body-bundle-artifacts.log": "72d19a875ddfc2a323e8ab6f55962c2cb8135ade2ce14e749d7d7787080e0ca9",
+    "/tmp/sindarin-rust-body-bundle-contracts.log": "2941d22230ed177e6edd18ed62010aa6b6ee508e9a253f12dd5ef6fa2ba6ce2d",
+    "/tmp/sindarin-rust-body-bundle-lifecycle.log": "098cde1e2753ec909260e36d47d0d85061bca0c79c6cf5c5e2c3c27eef427f9b",
+    "/tmp/sindarin-rust-body-bundle-rust.log": "526b9ab695d7ac154bc1a5f27a7c655b533477e4c68fb06a4178f3807b6e4079",
+    "/tmp/sindarin-rust-body-bundle-owners.log": "0526e39f6da8be368d04ca072673839699977d4f741bab7749c5f0728f391d17",
+    "/tmp/sindarin-rust-body-bundle-build.log": "682721302be99e1aed3fb1b244028b4fd719793d658c4a7d50a073abc68ecbf2",
+    "/tmp/sindarin-rust-body-bundle-basic.log": "62f54f0abd9bcd5b91810a7b08c6fb64343e90cfaf95b9237855a232b055680b",
+    "/tmp/sindarin-rust-body-bundle-namespaces.log": "a59632a7e9ce7688ae581f295950846e800a8478e1b374aa4c3eacc65a2c3e6d"
+  },
+  "hosted_prerequisite": {
+    "run": 38093383215,
+    "revision": "63dc51374caa65d1badb360d1ac0730bed02cd40",
+    "conclusion": "success",
+    "jobs": 34,
+    "groups": 26,
+    "gates": 292
+  },
+  "scope_limitations": [
+    "Reference-qualified rebinding, managed record/interface/callback declarations, dependency lifecycle graphs and complete C-backed SDK artifact migration remain required.",
+    "Owned array exports still use the established managed-value format; no complete canonical native-header result contract or SDK resource graph is claimed.",
+    "C undefined cases receive no parity credit; complete original-corpus independent-oracle/platform and final integrated acceptance remain required."
+  ],
+  "hosted_acceptance": "Local validation complete; this dependent feature batch follows accepted mutable adapters and requires its own complete hosted CI."
+}

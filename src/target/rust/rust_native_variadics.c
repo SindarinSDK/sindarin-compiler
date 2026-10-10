@@ -186,7 +186,7 @@ static bool native_variadic_lower_node(json_object *node, json_object *model,
         json_object *structs = NULL, *globals = NULL;
         json_object_object_get_ex(model, "structs", &structs);
         json_object_object_get_ex(model, "globals", &globals);
-        char *name = unique_private_name(functions, structs, globals, "__sn_native_variadic");
+        char *name = unique_private_name(native_string(model, "package_native_namespace"), functions, structs, globals, "__sn_native_variadic");
         if (!name) { json_object_put(params); return false; }
         bridge = native_variadic_bridge(function, params, name, source_file);
         free(name);

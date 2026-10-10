@@ -66,7 +66,7 @@ static bool native_prepare_callbacks(json_object *model, RustNativePlan *plan)
             }
             if (existing) continue;
             char stem[96]; snprintf(stem, sizeof(stem), "__SnNativeCallback_%zu", json_object_array_length(callbacks));
-            char *name = unique_private_name(functions, structs, globals, stem);
+            char *name = unique_private_name(native_string(model, "package_native_namespace"), functions, structs, globals, stem);
             if (!name) { json_object_put(callbacks); return false; }
             json_object *callback = json_object_new_object();
             json_object_object_add(callback, "name", json_object_new_string(name));
@@ -83,7 +83,7 @@ static bool native_prepare_callbacks(json_object *model, RustNativePlan *plan)
     const char *stems[] = {"__sn_callback_alloc", "__sn_callback_free", "__SnCallbackHeader", "__SnReentryCell", "__SnReentryGuard", "__SnNativeLease", "__SnCharWireScope", "__SN_CHAR_WIRES", "__sn_char_wire_read", "__sn_char_wire_write", "__SnNativeScalarCell", "__SnNativeScalarValue", "__SN_PERSISTENT_CHARS", "__sn_char_place_load", "__sn_char_place_store", "__SnNativeFieldRead", "__SnNativeCharGuard", "__SnOptionalCallable", "__sn_callback_retain", "__sn_callback_release", "__sn_callback_credit_lock", "__sn_callback_credit_unlock", "__sn_callback_string_dup"};
     for (size_t i = 0; i < 23; i++)
     {
-        char *name = unique_private_name(functions, structs, globals, stems[i]);
+        char *name = unique_private_name(native_string(model, "package_native_namespace"), functions, structs, globals, stems[i]);
         if (!name) { json_object_put(callbacks); return false; }
         json_object_object_add(model, keys[i], json_object_new_string(name)); free(name);
     }

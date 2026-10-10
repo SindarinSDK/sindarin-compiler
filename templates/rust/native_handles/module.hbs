@@ -48,11 +48,12 @@ long long {{length}}(void *value) { return value ? ((SnArray *)value)->len : 0; 
 void *{{data}}(void *value) { return value ? ((SnArray *)value)->data : NULL; }
 size_t {{width}}(void *value) { return value ? ((SnArray *)value)->elem_size : 0; }
 void {{push}}(void *value, const void *element) { sn_array_push((SnArray *)value, element); }
-void {{set}}(void *value, long long index, const void *element) {
+void {{set}}(void *value, long long index, const void *element, bool string_element) {
     SnArray *array = value;
     if (!array || index < 0 || index >= array->len) abort();
     void *slot = (char *)array->data + (size_t)index * array->elem_size;
-    if (array->elem_release) array->elem_release(slot);
+    if (string_element) free(*(char **)slot);
+    else if (array->elem_release) array->elem_release(slot);
     memcpy(slot, element, array->elem_size);
 }
 void *{{pop}}(void *value) { return sn_array_pop_ref((SnArray *)value); }

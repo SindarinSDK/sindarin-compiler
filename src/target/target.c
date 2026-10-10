@@ -1,4 +1,5 @@
 #include "target/target.h"
+#include "target/rust/rust_native_internal.h"
 #include "diagnostic.h"
 #include <errno.h>
 #include <limits.h>
@@ -177,6 +178,43 @@ static void report_success(const char *path)
     diagnostic_compile_success(path, file_size, 0);
 }
 
+static bool write_source_bundle(const CompilerOptions *options, const GeneratedFileSet *files)
+{
+    if (files->primary_file < 0 || !ensure_directory(options->output_file) ||
+        !write_generated_files(options->output_file, files)) return false;
+    json_object *manifest = json_object_new_object(), *entries = json_object_new_array();
+    json_object *sources = json_object_new_array(), *links = json_object_new_array();
+    json_object_object_add(manifest, "schema", json_object_new_int(1));
+    json_object_object_add(manifest, "target", json_object_new_string("rust"));
+    json_object_object_add(manifest, "primary", json_object_new_string(files->files[files->primary_file].relative_path));
+    json_object_object_add(manifest, "body_model", json_object_new_string("body_model.json"));
+    json_object_object_add(manifest, "files", entries);
+    json_object_object_add(manifest, "native_sources", sources);
+    json_object_object_add(manifest, "native_link_options", links);
+    for (int i = 0; i < files->file_count; i++) {
+        json_object *entry = json_object_new_object();
+        json_object_object_add(entry, "path", json_object_new_string(files->files[i].relative_path));
+        json_object_object_add(entry, "kind", json_object_new_string(files->files[i].kind == GENERATED_SOURCE ? "source" :
+            files->files[i].kind == GENERATED_HEADER ? "header" : "support"));
+        json_object_array_add(entries, entry);
+    }
+    ModularModel *split = rust_native_plan_split(files->target_data);
+    for (int i = 0; split && i < split->source_file_count; i++) {
+        json_object *entry = json_object_new_object();
+        json_object_object_add(entry, "path", json_object_new_string(split->source_files[i]));
+        json_object_object_add(entry, "directory", json_object_new_string(split->source_dirs[i] ? split->source_dirs[i] : "."));
+        json_object_array_add(sources, entry);
+    }
+    for (int i = 0; split && i < split->link_lib_count; i++)
+        json_object_array_add(links, json_object_new_string(split->link_libs[i]));
+    char path[PATH_MAX];
+    int length = snprintf(path, sizeof(path), "%s/bundle.json", options->output_file);
+    bool ok = length >= 0 && length < (int)sizeof(path) &&
+        write_file(path, json_object_to_json_string_ext(manifest, JSON_C_TO_STRING_PRETTY));
+    json_object_put(manifest);
+    return ok;
+}
+
 int rust_target_compile(CompilerOptions *options, Module *module)
 {
     const TargetCompiler *target = &sn_rust_target;
@@ -189,7 +227,7 @@ int rust_target_compile(CompilerOptions *options, Module *module)
     generated_file_set_init(&files);
 
     diagnostic_phase_start(PHASE_CODE_GEN);
-    TargetEmitMode emit_mode = options->output_kind == OUTPUT_SOURCE
+    TargetEmitMode emit_mode = options->output_kind == OUTPUT_SOURCE && !options->emit_source_bundle
         ? TARGET_EMIT_SINGLE : TARGET_EMIT_BUILD;
     if (!target->emit(options, module, emit_mode, &files))
     {
@@ -200,6 +238,13 @@ int rust_target_compile(CompilerOptions *options, Module *module)
 
     if (options->output_kind == OUTPUT_SOURCE)
     {
+        if (options->emit_source_bundle) {
+            bool ok = write_source_bundle(options, &files);
+            if (ok) { diagnostic_phase_done(PHASE_CODE_GEN, 0); report_success(options->output_file); }
+            else diagnostic_phase_failed(PHASE_CODE_GEN);
+            generated_file_set_free(&files);
+            return ok ? 0 : 1;
+        }
         int primary = files.primary_file >= 0 ? files.primary_file : 0;
         if (files.file_count == 0 || !write_file(options->output_file, files.files[primary].contents))
         {

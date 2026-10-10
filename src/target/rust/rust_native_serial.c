@@ -130,7 +130,7 @@ static bool native_prepare_serial_types(json_object *model, json_object *private
         for (size_t r = 0; roles[r]; r++) {
             char stem[128];
             snprintf(stem, sizeof(stem), "__sn_serial_%s_%s", names[k], roles[r]);
-            char *name = unique_private_name(native_record_child(model, "functions"), structures,
+            char *name = unique_private_name(native_string(model, "package_native_namespace"), native_record_child(model, "functions"), structures,
                 native_record_child(model, "globals"), stem);
             if (!name) { json_object_put(structure); return false; }
             char key[96]; snprintf(key, sizeof(key), "rust_native_serial_%s", roles[r]);
@@ -160,7 +160,7 @@ static bool native_prepare_serial_types(json_object *model, json_object *private
             }
             json_object_object_add(method, "params", params);
             char stem[160]; snprintf(stem, sizeof(stem), "__sn_serial_%s_%s", names[k], spec->name);
-            char *bridge_name = unique_private_name(native_record_child(private_model, "functions"), structures,
+            char *bridge_name = unique_private_name(native_string(model, "package_native_namespace"), native_record_child(private_model, "functions"), structures,
                 native_record_child(model, "globals"), stem);
             if (!bridge_name) { json_object_put(method); json_object_put(methods); json_object_put(structure); return false; }
             json_object_object_add(method, "c_alias", json_object_new_string(bridge_name));
@@ -224,13 +224,13 @@ static bool native_prepare_serial_types(json_object *model, json_object *private
             json_object_object_add(field, "rust_serial_key", json_object_get(key));
             char stem[96];
             snprintf(stem, sizeof(stem), "__sn_serial_value_%zu", f);
-            char *local = unique_private_name(fields, methods,
+            char *local = unique_private_name(native_string(model, "package_native_namespace"), fields, methods,
                 native_record_child(model, "globals"), stem);
             if (!local) return false;
             json_object_object_add(field, "rust_serial_field_value", json_object_new_string(local));
             free(local);
         }
-        char *helper = unique_private_name(methods, fields,
+        char *helper = unique_private_name(native_string(model, "package_native_namespace"), methods, fields,
             native_record_child(model, "functions"), "__sn_serial_encode_impl");
         if (!helper) return false;
         json_object_object_add(structure, "rust_serializable", json_object_new_boolean(true));

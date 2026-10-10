@@ -207,19 +207,19 @@ uses owned guards; Go uses deferred releases and native-sized C pointers without
 retaining Go object pointers. Existing 1.1 backing slice contracts are unchanged;
 a 1.5 function with that old backing signature fails compilation.
 
-C Sindarin body exports now use this same transport and preserve in-place slot
+C and Rust Sindarin body exports now use this same transport and preserve in-place slot
 mutation, growth and live native callbacks. The native owner must outlive every
 borrowed view credit, and callers serialize mutation. Reference-qualified input
-rebinding, generated Rust Sindarin body inputs, managed callback declarations,
+rebinding, managed callback declarations,
 record/interface contracts and full SDK migration remain required work. C-unsafe
 parameter rebinding that frees a still-owned caller header is not a parity oracle.
 
 Controls cover exact outputs across all nine optimization/arithmetic combinations
-for C/Rust applications using C bodies, from source and relocated prebuilt archives
+for C/Rust applications using C/RS bodies, from source and relocated prebuilt archives
 with body sources and headers removed. Ordinary Rust/Go backing keeps its original
 language and uses generated exports, live alias callbacks and owned results in
 both application targets and prebuilt consumption. Go runs with `cgocheck2` and
 forces GC during calls. A C provider client checks unchanged error outputs,
 package shutdown and exactly-once native cleanup when a callback consumes its
 external credit. Strict address/undefined/leak controls cover the generated C
-body and C/Rust caller paths.
+and Rust bodies and C/Rust caller paths.

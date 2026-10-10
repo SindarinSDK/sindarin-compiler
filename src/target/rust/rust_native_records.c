@@ -71,7 +71,7 @@ static bool native_record_register(json_object *model, json_object *type,
     json_object *record = json_object_new_object();
     char stem[96];
     snprintf(stem, sizeof(stem), "__SnNativeRecord_%zu", json_object_array_length(records));
-    char *wire = unique_private_name(native_record_child(model, "functions"),
+    char *wire = unique_private_name(native_string(model, "package_native_namespace"), native_record_child(model, "functions"),
         native_record_child(model, "structs"), native_record_child(model, "globals"), stem);
     if (!record || !wire) { if (record) json_object_put(record); free(wire); return false; }
     json_object *source_name = json_object_new_string(name);
@@ -238,7 +238,7 @@ static bool native_prepare_records(json_object *model)
             json_object_put(type);
             char stem[96];
             snprintf(stem, sizeof(stem), "__sn_native_record_layout_%zu", i);
-            char *check = unique_private_name(native_record_child(model, "functions"),
+            char *check = unique_private_name(native_string(model, "package_native_namespace"), native_record_child(model, "functions"),
                 native_record_child(model, "structs"), native_record_child(model, "globals"), stem);
             if (!check) goto fail;
             json_object_object_add(record, "layout_check", json_object_new_string(check));
@@ -257,7 +257,7 @@ static bool native_prepare_records(json_object *model)
         const char *stems[] = {"__SnNativeCString", "__sn_native_c_string_dup", "__sn_native_c_string_free", "__SnNativeCStringArg", "__SnNativeCStringLoan"};
         for (size_t i = 0; i < 5; i++)
         {
-            char *name = unique_private_name(native_record_child(model, "functions"),
+            char *name = unique_private_name(native_string(model, "package_native_namespace"), native_record_child(model, "functions"),
                 native_record_child(model, "structs"), native_record_child(model, "globals"), stems[i]);
             if (!name) goto fail;
             json_object_object_add(model, keys[i], json_object_new_string(name));

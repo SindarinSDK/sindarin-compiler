@@ -62,11 +62,42 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
         if any(kind(p['type'])=='string_array' for p in parameters):
             if signature.get('abi') != '1.5':
                 raise ValueError('Sindarin library array inputs require generated mutable/borrowed-body contracts in native ABI 1.5')
-            if runtime != 'C':
-                raise ValueError('Rust Sindarin library mutable array inputs require canonical native-array body emission')
         selected.append(function)
     emitted = work/(stem+('.c' if runtime=='C' else '.rs'))
-    run(common+['--emit-source','-o',emitted],cwd=root)
+    native_objects, native_depfiles, bundle_links = [], [], []
+    projected_functions = functions
+    if runtime == 'RS':
+        bundle_dir = work/(stem+'_bundle')
+        native_arrays = any(kind(p['type']) == 'string_array' for f in selected for p in f['params'])
+        bundle_options = ['--emit-source-bundle', '--package-native-namespace', stem]
+        if native_arrays: bundle_options.append('--package-native-arrays')
+        run(common+bundle_options+['-o',bundle_dir],cwd=root)
+        bundle = json.loads((bundle_dir/'bundle.json').read_text())
+        if bundle.get('schema') != 1 or bundle.get('target') != 'rust':
+            raise ValueError('unsupported Rust package source bundle')
+        emitted = bundle_dir/bundle['primary']
+        projected = json.loads((bundle_dir/bundle['body_model']).read_text(encoding='utf-8',errors='surrogateescape'))
+        projected_functions = {f['name']:f for f in projected['functions']}
+        generated = [bundle_dir/f['path'] for f in bundle['files'] if f['kind']=='source' and Path(f['path']).suffix=='.c']
+        for item in bundle['native_sources']:
+            value = item['path']
+            if len(value) >= 2 and value[0] == value[-1] == '"': value = value[1:-1]
+            path = Path(value)
+            if not path.is_absolute():
+                directory = Path(item['directory'])
+                if not directory.is_absolute(): directory = root/directory
+                path = directory/path
+            generated.append(path.resolve()); dependencies.add(path.resolve())
+        include_dirs = [args.compiler.resolve().parent/'include/runtime',bundle_dir]+[(root/p).resolve() for p in unit.get('include_dirs',[])]
+        for index,source in enumerate(generated):
+            obj=work/(stem+'_native_'+str(index)+'.o');dep=obj.with_suffix('.d')
+            flags=['-std=c11','-D_GNU_SOURCE','-Werror=implicit-function-declaration','-O'+args.optimization,'-fwrapv','-fno-lto']
+            for directory in include_dirs: flags+=['-I',directory]
+            run(tools['cc']+flags+shlex.split(os.environ.get('SN_CFLAGS',''))+['-MD','-MF',dep,'-c',source,'-o',obj],cwd=root)
+            native_objects.append(obj);native_depfiles.append(dep)
+        bundle_links = bundle['native_link_options']
+    else:
+        run(common+['--emit-source','-o',emitted],cwd=root)
     archive = work/('lib'+stem+'.a')
     adjusted = []
     for signature in signatures:
@@ -122,11 +153,25 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
             else:links.extend(tokens)
         return archive,links,[dep],model,dependencies
     code=emitted.read_text(encoding="utf-8", errors="surrogateescape")+'\n'
+    input_arrays=[p for f in selected for p in projected_functions[f['name']]['params'] if kind(p['type'])=='string_array']
+    array_guard='__'+stem+'_array_input_guard'
+    if input_arrays:
+        array_type=input_arrays[0]['type']['rust_native_handle_array_name']+'<SnString>'
+        code+=f'struct {array_guard} {{ value: std::mem::ManuallyDrop<{array_type}>, original: *mut std::ffi::c_void }}\n'
+        code+=f'impl Drop for {array_guard} {{ fn drop(&mut self) {{ if self.value.pointer != self.original {{ unsafe {{ std::mem::ManuallyDrop::drop(&mut self.value) }} }} }} }}\n'
     for signature,function in zip(adjusted,selected):
-        parameters=[];arguments=[]
+        parameters=[];arguments=[];setup=[]
+        projected_function=projected_functions[function['name']]
         for index,p in enumerate(signature['params']):
-            k=kind(p['type']);parameters.append(f'p{index}: '+('Option<&[u8]>' if k=='string' else RUST[k]))
-            arguments.append(f'p{index}.map_or_else(SnString::nil, SnString::from_c_bytes)' if k=='string' else f'p{index} as char' if k=='char' else f'p{index}')
+            k=kind(p['type'])
+            parameters.append(f'p{index}: '+('*mut std::ffi::c_void' if k=='string_array' else 'Option<&[u8]>' if k=='string' else RUST[k]))
+            if k=='string_array':
+                parameter=projected_function['params'][index]
+                array_type=parameter['type']['rust_native_handle_array_name']+'<SnString>'
+                setup.append(f'  let mut array{index} = {array_guard} {{ value: std::mem::ManuallyDrop::new(<{array_type}>::adopt(p{index})), original: p{index} }};')
+                arguments.append(f'&mut *array{index}.value' if parameter.get('rust_default_array_ref') else f'&*array{index}.value')
+            else:
+                arguments.append(f'p{index}.map_or_else(SnString::nil, SnString::from_c_bytes)' if k=='string' else f'p{index} as char' if k=='char' else f'p{index}')
         result=kind(signature['return_type']);status=signature['binding']['failure']=='status'
         output=RUST[result]
         if status:output='Result<'+output+',u32>'
@@ -135,9 +180,11 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
         code+='pub fn '+signature['binding']['function']+'('+', '.join(parameters)+') -> '+output+' {\n'
         if lifecycle:
             code+='  let _call = __sn_package_enter()'+('?' if status else '.unwrap_or_else(|_|std::process::abort())')+';\n'
+        code+='\n'.join(setup)+'\n'
         code+='  let value = '+name+'('+', '.join(arguments)+');\n'
+        array_elements=('(0..value.len()).map(|i| value.read_value(i))' if projected_function['return_type'].get('rust_native_array_codec') else 'value.iter()')
         value=('if value.is_nil() { None } else { Some(value.as_bytes().to_vec()) }' if result=='string' else
-               'if value.is_nil() { None } else { Some(value.iter().map(|text| if text.is_nil() { None } else { Some(text.as_bytes().to_vec()) }).collect()) }' if result=='string_array' else
+               'if value.is_nil() { None } else { Some('+array_elements+'.map(|text| if text.is_nil() { None } else { Some(text.as_bytes().to_vec()) }).collect()) }' if result=='string_array' else
                'value as u32 as u8' if result=='char' else 'value')
         code+='  '+('Ok('+value+')' if status else value)+'\n}\n'
     emitted.write_text(code, encoding="utf-8", errors="surrogateescape")
@@ -153,8 +200,14 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
     compile_args=tools['rustc']+['--edition=2021','--crate-type=staticlib','--crate-name',stem,'--emit=dep-info,link','-C','opt-level='+args.optimization,provider,'--extern',crate+'='+str(backing),'-o',archive]+flags
     diagnostics=run(compile_args+['--print=native-static-libs'],cwd=root,include_stderr=True)
     run(compile_args,cwd=root)
+    if native_objects: run(tools['ar']+['rcs',archive]+native_objects)
     libraries=re.search(r'native-static-libs:\s*(.*)',diagnostics)
     if not libraries:raise ValueError('Rust library did not report native link dependencies')
     native_links=shlex.split(libraries.group(1))
     if lifecycle:native_links.append('-pthread')
-    return archive,native_links,[backing.with_suffix('.d'),archive.with_suffix('.d')],model,dependencies
+    for link in bundle_links:
+        tokens=shlex.split(link)
+        if len(tokens)==1 and not tokens[0].startswith('-'):
+            token=tokens[0];native_links.append(str((root/token).resolve()) if token.endswith(('.a','.so','.dylib','.lib')) else '-l'+token)
+        else:native_links.extend(tokens)
+    return archive,native_links,[backing.with_suffix('.d'),archive.with_suffix('.d')]+native_depfiles,model,dependencies

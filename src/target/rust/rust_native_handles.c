@@ -62,7 +62,7 @@ static bool native_handle_prepare_methods(json_object *model, json_object *handl
         if (!native_bool(method, "is_native")) continue;
         char stem[128];
         snprintf(stem, sizeof(stem), "__sn_native_handle_%s_method_%zu", native_string(handle, "name"), i);
-        char *name = unique_private_name(functions, native_record_child(model, "structs"),
+        char *name = unique_private_name(native_string(model, "package_native_namespace"), functions, native_record_child(model, "structs"),
                                          native_record_child(model, "globals"), stem);
         if (!name) { json_object_put(type); return false; }
         json_object *function = json_object_new_object();
@@ -81,7 +81,7 @@ static bool native_handle_prepare_methods(json_object *model, json_object *handl
         json_object *params = json_object_new_array(), *args = json_object_new_array();
         if (!native_bool(method, "is_static")) {
             json_object *self = json_object_new_object();
-            char *receiver = unique_private_name(native_record_child(method, "params"), NULL, NULL, "__receiver");
+            char *receiver = unique_private_name(native_string(model, "package_native_namespace"), native_record_child(method, "params"), NULL, NULL, "__receiver");
             if (!receiver) { free(name); json_object_put(function); json_object_put(params); json_object_put(args); json_object_put(type); return false; }
             json_object_object_add(self, "name", json_object_new_string(receiver));
             free(receiver);
@@ -144,14 +144,14 @@ static bool native_prepare_handles(json_object *model, RustNativePlan *plan)
         const char *roles[] = {"pointer", "adopt", "retain", "release", "refs"};
         for (int k = 0; keys[k]; k++) {
             char stem[160]; snprintf(stem, sizeof(stem), "__sn_native_handle_%zu_%s", i, roles[k]);
-            char *name = unique_private_name(native_record_child(model, "functions"), structures,
+            char *name = unique_private_name(native_string(model, "package_native_namespace"), native_record_child(model, "functions"), structures,
                 native_record_child(model, "globals"), stem);
             if (!name) { json_object_put(handles); return false; }
             json_object_object_add(structure, keys[k], json_object_new_string(name)); free(name);
         }
         char borrow_stem[160];
         snprintf(borrow_stem, sizeof(borrow_stem), "__sn_native_handle_%zu_borrow", i);
-        char *borrow_name = unique_private_name(native_record_child(structure, "methods"),
+        char *borrow_name = unique_private_name(native_string(model, "package_native_namespace"), native_record_child(structure, "methods"),
             native_record_child(structure, "fields"), native_record_child(model, "functions"), borrow_stem);
         if (!borrow_name) { json_object_put(handles); return false; }
         json_object_object_add(structure, "rust_native_handle_borrow", json_object_new_string(borrow_name));
@@ -166,12 +166,12 @@ static bool native_prepare_handles(json_object *model, RustNativePlan *plan)
             if (string_field)
                 json_object_object_add(model, "rust_nullable_strings", json_object_new_boolean(true));
             char stem[160]; snprintf(stem, sizeof(stem), "__sn_native_handle_%zu_get_%zu", i, f);
-            char *getter = unique_private_name(native_record_child(model, "functions"), structures,
+            char *getter = unique_private_name(native_string(model, "package_native_namespace"), native_record_child(model, "functions"), structures,
                 native_record_child(model, "globals"), stem);
             if (!getter) { json_object_put(handles); return false; }
             json_object_object_add(field, "rust_native_handle_get", json_object_new_string(getter)); free(getter);
             snprintf(stem, sizeof(stem), "__sn_native_handle_%zu_set_%zu", i, f);
-            char *setter = unique_private_name(native_record_child(model, "functions"), structures,
+            char *setter = unique_private_name(native_string(model, "package_native_namespace"), native_record_child(model, "functions"), structures,
                 native_record_child(model, "globals"), stem);
             if (!setter) { json_object_put(handles); return false; }
             json_object_object_add(field, "rust_native_handle_set", json_object_new_string(setter)); free(setter);

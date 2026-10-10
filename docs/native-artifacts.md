@@ -151,13 +151,13 @@ preserve nil/empty arrays and elements and arbitrary string bytes, transfer inde
 and keep retrieved values alive after array release and package shutdown. Consumer arrays retain their
 normal mutation and cleanup behaviour. C body `str[]` inputs use ABI 1.5 live
 native views; generated C/Rust/Go native providers use the same input transport.
-Rust Sindarin body inputs still need canonical array emission.
+Rust Sindarin body inputs now use canonical array emission and the same live views.
 
-Managed package thread/global-handle lifetimes, Rust array-input and record body exports,
+Managed package thread/global-handle lifetimes, reference-qualified and record body exports,
 generic public APIs and complete native-backed SDK facade migration
-remain required work. Unsupported contracts fail clearly. RS body emission that
-needs native C sidecars still requires the modular library lifecycle extension;
-native C/Go backing is kept in its original language. An SN unit selecting GO
+remain required work. Unsupported contracts fail clearly. RS body emission now
+produces a source bundle and compiles required C support/backing with the C
+toolchain; native C/Go backing is kept in its original language. An SN unit selecting GO
 reports the unimplemented Sindarin Go backend. This initial body-library path
 does not satisfy the whole Rust completion goal.
 
@@ -221,3 +221,40 @@ dependencies together, preserving one Go runtime. Incompatible module roots or
 replacement directives are diagnosed; unrelated handwritten main archives cannot
 be combined. Complete prebuilt/source-independent Go package consumption remains
 part of the wider package artifact work.
+
+## Rust implementation source bundles
+
+The library builder uses `--package-body --target rust --emit-source-bundle -o DIR`
+for RS implementation units. This emits `bundle.json`, the primary `main.rs`, a
+projected `body_model.json`, and all needed generated C sources/headers. The
+manifest records exact generated files, native sources with their originating
+directories and native link options. Source emission requires no Rust/C toolchain
+execution and produces no application main. Ordinary single-file source emission
+retains its existing contract.
+
+`--package-native-namespace NAME` gives compiler-generated native helpers a
+package-specific symbol namespace. The builder derives it from package/build
+identity. User backing symbols and literal bytes remain unchanged. Generated C
+forwarding entries materialize supported header-only native declarations inside
+the package. C support and original `@source` files compile with the C toolchain;
+objects are indexed into the Rust static archive, and dependency files retain
+original source/header hashes. Existing `@include`/`@source`/`@link` inputs keep
+their native language and link dependencies.
+
+ABI 1.5 string-array body inputs select `--package-native-arrays`. Generated Rust
+bodies operate on the actual C header/slots through the existing native array
+codec; no Rust slice/vector representation crosses the ABI. Input wrappers borrow
+headers under the provider's call credits. Scoped guards release a newly owned
+local header if its binding changes. Array results use the existing owned-value
+transport, with native slot decoding. Comparisons borrow native headers without
+introducing C copy hooks; string slot assignment follows C's direct string free
+rather than invoking an unrelated array-element cleanup hook.
+
+Exact-output controls exercise RS bodies and C callbacks across all nine
+optimization/arithmetic combinations, C/Rust callers, source and relocated
+prebuilt consumption after body/header removal. Native owner/copy-hook/error and
+shutdown controls pass strict address/undefined/leak checks. Two RS body libraries
+link together with distinct helper symbols, unchanged helper-like string literals,
+native C-backed initialization and independent package globals. Complete
+record/interface/callback and reference contracts, dependency lifecycle graphs,
+SDK artifact migration and final corpus acceptance remain required.

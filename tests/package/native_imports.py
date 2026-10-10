@@ -86,6 +86,12 @@ class NativeImports(unittest.TestCase):
                 self.assertFalse((self.root/'rejected.exe').exists())
 
     def test_c_sindarin_mutable_array_body_preserves_live_aliases_and_prebuilt_consumption(self):
+        self.check_sindarin_mutable_array_body("C")
+
+    def test_rust_sindarin_mutable_array_body_preserves_live_aliases_and_prebuilt_consumption(self):
+        self.check_sindarin_mutable_array_body("RS")
+
+    def check_sindarin_mutable_array_body(self, runtime):
         import hashlib, json
         package = self.root/'.sn/livebody'
         self.write('.sn/livebody/src/api.sn', 'native fn mutate(values: str[], alias: str[]): str[]\n'
@@ -102,7 +108,7 @@ class NativeImports(unittest.TestCase):
                    '  values[0] = "changed"\n  for i in 0..64 =>\n    values.push("grow")\n'
                    '  observe(alias)\n  return alias\n'
                    'fn count(values: str[]): int =>\n  if values == nil =>\n    return 0\n  return values.length\n')
-        manifest = ('name: livebody\nruntime: C\nnative:\n  abi: 1.5\n  declarations: [src/api.sn]\n'
+        manifest = (f'name: livebody\nruntime: {runtime}\nnative:\n  abi: 1.5\n  declarations: [src/api.sn]\n'
                     '  builds:\n    - name: body\n      language: SN\n      entry: src/body.sn\n'
                     '      sources: [src/body.sn]\n      include_dirs: [src]\n  bindings:\n'
                     '    - declaration: src/api.sn::mutate\n      function: mutate\n      symbol: live_body_mutate\n'
@@ -132,7 +138,7 @@ class NativeImports(unittest.TestCase):
         descriptor = Path(json.loads(built.stdout)['assembly'])
         metadata = json.loads(descriptor.read_text())
         self.assertEqual(metadata['abi'], '1.5')
-        self.assertEqual(metadata['units'][0]['implementation_runtime'], 'C')
+        self.assertEqual(metadata['units'][0]['implementation_runtime'], runtime)
         destination = package/'dist'
         shutil.copytree(descriptor.parent, destination)
         digest = hashlib.sha256((destination/'assembly.json').read_bytes()).hexdigest()
@@ -146,6 +152,49 @@ class NativeImports(unittest.TestCase):
                 for arithmetic in (None, '--checked', '--unchecked'):
                     flags = (optimization,) + ((arithmetic,) if arithmetic else ())
                     with self.subTest(prebuilt=target, flags=flags): self.execute(target, wanted, flags)
+
+    def test_two_rust_array_body_libraries_namespace_helpers_and_compile_native_sources(self):
+        import json
+        for name, seed in (('firstbody',1),('secondbody',10)):
+            root='.sn/'+name
+            self.write(root+'/src/api.sn','native fn mutate(values: str[]): str[]\nnative fn label(): str\n')
+            self.write(root+'/src/body.sn', '@source "value.c"\n@alias "'+name+'_seed"\nnative fn seed(): int\n'
+                       'var count: int = seed()\nfn label(): str =>\n  return "'+name+':__sn_native_handle_array_set_0"\n'
+                       'fn mutate(values: str[]): str[] =>\n  count += 1\n  println(count)\n'
+                       '  if values != nil =>\n    if values.length > 0 =>\n      values[0] = label()\n  return values\n')
+            self.write(root+'/src/value.h',f'#define SEED_VALUE {seed}\n')
+            self.write(root+'/src/value.c','#include "value.h"\nlong long '+name+'_seed(void) { return SEED_VALUE; }\n')
+            text=f'name: {name}\nruntime: RS\nnative:\n  abi: 1.5\n  declarations: [src/api.sn]\n'
+            text+='  builds:\n    - name: body\n      language: SN\n      entry: src/body.sn\n      sources: [src/body.sn]\n  bindings:\n'
+            for function,params,result in (('mutate','{values: borrowed}','owned'),('label','{}','owned')):
+                text+=f'    - declaration: src/api.sn::{function}\n      function: {function}\n      symbol: {name}_{function}\n'
+                text+='      build: body\n      convention: C\n      failure: status\n'
+                text+=f'      ownership: {{parameters: {params}, result: {result}}}\n'
+            self.write(root+'/sn.yaml',text)
+        self.write('main.sn','import "firstbody/src/api" as First\nimport "secondbody/src/api" as Second\n'
+                   'fn main(): void =>\n  var values: str[] = {"initial"}\n  var first = First.mutate(values)\n'
+                   '  println(values[0])\n  var second = Second.mutate(values)\n  println(values[0])\n'
+                   '  println(first[0])\n  println(second[0])\n  var third = First.mutate(values)\n  println(First.label())\n')
+        wanted=(b'2\nfirstbody:__sn_native_handle_array_set_0\n11\nsecondbody:__sn_native_handle_array_set_0\n'
+                b'firstbody:__sn_native_handle_array_set_0\nsecondbody:__sn_native_handle_array_set_0\n3\nfirstbody:__sn_native_handle_array_set_0\n')
+        for target in ('c','rust'):
+            with self.subTest(target=target):self.execute(target,wanted)
+        symbols=[]
+        for name in ('firstbody','secondbody'):
+            package=self.root/'.sn'/name
+            built=subprocess.run([str(COMPILER),'--build-package',str(package/'sn.yaml'),'--target','rust',
+                '-o',str(package/'.sn/check')],capture_output=True,timeout=180)
+            self.assertEqual(built.returncode,0,built.stderr.decode(errors='replace'))
+            descriptor=Path(json.loads(built.stdout)['assembly']);metadata=json.loads(descriptor.read_text())
+            archive=descriptor.parent/metadata['units'][0]['archive']
+            data=archive.read_bytes()
+            # Canonical array helpers are generated per package. Inspect actual
+            # archive symbol bytes, alongside the two-library behavioural check.
+            import re
+            names=set(re.findall(rb'sn_native_000_[0-9a-f]{12}___sn_native_handle_array_[a-z_]+_0',data))
+            self.assertTrue(names)
+            symbols.append(names)
+        self.assertFalse(symbols[0]&symbols[1])
 
     def test_generated_rust_and_go_native_views_mutate_c_storage_with_live_callbacks(self):
         import hashlib, json
@@ -243,7 +292,6 @@ class NativeImports(unittest.TestCase):
         self.write('main.sn', 'import "livecontract/src/api"\nfn main(): void =>\n  println(provide(nil))\n')
         for text, message in (
                 (body.replace('abi: 1.0', 'abi: 1.1'), b'array inputs require generated mutable/borrowed-body contracts'),
-                (body.replace('runtime: C', 'runtime: RS').replace('abi: 1.0', 'abi: 1.5'), b'canonical native-array body emission'),
                 (original.replace('runtime: C', 'runtime: RS').replace('language: C', 'language: RS')
                  .replace('sources: [src/impl.c]', 'entry: src/impl.rs\n      sources: [src/impl.rs]')
                  .replace('abi: 1.0', 'abi: 1.5'), b'mismatched types')):

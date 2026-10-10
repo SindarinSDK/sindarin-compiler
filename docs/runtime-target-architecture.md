@@ -14,8 +14,9 @@ reverse, with publication before reentrant cleanup. ABI 1.5 adds borrowed/owned
 views of actual canonical C string-array headers, preserving native hooks and
 live callback visibility. Generated C body-input and C/Rust/Go native adapters
 now consume these string-array views, preserving in-call aliases and callback
-mutation. Generated Rust Sindarin body inputs still require canonical array
-emission; reference-qualified rebinding and wider contracts remain pending.
+mutation. Generated Rust Sindarin body inputs now use canonical array emission
+and native C support bundles; reference-qualified rebinding and wider contracts
+remain pending.
 Package dependency lifecycle graphs, wider
 managed-body exports and complete record/interface contracts remain pending.
 Scalar/string native imports and provider exports have generated

@@ -109,14 +109,14 @@ static void native_handle_array_mark(json_object *node, json_object *support)
 
 static bool native_prepare_handle_arrays(json_object *model, json_object *handles)
 {
-    bool primitive_scalars = native_primitive_array_boundary(model);
+    bool primitive_scalars = native_bool(model, "package_native_arrays") || native_primitive_array_boundary(model);
     if (!native_handle_array_collect(model) && !primitive_scalars) return true;
     json_object *support = json_object_new_object();
     if (primitive_scalars) json_object_object_add(support, "primitive_scalars", json_object_new_boolean(true));
     const char *roles[] = {"type", "trait", "untyped_new", "free", "copy", "length", "data", "width", "push", "pop", "insert", "remove", "clear", "reverse", "slice", "concat", "set", "string_dup", "string_free", "string_copy", "string_view", "string_argument", "nested_new", "nested_free", "nested_copy", NULL};
     for (int i = 0; roles[i]; i++) {
         char stem[160]; snprintf(stem, sizeof(stem), "__sn_native_handle_array_%s", roles[i]);
-        char *name = unique_private_name(native_record_child(model, "functions"), native_record_child(model, "structs"), native_record_child(model, "globals"), stem);
+        char *name = unique_private_name(native_string(model, "package_native_namespace"), native_record_child(model, "functions"), native_record_child(model, "structs"), native_record_child(model, "globals"), stem);
         if (!name) { json_object_put(support); return false; }
         json_object_object_add(support, roles[i], json_object_new_string(name)); free(name);
     }
@@ -124,7 +124,7 @@ static bool native_prepare_handle_arrays(json_object *model, json_object *handle
         const char *extra[] = {"primitive_new", "primitive_width", "primitive_align", NULL};
         for (int i = 0; extra[i]; i++) {
             char stem[160]; snprintf(stem, sizeof(stem), "__sn_native_array_%s", extra[i]);
-            char *name = unique_private_name(native_record_child(model, "functions"), native_record_child(model, "structs"), native_record_child(model, "globals"), stem);
+            char *name = unique_private_name(native_string(model, "package_native_namespace"), native_record_child(model, "functions"), native_record_child(model, "structs"), native_record_child(model, "globals"), stem);
             if (!name) { json_object_put(support); return false; }
             json_object_object_add(support, extra[i], json_object_new_string(name)); free(name);
         }
@@ -136,7 +136,7 @@ static bool native_prepare_handle_arrays(json_object *model, json_object *handle
         json_object_object_add(handle, "rust_native_handle_array_support", json_object_get(support));
         if (native_bool(handle, "rust_native_serial_handle")) continue;
         char stem[160]; snprintf(stem, sizeof(stem), "__sn_native_handle_%zu_array_new", i);
-        char *name = unique_private_name(native_record_child(model, "functions"), native_record_child(model, "structs"), native_record_child(model, "globals"), stem);
+        char *name = unique_private_name(native_string(model, "package_native_namespace"), native_record_child(model, "functions"), native_record_child(model, "structs"), native_record_child(model, "globals"), stem);
         if (!name) { json_object_put(support); return false; }
         json_object_object_add(handle, "rust_native_handle_array_new", json_object_new_string(name)); free(name);
     }
@@ -147,7 +147,7 @@ static bool native_prepare_handle_arrays(json_object *model, json_object *handle
         if (!native_bool(record, "rust_native_array_record")) continue;
         char stem[160];
         snprintf(stem, sizeof(stem), "__sn_native_record_array_%zu_new", i);
-        char *name = unique_private_name(native_record_child(model, "functions"), native_record_child(model, "structs"), native_record_child(model, "globals"), stem);
+        char *name = unique_private_name(native_string(model, "package_native_namespace"), native_record_child(model, "functions"), native_record_child(model, "structs"), native_record_child(model, "globals"), stem);
         if (!name) { json_object_put(array_records); json_object_put(support); return false; }
         json_object_object_add(record, "array_new", json_object_new_string(name));
         free(name);

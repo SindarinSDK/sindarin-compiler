@@ -1,0 +1,7 @@
+#include "sn_types.h"
+{{#each declarations}}
+extern {{c_type return_type}} {{forward_symbol}}({{#each params}}{{#if @index}}, {{/if}}{{c_type type}}{{#if (eq mem_qual "as_ref")}} *{{/if}}{{/each}}{{#unless params}}void{{/unless}});
+{{c_type return_type}} {{forward_name}}({{#each params}}{{#if @index}}, {{/if}}{{c_type type}}{{#if (eq mem_qual "as_ref")}} *{{/if}} p{{@index}}{{/each}}{{#unless params}}void{{/unless}}) {
+    {{#unless (eq return_type.kind "void")}}return {{/unless}}{{forward_symbol}}({{#each params}}{{#if @index}}, {{/if}}p{{@index}}{{/each}});
+}
+{{/each}}

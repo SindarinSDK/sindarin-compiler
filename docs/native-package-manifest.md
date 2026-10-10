@@ -159,9 +159,9 @@ runtime-selection and C interop regressions remain required.
 `abi: 1.1` selects read-only borrowed string-array inputs and managed-value owned
 array results. `abi: 1.5` selects live borrowed views of canonical C string-array
 headers for inputs; owned array results retain the 1.1 managed-value format.
-Generated C, Rust and Go native providers support this input contract, as do C
-Sindarin implementation bodies. Rust Sindarin body inputs still require canonical
-array emission and are diagnosed. These versions preserve nil/empty distinctions
+Generated C, Rust and Go native providers and C/RS Sindarin implementation bodies
+support this input contract. Rust bodies compile canonical C array support in their
+independent source bundle. These versions preserve nil/empty distinctions
 and explicit input/result ownership; `abi: 1.0` retains scalar/string behaviour.
 
 Optional `native.assembly` is a mapping with nonempty `path` and a 64-digit

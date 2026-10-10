@@ -31,6 +31,7 @@ struct RustNativePlan {
     json_object *record_support;
     json_object *callback_support;
     json_object *interface_support;
+    json_object *declaration_support;
 };
 
 /* Shared privately by the Rust-native rendering/build translation units. */
@@ -62,6 +63,11 @@ json_object *rust_native_plan_callback_support(RustNativePlan *plan)
 json_object *rust_native_plan_interface_support(RustNativePlan *plan)
 {
     return plan ? plan->interface_support : NULL;
+}
+
+json_object *rust_native_plan_declaration_support(RustNativePlan *plan)
+{
+    return plan ? plan->declaration_support : NULL;
 }
 
 bool rust_native_plan_set_interface_support(RustNativePlan *plan, json_object *support)
@@ -495,17 +501,17 @@ static bool model_name_in_use(json_object *functions, json_object *structs,
     return false;
 }
 
-static char *unique_private_name(json_object *functions, json_object *structs,
+static char *unique_private_name(const char *namespace, json_object *functions, json_object *structs,
                                  json_object *globals,
                                  const char *stem)
 {
     for (size_t suffix = 0; suffix < SIZE_MAX; suffix++)
     {
-        int needed = snprintf(NULL, 0, "%s_%zu", stem, suffix);
+        int needed = snprintf(NULL, 0, "%s%s%s_%zu", namespace ? namespace : "", namespace ? "_" : "", stem, suffix);
         if (needed < 0) return NULL;
         char *candidate = malloc((size_t)needed + 1);
         if (!candidate) return NULL;
-        snprintf(candidate, (size_t)needed + 1, "%s_%zu", stem, suffix);
+        snprintf(candidate, (size_t)needed + 1, "%s%s%s_%zu", namespace ? namespace : "", namespace ? "_" : "", stem, suffix);
         if (!model_name_in_use(functions, structs, globals, candidate))
             return candidate;
         free(candidate);
@@ -846,7 +852,7 @@ static bool project_native_model(json_object *model,
     free(selected_globals);
     char *initializer_name = NULL;
     if (has_deferred_global)
-        initializer_name = unique_private_name(functions, structs, globals,
+        initializer_name = unique_private_name(native_string(model, "package_native_namespace"), functions, structs, globals,
                                                "__rust_native_initialize");
     if (has_deferred_global && (!initializer_name ||
         !add_native_initializer(native_functions, native_globals,
@@ -1373,7 +1379,7 @@ bool rust_native_partition_model(json_object *rust_model,
     json_object *globals = NULL;
     json_object_object_get_ex(rust_model, "globals", &globals);
     if (native_count || initializer_name)
-        rust_fflush_name = unique_private_name(
+        rust_fflush_name = unique_private_name(native_string(rust_model, "package_native_namespace"),
             functions, structs, globals, "__sn_native_fflush");
     if ((native_count || initializer_name) && !rust_fflush_name)
     {
@@ -1386,7 +1392,7 @@ bool rust_native_partition_model(json_object *rust_model,
     if (initializer_name)
     {
         initializer_symbol = malloc(strlen(initializer_name) + 7);
-        rust_initializer_name = unique_private_name(
+        rust_initializer_name = unique_private_name(native_string(rust_model, "package_native_namespace"),
             functions, structs, globals, "__sn_native_initializer");
         if (!initializer_symbol || !rust_initializer_name)
         {
@@ -1404,19 +1410,19 @@ bool rust_native_partition_model(json_object *rust_model,
     }
     if (has_managed_abi)
     {
-        rust_native_array_type_name = unique_private_name(
+        rust_native_array_type_name = unique_private_name(native_string(rust_model, "package_native_namespace"),
             functions, structs, globals, "__SnNativeArray");
-        rust_native_free_name = unique_private_name(
+        rust_native_free_name = unique_private_name(native_string(rust_model, "package_native_namespace"),
             functions, structs, globals, "__sn_native_free");
-        rust_native_take_string_name = unique_private_name(
+        rust_native_take_string_name = unique_private_name(native_string(rust_model, "package_native_namespace"),
             functions, structs, globals, "__sn_native_take_string");
-        rust_native_take_array_name = unique_private_name(
+        rust_native_take_array_name = unique_private_name(native_string(rust_model, "package_native_namespace"),
             functions, structs, globals, "__sn_native_take_byte_array");
         if (has_string_parameter)
         {
-            rust_native_retain_string_name = unique_private_name(
+            rust_native_retain_string_name = unique_private_name(native_string(rust_model, "package_native_namespace"),
                 functions, structs, globals, "__sn_native_retain_string");
-            rust_native_retained_strings_name = unique_private_name(
+            rust_native_retained_strings_name = unique_private_name(native_string(rust_model, "package_native_namespace"),
                 functions, structs, globals, "__SN_NATIVE_RETAINED_STRINGS");
         }
         if (!rust_native_array_type_name || !rust_native_free_name ||
@@ -1457,7 +1463,37 @@ bool rust_native_partition_model(json_object *rust_model,
                 ? alias : name;
             plan->declarations[native_index].rust_callable_name = strdup(name ? name : "");
             plan->declarations[native_index].c_link_symbol = strdup(symbol ? symbol : "");
-            plan->declarations[native_index].rust_result_name = unique_private_name(
+            /* Package-local C forwarding also materializes header-only inline
+             * declarations. Preserve the external backing symbol and source;
+             * only the generated callable entry receives the package namespace. */
+            bool forward = options->emit_source_bundle && options->package_native_namespace &&
+                !native_bool(function, "has_body") && !native_bool(function, "is_variadic");
+            json_object *forward_params = native_record_child(function, "params");
+            json_object *forward_result = native_record_child(function, "return_type");
+            forward = forward && (native_scalar_type(forward_result, true) ||
+                (native_string(forward_result, "kind") && (!strcmp(native_string(forward_result, "kind"), "string") || !strcmp(native_string(forward_result, "kind"), "array"))));
+            for (size_t p = 0; forward && forward_params && p < json_object_array_length(forward_params); p++) {
+                json_object *type = native_record_child(json_object_array_get_idx(forward_params, p), "type");
+                forward = native_scalar_type(type, false) || (native_string(type, "kind") && (!strcmp(native_string(type, "kind"), "string") || !strcmp(native_string(type, "kind"), "array")));
+            }
+            if (forward) {
+                char stem[96];
+                snprintf(stem, sizeof(stem), "__sn_native_declaration_%zu", native_index);
+                char *bridge = unique_private_name(native_string(rust_model, "package_native_namespace"),
+                    functions, structs, native_record_child(rust_model, "globals"), stem);
+                if (!bridge) {
+                    json_object_put(selected_function_names); json_object_put(selected_global_names);
+                    free(initializer_name); rust_native_plan_free(plan); return false;
+                }
+                json_object *entry = deep_copy(function);
+                json_object_object_add(entry, "forward_symbol", json_object_new_string(symbol));
+                json_object_object_add(entry, "forward_name", json_object_new_string(bridge));
+                if (!plan->declaration_support) plan->declaration_support = json_object_new_array();
+                json_object_array_add(plan->declaration_support, entry);
+                free(plan->declarations[native_index].c_link_symbol);
+                plan->declarations[native_index].c_link_symbol = bridge;
+            }
+            plan->declarations[native_index].rust_result_name = unique_private_name(native_string(rust_model, "package_native_namespace"),
                 functions, structs, globals, "__sn_native_result");
             json_object *params = NULL;
             size_t param_count = json_object_object_get_ex(function, "params", &params)
@@ -1493,7 +1529,7 @@ bool rust_native_partition_model(json_object *rust_model,
                     break;
                 }
                 plan->declarations[native_index].rust_param_temp_names[p] =
-                    unique_private_name(functions, structs, globals, indexed_stem);
+                    unique_private_name(native_string(rust_model, "package_native_namespace"), functions, structs, globals, indexed_stem);
                 if (!plan->declarations[native_index].rust_param_temp_names[p])
                 {
                     param_names_ok = false;
@@ -1502,7 +1538,7 @@ bool rust_native_partition_model(json_object *rust_model,
             }
             if (has_char_ref)
                 plan->declarations[native_index].rust_char_values_name =
-                    unique_private_name(functions, structs, globals,
+                    unique_private_name(native_string(rust_model, "package_native_namespace"), functions, structs, globals,
                                         "__sn_native_char_values");
             if (!plan->declarations[native_index].rust_callable_name ||
                 !plan->declarations[native_index].c_link_symbol ||
@@ -1727,7 +1763,7 @@ bool rust_native_validate_declaration(const RustNativePlan *plan,
 bool rust_native_plan_has_work(const RustNativePlan *plan)
 {
     if (!plan) return false;
-    if (plan->interface_support || plan->declaration_count > 0 ||
+    if (plan->interface_support || plan->array_support || plan->declaration_count > 0 ||
         (plan->handles && json_object_array_length(plan->handles) > 0) ||
         (plan->split && (plan->split->source_file_count > 0 ||
                          plan->split->link_lib_count > 0))) return true;
@@ -1748,6 +1784,7 @@ void rust_native_plan_free(void *opaque)
     if (plan->record_support) json_object_put(plan->record_support);
     if (plan->callback_support) json_object_put(plan->callback_support);
     if (plan->interface_support) json_object_put(plan->interface_support);
+    if (plan->declaration_support) json_object_put(plan->declaration_support);
     for (size_t i = 0; i < plan->declaration_count; i++)
     {
         free(plan->declarations[i].rust_callable_name);

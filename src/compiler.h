@@ -56,6 +56,9 @@ typedef struct
     int native_mode;                /* 1 = inspect plan, 2 = build native backing */
     char *native_manifest;          /* Native package manifest path */
     int package_body;               /* Compile an implementation library without self-import adapters. */
+    int emit_source_bundle;         /* Emit all Rust library sources/support without linking. */
+    int package_native_arrays;      /* Use canonical C arrays inside this Rust library body. */
+    char *package_native_namespace; /* Package-private generated native helper namespace. */
     int do_init;                     /* --init: Initialize new package */
     int do_install;                  /* --install: Install packages */
     char *install_target;            /* Package URL@ref for --install */

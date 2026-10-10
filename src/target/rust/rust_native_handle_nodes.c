@@ -13,10 +13,13 @@ static json_object *rust_native_handle_callable(json_object *model, json_object 
     {
         json_object *functions = rust_nullable_child(model, "functions");
         const char *name = json_string_property(callee, "name");
+        const char *alias = json_string_property(callee, "c_alias");
         for (size_t i = 0; name && functions && i < json_object_array_length(functions); i++)
         {
             json_object *function = json_object_array_get_idx(functions, i);
-            if (json_string_property_equals(function, "name", name)) return function;
+            if (json_string_property_equals(function, "name", name) ||
+                (alias && json_boolean_property(function, "rust_native_bridge") &&
+                 json_string_property_equals(function, "c_alias", alias))) return function;
         }
     }
     const char *name = json_string_property(node, "type_name");
@@ -371,7 +374,9 @@ static void rust_lower_native_handle_reads(json_object *model, json_object *node
             (strcmp(key, "operand") == 0 && json_string_property_equals(node, "kind", "sizeof")))
             child_borrow = true;
         if ((strcmp(key, "left") == 0 || strcmp(key, "right") == 0) &&
-            (rust_native_handle_type(left_type) || rust_native_handle_type(right_type))) child_borrow = true;
+            (rust_native_handle_type(left_type) || rust_native_handle_type(right_type) ||
+             json_boolean_property(left_type, "rust_native_handle_array") ||
+             json_boolean_property(right_type, "rust_native_handle_array"))) child_borrow = true;
         /* Native-array concat reads both original C headers. Cloning its
          * right operand would introduce observable extra element retains. */
         if (strcmp(key, "args") == 0 &&

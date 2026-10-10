@@ -143,15 +143,50 @@ class NativeArtifactTests(unittest.TestCase):
         mode, _ = self.build(extra=('-O0', '--unchecked'))
         self.assertNotEqual(mode['assembly'], changed['assembly'])
 
+    def test_rust_package_source_bundle_emits_support_without_a_toolchain_or_main(self):
+        self.write('src/library.sn','fn change(values: str[]): str[] =>\n  return values\n')
+        folder=self.root/'source bundle'
+        args=[str(COMPILER),str(self.root/'src/library.sn'),'--target','rust','--package-body',
+              '--package-native-arrays','--package-native-namespace','example_library','--emit-source-bundle','-o',str(folder)]
+        env=dict(os.environ,SN_RUSTC=str(self.root/'missing-rustc'))
+        result=subprocess.run(args,env=env,capture_output=True,timeout=30)
+        self.assertEqual(result.returncode,0,result.stderr.decode(errors='replace'))
+        bundle=json.loads((folder/'bundle.json').read_text())
+        self.assertEqual(bundle['target'],'rust')
+        self.assertEqual(bundle['primary'],'main.rs')
+        self.assertEqual({item['path'] for item in bundle['files']},
+                         {'main.rs','body_model.json','sn_types.h','sn_native_handles.c'})
+        code=(folder/'main.rs').read_text()
+        self.assertNotIn('fn main(',code)
+        self.assertIn('example_library___sn_native_handle_array_type_0',code)
+        self.assertIn('example_library___sn_native_handle_array_type_0',
+                      json.loads((folder/'body_model.json').read_text())['rust_native_handle_array_support']['type'])
+        for flags in (['--emit-source-bundle'],
+                      ['--package-body','--emit-source-bundle'],
+                      ['--package-body','--target','rust','--emit-model','--emit-source-bundle'],
+                      ['--package-body','--target','rust','--emit-source-bundle','--package-native-namespace','invalid-name']):
+            with self.subTest(flags=flags):
+                output=self.root/'rejected bundle'
+                bad=subprocess.run([str(COMPILER),str(self.root/'src/library.sn'),*flags,'-o',str(output)],
+                                   capture_output=True,timeout=30)
+                self.assertNotEqual(bad.returncode,0)
+                self.assertFalse(output.exists())
+
     def test_mutable_c_body_provider_guards_native_owners_and_preserves_error_outputs(self):
+        self.check_mutable_body_provider_owners("C")
+
+    def test_mutable_rust_body_provider_guards_native_owners_and_preserves_error_outputs(self):
+        self.check_mutable_body_provider_owners("RS")
+
+    def check_mutable_body_provider_owners(self, runtime):
         self.write('src/api.sn', 'native fn mutate(a: str[], b: str[], flag: bool): str\n')
         self.write('src/observer.h', 'void consume_native_view(void);\n')
         self.write('src/body.sn', '@include "observer.h"\n@alias "consume_native_view"\n'
                    'native fn observe(): void\nvar calls: int = 0\n'
                    'fn mutate(a: str[], b: str[], flag: bool): str =>\n'
-                   '  calls += 1\n  if flag =>\n    a[0] = "body"\n'
+                   '  if a == nil =>\n    return "nil"\n  calls += 1\n  if flag =>\n    a[0] = "body"\n'
                    '  observe()\n  return b[0]\n')
-        self.write('sn.yaml', 'name: guarded-body\nruntime: C\nnative:\n  abi: 1.5\n'
+        self.write('sn.yaml', f'name: guarded-body\nruntime: {runtime}\nnative:\n  abi: 1.5\n'
                    '  declarations: [src/api.sn]\n  builds:\n    - name: body\n      language: SN\n'
                    '      entry: src/body.sn\n      sources: [src/body.sn]\n      include_dirs: [src]\n'
                    '  bindings:\n    - declaration: src/api.sn::mutate\n      function: mutate\n'
@@ -164,10 +199,11 @@ class NativeArtifactTests(unittest.TestCase):
         self.write('guarded-client.c', '#include <assert.h>\n#include <string.h>\n#include "sn_abi.h"\n#include "sn_array.h"\n'
                    'uint32_t guarded_mutate(SnAbiValue *, SnAbiValue *, uint8_t, SnAbiValue **);\n'
                    f'uint32_t {shutdown}(void);\n'
-                   'static SnAbiValue *caller; static unsigned destroyed, observed; static int consume;\n'
+                   'static SnAbiValue *caller; static unsigned destroyed, observed, copied; static int consume;\n'
                    'static void release(void *slot) { free(*(char **)slot); destroyed++; }\n'
+                   'static void copy(const void *s, void *d) { copied++; *(char **)d = *(char *const *)s ? strdup(*(char *const *)s) : NULL; }\n'
                    'void consume_native_view(void) { observed++; if (consume) { sn_abi_v1_release(caller); caller = NULL; } }\n'
-                   'int main(void) { SnArray *a = sn_array_new(sizeof(char *), 1); a->elem_tag = SN_TAG_STRING; a->elem_release = release;\n'
+                   'int main(void) { SnArray *a = sn_array_new(sizeof(char *), 1); a->elem_tag = SN_TAG_STRING; a->elem_release = release; a->elem_copy = copy;\n'
                    ' char *text = strdup("one"); sn_array_push(a, &text);\n'
                    ' assert(sn_abi_v1_native_string_array_adopt(a, &caller) == 0);\n'
                    ' SnAbiValue *wrong = NULL, *output = NULL; assert(sn_abi_v1_value_array_new(&wrong) == 0); output = wrong;\n'
@@ -177,7 +213,7 @@ class NativeArtifactTests(unittest.TestCase):
                    ' assert(guarded_mutate(caller, caller, 1, NULL) == SN_ABI_INVALID_ARGUMENT);\n'
                    ' assert(!destroyed && !observed && !strcmp(((char **)a->data)[0], "one"));\n'
                    ' consume = 1; assert(guarded_mutate(caller, caller, 1, &output) == 0);\n'
-                   ' assert(caller == NULL && destroyed == 1 && observed == 1);\n'
+                   ' assert(caller == NULL && destroyed == 1 && observed == 1 && copied == 0);\n'
                    ' SnAbiBytes bytes; assert(sn_abi_v1_string_bytes(output, &bytes) == 0 && bytes.length == 4 && !memcmp(bytes.data, "body", 4));\n'
                    f' assert({shutdown}() == 0);\n'
                    ' caller = NULL; SnAbiValue *saved = output;\n'

@@ -43,7 +43,7 @@ static bool native_prepare_pointer_slice_char_bounds(json_object *model,
                                                       const char *source_file)
 {
     if (!native_pointer_slice_char_bounds(model, NULL)) return true;
-    char *name = unique_private_name(native_record_child(model, "functions"),
+    char *name = unique_private_name(native_string(model, "package_native_namespace"), native_record_child(model, "functions"),
         native_record_child(model, "structs"), native_record_child(model, "globals"),
         "__sn_pointer_slice_char_offset");
     if (!name) return false;
