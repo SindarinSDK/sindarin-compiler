@@ -7,6 +7,28 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Integer and byte character conversions: local validation, 2026-10-10
+
+Rust accepts the C-supported `int.toChar()` and `byte.toChar()` methods, retaining
+the low byte and evaluating the receiver once. Existing character widening and
+string helpers preserve the host C signedness, NUL and high-byte semantics.
+An independent C reference checks all 256 byte values, negative/wrapping inputs,
+both signed integer limits and effectful receivers. Nine C/Rust optimization and
+arithmetic comparisons and four native profiles, including debug sanitizers,
+pass without changing the C runtime or existing language source.
+
+The original rejected `primitive_conversion_int_to_char` program and its
+diagnostic oracle remain byte-identical. Its promotion record now requires
+successful C/Rust execution in nine profiles rather than treating rejection as
+parity. The native inventory increases to 382; the complete local suites pass
+3,240 C and 1,086 Rust checks with zero failures/skips, and all 15 CI helper tests
+pass. Double-to-integer conversions and the remaining package/SDK/shared-ABI and
+full-corpus acceptance requirements remain open. This batch is independent of
+the pending string-array implementation; exact-revision hosted acceptance is
+pending publication.
+
+Evidence: [character conversion validation](rust-parity-evidence/character-conversion-validation.json).
+
 ## Generated owned string-array results: local validation, 2026-10-10
 
 ABI 1.1 native declarations returning `str[]` now drive generated C/Rust/Go

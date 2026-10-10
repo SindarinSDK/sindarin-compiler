@@ -4,6 +4,17 @@ Current integration progress and verification evidence are maintained in the
 [completion ledger](rust-parity-progress.md). The dated checkpoints below retain
 their historical scope; they do not define the current parity denominator.
 
+Rust accepts zero-argument `int.toChar()` and `byte.toChar()`. Conversion keeps
+the low byte, matching the C target's narrowing on supported toolchains, and
+evaluates the receiver once. The existing character helpers preserve host C
+`char` signedness when widening to an integer and use the existing byte-string
+contract for NUL and high bytes. All 256 byte values, signed integer boundaries
+and effectful receivers are checked against a C conversion function in every
+optimization/arithmetic profile and the native debug sanitizer matrix. The
+historical integer-to-character rejection fixture remains unchanged and now has
+a promotion record proving C/Rust execution. Full goal acceptance is tracked in
+the completion ledger.
+
 The borrowed scalar capture increment passes escaping/nested captures, all scalar kinds, aliases, factory copies, globals, thread transport, field mutation and owner-preserving assignments, native scalar mutation, and native record value argument/result conversion. Its ledger records 189 comparisons and 63 sanitizer cases per backend. Captured-field/native-record reference composition and native callbacks remain unresolved.
 
 The 2026-10-05 managed iterator increment admits strings, arrays and supported

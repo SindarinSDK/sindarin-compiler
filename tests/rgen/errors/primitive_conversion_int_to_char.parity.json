@@ -1,0 +1,7 @@
+{
+  "source_sha256": "e9e67c08274fb2084c7905b1e3c6538932fb6f2eebb5c1751b34c32786b862c1",
+  "legacy_oracle_sha256": "4c39c3ed08675e6d79c52ef9221066243da0a8c8cc3c98f4ab8613d3416ee478",
+  "stdout_hex": "",
+  "exit": 0,
+  "reason": "C-supported integer-to-character conversion; preserve historical source and rejection oracle while proving successful C/Rust execution"
+}

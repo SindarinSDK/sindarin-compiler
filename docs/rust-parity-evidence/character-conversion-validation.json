@@ -1,0 +1,138 @@
+{
+  "base_revision": "e5763d3b63c1fbd9ad296da023b1f71f29e53d19",
+  "date": "2026-10-10",
+  "scope": "C-supported int/byte-to-char methods with low-byte narrowing and once-only receiver evaluation",
+  "source_sha256": {
+    "scripts/ci/gates.json": "e3d32909e28ded6e2efbbabf05d3e00b542507ad219a531ea1a327705a5e394a",
+    "src/target/rust/rust_validate_calls.c": "a1aeaf8ff91e9d46451feb31364c80e19115415031cb9a10834ff8b6b84ce717",
+    "templates/rust/partials/expr/direct_call_body.hbs": "16277ddef339b95eaf5ad1f7eb373f9ee33d2a97aab7dbf19f08949d43c2d4fa",
+    "tests/rgen/errors/primitive_conversion_int_to_char.parity.json": "b3f1abbfe288625d5e99d7069069181f60c9400559886ed56a0669c72904fbfc",
+    "tests/rust-native/scalar_character_primitive_conversions.abi-matrix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests/rust-native/scalar_character_primitive_conversions.expected": "36768a89e8faf166700f48bc8df99361609e43956dd7d2bffebde9439ea5033c",
+    "tests/rust-native/scalar_character_primitive_conversions.sn": "44b427fb21e2820f3327f8efe3a2b47382f315bca49631a2bcb07f8bdf79e207",
+    "tests/rust-native/scalar_character_primitive_conversions.sn.c": "ca3d72220f584b6134b13aa4b2efe1fab3a95b5aae46abf1d246641de908f33c",
+    "tests/rgen/errors/primitive_conversion_int_to_char.sn": "e9e67c08274fb2084c7905b1e3c6538932fb6f2eebb5c1751b34c32786b862c1",
+    "tests/rgen/errors/primitive_conversion_int_to_char.expected": "4c39c3ed08675e6d79c52ef9221066243da0a8c8cc3c98f4ab8613d3416ee478"
+  },
+  "validation": {
+    "C": {
+      "checks": 3240,
+      "passed": true,
+      "log_sha256": "e5d33ad03ba526bb30c1aa909204b7c1626862e9ae4b9607f0e7a10a6becaf27"
+    },
+    "Rust": {
+      "checks": 1086,
+      "passed": true,
+      "log_sha256": "2e4cbdbd4a449afdfa09ba047c30c01128adc0cc5f537ee3210d152f5ef53516"
+    },
+    "ci_helpers": {
+      "checks": 15,
+      "passed": true,
+      "log_sha256": "2c164d618487bf17fbc10fe199d1a1e76f2b6d7f5520cc0f65c046c88b15bc5b"
+    },
+    "focused": {
+      "checks": 1,
+      "passed": true,
+      "log_sha256": "c6edff05c6eb767e60a45b7ed8fea3dfabec46eba0e111aff71c9f1e9159781b"
+    },
+    "promoted": {
+      "checks": 1,
+      "passed": true,
+      "log_sha256": "c4529bdfe665f2f8eb242a9d8e2d82a12334bc5d0b9cfb51843747aad14af1ba"
+    }
+  },
+  "parity": {
+    "passed": true,
+    "cases": 9,
+    "report_sha256": "5a76fc504d62a3c00f03b1dce2205b884b3c5c9c96f2a48caf76be81df60c428",
+    "cases_summary": [
+      {
+        "source": "tests/rust-native/scalar_character_primitive_conversions.sn",
+        "source_sha256": "44b427fb21e2820f3327f8efe3a2b47382f315bca49631a2bcb07f8bdf79e207",
+        "optimization": "-O0",
+        "arithmetic_mode": "default",
+        "passed": true
+      },
+      {
+        "source": "tests/rust-native/scalar_character_primitive_conversions.sn",
+        "source_sha256": "44b427fb21e2820f3327f8efe3a2b47382f315bca49631a2bcb07f8bdf79e207",
+        "optimization": "-O1",
+        "arithmetic_mode": "default",
+        "passed": true
+      },
+      {
+        "source": "tests/rust-native/scalar_character_primitive_conversions.sn",
+        "source_sha256": "44b427fb21e2820f3327f8efe3a2b47382f315bca49631a2bcb07f8bdf79e207",
+        "optimization": "-O2",
+        "arithmetic_mode": "default",
+        "passed": true
+      },
+      {
+        "source": "tests/rust-native/scalar_character_primitive_conversions.sn",
+        "source_sha256": "44b427fb21e2820f3327f8efe3a2b47382f315bca49631a2bcb07f8bdf79e207",
+        "optimization": "-O0",
+        "arithmetic_mode": "checked",
+        "passed": true
+      },
+      {
+        "source": "tests/rust-native/scalar_character_primitive_conversions.sn",
+        "source_sha256": "44b427fb21e2820f3327f8efe3a2b47382f315bca49631a2bcb07f8bdf79e207",
+        "optimization": "-O1",
+        "arithmetic_mode": "checked",
+        "passed": true
+      },
+      {
+        "source": "tests/rust-native/scalar_character_primitive_conversions.sn",
+        "source_sha256": "44b427fb21e2820f3327f8efe3a2b47382f315bca49631a2bcb07f8bdf79e207",
+        "optimization": "-O2",
+        "arithmetic_mode": "checked",
+        "passed": true
+      },
+      {
+        "source": "tests/rust-native/scalar_character_primitive_conversions.sn",
+        "source_sha256": "44b427fb21e2820f3327f8efe3a2b47382f315bca49631a2bcb07f8bdf79e207",
+        "optimization": "-O0",
+        "arithmetic_mode": "unchecked",
+        "passed": true
+      },
+      {
+        "source": "tests/rust-native/scalar_character_primitive_conversions.sn",
+        "source_sha256": "44b427fb21e2820f3327f8efe3a2b47382f315bca49631a2bcb07f8bdf79e207",
+        "optimization": "-O1",
+        "arithmetic_mode": "unchecked",
+        "passed": true
+      },
+      {
+        "source": "tests/rust-native/scalar_character_primitive_conversions.sn",
+        "source_sha256": "44b427fb21e2820f3327f8efe3a2b47382f315bca49631a2bcb07f8bdf79e207",
+        "optimization": "-O2",
+        "arithmetic_mode": "unchecked",
+        "passed": true
+      }
+    ]
+  },
+  "native_profiles": [
+    "-O0",
+    "-O1",
+    "-O2",
+    "-O0 -g"
+  ],
+  "historical_promotion_profiles": [
+    "default",
+    "-O0",
+    "-O1",
+    "-O2",
+    "-O0 --unchecked",
+    "-O1 --unchecked",
+    "-O2 --unchecked",
+    "-O0 -g",
+    "-O0 -g --unchecked"
+  ],
+  "hosted_acceptance": "pending publication",
+  "remaining_scope": [
+    "double-to-integer methods",
+    "complete package/SDK/shared-ABI architecture",
+    "full original corpus across modes and supported platforms"
+  ],
+  "passed": true
+}

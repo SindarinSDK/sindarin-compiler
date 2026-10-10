@@ -1,0 +1,42 @@
+@source "scalar_character_primitive_conversions.sn.c"
+
+native fn primitive_char_reference(value: int): char
+
+fn nextInteger(counter: int as ref): int =>
+  counter += 1
+  return - 1
+
+fn nextByte(counter: int as ref): byte =>
+  counter += 1
+  return 255b
+
+fn verifyBytes(): bool =>
+  var index: int = 0
+  while index < 256 =>
+    var direct: char = index.toChar()
+    var narrowed: char = index.toByte().toChar()
+    var reference: char = primitive_char_reference(index)
+    if direct != reference || narrowed != reference =>
+      return false
+    if direct.toInt() != reference.toInt() =>
+      return false
+    if direct.toString() != reference.toString() =>
+      return false
+    index += 1
+  return true
+
+fn verifyBoundaries(): bool =>
+  var values: int[] = {-9223372036854775807 - 1, -257, -256, -255, -129, -128, -1, 0, 127, 128, 255, 256, 257, 9223372036854775807}
+  for value in values =>
+    var converted: char = value.toChar()
+    if converted != primitive_char_reference(value) =>
+      return false
+  return true
+
+fn main(): void =>
+  println(verifyBytes())
+  println(verifyBoundaries())
+  var count: int = 0
+  var fromInteger: char = nextInteger(count).toChar()
+  var fromByte: char = nextByte(count).toChar()
+  println(count == 2 && fromInteger == primitive_char_reference(-1) && fromByte == primitive_char_reference(255))
