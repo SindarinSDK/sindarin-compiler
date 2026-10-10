@@ -1,0 +1,227 @@
+{
+  "run": {
+    "conclusion": "success",
+    "headSha": "0b61548b63d8c7a4aeb82ddfc4ee92eef737ac99",
+    "status": "completed",
+    "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38091261038"
+  },
+  "jobs": [
+    {
+      "name": "Build (macos-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "databaseId": 114327996491
+    },
+    {
+      "name": "Build (windows-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "databaseId": 114327996640
+    },
+    {
+      "name": "Build (ubuntu-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "databaseId": 114327996658
+    },
+    {
+      "name": "Tests / rust (windows-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "databaseId": 114328351443
+    },
+    {
+      "name": "Tests / callback-sanitizers (ubuntu-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "databaseId": 114328351444
+    },
+    {
+      "name": "Tests / rust (ubuntu-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "databaseId": 114328351450
+    },
+    {
+      "name": "Tests / core (windows-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "databaseId": 114328351456
+    },
+    {
+      "name": "Tests / c (windows-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "databaseId": 114328351460
+    },
+    {
+      "name": "Tests / numeric-io (ubuntu-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "databaseId": 114328351465
+    },
+    {
+      "name": "Tests / c (ubuntu-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "databaseId": 114328351471
+    },
+    {
+      "name": "Tests / arrays (ubuntu-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "databaseId": 114328351474
+    },
+    {
+      "name": "Tests / native (windows-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "databaseId": 114328351479
+    },
+    {
+      "name": "Tests / closures (windows-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "databaseId": 114328351480
+    },
+    {
+      "name": "Tests / core (ubuntu-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "databaseId": 114328351487
+    },
+    {
+      "name": "Tests / arrays (windows-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "databaseId": 114328351495
+    },
+    {
+      "name": "Tests / sanitizers (ubuntu-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "databaseId": 114328351499
+    },
+    {
+      "name": "Tests / closures (ubuntu-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "databaseId": 114328351510
+    },
+    {
+      "name": "Tests / callbacks (ubuntu-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "databaseId": 114328351511
+    },
+    {
+      "name": "Tests / native (ubuntu-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "databaseId": 114328351521
+    },
+    {
+      "name": "Tests / core (macos-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "databaseId": 114328351523
+    },
+    {
+      "name": "Tests / rust (macos-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "databaseId": 114328351530
+    },
+    {
+      "name": "Tests / c (macos-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "databaseId": 114328351552
+    },
+    {
+      "name": "Tests / native (macos-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "databaseId": 114328351553
+    },
+    {
+      "name": "Tests / arrays (macos-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "databaseId": 114328351566
+    },
+    {
+      "name": "Tests / numeric-io (macos-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "databaseId": 114328351568
+    },
+    {
+      "name": "Tests / numeric-io (windows-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "databaseId": 114328351574
+    },
+    {
+      "name": "Tests / closures (macos-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "databaseId": 114328351591
+    },
+    {
+      "name": "Tests / callbacks (macos-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "databaseId": 114328351608
+    },
+    {
+      "name": "Tests / callbacks (windows-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "databaseId": 114328351636
+    },
+    {
+      "name": "Verify complete CI coverage",
+      "status": "completed",
+      "conclusion": "success",
+      "databaseId": 114331494556
+    },
+    {
+      "name": "Validated artifacts (ubuntu-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "databaseId": 114331533077
+    },
+    {
+      "name": "Validated artifacts (macos-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "databaseId": 114331533106
+    },
+    {
+      "name": "Validated artifacts (windows-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "databaseId": 114331533138
+    },
+    {
+      "name": "Compiler CI",
+      "status": "completed",
+      "conclusion": "success",
+      "databaseId": 114331614595
+    }
+  ],
+  "coverage_summary": {
+    "revision": "0b61548b63d8c7a4aeb82ddfc4ee92eef737ac99",
+    "groups": 26,
+    "gates": 292,
+    "compilers": {
+      "Linux": "eee12995c57b3f261ca7aa9d96cece984a6fea028a8168a03f0d53638374c1ca",
+      "Darwin": "ae3803edc16b471f42605f8fc78ce4f147c716acf732f8131069470517b93fa1",
+      "Windows": "72541ca7389faeb895df94abce0ec8f5a1ab2cc60a27083853e991a4375c09a9"
+    },
+    "passed": true
+  },
+  "scope": "Hosted acceptance of this integrated revision; complete original-corpus independent-oracle/platform, mutable RS body and SDK/record/interface acceptance remain required.",
+  "passed": true
+}

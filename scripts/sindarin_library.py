@@ -60,7 +60,10 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
                 p.get('sync_mod','none')!='none' for p,q in zip(parameters,signature['params']))):
             raise ValueError('Sindarin implementation type/ownership differs from its public declaration: '+name)
         if any(kind(p['type'])=='string_array' for p in parameters):
-            raise ValueError('Sindarin library array inputs require generated mutable/borrowed-body contracts')
+            if signature.get('abi') != '1.5':
+                raise ValueError('Sindarin library array inputs require generated mutable/borrowed-body contracts in native ABI 1.5')
+            if runtime != 'C':
+                raise ValueError('Rust Sindarin library mutable array inputs require canonical native-array body emission')
         selected.append(function)
     emitted = work/(stem+('.c' if runtime=='C' else '.rs'))
     run(common+['--emit-source','-o',emitted],cwd=root)

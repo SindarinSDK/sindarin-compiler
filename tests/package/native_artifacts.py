@@ -143,6 +143,58 @@ class NativeArtifactTests(unittest.TestCase):
         mode, _ = self.build(extra=('-O0', '--unchecked'))
         self.assertNotEqual(mode['assembly'], changed['assembly'])
 
+    def test_mutable_c_body_provider_guards_native_owners_and_preserves_error_outputs(self):
+        self.write('src/api.sn', 'native fn mutate(a: str[], b: str[], flag: bool): str\n')
+        self.write('src/observer.h', 'void consume_native_view(void);\n')
+        self.write('src/body.sn', '@include "observer.h"\n@alias "consume_native_view"\n'
+                   'native fn observe(): void\nvar calls: int = 0\n'
+                   'fn mutate(a: str[], b: str[], flag: bool): str =>\n'
+                   '  calls += 1\n  if flag =>\n    a[0] = "body"\n'
+                   '  observe()\n  return b[0]\n')
+        self.write('sn.yaml', 'name: guarded-body\nruntime: C\nnative:\n  abi: 1.5\n'
+                   '  declarations: [src/api.sn]\n  builds:\n    - name: body\n      language: SN\n'
+                   '      entry: src/body.sn\n      sources: [src/body.sn]\n      include_dirs: [src]\n'
+                   '  bindings:\n    - declaration: src/api.sn::mutate\n      function: mutate\n'
+                   '      symbol: guarded_mutate\n      build: body\n      convention: C\n      failure: status\n'
+                   '      ownership: {parameters: {a: borrowed, b: borrowed, flag: value}, result: owned}\n')
+        summary, metadata = self.build()
+        unit = metadata['units'][0]
+        base = Path(summary['assembly']).parent
+        shutdown = unit['package_lifecycle']['shutdown']
+        self.write('guarded-client.c', '#include <assert.h>\n#include <string.h>\n#include "sn_abi.h"\n#include "sn_array.h"\n'
+                   'uint32_t guarded_mutate(SnAbiValue *, SnAbiValue *, uint8_t, SnAbiValue **);\n'
+                   f'uint32_t {shutdown}(void);\n'
+                   'static SnAbiValue *caller; static unsigned destroyed, observed; static int consume;\n'
+                   'static void release(void *slot) { free(*(char **)slot); destroyed++; }\n'
+                   'void consume_native_view(void) { observed++; if (consume) { sn_abi_v1_release(caller); caller = NULL; } }\n'
+                   'int main(void) { SnArray *a = sn_array_new(sizeof(char *), 1); a->elem_tag = SN_TAG_STRING; a->elem_release = release;\n'
+                   ' char *text = strdup("one"); sn_array_push(a, &text);\n'
+                   ' assert(sn_abi_v1_native_string_array_adopt(a, &caller) == 0);\n'
+                   ' SnAbiValue *wrong = NULL, *output = NULL; assert(sn_abi_v1_value_array_new(&wrong) == 0); output = wrong;\n'
+                   ' assert(guarded_mutate(caller, wrong, 1, &output) == SN_ABI_WRONG_KIND && output == wrong);\n'
+                   ' assert(guarded_mutate(wrong, caller, 1, &output) == SN_ABI_WRONG_KIND && output == wrong);\n'
+                   ' assert(guarded_mutate(caller, caller, 2, &output) == SN_ABI_INVALID_ARGUMENT && output == wrong);\n'
+                   ' assert(guarded_mutate(caller, caller, 1, NULL) == SN_ABI_INVALID_ARGUMENT);\n'
+                   ' assert(!destroyed && !observed && !strcmp(((char **)a->data)[0], "one"));\n'
+                   ' consume = 1; assert(guarded_mutate(caller, caller, 1, &output) == 0);\n'
+                   ' assert(caller == NULL && destroyed == 1 && observed == 1);\n'
+                   ' SnAbiBytes bytes; assert(sn_abi_v1_string_bytes(output, &bytes) == 0 && bytes.length == 4 && !memcmp(bytes.data, "body", 4));\n'
+                   f' assert({shutdown}() == 0);\n'
+                   ' caller = NULL; SnAbiValue *saved = output;\n'
+                   ' assert(guarded_mutate(NULL, NULL, 0, &output) == SN_ABI_PACKAGE_CLOSED && output == saved);\n'
+                   ' assert(observed == 1); sn_abi_v1_release(output); sn_abi_v1_release(wrong); return 0; }\n')
+        cc = shlex.split(os.environ.get('SN_CC', 'clang' if os.name == 'nt' or os.sys.platform == 'darwin' else 'gcc'))
+        executable = self.root/'guarded-client.exe'
+        flags = shlex.split(os.environ.get('SN_CFLAGS', ''))
+        built = subprocess.run(cc + ['-std=c11', '-D_GNU_SOURCE', '-I', str(COMPILER.parent/'include/runtime'),
+            str(self.root/'guarded-client.c'), str(base/unit['archive']), metadata['shared_runtime']['archive']]
+            + unit['native_link_flags'] + flags + ['-o', str(executable)], capture_output=True, timeout=120)
+        self.assertEqual(built.returncode, 0, built.stderr.decode(errors='replace'))
+        run = subprocess.run([str(executable)], capture_output=True, timeout=15)
+        self.assertEqual(run.returncode, 0, run.stderr.decode(errors='replace'))
+        self.assertEqual(run.stdout, b'')
+        self.assertEqual(run.stderr, b'')
+
     def test_generated_exports_are_independent_typed_abi_artifacts(self):
         sources = {
             'C': '#include <stdlib.h>\n#include <string.h>\n#include <stdint.h>\n#include <stdbool.h>\n'

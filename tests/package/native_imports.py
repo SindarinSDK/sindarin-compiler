@@ -85,6 +85,176 @@ class NativeImports(unittest.TestCase):
                 self.assertIn(message,result.stderr)
                 self.assertFalse((self.root/'rejected.exe').exists())
 
+    def test_c_sindarin_mutable_array_body_preserves_live_aliases_and_prebuilt_consumption(self):
+        import hashlib, json
+        package = self.root/'.sn/livebody'
+        self.write('.sn/livebody/src/api.sn', 'native fn mutate(values: str[], alias: str[]): str[]\n'
+                   'native fn count(values: str[]): int\n')
+        self.write('.sn/livebody/src/observer.h', '#include "sn_array.h"\n'
+                   'static inline void observe_package_array(SnArray *a) {\n'
+                   ' if (!a || a->len != 68 || strcmp(((char **)a->data)[0], "changed")) abort();\n'
+                   ' char *text = strdup("callback"); sn_array_push(a, &text);\n}\n')
+        self.write('.sn/livebody/src/body.sn', '@include "observer.h"\n'
+                   '@alias "observe_package_array"\nnative fn observe(values: str[]): void\n'
+                   'fn mutate(values: str[], alias: str[]): str[] =>\n'
+                   '  if values == nil =>\n    return nil\n'
+                   '  if values.length == 0 =>\n    values.push("fresh")\n    return alias\n'
+                   '  values[0] = "changed"\n  for i in 0..64 =>\n    values.push("grow")\n'
+                   '  observe(alias)\n  return alias\n'
+                   'fn count(values: str[]): int =>\n  if values == nil =>\n    return 0\n  return values.length\n')
+        manifest = ('name: livebody\nruntime: C\nnative:\n  abi: 1.5\n  declarations: [src/api.sn]\n'
+                    '  builds:\n    - name: body\n      language: SN\n      entry: src/body.sn\n'
+                    '      sources: [src/body.sn]\n      include_dirs: [src]\n  bindings:\n'
+                    '    - declaration: src/api.sn::mutate\n      function: mutate\n      symbol: live_body_mutate\n'
+                    '      build: body\n      convention: C\n      failure: status\n'
+                    '      ownership: {parameters: {values: borrowed, alias: borrowed}, result: owned}\n'
+                    '    - declaration: src/api.sn::count\n      function: count\n      symbol: live_body_count\n'
+                    '      build: body\n      convention: C\n      failure: abort\n'
+                    '      ownership: {parameters: {values: borrowed}, result: value}\n')
+        self.write('.sn/livebody/sn.yaml', manifest)
+        self.write('main.sn', 'import "livebody/src/api"\nfn main(): void =>\n'
+                   '  println(mutate(nil, nil) == nil)\n  println(count(nil))\n'
+                   '  var empty: str[] = {}\n  var fresh = mutate(empty, empty)\n'
+                   '  println(empty.length)\n  println(fresh[0])\n'
+                   '  var missing: str = nil\n  var values: str[] = {"one", missing, "", "\\x80\\xff"}\n'
+                   '  var result = mutate(values, values)\n  println(count(values))\n  println(result.length)\n'
+                   '  values[0] = "after"\n  println(result[0])\n  println(result[1] == nil)\n'
+                   '  println(result[2] == nil)\n  println(result[3] == "\\x80\\xff")\n  println(result[68])\n')
+        wanted = b'true\n0\n1\nfresh\n69\n69\nchanged\ntrue\nfalse\ntrue\ncallback\n'
+        for target in ('c', 'rust'):
+            for optimization in ('-O0', '-O1', '-O2'):
+                for arithmetic in (None, '--checked', '--unchecked'):
+                    flags = (optimization,) + ((arithmetic,) if arithmetic else ())
+                    with self.subTest(target=target, flags=flags): self.execute(target, wanted, flags)
+        built = subprocess.run([str(COMPILER), '--build-package', str(package/'sn.yaml'), '--target', 'rust',
+                                '-o', str(package/'.sn/published')], capture_output=True, timeout=180)
+        self.assertEqual(built.returncode, 0, built.stderr.decode(errors='replace'))
+        descriptor = Path(json.loads(built.stdout)['assembly'])
+        metadata = json.loads(descriptor.read_text())
+        self.assertEqual(metadata['abi'], '1.5')
+        self.assertEqual(metadata['units'][0]['implementation_runtime'], 'C')
+        destination = package/'dist'
+        shutil.copytree(descriptor.parent, destination)
+        digest = hashlib.sha256((destination/'assembly.json').read_bytes()).hexdigest()
+        (package/'sn.yaml').write_text(manifest.replace('native:\n',
+            'native:\n  assembly: {path: dist/assembly.json, sha256: '+digest+'}\n'))
+        (package/'src/body.sn').unlink()
+        (package/'src/observer.h').unlink()
+        shutil.rmtree(package/'.sn')
+        for target in ('c', 'rust'):
+            for optimization in ('-O0', '-O1', '-O2'):
+                for arithmetic in (None, '--checked', '--unchecked'):
+                    flags = (optimization,) + ((arithmetic,) if arithmetic else ())
+                    with self.subTest(prebuilt=target, flags=flags): self.execute(target, wanted, flags)
+
+    def test_generated_rust_and_go_native_views_mutate_c_storage_with_live_callbacks(self):
+        import hashlib, json
+        from unittest.mock import patch
+        for language in ('RS', 'GO'):
+            name = 'live' + language.lower()
+            root = '.sn/' + name
+            prefix = name + '_array'
+            self.write(root+'/src/api.sn', 'native fn mutate(values: str[], alias: str[]): str[]\n')
+            self.write(root+'/src/array_ops.h', '#include "sn_array.h"\n'
+                       f'long long {prefix}_length(SnArray *a);\n'
+                       f'const char *{prefix}_get(SnArray *a, long long index);\n'
+                       f'void {prefix}_push(SnArray *a, const char *text);\n'
+                       f'void {prefix}_set(SnArray *a, long long index, const char *text);\n')
+            self.write(root+'/src/array_ops.c', '#include "array_ops.h"\n'
+                       f'long long {prefix}_length(SnArray *a) {{ return a ? a->len : 0; }}\n'
+                       f'const char *{prefix}_get(SnArray *a, long long index) {{ return ((char **)a->data)[index]; }}\n'
+                       f'void {prefix}_push(SnArray *a, const char *text) {{ char *copy = text ? strdup(text) : NULL; sn_array_push(a, &copy); }}\n'
+                       f'void {prefix}_set(SnArray *a, long long index, const char *text) {{ char *copy = text ? strdup(text) : NULL; free(((char **)a->data)[index]); ((char **)a->data)[index] = copy; }}\n')
+            if language == 'RS':
+                self.write(root+'/src/impl.rs', 'use std::ffi::{c_void, c_char, CStr};\nextern "C" {\n'
+                           f' fn {prefix}_length(a: *mut c_void) -> i64;\n'
+                           f' fn {prefix}_get(a: *mut c_void, index: i64) -> *const c_char;\n'
+                           f' fn {prefix}_push(a: *mut c_void, text: *const c_char);\n'
+                           f' fn {prefix}_set(a: *mut c_void, index: i64, text: *const c_char);\n'+'}\n'
+                           'pub fn mutate(a: *mut c_void, b: *mut c_void) -> Result<Option<Vec<Option<Vec<u8>>>>,u32> { unsafe {\n'
+                           ' if a != b { return Err(1); } if a.is_null() { return Ok(None); }\n'
+                           f' if {prefix}_length(a) == 0 {{ {prefix}_push(a, b"fresh\\0".as_ptr().cast()); }} else {{\n'
+                           f'  {prefix}_set(a, 0, b"native\\0".as_ptr().cast()); for _ in 0..64 {{ {prefix}_push(a, b"grow\\0".as_ptr().cast()); }}\n'
+                           f'  let callback = || {{ assert_eq!({prefix}_length(b), 68); {prefix}_push(b, b"callback\\0".as_ptr().cast()); }}; callback();\n'+' }\n'
+                           f' let values = (0..{prefix}_length(b)).map(|i| {{ let text={prefix}_get(b,i); if text.is_null() {{ None }} else {{ Some(CStr::from_ptr(text).to_bytes().to_vec()) }} }}).collect();\n'
+                           ' Ok(Some(values)) } }\n')
+                build = '      entry: src/impl.rs\n      sources: [src/impl.rs]\n'
+                function = 'mutate'
+            else:
+                self.write(root+'/src/go.mod', 'module sindarin.test/'+name+'\n\ngo 1.26.0\n')
+                self.write(root+'/src/impl.go', 'package backing\n/* #include <stdlib.h>\n#include "array_ops.h" */\n'
+                           'import "C"\nimport ("unsafe"; "runtime")\n'
+                           f'func push(a unsafe.Pointer, text string) {{ p:=C.CString(text); C.{prefix}_push((*C.SnArray)(a), p); C.free(unsafe.Pointer(p)) }}\n'
+                           'func Mutate(a,b unsafe.Pointer) ([]*string,uint32) {\n'
+                           ' if a != b { return nil,1 }; if a == nil { return nil,0 };\n'
+                           f' if C.{prefix}_length((*C.SnArray)(a)) == 0 {{ push(a,"fresh") }} else {{\n'
+                           f'  text:=C.CString("native"); C.{prefix}_set((*C.SnArray)(a),0,text); C.free(unsafe.Pointer(text))\n'
+                           '  for i:=0; i<64; i++ { push(a,"grow") }; runtime.GC()\n'
+                           f'  callback:=func() {{ if C.{prefix}_length((*C.SnArray)(b)) != 68 {{ panic("stale view") }}; push(b,"callback") }}; callback()\n'+' }\n'
+                           f' values:=make([]*string,int(C.{prefix}_length((*C.SnArray)(b)))); for i:=range values {{ p:=C.{prefix}_get((*C.SnArray)(b),C.longlong(i)); if p!=nil {{ text:=C.GoString(p); values[i]=&text }} }}\n'
+                           ' runtime.GC(); return values,0 }\n')
+                build = '      module: src\n      sources: [src/impl.go]\n      include_dirs: [src]\n'
+                function = 'Mutate'
+            text = (f'name: {name}\nruntime: {language}\nnative:\n  abi: 1.5\n  declarations: [src/api.sn]\n'
+                    f'  builds:\n    - name: backing\n      language: {language}\n' + build +
+                    '    - name: helpers\n      language: C\n      sources: [src/array_ops.c]\n      include_dirs: [src]\n'
+                    f'  bindings:\n    - declaration: src/api.sn::mutate\n      function: {function}\n'
+                    f'      symbol: {name}_mutate\n      build: backing\n      convention: C\n      failure: status\n'
+                    '      ownership: {parameters: {values: borrowed, alias: borrowed}, result: owned}\n')
+            self.write(root+'/sn.yaml', text)
+            self.write('main.sn', f'import "{name}/src/api"\nfn main(): void =>\n'
+                       '  println(mutate(nil,nil) == nil)\n  var empty: str[] = {}\n  var fresh = mutate(empty,empty)\n'
+                       '  println(empty.length)\n  println(fresh[0])\n'
+                       '  var missing: str = nil\n  var values: str[] = {"one", missing, "", "\\x80\\xff"}\n'
+                       '  var result = mutate(values,values)\n  println(values.length)\n  println(result.length)\n'
+                       '  values[0] = "after"\n  println(result[0])\n  println(result[1] == nil)\n'
+                       '  println(result[2] == nil)\n  println(result[3] == "\\x80\\xff")\n  println(result[68])\n')
+            wanted = b'true\n1\nfresh\n69\n69\nnative\ntrue\nfalse\ntrue\ncallback\n'
+            with patch.dict(os.environ, {'GOEXPERIMENT': 'cgocheck2'}):
+                for target in ('c','rust'):
+                    with self.subTest(language=language, target=target): self.execute(target,wanted)
+                package = self.root/root
+                built = subprocess.run([str(COMPILER), '--build-package', str(package/'sn.yaml'), '--target', 'rust',
+                    '-o', str(package/'.sn/published')], capture_output=True, timeout=180)
+                self.assertEqual(built.returncode,0,built.stderr.decode(errors='replace'))
+                descriptor = Path(json.loads(built.stdout)['assembly'])
+                metadata = json.loads(descriptor.read_text())
+                self.assertEqual(metadata['units'][0]['language'],language)
+                self.assertEqual(metadata['units'][0]['generated_provider_exports'],[name+'_mutate'])
+                destination=package/'dist';shutil.copytree(descriptor.parent,destination)
+                digest=hashlib.sha256((destination/'assembly.json').read_bytes()).hexdigest()
+                (package/'sn.yaml').write_text(text.replace('native:\n',
+                    'native:\n  assembly: {path: dist/assembly.json, sha256: '+digest+'}\n'))
+                for file in ('impl.rs','impl.go','array_ops.c','array_ops.h','go.mod'):
+                    (package/'src'/file).unlink(missing_ok=True)
+                shutil.rmtree(package/'.sn')
+                for target in ('c','rust'):
+                    with self.subTest(prebuilt=language,target=target): self.execute(target,wanted)
+
+    def test_mutable_array_body_and_provider_contracts_do_not_fall_back_to_readonly_copies(self):
+        self.package('livecontract', 'C', 'long long count(void) { return 0; }\n', function='count')
+        self.write('.sn/livecontract/src/api.sn', 'native fn provide(values: str[]): int\n')
+        path = self.root/'.sn/livecontract/sn.yaml'
+        original = path.read_text().replace('parameters: {}', 'parameters: {values: borrowed}')
+        self.write('.sn/livecontract/src/body.sn', 'fn count(values: str[]): int =>\n  return values.length\n')
+        body = original.replace('language: C\n', 'language: SN\n').replace('sources: [src/impl.c]',
+            'entry: src/body.sn\n      sources: [src/body.sn]')
+        self.write('.sn/livecontract/src/impl.rs', 'pub fn count(_: Option<&[Option<&[u8]>]>) -> i64 { 0 }\n')
+        self.write('main.sn', 'import "livecontract/src/api"\nfn main(): void =>\n  println(provide(nil))\n')
+        for text, message in (
+                (body.replace('abi: 1.0', 'abi: 1.1'), b'array inputs require generated mutable/borrowed-body contracts'),
+                (body.replace('runtime: C', 'runtime: RS').replace('abi: 1.0', 'abi: 1.5'), b'canonical native-array body emission'),
+                (original.replace('runtime: C', 'runtime: RS').replace('language: C', 'language: RS')
+                 .replace('sources: [src/impl.c]', 'entry: src/impl.rs\n      sources: [src/impl.rs]')
+                 .replace('abi: 1.0', 'abi: 1.5'), b'mismatched types')):
+            with self.subTest(message=message):
+                path.write_text(text)
+                result = subprocess.run([str(COMPILER), 'main.sn', '--target', 'rust', '--no-install',
+                                         '-o', 'rejected.exe'], cwd=self.root, capture_output=True, timeout=90)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn(message, result.stderr)
+                self.assertFalse((self.root/'rejected.exe').exists())
+
     def test_sindarin_library_globals_initialize_once_and_owned_returns_survive(self):
         import hashlib,json
         for runtime in ('C','RS'):
@@ -556,12 +726,13 @@ class NativeImports(unittest.TestCase):
             for target in ('c','rust'):
                 with self.subTest(language=language,target=target): self.execute(target,b'-37.00000\nfalse\n2\n')
 
-    def execute(self,target,expected):
+    def execute(self,target,expected,flags=()):
         executable=self.root/'main.exe'
-        built=subprocess.run([str(COMPILER),'main.sn','--target',target,'--no-install','-o',str(executable)],cwd=self.root,capture_output=True,timeout=180)
+        built=subprocess.run([str(COMPILER),'main.sn','--target',target,'--no-install',*flags,'-o',str(executable)],cwd=self.root,capture_output=True,timeout=180)
         self.assertEqual(built.returncode,0,built.stderr.decode(errors='replace'))
         run=subprocess.run([str(executable)],cwd=self.root,capture_output=True,timeout=15)
         self.assertEqual(run.returncode,0,run.stderr.decode(errors='replace'))
+        self.assertEqual(run.stderr,b'')
         self.assertEqual(run.stdout,expected.replace(b'\n',b'\r\n') if os.name=='nt' else expected)
 
     def test_mixed_backing_and_portable_sindarin(self):

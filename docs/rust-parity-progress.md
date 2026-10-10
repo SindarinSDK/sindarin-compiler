@@ -7,6 +7,46 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Live mutable string-array adapters: local validation, 2026-10-10
+
+Native package ABI 1.5 now connects generated C Sindarin body exports and ordinary
+C/Rust/Go native functions to the caller's actual C string-array header. Inputs
+preserve in-place mutation, aliases, growth and live callback visibility, with
+call credits protecting adopted storage when a callback consumes the caller's
+credit. Rust/Go backing functions receive opaque C headers and retain their
+original implementations/toolchains. Owned array results keep the existing
+managed-value wire format and independent element lifetimes.
+
+Complete local suites pass 3,240 C and 1,097 Rust checks without failures/skips.
+All 16 artifact, 35 import, 14 runtime-contract and 22 CI-helper tests pass.
+C body exact-output controls cover 36 source/prebuilt target/mode combinations;
+the same 36 controls and the C callback-credit/error/shutdown client pass strict
+address/undefined/leak checks. Eight C/Rust caller controls consume generated
+Rust/Go exports from source and relocated prebuilt archives with backing sources
+removed; Go forces GC under `cgocheck2`. Original sources, oracles and snapshots
+are unchanged. This feature requires its own complete hosted acceptance.
+
+Rust Sindarin body input emission, reference-qualified rebinding, record/interface
+and callback declarations, dependency lifecycle graphs and full C-backed SDK
+migration remain required. C-unsafe borrowed parameter rebind and nil-length
+controls receive no parity credit; this batch does not complete the full goal.
+
+Evidence: [mutable adapters](rust-parity-evidence/mutable-string-array-adapter-validation.json).
+
+## Bitwise and native string-array views: hosted acceptance, 2026-10-10
+
+Both integrated main revisions pass all 34 unified CI jobs across
+Linux/macOS/Windows: bitwise `0b7ef90d` in
+[CI 38090421189](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38090421189)
+and native-view `0b61548b` in
+[CI 38091261038](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38091261038).
+Each retained summary verifies 26 groups, 292 gate executions and one compiler per
+platform. Their earlier local/pending sections below are superseded by this
+acceptance; subsequent mutable adapters require separate hosted validation.
+
+Evidence: [bitwise acceptance](rust-parity-evidence/bitwise-compound-ci-green.json),
+[native-view acceptance](rust-parity-evidence/native-string-array-view-ci-green.json).
+
 ## Canonical native string-array views: local validation, 2026-10-10
 
 ABI 1.5 transports borrowed or owned views of the actual C string-array header,

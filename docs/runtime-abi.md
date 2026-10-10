@@ -322,8 +322,9 @@ Query `SN_ABI_V1_5_VERSION` with `SN_ABI_CAP_NATIVE_STRING_ARRAYS` (`256`).
 The new version advertises mask `511`; versions 1.0 through 1.4 retain their
 exact masks `7`, `31`, `63`, `127` and `255`. Public value/info layouts and earlier
 entry points remain compatible. This capability is a runtime prerequisite for
-generated mutable body-input adapters; it does not enable a new package manifest
-contract or those adapters by itself.
+generated mutable body-input adapters. Native package ABI 1.5 now selects these
+views for C body and C/Rust/Go native string-array inputs; owned array results
+retain generic managed-value transport. Rust Sindarin body inputs remain work.
 
 These values wrap the actual canonical C `SnArray` header, whose slots contain
 `char *`. They are distinct from ABI 1.1 arrays of `SnAbiValue *` and reject each
@@ -363,5 +364,6 @@ Ten C/Rust/Go and Rust-consuming-Go archive clients exercise live alias identity
 independent native copies, nil/empty/non-UTF-8 strings, lifetime beyond original
 array cleanup, retained copy/release hooks, relocation and callbacks consuming
 external credits. Four C clients instrument the actual runtime with strict
-address/undefined/leak checks. Full generated body adapters, parameter alias/rebind
-semantics, wider record/interface and SDK migration remain required work.
+address/undefined/leak checks. Generated C body and C/Rust/Go native input adapters now use these views. Rust
+Sindarin body inputs, parameter alias/rebind semantics, wider record/interface
+and SDK migration remain required work.

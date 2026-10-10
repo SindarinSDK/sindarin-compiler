@@ -191,7 +191,7 @@ def validate_prebuilt(plan, manifest, compiler):
         raise ValueError('unsupported prebuilt native assembly schema/kind')
     if metadata.get('package') != plan['package']:
         raise ValueError('prebuilt native assembly package identity/version/runtime differs')
-    if metadata.get('abi') != native['abi'] or native['abi'] not in ('1.0','1.1'):
+    if metadata.get('abi') != native['abi'] or native['abi'] not in ('1.0','1.1','1.5'):
         raise ValueError('prebuilt native assembly ABI differs from the declared supported ABI')
     host = {'system':platform.system(), 'machine':platform.machine(),
             'pointer_bits':struct.calcsize('P') * 8}

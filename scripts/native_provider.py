@@ -57,7 +57,7 @@ def c_provider(signatures, namespace):
     lines = ['#undef '+name for name in sorted({s['binding']['function'] for s in signatures})]
     signatures = [dict(s,binding=dict(s['binding'],function=f'__sn_{namespace}_impl_{s["binding"]["function"]}')) for s in signatures]
     lines += ['#include <stdint.h>', '#include <stdbool.h>', '#include <stdlib.h>', '#include "sn_abi.h"']
-    if any(kind(p['type']) == 'string_array' for s in signatures for p in s['params']):
+    if any(s.get('abi') != '1.5' and kind(p['type']) == 'string_array' for s in signatures for p in s['params']):
         lines += ['#include <string.h>',
                   'static void sn_package_borrowed_slot_free(void *p) { free(*(char **)p); }',
                   'static void sn_package_borrowed_slot_copy(const void *s, void *d) {',
@@ -87,6 +87,8 @@ def c_provider(signatures, namespace):
         if status and result != 'void': lines.append('  if (!out) return SN_ABI_INVALID_ARGUMENT;')
         array_params = [i for i,p in enumerate(params) if kind(p['type']) == 'string_array']
         for i in array_params: lines.append(f'  SnArray *array{i} = NULL;')
+        if s.get('abi') == '1.5':
+            for i in array_params: lines.append(f'  SnAbiValue *array_owner{i} = sn_abi_v1_retain(p{i});')
         if array_params: lines.append('  uint32_t provider_status = 0;')
         def failed(code):
             if array_params: return 'provider_status = '+code+'; goto cleanup_args;'
@@ -99,10 +101,12 @@ def c_provider(signatures, namespace):
                           f'  if (status{i}) {{ ' + failed(f'status{i}') + ' }']
                 arguments.append(f'(char *)bytes{i}.data')
             elif k == 'string_array':
-                for previous in array_params:
-                    if previous >= i: break
-                    lines.append(f'  if (p{i} == p{previous}) array{i} = array{previous}; else')
-                lines += [f'  provider_status = sn_package_borrow_array(p{i}, &array{i});',
+                if s.get('abi') != '1.5':
+                    for previous in array_params:
+                        if previous >= i: break
+                        lines.append(f'  if (p{i} == p{previous}) array{i} = array{previous}; else')
+                operation = 'sn_abi_v1_native_string_array_data' if s.get('abi') == '1.5' else 'sn_package_borrow_array'
+                lines += [f'  provider_status = {operation}(p{i}, &array{i});',
                           '  if (provider_status) goto cleanup_args;']
                 arguments.append(f'array{i}')
             else:
@@ -116,9 +120,12 @@ def c_provider(signatures, namespace):
         else: lines.append(('  value = ' if result != 'void' else '  ')+f'{b["function"]}({", ".join(arguments)});')
         if array_params:
             lines.append('cleanup_args:')
-            for position,i in reversed(list(enumerate(array_params))):
-                unique = ' && '.join(f'array{i} != array{j}' for j in array_params[:position])
-                lines.append(('  if ('+unique+') ' if unique else '  ')+f'sn_array_free(array{i});')
+            if s.get('abi') == '1.5':
+                for i in reversed(array_params): lines.append(f'  sn_abi_v1_release(array_owner{i});')
+            else:
+                for position,i in reversed(list(enumerate(array_params))):
+                    unique = ' && '.join(f'array{i} != array{j}' for j in array_params[:position])
+                    lines.append(('  if ('+unique+') ' if unique else '  ')+f'sn_array_free(array{i});')
             lines.append('  if (provider_status) { '+('return provider_status;' if status else 'abort();')+' }')
         if result == 'string':
             lines += ['  SnAbiValue *wire_value = NULL;', '  uint32_t status_copy = sn_abi_v1_string_copy(value, &wire_value);',
@@ -151,6 +158,8 @@ def rust_provider(signatures, backing_crate):
              'fn sn_abi_v1_value_array_new(out: *mut *mut V) -> u32; fn sn_abi_v1_value_array_push(array: *mut V, value: *mut V) -> u32;',
              'fn sn_abi_v1_value_array_length(array: *const V, out: *mut u64) -> u32;',
              'fn sn_abi_v1_value_array_get(array: *const V, index: u64, out: *mut *mut V) -> u32;',
+             'fn sn_abi_v1_native_string_array_data(value: *const V, out: *mut *mut std::ffi::c_void) -> u32;',
+             'fn sn_abi_v1_retain(value: *mut V) -> *mut V;',
              'fn sn_abi_v1_release(value: *mut V); }',
              'struct OwnedV(*mut V); impl Drop for OwnedV { fn drop(&mut self) { unsafe { sn_abi_v1_release(self.0) } } }']
     for s in signatures:
@@ -173,6 +182,12 @@ def rust_provider(signatures, backing_crate):
                           f'    let arg{i} = if bytes{i}.data.is_null() {{ None }} else {{ Some(std::slice::from_raw_parts(bytes{i}.data, length{i})) }};']
                 arguments.append(f'arg{i}')
             elif k == 'string_array':
+                if s.get('abi') == '1.5':
+                    lines += [f'    let _owner{i} = OwnedV(sn_abi_v1_retain(p{i}));',
+                              f'    let mut arg{i} = std::ptr::null_mut();',
+                              f'    let code = sn_abi_v1_native_string_array_data(p{i}, &mut arg{i}); if code != 0 {{ return Err(code); }}']
+                    arguments.append(f'arg{i}')
+                    continue
                 lines += [f'    let mut count{i} = 0u64;',
                           f'    let code = sn_abi_v1_value_array_length(p{i}, &mut count{i}); if code != 0 {{ return Err(code); }}',
                           f'    let length{i} = usize::try_from(count{i}).map_err(|_| 5u32)?;',
@@ -247,6 +262,12 @@ def go_provider(signatures, module, main=True):
                 arguments.append(f'arg{i}')
             elif k == 'string_array':
                 error = lambda code: normal_return(code) if status else 'panic("invalid array ABI")'
+                if s.get('abi') == '1.5':
+                    lines += [f'  owner{i} := C.sn_abi_v1_retain(p{i}); defer C.sn_abi_v1_release(owner{i})',
+                              f'  var arg{i} *C.struct_SnArray',
+                              f'  if code := C.sn_abi_v1_native_string_array_data(p{i}, &arg{i}); code != 0 {{ '+error('code')+' }']
+                    arguments.append(f'unsafe.Pointer(arg{i})')
+                    continue
                 lines += [f'  var count{i} C.uint64_t',
                           f'  if code := C.sn_abi_v1_value_array_length(p{i}, &count{i}); code != 0 {{ '+error('code')+' }',
                           f'  if uint64(count{i}) > uint64(^uint(0)>>1) {{ '+error('5')+' }',

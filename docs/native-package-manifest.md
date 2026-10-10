@@ -77,7 +77,7 @@ The top-level `runtime` selects the package's Sindarin implementation runtime.
 Each build's `language` selects the original toolchain for its backing sources.
 They are independent: RS Sindarin code may use C backing, and a package can declare
 multiple native build units. Omitted `runtime` still inherits the application
-target. `native.abi` selects the shared ABI contract, currently `1.0`.
+target. `native.abi` selects the shared ABI contract, currently `1.0`, `1.1` or `1.5`.
 
 `declarations` lists the Sindarin API modules supplying signatures and types.
 Each binding identifies a declaration using `module/path.sn::name` (or the
@@ -156,8 +156,13 @@ Tests cover all three backing languages, ownership/failure declarations, malform
 contracts, dependency add/update preservation and compiler diagnostics. Existing
 runtime-selection and C interop regressions remain required.
 
-`abi: 1.1` selects managed-value array contracts. Borrowed `str[]` inputs and owned results require
-that version; `abi: 1.0` preserves existing scalar/string/native artifact behaviour.
+`abi: 1.1` selects read-only borrowed string-array inputs and managed-value owned
+array results. `abi: 1.5` selects live borrowed views of canonical C string-array
+headers for inputs; owned array results retain the 1.1 managed-value format.
+Generated C, Rust and Go native providers support this input contract, as do C
+Sindarin implementation bodies. Rust Sindarin body inputs still require canonical
+array emission and are diagnosed. These versions preserve nil/empty distinctions
+and explicit input/result ownership; `abi: 1.0` retains scalar/string behaviour.
 
 Optional `native.assembly` is a mapping with nonempty `path` and a 64-digit
 lowercase hexadecimal `sha256` sealing the exact descriptor bytes. Public

@@ -77,6 +77,7 @@ function uses these representations:
 | borrowed string input | `char *` | `Option<&[u8]>` | `*string` |
 | owned string result | malloc-owned `char *` | `Option<Vec<u8>>` | `*string` |
 | borrowed string-array input (ABI 1.1) | read-only `SnArray *` | `Option<&[Option<&[u8]>]>` | `[]*string` |
+| live string-array input (ABI 1.5) | actual `SnArray *` | opaque canonical header `*mut std::ffi::c_void` | opaque canonical header `unsafe.Pointer` |
 | owned string-array result (ABI 1.1) | owning `SnArray *` | `Option<Vec<Option<Vec<u8>>>>` | `[]*string` |
 
 Nil uses NULL/None/nil; an empty value remains non-nil. Strings preserve non-UTF-8
@@ -118,7 +119,7 @@ be unique across imported packages; collisions produce a diagnostic. Complete
 automatic wire-symbol allocation and broader native namespace isolation remain
 package-planning work. A generated C symbol must differ from its backing function. One build
 unit currently selects generated or handwritten exports throughout. Qualified
-methods, managed records/arrays/interfaces/callbacks and reference qualifiers need
+methods, managed records/non-string arrays/interfaces/callbacks and reference qualifiers need
 further ABI work and are diagnosed. Artifact metadata retains resolved provider
 signatures and generated export symbols; these remain partial native artifacts,
 not complete independent Sindarin/SDK packages.
@@ -159,7 +160,7 @@ outstanding. Passing these fixtures does not satisfy the entire Rust completion 
 
 ## Owned string-array results
 
-Native declarations returning `str[]` can use `abi: 1.1` and `result: owned`.
+Native declarations returning `str[]` can use `abi: 1.1` or `1.5` and `result: owned`.
 Generated C providers accept an owned `SnArray *` with string element cleanup;
 Rust providers return `Option<Vec<Option<Vec<u8>>>>`; Go providers return
 `[]*string`. Nil and empty arrays, nil and empty elements and byte-oriented string
@@ -169,7 +170,7 @@ C output-pointer / Rust Result / Go `(value, status)` protocol.
 Provider adapters copy into managed C-runtime values and release backing storage.
 Consumer adapters build an owning legacy `SnArray` with string copy/release hooks,
 copy element bytes and release runtime credits. C/Rust callers can mutate results
-with their existing array syntax. Arrays require ABI 1.1 explicitly; ABI 1.0
+with their existing array syntax. Arrays require ABI 1.1 or 1.5 explicitly; ABI 1.0
 contracts are rejected. Non-string/record elements, language copy hooks and
 complete SDK record/method adapters remain required work.
 
@@ -185,3 +186,40 @@ A C ownership repair preserves string elements borrowed while printing through
 a live variable/member/index owner. Printing no longer frees the array's element
 before mutation or array cleanup; temporary owned strings retain their existing
 cleanup path. Existing Sindarin source and output contracts are preserved.
+
+## Live mutable string-array inputs (ABI 1.5)
+
+`native.abi: 1.5` and borrowed `str[]` parameter ownership select the canonical
+native string-array view transport. Consumer adapters negotiate ABI 1.5 and its
+native-string-array capability, wrap the caller's actual C array header and
+preserve same-argument aliases. They release view credits after the call; they
+never copy slots into temporary arrays or delay mutation until return. Owned
+`str[]` results retain ABI 1.1's generic managed-value format, with independent
+string credits and the existing consumer result conversion.
+
+Generated C providers unwrap the actual `SnArray *`. Generated Rust and Go
+native providers pass an opaque canonical header to ordinary backing functions
+as `*mut std::ffi::c_void` or `unsafe.Pointer`. Backing code uses C interop for
+allocation, slots and element hooks; it must not reinterpret Rust vectors or Go
+slices as C headers. Each provider holds its own input view credits through the
+call, including errors, panics and callbacks that consume a caller credit. Rust
+uses owned guards; Go uses deferred releases and native-sized C pointers without
+retaining Go object pointers. Existing 1.1 backing slice contracts are unchanged;
+a 1.5 function with that old backing signature fails compilation.
+
+C Sindarin body exports now use this same transport and preserve in-place slot
+mutation, growth and live native callbacks. The native owner must outlive every
+borrowed view credit, and callers serialize mutation. Reference-qualified input
+rebinding, generated Rust Sindarin body inputs, managed callback declarations,
+record/interface contracts and full SDK migration remain required work. C-unsafe
+parameter rebinding that frees a still-owned caller header is not a parity oracle.
+
+Controls cover exact outputs across all nine optimization/arithmetic combinations
+for C/Rust applications using C bodies, from source and relocated prebuilt archives
+with body sources and headers removed. Ordinary Rust/Go backing keeps its original
+language and uses generated exports, live alias callbacks and owned results in
+both application targets and prebuilt consumption. Go runs with `cgocheck2` and
+forces GC during calls. A C provider client checks unchanged error outputs,
+package shutdown and exactly-once native cleanup when a callback consumes its
+external credit. Strict address/undefined/leak controls cover the generated C
+body and C/Rust caller paths.

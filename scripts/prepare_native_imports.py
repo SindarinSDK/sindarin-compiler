@@ -26,9 +26,12 @@ def adapter(signature, package):
     return_wire = 'uint32_t' if status else TYPES[result][1]
     code = [f'extern {return_wire} {symbol}({", ".join(wire_params) or "void"});',
             f'{TYPES[result][0]} {alias}(' + ', '.join(f'{TYPES[kind(p["type"])][0]} p{i}' for i,p in enumerate(params)) + ') {']
-    version = 'SN_ABI_V1_1_VERSION' if signature.get('abi') == '1.1' else 'SN_ABI_V1_VERSION'
+    live_arrays = signature.get('abi') == '1.5'
+    version = 'SN_ABI_V1_5_VERSION' if live_arrays else 'SN_ABI_V1_1_VERSION' if signature.get('abi') == '1.1' else 'SN_ABI_V1_VERSION'
     arrays = result == 'string_array' or any(kind(p['type']) == 'string_array' for p in params)
     capabilities = 'SN_ABI_CAP_VALUES | SN_ABI_CAP_VALUE_ARRAYS' if arrays else 'SN_ABI_CAP_VALUES'
+    if live_arrays and any(kind(p['type']) == 'string_array' for p in params):
+        capabilities += ' | SN_ABI_CAP_NATIVE_STRING_ARRAYS'
     message = json.dumps(f"native package '{package}' requires a compatible shared runtime ABI\n")
     code += ['  SnAbiInfo abi_info;',
              f'  if (sn_abi_v1_query({version}, {capabilities}, &abi_info, sizeof(abi_info)) != SN_ABI_OK ||',
@@ -44,6 +47,9 @@ def adapter(signature, package):
             for previous in range(i):
                 if kind(params[previous]['type']) == 'string_array':
                     code.append(f'  if (p{i} == p{previous}) w{i} = sn_abi_v1_retain(w{previous}); else')
+            if live_arrays:
+                code.append(f'  if (sn_abi_v1_native_string_array_borrow(p{i}, &w{i}) != SN_ABI_OK) abort();')
+                continue
             code += [f'  if (p{i}) {{',
                      f'    if (sn_abi_v1_value_array_new(&w{i}) != SN_ABI_OK) abort();',
                      f'    for (long long slot = 0; slot < p{i}->len; slot++) {{ SnAbiValue *item = NULL;',

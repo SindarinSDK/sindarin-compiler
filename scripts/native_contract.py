@@ -20,16 +20,16 @@ def validate(signature):
     binding = signature['binding']
     ownership, params = binding['ownership'], signature['params']
     result = kind(signature['return_type'])
-    if result == 'string_array' and signature.get('abi') != '1.1':
-        raise ValueError('managed string-array results require native ABI 1.1')
+    if result == 'string_array' and signature.get('abi') not in ('1.1', '1.5'):
+        raise ValueError('managed string-array results require native ABI 1.1 or 1.5')
     names = {p['name'] for p in params}
     if set(ownership['parameters']) != names:
         raise ValueError('package parameter ownership does not match the resolved declaration')
     if ownership['result'] != ('owned' if result in ('string', 'string_array') else 'value'):
         raise ValueError('package result ownership requires an implemented owned-string or plain-value contract')
     for p in params:
-        if kind(p['type']) == 'string_array' and signature.get('abi') != '1.1':
-            raise ValueError('managed string-array inputs require native ABI 1.1')
+        if kind(p['type']) == 'string_array' and signature.get('abi') not in ('1.1', '1.5'):
+            raise ValueError('managed string-array inputs require native ABI 1.1 or 1.5')
         if kind(p['type']) == 'void':
             raise ValueError('package parameter cannot have void ABI representation')
         expected = 'borrowed' if kind(p['type']) in ('string', 'string_array') else 'value'

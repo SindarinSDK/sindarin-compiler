@@ -1,0 +1,99 @@
+{
+  "base_revision": "0b61548b63d8c7a4aeb82ddfc4ee92eef737ac99",
+  "compiler_sha256": "dd597dcd91ee1df1c416237466a807193bed63af0104a464fe10ba43a2a68393",
+  "package_abi": "1.5",
+  "input_transport": "Borrowed live canonical C string-array views; generated C/Rust/Go providers hold call credits.",
+  "output_transport": "Existing ABI 1.1 owned managed-value string arrays; scalar/string result layouts are unchanged.",
+  "counts": {
+    "c": {
+      "passed": 3240,
+      "failed": 0,
+      "skipped": 0
+    },
+    "rust": {
+      "passed": 1097,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "artifact_tests": 16,
+  "import_tests": 35,
+  "runtime_contract_tests": 14,
+  "ci_helper_tests": 22,
+  "c_body_exact_output_cases": 36,
+  "c_body_exact_output_description": "Both C/Rust applications, each in nine optimization/arithmetic combinations, with source and relocated prebuilt C body artifacts after implementation sources/headers are removed. Every successful caller requires exact stdout, zero exit and empty stderr.",
+  "native_rust_go_exact_output_cases": 8,
+  "native_backing_description": "Generated exports call ordinary Rust/Go functions with opaque canonical C headers, preserving their backing language; live alias callbacks, Go GC/cgocheck2, nil/empty/non-UTF-8 strings and owned results pass from source and prebuilt archives in both application targets.",
+  "sanitizers": {
+    "environment": {
+      "SN_CC": "gcc",
+      "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1"
+    },
+    "c_body_exact_output_cases": 36,
+    "generated_c_provider_owner_guard": {
+      "passed": true,
+      "controls": "Wrong kind, invalid boolean/output, preserved outputs/content, reentrant callback consuming caller credit, native cleanup exactly once, owned output survives native cleanup and package shutdown."
+    },
+    "before_owner_guard": "Pre-guard staged provider reproduced ASan heap-use-after-free in the body after consume_native_view released its adopted input header. Adding retained call credits fixes the unchanged ownership control."
+  },
+  "original_contract_preservation": {
+    "inventory": 1365,
+    "source_hashes_matching": 1364,
+    "unchanged_historical_source_deviation": [
+      "tests/exploratory/test_limitation_closure_array.sn"
+    ],
+    "unchanged_original_output_oracles": 1155,
+    "existing_sources_oracles_snapshots_unchanged": true
+  },
+  "source_sha256": {
+    "src/package/package_yaml_native.c": "bcfd9adc14b7eefa03e18562db3a9d09650c4cee292e6f1dbd217ca46fde8264",
+    "scripts/native_contract.py": "99ca2d3d709c48e398f5e3048cac101bb77666b1959fca34eff62707f7ec50be",
+    "scripts/native_provider.py": "930ffc11f0d9a7ef36564d9070ab26d5f34522ba793ac96639d8a4af9edbe072",
+    "scripts/prepare_native_imports.py": "24927403bd99188f698db2a9035490a121a251047a6bd38a50ec985792c52c4a",
+    "scripts/sindarin_library.py": "81fe4cbe978e0f6e40286a0ec9168e7632e015080139d68d4149ce3ecf4ab3d0",
+    "scripts/build_native_package.py": "28b512807b2c52460d504ee80b0a899b2deaa70b68e9105b1eaecb65d36d1729",
+    "tests/package/native_artifacts.py": "01e4ad1ccd60ed2944a9bb1f32b123329c76728abc8f72ce6f8883b0354830d7",
+    "tests/package/native_imports.py": "a281e1d601f4915c2b604032388e1110108a7d0da8dfe56803ff4302598091e8"
+  },
+  "log_sha256": {
+    "/tmp/sindarin-mutable-body-owner-guard-asan.log": "912b4fead83a5fa599066ba72b282ffeeb8b41995f428cef60d164e38294ac74",
+    "/tmp/sindarin-mutable-body-matrix.log": "aedf7c67251137aa99791624d63a65aa701ea8cc9717729e8b69cec3eb929078",
+    "/tmp/sindarin-mutable-body-contracts.log": "4b98272691f8b44fdbe154965e8f4a849d66a438ef55e9d57ccac13ec090d7de",
+    "/tmp/sindarin-mutable-body-focused.log": "b311820d2f5695fb8025ebca582d411bf15097f8724acef5375927112a690596",
+    "/tmp/sindarin-mutable-body-artifacts.log": "281af397e87c14e669d31b0e92815d614ed20d6d57d0b47fd24a29021a37452f",
+    "/tmp/sindarin-mutable-body-asan.log": "3c4faa9973d72daa4810fe401fa75352d5fbb2161674b5468eb8a41595019b8f",
+    "/tmp/sindarin-mutable-body-c.log": "67ad746cd74c120b753d90c9f01c066385af74c260eb30eee408382e23f0458c",
+    "/tmp/sindarin-mutable-body-ci-helpers.log": "e2ce452d228e41ee545f6c771896ab33fa0cfb1ba6884faca80d96e664c3163e",
+    "/tmp/sindarin-mutable-body-build.log": "682721302be99e1aed3fb1b244028b4fd719793d658c4a7d50a073abc68ecbf2",
+    "/tmp/sindarin-mutable-body-imports.log": "0883556fbda6944a385ef79c8ff3748e6962c4eea1afb954a3ed52bf4b55db29",
+    "/tmp/sindarin-mutable-body-rust.log": "f8c06e47b21971357422d6571b2b22493aafa9aaaefd2317d504a6f60d65fd09",
+    "/tmp/sindarin-mutable-body-owner-guard.log": "83fc7c7e8ff6ac296bcdac1a30bd5e10270de171871f3604941a62017c90d698"
+  },
+  "hosted_prerequisites": [
+    {
+      "run": 38090421189,
+      "revision": "0b7ef90d4ca8f612b7933ce737c1c3e72a04f081",
+      "conclusion": "success",
+      "jobs": 34,
+      "groups": 26,
+      "gates": 292
+    },
+    {
+      "run": 38091261038,
+      "revision": "0b61548b63d8c7a4aeb82ddfc4ee92eef737ac99",
+      "conclusion": "success",
+      "jobs": 34,
+      "groups": 26,
+      "gates": 292
+    }
+  ],
+  "scope_limitations": [
+    "Rust Sindarin body inputs need canonical array source/bundle emission and remain explicitly diagnosed.",
+    "Reference-qualified rebinding, managed records/interfaces/callback signatures, library dependency lifecycle graphs and complete SDK facade migration remain required.",
+    "Unsafe C parameter rebinding that frees a still-owned caller header and unguarded nil array length are C undefined cases; they receive no parity credit.",
+    "Complete original-corpus independent-oracle/platform and final integrated-main acceptance remain required."
+  ],
+  "hosted_acceptance": "Local validation complete; this feature batch requires its own complete unified CI."
+}

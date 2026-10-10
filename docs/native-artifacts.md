@@ -149,10 +149,11 @@ deferred initializers in source order. Partial initialization rolls back on pani
 Owned `str[]` body results use ABI 1.1 managed-value arrays. C/RS body adapters
 preserve nil/empty arrays and elements and arbitrary string bytes, transfer independent element credits,
 and keep retrieved values alive after array release and package shutdown. Consumer arrays retain their
-normal mutation and cleanup behaviour. Array inputs still require the full
-mutable/borrowed implementation contract.
+normal mutation and cleanup behaviour. C body `str[]` inputs use ABI 1.5 live
+native views; generated C/Rust/Go native providers use the same input transport.
+Rust Sindarin body inputs still need canonical array emission.
 
-Managed package thread/global-handle lifetimes, array input/record body exports,
+Managed package thread/global-handle lifetimes, Rust array-input and record body exports,
 generic public APIs and complete native-backed SDK facade migration
 remain required work. Unsupported contracts fail clearly. RS body emission that
 needs native C sidecars still requires the modular library lifecycle extension;
