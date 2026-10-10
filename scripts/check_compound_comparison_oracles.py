@@ -12,12 +12,15 @@ RAW = 'tests/rust-native/scalar_floating_compound_comparisons.sn'
 STRICT = 'tests/rust-native/scalar_floating_compound_strict_comparisons.sn'
 
 
-def verify(report):
+def verify(report, windows=None):
+    windows = os.name == 'nt' if windows is None else windows
     if not report['passed']:
         raise ValueError('compound comparison differential gate failed')
     seen = set()
     for case in report['cases']:
-        source = case['source']
+        # Path's string representation in Windows reports uses backslashes.
+        # Normalize fixture identity only; output and source bytes stay exact.
+        source = case['source'].replace('\\', '/')
         if source not in (RAW, STRICT):
             continue
         identity = (source, case['arithmetic_mode'], case['optimization'])
@@ -35,7 +38,7 @@ def verify(report):
                 case['arithmetic_mode'] == 'default' and case['optimization'] == '-O2')
             wanted = ('true\n1\ntrue\n1\ntrue\n1.00000\n' if raw else
                       'true\n3\nfalse\n3\ntrue\n3.50000\n')
-        if os.name == 'nt':
+        if windows:
             wanted = wanted.replace('\n', '\r\n')
         for target in ('c', 'rust'):
             result = case['targets'][target]

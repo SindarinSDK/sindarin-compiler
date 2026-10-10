@@ -7,6 +7,28 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Windows comparison report correction: local validation, 2026-10-10
+
+Arithmetic implementation `aac3cae8` failed Windows numeric CI in
+[run 38081042679](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38081042679).
+All 171 actual differential cases passed. The independent checker filtered on
+forward-slash fixture IDs, whereas Windows reports use backslashes, so it skipped
+both comparison fixtures and incorrectly reported incomplete mode coverage.
+Integrated `ee2a0ffd` contains the same checker blob and requires this correction.
+
+The checker now normalizes only fixture identifiers. Source hashes, successful
+compile/exit requirements, exact raw output and complete unique mode/optimization
+coverage remain enforced. Replaying the actual retained Windows artifact passes
+all 18 independent comparison oracles with exact CRLF transport; the retained
+Linux report passes its 18 independent oracles. The complete 20-test CI helper
+suite includes focused separator, transport, missing/duplicate case, source hash,
+compile failure and stderr controls. Compiler, runtime and language fixtures are
+unchanged by this correction. Feature publication is frozen until complete
+Linux/macOS/Windows CI on corrected integrated main is green; hosted correction
+acceptance is pending publication.
+
+Evidence: [Windows path correction](rust-parity-evidence/windows-compound-path-correction.json).
+
 ## Managed-array replacement: local validation, 2026-10-10
 
 The canonical C runtime implements ABI 1.3 bulk managed-array slot replacement.
@@ -27,8 +49,9 @@ artifact, 32 import and 15 CI-helper tests and package-lifecycle clients pass.
 Original corpus sources and behavioural oracles are unchanged. Existing native
 package ABI 1.0/1.1 and package lifecycle ABI 1.2 paths remain verified.
 
-Hosted acceptance is pending publication. This is the runtime prerequisite for
-mutable body-input transport. The existing native borrowed-array contract remains
+Implementation `ee2a0ffd` is published on main with hosted acceptance pending
+[run 38081916057](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38081916057).
+This is the runtime prerequisite for mutable body-input transport. The existing native borrowed-array contract remains
 read-only. Mutable Sindarin body adapters, live callback visibility, Rust
 parameter alias partitions/rebind semantics, broader public type contracts,
 independent SDK artifacts and whole corpus/platform acceptance remain required.

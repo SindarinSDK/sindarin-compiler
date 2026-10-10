@@ -1,0 +1,34 @@
+{
+  "date": "2026-10-10",
+  "failing_revision": "aac3cae87318620ac8f69d11ebe8ef2783909deb",
+  "integrated_revision": "ee2a0ffdf2d11883adfc9ff77ffdb4ccfaec7bfd",
+  "failing_run": 38081042679,
+  "failing_job": 114298173625,
+  "run_url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38081042679",
+  "diagnosis": "Windows report fixture IDs use backslashes; literal forward-slash filtering skipped both comparison fixtures and incorrectly reported incomplete coverage. Actual differential cases all pass.",
+  "checker_blob_identical_on_failing_and_integrated_main": "8d45b6763f31491e615ded14f6b74ddb19d374bd",
+  "windows_report_sha256": "7ea8ca3999a715dd11408d8b68d82db93c5392cf68dc097215530f258aec81df",
+  "windows_differential_cases": 171,
+  "independent_windows_comparison_oracles": 18,
+  "independent_linux_comparison_oracles": 18,
+  "source_hashes_and_exact_windows_crlf_outputs_verified": true,
+  "regression_tests": {
+    "checks": 20,
+    "passed": true,
+    "log_sha256": "281a15c80d4137c5a7d762f308940e3abf2b71de5884aa1476aaefd3b0091a37",
+    "covers": [
+      "Windows JSON path separators with exact CRLF output",
+      "LF output rejected for Windows transport",
+      "missing/duplicate normalized case identities rejected",
+      "source hash corruption rejected after path normalization",
+      "failed compilation and stderr rejected"
+    ]
+  },
+  "source_sha256": {
+    "scripts/check_compound_comparison_oracles.py": "02a883c37195ca998a06e3f31b860334766e62810b60eb7f41ba6a7fa54e5083",
+    "tests/ci/test_compound_comparison_oracles.py": "b205ce80a76e64620472917b32b7fdf1ea4eb1e41c0436c92e4859eac1f80bab"
+  },
+  "compiler_runtime_language_sources_changed": false,
+  "hosted_acceptance": "pending correction publication",
+  "passed": true
+}
