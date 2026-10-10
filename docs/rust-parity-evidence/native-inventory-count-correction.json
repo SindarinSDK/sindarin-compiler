@@ -1,0 +1,58 @@
+{
+  "failing_revision": "4a88f178b217cd4e433159066603891156caefce",
+  "run": 38083908519,
+  "jobs": {
+    "Linux": 114306674283,
+    "Darwin": 114306674341,
+    "Windows": 114306674377
+  },
+  "diagnosis": {
+    "Linux": {
+      "path": "/tmp/sindarin-integral-rust-ci-failure.log",
+      "sha256": "42b9d109c8e8fe1836ac606bf70e858f9fef14e1c526607426aef1ffd9555d4e",
+      "root_failure": "Strict native-extra fixture count was 389; actual catalog is 391 after two integral comparison controls.",
+      "actual_native_behavioral_checks": 391
+    },
+    "Darwin": {
+      "path": "/tmp/sindarin-integral-rust-macos-ci-failure.log",
+      "sha256": "5c2fe754158868502134e1beb78049f7552c045b2358a5d9a2ed23502f0b9747",
+      "root_failure": "Strict native-extra fixture count was 389; actual catalog is 391 after two integral comparison controls.",
+      "actual_native_behavioral_checks": 391
+    },
+    "Windows": {
+      "path": "/tmp/sindarin-integral-rust-windows-ci-failure.log",
+      "sha256": "e23bdc704bafe39dbd7a1f4385862566960d8d0ba9238e5a4ee828f739d93126",
+      "root_failure": "Strict native-extra fixture count was 389; actual catalog is 391 after two integral comparison controls.",
+      "actual_native_behavioral_checks": 391
+    }
+  },
+  "correction": "Update the exact native-extra count to 391. Keep strict cardinality; verify every strict gate against actual runner discovery, including raw manifests and filtered gates, in early CI helper checks.",
+  "regression": "The final test rejects the published 389 count against the real 391 catalog. Adding another fixture without updating metadata is rejected before any fixture execution.",
+  "local_validation": {
+    "ci_helpers": 22,
+    "strict_native_extra": 391,
+    "failures": 0,
+    "skips": 0,
+    "logs": {
+      "complete_ci_helpers": {
+        "path": "/tmp/sindarin-fixture-inventory-ci-helpers.log",
+        "sha256": "1c25bd2f3c581c50f599e5486d2032b3e756fa2a8eb171a991325fecbae6bdca"
+      },
+      "strict_native_extra": {
+        "path": "/tmp/sindarin-fixture-inventory-strict.log",
+        "sha256": "10d05da9e59e8766d074a0e4b346831707fd54e879f1f96aa634de8f2159f6f3"
+      },
+      "final_regression_on_old_count": {
+        "path": "/tmp/sindarin-fixture-inventory-before-final.log",
+        "sha256": "eddacef4facaedf32ada3334a0b5fbad058e67600ada13f885a38569eb62f026"
+      }
+    }
+  },
+  "source_sha256": {
+    "scripts/ci/gates.json": "6a1fe11cda03af87955bc36c02c17a5a3824b4215a8e4352cc7f4256dd7dbb8e",
+    "tests/ci/test_fixture_inventory.py": "05ed92c7ea1b7ce3e6266507ee4ca6a104cbdff116648c0d0d69e971928582bb"
+  },
+  "scope": "CI inventory metadata and early guard only; no compiler/runtime/language fixture or oracle changes in this correction. ABI 1.4 draft remains local and is excluded from correction publication.",
+  "publication": "prepared; complete corrected integrated Linux/macOS/Windows acceptance remains required",
+  "passed": true
+}

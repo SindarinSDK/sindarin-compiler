@@ -7,6 +7,26 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Native fixture count correction: local validation, 2026-10-10
+
+Integral comparison main `4a88f178` failed the strict native-extra inventory gate
+on Linux/macOS/Windows in
+[CI 38083908519](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38083908519).
+The gate still required 389 fixtures after two new controls expanded the catalog
+to 391. The actual 391 native behavioral tests passed on each platform.
+
+The required count is now 391; the exact-cardinality guard remains enforced.
+Two early CI helper checks use the runner's real catalog, raw fixture manifests
+and filtered gates to verify every strict fixture count and to reject an added
+fixture before execution when its metadata is stale. The final regression
+reproduces the published 389-versus-391 failure. All 22 CI helpers and the real
+391-case strict native suite pass locally with no failures/skips. This correction
+changes inventory metadata and its guard only. Unpublished ABI mutation work is
+excluded. Feature pushes remain frozen until complete corrected integrated main
+CI is green; the focused correction is prepared for publication.
+
+Evidence: [inventory correction](rust-parity-evidence/native-inventory-count-correction.json).
+
 ## Corrected integrated main: hosted acceptance, 2026-10-10
 
 Main `25c69e5b` passes all 34 jobs in
@@ -40,7 +60,8 @@ output oracles match the tag. The known historical closure-array source deviatio
 predates this batch and is unchanged; the earlier original-source staging remains
 required for that program's audit.
 
-Corrected integrated main is accepted; this validated batch is ready for publication.
+Implementation `4a88f178` is published on main. Complete hosted acceptance is
+pending [run 38083908519](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38083908519).
 Bitwise compound contexts require different C precedence lowering and remain
 work. C-undefined arithmetic is not credited, and complete original-corpus,
 package/SDK and platform acceptance remain required.
