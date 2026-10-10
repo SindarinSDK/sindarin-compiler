@@ -502,6 +502,9 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
              strcmp(param_kind, "byte") == 0 ||
              strcmp(param_kind, "uint32") == 0 ||
              strcmp(param_kind, "uint") == 0 ||
+             strcmp(param_kind, "int") == 0 ||
+             strcmp(param_kind, "long") == 0 ||
+             strcmp(param_kind, "int32") == 0 ||
              strcmp(param_kind, "char") == 0))
         {
             json_object_object_add(param, "rust_by_value_mutated",
@@ -512,7 +515,11 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
                  strcmp(param_kind, "uint") == 0 ||
                  strcmp(param_kind, "char") == 0) ?
                     "rust_by_value_wrapping_parameter_mutation" :
-                    "rust_by_value_floating_parameter_mutation",
+                    (strcmp(param_kind, "int") == 0 ||
+                     strcmp(param_kind, "long") == 0 ||
+                     strcmp(param_kind, "int32") == 0) ?
+                        "rust_by_value_checked_parameter_mutation" :
+                        "rust_by_value_floating_parameter_mutation",
                 json_object_new_boolean(true));
         }
     }

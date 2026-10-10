@@ -1,0 +1,7 @@
+{
+  "source_sha256": "a2396e6b466b18c44050d729679b5f8a5a2b61f37ea7df07faa311bfe4c0c2dd",
+  "legacy_oracle_sha256": "360690661362a47c27874566599935fe7b9189f651b472aea4149f15ac34701b",
+  "stdout_hex": "",
+  "exit": 0,
+  "reason": "C-supported signed by-value parameter postfix mutation with caller storage preserved"
+}

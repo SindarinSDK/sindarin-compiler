@@ -1,0 +1,335 @@
+{
+  "base_revision": "5d295716e9fac8c38cc554da2ffb5f02fcee8b55",
+  "date": "2026-10-10",
+  "scope": "Signed default-qualified value-parameter postfix preparation; retain existing C arithmetic/ownership contracts",
+  "source_sha256": {
+    "scripts/ci/gates.json": "a90698c4ddc84c01a3da68cd3089aedf58f5c2a5330d7548ba447a7e7a0781a9",
+    "src/target/rust/rust_validate.c": "7050c65fb43ee41c7370501d0a2a4d83065202ab0858185ea2898902cbb33385",
+    "tests/rgen/errors/by_value_parameter_decrement.parity.json": "d9e60c618d9ff3eeeb73f5de6544b0a206b00dae58e024821976f1f9048fb6d3",
+    "tests/rgen/errors/by_value_parameter_increment.parity.json": "3df19892bf450966e85ddaffcd305a348c96f7dae7b1c17bca725936710314d1",
+    "tests/rust-native/scalar_signed_parameter_postfix.abi-matrix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests/rust-native/scalar_signed_parameter_postfix.expected": "a8c8704687490f20e1992b9d6a9578237617ebd0894ee14f5682acea27e3845a",
+    "tests/rust-native/scalar_signed_parameter_postfix.sn": "41c4d9a5e94dc82ca83180c73425774bd721331c19cfdf8a65dfbd2b32b784ac",
+    "tests/rgen/errors/by_value_parameter_increment.sn": "a2396e6b466b18c44050d729679b5f8a5a2b61f37ea7df07faa311bfe4c0c2dd",
+    "tests/rgen/errors/by_value_parameter_increment.expected": "360690661362a47c27874566599935fe7b9189f651b472aea4149f15ac34701b",
+    "tests/rgen/errors/by_value_parameter_decrement.sn": "b196130f29d387b2880dfe7c239e0b5fa6c05b19046a4ce624390c8254ce2a65",
+    "tests/rgen/errors/by_value_parameter_decrement.expected": "360690661362a47c27874566599935fe7b9189f651b472aea4149f15ac34701b"
+  },
+  "validation": {
+    "C": {
+      "checks": 3240,
+      "passed": true,
+      "log_sha256": "14053fa9040bd8d5c366925a1a7bf255cd22f3d1836fe626a5b2b98bf1e3fd43"
+    },
+    "Rust": {
+      "checks": 1088,
+      "passed": true,
+      "log_sha256": "a51eb3165fd3530f7977856ea076e3724d362df58013fd602c2cc1d0cda73539"
+    },
+    "ci_helpers": {
+      "checks": 15,
+      "passed": true,
+      "log_sha256": "01dfb7e1afb848597474260220bc712f60a88ea3efdb6f2c83a42cd8b3535e4f"
+    },
+    "focused": {
+      "checks": 1,
+      "passed": true,
+      "log_sha256": "5e9b49343340447cece97538b005596ad038d81fb3d9cd6a9cf67d3d39a13033"
+    }
+  },
+  "parity": {
+    "cases": 9,
+    "passed": true,
+    "report_sha256": "86c474da18dd35e1f4bd8979ce3f77fc3cd95d93dd82e15de4ad933d749b21e9",
+    "cases_summary": [
+      {
+        "source": "tests/rust-native/scalar_signed_parameter_postfix.sn",
+        "source_sha256": "41c4d9a5e94dc82ca83180c73425774bd721331c19cfdf8a65dfbd2b32b784ac",
+        "optimization": "-O0",
+        "arithmetic_mode": "default",
+        "passed": true
+      },
+      {
+        "source": "tests/rust-native/scalar_signed_parameter_postfix.sn",
+        "source_sha256": "41c4d9a5e94dc82ca83180c73425774bd721331c19cfdf8a65dfbd2b32b784ac",
+        "optimization": "-O1",
+        "arithmetic_mode": "default",
+        "passed": true
+      },
+      {
+        "source": "tests/rust-native/scalar_signed_parameter_postfix.sn",
+        "source_sha256": "41c4d9a5e94dc82ca83180c73425774bd721331c19cfdf8a65dfbd2b32b784ac",
+        "optimization": "-O2",
+        "arithmetic_mode": "default",
+        "passed": true
+      },
+      {
+        "source": "tests/rust-native/scalar_signed_parameter_postfix.sn",
+        "source_sha256": "41c4d9a5e94dc82ca83180c73425774bd721331c19cfdf8a65dfbd2b32b784ac",
+        "optimization": "-O0",
+        "arithmetic_mode": "checked",
+        "passed": true
+      },
+      {
+        "source": "tests/rust-native/scalar_signed_parameter_postfix.sn",
+        "source_sha256": "41c4d9a5e94dc82ca83180c73425774bd721331c19cfdf8a65dfbd2b32b784ac",
+        "optimization": "-O1",
+        "arithmetic_mode": "checked",
+        "passed": true
+      },
+      {
+        "source": "tests/rust-native/scalar_signed_parameter_postfix.sn",
+        "source_sha256": "41c4d9a5e94dc82ca83180c73425774bd721331c19cfdf8a65dfbd2b32b784ac",
+        "optimization": "-O2",
+        "arithmetic_mode": "checked",
+        "passed": true
+      },
+      {
+        "source": "tests/rust-native/scalar_signed_parameter_postfix.sn",
+        "source_sha256": "41c4d9a5e94dc82ca83180c73425774bd721331c19cfdf8a65dfbd2b32b784ac",
+        "optimization": "-O0",
+        "arithmetic_mode": "unchecked",
+        "passed": true
+      },
+      {
+        "source": "tests/rust-native/scalar_signed_parameter_postfix.sn",
+        "source_sha256": "41c4d9a5e94dc82ca83180c73425774bd721331c19cfdf8a65dfbd2b32b784ac",
+        "optimization": "-O1",
+        "arithmetic_mode": "unchecked",
+        "passed": true
+      },
+      {
+        "source": "tests/rust-native/scalar_signed_parameter_postfix.sn",
+        "source_sha256": "41c4d9a5e94dc82ca83180c73425774bd721331c19cfdf8a65dfbd2b32b784ac",
+        "optimization": "-O2",
+        "arithmetic_mode": "unchecked",
+        "passed": true
+      }
+    ]
+  },
+  "boundary_observations": {
+    "cases": [
+      {
+        "source": "int32dec.sn",
+        "source_text": "fn update(value: int32): int32 =>\n  value--\n  return value\nfn main(): void =>\n  println(update((-2147483647i32 - 1i32)))\n",
+        "arithmetic_mode_flag": "checked",
+        "target": "c",
+        "exit": 0,
+        "stdout_hex": "323134373438333634370a",
+        "stderr_hex": ""
+      },
+      {
+        "source": "int32dec.sn",
+        "source_text": "fn update(value: int32): int32 =>\n  value--\n  return value\nfn main(): void =>\n  println(update((-2147483647i32 - 1i32)))\n",
+        "arithmetic_mode_flag": "checked",
+        "target": "rust",
+        "exit": 0,
+        "stdout_hex": "323134373438333634370a",
+        "stderr_hex": ""
+      },
+      {
+        "source": "int32dec.sn",
+        "source_text": "fn update(value: int32): int32 =>\n  value--\n  return value\nfn main(): void =>\n  println(update((-2147483647i32 - 1i32)))\n",
+        "arithmetic_mode_flag": "unchecked",
+        "target": "c",
+        "exit": 0,
+        "stdout_hex": "323134373438333634370a",
+        "stderr_hex": ""
+      },
+      {
+        "source": "int32dec.sn",
+        "source_text": "fn update(value: int32): int32 =>\n  value--\n  return value\nfn main(): void =>\n  println(update((-2147483647i32 - 1i32)))\n",
+        "arithmetic_mode_flag": "unchecked",
+        "target": "rust",
+        "exit": 0,
+        "stdout_hex": "323134373438333634370a",
+        "stderr_hex": ""
+      },
+      {
+        "source": "int32inc.sn",
+        "source_text": "fn update(value: int32): int32 =>\n  value++\n  return value\nfn main(): void =>\n  println(update(2147483647i32))\n",
+        "arithmetic_mode_flag": "checked",
+        "target": "c",
+        "exit": 0,
+        "stdout_hex": "2d323134373438333634380a",
+        "stderr_hex": ""
+      },
+      {
+        "source": "int32inc.sn",
+        "source_text": "fn update(value: int32): int32 =>\n  value++\n  return value\nfn main(): void =>\n  println(update(2147483647i32))\n",
+        "arithmetic_mode_flag": "checked",
+        "target": "rust",
+        "exit": 0,
+        "stdout_hex": "2d323134373438333634380a",
+        "stderr_hex": ""
+      },
+      {
+        "source": "int32inc.sn",
+        "source_text": "fn update(value: int32): int32 =>\n  value++\n  return value\nfn main(): void =>\n  println(update(2147483647i32))\n",
+        "arithmetic_mode_flag": "unchecked",
+        "target": "c",
+        "exit": 0,
+        "stdout_hex": "2d323134373438333634380a",
+        "stderr_hex": ""
+      },
+      {
+        "source": "int32inc.sn",
+        "source_text": "fn update(value: int32): int32 =>\n  value++\n  return value\nfn main(): void =>\n  println(update(2147483647i32))\n",
+        "arithmetic_mode_flag": "unchecked",
+        "target": "rust",
+        "exit": 0,
+        "stdout_hex": "2d323134373438333634380a",
+        "stderr_hex": ""
+      },
+      {
+        "source": "intdec.sn",
+        "source_text": "fn update(value: int): int =>\n  value--\n  return value\nfn main(): void =>\n  println(update((-9223372036854775807 - 1)))\n",
+        "arithmetic_mode_flag": "checked",
+        "target": "c",
+        "exit": 0,
+        "stdout_hex": "393232333337323033363835343737353830370a",
+        "stderr_hex": ""
+      },
+      {
+        "source": "intdec.sn",
+        "source_text": "fn update(value: int): int =>\n  value--\n  return value\nfn main(): void =>\n  println(update((-9223372036854775807 - 1)))\n",
+        "arithmetic_mode_flag": "checked",
+        "target": "rust",
+        "exit": 0,
+        "stdout_hex": "393232333337323033363835343737353830370a",
+        "stderr_hex": ""
+      },
+      {
+        "source": "intdec.sn",
+        "source_text": "fn update(value: int): int =>\n  value--\n  return value\nfn main(): void =>\n  println(update((-9223372036854775807 - 1)))\n",
+        "arithmetic_mode_flag": "unchecked",
+        "target": "c",
+        "exit": 0,
+        "stdout_hex": "393232333337323033363835343737353830370a",
+        "stderr_hex": ""
+      },
+      {
+        "source": "intdec.sn",
+        "source_text": "fn update(value: int): int =>\n  value--\n  return value\nfn main(): void =>\n  println(update((-9223372036854775807 - 1)))\n",
+        "arithmetic_mode_flag": "unchecked",
+        "target": "rust",
+        "exit": 0,
+        "stdout_hex": "393232333337323033363835343737353830370a",
+        "stderr_hex": ""
+      },
+      {
+        "source": "intinc.sn",
+        "source_text": "fn update(value: int): int =>\n  value++\n  return value\nfn main(): void =>\n  println(update(9223372036854775807))\n",
+        "arithmetic_mode_flag": "checked",
+        "target": "c",
+        "exit": 0,
+        "stdout_hex": "2d393232333337323033363835343737353830380a",
+        "stderr_hex": ""
+      },
+      {
+        "source": "intinc.sn",
+        "source_text": "fn update(value: int): int =>\n  value++\n  return value\nfn main(): void =>\n  println(update(9223372036854775807))\n",
+        "arithmetic_mode_flag": "checked",
+        "target": "rust",
+        "exit": 0,
+        "stdout_hex": "2d393232333337323033363835343737353830380a",
+        "stderr_hex": ""
+      },
+      {
+        "source": "intinc.sn",
+        "source_text": "fn update(value: int): int =>\n  value++\n  return value\nfn main(): void =>\n  println(update(9223372036854775807))\n",
+        "arithmetic_mode_flag": "unchecked",
+        "target": "c",
+        "exit": 0,
+        "stdout_hex": "2d393232333337323033363835343737353830380a",
+        "stderr_hex": ""
+      },
+      {
+        "source": "intinc.sn",
+        "source_text": "fn update(value: int): int =>\n  value++\n  return value\nfn main(): void =>\n  println(update(9223372036854775807))\n",
+        "arithmetic_mode_flag": "unchecked",
+        "target": "rust",
+        "exit": 0,
+        "stdout_hex": "2d393232333337323033363835343737353830380a",
+        "stderr_hex": ""
+      },
+      {
+        "source": "longdec.sn",
+        "source_text": "fn update(value: long): long =>\n  value--\n  return value\nfn main(): void =>\n  println(update((-9223372036854775807l - 1l)))\n",
+        "arithmetic_mode_flag": "checked",
+        "target": "c",
+        "exit": 0,
+        "stdout_hex": "393232333337323033363835343737353830370a",
+        "stderr_hex": ""
+      },
+      {
+        "source": "longdec.sn",
+        "source_text": "fn update(value: long): long =>\n  value--\n  return value\nfn main(): void =>\n  println(update((-9223372036854775807l - 1l)))\n",
+        "arithmetic_mode_flag": "checked",
+        "target": "rust",
+        "exit": 0,
+        "stdout_hex": "393232333337323033363835343737353830370a",
+        "stderr_hex": ""
+      },
+      {
+        "source": "longdec.sn",
+        "source_text": "fn update(value: long): long =>\n  value--\n  return value\nfn main(): void =>\n  println(update((-9223372036854775807l - 1l)))\n",
+        "arithmetic_mode_flag": "unchecked",
+        "target": "c",
+        "exit": 0,
+        "stdout_hex": "393232333337323033363835343737353830370a",
+        "stderr_hex": ""
+      },
+      {
+        "source": "longdec.sn",
+        "source_text": "fn update(value: long): long =>\n  value--\n  return value\nfn main(): void =>\n  println(update((-9223372036854775807l - 1l)))\n",
+        "arithmetic_mode_flag": "unchecked",
+        "target": "rust",
+        "exit": 0,
+        "stdout_hex": "393232333337323033363835343737353830370a",
+        "stderr_hex": ""
+      },
+      {
+        "source": "longinc.sn",
+        "source_text": "fn update(value: long): long =>\n  value++\n  return value\nfn main(): void =>\n  println(update(9223372036854775807l))\n",
+        "arithmetic_mode_flag": "checked",
+        "target": "c",
+        "exit": 0,
+        "stdout_hex": "2d393232333337323033363835343737353830380a",
+        "stderr_hex": ""
+      },
+      {
+        "source": "longinc.sn",
+        "source_text": "fn update(value: long): long =>\n  value++\n  return value\nfn main(): void =>\n  println(update(9223372036854775807l))\n",
+        "arithmetic_mode_flag": "checked",
+        "target": "rust",
+        "exit": 0,
+        "stdout_hex": "2d393232333337323033363835343737353830380a",
+        "stderr_hex": ""
+      },
+      {
+        "source": "longinc.sn",
+        "source_text": "fn update(value: long): long =>\n  value++\n  return value\nfn main(): void =>\n  println(update(9223372036854775807l))\n",
+        "arithmetic_mode_flag": "unchecked",
+        "target": "c",
+        "exit": 0,
+        "stdout_hex": "2d393232333337323033363835343737353830380a",
+        "stderr_hex": ""
+      },
+      {
+        "source": "longinc.sn",
+        "source_text": "fn update(value: long): long =>\n  value++\n  return value\nfn main(): void =>\n  println(update(9223372036854775807l))\n",
+        "arithmetic_mode_flag": "unchecked",
+        "target": "rust",
+        "exit": 0,
+        "stdout_hex": "2d393232333337323033363835343737353830380a",
+        "stderr_hex": ""
+      }
+    ],
+    "passed": true,
+    "scope": "Observed O2 C/Rust boundary agreement; arithmetic mode flags do not themselves prove overflow is defined; C undefined cases get no parity credit"
+  },
+  "publication": "held while two feature CI slots are occupied",
+  "hosted_acceptance": "pending publication",
+  "passed": true
+}

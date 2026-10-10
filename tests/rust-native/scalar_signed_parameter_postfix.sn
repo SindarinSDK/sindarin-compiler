@@ -1,0 +1,37 @@
+fn integer(value: int): bool =>
+  var old: int = value++
+  if old + 1 != value =>
+    return false
+  var incremented: int = value--
+  return incremented == old + 1 && value == old
+
+fn longer(value: long): bool =>
+  var old: long = value++
+  if old + 1l != value =>
+    return false
+  var incremented: long = value--
+  return incremented == old + 1l && value == old
+
+fn narrow(value: int32): bool =>
+  var old: int32 = value++
+  if old + 1i32 != value =>
+    return false
+  var incremented: int32 = value--
+  return incremented == old + 1i32 && value == old
+
+struct Counter =>
+  fn check(value: int): bool =>
+    var old: int = value++
+    return value == old + 1
+
+  static fn checkNarrow(value: int32): bool =>
+    var old: int32 = value--
+    return value == old - 1i32
+
+fn main(): void =>
+  var caller: int = 41
+  println(integer(caller) && caller == 41)
+  println(integer(-1) && longer(-1l) && narrow(-1i32))
+  println(integer(9223372036854775806) && longer(9223372036854775806l) && narrow(2147483646i32))
+  var counter: Counter = {}
+  println(counter.check(caller) && Counter.checkNarrow(42i32) && caller == 41)

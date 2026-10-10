@@ -7,6 +7,29 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Signed value-parameter postfix operations: local validation, 2026-10-10
+
+The parameter-mutation preparation pass now marks `int`, `long` and `int32`
+default-qualified parameters for the already implemented postfix lowering.
+Previously the signed compound-assignment marker existed, but `++` and `--`
+were rejected before reaching it. Named functions, instance/static methods,
+old/new values, caller isolation and safe signed limits pass nine C/Rust mode
+comparisons and four native/debug profiles. The existing shadow-initializer
+guard, arithmetic lowering and C runtime remain unchanged.
+
+Both original signed increment/decrement rejection fixtures and diagnostics are
+byte-identical; promotion records require eighteen successful C/Rust profile
+comparisons. The native inventory rises to 384. Complete local suites pass 3,240
+C and 1,088 Rust checks and all 15 CI helper checks pass. Twenty-four additional
+O2 boundary executions agree between C/Rust with checked/unchecked CLI flags;
+the evidence records these observations separately and grants no parity credit
+to undefined C operations or an assumed overflow-checking contract.
+
+This batch is locally validated and unpublished while feature CI slots are
+occupied. Full original-corpus mode/platform acceptance, wider parameter and
+record mutation, package artifacts, SDK adapters and shared ABI work remain
+required. Evidence: [signed parameter postfix validation](rust-parity-evidence/signed-parameter-postfix-validation.json).
+
 ## Finite double integer conversions: local validation, 2026-10-10
 
 Rust accepts `double.toInt()` and `double.toLong()` for the existing C-defined
