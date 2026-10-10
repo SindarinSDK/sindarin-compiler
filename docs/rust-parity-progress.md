@@ -7,6 +7,39 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Canonical native string-array views: local validation, 2026-10-10
+
+ABI 1.5 transports borrowed or owned views of the actual C string-array header,
+preserving allocation, element hooks, aliases and live callback mutation. Views
+remain distinct from generic managed-value arrays. Retaining a borrowed view does
+not extend its native owner's lifetime; the owner must outlive every view credit.
+Owned copies use canonical C hooks. A valid empty native header also exposed a
+zero-byte/null-source `memcpy` failure under UBSan; canonical zero-element copies
+now skip that call.
+
+Ten staged C/Rust/Go and Rust-consuming-Go ABI clients and four strict C sanitizer
+clients pass, including 64 nested callbacks through relocated storage and cleanup
+after callbacks consume a caller credit. All 15 artifact, 32 import and 22 CI
+helper checks pass. Complete local suites pass 3,240 C and 1,097 Rust checks
+with no failures/skips, and package lifecycle clients pass. Original source
+programs, output oracles and Rust snapshots are unchanged. The ABI 1.4
+prerequisite has complete hosted acceptance. Generated mutable body adapters,
+Rust parameter alias/rebind semantics and wider SDK/package contracts remain work;
+these runtime views do not complete those adapters.
+
+Evidence: [native string-array views](rust-parity-evidence/native-string-array-view-validation.json).
+
+## Managed-array mutation: hosted acceptance, 2026-10-10
+
+Main `e8d56990` passes all 34 jobs in
+[complete unified CI 38089634563](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38089634563).
+The retained summary verifies 26 groups and 292 gate executions across one compiler
+per Linux/macOS/Windows platform. This accepts ABI 1.4 managed-array mutation on
+integrated main. Mutable body-input adapters and full package/SDK acceptance
+remain required; subsequent bitwise and native-view batches require separate CI.
+
+Evidence: [array mutation acceptance](rust-parity-evidence/array-mutation-ci-green.json).
+
 ## Bitwise and shift compound comparisons: local validation, 2026-10-10
 
 Rust now preserves raw C operator precedence for integral bitwise and shift
@@ -44,7 +77,7 @@ pass strict address/undefined/leak checks. Complete local suites pass 3,240 C an
 1,095 Rust checks, with no failures/skips; all 15 artifact, 32 import and 22 CI
 helper checks and package lifecycle clients pass. Original programs, runtime
 oracles and existing Rust snapshots are unchanged. Corrected integrated main is
-accepted; ABI main `e8d56990` is published and awaits complete
+accepted; ABI main `e8d56990` has complete
 [hosted acceptance in CI 38089634563](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38089634563).
 Mutable body-input adapters, live callback visibility, Rust
 default-array alias/rebind semantics and wider SDK/package contracts remain work.

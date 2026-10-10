@@ -10,8 +10,10 @@ ABI 1.2 coordinates initialization, call leases and shutdown; ordinary library
 globals use these shared controls. ABI 1.3 adds managed-array replacement that
 preserves destination aliases, as a prerequisite for mutable body-input transport.
 ABI 1.4 adds slot insertion/removal, ownership-transferring take/pop, clear and
-reverse, with publication before reentrant cleanup. These remain runtime
-prerequisites; generated mutable body-input adapters are not yet implemented.
+reverse, with publication before reentrant cleanup. ABI 1.5 adds borrowed/owned
+views of actual canonical C string-array headers, preserving native hooks and
+live callback visibility. These remain runtime prerequisites; generated mutable
+body-input adapters are not yet implemented.
 Package dependency lifecycle graphs, wider
 managed-body exports and complete record/interface contracts remain pending.
 Scalar/string native imports and provider exports have generated

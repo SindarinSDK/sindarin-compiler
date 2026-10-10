@@ -4,7 +4,8 @@ Status: implemented value-transport foundation, ABI 1.0 (`0x00010000`) and
 optional managed-value capabilities through ABI 1.1 (`0x00010001`) and package
 lifecycle coordination through ABI 1.2 (`0x00010002`) and managed-array slot
 replacement through ABI 1.3 (`0x00010003`) and managed-array mutation through
-ABI 1.4 (`0x00010004`). This is
+ABI 1.4 (`0x00010004`) and canonical native string-array views through
+ABI 1.5 (`0x00010005`). This is
 part of the [runtime and package architecture](runtime-target-architecture.md).
 It does not yet provide complete package record/interface contracts,
 complete generated bindings, independent SDK artifacts or compiler-wide
@@ -314,3 +315,53 @@ controls additionally cover slot relocation and nested clear/reverse/insert.
 Complete staged and hosted validation is required before acceptance of this
 increment. Mutable body-input adapters, live foreign callback visibility,
 Rust parameter alias/rebind semantics and wider SDK/package contracts remain work.
+
+## ABI 1.5 canonical native string-array views
+
+Query `SN_ABI_V1_5_VERSION` with `SN_ABI_CAP_NATIVE_STRING_ARRAYS` (`256`).
+The new version advertises mask `511`; versions 1.0 through 1.4 retain their
+exact masks `7`, `31`, `63`, `127` and `255`. Public value/info layouts and earlier
+entry points remain compatible. This capability is a runtime prerequisite for
+generated mutable body-input adapters; it does not enable a new package manifest
+contract or those adapters by itself.
+
+These values wrap the actual canonical C `SnArray` header, whose slots contain
+`char *`. They are distinct from ABI 1.1 arrays of `SnAbiValue *` and reject each
+other's accessors. The public ABI header forward-declares the C array type;
+generated C interop includes `sn_array.h`. Rust/Go clients use opaque pointers and
+C accessors, never a vector/slice cast or an assumed foreign element layout.
+
+| Operation (with `sn_abi_v1_` prefix) | Ownership |
+| --- | --- |
+| `native_string_array_borrow(array, out)` | One owned view credit; native header/storage ownership stays with its caller |
+| `native_string_array_adopt(array, out)` | Transfer one owned native header only on success |
+| `native_string_array_data(value, out)` | Borrow the same canonical header while the view credit is live |
+| `native_string_array_copy(value, out)` | One owned view of a distinct canonical C array copied with its original element hooks |
+
+Borrowing and retaining a borrowed view do **not** extend the native owner's
+lifetime. That owner must outlive every view credit, including any retained by a
+callback or other backing implementation. Releasing the last borrowed view frees
+only its wrapper. Adoption retains the original allocator, element release/copy
+hooks and tag, and final release runs canonical C array cleanup. Copies follow
+the actual C hooks; absent copy/release hooks do not invent element ownership.
+Borrowed elements must keep their existing external owners alive.
+
+Mutation through the native header is visible immediately through aliases and
+reentrant callbacks, including growth that relocates slot storage. Callers reload
+data and length after each mutation and serialize access. Operation adapters must
+hold their own view credit when a callback may consume the caller's credit. No
+Rust shared-header `Sync` guarantee or Go pointer retention is introduced.
+
+Nil constructors/access/copies remain nil. Non-nil headers must have pointer-sized
+slots, the string tag (or an empty untyped tag), valid nonnegative length/capacity
+and backing data whenever capacity is nonzero. Invalid layout, kind, output or
+allocation range preserves outputs and ownership. Empty headers with no backing
+allocation are valid; canonical zero-element copies skip `memcpy` to avoid its
+nonnull precondition. The regression reproduces the earlier UBSan failure.
+
+Ten C/Rust/Go and Rust-consuming-Go archive clients exercise live alias identity,
+independent native copies, nil/empty/non-UTF-8 strings, lifetime beyond original
+array cleanup, retained copy/release hooks, relocation and callbacks consuming
+external credits. Four C clients instrument the actual runtime with strict
+address/undefined/leak checks. Full generated body adapters, parameter alias/rebind
+semantics, wider record/interface and SDK migration remain required work.

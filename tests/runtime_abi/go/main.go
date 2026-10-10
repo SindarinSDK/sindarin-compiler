@@ -164,5 +164,6 @@ func main() {
 	C.sn_abi_v1_release(value)
 	checkArrayAssignment()
 	checkArrayMutation()
+	checkNativeStringArrays()
 	fmt.Println("shared runtime ABI: pass")
 }

@@ -9,7 +9,7 @@ enum SnElemTag { SN_TAG_DEFAULT = 0, SN_TAG_INT, SN_TAG_DOUBLE, SN_TAG_STRING, S
 
 /* ---- Dynamic array ---- */
 
-typedef struct {
+typedef struct SnArray {
     void *data;
     long long len;
     long long cap;
@@ -55,6 +55,9 @@ static inline void sn_array_copy_elems(
     long long count, size_t elem_size,
     void (*elem_copy)(const void *, void *))
 {
+    /* Empty native headers may have no backing allocation. Even a zero-byte
+     * memcpy must not pass a null pointer to a nonnull library argument. */
+    if (count == 0) return;
     if (elem_copy) {
         for (long long i = 0; i < count; i++) {
             const void *s = (const char *)src + (src_offset + i) * (long long)elem_size;

@@ -15,6 +15,7 @@ extern "C" {
 #define SN_ABI_V1_2_VERSION UINT32_C(0x00010002)
 #define SN_ABI_V1_3_VERSION UINT32_C(0x00010003)
 #define SN_ABI_V1_4_VERSION UINT32_C(0x00010004)
+#define SN_ABI_V1_5_VERSION UINT32_C(0x00010005)
 #define SN_ABI_CAP_VALUES UINT64_C(1)
 #define SN_ABI_CAP_POD_ARRAYS UINT64_C(2)
 #define SN_ABI_CAP_RESOURCES UINT64_C(4)
@@ -23,6 +24,7 @@ extern "C" {
 #define SN_ABI_CAP_PACKAGE_LIFECYCLE UINT64_C(32)
 #define SN_ABI_CAP_ARRAY_REPLACEMENT UINT64_C(64)
 #define SN_ABI_CAP_ARRAY_MUTATION UINT64_C(128)
+#define SN_ABI_CAP_NATIVE_STRING_ARRAYS UINT64_C(256)
 
 typedef uint32_t SnAbiStatus;
 #define SN_ABI_OK UINT32_C(0)
@@ -36,6 +38,7 @@ typedef uint32_t SnAbiStatus;
 #define SN_ABI_PACKAGE_CLOSED UINT32_C(8)
 
 typedef struct SnAbiValue SnAbiValue;
+struct SnArray;
 
 typedef struct {
     uint32_t abi_version;
@@ -125,6 +128,22 @@ SnAbiStatus sn_abi_v1_value_array_pop(SnAbiValue *array, SnAbiValue **out);
 SnAbiStatus sn_abi_v1_value_array_remove(SnAbiValue *array, uint64_t index);
 SnAbiStatus sn_abi_v1_value_array_clear(SnAbiValue *array);
 SnAbiStatus sn_abi_v1_value_array_reverse(SnAbiValue *array);
+
+/* ABI 1.5 typed views of canonical C string-array storage. These are distinct
+ * from managed-value arrays: their slots contain C char*, never SnAbiValue*.
+ * Borrow preserves the actual header, slots, allocation and copy/cleanup hooks;
+ * its native owner must outlive EVERY retained view credit, including callbacks.
+ * Adopt transfers an owned header only on success. Nil remains nil. Layout/tag
+ * errors preserve outputs and ownership. Mutable access is caller-serialized.
+ * The data accessor borrows the header; reload its data/length after mutation.
+ * Copy follows the canonical C element-copy hooks and returns one owned header
+ * credit. Adapters must preserve borrowed element lifetimes when hooks are nil.
+ * Native pointers are for generated C interop; Rust/Go must not cast their own
+ * vectors/slices to SnArray or assume that C slots contain language values. */
+SnAbiStatus sn_abi_v1_native_string_array_borrow(struct SnArray *array, SnAbiValue **out);
+SnAbiStatus sn_abi_v1_native_string_array_adopt(struct SnArray *array, SnAbiValue **out);
+SnAbiStatus sn_abi_v1_native_string_array_data(const SnAbiValue *value, struct SnArray **out);
+SnAbiStatus sn_abi_v1_native_string_array_copy(const SnAbiValue *value, SnAbiValue **out);
 
 /* Resource adoption transfers cleanup responsibility only on success. Adapters
  * keep resource layouts private or expose documented fields through accessors. */

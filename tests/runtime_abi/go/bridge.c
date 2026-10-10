@@ -1,5 +1,11 @@
 #include "sn_abi.h"
 #include <stddef.h>
+#include "native_string_array_bridge.h"
+extern SnAbiStatus sn_test_go_native_array_observe(SnAbiValue *, uintptr_t);
+SnAbiStatus sn_test_go_native_array_reenter(SnAbiValue *view, uintptr_t context)
+{
+    return sn_test_native_strings_reenter(view, sn_test_go_native_array_observe, context);
+}
 /* This declaration contains C types only; no private Go layout crosses the ABI. */
 extern void sn_test_go_destroy(void *resource, uintptr_t context);
 extern void sn_test_go_mutation_destroy(void *resource, uintptr_t context);
