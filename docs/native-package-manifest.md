@@ -147,3 +147,6 @@ are rejected before opening the destination for replacement.
 Tests cover all three backing languages, ownership/failure declarations, malformed
 contracts, dependency add/update preservation and compiler diagnostics. Existing
 runtime-selection and C interop regressions remain required.
+
+`abi: 1.1` selects managed-value array contracts. Owned `str[]` results require
+that version; `abi: 1.0` preserves existing scalar/string/native artifact behaviour.

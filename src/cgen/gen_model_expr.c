@@ -1484,9 +1484,10 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     json_object *arg = gen_model_expr(arena, argument, symbol_table, arithmetic_mode);
                     if ((strcmp(builtin_name, "print") == 0 || strcmp(builtin_name, "println") == 0) &&
                         argument && argument->expr_type && argument->expr_type->kind == TYPE_STRING &&
-                        argument->type == EXPR_MEMBER)
+                        (argument->type == EXPR_MEMBER || argument->type == EXPR_ARRAY_ACCESS))
                     {
-                        Expr *owner = argument->as.member.object;
+                        Expr *owner = argument->type == EXPR_MEMBER ? argument->as.member.object :
+                                      argument->as.array_access.array;
                         while (owner && (owner->type == EXPR_MEMBER || owner->type == EXPR_ARRAY_ACCESS))
                             owner = owner->type == EXPR_MEMBER ? owner->as.member.object : owner->as.array_access.array;
                         /* A live variable/member/index owner retains this field.

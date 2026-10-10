@@ -108,8 +108,8 @@ static bool validate_native_plan(json_object *plan, const char *path)
     static const char *const ownership_fields[] = {"parameters", "result", "borrowed_from", NULL};
     if (!native_fields(plan, root_fields, path)) return false;
     const char *abi = native_text(plan, "abi");
-    if (!abi || strcmp(abi, "1.0") != 0)
-        return yaml_config_error(path, "native abi must be 1.0");
+    if (!abi || (strcmp(abi, "1.0") != 0 && strcmp(abi, "1.1") != 0))
+        return yaml_config_error(path, "native abi must be 1.0 or 1.1");
     if (!native_list(plan, "declarations", true, path)) return false;
     json_object *builds = NULL, *bindings = NULL;
     if (!json_object_object_get_ex(plan, "builds", &builds) ||

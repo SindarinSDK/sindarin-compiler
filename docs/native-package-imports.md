@@ -1,8 +1,9 @@
 # Generated native package imports
 
 Status: implemented consumer and provider adapters for resolved scalar and string
-function contracts. Complete independent Sindarin package bodies, SDK artifact imports,
-managed record/interface/array/callback contracts and wider package graph planning
+function and owned string-array result contracts. Complete independent Sindarin package bodies, SDK artifact imports,
+managed record/interface/callback contracts, array inputs and non-string elements,
+and wider package graph planning
 remain required by the [Rust completion goal](rust-completion-goal.md).
 
 A C- or Rust-targeted Sindarin application can import declaration modules from
@@ -153,3 +154,24 @@ languages. It retains the existing platform matrix and C/Rust gates.
 
 Full corpus/mode/platform parity and complete mixed-package SDK acceptance remain
 outstanding. Passing these fixtures does not satisfy the entire Rust completion goal.
+
+## Owned string-array results
+
+Native declarations returning `str[]` can use `abi: 1.1` and `result: owned`.
+Generated C providers accept an owned `SnArray *` with string element cleanup;
+Rust providers return `Option<Vec<Option<Vec<u8>>>>`; Go providers return
+`[]*string`. Nil and empty arrays, nil and empty elements and byte-oriented string
+semantics remain distinct. Status providers wrap these results in the existing
+C output-pointer / Rust Result / Go `(value, status)` protocol.
+
+Provider adapters copy into managed C-runtime values and release backing storage.
+Consumer adapters build an owning legacy `SnArray` with string copy/release hooks,
+copy element bytes and release runtime credits. C/Rust callers can mutate results
+with their existing array syntax. Arrays require ABI 1.1 explicitly; ABI 1.0
+contracts are rejected. Array inputs, non-string/record elements, copy hooks and
+complete SDK record/method adapters remain required work.
+
+A C ownership repair preserves string elements borrowed while printing through
+a live variable/member/index owner. Printing no longer frees the array's element
+before mutation or array cleanup; temporary owned strings retain their existing
+cleanup path. Existing Sindarin source and output contracts are preserved.

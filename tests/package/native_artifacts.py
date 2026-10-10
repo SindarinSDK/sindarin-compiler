@@ -232,6 +232,60 @@ class NativeArtifactTests(unittest.TestCase):
         run=subprocess.run([str(executable)],capture_output=True,timeout=15)
         self.assertEqual(run.returncode,0,run.stderr.decode(errors='replace'))
 
+    def test_generated_owned_string_arrays_have_wire_lifetime_contracts(self):
+        sources={
+            'C':'#include "sn_array.h"\n#include <stdlib.h>\n#include <string.h>\n'
+                'static void release(void *p) { free(*(char**)p); }\n'
+                'SnArray *make(void) { SnArray *a=sn_array_new(sizeof(char*),4); a->elem_release=release; '
+                'char *one=strdup("one"), *nil=NULL, *empty=strdup(""); '
+                'sn_array_push(a,&one); sn_array_push(a,&nil); sn_array_push(a,&empty); return a; }\n'
+                'uint32_t checked(long long mode, SnArray **out) { if (mode<0) return 5; '
+                '*out=mode==0 ? NULL : mode==1 ? sn_array_new(sizeof(char*),4) : make(); return 0; }\n',
+            'RS':'pub fn make()->Option<Vec<Option<Vec<u8>>>> { Some(vec![Some(b"one".to_vec()),None,Some(vec![])]) }\n'
+                 'pub fn checked(mode:i64)->Result<Option<Vec<Option<Vec<u8>>>>,u32> { '
+                 'if mode<0 { Err(5) } else { Ok(if mode==0 { None } else if mode==1 { Some(vec![]) } else { make() }) } }\n',
+            'GO':'package backing\nfunc Make() []*string { one:="one"; empty:=""; return []*string{&one,nil,&empty} }\n'
+                 'func Checked(mode int64) ([]*string,uint32) { if mode<0 { return nil,5 }; '
+                 'if mode==0 { return nil,0 }; if mode==1 { return []*string{},0 }; return Make(),0 }\n'}
+        cc=shlex.split(os.environ.get('SN_CC','clang' if os.name=='nt' or os.sys.platform=='darwin' else 'gcc'))
+        for language,source in sources.items():
+            with self.subTest(language=language):
+                path={'C':'native/value.c','RS':'native/value.rs','GO':'native/go/main.go'}[language]
+                self.write(path,source); self.manifest([language])
+                self.write('src/api.sn','native fn items(): str[]\nnative fn checked(mode: int): str[]\n')
+                manifest=self.root/'sn.yaml'
+                text=manifest.read_text().split('  bindings:')[0].replace('abi: 1.0','abi: 1.1')
+                build={'C':'c','RS':'rs','GO':'go'}[language]
+                text+=f'  bindings:\n    - declaration: src/api.sn::items\n      build: {build}\n      symbol: provider_items\n'
+                text+=f'      function: {"Make" if language=="GO" else "make"}\n      convention: C\n      failure: abort\n      ownership: {{parameters: {{}}, result: owned}}\n'
+                text+=f'    - declaration: src/api.sn::checked\n      build: {build}\n      symbol: provider_checked\n'
+                text+=f'      function: {"Checked" if language=="GO" else "checked"}\n      convention: C\n      failure: status\n      ownership: {{parameters: {{mode: value}}, result: owned}}\n'
+                manifest.write_text(text)
+                summary,metadata=self.build(); base=Path(summary['assembly']).parent; unit=metadata['units'][0]
+                self.write('array-client.c','#include <assert.h>\n#include <string.h>\n#include "sn_abi.h"\n'
+                           'SnAbiValue *provider_items(void);\nuint32_t provider_checked(int64_t,SnAbiValue**);\n'
+                           'int main(void) { SnAbiValue *array=provider_items(),*one=NULL,*nil=NULL,*empty=NULL; uint64_t length; SnAbiBytes bytes;\n'
+                           'assert(sn_abi_v1_value_array_length(array,&length)==0 && length==3);\n'
+                           'assert(sn_abi_v1_value_array_get(array,0,&one)==0); assert(sn_abi_v1_value_array_get(array,1,&nil)==0 && nil==NULL);\n'
+                           'assert(sn_abi_v1_value_array_get(array,2,&empty)==0 && empty!=NULL); sn_abi_v1_release(array);\n'
+                           'assert(sn_abi_v1_string_bytes(one,&bytes)==0 && bytes.length==3 && memcmp(bytes.data,"one",3)==0);\n'
+                           'assert(sn_abi_v1_string_bytes(empty,&bytes)==0 && bytes.length==0 && bytes.data!=NULL);\n'
+                           'SnAbiValue *output=one; assert(provider_checked(-1,&output)==5 && output==one);\n'
+                           'assert(provider_checked(2,NULL)==SN_ABI_INVALID_ARGUMENT);\n'
+                           'assert(provider_checked(0,&output)==0 && output==NULL);\n'
+                           'assert(provider_checked(1,&output)==0 && output!=NULL);\n'
+                           'assert(sn_abi_v1_value_array_length(output,&length)==0 && length==0); sn_abi_v1_release(output);\n'
+                           'assert(provider_checked(2,&output)==0 && output!=NULL);\n'
+                           'assert(sn_abi_v1_value_array_length(output,&length)==0 && length==3); sn_abi_v1_release(output);\n'
+                           'sn_abi_v1_release(one);sn_abi_v1_release(empty); return 0; }\n')
+                executable=self.root/'array-client.exe'
+                built=subprocess.run(cc+['-I',str(COMPILER.parent/'include/runtime'),str(self.root/'array-client.c'),
+                                         str(base/unit['archive']),metadata['shared_runtime']['archive']]+unit['native_link_flags']+
+                                     ['-o',str(executable)],capture_output=True,timeout=120)
+                self.assertEqual(built.returncode,0,built.stderr.decode(errors='replace'))
+                run=subprocess.run([str(executable)],capture_output=True,timeout=15)
+                self.assertEqual(run.returncode,0,run.stderr.decode(errors='replace'))
+
     def test_plan_inheritance_and_command_diagnostics(self):
         self.manifest(['C'])
         manifest = self.root / 'sn.yaml'

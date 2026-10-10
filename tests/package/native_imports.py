@@ -48,6 +48,72 @@ class NativeImports(unittest.TestCase):
         import json
         self.assertTrue(json.loads(result.stdout)['cache_hit'])
 
+    def test_generated_string_array_results_keep_nil_elements_and_mutation(self):
+        sources={
+            'C': '#include "sn_array.h"\n#include <stdlib.h>\n#include <string.h>\n'
+                 'static void release(void *p) { free(*(char **)p); }\n'
+                 'SnArray *make(long long mode) { if (!mode) return NULL; SnArray *a=sn_array_new(sizeof(char*),4); '
+                 'a->elem_release=release; a->elem_tag=SN_TAG_STRING; if(mode==1) return a; '
+                 'char *one=strdup("one"), *nil=NULL, *empty=strdup(""); '
+                 'sn_array_push(a,&one); sn_array_push(a,&nil); sn_array_push(a,&empty); return a; }\n',
+            'RS': 'pub fn make(mode:i64)->Option<Vec<Option<Vec<u8>>>> { if mode==0 { None } '
+                  'else if mode==1 { Some(vec![]) } else { Some(vec![Some(b"one".to_vec()),None,Some(vec![])]) } }\n',
+            'GO': 'package backing\nfunc Make(mode int64) []*string { if mode==0 { return nil }; '
+                  'if mode==1 { return []*string{} }; one:="one"; empty:=""; return []*string{&one,nil,&empty} }\n'}
+        for language,source in sources.items():
+            name='arrays'+language.lower()
+            self.package(name,language,source,result='owned',function='Make' if language=='GO' else 'make')
+            self.write(f'.sn/{name}/src/api.sn','native fn provide(mode: int): str[]\n')
+            manifest=self.root/f'.sn/{name}/sn.yaml'
+            manifest.write_text(manifest.read_text().replace('abi: 1.0','abi: 1.1').replace('parameters: {}','parameters: {mode: value}'))
+            self.write('main.sn',f'import "{name}/src/api"\nfn main(): void =>\n'
+                       '  println(provide(0) == nil)\n  println(provide(1) == nil)\n'
+                       '  var items: str[] = provide(2)\n  println(items.length)\n  println(items[0])\n'
+                       '  println(items[1] == nil)\n  println(items[2] == nil)\n'
+                       '  items[0] = "changed"\n  println(items[0])\n')
+            for target in ('c','rust'):
+                with self.subTest(language=language,target=target): self.execute(target,b'true\nfalse\n3\none\ntrue\nfalse\nchanged\n')
+
+    def test_managed_array_result_requires_abi_1_1(self):
+        self.package('oldabi','C','long long unused(void) { return 0; }\n',result='owned')
+        self.write('.sn/oldabi/src/api.sn','native fn provide(): str[]\n')
+        self.write('main.sn','import "oldabi/src/api"\nfn main(): void =>\n  var items: str[] = provide()\n')
+        result=subprocess.run([str(COMPILER),'main.sn','--target','rust','--no-install','-o','main.exe'],
+                              cwd=self.root,capture_output=True,timeout=60)
+        self.assertNotEqual(result.returncode,0)
+        self.assertIn(b'managed string-array results require native ABI 1.1',result.stderr)
+        self.assertFalse((self.root/'main.exe').exists())
+
+    def test_generated_string_array_status_results_and_errors(self):
+        sources={
+            'C':'#include "sn_array.h"\nuint32_t make(long long mode, SnArray **out) { '
+                'if (mode<0) return 5; *out=mode ? sn_array_new(sizeof(char*),4) : NULL; return 0; }\n',
+            'RS':'pub fn make(mode:i64)->Result<Option<Vec<Option<Vec<u8>>>>,u32> { '
+                 'if mode<0 { Err(5) } else { Ok(if mode==0 { None } else { Some(vec![]) }) } }\n',
+            'GO':'package backing\nfunc Make(mode int64) ([]*string,uint32) { '
+                 'if mode<0 { return nil,5 }; if mode==0 { return nil,0 }; return []*string{},0 }\n'}
+        for language,source in sources.items():
+            name='statusarrays'+language.lower()
+            self.package(name,language,source,result='owned',failure='status',function='Make' if language=='GO' else 'make')
+            self.write(f'.sn/{name}/src/api.sn','native fn provide(mode: int): str[]\n')
+            manifest=self.root/f'.sn/{name}/sn.yaml'
+            manifest.write_text(manifest.read_text().replace('abi: 1.0','abi: 1.1').replace('parameters: {}','parameters: {mode: value}'))
+            for target in ('c','rust'):
+                with self.subTest(language=language,target=target):
+                    self.write('main.sn',f'import "{name}/src/api"\nfn main(): void =>\n'
+                               '  println(provide(0) == nil)\n  println(provide(1) == nil)\n')
+                    self.execute(target,b'true\nfalse\n')
+                    self.write('main.sn',f'import "{name}/src/api"\nfn main(): void =>\n'
+                               '  var items: str[] = provide(-1)\n  println("unreachable")\n')
+                    output=self.root/'failed.exe'
+                    built=subprocess.run([str(COMPILER),'main.sn','--target',target,'--no-install','-o',str(output)],
+                                         cwd=self.root,capture_output=True,timeout=90)
+                    self.assertEqual(built.returncode,0,built.stderr.decode(errors='replace'))
+                    run=subprocess.run([str(output)],cwd=self.root,capture_output=True,timeout=15)
+                    self.assertEqual(run.returncode,1)
+                    self.assertEqual(run.stdout,b'')
+                    self.assertIn(b'failed: runtime ABI index or length out of range',run.stderr)
+
     def test_generated_string_providers_preserve_nil_empty_bytes_and_lifetime(self):
         sources={
             'C': '#include <stdlib.h>\n#include <string.h>\n#include <stdint.h>\nuint32_t echo(char *text, char **out) { *out = text ? strdup(text) : NULL; return 0; }\n',

@@ -5,10 +5,10 @@ from native_contract import TYPES, kind, validate
 
 RUST = {'int':'i64', 'long':'i64', 'uint':'u64', 'int32':'i32', 'uint32':'u32',
         'byte':'u8', 'char':'u8', 'bool':'bool', 'float':'f32', 'double':'f64',
-        'string':'Option<Vec<u8>>', 'void':'()'}
+        'string':'Option<Vec<u8>>', 'void':'()', 'string_array':'Option<Vec<Option<Vec<u8>>>>'}
 GO = {'int':'int64', 'long':'int64', 'uint':'uint64', 'int32':'int32', 'uint32':'uint32',
       'byte':'uint8', 'char':'uint8', 'bool':'bool', 'float':'float32', 'double':'float64',
-      'string':'*string', 'void':''}
+      'string':'*string', 'void':'', 'string_array':'[]*string'}
 
 
 def contracts(native, unit):
@@ -47,7 +47,7 @@ def c_header(signatures, namespace):
     # resolve to the first package's echo(), even when wire exports are distinct.
     functions = sorted({s['binding']['function'] for s in signatures})
     names = [f'#define {function} __sn_{namespace}_impl_{function}' for function in functions]
-    return '#include <stdint.h>\n#include <stdbool.h>\n'+'\n'.join(names+[c_declaration(s) for s in signatures])+'\n'
+    return '#include <stdint.h>\n#include <stdbool.h>\n#include \"sn_array.h\"\n'+'\n'.join(names+[c_declaration(s) for s in signatures])+'\n'
 
 
 def c_provider(signatures):
@@ -79,6 +79,15 @@ def c_provider(signatures):
             lines += ['  SnAbiValue *wire_value = NULL;', '  uint32_t status_copy = sn_abi_v1_string_copy(value, &wire_value);',
                       '  free(value);', '  if (status_copy) { '+('return status_copy;' if status else 'abort();')+' }']
             value = 'wire_value'
+        elif result == 'string_array':
+            lines += ['  SnAbiValue *wire_value = NULL;',
+                      '  if (value) { uint32_t code = sn_abi_v1_value_array_new(&wire_value);',
+                      '    for (long long i=0; !code && i<value->len; i++) { SnAbiValue *item = NULL;',
+                      '      code = sn_abi_v1_string_copy(((char **)value->data)[i], &item);',
+                      '      if (!code) code = sn_abi_v1_value_array_push(wire_value, item);',
+                      '      sn_abi_v1_release(item);', '    }', '    sn_array_free(value);',
+                      '    if (code) { sn_abi_v1_release(wire_value); '+('return code;' if status else 'abort();')+' }', '  }']
+            value = 'wire_value'
         else: value = f'({TYPES[result][1]})value'
         if status:
             if result != 'void': lines.append(f'  *out = {value};')
@@ -93,11 +102,14 @@ def rust_provider(signatures, backing_crate):
              '#[repr(C)] pub struct V { _opaque: [u8; 0] }',
              '#[repr(C)] struct Bytes { data: *const u8, length: u64 }',
              'extern "C" { fn sn_abi_v1_string_bytes(v: *const V, out: *mut Bytes) -> u32;',
-             'fn sn_abi_v1_string_copy(v: *const std::ffi::c_char, out: *mut *mut V) -> u32; }']
+             'fn sn_abi_v1_string_copy(v: *const std::ffi::c_char, out: *mut *mut V) -> u32;',
+             'fn sn_abi_v1_value_array_new(out: *mut *mut V) -> u32; fn sn_abi_v1_value_array_push(array: *mut V, value: *mut V) -> u32;',
+             'fn sn_abi_v1_release(value: *mut V); }',
+             'struct OwnedV(*mut V); impl Drop for OwnedV { fn drop(&mut self) { unsafe { sn_abi_v1_release(self.0) } } }']
     for s in signatures:
         b, params, result = s['binding'], s['params'], kind(s['return_type'])
         status = b['failure'] == 'status'
-        wire = lambda k: '*mut V' if k == 'string' else 'u8' if k == 'bool' else RUST[k]
+        wire = lambda k: '*mut V' if k in ('string','string_array') else 'u8' if k == 'bool' else RUST[k]
         declarations = [f'p{i}: {wire(kind(p["type"]))}' for i,p in enumerate(params)]
         if status and result != 'void': declarations.append(f'out: *mut {wire(result)}')
         lines += [f'#[no_mangle] pub unsafe extern "C" fn {b["symbol"]}({", ".join(declarations)}) -> '+('u32' if status else wire(result))+' {']
@@ -123,6 +135,15 @@ def rust_provider(signatures, backing_crate):
                       '    let text = value.map(|v| { let n = v.iter().position(|b| *b == 0).unwrap_or(v.len()); std::ffi::CString::new(&v[..n]).unwrap() });',
                       '    let status = sn_abi_v1_string_copy(text.as_ref().map_or(std::ptr::null(), |t| t.as_ptr()), &mut output);',
                       '    if status != 0 { return Err(status); }', '    Ok(output)']
+        elif result == 'string_array':
+            lines += ['    let mut output = OwnedV(std::ptr::null_mut());',
+                      '    if let Some(values) = value {',
+                      '      let code = sn_abi_v1_value_array_new(&mut output.0); if code != 0 { return Err(code); }',
+                      '      for value in values { let mut item = OwnedV(std::ptr::null_mut());',
+                      '        let text = value.map(|v| { let n=v.iter().position(|b| *b==0).unwrap_or(v.len()); std::ffi::CString::new(&v[..n]).unwrap() });',
+                      '        let code=sn_abi_v1_string_copy(text.as_ref().map_or(std::ptr::null(),|t|t.as_ptr()), &mut item.0); if code!=0 { return Err(code); }',
+                      '        let code=sn_abi_v1_value_array_push(output.0,item.0); if code!=0 { return Err(code); }',
+                      '      }', '    }', '    let pointer=output.0; std::mem::forget(output); Ok(pointer)']
         elif result == 'bool': lines.append('    Ok(u8::from(value))')
         else: lines.append('    Ok(value)')
         lines += ['  }));', '  match call {', '    Ok(Ok(value)) => {']
@@ -138,9 +159,9 @@ def rust_provider(signatures, backing_crate):
 def go_provider(signatures, module, main=True):
     lines = ['package main', '/* #include <stdint.h>\n#include <stdlib.h>\n#include "sn_abi.h" */', 'import "C"',
              f'import {"backing" if signatures else "_"} {json.dumps(module)}']
-    if any(kind(p['type']) == 'string' for s in signatures for p in s['params']) or any(kind(s['return_type']) == 'string' for s in signatures):
+    if any(kind(p['type']) == 'string' for s in signatures for p in s['params']) or any(kind(s['return_type']) in ('string','string_array') for s in signatures):
         lines.append('import "unsafe"')
-    wire = lambda k: '*C.SnAbiValue' if k == 'string' else 'C.'+TYPES[k][1] if k != 'void' else ''
+    wire = lambda k: '*C.SnAbiValue' if k in ('string','string_array') else 'C.'+TYPES[k][1] if k != 'void' else ''
     for s in signatures:
         b, params, result = s['binding'], s['params'], kind(s['return_type'])
         status = b['failure'] == 'status'
@@ -173,6 +194,18 @@ def go_provider(signatures, module, main=True):
         if result == 'string':
             lines += ['  var output *C.SnAbiValue', '  var text *C.char', '  if value != nil { text = C.CString(*value); defer C.free(unsafe.Pointer(text)) }',
                       '  if code := C.sn_abi_v1_string_copy(text, &output); code != 0 { '+(normal_return('code') if status else 'panic("string result ABI")')+' }']
+            value = 'output'
+        elif result == 'string_array':
+            lines += ['  var output *C.SnAbiValue', '  adopted := false',
+                      '  defer func() { if !adopted { C.sn_abi_v1_release(output) } }()',
+                      '  if value != nil {',
+                      '    if code:=C.sn_abi_v1_value_array_new(&output); code!=0 { '+(normal_return('code') if status else 'panic("array result ABI")')+' }',
+                      '    for _, entry := range value { var text *C.char; var item *C.SnAbiValue',
+                      '      if entry != nil { text=C.CString(*entry) }',
+                      '      code:=C.sn_abi_v1_string_copy(text,&item); C.free(unsafe.Pointer(text))',
+                      '      if code==0 { code=C.sn_abi_v1_value_array_push(output,item) }; C.sn_abi_v1_release(item)',
+                      '      if code!=0 { '+(normal_return('code') if status else 'panic("array element ABI")')+' }',
+                      '    }', '  }', '  adopted = true']
             value = 'output'
         elif result == 'bool':
             lines += ['  var output C.uint8_t', '  if value { output = 1 }']

@@ -48,6 +48,18 @@ def adapter(signature, package):
                  '  char *output = NULL;', '  if (bytes.data) { output = malloc((size_t)bytes.length + 1);',
                  '    if (!output) abort(); memcpy(output, bytes.data, (size_t)bytes.length); output[bytes.length] = 0; }',
                  '  sn_abi_v1_release(wire_result);', '  return output;']
+    elif result == 'string_array':
+        code += ['  if (!wire_result) return NULL;', '  uint64_t length = 0;',
+                 '  if (sn_abi_v1_value_array_length(wire_result, &length) != SN_ABI_OK || length > INT64_MAX) abort();',
+                 '  SnArray *output = sn_array_new(sizeof(char *), (long long)length);',
+                 '  output->elem_tag = SN_TAG_STRING; output->elem_release = sn_package_string_slot_release;',
+                 '  output->elem_copy = sn_package_string_slot_copy;',
+                 '  for (uint64_t i = 0; i < length; i++) { SnAbiValue *element = NULL; SnAbiBytes bytes;',
+                 '    if (sn_abi_v1_value_array_get(wire_result, i, &element) != SN_ABI_OK || sn_abi_v1_string_bytes(element, &bytes) != SN_ABI_OK) abort();',
+                 '    char *text = NULL; if (bytes.data) { text = malloc((size_t)bytes.length + 1); if (!text) abort();',
+                 '      memcpy(text, bytes.data, (size_t)bytes.length); text[bytes.length] = 0; }',
+                 '    sn_array_push(output, &text); sn_abi_v1_release(element);', '  }',
+                 '  sn_abi_v1_release(wire_result); return output;']
     elif result != 'void':
         if result == 'bool': code += ['  if (wire_result > 1) abort();']
         code += [f'  return ({TYPES[result][0]})wire_result;']
@@ -88,6 +100,9 @@ def main():
     runtime=compiler.parent/'lib'/('clang' if __import__('os').name=='nt' else 'gcc')/'libsn_runtime_min.a'
     header=compiler.parent/'include/runtime/sn_abi.h'
     source_lines.append('#include '+json.dumps(str(header).replace('\\','/')))
+    source_lines.append('#include '+json.dumps(str(header.with_name('sn_array.h')).replace('\\','/')))
+    source_lines += ['static void sn_package_string_slot_release(void *p) { free(*(char **)p); }',
+                     'static void sn_package_string_slot_copy(const void *s, void *d) { *(char **)d = *(char *const *)s ? strdup(*(char *const *)s) : NULL; }']
     plans=[]
     for package in request['packages']:
         plan=json.loads(run([compiler,'--native-plan',Path(package['manifest']).resolve(),
@@ -134,7 +149,7 @@ def main():
     source.write_text('\n\n'.join(source_lines)+'\n')
     sources.append(str(source))
     header_path=source.with_suffix('.h')
-    header_path.write_text('#include <stdint.h>\n#include <stdbool.h>\n'+'\n'.join(prototypes)+'\n')
+    header_path.write_text('#include <stdint.h>\n#include <stdbool.h>\n#include '+json.dumps(str(header.with_name('sn_array.h')).replace('\\','/'))+'\n'+'\n'.join(prototypes)+'\n')
     Path(request['output']).write_text(json.dumps({'sources':sources,'includes':[str(header_path)],'links':list(dict.fromkeys(links))},indent=2)+'\n')
 
 

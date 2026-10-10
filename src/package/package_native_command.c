@@ -78,6 +78,9 @@ static bool native_provider_signatures(CompilerOptions *options, json_object *na
                      !fn->type_param_count && fn->return_mem_qualifier == MEM_DEFAULT;
         if (valid) {
             json_object *signature = json_object_new_object(), *params = json_object_new_array();
+            json_object *abi = NULL;
+            json_object_object_get_ex(native, "abi", &abi);
+            json_object_object_add(signature, "abi", json_object_get(abi));
             json_object_object_add(signature, "binding", json_object_get(binding));
             json_object_object_add(signature, "return_type", gen_model_type(arena, fn->return_type));
             json_object_object_add(signature, "params", params);

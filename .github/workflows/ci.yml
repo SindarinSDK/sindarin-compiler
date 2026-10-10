@@ -152,7 +152,7 @@ jobs:
       uses: actions/checkout@v7
       with:
         repository: SindarinSDK/sindarin-pkg-sdk
-        ref: 52bd4e4a688c0465f1e8d9648eced23bf42ffa77
+        ref: f7e77277258fde42010ef9577907169c2b1045ca
         path: .sn/sdk-native-integration
         persist-credentials: false
     - name: Download the platform build

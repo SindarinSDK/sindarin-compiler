@@ -1,0 +1,7 @@
+fn main(): void =>
+  var values: str[] = {"one", "two"}
+  print(values[0])
+  println(values[0])
+  values[0] = "changed"
+  println(values[0])
+  println(values[1])

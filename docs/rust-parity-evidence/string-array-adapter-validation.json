@@ -1,0 +1,251 @@
+{
+  "base_revision": "6ea7601153dce09efde20699ad52442142bdf3ca",
+  "date": "2026-10-10",
+  "scope": "ABI 1.1 owned string-array native providers/consumers and borrowed-index printing ownership",
+  "source_sha256": {
+    ".github/workflows/ci.yml": "43ea411a7bc07d8b4985325148f531b8c42043e0ca67c0abc4171cd6c205c1bc",
+    "scripts/ci/gates.json": "9ff8a0ed7141a06b42ef62bbbbe8e02bd5221b574ce7d5c4ee5cd14e98609b24",
+    "scripts/native_contract.py": "46063c75c548ec2f168977273cd5b4028f1e7e55489743728d7cb1aaea85560e",
+    "scripts/native_provider.py": "2dc0facea43cd923999fd55b70d1babd05e8f79afc952805958e3a566cd49fc6",
+    "scripts/prepare_native_imports.py": "2be02329c63de8ec49260d823eefd36564a5f4e9f804c8824960fb786e95f13f",
+    "src/cgen/gen_model_expr.c": "2f0c4570d59a51de7033692f474658f0fa77f3f93b360891b955a46aaf468018",
+    "src/package/package_import.c": "5ad0f036f31fceb83650bff3ea20292f908bf5ce9fff6069a7e78c9075f37724",
+    "src/package/package_native_command.c": "fc579193c4b5f9724b4db566096e9748e315b389cbcb9b3933e4f883d2ca97a9",
+    "src/package/package_yaml_native.c": "6b34c33b6aedcf47d233f86e0174654391949557bbb3f8475c823151df54df33",
+    "tests/package/native_artifacts.py": "dd4e904bd7a2aabc69864e4cc5133902362bf7beeced6ef7a4066704c68a6f82",
+    "tests/package/native_imports.py": "7cada8e5a27ff57b3edf38fd15c5960d71988c5a4efba6fa57496de67a15e797",
+    "tests/rust-native/scalar_array_string_print_borrow.abi-matrix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests/rust-native/scalar_array_string_print_borrow.expected": "8e3fb45809f39660e6a25033bcc3a70f538b195425f3c44333541a66d55e649f",
+    "tests/rust-native/scalar_array_string_print_borrow.sn": "af3aabc7d0fbd9e75c30e7c1c1ea984cf09297d2f83e376534587efb956a90d7"
+  },
+  "validation": {
+    "C": {
+      "passed": true,
+      "checks": 3240,
+      "log_sha256": "bf2b691a7a4d80918be923d77cfdbca5d34bbad6fa1bbaeb4893ebc4f01d812a"
+    },
+    "Rust": {
+      "passed": true,
+      "checks": 1085,
+      "log_sha256": "03f048e8d87a850d3bbc0b7c58e41124a63f1ca22328c5b84ec645b6c8b5e80f"
+    },
+    "imports": {
+      "passed": true,
+      "checks": 22,
+      "log_sha256": "7d6ca82f28815765b5614015c4b3de0e5b90cb265d96805a81e41b947b95eb15"
+    },
+    "artifacts": {
+      "passed": true,
+      "checks": 10,
+      "log_sha256": "33c94720b8da17e02754b93c980cd299e6bab740be5beadfebe0c7e436f51571"
+    },
+    "contracts": {
+      "passed": true,
+      "checks": 14,
+      "log_sha256": "70d90bcebaf8e1bfb997bb1e449004151356a371968d69ceea3078c794391057"
+    },
+    "ci_helpers": {
+      "passed": true,
+      "checks": 15,
+      "log_sha256": "1b3a4d0e085f2024bb79ab96b5d94b709120ceaf7f8818be034c32473ca585f9"
+    },
+    "provider_sanitizers": {
+      "passed": true,
+      "checks": 3,
+      "log_sha256": "ca9552b9d6d4ea6cfad77e494de54f7f294c106e4af4aadd6c3476cff7d19446"
+    },
+    "runtime": {
+      "passed": true,
+      "checks": 4,
+      "log_sha256": "49e32ecab0957edbdb421efff68abce37e09ecf25812ed2eed74e85c37332665"
+    },
+    "runtime_sanitizers": {
+      "passed": true,
+      "checks": 1,
+      "log_sha256": "c73a9b66c247f3b6c5b59d88274f5a381ec143447d2458123896a08918b39104"
+    },
+    "SDK": {
+      "passed": true,
+      "checks": 24,
+      "log_sha256": "143e77fbb19b0269b7f1d1c9cf4cb0ca492cacc203c0c6ef58d5fa8cad7f2847"
+    },
+    "SDK_sanitizers": {
+      "passed": true,
+      "checks": 1,
+      "log_sha256": "90fb7d2ceb17578311c70b450613fd11e739f78f19f04d77e5f5ae0490a9efc4"
+    }
+  },
+  "prerequisite_ci": [
+    {
+      "conclusion": "success",
+      "headSha": "6ea7601153dce09efde20699ad52442142bdf3ca",
+      "jobs": [
+        {
+          "name": "Build (windows-latest)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Build (ubuntu-latest)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Build (macos-latest)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests / c (ubuntu-latest)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests / callback-sanitizers (ubuntu-latest)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests / closures (ubuntu-latest)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests / native (ubuntu-latest)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests / rust (windows-latest)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests / numeric-io (windows-latest)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests / callbacks (ubuntu-latest)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests / rust (ubuntu-latest)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests / core (ubuntu-latest)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests / native (windows-latest)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests / arrays (windows-latest)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests / rust (macos-latest)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests / core (macos-latest)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests / closures (windows-latest)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests / arrays (ubuntu-latest)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests / native (macos-latest)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests / c (windows-latest)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests / numeric-io (macos-latest)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests / c (macos-latest)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests / numeric-io (ubuntu-latest)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests / sanitizers (ubuntu-latest)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests / arrays (macos-latest)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests / closures (macos-latest)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests / core (windows-latest)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests / callbacks (windows-latest)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests / callbacks (macos-latest)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify complete CI coverage",
+          "conclusion": "success"
+        },
+        {
+          "name": "Validated artifacts (ubuntu-latest)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Validated artifacts (macos-latest)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Validated artifacts (windows-latest)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Compiler CI",
+          "conclusion": "success"
+        }
+      ],
+      "status": "completed",
+      "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37997020187"
+    },
+    {
+      "conclusion": "success",
+      "headSha": "23f528998d8b4dcf72e96184c1fe9426087186b9",
+      "status": "completed",
+      "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37995031547"
+    },
+    {
+      "conclusion": "success",
+      "headSha": "47d06f315eb797abc69e65ae56853f9e7f5220e8",
+      "status": "completed",
+      "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37993627668"
+    }
+  ],
+  "sdk_revision": "f7e77277258fde42010ef9577907169c2b1045ca",
+  "initial_C_failure": {
+    "case": "mem_struct_ref_refcount",
+    "reason": "C/Rust runner startup cleanup shares sn_test_*; Rust cleanup removed active C executable",
+    "initial_log_sha256": "994c899aee88e4db3de8fdcc4696a289edea4bfdc01c2d491402f0608af8e383",
+    "isolated_rerun_passed": true
+  },
+  "hosted_acceptance": "pending publication",
+  "remaining_scope": [
+    "complete SDK and record/method adapters",
+    "independent Sindarin package bodies",
+    "array inputs and non-string elements",
+    "full original corpus and mode/platform parity"
+  ],
+  "passed": true
+}

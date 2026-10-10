@@ -7,6 +7,52 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Generated owned string-array results: local validation, 2026-10-10
+
+ABI 1.1 native declarations returning `str[]` now drive generated C/Rust/Go
+provider exports and C/Rust consumer adapters. Providers preserve nil/empty
+arrays/elements, copy byte-oriented strings into shared managed values and release
+original owned backing storage. Consumers construct owning C-runtime string arrays
+with cleanup/copy hooks and release transport credits. ABI 1.0 array contracts and
+array inputs retain explicit diagnostics; complete record/method/SDK adapters,
+managed element graphs and language copy-hook handling remain required work.
+
+The integration regression exposed a C double free: printing a borrowed string
+array element incorrectly applied temporary-string cleanup. ASAN identified both
+frees in generated main; the ownership classifier now recognises live array-index
+owners. A C/Rust regression prints repeatedly, mutates and destroys the same array,
+including debug sanitizers. Native inventory rises to 381 with original fixtures
+and oracles retained. Complete SDK artifact imports/full Rust parity remain open.
+
+Evidence: [string-array adapter validation](rust-parity-evidence/string-array-adapter-validation.json).
+
+Resumed validation passes 3,240 C and 1,085 Rust checks, 22 native import tests,
+10 native artifact tests, 14 runtime/manifest tests and 15 CI helper tests.
+Status array providers preserve outputs on backing errors and reject null output
+pointers; successful nil/empty arrays are covered through C/Rust consumers.
+C transport failures release partial arrays and backing storage before returning
+the error. Strict provider, shared-runtime and SDK address/undefined/leak checks
+pass, along with all 24 canonical SDK checks. Original source/oracle inventories
+remain intact. Exact-revision hosted acceptance is pending publication.
+
+The initial parallel local C invocation lost one generated executable because
+both suite runners clean the same temporary-directory prefix on startup. The
+isolated C rerun passes every check; CI already runs the suites in separate jobs.
+This diagnosis is retained in the validation evidence.
+
+## Runtime prerequisites: hosted acceptance reconciled, 2026-10-10
+
+Complete Linux/macOS/Windows unified CI is green on managed-array main
+`6ea76011` ([run 37997020187](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37997020187)),
+typed-resource main `23f52899`
+([run 37995031547](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37995031547)),
+and unsigned-conversion main `47d06f31`
+([run 37993627668](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/37993627668)).
+These accepted runs supersede the pending publication/acceptance notes below.
+The SDK managed TextFile/readLines increment is published at `f7e7727` and the
+compiler workflow now pins that exact SDK revision. Full SDK artifact migration,
+independent Sindarin package bodies and remaining Rust parity are still open.
+
 ## Managed-value runtime arrays: local validation, 2026-10-09
 
 ABI 1.1 negotiates managed-value arrays and typed-resource capabilities while

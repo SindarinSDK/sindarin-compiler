@@ -65,6 +65,8 @@ static void import_add_pragma(CompilerOptions *options, Module *module, PragmaTy
 static bool import_type(Type *type)
 {
     if (!type) return false;
+    if (type->kind == TYPE_ARRAY && type->as.array.element_type &&
+        type->as.array.element_type->kind == TYPE_STRING) return true;
     return type->kind == TYPE_VOID || type->kind == TYPE_INT || type->kind == TYPE_LONG ||
            type->kind == TYPE_UINT || type->kind == TYPE_INT32 || type->kind == TYPE_UINT32 ||
            type->kind == TYPE_BYTE || type->kind == TYPE_CHAR || type->kind == TYPE_BOOL ||
@@ -164,6 +166,9 @@ bool package_prepare_native_imports(CompilerOptions *options, Module *module,
             }
             FunctionStmt *fn = &function->as.function;
             json_object *signature = json_object_new_object();
+            json_object *abi = NULL;
+            json_object_object_get_ex(plan, "abi", &abi);
+            json_object_object_add(signature, "abi", json_object_get(abi));
             json_object_object_add(signature, "binding", json_object_get(binding));
             json_object_object_add(signature, "return_type", gen_model_type(&options->arena, fn->return_type));
             json_object *params = json_object_new_array();
