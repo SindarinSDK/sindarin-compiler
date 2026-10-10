@@ -114,6 +114,36 @@ class NativeImports(unittest.TestCase):
             for target in ('c','rust'):
                 with self.subTest(prebuilt=runtime,target=target):self.execute(target,b'2\n3\ninitialized\n')
 
+    def test_sindarin_library_owned_string_arrays_preserve_nil_and_mutation(self):
+        import hashlib,json
+        for runtime in ('C','RS'):
+            name='arraybody'+runtime.lower()
+            self.write(f'.sn/{name}/src/api.sn','native fn items(mode: int): str[]\n')
+            self.write(f'.sn/{name}/src/body.sn','fn items(mode: int): str[] =>\n'
+                       '  if mode == 0 =>\n    return nil\n  if mode == 1 =>\n    return {}\n'
+                       '  var missing: str = nil\n  var result: str[] = {"one", missing, ""}\n  return result\n')
+            self.write(f'.sn/{name}/sn.yaml',f'name: {name}\nruntime: {runtime}\nnative:\n  abi: 1.1\n  declarations: [src/api.sn]\n  builds:\n'
+                       '    - name: body\n      language: SN\n      entry: src/body.sn\n      sources: [src/body.sn]\n  bindings:\n'
+                       f'    - declaration: src/api.sn::items\n      function: items\n      symbol: {name}_items\n      build: body\n'
+                       '      convention: C\n      failure: status\n      ownership: {parameters: {mode: value}, result: owned}\n')
+            self.write('main.sn',f'import "{name}/src/api"\nfn main(): void =>\n'
+                       '  println(items(0) == nil)\n  println(items(1) == nil)\n  var result: str[] = items(2)\n'
+                       '  println(result.length)\n  println(result[0])\n  println(result[1] == nil)\n'
+                       '  println(result[2] == nil)\n  result[0] = "changed"\n  println(result[0])\n')
+            for target in ('c','rust'):
+                with self.subTest(runtime=runtime,target=target):self.execute(target,b'true\nfalse\n3\none\ntrue\nfalse\nchanged\n')
+            package=self.root/'.sn'/name;manifest=package/'sn.yaml'
+            text=manifest.read_text()
+            built=subprocess.run([str(COMPILER),'--build-package',str(manifest),'--target','rust','-o',str(package/'.sn/published')],capture_output=True,timeout=180)
+            self.assertEqual(built.returncode,0,built.stderr.decode(errors='replace'))
+            descriptor=Path(json.loads(built.stdout)['assembly']);destination=package/'dist'
+            shutil.copytree(descriptor.parent,destination)
+            digest=hashlib.sha256((destination/'assembly.json').read_bytes()).hexdigest()
+            manifest.write_text(text.replace('native:\n','native:\n  assembly: {path: dist/assembly.json, sha256: '+digest+'}\n'))
+            (package/'src/body.sn').unlink();shutil.rmtree(package/'.sn')
+            for target in ('c','rust'):
+                with self.subTest(prebuilt=runtime,target=target):self.execute(target,b'true\nfalse\n3\none\ntrue\nfalse\nchanged\n')
+
     def test_generated_providers_keep_ordinary_backing_functions(self):
         self.package('cdep','C','long long provide_impl(void) {return 11;}\n',function='provide_impl')
         self.package('rsdep','RS','fn internal() -> i64 { 22 }\npub fn provide_impl() -> i64 { crate::internal() }\n',function='provide_impl')

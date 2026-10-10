@@ -1,0 +1,182 @@
+{
+  "run": {
+    "conclusion": "success",
+    "headSha": "583a863ad925d712218adc0acf11ffc8869a657c",
+    "jobs": [
+      {
+        "conclusion": "success",
+        "name": "Build (macos-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Build (windows-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Build (ubuntu-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Tests / arrays (ubuntu-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Tests / callback-sanitizers (ubuntu-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Tests / sanitizers (ubuntu-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Tests / rust (windows-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Tests / closures (ubuntu-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Tests / core (windows-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Tests / native (windows-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Tests / arrays (windows-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Tests / closures (windows-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Tests / callbacks (ubuntu-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Tests / numeric-io (ubuntu-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Tests / c (ubuntu-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Tests / rust (ubuntu-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Tests / native (ubuntu-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Tests / core (ubuntu-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Tests / arrays (macos-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Tests / rust (macos-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Tests / closures (macos-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Tests / numeric-io (windows-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Tests / callbacks (windows-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Tests / c (windows-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Tests / core (macos-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Tests / native (macos-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Tests / numeric-io (macos-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Tests / c (macos-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Tests / callbacks (macos-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Verify complete CI coverage",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Validated artifacts (macos-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Validated artifacts (ubuntu-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Validated artifacts (windows-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Compiler CI",
+        "status": "completed"
+      }
+    ],
+    "status": "completed",
+    "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38056825974"
+  },
+  "scope": "Complete unified Linux/macOS/Windows acceptance of ABI 1.2 lifecycle and ordinary C/RS implementation globals; whole goal incomplete",
+  "passed": true
+}

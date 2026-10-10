@@ -156,7 +156,8 @@ static void rust_mark_nullable_array_types(json_object *node, const char *name)
 
 static void rust_prepare_nullable_arrays(json_object *model)
 {
-    if (!rust_prepare_nullable_array_nodes(model, NULL, NULL, model)) return;
+    if (!rust_prepare_nullable_array_nodes(model, NULL, NULL, model) &&
+        !json_boolean_property(model, "package_body")) return;
     char name[128];
     size_t id = 0;
     do { snprintf(name, sizeof(name), "__sn_nullable_array_%zu", id++); }

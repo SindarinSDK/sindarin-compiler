@@ -415,6 +415,42 @@ class NativeArtifactTests(unittest.TestCase):
                 run=subprocess.run([str(executable)],capture_output=True,timeout=15)
                 self.assertEqual(run.returncode,0,run.stderr.decode(errors='replace'))
 
+    def test_sindarin_managed_array_body_exports_keep_element_credits(self):
+        cc=shlex.split(os.environ.get('SN_CC','clang' if os.name=='nt' or os.sys.platform=='darwin' else 'gcc'))
+        for runtime,lifecycle in ((r,g) for r in ('C','RS') for g in (False,True)):
+            with self.subTest(runtime=runtime,lifecycle=lifecycle):
+                self.write('src/api.sn','native fn items(): str[]\n')
+                source=('var missing: str = nil\nvar stored: str[] = {"one", missing, "", "\\x80\\xff"}\n'
+                        'fn items(): str[] =>\n  return stored\n' if lifecycle else
+                        'fn items(): str[] =>\n  var missing: str = nil\n  var result: str[] = {"one", missing, "", "\\x80\\xff"}\n  return result\n')
+                self.write('src/body.sn',source)
+                failure='status' if lifecycle else 'abort'
+                self.write('sn.yaml',f'name: managed-library\nruntime: {runtime}\nnative:\n  abi: 1.1\n  declarations: [src/api.sn]\n  builds:\n'
+                           '    - name: body\n      language: SN\n      entry: src/body.sn\n      sources: [src/body.sn]\n  bindings:\n'
+                           '    - declaration: src/api.sn::items\n      function: items\n      symbol: managed_items\n      build: body\n'
+                           f'      convention: C\n      failure: {failure}\n      ownership: {{parameters: {{}}, result: owned}}\n')
+                summary,metadata=self.build();unit=metadata['units'][0];base=Path(summary['assembly']).parent
+                declaration='uint32_t managed_items(SnAbiValue **out);' if lifecycle else 'SnAbiValue *managed_items(void);'
+                shutdown=unit['package_lifecycle']['shutdown'] if lifecycle else None
+                self.write('managed-client.c','#include <assert.h>\n#include <string.h>\n#include "sn_abi.h"\n'+declaration+'\n'+
+                           (f'uint32_t {shutdown}(void);\n' if lifecycle else '')+
+                           'int main(void) { SnAbiValue *array=NULL,*one=NULL,*nil=NULL,*empty=NULL,*raw=NULL; SnAbiBytes bytes; uint64_t length;\n'+
+                           ('assert(managed_items(&array)==0);\n' if lifecycle else 'array=managed_items();\n')+
+                           'assert(sn_abi_v1_value_array_length(array,&length)==0 && length==4);\n'
+                           'assert(sn_abi_v1_value_array_get(array,0,&one)==0); assert(sn_abi_v1_value_array_get(array,1,&nil)==0 && nil==NULL);\n'
+                           'assert(sn_abi_v1_value_array_get(array,2,&empty)==0 && empty!=NULL); assert(sn_abi_v1_value_array_get(array,3,&raw)==0); sn_abi_v1_release(array);\n'+
+                           (f'assert({shutdown}()==0); assert({shutdown}()==0); array=one; assert(managed_items(&array)==SN_ABI_PACKAGE_CLOSED && array==one);\n' if lifecycle else '')+
+                           'assert(sn_abi_v1_string_bytes(one,&bytes)==0 && bytes.length==3 && memcmp(bytes.data,"one",3)==0);\n'
+                           'assert(sn_abi_v1_string_bytes(empty,&bytes)==0 && bytes.length==0 && bytes.data!=NULL);\n'
+                           'assert(sn_abi_v1_string_bytes(raw,&bytes)==0 && bytes.length==2 && bytes.data[0]==0x80 && bytes.data[1]==0xff);\n'
+                           'sn_abi_v1_release(one); sn_abi_v1_release(empty); sn_abi_v1_release(raw); return 0; }\n')
+                executable=self.root/'managed-client.exe'
+                built=subprocess.run(cc+['-I',str(COMPILER.parent/'include/runtime'),str(self.root/'managed-client.c'),
+                    str(base/unit['archive']),metadata['shared_runtime']['archive']]+unit['native_link_flags']+['-o',str(executable)],capture_output=True,timeout=120)
+                self.assertEqual(built.returncode,0,built.stderr.decode(errors='replace'))
+                run=subprocess.run([str(executable)],capture_output=True,timeout=15)
+                self.assertEqual(run.returncode,0,run.stderr.decode(errors='replace'))
+
     def test_plan_inheritance_and_command_diagnostics(self):
         self.manifest(['C'])
         manifest = self.root / 'sn.yaml'

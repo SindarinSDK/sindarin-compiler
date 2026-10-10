@@ -131,7 +131,7 @@ the public API, link the compiled library and retain their own application targe
 Public and implementation types/qualifiers must agree. C implementation symbols
 are package-scoped; Rust implementations use distinct crate identities.
 
-Scalar/string exports currently support direct and status wire protocols, nil
+Scalar/string and owned string-array exports currently support direct and status wire protocols, nil
 versus empty strings and non-UTF-8 bytes. Package-body emission has no application
 entry; competing `main` symbols are rejected. Implementation/dependency source
 hashes and selected runtime are recorded. These units can also be consumed as
@@ -146,7 +146,13 @@ registered for initialized library controls. Rust initialization first seeds sta
 defaults/constants, preserving C's visibility of later literal globals, then runs
 deferred initializers in source order. Partial initialization rolls back on panic.
 
-Managed package thread/global-handle lifetimes, managed array/record body exports,
+Owned `str[]` body results use ABI 1.1 managed-value arrays. C/RS body adapters
+preserve nil/empty arrays and elements and arbitrary string bytes, transfer independent element credits,
+and keep retrieved values alive after array release and package shutdown. Consumer arrays retain their
+normal mutation and cleanup behaviour. Array inputs still require the full
+mutable/borrowed implementation contract.
+
+Managed package thread/global-handle lifetimes, array input/record body exports,
 generic public APIs and complete native-backed SDK facade migration
 remain required work. Unsupported contracts fail clearly. RS body emission that
 needs native C sidecars still requires the modular library lifecycle extension;

@@ -7,6 +7,39 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Owned body array exports: local validation, 2026-10-10
+
+Independent C/RS Sindarin libraries now export owned `str[]` results through the
+existing ABI 1.1 managed-value transport. Generated body facades preserve nil
+versus empty arrays/elements, arbitrary string bytes and consumer mutation.
+Rust package bodies use the nullable array representation consistently even when
+no nil literal occurs in their source. Package building round-trips compiler
+model/C-source byte payloads instead of requiring UTF-8 language string data.
+
+C/RS providers pass direct and status protocols. Sanitized C clients retain
+individual elements, release their array, shut down a global-backed library twice,
+and verify element bytes remain valid. Closed calls preserve caller outputs.
+C/Rust applications consume source-built and relocated prebuilt libraries after
+body sources and producer caches are removed. Managed array inputs, wider
+record/interface exports, modular Rust sidecars and complete SDK migration remain
+required work; this is one step toward the full package architecture.
+
+Local full suites pass 3,240 C and 1,090 Rust checks. All 32 import tests, 15 artifact
+tests and 15 CI helpers pass. Strict address/undefined/leak checks include both
+stateless and global-backed C/RS array exports. Original sources and behavioural
+oracles remain unchanged. Hosted acceptance of the array batch is pending publication.
+
+Evidence: [owned body arrays](rust-parity-evidence/sindarin-array-body-validation.json).
+
+## Package lifecycle: hosted acceptance, 2026-10-10
+
+Main `583a863a` passes complete unified Linux/macOS/Windows CI, accepting ABI 1.2
+package controls, C/Rust/Go lifecycle clients and ordinary C/RS library global
+initialization/cleanup. This supersedes the earlier pending entry below.
+
+[Accepted lifecycle run](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38056825974).
+Evidence: [hosted acceptance](rust-parity-evidence/package-lifecycle-main-ci-green.json).
+
 ## Shared package lifecycle and implementation globals: local validation, 2026-10-10
 
 ABI 1.2 adds canonical C package controls and owned call credits. Initialization

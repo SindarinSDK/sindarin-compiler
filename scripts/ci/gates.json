@@ -1349,7 +1349,8 @@
         "NativeArtifactTests.test_borrowed_string_array_provider_errors_aliases_and_lifetimes",
         "NativeArtifactTests.test_consumer_rejects_runtime_incompatibility_before_foreign_call",
         "NativeArtifactTests.test_sindarin_bodies_export_owned_values_as_independent_archives",
-        "NativeArtifactTests.test_sindarin_library_global_shutdown_preserves_owned_results"
+        "NativeArtifactTests.test_sindarin_library_global_shutdown_preserves_owned_results",
+        "NativeArtifactTests.test_sindarin_managed_array_body_exports_keep_element_credits"
       ],
       "env": {
         "SN_CC": "gcc -fsanitize=address,undefined -fno-omit-frame-pointer",

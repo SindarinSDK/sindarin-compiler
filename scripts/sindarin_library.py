@@ -23,7 +23,9 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
     common = [args.compiler,entry,'--package-body','--no-install','--target',target,
               '-O'+args.optimization,'--'+args.arithmetic]
     run(common+['--emit-model','-o',model_path],cwd=root)
-    model = json.loads(model_path.read_text())
+    # Compiler models/C source can contain arbitrary language string bytes.
+    # Decode structural text while round-tripping byte payloads unchanged.
+    model = json.loads(model_path.read_text(encoding="utf-8", errors="surrogateescape"))
     if model.get('top_level_statements'):
         raise ValueError('Sindarin library top-level statements require explicit package initializer contracts')
     lifecycle = bool(model.get('globals'))
@@ -57,8 +59,8 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
             any(kind(p['type'])!=kind(q['type']) or p.get('mem_qual','default')!='default' or
                 p.get('sync_mod','none')!='none' for p,q in zip(parameters,signature['params']))):
             raise ValueError('Sindarin implementation type/ownership differs from its public declaration: '+name)
-        if any(kind(p['type'])=='string_array' for p in parameters) or kind(function['return_type'])=='string_array':
-            raise ValueError('Sindarin library array exports require generated managed-body adapters')
+        if any(kind(p['type'])=='string_array' for p in parameters):
+            raise ValueError('Sindarin library array inputs require generated mutable/borrowed-body contracts')
         selected.append(function)
     emitted = work/(stem+('.c' if runtime=='C' else '.rs'))
     run(common+['--emit-source','-o',emitted],cwd=root)
@@ -75,7 +77,7 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
         for structure in model.get('structs',[]):
             names.update('__sn__'+structure['name']+'_'+m['name'] for m in structure.get('methods',[]) if not m.get('is_native'))
         prefix = '\n'.join('#define '+name+' __sn_'+stem+'_body_'+name for name in sorted(names))+'\n'
-        code = '#include "sn_abi.h"\n'+prefix+emitted.read_text()+'\n'
+        code = '#include "sn_abi.h"\n'+prefix+emitted.read_text(encoding="utf-8", errors="surrogateescape")+'\n'
         code += c_header(adjusted,stem)+'\n'
         for signature,function in zip(adjusted,selected):
             result = kind(signature['return_type']);status=signature['binding']['failure']=='status'
@@ -98,7 +100,7 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
         if lifecycle:
             code += f'uint32_t __sn_{stem}_initialize(void) {{ SnAbiPackageCall *call = NULL; uint32_t code = __sn_package_begin(&call); if (!code) sn_abi_v1_package_end(call); return code; }}\n'
             code += f'uint32_t __sn_{stem}_shutdown(void) {{ if (pthread_once(&__sn_package_once, __sn_package_create)) return SN_ABI_FOREIGN_ERROR; return sn_abi_v1_package_shutdown(__sn_package_control); }}\n'
-        emitted.write_text(code)
+        emitted.write_text(code, encoding="utf-8", errors="surrogateescape")
         obj=work/(stem+'.o');dep=work/(stem+'.d')
         flags=['-std=c11','-D_GNU_SOURCE','-Werror=implicit-function-declaration','-O'+args.optimization,'-fwrapv','-fno-lto']
         includes=[args.compiler.resolve().parent/'include/runtime']+[(root/p).resolve() for p in unit.get('include_dirs',[])]
@@ -116,7 +118,7 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
                 links.append(str((root/token).resolve()) if token.endswith(('.a','.so','.dylib','.lib')) else '-l'+token)
             else:links.extend(tokens)
         return archive,links,[dep],model,dependencies
-    code=emitted.read_text()+'\n'
+    code=emitted.read_text(encoding="utf-8", errors="surrogateescape")+'\n'
     for signature,function in zip(adjusted,selected):
         parameters=[];arguments=[]
         for index,p in enumerate(signature['params']):
@@ -131,9 +133,11 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
         if lifecycle:
             code+='  let _call = __sn_package_enter()'+('?' if status else '.unwrap_or_else(|_|std::process::abort())')+';\n'
         code+='  let value = '+name+'('+', '.join(arguments)+');\n'
-        value='if value.is_nil() { None } else { Some(value.as_bytes().to_vec()) }' if result=='string' else 'value as u32 as u8' if result=='char' else 'value'
+        value=('if value.is_nil() { None } else { Some(value.as_bytes().to_vec()) }' if result=='string' else
+               'if value.is_nil() { None } else { Some(value.iter().map(|text| if text.is_nil() { None } else { Some(text.as_bytes().to_vec()) }).collect()) }' if result=='string_array' else
+               'value as u32 as u8' if result=='char' else 'value')
         code+='  '+('Ok('+value+')' if status else value)+'\n}\n'
-    emitted.write_text(code)
+    emitted.write_text(code, encoding="utf-8", errors="surrogateescape")
     backing=work/('lib'+stem+'_body.rlib');crate=stem+'_body'
     flags=shlex.split(os.environ.get('SN_RUSTFLAGS',''))
     compile_args=tools['rustc']+['--edition=2021','--crate-type=rlib','--crate-name',crate,'--emit=dep-info,link','-C','opt-level='+args.optimization,emitted,'-o',backing]+flags

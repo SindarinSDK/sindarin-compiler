@@ -5,7 +5,9 @@ implementation work, not a claim that package assemblies, automatic cross-langua
 adapters or the Go backend already exist. The runtime manifest field and import
 compatibility checks are implemented. The shared C ABI has an implemented
 [value-transport foundation](runtime-abi.md). Independent Sindarin function libraries
-can compile for C/RS with verified scalar/string ABI exports; full package lifecycle,
+can compile for C/RS with verified scalar/string and owned string-array ABI exports.
+ABI 1.2 coordinates initialization, call leases and shutdown; ordinary library
+globals use these shared controls. Package dependency lifecycle graphs, wider
 managed-body exports and complete record/interface contracts remain pending.
 Scalar/string native imports and provider exports have generated
 adapters; this does not complete SDK/package artifact migration.

@@ -1,0 +1,64 @@
+{
+  "base_revision": "583a863ad925d712218adc0acf11ffc8869a657c",
+  "date": "2026-10-10",
+  "scope": "Independent C/RS Sindarin owned string-array body exports through ABI 1.1",
+  "source_sha256": {
+    "scripts/sindarin_library.py": "c9a6fb0b5d940525771f7f05c9231343b50c94af7b768d639c61cd912fa3b0c3",
+    "src/target/rust/rust_nullable_arrays.c": "96785820264177112630ffd445260d136de8372fbfae878753e7093eaea6e0c7",
+    "tests/package/native_artifacts.py": "0c5c17ed5d1beb0c00a43c04920b684e1a60ac4d3613c61c68ad292b2c9faf04",
+    "tests/package/native_imports.py": "8a807c3d2f217578a15ef0a7898b694bfa16f1fc2190cdb049eca3977cbb7183",
+    "scripts/ci/gates.json": "3b2c376feef58a8d3130ab9f34a67b77d1e24c57074acdc60198981caa9556cd"
+  },
+  "validation": {
+    "C": {
+      "checks": 3240,
+      "passed": true,
+      "log_sha256": "2c2cf0caa0e7b89bfa11eeaa54454ce8c47ceca4f15a7b76e2781590ba9f4c39"
+    },
+    "Rust": {
+      "checks": 1090,
+      "passed": true,
+      "log_sha256": "b2bb6d4581ed61da71bdc2f3ef919815c0280329b428767bd362104d7237f1d0"
+    },
+    "imports": {
+      "checks": 32,
+      "passed": true,
+      "log_sha256": "1dba7fd2f15065bec4a46fcff04c9df44a7176499cd366fa90fd597cec86f926"
+    },
+    "artifacts": {
+      "checks": 15,
+      "passed": true,
+      "log_sha256": "3f86bd8a1af64848f128e8568254605452b7a1f7050ff2c19e4ee01d1dbf3924"
+    },
+    "ci_helpers": {
+      "checks": 15,
+      "passed": true,
+      "log_sha256": "1626850c00a1ab45b2fac357f4d51b3308784e403177a2dcba359cd1141e16f1"
+    },
+    "array_cleanup_sanitizers": {
+      "checks": 1,
+      "passed": true,
+      "log_sha256": "c921431ed7022822247b715fdc64d30283ce7518bcd8463c994133a7738537fb"
+    },
+    "prebuilt_arrays": {
+      "checks": 1,
+      "passed": true,
+      "log_sha256": "81af79e3bfc12ff27eb436e7b4e7931602f02cbd19484bde5c4175da70d0afb6"
+    }
+  },
+  "capabilities": [
+    "nil/empty arrays and string elements",
+    "non-UTF-8 string bytes",
+    "direct/status providers and C/Rust consumer mutation",
+    "retrieved element credits survive array release and package shutdown",
+    "closed status outputs unchanged",
+    "prebuilt consumption after original bodies and build caches removed"
+  ],
+  "limitations": [
+    "array inputs need complete mutable/borrowed body contracts",
+    "record/interface body exports, modular RS sidecars and complete SDK migration remain required",
+    "whole corpus/platform/mode goal acceptance incomplete"
+  ],
+  "hosted_acceptance": "pending publication",
+  "passed": true
+}
