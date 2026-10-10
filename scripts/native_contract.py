@@ -28,10 +28,10 @@ def validate(signature):
     if ownership['result'] != ('owned' if result in ('string', 'string_array') else 'value'):
         raise ValueError('package result ownership requires an implemented owned-string or plain-value contract')
     for p in params:
-        if kind(p['type']) == 'string_array':
-            raise ValueError('package managed string-array inputs require further adapter support')
+        if kind(p['type']) == 'string_array' and signature.get('abi') != '1.1':
+            raise ValueError('managed string-array inputs require native ABI 1.1')
         if kind(p['type']) == 'void':
             raise ValueError('package parameter cannot have void ABI representation')
-        expected = 'borrowed' if kind(p['type']) == 'string' else 'value'
+        expected = 'borrowed' if kind(p['type']) in ('string', 'string_array') else 'value'
         if ownership['parameters'][p['name']] != expected:
             raise ValueError('package input ownership requires an implemented borrowed-string or plain-value contract')

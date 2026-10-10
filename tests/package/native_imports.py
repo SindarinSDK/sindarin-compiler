@@ -84,6 +84,47 @@ class NativeImports(unittest.TestCase):
         self.assertIn(b'managed string-array results require native ABI 1.1',result.stderr)
         self.assertFalse((self.root/'main.exe').exists())
 
+    def test_borrowed_string_arrays_preserve_nil_aliases_and_owned_results(self):
+        sources={
+            'C':'#include <stdlib.h>\nSnArray *echo(SnArray *a, SnArray *b) { if (a!=b) abort(); return a ? sn_array_copy(a) : NULL; }\n',
+            'RS':'pub fn echo(a:Option<&[Option<&[u8]>]>,b:Option<&[Option<&[u8]>]>)->Option<Vec<Option<Vec<u8>>>> { '
+                 'if let (Some(a),Some(b))=(a,b) { assert!(std::ptr::eq(a,b)); } '
+                 'a.map(|v|v.iter().map(|s|s.map(|s|s.to_vec())).collect()) }\n',
+            'GO':'package backing\nfunc Echo(a,b []*string) []*string { '
+                 'if len(a)>0 && &a[0]!=&b[0] { panic("alias") }; if a==nil { return nil }; '
+                 'out:=make([]*string,len(a)); for i,s:=range a { if s!=nil { text:=*s; out[i]=&text } }; return out }\n'}
+        for language,source in sources.items():
+            name='borrowarrays'+language.lower()
+            self.package(name,language,source,result='owned',function='Echo' if language=='GO' else 'echo')
+            self.write(f'.sn/{name}/src/api.sn','native fn provide(a: str[], b: str[]): str[]\n')
+            manifest=self.root/f'.sn/{name}/sn.yaml'
+            manifest.write_text(manifest.read_text().replace('abi: 1.0','abi: 1.1').replace('parameters: {}','parameters: {a: borrowed, b: borrowed}'))
+            self.write('main.sn',f'import "{name}/src/api"\nfn main(): void =>\n'
+                       '  var missing: str[] = nil\n  println(provide(missing, missing) == nil)\n'
+                       '  var empty: str[] = {}\n  println(provide(empty, empty) == nil)\n'
+                       '  var missingElement: str = nil\n  var original: str[] = {"one", missingElement, ""}\n'
+                       '  var result: str[] = provide(original, original)\n  original[0] = "changed"\n'
+                       '  println(result.length)\n  println(result[0])\n'
+                       '  println(result[1] == nil)\n  println(result[2] == nil)\n')
+            for target in ('c','rust'):
+                with self.subTest(language=language,target=target):
+                    self.execute(target,b'true\nfalse\n3\none\ntrue\nfalse\n')
+
+    def test_borrowed_arrays_require_current_abi_and_readonly_ownership(self):
+        self.package('badarray','C','long long unused(void) { return 0; }\n')
+        self.write('.sn/badarray/src/api.sn','native fn provide(items: str[]): int\n')
+        manifest=self.root/'.sn/badarray/sn.yaml';original=manifest.read_text()
+        self.write('main.sn','import "badarray/src/api"\nfn main(): void =>\n  var items: str[] = {}\n  println(provide(items))\n')
+        for abi,ownership,message in (('1.0','borrowed',b'managed string-array inputs require native ABI 1.1'),
+                                      ('1.1','value',b'package input ownership requires')):
+            with self.subTest(abi=abi,ownership=ownership):
+                manifest.write_text(original.replace('abi: 1.0','abi: '+abi).replace('parameters: {}','parameters: {items: '+ownership+'}'))
+                result=subprocess.run([str(COMPILER),'main.sn','--target','rust','--no-install','-o','main.exe'],
+                                      cwd=self.root,capture_output=True,timeout=60)
+                self.assertNotEqual(result.returncode,0)
+                self.assertIn(message,result.stderr)
+                self.assertFalse((self.root/'main.exe').exists())
+
     def test_generated_string_array_status_results_and_errors(self):
         sources={
             'C':'#include "sn_array.h"\nuint32_t make(long long mode, SnArray **out) { '

@@ -286,6 +286,60 @@ class NativeArtifactTests(unittest.TestCase):
                 run=subprocess.run([str(executable)],capture_output=True,timeout=15)
                 self.assertEqual(run.returncode,0,run.stderr.decode(errors='replace'))
 
+    def test_borrowed_string_array_provider_errors_aliases_and_lifetimes(self):
+        sources={
+            'C':'uint32_t echo(SnArray *a,SnArray *b,bool ok,SnArray **out) { '
+                'if (!ok) return 5; if (a!=b) return 6; *out=a?sn_array_copy(a):NULL; return 0; }\n',
+            'RS':'pub fn echo(a:Option<&[Option<&[u8]>]>,b:Option<&[Option<&[u8]>]>,ok:bool)'
+                 '->Result<Option<Vec<Option<Vec<u8>>>>,u32> { if !ok { return Err(5) }; '
+                 'if let (Some(a),Some(b))=(a,b) { if !std::ptr::eq(a,b) { return Err(6) } }; '
+                 'Ok(a.map(|a|a.iter().map(|s|s.map(|s|s.to_vec())).collect())) }\n',
+            'GO':'package backing\nimport "unsafe"\nfunc Echo(a,b []*string,ok bool) ([]*string,uint32) { '
+                 'if !ok { return nil,5 }; if unsafe.SliceData(a)!=unsafe.SliceData(b) { return nil,6 }; '
+                 'if a==nil { return nil,0 }; out:=make([]*string,len(a)); '
+                 'for i,s:=range a { if s!=nil { text:=*s; out[i]=&text } }; return out,0 }\n'}
+        cc=shlex.split(os.environ.get('SN_CC','clang' if os.name=='nt' or os.sys.platform=='darwin' else 'gcc'))
+        for language,source in sources.items():
+            with self.subTest(language=language):
+                path={'C':'native/value.c','RS':'native/value.rs','GO':'native/go/main.go'}[language]
+                self.write(path,source);self.manifest([language])
+                self.write('src/api.sn','native fn echo(a: str[], b: str[], ok: bool): str[]\n')
+                manifest=self.root/'sn.yaml';build={'C':'c','RS':'rs','GO':'go'}[language]
+                text=manifest.read_text().split('  bindings:')[0].replace('abi: 1.0','abi: 1.1')
+                text+=f'  bindings:\n    - declaration: src/api.sn::echo\n      build: {build}\n      symbol: provider_echo\n'
+                text+=f'      function: {"Echo" if language=="GO" else "echo"}\n      convention: C\n      failure: status\n'
+                text+='      ownership: {parameters: {a: borrowed, b: borrowed, ok: value}, result: owned}\n'
+                manifest.write_text(text)
+                summary,metadata=self.build();base=Path(summary['assembly']).parent;unit=metadata['units'][0]
+                self.write('borrow-client.c','#include <assert.h>\n#include <string.h>\n#include "sn_abi.h"\n'
+                    'uint32_t provider_echo(SnAbiValue*,SnAbiValue*,uint8_t,SnAbiValue**);\n'
+                    'int main(void) { SnAbiValue *array=NULL,*text=NULL,*empty=NULL,*out=NULL,*buffer=NULL,*other=NULL; SnAbiBytes bytes;\n'
+                    'assert(sn_abi_v1_value_array_new(&array)==0); assert(sn_abi_v1_string_copy("",&empty)==0);\n'
+                    'char raw[]={65,(char)255,0,66}; assert(sn_abi_v1_string_copy(raw,&text)==0);\n'
+                    'assert(sn_abi_v1_value_array_push(array,text)==0); assert(sn_abi_v1_value_array_push(array,NULL)==0);\n'
+                    'assert(sn_abi_v1_value_array_push(array,empty)==0); assert(provider_echo(array,array,1,&out)==0);\n'
+                    'sn_abi_v1_release(array); array=NULL; SnAbiValue *item=NULL;\n'
+                    'assert(sn_abi_v1_value_array_get(out,0,&item)==0); assert(sn_abi_v1_string_bytes(item,&bytes)==0 && bytes.length==2 && bytes.data[1]==255);\n'
+                    'sn_abi_v1_release(item); assert(sn_abi_v1_value_array_get(out,1,&item)==0 && item==NULL);\n'
+                    'assert(sn_abi_v1_value_array_get(out,2,&item)==0); assert(sn_abi_v1_string_bytes(item,&bytes)==0 && bytes.length==0 && bytes.data!=NULL); sn_abi_v1_release(item);\n'
+                    'SnAbiValue *preserved=out; assert(provider_echo(out,text,1,&out)==SN_ABI_WRONG_KIND && out==preserved);\n'
+                    'assert(provider_echo(out,out,2,&out)==SN_ABI_INVALID_ARGUMENT && out==preserved);\n'
+                    'assert(provider_echo(out,out,0,&out)==5 && out==preserved); assert(provider_echo(out,out,1,NULL)==SN_ABI_INVALID_ARGUMENT);\n'
+                    'assert(sn_abi_v1_buffer_copy((const uint8_t*)"x",1,&buffer)==0); assert(sn_abi_v1_value_array_new(&array)==0);\n'
+                    'assert(sn_abi_v1_value_array_push(array,text)==0); assert(sn_abi_v1_value_array_push(array,buffer)==0);\n'
+                    'assert(provider_echo(array,array,1,&out)==SN_ABI_WRONG_KIND && out==preserved); sn_abi_v1_release(array);\n'
+                    'assert(sn_abi_v1_value_array_new(&array)==0); assert(sn_abi_v1_value_array_new(&other)==0);\n'
+                    'assert(provider_echo(array,other,1,&out)==6 && out==preserved); sn_abi_v1_release(other);\n'
+                    'assert(provider_echo(array,array,1,&out)==0 && out!=NULL); sn_abi_v1_release(out);\n'
+                    'assert(provider_echo(NULL,NULL,1,&out)==0 && out==NULL);\n'
+                    'sn_abi_v1_release(array); sn_abi_v1_release(preserved); sn_abi_v1_release(text); sn_abi_v1_release(empty); sn_abi_v1_release(buffer); return 0; }\n')
+                executable=self.root/'borrow-client.exe'
+                built=subprocess.run(cc+['-I',str(COMPILER.parent/'include/runtime'),str(self.root/'borrow-client.c'),
+                    str(base/unit['archive']),metadata['shared_runtime']['archive']]+unit['native_link_flags']+['-o',str(executable)],capture_output=True,timeout=120)
+                self.assertEqual(built.returncode,0,built.stderr.decode(errors='replace'))
+                run=subprocess.run([str(executable)],capture_output=True,timeout=15)
+                self.assertEqual(run.returncode,0,run.stderr.decode(errors='replace'))
+
     def test_plan_inheritance_and_command_diagnostics(self):
         self.manifest(['C'])
         manifest = self.root / 'sn.yaml'

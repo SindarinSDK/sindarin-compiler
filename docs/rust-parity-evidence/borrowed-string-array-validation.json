@@ -1,0 +1,62 @@
+{
+  "date": "2026-10-10",
+  "base_revision": "7c3b132ff9738dd3e21b5b1b1d0e1d63519da184",
+  "scope": "ABI 1.1 read-only borrowed string arrays and C nil-element literal ownership",
+  "source_sha256": {
+    "scripts/ci/gates.json": "5f11b2d796628380b079aba80b0aaa2ae385da2e2c6bd7d72ae3eb31d4ed5826",
+    "scripts/native_contract.py": "48b9c876b7ecf6561b33100c3e449b091eb33b710561cea86c10552ea76d9773",
+    "scripts/native_provider.py": "aa7c6aaaf90475e8e1eb1d1e1f5e39873451dfc69dbf62370d3164a95a6cd3a2",
+    "scripts/prepare_native_imports.py": "1c2df4bdf762926501b514b841661e937db4e0c921431fe2f012d0ec9fdeda35",
+    "templates/c/partials/expr/array_literal.hbs": "9a4f357dec3522d813ef6a7540f3e1701f3d037c8dd89064a17b2718886cec6b",
+    "tests/cgen/mem_array_string.expected.c": "db5122a5ee3550f8c6e07b62d47f24fd7792d86877a10c5baab6b0b3e78eb7e9",
+    "tests/cgen/mem_index_assign_str.expected.c": "ebc8475a3f4c9151837c791b42f857404f6de107951abcd70d37651755ff6cef",
+    "tests/package/native_artifacts.py": "b6e4463b039aafb57ea78c5d8f3c78354c7182905cc4a0a99da041c6952d4a38",
+    "tests/package/native_imports.py": "de0934fcfee366129a52cab9b015e984854fd350086cc7d2f506cb1f58923f67",
+    "tests/rust-native/scalar_nil_string_array_elements.abi-matrix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests/rust-native/scalar_nil_string_array_elements.expected": "7648429138a6e003ce928ab251b1f73552df599726cc6fff6bee3b19ccf1fe9a",
+    "tests/rust-native/scalar_nil_string_array_elements.sn": "87d7686ca5fba48fec88563b85957dca6c157725fb4ec819bcb8dcbe04ec8352"
+  },
+  "validation": {
+    "C": {
+      "passed": true,
+      "checks": 3240,
+      "log_sha256": "0306a7db357c241e2568eadb3063e88573a26563d635130f58992e670534729c"
+    },
+    "Rust": {
+      "passed": true,
+      "checks": 1089,
+      "log_sha256": "dee9d8b5ae284e820f07fe5842ad21d2e55be3bdfbfff1adb4d3125650d49d5e"
+    },
+    "imports": {
+      "passed": true,
+      "checks": 24,
+      "log_sha256": "7acf2af5277cad7b3f679d55c525d32cc9d6d9e3a105c05715db0232f906096d"
+    },
+    "artifacts": {
+      "passed": true,
+      "checks": 11,
+      "log_sha256": "219c3501a7254777c311dd583286357a346a24c488b7c3050385e5fa17636e50"
+    },
+    "provider_sanitizers": {
+      "passed": true,
+      "checks": 1,
+      "log_sha256": "18cd7387257b31dd0a54d43701c6dd3540c042eb8a1c6ab9cf92420b6891ead6"
+    },
+    "ci_helpers": {
+      "passed": true,
+      "checks": 15,
+      "log_sha256": "e248fee6aa288569e0d2b1c4da3dfee29811104bf223a1241912569bd2e6e7bd"
+    }
+  },
+  "contract_invariants": [
+    "nil/empty arrays and elements distinct",
+    "non-UTF-8 bytes through first NUL",
+    "shared call arguments preserve alias identity, including empty arrays",
+    "backing copies own result elements after input release",
+    "temporary credits/views cleaned on invalid input and backing errors",
+    "status failure leaves output unchanged"
+  ],
+  "hosted_acceptance": "pending publication",
+  "publication": "held until a CI publication slot is free",
+  "passed": true
+}

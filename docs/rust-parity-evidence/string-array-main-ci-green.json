@@ -1,0 +1,11 @@
+{
+  "revision": "e5763d3b63c1fbd9ad296da023b1f71f29e53d19",
+  "run": {
+    "conclusion": "success",
+    "headSha": "e5763d3b63c1fbd9ad296da023b1f71f29e53d19",
+    "status": "completed",
+    "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38045852403"
+  },
+  "scope": "Complete unified Linux/macOS/Windows acceptance of owned string-array adapters; wider goal incomplete",
+  "passed": true
+}

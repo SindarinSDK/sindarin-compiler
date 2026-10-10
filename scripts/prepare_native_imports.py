@@ -30,7 +30,18 @@ def adapter(signature, package):
         if kind(p['type']) == 'string':
             code += [f'  SnAbiValue *w{i} = NULL;',
                      f'  if (sn_abi_v1_string_copy(p{i}, &w{i}) != SN_ABI_OK) abort();']
-    arguments = [f'w{i}' if kind(p['type']) == 'string' else f'({TYPES[kind(p["type"])][1]})p{i}' for i,p in enumerate(params)]
+        elif kind(p['type']) == 'string_array':
+            code += [f'  SnAbiValue *w{i} = NULL;']
+            for previous in range(i):
+                if kind(params[previous]['type']) == 'string_array':
+                    code.append(f'  if (p{i} == p{previous}) w{i} = sn_abi_v1_retain(w{previous}); else')
+            code += [f'  if (p{i}) {{',
+                     f'    if (sn_abi_v1_value_array_new(&w{i}) != SN_ABI_OK) abort();',
+                     f'    for (long long slot = 0; slot < p{i}->len; slot++) {{ SnAbiValue *item = NULL;',
+                     f'      if (sn_abi_v1_string_copy(((char **)p{i}->data)[slot], &item) != SN_ABI_OK) abort();',
+                     f'      if (sn_abi_v1_value_array_push(w{i}, item) != SN_ABI_OK) abort();',
+                     '      sn_abi_v1_release(item);', '    }', '  }']
+    arguments = [f'w{i}' if kind(p['type']) in ('string','string_array') else f'({TYPES[kind(p["type"])][1]})p{i}' for i,p in enumerate(params)]
     if result != 'void': code += [f'  {TYPES[result][1]} wire_result = {{0}};']
     if status:
         if result != 'void': arguments.append('&wire_result')
@@ -39,7 +50,7 @@ def adapter(signature, package):
         call = f'{symbol}({", ".join(arguments)})'
         code += [('  wire_result = ' if result != 'void' else '  ') + call + ';']
     for i,p in enumerate(params):
-        if kind(p['type']) == 'string': code += [f'  sn_abi_v1_release(w{i});']
+        if kind(p['type']) in ('string','string_array'): code += [f'  sn_abi_v1_release(w{i});']
     if status:
         message = json.dumps(f"native package '{package}' export '{symbol}' failed: %s\n")
         code += [f'  if (status != SN_ABI_OK) {{ fprintf(stderr, {message}, sn_abi_v1_status_message(status)); exit(1); }}']

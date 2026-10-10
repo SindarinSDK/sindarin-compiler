@@ -32,7 +32,7 @@
         { {{c_type ../type.element_type}} __sc__ = __sn__{{copy_struct_name}}_copy(&({{> expr this}})); sn_array_push(__al__, &__sc__); }
 {{/if}}
 {{else}}
-        sn_array_push(__al__, &({{c_type ../type.element_type}}){ {{#if (eq ../type.element_type.kind "string")}}strdup({{> expr this}}){{else}}{{#if (eq ../type.element_type.kind "array")}}sn_array_copy({{> expr this}}){{else}}{{#if (eq ../type.element_type.kind "function")}}sn_closure_retain({{> expr this}}){{else}}{{> expr this}}{{/if}}{{/if}}{{/if}} });
+        sn_array_push(__al__, &({{c_type ../type.element_type}}){ {{#if (eq ../type.element_type.kind "string")}}sn_strdup({{> expr this}}){{else}}{{#if (eq ../type.element_type.kind "array")}}sn_array_copy({{> expr this}}){{else}}{{#if (eq ../type.element_type.kind "function")}}sn_closure_retain({{> expr this}}){{else}}{{> expr this}}{{/if}}{{/if}}{{/if}} });
 {{/if}}
 {{else}}{{#if needs_struct_tmp}}
         { {{c_type ../type.element_type}} __st__ = {{> expr this}}; sn_array_push(__al__, &__st__); }

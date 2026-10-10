@@ -52,6 +52,26 @@ def c_header(signatures, namespace):
 
 def c_provider(signatures):
     lines = ['#include <stdint.h>', '#include <stdbool.h>', '#include <stdlib.h>', '#include "sn_abi.h"']
+    if any(kind(p['type']) == 'string_array' for s in signatures for p in s['params']):
+        lines += ['#include <string.h>',
+                  'static void sn_package_borrowed_slot_free(void *p) { free(*(char **)p); }',
+                  'static void sn_package_borrowed_slot_copy(const void *s, void *d) {',
+                  '  const char *text = *(char *const *)s; *(char **)d = text ? strdup(text) : NULL;',
+                  '  if (text && !*(char **)d) abort(); }',
+                  'static uint32_t sn_package_borrow_array(SnAbiValue *input, SnArray **out) {',
+                  '  if (!input) { *out = NULL; return SN_ABI_OK; }',
+                  '  uint64_t length = 0; uint32_t code = sn_abi_v1_value_array_length(input, &length);',
+                  '  if (code) return code; if (length > INT64_MAX) return SN_ABI_OUT_OF_RANGE;',
+                  '  SnArray *array = sn_array_new(sizeof(char *), (long long)length);',
+                  '  array->elem_tag = SN_TAG_STRING; array->elem_release = sn_package_borrowed_slot_free;',
+                  '  array->elem_copy = sn_package_borrowed_slot_copy;',
+                  '  for (uint64_t slot = 0; slot < length; slot++) { SnAbiValue *item = NULL; SnAbiBytes bytes;',
+                  '    code = sn_abi_v1_value_array_get(input, slot, &item);',
+                  '    if (!code) code = sn_abi_v1_string_bytes(item, &bytes);',
+                  '    if (code) { sn_abi_v1_release(item); sn_array_free(array); return code; }',
+                  '    char *text = bytes.data ? strdup((const char *)bytes.data) : NULL;',
+                  '    if (bytes.data && !text) abort(); sn_array_push(array, &text); sn_abi_v1_release(item);',
+                  '  } *out = array; return SN_ABI_OK;', ' }']
     for s in signatures:
         b, params, result = s['binding'], s['params'], kind(s['return_type'])
         status = b['failure'] == 'status'
@@ -60,21 +80,41 @@ def c_provider(signatures):
         if status and result != 'void': wire.append(TYPES[result][1] + ' *out')
         lines.append(f'{"uint32_t" if status else TYPES[result][1]} {b["symbol"]}({", ".join(wire) or "void"}) {{')
         if status and result != 'void': lines.append('  if (!out) return SN_ABI_INVALID_ARGUMENT;')
+        array_params = [i for i,p in enumerate(params) if kind(p['type']) == 'string_array']
+        for i in array_params: lines.append(f'  SnArray *array{i} = NULL;')
+        if array_params: lines.append('  uint32_t provider_status = 0;')
+        def failed(code):
+            if array_params: return 'provider_status = '+code+'; goto cleanup_args;'
+            return 'return '+code+';' if status else 'abort();'
         arguments = []
         for i,p in enumerate(params):
             k = kind(p['type'])
             if k == 'string':
                 lines += [f'  SnAbiBytes bytes{i};', f'  uint32_t status{i} = sn_abi_v1_string_bytes(p{i}, &bytes{i});',
-                          f'  if (status{i}) {{ ' + (f'return status{i};' if status else 'abort();') + ' }']
+                          f'  if (status{i}) {{ ' + failed(f'status{i}') + ' }']
                 arguments.append(f'(char *)bytes{i}.data')
+            elif k == 'string_array':
+                for previous in array_params:
+                    if previous >= i: break
+                    lines.append(f'  if (p{i} == p{previous}) array{i} = array{previous}; else')
+                lines += [f'  provider_status = sn_package_borrow_array(p{i}, &array{i});',
+                          '  if (provider_status) goto cleanup_args;']
+                arguments.append(f'array{i}')
             else:
-                if k == 'bool': lines.append(f'  if (p{i} > 1) {{ '+('return SN_ABI_INVALID_ARGUMENT;' if status else 'abort();')+' }')
+                if k == 'bool': lines.append(f'  if (p{i} > 1) {{ '+failed('SN_ABI_INVALID_ARGUMENT')+' }')
                 arguments.append(f'({TYPES[k][0]})p{i}')
         if result != 'void': lines.append(f'  {TYPES[result][0]} value = {{0}};')
         if status:
             if result != 'void': arguments.append('&value')
-            lines += [f'  uint32_t status = {b["function"]}({", ".join(arguments)});', '  if (status) return status;']
+            if array_params: lines.append(f'  provider_status = {b["function"]}({", ".join(arguments)});')
+            else: lines += [f'  uint32_t status = {b["function"]}({", ".join(arguments)});', '  if (status) return status;']
         else: lines.append(('  value = ' if result != 'void' else '  ')+f'{b["function"]}({", ".join(arguments)});')
+        if array_params:
+            lines.append('cleanup_args:')
+            for position,i in reversed(list(enumerate(array_params))):
+                unique = ' && '.join(f'array{i} != array{j}' for j in array_params[:position])
+                lines.append(('  if ('+unique+') ' if unique else '  ')+f'sn_array_free(array{i});')
+            lines.append('  if (provider_status) { '+('return provider_status;' if status else 'abort();')+' }')
         if result == 'string':
             lines += ['  SnAbiValue *wire_value = NULL;', '  uint32_t status_copy = sn_abi_v1_string_copy(value, &wire_value);',
                       '  free(value);', '  if (status_copy) { '+('return status_copy;' if status else 'abort();')+' }']
@@ -104,6 +144,8 @@ def rust_provider(signatures, backing_crate):
              'extern "C" { fn sn_abi_v1_string_bytes(v: *const V, out: *mut Bytes) -> u32;',
              'fn sn_abi_v1_string_copy(v: *const std::ffi::c_char, out: *mut *mut V) -> u32;',
              'fn sn_abi_v1_value_array_new(out: *mut *mut V) -> u32; fn sn_abi_v1_value_array_push(array: *mut V, value: *mut V) -> u32;',
+             'fn sn_abi_v1_value_array_length(array: *const V, out: *mut u64) -> u32;',
+             'fn sn_abi_v1_value_array_get(array: *const V, index: u64, out: *mut *mut V) -> u32;',
              'fn sn_abi_v1_release(value: *mut V); }',
              'struct OwnedV(*mut V); impl Drop for OwnedV { fn drop(&mut self) { unsafe { sn_abi_v1_release(self.0) } } }']
     for s in signatures:
@@ -124,6 +166,22 @@ def rust_provider(signatures, backing_crate):
                           f'    let length{i} = usize::try_from(bytes{i}.length).map_err(|_| 5u32)?;',
                           f'    if length{i} > isize::MAX as usize {{ return Err(5); }}',
                           f'    let arg{i} = if bytes{i}.data.is_null() {{ None }} else {{ Some(std::slice::from_raw_parts(bytes{i}.data, length{i})) }};']
+                arguments.append(f'arg{i}')
+            elif k == 'string_array':
+                lines += [f'    let mut count{i} = 0u64;',
+                          f'    let code = sn_abi_v1_value_array_length(p{i}, &mut count{i}); if code != 0 {{ return Err(code); }}',
+                          f'    let length{i} = usize::try_from(count{i}).map_err(|_| 5u32)?;',
+                          f'    if length{i} > isize::MAX as usize / std::mem::size_of::<Option<&[u8]>>() {{ return Err(5); }}',
+                          f'    let mut owners{i} = Vec::with_capacity(length{i}); let mut values{i} = Vec::with_capacity(length{i}.max(1));',
+                          f'    for slot in 0..count{i} {{ let mut item = OwnedV(std::ptr::null_mut());',
+                          f'      let code = sn_abi_v1_value_array_get(p{i}, slot, &mut item.0); if code != 0 {{ return Err(code); }}',
+                          '      let mut bytes = Bytes { data: std::ptr::null(), length: 0 };',
+                          '      let code = sn_abi_v1_string_bytes(item.0, &mut bytes); if code != 0 { return Err(code); }',
+                          '      let n = usize::try_from(bytes.length).map_err(|_| 5u32)?; if n > isize::MAX as usize { return Err(5); }',
+                          f'      values{i}.push(if bytes.data.is_null() {{ None }} else {{ Some(std::slice::from_raw_parts(bytes.data, n)) }}); owners{i}.push(item);',
+                          '    }']
+                aliases = ''.join(f'if p{i} == p{j} {{ arg{j} }} else ' for j in range(i) if kind(params[j]['type']) == 'string_array')
+                lines.append(f'    let arg{i} = '+aliases+f'if p{i}.is_null() {{ None }} else {{ Some(values{i}.as_slice()) }};')
                 arguments.append(f'arg{i}')
             elif k == 'bool':
                 lines.append(f'    if p{i} > 1 {{ return Err(1); }}')
@@ -159,7 +217,7 @@ def rust_provider(signatures, backing_crate):
 def go_provider(signatures, module, main=True):
     lines = ['package main', '/* #include <stdint.h>\n#include <stdlib.h>\n#include "sn_abi.h" */', 'import "C"',
              f'import {"backing" if signatures else "_"} {json.dumps(module)}']
-    if any(kind(p['type']) == 'string' for s in signatures for p in s['params']) or any(kind(s['return_type']) in ('string','string_array') for s in signatures):
+    if any(kind(p['type']) in ('string','string_array') for s in signatures for p in s['params']) or any(kind(s['return_type']) in ('string','string_array') for s in signatures):
         lines.append('import "unsafe"')
     wire = lambda k: '*C.SnAbiValue' if k in ('string','string_array') else 'C.'+TYPES[k][1] if k != 'void' else ''
     for s in signatures:
@@ -181,6 +239,23 @@ def go_provider(signatures, module, main=True):
                           f'  var arg{i} *string', f'  if bytes{i}.data != nil {{',
                           f'    if uint64(bytes{i}.length) > uint64(^uint(0)>>1) {{ '+(normal_return('5') if status else 'panic("string length overflow")')+' }',
                           f'    text := string(unsafe.Slice((*byte)(unsafe.Pointer(bytes{i}.data)), int(bytes{i}.length))); arg{i} = &text', '  }']
+                arguments.append(f'arg{i}')
+            elif k == 'string_array':
+                error = lambda code: normal_return(code) if status else 'panic("invalid array ABI")'
+                lines += [f'  var count{i} C.uint64_t',
+                          f'  if code := C.sn_abi_v1_value_array_length(p{i}, &count{i}); code != 0 {{ '+error('code')+' }',
+                          f'  if uint64(count{i}) > uint64(^uint(0)>>1) {{ '+error('5')+' }',
+                          f'  var arg{i} []*string; if p{i} != nil {{ capacity := int(count{i}); if capacity == 0 {{ capacity = 1 }}; arg{i} = make([]*string, int(count{i}), capacity) }}',
+                          f'  for slot := uint64(0); slot < uint64(count{i}); slot++ {{ var item *C.SnAbiValue; var bytes C.SnAbiBytes',
+                          f'    code := C.sn_abi_v1_value_array_get(p{i}, C.uint64_t(slot), &item)',
+                          '    if code == 0 { code = C.sn_abi_v1_string_bytes(item, &bytes) }',
+                          '    if code != 0 { C.sn_abi_v1_release(item); '+error('code')+' }',
+                          '    if uint64(bytes.length) > uint64(^uint(0)>>1) { C.sn_abi_v1_release(item); '+error('5')+' }',
+                          '    if bytes.data != nil { text := string(unsafe.Slice((*byte)(unsafe.Pointer(bytes.data)), int(bytes.length)));',
+                          f'      arg{i}[slot] = &text }}', '    C.sn_abi_v1_release(item)', '  }']
+                for previous in range(i):
+                    if kind(params[previous]['type']) == 'string_array':
+                        lines.append(f'  if p{i} == p{previous} {{ arg{i} = arg{previous} }}')
                 arguments.append(f'arg{i}')
             elif k == 'bool':
                 lines.append(f'  if p{i} > 1 {{ '+(normal_return('1') if status else 'panic("invalid boolean ABI")')+' }')

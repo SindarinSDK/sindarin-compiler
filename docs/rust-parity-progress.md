@@ -7,6 +7,46 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Borrowed string-array package inputs: local validation, 2026-10-10
+
+ABI 1.1 native declarations now accept read-only borrowed `str[]` inputs through
+generated consumer/provider adapters in C, Rust and Go. Nil/empty arrays and
+elements, non-UTF-8 bytes through the first NUL, repeated-argument aliases and
+distinct empty array identities are preserved. C temporary views install string
+copy/release hooks, so backing `sn_array_copy` returns an independent owned value.
+All acquired transport credits/views are released after successful calls and
+after invalid input or backing status failures. Status output pointers remain
+unchanged on failure. ABI 1.0 and non-borrowed array input contracts are diagnosed.
+
+The integration regression found C string-array literals calling `strdup(NULL)`.
+Literal element copying now uses the existing nil-aware `sn_strdup` helper.
+The focused C/Rust regression observes nil versus empty elements, independent
+copy ownership and mutation/cleanup under native debug sanitizers. Two generated-C
+snapshots record the helper change; existing Sindarin programs and execution
+oracles remain unchanged.
+
+Complete local suites pass 3,240 C and 1,089 Rust checks. All 24 native import
+tests, 11 native artifact tests and 15 CI helper tests pass. Strict provider
+address/undefined/leak sanitizer clients cover aliases, raw byte data, element
+lifetimes after input release, wrong array/element kinds, invalid booleans, null
+outputs, backing errors and preserved failure outputs. The native inventory is
+385. Broader array/record/interface/callback contracts, independent Sindarin
+package bodies, complete SDK artifact imports and full parity acceptance remain
+required. Publication is held while the two feature CI slots are occupied;
+exact-revision hosted acceptance is pending.
+
+Evidence: [borrowed string-array validation](rust-parity-evidence/borrowed-string-array-validation.json).
+
+## String-array result adapters: hosted acceptance, 2026-10-10
+
+Main `e5763d3b` passes complete Linux/macOS/Windows unified CI, including the
+pinned canonical SDK managed TextFile/readLines implementation and strict
+array-provider lifetime gates. This supersedes that batch's earlier pending
+publication/acceptance notes below.
+
+[Accepted string-array run](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38045852403).
+Evidence: [hosted acceptance](rust-parity-evidence/string-array-main-ci-green.json).
+
 ## Signed value-parameter postfix operations: local validation, 2026-10-10
 
 The parameter-mutation preparation pass now marks `int`, `long` and `int32`

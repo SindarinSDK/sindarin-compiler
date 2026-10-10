@@ -148,5 +148,5 @@ Tests cover all three backing languages, ownership/failure declarations, malform
 contracts, dependency add/update preservation and compiler diagnostics. Existing
 runtime-selection and C interop regressions remain required.
 
-`abi: 1.1` selects managed-value array contracts. Owned `str[]` results require
+`abi: 1.1` selects managed-value array contracts. Borrowed `str[]` inputs and owned results require
 that version; `abi: 1.0` preserves existing scalar/string/native artifact behaviour.

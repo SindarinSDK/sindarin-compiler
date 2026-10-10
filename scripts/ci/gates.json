@@ -29,14 +29,14 @@
       "group": "rust"
     },
     {
-      "name": "native scalar, record and managed ABI fixtures (384 fixtures)",
+      "name": "native scalar, record and managed ABI fixtures (385 fixtures)",
       "command": [
         "{python}",
         "scripts/run_rust_tests.py",
         "rust-native-extra",
         "--verbose",
         "--require-count",
-        "384",
+        "385",
         "--fail-on-skip"
       ],
       "linux_only": false,
@@ -1345,7 +1345,8 @@
         "tests/package/native_artifacts.py",
         "NativeArtifactTests.test_generated_exports_are_independent_typed_abi_artifacts",
         "NativeArtifactTests.test_multiple_go_build_units_produce_one_independent_archive",
-        "NativeArtifactTests.test_generated_owned_string_arrays_have_wire_lifetime_contracts"
+        "NativeArtifactTests.test_generated_owned_string_arrays_have_wire_lifetime_contracts",
+        "NativeArtifactTests.test_borrowed_string_array_provider_errors_aliases_and_lifetimes"
       ],
       "env": {
         "SN_CC": "gcc -fsanitize=address,undefined -fno-omit-frame-pointer",

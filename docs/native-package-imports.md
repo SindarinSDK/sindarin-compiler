@@ -1,8 +1,8 @@
 # Generated native package imports
 
 Status: implemented consumer and provider adapters for resolved scalar and string
-function and owned string-array result contracts. Complete independent Sindarin package bodies, SDK artifact imports,
-managed record/interface/callback contracts, array inputs and non-string elements,
+function and borrowed-input/owned-result string-array contracts. Complete independent Sindarin package bodies, SDK artifact imports,
+managed record/interface/callback contracts and non-string array elements,
 and wider package graph planning
 remain required by the [Rust completion goal](rust-completion-goal.md).
 
@@ -76,6 +76,8 @@ function uses these representations:
 | float / double | `float` / `double` | `f32` / `f64` | `float32` / `float64` |
 | borrowed string input | `char *` | `Option<&[u8]>` | `*string` |
 | owned string result | malloc-owned `char *` | `Option<Vec<u8>>` | `*string` |
+| borrowed string-array input (ABI 1.1) | read-only `SnArray *` | `Option<&[Option<&[u8]>]>` | `[]*string` |
+| owned string-array result (ABI 1.1) | owning `SnArray *` | `Option<Vec<Option<Vec<u8>>>>` | `[]*string` |
 
 Nil uses NULL/None/nil; an empty value remains non-nil. Strings preserve non-UTF-8
 bytes and follow existing C string semantics through the first NUL. Borrowed
@@ -168,8 +170,16 @@ Provider adapters copy into managed C-runtime values and release backing storage
 Consumer adapters build an owning legacy `SnArray` with string copy/release hooks,
 copy element bytes and release runtime credits. C/Rust callers can mutate results
 with their existing array syntax. Arrays require ABI 1.1 explicitly; ABI 1.0
-contracts are rejected. Array inputs, non-string/record elements, copy hooks and
+contracts are rejected. Non-string/record elements, language copy hooks and
 complete SDK record/method adapters remain required work.
+
+String-array inputs use `parameters: {name: borrowed}` and ABI 1.1. Adapters
+preserve nil/empty arrays and elements, first-NUL byte-string semantics and
+same-argument aliases, including distinct empty arrays. C/Rust/Go providers
+receive a read-only view for the call; retaining input requires an independent
+copy. Generated C views install string copy/release hooks, so `sn_array_copy`
+produces an owning result. Error/panic paths release temporary C credits and
+views before returning, and status errors preserve result output pointers.
 
 A C ownership repair preserves string elements borrowed while printing through
 a live variable/member/index owner. Printing no longer frees the array's element

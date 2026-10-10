@@ -1,0 +1,10 @@
+fn main(): void =>
+  var missing: str = nil
+  var values: str[] = {"first", missing, ""}
+  println(values.length)
+  println(values[1] == nil)
+  println(values[2] == nil)
+  var copied: str[] = copyOf(values)
+  values[0] = "changed"
+  println(copied[0])
+  println(copied[1] == nil)

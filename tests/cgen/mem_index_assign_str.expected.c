@@ -22,9 +22,9 @@ int main() {
     
             __al__->elem_copy = sn_copy_str;
     
-            sn_array_push(__al__, &(char *){ strdup("Alice") });
+            sn_array_push(__al__, &(char *){ sn_strdup("Alice") });
     
-            sn_array_push(__al__, &(char *){ strdup("Bob") });
+            sn_array_push(__al__, &(char *){ sn_strdup("Bob") });
             __al__;
         });
     ({
