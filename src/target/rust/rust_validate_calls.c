@@ -252,6 +252,8 @@ static bool rust_primitive_integer_conversion_supported(const char *type_kind,
              strcmp(name, "toByte") == 0 || strcmp(name, "toChar") == 0)) ||
            (strcmp(type_kind, "long") == 0 &&
             (strcmp(name, "toInt") == 0 || strcmp(name, "toDouble") == 0)) ||
+           (strcmp(type_kind, "double") == 0 &&
+            (strcmp(name, "toInt") == 0 || strcmp(name, "toLong") == 0)) ||
            (strcmp(type_kind, "uint") == 0 &&
             (strcmp(name, "toDouble") == 0 || strcmp(name, "toInt") == 0 ||
              strcmp(name, "toLong") == 0)) ||

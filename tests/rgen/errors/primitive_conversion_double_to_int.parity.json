@@ -1,0 +1,7 @@
+{
+  "source_sha256": "aff4c08f536a864e6faa696d9cfcd755d3f6f3e53490409f09fe350e291bef54",
+  "legacy_oracle_sha256": "adb48413775c47d017f82d3d1defb7b8229bbb2c8da7d6ea63a23a3ea8606189",
+  "stdout_hex": "",
+  "exit": 0,
+  "reason": "C-defined finite double-to-integer truncation; preserve historical source and diagnostic while proving C/Rust execution"
+}

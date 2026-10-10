@@ -15,6 +15,13 @@ historical integer-to-character rejection fixture remains unchanged and now has
 a promotion record proving C/Rust execution. Full goal acceptance is tracked in
 the completion ledger.
 
+Rust also accepts `double.toInt()` and `double.toLong()` on the C-defined finite
+range: truncation toward zero must fit the 64-bit signed destination. Valid
+boundaries and effectful receivers are covered against C with float-cast-overflow
+sanitizers. C has no defined result for NaN, infinity or values whose truncated
+integer is out of range; those controls are recorded separately and receive no
+parity credit. The original rejected source/oracle is preserved by promotion.
+
 The borrowed scalar capture increment passes escaping/nested captures, all scalar kinds, aliases, factory copies, globals, thread transport, field mutation and owner-preserving assignments, native scalar mutation, and native record value argument/result conversion. Its ledger records 189 comparisons and 63 sanitizer cases per backend. Captured-field/native-record reference composition and native callbacks remain unresolved.
 
 The 2026-10-05 managed iterator increment admits strings, arrays and supported

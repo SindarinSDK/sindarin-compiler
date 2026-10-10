@@ -1,0 +1,2653 @@
+{
+  "revision": "f805570a77e801c544a315aedc358b45e330c582",
+  "compiler_sha256": "833cf6c03d71bd4058563a01ff472c0a65a0d3206cc6cf834672ce03a431112a",
+  "mode": "-O0 -g C and -O0 Rust source emission",
+  "scope": "Negative inventory characterization only; no parity credit. Successful C sanitizer runs remain candidates for semantic review.",
+  "counts": {
+    "C sanitizer-passing candidate rejected by Rust; requires behavioural review": 60,
+    "C compilation failure": 39,
+    "C sanitizer/runtime failure": 15,
+    "Rust accepted": 4
+  },
+  "cases": [
+    {
+      "source": "tests/rgen/errors/array_search_nested_array_elements.sn",
+      "source_sha256": "06a604c7d8e37134f885c229fc7cc5aa3754da0ccbf8be9bf7ac8bdebe334980",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "798a3cba7598dfbe77391600569369d32e393624822068fbffb4564c05771e0d",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "10b7ba98712ffc8223b74a501a4e9bea81c1fd2a9fa680b3fb8ea47cf8494d51",
+        "diagnostic_summary": "Error: Rust target encountered an unsupported construct in function 'main'"
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/array_search_struct_elements.sn",
+      "source_sha256": "54b9349861557b3b03139c39b2ced2c6d51934b8d83c48da2a814c23086441e8",
+      "c_compile": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "fd72dfe1514bfa03d48150a555bcfb3d344f8ccf64fa0b285a5fc15b7f14af02",
+        "diagnostic_summary": ".sn/build/array_search_struct_elements_3729305/main.c:14:51: error: incompatible types when initializing type \u2018long long int\u2019 using type \u2018__sn__Point\u2019"
+      },
+      "c_run": null,
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "3428124bcfb7eb8f8da9cf0dab6bd01df15d14d5ea099a5cb12ff2a30747a1f3",
+        "diagnostic_summary": "Error: Rust target encountered an unsupported construct in function 'main'"
+      },
+      "classification": "C compilation failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/as_ref_array_element_argument.sn",
+      "source_sha256": "1af01499b6b01f25b3556f4e81dd270862b2d49ef859531ab4b684aff95f2409",
+      "c_compile": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "bf7a60e2667b3b0b404a4224bf70d044be74e68a44d3c1b8777d5b0b3e873f82",
+        "diagnostic_summary": "error: 'as ref' parameter requires a variable or field, not a literal or expression"
+      },
+      "c_run": null,
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "bf7a60e2667b3b0b404a4224bf70d044be74e68a44d3c1b8777d5b0b3e873f82",
+        "diagnostic_summary": ""
+      },
+      "classification": "C compilation failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/by_value_parameter_decrement.sn",
+      "source_sha256": "b196130f29d387b2880dfe7c239e0b5fa6c05b19046a4ce624390c8254ce2a65",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "b09d03cd00dcb328d83d54ac84494db202c9cb44f13a3e115887dac11cd46255",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "2fae3592bb6fc9ae0dab8be58776ea77dde689fed447af7a0b32bd6bb16851e2",
+        "diagnostic_summary": "Error: Rust target encountered an unsupported construct in function 'decrement'"
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/by_value_parameter_direct_assignment_array.sn",
+      "source_sha256": "3a973bfa69382cbca1d29ba0afabd5f4bbb05bf71512f62d859a156386dad7bb",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "3bbfeb039d2c2d222923ab63fea965be146ed81d12f4fb03cd2c0a9c00c7a3f7",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 1,
+        "stdout_hex": "320a",
+        "diagnostic_sha256": "3f4084ef949667b668ad6c63db353069d0e56cdbbaab3400b0ecafc64d63264b",
+        "diagnostic_summary": "==3729417==ERROR: AddressSanitizer: heap-use-after-free on address 0x506000000040 at pc 0x00000040101c bp 0xffffec492410 sp 0xffffec492400"
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "8447aca3b277f9612a6cb2ee59214a8cc4e15ba2f34057222c8af392f3ef257e",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer/runtime failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/by_value_parameter_direct_assignment_computed.sn",
+      "source_sha256": "0ed23613ba4c81e988f66e628d9149b88ad46c94f7ef030831f02a092713eb63",
+      "c_compile": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "236370e7df67d57a747ff85e0ec5aa1d9615a553d0dc90a5cc4b6531898f034c",
+        "diagnostic_summary": ".sn/build/by_value_parameter_direct_assignment_computed_3729346/main.c:13:32: error: lvalue required as left operand of assignment"
+      },
+      "c_run": null,
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "06fa265ecd95bc3b381e68d7c5debe2a24186a4b9afa7f29c3ffffa323f6ce7d",
+        "diagnostic_summary": ""
+      },
+      "classification": "C compilation failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/by_value_parameter_direct_assignment_field.sn",
+      "source_sha256": "4909e37013b7cc1ba5eedb9661071870a6420da50674273b0d3f0f59fc994fa3",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "f2ef33c92fb3ceeee38c8dd7623747d33a20b18da56d47f263e87910e953e8ee",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "320a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "9f5c057e3e75d63bff1f85930dabfd5f480da8695924a19a7a9a8b7b22a2845b",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/by_value_parameter_direct_assignment_function.sn",
+      "source_sha256": "9f2ec1229b84caae9cf9ecd891e9ea09ea37c45ca7ecde2bcf76a774cd506855",
+      "c_compile": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "30fe49bf72286892cf8fc75d89155408dbb7e6738e9468da9ba216624f52650a",
+        "diagnostic_summary": ".sn/build/by_value_parameter_direct_assignment_function_3729400/main.c:38:34: error: implicit declaration of function \u2018__sn__\u2019; did you mean \u2018__sn__two\u2019? [-Werror=implicit-function-declaration]"
+      },
+      "c_run": null,
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "19046cb2b5ae2255c724cb579dba7745a5fc6bdb4b2e9e1d01a4100e25024cda",
+        "diagnostic_summary": ""
+      },
+      "classification": "C compilation failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/by_value_parameter_direct_assignment_nested_self.sn",
+      "source_sha256": "74765185b84810683990a9a416b1bb477b69ef46499caacb50f8be3ec155ab26",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "bbee6238e9634c609a87d83adf3f27a3cf79b7aa14f4b790ed275f317deddffb",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "320a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "a8cead036a67864ee4791932bc2fc0a6c7e341fabad417d3f0c6c06433e908b9",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/by_value_parameter_direct_assignment_ref_forward.sn",
+      "source_sha256": "20dee794117f8b026061c835263ba31f435ff7c6ddc7e50605e6c8aebd6c9fc0",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "bd78ad624a4f100f253ec6cf485cfa050214525a834d36174c66591a229cef5b",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "320a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "4d18d743ee379e0d5eb5edaac349fac10d7b1ad97b48d88aa05aeb4ec9e150b6",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/by_value_parameter_direct_assignment_shadow_initializer.sn",
+      "source_sha256": "117adc8acea87f7ab2953ad689af88a3aad7cbb5e9e2402fa8e264af8f5cc787",
+      "c_compile": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "e16f6a3356143ee0222a3926ae68cfcaf9fd642904bb20842077010d64bf7d88",
+        "diagnostic_summary": "collect2: error: ld returned 1 exit status"
+      },
+      "c_run": null,
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "11051a25bc848b1c94822496a14f18a594b2d5aad3677f2b6e79c1bd8e5efe8f",
+        "diagnostic_summary": ""
+      },
+      "classification": "C compilation failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/by_value_parameter_direct_assignment_string.sn",
+      "source_sha256": "b2478a8688cc329325c9d90b0e41b50db67ba5ea0a4398194863e5ae6e71e70f",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "8879b30f3b048b209fcef670ff43682379f18e9df81a44230598eba24b294f42",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "0bbc1fe05c7a582827cbacd80d3a210cdeca2c3f947276bab35ef31e90694908",
+        "diagnostic_summary": "==3729508==ERROR: AddressSanitizer: SEGV on unknown address 0x000000400fd0 (pc 0xe455fbc812cc bp 0xffffd5ab6390 sp 0xffffd5ab6390 T0)"
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "d094369ec5a0640ccd5451874aef61139cd2d1e17883e39739d64430a88f5d08",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer/runtime failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/by_value_parameter_direct_assignment_struct.sn",
+      "source_sha256": "51b5f1863d79dc39ee96d5150b115a6383db28b28709fc2bc57615d8ab9ad4e3",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "81278598379c35f9718c73aed235a23039a82cd24ba79e8c406abb6e7c0ec080",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "320a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "269f0e818f4e7f3ddb436d3f3de885385d2e7595ff8862fcc6cfcec809ae1c46",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/by_value_parameter_increment.sn",
+      "source_sha256": "a2396e6b466b18c44050d729679b5f8a5a2b61f37ea7df07faa311bfe4c0c2dd",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "f84e8a87a29b2d5bf12ba8be5574c4dfe570e2a8d78397a7f27fb45d9d9e056c",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "e05b4b2b856c8965f5999a2c777b6bece54722a05e2af2178aa698e43c3a550a",
+        "diagnostic_summary": "Error: Rust target encountered an unsupported construct in function 'increment'"
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/by_value_parameter_string_compound_mutation.sn",
+      "source_sha256": "789065537f14b4319aee0bb75bc988b17663ac6b77cf476026ab62a94b2182d0",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "4a00ffb7da56bce01d5b56a9b8e6ed229993e3f72e2b5f860cdade6182532a87",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "2834b06cd4e862583d255ca13b8c52c25fc4bb2f9f6e3bddc68ea53f90baee42",
+        "diagnostic_summary": "==3729542==ERROR: AddressSanitizer: SEGV on unknown address 0x000000403890 (pc 0xf99082af12cc bp 0xffffc72b12d0 sp 0xffffc72b12d0 T0)"
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "b0036ba71bed088b679b24664a6f92f899f69839e8fd16867ba59780c96b2c9f",
+        "diagnostic_summary": "Error: Rust target encountered an unsupported construct in function 'append'"
+      },
+      "classification": "C sanitizer/runtime failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/closure_values_array_mutation.sn",
+      "source_sha256": "5f216468ff74a6e23c3717622a17c2cbbad3a340878e810649c6c96ffe4c0f54",
+      "c_compile": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "038d3c6582895cb653d4d2c4b515f0745d797ad211758131908dfd4e6b001617",
+        "diagnostic_summary": ".sn/build/closure_values_array_mutation_3729530/main.c:32:19: error: \u2018__sn__values\u2019 undeclared (first use in this function)"
+      },
+      "c_run": null,
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "46c176fad73fc113f79bd2a55d5d236a7895663921c7f6f43e150c70cc457183",
+        "diagnostic_summary": ""
+      },
+      "classification": "C compilation failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/closure_values_mixed_signature.sn",
+      "source_sha256": "63ab535f324e0b226239a12cff03890c34f21cbd6ab439efdc3694c0a4fe719d",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "ad1d08d99a7275da2216590819a3b74a3f7bc4c6ff40c94b0d44c1231f29f4c0",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "312e30303030300a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "d3be189321275195024ae7a02cb8826d717d792c95d13aa35d70f5dafe97d4fa",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/closure_values_ordering_gt.sn",
+      "source_sha256": "d4c5f384f12408a97b6c889502f1e25bb500802bb6ca4dbf3db1a390f0f1fea3",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "f545b7e1895618380fa5ff2b7396279c585fcec280ed4546e6fa251ad16099dc",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "66616c73650a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "5350038a879a94b353f07ee4df824c5b0e6f36cf7ae15571ec4a97b8724bd267",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/closure_values_ordering_gte.sn",
+      "source_sha256": "4b356194ed61479a7e271565afbb6b6e19325f2a04bd2b336ce8d9a7dfbe2972",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "3c5822ba6103a3b13d1a4c756ddb72a01c723849bf38b062b91953121185a717",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "747275650a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "50febcec3436c130a83c51f7e1844558ef1b47b0cf1b5fff84051cc21a940c1e",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/closure_values_ordering_lt.sn",
+      "source_sha256": "244d9725c6e05078b7610bc004f820ad70f4fb2906239a4f96687d9a4c949d31",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "6d32ab9bdd4b0c11844fc0148cd8bbbd33812f55a27727a3bcf36b175e3c0bd0",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "66616c73650a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "f90312304994a7e5a780c4f6c80d87c4aecb46bd9d24da54f63b23c4e57bcdbc",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/closure_values_ordering_lte.sn",
+      "source_sha256": "98028d3a423fadb7d6a9b1ec010f37364514999df0e46a1ada1809f20c448f77",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "b6508786cc738eec06c075602d9c3c2a6b6d1174694c94e88603370c4432a4a6",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "747275650a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "eabed67140da3294f27fa063c4977ad84e64b633bc2967c10d8f394fcda9086f",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/closure_values_unsupported_body.sn",
+      "source_sha256": "eafe23f3c5e598951f80a2c2623f8e297127a99cf85dea15fa4ece2c3c9dc518",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "cda91604c905b2109446c1e6455c25de9f9e0e3ac8ec619543326d77baf333ad",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "310a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "efccb41b94b31adf86d22798075329473e7bee06b47e1083e2ed76fc8cbac984",
+        "diagnostic_summary": ""
+      },
+      "classification": "Rust accepted",
+      "promoted": true
+    },
+    {
+      "source": "tests/rgen/errors/floating_as_ref_parameter_modulo_mutation.sn",
+      "source_sha256": "bd89dda0a2caafb1f3d82af849d9c08c4fbc20706d277e6796ef2068c4129145",
+      "c_compile": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "c0529c6ab7fb0f67cd094392c7b08d673ecacd951845952389d317a71c811621",
+        "diagnostic_summary": ".sn/build/floating_as_ref_parameter_modulo_mutation_3729605/main.c:8:37: error: invalid operands to binary % (have \u2018double\u2019 and \u2018double\u2019)"
+      },
+      "c_run": null,
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "88579f69bb7a1470ab3953a9f2a78dfd1631d841d285896e01d5c0ae7e130c82",
+        "diagnostic_summary": "Error: Rust target encountered an unsupported construct in function 'modulo'"
+      },
+      "classification": "C compilation failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/floating_as_val_parameter_compound_mutation.sn",
+      "source_sha256": "e0569b867c05d01b17cf939ea87c65f6cf34b891bb4274556b03b42151c99479",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "18a35c756a8d91a9e8826c82526d77679b62c377905c33dfd5dd997580d699eb",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "435df06d052c9f244c425fa308b8b0c8adb0ba2fb9e863eb81bb6e1249cff670",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/floating_by_value_parameter_lambda_shadow_precedence.sn",
+      "source_sha256": "65c9af00cd3d3928c20ba994d40ed104435b0af67770f6b619a2055c84f04303",
+      "c_compile": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "865786b74a8ac9e3976938b72b3fe923e0b9d0259df417619f8672bc973f8b94",
+        "diagnostic_summary": ".sn/build/floating_by_value_parameter_lambda_shadow_precedence_3729677/main.c:32:38: error: invalid operands to binary % (have \u2018float\u2019 and \u2018double\u2019)"
+      },
+      "c_run": null,
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "484c4ba0db8960af041395b2c418adb96589013af99d6f7438ffc3df730d8a9f",
+        "diagnostic_summary": "Error: Rust target encountered an unsupported construct in function 'outer'"
+      },
+      "classification": "C compilation failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/floating_by_value_parameter_mixed_type_mutation.sn",
+      "source_sha256": "4357c895d8b8efaf1be89a87fbdeb32b3014a3dce15826218cba1c6f44e51309",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "d1d72d4ded60a6d85a059e7ec704ea826eea73e8fa4f99c5a87838f12d5444aa",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "342e30303030300a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "6a192fe30cec58f2574ea99daa244e84ea3b008653b965b4024ff5e95c5bd9c4",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/floating_by_value_parameter_modulo_mutation.sn",
+      "source_sha256": "8a75ec726c76f2bf9ec58a737892472a7ad395e00552c2b2e61809bd6f141c49",
+      "c_compile": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "b82425ff695b4c5b322d442a620051ba154e269ae0ad522dceda8f2956b7304d",
+        "diagnostic_summary": ".sn/build/floating_by_value_parameter_modulo_mutation_3729696/main.c:8:38: error: invalid operands to binary % (have \u2018double\u2019 and \u2018double\u2019)"
+      },
+      "c_run": null,
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "e1614762670b7b4b103f8976278e929c9a1727ec60c7544338cf3cbda9a40c9e",
+        "diagnostic_summary": ""
+      },
+      "classification": "C compilation failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/floating_by_value_parameter_ref_forward.sn",
+      "source_sha256": "919c77488e8b22295baad0a42e93c3353fc21cebfbc8be59467e52f3c1f03308",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "f68359f5687a55b520f1c2ca0fbc4ac07032107bacc21c429d964a8182354ed8",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "342e30303030300a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "40686aed53160f131bfb09aba08bc60d949e29853a3a7c595bd5f517c55dabe1",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/floating_by_value_parameter_self_assignment.sn",
+      "source_sha256": "f74df31fb7d67360697c7b217a1bc177d86f97b80138a86d77790b616eca5856",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "c1a16646ef28738af5a8f86f214bf2fc1d7d160d4e42b847e6ecdc35dfe9b745",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "342e30303030300a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "1565bc1849983a9eb9df2a42a4a264266921b0de5985ce038f4758da3245b16b",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/floating_by_value_parameter_self_compound.sn",
+      "source_sha256": "c8c6aea0797b0719e40f0bc0c4e8ae53e2002daadc91028268f7c78ae870e6e1",
+      "c_compile": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "83308bb16b31c2cc20e074d4ee668b3e6de746fda7a53d550d0457f6bc0c20a7",
+        "diagnostic_summary": ".sn/build/floating_by_value_parameter_self_compound_3729736/main.c:8:52: error: lvalue required as left operand of assignment"
+      },
+      "c_run": null,
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "d3e7876206326773425c83fc7f4796763a785feef75d94b5a3532d5af1bea5e0",
+        "diagnostic_summary": ""
+      },
+      "classification": "C compilation failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/floating_by_value_parameter_self_postfix.sn",
+      "source_sha256": "0c38d7c368ea8c164be1f3d8486676cf3953804d4deff1026aff6e1d5967d439",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "0ad2fc60c74c4d4113ba3b27f96402079b025e281ce431a9221eeafecd1db69c",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "312e30303030300a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "ac59f3649ce7e172e3d549908344679b11de07028ef5e292c737c94352490f53",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/floating_by_value_parameter_shadow_compound_initializer.sn",
+      "source_sha256": "3ba77d1132847aeea4aff0f072379a3f63b74b1b40238feb463190628c3be3b8",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "0c0946388e0231b7d1a9566a5350cccd31c69c6b7dded5343f6cd8a25d34f545",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "312e30303030300a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "bba20eb20a82e9b7536fbb3f06b25a247b789a3a6b06223ec21f35d5a9542282",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/floating_by_value_parameter_shadow_postfix_initializer.sn",
+      "source_sha256": "1e1aed441a158259254936fd7f366d13cd4f6d906aa3674a997610f5a755263d",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "d59d651357feba6c946ac48dff630c36cf7d7bb837b54858be376ed658a510f8",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "312e30303030300a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "1e7e121c0be43c69ded9734399a0397b8a1155f69185f14d5e96557af2d27b5f",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/floating_compound_integer_target_double_rhs.sn",
+      "source_sha256": "3378dae0051cdc2230e704b2b68e34b9eec4d6a5786fdc3d4e42bfb1234e2d2d",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "480fafbec5566b666c09962da2a1322913dadca8cc261081db4728d60195f909",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "4ed22b72afa4b0d3742371d68bf185b9761e0b9defd80c7cbb1bb5ea55c96f60",
+        "diagnostic_summary": "Error: Rust target encountered an unsupported construct in function 'main'"
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/floating_compound_integer_target_float_rhs.sn",
+      "source_sha256": "bc105ac7daeca7feb869c0b6f5376257598a6c6f7669e217f105081b8d257e9e",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "2f945d2380439df25880d0bafaecfbaf67766e4916e9a95b5a88138aa928408f",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "00fcb80acb3933feca4da22b444bac9af5149e7249626d0adb6bb843f325ca70",
+        "diagnostic_summary": "Error: Rust target encountered an unsupported construct in function 'main'"
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/floating_compound_mixed_float_integer.sn",
+      "source_sha256": "f7d91ce234b7871f6ab02946f5ae0caf618db528bbfad0022d77c4698cd6f5f0",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "0aad4f86ec706a154f98d8b68984ebd3954478714d8d03d4a5984b1d4b871394",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "44ccddcbf94231fd2d381d4bdc596f9a1aa395abf9a13364227b64099fa07748",
+        "diagnostic_summary": "Error: Rust target encountered an unsupported construct in function 'main'"
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/floating_compound_modulo.sn",
+      "source_sha256": "533e9621bb9650250db726a8c90f10b56465926367d03f4bbd70255314cb874d",
+      "c_compile": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "298d4ab2118c94174084c590d1617969180897bbceb26a3541ea0e97c3ef2e19",
+        "diagnostic_summary": ".sn/build/floating_compound_modulo_3729860/main.c:8:31: error: invalid operands to binary % (have \u2018double\u2019 and \u2018double\u2019)"
+      },
+      "c_run": null,
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "0988372fa887187d68b5b2800ca6d7df8e326371c70d9aa69c2c050d6d382fa7",
+        "diagnostic_summary": "Error: Rust target encountered an unsupported construct in function 'main'"
+      },
+      "classification": "C compilation failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/floating_compound_temporary_field.sn",
+      "source_sha256": "bfee1d5fffe104622056517c826918d7a16ba704ff0da1a4adc059be4cae0501",
+      "c_compile": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "e10044eb9b49d2f7b3e11c03a8853354571fdeb73572056ee9693151256b6d45",
+        "diagnostic_summary": ".sn/build/floating_compound_temporary_field_3729864/main.c:13:36: error: lvalue required as left operand of assignment"
+      },
+      "c_run": null,
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "c73c9af52f4eae1089e2a2c0a23fe307d45902196783d5389580987411199904",
+        "diagnostic_summary": "Error: Rust target encountered an unsupported construct in function 'main'"
+      },
+      "classification": "C compilation failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/floating_postfix_temporary_field.sn",
+      "source_sha256": "73d7158125212265db45d7c19b096046616fcab6b878b36f424f36ab82bfecc6",
+      "c_compile": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "b367d4c8939028eb38e71ac693b6a9f85dc8ddd8b4756ef6874a34d2158991c8",
+        "diagnostic_summary": ".sn/build/floating_postfix_temporary_field_3729885/main.c:13:35: error: lvalue required as increment operand"
+      },
+      "c_run": null,
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "cb08f990601c6fbd320129d04480b201ea76dd9b1edce6b7054a500729055109",
+        "diagnostic_summary": "Error: Rust target encountered an unsupported construct in function 'main'"
+      },
+      "classification": "C compilation failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/foreach_binding_mutation_type_mismatch.sn",
+      "source_sha256": "e27713d8472b2b9225c217da8ff75a55307706c2ebf92a1cb0fd39d633d1b3d4",
+      "c_compile": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "af1d59ac0c3100485e439356bb30058a8ecc2e8cf4f51faaff4999a18cc467e3",
+        "diagnostic_summary": "error: Type mismatch in assignment"
+      },
+      "c_run": null,
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "af1d59ac0c3100485e439356bb30058a8ecc2e8cf4f51faaff4999a18cc467e3",
+        "diagnostic_summary": ""
+      },
+      "classification": "C compilation failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/foreach_function_array_binding_type_mismatch.sn",
+      "source_sha256": "6beff7da52a1dc9049d4a0c1f7d5888548b68e6fa5d0f947a105b07b22af6ddf",
+      "c_compile": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "b0ac8d594baf42547504379db8651b31d6aed2fb02a19133f13c09aee2c1e184",
+        "diagnostic_summary": "error: Type mismatch in assignment"
+      },
+      "c_run": null,
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "b0ac8d594baf42547504379db8651b31d6aed2fb02a19133f13c09aee2c1e184",
+        "diagnostic_summary": ""
+      },
+      "classification": "C compilation failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/foreach_owned_binding_type_mismatch.sn",
+      "source_sha256": "847019d74ab6e3369980a24731cc3a5de2c584213c98a013a8e18bc4ff428eaa",
+      "c_compile": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "5b2de399a5428e870ee283ed6215ed405e24fcfdc4bba060a5bf72c2405617e6",
+        "diagnostic_summary": "error: Type mismatch in assignment"
+      },
+      "c_run": null,
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "5b2de399a5428e870ee283ed6215ed405e24fcfdc4bba060a5bf72c2405617e6",
+        "diagnostic_summary": ""
+      },
+      "classification": "C compilation failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/foreach_string_invalid_compound.sn",
+      "source_sha256": "1a8e451c71aa21905a8ff3dc569c3d2424df275368ced533fcfc13ab158c4efb",
+      "c_compile": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "7bad8adc074d05de169daab8273f59f25add057afc2c8228a9bc4e29ead7fb65",
+        "diagnostic_summary": "error: Only += is valid for string compound assignment"
+      },
+      "c_run": null,
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "7bad8adc074d05de169daab8273f59f25add057afc2c8228a9bc4e29ead7fb65",
+        "diagnostic_summary": ""
+      },
+      "classification": "C compilation failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/import_pure_unsupported_include.sn",
+      "source_sha256": "81ce27d96114797fb020bfc91d514026805c82148bb06dcbf173ca4c8be87794",
+      "c_compile": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "fd81f12b5c41af28fbc7f8187545fe2898744a504a6c36e1268b40fed2ad4cac",
+        "diagnostic_summary": "error: cannot find module '../import_fixtures/rust_pure_unsupported_include'"
+      },
+      "c_run": null,
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "fd81f12b5c41af28fbc7f8187545fe2898744a504a6c36e1268b40fed2ad4cac",
+        "diagnostic_summary": ""
+      },
+      "classification": "C compilation failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/instance_as_ref_method_computed_argument.sn",
+      "source_sha256": "9fe29943b1b70beba755cedc9d22f23325c0224c1dfa48b831fd777a67456077",
+      "c_compile": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "b28601763457daf709e28d1437da288b887bb1358ab0f9f397f32839d21372f6",
+        "diagnostic_summary": ".sn/build/instance_as_ref_method_computed_argument_3729928/main.c:15:35: error: lvalue required as unary \u2018&\u2019 operand"
+      },
+      "c_run": null,
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "0d60ca47ef723a5d360d4733312aa91e1acdb5567ec37f282c6bd1bc67c04df0",
+        "diagnostic_summary": ""
+      },
+      "classification": "C compilation failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/instance_as_ref_struct_parameter.sn",
+      "source_sha256": "88f82352d4542e936d2736f018aa116a52a002c076cb110ecb17d570dece7138",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "be51298f1f1a68f0dd0b24bdb4f46d533dedd161ea296b353c4c7c865e638eb9",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "330a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "7ddf7ea5460fc97145b4834b7dfa04ef509d0000abfbe53e30fb081d13d43285",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/iterator_protocol_char_postfix.sn",
+      "source_sha256": "149c6c049722a5280c81bec05593a91bc7a202ddf2cd0b6d8a993b2e4c4fadca",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "1f3d9bae26bbec71ce5aee1e32e91445962e7620e75a509ac729e777c868e8b1",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "356a855cc29ab3e274ffe5016361784b62fed04ffdbad998b5964fe149759cd6",
+        "diagnostic_summary": "Error: Rust target encountered an unsupported construct in function 'main'"
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/iterator_protocol_float_modulo_mutation.sn",
+      "source_sha256": "916dad98e6d6fd061736b75f5c0b9573c93c7c8877ccc9e62c66d1873ece7bb7",
+      "c_compile": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "26efe2b579430d119d5ac8a2c9a076dcf27a027259a6f55d4b10063345dea660",
+        "diagnostic_summary": ".sn/build/iterator_protocol_float_modulo_mutation_3729944/main.c:29:43: error: invalid operands to binary % (have \u2018float\u2019 and \u2018double\u2019)"
+      },
+      "c_run": null,
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "5a0dbb0af6d2414d799d090ee8e435b8d702e032149b98c5a699953bd8a9a1fc",
+        "diagnostic_summary": "Error: Rust target encountered an unsupported construct in function 'main'"
+      },
+      "classification": "C compilation failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/iterator_protocol_missing_next.sn",
+      "source_sha256": "fa92dee96d718fd27c4fd7fd0815f4fdc9004a5ff81ace891900fee8430b3bd9",
+      "c_compile": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "6ebbb3ffce687b792c0bbc34cc8eed5f30a89af6bc7b34769afe8d883c871657",
+        "diagnostic_summary": "error: Iterator type 'MissingNextIter' is missing method 'next()'"
+      },
+      "c_run": null,
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "6ebbb3ffce687b792c0bbc34cc8eed5f30a89af6bc7b34769afe8d883c871657",
+        "diagnostic_summary": ""
+      },
+      "classification": "C compilation failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/main_non_int_return.sn",
+      "source_sha256": "ec6b66a4bde39a75c3e25a89d38e13e787dcc8255939ca8824b55f01e9b63d67",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "46448844e32e81b068aec3717a34e29711f33e7f621b2853a179e0018e72a7f9",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "5b3e8f56485d2c17e391c4f35736a214da23b408d8b0774926e1acf1aa49812f",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer/runtime failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/main_non_str_param.sn",
+      "source_sha256": "bbfdd2fe9e784e15ed2561868d2366b90dddc44aba9cd447290ceff6321c85d0",
+      "c_compile": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "d96362ba4a2f6791db230d02cb27ce6361b526e37d1fe5163b663c69d5eb802a",
+        "diagnostic_summary": "error: main function parameter must be of type str[]"
+      },
+      "c_run": null,
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "d96362ba4a2f6791db230d02cb27ce6361b526e37d1fe5163b663c69d5eb802a",
+        "diagnostic_summary": ""
+      },
+      "classification": "C compilation failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/match_pattern_type_mismatch.sn",
+      "source_sha256": "ff98ece07752a7240a05f0c726ee4aceb86beb3b7e209cc1ecb59c5a104f69bc",
+      "c_compile": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "65e36069f68fb5caed80b829251b67ad12e47737b6688d770909c855a33e21c0",
+        "diagnostic_summary": "error: Match arm pattern type does not match subject type"
+      },
+      "c_run": null,
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "65e36069f68fb5caed80b829251b67ad12e47737b6688d770909c855a33e21c0",
+        "diagnostic_summary": ""
+      },
+      "classification": "C compilation failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/mutating_instance_as_val_struct_parameter.sn",
+      "source_sha256": "2d6cb36524eab77b1aec2a71347810625426a16b94c01606ed9ae93bc09ace18",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "8f890556c758bf428f78e8b467d6de63ebfd0aba5f4d4bd48fcdf777d071ff02",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "330a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "27a8e2875784a932caea124b9a024fb969b5b4799f62433f588db47dc5346ba3",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/nested_as_ref_parameter_compound_mutation.sn",
+      "source_sha256": "c7111863de7e4f3b65c9ea4fc639daaedd2cf3fe4a25e632a850aeef19ea5ff9",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "d01887b4b22575a3fa23bec4ee0c33743a6d63798b274c75747ca5203972581c",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "350a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "a1c75fe09272ff982a1a50cc237689adbdb8386b5e5f5b0d0588ef5c5595d530",
+        "diagnostic_summary": "Error: Rust target encountered an unsupported construct in function 'bump'"
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/primitive_conversion_double_to_int.sn",
+      "source_sha256": "aff4c08f536a864e6faa696d9cfcd755d3f6f3e53490409f09fe350e291bef54",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "64cc956fefa9044cdf3c77d2b3f153985a6e0dd586bd2a686bdfe88d3336125f",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "f1a3d1cc91bc2e41ca111dd7bb5047f97490c6ad8c33c3fd4f3cc6e6ce616197",
+        "diagnostic_summary": ""
+      },
+      "classification": "Rust accepted",
+      "promoted": true
+    },
+    {
+      "source": "tests/rgen/errors/primitive_conversion_int_to_char.sn",
+      "source_sha256": "e9e67c08274fb2084c7905b1e3c6538932fb6f2eebb5c1751b34c32786b862c1",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "6b6e58fe323bae5249f0d7d46a3abbd43771d57d142b0b47f18aa7db8876634e",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "8823170021b0dc0f0afedce85148128a9e44a5f6fc6d6d620e4aa1edfed963f8",
+        "diagnostic_summary": ""
+      },
+      "classification": "Rust accepted",
+      "promoted": true
+    },
+    {
+      "source": "tests/rgen/errors/primitive_conversion_uint_to_int.sn",
+      "source_sha256": "ef74d7ca9640699a160ac20b5d44dde7ee54455afba798738c4874cc06a7e9a3",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "eefa1b24989371346661618c263b610a8555daeb61fe5b9b939e527f7015a3a8",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "24c5b4666ae97a7da55b76c900de1b6407ba8a08887e16340538181efd9af265",
+        "diagnostic_summary": ""
+      },
+      "classification": "Rust accepted",
+      "promoted": true
+    },
+    {
+      "source": "tests/rgen/errors/receiver_array_alias_indexed.sn",
+      "source_sha256": "cf0ce91d489265d73caea05878d4c6476a7348bbeaf6bc0e0329b02258a7469a",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "abe7d9447adcaa2d954d08347e85748d4ef199d4e71a4c73b228cd38fde173bf",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "320a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "7263b868e413741fbeac0582b1d1b1e5ce4ea93f3048f5de14c495df9c98aaa3",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/reflection_name_conflict_field_info.sn",
+      "source_sha256": "8543a80ef203d95b0a94af71517e5f74f09cb2611e1a375f198d40a46e03a381",
+      "c_compile": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "0993f118429974ef044dab18b3b1590e2e76c7f8065fdb9b2fd577c567d9cb43",
+        "diagnostic_summary": ".sn/build/reflection_name_conflict_field_info_3730093/sn_types.h:22:3: error: conflicting types for \u2018__sn__FieldInfo\u2019; have \u2018struct <anonymous>\u2019"
+      },
+      "c_run": null,
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "ecaa7c1599e4b11e7829eb5df4a095e57128653d992fd4372d90aeca29cb6f51",
+        "diagnostic_summary": ""
+      },
+      "classification": "C compilation failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/reflection_name_conflict_type_info.sn",
+      "source_sha256": "b256fad7c921c5efbc32d00a6e8e5a262f2b5ad46d9664c64801634305f2b7fc",
+      "c_compile": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "6ef5c4fcfb8135f11cb960ab864428f93269f4c1d82959002814e49ffe737394",
+        "diagnostic_summary": ".sn/build/reflection_name_conflict_type_info_3730113/sn_types.h:22:3: error: conflicting types for \u2018__sn__TypeInfo\u2019; have \u2018struct <anonymous>\u2019"
+      },
+      "c_run": null,
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "de00cee5229d6486339911f91a9a4b129140e414b69098690a3fc8d971cf5a4c",
+        "diagnostic_summary": ""
+      },
+      "classification": "C compilation failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/resolved_operator_aliased_array_elements.sn",
+      "source_sha256": "c562d53957c6f003d78ff62821d4a40893f60afc381ead00b776bfe9fcb6aa58",
+      "c_compile": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "7ba2958c33efcd9172173c50a6b7c8fad6bfa1f40272cbad6720ebc3c86e1717",
+        "diagnostic_summary": ".sn/build/resolved_operator_aliased_array_elements_3730124/main.c:23:190: error: incompatible type for argument 2 of \u2018__sn__Item_op_eq\u2019"
+      },
+      "c_run": null,
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "caacb522c3531df7f27973d5c876f667d3c91118f13412b714f2412caf6dbcee",
+        "diagnostic_summary": ""
+      },
+      "classification": "C compilation failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/resolved_operator_aliased_receiver.sn",
+      "source_sha256": "b7d070c6015f09d9b85f3b1d95cb22a2313e234b2ec68211cdbdf4e601adf224",
+      "c_compile": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "1232a88f2673abd4bf082677dc3086099ea206bbed88e7622549adc2e395fba8",
+        "diagnostic_summary": ".sn/build/resolved_operator_aliased_receiver_3730138/main.c:13:51: error: incompatible type for argument 2 of \u2018__sn__Item_op_eq\u2019"
+      },
+      "c_run": null,
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "e7e79cb47579bcbb080990431c7c833e1b58b6e776568b57865d4b47b99a9801",
+        "diagnostic_summary": ""
+      },
+      "classification": "C compilation failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/resolved_operator_aliased_swapped_receiver.sn",
+      "source_sha256": "4695f5bb4b5ff5c2f510177fb624aab180bbf50ce7318ffa7f5fddfa2a543990",
+      "c_compile": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "c9e0975b96913fb6aae8090c9beeb9e4fb4c8e091214debbcf409a2d411534ff",
+        "diagnostic_summary": ".sn/build/resolved_operator_aliased_swapped_receiver_3730145/main.c:13:51: error: incompatible type for argument 2 of \u2018__sn__Item_op_lt\u2019"
+      },
+      "c_run": null,
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "da116bd9f87d921e9bb6b8431b5ae0530072339c77aa597bba6018708d75b171",
+        "diagnostic_summary": ""
+      },
+      "classification": "C compilation failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/shared_frontend_import_pure_alias_value_struct.sn",
+      "source_sha256": "e74c4c2542eb864745641e9c12526505f4f9c3110fb9aa0309c6b756703f4bbb",
+      "c_compile": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "a53a2e5382be1af90238178d247361a8c2907209955ff079c65cc4f5818d9767",
+        "diagnostic_summary": "error: cannot find module '../import_fixtures/rust_pure_geometry'"
+      },
+      "c_run": null,
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "a53a2e5382be1af90238178d247361a8c2907209955ff079c65cc4f5818d9767",
+        "diagnostic_summary": ""
+      },
+      "classification": "C compilation failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/sizeof_missing_paren.sn",
+      "source_sha256": "da7dd8b06b4513f44dc286a9dd4824e0a6a14690cc8b6ac030e407ebb0eb61d5",
+      "c_compile": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "1595bdd8b78ac502d4ee2fd4606fdaaf022995fc5f03f065e3db6b7d6768992b",
+        "diagnostic_summary": "error: Expected ')' after sizeof type at end of file"
+      },
+      "c_run": null,
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "1595bdd8b78ac502d4ee2fd4606fdaaf022995fc5f03f065e3db6b7d6768992b",
+        "diagnostic_summary": ""
+      },
+      "classification": "C compilation failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/statement_match_array_subject.sn",
+      "source_sha256": "d73245c0cc5e65279017796eb5546e0183489333642816b597df6b6d2c1ac62d",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "2a98566f05fbf22e130f4d3235945cc346283f5deb97cdcea4832a4a0a7d867c",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "e5dd355abe5f53c0d91df4d13685fec50324ca751b4079f60ee253ec8edd73ae",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/statement_match_bool_dynamic_pattern.sn",
+      "source_sha256": "d4ab3dc439fa65b211558f97f6534b88afe6b65ecace6137bd2c8eea1e6ade09",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "81ef6dc74b16d441ebecc0612c2106f4e1cc75c4a963991529b190881e5f5a65",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "6d6174636865640a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "4dc69967812ff36525a2a7e67f242585cb375f42e9970c668e112062eb3e99f1",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/statement_match_byte_out_of_range_pattern.sn",
+      "source_sha256": "c25c46cab307ed300e215be7471415f77417b6f1492228bd859c07e6044203e6",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "eeda15f7e8ed7a628829da340c8dfb04dda257300ff13c36c2242dff4dfb6b91",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "a1c03a3edc9396a38b8dcce96cdb9ca32c78d795221ffa0fbcc234f283ee949b",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/statement_match_double_float_pattern.sn",
+      "source_sha256": "1b25b7945074e688820433cd24cd0fc4afe2f053573050cfd4707635952bb4b0",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "2b93162ab9db4f662e75a86d07a24e9ecee83678b3e81b819aa9ed72f17c41ec",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "6d697865640a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "24f7c88ba24eeefeabe5095e55beaad851fd0881aca857ccc9c690800e11dd14",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/statement_match_dynamic_pattern.sn",
+      "source_sha256": "afdbb22bb85869d4360eefcf12846e911dde7d79fb228b241ff84bf730132ce3",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "3428e4101a59724b1315e7bba5d31425e20dba549f4ea57016daf3548fed27ad",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "6d6174636865640a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "ed2bb0eddf685f53b920dd90d448f69698e2a025aa9d7152ffb19c80d5b8cfd0",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/statement_match_float_double_pattern.sn",
+      "source_sha256": "142714f2856e42fa8a396f095e9ead22f190337024ea48251151ffde4e6c6718",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "b61bfda32b214e134f759c3ceebc896432d20e3730e4b0e8c22ce211818b5f19",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "6d697865640a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "8bd7ed4991247d6a75ea54b9d19ed281d96eb1810bf713e519131dca277675d7",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/statement_match_float_dynamic_pattern.sn",
+      "source_sha256": "718877332d6f4bae16c01a43a79c11f5afa32cc9074eaa2052a683f81d1795de",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "0cfa50c305b16658c4067802cbadf8ab2c3af4eef3464e22dce1d7503ca54b23",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "64796e616d69630a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "2110eab12a9d028b5a1efacc66d9f8b6db352cad581bb4b6fedbbc112215d080",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/statement_match_function_subject.sn",
+      "source_sha256": "bf1fc0594fba4b60b4bba328b24bf18be2db7d705db418ebbed13d3c8d465d2b",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "f4028f08c662d2c600250acde95628b3cb2780c95ceba8c4e038010584e266f9",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "6f6e650a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "59c6bbe709d68a0d41d10fa4ec7d91f61cba1d3578786283788148f90732ed13",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/statement_match_owned_struct_subject.sn",
+      "source_sha256": "d6b2f59b018c959c6c170fb2ede79803fa3321d5c49c41ad157bd0ded4f9841f",
+      "c_compile": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "658c3647c6b6617d46a89b08663572293a7806711cafc171513358e9bf60efaa",
+        "diagnostic_summary": ".sn/build/statement_match_owned_struct_subject_3730300/main.c:11:35: error: invalid operands to binary == (have \u2018__sn__Payload\u2019 and \u2018__sn__Payload\u2019)"
+      },
+      "c_run": null,
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "7619e27377dfc091c76238fedfdd42436c1e66ff1af10d03c5cc242932c9e0dd",
+        "diagnostic_summary": ""
+      },
+      "classification": "C compilation failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/statement_match_string_indexed_pattern.sn",
+      "source_sha256": "4a4c3d11ddb930449db339e7a9f598c386f788ff7d4ed565f4918b1cfec5941d",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "e8430ea0e201129230b12dfa69effdd6c82070bacf3742f3e091b09bdc1df267",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "6d6174636865640a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "7f5f6658fc4690dfd95ab47013aaf035392c5c842be8748d7cf6a743a763a8b2",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/statement_match_string_partial_concat_o0.sn",
+      "source_sha256": "4ff66842d71c9bbb75e34d3b2039a98d5f088fe7eb45b05da25f572ba8ccc8c6",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "1fb287fcc2a86b5359bfff53e7e7e48d348516b407967e2946482e513a1bbed0",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 1,
+        "stdout_hex": "6d6174636865640a",
+        "diagnostic_sha256": "9cf353df5b8e3dfc8c0e7f905159df2a68019ba73ee2b45c7bd26b291aafcd6b",
+        "diagnostic_summary": "==3730380==ERROR: LeakSanitizer: detected memory leaks"
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "1d948035b33d4398bd9d8d4dbc85a0f3233900fcf24fec6eeb9e130864b4ce58",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer/runtime failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/statement_match_string_partial_concat_o1.sn",
+      "source_sha256": "4ff66842d71c9bbb75e34d3b2039a98d5f088fe7eb45b05da25f572ba8ccc8c6",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "cccec1da6b10ad648bd3c8c5d77ad557ff509bad75f09cfa2b980cc29b415261",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 1,
+        "stdout_hex": "6d6174636865640a",
+        "diagnostic_sha256": "e2ef89d3444bce7fc747a7231c814682591faa4584c1570ba0a4b4ea5d6253be",
+        "diagnostic_summary": "==3730373==ERROR: LeakSanitizer: detected memory leaks"
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "aad391126dc8e55f66532825c13ff532c57548daae321015d33c91561f5dea7f",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer/runtime failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/statement_match_string_partial_concat_o2.sn",
+      "source_sha256": "4ff66842d71c9bbb75e34d3b2039a98d5f088fe7eb45b05da25f572ba8ccc8c6",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "ed8566f0ef1eeb596309b5644cd6102ce56212030e032df1d07b5f9d027fce44",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 1,
+        "stdout_hex": "6d6174636865640a",
+        "diagnostic_sha256": "321bc7f73cd6c5cd2d3a6ddb9e97793e010b7d443442fe3248e40d3241e60ed6",
+        "diagnostic_summary": "==3730392==ERROR: LeakSanitizer: detected memory leaks"
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "774b453b696588e4b74f1eba148f08e851f8529ef2f7ee33fa6bf70feb0edb42",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer/runtime failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/statement_match_uint32_out_of_range_pattern.sn",
+      "source_sha256": "6f0456c498e0e44b3719c25cd2fbc66c10e112e19d9f0fca78aa57d33b610c90",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "1e5bb9dd44b25cc74e85ff8406edc5092bcfeb78a33fbe2496f569d0f67d2a9f",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "278753259ba952a0a9fbce6dff45f79fa9d3c24ec7eb6b2179d19e4208676905",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/statement_match_unsigned_subject_negative_pattern.sn",
+      "source_sha256": "7dcd0250154a85b7992af25d5ab01e854ee436f3d5cc983dae64b3220759d275",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "15178f07db67bdae1aa52c86926bb41d597ce35558807668a421fa3933ab5646",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "476f5e066dd5d3e587af15dd3fc64666f7f96cee14d0d553ee0c1da1537d0760",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/static_as_ref_method_literal_argument.sn",
+      "source_sha256": "ef9f0ae4a30ba20fe3e28e1ab3198f9a97e824a124e63d0000b6ac19152076c7",
+      "c_compile": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "bb6e63e8ea5093dc2b9d22ebbe19e1663bdb0122f05bbeadf8b3cbea16643350",
+        "diagnostic_summary": ".sn/build/static_as_ref_method_literal_argument_3730415/main.c:14:23: error: lvalue required as unary \u2018&\u2019 operand"
+      },
+      "c_run": null,
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "89bee2e002eace4b260932e990f8fdaea814668b3438e9e736a671ae1fc0e86c",
+        "diagnostic_summary": ""
+      },
+      "classification": "C compilation failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/static_as_ref_method_temporary_field_argument.sn",
+      "source_sha256": "57c78cd61fc511823a981c5a69edb62c2ba850d6c8c62cabc6323b56b2e92617",
+      "c_compile": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "d372aa2596270cb1540357fb13999f748dd860e2013e93558bf66b4c38f1c6ae",
+        "diagnostic_summary": ".sn/build/static_as_ref_method_temporary_field_argument_3730419/main.c:20:23: error: lvalue required as unary \u2018&\u2019 operand"
+      },
+      "c_run": null,
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "4f52d465d268fd6aa4ee3121cd067c39ecd405c2c1d7f984b838cd910cc3e475",
+        "diagnostic_summary": ""
+      },
+      "classification": "C compilation failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/tagged_byte_by_value_alias_mutation.sn",
+      "source_sha256": "29dcd766c60e1e59f70b2900c1e47138e4bc21fb22ac2ae0cbeb9afcf723b43c",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "a9dd7e2aca693421fab622ed3f53519f32e109ff61be53c3d121236097311ce4",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "307830340a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "b884d4401c1cf79bcaaee04baacd07e390fc2e891a8b6943c1028e802a0baa14",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/typeof_missing_paren.sn",
+      "source_sha256": "a53a43d4a25160851fbaaa29b9c9e2ce76e6224d9af8d240e37a021539df3b9e",
+      "c_compile": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "8a31b4a43800022915c3f8278272bedfb80ce912fcfd5502472fd956d10938d1",
+        "diagnostic_summary": "error: Expected ')' after typeOf argument at end of file"
+      },
+      "c_run": null,
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "8a31b4a43800022915c3f8278272bedfb80ce912fcfd5502472fd956d10938d1",
+        "diagnostic_summary": ""
+      },
+      "classification": "C compilation failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/typeof_void.sn",
+      "source_sha256": "1d973522b707d06ecf8b4c43d5e9fa5ea6270bd162b48edb97d4775589c4bd4c",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "b3eabbeadd4406b488427f0f35a749b74d4398e1374b87e59f9a895eb9f86457",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "766f69640a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "1e41e2bf52bfcab8010dcdd1d984fd15db013b8c4ae6168e4af7ff38f24cfe0a",
+        "diagnostic_summary": "Error: Rust target encountered an unsupported construct in function 'main'"
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/value_match_array_result.sn",
+      "source_sha256": "451193c65aa5a947aca49a984436f0eb8cfc5da79f9bef65a89ee179c18bb7a7",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "a1074957d50e3bbbf4bac83c407259b912e8e5867fb920a9967be7776e7b4656",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "310a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "1d769267298fc3a44f1227567f4284ab3d85ab4e24c129978e929fa6bc04d59a",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/value_match_bool_dynamic_pattern.sn",
+      "source_sha256": "28ba7ee7fe202e197c8a982e5006136db83f9dd83b11aef7c11b4d6faf639040",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "b93a148986ba6fdb025c726129306d277b59f3fef99dd0e448e75b2b82185641",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "747275650a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "968755588b9b3b6c2debb084c4175e29128e54a6f1aeebd64cf90bff3985974a",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/value_match_double_dynamic_pattern.sn",
+      "source_sha256": "a525006a9be6a7a18eb526ab3b1aa748506742fc6cb54be0330609cd639ab9f7",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "0c26d8b0ec212f5061ef14076765cad01bf58021a6635a7a4ade64610bd82158",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "31300a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "57c8f8f0bf10bd97dec0601b51edb4ba4479b9825072a6ca534a18db0dc512d6",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/value_match_double_float_pattern.sn",
+      "source_sha256": "203f1b92275e7edfab2d70e429021b53c29664d662d8eeffe08178cbdafea12f",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "e98001252d9b22f6dca22c24b638caa06e7590bf7bf4a6d9b7e1e8a7fab25619",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "31300a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "bf38d5de265690eaef9841e2098218ca486f55bbe4910647d1a9f09c7e98cc99",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/value_match_duplicate_else.sn",
+      "source_sha256": "29b59669dc13b5238748e77f807e6503feaec330183d32173c345f428f7b08db",
+      "c_compile": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "bee3c7acf205f79a571c85edd916aa5e1e58a56f20ba58ac9359ceaae5f8f35e",
+        "diagnostic_summary": ".sn/build/value_match_duplicate_else_3730550/main.c:14:15: error: \u2018else\u2019 without a previous \u2018if\u2019"
+      },
+      "c_run": null,
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "0a011d03aa9db10e444ce386231fd1d34e91a3f2cb818238fcf2bfc7e6c68004",
+        "diagnostic_summary": ""
+      },
+      "classification": "C compilation failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/value_match_dynamic_pattern.sn",
+      "source_sha256": "8214ce362bfa9e0f73ac6b07abab3699a20ea08498cef01c3844054a949dbace",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "98272c3d094ea1980af349f4b5924c60f3b607710437928b3e20d2bdd0f11163",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "31300a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "325bbb370059b3f1559517777c01f009602b14e61d3e0e4245431b8dd4a96014",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/value_match_else_only.sn",
+      "source_sha256": "54919db64d51626e12b10661acbfa979189c2e0a3487666fc7efd948bbcc7910",
+      "c_compile": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "80343adcd280dcd4798212eab34708eca495726a9b3192bf0bee6ccdcb6bde3e",
+        "diagnostic_summary": ".sn/build/value_match_else_only_3730584/main.c:10:14: error: \u2018else\u2019 without a previous \u2018if\u2019"
+      },
+      "c_run": null,
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "5823e781874b7194d38715d5b627d43fffeb2911045cc722c21cb46c4f9ecc78",
+        "diagnostic_summary": ""
+      },
+      "classification": "C compilation failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/value_match_exact_float_result_type.sn",
+      "source_sha256": "56685539e3a0a5a0860a11505dbefff12e78da2004d5a9d4118342bd4da0c2e4",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "430476b86b949fd2b50448b2b30c8ab58feec28f3b5f5a650fea0cb39d407a3e",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "312e30303030300a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "6883a154fb35e46707bc5d9b8353de07fe0e00d203b5fc3c985ab79be4fcc055",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/value_match_exact_integer_result_type.sn",
+      "source_sha256": "12eef57abe4a726198a193e5ca3915caeaac56e7b99bd9c61c88b3ffc27ac9cb",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "1b6a000b8ad3712c43112262d4b380bb1222f7cce1340dfef53771c5e339f7a0",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "31300a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "9fa811826e158e28420dffd5dc33e168947c066007e9135cd01839aa8addd97f",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/value_match_final_shape_before_prefix.sn",
+      "source_sha256": "72957a6e611bc60b5051675fa8ebe24f21031a683691cf37a3428841b8c0de5d",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "91f5186399fea9d3c86dcd81cb30042907fa9558d4d62d12cc85c4428a48cfb7",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "31300a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "93cd157ff282c030589f33c8a05bc1dd0b3847c0f6de42b5da7323fa3ecbac6b",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/value_match_float_double_pattern.sn",
+      "source_sha256": "ee7a1795b457ebab8f11f252aea4f8475bfbe244bfe40d2844392cbd2e394a74",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "79dc4265153849d70aa107acc19de252af3428c7c9f111a4996fe582b5ecd6fc",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "31300a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "aeb426a4302654ef35963711fe399ad1a2b9a236d93e3673c22381bad84f14cc",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/value_match_float_missing_else.sn",
+      "source_sha256": "9e4c23b53ebe1c796b4de611a2f0d5c64f90e665ce87571fced6c4287764b05e",
+      "c_compile": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "397708b6d0fc86fd6264c72bdcc99e7c4205a2b26f49bd110174fbfd0c67fc90",
+        "diagnostic_summary": ".sn/build/value_match_float_missing_else_3730654/main.c:7:10: error: variable or field \u2018__sn__result\u2019 declared void"
+      },
+      "c_run": null,
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "f980f3e6bb4397173c8e26f1ffdfd9aaa7b1b880ea2ff618dfb2721c56873c74",
+        "diagnostic_summary": ""
+      },
+      "classification": "C compilation failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/value_match_function_result.sn",
+      "source_sha256": "c665246e5109644e7f38c90c292a0ef070ebf969a9809d1dc1377f13ed2387a5",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "9170dfcb7033457047c90bcc02913a0000596b4f34c765c69b33ccdfb9d321e2",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "f65a9f58d968d3368fb0925a67a669249e508cbccfd7085cc680c04e8f7b93a0",
+        "diagnostic_summary": "==3730746==ERROR: AddressSanitizer: SEGV on unknown address 0x5f03c0d2800020 (pc 0x5f03c0d2800020 bp 0xfffffcc22e30 sp 0xfffffcc22dc0 T0)"
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "b24224016c37d68ad47487719f4112c9c26327e95609adf7d491a236205d4d00",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer/runtime failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/value_match_int32_out_of_range_pattern.sn",
+      "source_sha256": "54907fd549e7498a1fe5efbb10358aac53cafdf478685b194f85d431ebbab82c",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "d8138cebbaeec9714e70290f9f827ed7443922beab0b62ad0c3a0de6e50fa170",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "300a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "122cabe05d8225dd1c2ac9fcd01191b1d26f5a126265ebfffcd47074aff8da0f",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/value_match_missing_else.sn",
+      "source_sha256": "fd6cad9f4f1c6c57fe9d579469d8dd1374fe08929b962f19637682acd50d6ec9",
+      "c_compile": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "519edc6a6eedac428348df926c8679b921830b378554a00d94637678359f2313",
+        "diagnostic_summary": ".sn/build/value_match_missing_else_3730694/main.c:7:10: error: variable or field \u2018__sn__result\u2019 declared void"
+      },
+      "c_run": null,
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "869b7e8a00f0976ca3d6a7fd84ad7158d753ff6bf26859d45a013df31aa027dc",
+        "diagnostic_summary": ""
+      },
+      "classification": "C compilation failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/value_match_non_final_else.sn",
+      "source_sha256": "ff4154d94a4daf1ba8886015cc435d908ebd8c08a24b805f6b6e3f67d7b454a1",
+      "c_compile": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "2518df4982ccf73e8e5294434a16658b24256b8e22abbf9274033ad0cf2ac8cf",
+        "diagnostic_summary": ".sn/build/value_match_non_final_else_3730709/main.c:10:14: error: \u2018else\u2019 without a previous \u2018if\u2019"
+      },
+      "c_run": null,
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "6d39c684c4782d3974e8d0c461b43d3f6805cb4cd94977e362916066b76fb5db",
+        "diagnostic_summary": ""
+      },
+      "classification": "C compilation failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/value_match_owned_struct_result.sn",
+      "source_sha256": "f36cbbdab407f0f47ee4fac01c8dfc755b9b372d62a3bf3c9faec8b7f8cb8ee4",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "e22f21f1a891323085d2a18028327440933513c8d4171dc2fa2add9b3c2c4b62",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "6f6e650a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "ab9fabf7e2da6cca08a2a69ab8fd932bb4fd6271d1db1e31fd0dbdffd1665200",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/value_match_prefix_lexical_order.sn",
+      "source_sha256": "3a52d11efb0c2ee548508e01dcf73d842063fd0eacb2e712f2b7c60bc63ccb46",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "30ed9dddeab881414b7b5a34978ab63e19286ca22d312a0c583aef6fb04a0d7a",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "31300a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "a9b47163505b2e624a595159c2e491d5100be6fdfb630dcdc7316492a848a1de",
+        "diagnostic_summary": "Error: Rust target encountered an unsupported construct in function 'main'"
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/value_match_string_copy_of_result.sn",
+      "source_sha256": "2a6f23d7ae02a8f28c38ce9d11869fd9d9aca02a26fd8b4dd2adcfcf825989f3",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "8483eaef07c7e2298e36cf258bccf3ee1716c5efad76f7a22c70292dbe4b11dc",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 1,
+        "stdout_hex": "6f6e650a",
+        "diagnostic_sha256": "ea4c7a244b7f0786b2ea8fad0a50d23f6bb6013df6358600a3b15ba3b003f04b",
+        "diagnostic_summary": "==3730813==ERROR: LeakSanitizer: detected memory leaks"
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "a1f95aab191bd46e872dfd145cfba2e7cacce348963a1ef0b1a8ef079c074025",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer/runtime failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/value_match_string_free_call_pattern.sn",
+      "source_sha256": "ece411bbd1ddc023d063e20a00b8ba44c5fceaa61c934a38eba9b4a78453bcd1",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "11ff8dd15c34d70374117da3017c79abbfccef46d91caac551b5431ceb99194a",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "2adeb640a346c2c739fe4352a318c6771766693fe4d088d2e5bd412d4f5b2f68",
+        "diagnostic_summary": "==3730818==ERROR: LeakSanitizer: detected memory leaks"
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "f7ed43e70be40c8c91230d40096d4db0141f5d5c0a7d46d7d5adafd29c901a6f",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer/runtime failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/value_match_string_interpolation_pattern.sn",
+      "source_sha256": "f8565f953cdd195cb0333e6a7cf4053b66915c1d62b256fe89af4a9e29529229",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "fb351fde13adb615f1e6a47c2992904a27908fe783cfd02edf9fe342af29b5b7",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "fb9372014a2bc47943eadbe91b744be69648f529f1f9cf75c4dd05d275a13ab6",
+        "diagnostic_summary": "==3730833==ERROR: LeakSanitizer: detected memory leaks"
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "0927a3428a7281f459f57660630d18aff48f33f5efbcd19157cc348e601c9df5",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer/runtime failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/value_match_string_member_call_pattern.sn",
+      "source_sha256": "65dcfcdc58c8aded42eb9163cc6c8f18b38d8959ed81f733d9c836c781d0fc0b",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "84d29f3f434fccf4a0fe3a0eb0a8788f31003e468f999b718035948d2eb1808c",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "e1191b9e11b86d22f18814d10c03ddb31be107ebe75ac5a526fdd129e919a182",
+        "diagnostic_summary": "==3730838==ERROR: LeakSanitizer: detected memory leaks"
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "d3559a42262bb8d055b80c278592c7785e18c27d64ca1a1c0d33818a08c32119",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer/runtime failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/value_match_string_mutating_array_call.sn",
+      "source_sha256": "bc6f1030a5dd2330df578b1664b8723b98378f7f9a6fdb431dae80b7cc35719e",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "6d0430f6741bd3d094f6bbafebe1858c2a47d6ac9c5472bb46f64bdf50db7cce",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "6e6f0a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "1107e4346dca907190fd298cc1f8b125856fc9fc574bfda8dfeaeb570b5c93cc",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/value_match_string_mutating_assignment.sn",
+      "source_sha256": "a691ca44b4b19c8aaa08673126f92c8a6d0c835fe965910493018543e2a5050a",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "4092261feaa94ffd43cc726da7cb45edbea285ad0d5db795b00401eca26a7737",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "61667465720a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "407cd0aa0e3e6b33203b0c7ee6fe95cd434b64bf65422da8c912e1b884dcdbb7",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/value_match_string_mutating_member_call.sn",
+      "source_sha256": "8ee33a464b7eca165e14a8c6d461359a95e15df3d571c97fec2bfb485619b8ed",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "222a4b0687c0310efb6ae177391c6f2c3f8578bdf3f8da097943b5c3bf57ebb3",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "61667465720a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "da8c4f3de560c28a033c5f75fb3dcbe65a6749aa3b62bfc74a57369dbd935cba",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/value_match_string_mutation_pattern.sn",
+      "source_sha256": "46f1284748aeeff4a9e896eb7067343b6fcb6d40289fd811fcf031818052d15f",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "5ef7dd6d10b92e50153fb1d0e22b1b3610f873fbf3e801ac45738697d30daf10",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "42019688c2ee012aa695b145bdadaf78594aa31f754934c4312806f2ed24e56d",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/value_match_string_side_effecting_indexed_result.sn",
+      "source_sha256": "1f5656a088e7bf359410eab73ca29e16614b1827f2895b57f27e92b18cfe8644",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "da551593a688f43a2e7c7e473ea40d0cbb1a8472b99330be3377eaa1f6230ee0",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 1,
+        "stdout_hex": "76616c75650a",
+        "diagnostic_sha256": "64b186f533496a481d081d2a446abaadb4bc4fffd65388efd6959e70bc6934aa",
+        "diagnostic_summary": "==3730958==ERROR: LeakSanitizer: detected memory leaks"
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "1ed630b965f4ed5c384796218a408aa7c071fe86e758a830b9f2b491bbd9cf91",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer/runtime failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/value_match_string_static_call_pattern.sn",
+      "source_sha256": "a4de4c026aacb95e113120672c9f96e82c09e6b1d6c16b663c190bff0c5602f8",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "dccc4ecacaa7558f0796b7df47b1d5ed947ba921ab5b1655e101b70b4942dff8",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "73b77629a14f10c8cfe8f111973ea1dd5d5834e9412b2b01fda1d89e3e629e67",
+        "diagnostic_summary": "==3730956==ERROR: LeakSanitizer: detected memory leaks"
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "f9e9001b36bd6593966a824f57b41946e1e31182fd9ac8859e0e053d23aba1ab",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer/runtime failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/value_match_string_temporary_member_pattern.sn",
+      "source_sha256": "54a2f04a7bc93953638503f20321e52ec13fd4f82c2c58961424f25dd453858b",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "d5d039aeb28539f4dcf7d72d7eacac25a9143ba0aa60f5347952498ff015687f",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "75e0131b824ada7be2a837d8f3f454ded5f688cfeafc948c887b7bd062b2615d",
+        "diagnostic_summary": "==3730965==ERROR: LeakSanitizer: detected memory leaks"
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "e00be1aca251ed38cd682ae2bc5d849ec12e5f6b52928f32ed2c826d537444c9",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer/runtime failure",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/value_match_uint_model_boundary_pattern.sn",
+      "source_sha256": "052ff29e45b2a57d4355ab16bf069a38aa34993749f64f0617f4caca83f9272b",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "c8fec9517aab8c48e6f4c82d52669322cf895fede7b9a958e62aa459a9fcd8de",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "300a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "0d7917602b702f1f0b89ace60d3d51de1289333a3288d70bc5cfbe2ebe52d8fc",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/value_match_unsigned_literal_negative_pattern.sn",
+      "source_sha256": "95049c670acd9226690823be84aa4ca8dbf5ac01d3f3a123a16361051df0d38d",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "ea1920f7c0d8609063d0402a22b2a787a058fb53e860c3e4527785db52004d3d",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "300a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "73b42fa378e640666e7b6ba24002464c18bc5247fd6ee4df3f85c0059077562b",
+        "diagnostic_summary": ""
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/value_struct_copy_of_nested_user_copy.sn",
+      "source_sha256": "2eb5e4d18b3d626efcb84f2d2481eed4caaadbe732c8f9dec34de7271665a5f2",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "df038cbf26081e04dfc90bcc1aa7cdc11bc4b3c589eeb7dabd8c8bced5a0038c",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "310a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "d0b88855eb8a34b8a7a61c04006520220378c87060cb2fbcd139791dda69f80d",
+        "diagnostic_summary": "Error: Rust target encountered an unsupported construct in function 'main'"
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    },
+    {
+      "source": "tests/rgen/errors/value_struct_copy_of_user_copy.sn",
+      "source_sha256": "e9bfd2f47ebeeb4ffd8bc59af4e310b1d4b1efc7250c373a5cc0f090bed73315",
+      "c_compile": {
+        "status": 0,
+        "stdout_hex": "",
+        "diagnostic_sha256": "8c3537d3978413717d14050cca9939428b84b70114b643f0c4e391c842fbbbbc",
+        "diagnostic_summary": ""
+      },
+      "c_run": {
+        "status": 0,
+        "stdout_hex": "39390a",
+        "diagnostic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_summary": ""
+      },
+      "rust_emit": {
+        "status": 1,
+        "stdout_hex": "",
+        "diagnostic_sha256": "8d8ae50cec6fe5e41b03bba68eabc222c195cbef4b387725564bfef4a3df33e1",
+        "diagnostic_summary": "Error: Rust target encountered an unsupported construct in function 'main'"
+      },
+      "classification": "C sanitizer-passing candidate rejected by Rust; requires behavioural review",
+      "promoted": false
+    }
+  ],
+  "date": "2026-10-10",
+  "working_tree": "includes unpublished double conversion validation"
+}

@@ -1,0 +1,169 @@
+{
+  "base_revision": "f805570a77e801c544a315aedc358b45e330c582",
+  "date": "2026-10-10",
+  "scope": "Finite double-to-int/long truncation where C defines the signed 64-bit result",
+  "source_sha256": {
+    "scripts/ci/gates.json": "0360e85484abc15c652be62aa9a44034926efe6ed9c68831320da2001675777b",
+    "src/target/rust/rust_validate_calls.c": "968de5197af185befa2c79a43aa814148f586d5f1cbd849b3431143aec4805ac",
+    "tests/rgen/errors/primitive_conversion_double_to_int.parity.json": "746ae257ea54d89416e72544506c43cbd5fcf8cefabfe12a4de33982bb78eda8",
+    "tests/rust-native/scalar_double_integer_conversions.abi-matrix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests/rust-native/scalar_double_integer_conversions.expected": "21d91041c5d1a59661f8936571ee5c87e96f6f0c7a532b52ec17c5b9bea8220b",
+    "tests/rust-native/scalar_double_integer_conversions.sn": "9f9a5a3e506e131ab8ad8b297b18ccb2d7a78e407617aac7e205e02d46021592",
+    "tests/rust-native/scalar_double_integer_conversions.sn.c": "968680f2c26749c9f96a397ddd36d3e1566c73b1e7bd6c60698e7bc3fe07155d",
+    "tests/rgen/errors/primitive_conversion_double_to_int.sn": "aff4c08f536a864e6faa696d9cfcd755d3f6f3e53490409f09fe350e291bef54",
+    "tests/rgen/errors/primitive_conversion_double_to_int.expected": "adb48413775c47d017f82d3d1defb7b8229bbb2c8da7d6ea63a23a3ea8606189"
+  },
+  "validation": {
+    "Rust": {
+      "checks": 1087,
+      "passed": true,
+      "log_sha256": "3d97c25b455d62e61cba9ae8a403f215f3cc5cd5a2e9ea3579eaefdd0269b102"
+    },
+    "ci_helpers": {
+      "checks": 15,
+      "passed": true,
+      "log_sha256": "bf7b1b4b324d369548e8236617242473fb50acd7a54b3a627344fc3c7b143c48"
+    },
+    "focused": {
+      "checks": 1,
+      "passed": true,
+      "log_sha256": "57c8a84e41aeff5598922c42bf7d7c47e6a97a83d201ded67e1f12dd12154d17"
+    }
+  },
+  "C_baseline": {
+    "revision": "f805570a77e801c544a315aedc358b45e330c582",
+    "checks": 3240,
+    "passed": true,
+    "log_sha256": "e5d33ad03ba526bb30c1aa909204b7c1626862e9ae4b9607f0e7a10a6becaf27",
+    "scope": "preceding character batch C baseline; double batch changes Rust-only validation"
+  },
+  "parity": {
+    "passed": true,
+    "cases": 9,
+    "report_sha256": "87910ed1c0936b9ca1be907518c878a4fc3f81367db27f8b866d1fd41836d7b0",
+    "cases_summary": [
+      {
+        "source": "tests/rust-native/scalar_double_integer_conversions.sn",
+        "source_sha256": "9f9a5a3e506e131ab8ad8b297b18ccb2d7a78e407617aac7e205e02d46021592",
+        "optimization": "-O0",
+        "arithmetic_mode": "default",
+        "passed": true
+      },
+      {
+        "source": "tests/rust-native/scalar_double_integer_conversions.sn",
+        "source_sha256": "9f9a5a3e506e131ab8ad8b297b18ccb2d7a78e407617aac7e205e02d46021592",
+        "optimization": "-O1",
+        "arithmetic_mode": "default",
+        "passed": true
+      },
+      {
+        "source": "tests/rust-native/scalar_double_integer_conversions.sn",
+        "source_sha256": "9f9a5a3e506e131ab8ad8b297b18ccb2d7a78e407617aac7e205e02d46021592",
+        "optimization": "-O2",
+        "arithmetic_mode": "default",
+        "passed": true
+      },
+      {
+        "source": "tests/rust-native/scalar_double_integer_conversions.sn",
+        "source_sha256": "9f9a5a3e506e131ab8ad8b297b18ccb2d7a78e407617aac7e205e02d46021592",
+        "optimization": "-O0",
+        "arithmetic_mode": "checked",
+        "passed": true
+      },
+      {
+        "source": "tests/rust-native/scalar_double_integer_conversions.sn",
+        "source_sha256": "9f9a5a3e506e131ab8ad8b297b18ccb2d7a78e407617aac7e205e02d46021592",
+        "optimization": "-O1",
+        "arithmetic_mode": "checked",
+        "passed": true
+      },
+      {
+        "source": "tests/rust-native/scalar_double_integer_conversions.sn",
+        "source_sha256": "9f9a5a3e506e131ab8ad8b297b18ccb2d7a78e407617aac7e205e02d46021592",
+        "optimization": "-O2",
+        "arithmetic_mode": "checked",
+        "passed": true
+      },
+      {
+        "source": "tests/rust-native/scalar_double_integer_conversions.sn",
+        "source_sha256": "9f9a5a3e506e131ab8ad8b297b18ccb2d7a78e407617aac7e205e02d46021592",
+        "optimization": "-O0",
+        "arithmetic_mode": "unchecked",
+        "passed": true
+      },
+      {
+        "source": "tests/rust-native/scalar_double_integer_conversions.sn",
+        "source_sha256": "9f9a5a3e506e131ab8ad8b297b18ccb2d7a78e407617aac7e205e02d46021592",
+        "optimization": "-O1",
+        "arithmetic_mode": "unchecked",
+        "passed": true
+      },
+      {
+        "source": "tests/rust-native/scalar_double_integer_conversions.sn",
+        "source_sha256": "9f9a5a3e506e131ab8ad8b297b18ccb2d7a78e407617aac7e205e02d46021592",
+        "optimization": "-O2",
+        "arithmetic_mode": "unchecked",
+        "passed": true
+      }
+    ]
+  },
+  "conversion_domain": {
+    "finite_controls": [
+      {
+        "optimization": "-O0",
+        "passed": true,
+        "stdout_hex": "747275650a747275650a"
+      },
+      {
+        "optimization": "-O1",
+        "passed": true,
+        "stdout_hex": "747275650a747275650a"
+      },
+      {
+        "optimization": "-O2",
+        "passed": true,
+        "stdout_hex": "747275650a747275650a"
+      }
+    ],
+    "excluded_C_undefined_controls": [
+      {
+        "input": "positive overflow",
+        "classification": "C undefined float-to-integer conversion; no parity credit",
+        "exit": 1,
+        "diagnostic": "/tmp/sindarin-double-c-sanitizers/undefined.c:3:147: runtime error: 9.22337e+18 is outside the range of representable values of type 'long long int'\n"
+      },
+      {
+        "input": "negative overflow",
+        "classification": "C undefined float-to-integer conversion; no parity credit",
+        "exit": 1,
+        "diagnostic": "/tmp/sindarin-double-c-sanitizers/undefined.c:3:147: runtime error: -9.22337e+18 is outside the range of representable values of type 'long long int'\n"
+      },
+      {
+        "input": "NaN",
+        "classification": "C undefined float-to-integer conversion; no parity credit",
+        "exit": 1,
+        "diagnostic": "/tmp/sindarin-double-c-sanitizers/undefined.c:3:147: runtime error: nan is outside the range of representable values of type 'long long int'\n"
+      },
+      {
+        "input": "positive infinity",
+        "classification": "C undefined float-to-integer conversion; no parity credit",
+        "exit": 1,
+        "diagnostic": "/tmp/sindarin-double-c-sanitizers/undefined.c:3:147: runtime error: inf is outside the range of representable values of type 'long long int'\n"
+      },
+      {
+        "input": "negative infinity",
+        "classification": "C undefined float-to-integer conversion; no parity credit",
+        "exit": 1,
+        "diagnostic": "/tmp/sindarin-double-c-sanitizers/undefined.c:3:147: runtime error: -inf is outside the range of representable values of type 'long long int'\n"
+      }
+    ],
+    "passed": true
+  },
+  "publication": "held until at least one of two pending feature CI runs completes successfully",
+  "pending_feature_runs": [
+    38045852403,
+    38046184242
+  ],
+  "hosted_acceptance": "pending publication",
+  "passed": true
+}

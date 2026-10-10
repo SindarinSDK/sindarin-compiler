@@ -7,6 +7,46 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Finite double integer conversions: local validation, 2026-10-10
+
+Rust accepts `double.toInt()` and `double.toLong()` for the existing C-defined
+finite range, truncating toward zero and evaluating the receiver once. Controls
+include fractions on both sides of zero, negative zero, exact large integers,
+the largest binary64 integer below the positive signed limit and the inclusive
+negative limit. An independent C cast agrees in nine optimization/arithmetic
+profiles and four native/debug profiles. Three C profiles also pass undefined
+behaviour and float-cast-overflow sanitizers.
+
+NaN, infinities and out-of-range casts are recorded separately as C-undefined
+controls; their runtime outputs receive no parity credit. The historical
+double-to-integer rejected source and diagnostic remain unchanged, with a sealed
+promotion record proving C/Rust execution in nine profiles. All 1,087 current
+Rust checks and 15 CI helper checks pass. The preceding character batch retains
+the complete passing 3,240-check C baseline. No C runtime behaviour is changed.
+
+Publication is held while the independent string-array main `e5763d3b`
+([run 38045852403](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38045852403))
+and character main `f805570a`
+([run 38046184242](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38046184242))
+occupy both pending CI slots. Exact-revision hosted acceptance of this batch is
+pending. Full package/SDK/ABI and original-corpus platform/mode acceptance remain
+required.
+
+Evidence: [double conversion validation](rust-parity-evidence/double-conversion-validation.json).
+
+## Historical rejection inventory: refreshed characterization, 2026-10-10
+
+The 118 current rgen rejection fixtures were recompiled through C at `-O0 -g`
+and executed under the normal debug sanitizers, then checked against current
+Rust source emission. Sixty run successfully in C while Rust still rejects them;
+39 fail C compilation, 15 fail C runtime/sanitizers, and four are accepted by
+both at this local checkpoint. This inventory is preparation for semantic
+review, not evidence of parity or of universally defined C behaviour. C failure
+and undefined cases remain separate from Rust implementation gaps. The review
+retains every original program and diagnostic oracle.
+
+Evidence: [refreshed rejection inventory](rust-parity-evidence/negative-admission-review-20261010.json).
+
 ## Integer and byte character conversions: local validation, 2026-10-10
 
 Rust accepts the C-supported `int.toChar()` and `byte.toChar()` methods, retaining
