@@ -38,7 +38,7 @@ def main():
     if digest(ROOT / 'bin/include/runtime/sn_abi.h') != digest(ROOT / 'src/runtime/sn_abi.h'):
         raise ValueError('staged ABI header does not match the implementation source')
     report = {'platform': platform.system(), 'runtime_sha256': digest(runtime), 'cases': [],
-              'scope': 'C runtime ABI value and resource transport; generated package adapters remain required.'}
+              'scope': 'C runtime ABI values, resources, and ABI 1.3 array replacement; mutable package adapters remain required.'}
     output = ROOT / '.sn' / ('runtime-abi-sanitizers.json' if args.sanitize else 'runtime-abi.json')
     output.parent.mkdir(exist_ok=True)
     cc = shlex.split(os.environ.get('SN_CC') or ('clang' if windows or platform.system() == 'Darwin' else 'gcc'))
@@ -46,28 +46,32 @@ def main():
         work = Path(folder)
         executable = work / ('client.exe' if windows else 'client')
         flags = ['-Wall', '-Wextra', '-Werror', '-UNDEBUG', '-I', ROOT / 'bin/include/runtime']
-        if args.sanitize:
-            runtime_sources = [ROOT / 'src/runtime' / name for name in
-                               ('sn_abi.c', 'sn_array.c', 'sn_string.c', 'sn_byte.c')]
-            build = cc + ['-std=c11', '-D_GNU_SOURCE', '-g', '-O0', '-fno-omit-frame-pointer',
-                          '-fsanitize=address,undefined'] + flags + [SOURCES / 'client.c'] + runtime_sources
-        else:
-            build = cc + ['-std=c99'] + flags + [SOURCES / 'client.c', runtime]
-        checked(build + ['-pthread', '-o', executable])
-        run = checked([executable])
-        if run.stdout.splitlines() != [b'shared runtime ABI: pass'] or run.stderr:
-            raise RuntimeError(f'C ABI client output mismatch: {run.stdout!r} {run.stderr!r}')
-        report['cases'].append({'client': 'C', 'passed': True, 'sanitized': args.sanitize,
-                                'reference_credit_operations': 160000})
+        for source, label, wanted in [('client.c', 'C', b'shared runtime ABI: pass'),
+                                     ('value_array_assign.c', 'C array replacement', b'managed array replacement: pass')]:
+            if args.sanitize:
+                runtime_sources = [ROOT / 'src/runtime' / name for name in
+                                   ('sn_abi.c', 'sn_array.c', 'sn_string.c', 'sn_byte.c')]
+                build = cc + ['-std=c11', '-D_GNU_SOURCE', '-g', '-O0', '-fno-omit-frame-pointer',
+                              '-fsanitize=address,undefined'] + flags + [SOURCES / source] + runtime_sources
+            else:
+                build = cc + ['-std=c99'] + flags + [SOURCES / source, runtime]
+            checked(build + ['-pthread', '-o', executable])
+            run = checked([executable])
+            if run.stdout.splitlines() != [wanted] or run.stderr:
+                raise RuntimeError(f'{label} ABI client output mismatch: {run.stdout!r} {run.stderr!r}')
+            report['cases'].append({'client': label, 'passed': True, 'sanitized': args.sanitize,
+                                    **({'reference_credit_operations': 160000} if source == 'client.c' else {})})
         if not args.sanitize:
             rustc = shlex.split(os.environ.get('SN_RUSTC', 'rustc'))
             rustflags = shlex.split(os.environ.get('SN_RUSTFLAGS', ''))
-            checked(rustc + ['--edition=2021', SOURCES / 'client.rs', '-L', runtime.parent,
-                            '-o', executable] + rustflags)
-            run = checked([executable])
-            if run.stdout.splitlines() != [b'shared runtime ABI: pass'] or run.stderr:
-                raise RuntimeError(f'Rust ABI client output mismatch: {run.stdout!r} {run.stderr!r}')
-            report['cases'].append({'client': 'Rust', 'passed': True})
+            for source, label, wanted in [('client.rs', 'Rust', b'shared runtime ABI: pass'),
+                                         ('value_array_assign.rs', 'Rust array replacement', b'managed array replacement: pass')]:
+                checked(rustc + ['--edition=2021', SOURCES / source, '-L', runtime.parent,
+                                '-o', executable] + rustflags)
+                run = checked([executable])
+                if run.stdout.splitlines() != [wanted] or run.stderr:
+                    raise RuntimeError(f'{label} ABI client output mismatch: {run.stdout!r} {run.stderr!r}')
+                report['cases'].append({'client': label, 'passed': True})
             go_project = work / 'go-client'
             shutil.copytree(SOURCES / 'go', go_project)
             # Go tracks headers in the package directory, rather than arbitrary

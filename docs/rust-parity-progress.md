@@ -7,6 +7,34 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Managed-array replacement: local validation, 2026-10-10
+
+The canonical C runtime implements ABI 1.3 bulk managed-array slot replacement.
+It preserves the destination handle and its retained aliases, acquires incoming
+element credits before publication, and releases detached old slots afterward.
+Nil source clears to a non-nil empty destination; wrong-kind errors preserve
+contents and self-assignment is a no-op. An operation credit protects destination
+lifetime while destructors inspect, replace and grow it or release its external
+credit. Contained resources retain their identity; independently retained elements
+survive clearing and array teardown. Queries for older ABIs retain their exact
+layouts, capability masks and failure-output behaviour.
+
+C/Rust/Go and Rust-consuming-Go clients pass byte, alias, resource/element lifetime
+and error controls. Two C clients pass strict address/undefined/leak checks,
+including nested replacement/growth and cleanup that consumes the caller's
+external credit. Complete local suites pass 3,240 C and 1,093 Rust checks; all 15
+artifact, 32 import and 15 CI-helper tests and package-lifecycle clients pass.
+Original corpus sources and behavioural oracles are unchanged. Existing native
+package ABI 1.0/1.1 and package lifecycle ABI 1.2 paths remain verified.
+
+Hosted acceptance is pending publication. This is the runtime prerequisite for
+mutable body-input transport. The existing native borrowed-array contract remains
+read-only. Mutable Sindarin body adapters, live callback visibility, Rust
+parameter alias partitions/rebind semantics, broader public type contracts,
+independent SDK artifacts and whole corpus/platform acceptance remain required.
+
+Evidence: [array replacement validation](rust-parity-evidence/array-replacement-validation.json).
+
 ## Mixed floating compound arithmetic and comparisons: local validation, 2026-10-10
 
 Rust accepts C-supported mixed float/integer compound operations, computes at the
@@ -28,9 +56,11 @@ fixed-output C/Rust controls.
 
 Complete local suites pass 3,240 C and 1,093 Rust checks without failures/skips.
 All 171 arithmetic pairs, 18 independent comparison oracles, native C/Rust
-address/undefined/float-cast sanitizer controls, 15 CI helpers and formatting pass.
+address/undefined/float-cast sanitizer controls, eight artifact/coverage helper
+tests and formatting pass. The platform workflow runs the complete 15-test helper suite.
 Existing generated Rust snapshots, original sources and behavioural oracles are
-unchanged. Hosted acceptance of this implementation batch is pending publication.
+unchanged. Implementation `aac3cae8` is published on main; complete hosted acceptance
+is pending [run 38081042679](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38081042679).
 Wider integral/bitwise compound-expression contexts, C-undefined conversions and
 whole original-corpus/platform/package/SDK acceptance remain required work.
 

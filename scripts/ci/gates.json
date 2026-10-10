@@ -1271,7 +1271,7 @@
     },
     {
       "id": "runtime-105",
-      "name": "shared C runtime ABI: C, Rust and Go clients",
+      "name": "shared C runtime ABI: values, array replacement and C/Rust/Go clients",
       "command": [
         "{python}",
         "scripts/check_runtime_abi.py"
@@ -1281,7 +1281,7 @@
     },
     {
       "id": "runtime-106",
-      "name": "shared C runtime ABI: reference lifetimes and address/undefined sanitizers",
+      "name": "shared C runtime ABI: reference/reentrant array lifetimes and address/undefined sanitizers",
       "command": [
         "{python}",
         "scripts/check_runtime_abi.py",

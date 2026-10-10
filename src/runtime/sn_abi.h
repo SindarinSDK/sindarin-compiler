@@ -13,12 +13,14 @@ extern "C" {
 #define SN_ABI_V1_VERSION UINT32_C(0x00010000)
 #define SN_ABI_V1_1_VERSION UINT32_C(0x00010001)
 #define SN_ABI_V1_2_VERSION UINT32_C(0x00010002)
+#define SN_ABI_V1_3_VERSION UINT32_C(0x00010003)
 #define SN_ABI_CAP_VALUES UINT64_C(1)
 #define SN_ABI_CAP_POD_ARRAYS UINT64_C(2)
 #define SN_ABI_CAP_RESOURCES UINT64_C(4)
 #define SN_ABI_CAP_VALUE_ARRAYS UINT64_C(8)
 #define SN_ABI_CAP_TYPED_RESOURCES UINT64_C(16)
 #define SN_ABI_CAP_PACKAGE_LIFECYCLE UINT64_C(32)
+#define SN_ABI_CAP_ARRAY_REPLACEMENT UINT64_C(64)
 
 typedef uint32_t SnAbiStatus;
 #define SN_ABI_OK UINT32_C(0)
@@ -101,6 +103,13 @@ SnAbiStatus sn_abi_v1_value_array_length(const SnAbiValue *array, uint64_t *out)
 SnAbiStatus sn_abi_v1_value_array_push(SnAbiValue *array, SnAbiValue *element);
 SnAbiStatus sn_abi_v1_value_array_get(const SnAbiValue *array, uint64_t index, SnAbiValue **out);
 SnAbiStatus sn_abi_v1_value_array_set(SnAbiValue *array, uint64_t index, SnAbiValue *element);
+/* ABI 1.3 bulk slot replacement preserves destination identity. Source is
+ * borrowed; retain its elements before publishing, then release the detached
+ * old slots. Nil source clears to an empty destination. Nil destination is
+ * invalid. Kind errors preserve destination contents. Self-assignment is a
+ * no-op. Destructors may reenter and mutate the newly published array; an
+ * operation credit keeps the destination alive through that cleanup. */
+SnAbiStatus sn_abi_v1_value_array_assign(SnAbiValue *destination, const SnAbiValue *source);
 
 /* Resource adoption transfers cleanup responsibility only on success. Adapters
  * keep resource layouts private or expose documented fields through accessors. */

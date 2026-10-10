@@ -70,6 +70,7 @@ extern "C" {
     fn sn_test_go_text(out: *mut *mut Value) -> u32;
     fn sn_test_go_owned_resource(out: *mut *mut Value) -> u32;
     fn sn_test_go_cleanup_count() -> u64;
+    fn sn_test_go_array_assignment() -> u32;
 }
 
 static DESTROYED: AtomicUsize = AtomicUsize::new(0);
@@ -265,6 +266,7 @@ fn main() {
                 .join()
                 .unwrap();
             assert_eq!(sn_test_go_cleanup_count(), before + 1);
+            assert_eq!(sn_test_go_array_assignment(), 0);
         }
         println!("shared runtime ABI: pass");
     }

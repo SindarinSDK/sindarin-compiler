@@ -2,7 +2,8 @@
 
 Status: implemented value-transport foundation, ABI 1.0 (`0x00010000`) and
 optional managed-value capabilities through ABI 1.1 (`0x00010001`) and package
-lifecycle coordination through ABI 1.2 (`0x00010002`). This is
+lifecycle coordination through ABI 1.2 (`0x00010002`) and managed-array slot
+replacement through ABI 1.3 (`0x00010003`). This is
 part of the [runtime and package architecture](runtime-target-architecture.md).
 It does not yet provide complete package record/interface contracts, managed
 array elements, complete generated bindings, independent SDK artifacts or compiler-wide
@@ -231,3 +232,39 @@ bounds are checked and failure outputs remain unchanged. Nil copy remains nil
 and nil length is zero. C/Rust/Go clients prove element lifetime after array
 release, independent slot copies and ownership; C address/undefined sanitizers
 also exercise reentrant destruction that resizes the array.
+
+## ABI 1.3 managed-array replacement
+
+Query `SN_ABI_V1_3_VERSION` with `SN_ABI_CAP_ARRAY_REPLACEMENT` (`64`) before using
+`sn_abi_v1_value_array_assign(destination, source)`. ABI 1.3 advertises `127`;
+queries for ABI 1.0, 1.1 and 1.2 retain exactly `7`, `31` and `63`. Those older
+queries reject the new capability without changing their output structure.
+The public layouts and older operations are unchanged.
+
+Assignment copies the source slots into the existing destination handle. Each
+incoming element obtains a retained credit before the replacement is published;
+old slots are detached and released afterward. Retained destination aliases see
+the replacement. The source keeps independent slots, while contained resource
+identity remains shared. Retained elements survive clearing or releasing either
+array. Nil source clears a non-nil destination to an empty array. Nil destination
+is invalid; wrong-kind arguments preserve destination contents. Self-assignment
+of a managed array is a no-op.
+
+A resource destructor released from the old slots may inspect, grow, clear or
+replace the already published destination. Nested changes remain visible after
+outer assignment completes. An operation credit keeps the destination alive even
+if cleanup releases its external credit. Caller serialization and the existing
+prohibition on ownership cycles still apply; slot publication does not introduce
+thread synchronization or garbage collection.
+
+C, Rust and Go clients verify alias visibility, independent slots, element and
+resource lifetime, nil/empty values, non-UTF-8 bytes, validation failures and old
+version negotiation. The C sanitizer client additionally verifies nested
+replacement/growth and cleanup that releases the destination's external credit.
+Rust also consumes the Go-native replacement client through its C-callable bridge.
+
+This operation supports mutable package transport, but does not yet implement
+mutable body-input adapters, live callback visibility, Rust default-array alias
+partitioning, public record/interface contracts or complete SDK migration. The
+existing native `borrowed` array provider view remains read-only. Those higher
+level contracts are required work for the completion goal.

@@ -31,9 +31,12 @@ SnAbiStatus sn_abi_v1_query(uint32_t version, uint64_t required_capabilities,
 {
     uint64_t capabilities = SN_ABI_CAP_VALUES | SN_ABI_CAP_POD_ARRAYS | SN_ABI_CAP_RESOURCES;
     if (!out || out_size < sizeof(*out)) return SN_ABI_INVALID_ARGUMENT;
-    if (version != SN_ABI_V1_VERSION && version != SN_ABI_V1_1_VERSION && version != SN_ABI_V1_2_VERSION) return SN_ABI_VERSION_MISMATCH;
+    if (version != SN_ABI_V1_VERSION && version != SN_ABI_V1_1_VERSION &&
+        version != SN_ABI_V1_2_VERSION && version != SN_ABI_V1_3_VERSION) return SN_ABI_VERSION_MISMATCH;
     if (version != SN_ABI_V1_VERSION) capabilities |= SN_ABI_CAP_VALUE_ARRAYS | SN_ABI_CAP_TYPED_RESOURCES;
-    if (version == SN_ABI_V1_2_VERSION) capabilities |= SN_ABI_CAP_PACKAGE_LIFECYCLE;
+    if (version == SN_ABI_V1_2_VERSION || version == SN_ABI_V1_3_VERSION)
+        capabilities |= SN_ABI_CAP_PACKAGE_LIFECYCLE;
+    if (version == SN_ABI_V1_3_VERSION) capabilities |= SN_ABI_CAP_ARRAY_REPLACEMENT;
     if (required_capabilities & ~capabilities) return SN_ABI_UNSUPPORTED;
     SnAbiInfo info = { version, sizeof(void *) * CHAR_BIT, capabilities,
                        sizeof(long long) * CHAR_BIT, CHAR_BIT,
@@ -361,5 +364,26 @@ SnAbiStatus sn_abi_v1_value_array_set(SnAbiValue *array, uint64_t index, SnAbiVa
     /* Publish before cleanup: a destructor may reenter this array and resize it.
      * No slot pointer is accessed after invoking the previous owner's cleanup. */
     sn_abi_v1_release(previous);
+    return SN_ABI_OK;
+}
+
+SnAbiStatus sn_abi_v1_value_array_assign(SnAbiValue *destination, const SnAbiValue *source)
+{
+    if (!destination) return SN_ABI_INVALID_ARGUMENT;
+    if (destination->kind != ABI_VALUE_ARRAY || (source && source->kind != ABI_VALUE_ARRAY))
+        return SN_ABI_WRONG_KIND;
+    if (destination == source) return SN_ABI_OK;
+    SnArray *replacement = source ? sn_array_copy(source->payload.array)
+                                 : sn_array_new(sizeof(SnAbiValue *), 4);
+    replacement->elem_release = abi_value_slot_release;
+    replacement->elem_copy = abi_value_slot_copy;
+    SnArray *previous = destination->payload.array;
+    sn_abi_v1_retain(destination);
+    destination->payload.array = replacement;
+    /* Old element cleanup can replace/grow the destination again, or release
+     * the caller's credit. No pointer into either published array is used after
+     * reentry. The detached storage and operation credit remain ours. */
+    sn_array_free(previous);
+    sn_abi_v1_release(destination);
     return SN_ABI_OK;
 }

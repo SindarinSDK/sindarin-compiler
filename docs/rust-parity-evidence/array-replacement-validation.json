@@ -1,0 +1,116 @@
+{
+  "date": "2026-10-10",
+  "base_revision": "aac3cae87318620ac8f69d11ebe8ef2783909deb",
+  "scope": "ABI 1.3 managed-array slot replacement prerequisite for mutable package input transport",
+  "source_sha256": {
+    "src/runtime/sn_abi.h": "18cd5590260a784b7cbd9ed0ed29df2b4ac250b5bc8ad034661e45d6553f3f25",
+    "src/runtime/sn_abi.c": "924c9aea2ed2b560670af5956004db06a67f1f68a1d8c64535bf13f10202be32",
+    "scripts/check_runtime_abi.py": "99a21eba25e7836d10a34b593e97b14bc70f397b8e0b5355778c275117a39973",
+    "scripts/ci/gates.json": "54baf04416d4404987d0af31b75d071ec1f0e93eac8c77378a9c7b0ca04e1152",
+    "tests/runtime_abi/value_array_assign.c": "a2e7617457277f6cdd36ed8fd59a60006f7d3c117d2d611ccbbaf0ef79f6af2f",
+    "tests/runtime_abi/value_array_assign.rs": "e72764236659c7d65b2f6f16ce9b2131c3e7ed9398c86b615b0eb93da525bb52",
+    "tests/runtime_abi/go/value_array_assign.go": "7c7d5708914a5d4a3a180fed616a9c011655f4a981a408405babd83560f283de",
+    "tests/runtime_abi/client.rs": "8e9d9a1ce65a1b690cd2b5e4305d6512133999cd8b16496fa92ba13232903ec1",
+    "tests/runtime_abi/go/main.go": "2817844538755330c8feacd462dda6bf98fd9871b9c409faaee39b62b72db418"
+  },
+  "abi_clients": {
+    "clients": {
+      "cases": [
+        {
+          "client": "C",
+          "passed": true,
+          "sanitized": false,
+          "reference_credit_operations": 160000
+        },
+        {
+          "client": "C array replacement",
+          "passed": true,
+          "sanitized": false
+        },
+        {
+          "client": "Rust",
+          "passed": true
+        },
+        {
+          "client": "Rust array replacement",
+          "passed": true
+        },
+        {
+          "client": "Go",
+          "passed": true,
+          "cgo_pointer_check": "cgocheck2"
+        },
+        {
+          "client": "Rust with Go-native archive",
+          "passed": true,
+          "go_archive_sha256": "3b4dc063d390f0f47dd773c75c9ba32a8ef39b539bc66efec99ecab6c58f7435"
+        }
+      ],
+      "report_sha256": "cb28f6ad95464c899b794a516273d94c2449774c7698255c00570e0147ba8b7a",
+      "runtime_sha256": "f748885754c04e9961ed99c6d2337bb467927afa1d3cc67c8daff7ccf6541652"
+    },
+    "sanitizers": {
+      "cases": [
+        {
+          "client": "C",
+          "passed": true,
+          "sanitized": true,
+          "reference_credit_operations": 160000
+        },
+        {
+          "client": "C array replacement",
+          "passed": true,
+          "sanitized": true
+        }
+      ],
+      "report_sha256": "ea9aa349ee1ff6f08b5127b32858d9ebdd24d5ba7835beb5fd4ed634bca30b71",
+      "runtime_sha256": "f748885754c04e9961ed99c6d2337bb467927afa1d3cc67c8daff7ccf6541652"
+    }
+  },
+  "validation": {
+    "C": {
+      "checks": 3240,
+      "passed": true,
+      "log_sha256": "ccf402c33f4ac1b56fdd22fa8dd528cedfdeff3a2fe22b191ff7b4b55897dcc3"
+    },
+    "Rust": {
+      "checks": 1093,
+      "passed": true,
+      "log_sha256": "f7c417cae929d68b87764a6c4cd4465e00e92904674bde92dd4762a6095f6be0"
+    },
+    "artifacts": {
+      "checks": 15,
+      "passed": true,
+      "log_sha256": "5313147c40e2e0dba9325cc7b9ef6412fb6867ab43d74f834960b8401b28b7fe"
+    },
+    "imports": {
+      "checks": 32,
+      "passed": true,
+      "log_sha256": "6a55ec5b7cf1c4827913df36c1e85e1180429cfbe1155a2eb45fa966a9fd8b01"
+    },
+    "ci_helpers": {
+      "checks": 15,
+      "passed": true,
+      "log_sha256": "d6717c5243d93dd0b98197b3c52612b1985d2e73850181ea15c6fbe8a90b2f55"
+    },
+    "package_lifecycle": {
+      "passed": true,
+      "log_sha256": "098cde1e2753ec909260e36d47d0d85061bca0c79c6cf5c5e2c3c27eef427f9b"
+    }
+  },
+  "implemented": [
+    "stable destination handle and retained aliases",
+    "acquire incoming element credits before publication; detach/release old storage afterward",
+    "nil-source clearing, wrong-kind preservation and self-assignment",
+    "reentrant nested replacement/growth and cleanup releasing the external destination credit",
+    "C/Rust/Go and Rust-consuming-Go clients preserve managed element/resource lifetimes",
+    "ABI 1.0/1.1/1.2 layouts, masks and query errors unchanged"
+  ],
+  "limitations": [
+    "mutable Sindarin body inputs and live callback visibility remain implementation work",
+    "Rust default-array alias partitioning and variable rebind semantics need generated body adapters",
+    "public record/interface contracts, SDK artifact migration and whole parity acceptance remain incomplete"
+  ],
+  "hosted_acceptance": "pending publication",
+  "passed": true
+}

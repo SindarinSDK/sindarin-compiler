@@ -49,9 +49,10 @@
       "log_sha256": "4971f472978d4fa709167a5fcc4dd3db83e0d2a3953e0ba7b92b72da43539214"
     },
     "ci_helpers": {
-      "checks": 15,
+      "checks": 8,
       "passed": true,
-      "log_sha256": "fd217a65f8315717a589401927d15924d1313a45ce28670e289a0e7e77fb8935"
+      "log_sha256": "fd217a65f8315717a589401927d15924d1313a45ce28670e289a0e7e77fb8935",
+      "scope": "Artifact/coverage helper subset; complete 15-test suite runs in platform CI"
     }
   },
   "capabilities": [
