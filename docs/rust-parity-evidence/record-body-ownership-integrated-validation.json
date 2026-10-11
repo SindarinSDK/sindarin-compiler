@@ -1,0 +1,45 @@
+{
+  "status": "Integrated local validation passed; unpublished; required main correction CI must pass first",
+  "base": "920f10f042db6fc96202dd21f9d1bee0c8d034d8",
+  "sdk_accepted_revision": "d829ebeae36ef0a0b684191d2150f2fb964ea509",
+  "C_suite": 3242,
+  "Rust_suite": 1097,
+  "record_body_mode_cases": 72,
+  "record_body_sanitizer_mode_cases": 72,
+  "record_rebind_mode_cases": 72,
+  "record_rebind_sanitizer_mode_cases": 72,
+  "record_qualified_mode_cases": 18,
+  "record_qualified_sanitizer_mode_cases": 18,
+  "body_wire_clients": [
+    "C",
+    "Rust"
+  ],
+  "package_imports": 50,
+  "native_artifacts": 22,
+  "ci_helpers": 22,
+  "SDK_artifact_cases": 504,
+  "registered_gates": 365,
+  "registered_groups": 26,
+  "remaining": [
+    "required main correction hosted acceptance",
+    "this record ownership batch hosted Linux/macOS/Windows acceptance",
+    "canonical record as-val copy adapters",
+    "wider record/interface/generic contracts and dependency lifecycle graphs",
+    "whole SDK and final corpus/platform proof"
+  ],
+  "compiler_sha256": "4cbb68f6fd43c2c0c9748ae75520db76fbc1d8fa205ca04344b1cbef43d27781",
+  "logs": {
+    "sindarin-record-integrated-full-c.log": "033af6385c19ec5e7e113e6a5110cc8309062ac23aefdbe1ca292c5e507ba63f",
+    "sindarin-record-integrated-full-rust.log": "ba58efef4370d55432e010d43dfe18579b88983480948ad55b27edb4600e3596",
+    "sindarin-record-integrated-ci-helpers.log": "70bd3176382ef448ff289fa765e31f93cb434935f8a5d1d12f8cbe468de311e4",
+    "sindarin-record-integrated-bodies.log": "249a76cf38577c8c4a94154f7251ea04727adc1f12e6aded2fca0ed103d40336",
+    "sindarin-record-integrated-bodies-san.log": "34a6f6064aa4cc67827fda49312cfed08975e79cf322baa929338a6842a3dde4",
+    "sindarin-record-integrated-rebind.log": "c20cc72def6a2fb686c8c27e86d1c4252342fbac6b0b7aad31af769f1d530031",
+    "sindarin-record-integrated-rebind-san.log": "ab69e65bd57a9568a01f949cd1a0c48fb9083ad35776b107bbd4fd5722a2c917",
+    "sindarin-record-integrated-qualified.log": "f38bd56f0aa680096e32f446d3e0a2b2511922bc08eea1e45af9159a2603b45c",
+    "sindarin-record-integrated-qualified-san.log": "f38bd56f0aa680096e32f446d3e0a2b2511922bc08eea1e45af9159a2603b45c",
+    "sindarin-record-integrated-artifacts.log": "bf1d1fb928e92a37f9e7b72839932e371cddbebb44723b28cbcc58778faf1403",
+    "sindarin-record-integrated-imports.log": "8b80a70372966d671df23f6a41e2d26c45130fa90c85106bfce3eb35ace8acf8",
+    "sindarin-record-integrated-sdk504.log": "aa72aea8ae7efb6502e57314de53a5ee7481ad6de1ae6da29d89ae0583caa6da"
+  }
+}

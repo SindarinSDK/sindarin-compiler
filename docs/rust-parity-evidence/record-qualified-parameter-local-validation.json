@@ -38,5 +38,7 @@
   "before_logs": {
     "sindarin-ordinary-qualified-before-c.log": "b531ba855f61e1b9b7680f7b66be550033696414874845e4564bbac75db9f2b7",
     "sindarin-record-qualified-before-c.log": "bd327ead9bef7ca40506bc2d5403b33dfa1ece4e23e7e107623bd8ac1c7891e2"
-  }
+  },
+  "integrated_validation": "record-body-ownership-integrated-validation.json",
+  "integrated_ci_helpers": 22
 }

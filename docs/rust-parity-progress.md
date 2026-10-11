@@ -56,6 +56,20 @@ include 72 normal and 72 sanitizer archive cases, all 3,242 C and 1,097 Rust
 checks, 50 imports, 22 artifact checks and 22 CI helpers, plus retained Rust/Go
 record wire clients after the merge. Full goal completion remains unproven.
 
+## Record bodies and parameters: integrated local validation, 2026-10-11
+
+Branch `development/record-body-ownership-integrated` combines canonical Rust
+Sindarin record bodies with C/Rust default and ordinary qualified parameter
+rebinding on current corrected main `920f10f0`. All 3,242 C and 1,097 Rust checks
+pass, with 50 imports, 22 artifact tests and 22 CI helpers. The ownership matrices
+pass 72 body cases, 72 default rebinding cases and 18 qualified record cases,
+both normally and under sanitizers. Direct C/Rust body wire clients verify kind,
+identity, error outputs, nil and exact transferred credits. The twelve-module
+SDK artifact matrix still passes all 504 cases. Local coverage registers 365
+gates in 26 groups. This coherent batch remains unpublished until required main
+correction CI is fully accepted. Canonical as-val package copy adapters, wider
+contracts, dependency graphs and final full-goal proof remain work.
+
 ## Random CI inventory correction, 2026-10-11
 
 Random compiler revision `16fa5387` failed build-stage CI helper checks on all

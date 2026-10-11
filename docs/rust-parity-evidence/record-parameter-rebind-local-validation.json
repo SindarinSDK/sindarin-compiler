@@ -38,5 +38,7 @@
   "existing_record_body_tests": 7,
   "registered_gates": 353,
   "registered_groups": 26,
-  "imports": 50
+  "imports": 50,
+  "integrated_validation": "record-body-ownership-integrated-validation.json",
+  "integrated_ci_helpers": 22
 }

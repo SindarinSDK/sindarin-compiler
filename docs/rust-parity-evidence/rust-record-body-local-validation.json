@@ -48,5 +48,7 @@
     "initial_passed": 48,
     "missing_pinned_sdk_fixture": 2,
     "focused_reruns_passed": 2
-  }
+  },
+  "integrated_validation": "record-body-ownership-integrated-validation.json",
+  "integrated_ci_helpers": 22
 }
