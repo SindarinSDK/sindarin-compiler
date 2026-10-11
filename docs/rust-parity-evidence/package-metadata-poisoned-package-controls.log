@@ -1,0 +1,8 @@
+test_unchanged_public_static_method_bodies_compile_independently (__main__.NativeImports.test_unchanged_public_static_method_bodies_compile_independently) ... ok
+test_unchanged_sdk_bytes_facade_is_an_independent_c_library (__main__.NativeImports.test_unchanged_sdk_bytes_facade_is_an_independent_c_library) ... ok
+test_unchanged_sdk_binaryfile_facade_is_an_independent_c_library (__main__.NativeImports.test_unchanged_sdk_binaryfile_facade_is_an_independent_c_library) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 103.036s
+
+OK

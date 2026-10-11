@@ -1,0 +1,150 @@
+test_native_package_adapts_only_loaded_api_modules (__main__.NativeImports.test_native_package_adapts_only_loaded_api_modules) ... 
+  test_native_package_adapts_only_loaded_api_modules (__main__.NativeImports.test_native_package_adapts_only_loaded_api_modules) (archive='source', caller=0, target='c') ... FAIL
+  test_native_package_adapts_only_loaded_api_modules (__main__.NativeImports.test_native_package_adapts_only_loaded_api_modules) (archive='source', caller=0, target='rust') ... FAIL
+  test_native_package_adapts_only_loaded_api_modules (__main__.NativeImports.test_native_package_adapts_only_loaded_api_modules) (archive='source', caller=1, target='c') ... FAIL
+  test_native_package_adapts_only_loaded_api_modules (__main__.NativeImports.test_native_package_adapts_only_loaded_api_modules) (archive='source', caller=1, target='rust') ... FAIL
+  test_native_package_adapts_only_loaded_api_modules (__main__.NativeImports.test_native_package_adapts_only_loaded_api_modules) (archive='prebuilt', caller=0, target='c') ... FAIL
+  test_native_package_adapts_only_loaded_api_modules (__main__.NativeImports.test_native_package_adapts_only_loaded_api_modules) (archive='prebuilt', caller=0, target='rust') ... FAIL
+  test_native_package_adapts_only_loaded_api_modules (__main__.NativeImports.test_native_package_adapts_only_loaded_api_modules) (archive='prebuilt', caller=1, target='c') ... FAIL
+  test_native_package_adapts_only_loaded_api_modules (__main__.NativeImports.test_native_package_adapts_only_loaded_api_modules) (archive='prebuilt', caller=1, target='rust') ... FAIL
+
+======================================================================
+FAIL: test_native_package_adapts_only_loaded_api_modules (__main__.NativeImports.test_native_package_adapts_only_loaded_api_modules) (archive='source', caller=0, target='c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/gavin/code/sindarin/sindarin-rust-parity-goal/tests/package/native_imports.py", line 324, in test_native_package_adapts_only_loaded_api_modules
+    with self.subTest(archive=archive,caller=index,target=target):self.execute(target,expected)
+                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gavin/code/sindarin/sindarin-rust-parity-goal/tests/package/native_imports.py", line 1491, in execute
+    self.assertEqual(built.returncode,0,built.stderr.decode(errors='replace'))
+AssertionError: 1 != 0 : [1mCompiling[0m main.sn...
+  Parsing... [1;36mdone[0m
+  Type checking...error: /tmp/sn-native-import-e0f6mnnd/.sn/multimodule/sn.yaml: native binding 'src/words.sn::word' requires a supported native declaration or independently compiled Sindarin callable
+ [1;31mfailed[0m
+
+[1;31mCompilation failed[0m
+
+
+======================================================================
+FAIL: test_native_package_adapts_only_loaded_api_modules (__main__.NativeImports.test_native_package_adapts_only_loaded_api_modules) (archive='source', caller=0, target='rust')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/gavin/code/sindarin/sindarin-rust-parity-goal/tests/package/native_imports.py", line 324, in test_native_package_adapts_only_loaded_api_modules
+    with self.subTest(archive=archive,caller=index,target=target):self.execute(target,expected)
+                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gavin/code/sindarin/sindarin-rust-parity-goal/tests/package/native_imports.py", line 1491, in execute
+    self.assertEqual(built.returncode,0,built.stderr.decode(errors='replace'))
+AssertionError: 1 != 0 : [1mCompiling[0m main.sn...
+  Parsing... [1;36mdone[0m
+  Type checking...error: /tmp/sn-native-import-e0f6mnnd/.sn/multimodule/sn.yaml: native binding 'src/words.sn::word' requires a supported native declaration or independently compiled Sindarin callable
+ [1;31mfailed[0m
+
+[1;31mCompilation failed[0m
+
+
+======================================================================
+FAIL: test_native_package_adapts_only_loaded_api_modules (__main__.NativeImports.test_native_package_adapts_only_loaded_api_modules) (archive='source', caller=1, target='c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/gavin/code/sindarin/sindarin-rust-parity-goal/tests/package/native_imports.py", line 324, in test_native_package_adapts_only_loaded_api_modules
+    with self.subTest(archive=archive,caller=index,target=target):self.execute(target,expected)
+                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gavin/code/sindarin/sindarin-rust-parity-goal/tests/package/native_imports.py", line 1491, in execute
+    self.assertEqual(built.returncode,0,built.stderr.decode(errors='replace'))
+AssertionError: 1 != 0 : [1mCompiling[0m main.sn...
+  Parsing... [1;36mdone[0m
+  Type checking...error: /tmp/sn-native-import-e0f6mnnd/.sn/multimodule/sn.yaml: native binding 'src/numbers.sn::number' requires a supported native declaration or independently compiled Sindarin callable
+ [1;31mfailed[0m
+
+[1;31mCompilation failed[0m
+
+
+======================================================================
+FAIL: test_native_package_adapts_only_loaded_api_modules (__main__.NativeImports.test_native_package_adapts_only_loaded_api_modules) (archive='source', caller=1, target='rust')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/gavin/code/sindarin/sindarin-rust-parity-goal/tests/package/native_imports.py", line 324, in test_native_package_adapts_only_loaded_api_modules
+    with self.subTest(archive=archive,caller=index,target=target):self.execute(target,expected)
+                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gavin/code/sindarin/sindarin-rust-parity-goal/tests/package/native_imports.py", line 1491, in execute
+    self.assertEqual(built.returncode,0,built.stderr.decode(errors='replace'))
+AssertionError: 1 != 0 : [1mCompiling[0m main.sn...
+  Parsing... [1;36mdone[0m
+  Type checking...error: /tmp/sn-native-import-e0f6mnnd/.sn/multimodule/sn.yaml: native binding 'src/numbers.sn::number' requires a supported native declaration or independently compiled Sindarin callable
+ [1;31mfailed[0m
+
+[1;31mCompilation failed[0m
+
+
+======================================================================
+FAIL: test_native_package_adapts_only_loaded_api_modules (__main__.NativeImports.test_native_package_adapts_only_loaded_api_modules) (archive='prebuilt', caller=0, target='c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/gavin/code/sindarin/sindarin-rust-parity-goal/tests/package/native_imports.py", line 324, in test_native_package_adapts_only_loaded_api_modules
+    with self.subTest(archive=archive,caller=index,target=target):self.execute(target,expected)
+                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gavin/code/sindarin/sindarin-rust-parity-goal/tests/package/native_imports.py", line 1491, in execute
+    self.assertEqual(built.returncode,0,built.stderr.decode(errors='replace'))
+AssertionError: 1 != 0 : [1mCompiling[0m main.sn...
+  Parsing... [1;36mdone[0m
+  Type checking...error: /tmp/sn-native-import-e0f6mnnd/.sn/multimodule/sn.yaml: native binding 'src/words.sn::word' requires a supported native declaration or independently compiled Sindarin callable
+ [1;31mfailed[0m
+
+[1;31mCompilation failed[0m
+
+
+======================================================================
+FAIL: test_native_package_adapts_only_loaded_api_modules (__main__.NativeImports.test_native_package_adapts_only_loaded_api_modules) (archive='prebuilt', caller=0, target='rust')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/gavin/code/sindarin/sindarin-rust-parity-goal/tests/package/native_imports.py", line 324, in test_native_package_adapts_only_loaded_api_modules
+    with self.subTest(archive=archive,caller=index,target=target):self.execute(target,expected)
+                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gavin/code/sindarin/sindarin-rust-parity-goal/tests/package/native_imports.py", line 1491, in execute
+    self.assertEqual(built.returncode,0,built.stderr.decode(errors='replace'))
+AssertionError: 1 != 0 : [1mCompiling[0m main.sn...
+  Parsing... [1;36mdone[0m
+  Type checking...error: /tmp/sn-native-import-e0f6mnnd/.sn/multimodule/sn.yaml: native binding 'src/words.sn::word' requires a supported native declaration or independently compiled Sindarin callable
+ [1;31mfailed[0m
+
+[1;31mCompilation failed[0m
+
+
+======================================================================
+FAIL: test_native_package_adapts_only_loaded_api_modules (__main__.NativeImports.test_native_package_adapts_only_loaded_api_modules) (archive='prebuilt', caller=1, target='c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/gavin/code/sindarin/sindarin-rust-parity-goal/tests/package/native_imports.py", line 324, in test_native_package_adapts_only_loaded_api_modules
+    with self.subTest(archive=archive,caller=index,target=target):self.execute(target,expected)
+                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gavin/code/sindarin/sindarin-rust-parity-goal/tests/package/native_imports.py", line 1491, in execute
+    self.assertEqual(built.returncode,0,built.stderr.decode(errors='replace'))
+AssertionError: 1 != 0 : [1mCompiling[0m main.sn...
+  Parsing... [1;36mdone[0m
+  Type checking...error: /tmp/sn-native-import-e0f6mnnd/.sn/multimodule/sn.yaml: native binding 'src/numbers.sn::number' requires a supported native declaration or independently compiled Sindarin callable
+ [1;31mfailed[0m
+
+[1;31mCompilation failed[0m
+
+
+======================================================================
+FAIL: test_native_package_adapts_only_loaded_api_modules (__main__.NativeImports.test_native_package_adapts_only_loaded_api_modules) (archive='prebuilt', caller=1, target='rust')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/gavin/code/sindarin/sindarin-rust-parity-goal/tests/package/native_imports.py", line 324, in test_native_package_adapts_only_loaded_api_modules
+    with self.subTest(archive=archive,caller=index,target=target):self.execute(target,expected)
+                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gavin/code/sindarin/sindarin-rust-parity-goal/tests/package/native_imports.py", line 1491, in execute
+    self.assertEqual(built.returncode,0,built.stderr.decode(errors='replace'))
+AssertionError: 1 != 0 : [1mCompiling[0m main.sn...
+  Parsing... [1;36mdone[0m
+  Type checking...error: /tmp/sn-native-import-e0f6mnnd/.sn/multimodule/sn.yaml: native binding 'src/numbers.sn::number' requires a supported native declaration or independently compiled Sindarin callable
+ [1;31mfailed[0m
+
+[1;31mCompilation failed[0m
+
+
+----------------------------------------------------------------------
+Ran 1 test in 1.131s
+
+FAILED (failures=8)

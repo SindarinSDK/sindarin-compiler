@@ -1,0 +1,29 @@
+{
+  "conclusion": "success",
+  "headSha": "89f3b83ee42e78e84b47d9979b3ec66fa305cbe5",
+  "jobs": [
+    {
+      "name": "Native text oracle contract",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38110801585/job/114385773885"
+    },
+    {
+      "name": "sindarin-pkg-test / Test (ubuntu-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38110801585/job/114385773925"
+    },
+    {
+      "name": "sindarin-pkg-test / Test (windows-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38110801585/job/114385773997"
+    },
+    {
+      "name": "sindarin-pkg-test / Test (macos-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38110801585/job/114385774036"
+    }
+  ],
+  "status": "completed",
+  "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38110801585",
+  "scope": "TextFile public-before-standalone header inclusion, repeated-inclusion native client regression, and complete legacy SDK suite on Linux/macOS/Windows."
+}

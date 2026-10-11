@@ -1,0 +1,41 @@
+{
+  "counts": {
+    "c": {
+      "passed": 3242,
+      "failed": 0,
+      "skipped": 0
+    },
+    "rust": {
+      "passed": 1097,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "package_import_tests": 46,
+  "package_artifact_tests": 20,
+  "ci_helper_tests": 22,
+  "multi_module_positive_source_prebuilt_C_Rust_cases": 12,
+  "multi_module_missing_loaded_callable_negative_cases": 2,
+  "strict_multi_module_checks_passed": true,
+  "poisoned_package_control_tests": 3,
+  "SDK_header_accepted_revision": "89f3b83ee42e78e84b47d9979b3ec66fa305cbe5",
+  "SDK_checks": {
+    "normal": 26,
+    "sanitized": 3,
+    "legacy_rebuilt": 28
+  },
+  "root_causes": [
+    "struct method return memory qualifier omitted from type constructor copy",
+    "application importer demanded declarations from unloaded API modules"
+  ],
+  "before_evidence": "Poisoned AST assertion fails; eight single-module import source/prebuilt checks fail before importer repair. Existing both-module controls already pass.",
+  "compiler_hosted_acceptance": "Pending its own complete CI after publication",
+  "original_DSL_sources_oracles_snapshots_changed": false,
+  "complete_goal": false,
+  "source_sha256": {
+    "src/ast/ast_type.c": "f142c48f69763823f47791d7761f4571be9efad00b2d23bce3d4b42e8f618898",
+    "src/package/package_import.c": "764ba0eaa1d6c119e06a71957f0a14f30a5cbc0d722b63dec6a03b6d1b271bb6",
+    "tests/unit/ast/ast_tests_type.c": "cfa441d5c08fe99681d9e2fe7fa1c42689a064687f5e5e71a7e30a37b0b843fa",
+    "tests/package/native_imports.py": "594dc6457da1cefa13289cfe3fc8e4c83fa51022a15ab7a15307e8690d97824d"
+  }
+}

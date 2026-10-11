@@ -286,6 +286,26 @@ static void test_ast_type_to_string()
     cleanup_arena(&arena);
 }
 
+static void test_ast_struct_method_return_qualifiers_on_poisoned_storage()
+{
+    Arena arena;
+    arena_init(&arena, 65536);
+    Type *result = ast_create_primitive_type(&arena, TYPE_STRING);
+    StructMethod methods[3] = {
+        {.name = "plain", .return_type = result, .return_mem_qualifier = MEM_DEFAULT, .is_static = true},
+        {.name = "borrowed", .return_type = result, .return_mem_qualifier = MEM_AS_REF},
+        {.name = "owned", .return_type = result, .return_mem_qualifier = MEM_AS_VAL}
+    };
+    memset(arena.current->data + arena.current_used, 0xa5,
+           arena.current->size - arena.current_used);
+    Type *type = ast_create_struct_type(&arena, "Qualified", NULL, 0, methods, 3,
+                                       true, false, true, NULL);
+    assert(type->as.struct_type.methods != methods);
+    for (int i = 0; i < 3; i++)
+        assert(type->as.struct_type.methods[i].return_mem_qualifier == methods[i].return_mem_qualifier);
+    cleanup_arena(&arena);
+}
+
 void test_ast_type_main()
 {
     TEST_SECTION("AST Type Tests");
@@ -295,4 +315,5 @@ void test_ast_type_main()
     TEST_RUN("ast_clone_type", test_ast_clone_type);
     TEST_RUN("ast_type_equals", test_ast_type_equals);
     TEST_RUN("ast_type_to_string", test_ast_type_to_string);
+    TEST_RUN("ast_struct_method_return_qualifiers_on_poisoned_storage", test_ast_struct_method_return_qualifiers_on_poisoned_storage);
 }

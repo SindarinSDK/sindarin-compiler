@@ -7,6 +7,66 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Method qualifiers and independent API modules: local validation, 2026-10-11
+
+Broader SDK artifact construction exposed two compiler defects. The struct type
+constructor omitted each method's return memory qualifier, leaving the package
+validator dependent on uninitialized storage. A poisoned-arena regression fails
+before the repair and verifies default, borrowed and owned return qualifiers
+afterward. The constructor now preserves the declared qualifier.
+
+The application importer also required bindings from every API module in a
+package to resolve in the application's AST, even when only one module was
+imported. It now prepares adapters for loaded declaration files; the independent
+provider build still validates all package exports. Source/prebuilt C/Rust
+controls import either of two APIs alone or both with aliases, and preserve the
+missing-callable diagnostic for a loaded API. All 12 combinations and both
+negative controls pass normally and under strict address/undefined/leak checks.
+
+Complete C/Rust suites pass 3,242/1,097 checks; the complete import suite passes
+46 tests, artifact tests pass 20 and CI-helper tests pass 22. Three package
+controls also pass with `MALLOC_PERTURB_=165`. Original DSL callers, behavioural
+oracles and source snapshots are preserved. Hosted compiler acceptance is pending.
+
+The SDK TextFile header now permits public-before-standalone inclusion with
+independent guards, verified by the native client and repeated includes. SDK
+`89f3b83` passes all four jobs in
+[CI 38110801585](https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38110801585).
+Normal/sanitized SDK checks pass 26/3 and the rebuilt legacy suite passes all 28.
+Compiler CI pins this accepted revision.
+
+An unpublished builder prototype stages eight unchanged SDK public modules,
+their existing C implementations and generated forwarding wrappers. It builds
+16 C/SN units with 188 exports. C Crypto/Directory/OS and Rust Directory callers
+pass their original oracles locally. Rust Crypto/OS still reject empty native
+static namespaces. The original Path fixture imports Environment, whose nested
+string-array API needs wider contracts before the artifact can include it.
+These remain implementation work; the prototype is not complete SDK acceptance.
+The complete SDK, broader contracts and final original corpus/platform/mode
+acceptance remain required. Evidence:
+[TextFile header acceptance](rust-parity-evidence/sdk-textfile-header-order-ci-green.json).
+[Compiler metadata validation](rust-parity-evidence/package-metadata-validation.json)
+retains the failing-before controls and successful complete local suites.
+
+## Native entrypoint parity: hosted acceptance, 2026-10-11
+
+Compiler main `a182e350` passes all 34 jobs in
+[CI 38108965543](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38108965543).
+Retained coverage verifies 26 groups, 295 gates and one compiler per platform.
+This accepts the entrypoint repair and its integrated lifecycle checks on
+Linux/macOS/Windows. Evidence:
+[native entrypoint acceptance](rust-parity-evidence/native-entrypoint-ci-green.json).
+
+## BinaryFile SDK artifacts: hosted acceptance, 2026-10-11
+
+Compiler main `89c9ce1d` passes all 34 jobs in
+[CI 38110035844](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38110035844).
+Retained coverage verifies 26 groups, 295 gates and one compiler per platform.
+This accepts BinaryFile's unchanged facade, original caller/oracle, canonical
+record/byte transport and mixed source/prebuilt package controls on
+Linux/macOS/Windows. Evidence:
+[BinaryFile compiler acceptance](rust-parity-evidence/sdk-binaryfile-artifact-ci-green.json).
+
 ## BinaryFile SDK artifacts: local validation, 2026-10-11
 
 The actual SDK BinaryFile module now builds independently with canonical C

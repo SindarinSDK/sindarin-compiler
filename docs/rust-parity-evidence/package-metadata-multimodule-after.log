@@ -1,0 +1,6 @@
+test_native_package_adapts_only_loaded_api_modules (__main__.NativeImports.test_native_package_adapts_only_loaded_api_modules) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 2.890s
+
+OK

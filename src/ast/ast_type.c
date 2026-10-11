@@ -712,6 +712,7 @@ Type *ast_create_struct_type(Arena *arena, const char *name, StructField *fields
                 ? arena_strdup(arena, methods[i].name) : NULL;
             type->as.struct_type.methods[i].param_count = methods[i].param_count;
             type->as.struct_type.methods[i].return_type = methods[i].return_type;
+            type->as.struct_type.methods[i].return_mem_qualifier = methods[i].return_mem_qualifier;
             type->as.struct_type.methods[i].body = methods[i].body;  /* Shallow copy - statements already in arena */
             type->as.struct_type.methods[i].body_count = methods[i].body_count;
             type->as.struct_type.methods[i].modifier = methods[i].modifier;

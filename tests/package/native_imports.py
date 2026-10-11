@@ -290,6 +290,47 @@ class NativeImports(unittest.TestCase):
             for target in ('c','rust'):
                 with self.subTest(target=target,flags=flags,archive='prebuilt'):self.execute(target,expected,flags)
 
+    def test_native_package_adapts_only_loaded_api_modules(self):
+        import hashlib,json
+        package=self.root/'.sn/multimodule'
+        self.write('.sn/multimodule/src/numbers.sn','native fn number(): int\n')
+        self.write('.sn/multimodule/src/words.sn','native fn word(): str\n')
+        self.write('.sn/multimodule/src/backing.c','#include <string.h>\n'
+            'long long number(void) { return 17; }\nchar *word(void) { return strdup("second module"); }\n')
+        manifest=('name: multimodule\nruntime: C\nnative:\n  abi: 1.0\n'
+            '  declarations: [src/numbers.sn, src/words.sn]\n  builds:\n'
+            '    - name: backing\n      language: C\n      sources: [src/backing.c]\n  bindings:\n')
+        for file,function,result in (('numbers','number','value'),('words','word','owned')):
+            manifest+=(f'    - declaration: src/{file}.sn::{function}\n      function: {function}\n'
+                f'      symbol: multimodule_{function}\n      build: backing\n      convention: C\n'
+                f'      failure: abort\n      ownership: {{parameters: {{}}, result: {result}}}\n')
+        self.write('.sn/multimodule/sn.yaml',manifest)
+        callers=[('import "multimodule/src/numbers"\nfn main(): void =>\n  println(number())\n',b'17\n'),
+                 ('import "multimodule/src/words"\nfn main(): void =>\n  println(word())\n',b'second module\n'),
+                 ('import "multimodule/src/numbers" as Numbers\nimport "multimodule/src/words" as Words\n'
+                  'fn main(): void =>\n  println(Numbers.number())\n  println(Words.word())\n',b'17\nsecond module\n')]
+        for archive in ('source','prebuilt'):
+            if archive=='prebuilt':
+                built=subprocess.run([str(COMPILER),'--build-native',str(package/'sn.yaml'),'-o',str(package/'dist-build')],
+                    cwd=self.root,capture_output=True,timeout=180)
+                self.assertEqual(built.returncode,0,built.stderr.decode(errors='replace'))
+                assembly=Path(json.loads(built.stdout)['assembly']);shutil.copytree(assembly.parent,package/'dist')
+                (package/'sn.yaml').write_text(manifest.replace('  abi: 1.0\n',
+                    '  abi: 1.0\n  assembly: {path: dist/assembly.json, sha256: '+hashlib.sha256(assembly.read_bytes()).hexdigest()+'}\n'))
+                (package/'src/backing.c').unlink()
+            for index,(caller,expected) in enumerate(callers):
+                self.write('main.sn',caller)
+                for target in ('c','rust'):
+                    with self.subTest(archive=archive,caller=index,target=target):self.execute(target,expected)
+        # A missing callable in an imported API must still be diagnosed.
+        self.write('.sn/multimodule/src/numbers.sn','native fn renamed(): int\n')
+        self.write('main.sn','import "multimodule/src/numbers"\nfn main(): void =>\n  println(renamed())\n')
+        for target in ('c','rust'):
+            result=subprocess.run([str(COMPILER),'main.sn','--no-install','--target',target,'-o',str(self.root/'bad')],
+                cwd=self.root,capture_output=True,timeout=30)
+            self.assertNotEqual(result.returncode,0)
+            self.assertIn(b'requires a supported native declaration',result.stderr)
+
     def test_native_byte_arrays_preserve_live_inputs_and_owned_results(self):
         import hashlib,json
         for language in ('C','RS','GO'):

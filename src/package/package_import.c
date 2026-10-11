@@ -146,6 +146,19 @@ static bool import_type(Type *type)
            type->kind == TYPE_FLOAT || type->kind == TYPE_DOUBLE || type->kind == TYPE_STRING;
 }
 
+static bool import_file_loaded(CompilerOptions *options, const char *file,
+                               const char *const *paths, int count)
+{
+    for (int i = -1; i < count; i++) {
+        const char *path = i < 0 ? options->source_file : paths[i];
+        char *absolute = path ? import_absolute(path) : NULL;
+        bool loaded = absolute && import_same(file, absolute);
+        free(absolute);
+        if (loaded) return true;
+    }
+    return false;
+}
+
 bool package_prepare_native_imports(CompilerOptions *options, Module *module,
                                    const char *const *paths, Module *const *modules, int count)
 {
@@ -238,6 +251,12 @@ bool package_prepare_native_imports(CompilerOptions *options, Module *module,
             char candidate[4096];
             snprintf(candidate, sizeof(candidate), "%s/%s", root, identity);
             char *file = import_absolute(candidate);
+            /* One artifact may expose several API modules. Only declarations
+             * actually loaded into this application need consumer adapters;
+             * the independent provider build validates the complete artifact. */
+            if (file && !import_file_loaded(options, file, paths, count)) {
+                free(identity); free(file); continue;
+            }
             PackageCallable callable;
             bool found = file && package_find_callable(&options->arena, module, file, separator + 2, &callable);
             for (int i = 0; !found && file && i < count; i++)
