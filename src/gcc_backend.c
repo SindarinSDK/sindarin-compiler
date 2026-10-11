@@ -1,5 +1,6 @@
 #include "gcc_backend.h"
 #include "package/package_link.h"
+#include "target/rust/rust_native_response.h"
 #include "gcc_backend_config.h"
 #include "gcc_backend_pkgconfig.h"
 #include "debug.h"
@@ -913,7 +914,42 @@ bool gcc_compile_modular(const CCBackendConfig *config, const char *build_dir,
         deps_lib_opt, pkg_lib_opt, extra_libs, config->ldlibs, config->ldflags,
         exe_path, error_file);
 
-    bool link_ok = run_compile_cmd(link_command, error_file, verbose);
+    bool link_ok;
+#ifdef _WIN32
+    if (backend == BACKEND_GCC || backend == BACKEND_CLANG)
+    {
+        /* system() uses cmd.exe, whose limit is smaller than the allocated
+         * command buffer. Keep the complete archive graph in a driver response
+         * file, using the same Windows argument parser as Rust native links. */
+        char response_path[PATH_MAX];
+        int path_length = snprintf(response_path, sizeof(response_path),
+            "%s\\sn_link_args_%d.rsp", build_dir, (int)getpid());
+        size_t prefix_length = strlen(cc_quote) * 2 + strlen(config->cc) + 1;
+        bool response_ok = path_length >= 0 && (size_t)path_length < sizeof(response_path);
+        FILE *response = response_ok ? fopen(response_path, "wb") : NULL;
+        if (response)
+        {
+            response_ok = rust_native_write_windows_link_response(response,
+                link_command + prefix_length, error_file);
+            if (fclose(response) != 0) response_ok = false;
+        }
+        else response_ok = false;
+        if (response_ok)
+        {
+            snprintf(command, sizeof(command), "%s%s%s @\"%s\" 2>\"%s\"",
+                cc_quote, config->cc, cc_quote, response_path, error_file);
+            link_ok = run_compile_cmd(command, error_file, verbose);
+        }
+        else
+        {
+            fprintf(stderr, "Error: cannot create C linker response file\n");
+            link_ok = false;
+        }
+        if (path_length >= 0 && (size_t)path_length < sizeof(response_path)) unlink(response_path);
+    }
+    else
+#endif
+        link_ok = run_compile_cmd(link_command, error_file, verbose);
 
     free(extra_libs);
     free(link_command);

@@ -1,0 +1,20 @@
+{
+  "SDK_revision": "101702bce29f6e1755a6c28ad08adfc3d3fee6c3",
+  "SDK_CI": 38163905630,
+  "SDK_CI_url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38163905630",
+  "status": "Original feature CI failed; integrated correction 0b71e84 accepted in CI 38164835929",
+  "local_proof": "/home/gavin/code/sindarin/sindarin-sdk-xml-native/docs/rust-parity-evidence/xml-native-local-validation.json",
+  "C_Rust_native_original_cases": 20,
+  "actual_runtime_sanitizer_cases": 1,
+  "legacy_SDK_cases": 28,
+  "native_helpers": 10,
+  "remaining": [
+    "Generated compiler ABI 1.8/package and XML artifact hosted acceptance",
+    "Whole SDK and final complete original corpus/platform proof"
+  ],
+  "accepted_correction": {
+    "revision": "0b71e84694230f5745bac5254d3811e696f892f5",
+    "CI": 38164835929,
+    "proof": "sdk-xml-correction-ci-green.json"
+  }
+}

@@ -2,6 +2,25 @@
 #include <stdlib.h>
 #include <string.h>
 
+bool rust_native_write_windows_link_response(FILE *file, const char *options,
+                                            const char *error_file)
+{
+    if (!file || !options || !error_file) return false;
+    size_t length = strlen(options), suffix = strlen(error_file) + 5;
+    if (length < suffix) return false;
+    const char *redirect = options + length - suffix;
+    if (strncmp(redirect, " 2>\"", 4) ||
+        strncmp(redirect + 4, error_file, strlen(error_file)) || options[length - 1] != '"')
+        return false;
+    char *arguments = malloc(length - suffix + 1);
+    if (!arguments) return false;
+    memcpy(arguments, options, length - suffix);
+    arguments[length - suffix] = '\0';
+    bool ok = rust_native_write_windows_response(file, arguments);
+    free(arguments);
+    return ok;
+}
+
 bool rust_native_write_windows_response(FILE *file, const char *options)
 {
     if (!file || !options) return false;

@@ -1,5 +1,5 @@
 {
-  "status": "Complete integrated local validation passed; unpublished; accepted exact SDK dependency pinned; compiler hosted acceptance required",
+  "status": "Published integration CI failed macOS record-guard traversal and Windows C shell link limit; correction required",
   "base": "757d9d0cc449cfd71ea1f63fadd69bded785d2ab",
   "accepted_SDK": "2152da20d283dae9a4b31d2551f001b6b2c43904",
   "SDK_CI": 38161748979,
@@ -61,5 +61,13 @@
     "Package exported qualifiers and callbacks",
     "Wider record/interface/generic contracts and dependency lifecycle graphs",
     "Final complete original corpus/platform/mode/oracle proof"
-  ]
+  ],
+  "published_revision": "f5e8891121367fccd38d6629cb90310f7529ed03",
+  "compiler_CI": 38162607031,
+  "compiler_CI_url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38162607031",
+  "failed_CI": 38162607031,
+  "required_failures": {
+    "macos": "record-parameter-rebind compiler heap-use-after-free",
+    "windows": "sdk-artifact-callers C link command exceeds cmd.exe limit"
+  }
 }

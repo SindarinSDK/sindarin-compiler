@@ -4,6 +4,7 @@
 #include "standalone/diagnostic_tests.c"
 #include "standalone/ownership_tests.c"
 #include "standalone/gen_model_split_tests.c"
+#include "standalone/rust_record_guard_tests.c"
 #include "ast/ast_tests.c"
 #include "backend/gcc_backend_tests.c"
 #include "lexer/lexer_tests.c"
@@ -48,6 +49,7 @@ int main()
     // *** Modular model ownership ***
 
     test_gen_model_split_main();
+    test_rust_record_guard_main();
 
 
     // *** AST ***

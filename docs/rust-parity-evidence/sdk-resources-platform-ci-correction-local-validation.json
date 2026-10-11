@@ -1,0 +1,122 @@
+{
+  "status": "Combined macOS/Windows correction fully locally validated; complete required hosted acceptance pending",
+  "base": "f5e8891121367fccd38d6629cb90310f7529ed03",
+  "failed_CI": 38162607031,
+  "CI_failures": {
+    "macos": "record-parameter-rebind compiler use-after-free",
+    "windows": "sdk-artifact-callers C driver shell command limit"
+  },
+  "repairs": [
+    "Collect record-guard names before modifying shared JSON structures",
+    "Windows GCC/Clang links encode complete argument graphs in response files"
+  ],
+  "C_suite": 3243,
+  "Rust_suite": 1097,
+  "unit_tests": 1619,
+  "record_rebind_normal_cases": 72,
+  "record_rebind_sanitized_cases": 72,
+  "artifacts": 22,
+  "SDK_smoke_cases": 72,
+  "ci_helpers": 23,
+  "registered_gates": 405,
+  "registered_groups": 26,
+  "regressions": [
+    "Original hosted-crashing fixture under instrumented compiler",
+    "Shared ancestor resize unit fails with old production visitor under ASAN",
+    "Corrected focused resize helper passes address/undefined/leak checks",
+    "All 1619 compiler unit tests pass ASAN/UBSAN with leak checking disabled for broad compiler diagnosis",
+    "48-archive C graph exceeds 8191 characters and preserves sum oracle",
+    "Windows argument-tail encoding reaches actual C driver, normal and sanitized"
+  ],
+  "accepted_SDK_pin": "2152da20d283dae9a4b31d2551f001b6b2c43904",
+  "SDK_XML_accepted": "0b71e84694230f5745bac5254d3811e696f892f5",
+  "feature_publication": "Frozen until complete corrected compiler CI acceptance; record-array/internal package calls held at e84239c8",
+  "remaining": [
+    "Complete Linux/macOS/Windows hosted correction acceptance",
+    "Unpublished ABI 1.8 and internal-native-call feature integration after correction acceptance",
+    "Whole SDK, wider contracts and final original corpus/platform proof"
+  ],
+  "logs": {
+    "full-c": {
+      "path": "/tmp/sindarin-platform-correction-full-c.log",
+      "sha256": "2afbc950a4dad35b6fa3d8e05fc0aa12bfa37473d0c61d41270b19b01cfeacd9"
+    },
+    "full-rust": {
+      "path": "/tmp/sindarin-platform-correction-full-rust.log",
+      "sha256": "afa59eb02b325cccf92f111dc2c3bc6dd110be2cb14e6fe9471701acc12eedda"
+    },
+    "artifacts": {
+      "path": "/tmp/sindarin-platform-correction-artifacts.log",
+      "sha256": "d9cf54d6666515a91775422fa21d35bd60c66d5c55d4f266c293aa20f3a0bfda"
+    },
+    "long-graph": {
+      "path": "/tmp/sindarin-platform-correction-long-graph.log",
+      "sha256": "2db9b9de69669ac4ccc79ea72b5a955cac878547175a58a4512132265bff0f89"
+    },
+    "sdk-quick": {
+      "path": "/tmp/sindarin-platform-correction-sdk-quick.log",
+      "sha256": "aa6b8724e7be2e4be8ff1e7db2a67a4cba2746781780508d22ec2ae6f8de89e5"
+    },
+    "ci-helpers": {
+      "path": "/tmp/sindarin-platform-correction-ci-helpers.log",
+      "sha256": "2f5849ed9650be03fa8ceeba3c6dd0ec64a660b185e7bbea96b5900b0697ae2e"
+    },
+    "response-san": {
+      "path": "/tmp/sindarin-platform-correction-response-san.log",
+      "sha256": "2577fe77c49e56e4e02c0752b364170183b2ddeb9f830da173ae7d4a807aa936"
+    },
+    "final-asan-unit": {
+      "path": "/tmp/sindarin-platform-correction-final-asan-unit.log",
+      "sha256": "ae92a6451e38a6ec8e09c3747a52f839c6702dfec6a8091c1ce138897961b9a8"
+    },
+    "final-compiler-asan": {
+      "path": "/tmp/sindarin-platform-correction-final-compiler-asan.log",
+      "sha256": "e285bb7f3780f6b1e0f5948579ae3ebd481cd0921dcc286989888d023bd2d5c7"
+    },
+    "release-focused": {
+      "path": "/tmp/sindarin-macos-rebind-release-focused.log",
+      "sha256": "a1750d90d772f45243753296a6564cf7a669089123bdcf2cc48092d0da231dc5"
+    },
+    "release-focused-san": {
+      "path": "/tmp/sindarin-macos-rebind-release-focused-san.log",
+      "sha256": "84f4dae3c108f6e8b7b251eb332142c8285cd816e1febeb243e20d7e06ebd54d"
+    },
+    "record-guard-resize-before": {
+      "path": "/tmp/sindarin-record-guard-resize-before.log",
+      "sha256": "692cd4a51e8573505b1462566a535322a421ece30fcab91940fc8d5e4701007a"
+    },
+    "record-guard-resize-after": {
+      "path": "/tmp/sindarin-record-guard-resize-after.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "macos-rebind-compiler-asan-before": {
+      "path": "/tmp/sindarin-macos-rebind-compiler-asan-before.log",
+      "sha256": "9b4d01986abc07ffd8385ae9ce550af312b30c7d74c7eec5bcac18332b79c617"
+    },
+    "macos_failed_core": {
+      "sha256": "db21a0e5f858065ff7bf7c35c5875271bae3d2d2db1f374fe7705e3fd877a5b7",
+      "failed_gates": [
+        {
+          "id": "record-parameter-rebind",
+          "status": 1
+        }
+      ]
+    },
+    "windows_failed_core": {
+      "sha256": "982d7e8beef761d103652f426d64905f404f159a75a8e3cfa6d765df03f68732",
+      "failed_gates": [
+        {
+          "id": "sdk-artifact-callers",
+          "status": 1
+        }
+      ]
+    },
+    "imports": {
+      "path": "/tmp/sindarin-platform-correction-imports.log",
+      "sha256": "959095727deb615e8811fc04534bae8ca0ca4a27d49f20f4143b881feb09ecaa"
+    }
+  },
+  "imports": 51,
+  "release_compiler_sha256": "7abff42e8ccab402df7bbcf1996afb541cd0faa1c1da3c515ee731183ecb1f6c",
+  "diagnostic_compiler_sha256": "964385abbeabc4012fc0190a67c43a3da34844a51c852cdd7a8a27f6b451cd2f"
+}

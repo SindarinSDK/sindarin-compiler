@@ -25,7 +25,10 @@ Process also repairs a reproduced POSIX dual-pipe deadlock. Json copy hooks reta
 the original typed-nil/null-wrapper behavior. Generated ordinary `as val` and
 `copyOf()` adapters use declared C copy functions, preserving independent native
 storage, source aliases and temporary-producer cleanup. The SDK correction and
-this wider compiler integration still require complete hosted acceptance.
+this wider compiler integration require complete hosted acceptance. Compiler
+CI 38162607031 failed macOS record-guard traversal and Windows SDK C link length;
+a combined correction is pending and feature publication remains frozen. SDK
+resource correction 2152da2 and XML correction 0b71e84 have hosted SDK acceptance.
 
 The optional record copy contract, managed-field and public-copy-method support,
 native resource lifetimes, original caller outputs and nil behavior have focused

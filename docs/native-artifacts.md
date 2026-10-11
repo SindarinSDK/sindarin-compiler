@@ -456,3 +456,15 @@ Whole SDK encoding/network migration, exported parameter qualifiers, callbacks,
 complete record/interface/generic transport, dependency lifecycle graphs and
 final corpus/platform parity remain required work. This stage is not a claim of
 full SDK or Rust completion.
+
+## Windows C archive graphs
+
+GCC/Clang C application links store their complete object, archive and configured
+link arguments in a driver response file. The invoked shell command contains
+only the compiler, response-file path and stderr redirection, so a complete SDK
+archive graph can exceed cmd.exe's command-line limit without dropping inputs.
+The response file uses the same Windows argument decoding and GNU driver
+escaping as Rust native links, preserves path spaces and literal quotes, and is
+removed after the link. A 48-archive regression checks a graph above 8,191
+characters; a separate probe passes encoded arguments to the actual C driver.
+Required hosted Windows acceptance remains pending for this correction.

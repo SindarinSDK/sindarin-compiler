@@ -72,12 +72,12 @@ class NativeArtifactTests(unittest.TestCase):
 
     def test_windows_response_arguments_reach_the_actual_c_driver(self):
         self.write('response-writer.c','#include <stdlib.h>\n#include "target/rust/rust_native_response.h"\n'
-            'int main(int argc,char **argv) { if(argc!=3) return 1; FILE *input=fopen(argv[2],"rb");\n'
+            'int main(int argc,char **argv) { if(argc!=3 && argc!=4) return 1; FILE *input=fopen(argv[2],"rb");\n'
             'if(!input || fseek(input,0,SEEK_END)) return 2;long size=ftell(input);rewind(input);\n'
             'if(size<0) return 3;char *text=malloc((size_t)size+1);if(!text) return 4;\n'
             'if(fread(text,1,(size_t)size,input)!=(size_t)size) return 5;text[size]=0;fclose(input);\n'
             'FILE *output=fopen(argv[1],"wb");if(!output) return 6;\n'
-            'int ok=rust_native_write_windows_response(output,text);free(text);if(fclose(output)) return 7;return ok?0:8; }\n')
+            'int ok=argc==4 ? rust_native_write_windows_link_response(output,text,argv[3]) : rust_native_write_windows_response(output,text);free(text);if(fclose(output)) return 7;return ok?0:8; }\n')
         cc=shlex.split(os.environ.get('SN_CC','clang' if os.name=='nt' or os.sys.platform=='darwin' else 'gcc'))
         writer=self.root/'response-writer.exe';response=self.root/'compiler options.rsp';options=self.root/'options.txt'
         flags=shlex.split(os.environ.get('SN_CFLAGS',''))
@@ -105,6 +105,13 @@ class NativeArtifactTests(unittest.TestCase):
         options.write_text(commandline,encoding='utf-8')
         run=subprocess.run([str(writer),str(response),str(options)],capture_output=True,timeout=15)
         self.assertEqual(run.returncode,0,run.stderr.decode(errors='replace'))
+        # The C backend passes its complete argument tail plus a stderr
+        # redirect. Digits in the error filename must not be mistaken for 2>.
+        error_file = 'errors_22222.txt'
+        options.write_text(commandline+' 2>"'+error_file+'"',encoding='utf-8')
+        run=subprocess.run([str(writer),str(response),str(options),error_file],capture_output=True,timeout=15)
+        self.assertEqual(run.returncode,0,run.stderr.decode(errors='replace'))
+        self.assertEqual(shlex.split(response.read_text(encoding='utf-8')),arguments)
         build=subprocess.run(cc+['@'+str(response)],capture_output=True,timeout=90)
         self.assertEqual(build.returncode,0,build.stderr.decode(errors='replace'))
         run=subprocess.run([str(executable)],capture_output=True,timeout=15)

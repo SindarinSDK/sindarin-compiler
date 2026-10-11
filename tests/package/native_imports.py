@@ -1666,6 +1666,23 @@ class NativeImports(unittest.TestCase):
         self.write('main.sn','\n'.join(imports)+'\nfn main(): void =>\n  println('+ ' + '.join(calls)+')\n')
         self.execute('c',b'190\n')
 
+    def test_c_links_archive_graph_beyond_windows_shell_limit(self):
+        imports, calls = [], []
+        count = 48
+        for i in range(count):
+            name = f'long_graph_{i}'
+            self.package(name, 'C', f'#include <stdint.h>\nint64_t native_{name}(void) {{ return {i}; }}\n')
+            imports.append(f'import "{name}/src/api" as Dep{i}')
+            calls.append(f'Dep{i}.provide()')
+        self.write('main.sn', '\n'.join(imports)+'\nfn main(): void =>\n  println('+ ' + '.join(calls)+')\n')
+        self.execute('c', b'1128\n')
+        descriptors = list((self.root/'.sn/build/native-imports/artifacts').rglob('assembly.json'))
+        self.assertEqual(len(descriptors), count)
+        import json
+        paths = [str(path.parent/unit['archive']) for path in descriptors
+                 for unit in json.loads(path.read_text())['units']]
+        self.assertGreater(sum(len(path)+3 for path in paths), 8191)
+
     def test_linker_options_preserve_framework_argument_pairs(self):
         import sys
         sys.path.insert(0,str(ROOT/'scripts'))

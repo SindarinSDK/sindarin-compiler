@@ -1,3 +1,36 @@
+## Integrated platform correction: publication readiness, 2026-10-11
+
+The combined correction addresses both required core failures in CI 38162607031:
+macOS record-guard ancestor-iteration use-after-free and Windows C SDK link
+command length. Local checks pass 3,243 C/1,097 Rust tests, 51 import tests,
+22 artifact tests, 72 normal/72 sanitizer record-rebinding cases, 72 pinned SDK
+smoke cases and all 23 helpers (405 required gates/26 groups). The resize unit
+fails with the original production visitor under ASAN and passes with the repaired
+helper under address/undefined/leak checks. The instrumented compiler emits the
+original crashing Rust fixture cleanly; all 1,619 compiler units pass ASAN/UBSAN
+with leak checking disabled for this broad compiler diagnostic. The actual C
+driver response test also passes normally and with sanitizers.
+
+Evidence: [sdk-resources-platform-ci-correction-local-validation.json](rust-parity-evidence/sdk-resources-platform-ci-correction-local-validation.json).
+Required Linux/macOS/Windows hosted acceptance remains pending. Only this
+correction can be published; feature branch e84239c8 remains held. Whole goal
+completion remains unproven.
+
+## XML SDK correction: hosted acceptance, 2026-10-11
+
+SDK revision `0b71e84694230f5745bac5254d3811e696f892f5` passes all seven jobs
+in [SDK CI 38164835929](https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38164835929).
+Retained Linux/macOS/Windows XML reports each pass 20 cases: independent C/Rust
+archive clients and unchanged original callers across nine modes per target.
+Linux also passes the actual-runtime XML sanitizer ownership client. All
+retained native resource reports pass. The macOS atomic-operation compile and
+Windows pthread link failures from run 38163905630 are corrected and accepted.
+Evidence: [sdk-xml-correction-ci-green.json](rust-parity-evidence/sdk-xml-correction-ci-green.json).
+
+The SDK correction is accepted. Compiler feature run 38162607031 subsequently
+failed macOS/Windows core gates; feature publication is frozen for the combined
+compiler correction below. XML generated artifacts and the wider goal remain open.
+
 # Rust backend completion ledger
 
 Goal: verified feature and behavioral parity with C on integrated main using the
@@ -7,28 +40,42 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
-Current publication state (2026-10-11): correction `757d9d0c` passed all 34 jobs
-in CI 38154653308. Retained coverage verifies 373 gates/26 groups and one exact
-compiler hash on each of Linux/macOS/Windows. Integrated record ownership, UUID
-artifacts and the opaque-body correction are accepted. The publication freeze
-is lifted; older failed revisions receive no acceptance credit.
+Current publication state (2026-10-11): compiler `f5e88911` failed CI
+38162607031. macOS core failed its existing 72-case record-parameter-rebinding
+gate because recursive annotation resized an ancestor JSON table during its
+active iteration. The original fixture reproduces a compiler heap-use-after-free
+under ASAN/UBSAN on Linux. Windows core failed the complete SDK artifact gate
+because the C link command exceeded cmd.exe's limit. All other core gates in
+each retained report passed; Linux core passed. Failed integrated CI receives
+no acceptance credit. Feature publication is frozen while one combined platform
+correction is prepared and awaits complete required hosted acceptance.
 
-SDK correction `2152da2` passed all seven jobs in CI 38161748979. Retained
-Linux/macOS/Windows reports each verify 60 native/original resource cases;
-Linux also verifies three actual-runtime sanitizer probes. The archive and
-original-caller search-path failures are corrected. Feature publication is unfrozen;
-no required outstanding run currently fails.
+The correction collects record-guard names before modifying structures. A new
+unit forces the exact shared-ancestor resize and is independently proven to fail
+with the old production traversal under ASAN; the corrected helper passes with
+address/undefined/leak checks. Windows GCC/Clang C links move the full argument
+list into a response file while keeping stderr redirection in the short driver
+command. Regression coverage includes 48 independent archives with a combined
+path length above 8,191 characters and actual C-driver response argument parsing.
 
-The compiler integrates all three resource stages and the canonical copy work
-locally with that exact accepted SDK pin. Sixteen SDK modules/32 C-Sindarin units
-pass 648 original caller/stdin cases. Focused artifacts pass 216 normal/216
-sanitizer cases, SDK copies 108/108, canonical contracts 54/54, full C/Rust suites
-3,242/1,097, imports/artifacts 50/22 and all 23 helpers. The inventory is 405 gates
-in 26 groups, with every old and new SDK gate required explicitly. json-c now
-stages into compiler bundles on all platforms; actual CMake branch tests verify
-that copy without cross-compilation. This integration requires its own complete
-hosted compiler acceptance. Whole SDK, remaining contracts and final goal proof
-remain required.
+Compiler `757d9d0c` remains the previously accepted integrated head (34 jobs,
+373 gates/26 groups). SDK resource correction `2152da2` remains accepted in
+CI 38161748979 and remains the correction's exact compiler CI pin. SDK XML
+correction `0b71e84` is accepted in CI 38164835929. Canonical XML's 40-byte layout,
+parent/child document ownership, removed/replaced aliases, merged text, exact
+cleanup and original caller behavior have hosted SDK acceptance. Compiler XML
+artifact integration still requires its own hosted proof.
+
+Local feature branch `development/canonical-record-array-abi` is held at
+`e84239c8`: ABI 1.8 runtime, generated C/RS/GO record-array adapters, C/RS bodies,
+complete XML staging and private internal native package calls. Its 216 normal/
+216 sanitizer package-call cases plus six normal/six sanitizer callback wire
+clients pass; seventeen modules/34 units pass 684 unchanged SDK artifact/stdin
+cases. These are local checkpoints, not hosted acceptance. No feature push is
+allowed until this correction is completely accepted. Whole SDK, wider language/
+package contracts and final 1,365-source platform/mode/oracle proof remain open.
+
+## Historical local checkpoints (superseded)
 
 Locally held work now includes integrated copy checkpoint `f1817852` (complete
 3,242 C/1,097 Rust, 54 normal/54 sanitizer copy cases, 50 imports, 22 artifacts,

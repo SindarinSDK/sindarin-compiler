@@ -611,32 +611,7 @@ static bool rust_prepare_callable_parameter_mutations(json_object *callable)
     return rust_prepare_parameter_mutations_in_node(body, params, NULL);
 }
 
-static void rust_mark_record_parameter_guards(json_object *model, json_object *node)
-{
-    if (!node) return;
-    if (json_object_is_type(node, json_type_array))
-    {
-        for (size_t i = 0; i < json_object_array_length(node); i++)
-            rust_mark_record_parameter_guards(model, json_object_array_get_idx(node, i));
-        return;
-    }
-    if (!json_object_is_type(node, json_type_object)) return;
-    if (json_boolean_property(node, "rust_native_record_parameter_rebind"))
-    {
-        json_object *type = NULL, *structs = NULL;
-        json_object_object_get_ex(node, "type", &type);
-        const char *name = json_string_property(type, "name");
-        json_object_object_get_ex(model, "structs", &structs);
-        for (size_t i = 0; name && structs && i < json_object_array_length(structs); i++)
-        {
-            json_object *structure = json_object_array_get_idx(structs, i);
-            if (json_string_property_equals(structure, "name", name))
-                json_object_object_add(structure, "rust_native_record_parameter_guard_used", json_object_new_boolean(true));
-        }
-    }
-    json_object_object_foreach(node, key, child)
-        if (strncmp(key, "rust_", 5) != 0) rust_mark_record_parameter_guards(model, child);
-}
+#include "rust_record_parameter_guards.h"
 
 static bool rust_prepare_by_value_scalar_parameter_mutations(json_object *model)
 {
@@ -662,7 +637,7 @@ static bool rust_prepare_by_value_scalar_parameter_mutations(json_object *model)
             if (!rust_prepare_callable_parameter_mutations(
                     json_object_array_get_idx(methods, m))) return false;
     }
-    rust_mark_record_parameter_guards(model, model);
+    rust_mark_record_parameter_guards(model);
     return true;
 }
 

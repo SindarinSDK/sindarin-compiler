@@ -5,4 +5,7 @@
 /* Parse Windows CRT argument quoting and append GNU response-file arguments.
  * Both supported GCC-compatible C drivers read this response-file syntax. */
 bool rust_native_write_windows_response(FILE *file, const char *options);
+/* Strip the generated stderr redirect before encoding C driver link options. */
+bool rust_native_write_windows_link_response(FILE *file, const char *options,
+                                            const char *error_file);
 #endif
