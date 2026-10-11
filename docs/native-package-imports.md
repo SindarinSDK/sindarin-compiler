@@ -287,9 +287,20 @@ an output. Status exports preserve output arguments on error and contain foreign
 panics as `FOREIGN_ERROR`. Backing code owns temporary resources until successful
 return; borrowed results are not an owned return contract.
 
-Rust generic Sindarin body exports remain explicitly rejected pending recursive
-body guards. Record/interface leaves, reference rebinding and full SDK migration
-remain work. Native provider controls cover nested strings and int32, same-header
+C and Rust Sindarin implementation bodies also use canonical typed array headers.
+Rust body input guards recursively represent the declared scalar/string shape;
+owned results transfer their C allocation to the same checked native provider.
+Default parameter rebinding stays local: the initial header remains borrowed,
+while subsequent bindings are owned and cleaned up at return or unwind. Element
+mutation still reaches the original header until rebinding. C named functions now
+use the same borrowed-versus-owned cleanup rule already used for lambda inputs.
+
+The body controls cover every scalar leaf at rank two, rank-three strings and
+rank-32 nil, nil string elements, independent copies surviving input cleanup, live element
+mutation, repeated/nil parameter rebinding and ordinary app functions. All 72
+C/RS-body, C/Rust-app, source/sealed mode cases pass normally and under strict
+address/undefined/leak checking. Broader nonempty ranks and body lifecycle controls, record/interface
+leaves, reference-qualified rebinding and full SDK migration remain required. Native provider controls cover nested strings and int32, same-header
 aliases, independent owned copies, live callbacks, panic/status errors and exactly
 once cleanup. They pass all nine modes for both application targets, source and
 sealed archives with backing sources and headers removed, normally and with

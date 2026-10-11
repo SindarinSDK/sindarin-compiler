@@ -113,7 +113,7 @@ static bool native_prepare_handle_arrays(json_object *model, json_object *handle
     if (!native_handle_array_collect(model) && !primitive_scalars) return true;
     json_object *support = json_object_new_object();
     if (primitive_scalars) json_object_object_add(support, "primitive_scalars", json_object_new_boolean(true));
-    const char *roles[] = {"type", "trait", "untyped_new", "free", "copy", "length", "data", "width", "push", "pop", "insert", "remove", "clear", "reverse", "slice", "concat", "set", "string_dup", "string_free", "string_copy", "string_view", "string_argument", "nested_new", "nested_free", "nested_copy", NULL};
+    const char *roles[] = {"type", "trait", "parameter_guard", "untyped_new", "free", "copy", "length", "data", "width", "push", "pop", "insert", "remove", "clear", "reverse", "slice", "concat", "set", "string_dup", "string_free", "string_copy", "string_view", "string_argument", "nested_new", "nested_free", "nested_copy", NULL};
     for (int i = 0; roles[i]; i++) {
         char stem[160]; snprintf(stem, sizeof(stem), "__sn_native_handle_array_%s", roles[i]);
         char *name = unique_private_name(native_string(model, "package_native_namespace"), native_record_child(model, "functions"), native_record_child(model, "structs"), native_record_child(model, "globals"), stem);

@@ -373,38 +373,48 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
         {
             json_object *type = NULL, *value = NULL, *value_type = NULL;
             const char *type_kind = NULL, *value_kind = NULL;
-            if (!json_object_object_get_ex(param, "type", &type) ||
-                !(type_kind = json_string_property(type, "kind")) ||
-                !rust_by_value_assign_parameter_type_supported(type))
+            json_object_object_get_ex(param, "type", &type);
+            if (json_boolean_property(param, "rust_default_array_ref") &&
+                json_boolean_property(type, "rust_native_handle_array"))
             {
-                fprintf(stderr,
-                        "Error: Rust target does not support direct assignment of by-value parameter '%s' with type '%s'; only bool, char, int, long, int32, byte, uint32, uint, float, and double are supported\n",
-                        target ? target : "<anonymous>",
-                        type_kind ? type_kind : "<unknown>");
-                return false;
+                json_object_object_add(param, "rust_native_array_parameter_rebind", json_object_new_boolean(true));
+                json_object_object_add(node, "rust_native_array_parameter_rebind", json_object_new_boolean(true));
             }
-            if (!json_object_object_get_ex(node, "value", &value)) return false;
-            if (!json_object_object_get_ex(value, "type", &value_type) ||
-                !(value_kind = json_string_property(value_type, "kind")) ||
-                (strcmp(type_kind, value_kind) != 0 &&
-                 !rust_float_conversion_pair(type, value_type)))
+            else
             {
-                fprintf(stderr,
-                        "Error: Rust target requires direct assignment of by-value parameter '%s' to use the exact same scalar type; cannot assign '%s' to '%s'\n",
-                        target, value_kind ? value_kind : "<unknown>", type_kind);
-                return false;
+                if (!json_object_object_get_ex(param, "type", &type) ||
+                    !(type_kind = json_string_property(type, "kind")) ||
+                    !rust_by_value_assign_parameter_type_supported(type))
+                {
+                    fprintf(stderr,
+                            "Error: Rust target does not support direct assignment of by-value parameter '%s' with type '%s'; only bool, char, int, long, int32, byte, uint32, uint, float, and double are supported\n",
+                            target ? target : "<anonymous>",
+                            type_kind ? type_kind : "<unknown>");
+                    return false;
+                }
+                if (!json_object_object_get_ex(node, "value", &value)) return false;
+                if (!json_object_object_get_ex(value, "type", &value_type) ||
+                    !(value_kind = json_string_property(value_type, "kind")) ||
+                    (strcmp(type_kind, value_kind) != 0 &&
+                     !rust_float_conversion_pair(type, value_type)))
+                {
+                    fprintf(stderr,
+                            "Error: Rust target requires direct assignment of by-value parameter '%s' to use the exact same scalar type; cannot assign '%s' to '%s'\n",
+                            target, value_kind ? value_kind : "<unknown>", type_kind);
+                    return false;
+                }
+                if (rust_rhs_mutates_or_forwards_parameter(value, target))
+                {
+                    fprintf(stderr,
+                            "Error: Rust target does not support direct assignment of by-value parameter '%s' when its RHS mutates or forwards the same parameter as ref\n",
+                            target);
+                    return false;
+                }
+                json_object_object_add(param, "rust_by_value_mutated",
+                                       json_object_new_boolean(true));
+                json_object_object_add(node, "rust_by_value_scalar_parameter_assign",
+                                       json_object_new_boolean(true));
             }
-            if (rust_rhs_mutates_or_forwards_parameter(value, target))
-            {
-                fprintf(stderr,
-                        "Error: Rust target does not support direct assignment of by-value parameter '%s' when its RHS mutates or forwards the same parameter as ref\n",
-                        target);
-                return false;
-            }
-            json_object_object_add(param, "rust_by_value_mutated",
-                                   json_object_new_boolean(true));
-            json_object_object_add(node, "rust_by_value_scalar_parameter_assign",
-                                   json_object_new_boolean(true));
         }
     }
 

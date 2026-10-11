@@ -1653,6 +1653,32 @@
       },
       "group": "sanitizers",
       "linux_only": true
+    },
+    {
+      "id": "typed-sindarin-array-bodies",
+      "name": "C/RS Sindarin nested array bodies, local rebinding and sealed archives (72 mode cases)",
+      "command": [
+        "{python}",
+        "tests/package/rust_array_bodies.py"
+      ],
+      "group": "core",
+      "linux_only": false
+    },
+    {
+      "id": "typed-sindarin-array-body-sanitizers",
+      "name": "C/RS Sindarin borrowed array parameter rebinding and owned result cleanup sanitizers",
+      "command": [
+        "{python}",
+        "tests/package/rust_array_bodies.py"
+      ],
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      },
+      "group": "sanitizers",
+      "linux_only": true
     }
   ]
 }

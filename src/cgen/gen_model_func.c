@@ -627,6 +627,7 @@ json_object *gen_model_function(Arena *arena, FunctionStmt *func, SymbolTable *s
         g_in_main_void = true;
     }
 
+    GenModelBorrowedParamContext borrowed_context = gen_model_borrowed_parameters_enter(params);
     if (func->body)
     {
         for (int i = 0; i < func->body_count; i++)
@@ -635,6 +636,7 @@ json_object *gen_model_function(Arena *arena, FunctionStmt *func, SymbolTable *s
                 gen_model_stmt(arena, func->body[i], symbol_table, arithmetic_mode));
         }
     }
+    gen_model_borrowed_parameters_restore(borrowed_context);
     json_object_object_add(obj, "body", body);
 
     g_in_main_void = was_in_main_void;

@@ -22,6 +22,12 @@ def select_callable(functions, name, method_kind):
     return matches[0] if matches else None
 
 
+def rust_body_array_type(value):
+    if value['kind'] == 'array':
+        return value['rust_native_handle_array_name']+'<'+rust_body_array_type(value['element_type'])+'>'
+    return {'string':'SnString','char':'char'}.get(value['kind'], RUST.get(value['kind']))
+
+
 def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
     runtime = plan['package']['runtime']
     if runtime == 'GO':
@@ -31,9 +37,6 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
     if runtime == 'RS' and any(kind(t) == 'record' for s in signatures for t in
         [s['return_type']] + [p['type'] for p in s['params']]):
         raise ValueError('RS canonical record/opaque body exports require resource input/result guards')
-    if runtime == 'RS' and any(kind(t)=='native_array' for s in signatures for t in
-        [s['return_type']]+[p['type'] for p in s['params']]):
-        raise ValueError('RS typed array body exports require recursive canonical input/result guards')
     if not signatures:
         raise ValueError('Sindarin implementation exports require resolved generated function bindings')
     target = 'c' if runtime=='C' else 'rust'
@@ -113,8 +116,8 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
         if any(kind(s['return_type'])=='record' or any(kind(p['type'])=='record' for p in s['params']) for s in signatures):
             raise ValueError('Rust Sindarin record bodies require canonical record input/result guards')
         bundle_dir = work/(stem+'_bundle')
-        native_arrays = any(kind(f['return_type'])=='byte_array' or
-                            any(kind(p['type']) in ('string_array','byte_array') for p in f['params']) for f in selected)
+        native_arrays = any(kind(f['return_type']) in ('byte_array','native_array') or
+                            any(kind(p['type']) in ('string_array','byte_array','native_array') for p in f['params']) for f in selected)
         bundle_options = ['--emit-source-bundle', '--package-native-namespace', stem]
         if native_arrays: bundle_options.append('--package-native-arrays')
         run(common+bundle_options+['-o',bundle_dir],cwd=root)
@@ -205,7 +208,7 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
             else:links.extend(tokens)
         return archive,links,[dep],model,dependencies
     code=emitted.read_text(encoding="utf-8", errors="surrogateescape")+'\n'
-    input_arrays=[p for f in selected for p in projected_functions[f['key']]['params'] if kind(p['type']) in ('string_array','byte_array')]
+    input_arrays=[p for f in selected for p in projected_functions[f['key']]['params'] if kind(p['type']) in ('string_array','byte_array','native_array')]
     array_guard='__'+stem+'_array_input_guard'
     if input_arrays:
         codec=projected['rust_native_handle_array_support']['trait']
@@ -220,16 +223,16 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
         projected_function=projected_functions[function['key']]
         for index,p in enumerate(signature['params']):
             k=kind(p['type'])
-            parameters.append(f'p{index}: '+('*mut std::ffi::c_void' if k in ('string_array','byte_array') else 'Option<&[u8]>' if k=='string' else RUST[k]))
-            if k in ('string_array','byte_array'):
+            parameters.append(f'p{index}: '+('*mut std::ffi::c_void' if k in ('string_array','byte_array','native_array') else 'Option<&[u8]>' if k=='string' else RUST[k]))
+            if k in ('string_array','byte_array','native_array'):
                 parameter=projected_function['params'][index]
-                array_type=parameter['type']['rust_native_handle_array_name']+('<u8>' if k=='byte_array' else '<SnString>')
+                array_type=rust_body_array_type(parameter['type'])
                 setup.append(f'  let mut array{index} = {array_guard} {{ value: std::mem::ManuallyDrop::new(<{array_type}>::adopt(p{index})), original: p{index} }};')
                 arguments.append(f'&mut *array{index}.value' if parameter.get('rust_default_array_ref') else f'&*array{index}.value')
             else:
                 arguments.append(f'p{index}.map_or_else(SnString::nil, SnString::from_c_bytes)' if k=='string' else f'p{index} as char' if k=='char' else f'p{index}')
         result=kind(signature['return_type']);status=signature['binding']['failure']=='status'
-        output='*mut std::ffi::c_void' if result=='byte_array' else RUST[result]
+        output='*mut std::ffi::c_void' if result in ('byte_array','native_array') else RUST[result]
         if status:output='Result<'+output+',u32>'
         # Raw identifiers preserve source names that are Rust keywords.
         name=('r#'+function['owner']+'::r#'+projected_function.get('rust_emitted_method_name',function['method_name'])) if function.get('is_method') else 'r#'+function['name']
@@ -237,7 +240,11 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
         if lifecycle:
             code+='  let _call = __sn_package_enter()'+('?' if status else '.unwrap_or_else(|_|std::process::abort())')+';\n'
         code+='\n'.join(setup)+'\n'
-        code+='  let '+('mut ' if result=='byte_array' else '')+'value = '+name+'('+', '.join(arguments)+');\n'
+        code+='  let '+('mut ' if result in ('byte_array','native_array') else '')+'value = '+name+'('+', '.join(arguments)+');\n'
+        if result=='native_array':
+            code+='  let output = value.pointer;\n  value.pointer = std::ptr::null_mut();\n'
+            code+='  '+('Ok(output)' if status else 'output')+'\n}\n'
+            continue
         if result=='byte_array':
             code+='  let mut output = std::ptr::null_mut();\n'
             code+='  let status = unsafe { '+byte_export+'(value.pointer, &mut output) };\n'
@@ -255,7 +262,8 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
     flags=shlex.split(os.environ.get('SN_RUSTFLAGS',''))
     compile_args=tools['rustc']+['--edition=2021','--crate-type=rlib','--crate-name',crate,'--emit=dep-info,link','-C','opt-level='+args.optimization,emitted,'-o',backing]+flags
     run(compile_args,cwd=root)
-    provider=work/(stem+'_exports.rs');exports=rust_provider(adjusted,crate)
+    array_free_symbol=projected.get('rust_native_handle_array_support',{}).get('free')
+    provider=work/(stem+'_exports.rs');exports=rust_provider(adjusted,crate,array_free_symbol)
     if lifecycle:
         exports+=f'#[no_mangle] pub extern "C" fn __sn_{stem}_initialize()->u32 {{ backing::__sn_body_initialize() }}\n'
         exports+=f'#[no_mangle] pub extern "C" fn __sn_{stem}_shutdown()->u32 {{ backing::__sn_body_shutdown() }}\n'

@@ -1,0 +1,69 @@
+{
+  "status": "integrated local validation complete; hosted verification pending",
+  "base_revision": "a188d356c3cf4edf2402028445d6689256f4be99",
+  "compiler_sha256": "78ad70b5d02cf4406519300360343676961bde22ab85d84f4231022da147e6de",
+  "source_sha256": {
+    "scripts/ci/gates.json": "c0beac12cedad2009f7696b44e8eb868fdf66ed8efc95bd2293c4d51102fa594",
+    "scripts/native_provider.py": "403045805a8a3b2be17aa1e31565017099d9397276139477f929fcde096c290c",
+    "scripts/sindarin_library.py": "9553335fe8ac3612a2cf3776233b0a051ee06491a6cd742df1231c3898a2e8e3",
+    "src/cgen/gen_model.h": "5923de73e1bd6daccafdcc862b3689dbf81372b902a1e6c1c253176e8499be5c",
+    "src/cgen/gen_model_expr.c": "1b64a0c1d51c4d30420f4e60c38acb6fdc5852399182f417377949674ff4541b",
+    "src/cgen/gen_model_func.c": "e15a56ccf6fde4d0af7964bcdfa8fcda420d5566760094dd414aeee310ff0dbc",
+    "src/target/rust/rust_native_handle_arrays.c": "54881bd68c249493dd2d7068f9f836d437d09ca7e2e83db2a67b389248a358d4",
+    "src/target/rust/rust_validate.c": "27eff14cfa133e9a72b28a48fdd97fa37794e4c6061b8f7467aa21873479a176",
+    "templates/c/partials/function.hbs": "8fae531b4d042f088ca120b426697236c1a141f3684cc65f7074e478567ba193",
+    "templates/rust/partials/expr/assign.hbs": "95dc47211c43de920dc9b7fe05ea87e3793c6935a7068a03b29734074bf290b0",
+    "templates/rust/partials/function.hbs": "50c85d894a4e2e03e43e8fd69e9ee8e846d119944fa637d901b9a6c192291322",
+    "templates/rust/partials/native_handle_array_support.hbs": "eacc6c96939b13019bc5ba9454e2c0346765f6a2cc7fdee53c694c0e7c1050c4",
+    "templates/rust/partials/struct_method.hbs": "665636af6e04a9278f6e3f45492e2ffa3f1dec2030dfd0b381a82b2548cf1ba4",
+    "tests/ci/test_ci_helpers.py": "dcff04739a31e1971df606a2bfdb65cdce3b6c712515514e57821d1112224858",
+    "tests/package/rust_array_bodies.py": "51ccfc83321baaba42f8b0bc2fe5f13bd1a88e8cc462c4cc4f2cd06a15fd3a36"
+  },
+  "tests": {
+    "C": 3242,
+    "Rust": 1097,
+    "imports": 50,
+    "artifacts": 22,
+    "ci_helpers": 22,
+    "body_mode_cases_normal": 72,
+    "body_mode_cases_sanitized": 72
+  },
+  "coverage": {
+    "gates": 317,
+    "groups": 26
+  },
+  "controls": [
+    "all scalar leaves at rank two",
+    "rank-three strings",
+    "rank-32 nil",
+    "nil string elements",
+    "owned copies surviving input cleanup",
+    "live element mutation",
+    "repeated and nil default-parameter rebinding",
+    "ordinary app function rebinding",
+    "source and sealed archives"
+  ],
+  "remaining": [
+    "broader nonempty ranks and body lifecycle controls",
+    "reference-qualified rebinding",
+    "record/interface/generic bodies",
+    "dependency lifecycle graphs",
+    "remaining SDK migration",
+    "final corpus/platform acceptance"
+  ],
+  "accepted_base": "4211bf0f37b2941faa4534e349aabf46697ba907",
+  "integrated_base": "bd3a5307f6c73b4f3a8e68d30f70cd5c61166116",
+  "independent_of_pending_native_record_provider_feature": true,
+  "integration": {
+    "C": 3242,
+    "Rust": 1097,
+    "imports": 50,
+    "artifacts": 22,
+    "ci_helpers": 22,
+    "normal_mode_cases": 72,
+    "sanitizer_mode_cases": 72,
+    "existing_Rust_and_Go_record_wire_clients": 2,
+    "coverage_gates": 345,
+    "coverage_groups": 26
+  }
+}

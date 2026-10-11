@@ -215,6 +215,32 @@ impl {{rust_ident type}}<SnString> {
 }
 {{/if}}
 impl<T: {{rust_ident trait}}> Default for {{rust_ident type}}<T> { fn default() -> Self { Self::nil() } }
+// A default parameter borrows its initial header and owns only later bindings.
+struct {{rust_ident parameter_guard}}<T: {{rust_ident trait}}> {
+    value: std::mem::ManuallyDrop<{{rust_ident type}}<T>>,
+    original: *mut std::ffi::c_void,
+}
+impl<T: {{rust_ident trait}}> {{rust_ident parameter_guard}}<T> {
+    fn borrowed(pointer: *mut std::ffi::c_void) -> Self {
+        Self { value: std::mem::ManuallyDrop::new({{rust_ident type}}::adopt(pointer)), original: pointer }
+    }
+    fn rebind(&mut self, value: {{rust_ident type}}<T>) {
+        if self.value.pointer == self.original { self.value.pointer = std::ptr::null_mut(); }
+        *self.value = value;
+    }
+}
+impl<T: {{rust_ident trait}}> std::ops::Deref for {{rust_ident parameter_guard}}<T> {
+    type Target = {{rust_ident type}}<T>;
+    fn deref(&self) -> &Self::Target { &self.value }
+}
+impl<T: {{rust_ident trait}}> std::ops::DerefMut for {{rust_ident parameter_guard}}<T> {
+    fn deref_mut(&mut self) -> &mut Self::Target { &mut self.value }
+}
+impl<T: {{rust_ident trait}}> Drop for {{rust_ident parameter_guard}}<T> {
+    fn drop(&mut self) {
+        if self.value.pointer != self.original { unsafe { std::mem::ManuallyDrop::drop(&mut self.value); } }
+    }
+}
 impl<T: {{rust_ident trait}}> Clone for {{rust_ident type}}<T> { fn clone(&self) -> Self { unsafe { Self::adopt({{rust_ident copy}}(self.pointer)) } } }
 impl<T: {{rust_ident trait}}> Drop for {{rust_ident type}}<T> { fn drop(&mut self) { unsafe { {{rust_ident free}}(self.pointer); } } }
 impl<T: {{rust_ident trait}}> PartialEq for {{rust_ident type}}<T> {

@@ -1,0 +1,6 @@
+test_native_headers_survive_typed_rust_body_exports (__main__.TypedBodyArrayTests.test_native_headers_survive_typed_rust_body_exports) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 60.093s
+
+OK

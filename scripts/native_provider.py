@@ -263,7 +263,7 @@ def rust_provider_support(signatures, backing_crate, root):
     return '\n'.join(lines) + '\n' if lines else None
 
 
-def rust_provider(signatures, backing_crate):
+def rust_provider(signatures, backing_crate, array_free_symbol=None):
     lines = [f'extern crate {backing_crate} as backing;',
              '#[repr(C)] pub struct V { _opaque: [u8; 0] }',
              '#[repr(C)] struct Bytes { data: *const u8, length: u64 }',
@@ -284,7 +284,7 @@ def rust_provider(signatures, backing_crate):
         lines += ['#[repr(C)] struct ArrayType { leaf_kind: u32, rank: u32 }',
                   'extern "C" { fn sn_abi_v1_native_array_data(value: *const V, shape: ArrayType, out: *mut *mut std::ffi::c_void) -> u32;',
                   'fn sn_abi_v1_native_array_adopt(value: *mut std::ffi::c_void, shape: ArrayType, out: *mut *mut V) -> u32;',
-                  f'#[link_name="{backing_crate}_native_array_free"] fn sn_package_array_free(value: *mut std::ffi::c_void); }}',
+                  f'#[link_name="{array_free_symbol or backing_crate+"_native_array_free"}"] fn sn_package_array_free(value: *mut std::ffi::c_void); }}',
                   'struct OwnedArray(*mut std::ffi::c_void); impl Drop for OwnedArray { fn drop(&mut self) { unsafe { sn_package_array_free(self.0) } } }']
     records = record_types(signatures)
     if records:

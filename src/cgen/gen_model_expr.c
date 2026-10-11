@@ -16,9 +16,23 @@ static void c_model_field_alias(json_object *model, Type *type, const char *name
         json_object_object_add(model, "c_field_name", json_object_new_string(field->c_alias));
 }
 
-/* Current lambda's own formals; nested body emission restores this context. */
+/* Current callable formals; nested lambda emission restores this context. */
 static json_object *c_lambda_parameters = NULL;
 static int c_lambda_parameter_id = -1;
+
+GenModelBorrowedParamContext gen_model_borrowed_parameters_enter(json_object *parameters)
+{
+    GenModelBorrowedParamContext previous = {c_lambda_parameters, c_lambda_parameter_id};
+    c_lambda_parameters = parameters;
+    c_lambda_parameter_id = 0;
+    return previous;
+}
+
+void gen_model_borrowed_parameters_restore(GenModelBorrowedParamContext context)
+{
+    c_lambda_parameters = context.parameters;
+    c_lambda_parameter_id = context.id;
+}
 
 static void c_model_borrowed_parameter_mutation(json_object *model, Expr *expr)
 {

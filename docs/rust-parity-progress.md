@@ -38,6 +38,37 @@ and 36 sanitizer mode cases and raw wire clients; 22 CI helpers account for
 341 gates in 26 groups. Source and sealed archives retain canonical C record
 headers and native lifetime hooks. The batch is ready for hosted verification.
 
+Rust array-body publication readiness: all 72 normal and 72 strict sanitizer
+archive cases pass on the final integration, including every scalar leaf at
+rank two, rank-three strings, rank-32 nil, input cleanup and local rebinding.
+The integrated C/Rust suites pass 3,242/1,097, imports/artifacts pass 50/22 and
+CI helpers pass 22. Existing Rust and Go record wire clients also pass after
+the final helper merge. The inventory is 345 gates in 26 groups. Record provider
+batch `bd3a5307` awaits CI 38144615507; this array-body batch is independent of
+that capability and is ready for its own required hosted validation.
+
+## Generic Rust Sindarin array bodies: local validation, 2026-10-11
+
+Independent Rust body exports now use canonical nested scalar/string array inputs
+and owned C header results. Generated native providers retain shape validation
+and error cleanup; body archives reuse the native C support bundle's free helper.
+The new fixture exposed a C named-function ownership defect: rebinding a borrowed
+array parameter freed its caller's header. Its retained ASan failure is evidence
+of a C defect, not a parity oracle. Named C functions now track ownership only for
+replacements, and Rust canonical default parameters use a private borrow/owner
+guard with local rebinding and cleanup on return/unwind.
+
+All 72 source/sealed C/RS body and C/Rust app mode cases pass normally and with
+strict address/undefined/leak checks. Controls include all scalar leaves at rank two, rank-three strings, rank-32 nil,
+nil string elements, output independence after input cleanup, live mutation,
+repeated/nil rebinding, and ordinary app functions. The full C/Rust suites pass
+3,242/1,097 checks. Artifact checks and CI helpers each pass 22 tests; expanded registration
+accounts for 345 gates in 26 groups. All 50 package import tests pass. This work is held locally pending integration and hosted verification. Broader nonempty body ranks and lifecycle controls,
+records/interfaces/generics, dependency lifecycle graphs, remaining SDK modules
+and final corpus/platform acceptance remain required.
+
+
+
 ## Go native record providers: local validation, 2026-10-11
 
 Go backing now also consumes canonical C records through unsafe.Pointer and
