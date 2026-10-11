@@ -1816,6 +1816,61 @@
         "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
         "UBSAN_OPTIONS": "halt_on_error=1"
       }
+    },
+    {
+      "id": "sdk-uuid-artifacts",
+      "name": "Canonical SDK UUID artifacts credits, aliases and original C/Rust callers",
+      "command": [
+        "{python}",
+        "scripts/check_sdk_uuid_artifact.py"
+      ],
+      "group": "core",
+      "linux_only": false
+    },
+    {
+      "id": "sdk-uuid-artifacts-sanitizers",
+      "name": "Canonical SDK UUID artifacts credits, aliases and original C/Rust callers",
+      "command": [
+        "{python}",
+        "scripts/check_sdk_uuid_artifact.py"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      }
+    },
+    {
+      "id": "sdk-uuid-native",
+      "name": "Canonical SDK UUID native credits, aliases and original C/Rust callers",
+      "command": [
+        "{python}",
+        "scripts/check_sdk_native.py",
+        "uuid"
+      ],
+      "group": "core",
+      "linux_only": false
+    },
+    {
+      "id": "sdk-uuid-native-sanitizers",
+      "name": "Canonical SDK UUID native credits, aliases and original C/Rust callers",
+      "command": [
+        "{python}",
+        "scripts/check_sdk_native.py",
+        "uuid",
+        "--sanitize"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      }
     }
   ]
 }

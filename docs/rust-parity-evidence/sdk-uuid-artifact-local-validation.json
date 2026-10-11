@@ -1,0 +1,39 @@
+{
+  "status": "Local UUID opt-in staging validated; unpublished; SDK hosted dependency and corrected main CI pending",
+  "base": "920f10f042db6fc96202dd21f9d1bee0c8d034d8",
+  "SDK_local_revision": "840f5ba",
+  "units": 2,
+  "exports": 41,
+  "normal_mode_cases": 72,
+  "sanitizer_mode_cases": 72,
+  "native_cases": 20,
+  "native_runtime_sanitizer_cases": 1,
+  "ci_helpers": 22,
+  "registered_gates": 361,
+  "registered_groups": 26,
+  "controls": [
+    "unchanged original UUID caller and oracle",
+    "shared high/low field aliases",
+    "owned UUID return survives producer cleanup",
+    "owned UUID string return survives owner cleanup",
+    "Python-checked namespace v5 golden",
+    "base64 and zero UUID behavior",
+    "source/sealed artifact consumption without backing C",
+    "all public Sindarin module bytes preserved"
+  ],
+  "default_module_count": 12,
+  "remaining": [
+    "required corrected main CI acceptance",
+    "SDK native UUID hosted acceptance and exact-revision compiler pin",
+    "integrated compiler hosted acceptance",
+    "language/package canonical as-val copy adapter",
+    "whole SDK and final corpus/platform proof"
+  ],
+  "logs": {
+    "sindarin-sdk-uuid-artifact-local.log": "ea17bf17b1eddeae04c95fc14bcc88ff14daca7033bb9e93626dad0925b0f6f1",
+    "sindarin-sdk-uuid-artifact-local-san.log": "ea17bf17b1eddeae04c95fc14bcc88ff14daca7033bb9e93626dad0925b0f6f1",
+    "sindarin-sdk-uuid-dispatch.log": "0b6282b705c764ef679c4ab30e754ca94530c9a6b284b70924970901710c5ebb",
+    "sindarin-sdk-uuid-dispatch-san.log": "c4cd6267e3874da441a475ffad270160c4fa62a6f4607554adc70755d5328304",
+    "sindarin-sdk-uuid-artifact-ci-helpers.log": "c565ab40b1173dfa14fa6b860453d723559eccb4f11f00a7332ef66a1ca4f11b"
+  }
+}

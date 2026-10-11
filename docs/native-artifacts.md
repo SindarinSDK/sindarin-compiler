@@ -431,3 +431,16 @@ and static/instance methods. The C heap-use-after-free before the repair is
 retained as a lifetime defect, not as a valid behavioral oracle. Full hosted
 acceptance, as-val/as-ref rebinding, wider transport and final goal proof remain
 required.
+
+
+## UUID staging under validation
+
+Explicit `--modules core/uuid` stages the canonical UUID SDK module as two
+C/Sindarin units with all 41 declared exports. It retains the original public
+module and C operation bodies. The focused checker verifies the unchanged
+original caller and owned field/string lifetime controls in 72 source/sealed
+C/Rust cases, normally and with sanitizers. The native SDK checker validates
+independent archives and actual-runtime ownership. This opt-in stage remains
+local pending SDK hosted acceptance and an exact accepted SDK pin; the default
+selection remains twelve modules. Canonical package as-val copy adapters and
+full SDK migration remain required.

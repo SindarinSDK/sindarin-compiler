@@ -180,8 +180,10 @@ jobs:
           .sn/record-reference-snapshots.json
           .sn/sdk-time-date-artifact.json
           .sn/sdk-random-artifact*.json
+          .sn/sdk-uuid-artifact*.json
           .sn/sdk-native-integration/.sn/time-date-*.json
           .sn/sdk-native-integration/.sn/random-*.json
+          .sn/sdk-native-integration/.sn/uuid-*.json
           .sn/sdk-native-integration/.sn/dtls-lifecycle*.json
         include-hidden-files: true
         if-no-files-found: error
