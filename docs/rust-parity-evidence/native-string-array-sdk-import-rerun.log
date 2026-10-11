@@ -1,0 +1,10 @@
+test_generated_record_adapters_consume_canonical_sdk_textfile_archive (__main__.NativeImports.test_generated_record_adapters_consume_canonical_sdk_textfile_archive) ... ok
+test_rust_mixed_app_retains_c_sdk_resources (__main__.NativeImports.test_rust_mixed_app_retains_c_sdk_resources) ... ok
+test_unchanged_sdk_binaryfile_facade_is_an_independent_c_library (__main__.NativeImports.test_unchanged_sdk_binaryfile_facade_is_an_independent_c_library) ... ok
+test_unchanged_sdk_bytes_facade_is_an_independent_c_library (__main__.NativeImports.test_unchanged_sdk_bytes_facade_is_an_independent_c_library) ... ok
+test_unchanged_sdk_textfile_facade_is_an_independent_c_library (__main__.NativeImports.test_unchanged_sdk_textfile_facade_is_an_independent_c_library) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 145.323s
+
+OK

@@ -97,7 +97,7 @@ class CoverageTests(unittest.TestCase):
         self.collect()
         report = json.loads((self.output / 'summary.json').read_text())
         self.assertEqual(report['groups'], 26)
-        self.assertEqual(report['gates'], 309)
+        self.assertEqual(report['gates'], 313)
         entries = [g for g in self.catalog['gates'] if g['id'] == 'native-entrypoints']
         self.assertEqual(len(entries), 1)
         self.assertEqual(entries[0]['group'], 'native')
@@ -122,6 +122,14 @@ class CoverageTests(unittest.TestCase):
         self.assertEqual(len(sanitized), 1)
         self.assertEqual(sanitized[0]['group'], 'sanitizers')
         self.assertTrue(sanitized[0]['linux_only'])
+        string_results = [g for g in self.catalog['gates'] if g['id'] == 'native-string-array-results']
+        self.assertEqual(len(string_results), 1)
+        self.assertEqual(string_results[0]['group'], 'native')
+        self.assertFalse(string_results[0]['linux_only'])
+        string_sanitizers = [g for g in self.catalog['gates'] if g['id'] == 'native-string-array-result-sanitizers']
+        self.assertEqual(len(string_sanitizers), 1)
+        self.assertEqual(string_sanitizers[0]['group'], 'sanitizers')
+        self.assertTrue(string_sanitizers[0]['linux_only'])
         sdk = [g for g in self.catalog['gates'] if g['id'] == 'sdk-artifact-callers']
         self.assertEqual(len(sdk), 1)
         self.assertEqual(sdk[0]['group'], 'core')

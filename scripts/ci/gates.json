@@ -1416,6 +1416,26 @@
       "linux_only": true
     },
     {
+      "id": "native-string-array-results",
+      "name": "string-produced arrays retain canonical native storage and copy semantics",
+      "command": ["{python}", "scripts/check_native_string_array_results.py"],
+      "group": "native",
+      "linux_only": false
+    },
+    {
+      "id": "native-string-array-result-sanitizers",
+      "name": "canonical string-produced array ownership sanitizers",
+      "command": ["{python}", "scripts/check_native_string_array_results.py"],
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      },
+      "group": "sanitizers",
+      "linux_only": true
+    },
+    {
       "id": "package-callable-methods",
       "name": "package static/instance selectors, aliases and sealed cleanup (36 mode cases)",
       "command": ["{python}", "tests/package/callable_methods.py"],

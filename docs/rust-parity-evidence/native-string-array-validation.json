@@ -1,0 +1,38 @@
+{
+  "status": "locally validated on accepted correction; hosted verification pending",
+  "baseline": "002c4edce223bbca440b043584414a51be9285b5",
+  "fix": "string array-producing calls wrap Vec results using their projected canonical native container instead of the nullable container",
+  "local": {
+    "c_suite": 3242,
+    "rust_suite": 1097,
+    "artifacts": 22,
+    "ci_helpers": 22,
+    "mode_pairs": 9,
+    "strict_sanitizer_mode_pairs": 9,
+    "dtls_c_rust_modes": 18,
+    "dtls_registry_cases": 1,
+    "imports_passed_before_sdk_checkout": 45,
+    "imports": 50,
+    "sdk_original_cases": 324,
+    "sdk_stdin_cases": 72
+  },
+  "inventory": {
+    "groups": 26,
+    "gates": 313
+  },
+  "source_sha256": {
+    "templates/rust/partials/expr/string_call.hbs": "af4d578c74a32233c81cac6cd0bf7163c7e2fa955997cb94881dffe471cecfaa",
+    "scripts/check_native_string_array_results.py": "c58b765a7fc2b9ea9e2e0474760c6dcf1f365b0f2fc9cea14e4735bec204238f"
+  },
+  "scope": "same string helpers, canonical array ownership, explicit independent copies, mutation, nil/empty and single evaluation; no full SDK or final corpus claim",
+  "integrated_correction": "cd230cc256216204e2c2873681ebd6f6be95f47d",
+  "integration": {
+    "production_sources_match_original_validated_batch": true,
+    "corrected_callable_method_tests": 4,
+    "native_string_mode_pairs": 9,
+    "ci_helpers": 22,
+    "coverage_gates": 313,
+    "coverage_groups": 26,
+    "format": true
+  }
+}

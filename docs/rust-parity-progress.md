@@ -17,14 +17,40 @@ flags and registers a cfg compile-error probe, so every host verifies forwarding
 All four tests pass normally and under strict sanitizers, including the 36-mode
 source/sealed matrix and independent C/Rust ABI clients. CI helpers pass 22 tests.
 [Correction evidence](rust-parity-evidence/wire-client-target-correction.json)
-retains the Windows failure and local scope. Feature publication remains frozen
-until corrected integrated Linux/macOS/Windows CI passes.
+retains the Windows failure and local scope. Published correction `cd230cc2`
+passed all 34 jobs in [CI 38134321189](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38134321189).
+The retained [hosted acceptance](rust-parity-evidence/wire-client-target-ci-green.json)
+verifies 309 gates in 26 groups and one compiler hash per platform. The selector
+feature and its correction are accepted; feature publication is unfrozen.
 
 SDK `bd210cf` passed all seven jobs in CI 38133341782, including canonical
 Time/Date, all original legacy tests and corrected DTLS lifecycle checks. Its
 calendar and DTLS report counts were inspected for every platform and Linux
-sanitizers. SDK migration is accepted; compiler selector/opaque dependencies
-and the separate native string-array repair still need hosted acceptance.
+sanitizers. [SDK migration acceptance](rust-parity-evidence/sdk-time-date-dtls-ci-green.json)
+is retained. Opaque SDK contracts and the separate native string-array repair
+still need hosted acceptance.
+
+## Native string-produced arrays: local validation, 2026-10-11
+
+The unchanged SDK DTLS caller failed Rust because toBytes() wrapped its Vec in a
+nullable Rust container although native array boundaries had projected the result
+as canonical C storage. String calls now select the projected native container;
+ordinary contexts keep the existing nullable container. The same helpers and
+operation bodies remain unchanged. Original DTLS source/oracle passes all nine
+C/Rust modes against the corrected C SDK, plus its listener lifecycle probe.
+
+A nine-pair control passes normally and under strict sanitizers: single function
+evaluation, toBytes(), independent copyOf mutation, nil/empty byte results, split,
+splitLines and splitWhitespace. Complete C/Rust suites pass 3,242/1,097 checks;
+artifacts/helpers pass 22/22. Forty-five imports passed; five SDK-dependent checks
+failed because the new worktree lacked the pinned SDK checkout. That dependency
+is restored and those five pass, establishing all 50 import checks. The complete
+nine-module SDK source/sealed matrix also passes 324 originals and 72 stdin
+controls, for 396 cases. Required compiler wire-client correction CI 38134321189
+is accepted; this batch is ready for its own hosted verification. The two new gates bring
+the local inventory to 313 in 26 groups. SDK `bd210cf` has full seven-job hosted
+acceptance; whole SDK migration, wider contracts and final corpus proof remain.
+
 
 ## Package static/instance method selection: local validation, 2026-10-11
 

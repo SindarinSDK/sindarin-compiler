@@ -1,5 +1,5 @@
 {
-  "status": "local correction validated; ready for hosted publication",
+  "status": "accepted: complete integrated CI green",
   "failed_revision": "002c4edce223bbca440b043584414a51be9285b5",
   "failed_ci": 38131264045,
   "failed_job": 114446214224,
@@ -13,5 +13,15 @@
     "configured_cfg_probe": true
   },
   "changed_source_sha256": "ef6723f46c3bbdee6eccc561d0bb04488eb017cbdb820ff0c820c94cb078c20d",
-  "scope": "test toolchain correction only; no native string-result or opaque SDK feature changes"
+  "scope": "test toolchain correction only; no native string-result or opaque SDK feature changes",
+  "published_revision": "cd230cc256216204e2c2873681ebd6f6be95f47d",
+  "ci": {
+    "run": 38134321189,
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": 34,
+    "gates": 309,
+    "groups": 26,
+    "evidence": "wire-client-target-ci-green.json"
+  }
 }

@@ -1,0 +1,1220 @@
+{
+  "status": "completed",
+  "conclusion": "success",
+  "headSha": "bd210cfcd14ef8d5023483e110f7fc93aa2228e4",
+  "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38133341782",
+  "jobs": [
+    {
+      "name": "Native text oracle contract",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38133341782/job/114452036095"
+    },
+    {
+      "name": "Canonical Time/Date (ubuntu-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38133341782/job/114452036164"
+    },
+    {
+      "name": "Canonical Time/Date (macos-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38133341782/job/114452036180"
+    },
+    {
+      "name": "Canonical Time/Date (windows-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38133341782/job/114452036215"
+    },
+    {
+      "name": "sindarin-pkg-test / Test (ubuntu-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38133341782/job/114452036276"
+    },
+    {
+      "name": "sindarin-pkg-test / Test (macos-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38133341782/job/114452036281"
+    },
+    {
+      "name": "sindarin-pkg-test / Test (windows-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38133341782/job/114452036301"
+    }
+  ],
+  "reports": {
+    "linux:time-date-native.json": {
+      "passed": true,
+      "cases": [
+        {
+          "kind": "C independent archives",
+          "passed": true
+        },
+        {
+          "kind": "Rust independent C archives",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "rust",
+          "opt": "-O0",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "rust",
+          "opt": "-O0",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "rust",
+          "opt": "-O0",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "rust",
+          "opt": "-O1",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "rust",
+          "opt": "-O1",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "rust",
+          "opt": "-O1",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "rust",
+          "opt": "-O2",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "rust",
+          "opt": "-O2",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "rust",
+          "opt": "-O2",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "rust",
+          "opt": "-O0",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "rust",
+          "opt": "-O0",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "rust",
+          "opt": "-O0",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "rust",
+          "opt": "-O1",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "rust",
+          "opt": "-O1",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "rust",
+          "opt": "-O1",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "rust",
+          "opt": "-O2",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "rust",
+          "opt": "-O2",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "rust",
+          "opt": "-O2",
+          "mode": "unchecked",
+          "passed": true
+        }
+      ],
+      "complete_sdk_package": false,
+      "compiler_sha256": "d6f14dea94f1ebcf57b237398a0964d7981cb8eb545a54015522acd4c9511d04",
+      "platform": "Linux",
+      "sources": {
+        "src/time/date.sn": "4f308d5da8903fa170dc4bd459247123239f1f08aaf94e999b472674e80507ea",
+        "src/time/time.native.h": "1bebd983d2e98e18aa89089eb3e6a52de06dde58dea9ce65eabb3de4704a8ad7",
+        "src/time/date.native.h": "966ef17b975a5523f11965e9b7e0e6b3f2dbd2aa68fa68c29ffd512c12946d78",
+        "src/time/time.native.c": "01e6449a61b877700ce8329033569927f994fe399d9e3defc3dd8e48a74c4ff0",
+        "src/time/time.sn.c": "70431e50973eaa3e5672f33e13a5d4812cf9f46d4e724709d9ae5ee45bb4f8e1",
+        "src/time/time.sn": "6b494afe070762049ee40734d32a980314ee82fdb9d72d8ce0b10a099bb52d92",
+        "src/time/date.native.c": "ed19ec6216fad8f17e5dfbc29af44c43025b7ce8283ea63fe0bcc7b18d5b4f16",
+        "src/time/date.sn.c": "e5350f3af9f9f42b61fc0f0bd2ee055129807ba49e6b369d1ea8a444625e6925",
+        "tests/time/test_time.sn": "1bf85b5bb1ea1c24165397a8fd3f99b453ee53a95cca9ed04765461826a50a94",
+        "tests/time/test_time.expected": "51d71ef285aaf5a6830f63be783eae7136c6332e0110c62feda012c563611a62",
+        "tests/time/test_date.sn": "413835df398076d2c6df6f2ebe2631415ba60c9cb112e08a5f59b2f0bb431289",
+        "tests/time/test_date.expected": "796ff20c468f890ea0dec4ee17f7201975785942c824502337f5e27205f2fe17"
+      },
+      "scope": "Canonical C Time/Date storage and unchanged legacy callers; hosted compiler artifact adapters and broader SDK migration remain required"
+    },
+    "linux:dtls-lifecycle.json": {
+      "passed": true,
+      "compiler_sha256": "d6f14dea94f1ebcf57b237398a0964d7981cb8eb545a54015522acd4c9511d04",
+      "source_sha256": "05b2378ff63382affd37323adcf0df69afb2189f5b5f982a5121e633c9bef27d",
+      "oracle_sha256": "fdc0de46ceb695dc88ac44ff0a6a01b7ca5bbaf8bdd0fd16aaa76828db6bc1ec",
+      "cases": [
+        {
+          "case": "40 real listener bind/close/double-close registry cycles",
+          "exit": 0,
+          "stdout_hex": "",
+          "stderr_hex": ""
+        },
+        {
+          "case": "unchanged DTLS caller",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "default",
+          "exit": 0,
+          "stdout_hex": "3d3d3d2053444b2044544c53205465737473203d3d3d0a0a746573745f6c697374656e65725f62696e643a20504153530a746573745f64746c735f636f6e6e6563745f616e645f636c6f73653a20504153530a746573745f64746c735f73656e645f726563656976653a20504153530a0a416c6c2044544c5320746573747320706173736564210a",
+          "stderr_hex": ""
+        },
+        {
+          "case": "unchanged DTLS caller",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "checked",
+          "exit": 0,
+          "stdout_hex": "3d3d3d2053444b2044544c53205465737473203d3d3d0a0a746573745f6c697374656e65725f62696e643a20504153530a746573745f64746c735f636f6e6e6563745f616e645f636c6f73653a20504153530a746573745f64746c735f73656e645f726563656976653a20504153530a0a416c6c2044544c5320746573747320706173736564210a",
+          "stderr_hex": ""
+        },
+        {
+          "case": "unchanged DTLS caller",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "unchecked",
+          "exit": 0,
+          "stdout_hex": "3d3d3d2053444b2044544c53205465737473203d3d3d0a0a746573745f6c697374656e65725f62696e643a20504153530a746573745f64746c735f636f6e6e6563745f616e645f636c6f73653a20504153530a746573745f64746c735f73656e645f726563656976653a20504153530a0a416c6c2044544c5320746573747320706173736564210a",
+          "stderr_hex": ""
+        },
+        {
+          "case": "unchanged DTLS caller",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "default",
+          "exit": 0,
+          "stdout_hex": "3d3d3d2053444b2044544c53205465737473203d3d3d0a0a746573745f6c697374656e65725f62696e643a20504153530a746573745f64746c735f636f6e6e6563745f616e645f636c6f73653a20504153530a746573745f64746c735f73656e645f726563656976653a20504153530a0a416c6c2044544c5320746573747320706173736564210a",
+          "stderr_hex": ""
+        },
+        {
+          "case": "unchanged DTLS caller",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "checked",
+          "exit": 0,
+          "stdout_hex": "3d3d3d2053444b2044544c53205465737473203d3d3d0a0a746573745f6c697374656e65725f62696e643a20504153530a746573745f64746c735f636f6e6e6563745f616e645f636c6f73653a20504153530a746573745f64746c735f73656e645f726563656976653a20504153530a0a416c6c2044544c5320746573747320706173736564210a",
+          "stderr_hex": ""
+        },
+        {
+          "case": "unchanged DTLS caller",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "unchecked",
+          "exit": 0,
+          "stdout_hex": "3d3d3d2053444b2044544c53205465737473203d3d3d0a0a746573745f6c697374656e65725f62696e643a20504153530a746573745f64746c735f636f6e6e6563745f616e645f636c6f73653a20504153530a746573745f64746c735f73656e645f726563656976653a20504153530a0a416c6c2044544c5320746573747320706173736564210a",
+          "stderr_hex": ""
+        },
+        {
+          "case": "unchanged DTLS caller",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "default",
+          "exit": 0,
+          "stdout_hex": "3d3d3d2053444b2044544c53205465737473203d3d3d0a0a746573745f6c697374656e65725f62696e643a20504153530a746573745f64746c735f636f6e6e6563745f616e645f636c6f73653a20504153530a746573745f64746c735f73656e645f726563656976653a20504153530a0a416c6c2044544c5320746573747320706173736564210a",
+          "stderr_hex": ""
+        },
+        {
+          "case": "unchanged DTLS caller",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "checked",
+          "exit": 0,
+          "stdout_hex": "3d3d3d2053444b2044544c53205465737473203d3d3d0a0a746573745f6c697374656e65725f62696e643a20504153530a746573745f64746c735f636f6e6e6563745f616e645f636c6f73653a20504153530a746573745f64746c735f73656e645f726563656976653a20504153530a0a416c6c2044544c5320746573747320706173736564210a",
+          "stderr_hex": ""
+        },
+        {
+          "case": "unchanged DTLS caller",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "unchecked",
+          "exit": 0,
+          "stdout_hex": "3d3d3d2053444b2044544c53205465737473203d3d3d0a0a746573745f6c697374656e65725f62696e643a20504153530a746573745f64746c735f636f6e6e6563745f616e645f636c6f73653a20504153530a746573745f64746c735f73656e645f726563656976653a20504153530a0a416c6c2044544c5320746573747320706173736564210a",
+          "stderr_hex": ""
+        }
+      ]
+    },
+    "linux:time-date-sanitizers.json": {
+      "passed": true,
+      "cases": [
+        {
+          "kind": "C modules and actual runtime address/undefined/leak",
+          "passed": true
+        }
+      ],
+      "complete_sdk_package": false,
+      "compiler_sha256": "d6f14dea94f1ebcf57b237398a0964d7981cb8eb545a54015522acd4c9511d04",
+      "platform": "Linux",
+      "sources": {
+        "src/time/date.sn": "4f308d5da8903fa170dc4bd459247123239f1f08aaf94e999b472674e80507ea",
+        "src/time/time.native.h": "1bebd983d2e98e18aa89089eb3e6a52de06dde58dea9ce65eabb3de4704a8ad7",
+        "src/time/date.native.h": "966ef17b975a5523f11965e9b7e0e6b3f2dbd2aa68fa68c29ffd512c12946d78",
+        "src/time/time.native.c": "01e6449a61b877700ce8329033569927f994fe399d9e3defc3dd8e48a74c4ff0",
+        "src/time/time.sn.c": "70431e50973eaa3e5672f33e13a5d4812cf9f46d4e724709d9ae5ee45bb4f8e1",
+        "src/time/time.sn": "6b494afe070762049ee40734d32a980314ee82fdb9d72d8ce0b10a099bb52d92",
+        "src/time/date.native.c": "ed19ec6216fad8f17e5dfbc29af44c43025b7ce8283ea63fe0bcc7b18d5b4f16",
+        "src/time/date.sn.c": "e5350f3af9f9f42b61fc0f0bd2ee055129807ba49e6b369d1ea8a444625e6925",
+        "tests/time/test_time.sn": "1bf85b5bb1ea1c24165397a8fd3f99b453ee53a95cca9ed04765461826a50a94",
+        "tests/time/test_time.expected": "51d71ef285aaf5a6830f63be783eae7136c6332e0110c62feda012c563611a62",
+        "tests/time/test_date.sn": "413835df398076d2c6df6f2ebe2631415ba60c9cb112e08a5f59b2f0bb431289",
+        "tests/time/test_date.expected": "796ff20c468f890ea0dec4ee17f7201975785942c824502337f5e27205f2fe17"
+      },
+      "scope": "Canonical C Time/Date storage and unchanged legacy callers; hosted compiler artifact adapters and broader SDK migration remain required"
+    },
+    "linux:dtls-lifecycle-sanitizers.json": {
+      "passed": true,
+      "compiler_sha256": "d6f14dea94f1ebcf57b237398a0964d7981cb8eb545a54015522acd4c9511d04",
+      "source_sha256": "05b2378ff63382affd37323adcf0df69afb2189f5b5f982a5121e633c9bef27d",
+      "oracle_sha256": "fdc0de46ceb695dc88ac44ff0a6a01b7ca5bbaf8bdd0fd16aaa76828db6bc1ec",
+      "cases": [
+        {
+          "case": "40 real listener bind/close/double-close registry cycles",
+          "exit": 0,
+          "stdout_hex": "",
+          "stderr_hex": ""
+        }
+      ]
+    },
+    "macos:time-date-native.json": {
+      "passed": true,
+      "cases": [
+        {
+          "kind": "C independent archives",
+          "passed": true
+        },
+        {
+          "kind": "Rust independent C archives",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "rust",
+          "opt": "-O0",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "rust",
+          "opt": "-O0",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "rust",
+          "opt": "-O0",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "rust",
+          "opt": "-O1",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "rust",
+          "opt": "-O1",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "rust",
+          "opt": "-O1",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "rust",
+          "opt": "-O2",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "rust",
+          "opt": "-O2",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "rust",
+          "opt": "-O2",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "rust",
+          "opt": "-O0",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "rust",
+          "opt": "-O0",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "rust",
+          "opt": "-O0",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "rust",
+          "opt": "-O1",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "rust",
+          "opt": "-O1",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "rust",
+          "opt": "-O1",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "rust",
+          "opt": "-O2",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "rust",
+          "opt": "-O2",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "rust",
+          "opt": "-O2",
+          "mode": "unchecked",
+          "passed": true
+        }
+      ],
+      "complete_sdk_package": false,
+      "compiler_sha256": "ce4f61736fce337c42614904a6f2be45ce45a69726623cdab5f623a45a6a013c",
+      "platform": "Darwin",
+      "sources": {
+        "src/time/time.native.h": "1bebd983d2e98e18aa89089eb3e6a52de06dde58dea9ce65eabb3de4704a8ad7",
+        "src/time/time.sn.c": "70431e50973eaa3e5672f33e13a5d4812cf9f46d4e724709d9ae5ee45bb4f8e1",
+        "src/time/date.native.h": "966ef17b975a5523f11965e9b7e0e6b3f2dbd2aa68fa68c29ffd512c12946d78",
+        "src/time/date.sn": "4f308d5da8903fa170dc4bd459247123239f1f08aaf94e999b472674e80507ea",
+        "src/time/time.sn": "6b494afe070762049ee40734d32a980314ee82fdb9d72d8ce0b10a099bb52d92",
+        "src/time/time.native.c": "01e6449a61b877700ce8329033569927f994fe399d9e3defc3dd8e48a74c4ff0",
+        "src/time/date.sn.c": "e5350f3af9f9f42b61fc0f0bd2ee055129807ba49e6b369d1ea8a444625e6925",
+        "src/time/date.native.c": "ed19ec6216fad8f17e5dfbc29af44c43025b7ce8283ea63fe0bcc7b18d5b4f16",
+        "tests/time/test_time.sn": "1bf85b5bb1ea1c24165397a8fd3f99b453ee53a95cca9ed04765461826a50a94",
+        "tests/time/test_time.expected": "51d71ef285aaf5a6830f63be783eae7136c6332e0110c62feda012c563611a62",
+        "tests/time/test_date.sn": "413835df398076d2c6df6f2ebe2631415ba60c9cb112e08a5f59b2f0bb431289",
+        "tests/time/test_date.expected": "796ff20c468f890ea0dec4ee17f7201975785942c824502337f5e27205f2fe17"
+      },
+      "scope": "Canonical C Time/Date storage and unchanged legacy callers; hosted compiler artifact adapters and broader SDK migration remain required"
+    },
+    "macos:dtls-lifecycle.json": {
+      "passed": true,
+      "compiler_sha256": "ce4f61736fce337c42614904a6f2be45ce45a69726623cdab5f623a45a6a013c",
+      "source_sha256": "05b2378ff63382affd37323adcf0df69afb2189f5b5f982a5121e633c9bef27d",
+      "oracle_sha256": "fdc0de46ceb695dc88ac44ff0a6a01b7ca5bbaf8bdd0fd16aaa76828db6bc1ec",
+      "cases": [
+        {
+          "case": "40 real listener bind/close/double-close registry cycles",
+          "exit": 0,
+          "stdout_hex": "",
+          "stderr_hex": ""
+        },
+        {
+          "case": "unchanged DTLS caller",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "default",
+          "exit": 0,
+          "stdout_hex": "3d3d3d2053444b2044544c53205465737473203d3d3d0a0a746573745f6c697374656e65725f62696e643a20504153530a746573745f64746c735f636f6e6e6563745f616e645f636c6f73653a20504153530a746573745f64746c735f73656e645f726563656976653a20504153530a0a416c6c2044544c5320746573747320706173736564210a",
+          "stderr_hex": ""
+        },
+        {
+          "case": "unchanged DTLS caller",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "checked",
+          "exit": 0,
+          "stdout_hex": "3d3d3d2053444b2044544c53205465737473203d3d3d0a0a746573745f6c697374656e65725f62696e643a20504153530a746573745f64746c735f636f6e6e6563745f616e645f636c6f73653a20504153530a746573745f64746c735f73656e645f726563656976653a20504153530a0a416c6c2044544c5320746573747320706173736564210a",
+          "stderr_hex": ""
+        },
+        {
+          "case": "unchanged DTLS caller",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "unchecked",
+          "exit": 0,
+          "stdout_hex": "3d3d3d2053444b2044544c53205465737473203d3d3d0a0a746573745f6c697374656e65725f62696e643a20504153530a746573745f64746c735f636f6e6e6563745f616e645f636c6f73653a20504153530a746573745f64746c735f73656e645f726563656976653a20504153530a0a416c6c2044544c5320746573747320706173736564210a",
+          "stderr_hex": ""
+        },
+        {
+          "case": "unchanged DTLS caller",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "default",
+          "exit": 0,
+          "stdout_hex": "3d3d3d2053444b2044544c53205465737473203d3d3d0a0a746573745f6c697374656e65725f62696e643a20504153530a746573745f64746c735f636f6e6e6563745f616e645f636c6f73653a20504153530a746573745f64746c735f73656e645f726563656976653a20504153530a0a416c6c2044544c5320746573747320706173736564210a",
+          "stderr_hex": ""
+        },
+        {
+          "case": "unchanged DTLS caller",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "checked",
+          "exit": 0,
+          "stdout_hex": "3d3d3d2053444b2044544c53205465737473203d3d3d0a0a746573745f6c697374656e65725f62696e643a20504153530a746573745f64746c735f636f6e6e6563745f616e645f636c6f73653a20504153530a746573745f64746c735f73656e645f726563656976653a20504153530a0a416c6c2044544c5320746573747320706173736564210a",
+          "stderr_hex": ""
+        },
+        {
+          "case": "unchanged DTLS caller",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "unchecked",
+          "exit": 0,
+          "stdout_hex": "3d3d3d2053444b2044544c53205465737473203d3d3d0a0a746573745f6c697374656e65725f62696e643a20504153530a746573745f64746c735f636f6e6e6563745f616e645f636c6f73653a20504153530a746573745f64746c735f73656e645f726563656976653a20504153530a0a416c6c2044544c5320746573747320706173736564210a",
+          "stderr_hex": ""
+        },
+        {
+          "case": "unchanged DTLS caller",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "default",
+          "exit": 0,
+          "stdout_hex": "3d3d3d2053444b2044544c53205465737473203d3d3d0a0a746573745f6c697374656e65725f62696e643a20504153530a746573745f64746c735f636f6e6e6563745f616e645f636c6f73653a20504153530a746573745f64746c735f73656e645f726563656976653a20504153530a0a416c6c2044544c5320746573747320706173736564210a",
+          "stderr_hex": ""
+        },
+        {
+          "case": "unchanged DTLS caller",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "checked",
+          "exit": 0,
+          "stdout_hex": "3d3d3d2053444b2044544c53205465737473203d3d3d0a0a746573745f6c697374656e65725f62696e643a20504153530a746573745f64746c735f636f6e6e6563745f616e645f636c6f73653a20504153530a746573745f64746c735f73656e645f726563656976653a20504153530a0a416c6c2044544c5320746573747320706173736564210a",
+          "stderr_hex": ""
+        },
+        {
+          "case": "unchanged DTLS caller",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "unchecked",
+          "exit": 0,
+          "stdout_hex": "3d3d3d2053444b2044544c53205465737473203d3d3d0a0a746573745f6c697374656e65725f62696e643a20504153530a746573745f64746c735f636f6e6e6563745f616e645f636c6f73653a20504153530a746573745f64746c735f73656e645f726563656976653a20504153530a0a416c6c2044544c5320746573747320706173736564210a",
+          "stderr_hex": ""
+        }
+      ]
+    },
+    "windows:time-date-native.json": {
+      "passed": true,
+      "cases": [
+        {
+          "kind": "C independent archives",
+          "passed": true
+        },
+        {
+          "kind": "Rust independent C archives",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "rust",
+          "opt": "-O0",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "rust",
+          "opt": "-O0",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "rust",
+          "opt": "-O0",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "rust",
+          "opt": "-O1",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "rust",
+          "opt": "-O1",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "rust",
+          "opt": "-O1",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "rust",
+          "opt": "-O2",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "rust",
+          "opt": "-O2",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "module": "time",
+          "target": "rust",
+          "opt": "-O2",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "rust",
+          "opt": "-O0",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "rust",
+          "opt": "-O0",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "rust",
+          "opt": "-O0",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "rust",
+          "opt": "-O1",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "rust",
+          "opt": "-O1",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "rust",
+          "opt": "-O1",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "rust",
+          "opt": "-O2",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "rust",
+          "opt": "-O2",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "module": "date",
+          "target": "rust",
+          "opt": "-O2",
+          "mode": "unchecked",
+          "passed": true
+        }
+      ],
+      "complete_sdk_package": false,
+      "compiler_sha256": "8b630377329357bfbd7c66a1f1870c6edd5a10a186845693b1322da6c9bd0316",
+      "platform": "Windows",
+      "sources": {
+        "src\\time\\date.native.c": "9761abb20ff6bea5c71de38ae27925fdf47c2ac5a35760dea73a87479baa6e4b",
+        "src\\time\\date.native.h": "00e4bbcee8d1c5ea0031a34879843b8135286d91572b3a4b497515a938e75b09",
+        "src\\time\\date.sn": "ee0e39e78fda342f4fc1eab58dd270d64f74baba654758f790029438b700afaa",
+        "src\\time\\date.sn.c": "7a34a9275ecfa5124fa09d7d6b74771acf143d5db5cdd67a2a10cdec3d508f1f",
+        "src\\time\\time.native.c": "39fe13dc75831750f5a408a50da12ac2b05d3a66430c945434915218a637dce2",
+        "src\\time\\time.native.h": "995a909f9f098554a3f97e667ff5cc4c52cf5c6e0924cd00b831f3102ca99dbb",
+        "src\\time\\time.sn": "34fbb94b57493051f0e84be64ba86e92739e8aaf758a57dab8d330cd2f23b114",
+        "src\\time\\time.sn.c": "2d9f401715f73a7f6eeb4de57c2e42b7f63962239c1f9dae919b0670469ac817",
+        "tests\\time\\test_time.sn": "ca142b385c4b054a521ba406a88e6ca400a8df87ccaf616f4b3cb3169077198f",
+        "tests\\time\\test_time.expected": "562ca928f5c3135ae2b2337d4e01abec30db9b0246d9971139c1af3906a352cd",
+        "tests\\time\\test_date.sn": "ceefbae85b858704144cd304feb966736797cbc2b790a0b0ade345aa072c94c6",
+        "tests\\time\\test_date.expected": "9c08347fd4b1c91d04e771f94d3b374130783a528dc6491a5d33a5442b0493e3"
+      },
+      "scope": "Canonical C Time/Date storage and unchanged legacy callers; hosted compiler artifact adapters and broader SDK migration remain required"
+    },
+    "windows:dtls-lifecycle.json": {
+      "passed": true,
+      "compiler_sha256": "8b630377329357bfbd7c66a1f1870c6edd5a10a186845693b1322da6c9bd0316",
+      "source_sha256": "be48c9522b1645ed39d9bc5a942bd957a8ef814170b34da4fb73e1e3edd6996e",
+      "oracle_sha256": "2207f0f79cfc4e2f616304c86afc7c018d7a6b0e50ed27280b4611cf02e44ec7",
+      "cases": [
+        {
+          "case": "40 real listener bind/close/double-close registry cycles",
+          "exit": 0,
+          "stdout_hex": "",
+          "stderr_hex": ""
+        },
+        {
+          "case": "unchanged DTLS caller",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "default",
+          "exit": 0,
+          "stdout_hex": "3d3d3d2053444b2044544c53205465737473203d3d3d0d0a0d0a746573745f6c697374656e65725f62696e643a20504153530d0a746573745f64746c735f636f6e6e6563745f616e645f636c6f73653a20504153530d0a746573745f64746c735f73656e645f726563656976653a20504153530d0a0d0a416c6c2044544c5320746573747320706173736564210d0a",
+          "stderr_hex": ""
+        },
+        {
+          "case": "unchanged DTLS caller",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "checked",
+          "exit": 0,
+          "stdout_hex": "3d3d3d2053444b2044544c53205465737473203d3d3d0d0a0d0a746573745f6c697374656e65725f62696e643a20504153530d0a746573745f64746c735f636f6e6e6563745f616e645f636c6f73653a20504153530d0a746573745f64746c735f73656e645f726563656976653a20504153530d0a0d0a416c6c2044544c5320746573747320706173736564210d0a",
+          "stderr_hex": ""
+        },
+        {
+          "case": "unchanged DTLS caller",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "unchecked",
+          "exit": 0,
+          "stdout_hex": "3d3d3d2053444b2044544c53205465737473203d3d3d0d0a0d0a746573745f6c697374656e65725f62696e643a20504153530d0a746573745f64746c735f636f6e6e6563745f616e645f636c6f73653a20504153530d0a746573745f64746c735f73656e645f726563656976653a20504153530d0a0d0a416c6c2044544c5320746573747320706173736564210d0a",
+          "stderr_hex": ""
+        },
+        {
+          "case": "unchanged DTLS caller",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "default",
+          "exit": 0,
+          "stdout_hex": "3d3d3d2053444b2044544c53205465737473203d3d3d0d0a0d0a746573745f6c697374656e65725f62696e643a20504153530d0a746573745f64746c735f636f6e6e6563745f616e645f636c6f73653a20504153530d0a746573745f64746c735f73656e645f726563656976653a20504153530d0a0d0a416c6c2044544c5320746573747320706173736564210d0a",
+          "stderr_hex": ""
+        },
+        {
+          "case": "unchanged DTLS caller",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "checked",
+          "exit": 0,
+          "stdout_hex": "3d3d3d2053444b2044544c53205465737473203d3d3d0d0a0d0a746573745f6c697374656e65725f62696e643a20504153530d0a746573745f64746c735f636f6e6e6563745f616e645f636c6f73653a20504153530d0a746573745f64746c735f73656e645f726563656976653a20504153530d0a0d0a416c6c2044544c5320746573747320706173736564210d0a",
+          "stderr_hex": ""
+        },
+        {
+          "case": "unchanged DTLS caller",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "unchecked",
+          "exit": 0,
+          "stdout_hex": "3d3d3d2053444b2044544c53205465737473203d3d3d0d0a0d0a746573745f6c697374656e65725f62696e643a20504153530d0a746573745f64746c735f636f6e6e6563745f616e645f636c6f73653a20504153530d0a746573745f64746c735f73656e645f726563656976653a20504153530d0a0d0a416c6c2044544c5320746573747320706173736564210d0a",
+          "stderr_hex": ""
+        },
+        {
+          "case": "unchanged DTLS caller",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "default",
+          "exit": 0,
+          "stdout_hex": "3d3d3d2053444b2044544c53205465737473203d3d3d0d0a0d0a746573745f6c697374656e65725f62696e643a20504153530d0a746573745f64746c735f636f6e6e6563745f616e645f636c6f73653a20504153530d0a746573745f64746c735f73656e645f726563656976653a20504153530d0a0d0a416c6c2044544c5320746573747320706173736564210d0a",
+          "stderr_hex": ""
+        },
+        {
+          "case": "unchanged DTLS caller",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "checked",
+          "exit": 0,
+          "stdout_hex": "3d3d3d2053444b2044544c53205465737473203d3d3d0d0a0d0a746573745f6c697374656e65725f62696e643a20504153530d0a746573745f64746c735f636f6e6e6563745f616e645f636c6f73653a20504153530d0a746573745f64746c735f73656e645f726563656976653a20504153530d0a0d0a416c6c2044544c5320746573747320706173736564210d0a",
+          "stderr_hex": ""
+        },
+        {
+          "case": "unchanged DTLS caller",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "unchecked",
+          "exit": 0,
+          "stdout_hex": "3d3d3d2053444b2044544c53205465737473203d3d3d0d0a0d0a746573745f6c697374656e65725f62696e643a20504153530d0a746573745f64746c735f636f6e6e6563745f616e645f636c6f73653a20504153530d0a746573745f64746c735f73656e645f726563656976653a20504153530d0a0d0a416c6c2044544c5320746573747320706173736564210d0a",
+          "stderr_hex": ""
+        }
+      ]
+    }
+  }
+}
