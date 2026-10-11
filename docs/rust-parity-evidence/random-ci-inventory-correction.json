@@ -14,12 +14,25 @@
     "required_gates": 353,
     "groups": 26
   },
-  "status": "Local correction validated; hosted correction pending",
+  "status": "Hosted correction accepted on Linux/macOS/Windows",
   "logs": {
     "sindarin-random-ci-build-linux-failure.log": "f4082ceeaa145f213faf13436342ea7fdb7539f6e346e536582e6870f13f338a",
     "sindarin-random-ci-build-windows-failure.log": "0607c5ec46c1d45b0a5c2861d374baf527bdb5e82a4afcd34563dc6956f8d6c9",
     "sindarin-random-ci-build-macos-failure.log": "e0173c918664a2f807f3d3f75bb64359eb71359f0fe7746ab4629dc43ec617fd",
     "sindarin-random-ci-dependent-failure.log": "f92288213b2e960a422ee08217c2194d312f106ff4a5233eaa206ddcceb11f83",
     "sindarin-random-ci-inventory-correction.log": "63615e1ab7cd9c0b8693bce3967b8179c572db4c5db91c46ffbf900465c8234b"
+  },
+  "published_revision": "920f10f042db6fc96202dd21f9d1bee0c8d034d8",
+  "correction_ci": 38148561099,
+  "coverage": {
+    "revision": "920f10f042db6fc96202dd21f9d1bee0c8d034d8",
+    "groups": 26,
+    "gates": 353,
+    "compilers": {
+      "Linux": "825cacd0e67941f7e90a1146eedc96a80a6d4c45e2b4be689e5dfc1df7f20cd8",
+      "Darwin": "655b576571adbe684dcce895a0a71c29ba12137cef59f55be3db9a56a1e45cdf",
+      "Windows": "e4a7463c0794bc18e56050b468626bc08cb95aa9e7798869b391abdd02aae1e6"
+    },
+    "passed": true
   }
 }

@@ -635,5 +635,9 @@
   },
   "registered_gates": 353,
   "registered_groups": 26,
-  "ci_helper_correction_log_sha256": "63615e1ab7cd9c0b8693bce3967b8179c572db4c5db91c46ffbf900465c8234b"
+  "ci_helper_correction_log_sha256": "63615e1ab7cd9c0b8693bce3967b8179c572db4c5db91c46ffbf900465c8234b",
+  "published_revision": "16fa5387ad8e175f7f96ee690ccaa5c8bbe16007",
+  "initial_ci": 38148345944,
+  "correction_revision": "920f10f042db6fc96202dd21f9d1bee0c8d034d8",
+  "correction_ci": 38148561099
 }

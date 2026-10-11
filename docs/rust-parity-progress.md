@@ -56,19 +56,72 @@ include 72 normal and 72 sanitizer archive cases, all 3,242 C and 1,097 Rust
 checks, 50 imports, 22 artifact checks and 22 CI helpers, plus retained Rust/Go
 record wire clients after the merge. Full goal completion remains unproven.
 
-## Record bodies and parameters: integrated local validation, 2026-10-11
+## Record ownership: publication batch, 2026-10-11
 
-Branch `development/record-body-ownership-integrated` combines canonical Rust
-Sindarin record bodies with C/Rust default and ordinary qualified parameter
-rebinding on current corrected main `920f10f0`. All 3,242 C and 1,097 Rust checks
-pass, with 50 imports, 22 artifact tests and 22 CI helpers. The ownership matrices
-pass 72 body cases, 72 default rebinding cases and 18 qualified record cases,
-both normally and under sanitizers. Direct C/Rust body wire clients verify kind,
-identity, error outputs, nil and exact transferred credits. The twelve-module
-SDK artifact matrix still passes all 504 cases. Local coverage registers 365
-gates in 26 groups. This coherent batch remains unpublished until required main
-correction CI is fully accepted. Canonical as-val package copy adapters, wider
-contracts, dependency graphs and final full-goal proof remain work.
+The integrated record implementation on `development/record-body-ownership-integrated`
+combines canonical Rust body exports, default C/Rust parameter guards and ordinary
+qualified reference-record rebinding. Its 72 body, 72 default-rebinding and 18
+qualified-record cases pass normally and under sanitizers. Full C/Rust suites
+pass 3,242/1,097, with 50 imports, 22 artifacts, 22 helpers and 504 SDK artifact
+cases. Hosted checks register 365 gates in 26 groups and pin accepted SDK `d829ebe`.
+Publication follows the complete 34-job acceptance of correction `920f10f0`.
+This batch still requires its own hosted acceptance. Canonical package as-val
+copy adapters, wider contracts, dependency graphs and whole-goal proof remain work.
+
+## Random inventory correction: hosted acceptance, 2026-10-11
+
+Correction `920f10f0` passed all 34 jobs in CI 38148561099. Exact coverage
+verifies 353 gates in 26 platform groups and one compiler hash per host.
+[Retained acceptance](rust-parity-evidence/random-ci-inventory-correction-ci-green.json)
+closes the build inventory failure and accepts the integrated twelve-module
+Random SDK artifact/native checks. Required correction validation is complete;
+feature publication may resume within the two-batch limit.
+
+## Record ownership integration and UUID staging: local progress, 2026-10-11
+
+Integrated record checkpoint `dd76765e` on
+`development/record-body-ownership-integrated` passes all C/Rust suites
+3,242/1,097, 50 imports, 22 artifacts and 22 helpers. Its 72 body, 72 rebinding
+and 18 qualified-record mode cases pass normally and under sanitizers. The
+accepted twelve-module SDK still passes 504 artifact cases; 365 gates are
+registered locally. Publication remains frozen until required correction
+`920f10f0` is fully green.
+
+SDK checkpoint `840f5ba` on `development/sdk-uuid-native` decouples UUID's
+24-byte C record while retaining the original 24 operation bodies, public
+module and original caller/oracle. Twenty native/legacy cases, the actual-runtime
+sanitizer probe, 36 namespace-credit cases normally and with sanitizers, all
+28 legacy SDK cases and seven native helper tests pass against accepted compiler
+`4211bf0f`. A canonical C copy helper returns an independent owner with unchanged
+bits; language/package as-val integration remains required. Opt-in compiler UUID
+staging builds two C/Sindarin units with 41 exports and passes the 72-case normal
+source/sealed matrix. Its 72-case sanitizer matrix also passes, with 20 native and one runtime
+sanitizer dispatch case; 22 helpers validate 361 locally registered gates.
+Neither UUID batch is
+published or hosted accepted; the default SDK stage remains twelve modules.
+
+## Rust typed-array package bodies: hosted acceptance, 2026-10-11
+
+Revision `c603d967` passed all 34 jobs in CI 38145474681. The retained
+[exact-revision proof](rust-parity-evidence/typed-body-array-ci-green.json)
+verifies 345 gates in 26 groups and one compiler hash per platform. Typed-array
+body exports and local parameter replacement ownership are accepted on
+Linux/macOS/Windows, including strict Linux sanitizer checks. Record work
+remains locally held, and required Random inventory correction validation
+continues to freeze feature publication.
+
+## Default record rebinding: local validation, 2026-10-11
+
+Local checkpoint `2b81613e` on `development/rust-record-parameter-rebind`
+repairs a proven C heap-use-after-free on borrowed record parameter reassignment
+and adds Rust canonical record parameter guards. All 72 source/sealed C/RS-body
+C/Rust-consumer mode cases pass normally and under sanitizers. Static/instance
+methods, ordinary functions, repeated/self/nil bindings preserve original aliases
+and release nine native allocations exactly once. Full C/Rust suites pass
+3,242/1,097 without failures/skips; existing record-body tests pass seven checks
+and all 22 artifact tests pass. All 50 package import tests pass. This
+checkpoint remains local while required main correction validation is pending.
+As-val/as-ref record rebinding, wider contracts and final goal proof remain work.
 
 ## Random CI inventory correction, 2026-10-11
 
@@ -79,7 +132,7 @@ helper failures were initially masked by a trailing successful command; this
 is not accepted validation. The corrected assertion retains the exact 353-gate
 inventory and explicitly verifies all four Random gate definitions, platform
 groups and sanitizer commands. All 22 helpers now pass with a directly checked
-exit status. One correction batch will await full integrated hosted acceptance;
+exit status. Correction `920f10f0` awaits full integrated acceptance in CI 38148561099;
 feature publication remains frozen until that required validation succeeds.
 
 ## Random SDK artifacts: integrated local validation, 2026-10-11
