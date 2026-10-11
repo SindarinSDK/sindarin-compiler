@@ -1,0 +1,29 @@
+{
+  "conclusion": "success",
+  "headSha": "6e39091cc08993f11986c6dc64f3b178e854130f",
+  "jobs": [
+    {
+      "name": "Native text oracle contract",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38109720921/job/114382581617"
+    },
+    {
+      "name": "sindarin-pkg-test / Test (windows-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38109720921/job/114382581776"
+    },
+    {
+      "name": "sindarin-pkg-test / Test (macos-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38109720921/job/114382581784"
+    },
+    {
+      "name": "sindarin-pkg-test / Test (ubuntu-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38109720921/job/114382581871"
+    }
+  ],
+  "status": "completed",
+  "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38109720921",
+  "scope": "Canonical SDK BinaryFile independent C module, stable helper backing names, legacy original SDK suite and standalone native lifecycle/error checks on Linux/macOS/Windows. Compiler facade/generated adapter/mixed-package acceptance remains separate."
+}

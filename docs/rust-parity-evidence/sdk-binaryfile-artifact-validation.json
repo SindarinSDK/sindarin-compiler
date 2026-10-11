@@ -1,0 +1,32 @@
+{
+  "base_compiler_revision": "a182e350f62489e6ec91dca2d11831abe2651113",
+  "accepted_sdk_revision": "6e39091cc08993f11986c6dc64f3b178e854130f",
+  "public_methods": 23,
+  "public_root_helpers": 12,
+  "normal_and_strict_C_Rust_cases": {
+    "original_fixture_source_and_prebuilt": 36,
+    "file_alias_buffer_copy_lifetime_helpers": 18,
+    "C_SDK_RS_GO_and_pure_Sindarin_RS_mixed_source_and_prebuilt": 36,
+    "total": 90
+  },
+  "additional_strict_exposed_pointer_and_sizeof_cases": 18,
+  "complete_package_import_tests": 45,
+  "ci_helper_tests": 22,
+  "SDK_normal_checks": 26,
+  "SDK_sanitized_checks": 3,
+  "normal_and_strict_passed": true,
+  "original_public_source_caller_oracle_preserved": true,
+  "sizeof_as_ref_language_value": 8,
+  "canonical_record_layout": "Checked separately by C sizeof/alignment/field assertions and legacy compatibility assertions",
+  "prebuilt_controls": "Backing C, RS, Go and pure Sindarin implementation sources removed; unchanged public SDK module retained",
+  "compiler_hosted_acceptance": "Pending its own complete Linux/macOS/Windows CI after publication",
+  "SDK_hosted_acceptance": "All four jobs pass at the pinned revision",
+  "validation_scope": "Complete import suite and 90-case baseline pass; exposed-pointer/sizeof refinements independently pass 18 strict case/mode checks.",
+  "complete_goal": false,
+  "remaining": "Complete C-backed SDK packaging, broader record/interface/lifecycle contracts and final original 1365-program platform/mode acceptance remain required",
+  "source_sha256": {
+    "src/io/binaryfile.sn": "c717083e18128360f5d3ece675f0475c6509da69bcc9ad36c72f9f789893c4e9",
+    "tests/io/test_binaryfile.sn": "5de1a3353789676b39332fa9bb893f9019b7e5ceaa28c3f734314e69ce4adf48",
+    "tests/io/test_binaryfile.expected": "e9fb63cea834f5d045bb70696538bbe75873126501eb3205fc9fa1b26c41751f"
+  }
+}

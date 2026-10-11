@@ -1,0 +1,29 @@
+{
+  "conclusion": "success",
+  "headSha": "83b9d7c35167c13cd85ae31f6d4c96e4463a7ba8",
+  "jobs": [
+    {
+      "name": "Native text oracle contract",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38109554080/job/114382092353"
+    },
+    {
+      "name": "sindarin-pkg-test / Test (macos-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38109554080/job/114382092379"
+    },
+    {
+      "name": "sindarin-pkg-test / Test (windows-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38109554080/job/114382092433"
+    },
+    {
+      "name": "sindarin-pkg-test / Test (ubuntu-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38109554080/job/114382092434"
+    }
+  ],
+  "status": "completed",
+  "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38109554080",
+  "scope": "Canonical SDK BinaryFile C module and exact Windows C stderr newline correction; full SDK language tests on Linux/macOS/Windows. Public artifact helper/facade adapter acceptance remains separate."
+}

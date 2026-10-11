@@ -7,6 +7,48 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## BinaryFile SDK artifacts: local validation, 2026-10-11
+
+The actual SDK BinaryFile module now builds independently with canonical C
+record storage and atomic lifecycle functions. Its existing file operations and
+public Sindarin module remain the implementation. Compatibility checks retain
+generated-record layout for legacy C callers. Separate helper backing names
+allow generated exports to preserve the original C symbols used by the facade.
+SDK `6e39091` passes all four jobs in
+[CI 38109720921](https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38109720921),
+including the complete 28-test SDK suite and standalone module on all platforms.
+Compiler CI pins that accepted revision.
+
+The first SDK BinaryFile run failed only its Windows nil-path stderr oracle:
+exit 1 and the exact original error text were correct, but C emitted CRLF where
+the checker expected LF. Correction `83b9d7c` preserves each platform's exact
+newline and passes all four jobs in
+[CI 38109554080](https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38109554080).
+No original SDK caller, public Sindarin source or expected output was changed.
+
+Compiler controls cover 90 C/Rust build/run combinations over all nine
+optimization/arithmetic modes. The unchanged SDK fixture consumes source-built
+and sealed prebuilt C native/facade libraries after backing sources are removed.
+Additional controls verify shared file aliases, live readInto mutation observed
+through borrowed buffer aliases, independence of ordinary array copies, repeated
+disposal, exposed fields and sizeof, owned paths/names, helper exports and byte
+results surviving file closure. Mixed applications combine the SDK with
+Rust-native, Go-native and pure Sindarin RS packages, then consume their sealed
+archives after backing sources are removed. Normal and strict
+address/undefined/leak checks pass locally; hosted compiler acceptance is pending.
+The sizeof language value is the as-ref pointer width; canonical record storage
+layout is verified separately by generated C assertions.
+
+Standalone SDK normal/sanitized validation passes 26/3 checks. The complete
+artifact import suite passes 45 tests and 22 CI-helper tests pass. Eighteen
+additional strict case/mode controls verify exposed pointers and exact sizeof
+after the 90-case baseline. The complete SDK,
+wider record/interface/package contracts and final original-corpus/platform/mode
+acceptance remain required. Evidence:
+[SDK module acceptance](rust-parity-evidence/sdk-binaryfile-module-ci-green.json),
+[Windows oracle correction](rust-parity-evidence/sdk-binaryfile-oracle-ci-green.json),
+[artifact and lifecycle validation](rust-parity-evidence/sdk-binaryfile-artifact-validation.json).
+
 ## Native entrypoint parity: local validation, 2026-10-11
 
 Native source `main` bodies now use a private C callable and an ordinary Rust
@@ -22,7 +64,9 @@ initialization, generated-name collisions, recursion, string fields and ordinary
 main forwarding argv to native functions. All pass normal and strict
 address/undefined/leak validation. Complete C/Rust suites pass 3,241/1,097 checks;
 original sources/oracles/snapshots are preserved. A dedicated CI gate runs these
-controls on Linux/macOS/Windows. Hosted acceptance is pending publication.
+controls on Linux/macOS/Windows. Hosted acceptance is pending in
+[CI 38108965543](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38108965543)
+for compiler main `a182e350`.
 
 The complete SDK, wider record/interface/package contracts and final original
 corpus/platform/mode acceptance remain required.
@@ -45,7 +89,7 @@ Linux/macOS/Windows platform. This accepts the qualifier repair and integrated
 unchanged TextFile facade work. Evidence:
 [complete correction acceptance](rust-parity-evidence/parameter-sync-ci-green.json).
 
-Byte-array ABI/adapters and the unchanged Bytes facade are under local validation.
+Byte-array ABI/adapters and the unchanged Bytes facade have hosted acceptance above.
 SDK `775fb67` adds the standalone C module and native check to `make test`.
 Its Windows CI failed because the checker assumed resources beside an installed
 copied executable. SDK `a8d378f` followed the compiler's installed resource lookup.
@@ -57,7 +101,7 @@ verified against the exact v0.0.83 Windows release archive. All four jobs in
 now pass, including the standalone C module on Linux/macOS/Windows. Compiler CI
 pins this exact accepted revision. Evidence:
 [SDK module acceptance](rust-parity-evidence/sdk-bytes-module-ci-green.json).
-The compiler byte-feature batch awaits its own hosted acceptance after publication.
+The compiler byte-feature batch has its own complete hosted acceptance above.
 
 The byte feature passes 3,241 C and 1,097 Rust checks, 20 artifact, 44 import,
 14 runtime-contract and 22 CI-helper tests. Twelve ABI clients and five sanitized

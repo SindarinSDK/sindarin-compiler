@@ -447,6 +447,159 @@ class NativeImports(unittest.TestCase):
         for target in ('c','rust'):
             with self.subTest(namespace=target):self.execute(target,b'7\n4\n0080ff\n')
 
+    def test_unchanged_sdk_binaryfile_facade_is_an_independent_c_library(self):
+        import hashlib,json
+        sdk=Path(os.environ.get('SN_SDK_ROOT',ROOT/'.sn/sdk-native-integration')).resolve()
+        package=self.root/'.sn/sindarin-pkg-sdk'
+        for name in ('binaryfile.sn','binaryfile.sn.c','binaryfile.native.c','binaryfile.native.h'):
+            source=sdk/'src/io'/name
+            self.assertTrue(source.is_file(),'independent SDK BinaryFile module is required: '+str(source))
+            destination=package/'src/io'/name
+            destination.parent.mkdir(parents=True,exist_ok=True)
+            shutil.copyfile(source,destination)
+        original=(package/'src/io/binaryfile.sn').read_bytes()
+        self.write('.sn/sindarin-pkg-sdk/sn.yaml','name: sindarin-pkg-sdk\n')
+        model_path=self.root/'sdk-model.json'
+        emitted=subprocess.run([str(COMPILER),str(package/'src/io/binaryfile.sn'),'--no-install',
+            '--package-body','--emit-model','-o',str(model_path)],cwd=self.root,capture_output=True,timeout=30)
+        self.assertEqual(emitted.returncode,0,emitted.stderr.decode(errors='replace'))
+        model=json.loads(model_path.read_text())
+        record=next(s for s in model['structs'] if s['name']=='BinaryFile')
+        manifest=('name: sindarin-pkg-sdk\nruntime: C\nnative:\n  abi: 1.6\n'
+            '  declarations: [src/io/binaryfile.sn]\n  types:\n'
+            '    - declaration: src/io/binaryfile.sn::BinaryFile\n'
+            '      identity: SindarinSDK/sindarin-pkg-sdk:io.BinaryFile@1\n'
+            '      c_type: SnSdkBinaryFileRecord\n      header: src/io/binaryfile.native.h\n'
+            '      create: sn_sdk_binary_file_create\n      retain: sn_sdk_binary_file_retain\n'
+            '      release: sn_sdk_binary_file_release\n      refs: sn_sdk_binary_file_refs\n      owner: atomic\n'
+            '  builds:\n    - name: native\n      language: C\n'
+            '      sources: [src/io/binaryfile.native.c]\n      provides_sources: [src/io/binaryfile.sn.c]\n'
+            '      include_dirs: [src/io]\n    - name: facade\n      language: SN\n'
+            '      entry: src/io/binaryfile.sn\n      sources: [src/io/binaryfile.sn]\n      include_dirs: [src/io]\n'
+            '  bindings:\n')
+        for method in record['methods']:
+            name=method['name'];result=method['return_type']['kind']
+            parameters=[] if method['is_static'] else ['self: borrowed']
+            for parameter in method['params']:
+                ownership='borrowed' if parameter['type']['kind'] in ('string','array','struct') else 'value'
+                parameters.append(parameter['name']+': '+ownership)
+            manifest+=(f'    - declaration: src/io/binaryfile.sn::BinaryFile.{name}\n'
+                f'      function: BinaryFile.{name}\n      symbol: sdk_binary_file_method_{name}\n'
+                '      build: facade\n      convention: C\n      failure: abort\n'
+                '      ownership: {parameters: {'+', '.join(parameters)+'}, result: '+
+                ('owned' if result in ('string','array','struct') else 'value')+'}\n')
+        for function in model['functions']:
+            name=function['name'];result=function['return_type']['kind']
+            parameters=[]
+            for parameter in function['params']:
+                ownership='borrowed' if parameter['type']['kind'] in ('string','array','struct') else 'value'
+                parameters.append(parameter['name']+': '+ownership)
+            manifest+=(f'    - declaration: src/io/binaryfile.sn::{name}\n'
+                f'      function: {name.replace("sn_binary_file_","sn_sdk_binary_file_")}\n      symbol: sdk_binary_file_helper_{name}\n'
+                '      build: native\n      convention: C\n      failure: abort\n'
+                '      ownership: {parameters: {'+', '.join(parameters)+'}, result: '+
+                ('owned' if result in ('string','array','struct') else 'value')+'}\n')
+        self.write('.sn/sindarin-pkg-sdk/sn.yaml',manifest)
+        shutil.copyfile(sdk/'tests/io/test_binaryfile.sn',self.root/'main.sn')
+        expected=(sdk/'tests/io/test_binaryfile.expected').read_bytes().replace(b'\r\n',b'\n')
+        modes=[(optimization,)+((arithmetic,) if arithmetic else ())
+               for optimization in ('-O0','-O1','-O2') for arithmetic in (None,'--checked','--unchecked')]
+        for flags in modes:
+            for target in ('c','rust'):
+                with self.subTest(target=target,flags=flags,archive='source'):self.execute(target,expected,flags)
+        built=subprocess.run([str(COMPILER),'--build-native',str(package/'sn.yaml'),'--target','rust',
+            '-o',str(self.root/'artifacts')],cwd=self.root,capture_output=True,timeout=180)
+        self.assertEqual(built.returncode,0,built.stderr.decode(errors='replace'))
+        assembly=Path(json.loads(built.stdout)['assembly'])
+        metadata=json.loads(assembly.read_text())
+        self.assertEqual({u['language'] for u in metadata['units']},{'C','SN'})
+        shutil.copytree(assembly.parent,package/'dist')
+        (package/'sn.yaml').write_text(manifest.replace('  abi: 1.6\n',
+            '  abi: 1.6\n  assembly:\n    path: dist/assembly.json\n    sha256: '+hashlib.sha256(assembly.read_bytes()).hexdigest()+'\n'))
+        (package/'src/io/binaryfile.native.c').unlink(); (package/'src/io/binaryfile.sn.c').unlink()
+        for flags in modes:
+            for target in ('c','rust'):
+                with self.subTest(target=target,flags=flags,archive='prebuilt'):self.execute(target,expected,flags)
+        self.assertEqual((package/'src/io/binaryfile.sn').read_bytes(),original)
+        self.write('main.sn','import "sindarin-pkg-sdk/src/io/binaryfile"\n'
+            'fn readShared(file: BinaryFile, bytes: byte[], alias: byte[]): int =>\n'
+            '  var count: int = file.readInto(bytes)\n'
+            '  assert(alias.toHex() == "0080ff2a07", "borrowed alias must see file bytes")\n'
+            '  return count\nfn main(): void =>\n'
+            '  var written: byte[] = {0, 128, 255, 42}\n  BinaryFile.writeAll("alias.bin", written)\n'
+            '  var file: BinaryFile = BinaryFile.open("alias.bin")\n  var alias: BinaryFile = file\n'
+            '  println(file._fp != nil)\n'
+            '  var data: byte[] = {7, 7, 7, 7, 7}\n  var shared: byte[] = data\n'
+            '  println(readShared(alias, data, data))\n  println(data.toHex())\n  println(shared.toHex())\n'
+            '  file.rewind()\n  var held: byte[] = file.readRemaining()\n'
+            '  var path: str = file.path()\n  var name: str = alias.name()\n'
+            '  alias.dispose()\n  file.dispose()\n  println(file._is_open)\n'
+            '  println(file._fp == nil)\n'
+            '  println(held.toHex())\n  println(path)\n  println(name)\n'
+            '  println(file._path)\n  println(sizeof(BinaryFile))\n'
+            '  var direct: byte[] = sn_binary_file_read_all_static("alias.bin")\n'
+            '  println(direct.toHex())\n'
+            '  var helper: BinaryFile = sn_binary_file_open("alias.bin")\n'
+            '  println(sn_binary_file_get_path(helper))\n  sn_binary_file_dispose(helper)\n'
+            '  BinaryFile.delete("alias.bin")\n')
+        for flags in modes:
+            for target in ('c','rust'):
+                with self.subTest(target=target,flags=flags,lifecycle=True):
+                    # sizeof an as-ref language value is its pointer width;
+                    # native record storage layout is checked separately.
+                    self.execute(target,b'true\n4\n0080ff2a07\n0707070707\n0\ntrue\n0080ff2a\nalias.bin\nalias.bin\nalias.bin\n8\n0080ff2a\nalias.bin\n',flags)
+        assemblies=[]
+        for name,language,source in (
+            ('binaryrs','RS','pub fn generate()->Option<Vec<u8>> { Some(vec![0,128,255]) }\n'),
+            ('binarygo','GO','package backing\nfunc Generate() []byte { return []byte{42,7} }\n'),
+            ('binarybody','SN','fn append(bytes: byte[], suffix: byte[]): byte[] =>\n'
+                '  for b in suffix =>\n    bytes.push(b)\n  return bytes\n')):
+            suffix={'RS':'rs','GO':'go','SN':'sn'}[language]
+            backing=f'src/body.{suffix}'
+            self.write(f'.sn/{name}/'+backing,source)
+            declaration=('native fn append(bytes: byte[], suffix: byte[]): byte[]\n' if language=='SN'
+                         else 'native fn generate(): byte[]\n')
+            self.write(f'.sn/{name}/src/api.sn',declaration)
+            text=(f'name: {name}\nruntime: '+('RS' if language=='SN' else language)+'\nnative:\n'
+                '  abi: 1.6\n  declarations: [src/api.sn]\n  builds:\n'
+                f'    - name: backing\n      language: {language}\n      sources: [{backing}]\n')
+            if language=='GO':
+                text+='      module: src\n'
+                self.write(f'.sn/{name}/src/go.mod','module sindarin.test/'+name+'\n\ngo 1.26.0\n')
+            else:text+='      entry: '+backing+'\n'
+            function='append' if language=='SN' else 'generate'
+            text+=(f'  bindings:\n    - declaration: src/api.sn::{function}\n'
+                '      function: '+('Generate' if language=='GO' else function)+'\n'
+                f'      symbol: {name}_{function}\n      build: backing\n      convention: C\n      failure: abort\n'
+                '      ownership: {parameters: {'+('bytes: borrowed, suffix: borrowed' if language=='SN' else '')+'}, result: owned}\n')
+            self.write(f'.sn/{name}/sn.yaml',text)
+            assemblies.append((name,text,backing))
+        self.write('main.sn','import "sindarin-pkg-sdk/src/io/binaryfile"\n'
+            'import "binaryrs/src/api" as RS\nimport "binarygo/src/api" as Go\n'
+            'import "binarybody/src/api" as Body\n'
+            'fn load(): byte[] =>\n  var file: BinaryFile = BinaryFile.open("mixed.bin")\n'
+            '  var alias: BinaryFile = file\n  var bytes: byte[] = alias.readRemaining()\n'
+            '  file.dispose()\n  return bytes\nfn main(): void =>\n'
+            '  var bytes: byte[] = RS.generate()\n  var tail: byte[] = Go.generate()\n'
+            '  var result: byte[] = Body.append(bytes, tail)\n  println(bytes.toHex())\n'
+            '  BinaryFile.writeAll("mixed.bin", result)\n  var held: byte[] = load()\n'
+            '  println(held.toHex())\n  println(tail.toHex())\n  BinaryFile.delete("mixed.bin")\n')
+        for archive in ('source','prebuilt'):
+            if archive=='prebuilt':
+                for name,text,backing in assemblies:
+                    dependency=self.root/'.sn'/name
+                    built=subprocess.run([str(COMPILER),'--build-native',str(dependency/'sn.yaml'),'--target','rust',
+                        '-o',str(dependency/'dist-build')],cwd=self.root,capture_output=True,timeout=180)
+                    self.assertEqual(built.returncode,0,built.stderr.decode(errors='replace'))
+                    assembly=Path(json.loads(built.stdout)['assembly']);shutil.copytree(assembly.parent,dependency/'dist')
+                    (dependency/'sn.yaml').write_text(text.replace('  abi: 1.6\n',
+                        '  abi: 1.6\n  assembly: {path: dist/assembly.json, sha256: '+hashlib.sha256(assembly.read_bytes()).hexdigest()+'}\n'))
+                    (dependency/backing).unlink()
+            for flags in modes:
+                for target in ('c','rust'):
+                    with self.subTest(target=target,flags=flags,mixed=archive):
+                        self.execute(target,b'0080ff2a07\n0080ff2a07\n2a07\n',flags)
+
     def test_unchanged_sdk_textfile_facade_is_an_independent_c_library(self):
         import hashlib,json
         sdk=Path(os.environ.get('SN_SDK_ROOT',ROOT/'.sn/sdk-native-integration')).resolve()
