@@ -303,3 +303,11 @@ Local checks include direct/function-value calls, static/instance methods, nil,
 rebinding, separate identity and exact final destruction. Exported package-body
 parameter qualifiers, callbacks, wider copy hooks and hosted acceptance remain
 required work; this capability does not imply those wider contracts are complete.
+
+Canonical C copy calls use the declared backing symbol directly; a public
+Sindarin method named `copy` keeps its existing generated name. Rust canonical
+handles can likewise retain public copy methods and managed string fields.
+Ordinary direct, function-value, static and instance `as val` calls use the
+canonical copy capability. This does not yet establish canonical `copyOf()`
+operator support in Rust or qualified parameters on package-exported functions;
+those contracts remain implementation work.

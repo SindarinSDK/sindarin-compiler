@@ -1,1 +1,1 @@
-{{#if is_noop}}{{> expr operand}}{{else}}{{#if is_deep_copy}}__sn__{{type_name}}_copy({{> expr operand}}){{else}}{{#if is_strdup}}({{> expr operand}} ? strdup({{> expr operand}}) : NULL){{else}}(*({{> expr operand}})){{/if}}{{/if}}{{/if}}
+{{#if is_noop}}{{> expr operand}}{{else}}{{#if is_deep_copy}}{{#if operand.type.native_record.copy}}{{operand.type.native_record.copy}}{{else}}__sn__{{type_name}}_copy{{/if}}({{> expr operand}}){{else}}{{#if is_strdup}}({{> expr operand}} ? strdup({{> expr operand}}) : NULL){{else}}(*({{> expr operand}})){{/if}}{{/if}}{{/if}}

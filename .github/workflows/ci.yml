@@ -182,6 +182,7 @@ jobs:
           .sn/sdk-time-date-artifact.json
           .sn/sdk-random-artifact*.json
           .sn/sdk-uuid-artifact*.json
+          .sn/sdk-record-copies*.json
           .sn/sdk-native-integration/.sn/time-date-*.json
           .sn/sdk-native-integration/.sn/random-*.json
           .sn/sdk-native-integration/.sn/uuid-*.json

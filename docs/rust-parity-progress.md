@@ -71,6 +71,29 @@ complete required hosted acceptance. Exported parameter qualifiers, callbacks,
 wider contracts, whole SDK and final corpus/platform proof remain required.
 Evidence: [canonical-record-copy-integrated-validation.json](rust-parity-evidence/canonical-record-copy-integrated-validation.json).
 
+## Native SDK copies: local compiler integration, 2026-10-11
+
+The held SDK resource integration `ec00844` combines StringBuilder, Process and
+Json on accepted SDK `840f5ba`. Its unchanged original/public sources and oracles
+pass 28 legacy SDK tests, 60 native/original mode cases, three actual-runtime
+sanitizer probes and seven helpers. All 87 public Sindarin and oracle files remain
+byte-identical. Publication waits for full corrected compiler CI acceptance.
+
+Compiler controls now exercise each canonical resource through ordinary `as val`
+direct/function-value and static/instance calls, in source and sealed packages.
+108 normal and 108 sanitizer cases preserve independent buffers, captured strings
+and JSON trees. C copy calls use the declared C symbol directly, fixing collision
+with public `copy()` methods. Rust canonical handles support public copy methods
+and managed string fields in ordinary `as val` parameters. Complete C/Rust suites
+pass 3,242/1,097 with zero failures/skips, artifacts/helpers pass 22/22, and the
+held inventory is 381 gates/26 groups. All 50 package import tests now pass.
+These gates also require hosted acceptance of
+the combined SDK revision and an exact accepted compiler SDK pin before publication.
+Canonical Rust `copyOf()`, exported package qualifiers and callbacks, wider
+record/interface/generic contracts, lifecycle graphs, whole SDK and final original
+corpus/platform proof remain work. No feature pushes occur while the current
+integrated correction awaits macOS/Windows core completion.
+
 ## Current hosted queue, 2026-10-11
 
 Compiler record ownership revision `cbd2fbe9` awaits CI 38153082329; compiler

@@ -22,6 +22,11 @@ class RecordCopyTests(unittest.TestCase):
         source=self.package/'src/counter.c'
         source.write_text(source.read_text()+'CanonicalCounter *counter_copy(const CanonicalCounter *value) { if(!value) return NULL; CanonicalCounter *copy=counter_create();copy->__sn__amount=value->__sn__amount;return copy; }\n')
         self.manifest=f.manifest.replace('runtime: RS','runtime: C').replace('      owner: atomic','      owner: atomic\n      copy: counter_copy')
+        # A public copy() method must coexist with the canonical C copy hook.
+        api=self.package/'src/api.sn'
+        api.write_text(api.read_text().replace('  static fn make(value: int): Counter =>',
+            '  fn copy(): Counter =>\n    return Counter.make(self.amount)\n  static fn make(value: int): Counter =>'))
+        self.manifest += f.binding('Counter.copy','Counter.copy','facade','owned','self: borrowed')
         f.write('.sn/methods/sn.yaml',self.manifest)
         f.write('main.sn','import "methods/src/api"\n'
             'struct Calls as ref =>\n  value: int\n'

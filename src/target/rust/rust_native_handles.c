@@ -172,7 +172,8 @@ static bool native_prepare_handles(json_object *model, RustNativePlan *plan)
         }
         if (!native_bool(structure, "is_native") || !native_bool(structure, "pass_self_by_ref") ||
             native_bool(structure, "is_packed") || native_bool(structure, "is_serializable") ||
-            native_bool(structure, "has_user_copy_method")) continue;
+            (native_bool(structure, "has_user_copy_method") &&
+             !native_record_child(structure, "native_record"))) continue;
         const char *keys[] = {"rust_native_handle_field", "rust_native_handle_adopt", "rust_native_handle_retain",
             "rust_native_handle_release", "rust_native_handle_refs", "rust_native_handle_parameter_guard", "rust_native_handle_copy", NULL};
         const char *roles[] = {"pointer", "adopt", "retain", "release", "refs", "parameter_guard", "copy"};

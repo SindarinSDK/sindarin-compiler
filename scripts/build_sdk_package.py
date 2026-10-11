@@ -15,12 +15,15 @@ from pathlib import Path
 MODULES = ('io/bytes', 'io/textfile', 'io/binaryfile', 'io/path',
            'io/directory', 'io/stdio', 'os/os', 'os/env', 'crypto/crypto',
            'time/time', 'time/date', 'core/random', 'core/uuid')
-SUPPORTED_MODULES = MODULES
+SUPPORTED_MODULES = MODULES + ('encoding/text', 'os/process', 'encoding/json')
 RESOURCE_RESULTS = {
     ('time/date', 'sn_date_to_time'): 'src/time/time.sn::Time',
     ('time/date', 'Date.toTime'): 'src/time/time.sn::Time',
 }
 RECORDS = {
+    'encoding/text': ('StringBuilder', 'SnSdkStringBuilderRecord', 'sn_sdk_text'),
+    'os/process': ('Process', 'SnSdkProcessRecord', 'sn_sdk_process'),
+    'encoding/json': ('Json', 'SnSdkJsonRecord', 'sn_sdk_json'),
     'core/uuid': ('UUID', 'SnSdkUuidRecord', 'sn_sdk_uuid'),
     'core/random': ('Random', 'SnSdkRandomRecord', 'sn_sdk_random'),
     'io/textfile': ('TextFile', 'SnSdkTextFileRecord', 'sn_sdk_text_file'),
@@ -119,7 +122,7 @@ def prepare(compiler, sdk, destination, modules=MODULES):
                       '      identity: SindarinSDK/sindarin-pkg-sdk:'+module.rsplit('/', 1)[0].replace('/', '.')+'.'+name+'@1',
                       '      c_type: '+c_type, '      header: src/'+module+'.native.h']
             lines += ['      '+field+': '+prefix+'_'+field for field in ('create','retain','release','refs')]
-            if module == 'core/uuid': lines.append('      copy: sn_sdk_uuid_copy')
+            if module in ('core/uuid', 'encoding/text', 'os/process', 'encoding/json'): lines.append('      copy: '+prefix+'_copy')
             lines.append('      owner: atomic')
     lines.append('  builds:')
     bindings = []
@@ -149,7 +152,7 @@ def prepare(compiler, sdk, destination, modules=MODULES):
         lines += ['    - name: native_'+stem, '      language: C', '      sources: [native/'+stem+'.c]',
                   '      provides_sources: [src/'+module+'.sn.c]',
                   '      include_dirs: ['+', '.join(include_dirs)+']']
-        libraries = re.findall(r'^@link\s+(\w+)', (destination/'src'/(module+'.sn')).read_text(), re.M)
+        libraries = re.findall(r'^@link[ \t]+([^\s]+)', (destination/'src'/(module+'.sn')).read_text(), re.M)
         if libraries:
             lines.append('      libraries: ['+', '.join(libraries)+']')
         lines += ['    - name: facade_'+stem, '      language: SN', '      entry: src/'+module+'.sn',

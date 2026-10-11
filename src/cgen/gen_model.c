@@ -463,11 +463,16 @@ bool gen_model_validate_record_copies(json_object *model, json_object *node)
             json_object *structure = json_object_array_get_idx(structs, i), *actual = NULL, *record = NULL, *copy = NULL;
             if (json_object_object_get_ex(structure, "name", &actual) &&
                 !strcmp(json_object_get_string(actual), json_object_get_string(name)) &&
-                json_object_object_get_ex(structure, "native_record", &record) &&
-                !json_object_object_get_ex(record, "copy", &copy))
+                json_object_object_get_ex(structure, "native_record", &record))
             {
-                fprintf(stderr, "Error: canonical record '%s' as-val copy requires a native.types copy contract\n", json_object_get_string(name));
-                return false;
+                if (!json_object_object_get_ex(record, "copy", &copy))
+                {
+                    fprintf(stderr, "Error: canonical record '%s' as-val copy requires a native.types copy contract\n", json_object_get_string(name));
+                    return false;
+                }
+                /* Call the declared C copy symbol directly. The language-visible
+                 * method named copy keeps its existing generated name. */
+                json_object_object_add(node, "native_copy_function", json_object_get(copy));
             }
         }
     }

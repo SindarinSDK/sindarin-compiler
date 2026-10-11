@@ -217,10 +217,6 @@ static inline __sn__{{name}} *__sn__{{name}}_retain(__sn__{{name}} *p) {
 {{/if}}    *p = NULL;
 }
 
-{{#if native_record.copy}}static inline __sn__{{name}} *__sn__{{name}}_copy(const __sn__{{name}} *src) {
-    return {{native_record.copy}}(src);
-}
-{{/if}}
 {{#unless is_native}}static inline __sn__{{name}} *__sn__{{name}}_copy(const __sn__{{name}} *src) {
     __sn__{{name}} *dst = calloc(1, sizeof(__sn__{{name}}));
     dst->__rc__ = 1;

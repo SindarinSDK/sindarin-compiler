@@ -1,0 +1,46 @@
+{
+  "status": "Complete local integration validation passed; unpublished; required compiler correction and combined SDK hosted acceptance pending",
+  "base": "f1817852",
+  "SDK_combined_local_revision": "ec00844",
+  "normal_source_sealed_SDK_copy_cases": 108,
+  "sanitizer_source_sealed_SDK_copy_cases": 108,
+  "normal_canonical_contract_cases": 54,
+  "sanitizer_canonical_contract_cases": 54,
+  "C_suite": 3242,
+  "Rust_suite": 1097,
+  "native_artifacts": 22,
+  "ci_helpers": 22,
+  "registered_gates": 381,
+  "registered_groups": 26,
+  "default_modules": 13,
+  "controls": [
+    "Direct, inferred function-value, static and instance as-val parameters",
+    "StringBuilder buffer pointers differ and mutations remain independent",
+    "Json nested trees differ and mutations remain independent",
+    "Process exit code and owned captured strings remain independent",
+    "Source and sealed archive consumption",
+    "Public copy method coexists with declared canonical C copy symbol",
+    "Native Rust handles support managed string fields",
+    "Missing copy capability, wrong prototype and missing export are rejected"
+  ],
+  "logs": {
+    "sindarin-sdk-record-copies-normal.log": "5fd721da6481731170961a12a56fb5c2a1af5823ad0230a826403cafc304db34",
+    "sindarin-sdk-record-copies-san.log": "5fd721da6481731170961a12a56fb5c2a1af5823ad0230a826403cafc304db34",
+    "sindarin-sdk-record-copies-full-c.log": "7b120731818edf2058b4583b0d6ae35ca1904e158e008619886f96555137a9e3",
+    "sindarin-sdk-record-copies-full-rust.log": "ece9e416acffa4ab46d893c329afc5fbefa1c742735a3959b701b827790fa432",
+    "sindarin-sdk-record-copies-artifacts.log": "bb2bd32de588ed1243dad8fa75d732d11b5822b83b4e201067ff2667653da44c",
+    "sindarin-sdk-record-copy-contract.log": "bf9d27ee78f1cc7d656af73ada1b161e6679fcc29b3785806fbb4ccfcb0b8a5b",
+    "sindarin-sdk-record-copy-contract-san.log": "1bb695d21382f6784f56a796ecd2d94d013f0a10a06144aa012169fb8bce3caa",
+    "sindarin-sdk-record-copy-helpers.log": "1baf22be6e8da04b58ba7cf0d1eaf23c904b4b0eed8d68b328d75b444c905855",
+    "sindarin-sdk-record-copies-imports.log": "af9f50961d09302ab212ccd5df35bf4f8f8c28f3b4e9c028e42db3eeb8d49768"
+  },
+  "remaining": [
+    "Required corrected compiler and combined SDK hosted acceptance before publication",
+    "Integrate exact SDK pin and hosted validation of these compiler gates",
+    "Canonical native copyOf language operator support and diagnostics",
+    "Package exported parameter qualifiers and callbacks",
+    "Wider record/interface/generic transport and lifecycle graphs",
+    "Whole SDK and final corpus/platform proof"
+  ],
+  "package_imports": 50
+}

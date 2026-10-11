@@ -1927,6 +1927,32 @@
         "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
         "UBSAN_OPTIONS": "halt_on_error=1"
       }
+    },
+    {
+      "id": "sdk-record-copies",
+      "name": "SDK StringBuilder/Process/Json native as-val direct and method copies preserve independent storage (108 cases)",
+      "command": [
+        "{python}",
+        "scripts/check_sdk_record_copies.py"
+      ],
+      "group": "core",
+      "linux_only": false
+    },
+    {
+      "id": "sdk-record-copies-sanitizers",
+      "name": "SDK StringBuilder/Process/Json native as-val direct and method copies preserve independent storage (108 cases)",
+      "command": [
+        "{python}",
+        "scripts/check_sdk_record_copies.py"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      }
     }
   ]
 }
