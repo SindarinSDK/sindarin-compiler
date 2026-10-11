@@ -1,6 +1,16 @@
 # Runtime and mixed-language package architecture
 
 Status: architectural direction with implemented capabilities, updated 2026-10-11.
+
+Local ABI 1.8 work adds canonical reference-record arrays with copied leaf type
+identity, native slot hooks and unique owned transfer. Generated native C/RS/GO
+providers and C/RS Sindarin bodies consume the same C headers. The default SDK
+stager now includes all public XML methods, giving seventeen modules and
+34 C/Sindarin units. SDK XML correction `0b71e84` has complete hosted acceptance
+at run 38164835929; this compiler expansion remains local until its compiler
+dependency run 38162607031 is accepted. Wider contracts and final platform/corpus
+proof remain required.
+
 The [completion ledger](rust-parity-progress.md) distinguishes local validation,
 required hosted acceptance and remaining work. C remains the default application
 target; the full Sindarin Go backend remains outside this goal.

@@ -312,3 +312,25 @@ Ordinary direct, function-value, static and instance `as val` calls use the
 canonical copy capability. Canonical `copyOf()` calls also invoke this hook in C/Rust, preserving nil-input
 behavior and releasing an owned temporary producer after one evaluation.
 Qualified parameters on package-exported functions remain implementation work.
+
+## Native ABI 1.8 reference-record arrays (local implementation)
+
+A native package can select `abi: 1.8` and declare arrays whose leaf is a
+canonical native `as ref` record listed under `types`. The compiler recursively
+resolves that record contract inside array signatures. Generated C, Rust and Go
+provider adapters use rank and the declared record identity with the shared
+record-array APIs; import adapters borrow live input headers and take unique
+owned results. Other ABI 1.8 scalar/string/record transports preserve their
+existing contracts. Older ABI versions reject record-array transport.
+
+Native backing functions receive the actual C `SnArray` pointer and return an
+owned header. Record leaf slots need the package's element release hooks; copy
+operations also need its copy hooks. These determine whether copied slots alias
+records or deep-copy them. Rust and Go backing functions use native pointers
+with C storage ownership. Sindarin bodies can be compiled independently for C
+or Rust while retaining the public reference-record and array contracts.
+
+This capability is locally implemented and awaits required hosted acceptance.
+Generated package body calls to separate foreign exports remain a broader
+link-adapter obligation; the record-array body fixture mutates and returns its
+borrowed array directly. Whole SDK and lifecycle graph proof remains required.

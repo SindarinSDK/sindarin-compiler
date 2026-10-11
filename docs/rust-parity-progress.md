@@ -1,3 +1,27 @@
+## Record-array packages and XML artifacts: local validation, 2026-10-11
+
+ABI/schema 1.8 now resolves canonical record contracts recursively inside arrays.
+Generated C/Rust/Go providers, C/Rust Sindarin bodies and both application targets
+pass 216 source/sealed mode cases normally and under address/undefined/leak
+sanitizers. Sealed checks remove backing C/Rust/Go sources. Controls observe live
+header aliases, shared record slots, mutation, nil and exact final destruction;
+Go forces GC with cgocheck2.
+
+The complete unchanged XML API is included in the default reusable C-backed SDK
+stage: seventeen modules/34 C-Sindarin units. The original XML caller/oracle passes
+36 source/sealed mode cases; all seventeen modules pass 76 smoke cases including
+stdin controls. Full C/Rust suites pass 3,242/1,097, prior artifacts pass 22 tests,
+the prior typed-array callback/error/provider test passes, and all 23 helpers pass
+with 413 required gates in 26 groups.
+Evidence: [canonical-record-array-packages-local-validation.json](rust-parity-evidence/canonical-record-array-packages-local-validation.json).
+
+The SDK pin is accepted revision `0b71e84` (CI 38164835929). This compiler work
+remains unpublished while dependency `f5e88911` awaits CI 38162607031. Wider
+nested-array package callbacks/errors/dependency graphs, generated internal
+adapters for exported Sindarin bodies calling separate foreign bindings, whole
+SDK and final corpus/platform proof remain required. Runtime and package local
+checks do not replace hosted acceptance.
+
 ## Integrated platform correction: publication readiness, 2026-10-11
 
 The combined correction addresses both required core failures in CI 38162607031:
@@ -43,10 +67,10 @@ Local checks pass: 17 ABI clients, eight actual-runtime C sanitizer clients,
 full C (3,242) and Rust (1,097) suites, and 23 CI helper tests (405 gates in
 26 groups). Evidence: [canonical-record-array-runtime-local-validation.json](rust-parity-evidence/canonical-record-array-runtime-local-validation.json).
 
-This is an unpublished runtime checkpoint. Generated package adapters/schema
-1.8 and XML artifact support remain outstanding. Publication remains held for
-compiler run 38162607031 and SDK correction run 38164835929; neither pending
-run receives hosted acceptance credit.
+This is the initial unpublished runtime checkpoint. Subsequent package/schema
+1.8 adapter and XML staging work is recorded separately below. SDK correction
+38164835929 now has complete acceptance; dependent compiler publication remains
+held for compiler run 38162607031.
 
 # Rust backend completion ledger
 

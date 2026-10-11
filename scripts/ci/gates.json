@@ -2118,6 +2118,67 @@
         "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
         "UBSAN_OPTIONS": "halt_on_error=1"
       }
+    },
+    {
+      "id": "native-record-array-packages",
+      "name": "Canonical record arrays in C/Rust/Go providers and C/Rust Sindarin bodies, source and sealed apps",
+      "command": [
+        "{python}",
+        "tests/package/record_arrays.py",
+        "RecordArrayTests.test_generated_record_array_providers"
+      ],
+      "group": "core",
+      "linux_only": false,
+      "env": {
+        "GOEXPERIMENT": "cgocheck2"
+      }
+    },
+    {
+      "id": "native-record-array-packages-sanitizers",
+      "name": "Canonical record arrays in C/Rust/Go providers and C/Rust Sindarin bodies, source and sealed apps",
+      "command": [
+        "{python}",
+        "tests/package/record_arrays.py",
+        "RecordArrayTests.test_generated_record_array_providers"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "GOEXPERIMENT": "cgocheck2",
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      }
+    },
+    {
+      "id": "sdk-xml-native",
+      "name": "Canonical XML document owners, record-array slots, aliases and original callers",
+      "command": [
+        "{python}",
+        "scripts/check_sdk_native.py",
+        "xml"
+      ],
+      "group": "core",
+      "linux_only": false
+    },
+    {
+      "id": "sdk-xml-native-sanitizers",
+      "name": "Canonical XML document owners, record-array slots, aliases and original callers with sanitizer instrumentation",
+      "command": [
+        "{python}",
+        "scripts/check_sdk_native.py",
+        "xml",
+        "--sanitize"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      }
     }
   ]
 }

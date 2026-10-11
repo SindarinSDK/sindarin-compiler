@@ -10,7 +10,7 @@ import tempfile
 from build_sdk_package import prepare, checked, MODULES
 
 ROOT = Path(__file__).resolve().parents[1]
-FIXTURES = ('io/bytes','io/textfile','io/binaryfile','io/path','io/directory','io/stdio','os/env','os/os','crypto/crypto','time/time','time/date','core/random','core/uuid','encoding/text','os/process','encoding/json')
+FIXTURES = ('io/bytes','io/textfile','io/binaryfile','io/path','io/directory','io/stdio','os/env','os/os','crypto/crypto','time/time','time/date','core/random','core/uuid','encoding/text','os/process','encoding/json','encoding/xml')
 STDIN_CASES = (
     ('words', b'line one\nZalpha beta',
      b'true\ntrue\nfalse\nline one\n90\nalpha\nbeta\ntrue\nfalse\nfalse\n-1\nfalse\n0\nfalse\n0\nline one\n\n',
@@ -42,8 +42,8 @@ def verify(compiler, sdk, all_modes=True, fixtures=FIXTURES):
                 assembly=Path(json.loads(built.stdout)['assembly']);metadata=json.loads(assembly.read_text())
                 assert len(metadata['units'])==len(MODULES)*2 and {u['language'] for u in metadata['units']}=={'C','SN'}
                 shutil.copytree(assembly.parent,package/'dist')
-                text=manifest.read_text();manifest.write_text(text.replace('  abi: 1.7\n',
-                    '  abi: 1.7\n  assembly: {path: dist/assembly.json, sha256: '+hashlib.sha256(assembly.read_bytes()).hexdigest()+'}\n'))
+                text=manifest.read_text();manifest.write_text(text.replace('native:\n',
+                    'native:\n  assembly: {path: dist/assembly.json, sha256: '+hashlib.sha256(assembly.read_bytes()).hexdigest()+'}\n'))
                 for directory in (package/'src',package/'native'):
                     for source in directory.rglob('*.c'):source.unlink()
                 if any(source for directory in (package/'src',package/'native') for source in directory.rglob('*.c')):

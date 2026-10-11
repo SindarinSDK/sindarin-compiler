@@ -330,3 +330,13 @@ These checks are locally validated with strict address/undefined/leak checking;
 hosted acceptance remains required. This does not yet implement Rust Sindarin
 record bodies or interfaces/generics. Go controls use cgocheck2 and force GC
 during native calls.
+
+## Reference-record arrays (native ABI 1.8, local implementation)
+
+Array signatures recursively resolve their declared canonical native record
+leaf. Consumer adapters query ABI 1.8's record-array capability, borrow live
+input headers with rank/type identity, and take unique owned result headers.
+The package's slot hooks preserve record alias/copy/cleanup behavior. Native C,
+Rust and Go providers and C/Rust Sindarin bodies are locally covered in source
+and sealed packages. Sealed checks remove backing implementation sources.
+Required hosted acceptance and wider lifecycle graphs remain outstanding.

@@ -9,7 +9,7 @@ import contextlib
 import io
 from build_native_package import build, build_go_graph, load_prebuilt, run
 
-from native_contract import TYPES, kind, validate, raw_type, record_types, c_array_shape
+from native_contract import TYPES, kind, validate, raw_type, record_types, c_array_operation, array_record
 from native_provider import record_includes
 
 
@@ -30,8 +30,8 @@ def adapter(signature, package):
             for index,record in enumerate(records)]
     code += [f'extern {return_wire} {symbol}({", ".join(wire_params) or "void"});',
              f'{raw_type(signature["return_type"])} {alias}(' + ', '.join(f'{raw_type(p["type"])} p{i}' for i,p in enumerate(params)) + ') {']
-    live_arrays = signature.get('abi') in ('1.5','1.6','1.7')
-    version = 'SN_ABI_V1_7_VERSION' if signature.get('abi') == '1.7' else 'SN_ABI_V1_6_VERSION' if signature.get('abi') == '1.6' else 'SN_ABI_V1_5_VERSION' if live_arrays else 'SN_ABI_V1_1_VERSION' if signature.get('abi') == '1.1' else 'SN_ABI_V1_VERSION'
+    live_arrays = signature.get('abi') in ('1.5','1.6','1.7','1.8')
+    version = 'SN_ABI_V1_8_VERSION' if signature.get('abi') == '1.8' else 'SN_ABI_V1_7_VERSION' if signature.get('abi') == '1.7' else 'SN_ABI_V1_6_VERSION' if signature.get('abi') == '1.6' else 'SN_ABI_V1_5_VERSION' if live_arrays else 'SN_ABI_V1_1_VERSION' if signature.get('abi') == '1.1' else 'SN_ABI_V1_VERSION'
     arrays = result == 'string_array' or any(kind(p['type']) == 'string_array' for p in params)
     capabilities = 'SN_ABI_CAP_VALUES | SN_ABI_CAP_VALUE_ARRAYS' if arrays else 'SN_ABI_CAP_VALUES'
     if live_arrays and any(kind(p['type']) == 'string_array' for p in params):
@@ -41,6 +41,8 @@ def adapter(signature, package):
     if records: capabilities += ' | SN_ABI_CAP_RESOURCES | SN_ABI_CAP_TYPED_RESOURCES'
     if result == 'native_array' or any(kind(p['type']) == 'native_array' for p in params):
         capabilities += ' | SN_ABI_CAP_NATIVE_ARRAYS'
+    if any(t.get('kind') == 'array' and array_record(t) for t in [signature['return_type']] + [p['type'] for p in params]):
+        capabilities += ' | SN_ABI_CAP_NATIVE_RECORD_ARRAYS'
     message = json.dumps(f"native package '{package}' requires a compatible shared runtime ABI\n")
     code += ['  SnAbiInfo abi_info;',
              f'  if (sn_abi_v1_query({version}, {capabilities}, &abi_info, sizeof(abi_info)) != SN_ABI_OK ||',
@@ -53,7 +55,7 @@ def adapter(signature, package):
                      f'  if (sn_abi_v1_string_copy(p{i}, &w{i}) != SN_ABI_OK) abort();']
         elif kind(p['type']) == 'native_array':
             code += [f'  SnAbiValue *w{i} = NULL;',
-                     f'  if (sn_abi_v1_native_array_borrow(p{i}, {c_array_shape(p["type"])}, &w{i}) != SN_ABI_OK) abort();']
+                     f'  if ({c_array_operation(p["type"], "borrow", f"p{i}", f"&w{i}")} != SN_ABI_OK) abort();']
         elif kind(p['type']) in ('string_array','byte_array'):
             array_kind=kind(p['type'])
             code += [f'  SnAbiValue *w{i} = NULL;']
@@ -117,7 +119,7 @@ def adapter(signature, package):
                  '  sn_abi_v1_release(wire_result); return output;']
     elif result == 'native_array':
         code += ['  SnArray *output = NULL;',
-                 f'  if (sn_abi_v1_native_array_take(&wire_result, {c_array_shape(signature["return_type"])}, &output) != SN_ABI_OK) abort();',
+                 f'  if ({c_array_operation(signature["return_type"], "take", "&wire_result", "&output")} != SN_ABI_OK) abort();',
                  '  return output;']
     elif result != 'void':
         if result == 'bool': code += ['  if (wire_result > 1) abort();']

@@ -468,7 +468,8 @@ recursive guards and result contracts.
 `SN_ABI_V1_8_VERSION` advertises `SN_ABI_CAP_NATIVE_RECORD_ARRAYS`. Earlier ABI
 versions do not advertise this capability; their layouts, functions and existing
 capability sets remain compatible. This implementation is locally validated and
-still requires hosted acceptance and generated package adapters.
+still requires hosted acceptance. Generated package adapters select this typed
+transport for canonical reference-record array leaves in native ABI 1.8.
 
 `sn_abi_v1_native_record_array_borrow/adopt/data/copy/take` describe a canonical
 C `SnArray` with rank 1–32 and an explicit package/type/ABI identity. Leaf slots
@@ -493,5 +494,8 @@ Local C tests cover every rank, nil children, copied identities, pointer/header
 identity, reference aliases, malformed contracts, failed transfer, exact cleanup
 and copy-hook reentry. Rust and Go-native clients observe in-call record mutation,
 copy aliases and cleanup, including forced Go GC and a callback consuming a wire
-credit. Full compiler/package record-array adapters and platform proof remain
-required; runtime tests alone do not establish those capabilities.
+credit. Generated C/Rust/Go providers and C/Rust Sindarin bodies have local
+source/sealed app coverage for record slots, identity, mutation and cleanup.
+Sealed consumers remove all backing sources. Canonical SDK staging includes
+the complete unchanged Xml API, including children/findAll arrays. Wider
+callback/error/package dependency graphs and full platform proof remain required.

@@ -15,7 +15,7 @@ from pathlib import Path
 MODULES = ('io/bytes', 'io/textfile', 'io/binaryfile', 'io/path',
            'io/directory', 'io/stdio', 'os/os', 'os/env', 'crypto/crypto',
            'time/time', 'time/date', 'core/random', 'core/uuid',
-           'encoding/text', 'os/process', 'encoding/json')
+           'encoding/text', 'os/process', 'encoding/json', 'encoding/xml')
 SUPPORTED_MODULES = MODULES
 RESOURCE_RESULTS = {
     ('time/date', 'sn_date_to_time'): 'src/time/time.sn::Time',
@@ -25,6 +25,7 @@ RECORDS = {
     'encoding/text': ('StringBuilder', 'SnSdkStringBuilderRecord', 'sn_sdk_text'),
     'os/process': ('Process', 'SnSdkProcessRecord', 'sn_sdk_process'),
     'encoding/json': ('Json', 'SnSdkJsonRecord', 'sn_sdk_json'),
+    'encoding/xml': ('Xml', 'SnSdkXmlRecord', 'sn_sdk_xml'),
     'core/uuid': ('UUID', 'SnSdkUuidRecord', 'sn_sdk_uuid'),
     'core/random': ('Random', 'SnSdkRandomRecord', 'sn_sdk_random'),
     'io/textfile': ('TextFile', 'SnSdkTextFileRecord', 'sn_sdk_text_file'),
@@ -52,6 +53,13 @@ def raw_type(value, module):
     if kind in RAW:
         return RAW[kind]
     if kind == 'array':
+        leaf = value
+        rank = 0
+        while leaf.get('kind') == 'array':
+            rank += 1
+            leaf = leaf['element_type']
+        if leaf.get('kind') == 'struct' and module in RECORDS and leaf['name'] == RECORDS[module][0] and 1 <= rank <= 32:
+            return 'SnArray *'
         from native_contract import native_array_shape
         native_array_shape(value)
         return 'SnArray *'
@@ -112,7 +120,7 @@ def prepare(compiler, sdk, destination, modules=MODULES):
         checked([compiler,destination/'src'/(module+'.sn'),'--package-body','--no-install',
                  '--emit-model','-o',model_path], destination)
         models[module] = json.loads(model_path.read_text())
-    lines = [original_manifest.rstrip(), 'runtime: C', 'native:', '  abi: 1.7',
+    lines = [original_manifest.rstrip(), 'runtime: C', 'native:', '  abi: '+('1.8' if 'encoding/xml' in modules else '1.7'),
              '  declarations: ['+', '.join('src/'+m+'.sn' for m in modules)+']']
     records = [m for m in modules if m in RECORDS]
     if records:
@@ -123,7 +131,7 @@ def prepare(compiler, sdk, destination, modules=MODULES):
                       '      identity: SindarinSDK/sindarin-pkg-sdk:'+module.rsplit('/', 1)[0].replace('/', '.')+'.'+name+'@1',
                       '      c_type: '+c_type, '      header: src/'+module+'.native.h']
             lines += ['      '+field+': '+prefix+'_'+field for field in ('create','retain','release','refs')]
-            if module in ('core/uuid', 'encoding/text', 'os/process', 'encoding/json'): lines.append('      copy: '+prefix+'_copy')
+            if module in ('core/uuid', 'encoding/text', 'os/process', 'encoding/json', 'encoding/xml'): lines.append('      copy: '+prefix+'_copy')
             lines.append('      owner: atomic')
     lines.append('  builds:')
     bindings = []

@@ -119,6 +119,11 @@ json_object *package_native_model_type(Arena *arena, Type *type, Module *module,
                                        Module *const *modules, int count)
 {
     json_object *result = gen_model_type(arena, type);
+    if (type && type->kind == TYPE_ARRAY) {
+        json_object_object_add(result, "element_type", package_native_model_type(arena,
+            type->as.array.element_type, module, modules, count));
+        return result;
+    }
     if (!type || type->kind != TYPE_STRUCT) return result;
     const char *contract = module ? record_find_contract(module->statements, module->count,
         type->as.struct_type.name, 0) : NULL;

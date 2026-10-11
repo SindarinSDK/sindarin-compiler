@@ -1,0 +1,93 @@
+{
+  "status": "Complete local package and sanitizer validation passed; unpublished; hosted dependency pending",
+  "runtime_checkpoint": "751a814d",
+  "compiler_dependency": "f5e8891121367fccd38d6629cb90310f7529ed03",
+  "compiler_dependency_CI": 38162607031,
+  "accepted_SDK": "0b71e84694230f5745bac5254d3811e696f892f5",
+  "accepted_SDK_CI": 38164835929,
+  "abi": "1.8",
+  "record_array_app_cases": 216,
+  "provider_languages": [
+    "C",
+    "RS",
+    "GO"
+  ],
+  "Sindarin_body_runtimes": [
+    "C",
+    "RS"
+  ],
+  "consumer_targets": [
+    "c",
+    "rust"
+  ],
+  "artifact_modes": [
+    "source",
+    "sealed without backing C/Rust/Go source"
+  ],
+  "optimization_arithmetic_combinations": 9,
+  "XML_original_artifact_cases": 36,
+  "SDK_smoke_cases": 76,
+  "SDK_modules": 17,
+  "C_SN_units": 34,
+  "C_suite": 3242,
+  "Rust_suite": 1097,
+  "prior_native_artifact_tests": 22,
+  "prior_typed_array_provider_test": true,
+  "ci_helper_tests": 23,
+  "registered_gates": 413,
+  "registered_groups": 26,
+  "controls": [
+    "Copied record slots retain shared identity",
+    "Mutation remains visible through array and record aliases",
+    "Exactly one final record destruction across source/sealed/body/provider combinations",
+    "Nil record-array argument/result",
+    "Forced Go GC and cgocheck2",
+    "All public XML declarations and original caller/oracle bytes preserved",
+    "Complete SDK default stage without silently omitted XML methods"
+  ],
+  "remaining": [
+    "Complete required platform CI for dependency and this batch",
+    "Wider nested record-array package callback/error/dependency graphs",
+    "Exported Sindarin bodies calling separate foreign bindings require generated internal link adapters",
+    "Full whole-SDK and original corpus/platform/defined-behavior acceptance"
+  ],
+  "logs": {
+    "adapters-full-modes": {
+      "path": "/tmp/sindarin-record-array-adapters-full-modes.log",
+      "sha256": "94fbf2da49a054aaa10c2850fe67ac642b3234af2427587dd3ecf00ed6275d34"
+    },
+    "adapters-full-c": {
+      "path": "/tmp/sindarin-record-array-adapters-full-c.log",
+      "sha256": "55c17c71adc63807d50e987f63da8b3bbae797d47bfab72624a69dd0d43d317e"
+    },
+    "adapters-full-rust": {
+      "path": "/tmp/sindarin-record-array-adapters-full-rust.log",
+      "sha256": "60c994e4c54520509e3d1bcf09adc027fd09299506633b5bd970c2007e9af2a0"
+    },
+    "adapters-ci-helpers-full": {
+      "path": "/tmp/sindarin-record-array-adapters-ci-helpers-full.log",
+      "sha256": "9b236cc06d79a026dcbdf80c164896aa144f3e7487f784cbdee688affc652831"
+    },
+    "adapters-prior-typed": {
+      "path": "/tmp/sindarin-record-array-adapters-prior-typed.log",
+      "sha256": "c5dc04b21b04a950968e956759c6a1e185ba8226ec631ea71c09e9acfef9af3b"
+    },
+    "adapters-prior-artifacts": {
+      "path": "/tmp/sindarin-record-array-adapters-prior-artifacts.log",
+      "sha256": "00b4e71317d3a0396bd62fac7e426e0e004f41b635506f0b6e9447fb389a5ffa"
+    },
+    "xml-artifacts-full": {
+      "path": "/tmp/sindarin-record-array-xml-artifacts-full.log",
+      "sha256": "dbfd17def888a2c9e092e7d6e3f04318ad4572ca58ebcbb3c05537f2795e5086"
+    },
+    "sdk-all-quick": {
+      "path": "/tmp/sindarin-record-array-sdk-all-quick.log",
+      "sha256": "7f6904e6729dd988f1d4b90865f070a4f7bda102e705abbdfb50ce02febd1878"
+    },
+    "adapters-san-full-modes": {
+      "path": "/tmp/sindarin-record-array-adapters-san-full-modes.log",
+      "sha256": "9fd40969071298ea5a8be9bd910d276d469db4439727bdee60d651db504b978e"
+    }
+  },
+  "record_array_sanitized_app_cases": 216
+}

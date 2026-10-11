@@ -25,6 +25,8 @@ def select_callable(functions, name, method_kind):
 def rust_body_array_type(value):
     if value['kind'] == 'array':
         return value['rust_native_handle_array_name']+'<'+rust_body_array_type(value['element_type'])+'>'
+    if value['kind'] == 'struct' and value.get('rust_native_handle_adopt'):
+        return 'r#'+value['name']
     return {'string':'SnString','char':'char'}.get(value['kind'], RUST.get(value['kind']))
 
 
@@ -75,6 +77,8 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
                 has_body=bool(method.get('body')),method_name=method['name'],
                 c_callee=method.get('c_alias') or '__sn__'+structure['name']+'_'+method['name'])
     def decorate_record(value):
+        if value.get('kind') == 'array':
+            decorate_record(value['element_type'])
         if value.get('kind')=='struct' and 'native_record' not in value:
             found=next((s for s in model.get('structs',[]) if s['name']==value['name'] and 'native_record' in s),None)
             if found:value['native_record']={k:v for k,v in found['native_record'].items() if k!='resolved_header'}
@@ -103,7 +107,7 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
                 p.get('sync_mod','none')!='none' for p,q in zip(parameters,signature['params']))):
             raise ValueError('Sindarin implementation type/ownership differs from its public declaration: '+name)
         if any(kind(p['type']) in ('string_array','byte_array') for p in parameters):
-            if signature.get('abi') not in ('1.5','1.6','1.7'):
+            if signature.get('abi') not in ('1.5','1.6','1.7','1.8'):
                 raise ValueError('Sindarin library array inputs require generated mutable/borrowed-body contracts in native ABI 1.5')
         selected.append(function)
     emitted = work/(stem+('.c' if runtime=='C' else '.rs'))
