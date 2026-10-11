@@ -1570,8 +1570,20 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                 json_object *args = json_object_new_array();
                 for (int i = 0; i < expr->as.call.arg_count; i++)
                 {
-                    json_object_array_add(args,
-                        rust_gen_model_expr(arena, expr->as.call.arguments[i], symbol_table, arithmetic_mode));
+                    Expr *argument = expr->as.call.arguments[i];
+                    json_object *arg = rust_gen_model_expr(arena, argument, symbol_table, arithmetic_mode);
+                    /* The private C island uses these same print expressions.
+                     * Match C's borrowing rule for stable string slots/fields. */
+                    if ((!strcmp(builtin_name, "print") || !strcmp(builtin_name, "println")) &&
+                        argument && argument->expr_type && argument->expr_type->kind == TYPE_STRING &&
+                        (argument->type == EXPR_MEMBER || argument->type == EXPR_ARRAY_ACCESS)) {
+                        Expr *owner = argument->type == EXPR_MEMBER ? argument->as.member.object : argument->as.array_access.array;
+                        while (owner && (owner->type == EXPR_MEMBER || owner->type == EXPR_ARRAY_ACCESS))
+                            owner = owner->type == EXPR_MEMBER ? owner->as.member.object : owner->as.array_access.array;
+                        if (owner && owner->type == EXPR_VARIABLE)
+                            json_object_object_add(arg, "print_borrows_string", json_object_new_boolean(true));
+                    }
+                    json_object_array_add(args, arg);
                 }
                 hoist_borrow_temps(obj, args, expr);
                 json_object_object_add(obj, "args", args);

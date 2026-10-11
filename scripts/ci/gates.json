@@ -1370,6 +1370,13 @@
       "linux_only": false
     },
     {
+      "id": "native-entrypoints",
+      "name": "native entrypoints: argv, lifetime, initialization and exit parity across modes",
+      "command": ["{python}", "scripts/check_native_entrypoints.py"],
+      "group": "native",
+      "linux_only": false
+    },
+    {
       "id": "runtime-114",
       "name": "shared package lifecycle: concurrency and cleanup sanitizers",
       "command": [

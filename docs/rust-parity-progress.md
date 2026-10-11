@@ -7,6 +7,35 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Native entrypoint parity: local validation, 2026-10-11
+
+Native source `main` bodies now use a private C callable and an ordinary Rust
+process entry wrapper. This avoids conflicting process symbols and preserves the
+native body, command-line arguments, initialization and integer exit conversion.
+Native argv uses canonical C array storage. The private C projection now retains
+C's borrowed-string print annotations so printing a slot or field cannot free it.
+Void early returns stay void in the private native implementation.
+
+Eleven controls cover 99 case/mode combinations and 198 C/Rust compilations,
+including void/int/negative/wide exits, repeated argument reads and mutation,
+initialization, generated-name collisions, recursion, string fields and ordinary
+main forwarding argv to native functions. All pass normal and strict
+address/undefined/leak validation. Complete C/Rust suites pass 3,241/1,097 checks;
+original sources/oracles/snapshots are preserved. A dedicated CI gate runs these
+controls on Linux/macOS/Windows. Hosted acceptance is pending publication.
+
+The complete SDK, wider record/interface/package contracts and final original
+corpus/platform/mode acceptance remain required.
+
+## Byte arrays and unchanged Bytes facade: hosted acceptance, 2026-10-11
+
+Compiler main `f727be87` passes all 34 jobs in
+[CI 38106995022](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38106995022).
+Retained coverage verifies 26 groups, 292 gates and one compiler per platform.
+This accepts byte transport/providers, mixed C/RS body guards and the unchanged
+SDK Bytes facade with the accepted SDK dependency. Evidence:
+[byte artifact acceptance](rust-parity-evidence/native-byte-array-adapter-ci-green.json).
+
 ## Parameter qualifiers and TextFile facade: hosted acceptance, 2026-10-11
 
 Corrected integrated compiler main `5c8f1733` passes all 34 jobs in
@@ -38,10 +67,9 @@ controls (220 total). Source/prebuilt controls remove backing implementations;
 public SDK source, callers and existing oracles remain unchanged. Evidence:
 [byte adapter validation](rust-parity-evidence/native-byte-array-adapter-validation.json).
 
-Additional native parity work exposed by the namespace controls: a source
-`native fn main()` compiles for C but produces duplicate entry symbols for Rust.
-This entry-point gap remains required work; native context namespace field/sizeof
-controls use a named native helper called from an ordinary main. Complete SDK,
+The namespace controls exposed a source `native fn main()` gap: C compiled it,
+while Rust produced duplicate entry symbols. The native-entry repair above
+supersedes that local gap; its hosted acceptance remains separate. Complete SDK,
 wider contracts and final original-corpus/platform/mode acceptance remain open.
 
 ## Function parameter qualifiers: CI correction, 2026-10-11

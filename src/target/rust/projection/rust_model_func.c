@@ -732,7 +732,7 @@ json_object *rust_gen_model_function(Arena *arena, FunctionStmt *func, SymbolTab
     /* Track when we're inside main() with void return type — bare returns
      * must become return 0; since C requires main to return int. */
     bool was_in_main_void = rust_g_in_main_void;
-    if (func->name.length == 4 && strncmp(func->name.start, "main", 4) == 0 &&
+    if (!func->is_native && func->name.length == 4 && strncmp(func->name.start, "main", 4) == 0 &&
         func->return_type && func->return_type->kind == TYPE_VOID)
     {
         rust_g_in_main_void = true;

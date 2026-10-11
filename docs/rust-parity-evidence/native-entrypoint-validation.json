@@ -1,0 +1,84 @@
+{
+  "base_revision": "f727be87568884d57b1154f354da82eae9d284eb",
+  "implementation": "Private C native entry implementation with ordinary Rust startup; canonical argv; preserved C borrowed string printing and void early returns.",
+  "counts": {
+    "c": {
+      "passed": 3241,
+      "failed": 0,
+      "skipped": 0
+    },
+    "rust": {
+      "passed": 1097,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "controls": {
+    "case_mode_pairs": 99,
+    "C_Rust_compilations": 198,
+    "strict_address_undefined_leak_passed": true,
+    "cases": [
+      "argv_integer",
+      "argv_void",
+      "initializer",
+      "integer",
+      "negative",
+      "ordinary_native_argv",
+      "private_name_collision",
+      "record_field_borrows",
+      "recursive_entry",
+      "void_early",
+      "wide_exit"
+    ]
+  },
+  "package_tests": {
+    "artifact": 20,
+    "import": 44,
+    "ci_helper": 22
+  },
+  "negative_evidence": {
+    "c": {
+      "build_exit": 0,
+      "stderr_tail": "\u001b[1mCompiling\u001b[0m /tmp/sn-native-entry-audit-ti48w32n/main.sn...\n  Parsing... \u001b[1;36mdone\u001b[0m\n  Type checking... \u001b[1;36mdone\u001b[0m\n  Code generation... \u001b[1;36mdone\u001b[0m\n  Linking... \u001b[1;36mdone\u001b[0m\n\u001b[1;36mDone\u001b[0m: /tmp/sn-native-entry-audit-ti48w32n/c.exe (68.8 KB)\n",
+      "exit": 0,
+      "stdout": "native entry\n"
+    },
+    "rust": {
+      "build_exit": 1,
+      "stderr_tail": " |              ^^^^^\n   |\n   = note: `#[warn(unused_macros)]` (part of `#[warn(unused)]`) on by default\n\nwarning: unused macro definition: `println`\n  --> .sn/build/rust/main_3734251/main.rs:93:14\n   |\n93 | macro_rules! println {\n   |              ^^^^^^^\n\nerror: entry symbol `main` declared multiple times\n   --> .sn/build/rust/main_3734251/main.rs:104:1\n    |\n104 | fn main() {\n    | ^^^^^^^^^\n    |\n    = help: did you use `#[no_mangle]` on `fn main`? Use `#![no_main]` to suppress the usual Rust-generated entry point\n\nerror: aborting due to 1 previous error; 2 warnings emitted\n\nError: rustc failed to link generated Rust and native C objects\n \u001b[1;31mfailed\u001b[0m\n\n\u001b[1;31mCompilation failed\u001b[0m\n"
+    }
+  },
+  "not_parity_evidence": [
+    "C failed to compile a heap-bearing native value record without its cleanup helper",
+    "C failed to compile a callable parameter named main; matching C/Rust rejection has no parity credit"
+  ],
+  "required_ci_inventory": {
+    "groups": 26,
+    "gate_executions": 295,
+    "new_gate": "native-entrypoints"
+  },
+  "original_program_oracle_snapshot_edits": false,
+  "hosted_acceptance": "pending publication",
+  "complete_goal": false,
+  "source_sha256": {
+    "docs/rust-parity-progress.md": "c3aac7011a3fb465dc860cacdd611152df3d79bed24f147e88164e28f4bc2cc9",
+    "scripts/ci/gates.json": "6514d0afbd33e2dcf1db732290e0f1c46b4e38b4baa17d506edf2d5b3eb706ea",
+    "src/target/rust/projection/rust_model_expr.c": "ceb5bac86b2d63c149de57261f935b409f92ad2297e0bc6e1a131a3d14573e16",
+    "src/target/rust/projection/rust_model_func.c": "bff8822e9c366bc6adb9699dafa284d8e6e7e4ac3170b172ce2b263e99ccbca4",
+    "src/target/rust/rust_native_plan.c": "82770d8847adf3433793550f8af7b0d55bd6a16c5f127965ece0f379d11ef0fb",
+    "src/target/rust/rust_validate.c": "0fa1f06bc83df9bd673e8092728c9223e0f8662044fee6bbcb65c9d74bd16724",
+    "templates/rust/partials/function.hbs": "5c704e5222d284d5a854247b45ce10dba21927bdd2afd130d433fc22dad48bcf",
+    "tests/ci/test_ci_helpers.py": "a203d697c4c0002082a387f95347abdc92f247ccfdada1b0d82e9b1014e845d0",
+    "scripts/check_native_entrypoints.py": "18a2a16cd6ae8b61e3aa55f3990fb4add7ca073ad0d09f71022833718b84c469"
+  },
+  "log_sha256": {
+    "/tmp/sindarin-native-entry-c-suite.log": "c56bec84eb0c96039783431b54f10ce79eb918c4ce2e9e542243b574744d8f63",
+    "/tmp/sindarin-native-entry-rust-suite.log": "adec9d487b5773e19abfc49e4975ed23a6faddfa0054d78f8a1f5b3514322bf7",
+    "/tmp/sindarin-native-entry-controls-final.log": "11e9de610abfc699eff176255ee800f24fa241a2e1114d20447afe0273b08f4b",
+    "/tmp/sindarin-native-entry-sanitizers.log": "11e9de610abfc699eff176255ee800f24fa241a2e1114d20447afe0273b08f4b",
+    "/tmp/sindarin-native-entry-imports.log": "aa7e65dee1a25d7378f005801e8d3309d992b949fb03008b788e3376f31f764b",
+    "/tmp/sindarin-native-entry-artifacts.log": "da69b0af622f3785ad2bfc98777ddaf3129aa0c95880c28d0adcc9c93c02e53c",
+    "/tmp/sindarin-native-entry-helpers-final.log": "39f8f64520271fe628d417670fb02f81b4830474080118fd51cc3410a986c2e6",
+    "/tmp/sindarin-native-entry-format.log": "4c6a090a362bd87c11ee02cfbc700375a0d72d42c9b4387a9b7b0bbf45af7e2b"
+  }
+}

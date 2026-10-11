@@ -1231,6 +1231,90 @@ static void remove_c_only_native_helpers(json_object *rust_model,
 #include "rust_native_serial.c"
 #include "rust_native_pointer_slices.c"
 
+static void native_rename_entry_references(json_object *node, const char *replacement)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array)) {
+        for (size_t i = 0; i < json_object_array_length(node); i++)
+            native_rename_entry_references(json_object_array_get_idx(node, i), replacement);
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
+    const char *kind = native_string(node, "kind"), *name = native_string(node, "name");
+    json_object *type = NULL;
+    json_object_object_get_ex(node, "type", &type);
+    if (kind && !strcmp(kind, "variable") && name && !strcmp(name, "main") &&
+        native_string(type, "kind") && !strcmp(native_string(type, "kind"), "function") &&
+        native_bool(type, "is_native"))
+        json_object_object_add(node, "name", json_object_new_string(replacement));
+    const char *target = native_string(node, "target_name");
+    if (target && !strcmp(target, "main"))
+        json_object_object_add(node, "target_name", json_object_new_string(replacement));
+    json_object_object_foreach(node, key, child) {
+        (void)key;
+        native_rename_entry_references(child, replacement);
+    }
+}
+
+/* A native source main belongs to the C island, not to the process ABI.
+ * Preserve its body/signature under a private name and let the ordinary Rust
+ * entry path supply argv, initialization, flushing and exit-code conversion. */
+static bool native_prepare_entry(json_object *model)
+{
+    json_object *functions = NULL, *structure = NULL;
+    json_object_object_get_ex(model, "functions", &functions);
+    for (size_t i = 0; functions && i < json_object_array_length(functions); i++) {
+        json_object *function = json_object_array_get_idx(functions, i);
+        const char *name = native_string(function, "name");
+        if (name && !strcmp(name, "main") && native_bool(function, "is_native") &&
+            native_bool(function, "has_body")) { structure = function; break; }
+    }
+    if (!structure) return true;
+    char *name = unique_private_name(native_string(model, "package_native_namespace"), functions,
+        native_record_child(model, "structs"), native_record_child(model, "globals"), "__sn_native_entry_body");
+    json_object *entry = deep_copy(structure);
+    if (!name || !entry) { free(name); if (entry) json_object_put(entry); return false; }
+    native_rename_entry_references(model, name);
+    json_object_object_add(structure, "name", json_object_new_string(name));
+    json_object_object_del(structure, "source_callable_name");
+    json_object_object_add(structure, "is_main", json_object_new_boolean(false));
+    json_object_object_add(entry, "is_native", json_object_new_boolean(false));
+    json_object_object_del(entry, "c_alias");
+    json_object *result = native_record_child(entry, "return_type");
+    json_object *params = native_record_child(entry, "params");
+    json_object *type = json_object_new_object(), *callee = json_object_new_object();
+    json_object *types = json_object_new_array(), *args = json_object_new_array();
+    json_object_object_add(type, "kind", json_object_new_string("function"));
+    json_object_object_add(type, "is_native", json_object_new_boolean(true));
+    json_object_object_add(type, "return_type", json_object_get(result));
+    for (size_t i = 0; params && i < json_object_array_length(params); i++) {
+        json_object *param = json_object_array_get_idx(params, i), *value = json_object_new_object();
+        json_object *param_type = native_record_child(param, "type");
+        json_object_array_add(types, json_object_get(param_type));
+        json_object_object_add(value, "kind", json_object_new_string("variable"));
+        json_object_object_add(value, "name", json_object_new_string(native_string(param, "name")));
+        json_object_object_add(value, "type", json_object_get(param_type));
+        json_object_array_add(args, value);
+    }
+    json_object_object_add(type, "param_types", types);
+    json_object_object_add(callee, "kind", json_object_new_string("variable"));
+    json_object_object_add(callee, "name", json_object_new_string(name));
+    json_object_object_add(callee, "type", type);
+    json_object *call = json_object_new_object(), *stmt = json_object_new_object(), *body = json_object_new_array();
+    json_object_object_add(call, "kind", json_object_new_string("call"));
+    json_object_object_add(call, "callee", callee);
+    json_object_object_add(call, "type", json_object_get(result));
+    json_object_object_add(call, "args", args);
+    bool is_void = native_string(result, "kind") && !strcmp(native_string(result, "kind"), "void");
+    json_object_object_add(stmt, "kind", json_object_new_string(is_void ? "expr" : "return"));
+    json_object_object_add(stmt, is_void ? "expr" : "value", call);
+    json_object_array_add(body, stmt);
+    json_object_object_add(entry, "body", body);
+    json_object_array_add(functions, entry);
+    free(name);
+    return true;
+}
+
 bool rust_native_partition_model(json_object *rust_model,
                                  const CompilerOptions *options,
                                  RustNativePlan **out_plan)
@@ -1238,6 +1322,7 @@ bool rust_native_partition_model(json_object *rust_model,
     if (!out_plan) return false;
     *out_plan = NULL;
     if (!rust_model || !options) return false;
+    if (!native_prepare_entry(rust_model)) return false;
 
     json_object *functions = NULL, *structs = NULL;
     size_t native_count = 0;

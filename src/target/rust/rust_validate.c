@@ -3155,6 +3155,8 @@ static bool rust_validate_model_impl(json_object *model,
                 }
                 json_object_object_add(function, "rust_main_has_args",
                                        json_object_new_boolean(true));
+                if (json_boolean_property(param_type, "rust_native_handle_array"))
+                    json_object_object_add(function, "rust_main_args_type", json_object_get(param_type));
                 if (param_name)
                     json_object_object_add(function, "rust_main_args_name",
                                            json_object_new_string(param_name));
