@@ -9,6 +9,19 @@ from native_contract import TYPES, kind, raw_type
 from native_provider import RUST, c_header, c_provider, rust_provider
 
 
+def callable_key(name, method_kind=None):
+    return (name, method_kind if '.' in name else None)
+
+
+def select_callable(functions, name, method_kind):
+    if method_kind or '.' not in name:
+        return functions.get(callable_key(name, method_kind))
+    matches = [value for (source, _), value in functions.items() if source == name]
+    if len(matches) > 1:
+        raise ValueError('ambiguous package implementation method; specify method: static or instance: '+name)
+    return matches[0] if matches else None
+
+
 def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
     runtime = plan['package']['runtime']
     if runtime == 'GO':
@@ -45,7 +58,7 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
     public_files={(root/path).resolve() for path in plan['native']['declarations']}
     if entry not in public_files and any(f.get('is_native') and Path(f.get('source_file','')).resolve() in public_files for f in model['functions']):
         raise ValueError('Sindarin implementation cannot import its consumer API; implementation dependencies need separate contracts')
-    functions = {f['name']:f for f in model['functions']}
+    functions = {callable_key(f['name']):dict(f,key=callable_key(f['name'])) for f in model['functions']}
     for structure in model.get('structs',[]):
         for method in structure.get('methods',[]):
             name=structure['name']+'.'+method['name']
@@ -54,7 +67,8 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
                 params=[{'name':'self','type':dict(kind='struct',**{k:structure[k] for k in ('name','is_native','pass_self_by_ref','fields')},
                         **({'native_record':{k:v for k,v in structure['native_record'].items() if k!='resolved_header'}} if 'native_record' in structure else {})),
                          'mem_qual':'default','sync_mod':'none'}]+params
-            functions[name]=dict(method,name=name,params=params,is_method=True,owner=structure['name'],
+            key=callable_key(name,'static' if method['is_static'] else 'instance')
+            functions[key]=dict(method,name=name,key=key,params=params,is_method=True,owner=structure['name'],
                 has_body=bool(method.get('body')),method_name=method['name'],
                 c_callee=method.get('c_alias') or '__sn__'+structure['name']+'_'+method['name'])
     def decorate_record(value):
@@ -68,7 +82,7 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
     selected = []
     for signature in signatures:
         name = signature['binding']['function']
-        function = functions.get(name)
+        function = select_callable(functions,name,signature['binding'].get('method'))
         if not function or (not function.get('is_method') and (function.get('is_native') or not function.get('has_body'))):
             raise ValueError('Sindarin package export requires a defined implementation function: '+name)
         declared = declarations.get(name,{})
@@ -101,10 +115,11 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
             raise ValueError('unsupported Rust package source bundle')
         emitted = bundle_dir/bundle['primary']
         projected = json.loads((bundle_dir/bundle['body_model']).read_text(encoding='utf-8',errors='surrogateescape'))
-        projected_functions = {f['name']:f for f in projected['functions']}
+        projected_functions = {callable_key(f['name']):f for f in projected['functions']}
         for structure in projected.get('structs',[]):
             for method in structure.get('methods',[]):
-                projected_functions[structure['name']+'.'+method['name']]=method
+                projected_functions[callable_key(structure['name']+'.'+method['name'],
+                    'static' if method['is_static'] else 'instance')]=method
         generated = [bundle_dir/f['path'] for f in bundle['files'] if f['kind']=='source' and Path(f['path']).suffix=='.c']
         for item in bundle['native_sources']:
             value = item['path']
@@ -182,7 +197,7 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
             else:links.extend(tokens)
         return archive,links,[dep],model,dependencies
     code=emitted.read_text(encoding="utf-8", errors="surrogateescape")+'\n'
-    input_arrays=[p for f in selected for p in projected_functions[f['name']]['params'] if kind(p['type']) in ('string_array','byte_array')]
+    input_arrays=[p for f in selected for p in projected_functions[f['key']]['params'] if kind(p['type']) in ('string_array','byte_array')]
     array_guard='__'+stem+'_array_input_guard'
     if input_arrays:
         codec=projected['rust_native_handle_array_support']['trait']
@@ -194,7 +209,7 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
         code+='extern "C" { #[link_name="sn_abi_v1_native_byte_array_adopt"] fn '+byte_export+'(array: *mut std::ffi::c_void, out: *mut *mut std::ffi::c_void) -> u32; }\n'
     for signature,function in zip(adjusted,selected):
         parameters=[];arguments=[];setup=[]
-        projected_function=projected_functions[function['name']]
+        projected_function=projected_functions[function['key']]
         for index,p in enumerate(signature['params']):
             k=kind(p['type'])
             parameters.append(f'p{index}: '+('*mut std::ffi::c_void' if k in ('string_array','byte_array') else 'Option<&[u8]>' if k=='string' else RUST[k]))
@@ -209,7 +224,7 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
         output='*mut std::ffi::c_void' if result=='byte_array' else RUST[result]
         if status:output='Result<'+output+',u32>'
         # Raw identifiers preserve source names that are Rust keywords.
-        name=('r#'+function['owner']+'::r#'+function['method_name']) if function.get('is_method') else 'r#'+function['name']
+        name=('r#'+function['owner']+'::r#'+projected_function.get('rust_emitted_method_name',function['method_name'])) if function.get('is_method') else 'r#'+function['name']
         code+='pub fn '+signature['binding']['function']+'('+', '.join(parameters)+') -> '+output+' {\n'
         if lifecycle:
             code+='  let _call = __sn_package_enter()'+('?' if status else '.unwrap_or_else(|_|std::process::abort())')+';\n'

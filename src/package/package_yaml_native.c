@@ -113,7 +113,7 @@ static bool validate_native_plan(json_object *plan, const char *path)
     static const char *const build_fields[] = {"name", "language", "sources", "entry", "module",
                                              "include_dirs", "libraries", "provides_sources", NULL};
     static const char *const binding_fields[] = {"declaration", "build", "symbol", "function", "convention",
-                                               "ownership", "failure", NULL};
+                                               "ownership", "failure", "method", NULL};
     static const char *const ownership_fields[] = {"parameters", "result", "borrowed_from", NULL};
     if (!native_fields(plan, root_fields, path)) return false;
     const char *abi = native_text(plan, "abi");
@@ -215,6 +215,12 @@ static bool validate_native_plan(json_object *plan, const char *path)
         const char *symbol = native_text(binding, "symbol");
         const char *convention = native_text(binding, "convention");
         const char *failure = native_text(binding, "failure");
+        json_object *method_value = NULL;
+        const char *method_kind = native_text(binding, "method");
+        if (json_object_object_get_ex(binding, "method", &method_value) &&
+            (!method_kind || (strcmp(method_kind, "static") && strcmp(method_kind, "instance")) ||
+             !declaration || !strstr(declaration, "::") || !strchr(strstr(declaration, "::") + 2, '.')))
+            return yaml_config_error(path, "native method selector requires a method declaration and static or instance");
         json_object *function = NULL;
         if (json_object_object_get_ex(binding, "function", &function) && !native_text(binding, "function"))
             return yaml_config_error(path, "native function must be a nonempty backing function name");
@@ -226,9 +232,13 @@ static bool validate_native_plan(json_object *plan, const char *path)
             if (strcmp(build_name, native_text(json_object_array_get_idx(builds, j), "name")) == 0)
                 found = true;
         if (!found) return yaml_config_error(path, "native binding refers to an unknown build");
-        for (size_t j = 0; j < i; j++)
-            if (strcmp(declaration, native_text(json_object_array_get_idx(bindings, j), "declaration")) == 0)
+        for (size_t j = 0; j < i; j++) {
+            json_object *previous = json_object_array_get_idx(bindings, j);
+            const char *previous_kind = native_text(previous, "method");
+            if (!strcmp(declaration, native_text(previous, "declaration")) &&
+                (!method_kind || !previous_kind || !strcmp(method_kind, previous_kind)))
                 return yaml_config_error(path, "duplicate native binding declaration");
+        }
         json_object *ownership = NULL, *parameters = NULL;
         if (!json_object_object_get_ex(binding, "ownership", &ownership))
             return yaml_config_error(path, "native binding ownership is required");

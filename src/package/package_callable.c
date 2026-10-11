@@ -1,6 +1,7 @@
 #include "package_callable.h"
 #include "package_native_types.h"
 #include "../cgen/gen_model.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -19,15 +20,15 @@ static bool callable_file(const char *left, const char *right)
 }
 
 static bool callable_statements(Arena *arena, Stmt **statements, int count, const char *file,
-                                const char *name, PackageCallable *out, unsigned depth)
+                                const char *name, const char *method_kind, PackageCallable *out, unsigned depth)
 {
     if (depth > 64) return false;
     const char *dot = strchr(name, '.');
     for (int i = 0; i < count; i++) {
         Stmt *stmt = statements[i];
         if (stmt->type == STMT_IMPORT && callable_statements(arena, stmt->as.import.imported_stmts,
-            stmt->as.import.imported_count, file, name, out, depth + 1)) return true;
-        if (!dot && stmt->type == STMT_FUNCTION && callable_file(stmt->as.function.name.filename, file) &&
+            stmt->as.import.imported_count, file, name, method_kind, out, depth + 1)) return true;
+        if (!dot && !method_kind && stmt->type == STMT_FUNCTION && callable_file(stmt->as.function.name.filename, file) &&
             !strcmp(stmt->as.function.name.start, name)) {
             out->function = &stmt->as.function;
             return true;
@@ -36,11 +37,20 @@ static bool callable_statements(Arena *arena, Stmt **statements, int count, cons
         StructDeclStmt *owner = &stmt->as.struct_decl;
         if (!callable_file(owner->name.filename, file) || strlen(owner->name.start) != (size_t)(dot - name) ||
             strncmp(owner->name.start, name, (size_t)(dot - name))) continue;
+        StructMethod *selected = NULL;
         for (int m = 0; m < owner->method_count; m++) {
             StructMethod *method = &owner->methods[m];
             if (strcmp(method->name, dot + 1)) continue;
-            out->method = method; out->owner = owner;
-            if (!method->is_static)
+            if (method_kind && method->is_static != !strcmp(method_kind, "static")) continue;
+            if (selected) {
+                fprintf(stderr, "error: ambiguous package method '%s'; specify method: static or instance\n", name);
+                return false;
+            }
+            selected = method;
+        }
+        if (selected) {
+            out->method = selected; out->owner = owner;
+            if (!selected->is_static)
                 out->self_type = ast_create_struct_type(arena, owner->name.start, owner->fields, owner->field_count,
                     owner->methods, owner->method_count, owner->is_native, owner->is_packed,
                     owner->pass_self_by_ref, owner->c_alias);
@@ -51,10 +61,10 @@ static bool callable_statements(Arena *arena, Stmt **statements, int count, cons
 }
 
 bool package_find_callable(Arena *arena, Module *module, const char *file,
-                            const char *name, PackageCallable *out)
+                            const char *name, const char *method_kind, PackageCallable *out)
 {
     memset(out, 0, sizeof(*out));
-    return module && callable_statements(arena, module->statements, module->count, file, name, out, 0);
+    return module && callable_statements(arena, module->statements, module->count, file, name, method_kind, out, 0);
 }
 
 bool package_binding_is_sindarin(json_object *plan, json_object *binding)

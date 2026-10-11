@@ -1416,6 +1416,26 @@
       "linux_only": true
     },
     {
+      "id": "package-callable-methods",
+      "name": "package static/instance selectors, aliases and sealed cleanup (36 mode cases)",
+      "command": ["{python}", "tests/package/callable_methods.py"],
+      "group": "core",
+      "linux_only": false
+    },
+    {
+      "id": "package-callable-method-sanitizers",
+      "name": "package static/instance selectors and shared storage cleanup sanitizers",
+      "command": ["{python}", "tests/package/callable_methods.py"],
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      },
+      "group": "sanitizers",
+      "linux_only": true
+    },
+    {
       "id": "static-instance-methods",
       "name": "static/instance method name parity and native self storage",
       "command": ["{python}", "scripts/check_static_instance_methods.py"],

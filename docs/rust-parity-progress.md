@@ -7,6 +7,34 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Package static/instance method selection: local validation, 2026-10-11
+
+Package method bindings now accept `method: static` or `method: instance` when
+both declarations share one public name. The resolver rejects ambiguous bindings
+instead of choosing the first method. Duplicate identities and invalid/root
+selectors are rejected. Existing unambiguous bindings remain compatible.
+Independent SN bodies retain both model entries and route the selected method;
+Rust static exports use the backend's private collision name. SDK staging emits
+selectors and distinct export symbols for same-name pairs without editing APIs.
+
+The C-backed native record control passes 36 source/sealed C/Rust mode cases,
+including mutable aliases, exact pointer identity, nested static/instance calls
+and one final destruction. Independent C and Rust ABI clients consume the Rust
+body static export, including an internal instance call; this is an independent
+RS implementation control, not a claim that C accepts its ordinary same-name
+source methods. All three tests pass under strict address/undefined/leak checks.
+The complete C/Rust suites pass 3,242/1,097 checks; all 22 artifact and 22 CI helper
+checks pass. The complete package import suite passes all 50 tests.
+[Local validation](rust-parity-evidence/package-callable-methods-validation.json)
+retains the source/compiler hashes and exact test scope.
+
+Two platform/sanitizer gates bring this local inventory to 309 gates in 26 groups.
+Both dependencies now have complete hosted acceptance: method repair `3a8d675a`
+passed CI 38127775229 and native provider batch `2c0f1c08` passed CI 38128023413.
+This selector batch is locally complete and ready for its own hosted verification. Date's opaque owned
+`toTime()` result still needs a complete contract; this selector repair does not
+complete Time/Date artifact migration, whole SDK or final original-corpus proof.
+
 ## Rust/Go typed native providers: local validation, 2026-10-11
 
 Generated native providers now support ABI 1.7 scalar/string arrays through rank

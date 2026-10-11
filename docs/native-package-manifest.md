@@ -151,6 +151,17 @@ qualified method name), the owning build unit, and its C-callable export symbol.
 These strings must eventually resolve against the declaration graph; structural
 manifest validation alone does not verify that the native implementation matches.
 
+When static and instance methods share a public name, each binding must include
+`method: static` or `method: instance`. Both entries may use the same declaration
+and backing method name, with distinct export symbols and ownership parameters.
+For example, a static `Counter.read(value)` uses `{value: value}`, while instance
+`Counter.read()` uses `{self: borrowed}`. The selector identifies the declaration
+and the corresponding SN implementation method; original names and aliases stay
+unchanged. Omitting the selector keeps existing unambiguous bindings working.
+An ambiguous method, an invalid selector, or duplicate bindings for the same
+method kind produce errors before building artifacts. Selectors do not apply to
+root functions. Sealed descriptors retain and validate the selected identity.
+
 Build names must be nonempty and unique. Every build has a nonempty source-file
 list. Paths are interpreted from the package manifest's directory by the artifact
 builder. C builds may declare include directories and link libraries. RS builds

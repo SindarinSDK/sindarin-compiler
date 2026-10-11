@@ -1,0 +1,50 @@
+{
+  "status": "complete local validation; dependencies accepted; ready for publication",
+  "baseline": "2c0f1c087cb887bfeead1e756756358881e6ddee",
+  "local": {
+    "c_suite": 3242,
+    "rust_suite": 1097,
+    "artifacts": 22,
+    "ci_helpers": 22,
+    "source_sealed_mode_cases": 36,
+    "strict_sanitizer_mode_cases": 36,
+    "raw_rs_body_c_rust_clients": 2,
+    "invalid_selector_controls": 4,
+    "negative_provider_and_consumer_checks": 12,
+    "native_imports": 50
+  },
+  "inventory": {
+    "groups": 26,
+    "gates": 309
+  },
+  "compiler_sha256": "bff7e1260791437187b9102472cfb41a5e42c43b368d09b085b60355375c0bf0",
+  "source_sha256": {
+    "src/package/package_callable.c": "6c4dde56438dd563d924b0bc282db00465a230cb583fb2256798a2ab75cceb22",
+    "src/package/package_callable.h": "debf7d421f1774d176214c8e7a344481e503f7220c91a78d18aad9112b85a91e",
+    "src/package/package_import.c": "e7d340e9af9dffa86145c103ff8d07601fb7e885a71125e0804a23dfc0b58038",
+    "src/package/package_native_command.c": "d6abf0e2649c51b59dab8f0803be83799a2c4bd245718fa384878e95b6eb1811",
+    "src/package/package_yaml_native.c": "a0f098b2ba9f9d4c3938374b9d2894dfaf7123aae1a07a041f8a7429f9b972ba",
+    "scripts/sindarin_library.py": "179bcd03802b1a892693b96ffd448d2e6db1293b81d300c8ff5a3d7661d5b6b9",
+    "scripts/build_sdk_package.py": "57c1e5da8750e44db382e24b1569e217679ca3d777e94a06123ee0b3827eb719",
+    "tests/package/callable_methods.py": "7028c1df63bdc352204f2d4607b0d62b3ea5af4d5dcb447a59caee80dadb89a5",
+    "scripts/ci/gates.json": "ef1070f52af009f14937cf37ea4b3b3319f4cdaa962ce5faef14f868473fcbaf",
+    "tests/ci/test_ci_helpers.py": "580642b1f4666a91dba3cceb4b15b1c57ff94fb1b1950d3a4a8d7360745f23ec"
+  },
+  "limitations": [
+    "Date opaque owned pointer result contract remains required",
+    "Rust record/interface body transport and whole SDK migration remain required",
+    "This is not final corpus/platform acceptance"
+  ],
+  "hosted_dependencies": [
+    {
+      "revision": "3a8d675a457499b0a044fa1468773830ab1f9923",
+      "run": 38127775229,
+      "conclusion": "success"
+    },
+    {
+      "revision": "2c0f1c087cb887bfeead1e756756358881e6ddee",
+      "run": 38128023413,
+      "conclusion": "success"
+    }
+  ]
+}

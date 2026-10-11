@@ -97,7 +97,7 @@ class CoverageTests(unittest.TestCase):
         self.collect()
         report = json.loads((self.output / 'summary.json').read_text())
         self.assertEqual(report['groups'], 26)
-        self.assertEqual(report['gates'], 305)
+        self.assertEqual(report['gates'], 309)
         entries = [g for g in self.catalog['gates'] if g['id'] == 'native-entrypoints']
         self.assertEqual(len(entries), 1)
         self.assertEqual(entries[0]['group'], 'native')
@@ -114,6 +114,14 @@ class CoverageTests(unittest.TestCase):
         self.assertEqual(len(providers), 1)
         self.assertEqual(providers[0]['group'], 'sanitizers')
         self.assertTrue(providers[0]['linux_only'])
+        callables = [g for g in self.catalog['gates'] if g['id'] == 'package-callable-methods']
+        self.assertEqual(len(callables), 1)
+        self.assertEqual(callables[0]['group'], 'core')
+        self.assertFalse(callables[0]['linux_only'])
+        sanitized = [g for g in self.catalog['gates'] if g['id'] == 'package-callable-method-sanitizers']
+        self.assertEqual(len(sanitized), 1)
+        self.assertEqual(sanitized[0]['group'], 'sanitizers')
+        self.assertTrue(sanitized[0]['linux_only'])
         sdk = [g for g in self.catalog['gates'] if g['id'] == 'sdk-artifact-callers']
         self.assertEqual(len(sdk), 1)
         self.assertEqual(sdk[0]['group'], 'core')

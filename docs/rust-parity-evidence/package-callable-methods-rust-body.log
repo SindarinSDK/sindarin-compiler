@@ -1,0 +1,6 @@
+test_rust_body_static_export_uses_private_collision_name (__main__.CallableMethodTests.test_rust_body_static_export_uses_private_collision_name) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.708s
+
+OK

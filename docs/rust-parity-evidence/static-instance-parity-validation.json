@@ -1,5 +1,5 @@
 {
-  "status": "published; complete hosted validation pending",
+  "status": "accepted on integrated main; all required CI passed",
   "dependency_revision": "0bcd8cbd96f8339b4640c05aa2a910abf193927b",
   "dependency_ci": 38121285417,
   "changes": [
@@ -42,7 +42,9 @@
   "published_revision": "3a8d675a457499b0a044fa1468773830ab1f9923",
   "ci": {
     "run": 38127775229,
-    "status": "in_progress",
-    "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38127775229"
+    "status": "completed",
+    "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38127775229",
+    "conclusion": "success",
+    "jobs_passed": 34
   }
 }

@@ -72,7 +72,8 @@ static bool native_provider_signatures(CompilerOptions *options, json_object *na
             if (module && !package_native_bind_records(arena, native, options->native_manifest, module)) module = NULL;
         }
         PackageCallable callable;
-        bool valid = package_find_callable(arena, module, path, separator + 2, &callable) &&
+        const char *method_kind = json_object_get_string(json_object_object_get(binding, "method"));
+        bool valid = package_find_callable(arena, module, path, separator + 2, method_kind, &callable) &&
                      package_callable_valid(&callable, package_binding_is_sindarin(native, binding));
         if (valid) {
             json_object_array_add(signatures, package_callable_signature(options, &callable, native, binding, module, NULL, 0));

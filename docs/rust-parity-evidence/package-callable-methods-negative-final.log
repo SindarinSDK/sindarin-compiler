@@ -1,0 +1,6 @@
+test_invalid_and_ambiguous_selectors_are_rejected (__main__.CallableMethodTests.test_invalid_and_ambiguous_selectors_are_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.167s
+
+OK

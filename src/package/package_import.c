@@ -267,9 +267,10 @@ bool package_prepare_native_imports(CompilerOptions *options, Module *module,
                 free(identity); free(file); continue;
             }
             PackageCallable callable;
-            bool found = file && package_find_callable(&options->arena, module, file, separator + 2, &callable);
+            const char *method_kind = json_object_get_string(json_object_object_get(binding, "method"));
+            bool found = file && package_find_callable(&options->arena, module, file, separator + 2, method_kind, &callable);
             for (int i = 0; !found && file && i < count; i++)
-                found = package_find_callable(&options->arena, modules[i], file, separator + 2, &callable);
+                found = package_find_callable(&options->arena, modules[i], file, separator + 2, method_kind, &callable);
             bool sindarin = package_binding_is_sindarin(plan, binding);
             Type *return_type = found ? (callable.function ? callable.function->return_type : callable.method->return_type) : NULL;
             if (!found || !package_callable_valid(&callable, sindarin) || !import_type(return_type)) {

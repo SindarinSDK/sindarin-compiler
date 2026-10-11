@@ -48,6 +48,14 @@ reject combinations with application emission/debug or package maintenance flags
 
 ## Artifacts and compatibility
 
+SN method exports distinguish static and instance declarations with the optional
+binding `method` selector described in the [manifest contract](native-package-manifest.md).
+Methods sharing a name require an explicit selector. Source and sealed consumers
+preserve the selected method, canonical C record aliases, field mutation and
+cleanup. Rust body exports use the selected method's emitted private name when
+the Rust backend resolves a static/instance collision. This does not add wider
+record/interface transport or ownership for opaque pointer results.
+
 A published generation contains archives and an `assembly.json` descriptor with:
 
 - Package identity/version and resolved Sindarin implementation runtime.

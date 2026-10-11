@@ -140,10 +140,14 @@ def prepare(compiler, sdk, destination, modules=MODULES):
                 raw_type(method['return_type'],module)
                 for parameter in method['params']: raw_type(parameter['type'],module)
                 name = structure['name']+'.'+method['name']
+                collision = sum(m['name'] == method['name'] for m in structure['methods']) > 1
+                selector = 'static' if method['is_static'] else 'instance'
                 if not method['is_static'] and module not in RECORDS:
                     raise ValueError('SDK instance storage still needs a canonical record: '+name)
-                bindings += ['    - declaration: src/'+module+'.sn::'+name,
-                             '      function: '+name, '      symbol: sdk_'+stem+'_method_'+name.replace('.', '_'),
+                bindings += ['    - declaration: src/'+module+'.sn::'+name]
+                if collision:
+                    bindings.append('      method: '+selector)
+                bindings += ['      function: '+name, '      symbol: sdk_'+stem+'_method_'+name.replace('.', '_')+('_'+selector if collision else ''),
                              '      build: facade_'+stem, '      convention: C', '      failure: abort',
                              '      ownership: '+ownership(method, not method['is_static'])]
     lines += ['  bindings:']+bindings

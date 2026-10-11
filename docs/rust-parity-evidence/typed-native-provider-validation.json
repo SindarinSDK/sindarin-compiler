@@ -1,5 +1,5 @@
 {
-  "status": "combined normal and strict sanitizer validation complete; ready for hosted publication",
+  "status": "accepted on integrated main; all required CI passed",
   "dependency_revision": "0bcd8cbd96f8339b4640c05aa2a910abf193927b",
   "dependency_ci": 38121285417,
   "native_provider_languages": [
@@ -121,5 +121,13 @@
     "strict_sanitizer_mode_cases": 72,
     "ci_helpers": 22,
     "formatting": true
+  },
+  "published_revision": "2c0f1c087cb887bfeead1e756756358881e6ddee",
+  "ci": {
+    "run": 38128023413,
+    "status": "completed",
+    "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38128023413",
+    "conclusion": "success",
+    "jobs_passed": 34
   }
 }
