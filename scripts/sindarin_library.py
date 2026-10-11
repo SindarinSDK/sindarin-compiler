@@ -6,7 +6,7 @@ import re
 import shlex
 
 from native_contract import TYPES, kind, raw_type
-from native_provider import RUST, c_header, c_provider, rust_provider
+from native_provider import RUST, c_header, c_provider, rust_provider, rust_provider_support
 
 
 def callable_key(name, method_kind=None):
@@ -34,9 +34,6 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
         raise ValueError('Sindarin package bodies select GO; the Sindarin Go backend is not implemented')
     if runtime not in ('C','RS'):
         raise ValueError('Sindarin implementation runtime must resolve to C or RS')
-    if runtime == 'RS' and any(kind(t) == 'record' for s in signatures for t in
-        [s['return_type']] + [p['type'] for p in s['params']]):
-        raise ValueError('RS canonical record/opaque body exports require resource input/result guards')
     if not signatures:
         raise ValueError('Sindarin implementation exports require resolved generated function bindings')
     target = 'c' if runtime=='C' else 'rust'
@@ -113,8 +110,6 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
     native_objects, native_depfiles, bundle_links = [], [], []
     projected_functions = functions
     if runtime == 'RS':
-        if any(kind(s['return_type'])=='record' or any(kind(p['type'])=='record' for p in s['params']) for s in signatures):
-            raise ValueError('Rust Sindarin record bodies require canonical record input/result guards')
         bundle_dir = work/(stem+'_bundle')
         native_arrays = any(kind(f['return_type']) in ('byte_array','native_array') or
                             any(kind(p['type']) in ('string_array','byte_array','native_array') for p in f['params']) for f in selected)
@@ -155,7 +150,12 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
     adjusted = []
     for index,signature in enumerate(signatures):
         name = signature['binding']['function']
-        adjusted.append(dict(signature,binding=dict(signature['binding'],function='__sn_body_'+str(index)),
+        binding=dict(signature['binding'],function='__sn_body_'+str(index))
+        # Sindarin returns an owned native credit even for a declared borrowed
+        # result; the body wrapper transfers that credit directly to the ABI.
+        if kind(signature['return_type'])=='record':
+            binding['ownership']=dict(binding['ownership'],result='owned')
+        adjusted.append(dict(signature,binding=binding,
                              **({'native_byte_wire_result':True} if runtime=='RS' and kind(signature['return_type'])=='byte_array' else {})))
     if runtime=='C':
         # Generated functions and methods are internal to this package unit.
@@ -208,7 +208,7 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
             else:links.extend(tokens)
         return archive,links,[dep],model,dependencies
     code=emitted.read_text(encoding="utf-8", errors="surrogateescape")+'\n'
-    input_arrays=[p for f in selected for p in projected_functions[f['key']]['params'] if kind(p['type']) in ('string_array','byte_array','native_array')]
+    input_arrays=[p for f in selected for p in projected_functions[f['key']]['params'] if p['type']['kind']=='array']
     array_guard='__'+stem+'_array_input_guard'
     if input_arrays:
         codec=projected['rust_native_handle_array_support']['trait']
@@ -221,18 +221,29 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
     for signature,function in zip(adjusted,selected):
         parameters=[];arguments=[];setup=[]
         projected_function=projected_functions[function['key']]
+        instance=bool(function.get('is_method') and function['key'][1]=='instance')
+        def projected_parameter(index):
+            if instance and index==0:
+                return {'type':next(s for s in projected['structs'] if s['name']==function['owner'])}
+            return projected_function['params'][index-int(instance)]
         for index,p in enumerate(signature['params']):
             k=kind(p['type'])
-            parameters.append(f'p{index}: '+('*mut std::ffi::c_void' if k in ('string_array','byte_array','native_array') else 'Option<&[u8]>' if k=='string' else RUST[k]))
-            if k in ('string_array','byte_array','native_array'):
-                parameter=projected_function['params'][index]
+            parameters.append(f'p{index}: '+('*mut std::ffi::c_void' if k in ('string_array','byte_array','native_array','record') else 'Option<&[u8]>' if k=='string' else RUST[k]))
+            if k=='record':
+                parameter=projected_parameter(index)['type']
+                if not parameter.get('rust_native_handle_adopt'):
+                    raise ValueError('Rust record input requires canonical reference storage')
+                setup.append(f"  let record{index} = std::mem::ManuallyDrop::new(r#{parameter['name']}::r#{parameter['rust_native_handle_adopt']}(p{index}));")
+                arguments.append(f'&*record{index}')
+            elif k in ('string_array','byte_array','native_array'):
+                parameter=projected_parameter(index)
                 array_type=rust_body_array_type(parameter['type'])
                 setup.append(f'  let mut array{index} = {array_guard} {{ value: std::mem::ManuallyDrop::new(<{array_type}>::adopt(p{index})), original: p{index} }};')
                 arguments.append(f'&mut *array{index}.value' if parameter.get('rust_default_array_ref') else f'&*array{index}.value')
             else:
                 arguments.append(f'p{index}.map_or_else(SnString::nil, SnString::from_c_bytes)' if k=='string' else f'p{index} as char' if k=='char' else f'p{index}')
         result=kind(signature['return_type']);status=signature['binding']['failure']=='status'
-        output='*mut std::ffi::c_void' if result in ('byte_array','native_array') else RUST[result]
+        output='*mut std::ffi::c_void' if result in ('byte_array','native_array','record') else RUST[result]
         if status:output='Result<'+output+',u32>'
         # Raw identifiers preserve source names that are Rust keywords.
         name=('r#'+function['owner']+'::r#'+projected_function.get('rust_emitted_method_name',function['method_name'])) if function.get('is_method') else 'r#'+function['name']
@@ -241,6 +252,16 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
             code+='  let _call = __sn_package_enter()'+('?' if status else '.unwrap_or_else(|_|std::process::abort())')+';\n'
         code+='\n'.join(setup)+'\n'
         code+='  let '+('mut ' if result in ('byte_array','native_array') else '')+'value = '+name+'('+', '.join(arguments)+');\n'
+        if result=='record':
+            return_type=projected_function['return_type']
+            if return_type.get('kind')=='pointer':
+                code+='  '+('Ok(value)' if status else 'value')+'\n}\n'
+            else:
+                field=return_type.get('rust_native_handle_field')
+                if not field: raise ValueError('Rust record result requires canonical reference storage')
+                code+=f'  let owner = std::mem::ManuallyDrop::new(value);\n  let output = owner.r#{field};\n'
+                code+='  '+('Ok(output)' if status else 'output')+'\n}\n'
+            continue
         if result=='native_array':
             code+='  let output = value.pointer;\n  value.pointer = std::ptr::null_mut();\n'
             code+='  '+('Ok(output)' if status else 'output')+'\n}\n'
@@ -263,6 +284,15 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
     compile_args=tools['rustc']+['--edition=2021','--crate-type=rlib','--crate-name',crate,'--emit=dep-info,link','-C','opt-level='+args.optimization,emitted,'-o',backing]+flags
     run(compile_args,cwd=root)
     array_free_symbol=projected.get('rust_native_handle_array_support',{}).get('free')
+    support=rust_provider_support(adjusted,crate,root)
+    if support:
+        source=work/(stem+'_provider_support.c');source.write_text(support)
+        obj=source.with_suffix('.o');dep=source.with_suffix('.d')
+        includes=[args.compiler.resolve().parent/'include/runtime']+[(root/p).resolve() for p in unit.get('include_dirs',[])]
+        support_flags=['-std=c11','-O'+args.optimization,'-fno-lto']
+        for directory in includes:support_flags+=['-I',directory]
+        run(tools['cc']+support_flags+shlex.split(os.environ.get('SN_CFLAGS',''))+['-MD','-MF',dep,'-c',source,'-o',obj],cwd=root)
+        native_objects.append(obj);native_depfiles.append(dep)
     provider=work/(stem+'_exports.rs');exports=rust_provider(adjusted,crate,array_free_symbol)
     if lifecycle:
         exports+=f'#[no_mangle] pub extern "C" fn __sn_{stem}_initialize()->u32 {{ backing::__sn_body_initialize() }}\n'

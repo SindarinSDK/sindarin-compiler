@@ -392,3 +392,25 @@ source and prebuilt consumption, in-call aliases, callback credit consumption,
 GC, independent results, malformed results, status/panic errors and final cleanup.
 The controls also run with strict address/undefined/leak checks and `cgocheck2`.
 Rust generic Sindarin bodies and wider record/interface contracts remain work.
+
+
+## Canonical record bodies compiled for Rust
+
+Sindarin bodies selected with `runtime: RS` can export canonical C reference
+record inputs and results. Their Rust input views borrow the original pointer;
+the generated provider keeps input wire credits alive through the call without
+adding a native storage credit. Returned Sindarin records already own a native
+credit, which the wrapper transfers to a typed ABI resource. Declared borrowed
+results use that returned credit directly. C-compiled Sindarin bodies also
+transfer their existing returned credit, avoiding a second retain for declared
+borrowed results. An independent ABI client verifies this cleanup in both body
+runtimes. Nil remains nil, and aliases preserve
+field mutation and identity across C and Rust consumers. Support objects check
+canonical layout and call the public C retain/release functions.
+
+Local source/sealed checks cover 72 mode cases, static/instance methods,
+wrong-kind and wrong-identity inputs, unchanged error outputs, nil output
+validation, and returned records outliving input owners with one final destruction.
+Host acceptance remains required. Direct record-parameter rebinding, wider
+value-record/interface/generic transport and dependency lifecycle graphs remain
+required work; existing explicit diagnostics receive no parity credit.

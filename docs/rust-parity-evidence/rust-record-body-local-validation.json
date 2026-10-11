@@ -1,0 +1,46 @@
+{
+  "status": "Local record ownership and artifact checks passed; unpublished; broader import suite still running",
+  "base": "c603d967f3ae539eaabd57125d85e727414bb510",
+  "runtime": "RS Sindarin bodies with canonical C record storage",
+  "normal_mode_cases": 72,
+  "sanitizer_mode_cases": 72,
+  "normal_suite_tests": 6,
+  "wire_clients": [
+    "Rust body",
+    "C body"
+  ],
+  "wire_controls": [
+    "wrong kind",
+    "wrong record identity",
+    "unchanged error output",
+    "null result argument",
+    "nil result",
+    "exact native credit counts",
+    "returned result survives input owner release",
+    "alias mutation",
+    "exactly one final destruction"
+  ],
+  "artifacts": 22,
+  "mixed_app_rerun": "Passed after restoring the required accepted SDK checkout; first full import run records the missing fixture failure",
+  "remaining": [
+    "Full package import suite completion",
+    "hosted Linux/macOS/Windows acceptance",
+    "direct record-parameter rebinding",
+    "wider record/interface/generic contracts and dependency lifecycle graphs",
+    "whole SDK and final original corpus/platform proof"
+  ],
+  "logs": {
+    "sindarin-rust-record-body-final.log": "c85beadc25c4619d8abea122b50fdab0a6433ca95405fa34e1224ec34db73367",
+    "sindarin-rust-record-body-final-sanitized.log": "052a34bf35bcef0e503213e3878e268633935a5b3c71d5d5a7bdf93bdf28836f",
+    "sindarin-rust-record-body-wire.log": "fc1d69970a84124f90b12d8ca9c57c899a66af94c929cb06f94663ebe527a9f3",
+    "sindarin-rust-record-body-wire-san.log": "5ada358c175170e6b4beadfdcb97a63726b0243a08de8a73dd9edc8130b9363f",
+    "sindarin-c-record-body-credit.log": "0ab6b8adedbb1d4bf47b81d731a2ce832d9644c02a7b2356e8a7612e00107019",
+    "sindarin-c-record-body-credit-san.log": "db37516843f2c7c5d4cf0e63316372d046ef781c814092cc6f939f04c3937eaa",
+    "sindarin-rust-record-body-artifacts.log": "b2f3bd1057264a64b3558e0107ae6be0fc19f01cd9f1ac47d8af5fbddf351312",
+    "sindarin-rust-record-body-mixed-app.log": "46f46af7668553108aa4d8e39cb96472642171cb56e9c3da2b0d311dc61b8ff4",
+    "sindarin-rust-record-body-ci-helpers-final.log": "0817c6b0091a2f1748684d4438bf2ed326ae8c4ee20ebaa511a6d41d5aeb2a7d"
+  },
+  "ci_helpers": 22,
+  "registered_gates": 349,
+  "registered_groups": 26
+}

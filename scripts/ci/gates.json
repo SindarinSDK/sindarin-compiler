@@ -1734,6 +1734,36 @@
         "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
         "UBSAN_OPTIONS": "halt_on_error=1"
       }
+    },
+    {
+      "id": "rust-sindarin-record-bodies",
+      "name": "Rust Sindarin canonical record body ownership and sealed aliases (72 mode cases)",
+      "command": [
+        "{python}",
+        "tests/package/rust_record_bodies.py"
+      ],
+      "group": "core",
+      "linux_only": false
+    },
+    {
+      "id": "rust-sindarin-record-bodies-sanitizers",
+      "name": "Rust Sindarin canonical record body ownership and sealed aliases (72 mode cases)",
+      "command": [
+        "{python}",
+        "tests/package/rust_record_bodies.py",
+        "RustRecordBodyTests.test_body_inputs_aliases_nil_and_result_credits",
+        "RustRecordBodyTests.test_static_instance_calls_preserve_aliases_and_cleanup_in_all_modes",
+        "RustRecordBodyTests.test_wire_kind_validation_and_transferred_return_credit",
+        "RustRecordBodyTests.test_c_body_transfers_its_existing_return_credit"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      }
     }
   ]
 }
