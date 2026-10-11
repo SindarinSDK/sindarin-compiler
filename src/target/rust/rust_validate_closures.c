@@ -1557,9 +1557,14 @@ static RustValidationResult rust_validate_closure_call(json_object *expr)
         }
         if (rust_closure_array_type(wanted))
             json_object_object_add(arg, "rust_default_array_ref_arg", json_object_new_boolean(true));
+        if (json_boolean_property(wanted, "rust_native_handle_value_parameter"))
+        {
+            json_object_object_add(arg, "rust_closure_native_handle_value_arg", json_object_new_boolean(true));
+            json_object_object_del(arg, "rust_closure_arg_clone");
+        }
         const char *kind = json_string_property(arg, "kind");
         if (!interface_argument && !json_boolean_property(wanted, "rust_closure_param_share") &&
-                 kind && (strcmp(kind, "variable") == 0 || strcmp(kind, "member") == 0 ||
+                 !json_boolean_property(arg, "rust_closure_native_handle_value_arg") && kind && (strcmp(kind, "variable") == 0 || strcmp(kind, "member") == 0 ||
                           strcmp(kind, "array_access") == 0))
         {
             if (rust_closure_property(rust_validation_model, "rust_native_callback_strings") && rust_closure_string_type(wanted))

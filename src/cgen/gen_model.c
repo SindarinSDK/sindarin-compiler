@@ -453,10 +453,21 @@ bool gen_model_validate_record_copies(json_object *model, json_object *node)
         return true;
     }
     if (!json_object_is_type(node, json_type_object)) return true;
-    json_object *copy_arg = NULL, *name = NULL, *structs = NULL;
-    if (json_object_object_get_ex(node, "is_copy_arg", &copy_arg) && json_object_get_boolean(copy_arg) &&
-        json_object_object_get_ex(node, "copy_type_name", &name) &&
-        json_object_object_get_ex(model, "structs", &structs))
+    json_object *copy_arg = NULL, *name = NULL, *structs = NULL, *kind = NULL;
+    bool copy_of = json_object_object_get_ex(node, "kind", &kind) &&
+                   json_object_is_type(kind, json_type_string) &&
+                   !strcmp(json_object_get_string(kind), "copy_of");
+    bool copy_request = json_object_object_get_ex(node, "is_copy_arg", &copy_arg) &&
+                        json_object_get_boolean(copy_arg) &&
+                        json_object_object_get_ex(node, "copy_type_name", &name);
+    if (copy_of)
+    {
+        json_object *operand = NULL, *type = NULL;
+        copy_request = json_object_object_get_ex(node, "operand", &operand) &&
+                       json_object_object_get_ex(operand, "type", &type) &&
+                       json_object_object_get_ex(type, "name", &name);
+    }
+    if (copy_request && json_object_object_get_ex(model, "structs", &structs))
     {
         for (size_t i = 0; i < json_object_array_length(structs); i++)
         {
@@ -467,7 +478,8 @@ bool gen_model_validate_record_copies(json_object *model, json_object *node)
             {
                 if (!json_object_object_get_ex(record, "copy", &copy))
                 {
-                    fprintf(stderr, "Error: canonical record '%s' as-val copy requires a native.types copy contract\n", json_object_get_string(name));
+                    fprintf(stderr, "Error: canonical record '%s' %s requires a native.types copy contract\n",
+                            json_object_get_string(name), copy_of ? "copyOf()" : "as-val copy");
                     return false;
                 }
                 /* Call the declared C copy symbol directly. The language-visible

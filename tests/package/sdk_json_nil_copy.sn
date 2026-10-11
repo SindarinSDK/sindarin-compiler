@@ -1,0 +1,28 @@
+import "sindarin-pkg-sdk/src/encoding/json"
+
+struct Calls as ref =>
+  value: int
+  static fn snapshot(item: Json as val): Json =>
+    return item
+  fn snapshotInstance(item: Json as val): Json =>
+    return item
+
+fn nilSnapshot(item: Json): bool =>
+  var value: Json = copyOf(item)
+  return value != nil && value.isNull()
+
+fn nilValue(item: Json as val): bool =>
+  return item == nil
+
+fn variableNil(item: Json): bool =>
+  return !nilValue(item)
+
+fn main(): void =>
+  var calls: Calls = { value: 0 }
+  println(nilSnapshot(nil))
+  println(nilValue(nil))
+  var nilCall = nilValue
+  println(nilCall(nil))
+  println(Calls.snapshot(nil) == nil)
+  println(calls.snapshotInstance(nil) == nil)
+  println(variableNil(nil))

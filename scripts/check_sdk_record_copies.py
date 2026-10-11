@@ -79,16 +79,27 @@ for module, name in [('encoding/text', 'StringBuilder'), ('encoding/json', 'Json
                f'  fn snapshotInstance(item: {name} as val): {name} =>\n    return item\n')
     control = CONTROLS[module].replace('fn copied(', methods + 'fn copied(', 1)
     location = '  var snapshot: ' + name + ' = copied(original)\n'
-    probe = ('  var staticCopy: ' + name + ' = Calls.snapshot(original)\n'
+    probe = ('  var explicitCopy: ' + name + ' = copyOf(original)\n'
+             '  var staticCopy: ' + name + ' = Calls.snapshot(original)\n'
              '  var calls: Calls = {value:0}\n'
              '  var instanceCopy: ' + name + ' = calls.snapshotInstance(original)\n')
     if module == 'encoding/text':
-        probe += '  println(staticCopy._buf!=original._buf)\n  println(instanceCopy._buf!=original._buf)\n'
+        probe += '  println(explicitCopy._buf!=original._buf)\n  println(staticCopy._buf!=original._buf)\n  println(instanceCopy._buf!=original._buf)\n'
     elif module == 'encoding/json':
-        probe += '  println(staticCopy._obj!=original._obj)\n  println(instanceCopy._obj!=original._obj)\n'
+        probe += '  println(explicitCopy._obj!=original._obj)\n  println(staticCopy._obj!=original._obj)\n  println(instanceCopy._obj!=original._obj)\n'
     else:
-        probe += '  staticCopy._exitCode=9\n  println(original.exitCode()==0)\n  instanceCopy._stdout="method"\n  println(original.stdout().contains("saved"))\n'
-    CONTROLS[module] = control.replace(location, probe + location, 1)
+        probe += '  explicitCopy._stdout="explicit"\n  println(original.stdout().contains("saved"))\n  staticCopy._exitCode=9\n  println(original.exitCode()==0)\n  instanceCopy._stdout="method"\n  println(original.stdout().contains("saved"))\n'
+    control = control.replace(location, probe + location, 1)
+    if module == 'encoding/json':
+        nil_functions = ('fn nilSnapshot(item: Json): bool =>\n  var value: Json = copyOf(item)\n  return value!=nil && value.isNull()\n'
+                         'fn nilValue(item: Json as val): bool =>\n  return item==nil\n'
+                         'fn variableNil(item: Json): bool =>\n  return !nilValue(item)\n')
+        control = control.replace('fn main(): void =>', nil_functions + 'fn main(): void =>', 1)
+        control += ('  println(nilSnapshot(nil))\n  println(nilValue(nil))\n'
+                    '  var nilCall = nilValue\n  println(nilCall(nil))\n'
+                    '  println(Calls.snapshot(nil)==nil)\n  println(calls.snapshotInstance(nil)==nil)\n'
+                    '  println(variableNil(nil))\n')
+    CONTROLS[module] = control
 
 
 def verify(compiler, sdk, quick=False):
@@ -106,7 +117,7 @@ def verify(compiler, sdk, quick=False):
             metadata = json.loads(assembly.read_text())
             assert any(record.get('copy') for record in metadata['types'])
             (app / 'main.sn').write_text(control)
-            expected = b'true\n' * 7
+            expected = b'true\n' * (14 if module == 'encoding/json' else 8)
             if os.name == 'nt':
                 expected = expected.replace(b'\n', b'\r\n')
             for artifact in ('source', 'sealed'):

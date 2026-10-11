@@ -1,1 +1,1 @@
-{{#if rust_reference_record_copy}}({{> expr operand}}).{{rust_ident @root.rust_record_snapshot_method}}(){{else}}({{> expr operand}}).clone(){{/if}}
+{{#if rust_native_record_copy}}({{> expr operand}}).{{rust_ident operand.type.rust_native_handle_copy}}(){{else}}{{#if rust_reference_record_copy}}({{> expr operand}}).{{rust_ident @root.rust_record_snapshot_method}}(){{else}}({{> expr operand}}).clone(){{/if}}{{/if}}

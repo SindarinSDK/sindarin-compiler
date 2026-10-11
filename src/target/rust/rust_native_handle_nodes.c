@@ -43,7 +43,8 @@ static void rust_prepare_native_handle_nodes(json_object *model, json_object *no
         return;
     }
     if (!json_object_is_type(node, json_type_object)) return;
-    if (rust_native_handle_type(rust_nullable_child(node, "type")) && json_boolean_property(node, "is_copy_arg"))
+    if (rust_native_handle_type(rust_nullable_child(node, "type")) && json_boolean_property(node, "is_copy_arg") &&
+        !(json_string_property_equals(node, "kind", "literal") && json_string_property_equals(node, "value_kind", "nil")))
     {
         json_object *structure = rust_find_struct(model, json_string_property(rust_nullable_child(node, "type"), "name"));
         if (rust_nullable_child(rust_nullable_child(structure, "native_record"), "copy"))
@@ -82,7 +83,10 @@ static void rust_prepare_native_handle_nodes(json_object *model, json_object *no
             json_object_object_add(arg, "type", json_object_get(expected_type));
             json_object_object_add(arg, "rust_native_handle_untyped_array", json_object_new_boolean(true));
         }
-        if (rust_native_handle_type(expected_type) && json_string_property_equals(param, "mem_qual", "as_val"))
+        /* C passes literal nil directly; a typed nil variable still requests
+         * the package copy hook, whose nil result semantics can differ. */
+        if (rust_native_handle_type(expected_type) && json_string_property_equals(param, "mem_qual", "as_val") &&
+            !(json_string_property_equals(arg, "kind", "literal") && json_string_property_equals(arg, "value_kind", "nil")))
         {
             json_object *structure = rust_find_struct(model, json_string_property(expected_type, "name"));
             if (rust_nullable_child(rust_nullable_child(structure, "native_record"), "copy"))

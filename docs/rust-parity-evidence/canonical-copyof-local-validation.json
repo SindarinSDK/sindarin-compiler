@@ -1,0 +1,114 @@
+{
+  "status": "Complete final local validation passed; unpublished; corrected compiler accepted; exact published SDK dependency hosted acceptance pending",
+  "base": "34fa9ae4",
+  "SDK_local_revision": "5e1c3195c0460cf2a49896c638dae13efbeab8b9",
+  "C_suite": 3242,
+  "Rust_suite": 1097,
+  "normal_canonical_contract_cases": 54,
+  "sanitizer_canonical_contract_cases": 54,
+  "native_artifacts": 22,
+  "ci_helpers": 22,
+  "registered_gates": 381,
+  "registered_groups": 26,
+  "controls": [
+    "Canonical copyOf storage isolation in C/Rust",
+    "Single evaluation and cleanup of owned producer temporary",
+    "Exact eleven canonical record destructions",
+    "In-call canonical credit count matches C for function-value as-val calls",
+    "Nil snapshots preserve per-package copy semantics",
+    "Legacy Json typed-nil copy produces a non-nil null wrapper",
+    "Literal-nil as-val bypasses the copy hook as in legacy C",
+    "Direct, inferred function-value, static and instance nil calls",
+    "Independent accepted-compiler C nil oracle across all nine arithmetic/optimization modes",
+    "Missing copyOf capability rejected before binary emission"
+  ],
+  "legacy_nil_oracle": {
+    "scope": "Independent accepted-compiler C legacy Json nil-copy oracle; fixed original operation bodies",
+    "compiler_sha256": "3fa6fb9ca7c8f27dd0507de329293ba9a3dad59eb33adbe1d29d4e25e43b342c",
+    "source_sha256": "fd84a70f6e9a7e7e979611d4617db50500aea8fb5c2769f5a7ec418608d39611",
+    "oracle_sha256": "6bbb4fb214212d1fd3d1a84b515b85180428fa070e3b98b9e1b75925b258c054",
+    "cases": [
+      {
+        "opt": "-O0",
+        "mode": "default",
+        "stdout_hex": "747275650a747275650a747275650a747275650a747275650a747275650a",
+        "passed": true
+      },
+      {
+        "opt": "-O0",
+        "mode": "checked",
+        "stdout_hex": "747275650a747275650a747275650a747275650a747275650a747275650a",
+        "passed": true
+      },
+      {
+        "opt": "-O0",
+        "mode": "unchecked",
+        "stdout_hex": "747275650a747275650a747275650a747275650a747275650a747275650a",
+        "passed": true
+      },
+      {
+        "opt": "-O1",
+        "mode": "default",
+        "stdout_hex": "747275650a747275650a747275650a747275650a747275650a747275650a",
+        "passed": true
+      },
+      {
+        "opt": "-O1",
+        "mode": "checked",
+        "stdout_hex": "747275650a747275650a747275650a747275650a747275650a747275650a",
+        "passed": true
+      },
+      {
+        "opt": "-O1",
+        "mode": "unchecked",
+        "stdout_hex": "747275650a747275650a747275650a747275650a747275650a747275650a",
+        "passed": true
+      },
+      {
+        "opt": "-O2",
+        "mode": "default",
+        "stdout_hex": "747275650a747275650a747275650a747275650a747275650a747275650a",
+        "passed": true
+      },
+      {
+        "opt": "-O2",
+        "mode": "checked",
+        "stdout_hex": "747275650a747275650a747275650a747275650a747275650a747275650a",
+        "passed": true
+      },
+      {
+        "opt": "-O2",
+        "mode": "unchecked",
+        "stdout_hex": "747275650a747275650a747275650a747275650a747275650a747275650a",
+        "passed": true
+      }
+    ],
+    "passed": true
+  },
+  "temporary_cleanup_before_failure_log_sha256": "f4f888f27aa9544a16f6ec1582bfd2145ebde70b95abd7afe2ca869415449e6c",
+  "logs": {
+    "sindarin-sdk-copyof-final-c.log": "48f3cf922c528b83b44b3d2406e213831c6dc097f7e860d53c09479ef3a1c2ac",
+    "sindarin-sdk-copyof-final-rust.log": "dc377f72b85f4113412d284eeebdb8c7e483e3624135ac8d0b76e36791d93ee1",
+    "sindarin-sdk-copyof-contract-normal.log": "a30a2f35e1c4478280d7c6b0f97dd7229e0546186c8c0d946f6a327e7eb0714c",
+    "sindarin-sdk-copyof-contract-final-san.log": "01b64b12b96ae4e41810d8d28de854f1d25924c49186479b482ceefbc30f26fe",
+    "sindarin-sdk-copyof-final-artifacts.log": "b7589eb3756385f1cb7a33becedf3b470f56d14913d4507d61f8efc72b4ef8f0",
+    "sindarin-sdk-copyof-final-helpers.log": "08c40c24837789f682f6c5d4478aa41349f9c4ba1fed676a5bf12ccb3bab8b8d",
+    "sindarin-sdk-json-nil-legacy-oracle.log": "77d3a152a4002208ee9aca0c413ad3cdd78a4c00e2da3ccba369aecf953e9f07",
+    "sindarin-sdk-copyof-final-normal.log": "5fd721da6481731170961a12a56fb5c2a1af5823ad0230a826403cafc304db34",
+    "sindarin-sdk-copyof-final-san.log": "5fd721da6481731170961a12a56fb5c2a1af5823ad0230a826403cafc304db34",
+    "sindarin-sdk-copyof-final-imports.log": "8ccae03b394670573b575dbd3804e5ab908fd95b8895932992a1a2cd994c0ae6"
+  },
+  "remaining": [
+    "Exact published SDK dependency full hosted acceptance",
+    "Integrated accepted SDK pin and feature hosted validation",
+    "Package-exported qualifiers and callbacks",
+    "Wider records/interfaces/generics and dependency lifecycle graphs",
+    "Whole SDK and final corpus/platform proof"
+  ],
+  "SDK_CI": 38160258824,
+  "corrected_compiler_accepted": "757d9d0cc449cfd71ea1f63fadd69bded785d2ab",
+  "corrected_compiler_CI": 38154653308,
+  "normal_source_sealed_SDK_cases": 108,
+  "sanitizer_source_sealed_SDK_cases": 108,
+  "package_imports": 50
+}

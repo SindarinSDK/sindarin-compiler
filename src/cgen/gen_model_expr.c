@@ -4057,6 +4057,11 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
             json_object_object_add(obj, "kind", json_object_new_string("copy_of"));
             json_object_object_add(obj, "operand",
                 gen_model_expr(arena, expr->as.copy_of.operand, symbol_table, arithmetic_mode));
+            Type *operand_type = expr->as.copy_of.operand->expr_type;
+            if (operand_type && operand_type->kind == TYPE_STRUCT &&
+                operand_type->as.struct_type.is_native && operand_type->as.struct_type.pass_self_by_ref &&
+                ownership_kind(expr->as.copy_of.operand) == OWNERSHIP_OWNED)
+                json_object_object_add(obj, "copy_operand_owned", json_object_new_boolean(true));
             break;
         }
 

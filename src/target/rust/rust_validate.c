@@ -1748,6 +1748,21 @@ static bool rust_validate_expr(json_object *expr)
         if (strcmp(operand_kind, "function") == 0)
             return rust_closure_type_supported(operand_type) && rust_validate_expr(operand);
 
+        if (json_boolean_property(operand_type, "rust_native_reference_handle"))
+        {
+            json_object *structure = rust_find_struct(rust_validation_model,
+                json_string_property(operand_type, "name"));
+            json_object *record = NULL, *copy = NULL;
+            if (!structure || !json_object_object_get_ex(structure, "native_record", &record) ||
+                !json_object_object_get_ex(record, "copy", &copy))
+            {
+                fprintf(stderr, "Error: canonical native copyOf() requires a native.types copy contract\n");
+                return false;
+            }
+            json_object_object_add(expr, "rust_native_record_copy", json_object_new_boolean(true));
+            return rust_validate_expr(operand);
+        }
+
         if (strcmp(operand_kind, "struct") == 0 &&
             json_string_property_equals(operand_type, "name", "TypeInfo"))
         {

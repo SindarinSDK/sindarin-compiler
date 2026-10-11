@@ -289,8 +289,9 @@ Flat string/byte contracts and earlier ABI versions preserve their behavior.
 ### Canonical record copy capability
 
 A `native.types` entry may declare `copy: record_copy`. Its public C prototype
-must be `CType *record_copy(const CType *)`. It borrows the input, preserves nil,
-and returns a distinct record with one owned native credit and copied values.
+must be `CType *record_copy(const CType *)`. It borrows the input and returns a distinct record with one owned native credit
+and copied values. Nil-input behavior follows the package's existing copy hook: a
+null input can preserve nil or produce an owned value, as Json.copy(nil) does.
 The package retains responsibility for private resource/string/array copy rules;
 consumers call this C implementation instead of duplicating the foreign record.
 The builder checks the prototype and exported symbol, captures the contract in
@@ -308,6 +309,6 @@ Canonical C copy calls use the declared backing symbol directly; a public
 Sindarin method named `copy` keeps its existing generated name. Rust canonical
 handles can likewise retain public copy methods and managed string fields.
 Ordinary direct, function-value, static and instance `as val` calls use the
-canonical copy capability. This does not yet establish canonical `copyOf()`
-operator support in Rust or qualified parameters on package-exported functions;
-those contracts remain implementation work.
+canonical copy capability. Canonical `copyOf()` calls also invoke this hook in C/Rust, preserving nil-input
+behavior and releasing an owned temporary producer after one evaluation.
+Qualified parameters on package-exported functions remain implementation work.

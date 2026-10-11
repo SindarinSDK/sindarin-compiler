@@ -94,6 +94,26 @@ record/interface/generic contracts, lifecycle graphs, whole SDK and final origin
 corpus/platform proof remain work. No feature pushes occur while the current
 integrated correction awaits macOS/Windows core completion.
 
+## Canonical copyOf and nil semantics: final local checkpoint, 2026-10-11
+
+Canonical native `copyOf()` now calls the declared C hook in both C and Rust.
+An owned temporary source is evaluated once and released after copying; the
+retained failure had only nine destructions, while the strengthened contract
+now requires eleven including a function-value credit probe. Missing copyOf
+capability is rejected before output emission. Nil behavior follows the original
+package contract: Json copies a typed nil into a non-nil Json null wrapper, but
+literal-nil `as val` calls bypass the copy hook. Direct, function-value, static and
+instance nil calls match the accepted legacy C compiler in all nine modes.
+
+Final checks pass 108 source/sealed SDK cases normally and 108 with sanitizers,
+54/54 canonical contract cases, 3,242 C/1,097 Rust checks with zero failures/skips,
+50 imports, 22 artifacts and 22 helpers (381 gates/26 groups). Corrected main
+`757d9d0c` has complete hosted acceptance, 34 jobs/373 gates/26 groups. Published
+SDK `5e1c319` awaits its distinct CI 38160258824; dependent compiler publication
+waits for that exact SDK acceptance and an integrated pin. Wider exports,
+callbacks, contracts, SDK migration and final goal proof remain required.
+Evidence: [canonical-copyof-local-validation.json](rust-parity-evidence/canonical-copyof-local-validation.json).
+
 ## Current hosted queue, 2026-10-11
 
 Compiler record ownership revision `cbd2fbe9` awaits CI 38153082329; compiler

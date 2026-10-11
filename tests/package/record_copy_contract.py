@@ -34,6 +34,8 @@ class RecordCopyTests(unittest.TestCase):
             '  fn instanceCopy(item: Counter as val): Counter =>\n    item.amount=31\n    return item\n'
             'fn mutate(item: Counter as val): Counter =>\n  item.amount=17\n  return item\n'
             'fn nilCopy(item: Counter as val): bool =>\n  return item==nil\n'
+            'fn copiedCredits(item: Counter as val): int32 =>\n  return refs(item)\n'
+            'fn nilSnapshot(item: Counter): bool =>\n  var copied: Counter = copyOf(item)\n  return copied==nil\n'
             'fn rebound(item: Counter as val): Counter =>\n  item=item\n  item=nil\n'
             '  item=Counter.make(41)\n  return item\n'
             'fn exercise(): void =>\n  var original: Counter = Counter.make(5)\n'
@@ -42,7 +44,12 @@ class RecordCopyTests(unittest.TestCase):
             '  var stat: Counter = Calls.staticCopy(original)\n  println(original.amount)\n  println(stat.amount)\n'
             '  var calls: Calls = {value:0}\n  var instance: Counter = calls.instanceCopy(original)\n  println(original.amount)\n  println(instance.amount)\n'
             '  var next: Counter = rebound(original)\n  println(original.amount)\n  println(next.amount)\n'
-            '  println(nilCopy(nil))\nfn main(): void =>\n  exercise()\n  println(destroyed())\n')
+            '  var creditCall = copiedCredits\n  println(creditCall(original))\n'
+            '  println(nilCopy(nil))\n'
+            '  var explicit: Counter = copyOf(original)\n  println(explicit.amount)\n'
+            '  var temporary: Counter = copyOf(Counter.make(43))\n  println(temporary.amount)\n'
+            '  println(nilSnapshot(nil))\n'
+            'fn main(): void =>\n  exercise()\n  println(destroyed())\n')
 
     def test_canonical_copy_survives_source_and_sealed_consumption(self):
         assembly=self.fixture.build();cases=[]
@@ -60,7 +67,7 @@ class RecordCopyTests(unittest.TestCase):
                         build=subprocess.run(command,cwd=self.root,capture_output=True,timeout=180)
                         self.assertEqual(build.returncode,0,build.stderr.decode(errors='replace'))
                         run=subprocess.run([str(exe)],cwd=self.root,capture_output=True,timeout=30)
-                        expected=b'5\n17\nfalse\n5\n17\n5\n21\n5\n31\n5\n41\ntrue\n7\n'
+                        expected=b'5\n17\nfalse\n5\n17\n5\n21\n5\n31\n5\n41\n2\ntrue\n5\n43\ntrue\n11\n'
                         if os.name=='nt':expected=expected.replace(b'\n',b'\r\n')
                         self.assertEqual((run.returncode,run.stdout,run.stderr),(0,expected,b''))
                         cases.append(dict(artifact=artifact,target=target,opt=opt,mode=mode,passed=True))
@@ -94,11 +101,19 @@ class RecordCopyTests(unittest.TestCase):
 
     def test_copy_requires_a_valid_prototype_export_and_requested_capability(self):
         f=self.fixture
+        f.write('main.sn','import "methods/src/api"\nfn consume(item: Counter as val): int =>\n  return item.amount\nfn main(): void =>\n  var item: Counter = Counter.make(5)\n  println(consume(item))\n')
         for target in ('c','rust'):
             f.write('.sn/methods/sn.yaml',self.manifest.replace('      copy: counter_copy\n',''))
             exe=self.root/('missing-'+target+'.exe')
             run=subprocess.run([str(COMPILER),'main.sn','--no-install','--target',target,'-o',str(exe)],cwd=self.root,capture_output=True,timeout=180)
             self.assertNotEqual(run.returncode,0);self.assertIn(b'as-val copy requires a native.types copy contract',run.stderr)
+            self.assertFalse(exe.exists())
+        f.write('main.sn','import "methods/src/api"\nfn main(): void =>\n  var item: Counter = Counter.make(5)\n  var value: Counter = copyOf(item)\n  println(value.amount)\n')
+        for target in ('c','rust'):
+            exe=self.root/('missing-copyof-'+target+'.exe')
+            run=subprocess.run([str(COMPILER),'main.sn','--no-install','--target',target,'-o',str(exe)],cwd=self.root,capture_output=True,timeout=180)
+            self.assertNotEqual(run.returncode,0)
+            self.assertIn(b'copyOf() requires a native.types copy contract',run.stderr)
             self.assertFalse(exe.exists())
         f.write('.sn/methods/sn.yaml',self.manifest)
         header=self.package/'src/counter.h';old=header.read_text()
