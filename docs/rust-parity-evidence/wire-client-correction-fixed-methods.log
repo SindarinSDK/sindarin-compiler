@@ -1,0 +1,9 @@
+test_configured_flags_reach_raw_rust_client (__main__.CallableMethodTests.test_configured_flags_reach_raw_rust_client) ... ok
+test_invalid_and_ambiguous_selectors_are_rejected (__main__.CallableMethodTests.test_invalid_and_ambiguous_selectors_are_rejected) ... ok
+test_rust_body_static_export_uses_private_collision_name (__main__.CallableMethodTests.test_rust_body_static_export_uses_private_collision_name) ... ok
+test_static_instance_calls_preserve_aliases_and_cleanup_in_all_modes (__main__.CallableMethodTests.test_static_instance_calls_preserve_aliases_and_cleanup_in_all_modes) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 12.633s
+
+OK

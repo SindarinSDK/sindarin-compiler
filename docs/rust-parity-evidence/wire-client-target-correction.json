@@ -1,0 +1,17 @@
+{
+  "status": "local correction validated; ready for hosted publication",
+  "failed_revision": "002c4edce223bbca440b043584414a51be9285b5",
+  "failed_ci": 38131264045,
+  "failed_job": 114446214224,
+  "cause": "raw Rust ABI client ignored SN_RUSTFLAGS and selected MSVC while its archive used GNU/LLVM-MinGW",
+  "fix": "forward requested Rust flags to raw client; cfg compile-error probe requires forwarding on every host",
+  "local": {
+    "normal_tests": 4,
+    "sanitizer_tests": 4,
+    "source_sealed_mode_cases": 36,
+    "ci_helpers": 22,
+    "configured_cfg_probe": true
+  },
+  "changed_source_sha256": "ef6723f46c3bbdee6eccc561d0bb04488eb017cbdb820ff0c820c94cb078c20d",
+  "scope": "test toolchain correction only; no native string-result or opaque SDK feature changes"
+}

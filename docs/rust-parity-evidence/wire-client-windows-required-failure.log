@@ -1,0 +1,42 @@
+test_invalid_and_ambiguous_selectors_are_rejected (__main__.CallableMethodTests.test_invalid_and_ambiguous_selectors_are_rejected) ... ok
+test_rust_body_static_export_uses_private_collision_name (__main__.CallableMethodTests.test_rust_body_static_export_uses_private_collision_name) ... FAIL
+test_static_instance_calls_preserve_aliases_and_cleanup_in_all_modes (__main__.CallableMethodTests.test_static_instance_calls_preserve_aliases_and_cleanup_in_all_modes) ... ok
+
+======================================================================
+FAIL: test_rust_body_static_export_uses_private_collision_name (__main__.CallableMethodTests.test_rust_body_static_export_uses_private_collision_name)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\a\sindarin-compiler\sindarin-compiler\tests\package\callable_methods.py", line 189, in test_rust_body_static_export_uses_private_collision_name
+    self.assertEqual(built.returncode, 0, built.stderr.decode(errors='replace'))
+AssertionError: 1 != 0 : error: linking with `clang` failed: exit code: 1
+  |
+  = note: "clang" "/NOLOGO" "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\rustcVgv5vX\\symbols.o" "<2 object files omitted>" "<sysroot>\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib/{libstd-*,libpanic_unwind-*,libcfg_if-*,libwindows_targets-*,librustc_demangle-*,libstd_detect-*,libhashbrown-*,librustc_std_workspace_alloc-*,libunwind-*,librustc_std_workspace_core-*,liballoc-*,libcore-*,libcompiler_builtins-*}.rlib" "kernel32.lib" "kernel32.lib" "kernel32.lib" "ntdll.lib" "userenv.lib" "ws2_32.lib" "dbghelp.lib" "/defaultlib:msvcrt" "/NXCOMPAT" "/OUT:C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sn-package-methods-ul3owjv8\\wire-client.exe" "/OPT:REF,NOICF" "/DEBUG" "/PDBALTPATH:%_PDB%" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\intrinsic.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\liballoc.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\libcore.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\libstd.natvis" "--target=x86_64-w64-mingw32" "-fuse-ld=lld" "-rtlib=compiler-rt" "-unwindlib=none" "C:\\Users\\runneradmin\\AppData\\Local\\Temp\\sn-package-methods-ul3owjv8\\.sn\\methods\\built\\f72d26d41f7088ac5a7bd9e5c976a0a8c08ed855da7e087430b727ccc158848b\\b59d4308927c7d461ab03bb440a322f6df48008d90f10f3d8588223f3e1f5d80\\libsn_native_000_9e7422ee0c32.a" "D:\\a\\sindarin-compiler\\sindarin-compiler\\bin\\lib\\clang\\libsn_runtime_min.a" "-lkernel32" "-lntdll" "-luserenv" "-lws2_32" "-ldbghelp" "-lunwind"
+  = note: some arguments are omitted. use `--verbose` to show all linker arguments
+  = note: clang-22: error: no such file or directory: '/NOLOGO'\u240d
+          clang-22: error: no such file or directory: 'kernel32.lib'\u240d
+          clang-22: error: no such file or directory: 'kernel32.lib'\u240d
+          clang-22: error: no such file or directory: 'kernel32.lib'\u240d
+          clang-22: error: no such file or directory: 'ntdll.lib'\u240d
+          clang-22: error: no such file or directory: 'userenv.lib'\u240d
+          clang-22: error: no such file or directory: 'ws2_32.lib'\u240d
+          clang-22: error: no such file or directory: 'dbghelp.lib'\u240d
+          clang-22: error: no such file or directory: '/defaultlib:msvcrt'\u240d
+          clang-22: error: no such file or directory: '/NXCOMPAT'\u240d
+          clang-22: error: no such file or directory: '/OUT:C:\Users\RUNNER~1\AppData\Local\Temp\sn-package-methods-ul3owjv8\wire-client.exe'\u240d
+          clang-22: error: no such file or directory: '/OPT:REF,NOICF'\u240d
+          clang-22: error: no such file or directory: '/DEBUG'\u240d
+          clang-22: error: no such file or directory: '/PDBALTPATH:%_PDB%'\u240d
+          clang-22: error: no such file or directory: '/NATVIS:C:\Users\runneradmin\.rustup\toolchains\1.93.1-x86_64-pc-windows-msvc\lib\rustlib\etc\intrinsic.natvis'\u240d
+          clang-22: error: no such file or directory: '/NATVIS:C:\Users\runneradmin\.rustup\toolchains\1.93.1-x86_64-pc-windows-msvc\lib\rustlib\etc\liballoc.natvis'\u240d
+          clang-22: error: no such file or directory: '/NATVIS:C:\Users\runneradmin\.rustup\toolchains\1.93.1-x86_64-pc-windows-msvc\lib\rustlib\etc\libcore.natvis'\u240d
+          clang-22: error: no such file or directory: '/NATVIS:C:\Users\runneradmin\.rustup\toolchains\1.93.1-x86_64-pc-windows-msvc\lib\rustlib\etc\libstd.natvis'\u240d
+
+
+error: aborting due to 1 previous error
+
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 34.175s
+
+FAILED (failures=1)

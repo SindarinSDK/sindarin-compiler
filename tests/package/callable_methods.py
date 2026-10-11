@@ -9,6 +9,7 @@ import shutil
 import subprocess
 import tempfile
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
 COMPILER = Path(os.environ.get('SN_COMPILER', ROOT / 'bin' / ('sn.exe' if os.name == 'nt' else 'sn'))).resolve()
@@ -177,18 +178,27 @@ class CallableMethodTests(unittest.TestCase):
         self.assertEqual(built.returncode, 0, built.stderr.decode(errors='replace'))
         run = subprocess.run([str(exe)], cwd=self.root, capture_output=True, timeout=15)
         self.assertEqual((run.returncode, run.stdout, run.stderr), (0, b'', b''))
-        self.write('wire-client.rs',
+        rustflags = shlex.split(os.environ.get('SN_RUSTFLAGS', ''))
+        configured_probe = ('sn_wire_client_probe' in rustflags or '--cfg=sn_wire_client_probe' in rustflags)
+        probe = '#[cfg(not(sn_wire_client_probe))] compile_error!("configured Rust client flags were ignored");\n' if configured_probe else ''
+        self.write('wire-client.rs', probe +
             'extern "C" { fn export_Counter_read_static(value:i64)->i64;fn export_exercise()->i64; }\n'
             'fn main() { unsafe { assert_eq!(export_Counter_read_static(2),12);assert_eq!(export_exercise(),15); } }\n')
         rustc = shlex.split(os.environ.get('SN_RUSTC', 'rustc'))
         command = rustc + ['--edition=2021', str(self.root / 'wire-client.rs'), '-C', 'default-linker-libraries=yes',
             '-C', 'linker=' + cc[0], '-o', str(exe)]
+        command += rustflags
         command += [value for flag in cc[1:] + shlex.split(os.environ.get('SN_CFLAGS', '')) for value in ('-C', 'link-arg=' + flag)]
         command += [value for link in links for value in ('-C', 'link-arg=' + link)]
         built = subprocess.run(command, cwd=self.root, capture_output=True, timeout=90)
         self.assertEqual(built.returncode, 0, built.stderr.decode(errors='replace'))
         run = subprocess.run([str(exe)], cwd=self.root, capture_output=True, timeout=15)
         self.assertEqual((run.returncode, run.stdout, run.stderr), (0, b'', b''))
+
+    def test_configured_flags_reach_raw_rust_client(self):
+        configured = os.environ.get('SN_RUSTFLAGS', '') + ' --cfg=sn_wire_client_probe'
+        with patch.dict(os.environ, {'SN_RUSTFLAGS': configured}):
+            self.test_rust_body_static_export_uses_private_collision_name()
 
 
 if __name__ == '__main__':

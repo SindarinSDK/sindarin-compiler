@@ -7,6 +7,25 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Rust wire-client target: required CI correction, 2026-10-11
+
+Selector revision `002c4edc` failed Windows core in CI 38131264045. Its original
+source/sealed method matrix passed; the raw Rust client ignored SN_RUSTFLAGS,
+selected MSVC and sent MSVC library/link options to LLVM-MinGW clang while the
+provider archive used the configured GNU target. The correction forwards those
+flags and registers a cfg compile-error probe, so every host verifies forwarding.
+All four tests pass normally and under strict sanitizers, including the 36-mode
+source/sealed matrix and independent C/Rust ABI clients. CI helpers pass 22 tests.
+[Correction evidence](rust-parity-evidence/wire-client-target-correction.json)
+retains the Windows failure and local scope. Feature publication remains frozen
+until corrected integrated Linux/macOS/Windows CI passes.
+
+SDK `bd210cf` passed all seven jobs in CI 38133341782, including canonical
+Time/Date, all original legacy tests and corrected DTLS lifecycle checks. Its
+calendar and DTLS report counts were inspected for every platform and Linux
+sanitizers. SDK migration is accepted; compiler selector/opaque dependencies
+and the separate native string-array repair still need hosted acceptance.
+
 ## Package static/instance method selection: local validation, 2026-10-11
 
 Package method bindings now accept `method: static` or `method: instance` when
