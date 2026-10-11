@@ -1,0 +1,45 @@
+{
+  "failed_revision": "cbd2fbe956100419eb946bfd97b611566cee5fe7",
+  "failed_ci": 38153082329,
+  "failed_job": 114510716228,
+  "root_cause": "Obsolete test expected RS canonical record/opaque body compilation rejection after implementation added those guards",
+  "current_integrated_base": "fbacb7841799b8074df9635ebf8a43a4212572a3",
+  "correction": "Replace rejection expectation with original independent owned-pointer producer/consumer lifetime protocol; add raw backing aliases for the RS fixture and retain C/RS evidence separately",
+  "production_changes": false,
+  "local_normal_tests": 8,
+  "local_sanitizer_tests": 8,
+  "ci_helpers": 22,
+  "coverage_gates": 373,
+  "groups": 26,
+  "reports": {
+    "package-opaque-results-rs.json": {
+      "passed": true,
+      "cases": 36,
+      "sha256": "54cff07900a0318c9ed700422a76c5bcf474ea88ed8e70c237e29cb1333fac8c"
+    },
+    "package-opaque-results-c-sanitized.json": {
+      "passed": true,
+      "cases": 36,
+      "sha256": "54cff07900a0318c9ed700422a76c5bcf474ea88ed8e70c237e29cb1333fac8c"
+    },
+    "package-opaque-results-rs-sanitized.json": {
+      "passed": true,
+      "cases": 36,
+      "sha256": "54cff07900a0318c9ed700422a76c5bcf474ea88ed8e70c237e29cb1333fac8c"
+    },
+    "package-opaque-results-c.json": {
+      "passed": true,
+      "cases": 36,
+      "sha256": "54cff07900a0318c9ed700422a76c5bcf474ea88ed8e70c237e29cb1333fac8c"
+    }
+  },
+  "logs": {
+    "sindarin-opaque-body-correction-full-normal.log": "25432dea5857f29d8952d0951ec8a292f525dd2f2a8944bec9430b6c6fa70a5c",
+    "sindarin-opaque-body-correction-full-san.log": "0f72cc5c545876f6e1d81b27c246243120f25a4fc7e500fed452a3231439c3fb",
+    "sindarin-opaque-body-correction-reports-normal.log": "1c8e6733a7c4fa3dca1daeac82e1b4795050757ed4ffb9ac1dad4c555a1edd5f",
+    "sindarin-opaque-body-correction-reports-san.log": "05d6e98621bdceebb1cfd7d72d3cd6275fa94c8756da7785e44ae16325da2d07",
+    "sindarin-opaque-body-correction-helpers.log": "e9abc23d07de3e41f231da6cefaaf43ac6985f77456e300c9f494048edaeead3"
+  },
+  "failure_log_sha256": "7ddedfab51604f52cce9117d27e504215db665ceb09a32cf4852f650cfcfc965",
+  "status": "Local correction validated; required hosted correction pending"
+}

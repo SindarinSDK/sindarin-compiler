@@ -82,7 +82,10 @@ class OpaqueResultTests(fixtures.CallableMethodTests):
                             expected = expected.replace(b'\n', b'\r\n')
                         self.assertEqual((run.returncode, run.stdout, run.stderr), (0, expected, b''))
                         cases.append({'artifact': artifact, 'target': target, 'opt': opt, 'mode': mode, 'passed': True})
-        output = ROOT / '.sn/package-opaque-results.json'
+        runtime = 'rs' if 'runtime: RS' in self.manifest else 'c'
+        sanitized = '-sanitized' if 'sanitize=' in os.environ.get('SN_CFLAGS', '') else ''
+        output = ROOT / f'.sn/package-opaque-results-{runtime}{sanitized}.json'
+        output.parent.mkdir(exist_ok=True)
         output.write_text(json.dumps({'passed': True, 'cases': cases}, indent=2) + '\n')
 
     def test_missing_wrong_and_nonowned_pointer_contracts_are_rejected(self):
@@ -129,13 +132,18 @@ class OpaqueResultTests(fixtures.CallableMethodTests):
         run = subprocess.run([str(exe)],cwd=self.root,capture_output=True,timeout=15)
         self.assertEqual((run.returncode,run.stdout,run.stderr),(0,b'',b''))
 
-    def test_rust_resource_body_requires_explicit_resource_guards(self):
-        self.write('.sn/methods/sn.yaml', self.manifest.replace('runtime: C', 'runtime: RS'))
-        result = subprocess.run([str(COMPILER), '--build-native', str(self.package/'sn.yaml'),
-            '-o', str(self.package/'rejected')], cwd=self.root, capture_output=True, timeout=90)
-        self.assertNotEqual(result.returncode, 0)
-        self.assertIn(b'RS canonical record/opaque body exports require resource input/result guards', result.stderr)
-        self.assertFalse(any((self.package/'rejected').rglob('assembly.json')))
+    def test_rust_resource_body_preserves_owned_opaque_lifetimes(self):
+        self.manifest = self.manifest.replace('runtime: C', 'runtime: RS')
+        api = self.package / 'src/api.sn'
+        api.write_text(api.read_text().replace('native fn destroyed():', '@alias "destroyed_original"\nnative fn destroyed():')
+            .replace('native fn checkedEmpty(', '@alias "checked_empty_original"\nnative fn checkedEmpty('))
+        source = self.package / 'src/counter.c'
+        source.write_text(source.read_text() + 'long long destroyed_original(void) { return destroyed_count(); }\n'
+            'void *checked_empty_original(long long mode) { void *value=NULL;uint32_t status=checked_empty(mode,&value);if(status) { counter_release(value);abort(); }return value; }\n')
+        self.write('.sn/methods/sn.yaml', self.manifest)
+        # Reuse the independent pointer-consumption protocol: the producer
+        # dies before the returned pointer is read and explicitly released.
+        self.test_owned_pointer_survives_source_owner_and_transfers_to_caller_cleanup()
 
 
 if __name__ == '__main__':

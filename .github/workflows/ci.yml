@@ -176,6 +176,7 @@ jobs:
           .sn/rust-runtime-diagnostics/
           .sn/rust-parity-*.json
           .sn/*-lifetimes.json
+          .sn/package-opaque-results*.json
           .sn/static-callback-ownership.json
           .sn/record-reference-snapshots.json
           .sn/sdk-time-date-artifact.json

@@ -56,6 +56,19 @@ include 72 normal and 72 sanitizer archive cases, all 3,242 C and 1,097 Rust
 checks, 50 imports, 22 artifact checks and 22 CI helpers, plus retained Rust/Go
 record wire clients after the merge. Full goal completion remains unproven.
 
+## Opaque Rust body acceptance correction, 2026-10-11
+
+Record revision `cbd2fbe9` failed its required Linux sanitizer job because an
+old test still demanded rejection of canonical Rust record/opaque body exports.
+The corrected test applies the independent producer/consumer lifetime protocol
+to Rust bodies: the producer is destroyed before pointer consumption; nil and
+exact final cleanup must match C. Raw backing aliases preserve native declaration
+signatures in the generated fixture. All eight opaque tests pass normally and
+under sanitizers; four separate reports each retain 36 source/sealed mode cases
+for C/RS body runtimes and normal/sanitized execution. All 22 helpers pass with
+373 gates in 26 groups. No production source changes are needed. Feature
+publication stays frozen until the one integrated correction is fully green.
+
 ## UUID SDK artifacts: integrated validation and publication, 2026-10-11
 
 The compiler's thirteen-module SDK stage now uses accepted SDK `840f5ba`,
