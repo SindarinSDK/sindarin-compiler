@@ -56,6 +56,21 @@ include 72 normal and 72 sanitizer archive cases, all 3,242 C and 1,097 Rust
 checks, 50 imports, 22 artifact checks and 22 CI helpers, plus retained Rust/Go
 record wire clients after the merge. Full goal completion remains unproven.
 
+## Canonical copies: current-main local integration, 2026-10-11
+
+The declared canonical C copy capability is integrated locally on correction
+`757d9d0c`, preserving all thirteen SDK modules and both UUID/Random gate sets.
+The resulting inventory is 377 gates in 26 groups, verified by 22 CI helpers.
+Complete C/Rust suites pass 3,242/1,097 with zero failures/skips; package imports
+and artifact tests pass 50/22. Source/sealed copy controls plus accepted SDK UUID
+pass 54 cases normally and 54 with strict sanitizers. The full SDK stage passes
+540 original caller/stdin cases. The corrected eight opaque tests, existing
+72-case record bodies/rebinding controls and UUID 20 native plus actual-runtime
+sanitizer probe also pass. Publication remains held until corrected main has
+complete required hosted acceptance. Exported parameter qualifiers, callbacks,
+wider contracts, whole SDK and final corpus/platform proof remain required.
+Evidence: [canonical-record-copy-integrated-validation.json](rust-parity-evidence/canonical-record-copy-integrated-validation.json).
+
 ## Current hosted queue, 2026-10-11
 
 Compiler record ownership revision `cbd2fbe9` awaits CI 38153082329; compiler
