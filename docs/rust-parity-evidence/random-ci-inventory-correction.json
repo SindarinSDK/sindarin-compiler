@@ -1,0 +1,25 @@
+{
+  "failed_revision": "16fa5387ad8e175f7f96ee690ccaa5c8bbe16007",
+  "failed_ci": 38148345944,
+  "root_cause": "Coverage helper asserted 345 gates after eight Random platform gates expanded the catalog to 353",
+  "platforms": [
+    "Linux",
+    "macOS",
+    "Windows"
+  ],
+  "downstream": "Test jobs cannot download compiler bundles because build-stage helper failure prevents bundle upload",
+  "correction": "Retain the fixed 353-gate inventory assertion and verify each Random command, group, platform and sanitizer configuration",
+  "local_validation": {
+    "helpers_passed": 22,
+    "required_gates": 353,
+    "groups": 26
+  },
+  "status": "Local correction validated; hosted correction pending",
+  "logs": {
+    "sindarin-random-ci-build-linux-failure.log": "f4082ceeaa145f213faf13436342ea7fdb7539f6e346e536582e6870f13f338a",
+    "sindarin-random-ci-build-windows-failure.log": "0607c5ec46c1d45b0a5c2861d374baf527bdb5e82a4afcd34563dc6956f8d6c9",
+    "sindarin-random-ci-build-macos-failure.log": "e0173c918664a2f807f3d3f75bb64359eb71359f0fe7746ab4629dc43ec617fd",
+    "sindarin-random-ci-dependent-failure.log": "f92288213b2e960a422ee08217c2194d312f106ff4a5233eaa206ddcceb11f83",
+    "sindarin-random-ci-inventory-correction.log": "63615e1ab7cd9c0b8693bce3967b8179c572db4c5db91c46ffbf900465c8234b"
+  }
+}

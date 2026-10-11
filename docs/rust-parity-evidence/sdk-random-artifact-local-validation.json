@@ -1,5 +1,5 @@
 {
-  "status": "Integrated local validation passed against accepted SDK; unpublished",
+  "status": "Behavioral matrices validated; initial hosted build failed inventory helper; corrected helper rerun passes locally",
   "base": "c603d967f3ae539eaabd57125d85e727414bb510",
   "sdk_local_revision": "d829ebeae36ef0a0b684191d2150f2fb964ea509",
   "normal_cases": 72,
@@ -634,5 +634,6 @@
     "sindarin-sdk-random-integrated-native-san.log": "1304fd785f2428e96ec603d4685bfaecc3d5f54779a28fe64acf44e6b675523e"
   },
   "registered_gates": 353,
-  "registered_groups": 26
+  "registered_groups": 26,
+  "ci_helper_correction_log_sha256": "63615e1ab7cd9c0b8693bce3967b8179c572db4c5db91c46ffbf900465c8234b"
 }

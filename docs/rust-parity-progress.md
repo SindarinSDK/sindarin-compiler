@@ -56,6 +56,18 @@ include 72 normal and 72 sanitizer archive cases, all 3,242 C and 1,097 Rust
 checks, 50 imports, 22 artifact checks and 22 CI helpers, plus retained Rust/Go
 record wire clients after the merge. Full goal completion remains unproven.
 
+## Random CI inventory correction, 2026-10-11
+
+Random compiler revision `16fa5387` failed build-stage CI helper checks on all
+three hosts: the catalog grew from 345 to 353 gates while the coverage assertion
+still required 345. Downstream test jobs then lacked compiler bundles. Local
+helper failures were initially masked by a trailing successful command; this
+is not accepted validation. The corrected assertion retains the exact 353-gate
+inventory and explicitly verifies all four Random gate definitions, platform
+groups and sanitizer commands. All 22 helpers now pass with a directly checked
+exit status. One correction batch will await full integrated hosted acceptance;
+feature publication remains frozen until that required validation succeeds.
+
 ## Random SDK artifacts: integrated local validation, 2026-10-11
 
 Accepted SDK revision `d829ebe` passed all seven platform CI jobs, retaining

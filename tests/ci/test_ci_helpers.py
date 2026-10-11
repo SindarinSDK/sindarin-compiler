@@ -97,7 +97,22 @@ class CoverageTests(unittest.TestCase):
         self.collect()
         report = json.loads((self.output / 'summary.json').read_text())
         self.assertEqual(report['groups'], 26)
-        self.assertEqual(report['gates'], 345)
+        self.assertEqual(report['gates'], 353)
+        for name in ('artifacts', 'native'):
+            for sanitized in (False, True):
+                identity = 'sdk-random-' + name + ('-sanitizers' if sanitized else '')
+                matches = [gate for gate in self.catalog['gates'] if gate['id'] == identity]
+                self.assertEqual(len(matches), 1, identity)
+                gate = matches[0]
+                self.assertEqual(gate['group'], 'sanitizers' if sanitized else 'core')
+                self.assertEqual(gate['linux_only'], sanitized)
+                expected = (['{python}', 'scripts/check_sdk_random_artifact.py'] if name == 'artifacts'
+                            else ['{python}', 'scripts/check_sdk_native.py', 'random'])
+                if sanitized and name == 'native':
+                    expected.append('--sanitize')
+                self.assertEqual(gate['command'], expected)
+                if sanitized:
+                    self.assertIn('-fsanitize=address,undefined', gate['env']['SN_CFLAGS'])
         entries = [g for g in self.catalog['gates'] if g['id'] == 'native-entrypoints']
         self.assertEqual(len(entries), 1)
         self.assertEqual(entries[0]['group'], 'native')
