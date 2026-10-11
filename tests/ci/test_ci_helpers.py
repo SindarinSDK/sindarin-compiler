@@ -97,7 +97,7 @@ class CoverageTests(unittest.TestCase):
         self.collect()
         report = json.loads((self.output / 'summary.json').read_text())
         self.assertEqual(report['groups'], 26)
-        self.assertEqual(report['gates'], 381)
+        self.assertEqual(report['gates'], 405)
         for name in ('artifacts', 'native'):
             for sanitized in (False, True):
                 identity = 'sdk-random-' + name + ('-sanitizers' if sanitized else '')
@@ -158,7 +158,11 @@ class CoverageTests(unittest.TestCase):
         self.assertEqual(sdk[0]['group'], 'core')
         self.assertFalse(sdk[0]['linux_only'])
 
-        for ident in ('sdk-time-date-artifacts', 'sdk-time-date-native', 'sdk-dtls-lifecycle'):
+        for ident in ('sdk-time-date-artifacts', 'sdk-time-date-native', 'sdk-dtls-lifecycle',
+                      'canonical-record-copy', 'sdk-record-copies',
+                      'sdk-stringbuilder-artifacts', 'sdk-stringbuilder-native',
+                      'sdk-process-artifacts', 'sdk-process-native',
+                      'sdk-json-artifacts', 'sdk-json-native'):
             entry = [g for g in self.catalog['gates'] if g['id'] == ident]
             self.assertEqual(len(entry), 1)
             self.assertEqual(entry[0]['group'], 'core')

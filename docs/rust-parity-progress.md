@@ -7,10 +7,62 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
-Publication state: `16353208` awaits CI 38140919031 and independent native search
-`4211bf0f` awaits CI 38141605740. Both runs are live; no failures have been
-reported. Two publication slots are occupied. SDK `a70d43e`, compiler Stdio
-`93dea079` and string-array `cf6f54f8` have complete hosted acceptance.
+Current publication state (2026-10-11): correction `757d9d0c` passed all 34 jobs
+in CI 38154653308. Retained coverage verifies 373 gates/26 groups and one exact
+compiler hash on each of Linux/macOS/Windows. Integrated record ownership, UUID
+artifacts and the opaque-body correction are accepted. The publication freeze
+is lifted; older failed revisions receive no acceptance credit.
+
+SDK correction `2152da2` passed all seven jobs in CI 38161748979. Retained
+Linux/macOS/Windows reports each verify 60 native/original resource cases;
+Linux also verifies three actual-runtime sanitizer probes. The archive and
+original-caller search-path failures are corrected. Feature publication is unfrozen;
+no required outstanding run currently fails.
+
+The compiler integrates all three resource stages and the canonical copy work
+locally with that exact accepted SDK pin. Sixteen SDK modules/32 C-Sindarin units
+pass 648 original caller/stdin cases. Focused artifacts pass 216 normal/216
+sanitizer cases, SDK copies 108/108, canonical contracts 54/54, full C/Rust suites
+3,242/1,097, imports/artifacts 50/22 and all 23 helpers. The inventory is 405 gates
+in 26 groups, with every old and new SDK gate required explicitly. json-c now
+stages into compiler bundles on all platforms; actual CMake branch tests verify
+that copy without cross-compilation. This integration requires its own complete
+hosted compiler acceptance. Whole SDK, remaining contracts and final goal proof
+remain required.
+
+Locally held work now includes integrated copy checkpoint `f1817852` (complete
+3,242 C/1,097 Rust, 54 normal/54 sanitizer copy cases, 50 imports, 22 artifacts,
+540 SDK cases, 377 CI gates), SDK StringBuilder `982ff8f`, SDK Process `4bc9d72`
+and SDK Json `a25bc8f`. Process repairs a reproduced POSIX dual-pipe deadlock;
+Json retains all 42 C operation bodies and verifies independent deep copies,
+children surviving parent cleanup and final native destruction. Both SDK
+modules pass 20 native/original mode cases, an actual-runtime sanitizer probe,
+28 legacy SDK tests and seven helper tests. Compiler artifact checkpoints stay
+opt-in until their exact SDK dependencies have hosted acceptance. Full goal
+completion, whole SDK contracts and final corpus/platform proof remain required.
+
+Canonical copyOf checkpoint `0d2eb4f3` is locally committed. It preserves owned
+temporary cleanup, exactly eleven record destructions, function-value credit
+counts and original Json nil semantics, including literal nil through direct,
+indirect, static and instance calls. All 108 SDK cases and 54 canonical contract
+cases pass normally and with sanitizers; full C/Rust suites, imports, artifacts
+and helpers pass 3,242/1,097/50/22/22. Nine accepted-compiler legacy C modes retain
+an independent nil oracle. It depends on published SDK `5e1c319`, still awaiting
+CI 38160258824. Package exported qualifiers, callbacks, broader contracts, whole
+SDK and final original corpus/platform proof remain required.
+
+Latest local checkpoints: combined SDK `ec00844` brings StringBuilder, Process
+and Json into one validated resource batch. It passes 60 native/original cases,
+three sanitizer probes, 28 legacy tests and seven helpers with all 87 public
+Sindarin/oracle files unchanged. Compiler checkpoint `34fa9ae4` on
+`development/sdk-record-copy-controls` passes 108 normal/108 sanitizer SDK copy
+cases, 54 normal/54 sanitizer canonical contract cases, 3,242 C/1,097 Rust checks,
+50 imports, 22 artifacts and 22 helpers (381 gates/26 groups). It repairs C copy
+helper/public method name collisions and Rust managed native field parameters.
+Both checkpoints remain unpublished; the compiler dependency requires combined
+SDK hosted acceptance and an exact pin. Canonical Rust `copyOf()`, package-exported
+qualifiers, callbacks, wider contracts, whole SDK and final corpus/platform proof
+remain required work.
 
 Canonical Random module work is locally committed as SDK `de5bb6f`. It preserves
 all public declarations and original C operation bodies while adding canonical

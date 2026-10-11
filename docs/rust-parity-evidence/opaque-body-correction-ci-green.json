@@ -1,0 +1,30 @@
+{
+  "revision": "757d9d0cc449cfd71ea1f63fadd69bded785d2ab",
+  "CI": 38154653308,
+  "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38154653308",
+  "status": "Complete required integrated compiler CI accepted; obsolete opaque-body rejection corrected",
+  "successful_jobs": 34,
+  "coverage": {
+    "revision": "757d9d0cc449cfd71ea1f63fadd69bded785d2ab",
+    "groups": 26,
+    "gates": 373,
+    "compilers": {
+      "Linux": "3fd13a2d2e38e0d509b8d6116e4dbd9b07cfc884f846575db915d93002d22add",
+      "Darwin": "0f19adf5f7724277f53863b971d522f5fba056141185c866f78120bf249932db",
+      "Windows": "6a0c4ae47fe7b87ff2e3f435dbb23cdcb9648b187c1942b8f31b3e96fe4ed672"
+    },
+    "passed": true
+  },
+  "coverage_summary_sha256": "988ccae824dbaae54963b38fcab850b75dbb1168dc35db68bf2cf0d78ff03d90",
+  "run_report_sha256": "0e43ced24a06c44e06097fa975650c37cebe36e913e3b4f1aa270de33c6f9e58",
+  "accepted_integrated_features": [
+    "Rust canonical record body ownership and parameter rebinding",
+    "UUID SDK source/sealed artifact integration",
+    "Positive C/RS opaque body lifetime tests with original independent producer/consumer oracle"
+  ],
+  "older_runs_not_accepted": {
+    "record": 38153082329,
+    "UUID_artifacts": 38154180258
+  },
+  "scope": "Integrated correction acceptance; whole SDK, remaining contracts and final 1365-source platform/mode proof remain required"
+}

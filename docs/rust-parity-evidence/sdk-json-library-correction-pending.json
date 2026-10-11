@@ -1,0 +1,29 @@
+{
+  "failed_revision": "5e1c3195c0460cf2a49896c638dae13efbeab8b9",
+  "failed_ci": 38160258824,
+  "failed_jobs": {
+    "Darwin": 114531490438,
+    "Windows": 114531490542
+  },
+  "root_cause": "Checker assumed json-c static archive staging used only by Linux; accepted compiler project dependency tree supplies archive on macOS and Windows",
+  "correction_revision": "2152da20d283dae9a4b31d2551f001b6b2c43904",
+  "correction_ci": 38161748979,
+  "correction_url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38161748979",
+  "local_native_cases": 20,
+  "local_actual_runtime_sanitizer_cases": 1,
+  "local_helpers": 10,
+  "status": "Full corrected SDK hosted acceptance: seven jobs and all native/caller reports",
+  "compiler_correction_accepted": "757d9d0cc449cfd71ea1f63fadd69bded785d2ab",
+  "remaining": [
+    "Corrected SDK complete hosted acceptance",
+    "Compiler Json library staging on macOS/Windows for independent SDK artifacts",
+    "Integrated exact SDK pin, artifacts and copy contracts",
+    "Full original goal scope"
+  ],
+  "previous_correction_revision": "ae160d3e3ec1701ee4c669ffbc64da8bac060168",
+  "previous_correction_ci": 38160904647,
+  "previous_correction_result": "Five jobs passed; both platform native jobs then failed compiling unchanged Json callers because their temporary apps lacked the json-c search path",
+  "complete_fix": "Resolve installed compiler platform archive and add its parent through existing SN_LDFLAGS for unchanged C/Rust caller compilation",
+  "missing_staged_archive_regression": "Actual accepted compiler with no staged json-c and paths containing spaces: old checker fails; corrected four quick C/Rust/native cases pass",
+  "hosted_acceptance": "sdk-resources-correction-ci-green.json"
+}

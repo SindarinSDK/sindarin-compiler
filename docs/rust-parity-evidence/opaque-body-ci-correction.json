@@ -41,5 +41,102 @@
     "sindarin-opaque-body-correction-helpers.log": "e9abc23d07de3e41f231da6cefaaf43ac6985f77456e300c9f494048edaeead3"
   },
   "failure_log_sha256": "7ddedfab51604f52cce9117d27e504215db665ceb09a32cf4852f650cfcfc965",
-  "status": "Local correction validated; required hosted correction pending"
+  "status": "Complete hosted correction acceptance: all 34 jobs, 373 gates/26 groups, Linux/macOS/Windows",
+  "published_revision": "757d9d0cc449cfd71ea1f63fadd69bded785d2ab",
+  "correction_ci": 38154653308,
+  "failed_record_run_final_status": "failure",
+  "failed_record_core_jobs": {
+    "Linux": 114510716167,
+    "Windows": 114510716240,
+    "Darwin": 114510716349
+  },
+  "failed_record_core_log_sha256": {
+    "Linux": "1e61d65c7730751c253e663884afea4e38b0239ed10576d5f0170f6277930ec2",
+    "Windows": "ca03e0255f72a9569fccf2b1926e5b98d26cefdaf4f95f5b9bb534f1c5d6fa03",
+    "Darwin": "ab68fe932660133e31042a89024420cc7a5047a25a3a360fef7c401d8d65a80e"
+  },
+  "failed_record_core_root_cause": "Each platform core job failed only the same obsolete Rust opaque body rejection assertion; covered by published correction",
+  "failed_UUID_sanitizer_job": 114513986099,
+  "failed_UUID_root_cause": "Same obsolete Rust opaque body rejection assertion; covered by published correction",
+  "correction_ci_latest_observation": {
+    "passed_jobs": 34,
+    "failed_jobs": 0,
+    "pending": null
+  },
+  "hosted_Linux_sanitizer_job": {
+    "job": 114516702241,
+    "status": "success; full required run acceptance still pending",
+    "reports": {
+      "package-opaque-results-c-sanitized.json": {
+        "passed": true,
+        "cases": 36,
+        "sha256": "54cff07900a0318c9ed700422a76c5bcf474ea88ed8e70c237e29cb1333fac8c"
+      },
+      "package-opaque-results-rs-sanitized.json": {
+        "passed": true,
+        "cases": 36,
+        "sha256": "54cff07900a0318c9ed700422a76c5bcf474ea88ed8e70c237e29cb1333fac8c"
+      }
+    },
+    "opaque_test_log_sha256": "b634714b998ac4fc2dc042f2b9b5216953df1b1db51b36094e12b8ab747042f3",
+    "revision": "757d9d0cc449cfd71ea1f63fadd69bded785d2ab",
+    "compiler_sha256": "3fd13a2d2e38e0d509b8d6116e4dbd9b07cfc884f846575db915d93002d22add",
+    "gate_count": 44,
+    "gate_report_sha256": "071693089e5205a53364bc9f30c95d8b2e386db4de764fb091b90f729d3966c9"
+  },
+  "failed_UUID_core_jobs": {
+    "Linux": {
+      "job": 114513986198,
+      "root_cause": "Same obsolete Rust opaque body rejection assertion; covered by published correction",
+      "log_sha256": "fa0df0a9941b2dc4e005e4097aba90dbbc6fb0a8d7a2414916eb521a1cb773e6"
+    },
+    "Windows": {
+      "job": 114513986193,
+      "root_cause": "Same obsolete Rust opaque body rejection assertion; covered by published correction",
+      "log_sha256": "7b14e35f16f7f27d1939da58981505f39f376f3976d2485f8a215140e8bada7b"
+    },
+    "Darwin": {
+      "job": 114513986291,
+      "root_cause": "Same obsolete Rust opaque body rejection assertion; covered by published correction",
+      "log_sha256": "6d4f398b7072fac4fdf94ec922eef42df584366af096e2871f0b0712988dce37"
+    }
+  },
+  "hosted_Linux_core_job": {
+    "job": 114516702192,
+    "status": "success; full required run acceptance pending",
+    "revision": "757d9d0cc449cfd71ea1f63fadd69bded785d2ab",
+    "compiler_sha256": "3fd13a2d2e38e0d509b8d6116e4dbd9b07cfc884f846575db915d93002d22add",
+    "gate_count": 32,
+    "gate_report_sha256": "525369e4942a701b00badda3f205b71e3579f2b8dce227aee382278b69492af5",
+    "reports": {
+      "package-opaque-results-rs.json": {
+        "passed": true,
+        "cases": 36,
+        "sha256": "54cff07900a0318c9ed700422a76c5bcf474ea88ed8e70c237e29cb1333fac8c"
+      },
+      "package-opaque-results-c.json": {
+        "passed": true,
+        "cases": 36,
+        "sha256": "54cff07900a0318c9ed700422a76c5bcf474ea88ed8e70c237e29cb1333fac8c"
+      }
+    }
+  },
+  "failed_UUID_run_final_status": "failure",
+  "hosted_macos_core_job": {
+    "job": 114516702349,
+    "status": "success; Windows core and full aggregate acceptance pending",
+    "revision": "757d9d0cc449cfd71ea1f63fadd69bded785d2ab",
+    "compiler_sha256": "0f19adf5f7724277f53863b971d522f5fba056141185c866f78120bf249932db",
+    "gate_count": 32,
+    "gate_report_sha256": "662cf0af48406bfc130cc1dbf61895bf1ba08e42b6f3c2f70302eded6e84d374"
+  },
+  "hosted_acceptance": "opaque-body-correction-ci-green.json",
+  "hosted_Windows_core_job": {
+    "job": 114516702316,
+    "status": "success",
+    "revision": "757d9d0cc449cfd71ea1f63fadd69bded785d2ab",
+    "compiler_sha256": "6a0c4ae47fe7b87ff2e3f435dbb23cdcb9648b187c1942b8f31b3e96fe4ed672",
+    "gate_count": 32,
+    "gate_report_sha256": "de92ee9d1b1703c2712bfe5c6f20c3a476a6fe28c665cebb9438de96e50b33a5"
+  }
 }

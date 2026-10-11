@@ -1,0 +1,87 @@
+{
+  "revision": "2152da20d283dae9a4b31d2551f001b6b2c43904",
+  "CI": 38161748979,
+  "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38161748979",
+  "successful_jobs": 7,
+  "status": "Complete SDK platform acceptance after archive and original-caller search-path correction",
+  "reports": {
+    "time-date-native-macos-latest/stringbuilder-native.json": {
+      "platform": "Darwin",
+      "cases": 20,
+      "sha256": "e21b22d327511d904ec94a39f7621eff4bb58bd652b47a748c38ae266466c2c4",
+      "compiler_sha256": "f8fe7496d5756127bc5250c65b0ac350e05afeb707426782141ad3d0d2df5099"
+    },
+    "time-date-native-macos-latest/process-native.json": {
+      "platform": "Darwin",
+      "cases": 20,
+      "sha256": "ca47d4613d634272009f6a389660b4ffb84ec3ac2c99633b4519157ae2aaf4c8",
+      "compiler_sha256": "f8fe7496d5756127bc5250c65b0ac350e05afeb707426782141ad3d0d2df5099"
+    },
+    "time-date-native-macos-latest/json-native.json": {
+      "platform": "Darwin",
+      "cases": 20,
+      "sha256": "8aff688ca3e60fcae5e53d96341322467698f3f2d997e483880f8986eddbc6ac",
+      "compiler_sha256": "f8fe7496d5756127bc5250c65b0ac350e05afeb707426782141ad3d0d2df5099"
+    },
+    "time-date-native-windows-latest/stringbuilder-native.json": {
+      "platform": "Windows",
+      "cases": 20,
+      "sha256": "bccba36816c4efd374405c3c46665e4bc02285152f469880b1e66af9941c54da",
+      "compiler_sha256": "c68bb2411dc709c345f8b55924b3b933f96ff1acb5d5b7307f3449e59045dba7"
+    },
+    "time-date-native-windows-latest/process-native.json": {
+      "platform": "Windows",
+      "cases": 20,
+      "sha256": "36aed2346d04c295e160a76c05b21f53204e4e0d2a0246f8dad92e75ff67f7db",
+      "compiler_sha256": "c68bb2411dc709c345f8b55924b3b933f96ff1acb5d5b7307f3449e59045dba7"
+    },
+    "time-date-native-windows-latest/json-native.json": {
+      "platform": "Windows",
+      "cases": 20,
+      "sha256": "1b39cc2c6bcfadd3d7ebcf8b6c7c1cad4f605cec372bebe243f37d1fb130c0c5",
+      "compiler_sha256": "c68bb2411dc709c345f8b55924b3b933f96ff1acb5d5b7307f3449e59045dba7"
+    },
+    "time-date-native-ubuntu-latest/stringbuilder-native.json": {
+      "platform": "Linux",
+      "cases": 20,
+      "sha256": "77edb25af429d836cdc2783280fd9f13cc7a9fc25864c2bcefe35eaa36eb499b",
+      "compiler_sha256": "d677e74f84aa797c790ed6e6e213047262491c3cb5a9e4f6515cad82e0ca4684"
+    },
+    "time-date-native-ubuntu-latest/process-native.json": {
+      "platform": "Linux",
+      "cases": 20,
+      "sha256": "cf4ac2a36e8af690ff1fc50ebde1cf2083be3a63ab113c94ba38f410ceaa865a",
+      "compiler_sha256": "d677e74f84aa797c790ed6e6e213047262491c3cb5a9e4f6515cad82e0ca4684"
+    },
+    "time-date-native-ubuntu-latest/process-sanitizers.json": {
+      "platform": "Linux",
+      "cases": 1,
+      "sha256": "2bfb46eeaeb9c6ee1725c88d5d91a43f85902c3ab6dfd82ed5154e75ef9db74b",
+      "compiler_sha256": "d677e74f84aa797c790ed6e6e213047262491c3cb5a9e4f6515cad82e0ca4684"
+    },
+    "time-date-native-ubuntu-latest/stringbuilder-sanitizers.json": {
+      "platform": "Linux",
+      "cases": 1,
+      "sha256": "52688eab54e3b4595b963cdc4e8deba7530bed19f65ee139b139d6f6d9a84a03",
+      "compiler_sha256": "d677e74f84aa797c790ed6e6e213047262491c3cb5a9e4f6515cad82e0ca4684"
+    },
+    "time-date-native-ubuntu-latest/json-sanitizers.json": {
+      "platform": "Linux",
+      "cases": 1,
+      "sha256": "06abdee971e1e8cfc3b46d95dfd8da61baa0a6d85c4701ece5180cda61e25bba",
+      "compiler_sha256": "d677e74f84aa797c790ed6e6e213047262491c3cb5a9e4f6515cad82e0ca4684"
+    },
+    "time-date-native-ubuntu-latest/json-native.json": {
+      "platform": "Linux",
+      "cases": 20,
+      "sha256": "9201fa094957271e0253b08727794f8c82352e322bbad22cde5f83562080de06",
+      "compiler_sha256": "d677e74f84aa797c790ed6e6e213047262491c3cb5a9e4f6515cad82e0ca4684"
+    }
+  },
+  "run_report_sha256": "14b153d4b205d4fc70dbed7d88a1e9fc250f145de34490215474c81fcb17ad44",
+  "older_failed_runs": [
+    38160258824,
+    38160904647
+  ],
+  "scope": "Canonical StringBuilder Process and Json with existing SDK resources accepted; wider SDK and full Rust completion goal remain required"
+}
