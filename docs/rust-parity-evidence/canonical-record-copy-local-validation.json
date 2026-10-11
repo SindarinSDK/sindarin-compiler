@@ -1,5 +1,5 @@
 {
-  "status": "Local copy capability validated; unpublished; broader imports and dependency hosted acceptance pending",
+  "status": "Local copy capability and package imports validated; unpublished; dependency hosted acceptance pending",
   "base": "dd76765e",
   "accepted_SDK_UUID": "840f5ba6aac34018659542458c3f5894cc9b9e57",
   "source_sealed_mode_cases": 36,
@@ -26,7 +26,6 @@
     "accepted SDK UUID language as-val snapshot keeps original fields"
   ],
   "remaining": [
-    "broader import suite completion",
     "record ownership dependency hosted acceptance",
     "integrated final main and this capability hosted acceptance",
     "package-exported ownership qualifiers and callbacks",
@@ -41,6 +40,8 @@
     "sindarin-record-copy-full-c.log": "139f7aa684024d41fc047dc96aca3ec2533559fb6b4a6cf84c7a331619ecf866",
     "sindarin-record-copy-full-rust.log": "80aee587c52f419b16044994084c84d71a20035987f4fd64aaf8ed60d20f56a9",
     "sindarin-record-copy-artifacts.log": "60f0165e6effad11f62cc9b67da3afd7d0a319512b42924eec909ad28eb53b44",
-    "sindarin-record-copy-final-helpers.log": "f03dc22b65593b91ca9ad890d8e715816a263cff1fa35dafefc887046490418b"
-  }
+    "sindarin-record-copy-final-helpers.log": "f03dc22b65593b91ca9ad890d8e715816a263cff1fa35dafefc887046490418b",
+    "sindarin-record-copy-imports.log": "f75d2e7e6347dfb1641ce67af35357c68333aaf6c193bcc70d57651e6f5aba4c"
+  },
+  "package_imports": 50
 }
