@@ -145,11 +145,20 @@ class NativeArtifactTests(unittest.TestCase):
 
     def test_rust_package_source_bundle_emits_support_without_a_toolchain_or_main(self):
         self.write('src/library.sn','fn change(values: str[]): str[] =>\n  return values\n')
+        # Compilation must not synchronize packages in either the CI checkout
+        # or this fixture: .sn also holds reports and the pinned SDK checkout.
+        preserved = {
+            '.sn/ci-reports/core/results.json': '{"previous_gate": "passed"}\n',
+            '.sn/sdk-native-integration/pinned-revision': 'sdk-checkout\n',
+            '.sn/toolchains/llvm-mingw/lib/libunwind.a': 'cached-toolchain\n',
+        }
+        for path, content in preserved.items():
+            self.write(path, content)
         folder=self.root/'source bundle'
-        args=[str(COMPILER),str(self.root/'src/library.sn'),'--target','rust','--package-body',
+        args=[str(COMPILER),str(self.root/'src/library.sn'),'--no-install','--target','rust','--package-body',
               '--package-native-arrays','--package-native-namespace','example_library','--emit-source-bundle','-o',str(folder)]
         env=dict(os.environ,SN_RUSTC=str(self.root/'missing-rustc'))
-        result=subprocess.run(args,env=env,capture_output=True,timeout=30)
+        result=subprocess.run(args,cwd=self.root,env=env,capture_output=True,timeout=30)
         self.assertEqual(result.returncode,0,result.stderr.decode(errors='replace'))
         bundle=json.loads((folder/'bundle.json').read_text())
         self.assertEqual(bundle['target'],'rust')
@@ -167,10 +176,12 @@ class NativeArtifactTests(unittest.TestCase):
                       ['--package-body','--target','rust','--emit-source-bundle','--package-native-namespace','invalid-name']):
             with self.subTest(flags=flags):
                 output=self.root/'rejected bundle'
-                bad=subprocess.run([str(COMPILER),str(self.root/'src/library.sn'),*flags,'-o',str(output)],
-                                   capture_output=True,timeout=30)
+                bad=subprocess.run([str(COMPILER),str(self.root/'src/library.sn'),'--no-install',*flags,'-o',str(output)],
+                                   cwd=self.root,capture_output=True,timeout=30)
                 self.assertNotEqual(bad.returncode,0)
                 self.assertFalse(output.exists())
+        for path, content in preserved.items():
+            self.assertEqual((self.root/path).read_text(), content)
 
     def test_mutable_c_body_provider_guards_native_owners_and_preserves_error_outputs(self):
         self.check_mutable_body_provider_owners("C")

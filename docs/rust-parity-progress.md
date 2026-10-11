@@ -7,6 +7,28 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Source-bundle CI fixture isolation: correction, 2026-10-11
+
+Source-bundle revision `7bf58e1b` failed the Linux, macOS and Windows core jobs in
+[CI 38096321120](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38096321120).
+All 18 artifact tests passed, but the new direct source-bundle invocation ran
+from the compiler checkout with package synchronization enabled. Synchronization
+removed `.sn/ci-reports` and the pinned SDK integration checkout as orphaned
+packages, so the gate runner could not write its report or continue SDK checks.
+On Windows it also removed cached LLVM-MinGW files under `.sn/toolchains`,
+timed out during cleanup and caused subsequent missing-library/header failures.
+This also explains the missing local SDK checkout recorded below.
+
+The test now runs from its temporary package and uses `--no-install` for every
+direct source-bundle invocation. Report, SDK and toolchain sentinels verify
+preservation.
+Removing that flag in a temporary fixture reproduces the missing report; the
+corrected focused test, all 18 artifact, 37 import and 22 CI-helper tests, and
+24 canonical SDK TextFile checks pass. Compiler
+and package synchronization behavior are unchanged. Feature publication remains
+frozen until complete corrected integrated CI passes on all three platforms;
+the source-bundle feature has no hosted acceptance yet.
+
 ## Rust body source bundles and live inputs: local validation, 2026-10-11
 
 RS implementation libraries now emit complete source bundles, compile canonical
