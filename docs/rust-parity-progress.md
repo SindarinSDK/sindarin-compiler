@@ -52,6 +52,21 @@ the local inventory to 313 in 26 groups. SDK `bd210cf` has full seven-job hosted
 acceptance; whole SDK migration, wider contracts and final corpus proof remain.
 
 
+## Original Stdio and stdin artifact coverage: local validation, 2026-10-11
+
+All nine original SDK caller/oracle modules now pass 324 source/sealed C/Rust
+mode cases, including Stdio's four exact stderr OK lines. The original Stdio
+caller is noninteractive; two separate controls exercise all six stdin methods,
+empty/nonempty input, nil writes and an owned line surviving later reads. Those
+controls pass another 72 cases, for 396 total. Public modules and original stdout
+oracles are unchanged; sealed checks remove every backing C source.
+
+[Local evidence](rust-parity-evidence/sdk-stdio-artifact-validation.json) records
+accepted compiler `2c0f1c08` and SDK `89f3b83`. Publication stays held during the
+required SDK DTLS correction freeze. Whole SDK and final platform acceptance
+remain required.
+
+
 ## Package static/instance method selection: local validation, 2026-10-11
 
 Package method bindings now accept `method: static` or `method: instance` when

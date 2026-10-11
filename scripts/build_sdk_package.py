@@ -24,8 +24,8 @@ RAW = {'int': 'long long', 'long': 'long long', 'int32': 'int32_t',
        'string': 'char *', 'void': 'void'}
 
 
-def checked(command, cwd):
-    result = subprocess.run([str(v) for v in command], cwd=cwd, capture_output=True, timeout=180)
+def checked(command, cwd, input_bytes=None):
+    result = subprocess.run([str(v) for v in command], cwd=cwd, input=input_bytes, capture_output=True, timeout=180)
     if result.returncode:
         raise ValueError(result.stderr.decode(errors='replace'))
     return result
