@@ -1623,6 +1623,36 @@
       },
       "group": "sanitizers",
       "linux_only": true
+    },
+    {
+      "id": "go-native-record-providers",
+      "name": "Go backing canonical C record aliases, errors, GC and callback credits",
+      "command": [
+        "{python}",
+        "tests/package/go_records.py"
+      ],
+      "env": {
+        "GOEXPERIMENT": "cgocheck2"
+      },
+      "group": "core",
+      "linux_only": false
+    },
+    {
+      "id": "go-native-record-provider-sanitizers",
+      "name": "Go backing canonical C record lifetime and callback credit sanitizers",
+      "command": [
+        "{python}",
+        "tests/package/go_records.py"
+      ],
+      "env": {
+        "GOEXPERIMENT": "cgocheck2",
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      },
+      "group": "sanitizers",
+      "linux_only": true
     }
   ]
 }

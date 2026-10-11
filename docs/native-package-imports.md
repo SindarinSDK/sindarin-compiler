@@ -296,9 +296,9 @@ sealed archives with backing sources and headers removed, normally and with
 strict address/undefined/leak checking and Go `cgocheck2`. See [the runtime contract](runtime-abi.md#abi-17-typed-canonical-arrays).
 
 
-## Rust native backing for canonical C records
+## Rust and Go native backing for canonical C records
 
-Ordinary Rust backing may use `*mut c_void` parameters/results for explicitly
+Ordinary Rust backing uses `*mut c_void`; Go backing uses `unsafe.Pointer` for parameters/results for explicitly
 registered native as-ref records. These pointers identify the canonical C
 allocation. Generated C support checks public layout headers and delegates
 retain/release to their registered native functions; Rust does not substitute a
@@ -317,4 +317,5 @@ exact final destruction. A raw ABI client covers wrong kinds/type identities,
 errors, foreign panic and loss of the caller's final credit during a callback.
 These checks are locally validated with strict address/undefined/leak checking;
 hosted acceptance remains required. This does not yet implement Rust Sindarin
-record bodies, interfaces/generics or Go record providers.
+record bodies or interfaces/generics. Go controls use cgocheck2 and force GC
+during native calls.

@@ -1,0 +1,50 @@
+{
+  "status": "integrated local validation complete; hosted verification pending",
+  "base_revision": "93dea0792ec465ebf33efd963ba37c1f06333287",
+  "mode_cases": {
+    "Rust_backing": 36,
+    "Go_backing": 36,
+    "Rust_backing_sanitized": 36,
+    "Go_backing_sanitized": 36
+  },
+  "wire_clients": 2,
+  "Go_checks": "cgocheck2 and forced GC during calls",
+  "compatibility": {
+    "imports": 50,
+    "artifacts": 22,
+    "ci_helpers": 22
+  },
+  "coverage": {
+    "gates": 321,
+    "groups": 26
+  },
+  "C_and_Rust_compiler_sources_unchanged": true,
+  "source_sha256": {
+    "scripts/native_provider.py": "96e676c2f296f687e745b200639de9bdd165a0fc65aea9476cd9c68b45cb23af",
+    "scripts/build_native_package.py": "2dc901e3799128d2567a36b4823bfc78ce9a4b6f07e6c86cb78a76b9c5d2648e",
+    "tests/package/rust_records.py": "084ac253c71a36cb60f4c52e2b9b839cf5b474be51abe28365f06663a00d7195",
+    "tests/package/go_records.py": "b700db35e891b8f0f5cb4986afcd5d0eb289f02fb8e23b9b6812c53a5c9d31dc"
+  },
+  "remaining": [
+    "hosted Linux/macOS/Windows acceptance",
+    "Rust Sindarin record/opaque body guards",
+    "interfaces/generics",
+    "dependency lifecycle graphs",
+    "whole SDK and final corpus/platform proof"
+  ],
+  "integrated_base": "4211bf0f37b2941faa4534e349aabf46697ba907",
+  "integrated": {
+    "Rust_mode_cases": 36,
+    "Go_mode_cases": 36,
+    "Rust_sanitizer_mode_cases": 36,
+    "Go_sanitizer_mode_cases": 36,
+    "wire_clients": 2,
+    "ci_helpers": 22,
+    "coverage_gates": 341,
+    "coverage_groups": 26
+  },
+  "accepted_dependency_ci": [
+    38140919031,
+    38141605740
+  ]
+}

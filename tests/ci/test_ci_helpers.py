@@ -97,7 +97,7 @@ class CoverageTests(unittest.TestCase):
         self.collect()
         report = json.loads((self.output / 'summary.json').read_text())
         self.assertEqual(report['groups'], 26)
-        self.assertEqual(report['gates'], 337)
+        self.assertEqual(report['gates'], 341)
         entries = [g for g in self.catalog['gates'] if g['id'] == 'native-entrypoints']
         self.assertEqual(len(entries), 1)
         self.assertEqual(entries[0]['group'], 'native')

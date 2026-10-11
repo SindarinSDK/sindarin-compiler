@@ -1,5 +1,6 @@
 """Generate provider exports for declared ordinary backing-language functions."""
 import json
+import hashlib
 import re
 from native_contract import TYPES, kind, validate, raw_type, record_types, c_array_shape, native_array_shape
 
@@ -19,8 +20,8 @@ def contracts(native, unit):
         raise ValueError('generated provider requires compiler-resolved native declarations')
     symbols = set()
     records = record_types(signatures)
-    if records and unit['language'] not in ('C','SN','RS'):
-        raise ValueError('package-owned record provider generation requires C, SN, or RS backing')
+    if records and unit['language'] not in ('C','SN','RS','GO'):
+        raise ValueError('package-owned record provider generation requires a native C storage contract')
     lifecycle_functions = {r[field] for r in records for field in ('create','retain','release','refs')}
     for s in signatures:
         validate(s)
@@ -406,15 +407,22 @@ def rust_provider(signatures, backing_crate):
     return '\n'.join(lines)+'\n'
 
 
-def go_provider(signatures, module, main=True):
+def go_provider(signatures, module, main=True, root=None):
     lines = ['package main', '/* #include <stdint.h>\n#include <stdlib.h>\n#include "sn_abi.h" */', 'import "C"',
              f'import {"backing" if signatures else "_"} {json.dumps(module)}']
     if any(kind(t)=='native_array' for s in signatures for t in
            [s['return_type']]+[p['type'] for p in s['params']]):
         lines[1] = lines[1].replace('#include "sn_abi.h"', '#include "sn_abi.h"\n#include "sn_array.h"')
-    if any(kind(p['type']) in ('string','string_array','byte_array','native_array') for s in signatures for p in s['params']) or any(kind(s['return_type']) in ('string','string_array','byte_array','native_array') for s in signatures):
+    if any(kind(p['type']) in ('string','string_array','byte_array','native_array','record') for s in signatures for p in s['params']) or any(kind(s['return_type']) in ('string','string_array','byte_array','native_array','record') for s in signatures):
         lines.append('import "unsafe"')
-    wire = lambda k: '*C.SnAbiValue' if k in ('string','string_array','byte_array','native_array') else 'C.'+TYPES[k][1] if k != 'void' else ''
+    records = record_types(signatures)
+    prefix = 'sn_go_record_' + hashlib.sha256(json.dumps([s['binding']['symbol'] for s in signatures]).encode()).hexdigest()[:12]
+    if records:
+        if root is None: raise ValueError('Go record providers require their package root')
+        support = rust_provider_support(signatures, prefix, root)
+        support = re.sub(r'(?m)^(void |uint32_t )', r'static \1', support)
+        lines[1] = lines[1].replace('*/', support + '\n*/')
+    wire = lambda k: '*C.SnAbiValue' if k in ('string','string_array','byte_array','native_array','record') else 'C.'+TYPES[k][1] if k != 'void' else ''
     for s in signatures:
         b, params, result = s['binding'], s['params'], kind(s['return_type'])
         status = b['failure'] == 'status'
@@ -436,6 +444,14 @@ def go_provider(signatures, module, main=True):
                           f'    if uint64(bytes{i}.length) > uint64(^uint(0)>>1) {{ '+(normal_return('5') if status else 'panic("string length overflow")')+' }',
                           f'    text := string(unsafe.Slice((*byte)(unsafe.Pointer(bytes{i}.data)), int(bytes{i}.length))); arg{i} = &text', '  }']
                 arguments.append(f'arg{i}')
+            elif k == 'record':
+                record_index = records.index(p['type']['native_record'])
+                stem = f'{prefix}_record_{record_index}'
+                error = lambda code: normal_return(code) if status else 'panic("invalid record ABI")'
+                lines += [f'  owner{i} := C.sn_abi_v1_retain(p{i}); defer C.sn_abi_v1_release(owner{i})',
+                          f'  var record{i} unsafe.Pointer',
+                          f'  if code := C.{stem}_data(p{i}, &record{i}); code != 0 {{ '+error('code')+' }']
+                arguments.append(f'record{i}')
             elif k == 'native_array':
                 leaf, rank = native_array_shape(p['type'])
                 error = lambda code: normal_return(code) if status else 'panic("invalid typed array ABI")'
@@ -503,6 +519,17 @@ def go_provider(signatures, module, main=True):
                       '  owned := (*C.struct_SnArray)(value)',
                       '  defer func() { if owned != nil { C.sn_array_free(owned) } }()',
                       f'  if code := C.sn_abi_v1_native_array_adopt(owned, C.SnAbiNativeArrayType{{leaf_kind:{leaf}, rank:{rank}}}, &output); code != 0 {{ '+(normal_return('code') if status else 'panic("typed array result ABI")')+' }',
+                      '  owned = nil']
+            value = 'output'
+        elif result == 'record':
+            record_index = records.index(s['return_type']['native_record'])
+            stem = f'{prefix}_record_{record_index}'
+            if b['ownership']['result'] == 'borrowed':
+                lines.append(f'  value = C.{stem}_retain(value)')
+            lines += ['  owned := value',
+                      f'  defer func() {{ if owned != nil {{ C.{stem}_release(owned) }} }}()',
+                      '  var output *C.SnAbiValue',
+                      f'  if code := C.{stem}_adopt(owned, &output); code != 0 {{ '+(normal_return('code') if status else 'panic("record result ABI")')+' }',
                       '  owned = nil']
             value = 'output'
         elif result == 'bool':

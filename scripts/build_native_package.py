@@ -491,7 +491,7 @@ def build(args):
                             old = replace['Old']['Path'] + ('@' + replace['Old']['Version'] if replace['Old'].get('Version') else '')
                             edits.append('-replace=' + old + '=' + str((module / new['Path']).resolve()))
                     run(go + ['mod', 'edit'] + edits, cwd=bridge, env=env)
-                    (bridge / 'main.go').write_text(go_provider(signatures, module_name))
+                    (bridge / 'main.go').write_text(go_provider(signatures, module_name, root=root))
                     module = bridge
                     go_unit = dict(unit, module=str(bridge))
                 go_inputs, native_link_flags = go_dependencies(go, root, go_unit, env)
@@ -669,7 +669,7 @@ def build_go_graph(packages, compiler, out_dir, optimization, arithmetic, input_
         (bridge / 'main.go').write_text('package main\nfunc main() {}\n')
         exports = []
         for index, unit in enumerate(units):
-            (bridge / f'exports_{index:03d}.go').write_text(go_provider(unit['signatures'], unit['module'], main=False))
+            (bridge / f'exports_{index:03d}.go').write_text(go_provider(unit['signatures'], unit['module'], main=False, root=Path(unit['manifest']).parent))
             exports += [s['binding']['symbol'] for s in unit['signatures']]
         if len(set(exports)) != len(exports): raise ValueError('duplicate Go export symbols in the package graph')
         # Resolve the combined module graph into generated files only. Original

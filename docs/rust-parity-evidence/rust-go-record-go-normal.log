@@ -1,0 +1,6 @@
+test_rust_records_preserve_live_aliases_and_sealed_cleanup (__main__.GoRecordTests.test_rust_records_preserve_live_aliases_and_sealed_cleanup) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 25.365s
+
+OK

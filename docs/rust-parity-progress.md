@@ -30,6 +30,31 @@ are clear. Local native record providers are being expanded to both Rust and
 Go, with C storage/lifetime and forced GC controls; their integration and hosted
 acceptance are still required.
 
+Hosted dependencies are accepted: compiler `4211bf0f` passed all 34 jobs in
+CI 38141605740 (333 gates/26 groups), and `16353208` passed all 34 jobs in
+CI 38140919031 (329 gates/26 groups). Rust/Go native record providers are now
+integrated locally onto that accepted main. Both languages pass their 36 normal
+and 36 sanitizer mode cases and raw wire clients; 22 CI helpers account for
+341 gates in 26 groups. Source and sealed archives retain canonical C record
+headers and native lifetime hooks. The batch is ready for hosted verification.
+
+## Go native record providers: local validation, 2026-10-11
+
+Go backing now also consumes canonical C records through unsafe.Pointer and
+private cgo support, retaining typed identities, native hooks and public layout
+checks. Original Go source remains Go; the bridge captures header dependencies
+and keeps all Go packages in the existing shared runtime graph. Input guards,
+owned/borrowed results, nil, error outputs and recovery preserve their contracts.
+Go controls force GC and run cgocheck2, including caller-credit loss during a
+callback. Rust and Go each pass 36 source/sealed C/Rust mode cases normally and
+with strict sanitizers; both raw ABI clients pass. The revised compatibility
+suite passes all 50 imports, 22 artifact checks and 22 CI helpers. Local coverage
+is 321 gates in 26 groups before current-main integration. This batch is held
+for that integration and complete hosted acceptance. Rust Sindarin body resource
+guards, interfaces/generics, dependency graphs, whole SDK and final corpus
+platform acceptance remain required.
+
+
 ## Rust native record providers: local validation, 2026-10-11
 
 Ordinary Rust native backing can now consume and return explicitly registered
