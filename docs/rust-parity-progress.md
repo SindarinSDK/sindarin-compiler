@@ -47,6 +47,73 @@ the final helper merge. The inventory is 345 gates in 26 groups. Record provider
 batch `bd3a5307` awaits CI 38144615507; this array-body batch is independent of
 that capability and is ready for its own required hosted validation.
 
+Publication state: canonical C record providers for Rust/Go `bd3a5307` await
+CI 38144615507 (341 gates); independent Rust Sindarin array bodies `c603d967`
+await CI 38145474681 (345 gates). Both are live. All preceding required
+compiler/SDK runs have complete acceptance. Two publication slots are occupied;
+further feature publication waits for these results. Local array-body checks
+include 72 normal and 72 sanitizer archive cases, all 3,242 C and 1,097 Rust
+checks, 50 imports, 22 artifact checks and 22 CI helpers, plus retained Rust/Go
+record wire clients after the merge. Full goal completion remains unproven.
+
+## Random SDK artifacts: integrated local validation, 2026-10-11
+
+Accepted SDK revision `d829ebe` passed all seven platform CI jobs, retaining
+20 Random native/legacy cases per host and the Linux actual-runtime sanitizer
+probe. Compiler staging now includes twelve modules and 24 C/Sindarin units.
+All 432 original source/sealed C/Rust caller cases plus 72 stdin controls pass
+against the integrated compiler. The focused Random ownership matrix passes
+72 normal and 72 sanitizer cases; 20 native/legacy cases and the runtime
+sanitizer probe also pass. Public Sindarin modules and original caller oracles
+remain unchanged. The exact accepted SDK is pinned for hosted compiler checks.
+Remaining SDK modules and the full completion goal remain required.
+
+## Rust Sindarin record bodies: local validation, 2026-10-11
+
+Worktree `development/rust-record-bodies` compiles canonical record bodies through
+Rust and transfers their returned native credit into typed ABI resources. Input
+views borrow C storage while provider guards retain input wire credits. Seventy-two
+source/sealed C/Rust mode cases and the same sanitizer matrix pass, including
+static/instance methods, alias field mutation, nil and one final destruction.
+Direct Rust-body and C-body ABI clients pass normally and under sanitizers:
+wrong kinds/identities preserve outputs; returned aliases survive input-owner
+release. This also fixes a C Sindarin borrowed-result extra retain exposed by
+that independent client. All 22 native artifact tests pass. All 50 import tests are accounted for: 48 initially passed; the two checks
+missing the pinned SDK checkout passed after restoring that fixture. Compiler CI
+registration and local proof are held until dependencies/publication slots permit.
+Record-parameter rebinding, wider value/interface/generic contracts, dependency
+lifecycle graphs and final full SDK/corpus/platform proof remain required.
+
+## Rust/Go record providers: hosted acceptance, 2026-10-11
+
+Revision `bd3a5307` passed all 34 jobs in compiler CI 38144615507. The exact
+coverage report verifies 341 gates in 26 platform groups with one compiler hash
+per host. The [retained proof](rust-parity-evidence/rust-go-record-providers-ci-green.json)
+records Linux/macOS/Windows provider checks, wire errors/panics/callback credit
+loss and Linux sanitizer acceptance. Wider record/body/interface/generic and
+whole SDK obligations remain required.
+
+## Canonical Random: local validation, 2026-10-11
+
+SDK branch `development/sdk-random-native-integrated` at `d829ebe` preserves
+all original Random operation bodies, public `.sn` modules and original caller
+oracles. Canonical 16-byte C storage adds atomic credits and last-credit state
+cleanup. Twenty native/legacy cases, one actual-runtime sanitizer probe, all
+28 legacy SDK cases and seven native helper tests pass against accepted compiler
+`4211bf0f`. SDK revision `d829ebeae36ef0a0b684191d2150f2fb964ea509` is published;
+CI [38147329141](https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38147329141)
+passed all seven jobs. Compiler Random artifact integration can now pin this
+accepted SDK revision.
+
+Compiler branch `development/sdk-random-artifacts` adds opt-in Random staging
+with two C/Sindarin units and 134 exports. All 72 original/control source/sealed
+C/Rust cases pass normally and under strict sanitizers. Controls prove shared
+seeded state, repeated disposal and owned arrays surviving producer/input cleanup.
+Four local gates register normal and sanitizer artifact/native checks. This
+compiler branch remains unpublished and requires an accepted SDK pin before
+publication. The eleven-module default is unchanged. Whole SDK migration and
+full corpus/platform proof remain required.
+
 ## Generic Rust Sindarin array bodies: local validation, 2026-10-11
 
 Independent Rust body exports now use canonical nested scalar/string array inputs

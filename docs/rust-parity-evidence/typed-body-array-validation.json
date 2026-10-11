@@ -1,5 +1,5 @@
 {
-  "status": "integrated local validation complete; hosted verification pending",
+  "status": "published; complete integrated CI pending",
   "base_revision": "a188d356c3cf4edf2402028445d6689256f4be99",
   "compiler_sha256": "78ad70b5d02cf4406519300360343676961bde22ab85d84f4231022da147e6de",
   "source_sha256": {
@@ -65,5 +65,10 @@
     "existing_Rust_and_Go_record_wire_clients": 2,
     "coverage_gates": 345,
     "coverage_groups": 26
+  },
+  "published_revision": "c603d967f3ae539eaabd57125d85e727414bb510",
+  "ci": {
+    "run": 38145474681,
+    "status": "in_progress"
   }
 }

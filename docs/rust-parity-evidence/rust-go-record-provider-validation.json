@@ -1,5 +1,5 @@
 {
-  "status": "integrated local validation complete; hosted verification pending",
+  "status": "Hosted Linux/macOS/Windows accepted",
   "base_revision": "93dea0792ec465ebf33efd963ba37c1f06333287",
   "mode_cases": {
     "Rust_backing": 36,
@@ -26,7 +26,6 @@
     "tests/package/go_records.py": "b700db35e891b8f0f5cb4986afcd5d0eb289f02fb8e23b9b6812c53a5c9d31dc"
   },
   "remaining": [
-    "hosted Linux/macOS/Windows acceptance",
     "Rust Sindarin record/opaque body guards",
     "interfaces/generics",
     "dependency lifecycle graphs",
@@ -46,5 +45,13 @@
   "accepted_dependency_ci": [
     38140919031,
     38141605740
-  ]
+  ],
+  "published_revision": "bd3a5307f6c73b4f3a8e68d30f70cd5c61166116",
+  "ci": {
+    "run": 38144615507,
+    "status": "completed",
+    "conclusion": "success",
+    "gates": 341,
+    "groups": 26
+  }
 }

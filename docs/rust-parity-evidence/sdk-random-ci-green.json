@@ -1,0 +1,69 @@
+{
+  "conclusion": "success",
+  "headSha": "d829ebeae36ef0a0b684191d2150f2fb964ea509",
+  "jobs": [
+    {
+      "name": "Native text oracle contract",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38147329141/job/114493330290"
+    },
+    {
+      "name": "sindarin-pkg-test / Test (windows-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38147329141/job/114493330465"
+    },
+    {
+      "name": "Canonical Time/Date (windows-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38147329141/job/114493330511"
+    },
+    {
+      "name": "Canonical Time/Date (ubuntu-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38147329141/job/114493330540"
+    },
+    {
+      "name": "sindarin-pkg-test / Test (ubuntu-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38147329141/job/114493330561"
+    },
+    {
+      "name": "Canonical Time/Date (macos-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38147329141/job/114493330580"
+    },
+    {
+      "name": "sindarin-pkg-test / Test (macos-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38147329141/job/114493330634"
+    }
+  ],
+  "status": "completed",
+  "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38147329141",
+  "random_reports": {
+    "time-date-native-macos-latest/random-native.json": {
+      "passed": true,
+      "cases": 20,
+      "compiler_sha256": "f8fe7496d5756127bc5250c65b0ac350e05afeb707426782141ad3d0d2df5099",
+      "platform": "Darwin"
+    },
+    "time-date-native-windows-latest/random-native.json": {
+      "passed": true,
+      "cases": 20,
+      "compiler_sha256": "6a8cc390349665dfb10fc29f90db4212e6e7763ef86b48eca7ba6b1ebf554bf5",
+      "platform": "Windows"
+    },
+    "time-date-native-ubuntu-latest/random-sanitizers.json": {
+      "passed": true,
+      "cases": 1,
+      "compiler_sha256": "d677e74f84aa797c790ed6e6e213047262491c3cb5a9e4f6515cad82e0ca4684",
+      "platform": "Linux"
+    },
+    "time-date-native-ubuntu-latest/random-native.json": {
+      "passed": true,
+      "cases": 20,
+      "compiler_sha256": "d677e74f84aa797c790ed6e6e213047262491c3cb5a9e4f6515cad82e0ca4684",
+      "platform": "Linux"
+    }
+  }
+}

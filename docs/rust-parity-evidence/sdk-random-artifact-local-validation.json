@@ -632,5 +632,7 @@
     "sindarin-sdk-random-integrated-artifact-san.log": "639d2f3008d49bbd5590c4667617feec812fa867e9ae29994c147876580c2f6d",
     "sindarin-sdk-random-integrated-native.log": "7eb86791a0dc71c143349bc6e9fb094ff46d0c14967997a8cfd9c0248b9e92e4",
     "sindarin-sdk-random-integrated-native-san.log": "1304fd785f2428e96ec603d4685bfaecc3d5f54779a28fe64acf44e6b675523e"
-  }
+  },
+  "registered_gates": 353,
+  "registered_groups": 26
 }
