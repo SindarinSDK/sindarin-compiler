@@ -77,8 +77,8 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
             any(kind(p['type'])!=kind(q['type']) or p.get('mem_qual','default')!='default' or
                 p.get('sync_mod','none')!='none' for p,q in zip(parameters,signature['params']))):
             raise ValueError('Sindarin implementation type/ownership differs from its public declaration: '+name)
-        if any(kind(p['type'])=='string_array' for p in parameters):
-            if signature.get('abi') != '1.5':
+        if any(kind(p['type']) in ('string_array','byte_array') for p in parameters):
+            if signature.get('abi') not in ('1.5','1.6'):
                 raise ValueError('Sindarin library array inputs require generated mutable/borrowed-body contracts in native ABI 1.5')
         selected.append(function)
     emitted = work/(stem+('.c' if runtime=='C' else '.rs'))
@@ -88,7 +88,8 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
         if any(kind(s['return_type'])=='record' or any(kind(p['type'])=='record' for p in s['params']) for s in signatures):
             raise ValueError('Rust Sindarin record bodies require canonical record input/result guards')
         bundle_dir = work/(stem+'_bundle')
-        native_arrays = any(kind(p['type']) == 'string_array' for f in selected for p in f['params'])
+        native_arrays = any(kind(f['return_type'])=='byte_array' or
+                            any(kind(p['type']) in ('string_array','byte_array') for p in f['params']) for f in selected)
         bundle_options = ['--emit-source-bundle', '--package-native-namespace', stem]
         if native_arrays: bundle_options.append('--package-native-arrays')
         run(common+bundle_options+['-o',bundle_dir],cwd=root)
@@ -125,7 +126,8 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
     adjusted = []
     for index,signature in enumerate(signatures):
         name = signature['binding']['function']
-        adjusted.append(dict(signature,binding=dict(signature['binding'],function='__sn_body_'+str(index))))
+        adjusted.append(dict(signature,binding=dict(signature['binding'],function='__sn_body_'+str(index)),
+                             **({'native_byte_wire_result':True} if runtime=='RS' and kind(signature['return_type'])=='byte_array' else {})))
     if runtime=='C':
         # Generated functions and methods are internal to this package unit.
         names = {'__sn__'+f['name'] for f in model['functions'] if not f.get('is_native')}
@@ -177,27 +179,31 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
             else:links.extend(tokens)
         return archive,links,[dep],model,dependencies
     code=emitted.read_text(encoding="utf-8", errors="surrogateescape")+'\n'
-    input_arrays=[p for f in selected for p in projected_functions[f['name']]['params'] if kind(p['type'])=='string_array']
+    input_arrays=[p for f in selected for p in projected_functions[f['name']]['params'] if kind(p['type']) in ('string_array','byte_array')]
     array_guard='__'+stem+'_array_input_guard'
     if input_arrays:
-        array_type=input_arrays[0]['type']['rust_native_handle_array_name']+'<SnString>'
-        code+=f'struct {array_guard} {{ value: std::mem::ManuallyDrop<{array_type}>, original: *mut std::ffi::c_void }}\n'
-        code+=f'impl Drop for {array_guard} {{ fn drop(&mut self) {{ if self.value.pointer != self.original {{ unsafe {{ std::mem::ManuallyDrop::drop(&mut self.value) }} }} }} }}\n'
+        codec=projected['rust_native_handle_array_support']['trait']
+        array_type=input_arrays[0]['type']['rust_native_handle_array_name']+'<T>'
+        code+=f'struct {array_guard}<T: {codec}> {{ value: std::mem::ManuallyDrop<{array_type}>, original: *mut std::ffi::c_void }}\n'
+        code+=f'impl<T: {codec}> Drop for {array_guard}<T> {{ fn drop(&mut self) {{ if self.value.pointer != self.original {{ unsafe {{ std::mem::ManuallyDrop::drop(&mut self.value) }} }} }} }}\n'
+    byte_export='__'+stem+'_byte_export'
+    if any(kind(s['return_type'])=='byte_array' for s in signatures):
+        code+='extern "C" { #[link_name="sn_abi_v1_native_byte_array_adopt"] fn '+byte_export+'(array: *mut std::ffi::c_void, out: *mut *mut std::ffi::c_void) -> u32; }\n'
     for signature,function in zip(adjusted,selected):
         parameters=[];arguments=[];setup=[]
         projected_function=projected_functions[function['name']]
         for index,p in enumerate(signature['params']):
             k=kind(p['type'])
-            parameters.append(f'p{index}: '+('*mut std::ffi::c_void' if k=='string_array' else 'Option<&[u8]>' if k=='string' else RUST[k]))
-            if k=='string_array':
+            parameters.append(f'p{index}: '+('*mut std::ffi::c_void' if k in ('string_array','byte_array') else 'Option<&[u8]>' if k=='string' else RUST[k]))
+            if k in ('string_array','byte_array'):
                 parameter=projected_function['params'][index]
-                array_type=parameter['type']['rust_native_handle_array_name']+'<SnString>'
+                array_type=parameter['type']['rust_native_handle_array_name']+('<u8>' if k=='byte_array' else '<SnString>')
                 setup.append(f'  let mut array{index} = {array_guard} {{ value: std::mem::ManuallyDrop::new(<{array_type}>::adopt(p{index})), original: p{index} }};')
                 arguments.append(f'&mut *array{index}.value' if parameter.get('rust_default_array_ref') else f'&*array{index}.value')
             else:
                 arguments.append(f'p{index}.map_or_else(SnString::nil, SnString::from_c_bytes)' if k=='string' else f'p{index} as char' if k=='char' else f'p{index}')
         result=kind(signature['return_type']);status=signature['binding']['failure']=='status'
-        output=RUST[result]
+        output='*mut std::ffi::c_void' if result=='byte_array' else RUST[result]
         if status:output='Result<'+output+',u32>'
         # Raw identifiers preserve source names that are Rust keywords.
         name=('r#'+function['owner']+'::r#'+function['method_name']) if function.get('is_method') else 'r#'+function['name']
@@ -205,7 +211,14 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
         if lifecycle:
             code+='  let _call = __sn_package_enter()'+('?' if status else '.unwrap_or_else(|_|std::process::abort())')+';\n'
         code+='\n'.join(setup)+'\n'
-        code+='  let value = '+name+'('+', '.join(arguments)+');\n'
+        code+='  let '+('mut ' if result=='byte_array' else '')+'value = '+name+'('+', '.join(arguments)+');\n'
+        if result=='byte_array':
+            code+='  let mut output = std::ptr::null_mut();\n'
+            code+='  let status = unsafe { '+byte_export+'(value.pointer, &mut output) };\n'
+            code+='  if status != 0 { '+('return Err(status);' if status else 'std::process::abort();')+' }\n'
+            code+='  value.pointer = std::ptr::null_mut();\n'
+            code+='  '+('Ok(output)' if status else 'output')+'\n}\n'
+            continue
         array_elements=('(0..value.len()).map(|i| value.read_value(i))' if projected_function['return_type'].get('rust_native_array_codec') else 'value.iter()')
         value=('if value.is_nil() { None } else { Some(value.as_bytes().to_vec()) }' if result=='string' else
                'if value.is_nil() { None } else { Some('+array_elements+'.map(|text| if text.is_nil() { None } else { Some(text.as_bytes().to_vec()) }).collect()) }' if result=='string_array' else

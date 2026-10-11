@@ -21,3 +21,9 @@ SnAbiStatus sn_test_go_typed_resource(uintptr_t context, SnAbiValue **out)
 {
     return sn_abi_v1_resource_new_typed("pkg.GoResource@1", NULL, sn_test_go_destroy, context, out);
 }
+#include "native_byte_array_bridge.h"
+extern SnAbiStatus sn_test_go_native_bytes_observe(SnAbiValue *, uintptr_t);
+SnAbiStatus sn_test_go_native_bytes_reenter(SnAbiValue *value, uintptr_t context)
+{
+    return sn_test_native_bytes_reenter(value, sn_test_go_native_bytes_observe, context);
+}

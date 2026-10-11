@@ -16,6 +16,7 @@ extern "C" {
 #define SN_ABI_V1_3_VERSION UINT32_C(0x00010003)
 #define SN_ABI_V1_4_VERSION UINT32_C(0x00010004)
 #define SN_ABI_V1_5_VERSION UINT32_C(0x00010005)
+#define SN_ABI_V1_6_VERSION UINT32_C(0x00010006)
 #define SN_ABI_CAP_VALUES UINT64_C(1)
 #define SN_ABI_CAP_POD_ARRAYS UINT64_C(2)
 #define SN_ABI_CAP_RESOURCES UINT64_C(4)
@@ -25,6 +26,7 @@ extern "C" {
 #define SN_ABI_CAP_ARRAY_REPLACEMENT UINT64_C(64)
 #define SN_ABI_CAP_ARRAY_MUTATION UINT64_C(128)
 #define SN_ABI_CAP_NATIVE_STRING_ARRAYS UINT64_C(256)
+#define SN_ABI_CAP_NATIVE_BYTE_ARRAYS UINT64_C(512)
 
 typedef uint32_t SnAbiStatus;
 #define SN_ABI_OK UINT32_C(0)
@@ -144,6 +146,28 @@ SnAbiStatus sn_abi_v1_native_string_array_borrow(struct SnArray *array, SnAbiVal
 SnAbiStatus sn_abi_v1_native_string_array_adopt(struct SnArray *array, SnAbiValue **out);
 SnAbiStatus sn_abi_v1_native_string_array_data(const SnAbiValue *value, struct SnArray **out);
 SnAbiStatus sn_abi_v1_native_string_array_copy(const SnAbiValue *value, SnAbiValue **out);
+
+/* ABI 1.6 canonical byte-array views. Ownership, aliases, hooks and native-owner
+ * lifetime follow the string-array view contract above. Slots are unsigned
+ * 8-bit bytes, including NUL. Empty untagged headers are accepted; nonempty
+ * storage must carry SN_TAG_BYTE. These views are distinct from buffers, POD
+ * wire arrays and string-array views. Accessors validate the current header and
+ * preserve outputs on failure. Reload borrowed bytes after any mutation.
+ * copy_bytes copies caller bytes into one owned canonical C array; NULL/0 is
+ * nil, while non-NULL/0 creates a non-nil empty array. */
+SnAbiStatus sn_abi_v1_native_byte_array_borrow(struct SnArray *array, SnAbiValue **out);
+SnAbiStatus sn_abi_v1_native_byte_array_adopt(struct SnArray *array, SnAbiValue **out);
+SnAbiStatus sn_abi_v1_native_byte_array_data(const SnAbiValue *value, struct SnArray **out);
+SnAbiStatus sn_abi_v1_native_byte_array_bytes(const SnAbiValue *value, SnAbiBytes *out);
+SnAbiStatus sn_abi_v1_native_byte_array_copy(const SnAbiValue *value, SnAbiValue **out);
+SnAbiStatus sn_abi_v1_native_byte_array_copy_bytes(const uint8_t *data, uint64_t length, SnAbiValue **out);
+/* Consume a unique adopted/copied view and transfer its owned canonical header.
+ * No slots are copied: pointer identity and native hooks survive. On success
+ * *value becomes nil and the caller owns *out (release with sn_array_free).
+ * Nil succeeds. Borrowed views or retained aliases fail INVALID_ARGUMENT and
+ * preserve both outputs. The caller serializes this ownership transfer with all
+ * access/credit acquisition; other threads require their own live credits. */
+SnAbiStatus sn_abi_v1_native_byte_array_take(SnAbiValue **value, struct SnArray **out);
 
 /* Resource adoption transfers cleanup responsibility only on success. Adapters
  * keep resource layouts private or expose documented fields through accessors. */

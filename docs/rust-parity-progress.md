@@ -7,6 +7,43 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Parameter qualifiers and TextFile facade: hosted acceptance, 2026-10-11
+
+Corrected integrated compiler main `5c8f1733` passes all 34 jobs in
+[CI 38104419931](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38104419931).
+The retained coverage verifies 26 groups, 292 gates and one compiler per
+Linux/macOS/Windows platform. This accepts the qualifier repair and integrated
+unchanged TextFile facade work. Evidence:
+[complete correction acceptance](rust-parity-evidence/parameter-sync-ci-green.json).
+
+Byte-array ABI/adapters and the unchanged Bytes facade are under local validation.
+SDK `775fb67` adds the standalone C module and native check to `make test`.
+Its Windows CI failed because the checker assumed resources beside an installed
+copied executable. SDK `a8d378f` followed the compiler's installed resource lookup.
+That correction still failed because the exact installed release contains
+`sn.windows.cfg`, not the current compiler's generic config marker. SDK `7115937`
+validates actual runtime/header artifacts in both resource locations; lookup was
+verified against the exact v0.0.83 Windows release archive. All four jobs in
+[SDK CI 38106674043](https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38106674043)
+now pass, including the standalone C module on Linux/macOS/Windows. Compiler CI
+pins this exact accepted revision. Evidence:
+[SDK module acceptance](rust-parity-evidence/sdk-bytes-module-ci-green.json).
+The compiler byte-feature batch awaits its own hosted acceptance after publication.
+
+The byte feature passes 3,241 C and 1,097 Rust checks, 20 artifact, 44 import,
+14 runtime-contract and 22 CI-helper tests. Twelve ABI clients and five sanitized
+C runtime clients pass. Strict package checks cover 108 C/Rust/Go native controls,
+72 C/RS mixed-array body controls and 40 unchanged SDK Bytes/helper/namespace
+controls (220 total). Source/prebuilt controls remove backing implementations;
+public SDK source, callers and existing oracles remain unchanged. Evidence:
+[byte adapter validation](rust-parity-evidence/native-byte-array-adapter-validation.json).
+
+Additional native parity work exposed by the namespace controls: a source
+`native fn main()` compiles for C but produces duplicate entry symbols for Rust.
+This entry-point gap remains required work; native context namespace field/sizeof
+controls use a named native helper called from an ordinary main. Complete SDK,
+wider contracts and final original-corpus/platform/mode acceptance remain open.
+
 ## Function parameter qualifiers: CI correction, 2026-10-11
 
 Facade revision `e38cc04f` failed Windows core validation in

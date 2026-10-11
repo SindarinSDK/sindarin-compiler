@@ -1,0 +1,33 @@
+{
+  "run_id": 38106674043,
+  "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38106674043",
+  "revision": "71159379cacd487fe639e0145d7f1736f92c637f",
+  "conclusion": "success",
+  "jobs": [
+    {
+      "name": "Native text oracle contract",
+      "status": "completed",
+      "conclusion": "success",
+      "databaseId": 114373564508
+    },
+    {
+      "name": "sindarin-pkg-test / Test (ubuntu-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "databaseId": 114373564704
+    },
+    {
+      "name": "sindarin-pkg-test / Test (windows-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "databaseId": 114373564719
+    },
+    {
+      "name": "sindarin-pkg-test / Test (macos-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "databaseId": 114373564739
+    }
+  ],
+  "scope": "Original SDK package tests and new independent canonical C Bytes module pass on Linux/macOS/Windows; oracle/layout tests pass. Full SDK artifact migration remains required."
+}

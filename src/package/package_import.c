@@ -139,7 +139,7 @@ static bool import_type(Type *type)
     if (!type) return false;
     if (type->kind == TYPE_STRUCT) return type->as.struct_type.is_native && type->as.struct_type.pass_self_by_ref;
     if (type->kind == TYPE_ARRAY && type->as.array.element_type &&
-        type->as.array.element_type->kind == TYPE_STRING) return true;
+        (type->as.array.element_type->kind == TYPE_STRING || type->as.array.element_type->kind == TYPE_BYTE)) return true;
     return type->kind == TYPE_VOID || type->kind == TYPE_INT || type->kind == TYPE_LONG ||
            type->kind == TYPE_UINT || type->kind == TYPE_INT32 || type->kind == TYPE_UINT32 ||
            type->kind == TYPE_BYTE || type->kind == TYPE_CHAR || type->kind == TYPE_BOOL ||

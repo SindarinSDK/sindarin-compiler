@@ -35,7 +35,7 @@ int main(void)
     }
     assert(sn_abi_v1_query(SN_ABI_V1_5_VERSION, SN_ABI_CAP_NATIVE_STRING_ARRAYS, &info, sizeof(info)) == 0 && info.capabilities == 511);
     SnAbiInfo saved = info;
-    assert(sn_abi_v1_query(SN_ABI_V1_5_VERSION + 1, 0, &info, sizeof(info)) == SN_ABI_VERSION_MISMATCH);
+    assert(sn_abi_v1_query(SN_ABI_V1_6_VERSION + 1, 0, &info, sizeof(info)) == SN_ABI_VERSION_MISMATCH);
     assert(memcmp(&info, &saved, sizeof(info)) == 0);
     SnAbiValue *view = NULL, *copy = NULL, *wrong = NULL, *out = (SnAbiValue *)(uintptr_t)1;
     assert(sn_abi_v1_native_string_array_borrow(NULL, &out) == 0 && !out);
@@ -102,6 +102,14 @@ int main(void)
     assert(sn_abi_v1_native_string_array_adopt(original, &view) == 0);
     assert(sn_test_native_strings_reenter(view, consume_credit, 0) == 0 && callbacks == 64);
     assert(sn_test_native_strings_destroyed() == 268);
+    assert(sn_abi_v1_native_string_array_adopt(sn_test_native_strings_new(), &view) == 0);
+    sn_test_native_strings_copy_consume(view);
+    assert(sn_abi_v1_native_string_array_copy(view, &copy) == 0);
+    assert(sn_test_native_strings_destroyed() == 272);
+    assert(sn_abi_v1_native_string_array_data(copy, &header) == 0 && header->len == 4);
+    assert(!strcmp(((char **)header->data)[0], "one") && !((char **)header->data)[1]);
+    sn_abi_v1_release(copy);
+    assert(sn_test_native_strings_destroyed() == 276);
     /* Empty untyped native storage can acquire a typed view without rewriting
      * the legacy header. Its element width is still explicitly validated. */
     original = sn_array_new(sizeof(char *), 0);

@@ -1,0 +1,125 @@
+{
+  "base_revision": "5c8f17337b8ccf2b1d495e4569f282688d76fa7f",
+  "counts": {
+    "c": {
+      "passed": 3241,
+      "failed": 0,
+      "skipped": 0
+    },
+    "rust": {
+      "passed": 1097,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "package_import_tests": 44,
+  "package_artifact_tests": 20,
+  "ci_helper_tests": 22,
+  "runtime_contract_tests": 14,
+  "runtime_abi_clients": 12,
+  "sanitized_c_runtime_clients": 5,
+  "strict_package_cases": {
+    "native_C_RS_GO": 108,
+    "sindarin_C_RS_mixed_array_bodies": 72,
+    "unchanged_SDK_Bytes_plus_helpers_namespace": 40,
+    "total": 220
+  },
+  "implementation": "ABI 1.6 canonical C byte views and unique owned-header transfer; generated consumers/providers C/RS/GO; canonical C/RS body storage; mixed array input guards; original SDK Bytes methods/decoder; native value static namespaces.",
+  "SDK_revision_under_validation": "71159379cacd487fe639e0145d7f1736f92c637f",
+  "hosted_acceptance": "SDK dependency accepted; compiler byte-feature publication requires its own complete CI acceptance",
+  "original_public_sdk_sources_or_oracles_changed": false,
+  "complete_goal": false,
+  "known_remaining_entry_gap": "native fn main() is C-supported but Rust produces duplicate entry symbols; native-context namespace control uses a named native helper and ordinary main.",
+  "source_sha256": {
+    "docs/native-artifacts.md": "dc55b97a07348ea9540826077f3f4f76f5632e33c043e18fcf9e71277a90b2a4",
+    "docs/native-package-imports.md": "283470c85e3cda7eb5353b24a237b952ca7856dcc262dda3620d4ca4c3373df3",
+    "docs/native-package-manifest.md": "af73cfa9774dec433742d2ae51c5d774438d33ded5dc8c83b10f404a02cb9610",
+    "docs/runtime-abi.md": "7485241adbcacb0d86ef9c9ac533c323404378fa890f4f23975e8520330d8c31",
+    "docs/runtime-target-architecture.md": "12ba781d5657b8745b835528ca20ea00558ef46983dba56eff7d21cfdf74b639",
+    "docs/rust-parity-progress.md": "57eaaf419892e4b3f2d50de7d9a1987cfe27e97b438895c509e560de4110e032",
+    "scripts/build_native_package.py": "e1ca0058caa83dc6f58e35af91c65ebe47b5e91f56388fab442aded850db3a5b",
+    "scripts/check_runtime_abi.py": "6e964a3fba2b88a69a5de07fb7b1a336b3b8e93e5ec9af869659f860cc7a0b4b",
+    "scripts/ci/gates.json": "be3b7c9eacf91520482017fa5e6692b7f532c7f7b796e1165f5ab268533902b2",
+    "scripts/native_contract.py": "f65d367b5d253a395151f288cba95d7a08a79697501594e9060e07850ce507a3",
+    "scripts/native_provider.py": "21892224624bc78e7cd9c0b03fc7ecaa2ba9da62c44f8621663905b1952d4fbc",
+    "scripts/prepare_native_imports.py": "dbd0b9bed5980ced3c73eac1abe071cdde40a94904c213f7536e31d076f9059b",
+    "scripts/sindarin_library.py": "15dc8e59084c78402effbd2dc98e936239cff4583516ef6c9233a6e17fb96332",
+    "src/package/package_import.c": "509e64e59d47302fbfddd6746d1caf522a35caa21dbe3b23661e312c2ba6dc5c",
+    "src/package/package_yaml_native.c": "c8326c83a46327ffc291f7a631a87193964ef27ece6ec7640aa4cdd2e35b3e2f",
+    "src/runtime/sn_abi.c": "1b85814343af341e740c511d4c15600024b6fac81481e026b493091fa4cd01e7",
+    "src/runtime/sn_abi.h": "a184a495093faa6a734c8ee8e75619c80824f5924b2342906eb50eba8843ee5e",
+    "src/target/rust/rust_lower_sizeof.c": "2829dd2dbaae550f1f8a9780e7ce8324d6601ba442279598457ed069f8519d4d",
+    "src/target/rust/rust_native_handles.c": "7e679226045ac520d315760c2aa1296efac2e6643dc635a61b4c5ae3e908f957",
+    "src/target/rust/rust_native_records.c": "49e941c67f78aceab3220dbb7eedda710bcdd8acde7927c2925d1e36bc06cd98",
+    "tests/package/native_imports.py": "b6d0a66141ef0a121de2d23094998023457fc327f4bb65e1e54b9141b07a1072",
+    "tests/runtime_abi/client.rs": "33687ebde92ad8f84f4d2b94ccf60ff1bf42a03dd2293b3f510f8a611d189e47",
+    "tests/runtime_abi/go/bridge.c": "173c8c8f431322d7cdf07dd21de5d4c7e15a428e8af498e634f2c736ba14a5a0",
+    "tests/runtime_abi/go/main.go": "8043290730883bb5babd9b923e797a82e442c53de91d48155cfe3ce8d0fa42a4",
+    "tests/runtime_abi/go/native_byte_array.go": "6253b6653c6bb9b7f79fb71972e209a347b4fa16b1c91a97b1edcac5fb7e4e57",
+    "tests/runtime_abi/native_byte_array.c": "78fc6c52b72cc39595af4060ecd8c1e263bd53ea5e7b3f1ff7f58c4771969fab",
+    "tests/runtime_abi/native_byte_array.rs": "e597daa92deeb66bcf82decb3fa906e59fe5b524148229714739d26ddaf624fb",
+    "tests/runtime_abi/native_byte_array_bridge.c": "769c72a274c39e9140095eb177a03f596aac5a47851cf926702ce7d7afaf0aad",
+    "tests/runtime_abi/native_byte_array_bridge.h": "fdec4fcfc0fefab5693f9010962463d526a485792973211b1aa83654f47e3a4b",
+    "tests/runtime_abi/native_string_array.c": "6076dcb0a68942a274f6e8d94ea8f7dea900b02044286948bf7a95ecddacc9ae",
+    "tests/runtime_abi/native_string_array_bridge.c": "1db35d9bc4c2e38f3be7bad1162f6d12b6beafaabc575915055a2d991818d9b2",
+    "tests/runtime_abi/native_string_array_bridge.h": "2b0bc0f1abaf08495a0c2fe27ded60a162cb5fbeb27d983e6fcab33af9433fe4",
+    ".github/workflows/ci.yml": "d1a45f748254d5f07049953d3c6165bec468f16cae8d4164bc8dc49573bfcefd"
+  },
+  "log_sha256": {
+    "/tmp/sindarin-byte-adapter-c-suite.log": "37a787ebadeb8465e91c0d90f69a75bfe31f598d6345e39071c0b907449418bc",
+    "/tmp/sindarin-byte-adapter-rust-suite.log": "643e446bb332185476d5b3c3319c26d92709ad0bcec279c069aa4da18ec29eac",
+    "/tmp/sindarin-byte-adapter-abi.log": "cff1fd5d8c2e6ec9ad12d3458cb46c43bf90f40d17f5e02085c595922025d12f",
+    "/tmp/sindarin-byte-adapter-abi-sanitizers.log": "29f33fac601a4aa817873ba660f2c6d549855e026814b74870a1b6c0c62beec1",
+    "/tmp/sindarin-byte-adapter-imports.log": "0451564ea33509fc714363a4f3099eb219d3dc7eeb2675350dd024b1f1c1d2c1",
+    "/tmp/sindarin-byte-adapter-artifacts.log": "0e4d9bab31795918d35b9718e415386ad6fff167e62da0af1ef0e37083151342",
+    "/tmp/sindarin-byte-adapter-helpers.log": "223f66786528eeebfad97e68b9f26a1ce9982ebc1ad96734c8efb73c8be9e51c",
+    "/tmp/sindarin-byte-adapter-contracts.log": "5210e6d70c9cbac5b9a88e1b3fff437f6a67e25c4eb4cc6a7198726476ca5958",
+    "/tmp/sindarin-byte-adapter-strict.log": "2b63c5a8ec216fd62401bdfa2570445b4048910f0c7d7b90b9a0b49b3810bb29",
+    "/tmp/sindarin-byte-adapter-pinned-sdk.log": "9f77fa2d150c5af902a04bfdf21f2c424c07f94a3a46817a41343ed61879aa1b",
+    "/tmp/sindarin-byte-adapter-pin-helpers.log": "433dd355f4bb90277c8a86397d1cccc450434b97ad6e2701d21020ed6996683e",
+    "/tmp/sindarin-byte-adapter-pinned-sdk-native.log": "f04616841c5655b8471578e7c2bbc7f2fc307de4223fa8d90f201d9d9d59b87b",
+    "/tmp/sindarin-byte-adapter-pinned-sdk-native-sanitizers.log": "6fc4d18e0fcf1c3860c64bb1b6ca1eb9ce46211d316d81fc9bc96799548dcc11"
+  },
+  "SDK_hosted_acceptance": {
+    "run_id": 38106674043,
+    "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38106674043",
+    "revision": "71159379cacd487fe639e0145d7f1736f92c637f",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "name": "Native text oracle contract",
+        "status": "completed",
+        "conclusion": "success",
+        "databaseId": 114373564508
+      },
+      {
+        "name": "sindarin-pkg-test / Test (ubuntu-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "databaseId": 114373564704
+      },
+      {
+        "name": "sindarin-pkg-test / Test (windows-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "databaseId": 114373564719
+      },
+      {
+        "name": "sindarin-pkg-test / Test (macos-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "databaseId": 114373564739
+      }
+    ],
+    "scope": "Original SDK package tests and new independent canonical C Bytes module pass on Linux/macOS/Windows; oracle/layout tests pass. Full SDK artifact migration remains required."
+  },
+  "pinned_sdk_native_controls": {
+    "normal": 25,
+    "sanitized": 2,
+    "unchanged_sdk_facade_modules": [
+      "TextFile",
+      "Bytes"
+    ],
+    "dependency_revision": "71159379cacd487fe639e0145d7f1736f92c637f"
+  }
+}

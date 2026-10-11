@@ -1,9 +1,9 @@
 # Generated native package imports
 
 Status: implemented consumer and provider adapters for resolved scalar and string
-function, borrowed-input/owned-result string-array contracts, and C-backed native
+function, borrowed-input/owned-result string/byte-array contracts, and C-backed native
 as-ref records with explicit public storage/lifecycle contracts. Complete independent Sindarin package bodies, unchanged SDK facade imports,
-wider SDK module/type, managed record/interface/callback contracts and non-string array elements,
+wider SDK module/type, managed record/interface/callback contracts and other array elements,
 and wider package graph planning
 remain required by the [Rust completion goal](rust-completion-goal.md).
 
@@ -244,3 +244,25 @@ forces GC during calls. A C provider client checks unchanged error outputs,
 package shutdown and exactly-once native cleanup when a callback consumes its
 external credit. Strict address/undefined/leak controls cover the generated C
 and Rust bodies and C/Rust caller paths.
+## Byte arrays (native ABI 1.6)
+
+Generated `byte[]` contracts require `native.abi: 1.6`, borrowed parameter
+ownership and owned result ownership. C/Rust consumers pass actual canonical
+C array headers through typed views, preserving aliases and in-call mutation.
+Owned results transfer a unique adopted header with its original allocation and
+hooks. A borrowed/retained result view is rejected rather than copied implicitly.
+
+C backing functions use `SnArray *`. Native Rust inputs use `*mut c_void`, and
+Go inputs use `unsafe.Pointer`; neither language may cast its own vector/slice
+layout to a C header. Ordinary Rust results use `Option<Vec<u8>>` and Go results
+use `[]byte`; generated providers copy them into canonical C storage while
+preserving nil versus empty and all binary bytes. Status functions use the
+existing `Result<...,u32>`/`(...,uint32)` conventions. C/Rust Sindarin bodies use
+canonical array emission, including mixed `str[]`/`byte[]` argument guards;
+Rust body results transfer their owned C storage directly.
+
+The unchanged SDK Bytes module and decoder build as separate C archives. Its
+static methods and free native helper imports keep their original public source,
+and prebuilt consumers require no backing C source. This covers the Bytes module,
+not the entire SDK. Reference rebinding, wider array/type contracts and complete
+SDK packaging remain required.

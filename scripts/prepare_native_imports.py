@@ -30,12 +30,14 @@ def adapter(signature, package):
             for index,record in enumerate(records)]
     code += [f'extern {return_wire} {symbol}({", ".join(wire_params) or "void"});',
              f'{raw_type(signature["return_type"])} {alias}(' + ', '.join(f'{raw_type(p["type"])} p{i}' for i,p in enumerate(params)) + ') {']
-    live_arrays = signature.get('abi') == '1.5'
-    version = 'SN_ABI_V1_5_VERSION' if live_arrays else 'SN_ABI_V1_1_VERSION' if signature.get('abi') == '1.1' else 'SN_ABI_V1_VERSION'
+    live_arrays = signature.get('abi') in ('1.5','1.6')
+    version = 'SN_ABI_V1_6_VERSION' if signature.get('abi') == '1.6' else 'SN_ABI_V1_5_VERSION' if live_arrays else 'SN_ABI_V1_1_VERSION' if signature.get('abi') == '1.1' else 'SN_ABI_V1_VERSION'
     arrays = result == 'string_array' or any(kind(p['type']) == 'string_array' for p in params)
     capabilities = 'SN_ABI_CAP_VALUES | SN_ABI_CAP_VALUE_ARRAYS' if arrays else 'SN_ABI_CAP_VALUES'
     if live_arrays and any(kind(p['type']) == 'string_array' for p in params):
         capabilities += ' | SN_ABI_CAP_NATIVE_STRING_ARRAYS'
+    if result == 'byte_array' or any(kind(p['type']) == 'byte_array' for p in params):
+        capabilities += ' | SN_ABI_CAP_NATIVE_BYTE_ARRAYS'
     if records: capabilities += ' | SN_ABI_CAP_RESOURCES | SN_ABI_CAP_TYPED_RESOURCES'
     message = json.dumps(f"native package '{package}' requires a compatible shared runtime ABI\n")
     code += ['  SnAbiInfo abi_info;',
@@ -47,13 +49,15 @@ def adapter(signature, package):
         if kind(p['type']) == 'string':
             code += [f'  SnAbiValue *w{i} = NULL;',
                      f'  if (sn_abi_v1_string_copy(p{i}, &w{i}) != SN_ABI_OK) abort();']
-        elif kind(p['type']) == 'string_array':
+        elif kind(p['type']) in ('string_array','byte_array'):
+            array_kind=kind(p['type'])
             code += [f'  SnAbiValue *w{i} = NULL;']
             for previous in range(i):
-                if kind(params[previous]['type']) == 'string_array':
+                if kind(params[previous]['type']) == array_kind:
                     code.append(f'  if (p{i} == p{previous}) w{i} = sn_abi_v1_retain(w{previous}); else')
             if live_arrays:
-                code.append(f'  if (sn_abi_v1_native_string_array_borrow(p{i}, &w{i}) != SN_ABI_OK) abort();')
+                operation='native_byte_array_borrow' if array_kind=='byte_array' else 'native_string_array_borrow'
+                code.append(f'  if (sn_abi_v1_{operation}(p{i}, &w{i}) != SN_ABI_OK) abort();')
                 continue
             code += [f'  if (p{i}) {{',
                      f'    if (sn_abi_v1_value_array_new(&w{i}) != SN_ABI_OK) abort();',
@@ -66,7 +70,7 @@ def adapter(signature, package):
             destroy = records.index(record)
             code += [f'  SnAbiValue *w{i} = NULL;', f'  if (p{i}) {{ {record["retain"]}(p{i});',
                      f'    if (sn_abi_v1_resource_new_typed({json.dumps(record["identity"])}, p{i}, {alias}_record_destroy_{destroy}, 0, &w{i}) != SN_ABI_OK) {{ {record["release"]}(p{i}); abort(); }}', '  }']
-    arguments = [f'w{i}' if kind(p['type']) in ('string','string_array','record') else f'({TYPES[kind(p["type"])][1]})p{i}' for i,p in enumerate(params)]
+    arguments = [f'w{i}' if kind(p['type']) in ('string','string_array','byte_array','record') else f'({TYPES[kind(p["type"])][1]})p{i}' for i,p in enumerate(params)]
     if result != 'void': code += [f'  {TYPES[result][1]} wire_result = {{0}};']
     if status:
         if result != 'void': arguments.append('&wire_result')
@@ -75,7 +79,7 @@ def adapter(signature, package):
         call = f'{symbol}({", ".join(arguments)})'
         code += [('  wire_result = ' if result != 'void' else '  ') + call + ';']
     for i,p in enumerate(params):
-        if kind(p['type']) in ('string','string_array','record'): code += [f'  sn_abi_v1_release(w{i});']
+        if kind(p['type']) in ('string','string_array','byte_array','record'): code += [f'  sn_abi_v1_release(w{i});']
     if status:
         message = json.dumps(f"native package '{package}' export '{symbol}' failed: %s\n")
         code += [f'  if (status != SN_ABI_OK) {{ fprintf(stderr, {message}, sn_abi_v1_status_message(status)); exit(1); }}']
@@ -96,6 +100,10 @@ def adapter(signature, package):
                  '      memcpy(text, bytes.data, (size_t)bytes.length); text[bytes.length] = 0; }',
                  '    sn_array_push(output, &text); sn_abi_v1_release(element);', '  }',
                  '  sn_abi_v1_release(wire_result); return output;']
+    elif result == 'byte_array':
+        code += ['  SnArray *output = NULL;',
+                 '  if (sn_abi_v1_native_byte_array_take(&wire_result, &output) != SN_ABI_OK) abort();',
+                 '  return output;']
     elif result == 'record':
         record = signature['return_type']['native_record']
         code += ['  void *pointer = NULL;',

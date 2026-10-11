@@ -1271,7 +1271,7 @@
     },
     {
       "id": "runtime-105",
-      "name": "shared C runtime ABI: values, array replacement and C/Rust/Go clients",
+      "name": "shared C runtime ABI: values, native string/byte arrays and C/Rust/Go clients",
       "command": [
         "{python}",
         "scripts/check_runtime_abi.py"
@@ -1302,7 +1302,7 @@
     },
     {
       "id": "runtime-108",
-      "name": "canonical C SDK TextFile: C/Rust/Go clients and unchanged Sindarin callers",
+      "name": "canonical C SDK TextFile/Bytes: native clients and unchanged Sindarin callers",
       "command": [
         "{python}",
         ".sn/sdk-native-integration/scripts/check_textfile_native.py",
@@ -1314,7 +1314,7 @@
     },
     {
       "id": "runtime-109",
-      "name": "canonical C SDK TextFile: resource and array lifetime sanitizers",
+      "name": "canonical C SDK TextFile/Bytes: resource and array lifetime sanitizers",
       "command": [
         "{python}",
         ".sn/sdk-native-integration/scripts/check_textfile_native.py",

@@ -136,6 +136,10 @@ static bool native_prepare_handles(json_object *model, RustNativePlan *plan)
     json_object *structures = native_record_child(model, "structs");
     for (size_t i = 0; structures && i < json_object_array_length(structures); i++) {
         json_object *structure = json_object_array_get_idx(structures, i);
+        if (native_bool(structure, "rust_native_static_namespace")) {
+            if (!native_handle_prepare_methods(model, structure)) { json_object_put(handles); return false; }
+            continue;
+        }
         if (!native_bool(structure, "is_native") || !native_bool(structure, "pass_self_by_ref") ||
             native_bool(structure, "is_packed") || native_bool(structure, "is_serializable") ||
             native_bool(structure, "has_user_copy_method")) continue;

@@ -4,6 +4,7 @@
 struct SnArray *sn_test_native_strings_new(void);
 void sn_test_native_strings_free(struct SnArray *array);
 uint64_t sn_test_native_strings_destroyed(void);
+void sn_test_native_strings_copy_consume(SnAbiValue *value);
 SnAbiStatus sn_test_native_strings_length(SnAbiValue *view, uint64_t *out);
 SnAbiStatus sn_test_native_strings_read(SnAbiValue *view, uint64_t index, SnAbiValue **out);
 SnAbiStatus sn_test_native_strings_push(SnAbiValue *view, const char *text);

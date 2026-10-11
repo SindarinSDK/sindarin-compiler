@@ -290,6 +290,163 @@ class NativeImports(unittest.TestCase):
             for target in ('c','rust'):
                 with self.subTest(target=target,flags=flags,archive='prebuilt'):self.execute(target,expected,flags)
 
+    def test_native_byte_arrays_preserve_live_inputs_and_owned_results(self):
+        import hashlib,json
+        for language in ('C','RS','GO'):
+            name='bytes'+language.lower(); package=self.root/'.sn'/name
+            self.write(f'.sn/{name}/src/api.sn','native fn mutate(a: byte[], b: byte[]): byte[]\n')
+            self.write(f'.sn/{name}/src/ops.h','#include <stdint.h>\n'
+                'uint32_t test_byte_mutate(void*,void*);\nconst uint8_t *test_byte_data(void*,uint64_t*);\n')
+            self.write(f'.sn/{name}/src/ops.c','#include "sn_array.h"\n#include "ops.h"\n'
+                'uint32_t test_byte_mutate(void *left,void *right) { SnArray *a=left; if(left!=right) return 1; if(!a) return 0; '
+                'a->elem_tag=SN_TAG_BYTE; unsigned char value=128; if(!a->len) { sn_array_push(a,&value); return 0; } '
+                '((unsigned char*)a->data)[0]=42; value=255; for(int i=0;i<64;i++) sn_array_push(a,&value); '
+                'if(((SnArray*)right)->len!=68 || ((unsigned char*)((SnArray*)right)->data)[0]!=42) abort(); '
+                'value=0; sn_array_push(a,&value); return 0; }\n'
+                'const uint8_t *test_byte_data(void *value,uint64_t *length) { SnArray *a=value; *length=a?(uint64_t)a->len:0; return a?a->data:NULL; }\n')
+            source={
+                'C':'#include "sn_array.h"\n#include "ops.h"\nuint32_t mutate(SnArray*a,SnArray*b,SnArray**out) { uint32_t status=test_byte_mutate(a,b); if(status) return status; *out=sn_array_copy(a); return 0; }\n',
+                'RS':'use std::ffi::c_void; extern "C" { fn test_byte_mutate(a:*mut c_void,b:*mut c_void)->u32; fn test_byte_data(a:*mut c_void,length:*mut u64)->*const u8; }\n'
+                     'pub fn mutate(a:*mut c_void,b:*mut c_void)->Result<Option<Vec<u8>>,u32> { unsafe { let status=test_byte_mutate(a,b); if status!=0 { return Err(status); } '
+                     'let mut length=0; let data=test_byte_data(a,&mut length); Ok(if data.is_null() { None } else { Some(std::slice::from_raw_parts(data,length as usize).to_vec()) }) } }\n',
+                'GO':'package backing\n/* #include "../ops.h" */\nimport "C"\nimport "unsafe"\n'
+                     'func Mutate(a,b unsafe.Pointer) ([]byte,uint32) { if status:=C.test_byte_mutate(a,b); status!=0 { return nil,uint32(status) }; var length C.uint64_t; '
+                     'data:=C.test_byte_data(a,&length); if data==nil { return nil,0 }; return C.GoBytes(unsafe.Pointer(data),C.int(length)),0 }\n'}[language]
+            suffix={'C':'c','RS':'rs','GO':'go'}[language]; path='src/backing/main.go' if language=='GO' else 'src/impl.'+suffix
+            self.write(f'.sn/{name}/'+path,source)
+            if language=='GO':self.write(f'.sn/{name}/src/backing/go.mod','module sindarin.test/'+name+'\n\ngo 1.26.0\n')
+            manifest=(f'name: {name}\nruntime: {language}\nnative:\n  abi: 1.6\n  declarations: [src/api.sn]\n  builds:\n'
+                f'    - name: backing\n      language: {language}\n      sources: [{path}]\n      include_dirs: [src]\n')
+            if language=='RS':manifest+='      entry: '+path+'\n'
+            if language=='GO':manifest+='      module: src/backing\n'
+            manifest+='    - name: operations\n      language: C\n      sources: [src/ops.c]\n'
+            manifest+=('  bindings:\n    - declaration: src/api.sn::mutate\n      function: '+('Mutate' if language=='GO' else 'mutate')+
+                f'\n      build: backing\n      symbol: {name}_mutate\n      convention: C\n      failure: status\n'
+                '      ownership: {parameters: {a: borrowed, b: borrowed}, result: owned}\n')
+            self.write(f'.sn/{name}/sn.yaml',manifest)
+            self.write('main.sn',f'import "{name}/src/api"\nfn main(): void =>\n'
+                '  println(mutate(nil,nil) == nil)\n  var empty: byte[] = {}\n  var fresh=mutate(empty,empty)\n'
+                '  println(empty.length)\n  println(fresh[0])\n'
+                '  var bytes: byte[] = {0,127,128,255}\n  var result=mutate(bytes,bytes)\n'
+                '  println(bytes.length)\n  println(bytes[0])\n  println(bytes[68])\n  bytes[0]=9\n'
+                '  println(result.length)\n  println(result[0])\n  println(result[2])\n  println(result[3])\n  println(result[68])\n')
+            expected=b'true\n1\n0x80\n69\n0x2A\n0x00\n69\n0x2A\n0x80\n0xFF\n0x00\n'
+            modes=[(o,)+((a,) if a else ()) for o in ('-O0','-O1','-O2') for a in (None,'--checked','--unchecked')]
+            for flags in modes:
+                for target in ('c','rust'):
+                    with self.subTest(language=language,target=target,flags=flags):self.execute(target,expected,flags)
+            built=subprocess.run([str(COMPILER),'--build-native',str(package/'sn.yaml'),'--target','rust','-o',str(package/'dist-build')],
+                cwd=self.root,capture_output=True,timeout=180)
+            self.assertEqual(built.returncode,0,built.stderr.decode(errors='replace'))
+            assembly=Path(json.loads(built.stdout)['assembly']); shutil.copytree(assembly.parent,package/'dist')
+            (package/'sn.yaml').write_text(manifest.replace('  abi: 1.6\n','  abi: 1.6\n  assembly: {path: dist/assembly.json, sha256: '+hashlib.sha256(assembly.read_bytes()).hexdigest()+'}\n'))
+            for file in (package/'src').rglob('*'):
+                if file.is_file() and file.suffix in ('.c','.rs','.go'):file.unlink()
+            for flags in modes:
+                for target in ('c','rust'):
+                    with self.subTest(prebuilt=language,target=target,flags=flags):self.execute(target,expected,flags)
+
+    def test_sindarin_byte_array_bodies_preserve_mixed_array_arguments(self):
+        import hashlib,json
+        for runtime in ('C','RS'):
+            name='bytebody'+runtime.lower(); package=self.root/'.sn'/name
+            self.write(f'.sn/{name}/src/api.sn','native fn mutate(bytes: byte[], alias: byte[]): byte[]\n'
+                'native fn label(values: str[], bytes: byte[]): str[]\n')
+            self.write(f'.sn/{name}/src/observer.h','#include "sn_array.h"\n'
+                'static inline void observe_bytes(SnArray *a) { if(!a || a->len!=68 || ((unsigned char*)a->data)[0]!=42) abort(); '
+                'unsigned char byte=0; sn_array_push(a,&byte); }\n')
+            self.write(f'.sn/{name}/src/body.sn','@include "observer.h"\n@alias "observe_bytes"\nnative fn observe(bytes: byte[]): void\n'
+                'fn mutate(bytes: byte[], alias: byte[]): byte[] =>\n  if bytes == nil =>\n    return nil\n'
+                '  if bytes.length == 0 =>\n    bytes.push(128)\n    return alias\n'
+                '  bytes[0]=42\n  for i in 0..64 =>\n    bytes.push(255)\n  observe(alias)\n  return alias\n'
+                'fn label(values: str[], bytes: byte[]): str[] =>\n  values.push("binary")\n  bytes.push(0)\n  return values\n')
+            manifest=(f'name: {name}\nruntime: {runtime}\nnative:\n  abi: 1.6\n  declarations: [src/api.sn]\n  builds:\n'
+                '    - name: body\n      language: SN\n      entry: src/body.sn\n      sources: [src/body.sn]\n      include_dirs: [src]\n  bindings:\n')
+            for function,parameters in (('mutate','bytes: borrowed, alias: borrowed'),('label','values: borrowed, bytes: borrowed')):
+                manifest+=(f'    - declaration: src/api.sn::{function}\n      function: {function}\n      symbol: {name}_{function}\n'
+                    '      build: body\n      convention: C\n      failure: status\n'
+                    '      ownership: {parameters: {'+parameters+'}, result: owned}\n')
+            self.write(f'.sn/{name}/sn.yaml',manifest)
+            self.write('main.sn',f'import "{name}/src/api"\nfn main(): void =>\n'
+                '  println(mutate(nil,nil) == nil)\n  var empty: byte[] = {}\n  var fresh=mutate(empty,empty)\n'
+                '  println(empty.length)\n  println(fresh[0])\n  var bytes: byte[] = {0,127,128,255}\n'
+                '  var result=mutate(bytes,bytes)\n  println(bytes.length)\n  println(bytes[0])\n  println(bytes[68])\n'
+                '  bytes[0]=9\n  println(result.length)\n  println(result[0])\n  println(result[2])\n  println(result[3])\n'
+                '  println(result[68])\n  var names: str[] = {"first"}\n  var labels=label(names,bytes)\n'
+                '  println(names.length)\n  println(labels[1])\n  println(bytes.length)\n')
+            expected=b'true\n1\n0x80\n69\n0x2A\n0x00\n69\n0x2A\n0x80\n0xFF\n0x00\n2\nbinary\n70\n'
+            modes=[(o,)+((a,) if a else ()) for o in ('-O0','-O1','-O2') for a in (None,'--checked','--unchecked')]
+            for flags in modes:
+                for target in ('c','rust'):
+                    with self.subTest(runtime=runtime,target=target,flags=flags):self.execute(target,expected,flags)
+            built=subprocess.run([str(COMPILER),'--build-package',str(package/'sn.yaml'),'--target','rust','-o',str(package/'dist-build')],
+                cwd=self.root,capture_output=True,timeout=180)
+            self.assertEqual(built.returncode,0,built.stderr.decode(errors='replace'))
+            assembly=Path(json.loads(built.stdout)['assembly']); shutil.copytree(assembly.parent,package/'dist')
+            (package/'sn.yaml').write_text(manifest.replace('  abi: 1.6\n','  abi: 1.6\n  assembly: {path: dist/assembly.json, sha256: '+hashlib.sha256(assembly.read_bytes()).hexdigest()+'}\n'))
+            (package/'src/body.sn').unlink(); (package/'src/observer.h').unlink()
+            for flags in modes:
+                for target in ('c','rust'):
+                    with self.subTest(prebuilt=runtime,target=target,flags=flags):self.execute(target,expected,flags)
+
+    def test_unchanged_sdk_bytes_facade_is_an_independent_c_library(self):
+        import hashlib,json
+        sdk=Path(os.environ.get('SN_SDK_ROOT',ROOT/'.sn/sdk-native-integration')).resolve()
+        package=self.root/'.sn/sindarin-pkg-sdk'
+        for name in ('bytes.sn','bytes.sn.c','bytes.native.c','bytes.native.h'):
+            source=sdk/'src/io'/name
+            self.assertTrue(source.is_file(),'independent SDK Bytes module is required: '+str(source))
+            destination=package/'src/io'/name
+            destination.parent.mkdir(parents=True,exist_ok=True)
+            shutil.copyfile(source,destination)
+        original=(package/'src/io/bytes.sn').read_bytes()
+        manifest=('name: sindarin-pkg-sdk\nruntime: C\nnative:\n  abi: 1.6\n'
+            '  declarations: [src/io/bytes.sn]\n  builds:\n'
+            '    - name: native\n      language: C\n      sources: [src/io/bytes.native.c]\n'
+            '      provides_sources: [src/io/bytes.sn.c]\n      include_dirs: [src/io]\n'
+            '    - name: facade\n      language: SN\n      entry: src/io/bytes.sn\n'
+            '      sources: [src/io/bytes.sn]\n      include_dirs: [src/io]\n  bindings:\n')
+        for declaration,function,symbol,build,parameter in (
+            ('sn_bytes_from_hex','sn_sdk_bytes_from_hex','sdk_bytes_helper_hex','native','hex'),
+            ('sn_bytes_from_base64','sn_sdk_bytes_from_base64','sdk_bytes_helper_base64','native','b64'),
+            ('Bytes.fromHex','Bytes.fromHex','sdk_bytes_method_hex','facade','hexString'),
+            ('Bytes.fromBase64','Bytes.fromBase64','sdk_bytes_method_base64','facade','base64String')):
+            manifest+=(f'    - declaration: src/io/bytes.sn::{declaration}\n'
+                f'      function: {function}\n      symbol: {symbol}\n      build: {build}\n'
+                '      convention: C\n      failure: abort\n'
+                f'      ownership: {{parameters: {{{parameter}: borrowed}}, result: owned}}\n')
+        self.write('.sn/sindarin-pkg-sdk/sn.yaml',manifest)
+        shutil.copyfile(sdk/'tests/io/test_bytes.sn',self.root/'main.sn')
+        expected=(sdk/'tests/io/test_bytes.expected').read_bytes().replace(b'\r\n',b'\n')
+        modes=[(optimization,)+((arithmetic,) if arithmetic else ())
+               for optimization in ('-O0','-O1','-O2') for arithmetic in (None,'--checked','--unchecked')]
+        for flags in modes:
+            for target in ('c','rust'):
+                with self.subTest(target=target,flags=flags,archive='source'):self.execute(target,expected,flags)
+        built=subprocess.run([str(COMPILER),'--build-native',str(package/'sn.yaml'),'--target','rust',
+            '-o',str(self.root/'artifacts')],cwd=self.root,capture_output=True,timeout=180)
+        self.assertEqual(built.returncode,0,built.stderr.decode(errors='replace'))
+        assembly=Path(json.loads(built.stdout)['assembly'])
+        shutil.copytree(assembly.parent,package/'dist')
+        self.assertEqual((package/'src/io/bytes.sn').read_bytes(),original)
+        (package/'sn.yaml').write_text(manifest.replace('  abi: 1.6\n',
+            '  abi: 1.6\n  assembly:\n    path: dist/assembly.json\n    sha256: '+hashlib.sha256(assembly.read_bytes()).hexdigest()+'\n'))
+        (package/'src/io/bytes.native.c').unlink(); (package/'src/io/bytes.sn.c').unlink()
+        for flags in modes:
+            for target in ('c','rust'):
+                with self.subTest(target=target,flags=flags,archive='prebuilt'):self.execute(target,expected,flags)
+        self.assertEqual((package/'src/io/bytes.sn').read_bytes(),original)
+        self.write('main.sn','import "sindarin-pkg-sdk/src/io/bytes"\nfn main(): void =>\n'
+            '  var bytes = sn_bytes_from_hex("0080ff")\n  println(bytes.toHex())\n'
+            '  println(sn_bytes_from_base64("AID/").toHex())\n')
+        for target in ('c','rust'):
+            with self.subTest(helper=target):self.execute(target,b'0080ff\n0080ff\n')
+        self.write('main.sn','import "sindarin-pkg-sdk/src/io/bytes"\nnative fn inspect(): void =>\n'
+            '  var marker: Bytes = Bytes {_unused: 7}\n  println(marker._unused)\n  println(sizeof(Bytes))\n'
+            '  println(Bytes.fromHex("0080ff").toHex())\nfn main(): void =>\n  inspect()\n')
+        for target in ('c','rust'):
+            with self.subTest(namespace=target):self.execute(target,b'7\n4\n0080ff\n')
+
     def test_unchanged_sdk_textfile_facade_is_an_independent_c_library(self):
         import hashlib,json
         sdk=Path(os.environ.get('SN_SDK_ROOT',ROOT/'.sn/sdk-native-integration')).resolve()

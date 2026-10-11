@@ -280,3 +280,18 @@ link together with distinct helper symbols, unchanged helper-like string literal
 native C-backed initialization and independent package globals. Complete
 record/interface/callback and reference contracts, dependency lifecycle graphs,
 SDK artifact migration and final corpus acceptance remain required.
+## Canonical byte arrays and SDK static namespaces
+
+Native ABI 1.6 supports `byte[]` exports from C/Rust/Go backing and C/Rust
+Sindarin bodies. Owned results retain their canonical C header and hooks through
+transfer; borrowed inputs preserve live aliases. Artifact compatibility and
+sealed signature validation include the ABI version, byte element type and
+ownership contract. Earlier record contracts can be used in ABI 1.6 as well.
+
+Native value classes containing supported fields and only static methods use the
+existing Rust value-record machinery. Generated native static-method adapters
+keep namespace owners available even for callers using only free helper imports.
+Native-context fields and C `sizeof` remain supported; source declarations and
+the language's native-context rules are preserved. This permits the unchanged
+SDK Bytes facade to link to its original C decoder. Whole-SDK assembly packaging
+and wider value/interface/generic contracts remain unfinished.

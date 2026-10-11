@@ -236,3 +236,12 @@ declarations and build/binding contracts remain required. A selected assembly
 is verified and consumed without reading backing sources or invoking their
 toolchains; no source-build fallback occurs on incompatibility. See
 [prebuilt artifacts](native-artifacts.md#consuming-a-prebuilt-artifact).
+## ABI 1.6 byte-array contracts
+
+`native.abi` accepts `1.6` in addition to `1.0`, `1.1` and `1.5`. Earlier scalar,
+string, string-array and canonical-record contracts remain available in `1.6`.
+Byte-array parameters require `borrowed` ownership; byte-array results require
+`owned` ownership. Generated providers preserve live canonical C input storage
+and return one unique adopted wire credit. See
+[byte-array adapters](native-package-imports.md) and
+[the runtime byte-view contract](runtime-abi.md).

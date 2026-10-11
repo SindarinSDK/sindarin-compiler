@@ -5,7 +5,8 @@ optional managed-value capabilities through ABI 1.1 (`0x00010001`) and package
 lifecycle coordination through ABI 1.2 (`0x00010002`) and managed-array slot
 replacement through ABI 1.3 (`0x00010003`) and managed-array mutation through
 ABI 1.4 (`0x00010004`) and canonical native string-array views through
-ABI 1.5 (`0x00010005`). This is
+ABI 1.5 (`0x00010005`) and canonical native byte-array views through
+ABI 1.6 (`0x00010006`). This is
 part of the [runtime and package architecture](runtime-target-architecture.md).
 It does not yet provide complete package record/interface contracts,
 complete generated bindings, independent SDK artifacts or compiler-wide
@@ -368,3 +369,54 @@ external credits. Four C clients instrument the actual runtime with strict
 address/undefined/leak checks. Generated C/RS body and C/Rust/Go native input adapters now use these views.
 Reference-qualified rebinding and wider record/interface
 and SDK migration remain required work.
+
+## ABI 1.6 canonical native byte-array views
+
+Query `SN_ABI_V1_6_VERSION` with `SN_ABI_CAP_NATIVE_BYTE_ARRAYS` (`512`).
+ABI 1.6 advertises mask `1023`; earlier versions retain their exact masks,
+including ABI 1.5's `511`. Public info/value layouts and existing entry points
+remain compatible. Package byte-array adapters and SDK migration must consume
+this runtime capability. Native package ABI 1.6 now generates byte-array
+consumers/providers for C/Rust applications and C/Rust/Go backing functions.
+
+The seven `sn_abi_v1_native_byte_array_*` functions expose actual canonical C
+`SnArray` storage with one-byte unsigned elements. `borrow`, `adopt`, `data` and
+`copy` follow the string-view ownership contract. `bytes` borrows binary data and
+length; reload both after mutation or growth. `copy_bytes` copies caller bytes
+into an owned C array, retaining no Rust/Go pointer. NULL with zero length is nil;
+a non-NULL pointer with zero length creates a non-nil empty array. Copies preserve
+embedded NUL, bytes above 127, native element-copy/release hooks and independent
+storage. A copy operation holds its own view credit through reentrant copy hooks.
+
+`take` consumes a unique adopted/copied view and transfers its actual owned
+header, clearing the wire handle. Generated consumers use this transfer for
+owned results, retaining pointer identity and hooks. Borrowed views and retained
+aliases reject transfer with `INVALID_ARGUMENT`, preserving the handle and output.
+The caller serializes ownership transfer with access and credit acquisition.
+
+Generated providers keep borrowed input view credits alive through callbacks
+and failures. Native Rust/Go functions receive opaque canonical C headers for
+byte inputs. Their owned vectors/slices are copied into C arrays; they are never
+cast to foreign headers. Rust Sindarin bodies use canonical array codecs and C
+support bundles, including mixed string/byte input guards. Their owned byte
+results transfer canonical storage directly. Owned results must provide one
+unique adopted wire credit; retained/borrowed result views are not valid for the
+current byte-result contract. String-array result transport is unchanged.
+
+These views are distinct from buffer values, plain wire arrays and string-array
+views. Every accessor/copy validates the current native layout and byte tag,
+rejecting wrong widths/tags, negative lengths, invalid capacities and missing
+storage while leaving outputs unchanged. An empty untagged header is accepted
+without rewriting it. Adoption transfers ownership only on success. A borrowed
+view's native owner must outlive all its retained credits; mutable storage access
+remains caller-serialized.
+
+Twelve C/Rust/Go clients, including Rust consuming an original Go native archive,
+cover both native view kinds. Five C clients instrument the actual C runtime with
+address/undefined/leak checks. Byte tests exercise pointer identity, independent
+copies, retained hooks, callback-visible growth and final cleanup. Reentrant
+callbacks and copy hooks consume caller credits while operation guards keep
+owned headers alive. The same guard repairs an ASAN-reproduced lifetime defect
+in ABI 1.5 string-array copying. Removing the byte-copy guard in a private
+negative control reproduces an ASAN heap-use-after-free. Rust vectors and Go slices are copied into
+C storage rather than cast to a foreign array layout.

@@ -194,6 +194,30 @@ static bool native_prepare_records(json_object *model)
 {
     json_object *records = json_object_new_array();
     if (!records) return false;
+    /* Native SDK namespaces retain value fields and static methods even when
+     * no call passes the namespace record through a foreign signature. Reuse
+     * the existing value-record layout/ownership path for those declarations. */
+    json_object *structures = native_record_child(model, "structs");
+    for (size_t i = 0; structures && i < json_object_array_length(structures); i++)
+    {
+        json_object *structure = json_object_array_get_idx(structures, i);
+        json_object *methods = native_record_child(structure, "methods");
+        if (!native_bool(structure, "is_native") || native_bool(structure, "pass_self_by_ref") ||
+            !methods || !json_object_array_length(methods)) continue;
+        bool static_only = true;
+        for (size_t m = 0; static_only && m < json_object_array_length(methods); m++)
+            static_only = native_bool(json_object_array_get_idx(methods, m), "is_static");
+        if (!static_only) continue;
+        json_object *type = json_object_new_object();
+        if (!type) goto fail;
+        json_object_object_add(type, "kind", json_object_new_string("struct"));
+        json_object_object_add(type, "name", json_object_new_string(native_string(structure, "name")));
+        bool supported = native_record_is_supported(model, type);
+        if (supported) json_object_object_add(structure, "rust_native_static_namespace", json_object_new_boolean(true));
+        bool registered = !supported || native_record_register(model, type, records);
+        json_object_put(type);
+        if (!registered) goto fail;
+    }
     json_object *functions = native_record_child(model, "functions");
     for (size_t i = 0; functions && i < json_object_array_length(functions); i++)
     {

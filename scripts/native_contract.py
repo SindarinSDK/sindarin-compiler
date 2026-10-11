@@ -6,6 +6,7 @@ TYPES = {'int': ('long long', 'int64_t'), 'long': ('long long', 'int64_t'),
          'float': ('float', 'float'), 'double': ('double', 'double'),
          'string': ('char *', 'SnAbiValue *'), 'void': ('void', 'void'),
          'string_array': ('SnArray *', 'SnAbiValue *'),
+         'byte_array': ('SnArray *', 'SnAbiValue *'),
          'record': ('void *', 'SnAbiValue *')}
 
 
@@ -15,6 +16,8 @@ def kind(value):
         return 'record'
     if name == 'array' and value.get('element_type', {}).get('kind') == 'string':
         return 'string_array'
+    if name == 'array' and value.get('element_type', {}).get('kind') == 'byte':
+        return 'byte_array'
     if name not in TYPES: raise ValueError(f'package adapter ABI type is not implemented: {name}')
     return name
 
@@ -40,26 +43,30 @@ def validate(signature):
     binding = signature['binding']
     ownership, params = binding['ownership'], signature['params']
     result = kind(signature['return_type'])
-    if result == 'string_array' and signature.get('abi') not in ('1.1', '1.5'):
-        raise ValueError('managed string-array results require native ABI 1.1 or 1.5')
+    if result == 'string_array' and signature.get('abi') not in ('1.1', '1.5', '1.6'):
+        raise ValueError('managed string-array results require native ABI 1.1, 1.5 or 1.6')
+    if result == 'byte_array' and signature.get('abi') != '1.6':
+        raise ValueError('native byte-array transport requires ABI 1.6')
     names = {p['name'] for p in params}
     if set(ownership['parameters']) != names:
         raise ValueError('package parameter ownership does not match the resolved declaration')
-    expected_result = ('owned', 'borrowed') if result == 'record' else ('owned',) if result in ('string', 'string_array') else ('value',)
+    expected_result = ('owned', 'borrowed') if result == 'record' else ('owned',) if result in ('string', 'string_array', 'byte_array') else ('value',)
     if ownership['result'] not in expected_result:
         raise ValueError('package result ownership requires an implemented owned-string or plain-value contract')
     for p in params:
-        if kind(p['type']) == 'string_array' and signature.get('abi') not in ('1.1', '1.5'):
-            raise ValueError('managed string-array inputs require native ABI 1.1 or 1.5')
+        if kind(p['type']) == 'string_array' and signature.get('abi') not in ('1.1', '1.5', '1.6'):
+            raise ValueError('managed string-array inputs require native ABI 1.1, 1.5 or 1.6')
+        if kind(p['type']) == 'byte_array' and signature.get('abi') != '1.6':
+            raise ValueError('native byte-array transport requires ABI 1.6')
         if kind(p['type']) == 'void':
             raise ValueError('package parameter cannot have void ABI representation')
-        if kind(p['type']) == 'record' and signature.get('abi') != '1.5':
-            raise ValueError('native record transport requires ABI 1.5')
-        expected = 'borrowed' if kind(p['type']) in ('string', 'string_array', 'record') else 'value'
+        if kind(p['type']) == 'record' and signature.get('abi') not in ('1.5', '1.6'):
+            raise ValueError('native record transport requires ABI 1.5 or 1.6')
+        expected = 'borrowed' if kind(p['type']) in ('string', 'string_array', 'byte_array', 'record') else 'value'
         if ownership['parameters'][p['name']] != expected:
             raise ValueError('package input ownership requires an implemented borrowed-string or plain-value contract')
-    if result == 'record' and signature.get('abi') != '1.5':
-        raise ValueError('native record transport requires ABI 1.5')
+    if result == 'record' and signature.get('abi') not in ('1.5', '1.6'):
+        raise ValueError('native record transport requires ABI 1.5 or 1.6')
     if result == 'record' and ownership['result'] == 'borrowed':
         source = next((p for p in params if p['name'] == ownership.get('borrowed_from')),None)
         if not source or kind(source['type']) != 'record':

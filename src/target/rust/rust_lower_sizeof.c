@@ -60,6 +60,14 @@ static void rust_prepare_sizeof_only_declarations(json_object *model)
     json_object *structs = NULL;
     if (!json_object_object_get_ex(model, "structs", &structs)) return;
     json_object *needed = json_object_new_object(), *queried = json_object_new_object();
+    /* Value-record conversion helpers refer to namespace owners even when
+     * the application uses only the module's free native helper functions. */
+    for (size_t i = 0; i < json_object_array_length(structs); i++) {
+        json_object *structure = json_object_array_get_idx(structs, i);
+        const char *name = json_string_property(structure, "name");
+        if (name && json_boolean_property(structure, "rust_native_static_namespace"))
+            json_object_object_add(needed, name, json_object_new_boolean(true));
+    }
     /* Library export thunks are added after source emission. Public method
      * owners must remain available even without an application call root. */
     if (json_boolean_property(model, "package_body")) {

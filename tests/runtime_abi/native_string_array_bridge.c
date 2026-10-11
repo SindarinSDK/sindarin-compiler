@@ -2,13 +2,20 @@
 #include "sn_array.h"
 
 static uint64_t destroyed;
+static SnAbiValue *copy_consumes;
 static void release_slot(void *slot) { free(*(char **)slot); destroyed++; }
 static void copy_slot(const void *source, void *destination)
 {
+    if (copy_consumes) {
+        SnAbiValue *value = copy_consumes;
+        copy_consumes = NULL;
+        sn_abi_v1_release(value);
+    }
     const char *text = *(char *const *)source;
     *(char **)destination = text ? strdup(text) : NULL;
     if (text && !*(char **)destination) abort();
 }
+void sn_test_native_strings_copy_consume(SnAbiValue *value) { copy_consumes = value; }
 SnArray *sn_test_native_strings_new(void)
 {
     SnArray *array = sn_array_new(sizeof(char *), 0);
