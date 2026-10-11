@@ -433,27 +433,26 @@ acceptance, as-val/as-ref rebinding, wider transport and final goal proof remain
 required.
 
 
-## UUID staging under validation
+## SDK resource staging
 
-Explicit `--modules core/uuid` stages the canonical UUID SDK module as two
-C/Sindarin units with all 41 declared exports. It retains the original public
-module and C operation bodies. The focused checker verifies the unchanged
-original caller and owned field/string lifetime controls in 72 source/sealed
-C/Rust cases, normally and with sanitizers. The native SDK checker validates
-independent archives and actual-runtime ownership. The SDK revision has hosted acceptance and the integrated compiler workflow
-pins that exact revision. The default selection now includes all thirteen
-implemented modules; compiler hosted acceptance remains required. Canonical package as-val copy adapters and
-full SDK migration remain required.
+The default SDK stage now selects sixteen implemented modules, including UUID,
+StringBuilder, Process and Json. It builds 32 C/Sindarin units and preserves the
+public declarations, original callers and expected outputs. Source and sealed
+consumption pass 576 original caller cases plus 72 stdin controls. Sealed stages
+remove the backing C files while retaining the required public layout headers.
+The compiler pins accepted SDK `2152da20d283dae9a4b31d2551f001b6b2c43904`, whose
+seven required hosted jobs verify the existing SDK and all three new resources.
+The wider compiler integration still requires its own hosted acceptance.
 
+Explicit `--modules` selections remain available: `encoding/text` has two units
+and 13 exports; Json/Env has four units and 71 exports; Process/Env has four units
+and 19 exports. Focused controls each pass 72 cases normally and with sanitizers.
+Canonical `native.types.copy` hooks preserve native storage isolation for ordinary
+`as val` and `copyOf()` calls. They retain public copy methods, managed string
+fields, typed and literal nil behavior, and temporary cleanup. json-c's full
+library token is preserved and its archive now stages on every platform.
 
-## StringBuilder staging under validation
-
-Explicit `--modules encoding/text` stages the canonical StringBuilder SDK module
-as two C/Sindarin units with all 13 exports, retaining the original public module
-and operation bodies. Seventy-two source/sealed C/Rust cases pass normally and
-with sanitizers, including alias mutation, owned string lifetimes, clear and
-repeated disposal. The native checker validates independent clients and actual
-runtime cleanup. This stage remains local until required corrected main CI,
-SDK hosted acceptance and an exact accepted SDK pin; the default selection
-remains thirteen modules. Wider SDK/copy contracts and full goal acceptance
-remain required.
+Whole SDK encoding/network migration, exported parameter qualifiers, callbacks,
+complete record/interface/generic transport, dependency lifecycle graphs and
+final corpus/platform parity remain required work. This stage is not a claim of
+full SDK or Rust completion.
