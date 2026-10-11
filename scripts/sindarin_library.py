@@ -6,7 +6,7 @@ import re
 import shlex
 
 from native_contract import TYPES, kind, raw_type
-from native_provider import RUST, c_header, c_provider, rust_provider, rust_provider_support
+from native_provider import RUST, c_header, c_provider, rust_provider, rust_provider_support, c_consumer, record_includes
 
 
 def callable_key(name, method_kind=None):
@@ -85,6 +85,29 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
     for function in functions.values():
         decorate_record(function['return_type'])
         for parameter in function['params']:decorate_record(parameter['type'])
+    # Calls inside an implementation unit need the same raw-to-wire adapter as
+    # application imports. Private aliases keep ordinary backing names from
+    # leaking into the package body's link contract.
+    internal = []
+    for signature in plan['native'].get('signatures', []):
+        binding = signature['binding']
+        if binding['build'] == unit['name']:
+            continue
+        declaration = binding['declaration'].split('::', 1)[1]
+        function = select_callable(functions, declaration, binding.get('method'))
+        if not function or not function.get('is_native') or function.get('has_body'):
+            continue
+        symbol = function.get('c_callee') if function.get('is_method') else function.get('c_alias') or function['name']
+        if not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*', symbol):
+            raise ValueError('package internal native callable is not a C identifier: '+symbol)
+        internal.append((symbol, dict(signature, adapter='__sn_'+stem+'_import_'+str(len(internal)))))
+    import_macros = '\n'.join('#define '+symbol+' '+signature['adapter'] for symbol,signature in internal)+'\n'
+    import_source = '\n'.join(['#include "sn_abi.h"', '#include "sn_array.h"',
+        '#include <stdlib.h>', '#include <stdio.h>', '#include <string.h>',
+        'static void sn_package_string_slot_release(void *p) { free(*(char **)p); }',
+        'static void sn_package_string_slot_copy(const void *s, void *d) { *(char **)d = *(char *const *)s ? strdup(*(char *const *)s) : NULL; }']+
+        record_includes([signature for _,signature in internal], root)+
+        [c_consumer(signature, str(root/'sn.yaml')) for _,signature in internal])+'\n'
     declarations = {f['name']:f for f in model.get('package_implementation_declarations',[])}
     selected = []
     for signature in signatures:
@@ -131,6 +154,10 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
                 projected_functions[callable_key(structure['name']+'.'+method['name'],
                     'static' if method['is_static'] else 'instance')]=method
         generated = [bundle_dir/f['path'] for f in bundle['files'] if f['kind']=='source' and Path(f['path']).suffix=='.c']
+        if internal:
+            imports = work/(stem+'_imports.c'); imports.write_text(import_source)
+            generated.append(imports)
+            macro_header = work/(stem+'_imports.h'); macro_header.write_text(import_macros)
         for item in bundle['native_sources']:
             value = item['path']
             if len(value) >= 2 and value[0] == value[-1] == '"': value = value[1:-1]
@@ -144,6 +171,7 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
         for index,source in enumerate(generated):
             obj=work/(stem+'_native_'+str(index)+'.o');dep=obj.with_suffix('.d')
             flags=['-std=c11','-D_GNU_SOURCE','-Werror=implicit-function-declaration','-O'+args.optimization,'-fwrapv','-fno-lto']
+            if internal and source != imports: flags+=['-include', macro_header]
             for directory in include_dirs: flags+=['-I',directory]
             run(tools['cc']+flags+shlex.split(os.environ.get('SN_CFLAGS',''))+['-MD','-MF',dep,'-c',source,'-o',obj],cwd=root)
             native_objects.append(obj);native_depfiles.append(dep)
@@ -169,7 +197,10 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
         for structure in model.get('structs',[]):
             names.update('__sn__'+structure['name']+'_'+m['name'] for m in structure.get('methods',[]) if not m.get('is_native'))
         prefix = '\n'.join('#define '+name+' __sn_'+stem+'_body_'+name for name in sorted(names))+'\n'
-        code = '#include "sn_abi.h"\n'+prefix+emitted.read_text(encoding="utf-8", errors="surrogateescape")+'\n'
+        code = '#include "sn_abi.h"\n'+import_macros+prefix+emitted.read_text(encoding="utf-8", errors="surrogateescape")+'\n'
+        if internal:
+            code += '\n'.join('#undef '+symbol for symbol,_ in internal)+'\n'+import_source
+            code += import_macros
         code += c_header(adjusted,stem,root)+'\n'
         for signature,function in zip(adjusted,selected):
             result = kind(signature['return_type']);status=signature['binding']['failure']=='status'

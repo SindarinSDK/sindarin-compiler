@@ -2179,6 +2179,38 @@
         "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
         "UBSAN_OPTIONS": "halt_on_error=1"
       }
+    },
+    {
+      "id": "package-internal-native-calls",
+      "name": "C/Rust package bodies call C/Rust/Go exports with callback ownership and sealed artifacts",
+      "command": [
+        "{python}",
+        "tests/package/record_arrays.py",
+        "RecordArrayBodyCallTests.test_generated_record_array_providers"
+      ],
+      "group": "core",
+      "linux_only": false,
+      "env": {
+        "GOEXPERIMENT": "cgocheck2"
+      }
+    },
+    {
+      "id": "package-internal-native-calls-sanitizers",
+      "name": "C/Rust package bodies call C/Rust/Go exports with callback ownership and sealed artifacts",
+      "command": [
+        "{python}",
+        "tests/package/record_arrays.py",
+        "RecordArrayBodyCallTests.test_generated_record_array_providers"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "GOEXPERIMENT": "cgocheck2",
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      }
     }
   ]
 }

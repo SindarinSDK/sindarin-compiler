@@ -1,3 +1,26 @@
+## Internal native package calls: local validation, 2026-10-11
+
+C/Rust Sindarin bodies now generate private import adapters for calls to other
+native build units in the same package. Shared consumer adapter generation
+preserves public signatures, ABI/ownership/error policies and backing languages.
+All 216 mode cases pass normally and with sanitizers, plus six normal/six
+sanitized wire clients whose nested callback consumes the caller's final credit.
+The outer call guards preserve headers and slots until the returned owner can
+clean up exactly one record. Go callbacks force GC with cgocheck2.
+
+All seventeen staged SDK modules pass 612 original artifact cases plus 72 stdin
+controls (684 total). SDK copies pass 108 cases; full C/Rust suites pass
+3,242/1,097; imports/artifacts/methods/copy-contract/helpers pass 50/22/4/3/23.
+The required inventory is 417 gates/26 groups. Evidence:
+[package-internal-native-calls-local-validation.json](rust-parity-evidence/package-internal-native-calls-local-validation.json).
+
+This work remains unpublished. Dependency CI 38162607031 failed macOS core
+(record-guard annotation iterator use-after-free) and Windows core (complete SDK
+C link command exceeds cmd.exe limits). All feature publication is frozen until
+one combined platform correction has complete required hosted acceptance. SDK
+XML correction 0b71e84 remains accepted. Wider package/language/SDK and final
+original corpus/platform proof remain required.
+
 ## Record-array packages and XML artifacts: local validation, 2026-10-11
 
 ABI/schema 1.8 now resolves canonical record contracts recursively inside arrays.

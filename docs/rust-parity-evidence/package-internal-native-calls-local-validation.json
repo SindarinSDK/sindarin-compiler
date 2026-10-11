@@ -1,0 +1,108 @@
+{
+  "status": "Local validation complete; unpublished; required compiler failures freeze feature publication",
+  "base": "9c45fb7a",
+  "failed_compiler_dependency": "f5e8891121367fccd38d6629cb90310f7529ed03",
+  "failed_CI": 38162607031,
+  "accepted_SDK": "0b71e84694230f5745bac5254d3811e696f892f5",
+  "accepted_SDK_CI": 38164835929,
+  "normal_body_native_app_cases": 216,
+  "sanitized_body_native_app_cases": 216,
+  "normal_callback_wire_clients": 6,
+  "sanitized_callback_wire_clients": 6,
+  "body_runtimes": [
+    "C",
+    "RS"
+  ],
+  "backing_languages": [
+    "C",
+    "RS",
+    "GO"
+  ],
+  "consumer_targets": [
+    "c",
+    "rust"
+  ],
+  "artifact_modes": [
+    "source",
+    "sealed backing sources removed"
+  ],
+  "SDK_original_cases": 612,
+  "SDK_stdin_cases": 72,
+  "SDK_total_cases": 684,
+  "SDK_record_copy_cases": 108,
+  "C_suite": 3242,
+  "Rust_suite": 1097,
+  "imports": 50,
+  "artifacts": 22,
+  "callable_method_tests": 4,
+  "copy_contract_tests": 3,
+  "ci_helpers": 23,
+  "registered_gates": 417,
+  "registered_groups": 26,
+  "controls": [
+    "Same-package native calls route through resolved public wire exports",
+    "Ordinary raw symbols become private per implementation unit",
+    "Original C/Rust/Go backing languages and public SDK declarations preserved",
+    "C/Rust bodies return typed record arrays with live slot aliases",
+    "Callback consumes external owning wire; outer guards preserve native headers",
+    "Exactly one record destruction after result cleanup",
+    "Forced Go GC and cgocheck2",
+    "Source and sealed apps preserve original independent oracles"
+  ],
+  "remaining": [
+    "Compiler platform correction accepted before feature publication",
+    "This batch requires complete Linux/macOS/Windows hosted acceptance",
+    "Wider callback signature, cross-package dependency lifecycle, record/interface/generic contracts",
+    "Whole SDK and final original corpus/platform proof"
+  ],
+  "logs": {
+    "callbacks": {
+      "path": "/tmp/sindarin-package-internal-adapters-callbacks.log",
+      "sha256": "5632c9a7e268548f4d88aabb17e5ea975f4840adbde0a4eb8efefd075d0b20f3"
+    },
+    "callbacks-san": {
+      "path": "/tmp/sindarin-package-internal-adapters-callbacks-san.log",
+      "sha256": "1031ab2ce4dde7a9c57bee2a5c1093a89e397649f68975a684bbb0935b58fec6"
+    },
+    "sdk-full": {
+      "path": "/tmp/sindarin-package-internal-adapters-sdk-full.log",
+      "sha256": "04fa40811bdb337a373b7a90ef79f754c830247d1cb95b0280c16baedd468241"
+    },
+    "sdk-quick": {
+      "path": "/tmp/sindarin-package-internal-adapters-sdk-quick.log",
+      "sha256": "7f6904e6729dd988f1d4b90865f070a4f7bda102e705abbdfb50ce02febd1878"
+    },
+    "record-copies": {
+      "path": "/tmp/sindarin-package-internal-adapters-record-copies.log",
+      "sha256": "5fd721da6481731170961a12a56fb5c2a1af5823ad0230a826403cafc304db34"
+    },
+    "imports": {
+      "path": "/tmp/sindarin-package-internal-adapters-imports.log",
+      "sha256": "82096ac628783496243caa73c1f05ad0560899456a5aeb30a4b82e660f597d3f"
+    },
+    "artifacts": {
+      "path": "/tmp/sindarin-package-internal-adapters-artifacts.log",
+      "sha256": "72e08b7e7ccdba85b4d81a810f250808eb75b95ff7d0a9cfe6722878f95d24d8"
+    },
+    "methods": {
+      "path": "/tmp/sindarin-package-internal-adapters-methods.log",
+      "sha256": "3bb0d65713ad2ecdec9ef7ac9925f0292d5029fed0c02d425e3e58edab9440eb"
+    },
+    "copy-contract": {
+      "path": "/tmp/sindarin-package-internal-adapters-copy-contract.log",
+      "sha256": "95f2d061103696bfd26433dee38e5ff944efa385d097e6ed4d83ef768d7c12a9"
+    },
+    "full-c": {
+      "path": "/tmp/sindarin-package-internal-adapters-full-c.log",
+      "sha256": "b8d69a2d9e72082ad3acd627c2b0db5cf661a9d23fbaa5a3b8939948b5e8dd91"
+    },
+    "full-rust": {
+      "path": "/tmp/sindarin-package-internal-adapters-full-rust.log",
+      "sha256": "ef013c5a3c09c2a50d5b243ba5b4b70f080897cbefef3980b51f3a3717d951b1"
+    },
+    "ci-helpers": {
+      "path": "/tmp/sindarin-package-internal-adapters-ci-helpers.log",
+      "sha256": "4643de5189434f87946d3e20f6731e82340c98755d7ff876f25d28972e81c593"
+    }
+  }
+}

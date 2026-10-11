@@ -340,3 +340,19 @@ The package's slot hooks preserve record alias/copy/cleanup behavior. Native C,
 Rust and Go providers and C/Rust Sindarin bodies are locally covered in source
 and sealed packages. Sealed checks remove backing implementation sources.
 Required hosted acceptance and wider lifecycle graphs remain outstanding.
+
+## Internal native calls in Sindarin package bodies (local implementation)
+
+A C or Rust implementation unit calling native declarations owned by other
+build units in the same package uses generated raw-to-wire import adapters.
+These adapters use the public export's resolved types, ABI, ownership and
+failure policy. The implementation's C callable names are mapped to private
+unit-specific adapter symbols, preserving backing code and public export names.
+Rust source bundles include the C adapters and scoped forwarding bridges in
+their archive. Source and sealed builds retain the same binding path.
+
+Input wire owners remain guarded across nested calls and callbacks. Returned
+record-array headers transfer the provider's owned credit with native slot hooks;
+callback tests consume the external caller credit before the result is returned
+and require exactly one final record destruction. Required hosted acceptance
+and broader cross-package/callback signature contracts remain outstanding.

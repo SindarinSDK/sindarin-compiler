@@ -85,10 +85,10 @@ receive an independent credit before input guards are released. The wire format
 uses shared runtime typed resources with the declared identity; consumers acquire
 the actual record before releasing the wire credit. Nil remains nil.
 
-Generated record providers currently require C backing. RS/GO/SN record providers,
-value/packed/generic records, interfaces and the complete unchanged SDK facade
-remain implementation work. This contract enables C SDK storage consumption; it
-does not mark the full package or Rust completion goal achieved.
+Generated native C/Rust/Go providers and C/Rust Sindarin bodies use canonical C
+record storage. Value/packed/generic records, interfaces and the complete unchanged
+SDK facade remain implementation work. This contract does not mark the full
+package or Rust completion goal achieved.
 
 ```yaml
 name: mixed-native-package
@@ -143,7 +143,7 @@ The top-level `runtime` selects the package's Sindarin implementation runtime.
 Each build's `language` selects the original toolchain for its backing sources.
 They are independent: RS Sindarin code may use C backing, and a package can declare
 multiple native build units. Omitted `runtime` still inherits the application
-target. `native.abi` selects the shared ABI contract, currently `1.0`, `1.1` or `1.5`.
+target. `native.abi` selects the shared ABI contract, currently `1.0`, `1.1`, `1.5`, `1.6`, `1.7` or `1.8`.
 
 `declarations` lists the Sindarin API modules supplying signatures and types.
 Each binding identifies a declaration using `module/path.sn::name` (or the
@@ -331,6 +331,8 @@ with C storage ownership. Sindarin bodies can be compiled independently for C
 or Rust while retaining the public reference-record and array contracts.
 
 This capability is locally implemented and awaits required hosted acceptance.
-Generated package body calls to separate foreign exports remain a broader
-link-adapter obligation; the record-array body fixture mutates and returns its
-borrowed array directly. Whole SDK and lifecycle graph proof remains required.
+Generated internal adapters connect package body calls to separately built
+native exports in the same package. Private symbols keep those raw calls scoped
+to the implementation unit. The record-array body fixture calls C/Rust/Go
+providers, including reentry consuming the external caller credit. Whole SDK,
+wider cross-package dependency graphs and platform acceptance remain required.

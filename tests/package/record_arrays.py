@@ -5,10 +5,13 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import shlex
+import sys
 import unittest
 import callable_methods as fixtures
 
 class RecordArrayTests(unittest.TestCase):
+    body_calls_native = False
     setUp = fixtures.CallableMethodTests.setUp
     write = fixtures.CallableMethodTests.write
     binding = staticmethod(fixtures.CallableMethodTests.binding)
@@ -16,12 +19,16 @@ class RecordArrayTests(unittest.TestCase):
         api = self.package/'src/api.sn'
         api.write_text(api.read_text()+'native fn makeArray(): Counter[]\n'
             'native fn mutateArray(a: Counter[], b: Counter[]): Counter[]\n'
-            'fn arrayBody(a: Counter[]): Counter[] =>\n  a[0].amount += 1\n  return a\n')
+            'fn arrayBody(a: Counter[]): Counter[] =>\n'+
+            ('  return mutateArray(a,a)\n' if self.body_calls_native else
+             '  a[0].amount += 1\n  return a\n'))
         source=self.package/'src/counter.c'
         source.write_text(source.read_text()+'''\n#include "sn_array.h"
 #include <assert.h>
 static void slot_release(void *slot) { counter_release(*(CanonicalCounter **)slot); }
 static void slot_copy(const void *src, void *dst) { *(CanonicalCounter **)dst=counter_retain(*(CanonicalCounter *const *)src); }
+static void (*visit)(void);
+void record_array_set_callback(void (*callback)(void)) { visit=callback; }
 SnArray *make_array(void) {
  SnArray *a=sn_array_new(sizeof(CanonicalCounter *),2);
  a->elem_tag=SN_TAG_STRUCT; a->elem_release=slot_release; a->elem_copy=slot_copy;
@@ -30,6 +37,7 @@ SnArray *make_array(void) {
 }
 SnArray *mutate_array(SnArray *a, SnArray *b) {
  assert(a==b); if(!a) return NULL;
+ if(visit) visit();
  assert(a->len==2 && ((void **)a->data)[0]==((void **)a->data)[1]);
  ((CanonicalCounter **)a->data)[0]->__sn__amount++;
  return sn_array_copy(a);
@@ -74,6 +82,8 @@ func Mutate(a,b unsafe.Pointer) unsafe.Pointer { runtime.GC(); return unsafe.Poi
                     built=subprocess.run([str(fixtures.COMPILER),'--build-native',str(self.package/'sn.yaml'),'-o',str(self.package/('built-'+language+'-'+runtime))],cwd=self.root,capture_output=True,timeout=180)
                     self.assertEqual(built.returncode,0,built.stderr.decode(errors='replace'))
                     assembly=Path(json.loads(built.stdout)['assembly'])
+                    if self.body_calls_native:
+                        self.wire_callback_client(assembly)
                     for sealed in (False,True):
                         if sealed:
                             descriptor=assembly.relative_to(self.package)
@@ -92,6 +102,51 @@ func Mutate(a,b unsafe.Pointer) unsafe.Pointer { runtime.GC(); return unsafe.Poi
                                 self.assertEqual((result.returncode,result.stdout,result.stderr),(0,expected,b''))
                         if sealed:
                             for path,data in removed: path.write_bytes(data)
+
+    def wire_callback_client(self, assembly):
+        self.write('wire.c', r'''
+#include <assert.h>
+#include <stdint.h>
+#include "sn_abi.h"
+#include "sn_array.h"
+#include "counter.h"
+extern SnAbiValue *export_makeArray(void);
+extern SnAbiValue *export_arrayBody(SnAbiValue *);
+extern int64_t export_destroyed(void);
+extern void record_array_set_callback(void (*)(void));
+static SnAbiValue *owner;
+static int callbacks;
+static void consume(void) { assert(owner); sn_abi_v1_release(owner); owner=NULL; callbacks++; }
+int main(void) {
+ owner=export_makeArray(); assert(owner && export_destroyed()==0);
+ record_array_set_callback(consume);
+ SnAbiValue *result=export_arrayBody(owner);
+ assert(result && !owner && callbacks==1 && export_destroyed()==0);
+ SnArray *array=NULL;
+ assert(sn_abi_v1_native_record_array_data(result,1,"methods/Counter@1",&array)==SN_ABI_OK);
+ assert(array && array->len==2 && ((void **)array->data)[0]==((void **)array->data)[1]);
+ assert(((CanonicalCounter **)array->data)[0]->__sn__amount==8);
+ record_array_set_callback(NULL); sn_abi_v1_release(result);
+ assert(export_destroyed()==1);
+}
+''')
+        metadata=json.loads(assembly.read_text())
+        sys.path.insert(0,str(fixtures.ROOT/'scripts'))
+        from prepare_native_imports import native_link_options
+        cc=shlex.split(os.environ.get('SN_CC','clang' if os.name=='nt' or sys.platform=='darwin' else 'gcc'))
+        runtime=fixtures.COMPILER.parent/'lib'/('clang' if os.name=='nt' else 'gcc')/'libsn_runtime_min.a'
+        links=[str(assembly.parent/u['archive']) for u in metadata['units']]+[str(runtime)]
+        links += [flag for u in metadata['units'] for flag in native_link_options(u['native_link_flags'])]
+        exe=self.root/'wire.exe'
+        command=cc+['-std=c11','-UNDEBUG']+shlex.split(os.environ.get('SN_CFLAGS',''))
+        command+=['-I',str(fixtures.COMPILER.parent/'include/runtime'),'-I',str(self.package/'src'),str(self.root/'wire.c'),*links,'-o',str(exe)]
+        built=subprocess.run(command,capture_output=True,timeout=180)
+        self.assertEqual(built.returncode,0,built.stderr.decode(errors='replace'))
+        run=subprocess.run([str(exe)],capture_output=True,timeout=30)
+        self.assertEqual((run.returncode,run.stdout,run.stderr),(0,b'',b''))
+
+class RecordArrayBodyCallTests(RecordArrayTests):
+    body_calls_native = True
 
 if __name__=='__main__':
     os.environ['GOEXPERIMENT']='cgocheck2'
