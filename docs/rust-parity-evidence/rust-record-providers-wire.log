@@ -1,0 +1,6 @@
+test_wire_errors_panics_and_callback_credit_loss (__main__.RustRecordTests.test_wire_errors_panics_and_callback_credit_loss) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.839s
+
+OK

@@ -1,0 +1,42 @@
+{
+  "status": "locally validated; unpublished; held while two feature CI runs are pending",
+  "base_revision": "93dea0792ec465ebf33efd963ba37c1f06333287",
+  "C_and_Rust_compiler_sources_unchanged": true,
+  "native_record_mode_cases": 36,
+  "sanitizer_mode_cases": 36,
+  "raw_wire_clients": 1,
+  "normal_tests": 2,
+  "sanitizer_tests": 2,
+  "imports": 50,
+  "artifacts": 22,
+  "ci_helpers": 22,
+  "coverage": {
+    "gates": 317,
+    "groups": 26
+  },
+  "contracts": [
+    "canonical C header layout assertions and native retain/release",
+    "Rust backing remains Rust",
+    "owned and borrowed record results",
+    "input wire credits guarded through foreign calls",
+    "source/sealed C/Rust apps",
+    "nil and exact pointer identity",
+    "live field mutation",
+    "status output preservation and panic containment",
+    "caller loses final external credit during callback",
+    "exact final native destruction"
+  ],
+  "source_sha256": {
+    "scripts/build_native_package.py": "be0bcef20c3e6b1dfb81cbc0913e06749050584b036ecc11e67e875ff114d014",
+    "scripts/native_provider.py": "73e47cb75b07072c6d4111dd54ac875c96c72974aa8817eb6147ba0c0c108082",
+    "tests/package/rust_records.py": "6bec2db6b7f7278c730e8ddeefa64f4bfea0ed0466dda9c5e36ae9a274f05deb"
+  },
+  "remaining": [
+    "full hosted acceptance",
+    "Rust Sindarin record/opaque body guards",
+    "Go record providers",
+    "interfaces/generics",
+    "dependency lifecycle graphs",
+    "whole SDK and final corpus/platform proof"
+  ]
+}

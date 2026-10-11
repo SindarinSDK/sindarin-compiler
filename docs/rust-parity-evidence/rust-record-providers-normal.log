@@ -1,0 +1,7 @@
+test_rust_records_preserve_live_aliases_and_sealed_cleanup (__main__.RustRecordTests.test_rust_records_preserve_live_aliases_and_sealed_cleanup) ... ok
+test_wire_errors_panics_and_callback_credit_loss (__main__.RustRecordTests.test_wire_errors_panics_and_callback_credit_loss) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 20.110s
+
+OK

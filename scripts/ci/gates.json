@@ -1597,6 +1597,32 @@
       },
       "group": "sanitizers",
       "linux_only": true
+    },
+    {
+      "id": "rust-native-record-providers",
+      "name": "Rust backing canonical C record aliases, owned and borrowed results, errors and callbacks",
+      "command": [
+        "{python}",
+        "tests/package/rust_records.py"
+      ],
+      "group": "core",
+      "linux_only": false
+    },
+    {
+      "id": "rust-native-record-provider-sanitizers",
+      "name": "Rust backing canonical C record lifetime and callback credit sanitizers",
+      "command": [
+        "{python}",
+        "tests/package/rust_records.py"
+      ],
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      },
+      "group": "sanitizers",
+      "linux_only": true
     }
   ]
 }

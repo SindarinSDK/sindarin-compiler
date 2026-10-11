@@ -294,3 +294,27 @@ aliases, independent owned copies, live callbacks, panic/status errors and exact
 once cleanup. They pass all nine modes for both application targets, source and
 sealed archives with backing sources and headers removed, normally and with
 strict address/undefined/leak checking and Go `cgocheck2`. See [the runtime contract](runtime-abi.md#abi-17-typed-canonical-arrays).
+
+
+## Rust native backing for canonical C records
+
+Ordinary Rust backing may use `*mut c_void` parameters/results for explicitly
+registered native as-ref records. These pointers identify the canonical C
+allocation. Generated C support checks public layout headers and delegates
+retain/release to their registered native functions; Rust does not substitute a
+Rust record layout. The support object and its C toolchain/header dependencies
+are retained in the Rust archive and cache metadata.
+
+Inputs keep wire credits through the call, including reentry that consumes the
+caller's external credit. Owned results transfer one native credit. Borrowed
+results retain one native credit before input guards are released, then publish
+an independently owned typed wire result. Nil stays nil. Status failures and
+caught panics leave the output unchanged; temporaries allocated before a backing
+function returns remain that function's cleanup responsibility.
+
+Source/sealed controls cover 36 C/Rust mode cases, identity, live mutation and
+exact final destruction. A raw ABI client covers wrong kinds/type identities,
+errors, foreign panic and loss of the caller's final credit during a callback.
+These checks are locally validated with strict address/undefined/leak checking;
+hosted acceptance remains required. This does not yet implement Rust Sindarin
+record bodies, interfaces/generics or Go record providers.

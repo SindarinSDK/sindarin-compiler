@@ -19,8 +19,8 @@ def contracts(native, unit):
         raise ValueError('generated provider requires compiler-resolved native declarations')
     symbols = set()
     records = record_types(signatures)
-    if records and unit['language'] not in ('C','SN'):
-        raise ValueError('package-owned record provider generation currently requires C backing')
+    if records and unit['language'] not in ('C','SN','RS'):
+        raise ValueError('package-owned record provider generation requires C, SN, or RS backing')
     lifecycle_functions = {r[field] for r in records for field in ('create','retain','release','refs')}
     for s in signatures:
         validate(s)
@@ -242,12 +242,24 @@ def c_provider(signatures, namespace, root='.'):
     return '\n'.join(lines)+'\n'
 
 
-def rust_array_support(signatures, backing_crate):
-    if not any(kind(t)=='native_array' for s in signatures for t in
-               [s['return_type']]+[p['type'] for p in s['params']]):
-        return None
-    return ('#include "sn_array.h"\nvoid '+backing_crate+
-            '_native_array_free(SnArray *value) { sn_array_free(value); }\n')
+def rust_provider_support(signatures, backing_crate, root):
+    lines = []
+    if any(kind(t) == 'native_array' for s in signatures for t in
+           [s['return_type']] + [p['type'] for p in s['params']]):
+        lines += ['#include "sn_array.h"', 'void ' + backing_crate +
+                  '_native_array_free(SnArray *value) { sn_array_free(value); }']
+    records = record_types(signatures)
+    if records:
+        lines += ['#include "sn_abi.h"', '#include <stdint.h>', '#include <stdbool.h>']
+        lines += record_includes(signatures, root) + record_layouts(signatures, backing_crate)
+        for index, record in enumerate(records):
+            stem = f'{backing_crate}_record_{index}'
+            lines += [f'void {stem}_release(void *value) {{ {record["release"]}(({record["c_type"]} *)value); }}',
+                      f'void *{stem}_retain(void *value) {{ return {record["retain"]}(({record["c_type"]} *)value); }}',
+                      f'static void {stem}_destroy(void *value, uintptr_t context) {{ (void)context; {stem}_release(value); }}',
+                      f'uint32_t {stem}_data(SnAbiValue *value, void **out) {{ return sn_abi_v1_resource_data_typed(value, {json.dumps(record["identity"])}, out); }}',
+                      f'uint32_t {stem}_adopt(void *value, SnAbiValue **out) {{ if (!out) return SN_ABI_INVALID_ARGUMENT; if (!value) {{ *out = NULL; return SN_ABI_OK; }} return sn_abi_v1_resource_new_typed({json.dumps(record["identity"])}, value, {stem}_destroy, 0, out); }}']
+    return '\n'.join(lines) + '\n' if lines else None
 
 
 def rust_provider(signatures, backing_crate):
@@ -273,10 +285,21 @@ def rust_provider(signatures, backing_crate):
                   'fn sn_abi_v1_native_array_adopt(value: *mut std::ffi::c_void, shape: ArrayType, out: *mut *mut V) -> u32;',
                   f'#[link_name="{backing_crate}_native_array_free"] fn sn_package_array_free(value: *mut std::ffi::c_void); }}',
                   'struct OwnedArray(*mut std::ffi::c_void); impl Drop for OwnedArray { fn drop(&mut self) { unsafe { sn_package_array_free(self.0) } } }']
+    records = record_types(signatures)
+    if records:
+        lines += ['struct OwnedRecord { pointer: *mut std::ffi::c_void, release: unsafe extern "C" fn(*mut std::ffi::c_void) }',
+                  'impl Drop for OwnedRecord { fn drop(&mut self) { unsafe { (self.release)(self.pointer); } } }']
+        for index, _record in enumerate(records):
+            stem = f'{backing_crate}_record_{index}'
+            lines += ['extern "C" {',
+                      f'fn {stem}_release(value: *mut std::ffi::c_void);',
+                      f'fn {stem}_retain(value: *mut std::ffi::c_void) -> *mut std::ffi::c_void;',
+                      f'fn {stem}_data(value: *mut V, out: *mut *mut std::ffi::c_void) -> u32;',
+                      f'fn {stem}_adopt(value: *mut std::ffi::c_void, out: *mut *mut V) -> u32; }}']
     for s in signatures:
         b, params, result = s['binding'], s['params'], kind(s['return_type'])
         status = b['failure'] == 'status'
-        wire = lambda k: '*mut V' if k in ('string','string_array','byte_array','native_array') else 'u8' if k == 'bool' else RUST[k]
+        wire = lambda k: '*mut V' if k in ('string','string_array','byte_array','native_array','record') else 'u8' if k == 'bool' else RUST[k]
         declarations = [f'p{i}: {wire(kind(p["type"]))}' for i,p in enumerate(params)]
         if status and result != 'void': declarations.append(f'out: *mut {wire(result)}')
         lines += [f'#[no_mangle] pub unsafe extern "C" fn {b["symbol"]}({", ".join(declarations)}) -> '+('u32' if status else wire(result))+' {']
@@ -293,6 +316,13 @@ def rust_provider(signatures, backing_crate):
                           f'    if length{i} > isize::MAX as usize {{ return Err(5); }}',
                           f'    let arg{i} = if bytes{i}.data.is_null() {{ None }} else {{ Some(std::slice::from_raw_parts(bytes{i}.data, length{i})) }};']
                 arguments.append(f'arg{i}')
+            elif k == 'record':
+                record_index = records.index(p['type']['native_record'])
+                stem = f'{backing_crate}_record_{record_index}'
+                lines += [f'    let _owner{i} = OwnedV(sn_abi_v1_retain(p{i}));',
+                          f'    let mut record{i} = std::ptr::null_mut();',
+                          f'    let code = {stem}_data(p{i}, &mut record{i}); if code != 0 {{ return Err(code); }}']
+                arguments.append(f'record{i}')
             elif k == 'native_array':
                 leaf, rank = native_array_shape(p['type'])
                 lines += [f'    let _owner{i} = OwnedV(sn_abi_v1_retain(p{i}));',
@@ -354,6 +384,15 @@ def rust_provider(signatures, backing_crate):
             lines += ['    let owner = OwnedArray(value); let mut output = std::ptr::null_mut();',
                       f'    let code = sn_abi_v1_native_array_adopt(owner.0, ArrayType {{ leaf_kind: {leaf}, rank: {rank} }}, &mut output);',
                       '    if code != 0 { return Err(code); }',
+                      '    std::mem::forget(owner); Ok(output)']
+        elif result == 'record':
+            record_index = records.index(s['return_type']['native_record'])
+            stem = f'{backing_crate}_record_{record_index}'
+            if b['ownership']['result'] == 'borrowed':
+                lines.append(f'    let value = {stem}_retain(value);')
+            lines += [f'    let owner = OwnedRecord {{ pointer: value, release: {stem}_release }};',
+                      '    let mut output = std::ptr::null_mut();',
+                      f'    let code = {stem}_adopt(owner.pointer, &mut output); if code != 0 {{ return Err(code); }}',
                       '    std::mem::forget(owner); Ok(output)']
         elif result == 'bool': lines.append('    Ok(u8::from(value))')
         else: lines.append('    Ok(value)')

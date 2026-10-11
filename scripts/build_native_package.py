@@ -15,7 +15,7 @@ import subprocess
 import sys
 import tempfile
 import uuid
-from native_provider import contracts, c_header, c_provider, rust_provider, rust_array_support, go_provider
+from native_provider import contracts, c_header, c_provider, rust_provider, rust_provider_support, go_provider
 from sindarin_library import build_library
 
 
@@ -303,7 +303,7 @@ def build(args):
         if plan['package']['runtime']=='GO':
             raise ValueError('Sindarin package bodies select GO; the Sindarin Go backend is not implemented')
         languages.remove('SN');languages.add(plan['package']['runtime'])
-    if any(u['language']=='RS' and rust_array_support(providers[u['name']], 'support')
+    if any(u['language']=='RS' and rust_provider_support(providers[u['name']], 'support', root)
            for u in selected_builds):
         languages.add('C')
     if languages & {'C', 'GO'}: tools['cc'] = tool_identity(cc)
@@ -441,7 +441,7 @@ def build(args):
                 if not libraries: raise ValueError('Rust toolchain did not report native static library dependencies')
                 native_link_flags = shlex.split(libraries.group(1))
                 capture_dependencies(archive.with_suffix('.d'))
-                support = rust_array_support(signatures, backing_crate) if signatures else None
+                support = rust_provider_support(signatures, backing_crate, root) if signatures else None
                 if support:
                     c_source, obj, depfile = (work/(stem+suffix) for suffix in ('_arrays.c','_arrays.o','_arrays.d'))
                     c_source.write_text(support)

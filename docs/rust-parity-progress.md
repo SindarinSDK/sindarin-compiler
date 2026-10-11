@@ -7,6 +7,69 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+Publication state: `16353208` awaits CI 38140919031 and independent native search
+`4211bf0f` awaits CI 38141605740. Both runs are live; no failures have been
+reported. Two publication slots are occupied. SDK `a70d43e`, compiler Stdio
+`93dea079` and string-array `cf6f54f8` have complete hosted acceptance.
+
+Canonical Random module work is locally committed as SDK `de5bb6f`. It preserves
+all public declarations and original C operation bodies while adding canonical
+storage, atomic native credits and last-credit state cleanup. Native C/Rust
+archive clients and unchanged Random callers pass 20 cases with the search
+repair; the actual C runtime/module sanitizer probe passes. Controls cover
+threaded credit operations, aliases, manual dispose, typed wire destruction and
+owned scalar/string arrays surviving owner cleanup. Hosted acceptance and
+Random artifact staging remain required; it is held until the compiler search
+repair has complete hosted acceptance.
+
+Hosted acceptance: opaque/Time-Date batch `16353208` passed all 34 jobs in
+CI 38140919031 (329 gates/26 groups), and native search `4211bf0f` passed all
+34 jobs in CI 38141605740 (333 gates/26 groups). Retained coverage reports verify
+one compiler hash per platform. Both batches are accepted; publication slots
+are clear. Local native record providers are being expanded to both Rust and
+Go, with C storage/lifetime and forced GC controls; their integration and hosted
+acceptance are still required.
+
+## Rust native record providers: local validation, 2026-10-11
+
+Ordinary Rust native backing can now consume and return explicitly registered
+canonical C as-ref records. A generated C support object checks their public
+layouts, delegates lifetime to native hooks and adopts typed wire results. Its
+header dependencies and C toolchain are captured with the Rust archive. Input
+wire guards survive reentry; borrowed results retain their own native credit
+before input guards drop. Status errors and panics preserve output arguments.
+
+All 36 source/sealed C/Rust mode cases pass normally and with strict sanitizers.
+A raw ABI client verifies wrong kinds and identities, explicit status errors,
+foreign panic, nil, caller-credit loss during a callback and exact destruction.
+All 50 imports, 22 artifact checks and 22 CI helpers pass; the local inventory
+is 317 gates in 26 groups. C/Rust compiler production sources are unchanged.
+[Local validation](rust-parity-evidence/rust-record-provider-validation.json)
+records this unpublished batch. Rust Sindarin record/opaque body guards, Go
+record providers, interfaces/generics, dependency graphs, whole SDK and final
+corpus/platform acceptance remain required.
+
+
+## Locally held Rust native record provider batch, 2026-10-11
+
+Local compiler commit `ac2c5aff` on `development/rust-native-record-providers`
+adds generated Rust native providers for canonical C as-ref records. Header
+layouts and native lifetime hooks are compiled into a private C support object
+inside the Rust archive; C toolchain and header dependencies enter its cache
+context. The Rust backing implementation remains Rust. Input wire credits stay
+live through callbacks, owned results transfer native credits, and borrowed
+results retain their own native credit before input guard cleanup.
+
+All 36 source/sealed C/Rust mode cases and the raw wire client pass normally
+and with strict address/undefined/leak checks. Wrong kinds/identities, nil,
+explicit errors, foreign panic, caller-credit loss during reentry, aliases,
+live mutation and final destruction are covered. All 50 existing imports,
+22 artifact checks and 22 CI helpers pass. The local inventory is 317 gates
+on its accepted base; integration with current main is still required.
+Publication stays held while CI 38140919031 and CI 38141605740 remain pending.
+Rust Sindarin record/opaque body guards, Go record providers, interfaces/generics,
+dependency graphs, whole SDK and final corpus/platform proof remain required.
+
 ## Canonical native array search: local validation, 2026-10-11
 
 The unchanged SDK Random caller exposed contains() falling through a Rust slice
