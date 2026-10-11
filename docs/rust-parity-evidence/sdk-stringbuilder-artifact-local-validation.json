@@ -1,0 +1,39 @@
+{
+  "status": "Local opt-in StringBuilder staging validated; unpublished; required correction and SDK hosted dependency pending",
+  "base": "757d9d0cc449cfd71ea1f63fadd69bded785d2ab",
+  "SDK_local_revision": "982ff8f",
+  "units": 2,
+  "exports": 13,
+  "normal_mode_cases": 72,
+  "sanitizer_mode_cases": 72,
+  "native_cases": 20,
+  "native_runtime_sanitizer_cases": 1,
+  "ci_helpers": 22,
+  "registered_gates": 381,
+  "registered_groups": 26,
+  "default_module_count": 13,
+  "controls": [
+    "original StringBuilder source and expected output unchanged",
+    "aliases share buffer pointer and mutation",
+    "clear preserves buffer and resets length",
+    "owned toString result survives later mutation and cleanup",
+    "idempotent manual dispose",
+    "owned return from producer survives automatic last-credit cleanup",
+    "sealed consumption removes all backing C sources",
+    "all public Sindarin bytes preserved"
+  ],
+  "remaining": [
+    "required corrected main CI acceptance",
+    "SDK StringBuilder hosted acceptance and exact-revision compiler pin",
+    "integrated compiler hosted acceptance",
+    "canonical language/package copy hook integration",
+    "whole SDK and final corpus/platform proof"
+  ],
+  "logs": {
+    "sindarin-sdk-stringbuilder-artifact-local.log": "026b4934d6f4a536c214ef6dd0bc23e9b649c9431644d6ee8f59df2ca9191597",
+    "sindarin-sdk-stringbuilder-artifact-local-san.log": "026b4934d6f4a536c214ef6dd0bc23e9b649c9431644d6ee8f59df2ca9191597",
+    "sindarin-sdk-stringbuilder-dispatch.log": "d94ba06cedd0db4250399aead73af6bc9eb468afb5dc809554e0d71925aafc3a",
+    "sindarin-sdk-stringbuilder-dispatch-san.log": "dd9c8a99975cc5f064c4b7eb756d2df54409db2943556edc1a32f8fd519e4bc6",
+    "sindarin-sdk-stringbuilder-artifact-helpers.log": "011c2f8fed16aba5f8086fad0b24da4812893019da39a860dc9652094e00017d"
+  }
+}

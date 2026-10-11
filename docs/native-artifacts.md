@@ -444,3 +444,16 @@ independent archives and actual-runtime ownership. The SDK revision has hosted a
 pins that exact revision. The default selection now includes all thirteen
 implemented modules; compiler hosted acceptance remains required. Canonical package as-val copy adapters and
 full SDK migration remain required.
+
+
+## StringBuilder staging under validation
+
+Explicit `--modules encoding/text` stages the canonical StringBuilder SDK module
+as two C/Sindarin units with all 13 exports, retaining the original public module
+and operation bodies. Seventy-two source/sealed C/Rust cases pass normally and
+with sanitizers, including alias mutation, owned string lifetimes, clear and
+repeated disposal. The native checker validates independent clients and actual
+runtime cleanup. This stage remains local until required corrected main CI,
+SDK hosted acceptance and an exact accepted SDK pin; the default selection
+remains thirteen modules. Wider SDK/copy contracts and full goal acceptance
+remain required.
