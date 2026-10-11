@@ -461,3 +461,37 @@ with generated lifetime and validation guards. A package-specific C cleanup
 bridge supplies canonical header destruction inside each Rust archive; Go uses
 the canonical C cleanup through cgo. Rust generic body exports still require
 recursive guards and result contracts.
+
+
+## ABI 1.8 canonical reference-record arrays (local implementation)
+
+`SN_ABI_V1_8_VERSION` advertises `SN_ABI_CAP_NATIVE_RECORD_ARRAYS`. Earlier ABI
+versions do not advertise this capability; their layouts, functions and existing
+capability sets remain compatible. This implementation is locally validated and
+still requires hosted acceptance and generated package adapters.
+
+`sn_abi_v1_native_record_array_borrow/adopt/data/copy/take` describe a canonical
+C `SnArray` with rank 1–32 and an explicit package/type/ABI identity. Leaf slots
+hold C record pointers, including nil; nested layers hold canonical array pointers.
+The runtime copies the identity string into the wire owner. Wrong kind, identity,
+rank, tag, width, length/capacity or missing required cleanup leaves outputs and
+incoming ownership unchanged. The raw record's layout/lifetime is still the
+package's declared native contract; the identity does not inspect arbitrary C
+memory to discover its concrete type.
+
+Borrow/data preserve the actual header and live slots, without substituting a
+Rust Vec or Go slice. Borrowed owners must outlive the view. Owned adoption needs
+cleanup hooks on every nonempty layer. Copying needs package copy/release hooks
+on nonempty record leaves; missing nested hooks use canonical recursive defaults.
+Custom hooks retain their original alias/copy behavior and must preserve the
+source storage during copying. A private wire credit protects an owned source
+when a copy callback consumes a caller credit. `take` accepts nil or a unique
+owned view and transfers the same header and callbacks; aliases and borrowed
+views fail without consuming either output.
+
+Local C tests cover every rank, nil children, copied identities, pointer/header
+identity, reference aliases, malformed contracts, failed transfer, exact cleanup
+and copy-hook reentry. Rust and Go-native clients observe in-call record mutation,
+copy aliases and cleanup, including forced Go GC and a callback consuming a wire
+credit. Full compiler/package record-array adapters and platform proof remain
+required; runtime tests alone do not establish those capabilities.

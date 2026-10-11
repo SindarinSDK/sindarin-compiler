@@ -38,7 +38,7 @@ def main():
     if digest(ROOT / 'bin/include/runtime/sn_abi.h') != digest(ROOT / 'src/runtime/sn_abi.h'):
         raise ValueError('staged ABI header does not match the implementation source')
     report = {'platform': platform.system(), 'runtime_sha256': digest(runtime), 'cases': [],
-              'scope': 'C runtime ABI values, resources, replacement/mutation and ABI 1.5 string/1.6 byte/1.7 typed canonical array views, including actual SDK Environment; wider package adapters remain required.'}
+              'scope': 'C runtime ABI values, resources, replacement/mutation and ABI 1.5 string/1.6 byte/1.7 typed/1.8 record canonical array views, including actual SDK Environment; wider package adapters remain required.'}
     output = ROOT / '.sn' / ('runtime-abi-sanitizers.json' if args.sanitize else 'runtime-abi.json')
     output.parent.mkdir(exist_ok=True)
     cc = shlex.split(os.environ.get('SN_CC') or ('clang' if windows or platform.system() == 'Darwin' else 'gcc'))
@@ -56,6 +56,7 @@ def main():
                                      ('native_string_array.c', 'C native string-array views', b'native string array views: pass'),
                                      ('native_byte_array.c', 'C native byte-array views', b'native byte array views: pass'),
                                      ('native_array.c', 'C typed native array views', b'typed native array views: pass'),
+                                     ('native_record_array.c', 'C native record-array views', b'native record array views: pass'),
                                      ('sdk_env_native_array.c', 'canonical SDK Environment typed array', b'SDK Environment typed array: pass')]:
             helper = [SOURCES / source.replace('.c', '_bridge.c')] if source in ('native_string_array.c','native_byte_array.c') else []
             if source == 'sdk_env_native_array.c': helper = [env_module]
@@ -75,15 +76,16 @@ def main():
         if not args.sanitize:
             rustc = shlex.split(os.environ.get('SN_RUSTC', 'rustc'))
             rustflags = shlex.split(os.environ.get('SN_RUSTFLAGS', ''))
-            for stem in ('native_string_array','native_byte_array','native_array'):
+            for stem in ('native_string_array','native_byte_array','native_array','native_record_array'):
                 checked(cc + ['-std=c99', '-D_GNU_SOURCE'] + flags + ['-c', SOURCES / (stem+'_bridge.c'), '-o', work/(stem+'_bridge.o')])
             for source, label, wanted in [('client.rs', 'Rust', b'shared runtime ABI: pass'),
                                          ('value_array_assign.rs', 'Rust array replacement', b'managed array replacement: pass'),
                                          ('value_array_mutation.rs', 'Rust array mutation', b'managed array mutation: pass'),
                                          ('native_string_array.rs', 'Rust native string-array views', b'native string array views: pass'),
                                          ('native_byte_array.rs', 'Rust native byte-array views', b'native byte array views: pass'),
-                                         ('native_array.rs', 'Rust typed native array views', b'typed native array views: pass')]:
-                helper = ['-C', 'link-arg=' + str(work/source.replace('.rs','_bridge.o'))] if source in ('native_string_array.rs','native_byte_array.rs','native_array.rs') else []
+                                         ('native_array.rs', 'Rust typed native array views', b'typed native array views: pass'),
+                                         ('native_record_array.rs', 'Rust native record-array views', b'native record array views: pass')]:
+                helper = ['-C', 'link-arg=' + str(work/source.replace('.rs','_bridge.o'))] if source in ('native_string_array.rs','native_byte_array.rs','native_array.rs','native_record_array.rs') else []
                 checked(rustc + ['--edition=2021', SOURCES / source, '-L', runtime.parent,
                                 '-o', executable] + rustflags + helper)
                 run = checked([executable])
@@ -98,7 +100,8 @@ def main():
                 shutil.copyfile(header, go_project / header.name)
             for source in ('native_string_array_bridge.c', 'native_string_array_bridge.h',
                            'native_byte_array_bridge.c', 'native_byte_array_bridge.h',
-                           'native_array_bridge.c', 'native_array_bridge.h'):
+                           'native_array_bridge.c', 'native_array_bridge.h',
+                           'native_record_array_bridge.c', 'native_record_array_bridge.h'):
                 shutil.copyfile(SOURCES / source, go_project / source)
             env = os.environ.copy()
             env['CGO_ENABLED'] = '1'

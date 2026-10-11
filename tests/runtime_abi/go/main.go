@@ -167,5 +167,6 @@ func main() {
 	checkNativeStringArrays()
 	sn_test_go_native_byte_arrays()
 	sn_test_go_typed_arrays()
+	sn_test_go_record_arrays()
 	fmt.Println("shared runtime ABI: pass")
 }

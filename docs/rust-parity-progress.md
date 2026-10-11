@@ -31,6 +31,23 @@ The SDK correction is accepted. Compiler feature run 38162607031 subsequently
 failed macOS/Windows core gates; feature publication is frozen for the combined
 compiler correction below. XML generated artifacts and the wider goal remain open.
 
+## Canonical record-array runtime: local validation, 2026-10-11
+
+ABI 1.8 adds typed native record-array views with copied record identity,
+real headers and native element copy/release hooks. Ranks 1–32, nested nil,
+alias mutation, copied slot credits, exact destruction, guarded callbacks and
+unique ownership transfer pass focused C/Rust/Go clients. Go callbacks force
+GC; Rust also consumes the Go-native archive through the shared C runtime.
+
+Local checks pass: 17 ABI clients, eight actual-runtime C sanitizer clients,
+full C (3,242) and Rust (1,097) suites, and 23 CI helper tests (405 gates in
+26 groups). Evidence: [canonical-record-array-runtime-local-validation.json](rust-parity-evidence/canonical-record-array-runtime-local-validation.json).
+
+This is an unpublished runtime checkpoint. Generated package adapters/schema
+1.8 and XML artifact support remain outstanding. Publication remains held for
+compiler run 38162607031 and SDK correction run 38164835929; neither pending
+run receives hosted acceptance credit.
+
 # Rust backend completion ledger
 
 Goal: verified feature and behavioral parity with C on integrated main using the

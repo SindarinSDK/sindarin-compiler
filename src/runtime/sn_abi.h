@@ -18,6 +18,7 @@ extern "C" {
 #define SN_ABI_V1_5_VERSION UINT32_C(0x00010005)
 #define SN_ABI_V1_6_VERSION UINT32_C(0x00010006)
 #define SN_ABI_V1_7_VERSION UINT32_C(0x00010007)
+#define SN_ABI_V1_8_VERSION UINT32_C(0x00010008)
 #define SN_ABI_CAP_VALUES UINT64_C(1)
 #define SN_ABI_CAP_POD_ARRAYS UINT64_C(2)
 #define SN_ABI_CAP_RESOURCES UINT64_C(4)
@@ -29,6 +30,7 @@ extern "C" {
 #define SN_ABI_CAP_NATIVE_STRING_ARRAYS UINT64_C(256)
 #define SN_ABI_CAP_NATIVE_BYTE_ARRAYS UINT64_C(512)
 #define SN_ABI_CAP_NATIVE_ARRAYS UINT64_C(1024)
+#define SN_ABI_CAP_NATIVE_RECORD_ARRAYS UINT64_C(2048)
 
 typedef uint32_t SnAbiStatus;
 #define SN_ABI_OK UINT32_C(0)
@@ -199,6 +201,21 @@ SnAbiStatus sn_abi_v1_native_array_data(const SnAbiValue *value, SnAbiNativeArra
 SnAbiStatus sn_abi_v1_native_array_type(const SnAbiValue *value, SnAbiNativeArrayType *out);
 SnAbiStatus sn_abi_v1_native_array_copy(const SnAbiValue *value, SnAbiValue **out);
 SnAbiStatus sn_abi_v1_native_array_take(SnAbiValue **value, SnAbiNativeArrayType type, struct SnArray **out);
+
+/* ABI 1.8 canonical native reference-record arrays (ranks 1..32).
+ * Slots are native C record pointers; nested layers contain SnArray pointers.
+ * The copied package/type/ABI identity describes every leaf pointer, including
+ * nil slots. Borrowed views preserve live header/slot identity and require an
+ * owner to outlive access. Owned adoption requires cleanup hooks on nonempty
+ * layers; copying also requires native copy hooks on nonempty record leaves.
+ * Hooks remain package-owned and retain their original alias/copy semantics.
+ * Output/ownership are preserved on errors; take requires a unique owned view.
+ * Mutable access is caller-serialized as with ABI 1.7 arrays. */
+SnAbiStatus sn_abi_v1_native_record_array_borrow(struct SnArray *array, uint32_t rank, const char *identity, SnAbiValue **out);
+SnAbiStatus sn_abi_v1_native_record_array_adopt(struct SnArray *array, uint32_t rank, const char *identity, SnAbiValue **out);
+SnAbiStatus sn_abi_v1_native_record_array_data(const SnAbiValue *value, uint32_t rank, const char *identity, struct SnArray **out);
+SnAbiStatus sn_abi_v1_native_record_array_copy(const SnAbiValue *value, SnAbiValue **out);
+SnAbiStatus sn_abi_v1_native_record_array_take(SnAbiValue **value, uint32_t rank, const char *identity, struct SnArray **out);
 
 /* Resource adoption transfers cleanup responsibility only on success. Adapters
  * keep resource layouts private or expose documented fields through accessors. */

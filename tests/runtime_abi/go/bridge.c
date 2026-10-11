@@ -33,3 +33,9 @@ SnAbiStatus sn_test_go_typed_array_reenter(SnAbiValue *value, uintptr_t context)
 {
     return sn_test_typed_array_reenter(value, sn_test_go_typed_array_observe, context);
 }
+#include "native_record_array_bridge.h"
+extern SnAbiStatus sn_test_go_record_array_observe(SnAbiValue *, uintptr_t);
+SnAbiStatus sn_test_go_record_array_reenter(SnAbiValue *value, uintptr_t context)
+{
+    return sn_test_record_array_reenter(value, sn_test_go_record_array_observe, context);
+}

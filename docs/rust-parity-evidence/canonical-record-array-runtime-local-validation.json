@@ -1,0 +1,64 @@
+{
+  "status": "Local runtime foundation validated; unpublished; generated record-array package adapters outstanding",
+  "base": "f5e8891121367fccd38d6629cb90310f7529ed03",
+  "abi": "1.8",
+  "normal_clients": 17,
+  "actual_runtime_sanitized_C_clients": 8,
+  "C_suite": 3242,
+  "Rust_suite": 1097,
+  "ci_helper_tests": 23,
+  "registered_gates": 405,
+  "registered_groups": 26,
+  "controls": [
+    "Ranks 1 through 32 and nil children",
+    "Copied identity and typed validation",
+    "Header identity, slot aliases and mutation",
+    "Native copy/release hooks and exact destructor counts",
+    "Borrowed and retained ownership rejection; unique take",
+    "Callback reentry consuming caller wire credit",
+    "Rust and Go callbacks; forced Go GC and cgocheck2",
+    "Rust consuming Go-native archive with shared runtime"
+  ],
+  "publication_dependencies": {
+    "compiler": {
+      "sha": "f5e8891121367fccd38d6629cb90310f7529ed03",
+      "run": 38162607031,
+      "status": "pending"
+    },
+    "SDK_correction": {
+      "sha": "0b71e84694230f5745bac5254d3811e696f892f5",
+      "run": 38164835929,
+      "status": "pending"
+    }
+  },
+  "limitations": [
+    "Generated C/RS/GO package adapters and schema 1.8 remain outstanding",
+    "No hosted acceptance or XML artifact completion credited"
+  ],
+  "logs": {
+    "abi-normal": {
+      "path": "/tmp/sindarin-record-array-abi-normal.log",
+      "sha256": "399faa77c8b99c9cb8319b95472dd6ebb9b248f95631691e0ee9752b645c83d0"
+    },
+    "abi-san": {
+      "path": "/tmp/sindarin-record-array-abi-san.log",
+      "sha256": "3c5852e9cdd73bfe2ed7a77c980afd6f7c00d69994089636766fa4bfbd86cc78"
+    },
+    "full-c": {
+      "path": "/tmp/sindarin-record-array-full-c.log",
+      "sha256": "c3ff1557b7e71bec1e35b8dbea30836d5ca1bcc2987aeee8d3227f5903e6952e"
+    },
+    "full-rust": {
+      "path": "/tmp/sindarin-record-array-full-rust.log",
+      "sha256": "f35cb54e3c9e109e39beb956ce07c0b272d1dc584db2cafde11932e22e98074a"
+    },
+    "ci-helpers": {
+      "path": "/tmp/sindarin-record-array-ci-helpers.log",
+      "sha256": "5104f2c8e2bdfbf8ccd49294fa9cb63d81215cf4a77de652db2c4906b3223cdc"
+    },
+    "build": {
+      "path": "/tmp/sindarin-record-array-build.log",
+      "sha256": "ddced32a6f921832f44400b654381ab3c7320c7db35c738dcc9c8240cdf3dde6"
+    }
+  }
+}
