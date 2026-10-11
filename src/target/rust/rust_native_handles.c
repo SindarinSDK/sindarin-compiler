@@ -34,6 +34,34 @@ static void native_handle_mark_types(json_object *node, json_object *handles)
         }
     json_object_object_foreach(node, key, child)
         if (strncmp(key, "rust_", 5) != 0) native_handle_mark_types(child, handles);
+
+}
+
+static void native_handle_mark_method_self(json_object *node, const char *owner)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array)) {
+        for (size_t i = 0; i < json_object_array_length(node); i++)
+            native_handle_mark_method_self(json_object_array_get_idx(node, i), owner);
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
+    const char *name = native_string(node, "name");
+    /* C projects method self as a pointer. Rust's self is already a borrowed
+     * native handle; use its marked record type for field/call lowering. */
+    if (native_string(node, "kind") && !strcmp(native_string(node, "kind"), "variable") &&
+        name && !strcmp(name, "self")) {
+        json_object *type = native_record_child(node, "type");
+        json_object *base = native_record_child(type, "base_type");
+        if (native_string(type, "kind") && !strcmp(native_string(type, "kind"), "pointer") &&
+            native_handle_type(base) && native_string(base, "name") &&
+            !strcmp(native_string(base, "name"), owner))
+            json_object_object_add(node, "type", json_object_get(base));
+    }
+    json_object_object_foreach(node, key, child) {
+        (void)key;
+        native_handle_mark_method_self(child, owner);
+    }
 }
 
 static json_object *native_handle_expression(const char *name, json_object *type)
@@ -187,6 +215,15 @@ static bool native_prepare_handles(json_object *model, RustNativePlan *plan)
         if (!native_handle_prepare_methods(model, structure)) { json_object_put(handles); return false; }
     }
     native_handle_mark_types(model, handles);
+    for (size_t i = 0; i < json_object_array_length(handles); i++) {
+        json_object *handle = json_object_array_get_idx(handles, i);
+        json_object *methods = native_record_child(handle, "methods");
+        for (size_t m = 0; m < json_object_array_length(methods); m++) {
+            json_object *method = json_object_array_get_idx(methods, m);
+            if (!native_bool(method, "is_static"))
+                native_handle_mark_method_self(native_record_child(method, "body"), native_string(handle, "name"));
+        }
+    }
     if (!native_prepare_handle_arrays(model, handles)) { json_object_put(handles); return false; }
     plan->handles = json_object_get(handles);
     json_object *array_support = native_record_child(model, "rust_native_handle_array_support");

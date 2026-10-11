@@ -1400,6 +1400,13 @@
       ],
       "group": "sanitizers",
       "linux_only": true
+    },
+    {
+      "id": "static-instance-methods",
+      "name": "static/instance method name parity and native self storage",
+      "command": ["{python}", "scripts/check_static_instance_methods.py"],
+      "group": "native",
+      "linux_only": false
     }
   ]
 }

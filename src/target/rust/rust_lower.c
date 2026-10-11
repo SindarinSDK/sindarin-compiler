@@ -1128,6 +1128,73 @@ static bool rust_allocate_helper_name(json_object *model, const char *base,
     return false;
 }
 
+static void rust_route_collision_static_calls(json_object *node, json_object *routes)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array)) {
+        for (size_t i = 0; i < json_object_array_length(node); i++)
+            rust_route_collision_static_calls(json_object_array_get_idx(node, i), routes);
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
+    const char *owner = NULL;
+    if (json_string_property_equals(node, "kind", "static_call"))
+        owner = json_string_property(node, "type_name");
+    else if (json_string_property_equals(node, "kind", "method_call") &&
+             json_boolean_property(node, "is_static"))
+        owner = json_string_property(json_object_object_get(node, "struct_type"), "name");
+    const char *method = json_string_property(node, "method_name");
+    if (owner && method) {
+        for (size_t i = 0; i < json_object_array_length(routes); i++) {
+            json_object *route = json_object_array_get_idx(routes, i);
+            if (json_string_property_equals(route, "owner", owner) &&
+                json_string_property_equals(route, "source", method))
+                json_object_object_add(node, "rust_emitted_method_name",
+                    json_object_get(json_object_object_get(route, "emitted")));
+        }
+    }
+    json_object_object_foreach(node, key, value) {
+        (void)key;
+        rust_route_collision_static_calls(value, routes);
+    }
+}
+
+static bool rust_lower_static_instance_collisions(json_object *model)
+{
+    json_object *structures = json_object_object_get(model, "structs");
+    json_object *routes = json_object_new_array();
+    if (!routes) return false;
+    for (size_t s = 0; s < json_object_array_length(structures); s++) {
+        json_object *structure = json_object_array_get_idx(structures, s);
+        json_object *methods = json_object_object_get(structure, "methods");
+        for (size_t m = 0; m < json_object_array_length(methods); m++) {
+            json_object *method = json_object_array_get_idx(methods, m);
+            const char *name = json_string_property(method, "name");
+            if (!json_boolean_property(method, "is_static") || !name) continue;
+            bool collision = false;
+            for (size_t i = 0; i < json_object_array_length(methods); i++) {
+                json_object *other = json_object_array_get_idx(methods, i);
+                if (!json_boolean_property(other, "is_static") &&
+                    json_string_property_equals(other, "name", name)) collision = true;
+            }
+            if (!collision) continue;
+            char emitted[128];
+            if (!rust_allocate_helper_name(model, "__sn_static_method", emitted, sizeof(emitted))) {
+                json_object_put(routes); return false;
+            }
+            json_object_object_add(method, "rust_emitted_method_name", json_object_new_string(emitted));
+            json_object *route = json_object_new_object();
+            json_object_object_add(route, "owner", json_object_get(json_object_object_get(structure, "name")));
+            json_object_object_add(route, "source", json_object_new_string(name));
+            json_object_object_add(route, "emitted", json_object_new_string(emitted));
+            json_object_array_add(routes, route);
+        }
+    }
+    rust_route_collision_static_calls(model, routes);
+    json_object_put(routes);
+    return true;
+}
+
 /* C character classification and string casing/whitespace follow the CRT's
  * locale and byte domain. Keep their symbols in a reserved private module. */
 static void rust_annotate_ctype_calls(json_object *node, const char *module_name, bool *used)

@@ -7,6 +7,32 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## SDK method names and native self storage: local validation, 2026-10-11
+
+The unchanged Date API declares static and instance `isLeapYear`/`daysInMonth`.
+C accepts their distinct native aliases; Rust previously emitted duplicate method
+names. Only colliding static definitions now receive hygienic private Rust names,
+and resolved static calls use those names. Public method names, instance routing
+and C aliases remain unchanged. Native method `self` is projected as a borrowed
+handle rather than the C pointer model, so direct scalar/string field operations
+use canonical getters/setters and retain aliases.
+
+Controls cover 27 paired C/Rust groups across all nine modes, including native
+static/instance implementations, scalar mutation, strings surviving mutation,
+same-slot string assignment and aliases, normally and under strict sanitizers.
+Another 18 ordinary value/reference groups are Rust-only controls: C's duplicate
+symbol compilation failures are retained separately, not counted as parity.
+Private-name hygiene and nested calls pass. Complete C/Rust suites pass
+3,242/1,097 checks and 22 CI helper tests pass. The original Date caller passes
+all C/Rust modes in the Time/Date native/legacy matrix with unchanged source and
+oracle. A native gate on all three hosts brings the inventory to 304 gates in
+26 groups. [Local evidence](rust-parity-evidence/static-instance-parity-validation.json)
+records the scope. Correction `0bcd8cbd` has complete hosted acceptance. This
+batch passes the integrated 3,242-check C and 1,097-check Rust suites, 49
+package import tests, 21 artifact tests and 22 CI helpers. Normal/sanitized method
+controls and formatting pass. Hosted verification is pending publication; whole
+SDK and final corpus/platform acceptance remain required.
+
 ## Windows response-file lifecycle and verifier follow-up, 2026-10-11
 
 Correction `1dc9ce50` resolved the Windows SDK linker overflow: all 288 original
@@ -26,9 +52,14 @@ platform so Linux also verifies the new recording path. All 12 toolchain/lifecyc
 checks, the complete 1,097-check Rust suite, all 21 artifact tests and CI helpers
 pass locally, together with all 49 package import tests.
 [Follow-up evidence](rust-parity-evidence/windows-response-followup-validation.json)
-records the source hashes and validation. Feature publication remains
-frozen until corrected integrated CI is fully green; all local feature work stays
-separate from this correction.
+records the source hashes and validation. Published follow-up `0bcd8cbd` passed
+all 34 jobs in [CI 38121285417](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38121285417).
+The retained [hosted acceptance](rust-parity-evidence/windows-response-correction-ci-green.json)
+verifies 26 groups and 301 gates, with one recorded compiler hash per platform.
+The combined Windows corrections and typed-array/SDK artifact foundation are
+accepted on integrated main. The publication freeze is lifted. Local Rust/Go
+providers, SDK input coverage and Time/Date migration, and static/instance method
+naming remain separate, unpublished work; full completion remains outstanding.
 
 ## Windows SDK archive linking: required CI correction, 2026-10-11
 

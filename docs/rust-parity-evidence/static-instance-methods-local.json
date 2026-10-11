@@ -1,0 +1,827 @@
+{
+  "passed": true,
+  "cases": [
+    {
+      "case": "value",
+      "opt": "-O0",
+      "mode": "default",
+      "source_sha256": "b9931dbc1991a7d5f83ba8f32c4f1b297e8bbe1a40380973831d1aed90e85eba",
+      "targets": {
+        "rust": {
+          "stdout_hex": "31320a350a31350a3737370a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "value",
+      "opt": "-O0",
+      "mode": "checked",
+      "source_sha256": "b9931dbc1991a7d5f83ba8f32c4f1b297e8bbe1a40380973831d1aed90e85eba",
+      "targets": {
+        "rust": {
+          "stdout_hex": "31320a350a31350a3737370a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "value",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "source_sha256": "b9931dbc1991a7d5f83ba8f32c4f1b297e8bbe1a40380973831d1aed90e85eba",
+      "targets": {
+        "rust": {
+          "stdout_hex": "31320a350a31350a3737370a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "value",
+      "opt": "-O1",
+      "mode": "default",
+      "source_sha256": "b9931dbc1991a7d5f83ba8f32c4f1b297e8bbe1a40380973831d1aed90e85eba",
+      "targets": {
+        "rust": {
+          "stdout_hex": "31320a350a31350a3737370a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "value",
+      "opt": "-O1",
+      "mode": "checked",
+      "source_sha256": "b9931dbc1991a7d5f83ba8f32c4f1b297e8bbe1a40380973831d1aed90e85eba",
+      "targets": {
+        "rust": {
+          "stdout_hex": "31320a350a31350a3737370a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "value",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "source_sha256": "b9931dbc1991a7d5f83ba8f32c4f1b297e8bbe1a40380973831d1aed90e85eba",
+      "targets": {
+        "rust": {
+          "stdout_hex": "31320a350a31350a3737370a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "value",
+      "opt": "-O2",
+      "mode": "default",
+      "source_sha256": "b9931dbc1991a7d5f83ba8f32c4f1b297e8bbe1a40380973831d1aed90e85eba",
+      "targets": {
+        "rust": {
+          "stdout_hex": "31320a350a31350a3737370a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "value",
+      "opt": "-O2",
+      "mode": "checked",
+      "source_sha256": "b9931dbc1991a7d5f83ba8f32c4f1b297e8bbe1a40380973831d1aed90e85eba",
+      "targets": {
+        "rust": {
+          "stdout_hex": "31320a350a31350a3737370a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "value",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "source_sha256": "b9931dbc1991a7d5f83ba8f32c4f1b297e8bbe1a40380973831d1aed90e85eba",
+      "targets": {
+        "rust": {
+          "stdout_hex": "31320a350a31350a3737370a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "reference",
+      "opt": "-O0",
+      "mode": "default",
+      "source_sha256": "d9a46c06fc2f659348c8c0a38b5256379952e0c4557927420969002a3c0bc6ce",
+      "targets": {
+        "rust": {
+          "stdout_hex": "31320a390a31390a3737370a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "reference",
+      "opt": "-O0",
+      "mode": "checked",
+      "source_sha256": "d9a46c06fc2f659348c8c0a38b5256379952e0c4557927420969002a3c0bc6ce",
+      "targets": {
+        "rust": {
+          "stdout_hex": "31320a390a31390a3737370a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "reference",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "source_sha256": "d9a46c06fc2f659348c8c0a38b5256379952e0c4557927420969002a3c0bc6ce",
+      "targets": {
+        "rust": {
+          "stdout_hex": "31320a390a31390a3737370a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "reference",
+      "opt": "-O1",
+      "mode": "default",
+      "source_sha256": "d9a46c06fc2f659348c8c0a38b5256379952e0c4557927420969002a3c0bc6ce",
+      "targets": {
+        "rust": {
+          "stdout_hex": "31320a390a31390a3737370a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "reference",
+      "opt": "-O1",
+      "mode": "checked",
+      "source_sha256": "d9a46c06fc2f659348c8c0a38b5256379952e0c4557927420969002a3c0bc6ce",
+      "targets": {
+        "rust": {
+          "stdout_hex": "31320a390a31390a3737370a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "reference",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "source_sha256": "d9a46c06fc2f659348c8c0a38b5256379952e0c4557927420969002a3c0bc6ce",
+      "targets": {
+        "rust": {
+          "stdout_hex": "31320a390a31390a3737370a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "reference",
+      "opt": "-O2",
+      "mode": "default",
+      "source_sha256": "d9a46c06fc2f659348c8c0a38b5256379952e0c4557927420969002a3c0bc6ce",
+      "targets": {
+        "rust": {
+          "stdout_hex": "31320a390a31390a3737370a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "reference",
+      "opt": "-O2",
+      "mode": "checked",
+      "source_sha256": "d9a46c06fc2f659348c8c0a38b5256379952e0c4557927420969002a3c0bc6ce",
+      "targets": {
+        "rust": {
+          "stdout_hex": "31320a390a31390a3737370a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "reference",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "source_sha256": "d9a46c06fc2f659348c8c0a38b5256379952e0c4557927420969002a3c0bc6ce",
+      "targets": {
+        "rust": {
+          "stdout_hex": "31320a390a31390a3737370a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "native_instance",
+      "opt": "-O0",
+      "mode": "default",
+      "source_sha256": "ec7e216f921cd6fceb84ef2e9970c29f153c235d8c35558692d5836bc77159a4",
+      "targets": {
+        "c": {
+          "stdout_hex": "31320a390a",
+          "exit": 0
+        },
+        "rust": {
+          "stdout_hex": "31320a390a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "native_instance",
+      "opt": "-O0",
+      "mode": "checked",
+      "source_sha256": "ec7e216f921cd6fceb84ef2e9970c29f153c235d8c35558692d5836bc77159a4",
+      "targets": {
+        "c": {
+          "stdout_hex": "31320a390a",
+          "exit": 0
+        },
+        "rust": {
+          "stdout_hex": "31320a390a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "native_instance",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "source_sha256": "ec7e216f921cd6fceb84ef2e9970c29f153c235d8c35558692d5836bc77159a4",
+      "targets": {
+        "c": {
+          "stdout_hex": "31320a390a",
+          "exit": 0
+        },
+        "rust": {
+          "stdout_hex": "31320a390a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "native_instance",
+      "opt": "-O1",
+      "mode": "default",
+      "source_sha256": "ec7e216f921cd6fceb84ef2e9970c29f153c235d8c35558692d5836bc77159a4",
+      "targets": {
+        "c": {
+          "stdout_hex": "31320a390a",
+          "exit": 0
+        },
+        "rust": {
+          "stdout_hex": "31320a390a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "native_instance",
+      "opt": "-O1",
+      "mode": "checked",
+      "source_sha256": "ec7e216f921cd6fceb84ef2e9970c29f153c235d8c35558692d5836bc77159a4",
+      "targets": {
+        "c": {
+          "stdout_hex": "31320a390a",
+          "exit": 0
+        },
+        "rust": {
+          "stdout_hex": "31320a390a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "native_instance",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "source_sha256": "ec7e216f921cd6fceb84ef2e9970c29f153c235d8c35558692d5836bc77159a4",
+      "targets": {
+        "c": {
+          "stdout_hex": "31320a390a",
+          "exit": 0
+        },
+        "rust": {
+          "stdout_hex": "31320a390a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "native_instance",
+      "opt": "-O2",
+      "mode": "default",
+      "source_sha256": "ec7e216f921cd6fceb84ef2e9970c29f153c235d8c35558692d5836bc77159a4",
+      "targets": {
+        "c": {
+          "stdout_hex": "31320a390a",
+          "exit": 0
+        },
+        "rust": {
+          "stdout_hex": "31320a390a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "native_instance",
+      "opt": "-O2",
+      "mode": "checked",
+      "source_sha256": "ec7e216f921cd6fceb84ef2e9970c29f153c235d8c35558692d5836bc77159a4",
+      "targets": {
+        "c": {
+          "stdout_hex": "31320a390a",
+          "exit": 0
+        },
+        "rust": {
+          "stdout_hex": "31320a390a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "native_instance",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "source_sha256": "ec7e216f921cd6fceb84ef2e9970c29f153c235d8c35558692d5836bc77159a4",
+      "targets": {
+        "c": {
+          "stdout_hex": "31320a390a",
+          "exit": 0
+        },
+        "rust": {
+          "stdout_hex": "31320a390a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "native_static",
+      "opt": "-O0",
+      "mode": "default",
+      "source_sha256": "d24adcbb89e996bb4a3fc85bd0296916b4ef1f6ceaa07c404d48abb5431f1aea",
+      "targets": {
+        "c": {
+          "stdout_hex": "31320a350a",
+          "exit": 0
+        },
+        "rust": {
+          "stdout_hex": "31320a350a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "native_static",
+      "opt": "-O0",
+      "mode": "checked",
+      "source_sha256": "d24adcbb89e996bb4a3fc85bd0296916b4ef1f6ceaa07c404d48abb5431f1aea",
+      "targets": {
+        "c": {
+          "stdout_hex": "31320a350a",
+          "exit": 0
+        },
+        "rust": {
+          "stdout_hex": "31320a350a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "native_static",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "source_sha256": "d24adcbb89e996bb4a3fc85bd0296916b4ef1f6ceaa07c404d48abb5431f1aea",
+      "targets": {
+        "c": {
+          "stdout_hex": "31320a350a",
+          "exit": 0
+        },
+        "rust": {
+          "stdout_hex": "31320a350a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "native_static",
+      "opt": "-O1",
+      "mode": "default",
+      "source_sha256": "d24adcbb89e996bb4a3fc85bd0296916b4ef1f6ceaa07c404d48abb5431f1aea",
+      "targets": {
+        "c": {
+          "stdout_hex": "31320a350a",
+          "exit": 0
+        },
+        "rust": {
+          "stdout_hex": "31320a350a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "native_static",
+      "opt": "-O1",
+      "mode": "checked",
+      "source_sha256": "d24adcbb89e996bb4a3fc85bd0296916b4ef1f6ceaa07c404d48abb5431f1aea",
+      "targets": {
+        "c": {
+          "stdout_hex": "31320a350a",
+          "exit": 0
+        },
+        "rust": {
+          "stdout_hex": "31320a350a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "native_static",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "source_sha256": "d24adcbb89e996bb4a3fc85bd0296916b4ef1f6ceaa07c404d48abb5431f1aea",
+      "targets": {
+        "c": {
+          "stdout_hex": "31320a350a",
+          "exit": 0
+        },
+        "rust": {
+          "stdout_hex": "31320a350a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "native_static",
+      "opt": "-O2",
+      "mode": "default",
+      "source_sha256": "d24adcbb89e996bb4a3fc85bd0296916b4ef1f6ceaa07c404d48abb5431f1aea",
+      "targets": {
+        "c": {
+          "stdout_hex": "31320a350a",
+          "exit": 0
+        },
+        "rust": {
+          "stdout_hex": "31320a350a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "native_static",
+      "opt": "-O2",
+      "mode": "checked",
+      "source_sha256": "d24adcbb89e996bb4a3fc85bd0296916b4ef1f6ceaa07c404d48abb5431f1aea",
+      "targets": {
+        "c": {
+          "stdout_hex": "31320a350a",
+          "exit": 0
+        },
+        "rust": {
+          "stdout_hex": "31320a350a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "native_static",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "source_sha256": "d24adcbb89e996bb4a3fc85bd0296916b4ef1f6ceaa07c404d48abb5431f1aea",
+      "targets": {
+        "c": {
+          "stdout_hex": "31320a350a",
+          "exit": 0
+        },
+        "rust": {
+          "stdout_hex": "31320a350a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "native_self_storage",
+      "opt": "-O0",
+      "mode": "default",
+      "source_sha256": "afff0463bba297c11fbefe3162c82a0e0fe673cf7bd8d5dc1f92f83fd53e9f9a",
+      "targets": {
+        "c": {
+          "stdout_hex": "360a360a6368616e6765640a370a66697273740a6368616e6765640a",
+          "exit": 0
+        },
+        "rust": {
+          "stdout_hex": "360a360a6368616e6765640a370a66697273740a6368616e6765640a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "native_self_storage",
+      "opt": "-O0",
+      "mode": "checked",
+      "source_sha256": "afff0463bba297c11fbefe3162c82a0e0fe673cf7bd8d5dc1f92f83fd53e9f9a",
+      "targets": {
+        "c": {
+          "stdout_hex": "360a360a6368616e6765640a370a66697273740a6368616e6765640a",
+          "exit": 0
+        },
+        "rust": {
+          "stdout_hex": "360a360a6368616e6765640a370a66697273740a6368616e6765640a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "native_self_storage",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "source_sha256": "afff0463bba297c11fbefe3162c82a0e0fe673cf7bd8d5dc1f92f83fd53e9f9a",
+      "targets": {
+        "c": {
+          "stdout_hex": "360a360a6368616e6765640a370a66697273740a6368616e6765640a",
+          "exit": 0
+        },
+        "rust": {
+          "stdout_hex": "360a360a6368616e6765640a370a66697273740a6368616e6765640a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "native_self_storage",
+      "opt": "-O1",
+      "mode": "default",
+      "source_sha256": "afff0463bba297c11fbefe3162c82a0e0fe673cf7bd8d5dc1f92f83fd53e9f9a",
+      "targets": {
+        "c": {
+          "stdout_hex": "360a360a6368616e6765640a370a66697273740a6368616e6765640a",
+          "exit": 0
+        },
+        "rust": {
+          "stdout_hex": "360a360a6368616e6765640a370a66697273740a6368616e6765640a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "native_self_storage",
+      "opt": "-O1",
+      "mode": "checked",
+      "source_sha256": "afff0463bba297c11fbefe3162c82a0e0fe673cf7bd8d5dc1f92f83fd53e9f9a",
+      "targets": {
+        "c": {
+          "stdout_hex": "360a360a6368616e6765640a370a66697273740a6368616e6765640a",
+          "exit": 0
+        },
+        "rust": {
+          "stdout_hex": "360a360a6368616e6765640a370a66697273740a6368616e6765640a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "native_self_storage",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "source_sha256": "afff0463bba297c11fbefe3162c82a0e0fe673cf7bd8d5dc1f92f83fd53e9f9a",
+      "targets": {
+        "c": {
+          "stdout_hex": "360a360a6368616e6765640a370a66697273740a6368616e6765640a",
+          "exit": 0
+        },
+        "rust": {
+          "stdout_hex": "360a360a6368616e6765640a370a66697273740a6368616e6765640a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "native_self_storage",
+      "opt": "-O2",
+      "mode": "default",
+      "source_sha256": "afff0463bba297c11fbefe3162c82a0e0fe673cf7bd8d5dc1f92f83fd53e9f9a",
+      "targets": {
+        "c": {
+          "stdout_hex": "360a360a6368616e6765640a370a66697273740a6368616e6765640a",
+          "exit": 0
+        },
+        "rust": {
+          "stdout_hex": "360a360a6368616e6765640a370a66697273740a6368616e6765640a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "native_self_storage",
+      "opt": "-O2",
+      "mode": "checked",
+      "source_sha256": "afff0463bba297c11fbefe3162c82a0e0fe673cf7bd8d5dc1f92f83fd53e9f9a",
+      "targets": {
+        "c": {
+          "stdout_hex": "360a360a6368616e6765640a370a66697273740a6368616e6765640a",
+          "exit": 0
+        },
+        "rust": {
+          "stdout_hex": "360a360a6368616e6765640a370a66697273740a6368616e6765640a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "native_self_storage",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "source_sha256": "afff0463bba297c11fbefe3162c82a0e0fe673cf7bd8d5dc1f92f83fd53e9f9a",
+      "targets": {
+        "c": {
+          "stdout_hex": "360a360a6368616e6765640a370a66697273740a6368616e6765640a",
+          "exit": 0
+        },
+        "rust": {
+          "stdout_hex": "360a360a6368616e6765640a370a66697273740a6368616e6765640a",
+          "exit": 0
+        }
+      },
+      "passed": true
+    }
+  ],
+  "c_failures": [
+    {
+      "case": "value",
+      "opt": "-O0",
+      "mode": "default",
+      "reason": "C backend emits duplicate method symbol",
+      "parity": false
+    },
+    {
+      "case": "value",
+      "opt": "-O0",
+      "mode": "checked",
+      "reason": "C backend emits duplicate method symbol",
+      "parity": false
+    },
+    {
+      "case": "value",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "reason": "C backend emits duplicate method symbol",
+      "parity": false
+    },
+    {
+      "case": "value",
+      "opt": "-O1",
+      "mode": "default",
+      "reason": "C backend emits duplicate method symbol",
+      "parity": false
+    },
+    {
+      "case": "value",
+      "opt": "-O1",
+      "mode": "checked",
+      "reason": "C backend emits duplicate method symbol",
+      "parity": false
+    },
+    {
+      "case": "value",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "reason": "C backend emits duplicate method symbol",
+      "parity": false
+    },
+    {
+      "case": "value",
+      "opt": "-O2",
+      "mode": "default",
+      "reason": "C backend emits duplicate method symbol",
+      "parity": false
+    },
+    {
+      "case": "value",
+      "opt": "-O2",
+      "mode": "checked",
+      "reason": "C backend emits duplicate method symbol",
+      "parity": false
+    },
+    {
+      "case": "value",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "reason": "C backend emits duplicate method symbol",
+      "parity": false
+    },
+    {
+      "case": "reference",
+      "opt": "-O0",
+      "mode": "default",
+      "reason": "C backend emits duplicate method symbol",
+      "parity": false
+    },
+    {
+      "case": "reference",
+      "opt": "-O0",
+      "mode": "checked",
+      "reason": "C backend emits duplicate method symbol",
+      "parity": false
+    },
+    {
+      "case": "reference",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "reason": "C backend emits duplicate method symbol",
+      "parity": false
+    },
+    {
+      "case": "reference",
+      "opt": "-O1",
+      "mode": "default",
+      "reason": "C backend emits duplicate method symbol",
+      "parity": false
+    },
+    {
+      "case": "reference",
+      "opt": "-O1",
+      "mode": "checked",
+      "reason": "C backend emits duplicate method symbol",
+      "parity": false
+    },
+    {
+      "case": "reference",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "reason": "C backend emits duplicate method symbol",
+      "parity": false
+    },
+    {
+      "case": "reference",
+      "opt": "-O2",
+      "mode": "default",
+      "reason": "C backend emits duplicate method symbol",
+      "parity": false
+    },
+    {
+      "case": "reference",
+      "opt": "-O2",
+      "mode": "checked",
+      "reason": "C backend emits duplicate method symbol",
+      "parity": false
+    },
+    {
+      "case": "reference",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "reason": "C backend emits duplicate method symbol",
+      "parity": false
+    }
+  ],
+  "scope": "Native aliased static/instance methods prove C/Rust parity; ordinary collisions are retained C failures and Rust-only controls, not parity"
+}

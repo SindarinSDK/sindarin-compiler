@@ -1,5 +1,5 @@
 {
-  "status": "local combined follow-up; hosted acceptance pending",
+  "status": "accepted on integrated main; complete Linux/macOS/Windows CI green",
   "baseline": "1dc9ce50e3f3b755da3d8abade52b1c47142611b",
   "failed_ci": 38118718703,
   "hosted_sdk_evidence": "288 original SDK source/sealed C/Rust mode cases passed on all three hosts in the failed run; failure was in verification/lifecycle checks",
@@ -24,5 +24,14 @@
     "tests/package/native_imports.py": "ea3e73dff8a1c62ee4e1d2c354b14fae3a1bd6298c3f1c8c0453ca69217abf4e",
     "tests/package/native_artifacts.py": "23309180d9f690bec9efb2406d1f51e5545c668b4e3ceb3997d749886ba74d07"
   },
-  "scope": "CI correction only; local Rust/Go providers, SDK input coverage, canonical Time/Date and static/instance naming remain separate and unpublished"
+  "scope": "CI correction only; local Rust/Go providers, SDK input coverage, canonical Time/Date and static/instance naming remain separate and unpublished",
+  "published_revision": "0bcd8cbd96f8339b4640c05aa2a910abf193927b",
+  "ci": {
+    "run": 38121285417,
+    "status": "completed",
+    "conclusion": "success",
+    "jobs_passed": 34,
+    "coverage_groups": 26,
+    "coverage_gates": 301
+  }
 }

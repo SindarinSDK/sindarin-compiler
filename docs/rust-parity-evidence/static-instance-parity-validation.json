@@ -1,0 +1,42 @@
+{
+  "status": "integrated local validation complete; ready for hosted publication",
+  "dependency_revision": "0bcd8cbd96f8339b4640c05aa2a910abf193927b",
+  "dependency_ci": 38121285417,
+  "changes": [
+    "private static names only for same-name static/instance pairs",
+    "route resolved static calls while preserving instance names and C aliases",
+    "native method self uses marked handle type for field/getter/setter lowering"
+  ],
+  "local": {
+    "c_suite": 3242,
+    "rust_suite": 1097,
+    "ci_helpers": 22,
+    "normal_and_strict_sanitizer_case_groups": 45,
+    "paired_c_rust_groups": 27,
+    "rust_only_groups": 18,
+    "retained_C_duplicate_symbol_failures": 18
+  },
+  "original_sdk": "Date original caller passed all nine C/Rust modes as part of Time/Date 38-case native/legacy matrix; source/oracle unchanged",
+  "source_sha256": {
+    "src/target/rust/rust_lower.c": "482605ff48e395a0ee5027e6a468c8974c835a1e6d40a8b7134a12ed4f056efe",
+    "src/target/rust/rust_native_handles.c": "ec64db4200c835783a11789912eaab80368ed267331ae662cd02131217c48535",
+    "src/target/rust/rust_target.c": "5540e6811b0f7fc838f9d8657164eebc1394c9c0ae7deb6d673d2de7418b77eb",
+    "scripts/check_static_instance_methods.py": "a645deb90aba980528a257f3b2e9376a076015a3762ee4e8692e5998f69c52eb"
+  },
+  "limitations": [
+    "ordinary unaliased collisions remain C compilation failures and are not claimed as parity",
+    "whole SDK artifact migration, Date opaque pointer ownership, broader records/interfaces/generics and final corpus/platform acceptance remain"
+  ],
+  "dependency_ci_conclusion": "success",
+  "integrated": {
+    "method_case_groups": 45,
+    "sanitizer_case_groups": 45,
+    "artifacts": 21,
+    "ci_helpers": 22,
+    "formatting": true,
+    "c_suite": 3242,
+    "rust_suite": 1097,
+    "compiler_sha256": "f92b22ae36a1e57d8cdfbec8d64e23c37492a3097baad13347dc05c04ec552b2",
+    "native_imports": 49
+  }
+}
