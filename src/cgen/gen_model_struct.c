@@ -216,8 +216,16 @@ json_object *gen_model_struct(Arena *arena, StructDeclStmt *decl, SymbolTable *s
         /* Save outer as-ref param state and set up method-level as-ref params */
         char **saved_as_ref_names = g_as_ref_param_names;
         int saved_as_ref_count = g_as_ref_param_count;
+        char **saved_all_param_names = g_all_param_names;
+        int saved_all_param_count = g_all_param_count;
         g_as_ref_param_names = NULL;
         g_as_ref_param_count = 0;
+        g_all_param_names = arena_alloc(arena, sizeof(char *) * (size_t)(m->param_count + 1));
+        g_all_param_count = 0;
+        if (!m->is_static) g_all_param_names[g_all_param_count++] = "self";
+        for (int j = 0; j < m->param_count; j++)
+            if (!(m->params[j].mem_qualifier == MEM_AS_VAL && m->params[j].type && m->params[j].type->kind == TYPE_ARRAY))
+                g_all_param_names[g_all_param_count++] = arena_strndup(arena, m->params[j].name.start, m->params[j].name.length);
 
         /* Prepend param guard locals for as-val-on-as-ref-struct override params */
         for (int j = 0; j < m->param_count; j++)
@@ -275,6 +283,8 @@ json_object *gen_model_struct(Arena *arena, StructDeclStmt *decl, SymbolTable *s
         /* Restore outer as-ref param state */
         g_as_ref_param_names = saved_as_ref_names;
         g_as_ref_param_count = saved_as_ref_count;
+        g_all_param_names = saved_all_param_names;
+        g_all_param_count = saved_all_param_count;
 
         json_object_array_add(methods, method);
     }

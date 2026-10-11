@@ -635,6 +635,24 @@ class NativeArtifactTests(unittest.TestCase):
         self.assertFalse(changed['cache_hit'])
         self.assertNotEqual(first['assembly'], changed['assembly'])
 
+    def test_provided_sources_require_actual_c_include_dependencies(self):
+        self.manifest(['C'])
+        self.write('native/provided.c','#define PROVIDED_VALUE 23\n')
+        self.write('native/value.c','#include "provided.c"\nlong long from_c(void) { return PROVIDED_VALUE; }\n')
+        manifest=self.root/'sn.yaml'
+        original=manifest.read_text()
+        manifest.write_text(original.replace('      sources: [native/value.c]\n',
+            '      sources: [native/value.c]\n      provides_sources: [native/provided.c]\n'))
+        _,metadata=self.build()
+        self.assertEqual(metadata['units'][0]['provides_sources'],['native/provided.c'])
+        self.write('native/unrelated.c','#define UNRELATED_VALUE 42\n')
+        manifest.write_text(original.replace('      sources: [native/value.c]\n',
+            '      sources: [native/value.c]\n      provides_sources: [native/unrelated.c]\n'))
+        previous=set(self.output.rglob('assembly.json'))
+        rejected=self.build(success=False)
+        self.assertIn('does not include its declared provided source',rejected.stderr.decode(errors='replace'))
+        self.assertEqual(set(self.output.rglob('assembly.json')),previous)
+
     def test_missing_toolchain_is_diagnosed_without_publication(self):
         self.manifest(['C'])
         env = os.environ.copy()

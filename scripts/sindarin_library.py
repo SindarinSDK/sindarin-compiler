@@ -5,7 +5,7 @@ from pathlib import Path
 import re
 import shlex
 
-from native_contract import TYPES, kind
+from native_contract import TYPES, kind, raw_type
 from native_provider import RUST, c_header, c_provider, rust_provider
 
 
@@ -40,15 +40,33 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
             for child in node:sources(child)
     dependencies = set();sources(model)
     public_files={(root/path).resolve() for path in plan['native']['declarations']}
-    if any(f.get('is_native') and Path(f.get('source_file','')).resolve() in public_files for f in model['functions']):
+    if entry not in public_files and any(f.get('is_native') and Path(f.get('source_file','')).resolve() in public_files for f in model['functions']):
         raise ValueError('Sindarin implementation cannot import its consumer API; implementation dependencies need separate contracts')
     functions = {f['name']:f for f in model['functions']}
+    for structure in model.get('structs',[]):
+        for method in structure.get('methods',[]):
+            name=structure['name']+'.'+method['name']
+            params=list(method['params'])
+            if not method['is_static']:
+                params=[{'name':'self','type':dict(kind='struct',**{k:structure[k] for k in ('name','is_native','pass_self_by_ref','fields')},
+                        **({'native_record':{k:v for k,v in structure['native_record'].items() if k!='resolved_header'}} if 'native_record' in structure else {})),
+                         'mem_qual':'default','sync_mod':'none'}]+params
+            functions[name]=dict(method,name=name,params=params,is_method=True,owner=structure['name'],
+                has_body=bool(method.get('body')),method_name=method['name'],
+                c_callee=method.get('c_alias') or '__sn__'+structure['name']+'_'+method['name'])
+    def decorate_record(value):
+        if value.get('kind')=='struct' and 'native_record' not in value:
+            found=next((s for s in model.get('structs',[]) if s['name']==value['name'] and 'native_record' in s),None)
+            if found:value['native_record']={k:v for k,v in found['native_record'].items() if k!='resolved_header'}
+    for function in functions.values():
+        decorate_record(function['return_type'])
+        for parameter in function['params']:decorate_record(parameter['type'])
     declarations = {f['name']:f for f in model.get('package_implementation_declarations',[])}
     selected = []
     for signature in signatures:
         name = signature['binding']['function']
         function = functions.get(name)
-        if not function or function.get('is_native') or not function.get('has_body'):
+        if not function or (not function.get('is_method') and (function.get('is_native') or not function.get('has_body'))):
             raise ValueError('Sindarin package export requires a defined implementation function: '+name)
         declared = declarations.get(name,{})
         if declared.get('return_mem_qual','default')!='default' or declared.get('type_param_count',0):
@@ -67,6 +85,8 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
     native_objects, native_depfiles, bundle_links = [], [], []
     projected_functions = functions
     if runtime == 'RS':
+        if any(kind(s['return_type'])=='record' or any(kind(p['type'])=='record' for p in s['params']) for s in signatures):
+            raise ValueError('Rust Sindarin record bodies require canonical record input/result guards')
         bundle_dir = work/(stem+'_bundle')
         native_arrays = any(kind(p['type']) == 'string_array' for f in selected for p in f['params'])
         bundle_options = ['--emit-source-bundle', '--package-native-namespace', stem]
@@ -78,6 +98,9 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
         emitted = bundle_dir/bundle['primary']
         projected = json.loads((bundle_dir/bundle['body_model']).read_text(encoding='utf-8',errors='surrogateescape'))
         projected_functions = {f['name']:f for f in projected['functions']}
+        for structure in projected.get('structs',[]):
+            for method in structure.get('methods',[]):
+                projected_functions[structure['name']+'.'+method['name']]=method
         generated = [bundle_dir/f['path'] for f in bundle['files'] if f['kind']=='source' and Path(f['path']).suffix=='.c']
         for item in bundle['native_sources']:
             value = item['path']
@@ -100,9 +123,9 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
         run(common+['--emit-source','-o',emitted],cwd=root)
     archive = work/('lib'+stem+'.a')
     adjusted = []
-    for signature in signatures:
+    for index,signature in enumerate(signatures):
         name = signature['binding']['function']
-        adjusted.append(dict(signature,binding=dict(signature['binding'],function='__sn_body_'+name)))
+        adjusted.append(dict(signature,binding=dict(signature['binding'],function='__sn_body_'+str(index))))
     if runtime=='C':
         # Generated functions and methods are internal to this package unit.
         names = {'__sn__'+f['name'] for f in model['functions'] if not f.get('is_native')}
@@ -112,25 +135,26 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
             names.update('__sn__'+structure['name']+'_'+m['name'] for m in structure.get('methods',[]) if not m.get('is_native'))
         prefix = '\n'.join('#define '+name+' __sn_'+stem+'_body_'+name for name in sorted(names))+'\n'
         code = '#include "sn_abi.h"\n'+prefix+emitted.read_text(encoding="utf-8", errors="surrogateescape")+'\n'
-        code += c_header(adjusted,stem)+'\n'
+        code += c_header(adjusted,stem,root)+'\n'
         for signature,function in zip(adjusted,selected):
             result = kind(signature['return_type']);status=signature['binding']['failure']=='status'
-            parameters=[TYPES[kind(p['type'])][0]+f' p{i}' for i,p in enumerate(signature['params'])]
-            if status and result!='void':parameters.append(TYPES[result][0]+' *out')
-            code += ('uint32_t' if status else TYPES[result][0])+' '+signature['binding']['function']+'('+(', '.join(parameters) or 'void')+') {\n'
+            parameters=[raw_type(p['type'])+f' p{i}' for i,p in enumerate(signature['params'])]
+            if status and result!='void':parameters.append(raw_type(signature['return_type'])+' *out')
+            code += ('uint32_t' if status else raw_type(signature['return_type']))+' '+signature['binding']['function']+'('+(', '.join(parameters) or 'void')+') {\n'
             if lifecycle:
                 code += '  SnAbiPackageCall *call = NULL; uint32_t initialized = __sn_package_begin(&call);\n'
                 code += '  if (initialized) { '+('return initialized;' if status else 'abort();')+' }\n'
-            call='__sn__'+function['name']+'('+', '.join('p'+str(i) for i in range(len(signature['params'])))+')'
+            callee=function['c_callee'] if function.get('is_method') else '__sn__'+function['name']
+            call=callee+'('+', '.join('p'+str(i) for i in range(len(signature['params'])))+')'
             if lifecycle and result!='void':
-                code+='  '+TYPES[result][0]+' result = '+call+';\n'
+                code+='  '+raw_type(signature['return_type'])+' result = '+call+';\n'
             else:code += ('  *out = ' if status and result!='void' else '  return ' if not status and result!='void' else '  ')+call+';\n'
             if lifecycle:
                 code+='  sn_abi_v1_package_end(call);\n'
                 if result!='void':code+=('  *out = result;\n' if status else '  return result;\n')
             if status:code+='  return SN_ABI_OK;\n'
             code+='}\n'
-        code += c_provider(adjusted,stem)
+        code += c_provider(adjusted,stem,root)
         if lifecycle:
             code += f'uint32_t __sn_{stem}_initialize(void) {{ SnAbiPackageCall *call = NULL; uint32_t code = __sn_package_begin(&call); if (!code) sn_abi_v1_package_end(call); return code; }}\n'
             code += f'uint32_t __sn_{stem}_shutdown(void) {{ if (pthread_once(&__sn_package_once, __sn_package_create)) return SN_ABI_FOREIGN_ERROR; return sn_abi_v1_package_shutdown(__sn_package_control); }}\n'
@@ -176,7 +200,7 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
         output=RUST[result]
         if status:output='Result<'+output+',u32>'
         # Raw identifiers preserve source names that are Rust keywords.
-        name='r#'+function['name']
+        name=('r#'+function['owner']+'::r#'+function['method_name']) if function.get('is_method') else 'r#'+function['name']
         code+='pub fn '+signature['binding']['function']+'('+', '.join(parameters)+') -> '+output+' {\n'
         if lifecycle:
             code+='  let _call = __sn_package_enter()'+('?' if status else '.unwrap_or_else(|_|std::process::abort())')+';\n'

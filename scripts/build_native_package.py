@@ -236,6 +236,7 @@ def validate_prebuilt(plan, manifest, compiler):
         if (unit.get('language') != build_unit['language'] or unit.get('symbols') != symbols or
                 unit.get('generated_provider_exports') != generated or
                 unit.get('libraries') != build_unit.get('libraries',[]) or
+                unit.get('provides_sources',[]) != build_unit.get('provides_sources',[]) or
                 unit.get('initialization') != initialization or
                 unit.get('requires_go_aggregation') != (build_unit['language']=='GO')):
             raise ValueError('prebuilt native assembly build/export/initialization contract differs: '+unit['name'])
@@ -378,9 +379,11 @@ def build(args):
             includes.append(str(header.parent))
             native_link_flags = []
             signatures = providers[unit['name']]
+            unit_dependencies = set()
             def capture_dependencies(depfile):
                 for name in dependencies(depfile):
                     dependency = (root / name).resolve()
+                    unit_dependencies.add(dependency)
                     # Generated inputs are covered by plan/helper fingerprints;
                     # their temporary paths cannot enter reusable cache keys.
                     if not dependency.is_relative_to(work):
@@ -483,6 +486,10 @@ def build(args):
                     native_link_flags.append('-pthread')
                 run(go + ['build', '-mod=readonly', '-buildmode=c-archive', '-o', archive, '.'],
                     cwd=module, env=env)
+            for provided in unit.get('provides_sources',[]):
+                source=source_path(root,provided)
+                if not source.is_relative_to(root) or source not in unit_dependencies:
+                    raise ValueError('C build does not include its declared provided source: '+provided)
             symbols = {line.split()[-1] for line in run(nm + ['-g', '-U' if sys.platform == 'darwin' else '--defined-only', archive]).splitlines()
                        if line.split() and not line.rstrip().endswith(':')}
             defined_symbols.update(symbols)
@@ -495,6 +502,7 @@ def build(args):
             units.append({'name': unit['name'], 'language': unit['language'], 'archive': archive.name,
                           'archive_sha256': sha(archive), 'symbols': exports,
                           'libraries': unit.get('libraries', []), 'native_link_flags': native_link_flags,
+                          'provides_sources': unit.get('provides_sources',[]),
                           'initialization': 'Go toolchain runtime' if unit['language'] == 'GO' else 'native toolchain',
                           'generated_provider_exports': [s['binding']['symbol'] for s in signatures],
                           'requires_go_aggregation': unit['language'] == 'GO'})

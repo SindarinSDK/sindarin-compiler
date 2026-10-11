@@ -290,6 +290,110 @@ class NativeImports(unittest.TestCase):
             for target in ('c','rust'):
                 with self.subTest(target=target,flags=flags,archive='prebuilt'):self.execute(target,expected,flags)
 
+    def test_unchanged_sdk_textfile_facade_is_an_independent_c_library(self):
+        import hashlib,json
+        sdk=Path(os.environ.get('SN_SDK_ROOT',ROOT/'.sn/sdk-native-integration')).resolve()
+        self.assertTrue((sdk/'src/io/textfile.sn').is_file(),'pinned SDK integration checkout is required')
+        package=self.root/'.sn/sindarin-pkg-sdk'
+        shutil.copytree(sdk/'src/io',package/'src/io')
+        original=(package/'src/io/textfile.sn').read_bytes()
+        self.write('.sn/sindarin-pkg-sdk/sn.yaml','name: sindarin-pkg-sdk\n')
+        model_path=self.root/'sdk-model.json'
+        emitted=subprocess.run([str(COMPILER),str(package/'src/io/textfile.sn'),'--no-install',
+            '--package-body','--emit-model','-o',str(model_path)],cwd=self.root,capture_output=True,timeout=30)
+        self.assertEqual(emitted.returncode,0,emitted.stderr.decode(errors='replace'))
+        model=json.loads(model_path.read_text())
+        textfile=next(s for s in model['structs'] if s['name']=='TextFile')
+        manifest=('name: sindarin-pkg-sdk\nruntime: C\nnative:\n  abi: 1.5\n'
+            '  declarations: [src/io/textfile.sn]\n  types:\n'
+            '    - declaration: src/io/textfile.sn::TextFile\n'
+            '      identity: SindarinSDK/sindarin-pkg-sdk:io.TextFile@1\n'
+            '      c_type: SnSdkTextFileRecord\n      header: src/io/textfile.native.h\n'
+            '      create: sn_sdk_text_file_create\n      retain: sn_sdk_text_file_retain\n'
+            '      release: sn_sdk_text_file_release\n      refs: sn_sdk_text_file_refs\n      owner: atomic\n'
+            '  builds:\n    - name: native\n      language: C\n'
+            '      sources: [src/io/textfile.native.c]\n      provides_sources: [src/io/textfile.sn.c]\n'
+            '      include_dirs: [src/io]\n    - name: facade\n      language: SN\n'
+            '      entry: src/io/textfile.sn\n      sources: [src/io/textfile.sn]\n      include_dirs: [src/io]\n'
+            '  bindings:\n')
+        for method in textfile['methods']:
+            name=method['name'];result=method['return_type']['kind']
+            parameters=[] if method['is_static'] else ['self: borrowed']
+            for parameter in method['params']:
+                ownership='borrowed' if parameter['type']['kind'] in ('string','array','struct') else 'value'
+                parameters.append(parameter['name']+': '+ownership)
+            manifest+=(f'    - declaration: src/io/textfile.sn::TextFile.{name}\n'
+                f'      function: TextFile.{name}\n      symbol: sdk_text_file_method_{name}\n'
+                '      build: facade\n      convention: C\n      failure: abort\n'
+                '      ownership: {parameters: {'+', '.join(parameters)+'}, result: '+
+                ('owned' if result in ('string','array','struct') else 'value')+'}\n')
+        self.write('.sn/sindarin-pkg-sdk/sn.yaml',manifest)
+        shutil.copyfile(sdk/'tests/io/test_textfile.sn',self.root/'main.sn')
+        expected=(sdk/'tests/io/test_textfile.expected').read_bytes().replace(b'\r\n',b'\n')
+        modes=[(optimization,)+((arithmetic,) if arithmetic else ())
+               for optimization in ('-O0','-O1','-O2') for arithmetic in (None,'--checked','--unchecked')]
+        for flags in modes:
+            for target in ('c','rust'):
+                with self.subTest(target=target,flags=flags,archive='source'):self.execute(target,expected,flags)
+        built=subprocess.run([str(COMPILER),'--build-native',str(package/'sn.yaml'),'--target','rust',
+            '-o',str(self.root/'artifacts')],cwd=self.root,capture_output=True,timeout=180)
+        self.assertEqual(built.returncode,0,built.stderr.decode(errors='replace'))
+        assembly=Path(json.loads(built.stdout)['assembly'])
+        metadata=json.loads(assembly.read_text())
+        self.assertEqual({u['language'] for u in metadata['units']},{'C','SN'})
+        shutil.copytree(assembly.parent,package/'.sn/sealed')
+        (package/'sn.yaml').write_text(manifest.replace('  abi: 1.5\n',
+            '  abi: 1.5\n  assembly:\n    path: .sn/sealed/assembly.json\n    sha256: '+hashlib.sha256(assembly.read_bytes()).hexdigest()+'\n'))
+        for file in (package/'src/io').glob('*.c'):file.unlink()
+        # The original public module still contains its unchanged method bodies
+        # and @source directive; the sealed facade consumes neither as app code.
+        for flags in modes:
+            for target in ('c','rust'):
+                with self.subTest(target=target,flags=flags,archive='prebuilt'):self.execute(target,expected,flags)
+        self.assertEqual((package/'src/io/textfile.sn').read_bytes(),original)
+        self.package('rsdep','RS','pub fn Provide()->i64 { 22 }\n',function='Provide')
+        self.package('godep','GO','package backing\nfunc Provide() int64 { return 33 }\n',function='Provide')
+        self.write('.sn/http/src/response.sn','fn requestLine(): str =>\n  return "GET / HTTP/1.1"\n'
+            'fn append(values: str[]): str[] =>\n  values.push("HTTP result")\n  return values\n')
+        self.write('.sn/http/sn.yaml','name: http\nruntime: RS\nnative:\n  abi: 1.5\n'
+            '  declarations: [src/response.sn]\n  builds:\n    - name: response\n      language: SN\n'
+            '      entry: src/response.sn\n      sources: [src/response.sn]\n  bindings:\n'
+            '    - declaration: src/response.sn::requestLine\n      function: requestLine\n      symbol: http_request_line\n'
+            '      build: response\n      convention: C\n      failure: abort\n      ownership: {parameters: {}, result: owned}\n'
+            '    - declaration: src/response.sn::append\n      function: append\n      symbol: http_append\n'
+            '      build: response\n      convention: C\n      failure: abort\n      ownership: {parameters: {values: borrowed}, result: owned}\n')
+        self.write('main.sn','import "sindarin-pkg-sdk/src/io/textfile"\nimport "http/src/response" as HTTP\n'
+            'import "rsdep/src/api" as RS\nimport "godep/src/api" as Go\nfn main(): void =>\n'
+            '  TextFile.writeAll("mixed.txt", HTTP.requestLine() + "\\nsecond")\n'
+            '  var file: TextFile = TextFile.open("mixed.txt")\n  var alias: TextFile = file\n'
+            '  var lines: str[] = file.readLines()\n  var result: str[] = HTTP.append(lines)\n'
+            '  alias.dispose()\n  println(lines[0])\n  println(lines.length)\n  println(result[2])\n'
+            '  println(file._is_open)\n  println(RS.provide() + Go.provide())\n  TextFile.delete("mixed.txt")\n')
+        self.execute('rust',b'GET / HTTP/1.1\n3\nHTTP result\n0\n55\n')
+
+    def test_unchanged_public_static_method_bodies_compile_independently(self):
+        self.write('.sn/methods/src/api.sn','native struct Helpers as ref =>\n'
+                   '  static fn calculate(value: int): int =>\n    return value * 2 + 1\n'
+                   '  static fn echo(text: str): str =>\n    return text\n'
+                   '  static fn labels(): str[] =>\n    return {"first", "second"}\n')
+        source=(self.root/'.sn/methods/src/api.sn').read_bytes()
+        for runtime in ('C','RS'):
+            manifest=('name: methods\nruntime: '+runtime+'\nnative:\n  abi: 1.5\n  declarations: [src/api.sn]\n'
+                '  builds:\n    - name: facade\n      language: SN\n      entry: src/api.sn\n      sources: [src/api.sn]\n  bindings:\n')
+            for name,parameters,result in (('calculate','value: value','value'),('echo','text: borrowed','owned'),('labels','','owned')):
+                manifest+=(f'    - declaration: src/api.sn::Helpers.{name}\n      function: Helpers.{name}\n'
+                    f'      symbol: native_method_{name}\n      build: facade\n      convention: C\n      failure: abort\n'
+                    f'      ownership: {{parameters: {{{parameters}}}, result: {result}}}\n')
+            self.write('.sn/methods/sn.yaml',manifest)
+            self.write('main.sn','import "methods/src/api"\nfn main(): void =>\n'
+                '  println(Helpers.calculate(20))\n  println(Helpers.echo("method body"))\n'
+                '  println(Helpers.echo(nil)==nil)\n  var labels: str[] = Helpers.labels()\n'
+                '  println(labels[0])\n  println(labels[1])\n')
+            for target in ('c','rust'):
+                with self.subTest(runtime=runtime,target=target):
+                    self.execute(target,b'41\nmethod body\ntrue\nfirst\nsecond\n')
+            self.assertEqual((self.root/'.sn/methods/src/api.sn').read_bytes(),source)
+
     def test_independent_sindarin_function_libraries_select_package_runtime(self):
         import hashlib,json
         for runtime in ('C','RS',None):

@@ -26,6 +26,11 @@ functions, with generated typed-resource adapters and sealed public layout
 headers. Canonical SDK TextFile storage is consumed from an independent archive
 through a declaration adapter. The full unchanged SDK facade and wider
 record/interface/body contracts still require migration and verification.
+TextFile's unchanged public static/instance facade now also compiles independently
+for C and consumes the canonical SDK record/module through generated adapters.
+Its provided native source directive is owned by the C archive; application
+consumption preserves imports, declarations, methods and visible fields.
+This accepts one SDK module path locally; complete SDK migration remains required.
 
 ## Decision
 

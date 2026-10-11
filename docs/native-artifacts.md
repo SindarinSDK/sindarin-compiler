@@ -98,6 +98,19 @@ Custom output directories are controlled by the caller.
 
 ## Sindarin implementation libraries
 
+SN units export top-level functions and `Type.method` callables, including public
+declarations containing their original bodies. Static methods support C/RS
+library runtimes. C library instance methods use canonical native as-ref record
+receivers and the typed resource ABI. The builder namespaces generated method
+implementations, preserves backing aliases, and emits native declarations needed
+when implementation sources live in another C archive.
+
+`provides_sources` on a C unit explicitly covers legacy `@source` directives.
+The archive must actually include each claimed source dependency. Sealed consumers
+can remove those C files while retaining the unchanged public module and method
+bodies; generated import adapters replace application compilation of those bodies.
+Unbound cross-runtime implementation bodies still require an export contract.
+
 An implementation unit can compile original Sindarin code independently of the
 application. Its package runtime selects C/RS; an omitted runtime inherits the
 application target. Public declarations and bindings describe the ABI exports:

@@ -18,7 +18,7 @@ def contracts(native, unit):
         raise ValueError('generated provider requires compiler-resolved native declarations')
     symbols = set()
     records = record_types(signatures)
-    if records and unit['language'] != 'C':
+    if records and unit['language'] not in ('C','SN'):
         raise ValueError('package-owned record provider generation currently requires C backing')
     lifecycle_functions = {r[field] for r in records for field in ('create','retain','release','refs')}
     for s in signatures:
@@ -27,7 +27,8 @@ def contracts(native, unit):
         if binding['function'] in lifecycle_functions:
             raise ValueError('record lifecycle functions must keep their public C symbols; use a separate backing function')
         for field in ('function', 'symbol'):
-            if not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*', binding[field]):
+            pattern = r'[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)?' if field == 'function' and unit['language'] == 'SN' else r'[A-Za-z_][A-Za-z0-9_]*'
+            if not re.fullmatch(pattern, binding[field]):
                 raise ValueError(f'generated provider {field} must be a root-level function identifier')
         if binding['symbol'] in symbols:
             raise ValueError('duplicate generated provider export symbol')

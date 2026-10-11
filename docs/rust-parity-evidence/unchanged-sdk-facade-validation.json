@@ -1,0 +1,124 @@
+{
+  "base_revision": "effbfcfdef4343aacb789a32bfaff7b72248d03e",
+  "compiler_sha256": "cdf76457377a7e9e1732a7763a2bf1b06fde47c015a1b8932871001eb1e88e9f",
+  "implementation": "Independent unchanged public SN static/instance method exports; original TextFile C facade and canonical C module; explicit verified native source ownership; generated consumers; C borrowed method-parameter return correction and Rust method-owner retention.",
+  "counts": {
+    "c": {
+      "passed": 3240,
+      "failed": 0,
+      "skipped": 0
+    },
+    "rust": {
+      "passed": 1097,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "artifact_tests": 20,
+  "import_tests": 41,
+  "runtime_contract_tests": 14,
+  "ci_helper_tests": 22,
+  "unchanged_sdk_caller_target_mode_archive_cases": 36,
+  "static_c_rs_library_c_rust_consumer_controls": 4,
+  "mixed_rust_app": {
+    "prebuilt_c_sdk_facade": true,
+    "independent_pure_sindarin_rs_http_library": true,
+    "original_native_rust": true,
+    "original_native_go": true,
+    "array_mutation_aliases_resources_cleanup": true
+  },
+  "strict_sanitizers": {
+    "unchanged_sdk_cases": 36,
+    "static_library_controls": 4,
+    "mixed_rust_app": true,
+    "asan_leaks": true,
+    "ubsan_halt": true
+  },
+  "sdk_acceptance": {
+    "run": {
+      "status": "completed",
+      "conclusion": "success",
+      "headSha": "53a82f0a19f45796f8c83f86c0e16309e2080208",
+      "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38101406664"
+    },
+    "jobs": [
+      {
+        "name": "Native text oracle contract",
+        "status": "completed",
+        "conclusion": "success",
+        "databaseId": 114357907904
+      },
+      {
+        "name": "sindarin-pkg-test / Test (macos-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "databaseId": 114357908091
+      },
+      {
+        "name": "sindarin-pkg-test / Test (windows-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "databaseId": 114357908179
+      },
+      {
+        "name": "sindarin-pkg-test / Test (ubuntu-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "databaseId": 114357908253
+      }
+    ],
+    "local_native_checks": 24,
+    "local_native_runtime_sanitizer": true
+  },
+  "original_inventory": 1365,
+  "unchanged_historical_source_deviation": [
+    "tests/exploratory/test_limitation_closure_array.sn"
+  ],
+  "original_source_oracles_snapshots_changed_in_batch": false,
+  "source_sha256": {
+    ".github/workflows/ci.yml": "d529068231a8c1df923cd51c9ffcbb1c14cd6c61edd8f0df39c502fd3e394a46",
+    "CMakeLists.txt": "98839670faaae38e950f9679954e7e1a166b44515a3749793c13fdfa8bfee491",
+    "docs/native-artifacts.md": "1ac74174a7f41ec3f8d3420b5ae22b9ca1c8b42733e615c45e6ce25d44c62f88",
+    "docs/native-package-imports.md": "7511d71d81a840e6d0b3ed6ac4927fb45c82ad12ed527fd919b3915accefa697",
+    "docs/native-package-manifest.md": "0bff15c5483fe65527979351d65f6a82ff86629502ae585bac3915cc778d796f",
+    "docs/runtime-target-architecture.md": "b5bcd7f898064c3983fe2d09e81a75211ba2ee84a345ad053f6d40212e139be1",
+    "docs/rust-parity-progress.md": "db3434bd9f24788ec24f1819a30ae7e778ea27494dae8dec5926e5b931fcbff5",
+    "scripts/build_native_package.py": "a1af7c5028323d7d7db59dba357ae5ede97ed661263632cbc1e3111bbffff954",
+    "scripts/native_provider.py": "6d052c99227e689983c149b729fb5a94cb5f873e3fe40e2d76063e58c7a1ae9f",
+    "scripts/sindarin_library.py": "8db762017dec01850e95663925548fa9f2249c5c3131e52b5dfd616dcba7d8b0",
+    "src/ast.h": "beb6a6163acbcaf1617783960e71146ffd12a710ecea48ed0fb45dfb21079d71",
+    "src/cgen/gen_model_stmt.c": "4b612884ca8833638b095945f169437e11b2447d225f13e29090a11397f0cd05",
+    "src/cgen/gen_model_struct.c": "c7f0b07d4a941cada191d62793a2a8c576b0bfbe8bc9253f6490ace069914d94",
+    "src/package/package_import.c": "1883fd3a61c7048d0ad481a1914eff16ff1ad2ee15618ab407395e5e8af0da9c",
+    "src/package/package_native_command.c": "c0c8d90d706789135e83aaded35443402261309b97182621a0cfb9d7506b6ba7",
+    "src/package/package_yaml_native.c": "545ae9ee8591a69ebacb0c3aca8870064c250f1c6a96e73c3e35a258e822f7e7",
+    "src/target/rust/projection/rust_model_stmt.c": "ae3532dacced55ab16649741b6a311a22fd82949481a42356db1794a7be69016",
+    "src/target/rust/rust_lower_sizeof.c": "5b25523a0394b989aa5ce301d13b40569669effe83c48d8f3cd3e9781cd02a9e",
+    "templates/c/module.hbs": "aa1b75f3f3fa69bc7c9893bc085eb063b7055b02322ee18ca7cae7e0f1cbda09",
+    "tests/package/native_artifacts.py": "a83eb07e112c0b3a5363e39bffd32cba7283b7efd62b57521049ea53850e34af",
+    "tests/package/native_imports.py": "3b1e6bf28abac312e74064c5aeba9393a44531344b60e6dfd1215b9e3707799c",
+    "src/package/package_callable.c": "534f1c28a16e3b1a8a05faefe27d0abc934230f364d06742a0866d2fd90adda4",
+    "src/package/package_callable.h": "e6e5411c3c77394f5a3f1e7732f720b0d25d307841b30d3aa15b289de1a4b64e"
+  },
+  "log_sha256": {
+    "/tmp/sindarin-facade-c-final.log": "4dc422195c523c33ffb07279f0540106cd9fb70ca2d0acc5dd156e4f764e0da1",
+    "/tmp/sindarin-facade-rust-suite.log": "b842165b672076089769fba27dff9ec639cc1f4d49bbde701227ee802b345816",
+    "/tmp/sindarin-facade-artifacts-final.log": "41abb0e1462f9198cac81d65a86efcbe236939db9b1f64268967792aa8827fc6",
+    "/tmp/sindarin-facade-imports-final.log": "58daea3a66ad90d1f3276b886c22842ba90f9d18659093ec594b9ac323b275ae",
+    "/tmp/sindarin-facade-contracts.log": "dc620070734f7d7940b9a74271af3862a23ea8f641cf79b748f9c436b668b86c",
+    "/tmp/sindarin-facade-helpers.log": "69a52d2804bbef317dcd9ab51ddbfb2ee94e2cdb13d128b99ea210115a7fb27b",
+    "/tmp/sindarin-facade-format.log": "4c6a090a362bd87c11ee02cfbc700375a0d72d42c9b4387a9b7b0bbf45af7e2b",
+    "/tmp/sindarin-facade-asan.log": "946e6b627980a359e98d54fa8026f323aa88edf5bbd1000ac44fa9e02214efc4",
+    "/tmp/sindarin-facade-method-build.log": "0eaa417cb4f2b753de0f55c25cd157ab65b260d236e0135a291293d416f7472f"
+  },
+  "hosted_prerequisite": {
+    "run": 38100097842,
+    "revision": "effbfcfdef4343aacb789a32bfaff7b72248d03e",
+    "jobs": 34,
+    "groups": 26,
+    "gates": 292,
+    "conclusion": "success"
+  },
+  "hosted_feature_acceptance": "pending separate complete integrated CI",
+  "remaining": "Complete SDK modules/types; interface/value/packed/generic contracts; RS body record guards; reference rebinding; dependency lifecycle graphs; final original corpus/platform acceptance."
+}

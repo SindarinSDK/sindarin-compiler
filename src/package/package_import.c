@@ -1,6 +1,7 @@
 #include "package_import.h"
 #include "package_native_command.h"
 #include "package_native_types.h"
+#include "package_callable.h"
 #include "../package.h"
 #include "../cgen/gen_model.h"
 #include <json-c/json.h>
@@ -43,12 +44,82 @@ static bool import_directory(const char *path)
     return (stat(path, &st) == 0) || import_mkdir(path) == 0;
 }
 
-static void import_symbol_alias(Symbol *symbols, const Token *name, const char *alias)
+/* Normalize declared source paths even when prebuilt consumption has removed
+ * the implementation file. The containing public module/manifest still exists. */
+static char *import_source_absolute(const char *path)
 {
-    for (Symbol *s = symbols; s; s = s->next) {
-        if (s->is_function && s->name.filename && name->filename && s->name.line == name->line &&
-            import_same(s->name.filename, name->filename)) s->c_alias = alias;
-        if (s->namespace_symbols) import_symbol_alias(s->namespace_symbols, name, alias);
+#ifdef _WIN32
+    return _fullpath(NULL, path, 0);
+#else
+    char absolute[8192];
+    if (path[0] == '/') snprintf(absolute, sizeof(absolute), "%s", path);
+    else {
+        char cwd[4096];
+        if (!getcwd(cwd, sizeof(cwd))) return NULL;
+        if (snprintf(absolute, sizeof(absolute), "%s/%s", cwd, path) >= (int)sizeof(absolute)) return NULL;
+    }
+    char *parts[4096], *save = NULL;
+    int count = 0;
+    for (char *part = strtok_r(absolute, "/", &save); part; part = strtok_r(NULL, "/", &save)) {
+        if (!strcmp(part, ".")) continue;
+        if (!strcmp(part, "..")) { if (count) count--; continue; }
+        if (count == 4096) return NULL;
+        parts[count++] = part;
+    }
+    size_t size = strlen(path) + 4098;
+    char *result = calloc(size, 1);
+    if (!result) return NULL;
+    for (int i = 0; i < count; i++) { strcat(result, "/"); strcat(result, parts[i]); }
+    return result;
+#endif
+}
+
+static bool import_provided_source(Stmt *stmt, const char *manifest, json_object *plan, const char *origin)
+{
+    char *root = strdup(manifest), *directory = strdup(origin);
+    for (char *p = root; *p; p++) if (*p == '\\') *p = '/';
+    for (char *p = directory; *p; p++) if (*p == '\\') *p = '/';
+    char *end = strrchr(root, '/');
+    if (end) *end = 0; else strcpy(root, ".");
+    end = strrchr(directory, '/');
+    if (end) *end = 0; else strcpy(directory, ".");
+    const char *value = stmt->as.pragma.value;
+    size_t length = strlen(value);
+    if (length >= 2 && value[0] == '"' && value[length - 1] == '"') { value++; length -= 2; }
+    char path[8192];
+    bool absolute = value[0] == '/' || (length > 1 && value[1] == ':');
+    int written = absolute ? snprintf(path, sizeof(path), "%.*s", (int)length, value)
+                           : snprintf(path, sizeof(path), "%s/%.*s", directory, (int)length, value);
+    char *source = written < (int)sizeof(path) ? import_source_absolute(path) : NULL;
+    bool provided = false;
+    json_object *builds = NULL;
+    json_object_object_get_ex(plan, "builds", &builds);
+    for (size_t i = 0; source && i < json_object_array_length(builds); i++) {
+        json_object *unit = json_object_array_get_idx(builds, i), *paths = NULL;
+        if (!json_object_object_get_ex(unit, "provides_sources", &paths)) continue;
+        for (size_t p = 0; p < json_object_array_length(paths); p++) {
+            snprintf(path, sizeof(path), "%s/%s", root, json_object_get_string(json_object_array_get_idx(paths, p)));
+            char *candidate = import_source_absolute(path);
+            if (candidate && import_same(source, candidate)) provided = true;
+            free(candidate);
+        }
+    }
+    free(source); free(root); free(directory);
+    return provided;
+}
+
+static void import_mark_provided_sources(Stmt **statements, int count, const char *manifest, json_object *plan, unsigned depth)
+{
+    if (depth > 64) return;
+    for (int i = 0; i < count; i++) {
+        Stmt *stmt = statements[i];
+        if (stmt->type == STMT_IMPORT)
+            import_mark_provided_sources(stmt->as.import.imported_stmts, stmt->as.import.imported_count, manifest, plan, depth + 1);
+        if (stmt->type != STMT_PRAGMA || stmt->as.pragma.pragma_type != PRAGMA_SOURCE || !stmt->token || !stmt->token->filename) continue;
+        char *owner = package_source_manifest(stmt->token->filename);
+        if (owner && import_same(owner, manifest) && import_provided_source(stmt, manifest, plan, stmt->token->filename))
+            stmt->as.pragma.package_owned_source = true;
+        free(owner);
     }
 }
 
@@ -75,19 +146,6 @@ static bool import_type(Type *type)
            type->kind == TYPE_FLOAT || type->kind == TYPE_DOUBLE || type->kind == TYPE_STRING;
 }
 
-static Stmt *import_find_function(Module *module, const char *file, const char *name)
-{
-    for (int i = 0; module && i < module->count; i++) {
-        Stmt *stmt = module->statements[i];
-        if (stmt->type != STMT_FUNCTION || !stmt->as.function.name.filename) continue;
-        char *path = import_absolute(stmt->as.function.name.filename);
-        bool same = path && import_same(path, file);
-        free(path);
-        if (same && strcmp(stmt->as.function.name.start, name) == 0) return stmt;
-    }
-    return NULL;
-}
-
 bool package_prepare_native_imports(CompilerOptions *options, Module *module,
                                    const char *const *paths, Module *const *modules, int count)
 {
@@ -105,7 +163,24 @@ bool package_prepare_native_imports(CompilerOptions *options, Module *module,
         const char *source = p < 0 ? options->source_file : paths[p];
         char *manifest = package_source_manifest(source);
         if (!manifest) continue;
-        if (body_manifest && import_same(manifest, body_manifest)) { free(manifest); continue; }
+        if (body_manifest && import_same(manifest, body_manifest)) {
+            PackageConfig config;
+            json_object *plan = NULL;
+            success = package_yaml_parse(manifest, &config);
+            if (success && config.has_native) {
+                success = package_yaml_native_plan(manifest, &plan);
+                if (success) {
+                    success = package_native_bind_records(&options->arena, plan, manifest, module);
+                    import_mark_provided_sources(module->statements, module->count, manifest, plan, 0);
+                    for (int i = 0; success && i < count; i++) {
+                        success = package_native_bind_records(&options->arena, plan, manifest, modules[i]);
+                        if (modules[i]) import_mark_provided_sources(modules[i]->statements, modules[i]->count, manifest, plan, 0);
+                    }
+                    json_object_put(plan);
+                }
+            }
+            free(manifest); continue;
+        }
         bool duplicate = false;
         for (int i = 0; i < seen_count; i++) if (import_same(manifest, seen[i])) duplicate = true;
         if (duplicate) { free(manifest); continue; }
@@ -115,6 +190,9 @@ bool package_prepare_native_imports(CompilerOptions *options, Module *module,
         if (!config.has_native) continue;
         json_object *plan = NULL;
         if (!package_yaml_native_plan(manifest, &plan)) { success = false; break; }
+        import_mark_provided_sources(module->statements, module->count, manifest, plan, 0);
+        for (int i = 0; i < count; i++)
+            if (modules[i]) import_mark_provided_sources(modules[i]->statements, modules[i]->count, manifest, plan, 0);
         if (!package_native_bind_records(&options->arena, plan, manifest, module)) success = false;
         for (int i = 0; success && i < count; i++)
             success = package_native_bind_records(&options->arena, plan, manifest, modules[i]);
@@ -125,7 +203,7 @@ bool package_prepare_native_imports(CompilerOptions *options, Module *module,
             Module *owner = i < 0 ? module : modules[i];
             for (int j = 0; owner && j < owner->count; j++) {
                 Stmt *stmt = owner->statements[j];
-                if (stmt->type != STMT_PRAGMA || stmt->as.pragma.pragma_type != PRAGMA_SOURCE) continue;
+                if (stmt->type != STMT_PRAGMA || stmt->as.pragma.pragma_type != PRAGMA_SOURCE || stmt->as.pragma.package_owned_source) continue;
                 const char *origin = stmt->token && stmt->token->filename ? stmt->token->filename : owner->filename;
                 char *source_owner = origin ? package_source_manifest(origin) : NULL;
                 bool belongs = source_owner && import_same(source_owner, manifest);
@@ -160,45 +238,33 @@ bool package_prepare_native_imports(CompilerOptions *options, Module *module,
             char candidate[4096];
             snprintf(candidate, sizeof(candidate), "%s/%s", root, identity);
             char *file = import_absolute(candidate);
-            Stmt *function = file ? import_find_function(module, file, separator + 2) : NULL;
-            for (int i = 0; !function && file && i < count; i++)
-                function = import_find_function(modules[i], file, separator + 2);
-            if (!function || !function->as.function.is_native || function->as.function.body_count ||
-                function->as.function.is_variadic || function->as.function.type_param_count ||
-                function->as.function.return_mem_qualifier != MEM_DEFAULT ||
-                !import_type(function->as.function.return_type)) {
-                fprintf(stderr, "error: %s: native binding '%s' requires a supported native declaration without a Sindarin body\n",
+            PackageCallable callable;
+            bool found = file && package_find_callable(&options->arena, module, file, separator + 2, &callable);
+            for (int i = 0; !found && file && i < count; i++)
+                found = package_find_callable(&options->arena, modules[i], file, separator + 2, &callable);
+            bool sindarin = package_binding_is_sindarin(plan, binding);
+            Type *return_type = found ? (callable.function ? callable.function->return_type : callable.method->return_type) : NULL;
+            if (!found || !package_callable_valid(&callable, sindarin) || !import_type(return_type)) {
+                fprintf(stderr, "error: %s: native binding '%s' requires a supported native declaration or independently compiled Sindarin callable\n",
                         manifest, json_object_get_string(decl));
                 free(identity); free(file); success = false; break;
             }
-            FunctionStmt *fn = &function->as.function;
-            json_object *signature = json_object_new_object();
-            json_object *abi = NULL;
-            json_object_object_get_ex(plan, "abi", &abi);
-            json_object_object_add(signature, "abi", json_object_get(abi));
-            json_object_object_add(signature, "binding", json_object_get(binding));
-            json_object_object_add(signature, "return_type", package_native_model_type(&options->arena, fn->return_type, module, modules, count));
-            json_object *params = json_object_new_array();
-            json_object_object_add(signature, "params", params);
-            for (int i = 0; i < fn->param_count; i++) {
-                Parameter *param = &fn->params[i];
+            json_object *signature = package_callable_signature(options, &callable, plan, binding, module, modules, count);
+            Parameter *parameters = callable.function ? callable.function->params : callable.method->params;
+            int parameter_count = callable.function ? callable.function->param_count : callable.method->param_count;
+            for (int i = 0; i < parameter_count; i++) {
+                Parameter *param = &parameters[i];
                 if (!import_type(param->type) || param->type->kind == TYPE_VOID || param->mem_qualifier != MEM_DEFAULT) {
                     fprintf(stderr, "error: %s: native parameter '%s' requires an implemented ABI representation\n", manifest, param->name.start);
                     success = false; break;
                 }
-                json_object *entry = json_object_new_object();
-                json_object_object_add(entry, "name", json_object_new_string(param->name.start));
-                json_object_object_add(entry, "type", package_native_model_type(&options->arena, param->type, module, modules, count));
-                json_object_array_add(params, entry);
             }
             char alias[96];
             /* Per-compilation package identity plus binding index prevents
              * consumer names from colliding with one another. */
             snprintf(alias, sizeof(alias), "__sn_package_%d_call_%zu", seen_count, b);
             const char *owned_alias = arena_strdup(&options->arena, alias);
-            fn->c_alias = owned_alias;
-            for (int i = 0; i < options->symbol_table.scopes_count; i++)
-                import_symbol_alias(options->symbol_table.scopes[i]->symbols, &fn->name, owned_alias);
+            package_callable_adapt(options, &callable, owned_alias);
             json_object_object_add(signature, "adapter", json_object_new_string(alias));
             json_object_array_add(signatures, signature);
             free(identity); free(file);

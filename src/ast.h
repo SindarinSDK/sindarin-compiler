@@ -662,6 +662,7 @@ typedef struct
 {
     PragmaType pragma_type;    /* PRAGMA_INCLUDE or PRAGMA_LINK */
     const char *value;         /* The value (e.g., "<math.h>" or "m") */
+    bool package_owned_source; /* Original @source is provided by an independent C unit. */
 } PragmaStmt;
 
 typedef struct

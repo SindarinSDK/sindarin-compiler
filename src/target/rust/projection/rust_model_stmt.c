@@ -934,7 +934,7 @@ json_object *rust_gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_t
             {
                 case PRAGMA_INCLUDE: ptype = "include"; break;
                 case PRAGMA_LINK:    ptype = "link"; break;
-                case PRAGMA_SOURCE:  ptype = "source"; break;
+                case PRAGMA_SOURCE:  ptype = stmt->as.pragma.package_owned_source ? "package_source" : "source"; break;
                 case PRAGMA_PACK:    ptype = "pack"; break;
                 case PRAGMA_ALIAS:   ptype = "alias"; break;
             }

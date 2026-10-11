@@ -7,6 +7,49 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Unchanged TextFile facade libraries: local validation, 2026-10-11
+
+SN bindings now resolve public static/instance `Type.method` exports and public
+declarations retaining their original bodies. C/RS static libraries preserve
+their method owners; C instance libraries use canonical record receivers.
+Generated consumers call independent exports and preserve declarations on disk.
+Explicit C `provides_sources` mappings are checked against actual include
+dependencies and prevent per-application recompilation of owned legacy sources.
+C method returns now copy borrowed parameters rather than transferring them.
+
+The actual unchanged SDK TextFile public module, including its original Sindarin
+methods, compiles into a C facade archive linked to the original canonical C
+module. Its original caller and oracle pass 36 C/Rust target/mode/source-or-sealed
+controls with backing C removed for prebuilt consumption. A mixed Rust application
+links that SDK archive with an independent pure Sindarin RS HTTP library,
+native Rust and native Go, preserving array mutation, file aliases and cleanup.
+These controls and C/RS static exports pass strict address/undefined/leak checks.
+
+Complete local suites pass 3,240 C and 1,097 Rust checks without failures/skips.
+All 20 artifact, 41 import, 14 runtime-contract and 22 CI-helper tests pass.
+Formatting and original source/oracle/snapshot preservation pass. SDK construction
+and atomic credit inspection are exported by SDK revision `53a82f0`, accepted by
+[SDK CI 38101406664](https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38101406664)
+on Linux/macOS/Windows. Compiler CI now pins that exact SDK revision.
+
+This migrates the TextFile module path, not the complete SDK package. Other SDK
+modules/types, interface/value/packed/generic contracts, RS body record guards,
+reference rebinding, dependency lifecycle graphs and final corpus/platform
+acceptance remain required. The compiler facade batch needs separate hosted CI.
+
+Evidence: [facade validation](rust-parity-evidence/unchanged-sdk-facade-validation.json).
+
+## Canonical record artifacts: hosted acceptance, 2026-10-11
+
+Integrated main `effbfcfd` passes all 34 jobs in
+[complete unified CI 38100097842](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38100097842).
+The retained summary verifies 26 groups, 292 gate executions and one compiler per
+Linux/macOS/Windows platform. It accepts the record storage/adapters and prior
+SDK declaration-adapter transport; the unchanged facade extension requires its
+own validation.
+
+Evidence: [record acceptance](rust-parity-evidence/canonical-record-artifact-ci-green.json).
+
 ## Canonical C record artifacts: local validation, 2026-10-11
 
 ABI 1.5 `native.types` binds public native as-ref declarations to package-owned

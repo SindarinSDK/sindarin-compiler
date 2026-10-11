@@ -13,6 +13,10 @@ static void rust_sizeof_collect_runtime_types(json_object *node,
     }
     if (!json_object_is_type(node, json_type_object) ||
         json_string_property_equals(node, "kind", "sizeof")) return;
+    if (json_string_property_equals(node, "kind", "static_call")) {
+        const char *name = json_string_property(node, "type_name");
+        if (name) json_object_object_add(needed, name, json_object_new_boolean(true));
+    }
     if (json_string_property_equals(node, "kind", "struct"))
     {
         const char *name = json_string_property(node, "name");
@@ -56,6 +60,16 @@ static void rust_prepare_sizeof_only_declarations(json_object *model)
     json_object *structs = NULL;
     if (!json_object_object_get_ex(model, "structs", &structs)) return;
     json_object *needed = json_object_new_object(), *queried = json_object_new_object();
+    /* Library export thunks are added after source emission. Public method
+     * owners must remain available even without an application call root. */
+    if (json_boolean_property(model, "package_body")) {
+        for (size_t i = 0; i < json_object_array_length(structs); i++) {
+            json_object *structure = json_object_array_get_idx(structs, i), *methods = NULL;
+            const char *name = json_string_property(structure, "name");
+            if (name && json_object_object_get_ex(structure, "methods", &methods) && json_object_array_length(methods))
+                json_object_object_add(needed, name, json_object_new_boolean(true));
+        }
+    }
     json_object_object_foreach(model, key, value)
     {
         if (strcmp(key, "structs") != 0 && strncmp(key, "rust_", 5) != 0)

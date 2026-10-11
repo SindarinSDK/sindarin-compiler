@@ -1,5 +1,6 @@
 #include "package_native_command.h"
 #include "package_native_types.h"
+#include "package_callable.h"
 #include "../package.h"
 #include "../parser.h"
 #include "../type_checker.h"
@@ -70,37 +71,16 @@ static bool native_provider_signatures(CompilerOptions *options, json_object *na
             if (module && !type_check_module(module, &symbols)) module = NULL;
             if (module && !package_native_bind_records(arena, native, options->native_manifest, module)) module = NULL;
         }
-        FunctionStmt *fn = NULL;
-        for (int i = 0; module && i < module->count; i++) {
-            Stmt *stmt = module->statements[i];
-            if (stmt->type == STMT_FUNCTION && stmt->as.function.name.filename &&
-                !strcmp(stmt->as.function.name.filename, path) &&
-                !strcmp(stmt->as.function.name.start, separator + 2)) fn = &stmt->as.function;
-        }
-        bool valid = fn && fn->is_native && !fn->body_count && !fn->is_variadic &&
-                     !fn->type_param_count && fn->return_mem_qualifier == MEM_DEFAULT;
+        PackageCallable callable;
+        bool valid = package_find_callable(arena, module, path, separator + 2, &callable) &&
+                     package_callable_valid(&callable, package_binding_is_sindarin(native, binding));
         if (valid) {
-            json_object *signature = json_object_new_object(), *params = json_object_new_array();
-            json_object *abi = NULL;
-            json_object_object_get_ex(native, "abi", &abi);
-            json_object_object_add(signature, "abi", json_object_get(abi));
-            json_object_object_add(signature, "binding", json_object_get(binding));
-            json_object_object_add(signature, "return_type", package_native_model_type(arena, fn->return_type, module, NULL, 0));
-            json_object_object_add(signature, "params", params);
-            for (int i = 0; i < fn->param_count; i++) {
-                Parameter *param = &fn->params[i];
-                if (param->mem_qualifier != MEM_DEFAULT) { valid = false; break; }
-                json_object *entry = json_object_new_object();
-                json_object_object_add(entry, "name", json_object_new_string(param->name.start));
-                json_object_object_add(entry, "type", package_native_model_type(arena, param->type, module, NULL, 0));
-                json_object_array_add(params, entry);
-            }
-            json_object_array_add(signatures, signature);
+            json_object_array_add(signatures, package_callable_signature(options, &callable, native, binding, module, NULL, 0));
         }
         symbol_table_cleanup(&symbols);
         free(identity);
         if (!valid) {
-            fprintf(stderr, "error: provider binding '%s' requires a native declaration without a body or reference qualifiers\n", json_object_get_string(decl));
+            fprintf(stderr, "error: provider binding '%s' requires a native declaration or supported Sindarin implementation without reference qualifiers\n", json_object_get_string(decl));
             json_object_put(signatures); return false;
         }
     }

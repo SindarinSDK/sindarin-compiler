@@ -24,6 +24,22 @@ selecting the separately compiled implementation function. See
 
 ## Schema
 
+Sindarin library bindings can name public static or instance methods as
+`src/api.sn::Type.method`, with `function: Type.method` on an SN build. Static
+methods keep their declared parameters; instance methods include a `self`
+ownership parameter. Native as-ref receivers use the canonical record contract
+below. Public declarations may retain their original Sindarin bodies: consumers
+call the separately compiled export while the declaration file stays unchanged.
+Reference-qualified/generic exports and Rust body record guards remain work.
+
+A C build can declare `provides_sources: [src/io/module.sn.c]` for an existing
+`@source` snippet included by that build's actual C sources. The builder verifies
+the include dependency before publishing the archive. Consumers and Sindarin
+facade builds retain the directive as provenance and link the owning archive;
+they do not compile the snippet again. Unclaimed source directives keep their
+existing diagnostics/legacy behavior. A prebuilt consumer can remove provided
+implementation sources while retaining its unchanged public declarations.
+
 ABI 1.5 additionally supports `native.types` contracts for package-owned,
 unpacked `native struct ... as ref` records backed by C. Public declarations
 retain their fields and aliases. An example storage contract is:

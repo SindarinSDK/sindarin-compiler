@@ -3,7 +3,7 @@
 Status: implemented consumer and provider adapters for resolved scalar and string
 function, borrowed-input/owned-result string-array contracts, and C-backed native
 as-ref records with explicit public storage/lifecycle contracts. Complete independent Sindarin package bodies, unchanged SDK facade imports,
-wider managed record/interface/callback contracts and non-string array elements,
+wider SDK module/type, managed record/interface/callback contracts and non-string array elements,
 and wider package graph planning
 remain required by the [Rust completion goal](rust-completion-goal.md).
 
@@ -34,8 +34,13 @@ The SDK transport regression builds the original canonical C TextFile module
 into an archive and consumes it through generated record/string/array adapters,
 including field mutation, native methods, explicit and automatic file closure,
 and results surviving record cleanup. It uses a declaration adapter preserving
-the original record fields; independent compilation of the complete unchanged
-SDK facade, including its Sindarin method bodies, remains required.
+the original record fields. A separate facade regression now compiles the
+unchanged TextFile public module and its static/instance Sindarin methods into
+a C library, linked to the original canonical C module. The original SDK caller
+passes through C/Rust in all nine modes from source and sealed archives with
+backing C removed. A Rust mixed application also links this SDK archive with
+a pure Sindarin RS library and native Rust/Go implementations. Other SDK modules
+and wider contracts still require migration and verification.
 
 - Plain fixed-width scalar inputs/results use `value` ownership.
 - String inputs use `borrowed` ownership; adapters copy into shared C runtime

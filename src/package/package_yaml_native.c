@@ -111,7 +111,7 @@ static bool validate_native_plan(json_object *plan, const char *path)
 {
     static const char *const root_fields[] = {"abi", "declarations", "builds", "bindings", "assembly", "types", NULL};
     static const char *const build_fields[] = {"name", "language", "sources", "entry", "module",
-                                             "include_dirs", "libraries", NULL};
+                                             "include_dirs", "libraries", "provides_sources", NULL};
     static const char *const binding_fields[] = {"declaration", "build", "symbol", "function", "convention",
                                                "ownership", "failure", NULL};
     static const char *const ownership_fields[] = {"parameters", "result", "borrowed_from", NULL};
@@ -179,7 +179,11 @@ static bool validate_native_plan(json_object *plan, const char *path)
                 return yaml_config_error(path, "duplicate native build name");
         if (!native_list(build, "sources", true, path) ||
             !native_list(build, "include_dirs", false, path) ||
-            !native_list(build, "libraries", false, path)) return false;
+            !native_list(build, "libraries", false, path) ||
+            !native_list(build, "provides_sources", false, path)) return false;
+        json_object *provided = NULL;
+        if (json_object_object_get_ex(build, "provides_sources", &provided) && strcmp(language, "C"))
+            return yaml_config_error(path, "only C builds can provide legacy native source directives");
         json_object *entry = NULL, *module = NULL;
         bool has_entry = json_object_object_get_ex(build, "entry", &entry);
         bool has_module = json_object_object_get_ex(build, "module", &module);
