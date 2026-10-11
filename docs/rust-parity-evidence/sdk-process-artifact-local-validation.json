@@ -1,0 +1,38 @@
+{
+  "status": "Local opt-in Process staging validated after POSIX dual-pipe repair; unpublished; required correction and SDK hosted dependency pending",
+  "base": "757d9d0cc449cfd71ea1f63fadd69bded785d2ab",
+  "SDK_local_revision": "4bc9d72",
+  "units": 4,
+  "exports": 19,
+  "normal_mode_cases": 72,
+  "sanitizer_mode_cases": 72,
+  "native_cases": 20,
+  "native_runtime_sanitizer_cases": 1,
+  "ci_helpers": 22,
+  "registered_gates": 381,
+  "registered_groups": 26,
+  "default_module_count": 13,
+  "controls": [
+    "Original Process source and expected output unchanged",
+    "Process aliases share exit-code mutation and captured strings",
+    "Owned getters survive owner cleanup",
+    "Owned producer return survives final credit cleanup",
+    "Sealed consumption removes all backing C sources",
+    "Public Sindarin module bytes preserved",
+    "Native clients drain 131072 bytes per stdout/stderr pipe in both child orders"
+  ],
+  "remaining": [
+    "Required corrected main CI acceptance",
+    "SDK Process hosted acceptance and exact-revision compiler pin",
+    "Integrated compiler hosted acceptance",
+    "Canonical language/package copy hook integration",
+    "Whole SDK and final corpus/platform proof"
+  ],
+  "logs": {
+    "sindarin-sdk-process-artifact-drain.log": "f7a4351d95c3dca6b850a277c20ca9a317ca5c26dc1e20f4d5aba885ae40a201",
+    "sindarin-sdk-process-artifact-drain-san.log": "f7a4351d95c3dca6b850a277c20ca9a317ca5c26dc1e20f4d5aba885ae40a201",
+    "sindarin-sdk-process-dispatch.log": "d5fee532b1a57708b87e7d1d3164db1a6ba42874ee71eb743195526703b8f3a8",
+    "sindarin-sdk-process-dispatch-san.log": "e7962bcc4e5af0c65b84bfb8bf9a11ca8231a9b07e6648081dd14e5e83a63026",
+    "sindarin-sdk-process-artifact-helpers.log": "1098b722b0c70125d439faefa39051d517be451df675eb88d9ab0959f63937a7"
+  }
+}

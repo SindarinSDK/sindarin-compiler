@@ -188,6 +188,8 @@ jobs:
           .sn/sdk-native-integration/.sn/random-*.json
           .sn/sdk-native-integration/.sn/uuid-*.json
           .sn/sdk-native-integration/.sn/stringbuilder-*.json
+          .sn/sdk-process-artifact*.json
+          .sn/sdk-native-integration/.sn/process-*.json
           .sn/sdk-native-integration/.sn/dtls-lifecycle*.json
         include-hidden-files: true
         if-no-files-found: error

@@ -114,6 +114,26 @@ waits for that exact SDK acceptance and an integrated pin. Wider exports,
 callbacks, contracts, SDK migration and final goal proof remain required.
 Evidence: [canonical-copyof-local-validation.json](rust-parity-evidence/canonical-copyof-local-validation.json).
 
+## Process: local storage and artifact checkpoint, 2026-10-11
+
+SDK checkpoint `4bc9d72` adds canonical C Process storage and native credit,
+deep-copy and cleanup hooks. The five public C operation bodies, public module
+and original caller/oracle remain byte-identical. A retained POSIX reproduction
+proved that sequential stdout/stderr reads deadlocked when stderr filled first;
+parent capture now polls and drains both pipes. C/Rust clients capture 128 KiB
+from each pipe in both output orders. Normal native/original checks pass 20,
+the actual-runtime sanitizer probe passes, and the full legacy SDK suite passes
+28. Windows retains its existing concurrent capture implementation.
+
+Opt-in Process/Env source and sealed stages pass 72 cases normally and 72 under
+sanitizers. Alias mutation, owned getter and producer lifetimes pass alongside
+the original caller. Native dispatch passes 20 plus one sanitizer probe; all
+22 CI helpers pass with 381 gates/26 groups. Default staging remains thirteen
+accepted modules. SDK and compiler hosted acceptance, copy-hook integration and
+full-goal proof remain required. Feature publication remains frozen while the
+integrated correction is pending. Evidence is retained in
+[sdk-process-artifact-local-validation.json](rust-parity-evidence/sdk-process-artifact-local-validation.json).
+
 ## Current hosted queue, 2026-10-11
 
 Compiler record ownership revision `cbd2fbe9` awaits CI 38153082329; compiler
