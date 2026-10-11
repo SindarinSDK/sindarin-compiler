@@ -1,5 +1,5 @@
 {
-  "status": "Local default record rebinding validated; unpublished; broader package checks running",
+  "status": "Local default record rebinding and package suites validated; unpublished",
   "base": "e02dd159",
   "normal_cases": 72,
   "sanitizer_cases": 72,
@@ -20,7 +20,6 @@
     "nine exact final native destructions"
   ],
   "remaining": [
-    "broader package imports/artifact completion",
     "integrated hosted acceptance after required correction is green",
     "as-val/as-ref record rebinding and wider record/interface/generic contracts",
     "whole SDK and final corpus/platform proof"
@@ -31,11 +30,13 @@
     "sindarin-record-rebind-full-c.log": "adf0ece16b8ca016f4887194eab5c3cbada5b8c492ec9b749f9258c5f3857dfb",
     "sindarin-record-rebind-full-rust.log": "5e7c07e0e785cb7c28252d2f85724859c9b07a1bae2ef4a075bdb3179369bc15",
     "sindarin-record-rebind-ci-helpers.log": "b85a2a2a41f2e3f5e3231f165b42c5bfea4ea7a8482b99fcddfccbe9e4d91adc",
-    "sindarin-record-rebind-artifacts.log": "7071dde2499cf303e18f231cfaf58ae2053bd37e34a75af3252be449c0bf68bd"
+    "sindarin-record-rebind-artifacts.log": "7071dde2499cf303e18f231cfaf58ae2053bd37e34a75af3252be449c0bf68bd",
+    "sindarin-record-rebind-imports.log": "78a48cb0975c87515a3bb7c6aaa02d1c8531fccad03d02c3c179f6e02f98ced1"
   },
   "before_log_sha256": "c59af3813513c4b60cf1b14d857458e658ed2e570c13b3feb2709720c75089ca",
   "artifact_tests": 22,
   "existing_record_body_tests": 7,
   "registered_gates": 353,
-  "registered_groups": 26
+  "registered_groups": 26,
+  "imports": 50
 }
