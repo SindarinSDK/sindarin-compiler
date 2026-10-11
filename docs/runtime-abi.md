@@ -420,3 +420,41 @@ owned headers alive. The same guard repairs an ASAN-reproduced lifetime defect
 in ABI 1.5 string-array copying. Removing the byte-copy guard in a private
 negative control reproduces an ASAN heap-use-after-free. Rust vectors and Go slices are copied into
 C storage rather than cast to a foreign array layout.
+
+## ABI 1.7 typed canonical arrays
+
+Query `SN_ABI_V1_7_VERSION` with `SN_ABI_CAP_NATIVE_ARRAYS` (`1024`). Its mask
+is `2047`; exact earlier masks and existing functions remain compatible.
+`SnAbiNativeArrayType` contains two uint32 fields, `leaf_kind` and `rank`.
+Rank 1..32 counts array layers. Leaf IDs 1..10 identify int64 (also long), int32,
+uint64, uint32, byte, bool, float32, float64, char8 and C string pointers.
+Bool slots are one byte containing 0 or 1. Nested slots contain `SnArray *`.
+Record/interface leaves require further contracts.
+
+The six `sn_abi_v1_native_array_*` operations borrow, adopt, inspect data/type,
+copy and transfer unique owned storage. Borrow/adopt/data/take preserve actual
+headers and hooks. Nil arrays and nil children are valid. Invalid leaf/rank,
+width/tag, length/capacity, missing storage, boolean values and overflow reject
+without changing outputs or ownership. Descending rank rejects cycles. Each
+access validates the current storage recursively. Empty untagged headers are
+valid. Nonempty untagged int32, uint32, uint64 and float32 leaves are also valid:
+existing C interop literals use that representation. Other nonempty leaves
+require their canonical tags; the operation never rewrites the source tag.
+
+Copy holds an operation credit through reentrant hooks. Custom element copy and
+cleanup hooks survive. Missing string or nested copy hooks produce independent
+canonical copies, installing default copy and (if absent) cleanup hooks on the
+new headers so subsequent ordinary C copies are safe. Existing cleanup hooks
+remain authoritative and must accept that canonical copied representation.
+Custom copy hooks must keep source storage stable during the operation; they may
+consume the caller's wire credits. Borrowed native owners must outlive every
+view credit. Callers serialize mutation and transfer, and reload pointers after
+mutation. Unique owned take follows ABI 1.6: borrowed/aliased handles reject,
+success clears the wire credit and transfers the unchanged header.
+
+Fifteen C/Rust/Go clients exercise the shared runtime, including nested live
+aliases, callbacks, reentrant credit consumption, GC, missing hooks, ordinary
+copies after original cleanup and actual SDK Environment rows. Seven C clients
+run with address/undefined/leak checking. Generic array package generation in
+this batch supports C native and C Sindarin bodies; Rust/Go native providers and
+Rust generic body exports still require canonical guards and result contracts.

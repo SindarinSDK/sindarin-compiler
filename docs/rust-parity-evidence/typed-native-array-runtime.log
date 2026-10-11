@@ -1,0 +1,1 @@
+PASS: C, C array replacement, C array mutation, C native string-array views, C native byte-array views, C typed native array views, canonical SDK Environment typed array, Rust, Rust array replacement, Rust array mutation, Rust native string-array views, Rust native byte-array views, Rust typed native array views, Go, Rust with Go-native archive shared C runtime ABI clients

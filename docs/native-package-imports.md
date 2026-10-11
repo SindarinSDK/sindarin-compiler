@@ -266,3 +266,19 @@ static methods and free native helper imports keep their original public source,
 and prebuilt consumers require no backing C source. This covers the Bytes module,
 not the entire SDK. Reference rebinding, wider array/type contracts and complete
 SDK packaging remain required.
+
+## Typed arrays (native ABI 1.7)
+
+`native.abi: 1.7` permits scalar/string array leaves through rank 32 with borrowed
+parameters and owned results. C native backing and C Sindarin implementation
+exports use `SnArray *`; C/Rust consumers wrap actual headers and transfer unique
+owned results. Nested int32 controls preserve same-argument aliases, mutation,
+independent copies and nil across all nine modes and sealed imports after source
+removal. Flat string/byte arrays keep their prior transports under 1.7; earlier
+ABI declarations retain their original contracts.
+
+Rust/Go generic native providers and Rust generic Sindarin body exports are
+explicitly rejected until their recursive canonical storage/ownership guards
+exist. Runtime-level Rust/Go typed-array clients do not imply generated package
+support. Record/interface leaves, reference rebinding and full SDK migration
+remain work. See [the runtime contract](runtime-abi.md#abi-17-typed-canonical-arrays).

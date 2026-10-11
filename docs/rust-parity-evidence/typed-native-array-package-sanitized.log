@@ -1,0 +1,6 @@
+test_typed_nested_native_arrays_preserve_inputs_and_owned_copies (__main__.NativeImports.test_typed_nested_native_arrays_preserve_inputs_and_owned_copies) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 15.387s
+
+OK

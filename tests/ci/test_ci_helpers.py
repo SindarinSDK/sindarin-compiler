@@ -97,7 +97,7 @@ class CoverageTests(unittest.TestCase):
         self.collect()
         report = json.loads((self.output / 'summary.json').read_text())
         self.assertEqual(report['groups'], 26)
-        self.assertEqual(report['gates'], 298)
+        self.assertEqual(report['gates'], 301)
         entries = [g for g in self.catalog['gates'] if g['id'] == 'native-entrypoints']
         self.assertEqual(len(entries), 1)
         self.assertEqual(entries[0]['group'], 'native')
@@ -106,6 +106,10 @@ class CoverageTests(unittest.TestCase):
         self.assertEqual(len(namespaces), 1)
         self.assertEqual(namespaces[0]['group'], 'native')
         self.assertFalse(namespaces[0]['linux_only'])
+        sdk = [g for g in self.catalog['gates'] if g['id'] == 'sdk-artifact-callers']
+        self.assertEqual(len(sdk), 1)
+        self.assertEqual(sdk[0]['group'], 'core')
+        self.assertFalse(sdk[0]['linux_only'])
 
     def test_missing_group_fails(self):
         self.reports[-1].unlink()

@@ -5,8 +5,9 @@
 
 _Static_assert(CHAR_BIT == 8 && sizeof(long long) == 8, "ABI v1 requires 8-bit bytes and 64-bit int");
 _Static_assert(sizeof(float) == 4 && sizeof(double) == 8, "ABI v1 requires 32/64-bit float widths");
+_Static_assert(sizeof(bool) == 1, "ABI native bool arrays require 8-bit 0/1 slots");
 
-enum SnAbiKind { ABI_STRING, ABI_BUFFER, ABI_ARRAY, ABI_RESOURCE, ABI_VALUE_ARRAY, ABI_NATIVE_STRING_ARRAY, ABI_NATIVE_BYTE_ARRAY };
+enum SnAbiKind { ABI_STRING, ABI_BUFFER, ABI_ARRAY, ABI_RESOURCE, ABI_VALUE_ARRAY, ABI_NATIVE_STRING_ARRAY, ABI_NATIVE_BYTE_ARRAY, ABI_NATIVE_ARRAY };
 
 struct SnAbiValue {
     atomic_size_t credits;
@@ -14,7 +15,7 @@ struct SnAbiValue {
     union {
         struct { uint8_t *data; uint64_t length; } bytes;
         SnArray *array;
-        struct { SnArray *array; bool owned; } native_array;
+        struct { SnArray *array; bool owned; SnAbiNativeArrayType type; } native_array;
         struct { void *data; SnAbiDestroy destroy; uintptr_t context; char *type_identity; } resource;
     } payload;
 };
@@ -35,7 +36,7 @@ SnAbiStatus sn_abi_v1_query(uint32_t version, uint64_t required_capabilities,
     if (version != SN_ABI_V1_VERSION && version != SN_ABI_V1_1_VERSION &&
         version != SN_ABI_V1_2_VERSION && version != SN_ABI_V1_3_VERSION &&
         version != SN_ABI_V1_4_VERSION && version != SN_ABI_V1_5_VERSION &&
-        version != SN_ABI_V1_6_VERSION) return SN_ABI_VERSION_MISMATCH;
+        version != SN_ABI_V1_6_VERSION && version != SN_ABI_V1_7_VERSION) return SN_ABI_VERSION_MISMATCH;
     if (version != SN_ABI_V1_VERSION) capabilities |= SN_ABI_CAP_VALUE_ARRAYS | SN_ABI_CAP_TYPED_RESOURCES;
     if (version >= SN_ABI_V1_2_VERSION)
         capabilities |= SN_ABI_CAP_PACKAGE_LIFECYCLE;
@@ -43,6 +44,7 @@ SnAbiStatus sn_abi_v1_query(uint32_t version, uint64_t required_capabilities,
     if (version >= SN_ABI_V1_4_VERSION) capabilities |= SN_ABI_CAP_ARRAY_MUTATION;
     if (version >= SN_ABI_V1_5_VERSION) capabilities |= SN_ABI_CAP_NATIVE_STRING_ARRAYS;
     if (version >= SN_ABI_V1_6_VERSION) capabilities |= SN_ABI_CAP_NATIVE_BYTE_ARRAYS;
+    if (version >= SN_ABI_V1_7_VERSION) capabilities |= SN_ABI_CAP_NATIVE_ARRAYS;
     if (required_capabilities & ~capabilities) return SN_ABI_UNSUPPORTED;
     SnAbiInfo info = { version, sizeof(void *) * CHAR_BIT, capabilities,
                        sizeof(long long) * CHAR_BIT, CHAR_BIT,
@@ -95,6 +97,7 @@ void sn_abi_v1_release(SnAbiValue *value)
         case ABI_VALUE_ARRAY: sn_array_free(value->payload.array); break;
         case ABI_NATIVE_STRING_ARRAY:
         case ABI_NATIVE_BYTE_ARRAY:
+        case ABI_NATIVE_ARRAY:
             if (value->payload.native_array.owned) sn_array_free(value->payload.native_array.array);
             break;
         case ABI_RESOURCE:
@@ -258,6 +261,166 @@ SnAbiStatus sn_abi_v1_native_byte_array_take(SnAbiValue **value, SnArray **out)
     sn_abi_v1_release(*value);
     *value = NULL;
     *out = array;
+    return SN_ABI_OK;
+}
+
+static bool native_array_layout(SnAbiNativeArrayType type, size_t *width, enum SnElemTag *tag)
+{
+    if (!type.rank || type.rank > 32) return false;
+    switch (type.leaf_kind) {
+        case SN_ABI_ARRAY_INT64: case SN_ABI_ARRAY_UINT64: *width = 8; *tag = SN_TAG_INT; break;
+        case SN_ABI_ARRAY_INT32: case SN_ABI_ARRAY_UINT32: *width = 4; *tag = SN_TAG_INT; break;
+        case SN_ABI_ARRAY_BYTE: *width = 1; *tag = SN_TAG_BYTE; break;
+        case SN_ABI_ARRAY_BOOL: *width = sizeof(bool); *tag = SN_TAG_BOOL; break;
+        case SN_ABI_ARRAY_FLOAT32: *width = 4; *tag = SN_TAG_DOUBLE; break;
+        case SN_ABI_ARRAY_FLOAT64: *width = 8; *tag = SN_TAG_DOUBLE; break;
+        case SN_ABI_ARRAY_CHAR: *width = 1; *tag = SN_TAG_CHAR; break;
+        case SN_ABI_ARRAY_STRING: *width = sizeof(char *); *tag = SN_TAG_STRING; break;
+        default: return false;
+    }
+    if (type.rank > 1) { *width = sizeof(SnArray *); *tag = SN_TAG_ARRAY; }
+    return true;
+}
+
+static SnAbiStatus native_array_validate(const SnArray *array, SnAbiNativeArrayType type)
+{
+    size_t width; enum SnElemTag tag;
+    if (!native_array_layout(type, &width, &tag)) return SN_ABI_INVALID_ARGUMENT;
+    if (!array) return SN_ABI_OK;
+    bool untagged_interop = type.rank == 1 && (type.leaf_kind == SN_ABI_ARRAY_INT32 ||
+        type.leaf_kind == SN_ABI_ARRAY_UINT32 || type.leaf_kind == SN_ABI_ARRAY_UINT64 ||
+        type.leaf_kind == SN_ABI_ARRAY_FLOAT32);
+    if (array->elem_size != width || (array->elem_tag != tag &&
+        !(array->elem_tag == SN_TAG_DEFAULT && (array->len == 0 || untagged_interop)))) return SN_ABI_WRONG_KIND;
+    if (array->len < 0 || array->cap < array->len || array->cap < 0 ||
+        (array->cap && !array->data)) return SN_ABI_INVALID_ARGUMENT;
+    if ((uint64_t)array->cap > SIZE_MAX / width) return SN_ABI_OUT_OF_RANGE;
+    if (type.rank == 1 && type.leaf_kind == SN_ABI_ARRAY_BOOL) {
+        for (long long i = 0; i < array->len; i++)
+            if (((const uint8_t *)array->data)[i] > 1) return SN_ABI_INVALID_ARGUMENT;
+    }
+    if (type.rank > 1) {
+        type.rank--;
+        for (long long i = 0; i < array->len; i++) {
+            SnAbiStatus status = native_array_validate(((SnArray **)array->data)[i], type);
+            if (status) return status;
+        }
+    }
+    return SN_ABI_OK;
+}
+
+static SnAbiStatus native_array_wrap(SnArray *array, SnAbiNativeArrayType type, bool owned, SnAbiValue **out)
+{
+    if (!out) return SN_ABI_INVALID_ARGUMENT;
+    SnAbiStatus status = native_array_validate(array, type);
+    if (status) return status;
+    if (!array) { *out = NULL; return SN_ABI_OK; }
+    SnAbiValue *value = new_value(ABI_NATIVE_ARRAY);
+    value->payload.native_array.array = array;
+    value->payload.native_array.type = type;
+    value->payload.native_array.owned = owned;
+    *out = value;
+    return SN_ABI_OK;
+}
+
+SnAbiStatus sn_abi_v1_native_array_borrow(SnArray *array, SnAbiNativeArrayType type, SnAbiValue **out)
+{
+    return native_array_wrap(array, type, false, out);
+}
+
+SnAbiStatus sn_abi_v1_native_array_adopt(SnArray *array, SnAbiNativeArrayType type, SnAbiValue **out)
+{
+    return native_array_wrap(array, type, true, out);
+}
+
+SnAbiStatus sn_abi_v1_native_array_type(const SnAbiValue *value, SnAbiNativeArrayType *out)
+{
+    if (!value || !out) return SN_ABI_INVALID_ARGUMENT;
+    if (value->kind != ABI_NATIVE_ARRAY) return SN_ABI_WRONG_KIND;
+    *out = value->payload.native_array.type;
+    return SN_ABI_OK;
+}
+
+SnAbiStatus sn_abi_v1_native_array_data(const SnAbiValue *value, SnAbiNativeArrayType type, SnArray **out)
+{
+    if (!out) return SN_ABI_INVALID_ARGUMENT;
+    if (value && (value->kind != ABI_NATIVE_ARRAY ||
+        value->payload.native_array.type.leaf_kind != type.leaf_kind ||
+        value->payload.native_array.type.rank != type.rank)) return SN_ABI_WRONG_KIND;
+    SnArray *array = value ? value->payload.native_array.array : NULL;
+    SnAbiStatus status = native_array_validate(array, type);
+    if (status) return status;
+    *out = array;
+    return SN_ABI_OK;
+}
+
+static void native_array_release_child(void *slot) { sn_array_free(*(SnArray **)slot); }
+static void native_array_copy_child(const void *source, void *out) { *(SnArray **)out = sn_array_copy(*(SnArray *const *)source); }
+static void native_array_release_string(void *slot) { free(*(char **)slot); }
+
+static SnArray *native_array_copy_typed(const SnArray *source, SnAbiNativeArrayType type)
+{
+    if (!source) return NULL;
+    SnArray *copy = sn_array_new(source->elem_size, source->cap);
+    copy->elem_tag = source->elem_tag;
+    copy->elem_copy = source->elem_copy;
+    copy->elem_release = source->elem_release;
+    if (source->elem_copy) {
+        for (long long i = 0; i < source->len; i++) {
+            source->elem_copy((const char *)source->data + i * source->elem_size,
+                             (char *)copy->data + i * copy->elem_size);
+            copy->len++;
+        }
+    } else if (type.rank > 1) {
+        SnAbiNativeArrayType child = type; child.rank--;
+        copy->elem_copy = native_array_copy_child;
+        if (!copy->elem_release) copy->elem_release = native_array_release_child;
+        for (long long i = 0; i < source->len; i++) {
+            ((SnArray **)copy->data)[i] = native_array_copy_typed(((SnArray **)source->data)[i], child);
+            copy->len++;
+        }
+    } else if (type.leaf_kind == SN_ABI_ARRAY_STRING) {
+        copy->elem_copy = sn_copy_str;
+        if (!copy->elem_release) copy->elem_release = native_array_release_string;
+        for (long long i = 0; i < source->len; i++) {
+            sn_copy_str((const char *)source->data + i * source->elem_size,
+                        (char *)copy->data + i * copy->elem_size);
+            copy->len++;
+        }
+    } else {
+        sn_array_copy_elems(copy->data, 0, source->data, 0, source->len, source->elem_size, NULL);
+        copy->len = source->len;
+    }
+    return copy;
+}
+
+SnAbiStatus sn_abi_v1_native_array_copy(const SnAbiValue *value, SnAbiValue **out)
+{
+    if (!out) return SN_ABI_INVALID_ARGUMENT;
+    if (!value) { *out = NULL; return SN_ABI_OK; }
+    if (value->kind != ABI_NATIVE_ARRAY) return SN_ABI_WRONG_KIND;
+    SnAbiNativeArrayType type = value->payload.native_array.type;
+    SnAbiStatus status = native_array_validate(value->payload.native_array.array, type);
+    if (status) return status;
+    SnAbiValue *guard = sn_abi_v1_retain((SnAbiValue *)value);
+    SnArray *copy = native_array_copy_typed(value->payload.native_array.array, type);
+    status = native_array_wrap(copy, type, true, out);
+    if (status) sn_array_free(copy);
+    sn_abi_v1_release(guard);
+    return status;
+}
+
+SnAbiStatus sn_abi_v1_native_array_take(SnAbiValue **value, SnAbiNativeArrayType type, SnArray **out)
+{
+    if (!value || !out) return SN_ABI_INVALID_ARGUMENT;
+    SnArray *array = NULL;
+    SnAbiStatus status = sn_abi_v1_native_array_data(*value, type, &array);
+    if (status) return status;
+    if (*value && (!(*value)->payload.native_array.owned ||
+        atomic_load_explicit(&(*value)->credits, memory_order_acquire) != 1)) return SN_ABI_INVALID_ARGUMENT;
+    if (*value) (*value)->payload.native_array.owned = false;
+    sn_abi_v1_release(*value);
+    *value = NULL; *out = array;
     return SN_ABI_OK;
 }
 

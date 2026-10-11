@@ -245,3 +245,12 @@ Byte-array parameters require `borrowed` ownership; byte-array results require
 and return one unique adopted wire credit. See
 [byte-array adapters](native-package-imports.md) and
 [the runtime byte-view contract](runtime-abi.md).
+
+## ABI 1.7 array contracts
+
+The validator accepts `native.abi: 1.7` and existing `native.types` C record
+contracts under that version. Typed scalar/string arrays up to rank 32 select
+canonical C header transport, borrowed inputs and owned results. C native and
+C Sindarin provider builds support these wider arrays; Rust/Go native providers
+and Rust Sindarin providers receive an explicit unsupported-contract diagnostic.
+Flat string/byte contracts and earlier ABI versions preserve their behavior.

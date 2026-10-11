@@ -331,6 +331,51 @@ class NativeImports(unittest.TestCase):
             self.assertNotEqual(result.returncode,0)
             self.assertIn(b'requires a supported native declaration',result.stderr)
 
+    def test_length_less_comparisons_preserve_single_evaluation(self):
+        self.write('main.sn','var calls: int = 0\nfn text(): str =>\n  calls += 1\n  return "abc"\n'
+            'fn values(): int[] =>\n  calls += 1\n  return {1,2}\nfn main(): void =>\n'
+            '  println(text().length < 4)\n  println(calls)\n'
+            '  println(values().length < 3)\n  println(calls)\n')
+        modes=[(o,)+((a,) if a else ()) for o in ('-O0','-O1','-O2') for a in (None,'--checked','--unchecked')]
+        for flags in modes:
+            for target in ('c','rust'):
+                with self.subTest(target=target,flags=flags):self.execute(target,b'true\n1\ntrue\n2\n',flags)
+
+    def test_typed_nested_native_arrays_preserve_inputs_and_owned_copies(self):
+        import hashlib,json
+        package=self.root/'.sn/typedarrays'
+        self.write('.sn/typedarrays/src/api.sn','native fn mutate(a: int32[][], b: int32[][]): int32[][]\n')
+        self.write('.sn/typedarrays/src/body.c','#include "sn_array.h"\n#include "sn_abi.h"\n'
+            'SnArray *mutate(SnArray*a,SnArray*b) { if(a!=b) abort(); if(!a) return NULL; '
+            'SnArray *row=((SnArray**)a->data)[0]; int32_t added=99; ((int32_t*)row->data)[0]=42; '
+            'sn_array_push(row,&added); if(((SnArray**)b->data)[0]!=row || row->len!=3) abort(); '
+            'SnAbiNativeArrayType type={SN_ABI_ARRAY_INT32,2}; SnAbiValue *view=NULL,*copy=NULL; SnArray *out=NULL; '
+            'if(sn_abi_v1_native_array_borrow(a,type,&view) || sn_abi_v1_native_array_copy(view,&copy) || '
+            'sn_abi_v1_native_array_take(&copy,type,&out)) abort(); sn_abi_v1_release(view); return out; }\n')
+        manifest=('name: typedarrays\nruntime: C\nnative:\n  abi: 1.7\n  declarations: [src/api.sn]\n'
+            '  builds:\n    - name: backing\n      language: C\n      sources: [src/body.c]\n'
+            '  bindings:\n    - declaration: src/api.sn::mutate\n      function: mutate\n      symbol: typed_arrays_mutate\n'
+            '      build: backing\n      convention: C\n      failure: abort\n'
+            '      ownership: {parameters: {a: borrowed, b: borrowed}, result: owned}\n')
+        self.write('.sn/typedarrays/sn.yaml',manifest)
+        self.write('main.sn','import "typedarrays/src/api"\nfn main(): void =>\n'
+            '  println(mutate(nil,nil)==nil)\n  var rows: int32[][] = {{1,2}}\n'
+            '  var result: int32[][] = mutate(rows,rows)\n  println(rows[0][0])\n  println(rows[0].length)\n'
+            '  rows[0][0]=7\n  println(result[0][0])\n  println(result[0][2])\n')
+        modes=[(o,)+((a,) if a else ()) for o in ('-O0','-O1','-O2') for a in (None,'--checked','--unchecked')]
+        for archive in ('source','prebuilt'):
+            if archive=='prebuilt':
+                built=subprocess.run([str(COMPILER),'--build-native',str(package/'sn.yaml'),'-o',str(package/'dist-build')],
+                    cwd=self.root,capture_output=True,timeout=180)
+                self.assertEqual(built.returncode,0,built.stderr.decode(errors='replace'))
+                assembly=Path(json.loads(built.stdout)['assembly']);shutil.copytree(assembly.parent,package/'dist')
+                (package/'sn.yaml').write_text(manifest.replace('  abi: 1.7\n','  abi: 1.7\n  assembly: {path: dist/assembly.json, sha256: '+hashlib.sha256(assembly.read_bytes()).hexdigest()+'}\n'))
+                (package/'src/body.c').unlink()
+            for flags in modes:
+                for target in ('c','rust'):
+                    with self.subTest(target=target,flags=flags,archive=archive):
+                        self.execute(target,b'true\n42\n3\n42\n99\n',flags)
+
     def test_native_byte_arrays_preserve_live_inputs_and_owned_results(self):
         import hashlib,json
         for language in ('C','RS','GO'):

@@ -35,7 +35,7 @@ int main(void)
     }
     assert(sn_abi_v1_query(SN_ABI_V1_5_VERSION, SN_ABI_CAP_NATIVE_STRING_ARRAYS, &info, sizeof(info)) == 0 && info.capabilities == 511);
     SnAbiInfo saved = info;
-    assert(sn_abi_v1_query(SN_ABI_V1_6_VERSION + 1, 0, &info, sizeof(info)) == SN_ABI_VERSION_MISMATCH);
+    assert(sn_abi_v1_query(SN_ABI_V1_7_VERSION + 1, 0, &info, sizeof(info)) == SN_ABI_VERSION_MISMATCH);
     assert(memcmp(&info, &saved, sizeof(info)) == 0);
     SnAbiValue *view = NULL, *copy = NULL, *wrong = NULL, *out = (SnAbiValue *)(uintptr_t)1;
     assert(sn_abi_v1_native_string_array_borrow(NULL, &out) == 0 && !out);

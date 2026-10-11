@@ -1,0 +1,261 @@
+{
+  "status": "local; hosted acceptance pending",
+  "baseline": "0d802850a72699d199c72d362f506a9bcfb948bb",
+  "sdk_revision": "89f3b83ee42e78e84b47d9979b3ec66fa305cbe5",
+  "abi": {
+    "platform": "Linux",
+    "runtime_sha256": "d1f84ae5bbae339d5dee3d4155761f0ce3d1318f95053fb0fe358e0c3ff06102",
+    "cases": [
+      {
+        "client": "C",
+        "passed": true,
+        "sanitized": false,
+        "reference_credit_operations": 160000
+      },
+      {
+        "client": "C array replacement",
+        "passed": true,
+        "sanitized": false
+      },
+      {
+        "client": "C array mutation",
+        "passed": true,
+        "sanitized": false
+      },
+      {
+        "client": "C native string-array views",
+        "passed": true,
+        "sanitized": false
+      },
+      {
+        "client": "C native byte-array views",
+        "passed": true,
+        "sanitized": false
+      },
+      {
+        "client": "C typed native array views",
+        "passed": true,
+        "sanitized": false
+      },
+      {
+        "client": "canonical SDK Environment typed array",
+        "passed": true,
+        "sanitized": false
+      },
+      {
+        "client": "Rust",
+        "passed": true
+      },
+      {
+        "client": "Rust array replacement",
+        "passed": true
+      },
+      {
+        "client": "Rust array mutation",
+        "passed": true
+      },
+      {
+        "client": "Rust native string-array views",
+        "passed": true
+      },
+      {
+        "client": "Rust native byte-array views",
+        "passed": true
+      },
+      {
+        "client": "Rust typed native array views",
+        "passed": true
+      },
+      {
+        "client": "Go",
+        "passed": true,
+        "cgo_pointer_check": "cgocheck2"
+      },
+      {
+        "client": "Rust with Go-native archive",
+        "passed": true,
+        "go_archive_sha256": "e8210ed533567efc8d22f4c9a3d5eb6bfc40ad95ed144f02b2f65952f3351304"
+      }
+    ],
+    "scope": "C runtime ABI values, resources, replacement/mutation and ABI 1.5 string/1.6 byte canonical native array views; wider package adapters remain required.",
+    "passed": true,
+    "source_sha256": {
+      "tests/runtime_abi/client.c": "e9237ac3c788ef60840219b24f41f2ead9bbd6411d9efdb002b37644a84976ba",
+      "tests/runtime_abi/client.rs": "f0705dda61263852b68f7a7e38b620fc8cb8ec26e15152849cf55d4d10e8b4ad",
+      "tests/runtime_abi/go/bridge.c": "17306f438990d47bd5b1ae8eb669114cc67c2a43686b9114d6fba1a2a0b51389",
+      "tests/runtime_abi/go/go.mod": "59c81de41b166cdf5df4a5fd5c7fedfbc291e059254dde2dc4b9039c9015265e",
+      "tests/runtime_abi/go/main.go": "8ed84fda3591305b9e271f8d84f9cc1f0bb3adf7ae10c3bc44144ac117f5c420",
+      "tests/runtime_abi/go/native_array.go": "6b750f530ad904a9d2b25ea0029e5b13e5598c25e4d73d61394f546ff682b548",
+      "tests/runtime_abi/go/native_byte_array.go": "6253b6653c6bb9b7f79fb71972e209a347b4fa16b1c91a97b1edcac5fb7e4e57",
+      "tests/runtime_abi/go/native_string_array.go": "ac79fa338d967a26b4128573d4215a7e3452abe8ad9ec23fcec2e1cfd464aaa2",
+      "tests/runtime_abi/go/value_array_assign.go": "7c7d5708914a5d4a3a180fed616a9c011655f4a981a408405babd83560f283de",
+      "tests/runtime_abi/go/value_array_mutation.go": "b666577057b4f99f9cf5168d19ed290ddf8c02cd953229163f4ec439b0a2a1a9",
+      "tests/runtime_abi/native_array.c": "97038a7139b538d7a244c2301fb191531abd03cb9443dcc5a3babe1cc200e1ae",
+      "tests/runtime_abi/native_array.rs": "298389e8ad61d842edf22155aaf22f938128606c7f4274d08ba4bdd13765e1c9",
+      "tests/runtime_abi/native_array_bridge.c": "76d3154b4e582848ee4fcb6aa7bd287ae78a788c9c2215dc094810738cb7a550",
+      "tests/runtime_abi/native_array_bridge.h": "1a03c6a1af395b8e75d7e2fe6c47af3963a815404e2a479e30bf5d0c6f350382",
+      "tests/runtime_abi/native_byte_array.c": "191d1f8d9872c9e1c8d5d55f899d046c0c50fb900935b74a4ac9df5f67c7c7dd",
+      "tests/runtime_abi/native_byte_array.rs": "e597daa92deeb66bcf82decb3fa906e59fe5b524148229714739d26ddaf624fb",
+      "tests/runtime_abi/native_byte_array_bridge.c": "769c72a274c39e9140095eb177a03f596aac5a47851cf926702ce7d7afaf0aad",
+      "tests/runtime_abi/native_byte_array_bridge.h": "fdec4fcfc0fefab5693f9010962463d526a485792973211b1aa83654f47e3a4b",
+      "tests/runtime_abi/native_string_array.c": "8d88ccfca154d4e6c5b03d55c4bea35d23a05e6dbd2425054cc1cbb21ca02366",
+      "tests/runtime_abi/native_string_array.rs": "5af195c85847fd1a3230e7b497ff0b29d5952820804ecd8a5e489c100dea59e4",
+      "tests/runtime_abi/native_string_array_bridge.c": "1db35d9bc4c2e38f3be7bad1162f6d12b6beafaabc575915055a2d991818d9b2",
+      "tests/runtime_abi/native_string_array_bridge.h": "2b0bc0f1abaf08495a0c2fe27ded60a162cb5fbeb27d983e6fcab33af9433fe4",
+      "tests/runtime_abi/package_go/bridge.c": "ef42324af281db45c8a3512d6c9dc12f852806313fd5456b4911aceeb6f69221",
+      "tests/runtime_abi/package_go/go.mod": "54e2c0f5ac28a73d55aad0a13370e1ffe41fc1ae8836a5643227143f8c4c94a7",
+      "tests/runtime_abi/package_go/main.go": "99cae60f143806698aa7ba2122778b1b6fd71e1ca5000958f72af068a8f9133e",
+      "tests/runtime_abi/package_lifecycle.c": "c38f956a6ba675c911bd9112b9411fab8967ed67d03f8d392020f12499d808c8",
+      "tests/runtime_abi/package_lifecycle.rs": "f9031046855452ba209b217d7ffcce21e8b5d6d2dd5470155e15d96f211ccbc6",
+      "tests/runtime_abi/sdk_env_native_array.c": "81ffeac8fa9e075cb839d77acda636d865fd5f6cbe93efada04b698bef86d268",
+      "tests/runtime_abi/value_array_assign.c": "a2e7617457277f6cdd36ed8fd59a60006f7d3c117d2d611ccbbaf0ef79f6af2f",
+      "tests/runtime_abi/value_array_assign.rs": "e72764236659c7d65b2f6f16ce9b2131c3e7ed9398c86b615b0eb93da525bb52",
+      "tests/runtime_abi/value_array_mutation.c": "aced9ce2e5c0054181dc27c53fdbe7fce4318b8f666177d6f4977f782cc2daa6",
+      "tests/runtime_abi/value_array_mutation.rs": "e3bfe0490d076bb32cc682743519f5388ec1dab971cd95b14a69e70bd17cc334",
+      "src/runtime/sn_abi.c": "1da31b8d952d7c63116eefca33a5614e26e0c8dc69f2f6c26e566f3ff8d96b36",
+      "src/runtime/sn_abi.h": "7b034a1e1d001a4fe67981cc8bf7d605fe0c4da81f2d622f68ed6582a916b7aa",
+      "scripts/check_runtime_abi.py": "e0fe2354060957e396c8d33854bdf1749df79a78837860dafb38c326953a9534"
+    }
+  },
+  "sanitizers": {
+    "platform": "Linux",
+    "runtime_sha256": "d1f84ae5bbae339d5dee3d4155761f0ce3d1318f95053fb0fe358e0c3ff06102",
+    "cases": [
+      {
+        "client": "C",
+        "passed": true,
+        "sanitized": true,
+        "reference_credit_operations": 160000
+      },
+      {
+        "client": "C array replacement",
+        "passed": true,
+        "sanitized": true
+      },
+      {
+        "client": "C array mutation",
+        "passed": true,
+        "sanitized": true
+      },
+      {
+        "client": "C native string-array views",
+        "passed": true,
+        "sanitized": true
+      },
+      {
+        "client": "C native byte-array views",
+        "passed": true,
+        "sanitized": true
+      },
+      {
+        "client": "C typed native array views",
+        "passed": true,
+        "sanitized": true
+      },
+      {
+        "client": "canonical SDK Environment typed array",
+        "passed": true,
+        "sanitized": true
+      }
+    ],
+    "scope": "C runtime ABI values, resources, replacement/mutation and ABI 1.5 string/1.6 byte canonical native array views; wider package adapters remain required.",
+    "passed": true,
+    "source_sha256": {
+      "tests/runtime_abi/client.c": "e9237ac3c788ef60840219b24f41f2ead9bbd6411d9efdb002b37644a84976ba",
+      "tests/runtime_abi/client.rs": "f0705dda61263852b68f7a7e38b620fc8cb8ec26e15152849cf55d4d10e8b4ad",
+      "tests/runtime_abi/go/bridge.c": "17306f438990d47bd5b1ae8eb669114cc67c2a43686b9114d6fba1a2a0b51389",
+      "tests/runtime_abi/go/go.mod": "59c81de41b166cdf5df4a5fd5c7fedfbc291e059254dde2dc4b9039c9015265e",
+      "tests/runtime_abi/go/main.go": "8ed84fda3591305b9e271f8d84f9cc1f0bb3adf7ae10c3bc44144ac117f5c420",
+      "tests/runtime_abi/go/native_array.go": "6b750f530ad904a9d2b25ea0029e5b13e5598c25e4d73d61394f546ff682b548",
+      "tests/runtime_abi/go/native_byte_array.go": "6253b6653c6bb9b7f79fb71972e209a347b4fa16b1c91a97b1edcac5fb7e4e57",
+      "tests/runtime_abi/go/native_string_array.go": "ac79fa338d967a26b4128573d4215a7e3452abe8ad9ec23fcec2e1cfd464aaa2",
+      "tests/runtime_abi/go/value_array_assign.go": "7c7d5708914a5d4a3a180fed616a9c011655f4a981a408405babd83560f283de",
+      "tests/runtime_abi/go/value_array_mutation.go": "b666577057b4f99f9cf5168d19ed290ddf8c02cd953229163f4ec439b0a2a1a9",
+      "tests/runtime_abi/native_array.c": "97038a7139b538d7a244c2301fb191531abd03cb9443dcc5a3babe1cc200e1ae",
+      "tests/runtime_abi/native_array.rs": "298389e8ad61d842edf22155aaf22f938128606c7f4274d08ba4bdd13765e1c9",
+      "tests/runtime_abi/native_array_bridge.c": "76d3154b4e582848ee4fcb6aa7bd287ae78a788c9c2215dc094810738cb7a550",
+      "tests/runtime_abi/native_array_bridge.h": "1a03c6a1af395b8e75d7e2fe6c47af3963a815404e2a479e30bf5d0c6f350382",
+      "tests/runtime_abi/native_byte_array.c": "191d1f8d9872c9e1c8d5d55f899d046c0c50fb900935b74a4ac9df5f67c7c7dd",
+      "tests/runtime_abi/native_byte_array.rs": "e597daa92deeb66bcf82decb3fa906e59fe5b524148229714739d26ddaf624fb",
+      "tests/runtime_abi/native_byte_array_bridge.c": "769c72a274c39e9140095eb177a03f596aac5a47851cf926702ce7d7afaf0aad",
+      "tests/runtime_abi/native_byte_array_bridge.h": "fdec4fcfc0fefab5693f9010962463d526a485792973211b1aa83654f47e3a4b",
+      "tests/runtime_abi/native_string_array.c": "8d88ccfca154d4e6c5b03d55c4bea35d23a05e6dbd2425054cc1cbb21ca02366",
+      "tests/runtime_abi/native_string_array.rs": "5af195c85847fd1a3230e7b497ff0b29d5952820804ecd8a5e489c100dea59e4",
+      "tests/runtime_abi/native_string_array_bridge.c": "1db35d9bc4c2e38f3be7bad1162f6d12b6beafaabc575915055a2d991818d9b2",
+      "tests/runtime_abi/native_string_array_bridge.h": "2b0bc0f1abaf08495a0c2fe27ded60a162cb5fbeb27d983e6fcab33af9433fe4",
+      "tests/runtime_abi/package_go/bridge.c": "ef42324af281db45c8a3512d6c9dc12f852806313fd5456b4911aceeb6f69221",
+      "tests/runtime_abi/package_go/go.mod": "54e2c0f5ac28a73d55aad0a13370e1ffe41fc1ae8836a5643227143f8c4c94a7",
+      "tests/runtime_abi/package_go/main.go": "99cae60f143806698aa7ba2122778b1b6fd71e1ca5000958f72af068a8f9133e",
+      "tests/runtime_abi/package_lifecycle.c": "c38f956a6ba675c911bd9112b9411fab8967ed67d03f8d392020f12499d808c8",
+      "tests/runtime_abi/package_lifecycle.rs": "f9031046855452ba209b217d7ffcce21e8b5d6d2dd5470155e15d96f211ccbc6",
+      "tests/runtime_abi/sdk_env_native_array.c": "81ffeac8fa9e075cb839d77acda636d865fd5f6cbe93efada04b698bef86d268",
+      "tests/runtime_abi/value_array_assign.c": "a2e7617457277f6cdd36ed8fd59a60006f7d3c117d2d611ccbbaf0ef79f6af2f",
+      "tests/runtime_abi/value_array_assign.rs": "e72764236659c7d65b2f6f16ce9b2131c3e7ed9398c86b615b0eb93da525bb52",
+      "tests/runtime_abi/value_array_mutation.c": "aced9ce2e5c0054181dc27c53fdbe7fce4318b8f666177d6f4977f782cc2daa6",
+      "tests/runtime_abi/value_array_mutation.rs": "e3bfe0490d076bb32cc682743519f5388ec1dab971cd95b14a69e70bd17cc334",
+      "src/runtime/sn_abi.c": "1da31b8d952d7c63116eefca33a5614e26e0c8dc69f2f6c26e566f3ff8d96b36",
+      "src/runtime/sn_abi.h": "7b034a1e1d001a4fe67981cc8bf7d605fe0c4da81f2d622f68ed6582a916b7aa",
+      "scripts/check_runtime_abi.py": "e0fe2354060957e396c8d33854bdf1749df79a78837860dafb38c326953a9534"
+    }
+  },
+  "sdk_artifacts": {
+    "modules": [
+      "io/bytes",
+      "io/textfile",
+      "io/binaryfile",
+      "io/path",
+      "io/directory",
+      "io/stdio",
+      "os/os",
+      "os/env",
+      "crypto/crypto"
+    ],
+    "units": 18,
+    "exports": 197,
+    "caller_cases": 288,
+    "passed": true,
+    "public_sources_preserved": true,
+    "prebuilt_backing_sources_removed": true,
+    "provenance_rerun": 32
+  },
+  "package_array_modes": {
+    "source_prebuilt_c_rust": 36,
+    "strict_address_undefined_leak": 36,
+    "passed": true
+  },
+  "length_comparison_modes": {
+    "c_rust": 18,
+    "single_evaluation": true,
+    "passed": true
+  },
+  "regressions": {
+    "c_suite": 3242,
+    "rust_suite": 1097,
+    "artifact_tests": 20,
+    "runtime_contract_tests": 15,
+    "ci_helper_tests": 22,
+    "package_import_tests": 48
+  },
+  "limitations": [
+    "RS/GO generic typed native providers and RS generic body exports require implementation",
+    "Remaining SDK modules and StdIO interactive caller not accepted by this check",
+    "Wider record/interface/generic contracts, dependency lifecycle graphs and final corpus/platform acceptance remain"
+  ],
+  "ci_inventory": {
+    "groups": 26,
+    "gates": 301
+  },
+  "implementation_sha256": {
+    "src/runtime/sn_abi.c": "1da31b8d952d7c63116eefca33a5614e26e0c8dc69f2f6c26e566f3ff8d96b36",
+    "src/runtime/sn_abi.h": "7b034a1e1d001a4fe67981cc8bf7d605fe0c4da81f2d622f68ed6582a916b7aa",
+    "scripts/build_sdk_package.py": "9968a4f5cd8cbdd1d4b3f21e41eb282ca575dc174e9d4ec06e166ef09eb7a5e8",
+    "scripts/check_sdk_artifact.py": "a4c18ddef3eed56eae7a0df43dccace251b44251fd5fe1618ac0708d760f9028",
+    "scripts/native_contract.py": "c2b3b264b033d79b6d67f771dcc8ce88280d826eb0087f5604eb03d55d7adb83",
+    "scripts/native_provider.py": "0d02f6db77080ad68deb21c9f18e205a13b7c986142bc95370a1322005038ed4",
+    "scripts/prepare_native_imports.py": "0ffa6e843ca1616faab78dde78ff24c12a81de6489116f16455cb259971d6a2a",
+    "scripts/sindarin_library.py": "5d1a3f81a2a3d1612070319d279bf37e2b87b92a6ba8cbd490a8e30c638ed077",
+    "tests/package/native_imports.py": "8d2f3e7713e2dde8fa501c34f5659e6f0139e73098bacf468310139b1bf527b1",
+    "src/target/rust/rust_lower.c": "e4a498cceb33b3a2274df0c1589df2c768315d17a5b4d47d42a1551123745bdc",
+    "templates/rust/partials/expr/binary.hbs": "a92bf40216f1c9c89337a42900ebec810cad76d98b79c9bed7f85582972249c8"
+  }
+}

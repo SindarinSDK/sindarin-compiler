@@ -74,6 +74,7 @@ extern "C" {
     fn sn_test_go_array_mutation() -> u32;
     fn sn_test_go_native_arrays() -> u32;
     fn sn_test_go_native_byte_arrays();
+    fn sn_test_go_typed_arrays();
 }
 
 static DESTROYED: AtomicUsize = AtomicUsize::new(0);
@@ -273,6 +274,7 @@ fn main() {
             assert_eq!(sn_test_go_array_mutation(), 0);
             assert_eq!(sn_test_go_native_arrays(), 0);
             sn_test_go_native_byte_arrays();
+            sn_test_go_typed_arrays();
         }
         println!("shared runtime ABI: pass");
     }

@@ -7,6 +7,41 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Typed canonical arrays and reusable SDK artifacts: local validation, 2026-10-11
+
+ABI 1.7 adds typed canonical scalar/string arrays with rank 1..32. Borrowing
+and owned transfer retain actual C headers, slots, aliases and native hooks;
+copying fills missing string/nested copy hooks with independent canonical storage.
+Original SDK Environment storage now has a durable lifetime control. C native
+providers and C Sindarin facade exports support these contracts for C/Rust apps.
+Rust/Go generic native providers and Rust generic body exports remain unsupported
+and explicitly diagnosed; the runtime clients alone do not establish those paths.
+
+The reusable SDK stager builds nine original public modules as 18 C/SN units,
+with 197 exports, preserving the actual C backing implementations and public
+Sindarin modules. The original Bytes, TextFile, BinaryFile, Path, Directory,
+Environment, OS and Crypto callers/oracles pass 288 combinations: C/Rust,
+source/sealed artifacts, O0/O1/O2, default/checked/unchecked. Sealed consumption
+removes backing C sources. Stdio is built but its interactive caller is outside
+this check. This remains a partial SDK migration, not whole-SDK acceptance.
+
+The original Path caller exposed invalid Rust length-cast syntax before `<`.
+The lowering now parenthesizes that operand; a regression verifies single
+function evaluation for string and array lengths across 18 C/Rust mode cases.
+Nested int32 array adapters pass 36 source/sealed C/Rust mode cases normally
+and under strict address/undefined/leak checking. Runtime ABI checks pass 15
+C/Rust/Go clients and seven instrumented C clients. Full C/Rust suites pass
+3,242/1,097 checks; existing artifact/contract/CI helper checks pass 20/15/22.
+The final complete package import suite passes all 48 tests.
+The CI inventory becomes 301 gates in 26 groups, including the SDK check on
+Linux/macOS/Windows. Hosted acceptance is pending publication of this batch.
+
+Whole SDK migration, wider record/interface/generic and provider contracts,
+dependency lifecycle graphs, final original-corpus mode/platform review and
+final integrated hosted acceptance remain required. See [ABI documentation](runtime-abi.md),
+[SDK staging](native-artifacts.md#staging-the-canonical-sdk) and the retained
+[typed-array validation](rust-parity-evidence/typed-native-array-validation.json).
+
 ## Windows path handling: required CI correction, 2026-10-11
 
 Compiler revision `fb1e8cc6` failed Windows core validation in
@@ -26,15 +61,19 @@ header names now remain absolute. A POSIX shadow header at the wrongly joined
 path reproduces this failure locally; the exact namespace controls retain
 their original outputs and pass after the repair, normally and under sanitizers.
 
-Feature publication remains frozen until complete corrected Linux/macOS/Windows
-CI accepts the integrated main. Both repairs will be published as one correction.
+Integrated correction `0d802850` passes all 34 jobs in
+[CI 38113328488](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38113328488).
+Coverage confirms 26 groups and 298 gates, using one compiler hash per platform.
+This accepts the path repairs, method qualifier repair, independent API imports
+and empty native namespaces together. Feature publication is open again.
 Complete local C/Rust suites pass 3,242/1,097 checks; package imports pass 46,
 runtime contracts 15 and CI helpers 22. Twelve ABI clients and five sanitized C
 ABI clients pass. Namespace path controls pass 27 normal and strict mode cases.
-Evidence: [combined correction validation](rust-parity-evidence/windows-path-correction-validation.json).
-The typed native-array ABI prototype is held separately in task stash
-`e321f77de55d91427c3a9969f07784bad7ebbce3`; its 14 runtime clients and six C
-sanitizer clients passed locally, but it is unpublished and not hosted-accepted.
+Evidence: [combined correction validation](rust-parity-evidence/windows-path-correction-validation.json)
+and [hosted acceptance](rust-parity-evidence/windows-path-correction-ci-green.json).
+The typed-array prototype from stash `e321f77` has been applied locally and
+extended; its current feature batch is described above and remains separate
+from this correction's hosted acceptance.
 Complete SDK, wider ABI/package contracts and final corpus acceptance remain
 required.
 

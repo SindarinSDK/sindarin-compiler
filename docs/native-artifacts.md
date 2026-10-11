@@ -295,3 +295,35 @@ Native-context fields and C `sizeof` remain supported; source declarations and
 the language's native-context rules are preserved. This permits the unchanged
 SDK Bytes facade to link to its original C decoder. Whole-SDK assembly packaging
 and wider value/interface/generic contracts remain unfinished.
+
+## Staging the canonical SDK
+
+`scripts/build_sdk_package.py` stages the accepted legacy SDK into a fresh
+package directory, retaining original manifest dependencies, public `.sn` files
+and C implementations. Generated C forwarders preserve original function names;
+C Sindarin facade units export unchanged static/instance bodies. It currently
+supports io/bytes, io/textfile, io/binaryfile, io/path, io/directory, io/stdio,
+os/os, os/env and crypto/crypto: 18 independent C/SN units and 197 exports.
+TextFile/BinaryFile use their canonical C record storage. ABI 1.7 supplies the
+nested Environment contract. Third-party headers and original link requirements
+remain build inputs; OpenSSL continues to use the existing toolchain setup.
+
+```sh
+python3 scripts/build_sdk_package.py --compiler "$PWD/bin/sn" \
+  --sdk .sn/sdk-native-integration --output /tmp/sindarin-sdk-package --build
+python3 scripts/check_sdk_artifact.py
+```
+
+The stager requires a fresh output outside the SDK checkout. `--modules` selects
+implemented modules; it validates every selected public method instead of
+silently dropping unsupported signatures. Use the generated manifest with
+`--build-native` / `--build-package`; seal `assembly.json` with its hash using
+normal artifact metadata. The durable checker exercises eight original SDK
+callers/oracles against C/Rust in all nine modes, source and sealed builds after
+C source removal. Public SDK files are checked byte-for-byte. Stdio is built,
+while its interactive fixture is not part of this check. `--quick` selects O0
+and default arithmetic for focused validation.
+
+Remaining SDK modules, broader record/interface/generic contracts, Rust/Go typed
+provider generation and dependency initialization graphs remain required. This
+stager is a reusable partial migration and does not establish whole-SDK acceptance.

@@ -1,0 +1,19 @@
+........
+----------------------------------------------------------------------
+Ran 8 tests in 0.067s
+
+OK
+Packaged 1 files from old: bundle.tar.gz
+Packaged 2 files from revision: bundle.tar.gz
+Verified 2 build files and compiler 51ccaf15e8ee4db1770b938142f7e19c1b35e44616fae5bd385f3746608dec06
+{
+  "revision": "revision",
+  "groups": 26,
+  "gates": 301,
+  "compilers": {
+    "Linux": "Linux",
+    "Darwin": "Darwin",
+    "Windows": "Windows"
+  },
+  "passed": true
+}

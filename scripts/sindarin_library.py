@@ -15,6 +15,9 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
         raise ValueError('Sindarin package bodies select GO; the Sindarin Go backend is not implemented')
     if runtime not in ('C','RS'):
         raise ValueError('Sindarin implementation runtime must resolve to C or RS')
+    if runtime == 'RS' and any(kind(t)=='native_array' for s in signatures for t in
+        [s['return_type']]+[p['type'] for p in s['params']]):
+        raise ValueError('RS typed array body exports require recursive canonical input/result guards')
     if not signatures:
         raise ValueError('Sindarin implementation exports require resolved generated function bindings')
     target = 'c' if runtime=='C' else 'rust'
@@ -78,7 +81,7 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
                 p.get('sync_mod','none')!='none' for p,q in zip(parameters,signature['params']))):
             raise ValueError('Sindarin implementation type/ownership differs from its public declaration: '+name)
         if any(kind(p['type']) in ('string_array','byte_array') for p in parameters):
-            if signature.get('abi') not in ('1.5','1.6'):
+            if signature.get('abi') not in ('1.5','1.6','1.7'):
                 raise ValueError('Sindarin library array inputs require generated mutable/borrowed-body contracts in native ABI 1.5')
         selected.append(function)
     emitted = work/(stem+('.c' if runtime=='C' else '.rs'))

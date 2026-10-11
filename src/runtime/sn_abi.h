@@ -17,6 +17,7 @@ extern "C" {
 #define SN_ABI_V1_4_VERSION UINT32_C(0x00010004)
 #define SN_ABI_V1_5_VERSION UINT32_C(0x00010005)
 #define SN_ABI_V1_6_VERSION UINT32_C(0x00010006)
+#define SN_ABI_V1_7_VERSION UINT32_C(0x00010007)
 #define SN_ABI_CAP_VALUES UINT64_C(1)
 #define SN_ABI_CAP_POD_ARRAYS UINT64_C(2)
 #define SN_ABI_CAP_RESOURCES UINT64_C(4)
@@ -27,6 +28,7 @@ extern "C" {
 #define SN_ABI_CAP_ARRAY_MUTATION UINT64_C(128)
 #define SN_ABI_CAP_NATIVE_STRING_ARRAYS UINT64_C(256)
 #define SN_ABI_CAP_NATIVE_BYTE_ARRAYS UINT64_C(512)
+#define SN_ABI_CAP_NATIVE_ARRAYS UINT64_C(1024)
 
 typedef uint32_t SnAbiStatus;
 #define SN_ABI_OK UINT32_C(0)
@@ -168,6 +170,35 @@ SnAbiStatus sn_abi_v1_native_byte_array_copy_bytes(const uint8_t *data, uint64_t
  * preserve both outputs. The caller serializes this ownership transfer with all
  * access/credit acquisition; other threads require their own live credits. */
 SnAbiStatus sn_abi_v1_native_byte_array_take(SnAbiValue **value, struct SnArray **out);
+
+/* ABI 1.7 typed canonical arrays. A rank counts array layers (1..32); a leaf
+ * kind defines the scalar/string slot representation. Tags and widths are
+ * checked recursively, including non-nil children. Nil children are permitted.
+ * Borrow/adopt/data/take keep the actual header, slots and native hooks. Borrowed
+ * owners must outlive their views and accesses are caller-serialized. A data
+ * pointer/child slot is borrowed until mutation or owner release; reload it.
+ * Copies honor custom copy/release hooks. Missing string/nested copy hooks use
+ * canonical deep copies and install corresponding defaults on the new headers.
+ * Existing custom cleanup hooks remain in place. Copy hooks must preserve the
+ * source's storage during the copy; they may consume caller wire credits.
+ * Adoption/unique owned transfer and output preservation follow ABI 1.6. */
+#define SN_ABI_ARRAY_INT64 UINT32_C(1)
+#define SN_ABI_ARRAY_INT32 UINT32_C(2)
+#define SN_ABI_ARRAY_UINT64 UINT32_C(3)
+#define SN_ABI_ARRAY_UINT32 UINT32_C(4)
+#define SN_ABI_ARRAY_BYTE UINT32_C(5)
+#define SN_ABI_ARRAY_BOOL UINT32_C(6)
+#define SN_ABI_ARRAY_FLOAT32 UINT32_C(7)
+#define SN_ABI_ARRAY_FLOAT64 UINT32_C(8)
+#define SN_ABI_ARRAY_CHAR UINT32_C(9)
+#define SN_ABI_ARRAY_STRING UINT32_C(10)
+typedef struct { uint32_t leaf_kind; uint32_t rank; } SnAbiNativeArrayType;
+SnAbiStatus sn_abi_v1_native_array_borrow(struct SnArray *array, SnAbiNativeArrayType type, SnAbiValue **out);
+SnAbiStatus sn_abi_v1_native_array_adopt(struct SnArray *array, SnAbiNativeArrayType type, SnAbiValue **out);
+SnAbiStatus sn_abi_v1_native_array_data(const SnAbiValue *value, SnAbiNativeArrayType type, struct SnArray **out);
+SnAbiStatus sn_abi_v1_native_array_type(const SnAbiValue *value, SnAbiNativeArrayType *out);
+SnAbiStatus sn_abi_v1_native_array_copy(const SnAbiValue *value, SnAbiValue **out);
+SnAbiStatus sn_abi_v1_native_array_take(SnAbiValue **value, SnAbiNativeArrayType type, struct SnArray **out);
 
 /* Resource adoption transfers cleanup responsibility only on success. Adapters
  * keep resource layouts private or expose documented fields through accessors. */

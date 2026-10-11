@@ -25,10 +25,16 @@ facade links to its original C decoder as independent archives. BinaryFile's
 unchanged facade now also consumes canonical C record storage and file operations,
 including live readInto buffer mutation and owned byte results surviving file
 cleanup. Its independent module and compiler adapters have complete hosted
-acceptance. Empty native static namespaces now support C-backed SDK method
-consumption locally, including the original Crypto/OS callers. Broader
-Crypto/network artifacts and complete SDK packaging still require
-migration.
+acceptance. Empty native static namespaces now have hosted acceptance for
+C-backed SDK method consumption, including the original Crypto/OS callers.
+ABI 1.7 locally adds typed scalar/string arrays through rank 32, with canonical
+C header identity and safe copies when native copy hooks are absent. C native
+and C Sindarin provider units support these arrays for C/Rust applications;
+Rust/Go generic provider and Rust generic body contracts remain required.
+A reusable stager builds nine unchanged SDK modules as 18 C/SN artifacts.
+Eight original SDK callers pass 288 source/sealed C/Rust mode cases locally,
+after C source removal for sealed consumption. Whole SDK packaging, remaining
+record contracts and wider network artifacts still require migration.
 Package dependency lifecycle graphs, wider
 managed-body exports and complete record/interface contracts remain pending.
 Scalar/string native imports and provider exports have generated

@@ -27,3 +27,9 @@ SnAbiStatus sn_test_go_native_bytes_reenter(SnAbiValue *value, uintptr_t context
 {
     return sn_test_native_bytes_reenter(value, sn_test_go_native_bytes_observe, context);
 }
+#include "native_array_bridge.h"
+extern SnAbiStatus sn_test_go_typed_array_observe(SnAbiValue *, uintptr_t);
+SnAbiStatus sn_test_go_typed_array_reenter(SnAbiValue *value, uintptr_t context)
+{
+    return sn_test_typed_array_reenter(value, sn_test_go_typed_array_observe, context);
+}

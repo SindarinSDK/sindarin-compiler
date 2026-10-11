@@ -117,8 +117,8 @@ static bool validate_native_plan(json_object *plan, const char *path)
     static const char *const ownership_fields[] = {"parameters", "result", "borrowed_from", NULL};
     if (!native_fields(plan, root_fields, path)) return false;
     const char *abi = native_text(plan, "abi");
-    if (!abi || (strcmp(abi, "1.0") != 0 && strcmp(abi, "1.1") != 0 && strcmp(abi, "1.5") != 0 && strcmp(abi, "1.6") != 0))
-        return yaml_config_error(path, "native abi must be 1.0, 1.1, 1.5 or 1.6");
+    if (!abi || (strcmp(abi, "1.0") != 0 && strcmp(abi, "1.1") != 0 && strcmp(abi, "1.5") != 0 && strcmp(abi, "1.6") != 0 && strcmp(abi, "1.7") != 0))
+        return yaml_config_error(path, "native abi must be 1.0, 1.1, 1.5, 1.6 or 1.7");
     json_object *assembly = NULL;
     if (json_object_object_get_ex(plan, "assembly", &assembly)) {
         static const char *const fields[] = {"path", "sha256", NULL};
@@ -136,7 +136,7 @@ static bool validate_native_plan(json_object *plan, const char *path)
     if (json_object_object_get_ex(plan, "types", &records)) {
         static const char *const fields[] = {"declaration", "identity", "c_type", "header",
                                              "create", "retain", "release", "refs", "owner", NULL};
-        if ((strcmp(abi, "1.5") && strcmp(abi, "1.6")) || !json_object_is_type(records, json_type_array) || !json_object_array_length(records))
+        if ((strcmp(abi, "1.5") && strcmp(abi, "1.6") && strcmp(abi, "1.7")) || !json_object_is_type(records, json_type_array) || !json_object_array_length(records))
             return yaml_config_error(path, "native record types require ABI 1.5 or 1.6 and a nonempty sequence");
         for (size_t i = 0; i < json_object_array_length(records); i++) {
             json_object *record = json_object_array_get_idx(records, i);

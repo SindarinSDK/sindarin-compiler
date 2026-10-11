@@ -175,6 +175,15 @@ static void rust_lower_numeric_promotions(json_object *node)
     const char *left_kind = json_string_property(left_type, "kind");
     const char *right_kind = json_string_property(right_type, "kind");
     const char *mode = json_string_property(node, "arithmetic_mode");
+    if (!strcmp(op, "lt") && (json_string_property_equals(left, "kind", "builtin_length") ||
+        (json_string_property_equals(left, "kind", "member") &&
+         json_string_property_equals(left, "member_name", "length")))) {
+        json_object *object = json_object_object_get(left, "object");
+        json_object *object_type = object ? json_object_object_get(object, "type") : NULL;
+        if (json_string_property_equals(object_type, "kind", "string") ||
+            json_string_property_equals(object_type, "kind", "array"))
+            json_object_object_add(node, "rust_parenthesized_left", json_object_new_boolean(true));
+    }
     bool checked = mode && strcmp(mode, "checked") == 0;
     if (rust_fixed_integral_kind(left_kind) && rust_fixed_integral_kind(right_kind) &&
         strcmp(left_kind, right_kind) != 0)
