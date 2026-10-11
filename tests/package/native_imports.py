@@ -34,6 +34,262 @@ class NativeImports(unittest.TestCase):
         if function: manifest += f'      function: {function}\n'
         self.write(f'.sn/{name}/sn.yaml',manifest)
 
+    def test_package_owned_records_preserve_storage_fields_aliases_and_cleanup(self):
+        self.write('.sn/records/src/api.sn',
+                   '@alias "LegacyRecord"\nnative struct Record as ref =>\n'
+                   '  @alias "number"\n  amount: int32\n'
+                   '  @alias "text"\n  label: str\n'
+                   '  @alias "record_amount"\n  native fn getAmount(): int32\n'
+                   'native fn make(value: int32): Record\n'
+                   'native fn borrow(a: Record, b: Record): Record\n'
+                   'native fn inspect(a: Record, b: Record): int\n'
+                   'native fn checked(a: Record, b: Record, flag: bool, mode: int, text: str): Record\n'
+                   'native fn destroyed(): int\n'
+                   'native fn created(): int\n')
+        self.write('.sn/records/src/record.h',
+                   '#ifndef TEST_RECORD_H\n#define TEST_RECORD_H\n#include <stdint.h>\n'
+                   '#include "record_fields.h"\n'
+                   'CanonicalRecord *record_create(void);\n'
+                   'CanonicalRecord *record_retain(CanonicalRecord *value);\n'
+                   'void record_release(CanonicalRecord *value);\n'
+                   'int record_refs(CanonicalRecord *value);\n'
+                   'int32_t record_amount(CanonicalRecord *value);\n#endif\n')
+        public=self.root/'.sn/records/src/record.h'
+        public.write_text(public.read_text().replace('#endif\n',
+            'void record_set_callback(void (*callback)(CanonicalRecord *));\n'
+            'long long record_checked_calls(void);\n#endif\n'))
+        self.write('.sn/records/src/record_fields.h',
+                   'typedef struct { int __rc__; int32_t number; char *text; } CanonicalRecord;\n')
+        self.write('.sn/records/src/record.c',
+                   '#include "record.h"\n#include <stdlib.h>\n#include <string.h>\n'
+                   '#include "sn_abi.h"\n#include <stdbool.h>\n'
+                   'static int born, dead, calls; static void (*visit)(CanonicalRecord *);\n'
+                   'void record_set_callback(void (*callback)(CanonicalRecord *)) { visit=callback; }\n'
+                   'long long record_checked_calls(void) { return calls; }\n'
+                   'CanonicalRecord *record_create(void) { CanonicalRecord *p=calloc(1,sizeof(*p)); '
+                   'if(!p) abort(); p->__rc__=1; born++; return p; }\n'
+                   'CanonicalRecord *record_retain(CanonicalRecord *p) { if(p) __atomic_add_fetch(&p->__rc__,1,__ATOMIC_RELAXED); return p; }\n'
+                   'void record_release(CanonicalRecord *p) { if(p && __atomic_sub_fetch(&p->__rc__,1,__ATOMIC_ACQ_REL)==0) { dead++; free(p->text); free(p); } }\n'
+                   'int record_refs(CanonicalRecord *p) { return p ? __atomic_load_n(&p->__rc__,__ATOMIC_RELAXED) : 0; }\n'
+                   'int32_t record_amount(CanonicalRecord *p) { return p ? p->number : -1; }\n'
+                   'CanonicalRecord *make_record(int32_t value) { if(value<0) return NULL; CanonicalRecord *p=record_create(); '
+                   'p->number=value; p->text=strdup("original C"); return p; }\n'
+                   'CanonicalRecord *borrow_record(CanonicalRecord *a, CanonicalRecord *b) { if(a!=b) abort(); return a; }\n'
+                   'long long inspect_record(CanonicalRecord *a, CanonicalRecord *b) { return a==b && a && a->number==9 && !strcmp(a->text,"changed"); }\n'
+                   'long long destroyed_records(void) { return dead; }\n'
+                   'long long created_records(void) { return born; }\n')
+        backing=self.root/'.sn/records/src/record.c'
+        backing.write_text(backing.read_text()+
+            'uint32_t checked_record(CanonicalRecord *a, CanonicalRecord *b, bool flag, long long mode, char *text, CanonicalRecord **out) { '
+            'calls++; if(mode) return SN_ABI_OUT_OF_RANGE; if(!flag) return SN_ABI_INVALID_ARGUMENT; '
+            'if(a!=b || !text || strcmp(text,"credit text")) abort(); if(visit) visit(a); '
+            'if(strcmp(text,"credit text")) abort(); *out=a; return SN_ABI_OK; }\n')
+        manifest=('name: records\nruntime: C\nnative:\n  abi: 1.5\n  declarations: [src/api.sn]\n'
+                  '  types:\n    - declaration: src/api.sn::Record\n      identity: records/Record@1\n'
+                  '      c_type: CanonicalRecord\n      header: src/record.h\n      create: record_create\n'
+                  '      retain: record_retain\n      release: record_release\n      refs: record_refs\n      owner: atomic\n'
+                  '  builds:\n    - name: backing\n      language: C\n      sources: [src/record.c]\n      include_dirs: [src]\n'
+                  '  bindings:\n')
+        for name,function,ownership,result in (
+                ('make','make_record','value: value','owned'),
+                ('borrow','borrow_record','a: borrowed, b: borrowed','borrowed'),
+                ('inspect','inspect_record','a: borrowed, b: borrowed','value'),
+                ('destroyed','destroyed_records','','value'),
+                ('created','created_records','','value')):
+            manifest+=(f'    - declaration: src/api.sn::{name}\n      function: {function}\n'
+                       f'      symbol: native_records_{name}\n      build: backing\n      convention: C\n      failure: abort\n'
+                       f'      ownership: {{parameters: {{{ownership}}}, result: {result}'+(', borrowed_from: a' if result=='borrowed' else '')+'}\n')
+        self.write('.sn/records/sn.yaml',manifest)
+        manifest+=('    - declaration: src/api.sn::checked\n      function: checked_record\n'
+                   '      symbol: native_records_checked\n      build: backing\n      convention: C\n      failure: status\n'
+                   '      ownership: {parameters: {a: borrowed, b: borrowed, flag: value, mode: value, text: borrowed}, result: borrowed, borrowed_from: a}\n')
+        self.write('.sn/records/sn.yaml',manifest)
+        self.write('main.sn','import "records/src/api"\nnative fn createLocal(): Record =>\n'
+                   '  return Record {amount: 3, label: "local"}\nfn exercise(): void =>\n'
+                   '  var first: Record = make(7)\n  var alias: Record = first\n'
+                   '  alias.amount = 9\n  alias.label = "changed"\n  println(first.amount)\n  println(first.label)\n'
+                   '  println(first.getAmount())\n  println(inspect(first, alias))\n'
+                   '  var borrowed: Record = borrow(first, alias)\n  println(inspect(borrowed, first))\n'
+                   '  println(make(-1) == nil)\n  println(borrow(nil, nil) == nil)\n'
+                   '  var local: Record = createLocal()\n  println(local.getAmount())\n'
+                   'fn main(): void =>\n  exercise()\n  println(created())\n  println(destroyed())\n')
+        expected=b'9\nchanged\n9\n1\n1\ntrue\ntrue\n3\n2\n2\n'
+        import hashlib,json
+        original_root=self.root
+        package=self.root/'.sn/records'
+        for optimization in ('-O0','-O1','-O2'):
+            for arithmetic in (None,'--checked','--unchecked'):
+                flags=(optimization,)+((arithmetic,) if arithmetic else ())
+                for target in ('c','rust'):
+                    with self.subTest(target=target,flags=flags,archive='source'):
+                        self.execute(target,expected,flags)
+                built=subprocess.run([str(COMPILER),'--build-native',str(package/'sn.yaml'),
+                                      '--target','rust',*flags,'-o',str(self.root/'artifacts')],
+                                     cwd=self.root,capture_output=True,timeout=180)
+                self.assertEqual(built.returncode,0,built.stderr.decode(errors='replace'))
+                assembly=Path(json.loads(built.stdout)['assembly'])
+                metadata=json.loads(assembly.read_text())
+                self.assertEqual({item['path'] for item in metadata['record_headers']},
+                                 {'src/record.h','src/record_fields.h'})
+                relocated=self.root/'relocated consumer'
+                if relocated.exists():shutil.rmtree(relocated)
+                copied=relocated/'.sn/records'
+                shutil.copytree(package,copied)
+                shutil.copytree(assembly.parent,copied/'.sn/sealed')
+                (copied/'src/record.c').unlink()
+                (copied/'sn.yaml').write_text(manifest.replace('  abi: 1.5\n',
+                    '  abi: 1.5\n  assembly:\n    path: .sn/sealed/assembly.json\n    sha256: '+hashlib.sha256(assembly.read_bytes()).hexdigest()+'\n'))
+                shutil.copyfile(self.root/'main.sn',relocated/'main.sn')
+                self.root=relocated
+                try:
+                    for target in ('c','rust'):
+                        with self.subTest(target=target,flags=flags,archive='relocated prebuilt'):
+                            self.execute(target,expected,flags)
+                finally:self.root=original_root
+        import re
+        caller=(self.root/'main.sn').read_text().replace('import "records/src/api"',
+            'import "records/src/api"\nimport "records/src/api" as Records')
+        caller=re.sub(r'\b(make|borrow|inspect|created|destroyed)\(',r'Records.\1(',caller)
+        for location in (original_root,relocated):
+            (location/'main.sn').write_text(caller)
+            self.root=location
+            try:
+                for target in ('c','rust'):
+                    with self.subTest(target=target,archive='namespaced '+location.name):
+                        self.execute(target,expected)
+            finally:self.root=original_root
+        # Direct wire clients exercise credit loss during reentry, tag/argument
+        # validation and output preservation independently of generated callers.
+        self.write('record-client.c',
+            '#include <assert.h>\n#include <stdbool.h>\n#include <stddef.h>\n#include "sn_abi.h"\n#include "record.h"\n'
+            'extern SnAbiValue *native_records_make(int32_t);\n'
+            'extern SnAbiStatus native_records_checked(SnAbiValue *,SnAbiValue *,uint8_t,int64_t,SnAbiValue *,SnAbiValue **);\n'
+            'extern int64_t native_records_destroyed(void);\n'
+            'static SnAbiValue *owner,*text; static int visited;\n'
+            'static void consume(CanonicalRecord *p) { assert(p && p->number==9 && record_refs(p)==1); '
+            'sn_abi_v1_release(owner); owner=NULL; sn_abi_v1_release(text); text=NULL; visited++; assert(p->number==9); }\n'
+            'int main(void) { owner=native_records_make(9); assert(owner); assert(sn_abi_v1_string_copy("credit text",&text)==SN_ABI_OK); void *p=NULL; '
+            'assert(sn_abi_v1_resource_data_typed(owner,"records/Record@1",&p)==SN_ABI_OK); '
+            'SnAbiValue *out=(SnAbiValue *)(uintptr_t)1,*wrong=NULL; '
+            'assert(sn_abi_v1_resource_new_typed("other/Record@1",p,NULL,0,&wrong)==SN_ABI_OK); '
+            'assert(native_records_checked(wrong,owner,1,0,text,&out)==SN_ABI_WRONG_KIND && out==(SnAbiValue *)(uintptr_t)1); '
+            'sn_abi_v1_release(wrong); '
+            'assert(native_records_checked(owner,owner,2,0,text,&out)==SN_ABI_INVALID_ARGUMENT && out==(SnAbiValue *)(uintptr_t)1); '
+            'assert(record_checked_calls()==0 && record_refs(p)==1); '
+            'assert(native_records_checked(owner,owner,1,1,text,&out)==SN_ABI_OUT_OF_RANGE && out==(SnAbiValue *)(uintptr_t)1); '
+            'assert(record_checked_calls()==1 && native_records_destroyed()==0); '
+            'record_set_callback(consume); assert(native_records_checked(owner,owner,1,0,text,&out)==SN_ABI_OK); '
+            'assert(!owner && visited==1 && out); void *result=NULL; '
+            'assert(sn_abi_v1_resource_data_typed(out,"records/Record@1",&result)==SN_ABI_OK && result==p && record_refs(result)==1); '
+            'assert(native_records_destroyed()==0); sn_abi_v1_release(out); assert(native_records_destroyed()==1); }\n')
+        import shlex
+        cc=shlex.split(os.environ.get('SN_CC','clang' if os.name=='nt' or os.sys.platform=='darwin' else 'gcc'))
+        runtime=COMPILER.parent/'lib'/('clang' if os.name=='nt' else 'gcc')/'libsn_runtime_min.a'
+        client=self.root/'record-client.exe'
+        compiled=subprocess.run(cc+['-std=c11','-UNDEBUG']+shlex.split(os.environ.get('SN_CFLAGS',''))+
+            ['-I',str(COMPILER.parent/'include/runtime'),'-I',str(package/'src'),str(self.root/'record-client.c')]+
+            [str(assembly.parent/unit['archive']) for unit in metadata['units']]+[str(runtime),'-o',str(client)],
+            cwd=self.root,capture_output=True,timeout=90)
+        self.assertEqual(compiled.returncode,0,compiled.stderr.decode(errors='replace'))
+        checked=subprocess.run([str(client)],capture_output=True,timeout=15)
+        self.assertEqual(checked.returncode,0,checked.stderr.decode(errors='replace'))
+        self.assertEqual(checked.stdout,b'');self.assertEqual(checked.stderr,b'')
+        # Public transitive layout headers are sealed even after backing removal.
+        (copied/'src/record_fields.h').write_text('typedef struct { int __rc__; float number; char *text; } CanonicalRecord;\n')
+        for target in ('c','rust'):
+            rejected=subprocess.run([str(COMPILER),'main.sn','--no-install','--target',target,
+                                     '--emit-source','-o',str(relocated/'rejected.source')],
+                                    cwd=relocated,capture_output=True,timeout=30)
+            self.assertNotEqual(rejected.returncode,0)
+            self.assertIn('public record header bytes differ',rejected.stderr.decode(errors='replace'))
+            self.assertFalse((relocated/'rejected.source').exists())
+
+    def test_generated_record_adapters_consume_canonical_sdk_textfile_archive(self):
+        import hashlib,json
+        sdk=ROOT/'.sn/sdk-native-integration'
+        self.assertTrue((sdk/'src/io/textfile.native.c').is_file(),'pinned SDK integration checkout is required')
+        package=self.root/'.sn/sdkrecord'
+        shutil.copytree(sdk/'src/io',package/'src/io')
+        original=(sdk/'src/io/textfile.sn').read_text()
+        start=original.index('@alias "RtTextFile"')
+        end=original.index('  # ===',start)
+        fields=original[start:end]
+        self.write('.sn/sdkrecord/src/api.sn',fields+
+            '  @alias "sn_text_file_is_eof"\n  native fn isEof(): bool\n'
+            '  @alias "sn_text_file_dispose"\n  native fn dispose(): void\n'
+            'native fn sdkOpen(path: str): TextFile\n'
+            'native fn sdkLine(file: TextFile): str\n'
+            'native fn sdkLines(file: TextFile): str[]\n'
+            'native fn sdkFinals(): int\nnative fn sdkCloses(): int\n')
+        self.write('.sn/sdkrecord/src/record_contract.h',
+            '#ifndef SDK_RECORD_CONTRACT_H\n#define SDK_RECORD_CONTRACT_H\n'
+            '#define SN_SDK_TEXTFILE_STANDALONE 1\n#include "sn_minimal.h"\n#include "io/textfile.native.h"\n'
+            'SnSdkTextFileRecord *bridge_sdk_create(void);\n'
+            'void bridge_sdk_release(SnSdkTextFileRecord *file);\n'
+            'int bridge_sdk_refs(SnSdkTextFileRecord *file);\n#endif\n')
+        self.write('.sn/sdkrecord/src/bridge.c',
+            '#include <stdio.h>\nstatic int closes;\n'
+            'static int tracked_close(FILE *file) { closes++; return fclose(file); }\n'
+            '#define fclose tracked_close\n#include "io/textfile.native.c"\n#undef fclose\nstatic int finalized;\n'
+            'SnSdkTextFileRecord *bridge_sdk_create(void) { return sn_sdk_text_file_new(); }\n'
+            'int bridge_sdk_refs(SnSdkTextFileRecord *file) { return file ? __atomic_load_n(&file->__rc__,__ATOMIC_RELAXED) : 0; }\n'
+            'void bridge_sdk_release(SnSdkTextFileRecord *file) { if(file && bridge_sdk_refs(file)==1) finalized++; sn_sdk_text_file_release(file); }\n'
+            'SnSdkTextFileRecord *bridge_open(char *path) { return sn_text_file_open(path); }\n'
+            'char *bridge_line(SnSdkTextFileRecord *file) { return sn_text_file_read_line(file); }\n'
+            'SnArray *bridge_lines(SnSdkTextFileRecord *file) { return sn_text_file_read_lines(file); }\n'
+            'long long bridge_finals(void) { return finalized; }\n'
+            'long long bridge_closes(void) { return closes; }\n')
+        manifest=('name: sdkrecord\nruntime: C\nnative:\n  abi: 1.5\n  declarations: [src/api.sn]\n'
+            '  types:\n    - declaration: src/api.sn::TextFile\n'
+            '      identity: SindarinSDK/sindarin-pkg-sdk:io.TextFile@1\n'
+            '      c_type: SnSdkTextFileRecord\n      header: src/record_contract.h\n'
+            '      create: bridge_sdk_create\n      retain: sn_sdk_text_file_retain\n'
+            '      release: bridge_sdk_release\n      refs: bridge_sdk_refs\n      owner: atomic\n'
+            '  builds:\n    - name: sdk\n      language: C\n      sources: [src/bridge.c]\n      include_dirs: [src]\n'
+            '  bindings:\n')
+        for name,function,parameters,result in (
+                ('sdkOpen','bridge_open','path: borrowed','owned'),
+                ('sdkLine','bridge_line','file: borrowed','owned'),
+                ('sdkLines','bridge_lines','file: borrowed','owned'),
+                ('sdkFinals','bridge_finals','','value'),
+                ('sdkCloses','bridge_closes','','value')):
+            manifest+=(f'    - declaration: src/api.sn::{name}\n      function: {function}\n'
+                f'      symbol: native_sdk_record_{name}\n      build: sdk\n      convention: C\n      failure: abort\n'
+                f'      ownership: {{parameters: {{{parameters}}}, result: {result}}}\n')
+        self.write('.sn/sdkrecord/sn.yaml',manifest)
+        self.write('data.txt','alpha\nbeta\ngamma\n')
+        self.write('main.sn','import "sdkrecord/src/api"\nfn exercise(): void =>\n'
+            '  var file: TextFile = sdkOpen("data.txt")\n  var alias: TextFile = file\n'
+            '  println(file._path)\n  alias._path = "changed path"\n  println(file._path)\n'
+            '  println(file._is_open)\n  println(sdkLine(alias))\n  var lines: str[] = sdkLines(file)\n'
+            '  println(lines.length)\n  println(lines[0])\n  println(lines[1])\n  println(alias.isEof())\n'
+            '  file.dispose()\n  println(alias._is_open)\n  println(lines[1])\n'
+            'fn savedLines(): str[] =>\n  var file: TextFile = sdkOpen("data.txt")\n'
+            '  var alias: TextFile = file\n  return sdkLines(alias)\n'
+            'fn main(): void =>\n  exercise()\n  var held: str[] = savedLines()\n'
+            '  println(held[0])\n  println(held[2])\n  println(sdkFinals())\n  println(sdkCloses())\n')
+        expected=b'data.txt\nchanged path\n1\nalpha\n2\nbeta\ngamma\ntrue\n0\ngamma\nalpha\ngamma\n2\n2\n'
+        modes=[(optimization,)+((arithmetic,) if arithmetic else ())
+               for optimization in ('-O0','-O1','-O2') for arithmetic in (None,'--checked','--unchecked')]
+        for flags in modes:
+            for target in ('c','rust'):
+                with self.subTest(target=target,flags=flags,archive='source'):self.execute(target,expected,flags)
+        built=subprocess.run([str(COMPILER),'--build-native',str(package/'sn.yaml'),'--target','rust',
+                              '-o',str(self.root/'artifacts')],cwd=self.root,capture_output=True,timeout=180)
+        self.assertEqual(built.returncode,0,built.stderr.decode(errors='replace'))
+        assembly=Path(json.loads(built.stdout)['assembly'])
+        shutil.copytree(assembly.parent,package/'.sn/sealed')
+        (package/'sn.yaml').write_text(manifest.replace('  abi: 1.5\n',
+            '  abi: 1.5\n  assembly:\n    path: .sn/sealed/assembly.json\n    sha256: '+hashlib.sha256(assembly.read_bytes()).hexdigest()+'\n'))
+        (package/'src/bridge.c').unlink()
+        # Only canonical public headers remain; consuming the archive cannot
+        # compile the SDK implementation or its original Sindarin facade again.
+        for pattern in ('*.c','*.sn'):
+            for file in (package/'src/io').glob(pattern):file.unlink()
+        for flags in modes:
+            for target in ('c','rust'):
+                with self.subTest(target=target,flags=flags,archive='prebuilt'):self.execute(target,expected,flags)
+
     def test_independent_sindarin_function_libraries_select_package_runtime(self):
         import hashlib,json
         for runtime in ('C','RS',None):

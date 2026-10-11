@@ -20,7 +20,12 @@ remain pending.
 Package dependency lifecycle graphs, wider
 managed-body exports and complete record/interface contracts remain pending.
 Scalar/string native imports and provider exports have generated
-adapters; this does not complete SDK/package artifact migration.
+adapters; this does not complete SDK/package artifact migration. C-backed native
+as-ref record contracts now delegate storage and lifecycle to public package C
+functions, with generated typed-resource adapters and sealed public layout
+headers. Canonical SDK TextFile storage is consumed from an independent archive
+through a declaration adapter. The full unchanged SDK facade and wider
+record/interface/body contracts still require migration and verification.
 
 ## Decision
 

@@ -204,7 +204,8 @@ static bool native_prepare_handle_atomic_owners(json_object *private_model,
         json_object *structure = native_record_struct(private_model, native_string(handle, "name"));
         if (!structure || !native_bool(structure, "is_native") ||
             !native_bool(structure, "pass_self_by_ref")) return false;
-        json_object_object_add(structure, "rust_native_handle_atomic_refs", json_object_new_boolean(true));
+        if (!native_record_child(structure, "native_record"))
+            json_object_object_add(structure, "rust_native_handle_atomic_refs", json_object_new_boolean(true));
         json_object_object_add(handle, "rust_native_handle_send", json_object_new_boolean(true));
     }
     return true;

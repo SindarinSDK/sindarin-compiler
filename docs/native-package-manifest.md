@@ -24,6 +24,56 @@ selecting the separately compiled implementation function. See
 
 ## Schema
 
+ABI 1.5 additionally supports `native.types` contracts for package-owned,
+unpacked `native struct ... as ref` records backed by C. Public declarations
+retain their fields and aliases. An example storage contract is:
+
+```yaml
+native:
+  abi: '1.5'
+  declarations: [src/api.sn]
+  types:
+    - declaration: src/api.sn::Connection
+      identity: example/Connection@1
+      c_type: ExampleConnection
+      header: include/connection.h
+      create: example_connection_create
+      retain: example_connection_retain
+      release: example_connection_release
+      refs: example_connection_refs
+      owner: atomic
+  # builds and bindings remain required
+```
+
+The C header must declare `ExampleConnection *create(void)`,
+`ExampleConnection *retain(ExampleConnection *)`,
+`void release(ExampleConnection *)`, and `int refs(ExampleConnection *)` under
+the specified function names. Creation returns one owned credit; retain preserves
+identity and returns an additional credit; release destroys storage and its
+resources exactly once at zero credits. Retain/release/refs must accept nil.
+`owner: atomic` promises thread-safe owner credits; mutable field and resource
+operations retain their existing synchronization requirements. These functions
+must be exported by the package archives and keep their public C symbols.
+
+Generated code aliases the package's actual C type and delegates construction
+and ownership to these functions. It checks the existing C declaration's size,
+alignment, field offsets and field types, including `@alias` names. Public C
+headers and their transitive package-local includes are sealed into artifact
+metadata and validated on prebuilt consumption. Header-only lifetime functions
+and a missing language declaration do not constitute an independent record
+contract.
+
+Record input ownership is `borrowed`; output ownership is `owned` or `borrowed`.
+Borrowed results require `borrowed_from` naming a borrowed record parameter and
+receive an independent credit before input guards are released. The wire format
+uses shared runtime typed resources with the declared identity; consumers acquire
+the actual record before releasing the wire credit. Nil remains nil.
+
+Generated record providers currently require C backing. RS/GO/SN record providers,
+value/packed/generic records, interfaces and the complete unchanged SDK facade
+remain implementation work. This contract enables C SDK storage consumption; it
+does not mark the full package or Rust completion goal achieved.
+
 ```yaml
 name: mixed-native-package
 runtime: RS

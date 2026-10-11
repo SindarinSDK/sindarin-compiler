@@ -1,7 +1,7 @@
 """Generate provider exports for declared ordinary backing-language functions."""
 import json
 import re
-from native_contract import TYPES, kind, validate
+from native_contract import TYPES, kind, validate, raw_type, record_types
 
 RUST = {'int':'i64', 'long':'i64', 'uint':'u64', 'int32':'i32', 'uint32':'u32',
         'byte':'u8', 'char':'u8', 'bool':'bool', 'float':'f32', 'double':'f64',
@@ -17,9 +17,15 @@ def contracts(native, unit):
     if len(signatures) != len(expected):
         raise ValueError('generated provider requires compiler-resolved native declarations')
     symbols = set()
+    records = record_types(signatures)
+    if records and unit['language'] != 'C':
+        raise ValueError('package-owned record provider generation currently requires C backing')
+    lifecycle_functions = {r[field] for r in records for field in ('create','retain','release','refs')}
     for s in signatures:
         validate(s)
         binding = s['binding']
+        if binding['function'] in lifecycle_functions:
+            raise ValueError('record lifecycle functions must keep their public C symbols; use a separate backing function')
         for field in ('function', 'symbol'):
             if not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*', binding[field]):
                 raise ValueError(f'generated provider {field} must be a root-level function identifier')
@@ -36,27 +42,74 @@ def contracts(native, unit):
 def c_declaration(signature):
     b, params, result = signature['binding'], signature['params'], kind(signature['return_type'])
     status = b['failure'] == 'status'
-    raw = [TYPES[kind(p['type'])][0] for p in params]
-    if status and result != 'void': raw.append(TYPES[result][0] + ' *')
-    return f'extern {"uint32_t" if status else TYPES[result][0]} {b["function"]}({", ".join(raw) or "void"});'
+    raw = [raw_type(p['type']) for p in params]
+    if status and result != 'void': raw.append(raw_type(signature['return_type']) + ' *')
+    return f'extern {"uint32_t" if status else raw_type(signature["return_type"])} {b["function"]}({", ".join(raw) or "void"});'
 
 
-def c_header(signatures, namespace):
+def record_includes(signatures, root):
+    from pathlib import Path
+    return ['#include ' + json.dumps(str((Path(root)/r['header']).resolve()).replace('\\','/'))
+            for r in record_types(signatures)]
+
+
+def record_layouts(signatures, namespace):
+    values = {}
+    records = record_types(signatures)
+    for signature in signatures:
+        for value in [signature['return_type']] + [p['type'] for p in signature['params']]:
+            if kind(value) == 'record': values[value['native_record']['identity']] = value
+    def field_type(value):
+        name = value['kind']
+        # Storage follows the established C record declaration, whose uint
+        # members use unsigned long long even on LP64 hosts with uint64_t=long.
+        if name == 'uint': return 'unsigned long long'
+        if name == 'pointer': return field_type(value['base_type']) + ' *'
+        if name == 'opaque': return value['name']
+        if name == 'array': return 'SnArray *'
+        if name == 'struct':
+            found = [r for r in records if r['declaration'].split('::')[1] == value['name']]
+            if len(found) != 1:
+                raise ValueError('record fields require a resolved canonical C type contract: '+value['name'])
+            return found[0]['c_type']+' *'
+        return raw_type(value)
+    lines = ['#include <stddef.h>'] if records else []
+    for index,record in enumerate(records):
+        layout = f'__sn_{namespace}_record_layout_{index}'
+        fields = values[record['identity']]['fields']
+        lines += ['typedef struct { int __rc__;']
+        for field in fields:
+            name = field.get('c_alias','__sn__'+field['name'])
+            lines.append(f'  {field_type(field["type"])} {name};')
+        lines += [f'}} {layout};',
+                  f'_Static_assert(sizeof({record["c_type"]}) == sizeof({layout}) && _Alignof({record["c_type"]}) == _Alignof({layout}), "package record size/alignment differs");']
+        for field in fields:
+            name = field.get('c_alias','__sn__'+field['name'])
+            lines += [f'_Static_assert(offsetof({record["c_type"]}, {name}) == offsetof({layout}, {name}), "package record field offset differs");',
+                      f'_Static_assert(_Generic(&(({record["c_type"]} *)0)->{name}, {field_type(field["type"])} *: 1, default: 0), "package record field type differs");']
+    return lines
+
+
+def c_header(signatures, namespace, root='.'):
     # Preserve source while giving declared backing functions package-private
     # link identities. Otherwise a second archive's ordinary echo() can silently
     # resolve to the first package's echo(), even when wire exports are distinct.
     functions = sorted({s['binding']['function'] for s in signatures})
     names = [f'#define {function} __sn_{namespace}_impl_{function}' for function in functions]
-    return '#include <stdint.h>\n#include <stdbool.h>\n#include \"sn_array.h\"\n'+'\n'.join(names+[c_declaration(s) for s in signatures])+'\n'
+    return '#include <stdint.h>\n#include <stdbool.h>\n#include \"sn_array.h\"\n'+'\n'.join(record_includes(signatures,root)+record_layouts(signatures,namespace)+names+[c_declaration(s) for s in signatures])+'\n'
 
 
-def c_provider(signatures, namespace):
+def c_provider(signatures, namespace, root='.'):
     # Backing units use macros to namespace ordinary function identifiers. The
     # provider calls those final names explicitly; macros must not rename its
     # locals when a backing function happens to be called value/status/out.
     lines = ['#undef '+name for name in sorted({s['binding']['function'] for s in signatures})]
     signatures = [dict(s,binding=dict(s['binding'],function=f'__sn_{namespace}_impl_{s["binding"]["function"]}')) for s in signatures]
     lines += ['#include <stdint.h>', '#include <stdbool.h>', '#include <stdlib.h>', '#include "sn_abi.h"']
+    records = record_types(signatures)
+    lines += record_includes(signatures,root)
+    for index, record in enumerate(records):
+        lines.append(f'static void sn_package_record_destroy_{index}(void *value, uintptr_t context) {{ (void)context; {record["release"]}(value); }}')
     if any(s.get('abi') != '1.5' and kind(p['type']) == 'string_array' for s in signatures for p in s['params']):
         lines += ['#include <string.h>',
                   'static void sn_package_borrowed_slot_free(void *p) { free(*(char **)p); }',
@@ -86,12 +139,16 @@ def c_provider(signatures, namespace):
         lines.append(f'{"uint32_t" if status else TYPES[result][1]} {b["symbol"]}({", ".join(wire) or "void"}) {{')
         if status and result != 'void': lines.append('  if (!out) return SN_ABI_INVALID_ARGUMENT;')
         array_params = [i for i,p in enumerate(params) if kind(p['type']) == 'string_array']
+        record_params = [i for i,p in enumerate(params) if kind(p['type']) == 'record']
+        string_params = [i for i,p in enumerate(params) if kind(p['type']) == 'string']
+        managed_params = sorted(array_params + record_params + string_params)
         for i in array_params: lines.append(f'  SnArray *array{i} = NULL;')
-        if s.get('abi') == '1.5':
-            for i in array_params: lines.append(f'  SnAbiValue *array_owner{i} = sn_abi_v1_retain(p{i});')
-        if array_params: lines.append('  uint32_t provider_status = 0;')
+        for i in record_params: lines.append(f'  void *record{i} = NULL;')
+        guarded = managed_params if s.get('abi') == '1.5' else sorted(record_params + string_params)
+        for i in guarded: lines.append(f'  SnAbiValue *argument_owner{i} = sn_abi_v1_retain(p{i});')
+        if managed_params: lines.append('  uint32_t provider_status = 0;')
         def failed(code):
-            if array_params: return 'provider_status = '+code+'; goto cleanup_args;'
+            if managed_params: return 'provider_status = '+code+'; goto cleanup_args;'
             return 'return '+code+';' if status else 'abort();'
         arguments = []
         for i,p in enumerate(params):
@@ -109,20 +166,27 @@ def c_provider(signatures, namespace):
                 lines += [f'  provider_status = {operation}(p{i}, &array{i});',
                           '  if (provider_status) goto cleanup_args;']
                 arguments.append(f'array{i}')
+            elif k == 'record':
+                record = p['type']['native_record']
+                lines += [f'  provider_status = sn_abi_v1_resource_data_typed(p{i}, {json.dumps(record["identity"])}, &record{i});',
+                          '  if (provider_status) goto cleanup_args;']
+                arguments.append(f'({raw_type(p["type"])})record{i}')
             else:
                 if k == 'bool': lines.append(f'  if (p{i} > 1) {{ '+failed('SN_ABI_INVALID_ARGUMENT')+' }')
                 arguments.append(f'({TYPES[k][0]})p{i}')
-        if result != 'void': lines.append(f'  {TYPES[result][0]} value = {{0}};')
+        if result != 'void': lines.append(f'  {raw_type(s["return_type"])} value = {{0}};')
         if status:
             if result != 'void': arguments.append('&value')
-            if array_params: lines.append(f'  provider_status = {b["function"]}({", ".join(arguments)});')
+            if managed_params: lines.append(f'  provider_status = {b["function"]}({", ".join(arguments)});')
             else: lines += [f'  uint32_t status = {b["function"]}({", ".join(arguments)});', '  if (status) return status;']
         else: lines.append(('  value = ' if result != 'void' else '  ')+f'{b["function"]}({", ".join(arguments)});')
-        if array_params:
+        if result == 'record' and b['ownership']['result'] == 'borrowed':
+            record = s['return_type']['native_record']
+            lines.append(('  if (!provider_status) ' if managed_params else '  ') + f'value = {record["retain"]}(value);')
+        if managed_params:
             lines.append('cleanup_args:')
-            if s.get('abi') == '1.5':
-                for i in reversed(array_params): lines.append(f'  sn_abi_v1_release(array_owner{i});')
-            else:
+            for i in reversed(guarded): lines.append(f'  sn_abi_v1_release(argument_owner{i});')
+            if s.get('abi') != '1.5':
                 for position,i in reversed(list(enumerate(array_params))):
                     unique = ' && '.join(f'array{i} != array{j}' for j in array_params[:position])
                     lines.append(('  if ('+unique+') ' if unique else '  ')+f'sn_array_free(array{i});')
@@ -139,6 +203,13 @@ def c_provider(signatures, namespace):
                       '      if (!code) code = sn_abi_v1_value_array_push(wire_value, item);',
                       '      sn_abi_v1_release(item);', '    }', '    sn_array_free(value);',
                       '    if (code) { sn_abi_v1_release(wire_value); '+('return code;' if status else 'abort();')+' }', '  }']
+            value = 'wire_value'
+        elif result == 'record':
+            record = s['return_type']['native_record']
+            destroy = records.index(record)
+            lines += ['  SnAbiValue *wire_value = NULL;',
+                      f'  uint32_t status_copy = value ? sn_abi_v1_resource_new_typed({json.dumps(record["identity"])}, value, sn_package_record_destroy_{destroy}, 0, &wire_value) : SN_ABI_OK;',
+                      f'  if (status_copy) {{ {record["release"]}(value); '+('return status_copy;' if status else 'abort();')+' }']
             value = 'wire_value'
         else: value = f'({TYPES[result][1]})value'
         if status:

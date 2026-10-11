@@ -7,6 +7,50 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Canonical C record artifacts: local validation, 2026-10-11
+
+ABI 1.5 `native.types` binds public native as-ref declarations to package-owned
+C storage, constructors and atomic owner functions. Generated C providers and
+C/Rust consumers use typed shared-runtime resources, preserving actual pointers,
+fields, aliases and native methods. Borrowed results acquire a credit before
+input cleanup; record/string guards survive callbacks consuming external credits.
+Public C layouts/prototypes and required lifecycle symbols are checked before
+publication, and transitive public headers are sealed for relocated consumption.
+Native field aliases also work in constructors, and dual direct/namespace imports
+emit one record definition and its ownership helpers.
+
+Complete local suites pass 3,240 C and 1,097 Rust checks without failures/skips.
+All 19 artifact, 39 import, 14 runtime-contract and 22 CI-helper tests pass.
+Record controls cover 36 target/mode/source-or-relocated-prebuilt cases plus four
+dual-import controls. Actual canonical C SDK TextFile transport covers 36
+target/mode/source-or-prebuilt cases, including public fields, native methods,
+strings/arrays surviving record cleanup, and exactly-once explicit/automatic file
+closure. Backing SDK sources are removed for prebuilt controls. All 76 controls
+and the direct callback-credit/tag/error/output-preservation client pass strict
+address/undefined/leak checks. Formatting passes; original programs, output
+oracles and snapshots are unchanged.
+
+This uses a declaration adapter retaining the original SDK record fields and
+the original C implementation. Independent compilation of the complete unchanged
+SDK facade and Sindarin method bodies remains required. RS/GO/SN record providers,
+interfaces, value/packed/generic records, dependency lifecycle graphs, reference
+rebinding and final corpus/platform acceptance remain required. This feature
+requires its own complete hosted CI and does not complete the goal.
+
+Evidence: [canonical record validation](rust-parity-evidence/canonical-record-artifact-validation.json).
+
+## Rust body source bundles: hosted acceptance, 2026-10-11
+
+Corrected integrated main `c9513e59` passes all 34 jobs in
+[complete unified CI 38097359995](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38097359995).
+The retained summary verifies 26 groups, 292 gate executions and one compiler per
+Linux/macOS/Windows platform. This accepts source bundles and RS body live-input
+adapters, including the CI checkout/report/SDK/toolchain preservation correction.
+It supersedes the pending acceptance and feature freeze statements below.
+The full SDK, record/interface, lifecycle graph and corpus requirements remain.
+
+Evidence: [source-bundle acceptance](rust-parity-evidence/rust-body-source-bundle-ci-green.json).
+
 ## Source-bundle CI fixture isolation: correction, 2026-10-11
 
 Source-bundle revision `7bf58e1b` failed the Linux, macOS and Windows core jobs in

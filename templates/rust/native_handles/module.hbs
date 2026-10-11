@@ -65,10 +65,10 @@ void *{{slice}}(void *value, long long start, long long end) { return sn_array_s
 void *{{concat}}(void *left, void *right) { return sn_array_concat((SnArray *)left, (SnArray *)right); }
 {{/with}}
 {{#each handles}}
-{{#if rust_native_handle_send}}
+{{#if rust_native_handle_send}}{{#unless native_record}}
 _Static_assert(_Generic(&((__sn__{{name}} *)0)->__rc__, _Atomic int *: 1, default: 0), "native owner credits must be atomic");
 _Static_assert(sizeof(_Atomic int) == sizeof(int) && _Alignof(_Atomic int) == _Alignof(int), "native atomic owner credits preserve the C ABI");
-{{/if}}
+{{/unless}}{{/if}}
 {{#if rust_native_handle_array_new}}
 void *{{rust_native_handle_array_new}}(long long capacity) {
     SnArray *value = sn_array_new(sizeof(__sn__{{name}} *), capacity);
@@ -90,9 +90,10 @@ void {{rust_native_handle_release}}(void *pointer) {
 }
 int {{rust_native_handle_refs}}(void *pointer) {
 {{#if rust_native_serial_handle}}    return pointer ? 1 : 0;
+{{else}}{{#if native_record}}    return pointer ? {{native_record.refs}}((__sn__{{name}} *)pointer) : 0;
 {{else}}
     return pointer ? ((__sn__{{name}} *)pointer)->__rc__ : 0;
-{{/if}}
+{{/if}}{{/if}}
 }
 {{#each fields}}{{#if rust_native_handle_get}}
 {{c_type type}} {{rust_native_handle_get}}(void *pointer) {

@@ -9,7 +9,8 @@ import contextlib
 import io
 from build_native_package import build, build_go_graph, load_prebuilt, run
 
-from native_contract import TYPES, kind, validate
+from native_contract import TYPES, kind, validate, raw_type, record_types
+from native_provider import record_includes
 
 
 def adapter(signature, package):
@@ -24,14 +25,18 @@ def adapter(signature, package):
     status = binding['failure'] == 'status'
     if status and result != 'void': wire_params.append(TYPES[result][1] + ' *')
     return_wire = 'uint32_t' if status else TYPES[result][1]
-    code = [f'extern {return_wire} {symbol}({", ".join(wire_params) or "void"});',
-            f'{TYPES[result][0]} {alias}(' + ', '.join(f'{TYPES[kind(p["type"])][0]} p{i}' for i,p in enumerate(params)) + ') {']
+    records = record_types([signature])
+    code = [f'static void {alias}_record_destroy_{index}(void *value, uintptr_t context) {{ (void)context; {record["release"]}(value); }}'
+            for index,record in enumerate(records)]
+    code += [f'extern {return_wire} {symbol}({", ".join(wire_params) or "void"});',
+             f'{raw_type(signature["return_type"])} {alias}(' + ', '.join(f'{raw_type(p["type"])} p{i}' for i,p in enumerate(params)) + ') {']
     live_arrays = signature.get('abi') == '1.5'
     version = 'SN_ABI_V1_5_VERSION' if live_arrays else 'SN_ABI_V1_1_VERSION' if signature.get('abi') == '1.1' else 'SN_ABI_V1_VERSION'
     arrays = result == 'string_array' or any(kind(p['type']) == 'string_array' for p in params)
     capabilities = 'SN_ABI_CAP_VALUES | SN_ABI_CAP_VALUE_ARRAYS' if arrays else 'SN_ABI_CAP_VALUES'
     if live_arrays and any(kind(p['type']) == 'string_array' for p in params):
         capabilities += ' | SN_ABI_CAP_NATIVE_STRING_ARRAYS'
+    if records: capabilities += ' | SN_ABI_CAP_RESOURCES | SN_ABI_CAP_TYPED_RESOURCES'
     message = json.dumps(f"native package '{package}' requires a compatible shared runtime ABI\n")
     code += ['  SnAbiInfo abi_info;',
              f'  if (sn_abi_v1_query({version}, {capabilities}, &abi_info, sizeof(abi_info)) != SN_ABI_OK ||',
@@ -56,7 +61,12 @@ def adapter(signature, package):
                      f'      if (sn_abi_v1_string_copy(((char **)p{i}->data)[slot], &item) != SN_ABI_OK) abort();',
                      f'      if (sn_abi_v1_value_array_push(w{i}, item) != SN_ABI_OK) abort();',
                      '      sn_abi_v1_release(item);', '    }', '  }']
-    arguments = [f'w{i}' if kind(p['type']) in ('string','string_array') else f'({TYPES[kind(p["type"])][1]})p{i}' for i,p in enumerate(params)]
+        elif kind(p['type']) == 'record':
+            record = p['type']['native_record']
+            destroy = records.index(record)
+            code += [f'  SnAbiValue *w{i} = NULL;', f'  if (p{i}) {{ {record["retain"]}(p{i});',
+                     f'    if (sn_abi_v1_resource_new_typed({json.dumps(record["identity"])}, p{i}, {alias}_record_destroy_{destroy}, 0, &w{i}) != SN_ABI_OK) {{ {record["release"]}(p{i}); abort(); }}', '  }']
+    arguments = [f'w{i}' if kind(p['type']) in ('string','string_array','record') else f'({TYPES[kind(p["type"])][1]})p{i}' for i,p in enumerate(params)]
     if result != 'void': code += [f'  {TYPES[result][1]} wire_result = {{0}};']
     if status:
         if result != 'void': arguments.append('&wire_result')
@@ -65,7 +75,7 @@ def adapter(signature, package):
         call = f'{symbol}({", ".join(arguments)})'
         code += [('  wire_result = ' if result != 'void' else '  ') + call + ';']
     for i,p in enumerate(params):
-        if kind(p['type']) in ('string','string_array'): code += [f'  sn_abi_v1_release(w{i});']
+        if kind(p['type']) in ('string','string_array','record'): code += [f'  sn_abi_v1_release(w{i});']
     if status:
         message = json.dumps(f"native package '{package}' export '{symbol}' failed: %s\n")
         code += [f'  if (status != SN_ABI_OK) {{ fprintf(stderr, {message}, sn_abi_v1_status_message(status)); exit(1); }}']
@@ -85,6 +95,12 @@ def adapter(signature, package):
                  '    char *text = NULL; if (bytes.data) { text = malloc((size_t)bytes.length + 1); if (!text) abort();',
                  '      memcpy(text, bytes.data, (size_t)bytes.length); text[bytes.length] = 0; }',
                  '    sn_array_push(output, &text); sn_abi_v1_release(element);', '  }',
+                 '  sn_abi_v1_release(wire_result); return output;']
+    elif result == 'record':
+        record = signature['return_type']['native_record']
+        code += ['  void *pointer = NULL;',
+                 f'  if (sn_abi_v1_resource_data_typed(wire_result, {json.dumps(record["identity"])}, &pointer) != SN_ABI_OK) abort();',
+                 f'  {raw_type(signature["return_type"])} output = {record["retain"]}(pointer);',
                  '  sn_abi_v1_release(wire_result); return output;']
     elif result != 'void':
         if result == 'bool': code += ['  if (wire_result > 1) abort();']
@@ -122,6 +138,7 @@ def main():
     source_lines=['#include <stdint.h>','#include <stdbool.h>','#include <stdlib.h>',
                   '#include <stdio.h>','#include <string.h>']
     sources,links,prototypes=[],[],[]
+    record_headers=[]
     compiler=args.compiler.resolve()
     runtime=compiler.parent/'lib'/('clang' if __import__('os').name=='nt' else 'gcc')/'libsn_runtime_min.a'
     header=compiler.parent/'include/runtime/sn_abi.h'
@@ -143,6 +160,16 @@ def main():
     aggregate=source_go>1
     exports={}
     for package,planned in zip(request['packages'],plans):
+        headers=record_includes(package['signatures'],Path(package['manifest']).resolve().parent)
+        source_lines+=headers
+        record_headers+=headers
+        for record in planned['plan']['native'].get('types',[]):
+            for role in ('create','retain','release','refs'):
+                symbol=record[role]
+                previous=exports.get(symbol)
+                if previous and previous!=package['manifest']:
+                    raise ValueError(f"native record lifecycle symbol '{symbol}' is shared by packages '{previous}' and '{package['manifest']}'")
+                exports[symbol]=package['manifest']
         for signature in package['signatures']:
             symbol=signature['binding']['symbol']
             previous=exports.get(symbol)
@@ -153,8 +180,8 @@ def main():
         adapters=[adapter(s,package['manifest']) for s in package['signatures']]
         for signature in package['signatures']:
             result=kind(signature['return_type'])
-            parameters=', '.join(f'{TYPES[kind(p["type"])][0]} p{i}' for i,p in enumerate(signature['params'])) or 'void'
-            prototypes.append(f'{TYPES[result][0]} {signature["adapter"]}({parameters});')
+            parameters=', '.join(f'{raw_type(p["type"])} p{i}' for i,p in enumerate(signature['params'])) or 'void'
+            prototypes.append(f'{raw_type(signature["return_type"])} {signature["adapter"]}({parameters});')
         build_args=SimpleNamespace(compiler=compiler,manifest=Path(package['manifest']),
                                   out_dir=args.contract.parent/'artifacts',target=request['target'],
                                   optimization=str(request['optimization']),arithmetic=request['arithmetic'],
@@ -182,7 +209,7 @@ def main():
     source.write_text('\n\n'.join(source_lines)+'\n')
     sources.append(str(source))
     header_path=source.with_suffix('.h')
-    header_path.write_text('#include <stdint.h>\n#include <stdbool.h>\n#include '+json.dumps(str(header.with_name('sn_array.h')).replace('\\','/'))+'\n'+'\n'.join(prototypes)+'\n')
+    header_path.write_text('#include <stdint.h>\n#include <stdbool.h>\n#include '+json.dumps(str(header.with_name('sn_array.h')).replace('\\','/'))+'\n'+'\n'.join(list(dict.fromkeys(record_headers))+prototypes)+'\n')
     Path(request['output']).write_text(json.dumps({'sources':sources,'includes':[str(header_path)],'links':list(dict.fromkeys(links))},indent=2)+'\n')
 
 

@@ -1,4 +1,5 @@
 #include "package_native_command.h"
+#include "package_native_types.h"
 #include "../package.h"
 #include "../parser.h"
 #include "../type_checker.h"
@@ -20,6 +21,7 @@
  * invoking its import-adapter pipeline. Each API file has an isolated scope. */
 static bool native_provider_signatures(CompilerOptions *options, json_object *native)
 {
+    if (!package_native_validate_records(options, native)) return false;
     json_object *bindings = NULL, *declarations = NULL;
     json_object_object_get_ex(native, "bindings", &bindings);
     json_object_object_get_ex(native, "declarations", &declarations);
@@ -66,6 +68,7 @@ static bool native_provider_signatures(CompilerOptions *options, json_object *na
             module = parse_module_with_imports(arena, &symbols, filename, &imports, &count,
                 &capacity, &modules, &direct, &emitted, options->compiler_dir);
             if (module && !type_check_module(module, &symbols)) module = NULL;
+            if (module && !package_native_bind_records(arena, native, options->native_manifest, module)) module = NULL;
         }
         FunctionStmt *fn = NULL;
         for (int i = 0; module && i < module->count; i++) {
@@ -82,14 +85,14 @@ static bool native_provider_signatures(CompilerOptions *options, json_object *na
             json_object_object_get_ex(native, "abi", &abi);
             json_object_object_add(signature, "abi", json_object_get(abi));
             json_object_object_add(signature, "binding", json_object_get(binding));
-            json_object_object_add(signature, "return_type", gen_model_type(arena, fn->return_type));
+            json_object_object_add(signature, "return_type", package_native_model_type(arena, fn->return_type, module, NULL, 0));
             json_object_object_add(signature, "params", params);
             for (int i = 0; i < fn->param_count; i++) {
                 Parameter *param = &fn->params[i];
                 if (param->mem_qualifier != MEM_DEFAULT) { valid = false; break; }
                 json_object *entry = json_object_new_object();
                 json_object_object_add(entry, "name", json_object_new_string(param->name.start));
-                json_object_object_add(entry, "type", gen_model_type(arena, param->type));
+                json_object_object_add(entry, "type", package_native_model_type(arena, param->type, module, NULL, 0));
                 json_object_array_add(params, entry);
             }
             json_object_array_add(signatures, signature);

@@ -3148,6 +3148,10 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                 json_object *f = json_object_new_object();
                 json_object_object_add(f, "name",
                     json_object_new_string(expr->as.struct_literal.fields[i].name.start));
+                if (expr->expr_type && expr->expr_type->kind == TYPE_STRUCT && expr->expr_type->as.struct_type.is_native) {
+                    StructField *field = ast_struct_get_field(expr->expr_type, expr->as.struct_literal.fields[i].name.start);
+                    if (field && field->c_alias) json_object_object_add(f, "c_field_name", json_object_new_string(field->c_alias));
+                }
                 json_object_object_add(f, "value",
                     rust_gen_model_expr(arena, expr->as.struct_literal.fields[i].value, symbol_table, arithmetic_mode));
                 /* Check if this field's value needs ownership wrapping */

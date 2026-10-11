@@ -213,6 +213,7 @@ set(SN_PACKAGE_SOURCES
     src/package/package_yaml.c
     src/package/package_runtime.c
     src/package/package_import.c
+    src/package/package_native_types.c
     src/package/package_link.c
     src/package/package_native_command.c
     src/package/package_git.c

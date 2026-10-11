@@ -55,6 +55,8 @@ json_object *rust_gen_model_struct(Arena *arena, StructDeclStmt *decl, SymbolTab
     json_object_object_add(obj, "is_packed", json_object_new_boolean(decl->is_packed));
     json_object_object_add(obj, "pass_self_by_ref", json_object_new_boolean(decl->pass_self_by_ref));
     json_object_object_add(obj, "is_serializable", json_object_new_boolean(decl->is_serializable));
+    if (decl->native_record_contract)
+        json_object_object_add(obj, "native_record", json_tokener_parse(decl->native_record_contract));
 
     /* Source file tracking for modular compilation */
     if (decl->name.filename)

@@ -1,4 +1,19 @@
-{{#if is_native}}{{#if pass_self_by_ref}}/* Struct: {{name}} (native, as ref — refcounted) */
+{{#if native_record}}/* Package-owned storage: {{name}} */
+#include <stddef.h>
+#include "{{{native_record.resolved_header}}}"
+typedef {{native_record.c_type}} __sn__{{name}};
+/* Check the existing public layout without creating another allocation type. */
+typedef struct {
+    int __rc__;
+{{#each fields}}    {{c_type type}} {{#if c_alias}}{{c_alias}}{{else}}__sn__{{name}}{{/if}};
+{{/each}}
+} __sn__{{name}}_declared_layout;
+_Static_assert(sizeof(__sn__{{name}}) == sizeof(__sn__{{name}}_declared_layout), "package record size differs from public declaration");
+_Static_assert(_Alignof(__sn__{{name}}) == _Alignof(__sn__{{name}}_declared_layout), "package record alignment differs from public declaration");
+{{#each fields}}_Static_assert(offsetof(__sn__{{../name}}, {{#if c_alias}}{{c_alias}}{{else}}__sn__{{name}}{{/if}}) == offsetof(__sn__{{../name}}_declared_layout, {{#if c_alias}}{{c_alias}}{{else}}__sn__{{name}}{{/if}}), "package record field offset differs from public declaration");
+_Static_assert(_Generic(&((__sn__{{../name}} *)0)->{{#if c_alias}}{{c_alias}}{{else}}__sn__{{name}}{{/if}}, {{c_type type}} *: 1, default: 0), "package record field type differs from public declaration");
+{{/each}}
+{{else}}{{#if is_native}}{{#if pass_self_by_ref}}/* Struct: {{name}} (native, as ref — refcounted) */
 typedef struct {
     {{#if rust_native_handle_atomic_refs}}_Atomic int{{else}}int{{/if}} __rc__;
 {{#each fields}}
@@ -167,25 +182,30 @@ static inline SnArray *__sn__{{name}}_decodeArray(__sn__Decoder *__sn__d) {
 }
 {{/if}}
 
-{{/if}}{{/if}}
+{{/if}}{{/if}}{{/if}}
 {{!-- ============================================================
      Unified as-ref (refcounted) block — shared by native and non-native
      ============================================================ --}}
 {{#if pass_self_by_ref}}
 static inline __sn__{{name}} *__sn__{{name}}__new(void) {
-    __sn__{{name}} *p = calloc(1, sizeof(__sn__{{name}}));
+{{#if native_record}}    return {{native_record.create}}();
+{{else}}    __sn__{{name}} *p = calloc(1, sizeof(__sn__{{name}}));
     p->__rc__ = 1;
     return p;
+{{/if}}
 }
 
 static inline __sn__{{name}} *__sn__{{name}}_retain(__sn__{{name}} *p) {
-    if (p) p->__rc__++;
+{{#if native_record}}    return {{native_record.retain}}(p);
+{{else}}    if (p) p->__rc__++;
     return p;
+{{/if}}
 }
 
 {{#if has_dispose}}void {{dispose_alias}}(__sn__{{name}} *);
 {{/if}}static inline void __sn__{{name}}_release(__sn__{{name}} **p) {
-    if (*p && --(*p)->__rc__ == 0) {
+{{#if native_record}}    {{native_record.release}}(*p);
+{{else}}    if (*p && --(*p)->__rc__ == 0) {
 {{#if has_dispose}}        {{dispose_alias}}(*p);
 {{else}}{{#each fields}}{{#if (eq cleanup_action "free")}}        free((*p)->{{#if c_alias}}{{c_alias}}{{else}}__sn__{{name}}{{/if}});
 {{/if}}{{#if (eq cleanup_action "cleanup_array")}}        sn_cleanup_array(&(*p)->{{#if c_alias}}{{c_alias}}{{else}}__sn__{{name}}{{/if}});
@@ -194,7 +214,7 @@ static inline __sn__{{name}} *__sn__{{name}}_retain(__sn__{{name}} *p) {
 {{/if}}{{#if (eq cleanup_action "release_closure")}}        sn_closure_release((void **)&(*p)->{{#if c_alias}}{{c_alias}}{{else}}__sn__{{name}}{{/if}});
 {{/if}}{{/each}}{{/if}}        free(*p);
     }
-    *p = NULL;
+{{/if}}    *p = NULL;
 }
 
 {{#unless is_native}}static inline __sn__{{name}} *__sn__{{name}}_copy(const __sn__{{name}} *src) {

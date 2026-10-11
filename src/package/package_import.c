@@ -1,5 +1,6 @@
 #include "package_import.h"
 #include "package_native_command.h"
+#include "package_native_types.h"
 #include "../package.h"
 #include "../cgen/gen_model.h"
 #include <json-c/json.h>
@@ -65,6 +66,7 @@ static void import_add_pragma(CompilerOptions *options, Module *module, PragmaTy
 static bool import_type(Type *type)
 {
     if (!type) return false;
+    if (type->kind == TYPE_STRUCT) return type->as.struct_type.is_native && type->as.struct_type.pass_self_by_ref;
     if (type->kind == TYPE_ARRAY && type->as.array.element_type &&
         type->as.array.element_type->kind == TYPE_STRING) return true;
     return type->kind == TYPE_VOID || type->kind == TYPE_INT || type->kind == TYPE_LONG ||
@@ -113,6 +115,9 @@ bool package_prepare_native_imports(CompilerOptions *options, Module *module,
         if (!config.has_native) continue;
         json_object *plan = NULL;
         if (!package_yaml_native_plan(manifest, &plan)) { success = false; break; }
+        if (!package_native_bind_records(&options->arena, plan, manifest, module)) success = false;
+        for (int i = 0; success && i < count; i++)
+            success = package_native_bind_records(&options->arena, plan, manifest, modules[i]);
         /* A source directive would compile a second per-application backing
          * and could silently shadow the independent archive. Keep that legacy
          * route unchanged for manifests without native metadata. */
@@ -172,7 +177,7 @@ bool package_prepare_native_imports(CompilerOptions *options, Module *module,
             json_object_object_get_ex(plan, "abi", &abi);
             json_object_object_add(signature, "abi", json_object_get(abi));
             json_object_object_add(signature, "binding", json_object_get(binding));
-            json_object_object_add(signature, "return_type", gen_model_type(&options->arena, fn->return_type));
+            json_object_object_add(signature, "return_type", package_native_model_type(&options->arena, fn->return_type, module, modules, count));
             json_object *params = json_object_new_array();
             json_object_object_add(signature, "params", params);
             for (int i = 0; i < fn->param_count; i++) {
@@ -183,7 +188,7 @@ bool package_prepare_native_imports(CompilerOptions *options, Module *module,
                 }
                 json_object *entry = json_object_new_object();
                 json_object_object_add(entry, "name", json_object_new_string(param->name.start));
-                json_object_object_add(entry, "type", gen_model_type(&options->arena, param->type));
+                json_object_object_add(entry, "type", package_native_model_type(&options->arena, param->type, module, modules, count));
                 json_object_array_add(params, entry);
             }
             char alias[96];

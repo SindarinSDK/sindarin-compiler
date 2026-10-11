@@ -199,6 +199,8 @@ def validate_prebuilt(plan, manifest, compiler):
         raise ValueError('prebuilt native assembly platform/architecture/pointer width differs')
     if metadata.get('bindings') != native['bindings']:
         raise ValueError('prebuilt native assembly binding/ownership contract differs')
+    if metadata.get('types',[]) != native.get('types',[]):
+        raise ValueError('prebuilt native assembly record storage/lifecycle contract differs')
     if metadata.get('provider_signatures',[]) != native.get('signatures',[]):
         raise ValueError('prebuilt native assembly resolved provider type contract differs')
     for unit in native['builds']:
@@ -211,6 +213,17 @@ def validate_prebuilt(plan, manifest, compiler):
         recorded = base64.b64decode(item['source_base64'],validate=True)
         if hashlib.sha256(recorded).hexdigest() != item['sha256'] or source.read_bytes() != recorded:
             raise ValueError('prebuilt native assembly public declaration bytes differ: '+item['path'])
+    public_headers = metadata.get('record_headers',[])
+    paths = [item['path'] for item in public_headers]
+    if len(paths) != len(set(paths)) or not {r['header'] for r in native.get('types',[])} <= set(paths):
+        raise ValueError('prebuilt native assembly public record header inventory differs')
+    for item in public_headers:
+        source = source_path(root,item['path'])
+        if not source.is_relative_to(root):
+            raise ValueError('prebuilt record header is outside the package')
+        recorded = base64.b64decode(item['source_base64'],validate=True)
+        if hashlib.sha256(recorded).hexdigest() != item['sha256'] or source.read_bytes() != recorded:
+            raise ValueError('prebuilt native assembly public record header bytes differ: '+item['path'])
     units = metadata.get('units',[])
     builds = native['builds']
     if [unit.get('name') for unit in units] != [unit['name'] for unit in builds]:
@@ -333,6 +346,31 @@ def build(args):
     with tempfile.TemporaryDirectory(prefix='.native-build-', dir=output) as folder:
         work = Path(folder)
         units, deps = [], dict(inputs)
+        defined_symbols = set()
+        public_headers = set()
+        if native.get('types'):
+            probe, depfile = work/'record_public.c', work/'record_public.d'
+            lines = ['#include <stdint.h>']
+            for record in native['types']:
+                public = source_path(root,record['header'])
+                if not public.is_relative_to(root): raise ValueError('public record header must belong to the package')
+                lines.append('#include '+json.dumps(str(public).replace('\\','/')))
+                c_type = record['c_type']
+                expected = {'create':c_type+' *(*)(void)', 'retain':c_type+' *(*)( '+c_type+' *)',
+                            'release':'void (*)( '+c_type+' *)', 'refs':'int (*)( '+c_type+' *)'}
+                for role,signature in expected.items():
+                    lines.append(f'_Static_assert(_Generic(&{record[role]}, {signature}: 1, default: 0), "record {role} prototype differs");')
+            probe.write_text('\n'.join(lines)+'\n')
+            flags=['-std=c11','-D_GNU_SOURCE','-I',str(header.parent)]+shlex.split(os.environ.get('SN_CFLAGS',''))
+            for unit in native['builds']:
+                for directory in unit.get('include_dirs',[]):flags+=['-I',str((root/directory).resolve())]
+            run(cc+flags+['-fsyntax-only',probe],cwd=root)
+            run(cc+flags+['-M','-MT','record_public','-MF',depfile,probe],cwd=root)
+            for name in dependencies(depfile):
+                dependency=(root/name).resolve()
+                if dependency.is_relative_to(root) and not dependency.is_relative_to(work):
+                    public_headers.add(dependency)
+                    deps[str(dependency)]=sha(dependency)
         for index, unit in enumerate(selected_builds):
             stem = f'sn_native_{index:03d}_' + key({'package':plan['package'], 'build':unit['name']})[:12]
             archive = work / ('lib' + stem + '.a')
@@ -358,10 +396,10 @@ def build(args):
                 contract_flags = []
                 if signatures:
                     provider = work / (stem + '_provider.c')
-                    provider.write_text(c_provider(signatures, stem))
+                    provider.write_text(c_provider(signatures, stem, root))
                     sources.append(provider)
                     backing_header = work / (stem + '_backing.h')
-                    backing_header.write_text(c_header(signatures, stem))
+                    backing_header.write_text(c_header(signatures, stem, root))
                     contract_flags = ['-include', str(backing_header)]
                 for number, source in enumerate(sources):
                     obj, depfile = work / f'{stem}-{number}.o', work / f'{stem}-{number}.d'
@@ -447,6 +485,7 @@ def build(args):
                     cwd=module, env=env)
             symbols = {line.split()[-1] for line in run(nm + ['-g', '-U' if sys.platform == 'darwin' else '--defined-only', archive]).splitlines()
                        if line.split() and not line.rstrip().endswith(':')}
+            defined_symbols.update(symbols)
             exports = [b['symbol'] for b in native['bindings'] if b['build'] == unit['name']]
             if unit['language']=='SN' and ('main' in symbols or '_main' in symbols):
                 raise ValueError('Sindarin implementation archive contains a competing application main')
@@ -468,6 +507,11 @@ def build(args):
                     for name in (lifecycle['initialize'],lifecycle['shutdown']):
                         if name not in symbols and '_'+name not in symbols:raise ValueError('package lifecycle export missing: '+name)
                     units[-1]['package_lifecycle']=lifecycle
+        for record in native.get('types',[]):
+            for role in ('create','retain','release','refs'):
+                symbol=record[role]
+                if symbol not in defined_symbols and '_'+symbol not in defined_symbols:
+                    raise ValueError(f'native record lifecycle export missing: {record["declaration"]}::{role} ({symbol})')
         current = tree_inputs(root, output)
         for name in native['declarations']:
             path = source_path(root, name); current[str(path)] = sha(path)
@@ -482,6 +526,10 @@ def build(args):
                     'package': plan['package'], 'abi': native['abi'], 'declarations': declarations,
                     'bindings': native['bindings'], 'units': units, 'provenance': identity,
                     'provider_signatures': native.get('signatures', []),
+                    'types': native.get('types',[]),
+                    'record_headers': [{'path':path.relative_to(root).as_posix(),'sha256':sha(path),
+                                        'source_base64':base64.b64encode(path.read_bytes()).decode()}
+                                       for path in sorted(public_headers)],
                     'compatibility': {k: identity[k] for k in ('system', 'machine', 'pointer_bits')},
                     'shared_runtime': {'sha256': sha(runtime), 'archive': str(runtime)},
                     'dependency_sha256': deps,

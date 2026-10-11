@@ -163,6 +163,15 @@ does not satisfy the whole Rust completion goal.
 
 ## Consuming a prebuilt artifact
 
+Packages with ABI 1.5 record storage contracts additionally retain `types` and
+`record_headers` in their descriptor. The builder resolves every public record
+declaration, checks its C layout/lifecycle prototypes, and verifies the lifecycle
+symbols in the archives before publication. `record_headers` contains the bytes
+and hashes of public C headers and their transitive package-local includes.
+Distribute these headers with the existing `.sn` declarations; backing C sources
+can be removed. Relocation preserves relative contract paths, and altered public
+layout headers are rejected before consumption.
+
 A distribution can retain its public `.sn` declarations and manifest while
 shipping the immutable generation's archives and `assembly.json`. Original
 C/Rust/Go backing source, backing headers, Go modules and producing toolchains are unnecessary

@@ -1,0 +1,89 @@
+{
+  "base_revision": "c9513e59846bedf5abd1661055b20c8093a7622d",
+  "compiler_sha256": "1de26fdf001dea4b16df7b4c8001826bcd84a805dd46e1527754ea4bb9a04c91",
+  "implementation": "Canonical package-owned C record storage/lifecycle contracts, typed-resource import/export adapters, callback-credit guards and sealed transitive public headers; actual SDK C TextFile archive transport.",
+  "counts": {
+    "c": {
+      "passed": 3240,
+      "failed": 0,
+      "skipped": 0
+    },
+    "rust": {
+      "passed": 1097,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "artifact_tests": 19,
+  "import_tests": 39,
+  "runtime_contract_tests": 14,
+  "ci_helper_tests": 22,
+  "record_target_mode_archive_cases": 36,
+  "record_dual_import_cases": 4,
+  "actual_sdk_textfile_target_mode_archive_cases": 36,
+  "strict_sanitizers": {
+    "cases": 76,
+    "direct_record_and_string_callback_credit_type_argument_error_output_client": true,
+    "asan_leaks": true,
+    "ubsan_halt": true
+  },
+  "sdk_pinned_revision": "f7e77277258fde42010ef9577907169c2b1045ca",
+  "sdk_scope": "Original canonical C module and public record fields with declaration adapters; full unchanged SDK facade/Sindarin methods remain required.",
+  "original_inventory": 1365,
+  "unchanged_historical_source_deviation": [
+    "tests/exploratory/test_limitation_closure_array.sn"
+  ],
+  "original_sources_oracles_snapshots_changed_in_batch": false,
+  "source_sha256": {
+    "CMakeLists.txt": "daa299543d380d599a4f0afae0f31d7534869bbab9072c4e2c39761ba79e6571",
+    "docs/native-artifacts.md": "cba6f319b6bafa21da5b92150dcd02ef03526a00ba0759c36f4f024d23a6d856",
+    "docs/native-package-imports.md": "26cd65c60758df68ac7b86d352ee507f8ab3f0a37ba44d64eefec08a023e7b74",
+    "docs/native-package-manifest.md": "56af82dae0aebf83c7c9a1abcb4965e612ea0e9c712997e5a19550a243c8bcb9",
+    "docs/runtime-target-architecture.md": "5ace446fa5271e3bcad31a5eb54febd52b944e9015958c56e05c1a4df60d9597",
+    "docs/rust-parity-progress.md": "d38045b9eefc68d37c4b846869b6028742d59c74e1821917989189a4a04e89a3",
+    "scripts/build_native_package.py": "13d0fc6f5e718952076ebda642146bc45a12cf961f00331d3567b5850040f1d1",
+    "scripts/native_contract.py": "41299634cca6b7cec58b950db5de57734a91b0b9671a1c28373ad1e675bd17c0",
+    "scripts/native_provider.py": "34907f9854578fb97340afa9e18ebbe0498760157cea8346deac0730dcb13448",
+    "scripts/prepare_native_imports.py": "120207e3303a80758c6449c1fecb08dd54b036db478950c8919ac3c673fa217c",
+    "src/ast.h": "2de36b047e13202dd71a0f7bada7a887ad6a6fceff952d7439dd9be93a89b2b5",
+    "src/cgen/gen_model.c": "0306ea78994590e6245fb3d7ab6a841ca1944ee29c7560d43ac6e9b4f5b7c770",
+    "src/cgen/gen_model_expr.c": "41ed5fc598206cc81a7826c65f433a6de3b240215e5d1def70f01f9edc9a1dac",
+    "src/cgen/gen_model_struct.c": "6e43796dd2dc7f6218a8155950883f97f61c919407b020b055819110afe0383d",
+    "src/package/package_import.c": "c5035592a336af135526de22c3f8c862d8c507573272fee70b7d08aec7abbc6f",
+    "src/package/package_native_command.c": "e574a2a8dec5833de9a356d748d0d1a456f58a3606c7557b24e0412141487a79",
+    "src/package/package_yaml_native.c": "5a6ba26252c4116eefe79ddb1f169d95655e53ae327218ee709ad375863bd0cc",
+    "src/target/rust/projection/rust_model.c": "ebb73b7f72225b3899f4ba299289954c35183a31221b5702751a6710e668b9ab",
+    "src/target/rust/projection/rust_model_expr.c": "5edf6ed4718a5390eebf5057e041b52b0dd4993dca02053b8175b9a31048b32a",
+    "src/target/rust/projection/rust_model_struct.c": "048676b9f6a1d3634a4949a2639352eb45087880085c12c556c8e9be7a967398",
+    "src/target/rust/rust_native_handles.c": "e2c8eb4b63257e36a2b1fc20c39a3a088c25732a4d1d7d0e3717673d4bbc1cb7",
+    "templates/c/partials/expr/struct_literal.hbs": "d5f1c775d29431983f5f410ce9ba666fcdca7127fb828ac879e5f245a4d01704",
+    "templates/c/partials/struct_typedef.hbs": "cdf7895c02986b7ff546cd2694a4baf15508b9cb119c07eee18286777e0edb8a",
+    "templates/rust/native_handles/module.hbs": "ac9cd683fa049beb15f1876527877e3fc4bf513e21b32458c8eb26d8fdf7548b",
+    "tests/package/native_artifacts.py": "3d63624df16eeb1db63a093772aa9c5f09579527beaf51ab02f16a3df9745a08",
+    "tests/package/native_imports.py": "494b57bb2bd6b4ca59de6da4d62ad14b8f3c646ad79f68228da46385bdb93ff3",
+    "src/package/package_native_types.c": "820551a086ca191e87a0fccc98739e8ac47477a423a7d5461d65a63d7d78a3c7",
+    "src/package/package_native_types.h": "fba1601eb3fb33ec203e5752cab47c37b86252a371cfc475dd6a3fb3aa54fc18"
+  },
+  "log_sha256": {
+    "/tmp/sindarin-native-record-c-publish.log": "12593949e6a58e80be27f1ade247fcc4b933ca7b013aaf5f188db1bbbb8171d2",
+    "/tmp/sindarin-native-record-rust-publish.log": "f6ecbdc69a68bce5924bcd3b103cd7da9c636286d2bb13b0049d63a226fdb4d2",
+    "/tmp/sindarin-native-record-artifacts-publish.log": "481ef496c7658dc9b65723a8ab901d2ca2d470fc5711de428bf546875d838a20",
+    "/tmp/sindarin-native-record-imports-publish.log": "54655c3c2d26fda1c7bb8a33155dcda872482fca05b960a3224946eb3fc92ecf",
+    "/tmp/sindarin-native-record-asan-publish.log": "61760b0661d705cf8a9f2f504d904db0eb18aa3602e0ef18ced4bd90b5fb4474",
+    "/tmp/sindarin-native-record-contracts.log": "d210bee84054ad3442eea7a62967af11b5fc81737ed202943bf52c0d89b6f98d",
+    "/tmp/sindarin-native-record-helpers.log": "c7a07d7088f866ecde1b6e1326211d4d60f82afc424b6b8aa1321ae6afa37d36",
+    "/tmp/sindarin-native-record-negative.log": "97c8fe759eb30632a8e940b8a0a52b464f4ae73998abf4c86be67bcfc027b0de",
+    "/tmp/sindarin-native-record-format.log": "4c6a090a362bd87c11ee02cfbc700375a0d72d42c9b4387a9b7b0bbf45af7e2b",
+    "/tmp/sindarin-native-record-build.log": "682721302be99e1aed3fb1b244028b4fd719793d658c4a7d50a073abc68ecbf2"
+  },
+  "hosted_prerequisite": {
+    "run": 38097359995,
+    "revision": "c9513e59846bedf5abd1661055b20c8093a7622d",
+    "jobs": 34,
+    "groups": 26,
+    "gates": 292,
+    "conclusion": "success"
+  },
+  "hosted_feature_acceptance": "pending separate complete integrated CI",
+  "remaining": "Full unchanged SDK facade/method bodies; RS/GO/SN record providers; interfaces, value/packed/generic records; reference rebinding; package dependency lifecycle graphs; final original corpus and platform acceptance."
+}

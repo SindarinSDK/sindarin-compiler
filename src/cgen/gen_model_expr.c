@@ -2993,6 +2993,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 json_object *f = json_object_new_object();
                 json_object_object_add(f, "name",
                     json_object_new_string(expr->as.struct_literal.fields[i].name.start));
+                c_model_field_alias(f, expr->expr_type, expr->as.struct_literal.fields[i].name.start);
                 json_object_object_add(f, "value",
                     gen_model_expr(arena, expr->as.struct_literal.fields[i].value, symbol_table, arithmetic_mode));
                 /* Check if this field's value needs ownership wrapping */

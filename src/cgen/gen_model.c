@@ -616,6 +616,9 @@ json_object *gen_model_build(Arena *arena, Module *module, SymbolTable *symbol_t
                 /* Skip generic templates — only emit monomorphized instantiations */
                 if (stmt->as.struct_decl.type_param_count > 0)
                     break;
+                if (already_emitted(stmt->as.struct_decl.name.start, emitted_names, emitted_count))
+                    break;
+                track_emitted(arena, stmt->as.struct_decl.name.start, emitted_names, &emitted_count, emitted_capacity);
                 json_object_array_add(structs,
                     gen_model_struct(arena, &stmt->as.struct_decl, symbol_table, arithmetic_mode));
                 break;

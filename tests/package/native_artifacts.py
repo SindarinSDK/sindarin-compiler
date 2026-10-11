@@ -572,6 +572,52 @@ class NativeArtifactTests(unittest.TestCase):
         self.assertIn(b'cannot combine', bad.stderr)
         self.assertEqual(manifest.read_bytes(), original)
 
+    def test_native_record_contracts_reject_unresolved_types_layouts_and_lifecycle(self):
+        self.write('src/api.sn','native struct Record as ref =>\n  @alias "number"\n  value: int32\n'
+                   'native fn fromC(): Record\n')
+        header=('#ifndef NEGATIVE_RECORD_H\n#define NEGATIVE_RECORD_H\n#include <stdint.h>\ntypedef struct { int __rc__; int32_t number; } CanonicalRecord;\n'
+                'CanonicalRecord *record_create(void);\nCanonicalRecord *record_retain(CanonicalRecord *);\n'
+                'void record_release(CanonicalRecord *);\nint record_refs(CanonicalRecord *);\n#endif\n')
+        self.write('native/record.h',header)
+        self.write('native/value.c','#include "record.h"\n#include <stdlib.h>\n'
+                   'CanonicalRecord *record_create(void) { return NULL; }\n'
+                   'CanonicalRecord *record_retain(CanonicalRecord *p) { return p; }\n'
+                   'void record_release(CanonicalRecord *p) { (void)p; }\n'
+                   'int record_refs(CanonicalRecord *p) { return p ? 1 : 0; }\n'
+                   'CanonicalRecord *provide(void) { return NULL; }\n')
+        manifest=('name: records\nruntime: C\nnative:\n  abi: 1.5\n  declarations: [src/api.sn]\n'
+                  '  types:\n    - declaration: src/api.sn::Record\n      identity: records/Record@1\n'
+                  '      c_type: CanonicalRecord\n      header: native/record.h\n      create: record_create\n'
+                  '      retain: record_retain\n      release: record_release\n      refs: record_refs\n      owner: atomic\n'
+                  '  builds:\n    - name: c\n      language: C\n      sources: [native/value.c]\n      include_dirs: [native]\n'
+                  '  bindings:\n    - declaration: src/api.sn::fromC\n      build: c\n      symbol: native_record\n'
+                  '      function: provide\n      convention: C\n      failure: abort\n'
+                  '      ownership: {parameters: {}, result: owned}\n')
+        for change,diagnostic in (
+                (manifest.replace('owner: atomic','owner: local'),'owner atomic'),
+                (manifest.replace('src/api.sn::Record','src/api.sn::Missing'),'does not resolve'),
+                (manifest.replace('abi: 1.5','abi: 1.0'),'record types require ABI 1.5')):
+            with self.subTest(diagnostic=diagnostic):
+                self.write('sn.yaml',change)
+                rejected=self.build(success=False)
+                self.assertIn(diagnostic,rejected.stderr.decode(errors='replace'))
+                self.assertFalse(self.output.exists())
+        self.write('sn.yaml',manifest)
+        self.write('native/record.h',header.replace('int32_t number','float number'))
+        rejected=self.build(success=False)
+        self.assertIn('record field type differs',rejected.stderr.decode(errors='replace'))
+        self.assertFalse(list(self.output.rglob('assembly.json')))
+        self.write('native/record.h',header.replace('int record_refs(CanonicalRecord *);','long long record_refs(CanonicalRecord *);'))
+        rejected=self.build(success=False)
+        self.assertIn('record refs prototype differs',rejected.stderr.decode(errors='replace'))
+        self.assertFalse(list(self.output.rglob('assembly.json')))
+        self.write('native/record.h',header)
+        source=self.root/'native/value.c'
+        source.write_text(source.read_text().replace('int record_refs(CanonicalRecord *p) { return p ? 1 : 0; }\n',''))
+        rejected=self.build(success=False)
+        self.assertIn('record lifecycle export missing',rejected.stderr.decode(errors='replace'))
+        self.assertFalse(list(self.output.rglob('assembly.json')))
+
     def test_external_headers_invalidate_cached_generation(self):
         self.manifest(['C'])
         external = Path(self.temp.name) / 'external'

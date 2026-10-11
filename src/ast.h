@@ -696,6 +696,7 @@ typedef struct
     bool pass_self_by_ref;     /* True if 'as ref' - native methods receive self by pointer */
     bool is_serializable;      /* True if preceded by @serializable */
     const char *c_alias;       /* C type name alias (from #pragma alias), NULL if none */
+    const char *native_record_contract; /* Resolved package-owned C storage/lifecycle JSON. */
     const char **type_params;  /* type parameter names: ["T", "U"] — NULL if not generic */
     int type_param_count;      /* number of type parameters */
     Type ***type_param_constraints;    /* constraints per type param — NULL if unconstrained */

@@ -1,8 +1,9 @@
 # Generated native package imports
 
 Status: implemented consumer and provider adapters for resolved scalar and string
-function and borrowed-input/owned-result string-array contracts. Complete independent Sindarin package bodies, SDK artifact imports,
-managed record/interface/callback contracts and non-string array elements,
+function, borrowed-input/owned-result string-array contracts, and C-backed native
+as-ref records with explicit public storage/lifecycle contracts. Complete independent Sindarin package bodies, unchanged SDK facade imports,
+wider managed record/interface/callback contracts and non-string array elements,
 and wider package graph planning
 remain required by the [Rust completion goal](rust-completion-goal.md).
 
@@ -20,6 +21,21 @@ produce an explicit diagnostic. Ordinary portable Sindarin packages retain targe
 inheritance. This does not implement a Sindarin Go backend.
 
 ## Current contracts
+
+Package-owned C records use the ABI 1.5 `native.types` contract documented in
+[the manifest schema](native-package-manifest.md#schema). C/Rust consumers retain
+the actual record storage, fields, aliases, native methods and constructor
+semantics. C provider input guards retain record and string wire credits through
+callbacks and release them on all error paths. A borrowed record result acquires
+its own credit before those guards are released. Generated adapters reject wrong
+resource identities and invalid arguments without publishing result outputs.
+
+The SDK transport regression builds the original canonical C TextFile module
+into an archive and consumes it through generated record/string/array adapters,
+including field mutation, native methods, explicit and automatic file closure,
+and results surviving record cleanup. It uses a declaration adapter preserving
+the original record fields; independent compilation of the complete unchanged
+SDK facade, including its Sindarin method bodies, remains required.
 
 - Plain fixed-width scalar inputs/results use `value` ownership.
 - String inputs use `borrowed` ownership; adapters copy into shared C runtime

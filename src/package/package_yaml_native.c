@@ -98,9 +98,18 @@ static bool native_ownership_name(const char *name)
                     strcmp(name, "owned") == 0);
 }
 
+static bool native_identifier(const char *text)
+{
+    if (!text || !((*text >= 'A' && *text <= 'Z') || (*text >= 'a' && *text <= 'z') || *text == '_')) return false;
+    for (const char *p = text + 1; *p; p++)
+        if (!((*p >= 'A' && *p <= 'Z') || (*p >= 'a' && *p <= 'z') ||
+              (*p >= '0' && *p <= '9') || *p == '_')) return false;
+    return true;
+}
+
 static bool validate_native_plan(json_object *plan, const char *path)
 {
-    static const char *const root_fields[] = {"abi", "declarations", "builds", "bindings", "assembly", NULL};
+    static const char *const root_fields[] = {"abi", "declarations", "builds", "bindings", "assembly", "types", NULL};
     static const char *const build_fields[] = {"name", "language", "sources", "entry", "module",
                                              "include_dirs", "libraries", NULL};
     static const char *const binding_fields[] = {"declaration", "build", "symbol", "function", "convention",
@@ -123,6 +132,37 @@ static bool validate_native_plan(json_object *plan, const char *path)
                 return yaml_config_error(path, "native assembly sha256 must contain 64 lowercase hexadecimal digits");
     }
     if (!native_list(plan, "declarations", true, path)) return false;
+    json_object *records = NULL;
+    if (json_object_object_get_ex(plan, "types", &records)) {
+        static const char *const fields[] = {"declaration", "identity", "c_type", "header",
+                                             "create", "retain", "release", "refs", "owner", NULL};
+        if (strcmp(abi, "1.5") || !json_object_is_type(records, json_type_array) || !json_object_array_length(records))
+            return yaml_config_error(path, "native record types require ABI 1.5 and a nonempty sequence");
+        for (size_t i = 0; i < json_object_array_length(records); i++) {
+            json_object *record = json_object_array_get_idx(records, i);
+            if (!native_fields(record, fields, path)) return false;
+            const char *declaration = native_text(record, "declaration"), *separator = declaration ? strstr(declaration, "::") : NULL;
+            const char *identity = native_text(record, "identity"), *header = native_text(record, "header"), *owner = native_text(record, "owner");
+            if (!separator || separator == declaration || !native_identifier(separator + 2) || !identity || !header ||
+                !owner || strcmp(owner, "atomic") || !native_identifier(native_text(record, "c_type")) ||
+                !native_identifier(native_text(record, "create")) || !native_identifier(native_text(record, "retain")) ||
+                !native_identifier(native_text(record, "release")) || !native_identifier(native_text(record, "refs")))
+                return yaml_config_error(path, "native record requires declaration, identity, public header/C type, create/retain/release/refs and owner atomic");
+            json_object *declarations = NULL;
+            json_object_object_get_ex(plan, "declarations", &declarations);
+            bool listed = false;
+            for (size_t d = 0; d < json_object_array_length(declarations); d++) {
+                const char *file = json_object_get_string(json_object_array_get_idx(declarations, d));
+                if (strlen(file) == (size_t)(separator - declaration) && !strncmp(file, declaration, strlen(file))) listed = true;
+            }
+            if (!listed) return yaml_config_error(path, "native record declaration must belong to native.declarations");
+            for (size_t j = 0; j < i; j++) {
+                json_object *previous = json_object_array_get_idx(records, j);
+                if (!strcmp(declaration, native_text(previous, "declaration")) || !strcmp(identity, native_text(previous, "identity")))
+                    return yaml_config_error(path, "duplicate native record declaration or identity");
+            }
+        }
+    }
     json_object *builds = NULL, *bindings = NULL;
     if (!json_object_object_get_ex(plan, "builds", &builds) ||
         !json_object_is_type(builds, json_type_array) || !json_object_array_length(builds))
