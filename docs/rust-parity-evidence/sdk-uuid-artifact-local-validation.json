@@ -1,6 +1,6 @@
 {
-  "status": "Local UUID opt-in staging validated; unpublished; SDK hosted dependency and corrected main CI pending",
-  "base": "920f10f042db6fc96202dd21f9d1bee0c8d034d8",
+  "status": "Integrated local validation passed against accepted SDK; unpublished",
+  "base": "cbd2fbe956100419eb946bfd97b611566cee5fe7",
   "SDK_local_revision": "840f5ba",
   "units": 2,
   "exports": 41,
@@ -9,7 +9,7 @@
   "native_cases": 20,
   "native_runtime_sanitizer_cases": 1,
   "ci_helpers": 22,
-  "registered_gates": 361,
+  "registered_gates": 373,
   "registered_groups": 26,
   "controls": [
     "unchanged original UUID caller and oracle",
@@ -21,12 +21,10 @@
     "source/sealed artifact consumption without backing C",
     "all public Sindarin module bytes preserved"
   ],
-  "default_module_count": 12,
+  "default_module_count": 13,
   "remaining": [
-    "required corrected main CI acceptance",
-    "SDK native UUID hosted acceptance and exact-revision compiler pin",
     "integrated compiler hosted acceptance",
-    "language/package canonical as-val copy adapter",
+    "canonical package as-val copy integration",
     "whole SDK and final corpus/platform proof"
   ],
   "logs": {
@@ -35,5 +33,18 @@
     "sindarin-sdk-uuid-dispatch.log": "0b6282b705c764ef679c4ab30e754ca94530c9a6b284b70924970901710c5ebb",
     "sindarin-sdk-uuid-dispatch-san.log": "c4cd6267e3874da441a475ffad270160c4fa62a6f4607554adc70755d5328304",
     "sindarin-sdk-uuid-artifact-ci-helpers.log": "c565ab40b1173dfa14fa6b860453d723559eccb4f11f00a7332ef66a1ca4f11b"
+  },
+  "SDK_accepted_revision": "840f5ba6aac34018659542458c3f5894cc9b9e57",
+  "SDK_ci": 38152925411,
+  "default_units": 26,
+  "original_caller_cases": 468,
+  "stdin_controls": 72,
+  "integrated_logs": {
+    "sindarin-sdk-uuid-full540.log": "7d924c851e207e940e1f890831806b84cfc2d9304397200c5e511ffe2609c39f",
+    "sindarin-sdk-uuid-integrated72.log": "ea17bf17b1eddeae04c95fc14bcc88ff14daca7033bb9e93626dad0925b0f6f1",
+    "sindarin-sdk-uuid-integrated72-san.log": "ea17bf17b1eddeae04c95fc14bcc88ff14daca7033bb9e93626dad0925b0f6f1",
+    "sindarin-sdk-uuid-integrated-native.log": "0b6282b705c764ef679c4ab30e754ca94530c9a6b284b70924970901710c5ebb",
+    "sindarin-sdk-uuid-integrated-native-san.log": "c4cd6267e3874da441a475ffad270160c4fa62a6f4607554adc70755d5328304",
+    "sindarin-sdk-uuid-integrated-helpers.log": "20f1abb532406619a98fc9ceb06b33e1ccc2e6f1792f85e6972cf40c36b06a49"
   }
 }
