@@ -97,6 +97,7 @@ Stmt *ast_create_function_stmt(Arena *arena, Token name, Parameter *params, int 
             new_params[i].name.filename = params[i].name.filename;
             new_params[i].type = params[i].type;
             new_params[i].mem_qualifier = params[i].mem_qualifier;
+            new_params[i].sync_modifier = params[i].sync_modifier;
         }
         stmt->as.function.params = new_params;
     }

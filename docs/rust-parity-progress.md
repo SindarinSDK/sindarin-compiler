@@ -7,6 +7,35 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Function parameter qualifiers: CI correction, 2026-10-11
+
+Facade revision `e38cc04f` failed Windows core validation in
+[CI 38103118038](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38103118038).
+The generated native-provider artifact test and the Rust Sindarin mutable-array
+package publication test rejected ordinary declarations as reference-qualified.
+Linux/macOS core passed; coverage verification and the aggregate correctly failed
+on the Windows gate failures. The facade batch is not hosted-accepted.
+
+`ast_create_function_stmt` copied parameter memory qualifiers but omitted
+`sync_modifier`, leaving that field uninitialized in arena storage. The new
+package validator exposed this defect. Both exact package failures reproduce
+locally with `MALLOC_PERTURB_=165`; the focused poisoned-arena regression also
+fails before the repair. The constructor now copies the actual synchronization
+qualifier. The regression verifies both `SYNC_NONE` and `SYNC_ATOMIC`, preserving
+the validator's rejection of unsupported synchronized package inputs.
+
+Complete local C/Rust suites pass 3,241/1,097 checks without failures/skips.
+The increase is one deterministic AST regression. Both previously failing package
+tests pass with nonzero heap contents. ABI/lifecycle, runtime-contract and CI-helper
+checks pass: 20 artifact, 41 import, 14 runtime-contract, 22 CI-helper, ten ABI
+clients, four sanitized C ABI clients and C/Rust/Go package lifecycle clients.
+The correction awaits its own complete hosted acceptance after publication.
+Feature publication remains frozen until corrected integrated main passes all
+required Linux/macOS/Windows CI. Unpublished byte-array ABI work is held separately;
+the complete SDK, broader contracts and final corpus acceptance remain required.
+
+Evidence: [parameter qualifier correction](rust-parity-evidence/parameter-sync-ci-correction-validation.json).
+
 ## Unchanged TextFile facade libraries: local validation, 2026-10-11
 
 SN bindings now resolve public static/instance `Type.method` exports and public

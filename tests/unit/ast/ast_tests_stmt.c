@@ -126,6 +126,31 @@ static void test_ast_create_function_stmt()
     cleanup_arena(&arena);
 }
 
+static void test_ast_function_parameter_sync_on_poisoned_storage()
+{
+    Arena arena;
+    arena_init(&arena, 65536);
+    Token name = create_dummy_token(&arena, "qualified");
+    Type *type = ast_create_primitive_type(&arena, TYPE_INT);
+    Parameter params[2] = {
+        {.name = create_dummy_token(&arena, "plain"), .type = type,
+         .mem_qualifier = MEM_DEFAULT, .sync_modifier = SYNC_NONE},
+        {.name = create_dummy_token(&arena, "atomic"), .type = type,
+         .mem_qualifier = MEM_AS_REF, .sync_modifier = SYNC_ATOMIC}
+    };
+    /* Heap contents must not decide whether a package declaration is rejected
+     * for synchronization qualifiers. Poison all future constructor storage. */
+    memset(arena.current->data + arena.current_used, 0xa5,
+           arena.current->size - arena.current_used);
+    Stmt *fn = ast_create_function_stmt(&arena, name, params, 2, type, NULL, 0, &name);
+    assert(fn != NULL && fn->as.function.params != params);
+    assert(fn->as.function.params[0].sync_modifier == SYNC_NONE);
+    assert(fn->as.function.params[1].sync_modifier == SYNC_ATOMIC);
+    assert(fn->as.function.params[0].mem_qualifier == MEM_DEFAULT);
+    assert(fn->as.function.params[1].mem_qualifier == MEM_AS_REF);
+    cleanup_arena(&arena);
+}
+
 static void test_ast_create_return_stmt()
 {
     Arena arena;
@@ -349,6 +374,7 @@ void test_ast_stmt_main()
     TEST_RUN("ast_create_expr_stmt", test_ast_create_expr_stmt);
     TEST_RUN("ast_create_var_decl_stmt", test_ast_create_var_decl_stmt);
     TEST_RUN("ast_create_function_stmt", test_ast_create_function_stmt);
+    TEST_RUN("ast_function_parameter_sync_on_poisoned_storage", test_ast_function_parameter_sync_on_poisoned_storage);
     TEST_RUN("ast_create_return_stmt", test_ast_create_return_stmt);
     TEST_RUN("ast_create_block_stmt", test_ast_create_block_stmt);
     TEST_RUN("ast_create_if_stmt", test_ast_create_if_stmt);

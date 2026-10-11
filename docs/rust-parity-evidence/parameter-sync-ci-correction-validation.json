@@ -1,0 +1,280 @@
+{
+  "base_revision": "e38cc04f978d41ebc558289cdeaa74853fbad9d7",
+  "failed_ci": {
+    "run_id": 38103118038,
+    "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38103118038",
+    "conclusion": "failure",
+    "jobs": [
+      {
+        "conclusion": "success",
+        "databaseId": 114362979675,
+        "name": "Build (macos-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 114362979769,
+        "name": "Build (windows-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 114362979775,
+        "name": "Build (ubuntu-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 114363234876,
+        "name": "Tests / closures (ubuntu-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 114363234884,
+        "name": "Tests / numeric-io (ubuntu-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 114363234886,
+        "name": "Tests / arrays (ubuntu-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 114363234908,
+        "name": "Tests / rust (ubuntu-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 114363234918,
+        "name": "Tests / native (ubuntu-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 114363234946,
+        "name": "Tests / sanitizers (ubuntu-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 114363234962,
+        "name": "Tests / core (ubuntu-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 114363234992,
+        "name": "Tests / native (windows-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 114363234996,
+        "name": "Tests / native (macos-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 114363235001,
+        "name": "Tests / c (macos-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 114363235005,
+        "name": "Tests / callbacks (macos-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 114363235006,
+        "name": "Tests / closures (windows-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 114363235018,
+        "name": "Tests / callback-sanitizers (ubuntu-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 114363235028,
+        "name": "Tests / closures (macos-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 114363235029,
+        "name": "Tests / arrays (macos-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 114363235037,
+        "name": "Tests / numeric-io (macos-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "failure",
+        "databaseId": 114363235050,
+        "name": "Tests / core (windows-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 114363235053,
+        "name": "Tests / c (ubuntu-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 114363235067,
+        "name": "Tests / callbacks (windows-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 114363235069,
+        "name": "Tests / rust (macos-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 114363235070,
+        "name": "Tests / core (macos-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 114363235080,
+        "name": "Tests / rust (windows-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 114363235089,
+        "name": "Tests / numeric-io (windows-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 114363235105,
+        "name": "Tests / c (windows-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 114363235120,
+        "name": "Tests / arrays (windows-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 114363235302,
+        "name": "Tests / callbacks (ubuntu-latest)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "failure",
+        "databaseId": 114365880168,
+        "name": "Verify complete CI coverage",
+        "status": "completed"
+      },
+      {
+        "conclusion": "failure",
+        "databaseId": 114365913997,
+        "name": "Compiler CI",
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "databaseId": 114365914752,
+        "name": "Validated artifacts (${{ matrix.os }})",
+        "status": "completed"
+      }
+    ]
+  },
+  "root_cause": "Function statement constructor omitted sync_modifier when cloning parameters; package validator read uninitialized arena bytes.",
+  "correction": "Copy the actual parameter sync qualifier; preserve default and atomic values without weakening package validation.",
+  "negative_controls": {
+    "unit": {
+      "failure_reproduced": true,
+      "trigger": "explicitly poisoned arena",
+      "expected_error": "params[0].sync_modifier == SYNC_NONE"
+    },
+    "artifacts": {
+      "failure_reproduced": true,
+      "trigger": "MALLOC_PERTURB_=165",
+      "expected_error": "provider binding"
+    },
+    "imports": {
+      "failure_reproduced": true,
+      "trigger": "MALLOC_PERTURB_=165",
+      "expected_error": "provider binding"
+    }
+  },
+  "poisoned_heap_positive_controls": {
+    "generated_native_provider_languages": [
+      "C",
+      "RS",
+      "GO"
+    ],
+    "rust_sindarin_array_package_cases": 36,
+    "passed": true
+  },
+  "counts": {
+    "c": {
+      "passed": 3241,
+      "failed": 0,
+      "skipped": 0
+    },
+    "rust": {
+      "passed": 1097,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "artifact_tests": 20,
+  "runtime_contract_tests": 14,
+  "ci_helper_tests": 22,
+  "runtime_abi_clients": 10,
+  "sanitized_c_abi_clients": 4,
+  "lifecycle_clients": [
+    "C",
+    "Rust",
+    "Go"
+  ],
+  "hosted_correction_acceptance": "pending; require a distinct correction CI run on integrated main",
+  "feature_publication": "frozen until corrected integrated CI succeeds",
+  "held_feature_work": {
+    "stash_commit": "f724d4290c99446a1983bb167c794623d01c925e",
+    "scope": "Unpublished ABI 1.6 byte views and native-copy reentry guards; excluded from correction"
+  },
+  "original_program_oracle_snapshot_edits": false,
+  "source_sha256": {
+    "src/ast/ast_stmt.c": "33c0b44b6adfd272c1a45bf2c0b964ceb5dbc48de5ba6eba1234a5e33d1e5f84",
+    "tests/unit/ast/ast_tests_stmt.c": "2cf734bbcae0b9a4074eddb2950d8de2fb61211b120618f7970c0a4d8a52c022"
+  },
+  "log_sha256": {
+    "/tmp/sindarin-sync-copy-c-suite.log": "c93e2d7dd452f207246c1e7cb6df5ef6a812434a268bd9d4f4a82a9a4d4ca0af",
+    "/tmp/sindarin-sync-copy-rust-suite.log": "bfb08903686335dd05f4411c504075a45ead4163efc3e14cfdda9b3db711a17e",
+    "/tmp/sindarin-sync-copy-artifacts.log": "96ff4cdb0864dfe598ab40300824c45e94e98e770326a97caf0f12c70fae358f",
+    "/tmp/sindarin-sync-copy-contracts.log": "ec793c23358a10ba6073228d48c691a7a17b8e0bdd3eacd05bc117c459d69335",
+    "/tmp/sindarin-sync-copy-helpers.log": "244da00d3f214b54ec890ff04e6985e7fda69cb47d1178b2bb2d4f725fda16b3",
+    "/tmp/sindarin-sync-copy-abi.log": "d686abeaccf47a705f533b26474f6b24d80ca1c682ebfd70d53de99ea36f6674",
+    "/tmp/sindarin-sync-copy-abi-sanitizers.log": "689f7e49b8f838206123ce3ed8f8d6f5c3e6ab401cb8ed3a95e64153aedf0b7e",
+    "/tmp/sindarin-sync-copy-lifecycle.log": "098cde1e2753ec909260e36d47d0d85061bca0c79c6cf5c5e2c3c27eef427f9b",
+    "/tmp/sindarin-sync-copy-unit-before.log": "df26b8978973830ae39315ba1aeaddecf3c3ac26a8efa1ef44e392e1312f95d2",
+    "/tmp/sindarin-sync-copy-artifacts-before.log": "c9f0fe2564ff832f60ab3e5bb3db5b1dd32e2ecd10758318b266a36b52c6bc13",
+    "/tmp/sindarin-sync-copy-imports-before.log": "550845610647c3a7810f878a44bc3b06ad5b1520c702f44b010e01036c200a23",
+    "/tmp/sindarin-sync-copy-artifacts-after.log": "ec216fa6e51a172ad1b4d10930ded837db4bd897cb373fea6b2baac6f2a83929",
+    "/tmp/sindarin-sync-copy-imports-after.log": "caf3277dbc0867777c808f6d46ae62617acba6557effbec897c9779ae4f90957",
+    "/tmp/sindarin-sync-copy-imports.log": "ba5f5c801a7731dabf218828086420674c0776bfea1ab937d101c1e9aad1a4a8"
+  },
+  "import_tests": 41
+}
