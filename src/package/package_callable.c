@@ -104,14 +104,18 @@ bool package_callable_valid(const PackageCallable *callable, bool sindarin)
 
 json_object *package_callable_signature(CompilerOptions *options, const PackageCallable *callable,
                                        json_object *plan, json_object *binding, Module *module,
-                                       Module *const *modules, int count)
+                                       Module *const *modules, int count, const char *manifest)
 {
     json_object *signature = json_object_new_object(), *params = json_object_new_array(), *abi = NULL;
     json_object_object_get_ex(plan, "abi", &abi);
     json_object_object_add(signature, "abi", json_object_get(abi));
     json_object_object_add(signature, "binding", json_object_get(binding));
     Type *result = callable->function ? callable->function->return_type : callable->method->return_type;
-    json_object_object_add(signature, "return_type", package_native_model_type(&options->arena, result, module, modules, count));
+    json_object *return_model = package_native_model_type(&options->arena, result, module, modules, count);
+    if (!package_native_resolve_resource_result(options, plan, binding, result, return_model, manifest)) {
+        json_object_put(return_model); json_object_put(params); json_object_put(signature); return NULL;
+    }
+    json_object_object_add(signature, "return_type", return_model);
     json_object_object_add(signature, "params", params);
     Parameter *parameters = callable->function ? callable->function->params : callable->method->params;
     int parameter_count = callable->function ? callable->function->param_count : callable->method->param_count;

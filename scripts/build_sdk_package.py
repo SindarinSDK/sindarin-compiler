@@ -14,9 +14,16 @@ from pathlib import Path
 
 MODULES = ('io/bytes', 'io/textfile', 'io/binaryfile', 'io/path',
            'io/directory', 'io/stdio', 'os/os', 'os/env', 'crypto/crypto')
+SUPPORTED_MODULES = MODULES + ('time/time', 'time/date')
+RESOURCE_RESULTS = {
+    ('time/date', 'sn_date_to_time'): 'src/time/time.sn::Time',
+    ('time/date', 'Date.toTime'): 'src/time/time.sn::Time',
+}
 RECORDS = {
     'io/textfile': ('TextFile', 'SnSdkTextFileRecord', 'sn_sdk_text_file'),
     'io/binaryfile': ('BinaryFile', 'SnSdkBinaryFileRecord', 'sn_sdk_binary_file'),
+    'time/time': ('Time', 'SnSdkTimeRecord', 'sn_sdk_time'),
+    'time/date': ('Date', 'SnSdkDateRecord', 'sn_sdk_date'),
 }
 RAW = {'int': 'long long', 'long': 'long long', 'int32': 'int32_t',
        'uint': 'uint64_t', 'uint32': 'uint32_t', 'byte': 'unsigned char',
@@ -33,6 +40,8 @@ def checked(command, cwd, input_bytes=None):
 
 def raw_type(value, module):
     kind = value['kind']
+    if kind == 'pointer' and value.get('base_type', {}).get('kind') == 'void' and module == 'time/date':
+        return 'void *'
     if kind in RAW:
         return RAW[kind]
     if kind == 'array':
@@ -49,15 +58,17 @@ def ownership(function, receiver=False):
     for parameter in function['params']:
         managed = parameter['type']['kind'] in ('string', 'array', 'struct')
         parameters.append(parameter['name']+(': borrowed' if managed else ': value'))
-    managed = function['return_type']['kind'] in ('string', 'array', 'struct')
+    managed = function['return_type']['kind'] in ('string', 'array', 'struct', 'pointer')
     return '{parameters: {'+', '.join(parameters)+'}, result: '+('owned' if managed else 'value')+'}'
 
 
 def prepare(compiler, sdk, destination, modules=MODULES):
     compiler, sdk, destination = (Path(p).resolve() for p in (compiler, sdk, destination))
     modules = tuple(modules)
-    if not modules or len(set(modules)) != len(modules) or any(m not in MODULES for m in modules):
-        raise ValueError('select distinct implemented SDK modules: '+', '.join(MODULES))
+    if not modules or len(set(modules)) != len(modules) or any(m not in SUPPORTED_MODULES for m in modules):
+        raise ValueError('select distinct implemented SDK modules: '+', '.join(SUPPORTED_MODULES))
+    if 'time/date' in modules and 'time/time' not in modules:
+        modules += ('time/time',)
     if destination.exists():
         raise ValueError('SDK artifact destination already exists: '+str(destination))
     if destination.is_relative_to(sdk):
@@ -125,6 +136,11 @@ def prepare(compiler, sdk, destination, modules=MODULES):
                          '      function: '+wrapper, '      symbol: sdk_'+stem+'_helper_'+name,
                          '      build: native_'+stem, '      convention: C', '      failure: abort',
                          '      ownership: '+ownership(function)]
+            if function['return_type']['kind'] == 'pointer':
+                resource = RESOURCE_RESULTS.get((module, name))
+                if not resource:
+                    raise ValueError('SDK opaque result still needs an explicit resource contract: '+module+'::'+name)
+                bindings.append('      result_type: '+resource)
         (native/(stem+'.c')).write_text('\n'.join(source)+'\n')
         lines += ['    - name: native_'+stem, '      language: C', '      sources: [native/'+stem+'.c]',
                   '      provides_sources: [src/'+module+'.sn.c]',
@@ -150,6 +166,11 @@ def prepare(compiler, sdk, destination, modules=MODULES):
                 bindings += ['      function: '+name, '      symbol: sdk_'+stem+'_method_'+name.replace('.', '_')+('_'+selector if collision else ''),
                              '      build: facade_'+stem, '      convention: C', '      failure: abort',
                              '      ownership: '+ownership(method, not method['is_static'])]
+                if method['return_type']['kind'] == 'pointer':
+                    resource = RESOURCE_RESULTS.get((module, name))
+                    if not resource:
+                        raise ValueError('SDK opaque result still needs an explicit resource contract: '+module+'::'+name)
+                    bindings.append('      result_type: '+resource)
     lines += ['  bindings:']+bindings
     manifest = destination/'sn.yaml'; manifest.write_text('\n'.join(lines)+'\n')
     return manifest
@@ -160,7 +181,7 @@ def main():
     parser.add_argument('--compiler', type=Path, required=True)
     parser.add_argument('--sdk', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
-    parser.add_argument('--modules', nargs='+', choices=MODULES, default=list(MODULES))
+    parser.add_argument('--modules', nargs='+', choices=SUPPORTED_MODULES, default=list(MODULES))
     parser.add_argument('--build', action='store_true')
     args = parser.parse_args()
     args.compiler = args.compiler.resolve()

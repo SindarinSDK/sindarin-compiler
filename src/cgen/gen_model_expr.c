@@ -9,6 +9,7 @@
  * other targets, and annotate only the C spelling used by member templates. */
 static void c_model_field_alias(json_object *model, Type *type, const char *name)
 {
+    if (type && type->kind == TYPE_POINTER) type = type->as.pointer.base_type;
     if (!type || type->kind != TYPE_STRUCT || !type->as.struct_type.is_native || !name) return;
     StructField *field = ast_struct_get_field(type, name);
     if (field && field->c_alias)

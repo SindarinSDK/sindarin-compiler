@@ -97,7 +97,7 @@ class CoverageTests(unittest.TestCase):
         self.collect()
         report = json.loads((self.output / 'summary.json').read_text())
         self.assertEqual(report['groups'], 26)
-        self.assertEqual(report['gates'], 313)
+        self.assertEqual(report['gates'], 317)
         entries = [g for g in self.catalog['gates'] if g['id'] == 'native-entrypoints']
         self.assertEqual(len(entries), 1)
         self.assertEqual(entries[0]['group'], 'native')
@@ -130,6 +130,14 @@ class CoverageTests(unittest.TestCase):
         self.assertEqual(len(string_sanitizers), 1)
         self.assertEqual(string_sanitizers[0]['group'], 'sanitizers')
         self.assertTrue(string_sanitizers[0]['linux_only'])
+        opaque = [g for g in self.catalog['gates'] if g['id'] == 'package-opaque-results']
+        self.assertEqual(len(opaque), 1)
+        self.assertEqual(opaque[0]['group'], 'core')
+        self.assertFalse(opaque[0]['linux_only'])
+        failures = [g for g in self.catalog['gates'] if g['id'] == 'package-opaque-result-sanitizers']
+        self.assertEqual(len(failures), 1)
+        self.assertEqual(failures[0]['group'], 'sanitizers')
+        self.assertTrue(failures[0]['linux_only'])
         sdk = [g for g in self.catalog['gates'] if g['id'] == 'sdk-artifact-callers']
         self.assertEqual(len(sdk), 1)
         self.assertEqual(sdk[0]['group'], 'core')

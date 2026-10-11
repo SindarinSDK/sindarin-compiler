@@ -67,8 +67,54 @@ accepted compiler `2c0f1c08` and SDK `89f3b83`. The same complete 396-case
 SDK matrix passed the string-array compiler, and integrated main `cf6f54f8`
 passes 36 original Stdio cases plus all 72 stdin controls. CI helpers pass 22
 tests. The required correction is accepted; this independent coverage batch is
-ready for hosted validation and does not depend on the pending string-array
-feature. Whole SDK and final platform acceptance remain required.
+published as `93dea079` and awaits
+[CI 38137086990](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38137086990).
+It does not depend on the pending string-array feature. Two independent batches
+are awaiting complete CI; further feature publication waits for their results.
+Whole SDK and final platform acceptance remain required.
+
+
+## Owned opaque package results and Time/Date artifacts: local validation, 2026-10-11
+
+`result_type` resolves an owned public `*void` result to an explicitly registered
+canonical C record. Provider/consumer adapters preserve the pointer API, carry
+one typed-resource credit and retain native cleanup. Unknown/missing identities,
+non-owned policies and incorrect declared result types are rejected. C status
+failures release allocated owned results while leaving outputs unchanged; value
+initialization precedes input validation, so failed validation safely cleans nil.
+Rust resource body exports now explicitly diagnose the missing resource guards.
+They remain required implementation work rather than accepted rejection.
+
+Field aliases are restored in Rust's private C projection, and C member metadata
+also resolves aliases through native method self pointers. An actual SDK Date
+field write exposed the projection bug; an aliased native record method exposed
+the C self-pointer case. Both targets preserve public fields and canonical layout.
+
+Opaque and inherited method controls pass normally and under strict sanitizers,
+covering source/sealed modes, source-owner cleanup, caller-owned pointer cleanup,
+identity/aliases, nil, wrong wire kinds, failed outputs and exact destruction.
+The actual Time/Date stager builds all four C/SN units, including same-name Date
+method pairs and its original `toTime()` API. Original Time/Date callers plus an
+owned conversion control pass 108 source/sealed C/Rust mode cases after backing
+C source removal. All 28 public SDK module bytes remain unchanged. The SDK source
+migration is accepted SDK `bd210cf`; integrated hosted registration is being added.
+
+Final complete C/Rust suites pass 3,242/1,097 checks. The final import/artifact sequence passes 50/22, and the 108-case SDK matrix also
+passes strict address/undefined/leak checks.
+[Local evidence](rust-parity-evidence/opaque-resource-results-validation.json)
+records the exact scope; hosted acceptance remains pending.
+The integrated local gate inventory is 317 in 26 groups before SDK gate registration.
+Compiler selectors and SDK migration have complete hosted acceptance.
+
+Method repair `3a8d675a` passed all 34 hosted jobs, 26 groups and 304 gates in
+[CI 38127775229](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38127775229).
+[Retained acceptance](rust-parity-evidence/static-instance-methods-ci-green.json)
+records the platform compiler hashes. Provider batch `2c0f1c08` also passed all 34 jobs in
+[CI 38128023413](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38128023413),
+with 26 groups and 305 gates. The selector correction passed all 34 jobs in CI 38134321189. Opaque/Time-Date
+work remains locally held until the two outstanding feature runs finish. Wider
+record/interface/generic contracts, dependency lifecycle graphs, whole SDK and
+final original-corpus/platform acceptance remain required.
 
 
 ## Package static/instance method selection: local validation, 2026-10-11

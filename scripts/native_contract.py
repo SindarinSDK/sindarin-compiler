@@ -13,6 +13,8 @@ TYPES = {'int': ('long long', 'int64_t'), 'long': ('long long', 'int64_t'),
 
 def kind(value):
     name = value['kind']
+    if name == 'pointer' and value.get('base_type', {}).get('kind') == 'void' and value.get('native_record') and value.get('resource_layout'):
+        return 'record'
     if name == 'struct' and value.get('native_record') and value.get('is_native') and value.get('pass_self_by_ref'):
         return 'record'
     if name == 'array' and value.get('element_type', {}).get('kind') == 'string':
@@ -27,6 +29,8 @@ def kind(value):
 
 
 def raw_type(value):
+    if value['kind'] == 'pointer' and kind(value) == 'record':
+        return 'void *'
     return value['native_record']['c_type'] + ' *' if kind(value) == 'record' else TYPES[kind(value)][0]
 
 

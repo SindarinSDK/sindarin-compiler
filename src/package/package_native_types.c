@@ -183,3 +183,78 @@ bool package_native_validate_records(CompilerOptions *options, json_object *plan
     }
     return true;
 }
+
+static StructDeclStmt *resource_find_declaration(Stmt **statements, int count,
+                                                const char *file, const char *name, unsigned depth)
+{
+    if (depth > 64) return NULL;
+    for (int i = 0; i < count; i++) {
+        Stmt *stmt = statements[i];
+        if (stmt->type == STMT_STRUCT_DECL && !strcmp(stmt->as.struct_decl.name.start, name) &&
+            stmt->as.struct_decl.name.filename && record_same_file(stmt->as.struct_decl.name.filename, file))
+            return &stmt->as.struct_decl;
+        if (stmt->type == STMT_IMPORT) {
+            StructDeclStmt *found = resource_find_declaration(stmt->as.import.imported_stmts,
+                stmt->as.import.imported_count, file, name, depth + 1);
+            if (found) return found;
+        }
+    }
+    return NULL;
+}
+
+bool package_native_resolve_resource_result(CompilerOptions *options, json_object *plan,
+    json_object *binding, Type *type, json_object *model, const char *manifest)
+{
+    const char *resource = json_object_get_string(json_object_object_get(binding, "result_type"));
+    if (!resource && (!type || type->kind != TYPE_POINTER)) return true;
+    if (!resource || !type || type->kind != TYPE_POINTER || !type->as.pointer.base_type ||
+        type->as.pointer.base_type->kind != TYPE_VOID) {
+        fprintf(stderr, "error: native result_type is required for an owned opaque *void result and cannot annotate other types\n");
+        return false;
+    }
+    const char *separator = strstr(resource, "::"), *slash = strrchr(manifest, '/');
+#ifdef _WIN32
+    const char *back = strrchr(manifest, '\\');
+    if (back && (!slash || back > slash)) slash = back;
+#endif
+    int prefix = slash ? (int)(slash - manifest + 1) : 0;
+    char path[4096];
+    if (!separator || snprintf(path, sizeof(path), "%.*s%.*s", prefix, manifest,
+        (int)(separator - resource), resource) >= (int)sizeof(path)) return false;
+    Arena *arena = &options->arena;
+    const char *filename = arena_strdup(arena, path);
+    SymbolTable symbols;
+    symbol_table_init(arena, &symbols);
+    char *source = file_read(arena, filename);
+    Module *module = NULL;
+    if (source) {
+        diagnostic_init(filename, source);
+        char **imports = NULL;
+        Module **modules = NULL;
+        bool *direct = NULL, *emitted = NULL;
+        int count = 0, capacity = 0;
+        module = parse_module_with_imports(arena, &symbols, filename, &imports, &count,
+            &capacity, &modules, &direct, &emitted, options->compiler_dir);
+        if (module && !type_check_module(module, &symbols)) module = NULL;
+        if (module && !package_native_bind_records(arena, plan, manifest, module)) module = NULL;
+    }
+    StructDeclStmt *decl = module ? resource_find_declaration(module->statements, module->count,
+        filename, separator + 2, 0) : NULL;
+    bool valid = decl && decl->native_record_contract;
+    if (valid) {
+        json_object *record = json_tokener_parse(decl->native_record_contract);
+        valid = record && !strcmp(json_object_get_string(json_object_object_get(record, "declaration")), resource);
+        if (valid) {
+            Type *record_type = ast_create_struct_type(arena, decl->name.start, decl->fields, decl->field_count,
+                decl->methods, decl->method_count, decl->is_native, decl->is_packed,
+                decl->pass_self_by_ref, decl->c_alias);
+            json_object_object_del(record, "resolved_header");
+            json_object_object_add(model, "native_record", json_object_get(record));
+            json_object_object_add(model, "resource_layout", gen_model_type(arena, record_type));
+        }
+        json_object_put(record);
+    }
+    symbol_table_cleanup(&symbols);
+    if (!valid) fprintf(stderr, "error: opaque result_type '%s' must resolve to its canonical native as-ref record\n", resource);
+    return valid;
+}

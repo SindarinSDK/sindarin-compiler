@@ -1,0 +1,6 @@
+test_rust_resource_body_requires_explicit_resource_guards (__main__.OpaqueResultTests.test_rust_resource_body_requires_explicit_resource_guards) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.286s
+
+OK

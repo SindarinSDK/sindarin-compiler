@@ -61,6 +61,7 @@ def record_layouts(signatures, namespace):
     for signature in signatures:
         for value in [signature['return_type']] + [p['type'] for p in signature['params']]:
             if kind(value) == 'record': values[value['native_record']['identity']] = value
+    values = {identity: value.get('resource_layout', value) for identity, value in values.items()}
     def field_type(value):
         name = value['kind']
         # Storage follows the established C record declaration, whose uint
@@ -140,10 +141,16 @@ def c_provider(signatures, namespace, root='.'):
         if status and result != 'void': wire.append(TYPES[result][1] + ' *out')
         lines.append(f'{"uint32_t" if status else TYPES[result][1]} {b["symbol"]}({", ".join(wire) or "void"}) {{')
         if status and result != 'void': lines.append('  if (!out) return SN_ABI_INVALID_ARGUMENT;')
+        if result != 'void': lines.append(f'  {raw_type(s["return_type"])} value = {{0}};')
         array_params = [i for i,p in enumerate(params) if kind(p['type']) in ('string_array','byte_array','native_array')]
         record_params = [i for i,p in enumerate(params) if kind(p['type']) == 'record']
         string_params = [i for i,p in enumerate(params) if kind(p['type']) == 'string']
         managed_params = sorted(array_params + record_params + string_params)
+        result_cleanup = ''
+        if b['ownership']['result'] == 'owned':
+            if result == 'record': result_cleanup = s['return_type']['native_record']['release']+'(value); '
+            elif result == 'string': result_cleanup = 'free(value); '
+            elif result in ('string_array','byte_array','native_array'): result_cleanup = 'sn_array_free(value); '
         for i in array_params: lines.append(f'  SnArray *array{i} = NULL;')
         for i in record_params: lines.append(f'  void *record{i} = NULL;')
         guarded = managed_params if s.get('abi') in ('1.5','1.6','1.7') else sorted(record_params + string_params)
@@ -180,11 +187,10 @@ def c_provider(signatures, namespace, root='.'):
             else:
                 if k == 'bool': lines.append(f'  if (p{i} > 1) {{ '+failed('SN_ABI_INVALID_ARGUMENT')+' }')
                 arguments.append(f'({TYPES[k][0]})p{i}')
-        if result != 'void': lines.append(f'  {raw_type(s["return_type"])} value = {{0}};')
         if status:
             if result != 'void': arguments.append('&value')
             if managed_params: lines.append(f'  provider_status = {b["function"]}({", ".join(arguments)});')
-            else: lines += [f'  uint32_t status = {b["function"]}({", ".join(arguments)});', '  if (status) return status;']
+            else: lines += [f'  uint32_t status = {b["function"]}({", ".join(arguments)});', '  if (status) { '+result_cleanup+'return status; }']
         else: lines.append(('  value = ' if result != 'void' else '  ')+f'{b["function"]}({", ".join(arguments)});')
         if result == 'record' and b['ownership']['result'] == 'borrowed':
             record = s['return_type']['native_record']
@@ -196,7 +202,7 @@ def c_provider(signatures, namespace, root='.'):
                 for position,i in reversed(list(enumerate(array_params))):
                     unique = ' && '.join(f'array{i} != array{j}' for j in array_params[:position])
                     lines.append(('  if ('+unique+') ' if unique else '  ')+f'sn_array_free(array{i});')
-            lines.append('  if (provider_status) { '+('return provider_status;' if status else 'abort();')+' }')
+            lines.append('  if (provider_status) { '+result_cleanup+('return provider_status;' if status else 'abort();')+' }')
         if result == 'string':
             lines += ['  SnAbiValue *wire_value = NULL;', '  uint32_t status_copy = sn_abi_v1_string_copy(value, &wire_value);',
                       '  free(value);', '  if (status_copy) { '+('return status_copy;' if status else 'abort();')+' }']

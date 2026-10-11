@@ -306,6 +306,22 @@ and wider value/interface/generic contracts remain unfinished.
 
 ## Staging the canonical SDK
 
+With the canonical Time/Date SDK modules, explicit selection supports
+`--modules time/time` and `--modules time/date`. Date selection includes Time's
+storage contract for its unchanged owned opaque `toTime()` result. Staging keeps
+the original public modules and operation bodies; same-name static/instance
+methods receive explicit manifest selectors and distinct exports. The existing
+nine-module default remains compatible with the accepted SDK revision until
+Time/Date's compiler/SDK changes receive hosted acceptance and the SDK pin moves.
+
+`scripts/check_sdk_time_date_artifact.py --sdk /path/to/canonical-sdk` verifies
+108 source/sealed C/Rust mode cases: the unchanged original Time and Date callers
+and an owned conversion control. The conversion retains field aliases and source
+mutation, survives Date cleanup, returns one Time credit for caller cleanup and
+keeps nil. Sealed consumption removes all backing C sources while preserving
+hash-checked public declarations/layout headers. Whole SDK migration and hosted
+Time/Date acceptance remain required.
+
 `scripts/build_sdk_package.py` stages the accepted legacy SDK into a fresh
 package directory, retaining original manifest dependencies, public `.sn` files
 and C implementations. Generated C forwarders preserve original function names;

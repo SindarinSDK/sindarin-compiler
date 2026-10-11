@@ -1461,6 +1461,32 @@
       "command": ["{python}", "scripts/check_static_instance_methods.py"],
       "group": "native",
       "linux_only": false
+    },
+    {
+      "id": "package-opaque-results",
+      "name": "owned opaque package results, field aliases and caller cleanup",
+      "command": [
+        "{python}",
+        "tests/package/opaque_results.py"
+      ],
+      "group": "core",
+      "linux_only": false
+    },
+    {
+      "id": "package-opaque-result-sanitizers",
+      "name": "owned opaque result transfers and status failure cleanup sanitizers",
+      "command": [
+        "{python}",
+        "tests/package/opaque_results.py"
+      ],
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      },
+      "group": "sanitizers",
+      "linux_only": true
     }
   ]
 }

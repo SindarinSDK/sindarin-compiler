@@ -1,0 +1,879 @@
+{
+  "passed": true,
+  "cases": [
+    {
+      "case": "time",
+      "artifact": "source",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "case": "time",
+      "artifact": "source",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "case": "time",
+      "artifact": "source",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "case": "time",
+      "artifact": "source",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "case": "time",
+      "artifact": "source",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "case": "time",
+      "artifact": "source",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "case": "time",
+      "artifact": "source",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "case": "time",
+      "artifact": "source",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "case": "time",
+      "artifact": "source",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "case": "time",
+      "artifact": "source",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "case": "time",
+      "artifact": "source",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "case": "time",
+      "artifact": "source",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "case": "time",
+      "artifact": "source",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "case": "time",
+      "artifact": "source",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "case": "time",
+      "artifact": "source",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "case": "time",
+      "artifact": "source",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "case": "time",
+      "artifact": "source",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "case": "time",
+      "artifact": "source",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "case": "date",
+      "artifact": "source",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "case": "date",
+      "artifact": "source",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "case": "date",
+      "artifact": "source",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "case": "date",
+      "artifact": "source",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "case": "date",
+      "artifact": "source",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "case": "date",
+      "artifact": "source",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "case": "date",
+      "artifact": "source",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "case": "date",
+      "artifact": "source",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "case": "date",
+      "artifact": "source",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "case": "date",
+      "artifact": "source",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "case": "date",
+      "artifact": "source",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "case": "date",
+      "artifact": "source",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "case": "date",
+      "artifact": "source",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "case": "date",
+      "artifact": "source",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "case": "date",
+      "artifact": "source",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "case": "date",
+      "artifact": "source",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "case": "date",
+      "artifact": "source",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "case": "date",
+      "artifact": "source",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "case": "opaque-result",
+      "artifact": "source",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "case": "opaque-result",
+      "artifact": "source",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "case": "opaque-result",
+      "artifact": "source",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "case": "opaque-result",
+      "artifact": "source",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "case": "opaque-result",
+      "artifact": "source",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "case": "opaque-result",
+      "artifact": "source",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "case": "opaque-result",
+      "artifact": "source",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "case": "opaque-result",
+      "artifact": "source",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "case": "opaque-result",
+      "artifact": "source",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "case": "opaque-result",
+      "artifact": "source",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "case": "opaque-result",
+      "artifact": "source",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "case": "opaque-result",
+      "artifact": "source",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "case": "opaque-result",
+      "artifact": "source",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "case": "opaque-result",
+      "artifact": "source",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "case": "opaque-result",
+      "artifact": "source",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "case": "opaque-result",
+      "artifact": "source",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "case": "opaque-result",
+      "artifact": "source",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "case": "opaque-result",
+      "artifact": "source",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "case": "time",
+      "artifact": "sealed",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "case": "time",
+      "artifact": "sealed",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "case": "time",
+      "artifact": "sealed",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "case": "time",
+      "artifact": "sealed",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "case": "time",
+      "artifact": "sealed",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "case": "time",
+      "artifact": "sealed",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "case": "time",
+      "artifact": "sealed",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "case": "time",
+      "artifact": "sealed",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "case": "time",
+      "artifact": "sealed",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "case": "time",
+      "artifact": "sealed",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "case": "time",
+      "artifact": "sealed",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "case": "time",
+      "artifact": "sealed",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "case": "time",
+      "artifact": "sealed",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "case": "time",
+      "artifact": "sealed",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "case": "time",
+      "artifact": "sealed",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "case": "time",
+      "artifact": "sealed",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "case": "time",
+      "artifact": "sealed",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "case": "time",
+      "artifact": "sealed",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "case": "date",
+      "artifact": "sealed",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "case": "date",
+      "artifact": "sealed",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "case": "date",
+      "artifact": "sealed",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "case": "date",
+      "artifact": "sealed",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "case": "date",
+      "artifact": "sealed",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "case": "date",
+      "artifact": "sealed",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "case": "date",
+      "artifact": "sealed",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "case": "date",
+      "artifact": "sealed",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "case": "date",
+      "artifact": "sealed",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "case": "date",
+      "artifact": "sealed",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "case": "date",
+      "artifact": "sealed",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "case": "date",
+      "artifact": "sealed",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "case": "date",
+      "artifact": "sealed",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "case": "date",
+      "artifact": "sealed",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "case": "date",
+      "artifact": "sealed",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "case": "date",
+      "artifact": "sealed",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "case": "date",
+      "artifact": "sealed",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "case": "date",
+      "artifact": "sealed",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "case": "opaque-result",
+      "artifact": "sealed",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "case": "opaque-result",
+      "artifact": "sealed",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "case": "opaque-result",
+      "artifact": "sealed",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "case": "opaque-result",
+      "artifact": "sealed",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "case": "opaque-result",
+      "artifact": "sealed",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "case": "opaque-result",
+      "artifact": "sealed",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "case": "opaque-result",
+      "artifact": "sealed",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "case": "opaque-result",
+      "artifact": "sealed",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "case": "opaque-result",
+      "artifact": "sealed",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "case": "opaque-result",
+      "artifact": "sealed",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "case": "opaque-result",
+      "artifact": "sealed",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "case": "opaque-result",
+      "artifact": "sealed",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "case": "opaque-result",
+      "artifact": "sealed",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "case": "opaque-result",
+      "artifact": "sealed",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "case": "opaque-result",
+      "artifact": "sealed",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "case": "opaque-result",
+      "artifact": "sealed",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "case": "opaque-result",
+      "artifact": "sealed",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "case": "opaque-result",
+      "artifact": "sealed",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    }
+  ],
+  "original_sources": {
+    "tests/time/test_time.sn": "1bf85b5bb1ea1c24165397a8fd3f99b453ee53a95cca9ed04765461826a50a94",
+    "tests/time/test_time.expected": "51d71ef285aaf5a6830f63be783eae7136c6332e0110c62feda012c563611a62",
+    "tests/time/test_date.sn": "413835df398076d2c6df6f2ebe2631415ba60c9cb112e08a5f59b2f0bb431289",
+    "tests/time/test_date.expected": "796ff20c468f890ea0dec4ee17f7201975785942c824502337f5e27205f2fe17"
+  },
+  "unchanged_public_modules": 28,
+  "units": 4,
+  "exports": 104,
+  "compiler_sha256": "cddf8972d2d3015fa32c9a4bbe1b43afef5c24ef8eeabd118d9462ef9fc3a097"
+}

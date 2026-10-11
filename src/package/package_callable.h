@@ -15,7 +15,7 @@ bool package_find_callable(Arena *arena, Module *module, const char *file,
 bool package_callable_valid(const PackageCallable *callable, bool sindarin);
 json_object *package_callable_signature(CompilerOptions *options, const PackageCallable *callable,
                                        json_object *plan, json_object *binding, Module *module,
-                                       Module *const *modules, int count);
+                                       Module *const *modules, int count, const char *manifest);
 void package_callable_adapt(CompilerOptions *options, const PackageCallable *callable,
                             const char *alias);
 bool package_binding_is_sindarin(json_object *plan, json_object *binding);

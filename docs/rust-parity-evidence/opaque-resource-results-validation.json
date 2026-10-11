@@ -1,0 +1,38 @@
+{
+  "status": "complete local validation; unpublished pending compiler selector and SDK migration hosted acceptance",
+  "baseline": "e86b2727",
+  "sdk_revision": "31c56d9",
+  "local": {
+    "c_suite": 3242,
+    "rust_suite": 1097,
+    "opaque_and_inherited_method_tests_normal": 6,
+    "opaque_and_inherited_method_tests_sanitized": 6,
+    "sdk_source_sealed_mode_cases": 108,
+    "earlier_imports": 50,
+    "earlier_artifacts": 22,
+    "ci_helpers": 22,
+    "rs_resource_body_diagnostic": true,
+    "final_imports": 50,
+    "final_artifacts": 22,
+    "sdk_sanitizer_mode_cases": 108
+  },
+  "remaining_checks": [],
+  "inventory": {
+    "groups": 26,
+    "gates": 313
+  },
+  "compiler_sha256": "cddf8972d2d3015fa32c9a4bbe1b43afef5c24ef8eeabd118d9462ef9fc3a097",
+  "source_sha256": {
+    "src/package/package_native_types.c": "aeb7e093e782b5a0db95eba4c2ca2825eed8eee9bf63539a8d6866a5e8f099e2",
+    "src/package/package_callable.c": "30c05d263e697dce0d63686e7284d8dd2535d4d66c8caad6eb756543ded2062f",
+    "src/cgen/gen_model_expr.c": "3015acc10275314687443a1d472318582d2f8a68f5e34399691ce4d97b6988d5",
+    "src/target/rust/rust_native_plan.c": "7c18bec5fb6461e9a56e8489648f6223ad35c7ffbf8d9b17eacf763d6538706a",
+    "scripts/native_contract.py": "65e9e567f04d06054088bf9c546b0b8eb3efbd6d5c44a623340a167434318a78",
+    "scripts/native_provider.py": "d65c763413f75db4778f06dd18e8404333c35c24d6bcc0fd0a859387e28311c0",
+    "scripts/sindarin_library.py": "346deb7548f8258bc75f8ca666bf94ec778d19d0f3b00024ad8bf9cef251c97a",
+    "scripts/build_sdk_package.py": "22a1eee5b79e5cb51fdc50c4017874d2cca316567dbf880d4c11155635f8e3e8",
+    "scripts/check_sdk_time_date_artifact.py": "a3ede5a2c93c666272eed10ce2fccd935f3b524907bea9e51eed281cced7d1c8",
+    "tests/package/opaque_results.py": "9e45c84f1f657e89c69bf97bf4ee8294ceb8395a65a51116e6b5be76af150a44"
+  },
+  "scope": "C-backed canonical record owned opaque results; original public pointer APIs and backing C preserved; broader RS/Go record providers and RS resource-body guards, remaining SDK modules and final corpus/platform proof remain required"
+}

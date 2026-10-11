@@ -196,6 +196,25 @@ identifies an instance receiver. The supported policy names are:
 | `borrowed` | Owner retains responsibility; borrower has the declared call lifetime |
 | `owned` | Transfer one owned value/cleanup responsibility across the boundary |
 
+An owned opaque `*void` result requires `result_type` naming a declaration in
+`native.types`, for example `result_type: src/time/time.sn::Time`. The referenced
+native as-ref record supplies canonical layout, identity and create/retain/release/
+refs functions. Provider and consumer signatures keep the public `*void` type;
+the wire value is a typed resource. The caller receives one native owner credit
+and remains responsible for its eventual release, matching the pointer API's
+explicit cleanup contract. Nil stays nil. The compiler resolves and checks the
+actual record declaration and public layout header rather than inferring a type
+from the backing pointer. This contract currently generates C and C-runtime SN
+providers; broader Rust/Go record providers and Rust record body exports remain
+required work. Pointer inputs and non-owned opaque results require further
+contracts and are diagnosed.
+
+Missing/unknown `result_type`, a non-owned policy, and annotations on non-opaque
+result declarations are rejected. A C status backing that stores an allocated
+owned result and then reports failure transfers that cleanup responsibility to
+its provider adapter: the adapter releases the result and leaves the caller's
+wire output unchanged. Failed input validation never calls the backing function.
+
 A borrowed result must name its borrowed owning input in `borrowed_from`. Other
 result policies cannot use that field. More complex retained callbacks, userdata,
 thread-affine cleanup and managed record/array graphs require further contract

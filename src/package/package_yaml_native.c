@@ -113,7 +113,7 @@ static bool validate_native_plan(json_object *plan, const char *path)
     static const char *const build_fields[] = {"name", "language", "sources", "entry", "module",
                                              "include_dirs", "libraries", "provides_sources", NULL};
     static const char *const binding_fields[] = {"declaration", "build", "symbol", "function", "convention",
-                                               "ownership", "failure", "method", NULL};
+                                               "ownership", "failure", "method", "result_type", NULL};
     static const char *const ownership_fields[] = {"parameters", "result", "borrowed_from", NULL};
     if (!native_fields(plan, root_fields, path)) return false;
     const char *abi = native_text(plan, "abi");
@@ -244,6 +244,15 @@ static bool validate_native_plan(json_object *plan, const char *path)
             return yaml_config_error(path, "native binding ownership is required");
         if (!native_fields(ownership, ownership_fields, path)) return false;
         const char *result = native_text(ownership, "result");
+        json_object *resource_value = NULL;
+        if (json_object_object_get_ex(binding, "result_type", &resource_value)) {
+            const char *resource = native_text(binding, "result_type");
+            bool known = false;
+            for (size_t r = 0; resource && r < json_object_array_length(records); r++)
+                if (!strcmp(resource, native_text(json_object_array_get_idx(records, r), "declaration"))) known = true;
+            if (!known || !result || strcmp(result, "owned"))
+                return yaml_config_error(path, "native result_type requires an owned result and a declared native record type");
+        }
         if (!native_ownership_name(result) ||
             !json_object_object_get_ex(ownership, "parameters", &parameters) ||
             !json_object_is_type(parameters, json_type_object))

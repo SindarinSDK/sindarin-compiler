@@ -9,4 +9,6 @@ bool package_native_bind_records(Arena *arena, json_object *plan, const char *ma
 json_object *package_native_model_type(Arena *arena, Type *type, Module *module,
                                        Module *const *modules, int count);
 bool package_native_validate_records(CompilerOptions *options, json_object *plan);
+bool package_native_resolve_resource_result(CompilerOptions *options, json_object *plan,
+    json_object *binding, Type *type, json_object *model, const char *manifest);
 #endif

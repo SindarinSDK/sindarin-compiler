@@ -28,6 +28,9 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
         raise ValueError('Sindarin package bodies select GO; the Sindarin Go backend is not implemented')
     if runtime not in ('C','RS'):
         raise ValueError('Sindarin implementation runtime must resolve to C or RS')
+    if runtime == 'RS' and any(kind(t) == 'record' for s in signatures for t in
+        [s['return_type']] + [p['type'] for p in s['params']]):
+        raise ValueError('RS canonical record/opaque body exports require resource input/result guards')
     if runtime == 'RS' and any(kind(t)=='native_array' for s in signatures for t in
         [s['return_type']]+[p['type'] for p in s['params']]):
         raise ValueError('RS typed array body exports require recursive canonical input/result guards')
@@ -85,6 +88,11 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
         function = select_callable(functions,name,signature['binding'].get('method'))
         if not function or (not function.get('is_method') and (function.get('is_native') or not function.get('has_body'))):
             raise ValueError('Sindarin package export requires a defined implementation function: '+name)
+        if signature['binding'].get('result_type'):
+            value = function['return_type']
+            if value.get('kind') != 'pointer' or value.get('base_type', {}).get('kind') != 'void':
+                raise ValueError('opaque result_type implementation must return *void: '+name)
+            value.update({field: signature['return_type'][field] for field in ('native_record','resource_layout')})
         declared = declarations.get(name,{})
         if declared.get('return_mem_qual','default')!='default' or declared.get('type_param_count',0):
             raise ValueError('Sindarin exported return qualifiers/generic bodies require wider package contracts: '+name)

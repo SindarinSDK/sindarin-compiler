@@ -1323,6 +1323,41 @@ static bool native_prepare_entry(json_object *model)
     return true;
 }
 
+static void native_restore_c_field_aliases(json_object *node, json_object *structures)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array)) {
+        for (size_t i = 0; i < json_object_array_length(node); i++)
+            native_restore_c_field_aliases(json_object_array_get_idx(node, i), structures);
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
+    const char *kind = native_string(node, "kind");
+    if (kind && (!strcmp(kind, "member") || !strcmp(kind, "member_access") || !strcmp(kind, "member_assign"))) {
+        json_object *type = native_record_child(native_record_child(node, "object"), "type");
+        if (native_string(type, "kind") && !strcmp(native_string(type, "kind"), "pointer"))
+            type = native_record_child(type, "base_type");
+        const char *owner = native_string(type, "name");
+        const char *member = native_string(node, !strcmp(kind, "member") ? "member_name" : "field_name");
+        for (size_t s = 0; owner && member && s < json_object_array_length(structures); s++) {
+            json_object *structure = json_object_array_get_idx(structures, s);
+            if (!native_bool(structure, "is_native") || !native_string(structure, "name") ||
+                strcmp(native_string(structure, "name"), owner)) continue;
+            json_object *fields = native_record_child(structure, "fields");
+            for (size_t f = 0; f < json_object_array_length(fields); f++) {
+                json_object *field = json_object_array_get_idx(fields, f);
+                const char *name = native_string(field, "name"), *alias = native_string(field, "c_alias");
+                if (name && alias && !strcmp(name, member))
+                    json_object_object_add(node, "c_field_name", json_object_new_string(alias));
+            }
+        }
+    }
+    json_object_object_foreach(node, key, child) {
+        (void)key;
+        native_restore_c_field_aliases(child, structures);
+    }
+}
+
 bool rust_native_partition_model(json_object *rust_model,
                                  const CompilerOptions *options,
                                  RustNativePlan **out_plan)
@@ -1436,6 +1471,7 @@ bool rust_native_partition_model(json_object *rust_model,
      * pass used by the C target before splitting; nested owning method results
      * otherwise bypass sn_auto cleanup when called through Rust. */
     gen_model_flatten_chains(private_model);
+    native_restore_c_field_aliases(private_model, native_record_child(private_model, "structs"));
     plan->split = gen_model_split(private_model, options->source_file);
     json_object_put(private_model);
     if (!plan->split)

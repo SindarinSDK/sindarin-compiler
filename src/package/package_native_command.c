@@ -76,7 +76,9 @@ static bool native_provider_signatures(CompilerOptions *options, json_object *na
         bool valid = package_find_callable(arena, module, path, separator + 2, method_kind, &callable) &&
                      package_callable_valid(&callable, package_binding_is_sindarin(native, binding));
         if (valid) {
-            json_object_array_add(signatures, package_callable_signature(options, &callable, native, binding, module, NULL, 0));
+            json_object *signature = package_callable_signature(options, &callable, native, binding, module, NULL, 0, options->native_manifest);
+            valid = signature != NULL;
+            if (signature) json_object_array_add(signatures, signature);
         }
         symbol_table_cleanup(&symbols);
         free(identity);
